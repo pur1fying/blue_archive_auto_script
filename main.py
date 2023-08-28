@@ -1,12 +1,12 @@
 import log
-from activity_solver import solver
+from activity_solver import Solver
 
 
-class baas(solver):
+class baas(Solver):
     def __init__(self):
         super().__init__()
         # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
-        self.package_name = 'com.RoamingStar.BlueArchive'
+        self.package_name = 'com.RoamingStar.BlueArchive.bilibili'
         self.exit_loop = False
 
     def start_ba(self):
@@ -20,10 +20,9 @@ class baas(solver):
 
     def loop(self):
         while 1:
-            if not self.exit_loop :
-
+            if not self.exit_loop:
+                pass
 
 
 if __name__ == '__main__':
-    bbaas = baas()
-    bbaas.start_ba()
+    baas().start_ba()

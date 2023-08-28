@@ -1,25 +1,26 @@
 import logging
 import sys
 
-
 logger = logging.getLogger("logger_name")
-formatt = logging.Formatter("%(asctime)20s | %(levelname)10s | %(message)s | ")
-handler1 = logging.StreamHandler(stream=sys.stdout)
+formatter = logging.Formatter("%(asctime)20s | %(levelname)10s | %(message)s | ")
+handler = logging.StreamHandler(stream=sys.stdout)
 # handler2 = logging.FileHandler()
-handler1.setFormatter(formatt)
+handler.setFormatter(formatter)
 logger.setLevel(logging.INFO)
-logger.addHandler(handler1)
+logger.addHandler(handler)
 
 
 def o_p(message, level=4):
+    while len(logging.root.handlers) > 0:
+        logging.root.handlers.pop()
     message = message.upper()
     if level == 1:
         logger.info(message)
-    if level == 2:
+    elif level == 2:
         logger.warning(message)
-    if level == 3:
+    elif level == 3:
         logger.error(message)
-    if level == 4:
+    elif level == 4:
         logger.critical(message)
 
 
