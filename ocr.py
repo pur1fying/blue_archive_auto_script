@@ -8,8 +8,9 @@ class ocr_character(screen_operate):
         ocr = CnOcr()
         out = ocr.ocr(img_fp)
         res = ""
-        print(out)
+       # print(out)
         for i in range(0, len(out)):
-            res = res + out[i]["text"]
+            if out[i]["score"] > 0.5:
+              res = res + out[i]["text"]
         return res
 

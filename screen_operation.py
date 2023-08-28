@@ -19,8 +19,10 @@ class screen_operate(device_connecter, my_time):
         location = (int(upper_left[0] + height / 2), int(upper_left[1] + width / 2))
         return location
 
-    def get_screen_shot_path(self):
+    def get_screen_shot_path(self, sleep_time=2):
+        time.sleep(sleep_time)
         screenshot = self.device.screenshot()
+        time.sleep(sleep_time)
         save_folder = "logs"
         t = self.return_current_time()
         file_name = t + ".png"
@@ -28,12 +30,11 @@ class screen_operate(device_connecter, my_time):
         screenshot.save(save_path)
         return save_path
 
-    def clicker(self, path1, add_x=0, add_y=0, sleep_time=2):
+    def clicker(self, path1, add_x=0, add_y=0):
         shot_path = self.get_screen_shot_path()
         lo = self.get_x_y(shot_path, path1)
         log.o_p("click(" + str(lo[0]) + "," + str(lo[1]) + ")", 1)
         self.device.click(lo[0]+add_x, lo[1]+add_y)
-        time.sleep(sleep_time)
 
     def img_crop(self, path1, start_row, end_row, start_col, end_col):
         img = cv2.imread(path1)

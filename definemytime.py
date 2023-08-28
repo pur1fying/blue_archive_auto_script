@@ -13,3 +13,4 @@ class my_time:
                 return current_date + " " + current_sec
             if current_sec[i] == ':':
                 current_sec = current_sec[0:i] + "." + current_sec[i+1:leng]
+
