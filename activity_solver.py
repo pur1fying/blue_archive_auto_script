@@ -1,8 +1,8 @@
-from get_location import locate
+from get_location import Location
 import log
 
 
-class solver(locate):
+class Solver(Location):
     def __init__(self):
         super().__init__()
         self.main_activity = ["mail", "schedule", "energy_clear", "cafe", "momo_talk", "create",
@@ -14,7 +14,5 @@ class solver(locate):
     def solve(self):
         for i in range(0, len(self.main_activity)):
             if self.main_activity[i][0] == "mail":
+                pass
 
-
-if __name__ == '__main__':
-    solverr = solver()
