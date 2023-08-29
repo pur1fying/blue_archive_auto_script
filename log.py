@@ -1,13 +1,14 @@
 import logging
 import sys
 
+
 logger = logging.getLogger("logger_name")
-formatter = logging.Formatter("%(asctime)20s | %(levelname)10s | %(message)s | ")
-handler = logging.StreamHandler(stream=sys.stdout)
+formatt = logging.Formatter("%(asctime)20s | %(levelname)10s | %(message)s | ")
+handler1 = logging.StreamHandler(stream=sys.stdout)
 # handler2 = logging.FileHandler()
-handler.setFormatter(formatter)
+handler1.setFormatter(formatt)
 logger.setLevel(logging.INFO)
-logger.addHandler(handler)
+logger.addHandler(handler1)
 
 
 def o_p(message, level=4):
@@ -16,11 +17,11 @@ def o_p(message, level=4):
     message = message.upper()
     if level == 1:
         logger.info(message)
-    elif level == 2:
+    if level == 2:
         logger.warning(message)
-    elif level == 3:
+    if level == 3:
         logger.error(message)
-    elif level == 4:
+    if level == 4:
         logger.critical(message)
 
 

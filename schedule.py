@@ -1,8 +1,8 @@
 import log
-from screen_operation import Operation
+from screen_operation import screen_operate
 
 
-class schedule(Operation):
+class schedule(screen_operate):
     def __init__(self):
         super().__init__()
         log.o_p("BEGIN COLLECTING REWARDS ", 1)
