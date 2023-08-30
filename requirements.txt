@@ -2,3 +2,5 @@ cnocr==2.2.3.2
 numpy==1.24.4
 uiautomator2==2.16.23
 opencv-python~=4.8.0.76
+PyQt5~=5.15.9
+PyQt-Fluent-Widgets
