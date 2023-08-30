@@ -1,11 +1,11 @@
 import time
 
-from get_location import locate
+from get_location import Location
 import log
 
 
 global a=[time.time()]
-class to_pgs(locate):
+class to_pgs(Location):
 
     def pd(self,template,t):
         for i in range(0, len(template)):
