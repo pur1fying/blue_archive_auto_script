@@ -9,13 +9,24 @@ import numpy as np
 
 class screen_operate(device_connecter, my_time):
     def get_x_y(self, target_path, template_path):
-        img1 = cv2.imread(template_path)
-        img2 = cv2.imread(target_path)
-
-        height, width, channels = img1.shape
-
-        result = cv2.matchTemplate(img2, img1, cv2.TM_SQDIFF_NORMED)
+        img1 = cv2.imread(target_path)
+        img2 = cv2.imread(template_path)
+        t2 = time.time()
+        width, height, channels = img2.shape
+        print(width, " ", height)
+        result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
+        t3 = time.time()
+        print("MSE TIME :" ,t3-t2)
         upper_left = cv2.minMaxLoc(result)[2]
+        print(result.shape)
+        print(result[upper_left[1],[upper_left[0]]])
+        cv2.rectangle(img1, upper_left, [upper_left[0]+height,upper_left[1]+width], (0, 255, 0), 2)
+        print(result)
+        # 显示结果图像
+        cv2.imshow("Matched Image", img1)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        print(upper_left)
 
         location = (int(upper_left[0] + height / 2), int(upper_left[1] + width / 2))
         return location
@@ -24,7 +35,7 @@ class screen_operate(device_connecter, my_time):
         screenshot = self.device.screenshot()
         save_folder = "logs"
         t = self.return_current_time()
-        file_name = t + ".png"
+        file_name = t + ".jpg"
         save_path = os.path.join(save_folder, file_name)
         screenshot.save(save_path)
         return save_path
@@ -37,7 +48,7 @@ class screen_operate(device_connecter, my_time):
 
     def img_crop(self, path1, start_row, end_row, start_col, end_col):
         img = cv2.imread(path1)
-        path1 = "logs//" + str(time.time()) + ".png"
+        path1 = "logs//" + str(time.time()) + ".jpg"
         img = img[start_col:end_col, start_row:end_row]
         cv2.imwrite(path1, img)
         return path1
@@ -45,4 +56,6 @@ class screen_operate(device_connecter, my_time):
 if __name__ == "__main__":
 
     t = screen_operate()
-    t.get_screen_shot_path()
+    path1 = t.get_screen_shot_path()
+    path2 = "src/collect_all/collect1.png"
+    print(t.get_x_y(path1, path2))
