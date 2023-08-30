@@ -1,20 +1,22 @@
-import log
-from activity_solver import solver
 import threading
 import time
-import os
+
+import log
+from activity_solver import Solver
 
 
-class baas(solver):
+class Baas(Solver):
     def __init__(self):
         super().__init__()
         # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
+        # self.package_name = 'com.RoamingStar.BlueArchive.bilibili'
         self.package_name = 'com.RoamingStar.BlueArchive'
         self.exit_loop = False
         self.pos = []
         self.base_time = 0.0
         self.alas_pause = False
         self.click_time = 0.0
+
     def start_ba(self):
         self.device.app_start(self.package_name)
         t = self.device.window_size()
@@ -23,6 +25,7 @@ class baas(solver):
             log.o_p("Screen Size Fitted", 1)
         else:
             log.o_p("Screen Size unfitted", 3)
+
     def worker(self):
         t2 = time.time()
         path = self.get_screen_shot_path()
@@ -56,7 +59,6 @@ class baas(solver):
             self.click_time = time.time()
 
 
-
 if __name__ == '__main__':
-    b_aas = baas()
+    b_aas = Baas()
     b_aas.Thread_starter()

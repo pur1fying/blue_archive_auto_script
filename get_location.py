@@ -3,21 +3,30 @@ from ocr import ocr_character
 from screen_operation import screen_operate
 
 
-class locate(ocr_character, screen_operate):
+class Location(ocr_character, screen_operate):
     def __init__(self):
         ocr_character.__init__(self)
         screen_operate.__init__(self)
-        self.keyword = ["总力战信息", "排名", "奖励信息", "调整编队", "部队", "选择值日员", "更新", "增益", "袭击", "火车", "确认",
-                        "扫荡完成", "任务信息", "材料", "进入剧情", "剧情信息", "选择剧情", "变更", "全部收纳", "邀请券", "库存",
-                        "预设", "收益", "家具信息", "基本信息", "经验值", "好感等级", "说明", "主要能力值", "游戏", "图像", "音量",
-                        "制造", "种类", "使用", "单价", "成员等级", "成员列表", "筛选", "排序", "道具", "装备", "主线", "支线",
-                        "档案", "普通", "困难", "帮助", "邀请券", "礼物", "特别委托", "据点", "工厂", "广场", "信用", "讲堂",
-                        "高架", "铁路", "预设", "点击继续", "公告", "活动", "通知", "跳过", "预告", "咖啡厅", "日程", "成员",
-                        "工作任务", "编队", "小组", "制造工坊", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉", "帮助", "选项",
-                        "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "未领取", "领取记录",
-                        "每日", "每周"]
+        self.keyword = ["总力战信息", "区域", "排名", "奖励", "奖励信息", "调整编队", "部队", "选择值日员", "更新",
+                        "增益", "袭击", "火车", "确认",
+                        "扫荡完成", "任务信息", "材料", "进入剧情", "剧情信息", "选择剧情", "变更", "全部收纳",
+                        "邀请券", "库存",
+                        "预设", "收益", "家具信息", "基本信息", "经验值", "好感等级", "说明", "主要能力值", "游戏",
+                        "图像", "音量",
+                        "制造", "种类", "使用", "单价", "成员等级", "成员列表", "筛选", "排序", "道具", "装备", "主线",
+                        "支线",
+                        "档案", "普通", "困难", "帮助", "邀请券", "礼物", "特别委托", "据点", "工厂", "广场", "信用",
+                        "讲堂",
+                        "高架", "铁路", "预设", "点击继续", "公告", "活动", "通知", "跳过", "预告", "咖啡厅", "日程",
+                        "成员",
+                        "工作任务", "编队", "小组", "材料列表", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉",
+                        "帮助", "选项",
+                        "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "未领取",
+                        "领取记录",
+                        "每日", "每周", "切换账号", "天", "全部查看", "列表", "启动", "选择日程", "全部日程",
+                        "日程券信息"]
         self.keyword_apper_time_dictionary = {i: 0 for i in self.keyword}
-        
+
     def build_next_array(self, patten):
         next_array = [0]
         prefix_len = 0
@@ -32,7 +41,7 @@ class locate(ocr_character, screen_operate):
                     next_array.append(0)
                     i += 1
                 else:
-                    prefix_len = next_array[prefix_len-1]
+                    prefix_len = next_array[prefix_len - 1]
         return next_array
 
     def pd(self, list1, list2):
@@ -45,10 +54,18 @@ class locate(ocr_character, screen_operate):
 
         if self.pd(["选项", "游戏", "图像", "音量"], [1, 1, 1, 1]):
             return "option"
-        elif self.pd(["活动", "预告"], [1, 2]):
+        elif self.pd(["预告"], [1, 2]):
             return "main_notice"
         elif self.pd(["帮助"], [1]):
             return "help"
+        elif self.pd(["日程券信息"], [1]):
+            return "schedule_ticket_message"
+        elif self.pd(["天"], [6]):
+            return "sign_in"
+        elif self.pd(["全部日程", "奖励"], [1, 1]):
+            return "choose_schedule"
+        elif self.pd(["切换账号"], [1]):
+            return "log_in"
         elif self.pd(["任务信息"], [1]):
             return "task_message"
         elif self.pd(["总力战信息"], [1]):
@@ -84,8 +101,16 @@ class locate(ocr_character, screen_operate):
         elif self.pd(["单价"], [1]):
             return "main_page_power"
 
+        elif self.pd(["奖励"], [3]):
+            return "schedule"
+        elif self.pd(["全部日程"], [1]):
+            return "all_schedule"
+        elif self.pd(["材料列表"], [1]):
+            return "manifacture_store"
         elif self.pd(["工作任务", "每日", "每周"], [1, 1, 1]):
             return "work_task"
+        elif self.pd(["全部查看", "列表", "启动"], [1, 1, 1]):
+            return "create"
         elif self.pd(["邮箱", "未领取", "领取记录"], [1, 1, 1]):
             return "mail"
         elif self.pd(["部队编组"], [1]):
@@ -165,12 +190,12 @@ class locate(ocr_character, screen_operate):
     def get_keyword_appear_time(self, string):
         for i in range(0, len(self.keyword)):
             self.keyword_apper_time_dictionary[self.keyword[i]] = self.kmp(self.keyword[i], string)
-          #  print(self.keyword[i], " ", self.keyword_apper_time_dictionary[self.keyword[i]])
+        #  print(self.keyword[i], " ", self.keyword_apper_time_dictionary[self.keyword[i]])
 
 
 if __name__ == '__main__':
     t1 = time.time()
-    t = locate()
+    t = Location()
     path = t.get_screen_shot_path()
     t.get_keyword_appear_time(t.img_ocr(path))
     print(t.return_location())

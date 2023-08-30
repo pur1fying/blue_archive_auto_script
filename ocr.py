@@ -17,7 +17,7 @@ class ocr_character():
         res = ""
         # print(out)
         for i in range(0, len(out)):
-            if out[i]["score"] > 0.7:
+            if out[i]["score"] > 0.6:
                 res = res + out[i]["text"]
         return res
 
