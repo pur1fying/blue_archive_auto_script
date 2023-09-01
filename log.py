@@ -3,7 +3,7 @@ import sys
 
 
 logger = logging.getLogger("logger_name")
-formatt = logging.Formatter("%(asctime)20s | %(levelname)10s | %(message)s | ")
+formatt = logging.Formatter("%(asctime)20s | %(levelname)8s | %(message)s | ")
 handler1 = logging.StreamHandler(stream=sys.stdout)
 # handler2 = logging.FileHandler()
 handler1.setFormatter(formatt)
