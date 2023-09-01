@@ -13,23 +13,16 @@ class screen_operate(device_connecter, my_time):
         img2 = cv2.imread(template_path)
         t2 = time.time()
         width, height, channels = img2.shape
-        print(width, " ", height)
         result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
         t3 = time.time()
-        print("MSE TIME :" ,t3-t2)
         upper_left = cv2.minMaxLoc(result)[2]
-        print(result.shape)
-        print(result[upper_left[1],[upper_left[0]]])
         cv2.rectangle(img1, upper_left, [upper_left[0]+height,upper_left[1]+width], (0, 255, 0), 2)
-        print(result)
-        # 显示结果图像
         cv2.imshow("Matched Image", img1)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        print(upper_left)
 
         location = (int(upper_left[0] + height / 2), int(upper_left[1] + width / 2))
-        return location
+        return location, result[upper_left[1], [upper_left[0]]]
 
     def get_screen_shot_path(self):
         screenshot = self.device.screenshot()
@@ -57,5 +50,8 @@ if __name__ == "__main__":
 
     t = screen_operate()
     path1 = t.get_screen_shot_path()
-    path2 = "src/collect_all/collect1.png"
-    print(t.get_x_y(path1, path2))
+    path2 = "src/mail/collect_all_bright.png"
+    path3 = "src/mail/collect_all_grey.png"
+    return_data1 = t.get_x_y(path1, path2)
+    return_data2 = t.get_x_y(path1, path3)
+    print(return_data1[1][0], return_data2[1][0])

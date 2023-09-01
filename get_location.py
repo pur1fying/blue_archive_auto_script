@@ -3,22 +3,24 @@ from ocr import ocr_character
 from screen_operation import screen_operate
 
 
-class Location(ocr_character, screen_operate):
+class locate(ocr_character, screen_operate):
     def __init__(self):
         ocr_character.__init__(self)
         screen_operate.__init__(self)
         self.keyword = ["总力战信息", "区域", "排名", "奖励", "奖励信息", "调整编队", "部队", "选择值日员", "更新",
-                        "增益", "袭击", "火车", "确认",
+                        "增益", "袭击", "火车", "确认", "聊天", "组员列表", "点击继续", "访问", "自动加入",
                         "扫荡完成", "任务信息", "材料", "进入剧情", "剧情信息", "选择剧情", "变更", "全部收纳",
-                        "邀请券", "库存",
-                        "预设", "收益", "家具信息", "基本信息", "经验值", "好感等级", "说明", "主要能力值", "游戏",
-                        "图像", "音量",
+                        "邀请券", "库存", "第1任务", "第2任务", "第3任务", "第4任务", "第5任务", "第6任务", "第7任务",
+                        "第8任务", "第9任务", "第10任务", "第11任务", "第12任务", "第13任务", "第14任务", "第15任务",
+                        "第16任务", "第17任务", "第18任务", "第19任务", "第20任务", "第21任务", "第22任务", "第23任务", "第24任务",
+                        "第二任务", "预设", "收益", "家具信息", "基本信息", "经验值", "好感等级", "说明", "主要能力值", "游戏",
+                        "图像", "音量", "成就",
                         "制造", "种类", "使用", "单价", "成员等级", "成员列表", "筛选", "排序", "道具", "装备", "主线",
                         "支线",
                         "档案", "普通", "困难", "帮助", "邀请券", "礼物", "特别委托", "据点", "工厂", "广场", "信用",
                         "讲堂",
                         "高架", "铁路", "预设", "点击继续", "公告", "活动", "通知", "跳过", "预告", "咖啡厅", "日程",
-                        "成员",
+                        "成员", "日程信息",
                         "工作任务", "编队", "小组", "材料列表", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉",
                         "帮助", "选项",
                         "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "未领取",
@@ -56,6 +58,14 @@ class Location(ocr_character, screen_operate):
             return "option"
         elif self.pd(["预告"], [1, 2]):
             return "main_notice"
+        elif self.pd(["日程信息"], [1]):
+            return "schedule_message"
+        elif self.pd(["点击继续"], [1]):
+            return "click_forward"
+        elif self.pd(["聊天", "组员列表"], [1, 1]):
+            return "group"
+        elif self.pd(["访问", "自动加入"], [1, 1]):
+            return "-group"
         elif self.pd(["帮助"], [1]):
             return "help"
         elif self.pd(["日程券信息"], [1]):
@@ -99,19 +109,19 @@ class Location(ocr_character, screen_operate):
         elif self.pd(["青辉石"], [2]) or self.pd(["礼包"], [2]):
             return "recharge"
         elif self.pd(["单价"], [1]):
-            return "main_page_power"
+            return "charge_power"
 
         elif self.pd(["奖励"], [3]):
             return "schedule"
         elif self.pd(["全部日程"], [1]):
             return "all_schedule"
         elif self.pd(["材料列表"], [1]):
-            return "manifacture_store"
-        elif self.pd(["工作任务", "每日", "每周"], [1, 1, 1]):
+            return "manufacture_store"
+        elif self.pd(["工作任务", "每日", "每周"], [1, 1, 1]) or self.pd(["成就", "每日", "每周"], [1, 1, 1]):
             return "work_task"
         elif self.pd(["全部查看", "列表", "启动"], [1, 1, 1]):
             return "create"
-        elif self.pd(["邮箱", "未领取", "领取记录"], [1, 1, 1]):
+        elif self.pd(["未领取", "领取记录"], [1, 1]):
             return "mail"
         elif self.pd(["部队编组"], [1]):
             return "formation"
@@ -149,14 +159,62 @@ class Location(ocr_character, screen_operate):
                 return "item_filter"
             else:
                 return "item"
+        elif self.pd(["悬赏通缉", "任务"], [1, 1, 1]):
+            return "business_area"
+        elif self.pd(["第24任务"], [1]):
+            return "task_24"
+        elif self.pd(["第23任务"], [1]):
+            return "task_23"
+        elif self.pd(["第22任务"], [1]):
+            return "task_22"
+        elif self.pd(["第21任务"], [1]):
+            return "task_21"
+        elif self.pd(["第20任务"], [1]):
+            return "task_20"
+        elif self.pd(["第19任务"], [1]):
+            return "task_19"
+        elif self.pd(["第18任务"], [1]):
+            return "task_18"
+        elif self.pd(["第17任务"], [1]):
+            return "task_17"
+        elif self.pd(["第16任务"], [1]):
+            return "task_16"
+        elif self.pd(["第15任务"], [1]):
+            return "task_15"
+        elif self.pd(["第14任务"], [1]):
+            return "task_14"
+        elif self.pd(["第13任务"], [1]):
+            return "task_13"
+        elif self.pd(["第12任务"], [1]):
+            return "task_12"
+        elif self.pd(["第11任务"], [1]):
+            return "task_11"
+        elif self.pd(["第10任务"], [1]):
+            return "task_10"
+        elif self.pd(["第9任务"], [1]):
+            return "task_9"
+        elif self.pd(["第8任务"], [1]):
+            return "task_8"
+        elif self.pd(["第7任务"], [1]):
+            return "task_7"
+        elif self.pd(["第6任务"], [1]):
+            return "task_6"
+        elif self.pd(["第5任务"], [1]):
+            return "task_5"
+        elif self.pd(["第4任务"], [1]):
+            return "task_4"
+        elif self.pd(["第3任务"], [1]):
+            return "task_3"
+        elif self.pd(["第2任务"], [1]):
+            return "task_2"
+        elif self.pd(["第1任务"], [1]):
+            return "task_1"
         elif self.pd(["讲堂", "铁路", "材料"], [1, 1, 1]):
             return "rewarded_task"
         elif self.pd(["公告", "活动", "预告"], [1, 1, 1]):
             return "story_choose"
         elif self.pd(["主线", "支线", "档案", "故事"], [1, 1, 1, 3]):
             return "choose_event"
-        elif self.pd(["业务区", "悬赏通缉", "任务"], [1, 1, 1]):
-            return "business_area"
         elif self.pd(["制造", "成员", "商店", "小组"], [1, 1, 1, 1]):
             if self.pd(["学院"], [1]) or self.pd(["好感等级"], [1]):
                 return "momo_talk"
@@ -195,7 +253,7 @@ class Location(ocr_character, screen_operate):
 
 if __name__ == '__main__':
     t1 = time.time()
-    t = Location()
+    t = locate()
     path = t.get_screen_shot_path()
     t.get_keyword_appear_time(t.img_ocr(path))
     print(t.return_location())
