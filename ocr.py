@@ -33,3 +33,4 @@ if __name__ == "__main__":
     print(ocr.img_ocr(path))
     log.o_p("main function functioning time: " + str(time.time() - t1) + " s", 1)
 
+# 193 479 205 498
