@@ -14,17 +14,17 @@ class locate(ocr_character, screen_operate):
                         "第8任务", "第9任务", "第10任务", "第11任务", "第12任务", "第13任务", "第14任务", "第15任务",
                         "第16任务", "第17任务", "第18任务", "第19任务", "第20任务", "第21任务", "第22任务", "第23任务", "第24任务",
                         "第二任务", "预设", "收益", "家具信息", "基本信息", "经验值", "好感等级", "说明", "主要能力值", "游戏",
-                        "图像", "音量", "成就",
+                        "图像", "音量", "成就", "沙勒业务区", "沙勒生活区", "歌赫娜中央区", "阿拜多斯高等学院", "千禧年学习区",
                         "制造", "种类", "使用", "单价", "成员等级", "成员列表", "筛选", "排序", "道具", "装备", "主线",
-                        "支线",
+                        "支线", "日程报告", "对战纪录", "防御编队", "选择购买", "挑战次数不足", "入场券不足",
                         "档案", "普通", "困难", "帮助", "邀请券", "礼物", "特别委托", "据点", "工厂", "广场", "信用",
-                        "讲堂",
+                        "讲堂", "详细信息", "】开启", "已更新",
                         "高架", "铁路", "预设", "点击继续", "公告", "活动", "通知", "跳过", "预告", "咖啡厅", "日程",
                         "成员", "日程信息",
                         "工作任务", "编队", "小组", "材料列表", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉",
-                        "帮助", "选项",
+                        "帮助", "选项", "队长", "支援",
                         "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "未领取",
-                        "领取记录",
+                        "领取记录", "对手信息",
                         "每日", "每周", "切换账号", "天", "全部查看", "列表", "启动", "选择日程", "全部日程",
                         "日程券信息"]
         self.keyword_apper_time_dictionary = {i: 0 for i in self.keyword}
@@ -56,8 +56,17 @@ class locate(ocr_character, screen_operate):
 
         if self.pd(["选项", "游戏", "图像", "音量"], [1, 1, 1, 1]):
             return "option"
-        elif self.pd(["预告"], [1, 2]):
+        elif self.pd(["预告"], [1]) or self.pd(["】开启"], [1]) or self.pd(["已更新"], [1]):
             return "main_notice"
+        elif self.pd(["对手信息"], [1]):
+            return "component_message"
+        elif self.pd(["详细信息"], [1]):
+            return "detailed_message"
+        elif self.pd(["通知"], [1]):
+            if self.pd(["挑战次数不足"], [1]) or self.pd(["入场券不足"], [1]):
+                return "charge_notice"
+            else:
+                return "notice"
         elif self.pd(["日程信息"], [1]):
             return "schedule_message"
         elif self.pd(["点击继续"], [1]):
@@ -70,10 +79,23 @@ class locate(ocr_character, screen_operate):
             return "help"
         elif self.pd(["日程券信息"], [1]):
             return "schedule_ticket_message"
+        elif self.pd(["日程报告"], [1]):
+            return "schedule_report"
         elif self.pd(["天"], [6]):
             return "sign_in"
         elif self.pd(["全部日程", "奖励"], [1, 1]):
-            return "choose_schedule"
+            if self.pd(["沙勒业务区"], [1]):
+                return "schedule1"
+            elif self.pd(["沙勒生活区"], [1]):
+                return "schedule2"
+            elif self.pd(["歌赫娜中央区"], [1]):
+                return "schedule3"
+            elif self.pd(["阿拜多斯高等学院"], [1]):
+                return "schedule4"
+            elif self.pd(["千禧年学习区"], [1]):
+                return "schedule5"
+            else:
+                return "UNKNOWN UI PAGE"
         elif self.pd(["切换账号"], [1]):
             return "log_in"
         elif self.pd(["任务信息"], [1]):
@@ -92,8 +114,6 @@ class locate(ocr_character, screen_operate):
             return "preset"
         elif self.pd(["库存"], [1]):
             return "furniture"
-        elif self.pd(["通知"], [1]):
-            return "notice"
         elif self.pd(["账号设置"], [1]):
             return "set_account_message"
         elif self.pd(["说明"], [1]):
@@ -104,6 +124,8 @@ class locate(ocr_character, screen_operate):
             return "member_arrangement"
         elif self.pd(["账号信息", "变更"], [1, 1]):
             return "account_message"
+        elif self.pd(["对战纪录", "防御编队"], [1, 1]):
+            return "arena"
         elif self.pd(["菜单"], [1]):
             return "menu"
         elif self.pd(["青辉石"], [2]) or self.pd(["礼包"], [2]):
@@ -121,6 +143,8 @@ class locate(ocr_character, screen_operate):
             return "work_task"
         elif self.pd(["全部查看", "列表", "启动"], [1, 1, 1]):
             return "create"
+        elif self.pd(["编队", "队长", "支援"], [1, 1, 1]):
+            return "attack_formation"
         elif self.pd(["未领取", "领取记录"], [1, 1]):
             return "mail"
         elif self.pd(["部队编组"], [1]):
@@ -134,7 +158,7 @@ class locate(ocr_character, screen_operate):
         elif self.pd(["广场"], [3]):
             return "special_task_credit"
         elif self.pd(["工厂"], [3]):
-            return "special_task_experience"
+            return "special_task_guard"
         elif self.pd(["高架"], [3]):
             return "rewarded_task_road"
         elif self.pd(["火车"], [3]):
@@ -220,7 +244,7 @@ class locate(ocr_character, screen_operate):
                 return "momo_talk"
             else:
                 return "main_page"
-        elif self.pd(["购买", "更新"], [3, 1]):
+        elif self.pd(["购买", "更新"], [3, 1]) or self.pd(["购买", "选择购买"], [3, 1]):
             return "shop"
         else:
             return "UNKNOWN UI PAGE"
