@@ -1,14 +1,17 @@
+import cv2
+import shutil
 import log
 from get_location import locate
 import threading
 import time
+import sys
 import os
-
 
 class baas(locate):
 
     def __init__(self):
         super().__init__()
+        self.flag_run = True
         self.schedule_pri = [5, 4, 3, 2, 1]
         self.main_activity = ["cafe_reward", "group", "mail", "collect_daily_power", "shop", "collect_shop_power", "rewarded_task",
                               "schedule", "total_force_fight", "arena", "clear_event_power", "clear_special_task_power",
@@ -17,14 +20,14 @@ class baas(locate):
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
 
-        for i in range(0, 5):
+        for i in range(0, 12):
            self.main_activity[i][1] = 1
         # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
         self.package_name = 'com.RoamingStar.BlueArchive'
         self.exit_loop = False
         self.unknown_ui_page_count = 0
         self.pos = []
-        self.base_time = 0.0
+        self.base_time = time.time()
         self.alas_pause = False
         self.click_time = 0.0
 
@@ -32,6 +35,68 @@ class baas(locate):
         self.set_click_time()
         log.o_p("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), 1)
         self.device.click(x, y)
+
+    def change_acc_auto(self):
+        path1 = self.get_screen_shot_path()
+        img1 = cv2.imread(path1)
+        acc_r_ave = img1[625][1196][0] // 3 + img1[625][1215][0] // 3 + img1[625][1230][0] // 3
+        print(acc_r_ave)
+        if 250 <= acc_r_ave <= 260:
+            log.o_p("change acceleration phase from 2 to 3", 1)
+            self.click_x_y(1215, 625)
+        elif 0 <= acc_r_ave <= 60:
+            log.o_p("acceleration phase 3", 1)
+        elif 140 <= acc_r_ave <= 180:
+            log.o_p("change acceleration phase from 1 to 3", 1)
+            self.click_x_y(1215, 625)
+            self.click_x_y(1215, 625)
+        else:
+            log.o_p("can't identify acceleration button", 2)
+
+        auto_r_ave = img1[677][1171][0] // 2 + img1[677][1246][0] // 2
+        if 190 <= auto_r_ave <= 230:
+            log.o_p("change manual to auto", 1)
+            self.click_x_y(1216, 678)
+        elif 0 <= auto_r_ave <= 60:
+            log.o_p("auto", 1)
+        else:
+            log.o_p("can't identify auto button", 2)
+        print(auto_r_ave)
+
+    def common_fight_practice(self):
+        self.change_acc_auto()
+
+        while 1:
+            path1 = self.get_screen_shot_path()
+            path2 = "src/common_button/check_blue.png"
+            path3 = "src/common_button/damage_rank.png"
+            path4 = "src/common_button/check_yellow.png"
+            return_data1 = self.get_x_y(path1, path2)
+            return_data2 = self.get_x_y(path1, path3)
+            if return_data1[1][0] < 0.01 or return_data2[1][0] < 0.001:
+                log.o_p("fight ended", 1)
+                self.click_x_y(1171, 665)
+
+                break
+            else:
+                self.click_x_y(184, 100)
+                log.o_p("fighting", 1)
+            time.sleep(2)
+
+        while 1:
+            path1 = self.get_screen_shot_path()
+            path2 = "src/common_button/check_yellow.png"
+            path3 = "src/common_button/back_to_main_page.png"
+            return_data1 = self.get_x_y(path1, path2)
+            return_data2 = self.get_x_y(path1, path3)
+            if return_data1[1][0] < 0.01:
+                log.o_p("reward collected", 1)
+                self.click_x_y(return_data1[0][0], return_data1[0][1])
+                break
+            elif return_data2[1][0] < 0.01:
+                log.o_p("back to main page", 1)
+                self.click_x_y(return_data2[0][0], return_data2[0][1])
+            time.sleep(2)
 
     def special_task_common_operation(self, a, b, f=True):
         special_task_lox = 1120
@@ -86,16 +151,24 @@ class baas(locate):
         if step:
             log.o_p("begin main to page " + str(procedure[2][step - 1]), 1)
         i = 0
+        times = 0
         while i != step:
             x = procedure[0][i]
             y = procedure[1][i]
             page = procedure[2][i]
             self.click_x_y(x, y)
+
             if self.pd_pos() != page:
-                log.o_p("not in page " + str(page) + " , return to main page", 2)
-                self.to_main_page()
-                i = 0
+                if times == 0:
+                    times += 1
+                    log.o_p("not in page " + str(page) + " , count = " + str(times), 2)
+                elif times == 1:
+                    log.o_p("not in page " + str(page) + " , return to main page", 2)
+                    self.to_main_page()
+                    times = 0
+                    i = 0
             else:
+                times = 0
                 i += 1
 
     def set_click_time(self):
@@ -125,11 +198,11 @@ class baas(locate):
 
     def run(self):
         self.base_time = time.time()
-        while 1:
+        while self.flag_run:
             if self.exit_loop:
                 break
             threading.Thread(target=self.worker).start()
-            time.sleep(0.7)
+            time.sleep(1)
 
     def thread_starter(self):
         thread_run = threading.Thread(target=self.run)
@@ -144,6 +217,7 @@ class baas(locate):
                 self.solve(self.main_activity[i][0])
         for i in range(0, len(self.main_activity)):
             print(self.main_activity[i][0], self.main_activity[i][1])
+        self.flag_run = False
 
     def pd_pos(self):
         while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
@@ -156,7 +230,8 @@ class baas(locate):
                     self.unknown_ui_page_count += 1
                     log.o_p("UNKNOWN UI PAGE COUNT:" + str(self.unknown_ui_page_count), 2)
                 elif lo == "UNKNOWN UI PAGE" and self.unknown_ui_page_count == 5:
-                    log.o_p("current_location :" + str(lo), 3)
+                    log.o_p("Unknown ui page", 3)
+                    self.flag_run = False
                 else:
                     self.unknown_ui_page_count = 0
                     log.o_p("current_location : " + lo, 1)
@@ -531,6 +606,52 @@ class baas(locate):
 
         elif activity == "total_force_fight":
             self.click_x_y(767, 500)
+            time.sleep(4)
+            self.click_x_y(764, 504)
+            if self.pd_pos() == "notice":
+                self.click_x_y(764, 504)
+                time.sleep(4)
+
+            self.common_fight_practice()
+
+        elif activity == "create":
+#            0.01 0.01 0.01 0.002 0.01
+            path1 = self.get_screen_shot_path()
+            path5 = "src/create/start_button_bright.png"
+            path6 = "src/create/start_button_grey.png"
+            self.common_create_collect_operation()
+            log.o_p("all creature collected", 1)
+
+            lox = 967
+            loy = [273, 411, 548]
+            collect = False
+            for i in range(0, 3):
+                self.click_x_y(lox, loy[i])
+                if self.pd_pos() == "create":
+                    self.click_x_y(907, 206)
+                    time.sleep(0.1)
+                    path1 = self.get_screen_shot_path()
+                    return_data1 = self.get_x_y(path1, path5)
+                    return_data2 = self.get_x_y(path1, path6)
+                    if return_data2[1][0] < 0.002:
+                        log.o_p("material inadequate", 2)
+                        break
+                    elif return_data1[1][0] < 0.01:
+                        log.o_p("create start", 2)
+                        collect = True
+                        self.click_x_y(return_data1[0][0], return_data1[0][1])
+                        time.sleep(3)
+                        node_x = [572, 508, 416, 302, 174]
+                        node_y = [278, 388, 471, 529, 555]
+                        choice = self.common_create_judge()
+                        if choice != None:
+                            self.click_x_y(node_x[choice], node_y[choice])
+                            time.sleep(0.1)
+                            self.click_x_y(1123, 650)
+            if collect:
+                self.common_create_collect_operation()
+                log.o_p("all creature collected", 1)
+            log.o_p("Create task finished", 1)
 
         elif activity == "arena":
             while 1:
@@ -585,6 +706,51 @@ class baas(locate):
 
                 time.sleep(45)
 
+    def common_create_judge(self):
+        pri = ["花", "色彩", "灿烂", "光芒", "白银", "金属", "隐然"]
+        node_x = [839, 508, 416, 302, 174]
+        node_y = [277, 388, 471, 529, 555]
+        # 572 278
+        node = []
+        for i in range(0, 5):
+            self.click_x_y(node_x[i], node_y[i])
+            time.sleep(0.1)
+            node_info = self.img_ocr(self.get_screen_shot_path())
+            for j in range(0, len(node_info)):
+                if node_info[j] == "看":
+                    if node_info[j + 1:j + len(pri[0]) + 1] == pri[0]:
+                        log.o_p("choose node :" + pri[0], 1)
+                        self.click_x_y(1121, 653)
+                        break
+                    else:
+                        node.append(node_info[j + 1:j + 3])
+
+        for i in range(1, len(pri)):
+            for j in range(0, len(node)):
+                if node[j][0:len(pri[i])] == pri[i]:
+                    return j
+    def common_create_collect_operation(self):
+        path1 = self.get_screen_shot_path()
+        path3 = "src/create/collect.png"
+        path4 = "src/create/finish_instantly.png"
+        return_data1 = self.get_x_y(path1, path3)
+        return_data2 = self.get_x_y(path1, path4)
+        while return_data1[1][0] < 0.01 or return_data2[1][0] < 0.01:
+            if return_data1[1][0] < 0.01:
+                log.o_p("collect finished creature", 1)
+                self.click_x_y(return_data1[0][0], return_data1[0][1])
+                time.sleep(2)
+                self.click_x_y(628, 665)
+            if return_data2[1][0] < 0.01:
+                log.o_p("accelerate unfinished creature", 1)
+                self.click_x_y(return_data2[0][0], return_data2[0][1])
+                time.sleep(0.5)
+                self.click_x_y(775, 477)
+                time.sleep(0.2)
+            path1 = self.get_screen_shot_path()
+            return_data1 = self.get_x_y(path1, path3)
+            return_data2 = self.get_x_y(path1, path4)
+
     def to_main_page(self):
         while 1:
             if not self.pd_pos() == "main_page":
@@ -594,5 +760,21 @@ class baas(locate):
 
 
 if __name__ == '__main__':
+    def delete_all_files_in_directory(directory_path):
+        try:
+            # 使用 shutil.rmtree 递归删除目录及其内容
+            shutil.rmtree(directory_path)
+            print(f"已删除目录及其所有文件: {directory_path}")
+        except Exception as e:
+            print(f"发生错误: {e}")
+    # 指定要删除文件的目录路径
+    directory_to_delete = "logs"
+    if os.path.exists("logs"):
+        delete_all_files_in_directory(directory_to_delete)
+
+    os.mkdir('logs')
+    # os.makedirs("logs", exist_ok=True)
     b_aas = baas()
+#    print(b_aas.common_create_judge())
+#    b_aas.common_fight_practice()
     b_aas.thread_starter()

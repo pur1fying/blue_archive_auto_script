@@ -24,7 +24,7 @@ class locate(ocr_character, screen_operate):
                         "工作任务", "编队", "小组", "材料列表", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉",
                         "帮助", "选项", "队长", "支援",
                         "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "未领取",
-                        "领取记录", "对手信息",
+                        "领取记录", "对手信息", "等级提升", "节点信息",
                         "每日", "每周", "切换账号", "天", "全部查看", "列表", "启动", "选择日程", "全部日程",
                         "日程券信息"]
         self.keyword_apper_time_dictionary = {i: 0 for i in self.keyword}
@@ -60,6 +60,8 @@ class locate(ocr_character, screen_operate):
             return "main_notice"
         elif self.pd(["对手信息"], [1]):
             return "component_message"
+        elif self.pd(["节点信息"], [1]):
+            return "node_information"
         elif self.pd(["详细信息"], [1]):
             return "detailed_message"
         elif self.pd(["通知"], [1]):
@@ -81,6 +83,8 @@ class locate(ocr_character, screen_operate):
             return "schedule_ticket_message"
         elif self.pd(["日程报告"], [1]):
             return "schedule_report"
+        elif self.pd(["等级提升"], [1]):
+            return "positive_impression_up"
         elif self.pd(["天"], [6]):
             return "sign_in"
         elif self.pd(["全部日程", "奖励"], [1, 1]):

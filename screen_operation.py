@@ -47,11 +47,17 @@ class screen_operate(device_connecter, my_time):
         return path1
 
 if __name__ == "__main__":
-
+    # 1215 625
     t = screen_operate()
+
+#    img1 = cv2.imread(path1)
+#    print(img1.shape)
+#    print(img1[625][1196], img1[625][1215], img1[625][1230])
+#    for i in range(0, 3):
+#       print((img1[625][1196][i]//3+img1[625][1215][i]//3+img1[625][1230][i]//3))
     path1 = t.get_screen_shot_path()
-    path2 = "src/shop/update.png"
-    path3 = "src/arena/collect_reward.png"
+    path2 = "src/create/finish_instantly.png"
+    path3 = "src/create/start_button_grey.png"
     return_data1 = t.get_x_y(path1, path2)
     return_data2 = t.get_x_y(path1, path3)
     print(return_data1[1][0], return_data2[1][0])

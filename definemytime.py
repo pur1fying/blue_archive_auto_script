@@ -9,7 +9,7 @@ class my_time:
         leng = len(current_sec)
         for i in range(0, leng):
             if current_sec[i] == '.':
-                current_sec = current_sec[0:i]
+                current_sec = current_sec[0:i+2]
                 return current_date + " " + current_sec
             if current_sec[i] == ':':
                 current_sec = current_sec[0:i] + "." + current_sec[i+1:leng]
