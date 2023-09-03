@@ -16,10 +16,10 @@ class screen_operate(device_connecter, my_time):
         result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
         t3 = time.time()
         upper_left = cv2.minMaxLoc(result)[2]
-        cv2.rectangle(img1, upper_left, [upper_left[0]+height,upper_left[1]+width], (0, 255, 0), 2)
-        cv2.imshow("Matched Image", img1)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+#        cv2.rectangle(img1, upper_left, [upper_left[0]+height,upper_left[1]+width], (0, 255, 0), 2)
+#        cv2.imshow("Matched Image", img1)
+#        cv2.waitKey(0)
+#        cv2.destroyAllWindows()
 
         location = (int(upper_left[0] + height / 2), int(upper_left[1] + width / 2))
         return location, result[upper_left[1], [upper_left[0]]]
@@ -50,8 +50,8 @@ if __name__ == "__main__":
 
     t = screen_operate()
     path1 = t.get_screen_shot_path()
-    path2 = "src/mail/collect_all_bright.png"
-    path3 = "src/mail/collect_all_grey.png"
+    path2 = "src/shop/update.png"
+    path3 = "src/arena/collect_reward.png"
     return_data1 = t.get_x_y(path1, path2)
     return_data2 = t.get_x_y(path1, path3)
     print(return_data1[1][0], return_data2[1][0])
