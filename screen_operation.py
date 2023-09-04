@@ -57,7 +57,7 @@ if __name__ == "__main__":
 #       print((img1[625][1196][i]//3+img1[625][1215][i]//3+img1[625][1230][i]//3))
     path1 = t.get_screen_shot_path()
     path2 = "src/create/finish_instantly.png"
-    path3 = "src/create/start_button_grey.png"
+    path3 = "src/create/collect.png"
     return_data1 = t.get_x_y(path1, path2)
     return_data2 = t.get_x_y(path1, path3)
     print(return_data1[1][0], return_data2[1][0])

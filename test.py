@@ -1,1 +1,2 @@
-print(1+ 2 +3)
+import uiautomator2 as u2
+u2.connect().screenshot()

@@ -194,7 +194,7 @@ class baas(locate):
             self.pos.insert(0, [locate_res, ct - self.base_time, path[5:]])
         if len(self.pos) > 2:
             self.pos.pop()
-        print(self.pos)
+#       print(self.pos)
 
     def run(self):
         self.base_time = time.time()
@@ -202,7 +202,7 @@ class baas(locate):
             if self.exit_loop:
                 break
             threading.Thread(target=self.worker).start()
-            time.sleep(1)
+            time.sleep(0.5)
 
     def thread_starter(self):
         thread_run = threading.Thread(target=self.run)
@@ -615,6 +615,7 @@ class baas(locate):
             self.common_fight_practice()
 
         elif activity == "create":
+            collect = False
 #            0.01 0.01 0.01 0.002 0.01
             path1 = self.get_screen_shot_path()
             path5 = "src/create/start_button_bright.png"
@@ -629,7 +630,7 @@ class baas(locate):
                 self.click_x_y(lox, loy[i])
                 if self.pd_pos() == "create":
                     self.click_x_y(907, 206)
-                    time.sleep(0.1)
+                    time.sleep(0.2)
                     path1 = self.get_screen_shot_path()
                     return_data1 = self.get_x_y(path1, path5)
                     return_data2 = self.get_x_y(path1, path6)
@@ -640,17 +641,21 @@ class baas(locate):
                         log.o_p("create start", 2)
                         collect = True
                         self.click_x_y(return_data1[0][0], return_data1[0][1])
-                        time.sleep(3)
+                        time.sleep(3.5)
                         node_x = [572, 508, 416, 302, 174]
                         node_y = [278, 388, 471, 529, 555]
                         choice = self.common_create_judge()
-                        if choice != None:
+                        if choice is not None:
                             self.click_x_y(node_x[choice], node_y[choice])
-                            time.sleep(0.1)
+                            time.sleep(0.5)
                             self.click_x_y(1123, 650)
-            if collect:
-                self.common_create_collect_operation()
-                log.o_p("all creature collected", 1)
+                            time.sleep(3)
+                            self.click_x_y(1123, 650)
+                            time.sleep(4)
+        if collect:
+            self.common_create_collect_operation()
+            log.o_p("all creature collected", 1)
+            self.main_activity[12][1] = 1
             log.o_p("Create task finished", 1)
 
         elif activity == "arena":
@@ -682,6 +687,8 @@ class baas(locate):
                 time.sleep(1)
                 self.device.click(638, 569)
                 lo = self.pd_pos()
+                while lo != "notice" and lo != "attack_formation":
+                    lo = self.pd_pos()
                 if lo == "notice":
                     self.main_activity[9][1] = 1
                     log.o_p("task arena finished", 1)
@@ -700,31 +707,32 @@ class baas(locate):
                             time.sleep(0.1)
                         f_skip = True
                 self.device.click(1169, 670)
-
+                if self.pd_pos() == "notice":
+                    time.sleep(2)
+                    self.device.click(1169, 670)
                 while self.pd_pos() != "arena":
-                    self.device.click(666, 575)
+                    self.device.click(666, 555)
 
                 time.sleep(45)
 
     def common_create_judge(self):
-        pri = ["花", "色彩", "灿烂", "光芒", "白银", "金属", "隐然"]
+        pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属", "隐然"]
         node_x = [839, 508, 416, 302, 174]
         node_y = [277, 388, 471, 529, 555]
         # 572 278
         node = []
         for i in range(0, 5):
             self.click_x_y(node_x[i], node_y[i])
-            time.sleep(0.1)
+            time.sleep(0.2 if i == 0 else 0.1)
             node_info = self.img_ocr(self.get_screen_shot_path())
-            for j in range(0, len(node_info)):
-                if node_info[j] == "看":
-                    if node_info[j + 1:j + len(pri[0]) + 1] == pri[0]:
+            for k in range(0, len(pri)):
+                if self.kmp(pri[k], node_info) > 0:
+                    if k == 0:
                         log.o_p("choose node :" + pri[0], 1)
-                        self.click_x_y(1121, 653)
-                        break
+                        return i
                     else:
-                        node.append(node_info[j + 1:j + 3])
-
+                        node.append(pri[k])
+        print(node)
         for i in range(1, len(pri)):
             for j in range(0, len(node)):
                 if node[j][0:len(pri[i])] == pri[i]:
@@ -741,13 +749,15 @@ class baas(locate):
                 self.click_x_y(return_data1[0][0], return_data1[0][1])
                 time.sleep(2)
                 self.click_x_y(628, 665)
+                time.sleep(1)
             if return_data2[1][0] < 0.01:
                 log.o_p("accelerate unfinished creature", 1)
                 self.click_x_y(return_data2[0][0], return_data2[0][1])
                 time.sleep(0.5)
                 self.click_x_y(775, 477)
-                time.sleep(0.2)
+                time.sleep(2)
             path1 = self.get_screen_shot_path()
+            time.sleep(0.2)
             return_data1 = self.get_x_y(path1, path3)
             return_data2 = self.get_x_y(path1, path4)
 
