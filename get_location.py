@@ -20,7 +20,7 @@ class locate(ocr_character, screen_operate):
                         "档案", "普通", "困难", "帮助", "邀请券", "礼物", "特别委托", "据点", "工厂", "广场", "信用",
                         "讲堂", "详细信息", "】开启", "已更新",
                         "高架", "铁路", "预设", "点击继续", "公告", "活动", "通知", "跳过", "预告", "咖啡厅", "日程",
-                        "成员", "日程信息",
+                        "成员", "日程信息","对战结果",
                         "工作任务", "编队", "小组", "材料列表", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉",
                         "帮助", "选项", "队长", "支援",
                         "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "未领取",
@@ -60,6 +60,8 @@ class locate(ocr_character, screen_operate):
             return "main_notice"
         elif self.pd(["对手信息"], [1]):
             return "component_message"
+        elif self.pd(["对战结果"], [1]):
+            return "combat_result"
         elif self.pd(["节点信息"], [1]):
             return "node_information"
         elif self.pd(["详细信息"], [1]):
