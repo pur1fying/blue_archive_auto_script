@@ -1,15 +1,15 @@
 import os
 import time
-import log
-from device_connect import device_connecter
 from definemytime import my_time
 import cv2
+import uiautomator2 as u2
+import io
 import numpy as np
+from PIL import Image
 
-
-class screen_operate(device_connecter, my_time):
-    def get_x_y(self, target_path, template_path):
-        img1 = cv2.imread(target_path)
+class screen_operate( my_time):
+    def get_x_y(self, target_array, template_path):
+        img1 = target_array
         img2 = cv2.imread(template_path)
         t2 = time.time()
         width, height, channels = img2.shape
@@ -24,27 +24,19 @@ class screen_operate(device_connecter, my_time):
         location = (int(upper_left[0] + height / 2), int(upper_left[1] + width / 2))
         return location, result[upper_left[1], [upper_left[0]]]
 
-    def get_screen_shot_path(self):
-        screenshot = self.device.screenshot()
-        save_folder = "logs"
-        t = self.return_current_time()
-        file_name = t + ".jpg"
-        save_path = os.path.join(save_folder, file_name)
-        screenshot.save(save_path)
-        return save_path
+    def get_screen_shot_array(self):
+        screenshot = u2.connect().screenshot()
+        #screenshot.save('./logs/1.png')
+        # image = Image.open(io.BytesIO(screenshot))
+        numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
+        # print(numpy_array.shape)
+        # cv2.imshow('Image', numpy_array)
+        # screenshot.show()
+        return numpy_array
 
-    def clicker(self, path1, add_x=0, add_y=0):
-        shot_path = self.get_screen_shot_path()
-        lo = self.get_x_y(shot_path, path1)
-        log.o_p("click(" + str(lo[0]) + "," + str(lo[1]) + ")", 1)
-        self.device.click(lo[0]+add_x, lo[1]+add_y)
-
-    def img_crop(self, path1, start_row, end_row, start_col, end_col):
-        img = cv2.imread(path1)
-        path1 = "logs//" + str(time.time()) + ".jpg"
+    def img_crop(self, img, start_row, end_row, start_col, end_col):
         img = img[start_col:end_col, start_row:end_row]
-        cv2.imwrite(path1, img)
-        return path1
+        return img
 
 if __name__ == "__main__":
     # 1215 625
@@ -55,9 +47,11 @@ if __name__ == "__main__":
 #    print(img1[625][1196], img1[625][1215], img1[625][1230])
 #    for i in range(0, 3):
 #       print((img1[625][1196][i]//3+img1[625][1215][i]//3+img1[625][1230][i]//3))
-    path1 = t.get_screen_shot_path()
-    path2 = "src/create/finish_instantly.png"
-    path3 = "src/create/start_button_grey.png"
-    return_data1 = t.get_x_y(path1, path2)
-    return_data2 = t.get_x_y(path1, path3)
-    print(return_data1[1][0], return_data2[1][0])
+    img_shot = t.get_screen_shot_array()
+    path1 = "src/common_button/check_blue.png"
+    path2 = "src/common_button/back_to_main_page.png"
+    path3 = "src/common_button/check_yellow.png"
+    return_data1 = t.get_x_y(img_shot, path1)
+    return_data2 = t.get_x_y(img_shot, path2)
+    return_data3 = t.get_x_y(img_shot, path3)
+    print(return_data1[1][0], return_data2[1][0],return_data3[1][0])

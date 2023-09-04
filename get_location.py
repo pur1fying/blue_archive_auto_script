@@ -23,7 +23,7 @@ class locate(ocr_character, screen_operate):
                         "成员", "日程信息","对战结果",
                         "工作任务", "编队", "小组", "材料列表", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉",
                         "帮助", "选项", "队长", "支援",
-                        "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "未领取",
+                        "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "过期邮件",
                         "领取记录", "对手信息", "等级提升", "节点信息",
                         "每日", "每周", "切换账号", "天", "全部查看", "列表", "启动", "选择日程", "全部日程",
                         "日程券信息"]
@@ -151,7 +151,7 @@ class locate(ocr_character, screen_operate):
             return "create"
         elif self.pd(["编队", "队长", "支援"], [1, 1, 1]):
             return "attack_formation"
-        elif self.pd(["未领取", "领取记录"], [1, 1]):
+        elif self.pd(["过期邮件", "领取记录"], [1, 1]):
             return "mail"
         elif self.pd(["部队编组"], [1]):
             return "formation"
@@ -284,7 +284,7 @@ class locate(ocr_character, screen_operate):
 if __name__ == '__main__':
     t1 = time.time()
     t = locate()
-    path = t.get_screen_shot_path()
+    path = t.get_screen_shot_array()
     t.get_keyword_appear_time(t.img_ocr(path))
     print(t.return_location())
     t4 = time.time()
