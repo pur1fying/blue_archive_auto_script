@@ -12,7 +12,7 @@ class baas(locate):
     def __init__(self):
         super().__init__()
         self.flag_run = True
-        self.schedule_pri = [5, 4, 3, 2, 1]
+        self.schedule_pri = [5, 4, 3, 2, 1]#可设置参数，日程区域优先级
         self.main_activity = ["cafe_reward", "group", "mail", "collect_daily_power", "shop", "collect_shop_power", "rewarded_task",
                               "schedule", "total_force_fight", "arena", "clear_event_power", "clear_special_task_power",
                               "create", "collect_reward"]
@@ -20,7 +20,7 @@ class baas(locate):
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
 
-        for i in range(0, 12):
+        for i in range(0, 12):               #可设置参数 range(0,i) 中 i 表示前 i 项任务不做
            self.main_activity[i][1] = 1
         # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
         self.package_name = 'com.RoamingStar.BlueArchive'
@@ -31,12 +31,12 @@ class baas(locate):
         self.alas_pause = False
         self.click_time = 0.0
 
-    def click_x_y(self, x, y):
+    def click_x_y(self, x, y):#点击屏幕（x，y）处
         self.set_click_time()
         log.o_p("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), 1)
         self.device.click(x, y)
 
-    def change_acc_auto(self):
+    def change_acc_auto(self):#战斗时自动开启3倍速和auto
         path1 = self.get_screen_shot_path()
         img1 = cv2.imread(path1)
         acc_r_ave = img1[625][1196][0] // 3 + img1[625][1215][0] // 3 + img1[625][1230][0] // 3
@@ -202,7 +202,7 @@ class baas(locate):
             if self.exit_loop:
                 break
             threading.Thread(target=self.worker).start()
-            time.sleep(0.5)
+            time.sleep(1)     #可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
 
     def thread_starter(self):
         thread_run = threading.Thread(target=self.run)
@@ -345,8 +345,8 @@ class baas(locate):
 
         elif activity == "clear_event_power":
 
-            common_task_count = [(7, 1, 6)]
-            hard_task_count = [(4, 3, 1)]
+            common_task_count = [(7, 1, 6)] #可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+            hard_task_count = [(4, 3, 1)]   #可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
 
             if len(common_task_count) != 0 or len(hard_task_count) != 0:
                 all_task_x_coordinate = 1118
@@ -490,8 +490,8 @@ class baas(locate):
             log.o_p("clear event power task finished", 1)
 
         elif activity == "clear_special_task_power":
-            special_task_guard_count = [6, 1]
-            special_task_credit_count = [3, 1]
+            special_task_guard_count = [6, 1]   #可设置参数 [i,j]表示据点防御第i关打j次 , 请确保关卡已开启扫荡
+            special_task_credit_count = [3, 1]  #可设置参数 [i,j]表示信用回收第i关打j次 , 请确保关卡已开启扫荡
 
             if len(special_task_guard_count) != 0:
                 print("----------------------------------------------------------------------------------------------")
@@ -716,7 +716,7 @@ class baas(locate):
                 time.sleep(45)
 
     def common_create_judge(self):
-        pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属", "隐然"]
+        pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属", "隐然"]#可设置参数，越靠前的节点在制造时越优先选择
         node_x = [839, 508, 416, 302, 174]
         node_y = [277, 388, 471, 529, 555]
         # 572 278
