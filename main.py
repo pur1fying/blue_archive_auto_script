@@ -6,7 +6,6 @@ import time
 import os
 import subprocess
 
-
 class baas(locate):
 
     def __init__(self):
@@ -14,7 +13,7 @@ class baas(locate):
         #        subprocess.Popen(exe_path)
         #        time.sleep(30)
         simulator_port = 7555
-        adb_command = f"adb connect 127.0.0.1:{simulator_port}" # 可设置 模拟器 端口
+        adb_command = f"adb connect 127.0.0.1:{simulator_port}"  # 可设置 模拟器 端口
         #        for i in range(0, 6):
         #           try:
         #                subprocess.run(adb_command, shell=True, check=True)
@@ -27,14 +26,15 @@ class baas(locate):
         super().__init__()
         self.flag_run = True
         self.schedule_pri = [5, 4, 3, 2, 1]  # 可设置参数，日程区域优先级
-        self.main_activity = ["cafe_reward", "group", "mail", "collect_daily_power", "shop", "collect_shop_power", "rewarded_task",
+        self.main_activity = ["cafe_reward", "group", "mail", "collect_daily_power", "shop", "collect_shop_power",
+                              "rewarded_task",
                               "schedule", "total_force_fight", "arena", "clear_event_power", "clear_special_task_power",
                               "create", "collect_reward"]
 
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
 
-        for i in range(0, 7):               # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
+        for i in range(0, 12):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
             self.main_activity[i][1] = 1
         url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
         self.total_force_fight_y = [225, 351, 487, 588]
@@ -111,16 +111,19 @@ class baas(locate):
                     log.o_p("reward collected success back", 1)
                     self.click_x_y(return_data1[0][0], return_data1[0][1])
                     break
+                time.sleep(2)
         else:
             while 1:
                 img_shot = self.get_screen_shot_array()
-                path2 = "src/common_button/fail_check_yellow.png"
+                path2 = "src/common_button/fail_check.png"
                 return_data1 = self.get_x_y(img_shot, path2)
+                print(return_data1[1][0] )
                 if return_data1[1][0] < 1e-03:
                     log.o_p("fail back", 1)
                     self.click_x_y(return_data1[0][0], return_data1[0][1])
                     break
-            time.sleep(2)
+                time.sleep(2)
+        time.sleep(4)
         return success
 
     def special_task_common_operation(self, a, b, f=True):
@@ -162,14 +165,18 @@ class baas(locate):
                    [[824], [648], ["shop"]],
                    [[1200, 731], [570, 474], ["business_area", "rewarded_task"]],
                    [],
-                   [[1200, 916, 1162, 1009, 1160], [570, 535, 225, 521, 650], ["business_area", "total_force_fight", "detailed_message", "attack_formation", "notice"]],
+                   [[1200, 916, 1162, 1009, 1160], [570, 535, 225, 521, 650],
+                    ["business_area", "total_force_fight", "detailed_message", "attack_formation", "notice"]],
                    [[1193, 1092], [576, 525], ["business_area", "arena"]],
                    [[1159], [568], ["business_area"]],
                    [[1159, 727], [568, 576], ["business_area", "choose_special_task"]],
                    [[703], [649], ["manufacture_store"]],
-                   [[64], [233], ["work_task"]]]
-        to_page[7] = [[217, 940], [659, schedule_lo_y[self.schedule_pri[0] - 1]], ["schedule", "schedule" + str(self.schedule_pri[0])]]
-        to_page[8][2][3] = self.total_force_fight_y[self.pri_total_force_fight]
+                   [[64], [233], ["work_task"]],
+                   [[1200, 916, 1162, 1009], [570, 535, 225, 521],["business_area", "total_force_fight", "detailed_message", "attack_formation"]]]
+
+        to_page[7] = [[217, 940], [659, schedule_lo_y[self.schedule_pri[0] - 1]],
+                      ["schedule", "schedule" + str(self.schedule_pri[0])]]
+        to_page[8][1][2] = self.total_force_fight_y[self.pri_total_force_fight]
         procedure = to_page[index]
         step = 0
         if len(procedure) != 0:
@@ -204,7 +211,7 @@ class baas(locate):
         u2.connect().app_start(self.package_name)
         t = u2.connect().window_size()
         log.o_p("Screen Size  " + str(t), 1)
-        if t[0] == 1280 and t[1] == 720:
+        if (t[0] == 1280 and t[1] == 720) or (t[1] == 1280 and t[0] == 720):
             log.o_p("Screen Size Fitted", 1)
         else:
             log.o_p("Screen Size unfitted", 4)
@@ -222,6 +229,7 @@ class baas(locate):
             self.pos.insert(0, [locate_res, ct - self.base_time])
         if len(self.pos) > 2:
             self.pos.pop()
+
     #       print(self.pos)
 
     def run(self):
@@ -230,14 +238,14 @@ class baas(locate):
             if self.exit_loop:
                 break
             threading.Thread(target=self.worker).start()
-            time.sleep(2)     #可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
+            time.sleep(2)  # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
 
     def thread_starter(self):
         thread_run = threading.Thread(target=self.run)
         thread_run.start()
         lo = self.pd_pos(True)
         while lo != "main_page" and lo != "notice" and lo != "main_notice":
-            self.click_x_y(1, 1)
+            self.click_x_y(1236, 39)
             lo = self.pd_pos(True)
         if lo == "main_notice":
             self.click_x_y(1138, 101)
@@ -246,17 +254,21 @@ class baas(locate):
         print("----------------------------------------------------------------------------------------------")
         print("----------------------------------------------------------------------------------------------")
         log.o_p("start activities", 1)
+        while self.flag_run:
+            for i in range(0, len(self.main_activity)):
+                print(self.main_activity[i][0], self.main_activity[i][1])
+                if self.main_activity[i][1] == 0:
+                    print("----------------------------------------------------------------------------------------------")
+                    log.o_p("begin " + self.main_activity[i][0] + " task", 1)
+                    self.to_main_page()
+                    self.main_to_page(i)
+                    self.solve(self.main_activity[i][0])
+        count = 0
         for i in range(0, len(self.main_activity)):
-            print(self.main_activity[i][0], self.main_activity[i][1])
-            if self.main_activity[i][1] == 0:
-                print("----------------------------------------------------------------------------------------------")
-                log.o_p("begin " + self.main_activity[i][0] + " task", 1)
-                self.to_main_page()
-                self.main_to_page(i)
-                self.solve(self.main_activity[i][0])
-        for i in range(0, len(self.main_activity)):
-            print(self.main_activity[i][0], self.main_activity[i][1])
-        self.flag_run = False
+            if self.main_activity[i][1] == 1:
+                count += 1
+        if count == 13:
+            self.flag_run = False
 
     def pd_pos(self, anywhere=False):
         while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
@@ -348,7 +360,7 @@ class baas(locate):
                 for i in range(0, len(buy_list_for_power_items)):
                     u2.connect().click(buy_list_for_power_items[i][0], buy_list_for_power_items[i][1])
                 self.set_click_time()
-            else :
+            else:
                 log.o_p("swipe", 1)
                 u2.connect().swipe(932, 600, 932, 260, 0.1)
                 buy_list_for_common_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
@@ -387,8 +399,8 @@ class baas(locate):
 
         elif activity == "clear_event_power":
 
-            common_task_count = [(7, 1, 6)] #可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-            hard_task_count = [(4, 3, 1)]   #可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+            common_task_count = [(7, 1, 6)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+            hard_task_count = [(4, 3, 1)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
 
             if len(common_task_count) != 0 or len(hard_task_count) != 0:
                 all_task_x_coordinate = 1118
@@ -400,7 +412,8 @@ class baas(locate):
                 change_page_y = 360
                 time.sleep(2)
                 if len(common_task_count) != 0:
-                    print("----------------------------------------------------------------------------------------------")
+                    print(
+                        "----------------------------------------------------------------------------------------------")
                     log.o_p("common task begin", 1)
                     log.o_p("change to common level", 1)
                     self.click_x_y(800, 150)
@@ -460,7 +473,8 @@ class baas(locate):
                     log.o_p("common task finished", 1)
 
                 if len(hard_task_count) != 0:
-                    print("----------------------------------------------------------------------------------------------")
+                    print(
+                        "----------------------------------------------------------------------------------------------")
                     log.o_p("hard task begin", 1)
 
                     log.o_p("change to hard level", 1)
@@ -532,8 +546,8 @@ class baas(locate):
             log.o_p("clear event power task finished", 1)
 
         elif activity == "clear_special_task_power":
-            special_task_guard_count = [6, 1]   #可设置参数 [i,j]表示据点防御第i关打j次 , 请确保关卡已开启扫荡
-            special_task_credit_count = [3, 1]  #可设置参数 [i,j]表示信用回收第i关打j次 , 请确保关卡已开启扫荡
+            special_task_guard_count = [6, 1]  # 可设置参数 [i,j]表示据点防御第i关打j次 , 请确保关卡已开启扫荡
+            special_task_credit_count = [3, 1]  # 可设置参数 [i,j]表示信用回收第i关打j次 , 请确保关卡已开启扫荡
 
             if len(special_task_guard_count) != 0:
                 print("----------------------------------------------------------------------------------------------")
@@ -648,20 +662,60 @@ class baas(locate):
 
         elif activity == "total_force_fight":
             self.click_x_y(767, 500)
-            time.sleep(6)
-            self.click_x_y(764, 504)
-            if self.pd_pos() == "notice":
+            while self.pd_pos(1) != "notice":
                 self.click_x_y(764, 504)
                 time.sleep(4)
-            fail_count = 0
-            if self.common_fight_practice() == 'success':
+            self.click_x_y(764, 504)
+            time.sleep(1)
+            res = self.common_fight_practice()
+
+            if res == False:
+                log.o_p("total force fight failed", 1)
+                fail_count = 0
+                fail_x = 68
+                fail_count_y = [271, 353, 438]
+                while fail_count <= 3:
+                    fail_count = 1
+                    self.to_main_page()
+                    self.main_to_page(14)
+                    log.o_p("continue with formation: " + str(fail_count + 1), 1)
+                    self.click_x_y(fail_x, fail_count_y[fail_count] - 1)
+                    time.sleep(2)
+                    self.click_x_y(1155, 658)
+                    time.sleep(6)
+                    self.click_x_y(764, 504)
+                    if self.pd_pos() == "notice":
+                        self.click_x_y(764, 504)
+                        time.sleep(4)
+                    res = self.common_fight_practice()
+                    if not res:
+                        fail_count += 1
+                    else:
+                        break
+                log.o_p("total force fight difficulty " + str(self.pri_total_force_fight + 1) + "failed", 3)
+                self.pri_total_force_fight -= 1
+                time.sleep(4)
+                self.click_x_y(1162, 225)
+                log.o_p("give up", 3)
+                time.sleep(0.5)
+                self.click_x_y(821, 532)
+                return
+
+            if res == True:
+                log.o_p("total force fight succeeded", 1)
                 self.click_x_y(1156, self.total_force_fight_y[self.pri_total_force_fight])
                 time.sleep(0.2)
                 for i in range(0, 5):
                     self.click_x_y(1070, 297)
-#                self.click_x_y()
+                while self.pd_pos() != "total_force_fight":
+                    self.click_x_y(300, 50)
+                self.click_x_y(1180, 655)
+                time.sleep(0.5)
+                self.click_x_y(923, 177)
+                self.click_x_y(240, 303)
+                time.sleep(0.2)
+                self.click_x_y(1051, 577)
                 self.main_activity[8][1] = 1
-
                 return
 
 
@@ -704,28 +758,43 @@ class baas(locate):
                             self.click_x_y(1123, 650)
                             time.sleep(4)
             if collect:
+                self.to_main_page()
+                self.main_to_page(12)
                 self.common_create_collect_operation()
                 log.o_p("all creature collected", 1)
                 self.main_activity[12][1] = 1
                 log.o_p("Create task finished", 1)
 
         elif activity == "arena":
-            while 1:
-                img_shot = self.get_screen_shot_array()
-                path2 = "src/arena/collect_reward.png"
-                return_data1 = self.get_x_y(img_shot, path2)
-                print(return_data1)
-                if return_data1[1][0] <= 1e-03:
-                    log.o_p("collect reward", 1)
-                    self.click_x_y(return_data1[0][0], return_data1[0][1])
-                    log.o_p("Click :(" + str(return_data1[0][0]) + " " + str(return_data1[0][1]) + ")" + " click_time = " + str(self.click_time), 1)
-                    time.sleep(2)
-                    self.click_x_y(666, 672)
-                    time.sleep(0.5)
-                else:
-                    log.o_p("reward collected", 1)
-                    break
+            img_shot = self.get_screen_shot_array()
+            path2 = "src/arena/collect_reward.png"
+            return_data1 = self.get_x_y(img_shot, path2)
+            print(return_data1)
+            if return_data1[1][0] <= 1e-03:
+                log.o_p("collect reward", 1)
+                self.click_x_y(return_data1[0][0], return_data1[0][1])
+                log.o_p("Click :(" + str(return_data1[0][0]) + " " + str(
+                    return_data1[0][1]) + ")" + " click_time = " + str(self.click_time), 1)
+                time.sleep(2)
+                self.click_x_y(666, 672)
+                time.sleep(0.5)
+            else:
+                log.o_p("reward collected", 1)
 
+            img_shot = self.get_screen_shot_array()
+            path2 = "src/arena/collect_reward1.png"
+            return_data1 = self.get_x_y(img_shot, path2)
+            print(return_data1)
+            if return_data1[1][0] <= 1e-03:
+                log.o_p("collect reward", 1)
+                self.click_x_y(return_data1[0][0], return_data1[0][1])
+                log.o_p("Click :(" + str(return_data1[0][0]) + " " + str(
+                    return_data1[0][1]) + ")" + " click_time = " + str(self.click_time), 1)
+                time.sleep(2)
+                self.click_x_y(666, 672)
+                time.sleep(0.5)
+            else:
+                log.o_p("reward collected", 1)
             choice = 1
             x = 844
             y = [261, 414, 581]
@@ -766,7 +835,8 @@ class baas(locate):
                 time.sleep(45)
 
     def common_create_judge(self):
-        pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属", "隐然"]#可设置参数，越靠前的节点在制造时越优先选择
+        pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属",
+               "隐然"]  # 可设置参数，越靠前的节点在制造时越优先选择
         node_x = [839, 508, 416, 302, 174]
         node_y = [277, 388, 471, 529, 555]
         # 572 278
@@ -787,6 +857,7 @@ class baas(locate):
             for j in range(0, len(node)):
                 if node[j][0:len(pri[i])] == pri[i]:
                     return j
+
     def common_create_collect_operation(self):
         img_shot = self.get_screen_shot_array()
         path2 = "src/create/collect.png"
@@ -820,6 +891,9 @@ class baas(locate):
 
 if __name__ == '__main__':
     b_aas = baas()
+#    thread_run = threading.Thread(target=b_aas.run)
+#    thread_run.start()
+#    b_aas.main_to_page(14)
 #    print(b_aas.common_create_judge())
-    print(b_aas.common_fight_practice())
-#    b_aas.start_ba()
+#    print(b_aas.common_fight_practice())
+    b_aas.start_ba()

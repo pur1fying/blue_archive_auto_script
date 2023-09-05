@@ -48,9 +48,9 @@ if __name__ == "__main__":
 #    for i in range(0, 3):
 #       print((img1[625][1196][i]//3+img1[625][1215][i]//3+img1[625][1230][i]//3))
     img_shot = t.get_screen_shot_array()
-    path1 = "src/common_button/check_blue.png"
+    path1 = "src/common_button/fail_check.png"
     path2 = "src/common_button/back_to_main_page.png"
-    path3 = "src/common_button/check_yellow.png"
+    path3 = "src/arena/collect_reward1.png"
     return_data1 = t.get_x_y(img_shot, path1)
     return_data2 = t.get_x_y(img_shot, path2)
     return_data3 = t.get_x_y(img_shot, path3)
