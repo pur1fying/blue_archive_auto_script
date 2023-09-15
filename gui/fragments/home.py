@@ -50,7 +50,7 @@ class HomeFragment(QFrame):
         self.expandLayout.addWidget(self.label)
         self.expandLayout.addWidget(self.startupCard)
         self.logger = LoggerBox(self.expandLayout, self)
-        self._main_thread = Main(loggerBox=self.logger)
+        self._main_thread = Main(logger_box=self.logger)
         self.startupCard.clicked.connect(self.__init_starter)
 
     def __init_starter(self):
