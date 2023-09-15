@@ -1,0 +1,159 @@
+{
+    "conditions": [
+        {
+            "check": ["选项", "游戏", "图像", "音量"],
+            "values": [1, 1, 1, 1],
+            "result": "option"
+        },
+        {
+            "check": ["预告"],
+            "values": [1],
+            "result": "main_notice"
+        },
+        {
+            "check": ["】开启"],
+            "values": [1],
+            "result": "main_notice"
+        },
+        {
+            "check": ["已更新"],
+            "values": [1],
+            "result": "main_notice"
+        },
+        {
+            "check": ["对手信息"],
+            "values": [1],
+            "result": "component_message"
+        },
+        {
+            "check": ["对战结果"],
+            "values": [1],
+            "result": "combat_result"
+        },
+        {
+            "check": ["失败", "确认"],
+            "values": [1, 1],
+            "result": "combat_result"
+        },
+        {
+            "check": ["节点信息"],
+            "values": [1],
+            "result": "node_information"
+        },
+        {
+            "check": ["详细信息"],
+            "values": [1],
+            "result": "detailed_message"
+        },
+        {
+            "check": ["通知"],
+            "values": [1],
+            "result": "notice"
+        },
+        {
+            "check": ["挑战次数不足"],
+            "values": [1],
+            "result": "charge_notice"
+        },
+        {
+            "check": ["入场券不足"],
+            "values": [1],
+            "result": "charge_notice"
+        },
+        {
+            "check": ["日程信息"],
+            "values": [1],
+            "result": "schedule_message"
+        },
+        {
+            "check": ["点击继续"],
+            "values": [1],
+            "result": "click_forward"
+        },
+        {
+            "check": ["聊天", "组员列表"],
+            "values": [1, 1],
+            "result": "group"
+        },
+        {
+            "check": ["访问", "自动加入"],
+            "values": [1, 1],
+            "result": "-group"
+        },
+        {
+            "check": ["帮助"],
+            "values": [1],
+            "result": "help"
+        },
+        {
+            "check": ["日程券信息"],
+            "values": [1],
+            "result": "schedule_ticket_message"
+        },
+        {
+            "check": ["日程报告"],
+            "values": [1],
+            "result": "schedule_report"
+        },
+        {
+            "check": ["等级提升"],
+            "values": [1],
+            "result": "positive_impression_up"
+        },
+        {
+            "check": ["天"],
+            "values": [6],
+            "result": "sign_in"
+        },
+        {
+            "check": ["全部日程", "奖励"],
+            "values": [1, 1],
+            "result": "UNKNOWN UI PAGE"
+        },
+        {
+            "check": ["沙勒业务区"],
+            "values": [1],
+            "result": "schedule1"
+        },
+        {
+            "check": ["沙勒生活区"],
+            "values": [1],
+            "result": "schedule2"
+        },
+        {
+            "check": ["歌赫娜中央区"],
+            "values": [1],
+            "result": "schedule3"
+        },
+        {
+            "check": ["阿拜多斯高等学院"],
+            "values": [1],
+            "result": "schedule4"
+        },
+        {
+            "check": ["千禧年学习区"],
+            "values": [1],
+            "result": "schedule5"
+        },
+        {
+            "check": ["切换账号"],
+            "values": [1],
+            "result": "log_in"
+        },
+        {
+            "check": ["任务信息"],
+            "values": [1],
+            "result": "task_message"
+        },
+        {
+            "check": ["总力战信息"],
+            "values": [1],
+            "result": "total_force_message"
+        },
+        {
+            "check": ["选择值日员"],
+            "values": [1],
+            "result":"select_duty_officer"
+        }
+    ]
+}

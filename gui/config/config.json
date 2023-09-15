@@ -1,0 +1,44 @@
+{
+    "Daily": {
+        "Atelier": true,
+        "Cafe": true,
+        "Collect": true,
+        "Consume": false,
+        "Email": true,
+        "mainStop": "7-5",
+        "ShopList": [
+            1,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            0
+        ],
+        "Team": true
+    },
+    "Combat": {
+        "Collaborate": true,
+        "HardMode": false
+    },
+    "Emulator": {
+        "Path": "D:/Anaconda/_conda.exe"
+    },
+    "Settings": {
+        "port": "7555",
+        "server": "B服"
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ff0078d4",
+        "ThemeMode": "Auto"
+    }
+}
