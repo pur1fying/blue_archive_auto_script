@@ -13,7 +13,7 @@ from gui.fragments.process import ProcessFragment
 from gui.fragments.scheduler import SchedulerFragment
 from gui.fragments.settings import SettingsFragment
 
-ICON_DIR = '../assets/logo.png'
+ICON_DIR = 'gui/assets/logo.png'
 
 
 class Widget(QFrame):
@@ -35,7 +35,6 @@ class Window(FluentWindow):
     def __init__(self):
         super().__init__()
         self.initWindow()
-
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
         self.show()
@@ -71,10 +70,12 @@ class Window(FluentWindow):
 
 
 if __name__ == '__main__':
+    # pa=Main()
+    # pa._init_emulator()
+    # pa.solve("arena")
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-
     # setTheme(Theme.DARK)
 
     app = QApplication(sys.argv)

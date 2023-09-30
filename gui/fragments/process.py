@@ -1,3 +1,4 @@
+import os
 import time
 
 from PyQt5.QtCore import Qt, QStandardPaths
@@ -41,7 +42,7 @@ class ProcessFragment(ScrollArea):
     def refresh_status(self):
         while True:
             with lock:
-                with open('../config/running.json', 'r') as f:
+                with open('./gui/config/running.json', 'r') as f:
                     json = eval(f.read())
                     if json['running'] is not None:
                         self.on_status.setText(json['running']['name'])

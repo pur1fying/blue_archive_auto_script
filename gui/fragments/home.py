@@ -1,4 +1,5 @@
 import datetime
+import sys
 import threading
 import time
 
@@ -13,7 +14,7 @@ from qfluentwidgets import FluentIcon as FIF
 from gui.components.logger_box import LoggerBox
 from main import Main
 
-MAIN_BANNER = '../assets/banner_home_bg.png'
+MAIN_BANNER = 'gui/assets/banner_home_bg.png'
 
 
 class HomeFragment(QFrame):
@@ -23,7 +24,6 @@ class HomeFragment(QFrame):
         self.vBoxLayout = QVBoxLayout(self)
 
         title = '蔚蓝档案自动脚本'
-        self.started = False
         self.once = True
         self.label = SubtitleLabel(title, self)
         setFont(self.label, 24)
@@ -57,10 +57,11 @@ class HomeFragment(QFrame):
         threading.Thread(target=self.__worker).start()
 
     def __worker(self):
-        if self.started:
+        if self._main_thread.flag_run:
+            self._main_thread.flag_run = False
+            self.startupCard.button.setText("启动")
             self._main_thread.send('stop')
-            self.started = False
-            self.startupCard.setText('启动')
-            self.startupCard.setSubText('档案，启动')
-            self.startupCard.setIcon(FIF.CARE_RIGHT_SOLID)
-            self.logger.d('已停止')
+        else:
+            self._main_thread.flag_run = True
+            self.startupCard.button.setText("停止")
+            self._main_thread.send('start')

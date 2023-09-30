@@ -1,7 +1,7 @@
 import time
 from cnocr import CnOcr
 
-from core.utils import kmp
+from core.utils import kmp, get_screen_shot_array
 
 
 class Setup:
@@ -12,6 +12,9 @@ class Setup:
 
         self.schedule_pri = [4, 3, 2, 1, 5]  # 可设置参数，日程区域优先级
         self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
+
+        self.pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属",
+                    "隐然"]
 
         self.main_activity = ["cafe_reward", "group", "mail", "collect_daily_power", "shop", "collect_shop_power",
                               "rewarded_task",
@@ -48,6 +51,26 @@ class Setup:
                         "领取记录", "对手信息", "等级提升", "节点信息",
                         "每日", "每周", "切换账号", "天", "全部查看", "列表", "启动", "选择日程", "全部日程",
                         "日程券信息"]
+
+        self.schedule_lo_y = [183, 297, 401, 508, 612]
+        self.to_page = [[[93, 1114], [654, 649], ["cafe", "cafe_reward"]],
+                        [[580], [650], ["group"]],
+                        [[1140], [42], ["mail"]],
+                        [[64], [233], ["work_task"]],
+                        [[824], [648], ["shop"]],
+                        [[824], [648], ["shop"]],
+                        [[1200, 731], [570, 474], ["business_area", "rewarded_task"]],
+                        [],
+                        [[1200, 916, 1162, 1009, 1160], [570, 535, 225, 521, 650],
+                         ["business_area", "total_force_fight", "detailed_message", "attack_formation", "notice"]],
+                        [[1193, 1092], [576, 525], ["business_area", "arena"]],
+                        [[1159], [568], ["business_area"]],
+                        [[1159, 727], [568, 576], ["business_area", "choose_special_task"]],
+                        [[703], [649], ["manufacture_store"]],
+                        [[64], [233], ["work_task"]],
+                        [[1200, 916, 1162, 1009], [570, 535, 225, 521],
+                         ["business_area", "total_force_fight", "detailed_message", "attack_formation"]]]
+
         self.keyword_apper_time_dictionary = {i: 0 for i in self.keyword}
 
     def return_location(self):
@@ -275,9 +298,9 @@ class Setup:
                 return False
         return True
 
-# if __name__ == "__main__":
-#     t = Setup()
-#     a = core.utils.get_screen_shot_array()
-#     print(t.img_ocr(a))
-#     t.get_keyword_appear_time(t.img_ocr(a))
-#     print(t.return_location())
+if __name__ == "__main__":
+    t = Setup()
+    a = get_screen_shot_array()
+    print(t.img_ocr(a))
+    t.get_keyword_appear_time(t.img_ocr(a))
+    print(t.return_location())

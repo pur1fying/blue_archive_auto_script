@@ -49,7 +49,7 @@ def implement(self):
                 log.d("find target page " + cur_lo, level=1, logger_box=self.loggerBox)
                 if tar_level >= 5:
                     page_task_numbers = [8, 6, 7]
-                    u2.connect().swipe(928, 560, 928, 0, 0.5)
+                    self.connection.swipe(928, 560, 928, 0, 0.5)
                     log.d("SWIPE", level=1, logger_box=self.loggerBox)
                     time.sleep(0.5)
                     if tar_num < 4:
@@ -69,7 +69,7 @@ def implement(self):
                 while 1:
                     if not self.pd_pos() == "task_" + str(tar_num):
                         for j in range(0, 4):
-                            u2.connect().click(651, 663)
+                            self.connection.click(651, 663)
                             self.click_time = time.time() - self.base_time
                             time.sleep(0.1)
                     else:
@@ -82,7 +82,7 @@ def implement(self):
             log.d("hard task begin", level=1, logger_box=self.loggerBox)
 
             log.d("change to hard level", level=1, logger_box=self.loggerBox)
-            u2.connect().click(1065, 150)
+            self.connection.click(1065, 150)
             time.sleep(0.1)
 
             for i in range(0, len(hard_task_count)):
@@ -99,13 +99,13 @@ def implement(self):
                       level=1, logger_box=self.loggerBox)
                 while cur_num != tar_num:
                     if cur_num > tar_num:
-                        u2.connect().click(left_change_page_x, change_page_y)
+                        self.connection.click(left_change_page_x, change_page_y)
                         self.set_click_time()
                         log.d("Click :(" + str(left_change_page_x) + " " + str(
                             change_page_y) + ")" + " click_time = " + str(self.click_time), level=1,
                               logger_box=self.loggerBox)
                     else:
-                        u2.connect().click(right_change_page_x, change_page_y)
+                        self.connection.click(right_change_page_x, change_page_y)
                         self.set_click_time()
                         log.d("Click :(" + str(right_change_page_x) + " " + str(
                             change_page_y) + ")" + " click_time = " + str(self.click_time), level=1,
@@ -120,16 +120,16 @@ def implement(self):
                 log.d("find target page " + cur_lo, level=1, logger_box=self.loggerBox)
                 tar_level -= 1
 
-                u2.connect().click(all_task_x_coordinate, hard_task_y_coordinates[tar_level])
+                self.connection.click(all_task_x_coordinate, hard_task_y_coordinates[tar_level])
                 self.set_click_time()
                 log.d("Click :(" + str(all_task_x_coordinate) + " " + str(
                     hard_task_y_coordinates[tar_level]) + ")" + " click_time = " + str(self.click_time),
                       level=1, logger_box=self.loggerBox)
                 time.sleep(0.5)
                 for j in range(0, tar_times - 1):
-                    u2.connect().click(1033, 297)
+                    self.connection.click(1033, 297)
                     time.sleep(0.6)
-                u2.connect().click(937, 404)
+                self.connection.click(937, 404)
                 self.set_click_time()
                 lo = self.pd_pos()
                 if lo == "charge_power":
@@ -143,7 +143,7 @@ def implement(self):
                     lo = self.pd_pos()
                     if lo != "task_" + str(tar_num):
                         for j in range(0, 4):
-                            u2.connect().click(651, 663)
+                            self.connection.click(651, 663)
                             self.set_click_time()
                             time.sleep(0.1)
                     else:

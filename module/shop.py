@@ -16,7 +16,7 @@ def implement(self, activity="shop"):
         buy_list_for_power_items = [[1000, 204], [1162, 204]]
 
         for i in range(0, len(buy_list_for_power_items)):
-            u2.connect().click(buy_list_for_power_items[i][0], buy_list_for_power_items[i][1])
+            self.connection.click(buy_list_for_power_items[i][0], buy_list_for_power_items[i][1])
         self.set_click_time()
     else:
         buy_list = [0, 0, 0, 0,
@@ -30,7 +30,7 @@ def implement(self, activity="shop"):
                 time.sleep(0.1)
                 self.click(buy_list_for_common_items[i][0], buy_list_for_common_items[i][1])
         log.d("swipe", level=1, logger_box=self.loggerBox)
-        u2.connect().swipe(932, 600, 932, 0, 0.3)
+        self.connection.swipe(932, 600, 932, 0, 0.3)
         for i in range(8, 16):
             if buy_list[i]:
                 time.sleep(0.1)
@@ -49,9 +49,9 @@ def implement(self, activity="shop"):
         log.d("assets inadequate", level=1, logger_box=self.loggerBox)
     elif return_data1[1][0] <= 1e-03:
         log.d("buy operation succeeded", level=1, logger_box=self.loggerBox)
-        u2.connect().click(return_data1[0][0], return_data1[0][1])
+        self.connection.click(return_data1[0][0], return_data1[0][1])
         time.sleep(0.5)
-        u2.connect().click(770, 480)
+        self.connection.click(770, 480)
         self.set_click_time()
     elif return_data3[1][0] <= 1e-03:
         log.d("items have been brought", level=1, logger_box=self.loggerBox)

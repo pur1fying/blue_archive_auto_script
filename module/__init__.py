@@ -6,3 +6,9 @@ from .clear_event_power import implement
 from .create import implement
 from .shop import implement
 from .collect_shop_power import implement
+from .collect_daily_power import implement
+from .collect_reward import implement
+from .group import implement
+from .mail import implement
+from .cafe_reward import implement
+from .clear_special_task_power import implement

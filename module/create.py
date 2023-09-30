@@ -5,8 +5,8 @@ from gui.util import log
 
 
 def implement(self):
-    path5 = "./src/create/start_button_bright.png"
-    path6 = "./src/create/start_button_grey.png"
+    path5 = "../src/create/start_button_bright.png"
+    path6 = "../src/create/start_button_grey.png"
     create_times = 3
     create_stop = False
     self.common_create_collect_operation()

@@ -21,13 +21,13 @@ def implement(self):
         log.d("begin schedule in <" + region_name[tar_num - 1] + ">", level=1, logger_box=self.loggerBox)
         while cur_num != tar_num:
             if cur_num > tar_num:
-                u2.connect().click(left_change_page_x, change_page_y)
+                self.connection.click(left_change_page_x, change_page_y)
                 self.set_click_time()
                 log.d("Click :(" + str(left_change_page_x) + " " + str(
                     change_page_y) + ")" + " click_time = " + str(self.click_time), level=1,
                       logger_box=self.loggerBox)
             else:
-                u2.connect().click(right_change_page_x, change_page_y)
+                self.connection.click(right_change_page_x, change_page_y)
                 self.set_click_time()
                 log.d("Click :(" + str(right_change_page_x) + " " + str(
                     change_page_y) + ")" + " click_time = " + str(self.click_time), level=1,
@@ -37,7 +37,7 @@ def implement(self):
             log.d("now in page " + cur_lo, level=1, logger_box=self.loggerBox)
         x = 1160
         y = 664
-        u2.connect().click(x, y)
+        self.connection.click(x, y)
         self.set_click_time()
         log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
               logger_box=self.loggerBox)
@@ -52,13 +52,13 @@ def implement(self):
         for j in range(0, start):
             x = lo[start - j - 1][0]
             y = lo[start - j - 1][1]
-            u2.connect().click(x, y)
+            self.connection.click(x, y)
             log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
                   logger_box=self.loggerBox)
             time.sleep(0.6)
             x = 640
             y = 556
-            u2.connect().click(640, 556)
+            self.connection.click(640, 556)
             log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
                   logger_box=self.loggerBox)
             self.set_click_time()

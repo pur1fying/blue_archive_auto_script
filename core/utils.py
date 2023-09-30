@@ -1,3 +1,6 @@
+import os
+import sys
+
 import numpy as np
 import uiautomator2 as u2
 
@@ -54,12 +57,35 @@ def img_crop(img, start_row, end_row, start_col, end_col):
     return img
 
 
-def get_x_y(target_array, template_path):
+def get_x_y(target_array, template_path: str):
+    print(target_array.dtype)
+    if template_path.startswith("./src"):
+        template_path = template_path.replace("./src", "src")
+    elif template_path.startswith("../src"):
+        template_path = template_path.replace("../src", "src")
     img1 = target_array
-    img2 = cv2.imread( template_path)
-    width, height, channels = img2.shape
+    img2 = cv2.imread(template_path)
+    # sys.stdout = open('data.log', 'w+')
+    height, width, channels = img2.shape
+
+    print(img2.shape)
+    for i in range(0, height):
+        print([x for x in img2[i, :, 0]])
+
     result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
     upper_left = cv2.minMaxLoc(result)[2]
+    print(img1.shape)
+    print(upper_left[0], upper_left[1])
+    # cv2.imshow("img2", img2)
 
+    converted = img1[upper_left[1]:upper_left[1] + height, upper_left[0]:upper_left[0] + width, :]
+
+#     cv2.imshow("img1", converted)
+    sub = cv2.subtract(img2, converted)
+    # cv2.imshow("result", cv2.subtract(img2, converted))
+    for i in range(0, height):
+        print([x for x in converted[i, :, 0]])
+    # cv2.imshow("img1", img1)
+    # cv2.waitKey(0)
     location = (int(upper_left[0] + height / 2), int(upper_left[1] + width / 2))
     return location, result[upper_left[1], [upper_left[0]]]

@@ -1,2 +1,5 @@
 .idea
 __pycache__
+dist
+build
+_internal

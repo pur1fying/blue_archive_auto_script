@@ -7,7 +7,7 @@ import uiautomator2 as u2
 
 def implement(self):
     img_shot = get_screen_shot_array()
-    path2 = "src/arena/collect_reward.png"
+    path2 = "../src/arena/collect_reward.png"
     return_data1 = get_x_y(img_shot, path2)
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
@@ -22,7 +22,7 @@ def implement(self):
     else:
         log.d("reward collected", level=1, logger_box=self.loggerBox)
     img_shot = get_screen_shot_array()
-    path2 = "src/arena/collect_reward1.png"
+    path2 = "../src/arena/collect_reward1.png"
     return_data1 = get_x_y(img_shot, path2)
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
@@ -43,9 +43,9 @@ def implement(self):
     f_skip = False
 
     while 1:
-        u2.connect().click(x, y)
+        self.connection.click(x, y)
         time.sleep(1)
-        u2.connect().click(638, 569)
+        self.connection.click(638, 569)
         lo = self.pd_pos()
         while lo != "notice" and lo != "attack_formation":
             lo = self.pd_pos()
@@ -56,22 +56,21 @@ def implement(self):
         elif lo == "attack_formation":
             if not f_skip:
                 img_shot = get_screen_shot_array()
-                path2 = "src/arena/skip.png"
+                path2 = "../src/arena/skip.png"
                 return_data1 = get_x_y(img_shot, path2)
-                print(return_data1)
                 if return_data1[1][0] <= 1e-03:
                     log.d("skip choice on", level=1, logger_box=self.loggerBox)
                 else:
                     log.d("skip choice off , turn on skip choice", level=1, logger_box=self.loggerBox)
-                    u2.connect().click(1122, 602)
+                    self.connection.click(1122, 602)
                     time.sleep(0.1)
                 f_skip = True
         time.sleep(0.5)
-        u2.connect().click(1169, 670)
+        self.connection.click(1169, 670)
         if self.pd_pos() == "notice":
             time.sleep(2)
-            u2.connect().click(1169, 670)
+            self.connection.click(1169, 670)
         while self.pd_pos() != "arena":
-            u2.connect().click(666, 555)
+            self.connection.click(666, 555)
 
         time.sleep(45)

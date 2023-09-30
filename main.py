@@ -6,44 +6,61 @@ from qfluentwidgets import qconfig
 
 import module
 from core.setup import Setup
-from core.utils import kmp, get_screen_shot_array, get_x_y, img_crop
-from gui.util import log
+from core.utils import kmp, get_screen_shot_array, get_x_y
 from gui.components.logger_box import LoggerBox
+from gui.util import log
 from gui.util.config import conf
-from module import *
-
-
-# from module import total_force_fight
 
 
 class Main(Setup):
 
     def __init__(self, logger_box: LoggerBox = None):
         super().__init__()
+        self.unknown_ui_page_count = None
         self.loggerBox = logger_box
-        self.flag_run = True
+        self.flag_run = False
 
-        for i in range(0, len(self.main_activity)):
-            self.main_activity[i] = [self.main_activity[i], 0]
+    def _init_emulator(self):
+        # noinspection PyBroadException
+        try:
+            self.connection = u2.connect()
+            for i in range(0, len(self.main_activity)):
+                self.main_activity[i] = [self.main_activity[i], 0]
 
-        for i in range(0, 0):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
-            self.main_activity[i][1] = 1
-        # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
-        self.total_force_fight_y = [225, 351, 487, 588]
-        self.pri_total_force_fight = 1
-        server = qconfig.get(conf.server)
-        self.package_name = 'com.RoamingStar.BlueArchive' if server == '官服' else 'com.RoamingStar.BlueArchive.bilibili'
+            for i in range(0, 3):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
+                self.main_activity[i][1] = 1
+            # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
+            self.total_force_fight_y = [225, 351, 487, 588]
+            self.pri_total_force_fight = 1
+            server = qconfig.get(conf.server)
+            self.package_name = 'com.RoamingStar.BlueArchive' if server == '官服' else 'com.RoamingStar.BlueArchive.bilibili'
 
-        self.unknown_ui_page_count = 0
+            self.unknown_ui_page_count = 0
 
-    def print_flag(self):
-        print(self.flag_run)
+            self.connection.app_start(self.package_name)
+            t = self.connection.window_size()
+            log.d("Screen Size  " + str(t), level=1, logger_box=self.loggerBox)
+            if (t[0] == 1280 and t[1] == 720) or (t[1] == 1280 and t[0] == 720):
+                log.d("Screen Size Fitted", level=1, logger_box=self.loggerBox)
+            else:
+                log.d("Screen Size unfitted", level=4, logger_box=self.loggerBox)
+                self.flag_run = False
+        except Exception as e:
+            log.d(e, level=3, logger_box=self.loggerBox)
+            self.flag_run = False
+
+    def send(self, msg):
+        if msg == "start":
+            self.start_instance()
+        elif msg == "stop":
+            self.flag_run = False
 
     def click(self, x, y):  # 点击屏幕（x，y）处
         self.set_click_time()
         log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
               logger_box=self.loggerBox)
-        u2.connect().click(x, y)
+        time.sleep(0.5)
+        self.connection.click(x, y)
 
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
         img1 = get_screen_shot_array()
@@ -127,11 +144,11 @@ class Main(Setup):
     def special_task_common_operation(self, a, b, f=True):
         special_task_lox = 1120
         special_task_loy = [180, 286, 386, 489, 564, 432, 530, 628]
-        u2.connect().swipe(916, 160, 916, 680, 0.1)
+        self.connection.swipe(916, 160, 916, 680, 0.1)
         time.sleep(0.5)
         log.d("swipe", level=1, logger_box=self.loggerBox)
         if a >= 6:
-            u2.connect().swipe(916, 680, 916, 160, 0.1)
+            self.connection.swipe(916, 680, 916, 160, 0.1)
             log.d("swipe", level=1, logger_box=self.loggerBox)
             time.sleep(1)
 
@@ -153,30 +170,10 @@ class Main(Setup):
             self.click(767, 501)
 
     def main_to_page(self, index):
-
-        schedule_lo_y = [183, 297, 401, 508, 612]
-        to_page = [[[93, 1114], [654, 649], ["cafe", "cafe_reward"]],
-                   [[580], [650], ["group"]],
-                   [[1140], [42], ["mail"]],
-                   [[64], [233], ["work_task"]],
-                   [[824], [648], ["shop"]],
-                   [[824], [648], ["shop"]],
-                   [[1200, 731], [570, 474], ["business_area", "rewarded_task"]],
-                   [],
-                   [[1200, 916, 1162, 1009, 1160], [570, 535, 225, 521, 650],
-                    ["business_area", "total_force_fight", "detailed_message", "attack_formation", "notice"]],
-                   [[1193, 1092], [576, 525], ["business_area", "arena"]],
-                   [[1159], [568], ["business_area"]],
-                   [[1159, 727], [568, 576], ["business_area", "choose_special_task"]],
-                   [[703], [649], ["manufacture_store"]],
-                   [[64], [233], ["work_task"]],
-                   [[1200, 916, 1162, 1009], [570, 535, 225, 521],
-                    ["business_area", "total_force_fight", "detailed_message", "attack_formation"]]]
-
-        to_page[7] = [[217, 940], [659, schedule_lo_y[self.schedule_pri[0] - 1]],
-                      ["schedule", "schedule" + str(self.schedule_pri[0])]]
-        to_page[8][1][2] = self.total_force_fight_y[self.pri_total_force_fight]
-        procedure = to_page[index]
+        self.to_page[7] = [[217, 940], [659, self.schedule_lo_y[self.schedule_pri[0] - 1]],
+                           ["schedule", "schedule" + str(self.schedule_pri[0])]]
+        self.to_page[8][1][2] = self.total_force_fight_y[self.pri_total_force_fight]
+        procedure = self.to_page[index]
         step = 0
         if len(procedure) != 0:
             step = len(procedure[0])
@@ -202,15 +199,8 @@ class Main(Setup):
                 times = 0
                 i += 1
 
-    def start_ba(self):
-        u2.connect().app_start(self.package_name)
-        t = u2.connect().window_size()
-        log.d("Screen Size  " + str(t), level=1, logger_box=self.loggerBox)
-        if (t[0] == 1280 and t[1] == 720) or (t[1] == 1280 and t[0] == 720):
-            log.d("Screen Size Fitted", level=1, logger_box=self.loggerBox)
-        else:
-            log.d("Screen Size unfitted", level=4, logger_box=self.loggerBox)
-            exit(1)
+    def start_instance(self):
+        self._init_emulator()
         self.thread_starter()
 
     def worker(self):
@@ -224,8 +214,6 @@ class Main(Setup):
         if len(self.pos) > 2:
             self.pos.pop()
 
-    #       print(self.pos)
-
     def run(self):
 
         log.d("start getting screenshot", 1, self.loggerBox)
@@ -233,7 +221,7 @@ class Main(Setup):
             ts = threading.Thread(target=self.worker)
             ts.start()
             time.sleep(0.5)
-            print(f'{self.flag_run}')
+            # print(f'{self.flag_run}')
             # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
             # 同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
         log.d("stop getting screenshot", 1, self.loggerBox)
@@ -291,88 +279,14 @@ class Main(Setup):
             time.sleep(0.5)
 
     def solve(self, activity):
-        if activity == "cafe_reward":
-            self.click(640, 521)
-            log.d("cafe reward task finished", level=1, logger_box=self.loggerBox)
-            self.main_activity[0][1] = 1
-
-        elif activity == "group":
-            log.d("group task finished", level=1, logger_box=self.loggerBox)
-            self.main_activity[1][1] = 1
-
-        elif activity == "mail":
-            img_shot = get_screen_shot_array()
-            path2 = "src/mail/collect_all_bright.png"
-            path3 = "src/mail/collect_all_grey.png"
-            return_data1 = get_x_y(img_shot, path2)
-            return_data2 = get_x_y(img_shot, path3)
-            print(return_data1)
-            print(return_data2)
-            if return_data2[1][0] <= 1e-03:
-                log.d("mail reward has been collected", level=1, logger_box=self.loggerBox)
-            elif return_data1[1][0] <= 1e-03:
-                log.d("collect mail reward", level=1, logger_box=self.loggerBox)
-                self.click(return_data1[0][0], return_data1[0][1])
-            else:
-                log.d("Can't detect button", level=2, logger_box=self.loggerBox)
-
-            self.main_activity[2][1] = 1
-            log.d("mail task finished", level=1, logger_box=self.loggerBox)
-
-        elif activity == "collect_daily_power" or activity == "collect_reward":
-            while 1:
-                path1 = get_screen_shot_array()
-                path2 = "src/daily_task/daily_task_collect_all_bright.png"
-                path3 = "src/daily_task/daily_task_collect_all_grey.png"
-                return_data1 = get_x_y(path1, path2)
-                return_data2 = get_x_y(path1, path3)
-                print(return_data1)
-                print(return_data2)
-                if return_data2[1][0] <= 1e-03:
-                    log.d("work reward has been collected", level=1, logger_box=self.loggerBox)
-                    break
-                elif return_data1[1][0] <= 1e-03:
-                    log.d("collect work task reward", level=1, logger_box=self.loggerBox)
-                    self.click(return_data1[0][0], return_data1[0][1])
-                    time.sleep(2)
-                    self.click(625, 667)
-                    time.sleep(0.2)
-                else:
-                    log.d("Can't detect button", level=2, logger_box=self.loggerBox)
-                    return
-            if activity == "collect_daily_power":
-                self.main_activity[3][1] = 1
-            else:
-                self.main_activity[13][1] = 1
-            log.d("collect daily power task finished", level=1, logger_box=self.loggerBox)
-
-        elif activity == "shop" or activity == "collect_shop_power":
+        try:
             module.__dict__[activity].implement(self)
-
-        elif activity == "clear_event_power":
-            module.__dict__[activity].implement(self)
-
-        elif activity == "clear_special_task_power":
-            module.__dict__[activity].implement(self)
-
-        elif activity == "rewarded_task":
-            module.__dict__[activity].implement(self)
-
-        elif activity == "schedule":
-            module.__dict__[activity].implement(self)
-
-        elif activity == "total_force_fight":
-            module.__dict__[activity].implement(self)
-
-        elif activity == "create":
-            module.__dict__[activity].implement(self)
-
-        elif activity == "arena":
-            module.__dict__[activity].implement(self)
+        except Exception as e:
+            log.d(e, level=3, logger_box=self.loggerBox)
+            self.flag_run = False
 
     def common_create_judge(self):
-        pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属",
-               "隐然"]  # 可设置参数，越靠前的节点在制造时越优先选择
+        pri = self.pri  # 可设置参数，越靠前的节点在制造时越优先选择
         node_x = [839, 508, 416, 302, 174]
         node_y = [277, 388, 471, 529, 555]
         # 572 278
@@ -425,10 +339,10 @@ class Main(Setup):
                 break
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     #    thread_run = threading.Thread(target=b_aas.run)
     #    thread_run.start()
     #    b_aas.main_to_page(14)
     #    print(b_aas.common_create_judge())
     #    print(b_aas.common_fight_practice())
-    Main().start_ba()
+    # Main().solve("arena")
