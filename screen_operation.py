@@ -7,6 +7,7 @@ import io
 import numpy as np
 from PIL import Image
 
+
 class screen_operate( my_time):
     def get_x_y(self, target_array, template_path):
         img1 = target_array
@@ -54,4 +55,4 @@ if __name__ == "__main__":
     return_data1 = t.get_x_y(img_shot, path1)
     return_data2 = t.get_x_y(img_shot, path2)
     return_data3 = t.get_x_y(img_shot, path3)
-    print(return_data1[1][0], return_data2[1][0],return_data3[1][0])
+    print(return_data1[1][0], return_data2[1][0], return_data3[1][0])

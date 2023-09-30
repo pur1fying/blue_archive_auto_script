@@ -8,7 +8,7 @@ class locate(ocr_character, screen_operate):
         ocr_character.__init__(self)
         screen_operate.__init__(self)
         self.keyword = ["总力战信息", "区域", "排名", "奖励", "奖励信息", "调整编队", "部队", "选择值日员", "更新",
-                        "增益", "袭击", "火车", "确认", "聊天", "组员列表", "点击继续", "访问", "自动加入",
+                        "增益", "袭击", "火车", "确认", "聊天", "组员列表", "点击继续", "访问", "自动加入","剧情目录",
                         "扫荡完成", "任务信息", "材料", "进入剧情", "剧情信息", "选择剧情", "变更", "全部收纳",
                         "邀请券", "库存", "第1任务", "第2任务", "第3任务", "第4任务", "第5任务", "第6任务", "第7任务",
                         "第8任务", "第9任务", "第10任务", "第11任务", "第12任务", "第13任务", "第14任务", "第15任务",
@@ -16,13 +16,13 @@ class locate(ocr_character, screen_operate):
                         "第二任务", "预设", "收益", "家具信息", "基本信息", "经验值", "好感等级", "说明", "主要能力值", "游戏",
                         "图像", "音量", "成就", "沙勒业务区", "沙勒生活区", "歌赫娜中央区", "阿拜多斯高等学院", "千禧年学习区",
                         "制造", "种类", "使用", "单价", "成员等级", "成员列表", "筛选", "排序", "道具", "装备", "主线",
-                        "支线", "日程报告", "对战纪录", "防御编队", "选择购买", "挑战次数不足", "入场券不足",
+                        "支线", "日程报告", "对战纪录", "防御编队", "选择购买", "挑战次数不足", "入场券不足","概率信息", "概率",
                         "档案", "普通", "困难", "帮助", "邀请券", "礼物", "特别委托", "据点", "工厂", "广场", "信用",
-                        "讲堂", "详细信息", "】开启", "已更新",
+                        "讲堂", "详细信息", "】开启", "已更新","未读信息","相克信息","个人信息",
                         "高架", "铁路", "预设", "点击继续", "公告", "活动", "通知", "跳过", "预告", "咖啡厅", "日程",
                         "成员", "日程信息", "对战结果", "失败",
                         "工作任务", "编队", "小组", "材料列表", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉",
-                        "帮助", "选项", "队长", "支援", "未领取",
+                        "帮助", "选项", "队长", "支援", "未领取","成员","敌方信息","剧情信息",
                         "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱", "过期邮件",
                         "领取记录", "对手信息", "等级提升", "节点信息",
                         "每日", "每周", "切换账号", "天", "全部查看", "列表", "启动", "选择日程", "全部日程",
@@ -53,14 +53,23 @@ class locate(ocr_character, screen_operate):
         return True
 
     def return_location(self):
-
         if self.pd(["选项", "游戏", "图像", "音量"], [1, 1, 1, 1]):
             return "option"
         elif self.pd(["预告"], [1]) or self.pd(["】开启"], [1]) or self.pd(["已更新"], [1]):
             return "main_notice"
+        elif self.pd(["剧情目录"], [1]):
+            return "plot_index"
         elif self.pd(["对手信息"], [1]):
             return "component_message"
-        elif self.pd(["对战结果"], [1]) or self.pd(["失败", "确认"], [1, 1]) :
+        elif self.pd(["剧情信息"], [1]):
+            return "plot_message"
+        elif self.pd(["概率信息", "概率"], [1, 3]):
+            return "probability_message"
+        elif self.pd(["相克信息"], [1]) or self.pd(["敌方信息"], [1]):
+            return "enemy_message"
+        elif self.pd(["基本信息"], [1]) and self.pd(["个人信息"], [1]):
+            return "student_message"
+        elif self.pd(["对战结果"], [1]) or self.pd(["失败", "确认"], [1, 1]):
             return "combat_result"
         elif self.pd(["节点信息"], [1]):
             return "node_information"
@@ -246,14 +255,15 @@ class locate(ocr_character, screen_operate):
         elif self.pd(["主线", "支线", "档案", "故事"], [1, 1, 1, 3]):
             return "choose_event"
         elif self.pd(["制造", "成员", "商店", "小组"], [1, 1, 1, 1]):
-            if self.pd(["学院"], [1]) or self.pd(["好感等级"], [1]):
-                return "momo_talk"
+            if self.pd(["学院", "成员"], [1, 1]) or self.pd(["好感等级", "成员"], [1, 1]):
+                return "momo_talk1"
             else:
                 return "main_page"
         elif self.pd(["购买", "更新"], [3, 1]) or self.pd(["购买", "选择购买"], [3, 1]):
             return "shop"
         else:
             return "UNKNOWN UI PAGE"
+
 
     def kmp(self, patten, string):
         next_array = self.build_next_array(patten)
