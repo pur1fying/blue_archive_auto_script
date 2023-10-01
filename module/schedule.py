@@ -1,4 +1,4 @@
-from core.utils import get_screen_shot_array, img_crop, kmp
+from core.utils import img_crop, kmp
 import uiautomator2 as u2
 import time
 
@@ -44,8 +44,8 @@ def implement(self):
         if not self.pd_pos() == "all_schedule":
             log.d("not in page all schedule , return", level=3, logger_box=self.loggerBox)
             return
-        img_shot = get_screen_shot_array()
-        img_cro = img_crop(img_shot, 126, 1167, 98, 719)
+        self.latest_img_array = self.get_screen_shot_array()
+        img_cro = img_crop(self.latest_img_array, 126, 1167, 98, 719)
         res = self.img_ocr(img_cro)
         count = kmp("需要评级", res)
         start = region_schedule_total_count[self.schedule_pri[0] - 1] - count
@@ -68,5 +68,5 @@ def implement(self):
                 return
             time.sleep(2)
             self.set_click_time()
-            while self.pd_pos(True) != "all_schedule":
+            while self.pd_pos(anywhere=True) != "all_schedule":
                 self.click(919, 116)

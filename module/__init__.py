@@ -12,3 +12,6 @@ from .group import implement
 from .mail import implement
 from .cafe_reward import implement
 from .clear_special_task_power import implement
+from .common_solve_affection_story_method import implement
+from .momo_talk import implement
+from .common_skip_plot_method import implement

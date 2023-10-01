@@ -1,15 +1,15 @@
 import time
 
-from core.utils import get_screen_shot_array, get_x_y
+from core.utils import get_x_y
 from gui.util import log
 
 
 def implement(self):
-    img_shot = get_screen_shot_array()
+    self.latest_img_array = self.get_screen_shot_array()
     path2 = "../src/mail/collect_all_bright.png"
     path3 = "../src/mail/collect_all_grey.png"
-    return_data1 = get_x_y(img_shot, path2)
-    return_data2 = get_x_y(img_shot, path3)
+    return_data1 = get_x_y(self.latest_img_array, path2)
+    return_data2 = get_x_y(self.latest_img_array, path3)
     print(return_data1)
     print(return_data2)
     if return_data2[1][0] <= 1e-03:

@@ -1,12 +1,12 @@
 import time
 
-from core.utils import get_screen_shot_array, get_x_y
+from core.utils import get_x_y
 from gui.util import log
 
 
 def implement(self, activity="collect_daily_power"):
     while 1:
-        path1 = get_screen_shot_array()
+        path1 = self.get_screen_shot_array()
         path2 = "../src/daily_task/daily_task_collect_all_bright.png"
         path3 = "../src/daily_task/daily_task_collect_all_grey.png"
         return_data1 = get_x_y(path1, path2)

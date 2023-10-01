@@ -1,17 +1,16 @@
 import time
 
-from core.utils import get_screen_shot_array, get_x_y
+from core.utils import get_x_y
 from gui.util import log
-import uiautomator2 as u2
 
 
 def implement(self):
-    img_shot = get_screen_shot_array()
+    self.latest_img_array = self.get_screen_shot_array()
     path2 = "../src/arena/collect_reward.png"
-    return_data1 = get_x_y(img_shot, path2)
+    return_data1 = get_x_y(self.latest_img_array, path2)
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
-        log.d("collect reward", level=1, logger_box=self.loggerBox)
+        log.d("collect arena first reward", level=1, logger_box=self.loggerBox)
         self.click(return_data1[0][0], return_data1[0][1])
         log.d("Click :(" + str(return_data1[0][0]) + " " + str(
             return_data1[0][1]) + ")" + " click_time = " + str(self.click_time), level=1,
@@ -20,10 +19,10 @@ def implement(self):
         self.click(666, 672)
         time.sleep(0.5)
     else:
-        log.d("reward collected", level=1, logger_box=self.loggerBox)
-    img_shot = get_screen_shot_array()
+        log.d("reward arena second collected", level=1, logger_box=self.loggerBox)
+    self.latest_img_array = self.get_screen_shot_array()
     path2 = "../src/arena/collect_reward1.png"
-    return_data1 = get_x_y(img_shot, path2)
+    return_data1 = get_x_y(self.latest_img_array, path2)
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
         log.d("collect reward", level=1, logger_box=self.loggerBox)
@@ -55,9 +54,9 @@ def implement(self):
             return
         elif lo == "attack_formation":
             if not f_skip:
-                img_shot = get_screen_shot_array()
+                self.latest_img_array = self.get_screen_shot_array()
                 path2 = "../src/arena/skip.png"
-                return_data1 = get_x_y(img_shot, path2)
+                return_data1 = get_x_y(self.latest_img_array, path2)
                 if return_data1[1][0] <= 1e-03:
                     log.d("skip choice on", level=1, logger_box=self.loggerBox)
                 else:
@@ -67,10 +66,11 @@ def implement(self):
                 f_skip = True
         time.sleep(0.5)
         self.connection.click(1169, 670)
-        if self.pd_pos() == "notice":
+        while self.pd_pos() == "notice":
+            self.connection.click(1169, 670)
             time.sleep(2)
             self.connection.click(1169, 670)
         while self.pd_pos() != "arena":
             self.connection.click(666, 555)
 
-        time.sleep(45)
+        time.sleep(50)

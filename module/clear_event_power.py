@@ -4,8 +4,8 @@ from gui.util import log
 
 
 def implement(self):
-    common_task_count = [(7, 1, 6)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-    hard_task_count = [(4, 3, 1)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+    common_task_count = [(10, 2, 20)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+    hard_task_count = [(5, 3, 3),(3,3,3)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
 
     if len(common_task_count) != 0 or len(hard_task_count) != 0:
         all_task_x_coordinate = 1118
@@ -67,7 +67,7 @@ def implement(self):
                     return
                 self.click(767, 501)
                 while 1:
-                    if not self.pd_pos() == "task_" + str(tar_num):
+                    if not self.pd_pos(anywhere=True) == "task_" + str(tar_num):
                         for j in range(0, 4):
                             self.connection.click(651, 663)
                             self.click_time = time.time() - self.base_time
@@ -136,8 +136,8 @@ def implement(self):
                     log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
                     break
                 if lo == "charge_notice":
-                    log.d("inadequate fight time available", level=3, logger_box=self.loggerBox)
-                    break
+                    log.d("inadequate fight time available", level=2, logger_box=self.loggerBox)
+                    continue
                 self.click(767, 501)
                 while 1:
                     lo = self.pd_pos()

@@ -1,7 +1,7 @@
 import time
 from cnocr import CnOcr
 
-from core.utils import kmp, get_screen_shot_array
+from core.utils import kmp
 
 
 class Setup:
@@ -12,6 +12,7 @@ class Setup:
 
         self.schedule_pri = [4, 3, 2, 1, 5]  # 可设置参数，日程区域优先级
         self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
+        self.latest_img_array = None
 
         self.pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属",
                     "隐然"]
@@ -19,7 +20,7 @@ class Setup:
         self.main_activity = ["cafe_reward", "group", "mail", "collect_daily_power", "shop", "collect_shop_power",
                               "rewarded_task",
                               "schedule", "total_force_fight", "arena", "clear_event_power", "clear_special_task_power",
-                              "create", "collect_reward"]
+                              "create", "collect_reward", "momo_talk"]
 
         self.main_activity_label = ["咖啡厅收集", "领取小组体力", "一键领取邮件", "领取日常体力", "商店",
                                     "购买商店体力",
@@ -27,15 +28,16 @@ class Setup:
                                     "清理主线体力", "特殊委托", "制造", "领取任务奖励"]
 
         self.keyword = ["总力战信息", "区域", "排名", "奖励", "奖励信息", "调整编队", "部队", "选择值日员", "更新",
-                        "增益", "袭击", "火车", "确认", "聊天", "组员列表", "点击继续", "访问", "自动加入",
-                        "扫荡完成", "任务信息", "材料", "进入剧情", "剧情信息", "选择剧情", "变更", "全部收纳",
+                        "增益", "袭击", "火车", "确认", "聊天", "组员列表", "点击继续", "访问", "自动加入", "剧情目录",
+                        "扫荡完成","总力战结果", "已获得排名积分",
+                        "任务信息", "材料", "进入剧情", "剧情信息", "选择剧情", "变更", "全部收纳",
                         "邀请券", "库存", "第1任务", "第2任务", "第3任务", "第4任务", "第5任务", "第6任务", "第7任务",
-                        "铃木金属工厂", "第9任务", "第10任务", "第11任务", "第12任务", "第13任务", "第14任务",
+                        "第9任务", "第10任务", "第11任务", "第12任务", "第13任务", "第14任务",
                         "第15任务", "家具",
                         "第16任务", "第17任务", "第18任务", "第19任务", "第20任务", "第21任务", "第22任务", "第23任务",
                         "第24任务",
                         "第二任务", "预设", "收益", "家具信息", "基本信息", "经验值", "好感等级", "说明", "主要能力值",
-                        "游戏",
+                        "游戏", "概率信息", "概率", "成员", "敌方信息", "剧情信息",
                         "图像", "音量", "成就", "沙勒业务区", "沙勒生活区", "歌赫娜中央区", "阿拜多斯高等学院",
                         "千禧年学习区",
                         "制造", "种类", "使用", "单价", "成员等级", "成员列表", "筛选", "排序", "道具", "装备", "主线",
@@ -47,7 +49,7 @@ class Setup:
                         "工作任务", "编队", "小组", "材料列表", "商店", "招募", "业务区", "任务", "故事", "悬赏通缉",
                         "帮助", "选项", "队长", "支援", "未领取",
                         "菜单", "青辉石", "礼包", "购买", "账号信息", "账号设置", "学院", "部队编组", "邮箱",
-                        "过期邮件",
+                        "过期邮件", "相克信息",
                         "领取记录", "对手信息", "等级提升", "节点信息",
                         "每日", "每周", "切换账号", "天", "全部查看", "列表", "启动", "选择日程", "全部日程",
                         "日程券信息"]
@@ -61,15 +63,15 @@ class Setup:
                         [[824], [648], ["shop"]],
                         [[1200, 731], [570, 474], ["business_area", "rewarded_task"]],
                         [],
-                        [[1200, 916, 1162, 1009, 1160], [570, 535, 225, 521, 650],
-                         ["business_area", "total_force_fight", "detailed_message", "attack_formation", "notice"]],
+                        [[1200, 916], [570, 535],
+                         ["business_area", "total_force_fight"]],
                         [[1193, 1092], [576, 525], ["business_area", "arena"]],
                         [[1159], [568], ["business_area"]],
                         [[1159, 727], [568, 576], ["business_area", "choose_special_task"]],
                         [[703], [649], ["manufacture_store"]],
                         [[64], [233], ["work_task"]],
-                        [[1200, 916, 1162, 1009], [570, 535, 225, 521],
-                         ["business_area", "total_force_fight", "detailed_message", "attack_formation"]]]
+                        [[167], [141], ["momo_talk1"]],
+                        ]
 
         self.keyword_apper_time_dictionary = {i: 0 for i in self.keyword}
 
@@ -79,8 +81,20 @@ class Setup:
             return "option"
         elif self.pd(["预告"], [1]) or self.pd(["】开启"], [1]) or self.pd(["已更新"], [1]):
             return "main_notice"
+        elif self.pd(["剧情目录"], [1]):
+            return "plot_index"
+        elif self.pd(["过期邮件", "领取记录"], [1, 1]) or self.pd(["未领取"], [1]):
+            return "mail"
         elif self.pd(["对手信息"], [1]):
             return "component_message"
+        elif self.pd(["剧情信息"], [1]):
+            return "plot_message"
+        elif self.pd(["概率信息", "概率"], [1, 3]):
+            return "probability_message"
+        elif self.pd(["相克信息"], [1]) or self.pd(["敌方信息"], [1]):
+            return "enemy_message"
+        elif self.pd(["基本信息"], [1]) and self.pd(["个人信息"], [1]):
+            return "student_message"
         elif self.pd(["对战结果"], [1]) or self.pd(["失败", "确认"], [1, 1]):
             return "combat_result"
         elif self.pd(["节点信息"], [1]):
@@ -172,8 +186,6 @@ class Setup:
             return "create"
         elif self.pd(["编队", "队长", "支援"], [1, 1, 1]):
             return "attack_formation"
-        elif self.pd(["过期邮件", "领取记录"], [1, 1]) or self.pd(["未领取"], [1]):
-            return "mail"
         elif self.pd(["部队编组"], [1]):
             return "formation"
         elif self.pd(["全部收纳"], [1]) or self.pd(["邀请券"], [1]):
@@ -244,7 +256,7 @@ class Setup:
             return "task_10"
         elif self.pd(["第9任务"], [1]):
             return "task_9"
-        elif self.pd(["铃木金属工厂"], [1]):
+        elif self.pd(["普通", "困难", "工厂"], [1,1,1]):
             return "task_8"
         elif self.pd(["第7任务"], [1]):
             return "task_7"
@@ -266,9 +278,11 @@ class Setup:
             return "story_choose"
         elif self.pd(["主线", "支线", "档案", "故事"], [1, 1, 1, 3]):
             return "choose_event"
-        elif self.pd(["制造", "成员", "商店", "小组"], [1, 1, 1, 1]):
-            if self.pd(["学院"], [1]) or self.pd(["好感等级"], [1]):
-                return "momo_talk"
+        elif self.pd(["总力战结果", "已获得排名积分"], [1, 1,]):
+            return "total_force_fight_result"
+        elif self.pd(["编队", "成员", "商店", "日程"], [1, 1, 1, 1]) or self.pd(["小组", "编队", "商店", "制造"], [1, 1, 1, 1]):
+            if self.pd(["学院", "成员"], [1, 2]) or self.pd(["好感等级", "成员"], [1, 2]):
+                return "momo_talk1"
             else:
                 return "main_page"
         elif self.pd(["购买", "更新"], [3, 1]) or self.pd(["购买", "选择购买"], [3, 1]):
@@ -298,9 +312,9 @@ class Setup:
                 return False
         return True
 
-if __name__ == "__main__":
-    t = Setup()
-    a = get_screen_shot_array()
-    print(t.img_ocr(a))
-    t.get_keyword_appear_time(t.img_ocr(a))
-    print(t.return_location())
+# if __name__ == "__main__":
+#     t = Setup()
+#     a = t.get_screen_shot_array()
+#     print(t.img_ocr(a))
+#     t.get_keyword_appear_time(t.img_ocr(a))
+#     print(t.return_location())
