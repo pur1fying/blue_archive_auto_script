@@ -1,10 +1,10 @@
+import cv2
 import uiautomator2 as u2
 import log
 from get_location import locate
 import threading
 import time
 import numpy as np
-
 
 
 class baas(locate):
@@ -35,7 +35,7 @@ class baas(locate):
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
 
-        for i in range(0, 12):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
+        for i in range(0, 14):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
             self.main_activity[i][1] = 1
         url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
         self.total_force_fight_y = [225, 351, 487, 588]
@@ -88,7 +88,7 @@ class baas(locate):
             print(return_data)
             if return_data[1][0] < 1e-03:
                 log.o_p("find skip plot button", 1)
-                self.click_x_y(return_data[0][0],return_data[0][1])
+                self.click_x_y(return_data[0][0], return_data[0][1])
                 time.sleep(1)
                 log.o_p("skip plot", 1)
                 self.click_x_y(766, 520)
@@ -262,6 +262,12 @@ class baas(locate):
 
     #       print(self.pos)
 
+    def pd_rgb(self, shot_array, x, y, r_min, r_max, g_min, g_max, b_min, b_max):
+        if r_min <= shot_array[y][x][2] <= r_max and g_min <= shot_array[y][x][1] <= g_max and b_min <= \
+                shot_array[y][x][0] <= b_max:
+            return True
+        return False
+
     def run(self):
         self.flag_run = True
         log.o_p("start getting screenshot", 1)
@@ -302,7 +308,7 @@ class baas(locate):
         if count == 13:
             self.flag_run = False
 
-    def pd_pos(self, path=None,name=None,anywhere=False):
+    def pd_pos(self, path=None, name=None, anywhere=False):
         if path:
             return_data = self.get_x_y(self.latest_img_array, path)
             print(return_data)
@@ -333,40 +339,129 @@ class baas(locate):
     def solve(self, activity):
         if activity == "cafe_reward":
             self.click_x_y(640, 521)
-
+            time.sleep(2)
+            self.click_x_y(274, 161)
             while self.pd_pos() != "cafe":
                 self.click_x_y(274, 161)
 
-            self.latest_img_array = self.get_screen_shot_array()
+            img_shot = self.get_screen_shot_array()
             path = "src/cafe/invitation_ticket.png"
-            return_data1 = self.get_x_y(self.latest_img_array, path)
+            return_data1 = self.get_x_y(img_shot, path)
             print(return_data1)
+            target_name = "爱丽丝"
             if return_data1[1][0] <= 1e-03:
-                log.o_p("invitation available", 1)
+                log.o_p("invitation available begin find student " + target_name, 1)
                 self.click_x_y(return_data1[0][0], return_data1[0][1])
+                time.sleep(1)
+                x_location = 790
+                y_location = [218, 317, 395, 468, 550, 596]
+                swipe_x = 630
+                swipe_y = 580
+                dy = 430
 
+                student_name = ["爱丽丝", "切里诺", "志美子", "日富美", "佳代子", "明日奈", "菲娜", "艾米", "真纪",
+                                "泉奈", "明里", "芹香", "优香",
+                                "花江", "纯子", "千世", "干世", "莲见", "爱理", "睦月", "野宫", "绫音", "歌原",
+                                "芹娜", "小玉", "铃美", "朱莉", "好美", "千夏", "琴里",
+                                "春香", "真白", "鹤城", "爱露", "晴奈", "日奈", "伊织", "星野",
+                                "白子", "柚子", "花凛", "妮露", "纱绫", "静子", "花子", "风香",
+                                "和香", "和香", "茜", "泉", "梓", "绿", "堇", "瞬", "桃", "椿", "晴", "响"]
+                stop_flag = False
+                last_student_name = None
+                while not stop_flag:
+                    img_shot = self.get_screen_shot_array()
+                    name_st = self.img_ocr(img_shot)
+                    print(name_st)
+                    detected_name = []
+                    i = 0
+                    while i < len(name_st):
+                        for j in range(0, len(student_name)):
+                            if name_st[i] == student_name[j][0]:
+                                flag = True
+                                for k in range(1, len(student_name[j])):
+                                    if name_st[i + k] != student_name[j][k]:
+                                        flag = False
+                                        break
+                                if flag:
+                                    if student_name[j] == "干世":
+                                        detected_name.append("千世")
+                                    else:
+                                        detected_name.append(student_name[j])
+                                    i = i + len(student_name[j]) - 1
+                                    break
+                        i = i + 1
+                    st = ""
+                    for s in range(0, len(detected_name)):
+                        st = st + str(detected_name[s]) + " "
+                    if st == "":
+                        log.o_p("No name detected", 2)
+                        stop_flag = True
+                    log.o_p("detected name :" + st, 1)
+                    if detected_name[len(detected_name) - 1] == last_student_name:
+                        log.o_p("Can't detect target student", 2)
+                        self.click_x_y(271, 281)
+                        time.sleep(0.2)
+                        stop_flag = True
+                    else:
+                        last_student_name = detected_name[len(detected_name) - 1]
+                        for s in range(0, len(detected_name)):
+                            if detected_name[s] == target_name:
+                                log.o_p("find student", 1)
+                                stop_flag = True
+                                self.click_x_y(x_location, y_location[s])
+                                time.sleep(0.5)
+                                self.click_x_y(770, 500)
+                                time.sleep(2)
+                                self.click_x_y(274, 161)
+                                while self.pd_pos() != "cafe":
+                                    self.click_x_y(274, 161)
+                                break
+                        if not stop_flag:
+                            u2.connect().swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, 1)
+                            self.click_x_y(617, 500)
             else:
                 log.o_p("invitation ticket used", 2)
-            name_st = "爱丽丝邀请小春"
-            student_name = ["爱丽丝", "小春"]
-            detected_name = []
-            i = 0
-            while i < len(name_st):
-                for j in range(0,student_name):
-                    if name_st[i] == student_name[j][0]:
-                        flag = True
-                        for k in range(1,len(student_name[j])):
-                            if name_st[i+k] != student_name[j][k]:
-                                flag = False
-                                break
-                        if flag:
-                            detected_name.append(student_name[j])
-                        i = i + len(student_name[j])
-                        break
-                i = i + 1
-            print(detected_name)
+            start_x = 640
+            start_y = 360
+            swipe_action_list = [[640, 640, 0, -640, -640, -640, -640, 0, 640, 640, 640],
+                                 [0, 0, -360, 0, 0, 0, 0, -360, 0, 0, 0]]
+            for i in range(0, len(swipe_action_list[0])):
+                while self.pd_pos(anywhere=True) != "cafe":
+                    self.click_x_y(640,360)
+                stop_flag = False
+                while not stop_flag:
+                    shot = self.get_screen_shot_array()
+                    location = []
+                    #  print(shot.shape)
+                    #  for i in range(0, 720):
+                    #      print(shot[i][664][:])
+                    for x in range(0, 1280):
+                        for y in range(0, 670):
+                            if b_aas.pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 30) and \
+                                    b_aas.pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 30) and \
+                                    b_aas.pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 30):
+                                location.append([x, y + 42])
+                                for tmp1 in range(-40, 40):
+                                    for tmp2 in range(-40, 40):
+                                        if 0 <= x + tmp1 < 1280:
+                                            shot[y + tmp2][x + tmp1] = [0, 0, 0]
+                                        else:
+                                            break
+
+                    if len(location) == 0:
+                        log.o_p("no interaction swipe to next stage")
+                        stop_flag = True
+                    else:
+                        log.o_p("find " + str(len(location)) + " interaction available", 1)
+                        for tt in range(0, len(location)):
+                            self.click_x_y(location[tt][0],location[tt][1])
+                            time.sleep(0.1)
+
+                u2.connect().swipe(start_x, start_y
+                                   , start_x + swipe_action_list[0][i],
+                                   start_y + swipe_action_list[1][i], 0.1)
+            log.o_p("cafe task finished", 1)
             self.main_activity[0][1] = 1
-            log.o_p("cafe reward task finished", 1)
 
         elif activity == "group":
             log.o_p("group task finished", 1)
@@ -908,8 +1003,8 @@ class baas(locate):
             self.latest_img_array = self.get_screen_shot_array()
             path1 = "src/momo_talk/unread_mode.png"
             path2 = "src/momo_talk/newest_mode.png"
-            return_data1 = self.get_x_y(self.latest_img_array,path1)
-            return_data2 = self.get_x_y(self.latest_img_array,path2)
+            return_data1 = self.get_x_y(self.latest_img_array, path1)
+            return_data2 = self.get_x_y(self.latest_img_array, path2)
             print(return_data1)
             print(return_data2)
             if return_data1[1][0] < 1e-03:
@@ -935,8 +1030,9 @@ class baas(locate):
                 dy = 18
                 unread_location = []
                 while location_y <= 630:
-                    if np.array_equal(self.latest_img_array[location_y][location_x],red_dot) and np.array_equal(self.latest_img_array[location_y + dy][location_x],red_dot):
-                        unread_location.append([location_x, location_y+dy/2])
+                    if np.array_equal(self.latest_img_array[location_y][location_x], red_dot) and np.array_equal(
+                            self.latest_img_array[location_y + dy][location_x], red_dot):
+                        unread_location.append([location_x, location_y + dy / 2])
                         location_y += 60
                     else:
                         location_y += 1
@@ -956,7 +1052,7 @@ class baas(locate):
                         fail_cnt = 0
                         flag = False
                         while fail_cnt <= 5:
-                            if self.pd_pos("src/momo_talk/momo_talk2.png","momo_talk2") != "momo_talk2":
+                            if self.pd_pos("src/momo_talk/momo_talk2.png", "momo_talk2") != "momo_talk2":
                                 self.click_x_y(629, 105)
                                 fail_cnt += 1
                                 time.sleep(2)
@@ -972,7 +1068,7 @@ class baas(locate):
 
     def common_solve_affection_story_method(self):
         fail_cnt = 0
-        while fail_cnt <= 5:
+        while fail_cnt <= 4:
             path1 = "src/momo_talk/reply_button.png"
             path2 = "src/momo_talk/affection story.png"
             self.latest_img_array = self.get_screen_shot_array()
@@ -991,12 +1087,12 @@ class baas(locate):
             elif return_data1[1][0] <= 1e-03:
                 fail_cnt = 0
                 log.o_p("reply_message", 1)
-                self.click_x_y(return_data1[0][0] + 166,return_data1[0][1] + 45)
+                self.click_x_y(return_data1[0][0] + 166, return_data1[0][1] + 45)
                 time.sleep(2)
             else:
                 time.sleep(2)
                 fail_cnt += 1
-                log.o_p("can't find target button cnt = "+str(fail_cnt), 1)
+                log.o_p("can't find target button cnt = " + str(fail_cnt), 1)
 
     def common_create_judge(self):
         pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属",
@@ -1060,5 +1156,11 @@ if __name__ == '__main__':
     #    b_aas.main_to_page(14)
     #    print(b_aas.common_create_judge())
     #    print(b_aas.common_fight_practice())
- #   b_aas.common_skip_plot_method()
+    #   b_aas.common_skip_plot_method()
+    #  swipe_x = 630
+    #  swipe_y = 580
+    #  dy = 401
+    #  for i in range(0, 5):
+    #      u2.connect().swipe(swipe_x,swipe_y,swipe_x,swipe_y-dy,0.5)
+    #      time.sleep(1)
     b_aas.start_ba()
