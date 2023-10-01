@@ -23,7 +23,7 @@ class Main(Setup):
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
 
-        for i in range(0, 14):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
+        for i in range(0, 0):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
             self.main_activity[i][1] = 1
 
     def _init_emulator(self):
@@ -34,7 +34,8 @@ class Main(Setup):
 
             # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
             server = qconfig.get(conf.server)
-            self.package_name = 'com.RoamingStar.BlueArchive' if server == '官服' else 'com.RoamingStar.BlueArchive.bilibili'
+            self.package_name = 'com.RoamingStar.BlueArchive' if server == '官服' else ('com.RoamingStar.BlueArchive'
+                                                                                        '.bilibili')
 
             self.unknown_ui_page_count = 0
 
@@ -363,10 +364,10 @@ class Main(Setup):
 # Main().solve("arena")
 
 
-if __name__ == "__main__":
-    t = Main()
-    t.start_instance()
-    a = t.get_screen_shot_array()
-    print(t.img_ocr(a))
-    t.get_keyword_appear_time(t.img_ocr(a))
-    print(t.return_location())
+# if __name__ == "__main__":
+#     t = Main()
+#     t.start_instance()
+#     a = t.get_screen_shot_array()
+#     print(t.img_ocr(a))
+#     t.get_keyword_appear_time(t.img_ocr(a))
+#     print(t.return_location())

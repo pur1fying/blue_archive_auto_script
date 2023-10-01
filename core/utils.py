@@ -52,7 +52,7 @@ def img_crop(img, start_row, end_row, start_col, end_col):
 
 
 def get_x_y(target_array, template_path: str):
-    #print(target_array.dtype)
+    # print(target_array.dtype)
     if template_path.startswith("./src"):
         template_path = template_path.replace("./src", "src")
     elif template_path.startswith("../src"):
@@ -62,14 +62,14 @@ def get_x_y(target_array, template_path: str):
     # sys.stdout = open('data.log', 'w+')
     height, width, channels = img2.shape
 
-#    print(img2.shape)
-#    for i in range(0, height):
-#        print([x for x in img2[i, :, 0]])
+    #    print(img2.shape)
+    #    for i in range(0, height):
+    #        print([x for x in img2[i, :, 0]])
 
     result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
     upper_left = cv2.minMaxLoc(result)[2]
-#    print(img1.shape)
-#    print(upper_left[0], upper_left[1])
+    #    print(img1.shape)
+    #    print(upper_left[0], upper_left[1])
     # cv2.imshow("img2", img2)
 
     converted = img1[upper_left[1]:upper_left[1] + height, upper_left[0]:upper_left[0] + width, :]
@@ -77,9 +77,16 @@ def get_x_y(target_array, template_path: str):
     #     cv2.imshow("img1", converted)
     sub = cv2.subtract(img2, converted)
     # cv2.imshow("result", cv2.subtract(img2, converted))
-   # for i in range(0, height):
+    # for i in range(0, height):
     #    print([x for x in converted[i, :, 0]])
     # cv2.imshow("img1", img1)
     # cv2.waitKey(0)
     location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2))
     return location, result[upper_left[1], [upper_left[0]]]
+
+
+def pd_rgb(shot_array, x, y, r_min, r_max, g_min, g_max, b_min, b_max):
+    if r_min <= shot_array[y][x][2] <= r_max and g_min <= shot_array[y][x][1] <= g_max and b_min <= \
+            shot_array[y][x][0] <= b_max:
+        return True
+    return False

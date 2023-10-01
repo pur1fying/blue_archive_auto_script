@@ -7,7 +7,7 @@ from module import common_skip_plot_method
 
 def implement(self):
     fail_cnt = 0
-    while fail_cnt <= 5:
+    while fail_cnt <= 4:
         path1 = "src/momo_talk/reply_button.png"
         path2 = "src/momo_talk/affection story.png"
         self.latest_img_array = self.get_screen_shot_array()
