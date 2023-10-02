@@ -1,14 +1,7 @@
-# import module
-#
-#
-# def func_select(func_name):
-#     module.__dict__[func_name].implement('implement')
-#
-#
-# func_select('collect_shop_power')
+import numpy as np
 
+array1 = np.array([1, 2, 3])
+array2 = np.array([1, 2, 3])
 
-with open('requirements.txt', 'r') as f, open('requirements1.txt', 'w') as f1:
-    for line in f.readlines():
-        if "@" not in line and line != "\n":
-            f1.write(line)
+are_equal = np.array_equal(array1, array2)
+print(are_equal)  # 输出 True

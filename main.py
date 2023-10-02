@@ -90,6 +90,27 @@ class Main(Setup):
             log.d("can't identify auto button", level=2, logger_box=self.loggerBox)
         print(auto_r_ave)
 
+    def common_skip_plot_method(self):
+        fail_cnt = 0
+        path = "src/skip_plot/skip_plot_button.png"
+        while fail_cnt <= 20:
+            self.latest_img_array = self.get_screen_shot_array()
+            return_data = self.get_x_y(self.latest_img_array, path)
+            print(return_data)
+            if return_data[1][0] < 1e-03:
+                log.o_p("find skip plot button", 1)
+                self.click_x_y(return_data[0][0], return_data[0][1])
+                time.sleep(1)
+                log.o_p("skip plot", 1)
+                self.click_x_y(766, 520)
+                return True
+            else:
+                fail_cnt += 1
+                log.o_p("can't find skip plot button, fail count: " + str(fail_cnt), 2)
+                self.click_x_y(1205, 37)
+                time.sleep(1)
+        log.o_p("skip plot fail", 3)
+
     def common_fight_practice(self):
         self.flag_run = False
         time.sleep(1)
