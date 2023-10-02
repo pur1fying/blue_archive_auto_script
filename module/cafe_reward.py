@@ -1,5 +1,7 @@
 import time
 
+import cv2
+
 from core.utils import pd_rgb, get_x_y
 from gui.util import log
 
@@ -15,7 +17,7 @@ def implement(self):
     path = "src/cafe/invitation_ticket.png"
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
-    target_name = "响"
+    target_name = "星野"
     if return_data1[1][0] <= 1e-03:
         log.d("invitation available begin find student " + target_name, 1, logger_box=self.loggerBox)
         self.click(return_data1[0][0], return_data1[0][1])
@@ -37,7 +39,11 @@ def implement(self):
         last_student_name = None
         while not stop_flag:
             img_shot = self.get_screen_shot_array()
+         #   cv2.imshow("image", img_shot)
+          #  cv2.waitKey(0)
+           # print(img_shot.shape)
             name_st = self.img_ocr(img_shot)
+            print(name_st)
             detected_name = []
             i = 0
             while i < len(name_st):
@@ -74,7 +80,11 @@ def implement(self):
                     if detected_name[s] == target_name:
                         log.d("find student", level=1, logger_box=self.loggerBox)
                         stop_flag = True
-                        self.click(x_location, y_location[s])
+                        for i in range(203, 300):
+                            if pd_rgb(img_shot, 737, i-22, 115, 125, 221, 221, 255, 255) and pd_rgb(img_shot, 737, i, 115, 125, 221, 221, 255, 255) and pd_rgb(img_shot, 737, i + 22, 115, 125, 221, 221, 255, 255):  #   115 125 221 221 225 225
+                                log.d("find first invitation button at " + str((784, i)), level=1, logger_box=self.loggerBox)
+                                self.click(784, i+s*77)
+                                break
                         time.sleep(0.5)
                         self.click(770, 500)
                         time.sleep(2)
@@ -83,7 +93,7 @@ def implement(self):
                             self.click(274, 161)
                         break
                 if not stop_flag:
-                    self.connection.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, 1)
+                    self.connection.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, 0.5)
                     self.click(617, 500)
     else:
         log.d("invitation ticket used", 2, logger_box=self.loggerBox)
@@ -103,9 +113,9 @@ def implement(self):
             #      print(shot[i][664][:])
             for x in range(0, 1280):
                 for y in range(0, 670):
-                    if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 30) and \
-                            pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 30) and \
-                            pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 30):
+                    if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 50) and \
+                            pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
+                            pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
                         location.append([x, y + 42])
                         for tmp1 in range(-40, 40):
                             for tmp2 in range(-40, 40):
