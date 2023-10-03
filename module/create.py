@@ -9,7 +9,8 @@ def implement(self):
     path6 = "../src/create/start_button_grey.png"
     create_times = 30
     create_stop = False
-    self.common_create_collect_operation()
+    if not self.common_create_collect_operation():
+        return False
     log.d("all creature collected", level=1, logger_box=self.loggerBox)
     while not create_stop:
         log.d("left create times: " + str(create_times), level=1, logger_box=self.loggerBox)
@@ -18,12 +19,10 @@ def implement(self):
         collect = False
         tmp = min(create_times, 3)
         for i in range(0, tmp):
-            log.d("begin create, time: " + str(i), level=2, logger_box=self.loggerBox)
+            log.d("begin create, time: " + str(i + 1), level=1, logger_box=self.loggerBox)
             self.click(lox, loy[i])
-            while self.pd_pos() == "create":
-                self.click(lox, loy[i])
-                time.sleep(1)
-
+            if not self.common_positional_bug_detect_method("create",lox,loy[i],2):
+                return False
             self.click(907, 206)
             time.sleep(0.2)
             self.latest_img_array = self.get_screen_shot_array()
@@ -32,7 +31,8 @@ def implement(self):
             print(return_data1)
             print(return_data2)
             if return_data2[1][0] < 1e-03:
-                log.d("material 2 inadequate,try material 1", level=2, logger_box=self.loggerBox)
+                log.d("material 2 INADEQUATE,try material 1", level=1, logger_box=self.loggerBox)
+                print("material 2 INADEQUATE,try material 1")
                 for x in range(0, 10):
                     self.click(755, 206)
                     time.sleep(0.2)
@@ -42,11 +42,11 @@ def implement(self):
                 print(return_data1)
                 print(return_data2)
                 if return_data2[1][0] < 1e-03:
-                    log.d("material 1 inadequate,exit create task", level=2, logger_box=self.loggerBox)
-                    create_stop = True
-                    break
-            elif return_data1[1][0] < 1e-03:
-                log.d("create start", level=2, logger_box=self.loggerBox)
+                    log.d("material 1 INADEQUATE,EXIT create task", level=2, logger_box=self.loggerBox)
+                    self.main_activity[12][1] = 1
+                    return True
+            if return_data1[1][0] < 1e-03:
+                log.d("material ADEQUATE create start", level=1, logger_box=self.loggerBox)
                 collect = True
                 self.click(return_data1[0][0], return_data1[0][1])
                 time.sleep(3.5)
@@ -59,15 +59,15 @@ def implement(self):
                     self.click(1123, 650)
                     time.sleep(3)
                     self.click(1123, 650)
-                    time.sleep(8)
+                    if not self.common_positional_bug_detect_method("manufacture_store", 1123, 650, any=True):
+                        return False
             else:
                 log.d("Can't detect start button,exit create task", level=2, logger_box=self.loggerBox)
                 return
         create_times -= 3
         if create_times <= 0:
             create_stop = True
-        self.to_main_page()
         if collect:
-            self.main_to_page(12)
-            self.common_create_collect_operation()
+            if not self.common_create_collect_operation():
+                return False
             log.d("all creature collected", level=1, logger_box=self.loggerBox)

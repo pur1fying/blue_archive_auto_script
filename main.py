@@ -23,7 +23,7 @@ class Main(Setup):
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
 
-        for i in range(0, 0):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
+        for i in range(0, 3):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
             self.main_activity[i][1] = 1
 
     def _init_emulator(self):
@@ -58,11 +58,10 @@ class Main(Setup):
             self.flag_run = False
 
     def click(self, x, y):  # 点击屏幕（x，y）处
-        self.set_click_time()
         log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
               logger_box=self.loggerBox)
-        time.sleep(0.5)
         self.connection.click(x, y)
+        self.set_click_time()
 
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
         img1 = self.get_screen_shot_array()
@@ -167,32 +166,96 @@ class Main(Setup):
     def special_task_common_operation(self, a, b, f=True):
         special_task_lox = 1120
         special_task_loy = [180, 286, 386, 489, 564, 432, 530, 628]
-        self.connection.swipe(916, 160, 916, 680, 0.1)
-        time.sleep(0.5)
-        log.d("swipe", level=1, logger_box=self.loggerBox)
-        if a >= 6:
-            self.connection.swipe(916, 680, 916, 160, 0.1)
+        fail_cnt = 0
+        difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]
+        img_shot = self.get_screen_shot_array()
+        ocr_res = self.img_ocr(img_shot)
+
+        highest_level = 8
+
+        for i in range(0, 3):
+            if kmp(difficulty_name[i], ocr_res):
+                highest_level = i + 1
+                break
+
+        if a >= highest_level: #肯定未通关
+            log.d("UNLOCKED", level=2, logger_box=self.loggerBox)
+            return True
+
+        log.d("-------------------------------------------------------------------------------", 1,
+              logger_box=self.loggerBox)
+        log.d("try to swipe to TOP page", level=1, logger_box=self.loggerBox)
+        while fail_cnt <= 3:
             log.d("swipe", level=1, logger_box=self.loggerBox)
+            self.connection.swipe(916, 200, 916, 460, 0.1)
             time.sleep(1)
+            img_shot = self.get_screen_shot_array()
+            ocr_res = self.img_ocr(img_shot)
+            if kmp("A", ocr_res) == 0:
+                fail_cnt += 1
+                if fail_cnt <= 3:
+                    log.d("TRY AGAIN", 1, logger_box=self.loggerBox)
+                else:
+                    log.d("FAIL to swipe to TOP page", level=2, logger_box=self.loggerBox)
+                    log.d("-------------------------------------------------------------------------------", 1,
+                          logger_box=self.loggerBox)
+                    return False
+            else:
+                log.d("SUCCESSFULLY swipe to TOP page", level=1, logger_box=self.loggerBox)
+                log.d("-------------------------------------------------------------------------------", 1,
+                      logger_box=self.loggerBox)
+                break
+
+        if a >= 6:
+            fail_cnt = 0
+            log.d("-------------------------------------------------------------------------------", 1,
+                  logger_box=self.loggerBox)
+            log.d("try to swipe to LOWEST page", level=1, logger_box=self.loggerBox)
+            while fail_cnt <= 3:
+                log.d("swipe", level=1, logger_box=self.loggerBox)
+                self.connection.swipe(916, 460, 916, 200, 0.1)
+                time.sleep(1)
+                img_shot = self.get_screen_shot_array()
+                ocr_res = self.img_ocr(img_shot)
+                if kmp("D", ocr_res) == 0 or kmp("A", ocr_res) != 0:
+                    fail_cnt += 1
+                    if fail_cnt <= 3:
+                        log.d("TRY AGAIN", 1, logger_box=self.loggerBox)
+                    else:
+                        log.d("FAIL to swipe to LOWEST page", level=2, logger_box=self.loggerBox)
+                        log.d("-------------------------------------------------------------------------------", 1,
+                              logger_box=self.loggerBox)
+                        return False
+                else:
+                    log.d("SUCCESSFULLY swipe to LOWEST page", level=1, logger_box=self.loggerBox)
+                    log.d("-------------------------------------------------------------------------------", 1,
+                          logger_box=self.loggerBox)
+                    break
 
         self.click(special_task_lox, special_task_loy[a - 1])
+
         if self.pd_pos() == "notice":
-            log.d("UNLOCKED", level=3, logger_box=self.loggerBox)
+            log.d("UNLOCKED", level=2, logger_box=self.loggerBox)
         else:
             for i in range(0, b - 1):
                 self.click(1033, 297)
                 if f:
                     time.sleep(0.6)
+                else:
+                    time.sleep(0.2)
             self.click(937, 404)
-        lo = self.pd_pos()
-        if lo == "charge_power":
-            log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
-        elif lo == "charge_notice":
-            log.d("inadequate ticket , exit task", level=3, logger_box=self.loggerBox)
-        else:
-            self.click(767, 501)
-
-    def main_to_page(self, index):
+            lo = self.pd_pos()
+            if lo == "charge_power":
+                log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
+            elif lo == "charge_notice":
+                log.d("inadequate ticket , exit task", level=3, logger_box=self.loggerBox)
+            elif lo == "notice":
+                self.click(767, 501)
+                time.sleep(2)
+            else:
+                log.d("AUTO FIGHT UNLOCKED , exit task", level=3, logger_box=self.loggerBox)
+        return True
+    def main_to_page(self, index, path=None, name=None):
         self.to_page[7] = [[217, 940], [659, self.schedule_lo_y[self.schedule_pri[0] - 1]],
                            ["schedule", "schedule" + str(self.schedule_pri[0])]]
         procedure = self.to_page[index]
@@ -208,7 +271,7 @@ class Main(Setup):
             y = procedure[1][i]
             page = procedure[2][i]
             self.click(x, y)
-            if self.pd_pos() != page:
+            if self.pd_pos(path=path, name=name) != page:
                 if times <= 1:
                     times += 1
                     log.d("not in page " + str(page) + " , count = " + str(times), level=2, logger_box=self.loggerBox)
@@ -232,14 +295,39 @@ class Main(Setup):
 
     def worker(self):
         shot_time = time.time() - self.base_time
+        # print(shot_time)
         self.latest_img_array = self.get_screen_shot_array()
-        self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
-        locate_res = self.return_location()
         ct = time.time()
+        self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
+        #  print("shot time", shot_time,"click time",self.click_time)
+        locate_res = self.return_location()
         if shot_time > self.click_time:
-            self.pos.insert(0, [locate_res, ct - self.base_time])
+            self.pos.insert(0, [locate_res, shot_time])
         if len(self.pos) > 2:
+            #     print("exceed len 2", shot_time)
             self.pos.pop()
+
+    def common_positional_bug_detect_method(self, pos, x, y, times=3, any=False, path=None, name=None):
+        log.d("------------------------------------------------------------------------------------------------", 1,
+              logger_box=self.loggerBox)
+        log.d("BEGIN DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
+        cnt = 1
+        while self.pd_pos(path=path, name=name, anywhere=any) != pos and cnt <= times:
+            log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
+            cnt += 1
+            self.click(x, y)
+            time.sleep(2)
+        if cnt == times + 1:
+            log.d("CAN'T DETECT POSITION " + pos.upper(), 3, logger_box=self.loggerBox)
+            log.d("------------------------------------------------------------------------------------------------", 1,
+                  logger_box=self.loggerBox)
+            return False
+
+        else:
+            log.d("SUCCESSFULLY DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
+            log.d("------------------------------------------------------------------------------------------------", 1,
+                  logger_box=self.loggerBox)
+            return True
 
     def run(self):
 
@@ -247,16 +335,16 @@ class Main(Setup):
         while self.flag_run:
             ts = threading.Thread(target=self.worker)
             ts.start()
-            time.sleep(0.5)
+            time.sleep(1)
             # print(f'{self.flag_run}')
             # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
             # 同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
         log.d("stop getting screenshot", 1, self.loggerBox)
 
-    def thread_starter(self):
+    def thread_starter(self):  # 不要每次点击启动都跑这个
         thread_run = threading.Thread(target=self.run)
         thread_run.start()
-        lo = self.pd_pos()
+        lo = self.pd_pos(anywhere=True)
         while lo != "main_page" and lo != "notice" and lo != "main_notice":
             self.click(1236, 39)
             self.click(108, 368)
@@ -273,9 +361,11 @@ class Main(Setup):
                 log.line(self.loggerBox)
                 print(self.main_activity[i][0])
                 log.d("begin " + self.main_activity[i][0] + " task", level=1, logger_box=self.loggerBox)
-                self.to_main_page()
-                self.main_to_page(i)
+                if i != 14:
+                    self.to_main_page()
+                    self.main_to_page(i)
                 self.solve(self.main_activity[i][0])
+                print(self.main_activity[i][0], self.main_activity[i][1])
         count = 0
         for i in range(0, len(self.main_activity)):
             if self.main_activity[i][1] == 1:
@@ -288,29 +378,30 @@ class Main(Setup):
             return_data = get_x_y(self.latest_img_array, path)
             print(return_data)
             if return_data[1][0] <= 1e-03:
+                log.d("current_location : " + name, 1, logger_box=self.loggerBox)
                 return name
-        else:
-            while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
-                self.pos.pop()
-            while 1:
-                if len(self.pos) == 2 and self.pos[0][0] == self.pos[1][0]:
-                    lo = self.pos[0][0]
-                    self.pos.clear()
-                    if lo == "UNKNOWN UI PAGE":
-                        if anywhere:
-                            return "click_anywhere"
-                        elif self.unknown_ui_page_count < 20:
-                            self.unknown_ui_page_count += 1
-                            log.d("UNKNOWN UI PAGE COUNT:" + str(self.unknown_ui_page_count), 2,
-                                  logger_box=self.loggerBox)
-                        elif self.unknown_ui_page_count == 20:
-                            log.d("Unknown ui page", 3, logger_box=self.loggerBox)
-                            self.flag_run = False
-                    else:
-                        self.unknown_ui_page_count = 0
-                        log.d("current_location : " + lo, 1, logger_box=self.loggerBox)
-                        return lo
-                time.sleep(1)
+        while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
+            self.pos.pop()
+        while 1:
+            if len(self.pos) == 2 and self.pos[0][0] == self.pos[1][0]:
+                lo = self.pos[0][0]
+                self.pos.clear()
+                if lo == "UNKNOWN UI PAGE":
+                    if anywhere:
+                        log.d("anywhere accepted", 1, logger_box=self.loggerBox)
+                        return "click_anywhere"
+                    elif self.unknown_ui_page_count < 20:
+                        self.unknown_ui_page_count += 1
+                        log.d("UNKNOWN UI PAGE COUNT:" + str(self.unknown_ui_page_count), 2,
+                              logger_box=self.loggerBox)
+                    elif self.unknown_ui_page_count == 20:
+                        log.d("Unknown ui page", 3, logger_box=self.loggerBox)
+                        self.flag_run = False
+                else:
+                    self.unknown_ui_page_count = 0
+                    log.d("current_location : " + lo, 1, logger_box=self.loggerBox)
+                    return lo
+            time.sleep(1)
 
     def solve(self, activity):
         try:
@@ -357,38 +448,26 @@ class Main(Setup):
                 self.click(return_data1[0][0], return_data1[0][1])
                 time.sleep(2)
                 self.click(628, 665)
-                time.sleep(1)
             if return_data2[1][0] < 0.01:
-                log.d("accelerate unfinished creature", level=1, logger_box=self.loggerBox)
+                log.d("accelerate unfinished creature", level=1, logger_box=self.loggerBox)  # 确定有足够加速券
                 self.click(return_data2[0][0], return_data2[0][1])
                 time.sleep(0.5)
                 self.click(775, 477)
-                time.sleep(2)
-            self.latest_img_array = self.get_screen_shot_array()
+                time.sleep(0.5)
+            if not self.common_positional_bug_detect_method("manufacture_store", 628, 665, any=True):
+                return False
             return_data1 = get_x_y(self.latest_img_array, path2)
             return_data2 = get_x_y(self.latest_img_array, path3)
+        return True
 
     def to_main_page(self):
-        while True:
-            if not self.pd_pos() == "main_page":
-                self.click(1236, 39)
-            else:
-                break
+        self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, any=True)
 
 
-# if __name__ == '__main__':
-#    thread_run = threading.Thread(target=b_aas.run)
-#    thread_run.start()
-#    b_aas.main_to_page(14)
-#    print(b_aas.common_create_judge())
-#    print(b_aas.common_fight_practice())
-# Main().solve("arena")
-
-
-# if __name__ == "__main__":
-#     t = Main()
-#     t.start_instance()
-#     a = t.get_screen_shot_array()
-#     print(t.img_ocr(a))
-#     t.get_keyword_appear_time(t.img_ocr(a))
-#     print(t.return_location())
+if __name__ == "__main__":
+    t = Main()
+    t._init_emulator()
+    a = t.get_screen_shot_array()
+    print(t.img_ocr(a))
+    t.get_keyword_appear_time(t.img_ocr(a))
+    print(t.return_location())

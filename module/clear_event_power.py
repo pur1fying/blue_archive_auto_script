@@ -1,11 +1,15 @@
 import time
 import uiautomator2 as u2
 from gui.util import log
-
+import numpy as np
 
 def implement(self):
+
     common_task_count = [(10, 2, 20)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-    hard_task_count = [(5, 3, 3),(3,3,3)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+    hard_task_count = [(5, 3, 3), (3, 3, 3)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+
+    self.common_task_status = np.full(len(common_task_count),False,dtype=bool)
+    self.hard_task_status = np.full(len(hard_task_count),False,dtype=bool)
 
     if len(common_task_count) != 0 or len(hard_task_count) != 0:
         all_task_x_coordinate = 1118
@@ -15,7 +19,8 @@ def implement(self):
         left_change_page_x = 32
         right_change_page_x = 1247
         change_page_y = 360
-        time.sleep(2)
+
+
         if len(common_task_count) != 0:
             log.line(self.loggerBox)
             log.d("common task begin", level=1, logger_box=self.loggerBox)
@@ -66,16 +71,11 @@ def implement(self):
                     log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
                     return
                 self.click(767, 501)
-                while 1:
-                    if not self.pd_pos(anywhere=True) == "task_" + str(tar_num):
-                        for j in range(0, 4):
-                            self.connection.click(651, 663)
-                            self.click_time = time.time() - self.base_time
-                            time.sleep(0.1)
-                    else:
-                        break
-                log.d("task finished", level=1, logger_box=self.loggerBox)
-            log.d("common task finished", level=1, logger_box=self.loggerBox)
+                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, any=True):
+                    return False
+                log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
+                      level=1, logger_box=self.loggerBox)
+                log.d("common task finished", level=1, logger_box=self.loggerBox)
 
         if len(hard_task_count) != 0:
             log.line(self.loggerBox)
@@ -134,21 +134,26 @@ def implement(self):
                 lo = self.pd_pos()
                 if lo == "charge_power":
                     log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
-                    break
+                    return True
+
+                self.hard_task_status[i] = True
+
                 if lo == "charge_notice":
-                    log.d("inadequate fight time available", level=2, logger_box=self.loggerBox)
+                    log.d("inadequate fight time available , Try next task", level=3, logger_box=self.loggerBox)
                     continue
+                if lo == "task_message":
+                    log.d("current task AUTO FIGHT UNLOCKED , Try next task",level=2, logger_box=self.loggerBox)
+                    continue
+
                 self.click(767, 501)
-                while 1:
-                    lo = self.pd_pos()
-                    if lo != "task_" + str(tar_num):
-                        for j in range(0, 4):
-                            self.connection.click(651, 663)
-                            self.set_click_time()
-                            time.sleep(0.1)
-                    else:
-                        break
-                log.d("task finished", level=1, logger_box=self.loggerBox)
+
+                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663,any=True,times=8):
+                    return False
+
+                log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
+                      level=1, logger_box=self.loggerBox)
             log.d("hard task finished", level=1, logger_box=self.loggerBox)
+
     self.main_activity[10][1] = 1
     log.d("clear event power task finished", level=1, logger_box=self.loggerBox)
+    return True

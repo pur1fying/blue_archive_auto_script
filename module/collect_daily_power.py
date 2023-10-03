@@ -20,13 +20,18 @@ def implement(self, activity="collect_daily_power"):
             log.d("collect work task reward", level=1, logger_box=self.loggerBox)
             self.click(return_data1[0][0], return_data1[0][1])
             time.sleep(2)
-            self.click(625, 667)
-            time.sleep(0.2)
+            self.click(217, 63)
+            time.sleep(0.5)
+            if not self.common_positional_bug_detect_method("work_task", 217, 63):
+                return False
         else:
             log.d("Can't detect button", level=2, logger_box=self.loggerBox)
-            return
+            return False
+
     if activity == "collect_daily_power":
         self.main_activity[3][1] = 1
+        log.d("collect daily power task finished", level=1, logger_box=self.loggerBox)
     else:
         self.main_activity[13][1] = 1
-    log.d("collect daily power task finished", level=1, logger_box=self.loggerBox)
+        log.d("collect reward task finished", level=1, logger_box=self.loggerBox)
+    return True

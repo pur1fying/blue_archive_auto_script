@@ -3,7 +3,7 @@ import time
 from gui.util import log
 
 
-def total_force_fight_choose_difficulty_and_formation(self, difficulty, formation=3):
+def total_force_fight_choose_difficulty_and_formation(self, difficulty, formation=0, notice=False):
     total_force_fight_y = [225, 351, 487, 389, 533]
     total_force_fight_x = 1156
     formation_x = 64
@@ -34,15 +34,20 @@ def total_force_fight_choose_difficulty_and_formation(self, difficulty, formatio
         else:
             times = 0
             i += 1
+    log.d("start fight attempt time : " + str(formation+1),1,logger_box=self.loggerBox)
+    self.click(1160, 659)
+    time.sleep(0.5)
+    if notice:
+        self.click(767, 504)
 
 
 def implement(self):
-    pri_total_force_fight = 4
-    total_force_fight_choose_difficulty_and_formation(self, pri_total_force_fight)
-    self.click(1156, 657)
-    time.sleep(0.5)
-    self.click(851, 458)
-    time.sleep(6)
+    first_time_total_force_fight = True
+    pri_total_force_fight = 0
+    if first_time_total_force_fight:
+        first_time_total_force_fight = False
+        total_force_fight_choose_difficulty_and_formation(self, pri_total_force_fight,notice=True)
+
     while self.pd_pos(True) != "notice":
         self.click(768, 504)
         time.sleep(4)

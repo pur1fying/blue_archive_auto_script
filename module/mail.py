@@ -19,6 +19,9 @@ def implement(self):
         self.click(return_data1[0][0], return_data1[0][1])
     else:
         log.d("Can't detect button", level=2, logger_box=self.loggerBox)
+        return False
 
     self.main_activity[2][1] = 1
     log.d("mail task finished", level=1, logger_box=self.loggerBox)
+    return True
+

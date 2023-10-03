@@ -18,7 +18,7 @@ def implement(self):
     change_page_y = 360
     for i in range(0, len(self.schedule_pri)):
         tar_num = self.schedule_pri[i]
-        log.d("begin schedule in <" + region_name[tar_num - 1] + ">", level=1, logger_box=self.loggerBox)
+        log.d("begin schedule in [" + region_name[tar_num - 1] + "]", level=1, logger_box=self.loggerBox)
         while cur_num != tar_num:
             if cur_num > tar_num:
                 self.connection.click(left_change_page_x, change_page_y)
@@ -33,17 +33,17 @@ def implement(self):
                     change_page_y) + ")" + " click_time = " + str(self.click_time), level=1,
                       logger_box=self.loggerBox)
             cur_lo = self.pd_pos()
+            if cur_lo[0:8] != "schedule":
+                log.d("unexpected page :" + cur_lo, level=3, logger_box=self.loggerBox)
+                return False
             cur_num = int(cur_lo[8:])
             log.d("now in page " + cur_lo, level=1, logger_box=self.loggerBox)
         x = 1160
         y = 664
-        self.connection.click(x, y)
-        self.set_click_time()
-        log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
-              logger_box=self.loggerBox)
-        if not self.pd_pos() == "all_schedule":
+        self.click(x, y)
+        if not self.common_positional_bug_detect_method("all_schedule", x, y, 2):
             log.d("not in page all schedule , return", level=3, logger_box=self.loggerBox)
-            return
+            return False
         self.latest_img_array = self.get_screen_shot_array()
         img_cro = img_crop(self.latest_img_array, 126, 1167, 98, 719)
         res = self.img_ocr(img_cro)
@@ -65,8 +65,9 @@ def implement(self):
             if self.pd_pos() == "notice":
                 self.main_activity[7][1] = 1
                 log.d("task schedule finished", level=1, logger_box=self.loggerBox)
-                return
+                return True
             time.sleep(2)
             self.set_click_time()
-            while self.pd_pos(anywhere=True) != "all_schedule":
-                self.click(919, 116)
+            if not self.common_positional_bug_detect_method("all_schedule",919,116,times=4,any=True):
+                return False
+        self.click(680, 680)

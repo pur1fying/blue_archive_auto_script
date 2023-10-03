@@ -10,10 +10,10 @@ def implement(self, activity="shop"):
     if activity == "collect_shop_power":
         self.click(100, 370)
         time.sleep(0.5)
-        buy_list = [1, 1, 1, 1,
+        buy_list = [0, 0, 0, 1,
+                    1, 0, 1, 1,
                     1, 1, 1, 1,
-                    1, 1, 1, 1,
-                    1, 1, 0]
+                    1, 0, 0]
         buy_list_for_power_items = [[1000, 204], [1162, 204]]
         buy_list_for_power_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
                                      [700, 461], [857, 461], [1000, 461], [1162, 461]]
@@ -44,7 +44,7 @@ def implement(self, activity="shop"):
             if buy_list[i]:
                 time.sleep(0.1)
                 self.click(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1])
-
+    time.sleep(0.5)
     self.latest_img_array = self.get_screen_shot_array()
     path2 = "src/shop/buy_bright.png"
     path3 = "src/shop/buy_grey.png"
@@ -66,9 +66,11 @@ def implement(self, activity="shop"):
         log.d("items have been brought", level=1, logger_box=self.loggerBox)
     else:
         log.d("Can't detect button", level=2, logger_box=self.loggerBox)
+        return False
     if activity == "collect_shop_power":
         self.main_activity[5][1] = 1
         log.d("collect shop power task finished", level=1, logger_box=self.loggerBox)
     else:
         self.main_activity[4][1] = 1
         log.d("shop task finished", level=1, logger_box=self.loggerBox)
+    return True

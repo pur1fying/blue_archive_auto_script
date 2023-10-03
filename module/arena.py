@@ -35,23 +35,22 @@ def implement(self):
         time.sleep(0.5)
     else:
         log.d("reward collected", level=1, logger_box=self.loggerBox)
+
     choice = 1
     x = 844
     y = [261, 414, 581]
     y = y[choice - 1]
     f_skip = False
 
-    while 1:
+    for i in range(0, 5):
         self.connection.click(x, y)
         time.sleep(1)
         self.connection.click(638, 569)
         lo = self.pd_pos()
-        while lo != "notice" and lo != "attack_formation":
-            lo = self.pd_pos()
         if lo == "notice":
             self.main_activity[9][1] = 1
             log.d("task arena finished", level=1, logger_box=self.loggerBox)
-            return
+            return True
         elif lo == "attack_formation":
             if not f_skip:
                 self.latest_img_array = self.get_screen_shot_array()
@@ -62,15 +61,14 @@ def implement(self):
                 else:
                     log.d("skip choice off , turn on skip choice", level=1, logger_box=self.loggerBox)
                     self.connection.click(1122, 602)
-                    time.sleep(0.1)
+                    time.sleep(0.3)
                 f_skip = True
-        time.sleep(0.5)
-        self.connection.click(1169, 670)
-        while self.pd_pos() == "notice":
-            self.connection.click(1169, 670)
-            time.sleep(2)
-            self.connection.click(1169, 670)
-        while self.pd_pos() != "arena":
-            self.connection.click(666, 555)
 
-        time.sleep(50)
+            self.connection.click(1169, 670)
+            if not self.common_positional_bug_detect_method("notice", 1169, 670, 10):
+                return False
+            if not self.common_positional_bug_detect_method("arena", 666, 555, any=True):
+                return False
+            if i == 4:
+                return True
+            time.sleep(50)

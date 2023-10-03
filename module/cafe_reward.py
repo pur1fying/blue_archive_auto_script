@@ -7,23 +7,38 @@ from gui.util import log
 
 
 def implement(self):
-    self.click(640, 521)
-    time.sleep(2)
-    self.click(274, 161)
-    while self.pd_pos() != "cafe":
+    path1 = "src/cafe/collect_button_bright.png"
+    path2 = "src/cafe/collect_button_grey.png"
+    return_data1 = get_x_y(self.latest_img_array,path1)
+    return_data2 = get_x_y(self.latest_img_array,path2)
+    print(return_data1)
+    print(return_data2)
+    if return_data1[1][0] <= 1e-03:
+        log.d("collect reward",1,logger_box=self.loggerBox)
+        self.click(return_data1[0][0],return_data1[0][1])
+        time.sleep(2)
         self.click(274, 161)
+        time.sleep(0.5)
+        self.click(274, 161)
+    elif return_data2[1][0] <= 1e-03:
+        log.d("reward has been collected",1,logger_box=self.loggerBox)
+        self.click(274, 161)
+    else:
+        log.d("can't detect collect reward button",2,logger_box=self.loggerBox)
+
+    if not self.common_positional_bug_detect_method("cafe",274,161):
+        return False
 
     img_shot = self.get_screen_shot_array()
     path = "src/cafe/invitation_ticket.png"
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
-    target_name = "星野"
+
+    target_name = "响"
     if return_data1[1][0] <= 1e-03:
         log.d("invitation available begin find student " + target_name, 1, logger_box=self.loggerBox)
         self.click(return_data1[0][0], return_data1[0][1])
         time.sleep(1)
-        x_location = 790
-        y_location = [218, 317, 395, 468, 550, 596]
         swipe_x = 630
         swipe_y = 580
         dy = 430
@@ -39,9 +54,9 @@ def implement(self):
         last_student_name = None
         while not stop_flag:
             img_shot = self.get_screen_shot_array()
-         #   cv2.imshow("image", img_shot)
-          #  cv2.waitKey(0)
-           # print(img_shot.shape)
+            #   cv2.imshow("image", img_shot)
+            #  cv2.waitKey(0)
+            # print(img_shot.shape)
             name_st = self.img_ocr(img_shot)
             print(name_st)
             detected_name = []
@@ -67,7 +82,7 @@ def implement(self):
                 st = st + str(detected_name[s]) + " "
             if st == "":
                 log.d("No name detected", 2, logger_box=self.loggerBox)
-                stop_flag = True
+                break
             log.d("detected name :" + st, 1, logger_box=self.loggerBox)
             if detected_name[len(detected_name) - 1] == last_student_name:
                 log.d("Can't detect target student", 2, logger_box=self.loggerBox)
@@ -87,27 +102,22 @@ def implement(self):
                                 break
                         time.sleep(0.5)
                         self.click(770, 500)
-                        time.sleep(2)
-                        self.click(274, 161)
-                        while self.pd_pos() != "cafe":
-                            self.click(274, 161)
-                        break
+                        self.common_positional_bug_detect_method("cafe", 274, 161,2)
                 if not stop_flag:
                     self.connection.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, 0.5)
                     self.click(617, 500)
     else:
-        log.d("invitation ticket used", 2, logger_box=self.loggerBox)
+        log.d("invitation ticket used", 1, logger_box=self.loggerBox)
     start_x = 640
     start_y = 360
     swipe_action_list = [[640, 640, 0, -640, -640, -640, -640, 0, 640, 640, 640],
                          [0, 0, -360, 0, 0, 0, 0, -360, 0, 0, 0]]
+
     for i in range(0, len(swipe_action_list[0])):
-        while self.pd_pos(anywhere=True) != "cafe":
-            self.click(640, 360)
         stop_flag = False
         while not stop_flag:
             shot = self.get_screen_shot_array()
-            location = []
+            location = 0
             #  print(shot.shape)
             #  for i in range(0, 720):
             #      print(shot[i][664][:])
@@ -116,7 +126,9 @@ def implement(self):
                     if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
-                        location.append([x, y + 42])
+                        location += 1
+                        log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1, logger_box=self.loggerBox)
+                        self.click(x+25, y+42)
                         for tmp1 in range(-40, 40):
                             for tmp2 in range(-40, 40):
                                 if 0 <= x + tmp1 < 1280:
@@ -124,16 +136,16 @@ def implement(self):
                                 else:
                                     break
 
-            if len(location) == 0:
+            if location == 0:
                 log.d("no interaction swipe to next stage", 1, logger_box=self.loggerBox)
                 stop_flag = True
             else:
-                log.d("find " + str(len(location)) + " interaction available", 1, logger_box=self.loggerBox)
-                for tt in range(0, len(location)):
-                    self.click(location[tt][0], location[tt][1])
-                    time.sleep(0.1)
+                log.d("totally find " + str(location) + " interaction available", 1, logger_box=self.loggerBox)
 
+        if not self.common_positional_bug_detect_method("cafe", 640, 360, any=True):
+            return False
         self.connection.swipe(start_x, start_y, start_x + swipe_action_list[0][i],
                               start_y + swipe_action_list[1][i], 0.1)
     log.d("cafe task finished", 1, logger_box=self.loggerBox)
     self.main_activity[0][1] = 1
+    return True
