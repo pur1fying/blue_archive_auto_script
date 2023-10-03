@@ -2,5 +2,4 @@
 __pycache__
 dist
 build
-_internal
-*.exe
+test

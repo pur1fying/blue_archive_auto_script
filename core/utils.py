@@ -1,10 +1,4 @@
-import time
-
 import cv2
-import numpy as np
-import uiautomator2 as u2
-
-from gui.util import log
 
 
 def build_next_array(patten):

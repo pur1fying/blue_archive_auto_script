@@ -89,27 +89,6 @@ class Main(Setup):
             log.d("can't identify auto button", level=2, logger_box=self.loggerBox)
         print(auto_r_ave)
 
-    def common_skip_plot_method(self):
-        fail_cnt = 0
-        path = "src/skip_plot/skip_plot_button.png"
-        while fail_cnt <= 20:
-            self.latest_img_array = self.get_screen_shot_array()
-            return_data = self.get_x_y(self.latest_img_array, path)
-            print(return_data)
-            if return_data[1][0] < 1e-03:
-                log.o_p("find skip plot button", 1)
-                self.click_x_y(return_data[0][0], return_data[0][1])
-                time.sleep(1)
-                log.o_p("skip plot", 1)
-                self.click_x_y(766, 520)
-                return True
-            else:
-                fail_cnt += 1
-                log.o_p("can't find skip plot button, fail count: " + str(fail_cnt), 2)
-                self.click_x_y(1205, 37)
-                time.sleep(1)
-        log.o_p("skip plot fail", 3)
-
     def common_fight_practice(self):
         self.flag_run = False
         time.sleep(1)
@@ -410,59 +389,9 @@ class Main(Setup):
             log.d(e, level=3, logger_box=self.loggerBox)
             self.flag_run = False
 
-    def common_create_judge(self):
-        pri = self.pri  # 可设置参数，越靠前的节点在制造时越优先选择
-        node_x = [839, 508, 416, 302, 174]
-        node_y = [277, 388, 471, 529, 555]
-        # 572 278
-        node = []
-        for i in range(0, 5):
-            self.click(node_x[i], node_y[i])
-            time.sleep(0.5 if i == 0 else 0.1)
-            node_info = self.img_ocr(self.get_screen_shot_array())
-            for k in range(0, len(pri)):
-                if kmp(pri[k], node_info) > 0:
-                    if k == 0:
-                        log.d("choose node :" + pri[0], level=1, logger_box=self.loggerBox)
-                        return i
-                    else:
-                        node.append(pri[k])
-        log.d("detected nodes:" + str(node), 1, logger_box=self.loggerBox)
-        for i in range(1, len(pri)):
-            for j in range(0, len(node)):
-                if node[j][0:len(pri[i])] == pri[i]:
-                    log.d("choose node :" + pri[i], level=1, logger_box=self.loggerBox)
-                    return j
-
-    def common_create_collect_operation(self):
-        self.latest_img_array = self.get_screen_shot_array()
-        path2 = "./src/create/collect.png"
-        path3 = "./src/create/finish_instantly.png"
-        return_data1 = get_x_y(self.latest_img_array, path2)
-        return_data2 = get_x_y(self.latest_img_array, path3)
-        print(return_data1)
-        print(return_data2)
-        while return_data1[1][0] < 1e-03 or return_data2[1][0] < 1e-03:
-            if return_data1[1][0] < 0.01:
-                log.d("collect finished creature", level=1, logger_box=self.loggerBox)
-                self.click(return_data1[0][0], return_data1[0][1])
-                time.sleep(2)
-                self.click(628, 665)
-            if return_data2[1][0] < 0.01:
-                log.d("accelerate unfinished creature", level=1, logger_box=self.loggerBox)  # 确定有足够加速券
-                self.click(return_data2[0][0], return_data2[0][1])
-                time.sleep(0.5)
-                self.click(775, 477)
-                time.sleep(0.5)
-            if not self.common_positional_bug_detect_method("manufacture_store", 628, 665, any=True):
-                return False
-            return_data1 = get_x_y(self.latest_img_array, path2)
-            return_data2 = get_x_y(self.latest_img_array, path3)
-        return True
-
     def to_main_page(self):
-        self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, any=True)
-
+        while not self.pd_pos() == "main_page":
+            self.click(1236, 39)
 
 if __name__ == "__main__":
     t = Main()
