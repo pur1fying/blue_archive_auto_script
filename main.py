@@ -11,7 +11,7 @@ from core.utils import kmp, get_x_y
 from gui.components.logger_box import LoggerBox
 from gui.util import log
 from gui.util.config import conf
-
+import pyminitouch as mt
 
 class Main(Setup):
 
@@ -23,7 +23,7 @@ class Main(Setup):
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
 
-        for i in range(0, 3):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
+        for i in range(0, 8):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
             self.main_activity[i][1] = 1
 
     def _init_emulator(self):
@@ -133,7 +133,7 @@ class Main(Setup):
             else:
                 self.click(767, 500)
                 log.d("fighting", level=1, logger_box=self.loggerBox)
-            time.sleep(2)
+            time.sleep(3)
 
         thread_run = threading.Thread(target=self.run)
         thread_run.start()
@@ -141,24 +141,16 @@ class Main(Setup):
         if not success:
             while 1:
                 self.latest_img_array = self.get_screen_shot_array()
-                path2 = "src/common_button/fail_check.png"
-                return_data1 = get_x_y(self.latest_img_array, path2)
-                if return_data1[1][0] < 1e-03:
-                    log.d("Fail Back", level=1, logger_box=self.loggerBox)
-                    self.click(return_data1[0][0], return_data1[0][1])
+                path = "src/common_button/fail_back.png"
+                return_data = get_x_y(self.latest_img_array, path)
+                print(return_data)
+                if return_data[1][0] < 1e-03:
+                    log.d("Fail BACK", level=1, logger_box=self.loggerBox)
+                    self.click(return_data[0][0], return_data[0][1])
                     break
-                time.sleep(2)
         else:
-            while 1:
-                self.latest_img_array = self.get_screen_shot_array()
-                path2 = "src/common_button/check_yellow.png"
-                return_data1 = get_x_y(self.latest_img_array, path2)
-                print(return_data1[1][0])
-                if return_data1[1][0] < 1e-03:
-                    log.d("reward collected success back", level=1, logger_box=self.loggerBox)
-                    self.click(return_data1[0][0], return_data1[0][1])
-                    break
-                time.sleep(2)
+            self.common_positional_bug_detect_method("fight_success", 1171, 60)
+            self.click(772, 657)
 
         time.sleep(5)
         return success
@@ -330,7 +322,7 @@ class Main(Setup):
             return True
 
     def run(self):
-
+        self.flag_run = True
         log.d("start getting screenshot", 1, self.loggerBox)
         while self.flag_run:
             ts = threading.Thread(target=self.worker)
@@ -346,6 +338,13 @@ class Main(Setup):
         thread_run.start()
         lo = self.pd_pos(anywhere=True)
         while lo != "main_page" and lo != "notice" and lo != "main_notice":
+            path = "src/skip_plot/skip_plot_button.png"
+            return_data = get_x_y(self.latest_img_array,path)
+            if return_data[1][0] <= 1e-03:
+                log.d("AT PLOT PAGE skip plot",1,logger_box=self.loggerBox)
+                self.click(return_data[0][0],return_data[0][1])
+                lo = "plot"
+                break
             self.click(1236, 39)
             self.click(108, 368)
             lo = self.pd_pos(anywhere=True)
@@ -361,7 +360,7 @@ class Main(Setup):
                 log.line(self.loggerBox)
                 print(self.main_activity[i][0])
                 log.d("begin " + self.main_activity[i][0] + " task", level=1, logger_box=self.loggerBox)
-                if i != 14:
+                if i != 8:
                     self.to_main_page()
                     self.main_to_page(i)
                 self.solve(self.main_activity[i][0])
@@ -464,10 +463,18 @@ class Main(Setup):
         self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, any=True)
 
 
+def trans(x, y):
+    return 720 - y, x
+
+
 if __name__ == "__main__":
     t = Main()
     t._init_emulator()
-    a = t.get_screen_shot_array()
-    print(t.img_ocr(a))
-    t.get_keyword_appear_time(t.img_ocr(a))
+    t.latest_img_array = t.get_screen_shot_array()
+    path2 = "src/common_button/fail_back.png"
+    return_data1 = get_x_y(t.latest_img_array, path2)
+    print(return_data1)
+    ocr_res = t.img_ocr(t.get_screen_shot_array())
+    print(ocr_res)
+    t.get_keyword_appear_time(ocr_res)
     print(t.return_location())

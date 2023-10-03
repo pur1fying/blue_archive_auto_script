@@ -29,7 +29,7 @@ class Setup:
 
         self.keyword = ["总力战信息", "区域", "排名", "奖励", "奖励信息", "调整编队", "部队", "选择值日员", "更新",
                         "增益", "袭击", "火车", "确认", "聊天", "组员列表", "点击继续", "访问", "自动加入", "剧情目录",
-                        "扫荡完成","总力战结果", "已获得排名积分","可以拖动礼物","结束编辑模式",
+                        "扫荡完成","总力战结果", "已获得排名积分","可以拖动礼物","结束编辑模式","入场","返回大厅",
                         "任务信息", "材料", "进入剧情", "剧情信息", "选择剧情", "变更", "全部收纳",
                         "邀请券", "库存", "第1任务", "第2任务", "第3任务", "第4任务", "第5任务", "第6任务", "第7任务",
                         "第9任务", "第10任务", "第11任务", "第12任务", "第13任务", "第14任务",
@@ -91,6 +91,8 @@ class Setup:
             return "plot_message"
         elif self.pd(["概率信息", "概率"], [1, 3]):
             return "probability_message"
+        elif self.pd(["确认", "返回大厅"], [1, 1]):
+            return "fight_success"
         elif self.pd(["概要", "确认"], [1, 1]):
             return "summary"
         elif self.pd(["相克信息"], [1]) or self.pd(["敌方信息"], [1]):
@@ -222,7 +224,7 @@ class Setup:
                 return "equipment"
         elif self.pd(["成员列表", "成员等级"], [1, 1]):
             return "member_arrangement"
-        elif self.pd(["奖励信息", "排名"], [1, 1]):
+        elif self.pd(["奖励信息", "排名"], [1, 1]) or self.pd(["奖励信息", "入场"], [1, 2]):
             return "total_force_fight"
         elif self.pd(["道具", "使用"], [1, 1]):
             if self.pd(["排序"], [1]):
@@ -289,7 +291,7 @@ class Setup:
             return "choose_event"
         elif self.pd(["总力战结果", "已获得排名积分"], [1, 1,]):
             return "total_force_fight_result"
-        elif self.pd(["编队", "成员", "商店", "日程"], [1, 1, 1, 1]) or self.pd(["小组", "编队", "商店", "制造"], [1, 1, 1, 1]):
+        elif self.pd(["编队", "成员", "商店", "日程"], [1, 1, 1, 1]) or self.pd(["小组", "编队", "商店", "制造"], [1, 1, 1, 1]) or self.pd(["招募", "成员", "商店", "制造"], [1, 1, 1, 1]):
             if self.pd(["学院", "成员"], [1, 2]) or self.pd(["好感等级", "成员"], [1, 2]):
                 return "momo_talk1"
             else:

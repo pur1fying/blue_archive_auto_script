@@ -4,8 +4,8 @@ from gui.util import log
 
 
 def implement(self):
-    dif = [3, 4, 5]
-    count = [5,5,5]
+    dif = [6, 6, 6]
+    count = [2,2,2]
     self.rewarded_task_status = [False,False,False]
     just_do_task = False
     if not self.rewarded_task_status[0]:

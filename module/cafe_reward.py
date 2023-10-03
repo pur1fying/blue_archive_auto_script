@@ -1,5 +1,4 @@
 import time
-
 import cv2
 
 from core.utils import pd_rgb, get_x_y
@@ -126,15 +125,16 @@ def implement(self):
                     if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
-                        location += 1
-                        log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1, logger_box=self.loggerBox)
-                        self.click(x+25, y+42)
-                        for tmp1 in range(-40, 40):
-                            for tmp2 in range(-40, 40):
-                                if 0 <= x + tmp1 < 1280:
-                                    shot[y + tmp2][x + tmp1] = [0, 0, 0]
-                                else:
-                                    break
+                        if x+25 <= 1280:
+                            self.click(x+25, y+42)
+                            location += 1
+                            log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1, logger_box=self.loggerBox)
+                            for tmp1 in range(-40, 40):
+                                for tmp2 in range(-40, 40):
+                                    if 0 <= x + tmp1 < 1280:
+                                        shot[y + tmp2][x + tmp1] = [0, 0, 0]
+                                    else:
+                                        break
 
             if location == 0:
                 log.d("no interaction swipe to next stage", 1, logger_box=self.loggerBox)
