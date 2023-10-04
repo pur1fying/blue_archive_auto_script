@@ -1,17 +1,10 @@
 import time
-import uiautomator2 as u2
+
 from gui.util import log
-import numpy as np
+
 
 def implement(self):
-
-    common_task_count = [(10, 2, 20)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-    hard_task_count = [(5, 3, 3), (3, 3, 3)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
-
-    self.common_task_status = np.full(len(common_task_count),False,dtype=bool)
-    self.hard_task_status = np.full(len(hard_task_count),False,dtype=bool)
-
-    if len(common_task_count) != 0 or len(hard_task_count) != 0:
+    if len(self.common_task_count) != 0 or len(self.self.hard_task_count) != 0:
         all_task_x_coordinate = 1118
         common_task_y_coordinates = [242, 342, 438, 538, 569, 469, 369, 269]
         hard_task_y_coordinates = [250, 360, 470]
@@ -19,24 +12,23 @@ def implement(self):
         left_change_page_x = 32
         right_change_page_x = 1247
         change_page_y = 360
-
-
-        if len(common_task_count) != 0:
+        time.sleep(2)
+        if len(self.common_task_count) != 0:
             log.line(self.loggerBox)
             log.d("common task begin", level=1, logger_box=self.loggerBox)
             log.d("change to common level", level=1, logger_box=self.loggerBox)
             self.click(800, 150)
             time.sleep(0.1)
-            for i in range(0, len(common_task_count)):
+            for i in range(0, len(self.common_task_count)):
                 cur_lo = self.pd_pos()
                 log.d("now in page " + cur_lo, level=1, logger_box=self.loggerBox)
                 if cur_lo[0:4] != "task":
                     log.d("incorrect page exit common task", level=3, logger_box=self.loggerBox)
                     break
                 cur_num = int(cur_lo[5:])
-                tar_num = common_task_count[i][0]
-                tar_level = common_task_count[i][1]
-                tar_times = common_task_count[i][2]
+                tar_num = self.common_task_count[i][0]
+                tar_level = self.common_task_count[i][1]
+                tar_times = self.common_task_count[i][2]
                 log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " started",
                       level=1, logger_box=self.loggerBox)
                 while cur_num != tar_num:
@@ -71,13 +63,13 @@ def implement(self):
                     log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
                     return
                 self.click(767, 501)
-                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, any=True):
+                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, anywhere=True):
                     return False
                 log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
                       level=1, logger_box=self.loggerBox)
                 log.d("common task finished", level=1, logger_box=self.loggerBox)
 
-        if len(hard_task_count) != 0:
+        if len(self.hard_task_count) != 0:
             log.line(self.loggerBox)
             log.d("hard task begin", level=1, logger_box=self.loggerBox)
 
@@ -85,16 +77,16 @@ def implement(self):
             self.connection.click(1065, 150)
             time.sleep(0.1)
 
-            for i in range(0, len(hard_task_count)):
+            for i in range(0, len(self.hard_task_count)):
                 cur_lo = self.pd_pos()
                 if cur_lo[0:4] != "task":
                     log.d("incorrect page exit common task", level=3, logger_box=self.loggerBox)
                     break
                 cur_num = int(cur_lo[5:])
                 log.d("now in page " + cur_lo, level=1, logger_box=self.loggerBox)
-                tar_num = hard_task_count[i][0]
-                tar_level = hard_task_count[i][1]
-                tar_times = hard_task_count[i][2]
+                tar_num = self.hard_task_count[i][0]
+                tar_level = self.hard_task_count[i][1]
+                tar_times = self.hard_task_count[i][2]
                 log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " started",
                       level=1, logger_box=self.loggerBox)
                 while cur_num != tar_num:
@@ -142,12 +134,12 @@ def implement(self):
                     log.d("inadequate fight time available , Try next task", level=3, logger_box=self.loggerBox)
                     continue
                 if lo == "task_message":
-                    log.d("current task AUTO FIGHT UNLOCKED , Try next task",level=2, logger_box=self.loggerBox)
+                    log.d("current task AUTO FIGHT UNLOCKED , Try next task", level=2, logger_box=self.loggerBox)
                     continue
 
                 self.click(767, 501)
 
-                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663,any=True,times=8):
+                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True, times=8):
                     return False
 
                 log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",

@@ -1,3 +1,4 @@
+import threading
 import time
 
 from core.utils import get_x_y
@@ -12,20 +13,18 @@ def implement(self):
     if return_data1[1][0] <= 1e-03:
         log.d("collect arena first reward", level=1, logger_box=self.loggerBox)
         self.click(return_data1[0][0], return_data1[0][1])
-        log.d("Click :(" + str(return_data1[0][0]) + " " + str(
-            return_data1[0][1]) + ")" + " click_time = " + str(self.click_time), level=1,
-              logger_box=self.loggerBox)
         time.sleep(2)
         self.click(666, 672)
         time.sleep(0.5)
     else:
-        log.d("reward arena second collected", level=1, logger_box=self.loggerBox)
+        log.d("arena first reward has been collected", level=1, logger_box=self.loggerBox)
+
     self.latest_img_array = self.get_screen_shot_array()
     path2 = "../src/arena/collect_reward1.png"
     return_data1 = get_x_y(self.latest_img_array, path2)
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
-        log.d("collect reward", level=1, logger_box=self.loggerBox)
+        log.d("collect arena second reward", level=1, logger_box=self.loggerBox)
         self.click(return_data1[0][0], return_data1[0][1])
         log.d("Click :(" + str(return_data1[0][0]) + " " + str(
             return_data1[0][1]) + ")" + " click_time = " + str(self.click_time), level=1,
@@ -34,7 +33,7 @@ def implement(self):
         self.click(666, 672)
         time.sleep(0.5)
     else:
-        log.d("reward collected", level=1, logger_box=self.loggerBox)
+        log.d("arena second reward has been collected", level=1, logger_box=self.loggerBox)
 
     choice = 1
     x = 844
@@ -57,18 +56,20 @@ def implement(self):
                 path2 = "../src/arena/skip.png"
                 return_data1 = get_x_y(self.latest_img_array, path2)
                 if return_data1[1][0] <= 1e-03:
-                    log.d("skip choice on", level=1, logger_box=self.loggerBox)
+                    log.d("skip choice ON", level=1, logger_box=self.loggerBox)
                 else:
-                    log.d("skip choice off , turn on skip choice", level=1, logger_box=self.loggerBox)
+                    log.d("skip choice OFF , TURN ON skip choice", level=1, logger_box=self.loggerBox)
                     self.connection.click(1122, 602)
                     time.sleep(0.3)
                 f_skip = True
 
             self.connection.click(1169, 670)
-            if not self.common_positional_bug_detect_method("notice", 1169, 670, 10):
-                return False
-            if not self.common_positional_bug_detect_method("arena", 666, 555, any=True):
+            if not self.common_positional_bug_detect_method("arena", 1169, 670, times=10, anywhere=True):
                 return False
             if i == 4:
                 return True
-            time.sleep(50)
+            self.flag_run = False
+            time.sleep(53)
+            log.d("WAIT 53 SECONDS...", level=1, logger_box=self.loggerBox)
+            threading.Thread(target=self.run).start()
+

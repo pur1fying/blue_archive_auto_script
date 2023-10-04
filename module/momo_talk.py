@@ -7,10 +7,10 @@ from module import common_solve_affection_story_method
 
 
 def implement(self):
-    if not self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, any=True,
+    if not self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True,
                                                     path="src/momo_talk/momo_talk2.png", name="momo_talk2"):
         return False
-    self.main_to_page(14, path="src/momo_talk/momo_talk2.png", name="momo_talk2")
+    self.main_to_page(14, path="src/momo_talk/momo_talk2.png", name="momo_talk2",any=True)
     self.click(172, 275)
     time.sleep(0.5)
     self.latest_img_array = self.get_screen_shot_array()
@@ -60,17 +60,18 @@ def implement(self):
                 return True
             else:
                 log.d("restart momo_talk task", 1, logger_box=self.loggerBox)
-                self.common_positional_bug_detect_method("momo_talk2", 1236, 39, times=7, any=True, path="src/momo_talk/momo_talk2.png", name="momo_talk2")
-                self.main_to_page(14)
-                return self.solve("momo_talk")
+                self.common_positional_bug_detect_method("momo_talk2", 1236, 39, times=7, anywhere=True,
+                                                         path="src/momo_talk/momo_talk2.png", name="momo_talk2")
+                self.main_to_page(14, path="src/momo_talk/momo_talk2.png", name="momo_talk2")
+                return implement(self)
         else:
             for i in range(0, len(unread_location)):
                 self.click(unread_location[i][0], unread_location[i][1])
                 time.sleep(0.5)
                 common_solve_affection_story_method.implement(self)
                 time.sleep(2)
-                if not self.common_positional_bug_detect_method("momo_talk2", 664, 114, times=2, any=True, path="src/momo_talk/momo_talk2.png", name="momo_talk2"):
-                    log.d("can't detect target position: momo_talk2", 2, logger_box=self.loggerBox)
+                if not self.common_positional_bug_detect_method("momo_talk2", 664, 114, times=2, anywhere=True,
+                                                                path="src/momo_talk/momo_talk2.png", name="momo_talk2"):
                     return False
         main_to_momotalk = False
         self.click(170, 197)

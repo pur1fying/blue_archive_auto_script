@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Debug Page</title>
+    <script>
+        worker = setInterval(async () => {
+            let result = await fetch('/api', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json()).catch(err => clearInterval(worker))
+            if (document.querySelector('.content').innerHTML !== result.data) {
+                let container = document.querySelector('.content')
+                container.innerHTML = result.data
+                container.scrollTop = container.scrollHeight
+            }
+        }, 500);
+    </script>
+    <style>
+        .content {
+            width: calc(100vw - 30px);
+            height: calc(100vh - 110px);
+            overflow: scroll;
+            position: fixed;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+<h1>
+    {{ title }}
+</h1>
+<div class="content"></div>
+</body>
+</html>

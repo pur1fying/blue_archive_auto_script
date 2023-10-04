@@ -10,7 +10,7 @@ from qfluentwidgets import (NavigationItemPosition, FluentWindow,
 
 from gui.fragments.home import HomeFragment
 from gui.fragments.process import ProcessFragment
-from gui.fragments.scheduler import SchedulerFragment
+from gui.fragments.switch import SwitchFragment
 from gui.fragments.settings import SettingsFragment
 
 ICON_DIR = 'gui/assets/logo.png'
@@ -42,7 +42,7 @@ class Window(FluentWindow):
         setThemeColor('#0078d4')
         # create sub interface
         self.homeInterface = HomeFragment()
-        self.schedulerInterface = SchedulerFragment()
+        self.schedulerInterface = SwitchFragment()
         self.processInterface = ProcessFragment()
         self.settingInterface = SettingsFragment()
 
@@ -60,6 +60,7 @@ class Window(FluentWindow):
         self.addSubInterface(self.settingInterface, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
 
     def initWindow(self):
+
         self.setFixedSize(900, 700)
         self.setWindowIcon(QIcon(ICON_DIR))
         self.setWindowTitle('BlueArchiveAutoScript')
@@ -67,6 +68,10 @@ class Window(FluentWindow):
         desktop = QApplication.desktop().availableGeometry()
         _w, _h = desktop.width(), desktop.height()
         self.move(_w // 2 - self.width() // 2, _h // 2 - self.height() // 2)
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        exit(0)
 
 
 if __name__ == '__main__':
@@ -82,3 +87,12 @@ if __name__ == '__main__':
     w = Window()
     w.show()
     app.exec_()
+
+
+# if __name__ == '__main__':
+    # print(datetime.now())
+    # s = Scheduler()
+    # p = s.log('test')
+    # print(p)
+    # p = sorted(p, key=lambda x: x['next_tick'])
+    # print(p)

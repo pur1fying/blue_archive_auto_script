@@ -1,5 +1,4 @@
 import time
-import cv2
 
 from core.utils import pd_rgb, get_x_y
 from gui.util import log
@@ -8,24 +7,24 @@ from gui.util import log
 def implement(self):
     path1 = "src/cafe/collect_button_bright.png"
     path2 = "src/cafe/collect_button_grey.png"
-    return_data1 = get_x_y(self.latest_img_array,path1)
-    return_data2 = get_x_y(self.latest_img_array,path2)
+    return_data1 = get_x_y(self.latest_img_array, path1)
+    return_data2 = get_x_y(self.latest_img_array, path2)
     print(return_data1)
     print(return_data2)
     if return_data1[1][0] <= 1e-03:
-        log.d("collect reward",1,logger_box=self.loggerBox)
-        self.click(return_data1[0][0],return_data1[0][1])
+        log.d("collect reward", 1, logger_box=self.loggerBox)
+        self.click(return_data1[0][0], return_data1[0][1])
         time.sleep(2)
         self.click(274, 161)
         time.sleep(0.5)
         self.click(274, 161)
     elif return_data2[1][0] <= 1e-03:
-        log.d("reward has been collected",1,logger_box=self.loggerBox)
+        log.d("reward has been collected", 1, logger_box=self.loggerBox)
         self.click(274, 161)
     else:
-        log.d("can't detect collect reward button",2,logger_box=self.loggerBox)
+        log.d("can't detect collect reward button", 2, logger_box=self.loggerBox)
 
-    if not self.common_positional_bug_detect_method("cafe",274,161):
+    if not self.common_positional_bug_detect_method("cafe", 274, 161):
         return False
 
     img_shot = self.get_screen_shot_array()
@@ -33,7 +32,7 @@ def implement(self):
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
 
-    target_name = "响"
+    target_name = "爱丽丝"
     if return_data1[1][0] <= 1e-03:
         log.d("invitation available begin find student " + target_name, 1, logger_box=self.loggerBox)
         self.click(return_data1[0][0], return_data1[0][1])
@@ -95,13 +94,18 @@ def implement(self):
                         log.d("find student", level=1, logger_box=self.loggerBox)
                         stop_flag = True
                         for i in range(203, 300):
-                            if pd_rgb(img_shot, 737, i-22, 115, 125, 221, 221, 255, 255) and pd_rgb(img_shot, 737, i, 115, 125, 221, 221, 255, 255) and pd_rgb(img_shot, 737, i + 22, 115, 125, 221, 221, 255, 255):  #   115 125 221 221 225 225
-                                log.d("find first invitation button at " + str((784, i)), level=1, logger_box=self.loggerBox)
-                                self.click(784, i+s*77)
+                            if pd_rgb(img_shot, 737, i - 22, 115, 125, 221, 221, 255, 255) and pd_rgb(img_shot, 737, i,
+                                                                                                      115, 125, 221,
+                                                                                                      221, 255,
+                                                                                                      255) and pd_rgb(
+                                    img_shot, 737, i + 22, 115, 125, 221, 221, 255, 255):  # 115 125 221 221 225 225
+                                log.d("find first invitation button at " + str((784, i)), level=1,
+                                      logger_box=self.loggerBox)
+                                self.click(784, i + s * 77)
                                 break
                         time.sleep(0.5)
                         self.click(770, 500)
-                        self.common_positional_bug_detect_method("cafe", 274, 161,2)
+                        self.common_positional_bug_detect_method("cafe", 274, 161, 2)
                 if not stop_flag:
                     self.connection.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, 0.5)
                     self.click(617, 500)
@@ -125,10 +129,11 @@ def implement(self):
                     if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
-                        if x+25 <= 1280:
-                            self.click(x+25, y+42)
+                            self.click(x, y + 42)
                             location += 1
-                            log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1, logger_box=self.loggerBox)
+                            log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1,
+                                  logger_box=self.loggerBox)
+
                             for tmp1 in range(-40, 40):
                                 for tmp2 in range(-40, 40):
                                     if 0 <= x + tmp1 < 1280:
@@ -142,7 +147,7 @@ def implement(self):
             else:
                 log.d("totally find " + str(location) + " interaction available", 1, logger_box=self.loggerBox)
 
-        if not self.common_positional_bug_detect_method("cafe", 640, 360, any=True):
+        if not self.common_positional_bug_detect_method("cafe", 640, 360, anywhere=True):
             return False
         self.connection.swipe(start_x, start_y, start_x + swipe_action_list[0][i],
                               start_y + swipe_action_list[1][i], 0.1)

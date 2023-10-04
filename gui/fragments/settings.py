@@ -1,8 +1,6 @@
 from PyQt5.QtCore import Qt, QStandardPaths
 from PyQt5.QtWidgets import QWidget
-from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SettingCardGroup, SwitchSettingCard,
-                            FolderListSettingCard)
-from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SettingCardGroup)
 
 from gui.components.conf_exe_card import ServerSettingCard
 from gui.components.conf_file_card import FileSelectSettingCard
