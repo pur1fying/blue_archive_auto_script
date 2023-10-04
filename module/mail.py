@@ -1,5 +1,3 @@
-import time
-
 from core.utils import get_x_y
 from gui.util import log
 
@@ -24,4 +22,3 @@ def implement(self):
     self.main_activity[2][1] = 1
     log.d("mail task finished", level=1, logger_box=self.loggerBox)
     return True
-

@@ -4,8 +4,8 @@ from gui.util import log
 
 
 def implement(self):
-    special_task_guard_count = [1, 4]  # 可设置参数 [i,j]表示据点防御第i关打j次 , 请确保关卡已开启扫荡
-    special_task_credit_count = [2, 4]  # 可设置参数 [i,j]表示信用回收第i关打j次 , 请确保关卡已开启扫荡
+    special_task_guard_count = [6, 4]  # 可设置参数 [i,j]表示据点防御第i关打j次 , 请确保关卡已开启扫荡
+    special_task_credit_count = [7, 4]  # 可设置参数 [i,j]表示信用回收第i关打j次 , 请确保关卡已开启扫荡
     self.special_task_status = [False, False]
     just_do_task = False
     if len(special_task_guard_count) != 0:
@@ -13,7 +13,7 @@ def implement(self):
         log.line(self.loggerBox)
         log.d("special task Guard begin", level=1, logger_box=self.loggerBox)
         self.click(959, 269)
-        if not self.common_positional_bug_detect_method("special_task_guard",959,269,2):
+        if not self.common_positional_bug_detect_method("special_task_guard", 959, 269, 2):
             return False
         if self.special_task_common_operation(special_task_guard_count[0], special_task_guard_count[1]):
             self.special_task_status[0] = True
@@ -42,6 +42,3 @@ def implement(self):
     if self.special_task_status[0] and self.special_task_status[1]:
         return True
     return False
-
-
-

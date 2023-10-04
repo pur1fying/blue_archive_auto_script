@@ -55,7 +55,7 @@ def implement(self):
             self.connection.click(x, y)
             log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
                   logger_box=self.loggerBox)
-            time.sleep(0.6)
+            time.sleep(0.8)
             x = 640
             y = 556
             self.connection.click(640, 556)
@@ -66,8 +66,8 @@ def implement(self):
                 self.main_activity[7][1] = 1
                 log.d("task schedule finished", level=1, logger_box=self.loggerBox)
                 return True
-            time.sleep(2)
+            time.sleep(3)
             self.set_click_time()
-            if not self.common_positional_bug_detect_method("all_schedule",919,116,times=4,any=True):
+            if not self.common_positional_bug_detect_method("all_schedule",962,116,times=4,any=True):
                 return False
         self.click(680, 680)

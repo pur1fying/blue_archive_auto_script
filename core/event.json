@@ -5,7 +5,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "咖啡厅",
@@ -13,7 +14,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "主线清除体力",
@@ -21,7 +23,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "每日特别委托",
@@ -29,7 +32,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "收集每日体力",
@@ -37,7 +41,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "收集奖励",
@@ -45,7 +50,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "收集商店体力",
@@ -53,7 +59,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "自动制造",
@@ -61,7 +68,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "收集小组体力",
@@ -69,7 +77,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "自动收集邮件",
@@ -77,7 +86,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "自动MomoTalk",
@@ -85,7 +95,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "悬赏通缉",
@@ -93,7 +104,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "日程",
@@ -101,7 +113,8 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "商店购买",
@@ -109,14 +122,16 @@
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "总力战",
     "func_name": "total_force_fight",
     "next_tick": 0,
-    "event_start": 0,
+    "event_start":0,
     "event_end": 0,
-    "enabled": true
+    "enabled": true,
+    "interval": 86400
   }
 ]

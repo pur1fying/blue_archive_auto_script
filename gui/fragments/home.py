@@ -1,15 +1,11 @@
-import datetime
-import sys
 import threading
-import time
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QLabel, QVBoxLayout
-from PyQt5.QtGui import QPixmap
-
-from qfluentwidgets import (PrimaryPushSettingCard, SubtitleLabel, setFont, ExpandLayout)
 from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets import (PrimaryPushSettingCard, SubtitleLabel, setFont, ExpandLayout)
 
 from gui.components.logger_box import LoggerBox
 from main import Main

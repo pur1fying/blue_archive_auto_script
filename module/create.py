@@ -71,7 +71,7 @@ def implement(self):
         for i in range(0, tmp):
             log.d("begin create, time: " + str(i + 1), level=1, logger_box=self.loggerBox)
             self.click(lox, loy[i])
-            if not self.common_positional_bug_detect_method("create",lox,loy[i],2):
+            if not self.common_positional_bug_detect_method("create", lox, loy[i], 2):
                 return False
             self.click(907, 206)
             time.sleep(0.2)
@@ -102,7 +102,7 @@ def implement(self):
                 time.sleep(3.5)
                 node_x = [572, 508, 416, 302, 174]
                 node_y = [278, 388, 471, 529, 555]
-                choice = self.common_create_judge()
+                choice = common_create_judge(self)
                 if choice is not None:
                     self.click(node_x[choice], node_y[choice])
                     time.sleep(0.5)

@@ -1,60 +1,12 @@
 {
-  "running": {
-    "name": "Item1",
-    "start_time": 1693924986
-  },
+  "running": "Item1",
   "queue": [
-    {
-      "name":"Item2",
-      "start_time": 1694011385
-    },{
-      "name":"Item3",
-      "start_time": 1694011505
-    },{
-      "name":"Item4",
-      "start_time": 1694015105
-    },{
-      "name":"Item7",
-      "start_time": 1694015105
-    },{
-      "name":"Item8",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item10",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    },{
-      "name":"Item9",
-      "start_time": 1694015105
-    }
+    "Item2",
+    "Item3",
+    "Item4",
+    "Item5",
+    "Item6",
+    "Item7",
+    "Item8"
   ]
 }

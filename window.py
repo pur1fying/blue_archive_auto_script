@@ -1,7 +1,5 @@
 # coding:utf-8
 import sys
-import threading
-import time
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
@@ -61,14 +59,7 @@ class Window(FluentWindow):
         # add custom widget to bottom
         self.addSubInterface(self.settingInterface, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
 
-    def worker(self):
-        while True:
-            print("hello")
-            time.sleep(1)
-
     def initWindow(self):
-        s=threading.Thread(target=self.worker,daemon=True)
-        s.start()
 
         self.setFixedSize(900, 700)
         self.setWindowIcon(QIcon(ICON_DIR))
@@ -79,10 +70,6 @@ class Window(FluentWindow):
         self.move(_w // 2 - self.width() // 2, _h // 2 - self.height() // 2)
 
     def closeEvent(self, event):
-        self.homeInterface.close()
-        self.schedulerInterface.close()
-        self.processInterface.close()
-        self.settingInterface.close()
         super().closeEvent(event)
         exit(0)
 
@@ -100,3 +87,12 @@ if __name__ == '__main__':
     w = Window()
     w.show()
     app.exec_()
+
+
+# if __name__ == '__main__':
+    # print(datetime.now())
+    # s = Scheduler()
+    # p = s.log('test')
+    # print(p)
+    # p = sorted(p, key=lambda x: x['next_tick'])
+    # print(p)
