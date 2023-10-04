@@ -109,7 +109,7 @@ def implement(self):
                     self.click(1123, 650)
                     time.sleep(3)
                     self.click(1123, 650)
-                    if not self.common_positional_bug_detect_method("manufacture_store", 1123, 650, any=True):
+                    if not self.common_positional_bug_detect_method("manufacture_store", 1123, 650, anywhere=True):
                         return False
             else:
                 log.d("Can't detect start button,exit create task", level=2, logger_box=self.loggerBox)

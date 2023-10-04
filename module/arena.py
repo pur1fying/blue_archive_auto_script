@@ -64,12 +64,12 @@ def implement(self):
                 f_skip = True
 
             self.connection.click(1169, 670)
-            if not self.common_positional_bug_detect_method("arena", 1169,670,times=10, any=True):
+            if not self.common_positional_bug_detect_method("arena", 1169, 670, times=10, anywhere=True):
                 return False
             if i == 4:
                 return True
             self.flag_run = False
             time.sleep(53)
-            log.d("WAIT 53 SECONDS", level=1, logger_box=self.loggerBox)
+            log.d("WAIT 53 SECONDS...", level=1, logger_box=self.loggerBox)
             threading.Thread(target=self.run).start()
 

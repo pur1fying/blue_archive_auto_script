@@ -1,4 +1,5 @@
 import threading
+import time
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
@@ -48,9 +49,10 @@ class HomeFragment(QFrame):
         self.logger = LoggerBox(self.expandLayout, self)
         self._main_thread = Main(logger_box=self.logger)
         self.startupCard.clicked.connect(self.__init_starter)
+        threading.Thread(target=self.__button_worker, daemon=True).start()
 
     def __init_starter(self):
-        threading.Thread(target=self.__worker).start()
+        threading.Thread(target=self.__worker, daemon=True).start()
 
     def __worker(self):
         if self._main_thread.flag_run:
@@ -61,3 +63,11 @@ class HomeFragment(QFrame):
             self._main_thread.flag_run = True
             self.startupCard.button.setText("停止")
             self._main_thread.send('start')
+
+    def __button_worker(self):
+        while True:
+            if self._main_thread.flag_run:
+                self.startupCard.button.setText("停止")
+            else:
+                self.startupCard.button.setText("启动")
+            time.sleep(1)

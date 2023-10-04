@@ -1,7 +1,5 @@
 import time
 
-import cv2
-
 from core.utils import pd_rgb, get_x_y
 from gui.util import log
 
@@ -148,7 +146,7 @@ def implement(self):
             else:
                 log.d("totally find " + str(location) + " interaction available", 1, logger_box=self.loggerBox)
 
-        if not self.common_positional_bug_detect_method("cafe", 640, 360, any=True):
+        if not self.common_positional_bug_detect_method("cafe", 640, 360, anywhere=True):
             return False
         self.connection.swipe(start_x, start_y, start_x + swipe_action_list[0][i],
                               start_y + swipe_action_list[1][i], 0.1)

@@ -7,19 +7,30 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Debug Page</title>
     <script>
-        setInterval(() => {
-            fetch('/api', {
+        worker = setInterval(async () => {
+            let result = await fetch('/api', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    document.querySelector('.content').innerHTML = data.content;
-                })
+            }).then(res => res.json()).catch(err => clearInterval(worker))
+            if (document.querySelector('.content').innerHTML !== result.data) {
+                let container = document.querySelector('.content')
+                container.innerHTML = result.data
+                container.scrollTop = container.scrollHeight
+            }
         }, 500);
     </script>
+    <style>
+        .content {
+            width: calc(100vw - 30px);
+            height: calc(100vh - 110px);
+            overflow: scroll;
+            position: fixed;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+    </style>
 </head>
 <body>
 <h1>

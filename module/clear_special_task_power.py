@@ -1,5 +1,3 @@
-import time
-
 from gui.util import log
 
 

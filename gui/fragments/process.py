@@ -1,3 +1,4 @@
+import json
 import threading
 import time
 
@@ -6,7 +7,9 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel)
 
+
 lock = threading.Lock()
+DISPLAY_CONFIG_PATH = './gui/config/display.json'
 
 
 class ProcessFragment(ScrollArea):
@@ -35,15 +38,15 @@ class ProcessFragment(ScrollArea):
     def refresh_status(self):
         while True:
             with lock:
-                with open('./gui/config/display.json', 'r') as f:
-                    json = eval(f.read())
-                    if json['running'] is not None:
-                        self.on_status.setText(json['running'])
+                with open(DISPLAY_CONFIG_PATH, 'r', encoding='utf-8') as f:
+                    _event_display = json.load(f)
+                    if _event_display['running'] is not None:
+                        self.on_status.setText(_event_display['running'])
                     else:
                         self.on_status.setText("暂无正在执行的任务")
-                    if json['queue'] is not None:
+                    if _event_display['queue'] is not None:
                         self.listWidget.clear()
-                        self.listWidget.addItems(json['queue'])
+                        self.listWidget.addItems(_event_display['queue'])
                     else:
                         self.listWidget.clear()
                         self.listWidget.addItems(["暂无队列中的任务"])

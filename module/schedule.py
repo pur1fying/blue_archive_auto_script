@@ -68,6 +68,6 @@ def implement(self):
                 return True
             time.sleep(3)
             self.set_click_time()
-            if not self.common_positional_bug_detect_method("all_schedule",962,116,times=4,any=True):
+            if not self.common_positional_bug_detect_method("all_schedule", 962, 116, times=4, anywhere=True):
                 return False
         self.click(680, 680)

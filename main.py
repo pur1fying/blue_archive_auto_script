@@ -7,6 +7,7 @@ import uiautomator2 as u2
 from qfluentwidgets import qconfig
 
 import module
+from core.scheduler import Scheduler
 from core.setup import Setup
 from core.utils import kmp, get_x_y
 from gui.components.logger_box import LoggerBox
@@ -23,23 +24,30 @@ class Main(Setup):
         self.unknown_ui_page_count = None
         self.loggerBox = logger_box
         self.flag_run = False
+        self._server_record = ''
+        self._first_started = True
+        self.connection = None
+        self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
         self.common_task_count = [(10, 2, 20)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
         self.hard_task_count = [(5, 3, 3), (3, 3, 3)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
-        for i in range(0, 0):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
-            self.main_activity[i][1] = 1
+        # for i in range(0, 0):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
+        #     self.main_activity[i][1] = 1
+        self.scheduler = Scheduler()
         start_debugger()
 
-    def _init_emulator(self):
+    def _init_emulator(self) -> bool:
         # noinspection PyBroadException
         try:
-            # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
             server = qconfig.get(conf.server)
             self.package_name = 'com.RoamingStar.BlueArchive' \
                 if server == '官服' else 'com.RoamingStar.BlueArchive.bilibili'
+            if not self._first_started and self._server_record == server:
+                return True
+            # url = "com.RoamingStar.BlueArchive/com.yostar.sdk.bridge.YoStarUnityPlayerActivity"
             # emulator_path = qconfig.get(conf.emulatorPath)
             # if emulator_path:
             #     log.d("Emulator path: " + emulator_path, level=1, logger_box=self.loggerBox)
@@ -58,15 +66,26 @@ class Main(Setup):
             else:
                 log.d("Screen Size unfitted", level=4, logger_box=self.loggerBox)
                 self.flag_run = False
+                return False
+            self._first_started = False
+            self._server_record = server
+            return True
         except Exception as e:
             log.d(e, level=3, logger_box=self.loggerBox)
             self.flag_run = False
+            return False
 
     def send(self, msg):
+        # try:
         if msg == "start":
             self.start_instance()
         elif msg == "stop":
             self.flag_run = False
+
+    #         except Exception as e:
+
+    #             log.d(e, level=3, logger_box=self.loggerBox)
+    #             self.flag_run = False
 
     def click(self, x, y):  # 点击屏幕（x，y）处
         log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)), level=1,
@@ -125,8 +144,7 @@ class Main(Setup):
                 log.d("fighting", level=1, logger_box=self.loggerBox)
             time.sleep(2)
 
-        thread_run = threading.Thread(target=self.run)
-        thread_run.start()
+        threading.Thread(target=self.run, daemon=True).start()
 
         if not success:
             while 1:
@@ -238,7 +256,7 @@ class Main(Setup):
                 log.d("AUTO FIGHT UNLOCKED , exit task", level=3, logger_box=self.loggerBox)
         return True
 
-    def main_to_page(self, index, path=None, name=None,any=False):
+    def main_to_page(self, index, path=None, name=None, any=False):
 
         self.to_page[7] = [[217, 940], [659, self.schedule_lo_y[self.schedule_pri[0] - 1]],
                            ["schedule", "schedule" + str(self.schedule_pri[0])]]
@@ -255,13 +273,13 @@ class Main(Setup):
             y = procedure[1][i]
             page = procedure[2][i]
             self.click(x, y)
-            if self.pd_pos(path=path, name=name,anywhere=any) != page:
+            if self.pd_pos(path=path, name=name, anywhere=any) != page:
                 if times <= 1:
                     times += 1
                     log.d("not in page " + str(page) + " , count = " + str(times), level=2, logger_box=self.loggerBox)
                 elif times == 2:
                     log.d("not in page " + str(page) + " , return to main page", level=2, logger_box=self.loggerBox)
-                    self.to_main_page(any=any)
+                    self.to_main_page(anywhere=any)
                     times = 0
                     i = 0
             else:
@@ -269,8 +287,8 @@ class Main(Setup):
                 i += 1
 
     def start_instance(self):
-        self._init_emulator()
-        self.thread_starter()
+        if self._init_emulator():
+            self.thread_starter()
 
     def get_screen_shot_array(self):
         try:
@@ -278,6 +296,8 @@ class Main(Setup):
             numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
             return numpy_array
         except IOError as e:
+            time.sleep(1)
+            log.d(f'{e}! Trying screenshot again...', level=3, logger_box=self.loggerBox)
             return self.get_screen_shot_array()
 
     def worker(self):
@@ -294,12 +314,12 @@ class Main(Setup):
             #     print("exceed len 2", shot_time)
             self.pos.pop()
 
-    def common_positional_bug_detect_method(self, pos, x, y, times=3, any=False, path=None, name=None):
+    def common_positional_bug_detect_method(self, pos, x, y, times=3, anywhere=False, path=None, name=None):
         log.d("------------------------------------------------------------------------------------------------", 1,
               logger_box=self.loggerBox)
         log.d("BEGIN DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
         cnt = 1
-        while self.pd_pos(path=path, name=name, anywhere=any) != pos and cnt <= times:
+        while self.pd_pos(path=path, name=name, anywhere=anywhere) != pos and cnt <= times:
             log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
             cnt += 1
             self.click(x, y)
@@ -320,8 +340,8 @@ class Main(Setup):
         self.flag_run = True
         log.d("start getting screenshot", 1, self.loggerBox)
         while self.flag_run:
-            ts = threading.Thread(target=self.worker)
-            ts.start()
+            threading.Thread(target=self.worker, daemon=True).start()
+            # self.worker()
             time.sleep(0.5)
             # print(f'{self.flag_run}')
             # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
@@ -329,7 +349,7 @@ class Main(Setup):
         log.d("stop getting screenshot", 1, self.loggerBox)
 
     def thread_starter(self):  # 不要每次点击启动都跑这个
-        thread_run = threading.Thread(target=self.run)
+        thread_run = threading.Thread(target=self.run, daemon=True)
         thread_run.start()
         lo = self.pd_pos(anywhere=True)
         while lo != "main_page" and lo != "notice" and lo != "main_notice":
@@ -349,23 +369,40 @@ class Main(Setup):
             self.click(763, 500)
         log.line(self.loggerBox)
         log.d("start activities", level=1, logger_box=self.loggerBox)
-        for i in range(0, len(self.main_activity)):
-            print(self.main_activity[i][0], self.main_activity[i][1])
-            if self.main_activity[i][1] == 0:
-                log.line(self.loggerBox)
-                print(self.main_activity[i][0])
-                log.d("begin " + self.main_activity[i][0] + " task", level=1, logger_box=self.loggerBox)
+        while self.flag_run:
+            next_func_name = self.scheduler.heartbeat()
+            if next_func_name:
+                log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
+                i = self.activity_name_list.index(next_func_name)
                 if i != 8 and i != 14:
                     self.to_main_page()
                     self.main_to_page(i)
-                self.solve(self.main_activity[i][0])
-                print(self.main_activity[i][0], self.main_activity[i][1])
-        count = 0
-        for i in range(0, len(self.main_activity)):
-            if self.main_activity[i][1] == 1:
-                count += 1
-        if count == 13:
-            self.flag_run = False
+                if self.solve(next_func_name):
+                    log.d(f'{next_func_name} finished', level=1, logger_box=self.loggerBox)
+                    self.scheduler.systole()
+                else:
+                    log.d(f'{next_func_name} failed', level=3, logger_box=self.loggerBox)
+                    self.flag_run = False
+            else:
+                time.sleep(2)
+
+        # for i in range(0, len(self.main_activity)):
+        #     print(self.main_activity[i][0], self.main_activity[i][1])
+        #     if self.main_activity[i][1] == 0:
+        #         log.line(self.loggerBox)
+        #         print(self.main_activity[i][0])
+        #         log.d("begin " + self.main_activity[i][0] + " task", level=1, logger_box=self.loggerBox)
+        #         if i != 8 and i != 14:
+        #             self.to_main_page()
+        #             self.main_to_page(i)
+        #         self.solve(self.main_activity[i][0])
+        #         print(self.main_activity[i][0], self.main_activity[i][1])
+        # count = 0
+        # for i in range(0, len(self.main_activity)):
+        #     if self.main_activity[i][1] == 1:
+        #         count += 1
+        # if count == 13:
+        #     self.flag_run = False
 
     def pd_pos(self, path=None, name=None, anywhere=False):
         if path:
@@ -398,34 +435,35 @@ class Main(Setup):
                     return lo
             time.sleep(1)
 
-    def solve(self, activity):
+    def solve(self, activity) -> bool:
         try:
-            module.__dict__[activity].implement(self)
+            return module.__dict__[activity].implement(self)
         except Exception as e:
             log.d(e, level=3, logger_box=self.loggerBox)
             self.flag_run = False
+            return False
 
-    def to_main_page(self,any=False):
-        self.common_positional_bug_detect_method("main_page", 1236, 39,times=7,any=any)
+    def to_main_page(self, anywhere=False):
+        self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=anywhere)
 
-# if __name__ == "__main__":
-#     t = Main()
-#     t._init_emulator()
-#     a = t.get_screen_shot_array()
-#     print(t.img_ocr(a))
+if __name__ == "__main__":
+    t = Main()
+    t._init_emulator()
+    a = t.get_screen_shot_array()
+    print(t.img_ocr(a))
 #     t.get_keyword_appear_time(t.img_ocr(a))
 #     print(t.return_location())
 
 
-if __name__ == '__main__':
-    print(time.time())
-    t = Main()
-    t._init_emulator()
-    t.latest_img_array = t.get_screen_shot_array()
-    path2 = "src/momo_talk/momo_talk2.png"
-    return_data1 = get_x_y(t.latest_img_array, path2)
-    print(return_data1)
-    ocr_res = t.img_ocr(t.get_screen_shot_array())
-    print(ocr_res)
-    t.get_keyword_appear_time(ocr_res)
-    print(t.return_location())
+# if __name__ == '__main__':
+#     print(time.time())
+#     t = Main()
+#     t._init_emulator()
+#     t.latest_img_array = t.get_screen_shot_array()
+#     path2 = "src/momo_talk/momo_talk2.png"
+#     return_data1 = get_x_y(t.latest_img_array, path2)
+#     print(return_data1)
+#     ocr_res = t.img_ocr(t.get_screen_shot_array())
+#     print(ocr_res)
+#     t.get_keyword_appear_time(ocr_res)
+#     print(t.return_location())

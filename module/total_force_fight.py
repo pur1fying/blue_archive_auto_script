@@ -23,7 +23,7 @@ def fight_difficulty_x(self, x, skip_plot=False):
         time.sleep(1)
         self.click(800, 533)
         time.sleep(3)
-        if not self.common_positional_bug_detect_method("total_force_fight", 382, 22, 3, any=True):
+        if not self.common_positional_bug_detect_method("total_force_fight", 382, 22, 3, anywhere=True):
             return "UNEXPECTED_PAGE"
     for i in range(0, 4):
         formation_x = 64
@@ -66,17 +66,18 @@ def fight_difficulty_x(self, x, skip_plot=False):
                 return "UNEXPECTED_PAGE"
             log.d("choose formation " + str(i + 1) + " and start fight", 1, logger_box=self.loggerBox)
             self.click(formation_x, formation_y[i])
-            self.click(1011, 552)
+            self.click(1156, 650)
 
-        if self.common_positional_bug_detect_method("notice", 640, 100, times=5, any=True):
+        if not self.common_positional_bug_detect_method("notice", 640, 100, times=7, anywhere=True):
             log.d("SKIP animation", 1, logger_box=self.loggerBox)
             self.click(764, 504)
             time.sleep(3)
+            return "UNEXPECTED_PAGE"
         res = self.common_fight_practice()
 
         if not res:
             log.d("total force fight attempt " + str(i + 1) + " FAILED", 1, logger_box=self.loggerBox)
-            self.common_positional_bug_detect_method("total_force_fight", 382, 22, 5, any=True)
+            self.common_positional_bug_detect_method("total_force_fight", 382, 22, 5, anywhere=True)
 
         if res:
             log.d("total force fight SUCCEEDED", level=1, logger_box=self.loggerBox)
@@ -103,7 +104,7 @@ def implement(self):
         while return_value == "WIN":
             pri_total_force_fight += 1
             return_value = fight_difficulty_x(self, pri_total_force_fight, self.first_time_total_force_fight)
-            self.common_positional_bug_detect_method("total_force_fight", 382, 22, 5, any=True)
+            self.common_positional_bug_detect_method("total_force_fight", 382, 22, 5, anywhere=True)
         if return_value == "NO_TICKETS":
             Auto = False
             pri_total_force_fight -= 1
@@ -143,7 +144,7 @@ def implement(self):
         elif lo == "notice":
             log.d("CLEAR LEFT TICKETS", 1,logger_box=self.loggerBox)
             self.click(768, 511)
-    if self.common_positional_bug_detect_method("total_force_fight", 382, 22, 5, any=True):
+    if self.common_positional_bug_detect_method("total_force_fight", 382, 22, 5, anywhere=True):
         self.click(1184,657)
         time.sleep(2)
         self.click(917,163)

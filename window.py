@@ -10,7 +10,7 @@ from qfluentwidgets import (NavigationItemPosition, FluentWindow,
 
 from gui.fragments.home import HomeFragment
 from gui.fragments.process import ProcessFragment
-from gui.fragments.scheduler import SchedulerFragment
+from gui.fragments.switch import SwitchFragment
 from gui.fragments.settings import SettingsFragment
 
 ICON_DIR = 'gui/assets/logo.png'
@@ -42,7 +42,7 @@ class Window(FluentWindow):
         setThemeColor('#0078d4')
         # create sub interface
         self.homeInterface = HomeFragment()
-        self.schedulerInterface = SchedulerFragment()
+        self.schedulerInterface = SwitchFragment()
         self.processInterface = ProcessFragment()
         self.settingInterface = SettingsFragment()
 

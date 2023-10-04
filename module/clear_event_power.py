@@ -1,7 +1,6 @@
 import time
-import uiautomator2 as u2
+
 from gui.util import log
-import numpy as np
 
 
 def implement(self):
@@ -64,7 +63,7 @@ def implement(self):
                     log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
                     return
                 self.click(767, 501)
-                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, any=True):
+                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, anywhere=True):
                     return False
                 log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
                       level=1, logger_box=self.loggerBox)
@@ -140,7 +139,7 @@ def implement(self):
 
                 self.click(767, 501)
 
-                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, any=True, times=8):
+                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True, times=8):
                     return False
 
                 log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
