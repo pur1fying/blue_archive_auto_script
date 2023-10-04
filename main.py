@@ -13,10 +13,7 @@ from core.utils import kmp, get_x_y
 from gui.components.logger_box import LoggerBox
 from gui.util import log
 from gui.util.config import conf
-
 from debug.debugger import start_debugger
-
-
 class Main(Setup):
 
     def __init__(self, logger_box: LoggerBox = None):
@@ -142,7 +139,7 @@ class Main(Setup):
             else:
                 self.click(767, 500)
                 log.d("fighting", level=1, logger_box=self.loggerBox)
-            time.sleep(2)
+            time.sleep(3)
 
         threading.Thread(target=self.run, daemon=True).start()
 
@@ -155,6 +152,7 @@ class Main(Setup):
                 if return_data1[1][0] < 1e-03:
                     log.d("Fail Back", level=1, logger_box=self.loggerBox)
                     self.click(return_data1[0][0], return_data1[0][1])
+
                     break
         else:
             self.common_positional_bug_detect_method("fight_success", 1171, 60)
@@ -446,24 +444,18 @@ class Main(Setup):
     def to_main_page(self, anywhere=False):
         self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=anywhere)
 
+def trans(x, y):
+    return 720 - y, x
+
+
 if __name__ == "__main__":
     t = Main()
     t._init_emulator()
-    a = t.get_screen_shot_array()
-    print(t.img_ocr(a))
-#     t.get_keyword_appear_time(t.img_ocr(a))
-#     print(t.return_location())
-
-
-# if __name__ == '__main__':
-#     print(time.time())
-#     t = Main()
-#     t._init_emulator()
-#     t.latest_img_array = t.get_screen_shot_array()
-#     path2 = "src/momo_talk/momo_talk2.png"
-#     return_data1 = get_x_y(t.latest_img_array, path2)
-#     print(return_data1)
-#     ocr_res = t.img_ocr(t.get_screen_shot_array())
-#     print(ocr_res)
-#     t.get_keyword_appear_time(ocr_res)
-#     print(t.return_location())
+    t.latest_img_array = t.get_screen_shot_array()
+    path2 = "src/common_button/fail_back.png"
+    return_data1 = get_x_y(t.latest_img_array, path2)
+    print(return_data1)
+    ocr_res = t.img_ocr(t.get_screen_shot_array())
+    print(ocr_res)
+    t.get_keyword_appear_time(ocr_res)
+    print(t.return_location())

@@ -292,9 +292,11 @@ class Setup:
             return "choose_event"
         elif self.pd(["总力战结果", "已获得排名积分"], [1, 1, ]):
             return "total_force_fight_result"
+
         elif self.pd(["编队", "成员", "商店", "日程"], [1, 1, 1, 1]) or self.pd(["小组", "编队", "商店", "制造"],
                                                                                 [1, 1, 1, 1]) or self.pd(
                 ["招募", "成员", "商店", "制造"], [1, 1, 1, 1]):
+
             if self.pd(["学院", "成员"], [1, 2]) or self.pd(["好感等级", "成员"], [1, 2]):
                 return "momo_talk1"
             else:

@@ -133,6 +133,7 @@ def implement(self):
                             location += 1
                             log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1,
                                   logger_box=self.loggerBox)
+
                             for tmp1 in range(-40, 40):
                                 for tmp2 in range(-40, 40):
                                     if 0 <= x + tmp1 < 1280:
