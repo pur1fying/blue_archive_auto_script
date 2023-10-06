@@ -3,3 +3,6 @@ __pycache__
 dist
 build
 test
+training
+tmp
+lib

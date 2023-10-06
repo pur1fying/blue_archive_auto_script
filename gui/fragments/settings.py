@@ -15,7 +15,7 @@ class SettingsFragment(ScrollArea):
 
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
-        self.settingLabel = TitleLabel(self.tr("设置"), self)
+        self.settingLabel = TitleLabel(self.tr("设置"), self.scrollWidget)
 
         self.basicGroup = SettingCardGroup(
             self.tr("基本"), self.scrollWidget)

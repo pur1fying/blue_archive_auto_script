@@ -16,17 +16,23 @@ logger.addHandler(handler1)
 def d(message, level=4, logger_box: LoggerBox = None):
     while len(logging.root.handlers) > 0:
         logging.root.handlers.pop()
-    status = ['INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    status = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
     statusColor = ['#2d8cf0', '#f90', '#ed3f14', '#3e0480']
-    statusHtml = [f'<b style="color:{color}">{status}</b>' for color, status in zip(statusColor, status)]
+    statusHtml = [
+        f'<b style="color:{color};">{status}</b>'
+        for color, status in zip(statusColor, status)]
     if logger_box is not None:
         logger_box.lineEdit.scrollContentsBy(0, 100)
-        debugger_view.content += f'{statusHtml[level - 1]} | {datetime.now()} | {message} | <br/>'
-        logger_box.lineEdit.append(f'{statusHtml[level - 1]} | {datetime.now()} | {message} |')
+        adding = (f'<div style="font-family: Consolas, monospace;color:{statusColor[level - 1]};">'
+                  f'{statusHtml[level - 1]} | {datetime.now()} | {message} '
+                  f'</div>')
+        debugger_view.content += adding
+        logger_box.lineEdit.append(adding)
 
 
 def line(logger_box: LoggerBox = None):
     if logger_box is not None:
         logger_box.lineEdit.scrollContentsBy(0, 100)
+        logger_box.lineEdit.scroll
         logger_box.lineEdit.append('---------------------------------------------------------------------------'
                                    '-------------------')

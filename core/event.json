@@ -1,17 +1,26 @@
 [
   {
+    "event_name": "每日特别委托",
+    "func_name": "clear_special_task_power",
+    "next_tick": 0,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 0
+  },
+  {
     "event_name": "总力战",
     "func_name": "total_force_fight",
     "next_tick": 0,
     "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
+    "event_end": 1,
+    "enabled": false,
     "interval": 86400
   },
   {
     "event_name": "竞技场",
     "func_name": "arena",
-    "next_tick": 1696498573,
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,
@@ -20,61 +29,43 @@
   {
     "event_name": "咖啡厅",
     "func_name": "cafe_reward",
-    "next_tick": 1696498599,
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
-    "interval": 86400
+    "enabled": false,
+    "interval": 0
   },
   {
-    "event_name": "主线清除体力",
-    "func_name": "clear_event_power",
-    "next_tick": 1696498610,
+    "event_name": "收集每日体力",
+    "func_name": "collect_daily_power",
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,
     "interval": 86400
   },
   {
-    "event_name": "每日特别委托",
-    "func_name": "clear_special_task_power",
-    "next_tick": 1696498826,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "收集每日体力",
-    "func_name": "collect_daily_power",
-    "next_tick": 1696498833,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
     "event_name": "收集奖励",
     "func_name": "collect_reward",
-    "next_tick": 1696498840,
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
+    "enabled": false,
     "interval": 86400
   },
   {
     "event_name": "收集商店体力",
     "func_name": "collect_shop_power",
-    "next_tick": 1696498847,
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
+    "enabled": false,
     "interval": 86400
   },
   {
     "event_name": "自动制造",
     "func_name": "create",
-    "next_tick": 1696498854,
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,
@@ -83,34 +74,43 @@
   {
     "event_name": "收集小组体力",
     "func_name": "group",
-    "next_tick": 1696499051,
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "查收邮箱",
-    "func_name": "mail",
-    "next_tick": 1696499059,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
+    "enabled": false,
     "interval": 86400
   },
   {
     "event_name": "自动MomoTalk",
     "func_name": "momo_talk",
-    "next_tick": 1696499749,
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
+    "enabled": false,
     "interval": 86400
   },
   {
-    "event_name": "悬赏通缉",
-    "func_name": "rewarded_task",
-    "next_tick": 1696500836,
+    "event_name": "查收邮箱",
+    "func_name": "mail",
+    "next_tick": 1696453734,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 200
+  },
+  {
+    "event_name": "主线清除体力",
+    "func_name": "clear_event_power",
+    "next_tick": 1696527168,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 86400
+  },
+  {
+    "event_name": "商店购买",
+    "func_name": "shop",
+    "next_tick": 1696527496,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,
@@ -119,19 +119,19 @@
   {
     "event_name": "日程",
     "func_name": "schedule",
-    "next_tick": 1696501434,
+    "next_tick": 1696527941,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
+    "enabled": false,
     "interval": 86400
   },
   {
-    "event_name": "商店购买",
-    "func_name": "shop",
-    "next_tick": 1696501452,
+    "event_name": "悬赏通缉",
+    "func_name": "rewarded_task",
+    "next_tick": 1696528053,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
+    "enabled": false,
     "interval": 86400
   }
 ]

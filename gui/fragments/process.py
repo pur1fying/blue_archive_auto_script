@@ -7,7 +7,6 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel)
 
-
 lock = threading.Lock()
 DISPLAY_CONFIG_PATH = './gui/config/display.json'
 
@@ -28,8 +27,7 @@ class ProcessFragment(ScrollArea):
         self.label_queuing = SubtitleLabel(self.tr("队列中"), self)
         self.listWidget.setFixedSize(800, 380)
 
-        t_daemon = threading.Thread(target=self.refresh_status)
-        t_daemon.daemon = True
+        t_daemon = threading.Thread(target=self.refresh_status, daemon=True)
         t_daemon.start()
 
         self.__initLayout()

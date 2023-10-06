@@ -60,8 +60,8 @@ def implement(self):
                     time.sleep(0.6)
                 self.click(937, 404)
                 if self.pd_pos() == "charge_power":
-                    log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
-                    return
+                    log.d("inadequate power , exit task", level=4, logger_box=self.loggerBox)
+                    return True
                 self.click(767, 501)
                 if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, anywhere=True):
                     return False
@@ -105,7 +105,7 @@ def implement(self):
                     cur_lo = self.pd_pos()
                     if cur_lo[0:4] != "task":
                         log.d("incorrect page exit task clear power", level=3, logger_box=self.loggerBox)
-                        return
+                        return False
                     cur_num = int(cur_lo[5:])
                     log.d("now in page " + cur_lo, level=1, logger_box=self.loggerBox)
 
