@@ -17,7 +17,7 @@ from gui.util.config import conf
 sys.stderr = open('error.log', 'w+', encoding='utf-8')
 
 from debug.debugger import start_debugger
-import pyminitouch as mt
+
 class Main(Setup):
 
     def __init__(self, logger_box: LoggerBox = None):
