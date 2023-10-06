@@ -1,4 +1,4 @@
-cnocr==2.2.3.2
+cnocr>=2.2.4.1
 numpy~=1.26.0
 uiautomator2==2.16.23
 opencv-python==4.8.0.74
