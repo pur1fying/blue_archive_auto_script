@@ -2,8 +2,8 @@ from gui.util import log
 
 
 def implement(self):
-    dif = [6, 6, 6]
-    count = [2, 2, 2]
+    dif = [6, 6, 6]  # ** 三个悬赏委托分别打的难度 0 1 2 3 ... 分别表示 A B C D 难度
+    count = [2, 2, 2]  # ** 三个悬赏委托分别打的次数
     self.rewarded_task_status = [False, False, False]
     just_do_task = False
     if not self.rewarded_task_status[0]:

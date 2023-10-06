@@ -35,7 +35,7 @@ def implement(self):
     else:
         log.d("arena second reward has been collected", level=1, logger_box=self.loggerBox)
 
-    choice = 1
+    choice = 1 # ** 总力战打第choice个对手
     x = 844
     y = [261, 414, 581]
     y = y[choice - 1]

@@ -32,7 +32,7 @@ def implement(self):
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
 
-    target_name = "爱丽丝"
+    target_name = "爱丽丝"  # ** 可设置参数 邀请券邀请学生的名字
     if return_data1[1][0] <= 1e-03:
         log.d("invitation available begin find student " + target_name, 1, logger_box=self.loggerBox)
         self.click(return_data1[0][0], return_data1[0][1])

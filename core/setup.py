@@ -23,7 +23,7 @@ class Setup:
         self.pos = []
         self.click_time = 0.0
 
-        self.schedule_pri = [4, 3, 2, 1, 5]  # 可设置参数，日程区域优先级
+        self.schedule_pri = [4, 3, 2, 1, 5]  #** 可设置参数，日程区域优先级  1 2 3 4 5 分别表示 已经出的五个区域
         self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
         self.latest_img_array = None
 
@@ -35,6 +35,7 @@ class Setup:
         self.schedule_lo_y = basic_config['schedule_point_list']
         self.to_page = basic_config['to_page']
         self.location_recognition_list = basic_config['location_recognition_list']
+
 
         self.keyword_apper_time_dictionary = {i: 0 for i in self.keyword}
 
