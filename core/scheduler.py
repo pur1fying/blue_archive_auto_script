@@ -20,8 +20,9 @@ class Scheduler:
         self._read_config()
 
     def _read_config(self):
-        with open(EVENT_CONFIG_PATH, 'r', encoding='utf-8') as f:
-            self._event_config = json.load(f)
+        with lock:
+            with open(EVENT_CONFIG_PATH, 'r', encoding='utf-8') as f:
+                self._event_config = json.load(f)
 
     def _commit_change(self):
         with lock:

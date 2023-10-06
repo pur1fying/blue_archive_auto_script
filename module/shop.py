@@ -8,11 +8,11 @@ def implement(self, activity="shop"):
     if activity == "collect_shop_power":
         self.click(100, 370)
         time.sleep(0.5)
-        buy_list = [1, 1, 1, 1,
+        buy_list = [1, 1, 1, 1,     # ** 竞技场商品购买表 1 表示购买
                     1, 0, 0, 0,
                     0, 0, 0, 0,
                     0, 0, 0]
-        buy_list_for_power_items = [[1000, 204], [1162, 204]]
+
         buy_list_for_power_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
                                     [700, 461], [857, 461], [1000, 461], [1162, 461]]
         for i in range(0, 8):
@@ -26,7 +26,7 @@ def implement(self, activity="shop"):
                 time.sleep(0.1)
                 self.click(buy_list_for_power_items[i % 8][0], buy_list_for_power_items[i % 8][1])
     else:
-        buy_list = [0, 0, 0, 0,
+        buy_list = [0, 0, 0, 0,     # ** 每日商品购买表 1 表示购买
                     1, 1, 1, 1,
                     1, 1, 1, 1,
                     1, 1, 1, 1]

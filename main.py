@@ -14,6 +14,7 @@ from gui.components.logger_box import LoggerBox
 from gui.util import log
 from gui.util.config import conf
 from debug.debugger import start_debugger
+import pyminitouch as mt
 class Main(Setup):
 
     def __init__(self, logger_box: LoggerBox = None):
@@ -27,12 +28,10 @@ class Main(Setup):
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
-        self.common_task_count = [(10, 2, 20)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-        self.hard_task_count = [(5, 3, 3), (3, 3, 3)]  # 可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+        self.common_task_count = [(10, 2, 10),(11, 3, 10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+        self.hard_task_count = [(1, 3, 3), (3, 3, 3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
-        # for i in range(0, 0):  # 可设置参数 range(0,i) 中 i 表示前 i 项任务不做
-        #     self.main_activity[i][1] = 1
         self.scheduler = Scheduler()
         start_debugger()
 
@@ -300,16 +299,16 @@ class Main(Setup):
 
     def worker(self):
         shot_time = time.time() - self.base_time
-        # print(shot_time)
+        print(shot_time)
         self.latest_img_array = self.get_screen_shot_array()
         ct = time.time()
         self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
-        #  print("shot time", shot_time,"click time",self.click_time)
+        print("shot time", shot_time,"click time",self.click_time)
         locate_res = self.return_location()
         if shot_time > self.click_time:
             self.pos.insert(0, [locate_res, shot_time])
         if len(self.pos) > 2:
-            #     print("exceed len 2", shot_time)
+            print("exceed len 2", shot_time)
             self.pos.pop()
 
     def common_positional_bug_detect_method(self, pos, x, y, times=3, anywhere=False, path=None, name=None):
@@ -317,22 +316,24 @@ class Main(Setup):
               logger_box=self.loggerBox)
         log.d("BEGIN DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
         cnt = 1
-        while self.pd_pos(path=path, name=name, anywhere=anywhere) != pos and cnt <= times:
+        t = self.pd_pos(path=path, name=name, anywhere=anywhere)
+        while cnt <= times:
+            if t == pos:
+                log.d("SUCCESSFULLY DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
+                log.d("------------------------------------------------------------------------------------------------", 1,
+                      logger_box=self.loggerBox)
+                return True
             log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
             cnt += 1
             self.click(x, y)
-            time.sleep(2)
-        if cnt == times + 1:
-            log.d("CAN'T DETECT POSITION " + pos.upper(), 3, logger_box=self.loggerBox)
-            log.d("------------------------------------------------------------------------------------------------", 1,
-                  logger_box=self.loggerBox)
-            return False
+            t = self.pd_pos(path=path, name=name, anywhere=anywhere)
 
-        else:
-            log.d("SUCCESSFULLY DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
-            log.d("------------------------------------------------------------------------------------------------", 1,
-                  logger_box=self.loggerBox)
-            return True
+        log.d("CAN'T DETECT POSITION " + pos.upper(), 3, logger_box=self.loggerBox)
+        log.d("------------------------------------------------------------------------------------------------", 1,
+              logger_box=self.loggerBox)
+        return False
+
+
 
     def run(self):
         self.flag_run = True
@@ -340,7 +341,7 @@ class Main(Setup):
         while self.flag_run:
             threading.Thread(target=self.worker, daemon=True).start()
             # self.worker()
-            time.sleep(0.5)
+            time.sleep(1)
             # print(f'{self.flag_run}')
             # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
             # 同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
@@ -372,7 +373,7 @@ class Main(Setup):
             if next_func_name:
                 log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
                 i = self.activity_name_list.index(next_func_name)
-                if i != 8 and i != 14:
+                if i != 14:
                     self.to_main_page()
                     self.main_to_page(i)
                 if self.solve(next_func_name):
@@ -410,8 +411,10 @@ class Main(Setup):
             if return_data[1][0] <= 1e-03:
                 log.d("current_location : " + name, 1, logger_box=self.loggerBox)
                 return name
+
         while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
             self.pos.pop()
+
         while 1:
             if len(self.pos) == 2 and self.pos[0][0] == self.pos[1][0]:
                 lo = self.pos[0][0]

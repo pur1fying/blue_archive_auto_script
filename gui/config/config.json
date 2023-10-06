@@ -34,7 +34,7 @@
         "Path": "D:/leidian/LDPlayer9/dnplayer.exe"
     },
     "Settings": {
-        "port": 7555,
+        "port": "127.0.0.1：7555",
         "server": "官服"
     },
     "QFluentWidgets": {

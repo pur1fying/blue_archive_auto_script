@@ -10,12 +10,12 @@ class Setup:
         self.pos = []
         self.click_time = 0.0
 
-        self.schedule_pri = [4, 3, 2, 1, 5]  # 可设置参数，日程区域优先级
+        self.schedule_pri = [4, 3, 2, 1, 5]  #** 可设置参数，日程区域优先级  1 2 3 4 5 分别表示 已经出的五个区域
         self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
         self.latest_img_array = None
 
         self.pri = ["花", "Mo", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银", "金属",
-                    "隐然"]
+                    "隐然"] # ** 制造物品优先级
 
         self.main_activity = ["cafe_reward", "group", "mail", "collect_daily_power", "shop", "collect_shop_power",
                               "rewarded_task",
