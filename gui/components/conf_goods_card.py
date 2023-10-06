@@ -1,9 +1,15 @@
 # coding:utf-8
+import json
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QWidget, QLabel)
 from qfluentwidgets import ExpandSettingCard, ConfigItem, PushButton, qconfig, FlowLayout, CheckBox
 from qfluentwidgets import FluentIcon as FIF
+import threading
+
+EXTEND_CONFIG_PATH = './gui/config/extend.json'
+
+lock = threading.Lock()
 
 
 class GoodsItem(QWidget):
@@ -64,7 +70,6 @@ class ItemSelectSettingCard(ExpandSettingCard):
             goodsList = [0] * 16
         self.configItem = configItem
         self._dialogDirectory = goodsList
-
         self.file = qconfig.get(configItem)
         self.file = self.file.copy()  # type:list[int]
         self.__initWidget()
@@ -75,7 +80,6 @@ class ItemSelectSettingCard(ExpandSettingCard):
         self.viewLayout.setSpacing(0)
         self.viewLayout.setAlignment(Qt.AlignTop)
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
-
         self.item = GoodsItem(self.file, self.view)
 
         for box in self.item.boxes:

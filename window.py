@@ -1,6 +1,8 @@
 # coding:utf-8
 import sys
 
+sys.path.append('./')
+
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
@@ -73,6 +75,15 @@ class Window(FluentWindow):
         super().closeEvent(event)
         exit(0)
 
+def start():
+    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    
+    app = QApplication(sys.argv)
+    w = Window()
+    w.show()
+    app.exec_()
 
 
 if __name__ == '__main__':

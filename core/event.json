@@ -1,7 +1,25 @@
 [
   {
-    "event_name": "主线清除体力",
-    "func_name": "clear_event_power",
+    "event_name": "每日特别委托",
+    "func_name": "clear_special_task_power",
+    "next_tick": 0,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 0
+  },
+  {
+    "event_name": "总力战",
+    "func_name": "total_force_fight",
+    "next_tick": 0,
+    "event_start": 0,
+    "event_end": 1,
+    "enabled": false,
+    "interval": 86400
+  },
+  {
+    "event_name": "竞技场",
+    "func_name": "arena",
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
@@ -9,13 +27,13 @@
     "interval": 86400
   },
   {
-    "event_name": "每日特别委托",
-    "func_name": "clear_special_task_power",
+    "event_name": "咖啡厅",
+    "func_name": "cafe_reward",
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,
-    "interval": 86400
+    "interval": 0
   },
   {
     "event_name": "收集每日体力",
@@ -63,15 +81,6 @@
     "interval": 86400
   },
   {
-    "event_name": "查收邮箱",
-    "func_name": "mail",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": false,
-    "interval": 86400
-  },
-  {
     "event_name": "自动MomoTalk",
     "func_name": "momo_talk",
     "next_tick": 0,
@@ -81,17 +90,17 @@
     "interval": 86400
   },
   {
-    "event_name": "悬赏通缉",
-    "func_name": "rewarded_task",
+    "event_name": "查收邮箱",
+    "func_name": "mail",
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,
-    "interval": 86400
+    "interval": 200
   },
   {
-    "event_name": "日程",
-    "func_name": "schedule",
+    "event_name": "主线清除体力",
+    "func_name": "clear_event_power",
     "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
@@ -108,27 +117,18 @@
     "interval": 86400
   },
   {
-    "event_name": "总力战",
-    "func_name": "total_force_fight",
-    "next_tick": 1,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "竞技场",
-    "func_name": "arena",
-    "next_tick": 1696515906,
+    "event_name": "日程",
+    "func_name": "schedule",
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,
     "interval": 86400
   },
   {
-    "event_name": "咖啡厅",
-    "func_name": "cafe_reward",
-    "next_tick": 1696520438,
+    "event_name": "悬赏通缉",
+    "func_name": "rewarded_task",
+    "next_tick": 0,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,

@@ -71,5 +71,4 @@ def implement(self):
             self.flag_run = False
             time.sleep(53)
             log.d("WAIT 53 SECONDS...", level=1, logger_box=self.loggerBox)
-            threading.Thread(target=self.run).start()
-
+            threading.Thread(target=self.run, daemon=True).start()

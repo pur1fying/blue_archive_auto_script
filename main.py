@@ -1,4 +1,4 @@
-import subprocess
+import sys
 import threading
 import time
 
@@ -10,9 +10,12 @@ import module
 from core.scheduler import Scheduler
 from core.setup import Setup
 from core.utils import kmp, get_x_y
+from debug.debugger import start_debugger
 from gui.components.logger_box import LoggerBox
 from gui.util import log
 from gui.util.config import conf
+sys.stderr = open('error.log', 'w+', encoding='utf-8')
+
 from debug.debugger import start_debugger
 import pyminitouch as mt
 class Main(Setup):
@@ -20,8 +23,12 @@ class Main(Setup):
     def __init__(self, logger_box: LoggerBox = None):
         super().__init__()
         self.unknown_ui_page_count = None
+        self.io_err_solved_count = 0
+        self.io_err_count = 0
+        self.io_err_rate = 10
         self.loggerBox = logger_box
         self.flag_run = False
+        self.click_interval = 0.5
         self._server_record = ''
         self._first_started = True
         self.connection = None
@@ -84,10 +91,10 @@ class Main(Setup):
     #             self.flag_run = False
 
     def click(self, x, y):  # 点击屏幕（x，y）处
-        log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)), level=1,
-              logger_box=self.loggerBox)
         self.connection.click(x, y)
         self.set_click_time()
+        log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)), level=1,
+              logger_box=self.loggerBox)
 
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
         img1 = self.get_screen_shot_array()
@@ -138,7 +145,7 @@ class Main(Setup):
             else:
                 self.click(767, 500)
                 log.d("fighting", level=1, logger_box=self.loggerBox)
-            time.sleep(3)
+            time.sleep(2)
 
         threading.Thread(target=self.run, daemon=True).start()
 
@@ -151,7 +158,6 @@ class Main(Setup):
                 if return_data1[1][0] < 1e-03:
                     log.d("Fail Back", level=1, logger_box=self.loggerBox)
                     self.click(return_data1[0][0], return_data1[0][1])
-
                     break
         else:
             self.common_positional_bug_detect_method("fight_success", 1171, 60)
@@ -291,19 +297,37 @@ class Main(Setup):
         try:
             screenshot = self.connection.screenshot()
             numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
+            if abs(int(self.click_interval * 100) - 50) > 1e-05:
+                if self.io_err_solved_count == self.io_err_rate:
+                    log.d("The IOError cease to happen.", level=1, logger_box=self.loggerBox)
+                    log.d("Trying reducing the screenshot interval by 0.1s.", level=1, logger_box=self.loggerBox)
+                    self.click_interval -= 0.1
+                    self.io_err_solved_count = 0
+                    self.io_err_count = max(self.io_err_count - 1, 0)
+                else:
+                    self.io_err_solved_count += 1
             return numpy_array
-        except IOError as e:
-            time.sleep(1)
+        except Exception as e:
+            log.d("The IOError happened! Trying add the screenshot interval by 0.1s.",
+                  level=3, logger_box=self.loggerBox)
+            if self.io_err_count >= self.io_err_rate:
+                self.click_interval += 0.1
+                self.io_err_count = 0
+            self.io_err_count += 1
             log.d(f'{e}! Trying screenshot again...', level=3, logger_box=self.loggerBox)
-            return self.get_screen_shot_array()
+            time.sleep(1 + int(self.click_interval))
+            return None
 
     def worker(self):
+
         shot_time = time.time() - self.base_time
         print(shot_time)
         self.latest_img_array = self.get_screen_shot_array()
         ct = time.time()
+        
         self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
         print("shot time", shot_time,"click time",self.click_time)
+
         locate_res = self.return_location()
         if shot_time > self.click_time:
             self.pos.insert(0, [locate_res, shot_time])
@@ -341,11 +365,12 @@ class Main(Setup):
         while self.flag_run:
             threading.Thread(target=self.worker, daemon=True).start()
             # self.worker()
-            time.sleep(1)
+            time.sleep(self.click_interval)
             # print(f'{self.flag_run}')
             # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
             # 同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
         log.d("stop getting screenshot", 1, self.loggerBox)
+        print("run stop")
 
     def thread_starter(self):  # 不要每次点击启动都跑这个
         thread_run = threading.Thread(target=self.run, daemon=True)
@@ -378,12 +403,14 @@ class Main(Setup):
                     self.main_to_page(i)
                 if self.solve(next_func_name):
                     log.d(f'{next_func_name} finished', level=1, logger_box=self.loggerBox)
-                    self.scheduler.systole()
+                    self.scheduler.systole(next_func_name)
                 else:
                     log.d(f'{next_func_name} failed', level=3, logger_box=self.loggerBox)
                     self.flag_run = False
+                self.to_main_page()
             else:
                 time.sleep(2)
+        print("thread_starter stop")
 
         # for i in range(0, len(self.main_activity)):
         #     print(self.main_activity[i][0], self.main_activity[i][1])
@@ -416,6 +443,8 @@ class Main(Setup):
             self.pos.pop()
 
         while 1:
+            if not self.flag_run:
+                return
             if len(self.pos) == 2 and self.pos[0][0] == self.pos[1][0]:
                 lo = self.pos[0][0]
                 self.pos.clear()
@@ -447,15 +476,22 @@ class Main(Setup):
     def to_main_page(self, anywhere=False):
         self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=anywhere)
 
-def trans(x, y):
-    return 720 - y, x
-
 
 if __name__ == "__main__":
     t = Main()
     t._init_emulator()
+    a = t.get_screen_shot_array()
+    print(t.img_ocr(a))
+#     t.get_keyword_appear_time(t.img_ocr(a))
+#     print(t.return_location())
+
+
+if __name__ == '__main__':
+    print(time.time())
+    t = Main()
+    t._init_emulator()
     t.latest_img_array = t.get_screen_shot_array()
-    path2 = "src/common_button/fail_back.png"
+    path2 = "src/momo_talk/momo_talk2.png"
     return_data1 = get_x_y(t.latest_img_array, path2)
     print(return_data1)
     ocr_res = t.img_ocr(t.get_screen_shot_array())
