@@ -6,7 +6,7 @@ from gui.util import log
 
 def implement(self):
     fail_cnt = 0
-    path = "src/skip_plot/skip_plot_button.png"
+    path = "src/common_button/skip_plot/button"
     while fail_cnt <= 7:
         self.latest_img_array = self.get_screen_shot_array()
         return_data = get_x_y(self.latest_img_array, path)

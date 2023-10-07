@@ -91,7 +91,6 @@ if __name__ == '__main__':
     # pa._init_emulator()
     # pa.solve("arena")
 
-
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)

@@ -34,6 +34,7 @@
       "momo_talk"
     ],
     "activity_label_list": [
+
       "咖啡厅收集",
       "领取小组体力",
       "一键领取邮件",
@@ -50,6 +51,7 @@
       "领取任务奖励"
     ],
     "keyword": [
+      "提示",
       "总力战信息",
       "区域",
       "排名",
@@ -709,6 +711,11 @@
       "count_list": [[1]],
       "result": "edit_mode"
     },
+      {
+        "name_list": [["提示"]],
+        "count_list": [[1]],
+        "result": "remind"
+      },
     {
       "name_list": [["招募"]],
       "count_list": [[3]],

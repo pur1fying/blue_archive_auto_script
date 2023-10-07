@@ -1,0 +1,26 @@
+Exception in thread Thread-1 (start_view):
+Traceback (most recent call last):
+  File "D:\anaconda\Lib\threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "D:\anaconda\Lib\threading.py", line 975, in run
+    self._target(*self._args, **self._kwargs)
+  File "D:\github\bass\blue_archive_auto_script\debug\debugger.py", line 30, in start_view
+    server.serve_forever()
+  File "D:\anaconda\Lib\site-packages\gevent\baseserver.py", line 398, in serve_forever
+    self.start()
+  File "D:\anaconda\Lib\site-packages\gevent\baseserver.py", line 336, in start
+    self.init_socket()
+  File "D:\anaconda\Lib\site-packages\gevent\pywsgi.py", line 1668, in init_socket
+    StreamServer.init_socket(self)
+  File "D:\anaconda\Lib\site-packages\gevent\server.py", line 173, in init_socket
+    self.socket = self.get_listener(self.address, self.backlog, self.family)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\anaconda\Lib\site-packages\gevent\server.py", line 185, in get_listener
+    return _tcp_listener(address, backlog=backlog, reuse_addr=cls.reuse_addr, family=family)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\anaconda\Lib\site-packages\gevent\server.py", line 264, in _tcp_listener
+    sock.bind(address)
+  File "D:\anaconda\Lib\site-packages\gevent\_socketcommon.py", line 547, in bind
+    return self._sock.bind(address)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。: ('127.0.0.1', 5000)

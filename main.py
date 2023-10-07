@@ -1,7 +1,7 @@
 import sys
 import threading
 import time
-
+import os
 import numpy as np
 import uiautomator2 as u2
 from qfluentwidgets import qconfig
@@ -14,14 +14,17 @@ from debug.debugger import start_debugger
 from gui.components.logger_box import LoggerBox
 from gui.util import log
 from gui.util.config import conf
+
 sys.stderr = open('error.log', 'w+', encoding='utf-8')
 
 from debug.debugger import start_debugger
+
 
 class Main(Setup):
 
     def __init__(self, logger_box: LoggerBox = None):
         super().__init__()
+        self.screenshot_flag_run = None
         self.unknown_ui_page_count = None
         self.io_err_solved_count = 0
         self.io_err_count = 0
@@ -35,8 +38,8 @@ class Main(Setup):
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
-        self.common_task_count = [(10, 2, 10),(11, 3, 10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-        self.hard_task_count = [(1, 3, 3), (3, 3, 3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+        self.common_task_count = [(10, 2, 10), (11, 3, 10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+        self.hard_task_count = [(5, 3, 3), (3, 3, 3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
         self.scheduler = Scheduler()
@@ -96,6 +99,22 @@ class Main(Setup):
         log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)), level=1,
               logger_box=self.loggerBox)
 
+    def operation(self, operation_name, parameter):
+        if self.flag_run:
+            if operation_name == "click":
+                x = parameter[0]
+                y = parameter[1]
+                duration = parameter[2]
+                self.click(x, y)
+                time.sleep(duration)
+            elif operation_name == "swipe":
+                x1 = parameter[0]
+                y1 = parameter[1]
+                x2 = parameter[2]
+                y2 = parameter[3]
+                duration = parameter[4]
+                self.connection.swipe(x1, y1, x2, y2, duration=duration)
+
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
         img1 = self.get_screen_shot_array()
         acc_r_ave = img1[625][1196][0] // 3 + img1[625][1215][0] // 3 + img1[625][1230][0] // 3
@@ -123,7 +142,7 @@ class Main(Setup):
         print(auto_r_ave)
 
     def common_fight_practice(self):
-        self.flag_run = False
+        self.screenshot_flag_run = False
         time.sleep(1)
         self.change_acc_auto()
         while 1:
@@ -190,7 +209,7 @@ class Main(Setup):
         log.d("try to swipe to TOP page", level=1, logger_box=self.loggerBox)
         while fail_cnt <= 3:
             log.d("swipe", level=1, logger_box=self.loggerBox)
-            self.connection.swipe(916, 200, 916, 460, 0.1)
+            self.connection.swipe(762, 200, 916, 460, 0.1)
             time.sleep(1)
             img_shot = self.get_screen_shot_array()
             ocr_res = self.img_ocr(img_shot)
@@ -216,11 +235,12 @@ class Main(Setup):
             log.d("try to swipe to LOWEST page", level=1, logger_box=self.loggerBox)
             while fail_cnt <= 3:
                 log.d("swipe", level=1, logger_box=self.loggerBox)
-                self.connection.swipe(916, 460, 916, 200, 0.1)
+                self.connection.swipe(762, 460, 916, 200, 0.1)
                 time.sleep(1)
                 img_shot = self.get_screen_shot_array()
                 ocr_res = self.img_ocr(img_shot)
                 if kmp("D", ocr_res) == 0 or kmp("A", ocr_res) != 0:
+                    print(ocr_res)
                     fail_cnt += 1
                     if fail_cnt <= 3:
                         log.d("TRY AGAIN", 1, logger_box=self.loggerBox)
@@ -321,18 +341,18 @@ class Main(Setup):
     def worker(self):
 
         shot_time = time.time() - self.base_time
-        print(shot_time)
+        #  print(shot_time)
         self.latest_img_array = self.get_screen_shot_array()
         ct = time.time()
-        
+
         self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
-        print("shot time", shot_time,"click time",self.click_time)
+        # print("shot time", shot_time,"click time",self.click_time)
 
         locate_res = self.return_location()
         if shot_time > self.click_time:
             self.pos.insert(0, [locate_res, shot_time])
         if len(self.pos) > 2:
-            print("exceed len 2", shot_time)
+            #        print("exceed len 2", shot_time)
             self.pos.pop()
 
     def common_positional_bug_detect_method(self, pos, x, y, times=3, anywhere=False, path=None, name=None):
@@ -344,8 +364,10 @@ class Main(Setup):
         while cnt <= times:
             if t == pos:
                 log.d("SUCCESSFULLY DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
-                log.d("------------------------------------------------------------------------------------------------", 1,
-                      logger_box=self.loggerBox)
+                log.d(
+                    "------------------------------------------------------------------------------------------------",
+                    1,
+                    logger_box=self.loggerBox)
                 return True
             log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
             cnt += 1
@@ -357,15 +379,60 @@ class Main(Setup):
               logger_box=self.loggerBox)
         return False
 
+    def quick_method_to_main_page(self):
+        image_names = [
+            "back_to_main_page",
+            "menu",
+            "skip_plot_button",
+            "back_to_home",
+            "cross4",
+            "momotalk_cross",
+            "cross1",
+            "cross2",
+            "cross3",
+            "cross6",
+            "cross5",
 
+        ]
+        lo = self.pd_pos(anywhere=True)
+        while lo != "main_page":
+            print(lo)
+            last_x = -1
+            last_y = -1
+            cnt = 0
+            click_flag = False
+            for image_name in image_names:
+                path = os.path.join("src/common_button/", image_name + ".png")
+                print(image_name)
+                return_data = get_x_y(self.latest_img_array, path)
+                print(return_data)
+                if return_data[1][0] <= 1e-03:
+                    click_flag = True
+                    self.click(return_data[0][0], return_data[0][1])
+                    if image_name == "skip_plot_button":
+                        time.sleep(0.5)
+                        self.click(770, 518)
+                    break
+                elif abs(last_x - return_data[0][0]) <= 5 and abs(last_y - return_data[0][1]) <= 5:
+                    cnt += 1
+                    if cnt == 4:
+                        click_flag = True
+                        self.click(last_x, last_y)
+                        break
+                last_x = return_data[0][0]
+                last_y = return_data[0][1]
+            if not click_flag:
+                self.click(1239, 40)
+
+            lo = self.pd_pos(anywhere=True)
 
     def run(self):
-        self.flag_run = True
+        self.screenshot_flag_run = True
         log.d("start getting screenshot", 1, self.loggerBox)
-        while self.flag_run:
+        while self.screenshot_flag_run:
             threading.Thread(target=self.worker, daemon=True).start()
             # self.worker()
-            time.sleep(self.click_interval)
+            time.sleep(1)
             # print(f'{self.flag_run}')
             # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
             # 同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
@@ -375,22 +442,7 @@ class Main(Setup):
     def thread_starter(self):  # 不要每次点击启动都跑这个
         thread_run = threading.Thread(target=self.run, daemon=True)
         thread_run.start()
-        lo = self.pd_pos(anywhere=True)
-        while lo != "main_page" and lo != "notice" and lo != "main_notice":
-            path = "src/skip_plot/skip_plot_button.png"
-            return_data = get_x_y(self.latest_img_array, path)
-            if return_data[1][0] <= 1e-03:
-                log.d("AT PLOT PAGE skip plot", 1, logger_box=self.loggerBox)
-                self.click(return_data[0][0], return_data[0][1])
-                lo = "plot"
-                break
-            self.click(1236, 39)
-            self.click(108, 368)
-            lo = self.pd_pos(anywhere=True)
-        if lo == "main_notice":
-            self.click(1138, 101)
-        elif lo == "notice":
-            self.click(763, 500)
+        self.quick_method_to_main_page()
         log.line(self.loggerBox)
         log.d("start activities", level=1, logger_box=self.loggerBox)
         while self.flag_run:
@@ -443,8 +495,6 @@ class Main(Setup):
             self.pos.pop()
 
         while 1:
-            if not self.flag_run:
-                return
             if len(self.pos) == 2 and self.pos[0][0] == self.pos[1][0]:
                 lo = self.pos[0][0]
                 self.pos.clear()
@@ -477,24 +527,15 @@ class Main(Setup):
         self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=anywhere)
 
 
-if __name__ == "__main__":
-    t = Main()
-    t._init_emulator()
-    a = t.get_screen_shot_array()
-    print(t.img_ocr(a))
-#     t.get_keyword_appear_time(t.img_ocr(a))
-#     print(t.return_location())
-
-
 if __name__ == '__main__':
-    print(time.time())
+    # # print(time.time())
     t = Main()
-    t._init_emulator()
-    t.latest_img_array = t.get_screen_shot_array()
-    path2 = "src/momo_talk/momo_talk2.png"
-    return_data1 = get_x_y(t.latest_img_array, path2)
-    print(return_data1)
-    ocr_res = t.img_ocr(t.get_screen_shot_array())
-    print(ocr_res)
-    t.get_keyword_appear_time(ocr_res)
-    print(t.return_location())
+
+    # # t.latest_img_array = t.get_screen_shot_array()
+    # # path2 = "src/momo_talk/momo_talk2.png"
+    # # return_data1 = get_x_y(t.latest_img_array, path2)
+    # # print(return_data1)
+    # # ocr_res = t.img_ocr(t.get_screen_shot_array())
+    # # print(ocr_res)
+    # # t.get_keyword_appear_time(ocr_res)
+    # # print(t.return_location())
