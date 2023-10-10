@@ -1,22 +1,26 @@
 {
-  "Settings": {
-    "shopList": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ]
-  }
+    "Settings": {
+        "ShopList": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ]
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ff0078d4",
+        "ThemeMode": "Light"
+    }
 }

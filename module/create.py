@@ -5,7 +5,7 @@ from gui.util import log
 
 
 def common_create_collect_operation(self):
-    self.latest_img_array = self.get_screen_shot_array()
+    self.latest_img_array = self.operation("get_screenshot_array")
     path2 = "./src/create/collect.png"
     path3 = "./src/create/finish_instantly.png"
     return_data1 = get_x_y(self.latest_img_array, path2)
@@ -15,17 +15,15 @@ def common_create_collect_operation(self):
     while return_data1[1][0] < 1e-03 or return_data2[1][0] < 1e-03:
         if return_data1[1][0] < 0.01:
             log.d("collect finished creature", level=1, logger_box=self.loggerBox)
-            self.click(return_data1[0][0], return_data1[0][1])
-            time.sleep(2)
-            self.click(628, 665)
-            time.sleep(1)
+            self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=2)
+            self.operation("click", (628, 665), duration=0.5)
         if return_data2[1][0] < 0.01:
             log.d("accelerate unfinished creature", level=1, logger_box=self.loggerBox)
-            self.click(return_data2[0][0], return_data2[0][1])
-            time.sleep(0.5)
-            self.click(775, 477)
-            time.sleep(2)
-        self.latest_img_array = self.get_screen_shot_array()
+            self.operation("click", (return_data2[0][0], return_data2[0][1]),duration=0.5)
+            self.operation("click", (755, 477), duration=0.5)
+            self.operation("click", (return_data2[0][0], return_data2[0][1]),duration=2)
+            self.operation("click", (628, 665), duration=0.5)
+        self.latest_img_array = self.operation("get_screenshot_array")
         return_data1 = get_x_y(self.latest_img_array, path2)
         return_data2 = get_x_y(self.latest_img_array, path3)
 
@@ -37,9 +35,9 @@ def common_create_judge(self):
     # 572 278
     node = []
     for i in range(0, 5):
-        self.click(node_x[i], node_y[i])
+        self.operation("click", (node_x[i], node_y[i]))
         time.sleep(0.5 if i == 0 else 0.1)
-        node_info = self.img_ocr(self.get_screen_shot_array())
+        node_info = self.img_ocr(self.operation("get_screenshot_array"))
         for k in range(0, len(pri)):
             if kmp(pri[k], node_info) > 0:
                 if k == 0:
@@ -70,12 +68,11 @@ def implement(self):
         tmp = min(create_times, 3)
         for i in range(0, tmp):
             log.d("begin create, time: " + str(i + 1), level=1, logger_box=self.loggerBox)
-            self.click(lox, loy[i])
+            self.operation("click", (lox, loy[i]))
             if not self.common_positional_bug_detect_method("create", lox, loy[i], 2):
                 return False
-            self.click(907, 206)
-            time.sleep(0.2)
-            self.latest_img_array = self.get_screen_shot_array()
+            self.operation("click", (920, 206), duration=0.2)
+            self.latest_img_array = self.operation("get_screenshot_array")
             return_data1 = get_x_y(self.latest_img_array, path5)
             return_data2 = get_x_y(self.latest_img_array, path6)
             print(return_data1)
@@ -84,9 +81,9 @@ def implement(self):
                 log.d("material 2 INADEQUATE,try material 1", level=1, logger_box=self.loggerBox)
                 print("material 2 INADEQUATE,try material 1")
                 for x in range(0, 10):
-                    self.click(755, 206)
-                    time.sleep(0.2)
-                self.latest_img_array = self.get_screen_shot_array()
+                    self.operation("click", (755, 206), duration=0.2)
+
+                self.latest_img_array = self.operation("get_screenshot_array")
                 return_data1 = get_x_y(self.latest_img_array, path5)
                 return_data2 = get_x_y(self.latest_img_array, path6)
                 print(return_data1)
@@ -98,18 +95,16 @@ def implement(self):
             if return_data1[1][0] < 1e-03:
                 log.d("material ADEQUATE create start", level=1, logger_box=self.loggerBox)
                 collect = True
-                self.click(return_data1[0][0], return_data1[0][1])
+                self.operation("click", (return_data1[0][0], return_data1[0][1]))
                 time.sleep(3.5)
                 node_x = [572, 508, 416, 302, 174]
                 node_y = [278, 388, 471, 529, 555]
                 choice = common_create_judge(self)
                 if choice is not None:
-                    self.click(node_x[choice], node_y[choice])
-                    time.sleep(0.5)
-                    self.click(1123, 650)
-                    time.sleep(3)
-                    self.click(1123, 650)
-                    if not self.common_positional_bug_detect_method("manufacture_store", 1123, 650, anywhere=True):
+                    self.operation("click", (node_x[choice], node_y[choice]),duration=0.5)
+                    self.operation("click", (1123, 650), duration=3)
+                    self.operation("click", (1123, 650),duration=4)
+                    if not self.common_positional_bug_detect_method("manufacture_store", 1123, 650):
                         return False
             else:
                 log.d("Can't detect start button,exit create task", level=2, logger_box=self.loggerBox)

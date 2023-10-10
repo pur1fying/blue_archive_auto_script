@@ -10,7 +10,7 @@ def implement(self):
         just_do_task = True
         log.line(self.loggerBox)
         log.d("special task Guard begin", level=1, logger_box=self.loggerBox)
-        self.click(959, 269)
+        self.operation("click", (959, 269))
         if not self.common_positional_bug_detect_method("special_task_guard", 959, 269, 2):
             return False
         if self.special_task_common_operation(special_task_guard_count[0], special_task_guard_count[1]):
@@ -28,7 +28,7 @@ def implement(self):
             self.to_main_page()
             self.main_to_page(11)
 
-        self.click(959, 408)
+        self.operation("click", (959, 408))
         if not self.common_positional_bug_detect_method("special_task_credit", 959, 408, 2):
             return False
         if self.special_task_common_operation(special_task_credit_count[0], special_task_credit_count[1]):

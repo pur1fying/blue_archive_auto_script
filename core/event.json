@@ -9,42 +9,6 @@
     "interval": 86400
   },
   {
-    "event_name": "竞技场",
-    "func_name": "arena",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "咖啡厅",
-    "func_name": "cafe_reward",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 0
-  },
-  {
-    "event_name": "收集每日体力",
-    "func_name": "collect_daily_power",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "收集奖励",
-    "func_name": "collect_reward",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
     "event_name": "收集商店体力",
     "func_name": "collect_shop_power",
     "next_tick": 0,
@@ -54,84 +18,120 @@
     "interval": 86400
   },
   {
-    "event_name": "自动制造",
-    "func_name": "create",
-    "next_tick": 0,
+    "event_name": "收集每日体力",
+    "func_name": "collect_daily_power",
+    "next_tick": 1696783872,
     "event_start": 0,
     "event_end": 0,
-    "enabled": false,
-    "interval": 86400
+    "enabled": true,
+    "interval": 1
   },
   {
     "event_name": "收集小组体力",
     "func_name": "group",
-    "next_tick": 0,
+    "next_tick": 1696783882,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
-    "interval": 86400
+    "enabled": false,
+    "interval": 1
+  },
+  {
+    "event_name": "主线清除体力",
+    "func_name": "clear_event_power",
+    "next_tick": 1696783983,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 1
+  },
+  {
+    "event_name": "商店购买",
+    "func_name": "shop",
+    "next_tick": 1696784000,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 1
+  },
+  {
+    "event_name": "日程",
+    "func_name": "schedule",
+    "next_tick": 1696784088,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 1
+  },
+  {
+    "event_name": "自动制造",
+    "func_name": "create",
+    "next_tick": 1696950950,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 0
+  },
+  {
+    "event_name": "每日特别委托",
+    "func_name": "clear_special_task_power",
+    "next_tick": 1696951013,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 0
+  },
+  {
+    "event_name": "咖啡厅",
+    "func_name": "cafe_reward",
+    "next_tick": 1696951129,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 0
+  },
+  {
+    "event_name": "悬赏通缉",
+    "func_name": "rewarded_task",
+    "next_tick": 1696951240,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 1
+  },
+  {
+    "event_name": "竞技场",
+    "func_name": "arena",
+    "next_tick": 1696955704,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 0
   },
   {
     "event_name": "自动MomoTalk",
     "func_name": "momo_talk",
-    "next_tick": 0,
+    "next_tick": 1696956090,
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 86400
+    "interval": 1
   },
   {
     "event_name": "查收邮箱",
     "func_name": "mail",
-    "next_tick": 0,
+    "next_tick": 1696956300,
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
     "interval": 200
   },
   {
-    "event_name": "主线清除体力",
-    "func_name": "clear_event_power",
-    "next_tick": 0,
+    "event_name": "收集奖励",
+    "func_name": "collect_reward",
+    "next_tick": 1697038303,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
+    "enabled": false,
     "interval": 86400
-  },
-  {
-    "event_name": "商店购买",
-    "func_name": "shop",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "日程",
-    "func_name": "schedule",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "悬赏通缉",
-    "func_name": "rewarded_task",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "每日特别委托",
-    "func_name": "clear_special_task_power",
-    "next_tick": 1696658777,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 0
   }
 ]

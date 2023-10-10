@@ -22,17 +22,18 @@ def d(message, level=4, logger_box: LoggerBox = None):
         f'<b style="color:{color};">{status}</b>'
         for color, status in zip(statusColor, status)]
     if logger_box is not None:
-        logger_box.lineEdit.scrollContentsBy(0, 100)
+        # logger_box.lineEdit.scrollContentsBy(0, 100)
         adding = (f'<div style="font-family: Consolas, monospace;color:{statusColor[level - 1]};">'
                   f'{statusHtml[level - 1]} | {datetime.now()} | {message} '
                   f'</div>')
         debugger_view.content += adding
-        logger_box.lineEdit.append(adding)
+        # logger_box.lineEdit.append(adding)
 
 
 def line(logger_box: LoggerBox = None):
-    if logger_box is not None:
-        logger_box.lineEdit.scrollContentsBy(0, 100)
-        logger_box.lineEdit.scroll
-        logger_box.lineEdit.append('---------------------------------------------------------------------------'
-                                   '-------------------')
+    pass
+    # if logger_box is not None:
+        # logger_box.lineEdit.scrollContentsBy(0, 100)
+        # logger_box.lineEdit.scroll
+        # logger_box.lineEdit.append('---------------------------------------------------------------------------'
+        #                            '-------------------')

@@ -2,7 +2,6 @@
 import json
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import (QWidget, QLabel)
 from qfluentwidgets import ExpandSettingCard, ConfigItem, PushButton, qconfig, FlowLayout, CheckBox, SwitchButton, \
     IndicatorPosition, LineEdit
 from qfluentwidgets import FluentIcon as FIF

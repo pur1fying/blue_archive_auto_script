@@ -10,7 +10,7 @@ def implement(self):
         just_do_task = True
         log.line(self.loggerBox)
         log.d("rewarded task road begin", level=1, logger_box=self.loggerBox)
-        self.click(957, 275)
+        self.operation("click", (957, 275))
         if not self.common_positional_bug_detect_method("rewarded_task_road", 957, 275, 2):
             return False
         if self.special_task_common_operation(dif[0], count[0], False):
@@ -26,7 +26,7 @@ def implement(self):
         if just_do_task:
             self.to_main_page()
             self.main_to_page(6)
-        self.click(957, 412)
+        self.operation("click", (957, 412))
         if not self.common_positional_bug_detect_method("rewarded_task_rail", 957, 412, 2):
             return False
         if self.special_task_common_operation(dif[1], count[1], False):
@@ -41,7 +41,7 @@ def implement(self):
         if just_do_task:
             self.to_main_page()
             self.main_to_page(6)
-        self.click(957, 556)
+        self.operation("click", (957, 556))
         if not self.common_positional_bug_detect_method("rewarded_task_classroom", 957, 556, 2):
             return False
         if self.special_task_common_operation(dif[2], count[2], False):

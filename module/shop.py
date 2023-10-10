@@ -6,8 +6,7 @@ from gui.util import log
 
 def implement(self, activity="shop"):
     if activity == "collect_shop_power":
-        self.click(100, 370)
-        time.sleep(0.5)
+        self.operation("click", (100,370),duration=0.5)
         buy_list = [1, 1, 1, 1,     # ** 竞技场商品购买表 1 表示购买
                     1, 0, 0, 0,
                     0, 0, 0, 0,
@@ -17,14 +16,13 @@ def implement(self, activity="shop"):
                                     [700, 461], [857, 461], [1000, 461], [1162, 461]]
         for i in range(0, 8):
             if buy_list[i]:
-                time.sleep(0.1)
-                self.click(buy_list_for_power_items[i][0], buy_list_for_power_items[i][1])
-        log.d("swipe", level=1, logger_box=self.loggerBox)
-        self.connection.swipe(932, 600, 932, 0, 0.3)
+                self.click(buy_list_for_power_items[i][0], buy_list_for_power_items[i][1],duration=0.1)
+        log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
+        self.operation("swipe", [(932, 600), (932, 0)], duration=0.3)
         for i in range(8, 12):
             if buy_list[i]:
                 time.sleep(0.1)
-                self.click(buy_list_for_power_items[i % 8][0], buy_list_for_power_items[i % 8][1])
+                self.operation("click",(buy_list_for_power_items[i % 8][0], buy_list_for_power_items[i % 8][1]))
     else:
         buy_list = [0, 0, 0, 0,     # ** 每日商品购买表 1 表示购买
                     1, 1, 1, 1,
@@ -36,14 +34,15 @@ def implement(self, activity="shop"):
             if buy_list[i]:
                 time.sleep(0.1)
                 self.click(buy_list_for_common_items[i][0], buy_list_for_common_items[i][1])
-        log.d("swipe", level=1, logger_box=self.loggerBox)
-        self.connection.swipe(932, 600, 932, 0, 0.3)
+        log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
+        self.operation("swipe", [(932, 600), (932, 0)], duration=0.3)
         for i in range(8, 16):
             if buy_list[i]:
-                time.sleep(0.1)
-                self.click(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1])
+                self.operation("click",(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1]),duration=0.2)
+
     time.sleep(0.5)
-    self.latest_img_array = self.get_screen_shot_array()
+    self.latest_img_array = self.operation("get_screenshot_array")
+
     path2 = "src/shop/buy_bright.png"
     path3 = "src/shop/buy_grey.png"
     path4 = "src/shop/update.png"
@@ -56,10 +55,8 @@ def implement(self, activity="shop"):
         log.d("assets inadequate", level=1, logger_box=self.loggerBox)
     elif return_data1[1][0] <= 1e-03:
         log.d("buy operation succeeded", level=1, logger_box=self.loggerBox)
-        self.connection.click(return_data1[0][0], return_data1[0][1])
-        time.sleep(0.5)
-        self.connection.click(770, 480)
-        self.set_click_time()
+        self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=0.5)
+        self.operation("click", (770, 480))
     elif return_data3[1][0] <= 1e-03:
         log.d("items have been brought", level=1, logger_box=self.loggerBox)
     else:

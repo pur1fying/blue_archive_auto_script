@@ -11,9 +11,8 @@ def implement(self):
                                                     path="src/momo_talk/momo_talk2.png", name="momo_talk2"):
         return False
     self.main_to_page(14, path="src/momo_talk/momo_talk2.png", name="momo_talk2",any=True)
-    self.click(172, 275)
-    time.sleep(0.5)
-    self.latest_img_array = self.get_screen_shot_array()
+    self.operation("click", (172, 275),duration =0.5)
+    self.latest_img_array = self.operation("get_screenshot_array")
     path1 = "src/momo_talk/unread_mode.png"
     path2 = "src/momo_talk/newest_mode.png"
     return_data1 = get_x_y(self.latest_img_array, path1)
@@ -25,19 +24,16 @@ def implement(self):
     elif return_data2[1][0] < 1e-03:
         log.d("newest message mode", 1, logger_box=self.loggerBox)
         log.d("change to unread mode", 1, logger_box=self.loggerBox)
-        self.click(514, 177)
-        time.sleep(0.3)
-        self.click(451, 297)
-        time.sleep(0.3)
-        self.click(451, 363)
-        time.sleep(0.5)
+        self.operation("click", (514, 177), duration=0.3)
+        self.operation("click", (451, 297), duration=0.3)
+        self.operation("click", (514, 363), duration=0.5)
     else:
         log.d("can't detect mode button quit momo_talk task", 2, logger_box=self.loggerBox)
         return
 
     main_to_momotalk = True
     while 1:
-        self.latest_img_array = self.get_screen_shot_array()
+        self.latest_img_array = self.operation("get_screenshot_array")
         location_y = 210
         red_dot = np.array([25, 71, 251])
         location_x = 637
@@ -66,15 +62,13 @@ def implement(self):
                 return implement(self)
         else:
             for i in range(0, len(unread_location)):
-                self.click(unread_location[i][0], unread_location[i][1])
-                time.sleep(0.5)
+                self.operation("click", (unread_location[i][0], unread_location[i][1]),duration = 0.5)
                 common_solve_affection_story_method.implement(self)
                 time.sleep(2)
-                if not self.common_positional_bug_detect_method("momo_talk2", 664, 114, times=2, anywhere=True,
+                if not self.common_positional_bug_detect_method("momo_talk2", 664, 114, times=4, anywhere=True,
                                                                 path="src/momo_talk/momo_talk2.png", name="momo_talk2"):
                     return False
+
         main_to_momotalk = False
-        self.click(170, 197)
-        time.sleep(0.5)
-        self.click(170, 270)
-        time.sleep(0.5)
+        self.operation("click", (170, 197), duration=0.5)
+        self.operation("click", (170, 270), duration=0.5)

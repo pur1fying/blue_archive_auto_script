@@ -21,18 +21,16 @@ def implement(self):
         log.d("begin schedule in [" + region_name[tar_num - 1] + "]", level=1, logger_box=self.loggerBox)
         while cur_num != tar_num:
             if cur_num > tar_num:
-                self.connection.click(left_change_page_x, change_page_y)
-                self.set_click_time()
-                log.d("Click :(" + str(left_change_page_x) + " " + str(
-                    change_page_y) + ")" + " click_time = " + str(self.click_time), level=1,
+                log.d("change to left page" + str(self.click_time), level=1,
                       logger_box=self.loggerBox)
+                self.operation("click", (left_change_page_x, change_page_y))
+
             else:
-                self.connection.click(right_change_page_x, change_page_y)
-                self.set_click_time()
-                log.d("Click :(" + str(right_change_page_x) + " " + str(
-                    change_page_y) + ")" + " click_time = " + str(self.click_time), level=1,
+                log.d("change to right page" + str(self.click_time), level=1,
                       logger_box=self.loggerBox)
-            cur_lo = self.pd_pos()
+                self.operation("click", (right_change_page_x, change_page_y))
+
+            cur_lo = self.operation("get_current_position",)
             if cur_lo[0:8] != "schedule":
                 log.d("unexpected page :" + cur_lo, level=3, logger_box=self.loggerBox)
                 return False
@@ -40,11 +38,11 @@ def implement(self):
             log.d("now in page " + cur_lo, level=1, logger_box=self.loggerBox)
         x = 1160
         y = 664
-        self.click(x, y)
+        self.operation("click", (x, y))
         if not self.common_positional_bug_detect_method("all_schedule", x, y, 2):
             log.d("not in page all schedule , return", level=3, logger_box=self.loggerBox)
             return False
-        self.latest_img_array = self.get_screen_shot_array()
+        self.latest_img_array = self.operation("get_screenshot_array")
         img_cro = img_crop(self.latest_img_array, 126, 1167, 98, 719)
         res = self.img_ocr(img_cro)
         count = kmp("需要评级", res)
@@ -52,22 +50,15 @@ def implement(self):
         for j in range(0, start):
             x = lo[start - j - 1][0]
             y = lo[start - j - 1][1]
-            self.connection.click(x, y)
-            log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
-                  logger_box=self.loggerBox)
-            time.sleep(0.8)
+            self.operation("click", (x, y),duration = 0.8)
             x = 640
             y = 556
-            self.connection.click(640, 556)
-            log.d("Click :(" + str(x) + " " + str(y) + ")" + " click_time = " + str(self.click_time), level=1,
-                  logger_box=self.loggerBox)
-            self.set_click_time()
-            if self.pd_pos() == "notice":
+            self.operation("click", (x, y))
+            if self.operation("get_current_position",) == "notice":
                 self.main_activity[7][1] = 1
                 log.d("task schedule finished", level=1, logger_box=self.loggerBox)
                 return True
-            time.sleep(3)
-            self.set_click_time()
+            time.sleep(4)
             if not self.common_positional_bug_detect_method("all_schedule", 962, 116, times=4, anywhere=True):
                 return False
-        self.click(680, 680)
+        self.operation("click", (680, 680))

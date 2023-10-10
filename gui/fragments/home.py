@@ -49,7 +49,7 @@ class HomeFragment(QFrame):
         self.logger = LoggerBox(self.expandLayout, self)
         self._main_thread = Main(logger_box=self.logger)
         self.startupCard.clicked.connect(self.__init_starter)
-        threading.Thread(target=self.__button_worker, daemon=True).start()
+        # threading.Thread(target=self.__button_worker, daemon=True).start()
 
     def __init_starter(self):
         threading.Thread(target=self.__worker, daemon=True).start()

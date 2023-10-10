@@ -219,12 +219,14 @@
       "每周",
       "切换账号",
       "天",
+      "第",
       "全部查看",
       "列表",
       "启动",
       "选择日程",
       "全部日程",
-      "日程券信息"
+      "日程券信息",
+      "舒适度"
     ],
     "schedule_point_list": [
       183,
@@ -528,8 +530,8 @@
       "result": "positive_impression_up"
     },
     {
-      "name_list": [["天"]],
-      "count_list": [[6]],
+      "name_list": [["天","第"]],
+      "count_list": [[6,6]],
       "result": "sign_in"
     },
       {
@@ -698,7 +700,12 @@
     },
       {
       "name_list": [["全部收纳","邀请券"]],
-      "count_list": [[1,1,4]],
+      "count_list": [[1,1]],
+      "result": "cafe"
+    },
+      {
+      "name_list": [["舒适度","礼物"]],
+      "count_list": [[1,1]],
       "result": "cafe"
     },
     {

@@ -6,7 +6,7 @@ from gui.util import log
 
 def implement(self, activity="collect_daily_power"):
     while 1:
-        path1 = self.get_screen_shot_array()
+        path1 = self.operation("get_screenshot_array")
         path2 = "../src/daily_task/daily_task_collect_all_bright.png"
         path3 = "../src/daily_task/daily_task_collect_all_grey.png"
         return_data1 = get_x_y(path1, path2)
@@ -18,10 +18,8 @@ def implement(self, activity="collect_daily_power"):
             break
         elif return_data1[1][0] <= 1e-03:
             log.d("collect work task reward", level=1, logger_box=self.loggerBox)
-            self.click(return_data1[0][0], return_data1[0][1])
-            time.sleep(2)
-            self.click(217, 63)
-            time.sleep(0.5)
+            self.operation("click", (return_data1[0][0], return_data1[0][1]), duration=2)
+            self.operation("click", (217, 63), duration=0.5)
             if not self.common_positional_bug_detect_method("work_task", 217, 63):
                 return False
         else:
@@ -34,4 +32,6 @@ def implement(self, activity="collect_daily_power"):
     else:
         self.main_activity[13][1] = 1
         log.d("collect reward task finished", level=1, logger_box=self.loggerBox)
+    print(1)
+    log.d("return True", level=1, logger_box=self.loggerBox)
     return True
