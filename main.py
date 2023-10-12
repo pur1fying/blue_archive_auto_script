@@ -458,7 +458,7 @@ class Main(Setup):
             "cross5",
         ]
         lo = self.operation("get_current_position", anywhere=True)
-        while lo != "main_page":
+        while lo != "main_page" and self.flag_run:
             print(lo)
             last_x = -1
             last_y = -1

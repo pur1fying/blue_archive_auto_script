@@ -708,6 +708,11 @@
       "count_list": [[1,1]],
       "result": "cafe"
     },
+      {
+      "name_list": [["家具信息","礼物","全部收纳"]],
+      "count_list": [[1,1,1]],
+      "result": "cafe"
+    },
     {
       "name_list": [["可以拖动礼物"]],
       "count_list": [[1]],

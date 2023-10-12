@@ -56,6 +56,7 @@ def implement(self):
                     self.operation("click", (1122, 602),duration=0.3)
                 f_skip = True
 
+            self.operation("click", (1169, 670),duration=1)
             self.operation("click", (1169, 670))
             if not self.common_positional_bug_detect_method("arena", 1169, 670, times=10, anywhere=True):
                 return False
@@ -63,6 +64,6 @@ def implement(self):
                 return True
 
             self.operation("stop_getting_screenshot")
+            log.d("WAIT 53 SECONDS FOR THE NEXT COMBAT", level=1, logger_box=self.loggerBox)
             time.sleep(53)
-            log.d("WAIT 53 SECONDS...", level=1, logger_box=self.loggerBox)
             self.operation("start_getting_screenshot")

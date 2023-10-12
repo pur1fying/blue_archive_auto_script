@@ -56,7 +56,8 @@ def implement(self):
                 return True
             else:
                 log.d("restart momo_talk task", 1, logger_box=self.loggerBox)
-                self.common_positional_bug_detect_method("momo_talk2", 1236, 39, times=7, anywhere=True,
+                self.operation("click", (1236, 39))
+                self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True,
                                                          path="src/momo_talk/momo_talk2.png", name="momo_talk2")
                 self.main_to_page(14, path="src/momo_talk/momo_talk2.png", name="momo_talk2")
                 return implement(self)

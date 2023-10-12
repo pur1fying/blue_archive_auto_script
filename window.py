@@ -62,7 +62,6 @@ class Window(FluentWindow):
         self.addSubInterface(self.settingInterface, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
 
     def initWindow(self):
-
         self.setFixedSize(900, 700)
         self.setWindowIcon(QIcon(ICON_DIR))
         self.setWindowTitle('BlueArchiveAutoScript')
@@ -75,11 +74,12 @@ class Window(FluentWindow):
         super().closeEvent(event)
         exit(0)
 
+
 def start():
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-    
+
     app = QApplication(sys.argv)
     w = Window()
     w.show()
@@ -101,11 +101,10 @@ if __name__ == '__main__':
     w.show()
     app.exec_()
 
-
 # if __name__ == '__main__':
-    # print(datetime.now())
-    # s = Scheduler()
-    # p = s.log('test')
-    # print(p)
-    # p = sorted(p, key=lambda x: x['next_tick'])
-    # print(p)
+# print(datetime.now())
+# s = Scheduler()
+# p = s.log('test')
+# print(p)
+# p = sorted(p, key=lambda x: x['next_tick'])
+# print(p)

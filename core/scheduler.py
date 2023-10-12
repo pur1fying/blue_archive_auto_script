@@ -2,6 +2,7 @@ import json
 import threading
 
 import time
+from typing import Optional
 
 EVENT_CONFIG_PATH = './core/event.json'
 DISPLAY_CONFIG_PATH = './gui/config/display.json'
@@ -38,7 +39,7 @@ class Scheduler:
             matching_events[0]['next_tick'] = cur_time + matching_events[0]['interval']
         self._commit_change()
 
-    def heartbeat(self) -> str | None:
+    def heartbeat(self) -> Optional[str]:
         self._read_config()
         cur_time = int(time.time())
         self._event_config = sorted(self._event_config, key=lambda x: x['next_tick'])

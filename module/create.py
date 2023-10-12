@@ -79,7 +79,6 @@ def implement(self):
             print(return_data2)
             if return_data2[1][0] < 1e-03:
                 log.d("material 2 INADEQUATE,try material 1", level=1, logger_box=self.loggerBox)
-                print("material 2 INADEQUATE,try material 1")
                 for x in range(0, 10):
                     self.operation("click", (755, 206), duration=0.2)
 

@@ -16,7 +16,7 @@ def implement(self, activity="shop"):
                                     [700, 461], [857, 461], [1000, 461], [1162, 461]]
         for i in range(0, 8):
             if buy_list[i]:
-                self.click(buy_list_for_power_items[i][0], buy_list_for_power_items[i][1],duration=0.1)
+                self.operation("click",(buy_list_for_power_items[i][0], buy_list_for_power_items[i][1]),duration=0.1)
         log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
         self.operation("swipe", [(932, 600), (932, 0)], duration=0.3)
         for i in range(8, 12):
@@ -33,7 +33,7 @@ def implement(self, activity="shop"):
         for i in range(0, 8):
             if buy_list[i]:
                 time.sleep(0.1)
-                self.click(buy_list_for_common_items[i][0], buy_list_for_common_items[i][1])
+                self.operation("click",(buy_list_for_common_items[i][0], buy_list_for_common_items[i][1]),duration=0.1)
         log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
         self.operation("swipe", [(932, 600), (932, 0)], duration=0.3)
         for i in range(8, 16):
