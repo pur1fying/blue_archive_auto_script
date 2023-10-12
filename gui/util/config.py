@@ -43,4 +43,5 @@ class Config(QConfig):
 
 
 conf = Config()
-qconfig.load('./gui/config/config.json', conf)
+qconfig.load('./gui/config/extend.json', conf)
+print()

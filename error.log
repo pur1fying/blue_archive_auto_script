@@ -1,1 +1,33 @@
-WARNING:root:[Errno PIL.Image.open IOError] unrecognized data stream contents when reading image file, retrying in 0.5 seconds...
+[32m[I 231013 04:57:02 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(3.0s)
+[32m[I 231013 04:57:02 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(3.0s)
+Exception in thread Thread-341:
+Traceback (most recent call last):
+  File "D:\anaconda\envs\baas_env\lib\threading.py", line 980, in _bootstrap_inner
+    self.run()
+  File "D:\anaconda\envs\baas_env\lib\threading.py", line 917, in run
+    self._target(*self._args, **self._kwargs)
+  File "D:\github\bass\blue_archive_auto_script\main.py", line 428, in worker
+    self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
+  File "D:\github\bass\blue_archive_auto_script\core\setup.py", line 59, in img_ocr
+    out = self.ocr.ocr(img)
+  File "D:\anaconda\envs\baas_env\lib\site-packages\cnocr\cn_ocr.py", line 243, in ocr
+    return self._ocr_with_det_model(
+  File "D:\anaconda\envs\baas_env\lib\site-packages\cnocr\cn_ocr.py", line 283, in _ocr_with_det_model
+    box_infos = self.det_model.detect(img, **det_kwargs)
+  File "D:\anaconda\envs\baas_env\lib\site-packages\cnstd\cn_std.py", line 177, in detect
+    raise TypeError('type %s is not supported now' % str(type(img_list)))
+TypeError: type <class 'NoneType'> is not supported now
+[36m[D 231013 04:57:03 __init__:363][39m [pid:40712] [127.0.0.1:7555] adb reconnect error: adb read timeout
+[32m[I 231013 04:57:03 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(3.0s)
+[36m[D 231013 04:57:03 __init__:363][39m [pid:40712] [127.0.0.1:7555] adb reconnect error: adb read timeout
+[32m[I 231013 04:57:04 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(3.0s)
+[32m[I 231013 04:57:04 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(1.0s)
+[36m[D 231013 04:57:04 __init__:363][39m [pid:40712] [127.0.0.1:7555] adb reconnect error: adb read timeout
+[32m[I 231013 04:57:04 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(1.0s)
+[32m[I 231013 04:57:04 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(3.0s)
+[36m[D 231013 04:57:05 __init__:363][39m [pid:40712] [127.0.0.1:7555] adb reconnect error: adb read timeout
+[36m[D 231013 04:57:05 __init__:363][39m [pid:40712] [127.0.0.1:7555] adb reconnect error: adb read timeout
+[32m[I 231013 04:57:05 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(1.0s)
+[32m[I 231013 04:57:05 __init__:357][39m [pid:40712] [127.0.0.1:7555] device reconnecting, time left(3.0s)
+[36m[D 231013 04:57:05 __init__:363][39m [pid:40712] [127.0.0.1:7555] adb reconnect error: adb read timeout
+[36m[D 231013 04:57:05 __init__:363][39m [pid:40712] [127.0.0.1:7555] adb reconnect error: adb read timeout

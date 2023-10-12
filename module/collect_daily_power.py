@@ -32,6 +32,4 @@ def implement(self, activity="collect_daily_power"):
     else:
         self.main_activity[13][1] = 1
         log.d("collect reward task finished", level=1, logger_box=self.loggerBox)
-    print(1)
-    log.d("return True", level=1, logger_box=self.loggerBox)
     return True

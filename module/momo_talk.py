@@ -10,8 +10,9 @@ def implement(self):
     if not self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True,
                                                     path="src/momo_talk/momo_talk2.png", name="momo_talk2"):
         return False
-    self.main_to_page(14, path="src/momo_talk/momo_talk2.png", name="momo_talk2",any=True)
-    self.operation("click", (172, 275),duration =0.5)
+
+    self.common_icon_bug_detect_method("src/momo_talk/momo_talk1.png", 170, 150,"momotalk1", times=3)
+    self.operation("click", (172, 275),duration =0.3)
     self.latest_img_array = self.operation("get_screenshot_array")
     path1 = "src/momo_talk/unread_mode.png"
     path2 = "src/momo_talk/newest_mode.png"
@@ -55,11 +56,9 @@ def implement(self):
                 self.main_activity[14][1] = 1
                 return True
             else:
+                time.sleep(0.5)
                 log.d("restart momo_talk task", 1, logger_box=self.loggerBox)
                 self.operation("click", (1236, 39))
-                self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True,
-                                                         path="src/momo_talk/momo_talk2.png", name="momo_talk2")
-                self.main_to_page(14, path="src/momo_talk/momo_talk2.png", name="momo_talk2")
                 return implement(self)
         else:
             for i in range(0, len(unread_location)):

@@ -17,7 +17,10 @@ def implement(self):
             log.line(self.loggerBox)
             log.d("common task begin", level=1, logger_box=self.loggerBox)
             log.d("change to common level", level=1, logger_box=self.loggerBox)
-            self.operation("click", (800, 150), duration=0.1)
+
+            self.operation("click", (682, 141), duration=0.5)
+            self.common_icon_bug_detect_method("src/event/common_task.png", 682, 141, "common_task",times=6)
+
             for i in range(0, len(self.common_task_count)):
                 cur_lo = self.operation("get_current_position",)
                 log.d("now in page " + cur_lo, level=1, logger_box=self.loggerBox)
@@ -74,8 +77,10 @@ def implement(self):
             log.line(self.loggerBox)
             log.d("hard task begin", level=1, logger_box=self.loggerBox)
 
-            log.d("change to hard level", level=1, logger_box=self.loggerBox)
-            self.operation("click", (1065, 150), duration=0.1)
+            log.d("change to HARD level", level=1, logger_box=self.loggerBox)
+
+            self.operation("click", (1186, 141), duration=0.5)
+            self.common_icon_bug_detect_method("src/event/hard_task.png", 1186, 141, "hard_task",times=6)
 
             for i in range(0, len(self.hard_task_count)):
                 cur_lo = self.operation("get_current_position",)

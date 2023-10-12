@@ -22,7 +22,7 @@ def implement(self):
     else:
         log.d("can't detect collect reward button", 2, logger_box=self.loggerBox)
 
-    if not self.common_positional_bug_detect_method("cafe", 274, 161):
+    if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161,"cafe", times=3):
         return False
 
     img_shot = self.operation("get_screenshot_array")
@@ -30,7 +30,7 @@ def implement(self):
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
 
-    target_name = "梓"  # ** 可设置参数 邀请券邀请学生的名字
+    target_name = "爱丽丝"  # ** 可设置参数 邀请券邀请学生的名字
     if return_data1[1][0] <= 1e-03:
         log.d("invitation available begin find student " + target_name, 1, logger_box=self.loggerBox)
         self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=1)
@@ -39,7 +39,7 @@ def implement(self):
         dy = 430
 
         student_name = ["爱丽丝", "切里诺", "志美子", "日富美", "佳代子", "明日奈", "菲娜", "艾米", "真纪",
-                        "泉奈", "明里", "芹香", "优香",
+                        "泉奈", "明里", "芹香", "优香","小春",
                         "花江", "纯子", "千世", "干世", "莲见", "爱理", "睦月", "野宫", "绫音", "歌原",
                         "芹娜", "小玉", "铃美", "朱莉", "好美", "千夏", "琴里",
                         "春香", "真白", "鹤城", "爱露", "晴奈", "日奈", "伊织", "星野",
@@ -101,7 +101,8 @@ def implement(self):
                                 break
                         time.sleep(0.5)
                         self.operation("click", (770, 500))
-                        self.common_positional_bug_detect_method("cafe", 274, 161, 2)
+                        if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=2):
+                            return False
                 if not stop_flag:
                     self.operation("swipe", [(swipe_x, swipe_y), (swipe_x, swipe_y - dy)], duration=0.5)
                     self.operation("click", (617, 500))
@@ -142,7 +143,7 @@ def implement(self):
             else:
                 log.d("totally find " + str(location) + " interaction available", 1, logger_box=self.loggerBox)
 
-        if not self.common_positional_bug_detect_method("cafe", 640, 360,times=5, anywhere=True):
+        if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
             return False
         self.operation("swipe", [(start_x, start_y), (start_x + swipe_action_list[0][i],
                               start_y + swipe_action_list[1][i])], duration=0.1)
