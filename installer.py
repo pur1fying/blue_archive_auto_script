@@ -10,8 +10,8 @@ from tqdm import tqdm
 from git import Repo
 
 TMP_PATH = './tmp'
-REPO_URL_SSH = 'git@github.com:pur1fying/blue_archive_auto_script.git'
-REPO_URL_HTTP = 'git@github.com:pur1fying/blue_archive_auto_script.git'
+REPO_URL_SSH = 'https://ghproxy.com/https://github.com/pur1fying/blue_archive_auto_script'
+REPO_URL_HTTP = 'https://ghproxy.com/https://github.com/pur1fying/blue_archive_auto_script'
 LOCAL_PATH = './repo_tmp'
 
 logger = logging.getLogger()
