@@ -1,5 +1,6 @@
 import time
 
+from core.utils import get_x_y
 from gui.util import log
 
 
@@ -8,7 +9,7 @@ def implement(self):
         all_task_x_coordinate = 1118
         common_task_y_coordinates = [242, 342, 438, 538, 569, 469, 369, 269]
         hard_task_y_coordinates = [250, 360, 470]
-        self.operation("click", (816, 267))
+        self.operation("click@event", (816, 267))
         left_change_page_x = 32
         right_change_page_x = 1247
         change_page_y = 360
@@ -18,7 +19,8 @@ def implement(self):
             log.d("common task begin", level=1, logger_box=self.loggerBox)
             log.d("change to common level", level=1, logger_box=self.loggerBox)
 
-            self.operation("click", (682, 141), duration=0.5)
+            if not self.operation("click@common_level", (682, 141), duration=0.5):
+                return False
             self.common_icon_bug_detect_method("src/event/common_task.png", 682, 141, "common_task",times=6)
 
             for i in range(0, len(self.common_task_count)):
@@ -35,13 +37,9 @@ def implement(self):
                       level=1, logger_box=self.loggerBox)
                 while cur_num != tar_num:
                     if cur_num > tar_num:
-                        log.d("change to left page" + str(self.click_time), level=1,
-                              logger_box=self.loggerBox)
-                        self.operation("click", (left_change_page_x, change_page_y))
+                        self.operation("click@change_to_left", (left_change_page_x, change_page_y))
                     else:
-                        log.d("change to right page" + str(self.click_time), level=1,
-                              logger_box=self.loggerBox)
-                        self.operation("click", (right_change_page_x, change_page_y))
+                        self.operation("click@change_to_right", (right_change_page_x, change_page_y))
                     cur_lo = self.operation("get_current_position",)
                     if cur_lo[0:4] != "task":
                         log.d("unexpected page exit task clear event power", level=3, logger_box=self.loggerBox)
@@ -52,19 +50,27 @@ def implement(self):
                 log.d("find target page " + cur_lo, level=1, logger_box=self.loggerBox)
                 if tar_level >= 5:
                     page_task_numbers = [8, 6, 7]
-                    self.operation("swipe", [(928, 560), (928, 0)], duration=0.5)
+                    self.operation("swipe", [(928, 560), (928, 0)], duration=0.2)
                     log.d("SWIPE UPWARD", level=1, logger_box=self.loggerBox)
-                    time.sleep(0.5)
+                    time.sleep(1)
                     if tar_num < 4:
                         tar_level = page_task_numbers[tar_num - 1] + (5 - tar_level) - 1
                 else:
                     tar_level -= 1
+
                 self.operation("click", (all_task_x_coordinate, common_task_y_coordinates[tar_level]),duration=0.5)
+                path = "src/event/auto clear bright.png"
+                img = self.operation("get_screenshot_array")
+                return_data = get_x_y(img, path)
+                if not return_data[1][0] <= 1e-03:
+                    log.d("unable to auto clear", level=4, logger_box=self.loggerBox)
+                    self.operation("click@anywhere", (649,646))
+                    continue
                 for j in range(0, tar_times - 1):
-                    self.operation("click", (1033, 297), duration=0.6)
+                    self.operation("click@add", (1033, 297), duration=0.6)
                 self.operation("click", (937, 404))
                 if self.operation("get_current_position",) == "charge_power":
-                    log.d("inadequate power , exit task", level=4, logger_box=self.loggerBox)
+                    log.d("inadequate power , exit task", level=2, logger_box=self.loggerBox)
                     return True
                 self.operation("click", (767, 504))
                 if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, anywhere=True):
@@ -96,13 +102,9 @@ def implement(self):
                       level=1, logger_box=self.loggerBox)
                 while cur_num != tar_num:
                     if cur_num > tar_num:
-                        log.d("change to left page" + str(self.click_time), level=1,
-                              logger_box=self.loggerBox)
-                        self.operation("click", (left_change_page_x, change_page_y))
+                        self.operation("click@change_to_left", (left_change_page_x, change_page_y))
                     else:
-                        log.d("change to right page" + str(self.click_time), level=1,
-                              logger_box=self.loggerBox)
-                        self.operation("click", (right_change_page_x, change_page_y))
+                        self.operation("click@change_to_left", (right_change_page_x, change_page_y))
                     cur_lo = self.operation("get_current_position",)
                     if cur_lo[0:4] != "task":
                         log.d("unexpected page exit task clear power", level=3, logger_box=self.loggerBox)
@@ -114,12 +116,19 @@ def implement(self):
                 tar_level -= 1
 
                 self.operation("click", (all_task_x_coordinate, hard_task_y_coordinates[tar_level]),duration=0.5)
+                path = "src/event/auto clear bright.png"
+                img = self.operation("get_screenshot_array")
+                return_data = get_x_y(img, path)
+                if not return_data[1][0] <= 1e-03:
+                    log.d("unable to auto clear", level=2, logger_box=self.loggerBox)
+                    self.operation("click@anywhere", (649, 646))
+                    continue
                 for j in range(0, tar_times - 1):
-                    self.operation("click", (1033,297))
+                    self.operation("click@add", (1033,297))
 
                 time.sleep(0.3)
                 self.operation("click", (937, 404))
-                lo = self.operation("get_current_position",)
+                lo = self.operation("get_current_position")
                 if lo == "charge_power":
                     log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
                     return True
@@ -128,9 +137,15 @@ def implement(self):
 
                 if lo == "charge_notice":
                     log.d("inadequate fight time available , Try next task", level=3, logger_box=self.loggerBox)
+                    if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True,
+                                                                    times=8):
+                        return False
                     continue
                 if lo == "task_message":
                     log.d("current task AUTO FIGHT UNLOCKED , Try next task", level=2, logger_box=self.loggerBox)
+                    if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True,
+                                                                    times=8):
+                        return False
                     continue
 
                 self.operation("click", (767, 504))

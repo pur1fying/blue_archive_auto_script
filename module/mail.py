@@ -15,6 +15,9 @@ def implement(self):
     elif return_data1[1][0] <= 1e-03:
         log.d("collect mail reward", level=1, logger_box=self.loggerBox)
         self.operation("click", (return_data1[0][0], return_data1[0][1]))
+        self.operation("click",(1236, 39))
+        self.operation("click",(1236, 39))
+        self.operation("click",(1236, 39))
     else:
         log.d("Can't detect button", level=2, logger_box=self.loggerBox)
         return False

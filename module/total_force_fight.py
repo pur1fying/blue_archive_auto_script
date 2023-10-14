@@ -13,7 +13,7 @@ def find_button_y(self, i):
         return_data = self.get_x_y(img, path)
         print(self.total_force_fight_difficulty_name[i])
         print(return_data)
-        if return_data[1][0] <= 1e-03:
+        if return_data[1][0] <= 1e-02:
             return return_data[0][1] + 40
         log.d("SWIPE DOWNWARDS", 1, logger_box=self.loggerBox)
         if not self.operation("swipe",[(950, 590), (950, 330)], duration=0.1) :
@@ -26,12 +26,11 @@ def find_button_y(self, i):
         print(self.total_force_fight_difficulty_name[i])
         print(return_data)
 
-        if return_data[1][0] <= 1e-03:
+        if return_data[1][0] <= 1e-02:
             return return_data[0][1] + 40
 
         log.d("SWIPE UPWARDS", 1, logger_box=self.loggerBox)
-        if not self.operation("swipe", [(950, 330), (950, 622)], duration=0.1):
-            return False
+        self.operation("swipe", [(950, 330), (950, 622)], duration=0.1)
         time.sleep(1.5)
 
     log.d("CAN'T DETECT BRIGHT BUTTON FOR LEVEL " + self.total_force_fight_difficulty_name[i], 3, logger_box=self.loggerBox)
@@ -53,10 +52,8 @@ def fight_difficulty_x(self, x):
         formation_x = 64
         formation_y = [198, 274, 353, 426]
         if i == 0:
-            if not self.operation("click", (total_force_fight_x, total_force_fight_y),duration=1) :
-                return False
-            if not self.operation("click", (1015, 524)) :
-                return False
+            self.operation("click", (total_force_fight_x, total_force_fight_y),duration=1)
+            self.operation("click", (1015, 524))
             lo = self.operation("get_current_position")
             if not lo:
                 return False
@@ -66,12 +63,9 @@ def fight_difficulty_x(self, x):
             elif lo == "attack_formation":
                 time.sleep(1)
                 log.d("choose formation : " + str(i + 1) + " and start fight", 1, logger_box=self.loggerBox)
-                if not self.operation("click", (formation_x, formation_y[0]), duration=1) :
-                    return False
-                if not self.operation("click", (1157,666), duration=1) :
-                    return False
-                if not self.operation("click", (770,500)) :
-                    return False
+                self.operation("click", (formation_x, formation_y[0]), duration=1)
+                self.operation("click", (1157,666), duration=1)
+                self.operation("click", (770,500))
                 ####
             elif lo == "total_force_fight":
                 log.d("CURRENT difficulty UNLOCKED, try LOWER difficulty", 1, logger_box=self.loggerBox)
@@ -80,20 +74,23 @@ def fight_difficulty_x(self, x):
                 log.d("UNEXPECTED PAGE", 3, logger_box=self.loggerBox)
                 return "UNEXPECTED_PAGE"
         else:
-            path = "src/total_force_fight/enter_again.png"
-            return_data = self.get_x_y(self.latest_img_array, path)
-            if return_data[1][0] <= 1e-03:
-                if not self.operation("click",(return_data[0][0],return_data[0][1]),duration=1) :
-                    return False
-                if not self.operation("click", (1015, 524)) :
-                    return False
-                if not self.common_positional_bug_detect_method("attack_formation", 1015, 524):
-                    return "UNEXPECTED_PAGE"
-                log.d("choose formation " + str(i + 1) + " and start fight", 1, logger_box=self.loggerBox)
-                if not self.operation("click", (formation_x, formation_y[i]), duration=1) :
-                    return False
-                if not self.operation("click", (1157, 666)) :
-                    return False
+            flag = False
+            for j in range(0, 4):
+                path = "src/total_force_fight/enter_again.png"
+                return_data = self.get_x_y(self.latest_img_array, path)
+                print(return_data)
+                if return_data[1][0] <= 1e-03:
+                    flag = True
+                    self.operation("click",(return_data[0][0],return_data[0][1]),duration=1)
+                    self.operation("click", (1015, 524))
+                    if not self.common_positional_bug_detect_method("attack_formation", 1015, 524):
+                        return "UNEXPECTED_PAGE"
+                    log.d("choose formation " + str(i + 1) + " and start fight", 1, logger_box=self.loggerBox)
+                    self.operation("click", (formation_x, formation_y[i]), duration=1)
+                    self.operation("click", (1157, 666))
+                    break
+            if not flag:
+                return "UNEXPECTED_PAGE"
 
         res = self.common_fight_practice()
         if not res:
@@ -103,6 +100,8 @@ def fight_difficulty_x(self, x):
                 return False
         if res:
             log.d("total force fight SUCCEEDED", level=1, logger_box=self.loggerBox)
+            self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 382, 22,
+                                                "total_force_fight", 5)
             log.d("###################################################################################", 1,
                   logger_box=self.loggerBox)
             return "WIN"
@@ -124,18 +123,15 @@ def judge_and_finish_unfinished_total_force_fight_task(self):
               logger_box=self.loggerBox)
         log.d("[CONTINUE UNSOLVED FIGHT]", 1, logger_box=self.loggerBox)
         for i in range(0, 4):#四个队伍
-            if not self.operation("click", (x, y),duration=1) :
-                return False            # 进入编队界面
-            if not self.operation("click", (1012, 525)) :
-                return False
+            self.operation("click", (x, y),duration=1)
+            self.operation("click", (1012, 525))
             if not self.common_positional_bug_detect_method("attack_formation", 1012, 525, times=4, anywhere=True):
                 return "UNEXPECTED_PAGE"
             else:
                 for j in range(0, 4):  # 四个队伍
                     if not unable_to_fight_formation[j]:  # 检测能不能打
                         log.d("detect formation " + str(j + 1), 1, logger_box=self.loggerBox)
-                        if not self.operation("click", (formation_x, formation_y[j])) :
-                            return False
+                        self.operation("click", (formation_x, formation_y[j]))
                         for k in range(0, 3):
                             time.sleep(1)
                             self.latest_img_array = self.operation("get_screenshot_array")
@@ -148,8 +144,7 @@ def judge_and_finish_unfinished_total_force_fight_task(self):
                     if not unable_to_fight_formation[j]:
                         unable_to_fight_formation[j] = True
                         log.d("CONTINUE with FORMATION " + str(j + 1), 1, logger_box=self.loggerBox)
-                        if not self.operation("click", (1160, 666), duration=4):
-                            return False
+                        self.operation("click", (1160, 666), duration=4)
                         res = self.common_fight_practice()
                         if not res:
                             log.d("total force fight attempt FAILED", 1, logger_box=self.loggerBox)
@@ -159,23 +154,22 @@ def judge_and_finish_unfinished_total_force_fight_task(self):
                                 "*****************************************************************************************",
                                 1,
                                 logger_box=self.loggerBox)
+                            self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 382,
+                                                                22,
+                                                                "total_force_fight", 5)
                             return "WIN"
                         break
                 if unable_to_fight_formation.all():
                     log.d("NO USABLE FORMATION", 1, logger_box=self.loggerBox)
                     log.d("*****************************************************************************************", 1,
                           logger_box=self.loggerBox)
-                    if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 56,
-                                                              37, "total_force_fight", 4):
+                    if not self.common_positional_bug_detect_method("total_force_fight", 61, 40, times=4,):
                         return "UNEXPECTED_PAGE"
                     else:
                         log.d("GIVE UP CURRENT FIGHT",1,logger_box=self.loggerBox)
-                        if not self.operation("click", (x, y), duration=1) :
-                            return False
-                        if not self.operation("click", (800, 533), duration=1) :
-                            return False
-                        if not self.operation("click", (800, 500), duration=3) :
-                            return False
+                        self.operation("click", (x, y), duration=1)
+                        self.operation("click", (800, 533), duration=1)
+                        self.operation("click", (800, 500), duration=3)
                         if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png",
                                                                   382, 22,
                                                                   "total_force_fight", 4):
@@ -215,7 +209,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
             return_data2 = self.get_x_y(img, path2)
             print(self.total_force_fight_difficulty_name[i])
             print(return_data1, return_data2)
-            if return_data1[1][0] <= 1e-03 and not button_detected[i].any():
+            if return_data1[1][0] <= 1e-02 and not button_detected[i].any():
 
                 log.d("DETECT BUTTON " + self.total_force_fight_difficulty_name[i] + " BRIGHT", 1, logger_box=self.loggerBox)
                 button_detected[i][0] = True
@@ -225,7 +219,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
                     log.d("DETECT HIGHEST UNLOCKED LEVEL " + self.total_force_fight_difficulty_name[t], 1, logger_box=self.loggerBox)
                     return t
 
-            elif return_data2[1][0] <= 1e-03 and not button_detected[i].any():
+            elif return_data2[1][0] <= 1e-02 and not button_detected[i].any():
                 log.d("DETECT BUTTON " + self.total_force_fight_difficulty_name[i] + " GREY", 1, logger_box=self.loggerBox)
                 button_detected[i][1] = True
                 t = total_force_fight_highest_difficulty_button_judgement(self, button_detected)
@@ -248,7 +242,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
             return_data2 = self.get_x_y(img, path2)
             print(self.total_force_fight_difficulty_name[i])
             print(return_data1, return_data2)
-            if return_data1[1][0] <= 1e-03 and not button_detected[i].any():
+            if return_data1[1][0] <= 1e-02 and not button_detected[i].any():
                 log.d("DETECT BUTTON " + self.total_force_fight_difficulty_name[i] + " BRIGHT", 1, logger_box=self.loggerBox)
                 button_detected[i][0] = True
 
@@ -257,7 +251,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
                     log.d("DETECT HIGHEST UNLOCKED LEVEL " + self.total_force_fight_difficulty_name[t], 1, logger_box=self.loggerBox)
                     return t
 
-            elif return_data2[1][0] <= 1e-03 and not button_detected[i].any():
+            elif return_data2[1][0] <= 1e-02 and not button_detected[i].any():
                 log.d("DETECT BUTTON " + self.total_force_fight_difficulty_name[i] + " GREY", 1, logger_box=self.loggerBox)
                 button_detected[i][1] = True
                 t = total_force_fight_highest_difficulty_button_judgement(self, button_detected)
@@ -267,8 +261,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
 
         fail_cnt = fail_cnt + 1
         log.d("SWIPE UPWARDS", 1, logger_box=self.loggerBox)
-        if not self.operation("swipe", [(950, 330), (950, 622)], duration=0.1) :
-            return False
+        self.operation("swipe", [(950, 330), (950, 622)], duration=0.1)
         time.sleep(1)
 
     log.d("CAN'T DETECT HIGHEST UNLOCKED LEVEL", 3, logger_box=self.loggerBox)
@@ -300,9 +293,17 @@ def implement(self):
         if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 62, 40,
                                                   "total_force_fight", 5):
             return False  # 判断有没有在总力战界面
+        if t == "LOSE":
+            log.d("GIVE UP CURRENT FIGHT", 1, logger_box=self.loggerBox)
+            self.operation("click", (1164, 225), duration=1)
+            self.operation("click", (800, 533), duration=1)
+            self.operation("click", (800, 500), duration=3)
+            if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png",
+                                                      382, 22,
+                                                      "total_force_fight", 4):
+                return False
         pri_total_force_fight -= 1
         t = fight_difficulty_x(self, pri_total_force_fight)
-
 
     if t == "UNEXPECTED_PAGE":
         return False
@@ -314,35 +315,25 @@ def implement(self):
         return True
 
     if Auto:
-        if pri_total_force_fight >= 3:
-            if not self.operation("swipe", [(950, 600), (950, 307)], duration=0.2) :
-                return False
-            log.d("SWIPE DOWNWARDS",1,logger_box=self.loggerBox)
-            time.sleep(0.2)
-        if not self.operation("click", (total_force_fight_x),duration=1):
-            return False
-        if not self.operation("click", (1068, 363)) :
-            return False
-        if not self.operation("click", (1068, 363)) :
-            return False
-        if not self.operation("click", (994, 393)) :
-            return False
+        y = find_button_y(self, pri_total_force_fight)
+        self.operation("click", (total_force_fight_x,y),duration=1)
+        self.operation("click", (1066, 300))
+        self.operation("click", (1068, 300))
+        self.operation("click", (994, 393))
         lo = self.operation("get_current_position",)
         if lo == "detailed_message":
             log.d("TICKET INADEQUATE", 2, logger_box=self.loggerBox)
         elif lo == "notice":
             log.d("CLEAR LEFT TICKETS", 1, logger_box=self.loggerBox)
-            if not self.operation("click", (768, 511)) :
-                return False
+            self.operation("click", (768, 511), duration=3)
+        self.operation("click", (143, 72))
+        self.operation("click", (143, 72))
 
     if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 382, 22,"total_force_fight", 5):
         return False
-    if not self.operation("click", (1184,657),duration=2) :
-        return False
-    if not self.operation("click", (917,163),duration=0.5) :
-        return False
-    if not self.operation("click", (237,303),duration=0.3) :
-        return False
+    self.operation("click", (1184,657),duration=2)
+    self.operation("click", (917,163),duration=0.5)
+    self.operation("click", (237,303),duration=0.3)
     self.latest_img_array = self.operation("get_screenshot_array")
     path1 = "src/total_force_fight/total_force_fight_collect_reward_bright.png"
     path2 = "src/total_force_fight/total_force_fight_collect_reward_grey.png"
@@ -352,8 +343,7 @@ def implement(self):
     print(return_data2)
     if return_data1[1][0] <= 1e-03:
         log.d("collect TOTAL FORCE FIGHT ACCUMULATED POINTS REWARD", 1, logger_box=self.loggerBox)
-        if not self.operation("click", (return_data1[0][0], return_data1[0][1])) :
-            return False
+        self.operation("click", (return_data1[0][0], return_data1[0][1]))
     elif return_data2[1][0] <= 1e-03:
         log.d("NO ACCUMULATED POINTS REWARD can be collected", 1, logger_box=self.loggerBox)
     else:

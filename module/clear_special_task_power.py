@@ -25,7 +25,7 @@ def implement(self):
         log.line(self.loggerBox)
         log.d("special task Credit begin", level=1, logger_box=self.loggerBox)
         if just_do_task:
-            self.to_main_page()
+            self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
             self.main_to_page(11)
 
         self.operation("click", (959, 408))

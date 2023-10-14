@@ -23,8 +23,7 @@ def implement(self):
             return True
         elif return_data1[1][0] <= 1e-03:
             fail_cnt = 0
-            log.d("reply_message", 1, logger_box=self.loggerBox)
-            self.operation("click", (return_data1[0][0] + 166, return_data1[0][1] + 45), duration=2)
+            self.operation("click@reply_message", (return_data1[0][0] + 166, return_data1[0][1] + 45), duration=2)
         else:
             time.sleep(2)
             fail_cnt += 1

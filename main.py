@@ -41,8 +41,8 @@ class Main(Setup):
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
-        self.common_task_count = [(10, 2, 10),(10,1,10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-        self.hard_task_count = [(5, 3, 3), (3, 3, 3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+        self.common_task_count = [(10, 1, 10),(10,5,10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+        self.hard_task_count = [(5, 3, 3), (4,3,3),(3, 3, 3),(3,2,3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
         self.scheduler = Scheduler()
@@ -127,7 +127,7 @@ class Main(Setup):
 
     def operation(self, operation_name, operation_locations=None,duration=0.0, path=None, name=None, anywhere=False):
         if not self.flag_run:
-            return False
+            raise Exception("Shutdown")
         if operation_name[0:5] == "click":
             x = operation_locations[0]
             y = operation_locations[1]
@@ -215,20 +215,20 @@ class Main(Setup):
         print(acc_r_ave)
         if 250 <= acc_r_ave <= 260:
             log.d("CHANGE acceleration phase from 2 to 3", level=1, logger_box=self.loggerBox)
-            self.operation("click",(1215, 625))
+            self.operation("click@accleration",(1215, 625))
         elif 0 <= acc_r_ave <= 60:
             log.d("ACCELERATION phase 3", level=1, logger_box=self.loggerBox)
         elif 140 <= acc_r_ave <= 180:
             log.d("CHANGE acceleration phase from 1 to 3", level=1, logger_box=self.loggerBox)
-            self.operation("click",(1215, 625))
-            self.operation("click",(1215, 625))
+            self.operation("click@accelereation",(1215, 625))
+            self.operation("click@acceleration",(1215, 625))
         else:
             log.d("CAN'T DETECT acceleration BUTTON", level=2, logger_box=self.loggerBox)
 
         auto_r_ave = img1[677][1171][0] // 2 + img1[677][1246][0] // 2
         if 190 <= auto_r_ave <= 230:
             log.d("CHANGE MANUAL to auto", level=1, logger_box=self.loggerBox)
-            self.operation("click",(1215, 678))
+            self.operation("click@auto",(1215, 678))
         elif 0 <= auto_r_ave <= 60:
             log.d("AUTO", level=1, logger_box=self.loggerBox)
         else:
@@ -238,7 +238,7 @@ class Main(Setup):
     def common_fight_practice(self):
 
         flag = False
-        for i in range(0,20):
+        for i in range(0, 20):
             img_shot = self.latest_img_array
             if pd_rgb(img_shot,838,690,45,65,200,220,240,255):
                 flag = True
@@ -258,6 +258,7 @@ class Main(Setup):
                     continue
                 else:
                     self.operation("click @anywhere",(1150,649),duration=1)
+
         if not flag:
             return False
 
@@ -275,11 +276,11 @@ class Main(Setup):
                 if return_data1[1][0] < 1e-03:
                     log.d("fight succeeded", level=1, logger_box=self.loggerBox)
                     success = True
-                    self.operation("click",(return_data1[0][0], return_data1[0][1]))
+                    self.operation("click@confirm",(return_data1[0][0], return_data1[0][1]))
                 else:
                     log.d("fight failed", level=1, logger_box=self.loggerBox)
                     success = False
-                    self.operation("click",(return_data2[0][0], return_data2[0][1]))
+                    self.operation("click@confirm",(return_data2[0][0], return_data2[0][1]))
                 break
             else:
                 self.operation("click", (767, 500))
@@ -296,11 +297,11 @@ class Main(Setup):
                 return_data1 = get_x_y(self.latest_img_array, path2)
                 if return_data1[1][0] < 1e-03:
                     log.d("Fail Back", level=1, logger_box=self.loggerBox)
-                    self.operation("click",(return_data1[0][0], return_data1[0][1]))
+                    self.operation("click@confirm",(return_data1[0][0], return_data1[0][1]))
                     break
         else:
             self.common_positional_bug_detect_method("fight_success", 1171, 60)
-            self.operation("click", (772, 657))
+            self.operation("click@confirm", (772, 657))
 
         time.sleep(4)
         return success
@@ -443,7 +444,7 @@ class Main(Setup):
         log.d("BEGIN DETECT ICON FOR " + name.upper(), 1, logger_box=self.loggerBox)
         cnt = 1
         path = path
-        return_data = self.get_x_y(self.latest_img_array, path)
+        return_data = self.get_x_y(self.operation("get_screenshot_array"), path)
         print(return_data)
         while cnt <= times:
             if not self.flag_run:
@@ -518,10 +519,10 @@ class Main(Setup):
             click_flag = False
             ocr_res = self.img_ocr(self.latest_img_array)
             if lo == "notice":
-                self.operation("click", (767, 501))
+                self.operation("click@confirm", (767, 501))
             if ocr_res != "":
                 if kmp(ocr_res, "是否跳过"):
-                    self.operation("click", (765, 500))
+                    self.operation("click@skip", (765, 500))
                     continue
             for image_name in image_names:
                 path = os.path.join("src/common_button/", image_name + ".png")
@@ -545,6 +546,7 @@ class Main(Setup):
                 last_y = return_data[0][1]
             if not click_flag:
                 self.operation("click", (1239, 24))
+                self.operation("click", (330, 345))
 
             lo = self.operation("get_current_position",anywhere=True)
 
@@ -569,7 +571,7 @@ class Main(Setup):
                 log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
                 i = self.activity_name_list.index(next_func_name)
                 if i != 14:
-                    self.to_main_page()
+                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
                     self.main_to_page(i)
                 if self.solve(next_func_name):
                     log.d(f'{next_func_name} finished', level=1, logger_box=self.loggerBox)
@@ -577,7 +579,7 @@ class Main(Setup):
                 else:
                     log.d(f'{next_func_name} failed', level=3, logger_box=self.loggerBox)
                     self.flag_run = False
-                self.to_main_page()
+                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
             else:
                 time.sleep(2)
         print("thread_starter stop")
@@ -607,8 +609,6 @@ class Main(Setup):
             self.flag_run = False
             return False
 
-    def to_main_page(self, anywhere=False):
-        self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=anywhere)
 
 
 if __name__ == '__main__':
@@ -616,7 +616,7 @@ if __name__ == '__main__':
     t = Main()
     t._init_emulator()
     t.flag_run = True
-    path2 = "src/total_force_fight/total_force_fight_page.png"
+    path2 = "src/create/finish_instantly.png"
     img = t.operation("get_screenshot_array")
     return_data1 = get_x_y(img, path2)
     print(return_data1)

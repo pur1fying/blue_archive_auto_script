@@ -12,8 +12,8 @@ def implement(self):
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
         log.d("collect arena first reward", level=1, logger_box=self.loggerBox)
-        self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=2)
-        self.operation("click", (666, 672),duration=0.5)
+        self.operation("click@collect_reward1", (return_data1[0][0], return_data1[0][1]),duration=2)
+        self.operation("click@anywhere", (666, 672),duration=0.5)
     else:
         log.d("arena first reward has been collected", level=1, logger_box=self.loggerBox)
 
@@ -23,9 +23,9 @@ def implement(self):
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
         log.d("collect arena second reward", level=1, logger_box=self.loggerBox)
-        self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=2)
+        self.operation("click@collect_reward2", (return_data1[0][0], return_data1[0][1]),duration=2)
         time.sleep(2)
-        self.operation("click", (666, 672), duration=0.5)
+        self.operation("click@anywhere", (666, 672), duration=0.5)
     else:
         log.d("arena second reward has been collected", level=1, logger_box=self.loggerBox)
 
@@ -40,9 +40,9 @@ def implement(self):
         self.operation("click", (638, 569))
 
         lo = self.operation("get_current_position",)
-        if lo == "notice":
+        if lo == "notice":#没券了
             self.main_activity[9][1] = 1
-            log.d("task arena finished", level=1, logger_box=self.loggerBox)
+            log.d("INADEQUATE TICKET", level=1, logger_box=self.loggerBox)
             return True
         elif lo == "attack_formation":
             if not f_skip:
@@ -56,11 +56,12 @@ def implement(self):
                     self.operation("click", (1122, 602),duration=0.3)
                 f_skip = True
 
-            self.operation("click", (1169, 670),duration=1)
+            self.operation("click", (1169, 670), duration=1)
             self.operation("click", (1169, 670))
             if not self.common_positional_bug_detect_method("arena", 1169, 670, times=10, anywhere=True):
                 return False
             if i == 4:
+                log.d("FINISH 5 COMBAT,exit arena", level=1, logger_box=self.loggerBox)
                 return True
 
             self.operation("stop_getting_screenshot")

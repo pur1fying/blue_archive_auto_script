@@ -7,12 +7,12 @@ from module import common_solve_affection_story_method
 
 
 def implement(self):
-    if not self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True,
-                                                    path="src/momo_talk/momo_talk2.png", name="momo_talk2"):
-        return False
+    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True,path="src/momo_talk/momo_talk2.png", name="momo_talk2")
 
-    self.common_icon_bug_detect_method("src/momo_talk/momo_talk1.png", 170, 150,"momotalk1", times=3)
-    self.operation("click", (172, 275),duration =0.3)
+    self.operation("click", (172, 150),duration = 1.5)
+    self.common_icon_bug_detect_method("src/momo_talk/momo_talk1.png", 170, 150,"momotalk1", times=5)
+    self.operation("click", (172, 275),duration =0.2
+                   )
     self.latest_img_array = self.operation("get_screenshot_array")
     path1 = "src/momo_talk/unread_mode.png"
     path2 = "src/momo_talk/newest_mode.png"
@@ -70,5 +70,5 @@ def implement(self):
                     return False
 
         main_to_momotalk = False
-        self.operation("click", (170, 197), duration=0.5)
-        self.operation("click", (170, 270), duration=0.5)
+        self.operation("click", (170, 197), duration=0.2)
+        self.operation("click", (170, 270), duration=0.2)

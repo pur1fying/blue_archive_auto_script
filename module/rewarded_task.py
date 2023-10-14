@@ -24,7 +24,7 @@ def implement(self):
         log.line(self.loggerBox)
         log.d("rewarded task rail begin", level=1, logger_box=self.loggerBox)
         if just_do_task:
-            self.to_main_page()
+            self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
             self.main_to_page(6)
         self.operation("click", (957, 412))
         if not self.common_positional_bug_detect_method("rewarded_task_rail", 957, 412, 2):
@@ -39,7 +39,7 @@ def implement(self):
         log.line(self.loggerBox)
         log.d("rewarded task class begin", level=1, logger_box=self.loggerBox)
         if just_do_task:
-            self.to_main_page()
+            self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
             self.main_to_page(6)
         self.operation("click", (957, 556))
         if not self.common_positional_bug_detect_method("rewarded_task_classroom", 957, 556, 2):

@@ -12,17 +12,17 @@ def common_create_collect_operation(self):
     return_data2 = get_x_y(self.latest_img_array, path3)
     print(return_data1)
     print(return_data2)
-    while return_data1[1][0] < 1e-03 or return_data2[1][0] < 1e-03:
+    while return_data1[1][0] < 1e-02 or return_data2[1][0] < 1e-02:
         if return_data1[1][0] < 0.01:
             log.d("collect finished creature", level=1, logger_box=self.loggerBox)
-            self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=2)
-            self.operation("click", (628, 665), duration=0.5)
+            self.operation("click@collect", (return_data1[0][0], return_data1[0][1]),duration=2)
+            self.operation("click@anywhere", (628, 665), duration=0.5)
         if return_data2[1][0] < 0.01:
             log.d("accelerate unfinished creature", level=1, logger_box=self.loggerBox)
-            self.operation("click", (return_data2[0][0], return_data2[0][1]),duration=0.5)
-            self.operation("click", (755, 477), duration=0.5)
-            self.operation("click", (return_data2[0][0], return_data2[0][1]),duration=2)
-            self.operation("click", (628, 665), duration=0.5)
+            self.operation("click@accelerate", (return_data2[0][0], return_data2[0][1]),duration=0.5)
+            self.operation("click@confirm", (755, 477), duration=0.5)
+            self.operation("click@collect", (return_data2[0][0], return_data2[0][1]),duration=2)
+            self.operation("click@anywhere", (628, 665), duration=0.5)
         self.latest_img_array = self.operation("get_screenshot_array")
         return_data1 = get_x_y(self.latest_img_array, path2)
         return_data2 = get_x_y(self.latest_img_array, path3)
@@ -71,7 +71,7 @@ def implement(self):
             self.operation("click", (lox, loy[i]))
             if not self.common_positional_bug_detect_method("create", lox, loy[i], 2):
                 return False
-            self.operation("click", (920, 206), duration=0.2)
+            self.operation("click@material 2", (920, 206), duration=0.2)
             self.latest_img_array = self.operation("get_screenshot_array")
             return_data1 = get_x_y(self.latest_img_array, path5)
             return_data2 = get_x_y(self.latest_img_array, path6)
@@ -80,7 +80,7 @@ def implement(self):
             if return_data2[1][0] < 1e-03:
                 log.d("material 2 INADEQUATE,try material 1", level=1, logger_box=self.loggerBox)
                 for x in range(0, 10):
-                    self.operation("click", (755, 206), duration=0.2)
+                    self.operation("click@material 1", (755, 206), duration=0.2)
 
                 self.latest_img_array = self.operation("get_screenshot_array")
                 return_data1 = get_x_y(self.latest_img_array, path5)
@@ -92,9 +92,8 @@ def implement(self):
                     self.main_activity[12][1] = 1
                     return True
             if return_data1[1][0] < 1e-03:
-                log.d("material ADEQUATE create start", level=1, logger_box=self.loggerBox)
                 collect = True
-                self.operation("click", (return_data1[0][0], return_data1[0][1]))
+                self.operation("click@start_create", (return_data1[0][0], return_data1[0][1]))
                 time.sleep(3.5)
                 node_x = [572, 508, 416, 302, 174]
                 node_y = [278, 388, 471, 529, 555]

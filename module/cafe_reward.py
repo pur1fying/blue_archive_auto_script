@@ -13,12 +13,12 @@ def implement(self):
     print(return_data2)
     if return_data1[1][0] <= 1e-03:
         log.d("collect reward", 1, logger_box=self.loggerBox)
-        self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=2)
-        self.operation("click", (274, 161),duration=0.5)
-        self.operation("click", (274, 161))
+        self.operation("click@collect", (return_data1[0][0], return_data1[0][1]),duration=2)
+        self.operation("click@anywhere", (274, 161),duration=0.5)
+        self.operation("click@anywhere", (274, 161))
     elif return_data2[1][0] <= 1e-03:
         log.d("reward has been collected", 1, logger_box=self.loggerBox)
-        self.operation("click", (274, 161))
+        self.operation("click@anywhere", (274, 161))
     else:
         log.d("can't detect collect reward button", 2, logger_box=self.loggerBox)
 
@@ -30,21 +30,21 @@ def implement(self):
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
 
-    target_name = "爱丽丝"  # ** 可设置参数 邀请券邀请学生的名字
+    target_name = "小春"  # ** 可设置参数 邀请券邀请学生的名字
     if return_data1[1][0] <= 1e-03:
         log.d("invitation available begin find student " + target_name, 1, logger_box=self.loggerBox)
-        self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=1)
+        self.operation("click@invitation ticket", (return_data1[0][0], return_data1[0][1]),duration=1)
         swipe_x = 630
         swipe_y = 580
         dy = 430
 
         student_name = ["爱丽丝", "切里诺", "志美子", "日富美", "佳代子", "明日奈", "菲娜", "艾米", "真纪",
-                        "泉奈", "明里", "芹香", "优香","小春",
+                        "泉奈", "明里", "芹香", "优香", "小春",
                         "花江", "纯子", "千世", "干世", "莲见", "爱理", "睦月", "野宫", "绫音", "歌原",
                         "芹娜", "小玉", "铃美", "朱莉", "好美", "千夏", "琴里",
                         "春香", "真白", "鹤城", "爱露", "晴奈", "日奈", "伊织", "星野",
                         "白子", "柚子", "花凛", "妮露", "纱绫", "静子", "花子", "风香",
-                        "和香", "和香", "茜", "泉", "梓", "绿", "堇", "瞬", "桃", "椿", "晴", "响"]
+                        "和香", "茜", "泉", "梓", "绿", "堇", "瞬", "桃", "椿", "晴", "响"]
         stop_flag = False
         last_student_name = None
         while not stop_flag:
@@ -64,7 +64,7 @@ def implement(self):
                             if name_st[i + k] != student_name[j][k]:
                                 flag = False
                                 break
-                        if flag and len(detected_name) <= 5:
+                        if flag and len(detected_name) <= 4:
                             if student_name[j] == "干世":
                                 detected_name.append("千世")
                             else:
@@ -100,14 +100,16 @@ def implement(self):
                                 self.operation("click", (784, i + s * 77))
                                 break
                         time.sleep(0.5)
-                        self.operation("click", (770, 500))
-                        if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=2):
+                        self.operation("click@confirm", (770, 500))
+                        if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
                             return False
                 if not stop_flag:
+                    log.d("didn't find target student swipe to next page", 1, logger_box=self.loggerBox)
                     self.operation("swipe", [(swipe_x, swipe_y), (swipe_x, swipe_y - dy)], duration=0.5)
                     self.operation("click", (617, 500))
     else:
         log.d("invitation ticket used", 1, logger_box=self.loggerBox)
+
     start_x = 640
     start_y = 360
     swipe_action_list = [[640, 640, 0, -640, -640, -640, -640, 0, 640, 640, 640],
@@ -126,7 +128,7 @@ def implement(self):
                     if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
-                            self.operation("click", (x,y+42))
+                            self.operation("click@student", (x, y+42))
                             location += 1
                             log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1,
                                   logger_box=self.loggerBox)
@@ -142,7 +144,6 @@ def implement(self):
                 stop_flag = True
             else:
                 log.d("totally find " + str(location) + " interaction available", 1, logger_box=self.loggerBox)
-
         if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
             return False
         self.operation("swipe", [(start_x, start_y), (start_x + swipe_action_list[0][i],

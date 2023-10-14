@@ -21,14 +21,10 @@ def implement(self):
         log.d("begin schedule in [" + region_name[tar_num - 1] + "]", level=1, logger_box=self.loggerBox)
         while cur_num != tar_num:
             if cur_num > tar_num:
-                log.d("change to left page" + str(self.click_time), level=1,
-                      logger_box=self.loggerBox)
-                self.operation("click", (left_change_page_x, change_page_y))
+                self.operation("click@change_to_left", (left_change_page_x, change_page_y))
 
             else:
-                log.d("change to right page" + str(self.click_time), level=1,
-                      logger_box=self.loggerBox)
-                self.operation("click", (right_change_page_x, change_page_y))
+                self.operation("click@change_to_right", (right_change_page_x, change_page_y))
 
             cur_lo = self.operation("get_current_position",)
             if cur_lo[0:8] != "schedule":

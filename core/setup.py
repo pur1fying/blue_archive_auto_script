@@ -61,6 +61,7 @@ class Setup:
         for i in range(0, len(out)):
             if out[i]["score"] > 0.6:
                 res = res + out[i]["text"]
+        print(res)
         return res
 
     def set_click_time(self):
