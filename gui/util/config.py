@@ -3,6 +3,8 @@ from enum import Enum
 
 from qfluentwidgets import (qconfig, QConfig, ConfigItem)
 
+from core import EXTEND_CONFIG_PATH
+
 
 class SongQuality(Enum):
     """ Online song quality enumeration class """
@@ -42,6 +44,6 @@ class Config(QConfig):
     emulatorPath = ConfigItem("Emulator", "Path", "")
 
 
-conf = Config()
-qconfig.load('./config/extend.json', conf)
+conf_global = Config()
+qconfig.load(EXTEND_CONFIG_PATH, conf_global)
 print()

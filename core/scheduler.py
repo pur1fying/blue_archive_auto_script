@@ -4,8 +4,7 @@ import threading
 import time
 from typing import Optional
 
-EVENT_CONFIG_PATH = './core/event.json'
-DISPLAY_CONFIG_PATH = './gui/config/display.json'
+from core import EVENT_CONFIG_PATH, DISPLAY_CONFIG_PATH
 
 lock = threading.Lock()
 

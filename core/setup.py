@@ -4,15 +4,14 @@ import os
 from cnocr import CnOcr
 
 from core import default_config
+from core import STATIC_CONFIG_PATH, EXTEND_CONFIG_PATH, SWITCH_CONFIG_PATH, DEFAULT_CONFIG_PATH, EVENT_CONFIG_PATH, \
+    DISPLAY_CONFIG_PATH
+from core.inject_config import Config
 from core.utils import kmp
 from gui.util.extend_config import ExtendConfig
 
 from qfluentwidgets import qconfig
 
-
-def _read_static_config():
-    with open('./config/static.json', 'r', encoding='utf-8') as f:
-        return json.load(f)
 
 
 def check_config():
@@ -41,10 +40,16 @@ def check_config():
 class Setup:
     def __init__(self):
         check_config()
+
+        self.event_config = Config(EVENT_CONFIG_PATH)
+        self.display_config = Config(DISPLAY_CONFIG_PATH)
+        self.static_config = Config(STATIC_CONFIG_PATH)
+        self.extend_config = Config(EXTEND_CONFIG_PATH)
+        self.switch_config = Config(SWITCH_CONFIG_PATH)
+        self.default_config = Config(DEFAULT_CONFIG_PATH)
+
         self.extend_config = ExtendConfig()
-        qconfig.load('./config/extend.json', self.extend_config)
-        static_config = _read_static_config()
-        basic_config = static_config['basic']
+        basic_config = self.static_config.get('basic')
         self.base_time = time.time()
         self.pos = []
         self.click_time = 0.0
@@ -63,6 +68,7 @@ class Setup:
         self.location_recognition_list = basic_config['location_recognition_list']
 
         self.keyword_apper_time_dictionary = {i: 0 for i in self.keyword}
+
 
     def return_location(self):
         for item_location in self.location_recognition_list:

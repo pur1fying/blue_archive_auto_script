@@ -15,10 +15,11 @@ from core.utils import kmp, get_x_y,pd_rgb
 from debug.debugger import start_debugger
 from gui.components.logger_box import LoggerBox
 from gui.util import log
-from gui.util.config import conf
-sys.stderr = open('error.log', 'w+', encoding='utf-8')
+from gui.util.config import conf_global
 
 from debug.debugger import start_debugger
+# Offer the error to the error.log
+sys.stderr = open('error.log', 'w+', encoding='utf-8')
 
 
 class Main(Setup):
@@ -51,7 +52,7 @@ class Main(Setup):
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
         try:
-            server = qconfig.get(conf.server)
+            server = qconfig.get(conf_global.server)
             self.package_name = 'com.RoamingStar.BlueArchive' \
                 if server == '官服' else 'com.RoamingStar.BlueArchive.bilibili'
             if not self._first_started and self._server_record == server:
