@@ -72,7 +72,6 @@ class Window(FluentWindow):
 
     def closeEvent(self, event):
         super().closeEvent(event)
-        exit(0)
 
 
 def start():

@@ -6,8 +6,8 @@ from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel)
 from qfluentwidgets import FluentIcon as FIF, SettingCardGroup, SwitchSettingCard
 
-EVENT_CONFIG_PATH = './core/event.json'
-SWITCH_CONFIG_PATH = './gui/config/switch.json'
+EVENT_CONFIG_PATH = './config/event.json'
+SWITCH_CONFIG_PATH = './config/switch.json'
 
 lock = threading.Lock()
 

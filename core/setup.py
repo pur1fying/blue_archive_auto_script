@@ -1,7 +1,9 @@
 import json
 import time
+import os
 from cnocr import CnOcr
 
+from core import default_config
 from core.utils import kmp
 from gui.util.extend_config import ExtendConfig
 
@@ -9,21 +11,45 @@ from qfluentwidgets import qconfig
 
 
 def _read_static_config():
-    with open('./core/static.json', 'r', encoding='utf-8') as f:
+    with open('./config/static.json', 'r', encoding='utf-8') as f:
         return json.load(f)
+
+
+def check_config():
+    if not os.path.exists('./config'):
+        os.mkdir('./config')
+    if not os.path.exists('./config/extend.json'):
+        with open('./config/extend.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.EXTEND_DEFAULT_CONFIG)
+    if not os.path.exists('./config/static.json'):
+        with open('./config/static.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.STATIC_DEFAULT_CONFIG)
+    if not os.path.exists('./config/switch.json'):
+        with open('./config/switch.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.SWITCH_DEFAULT_CONFIG)
+    if not os.path.exists('./config/config.json'):
+        with open('./config/config.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.DEFAULT_CONFIG)
+    if not os.path.exists('./config/event.json'):
+        with open('./config/event.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.EVENT_DEFAULT_CONFIG)
+    if not os.path.exists('./config/display.json'):
+        with open('./config/display.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.DISPLAY_DEFAULT_CONFIG)
 
 
 class Setup:
     def __init__(self):
+        check_config()
         self.extend_config = ExtendConfig()
-        qconfig.load('./gui/config/extend.json', self.extend_config)
+        qconfig.load('./config/extend.json', self.extend_config)
         static_config = _read_static_config()
         basic_config = static_config['basic']
         self.base_time = time.time()
         self.pos = []
         self.click_time = 0.0
 
-        self.schedule_pri = [4, 3, 2, 1, 5]  #** 可设置参数，日程区域优先级  1 2 3 4 5 分别表示 已经出的五个区域
+        self.schedule_pri = [4, 3, 2, 1, 5]  # ** 可设置参数，日程区域优先级  1 2 3 4 5 分别表示 已经出的五个区域
         self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
         self.latest_img_array = None
 
@@ -35,7 +61,6 @@ class Setup:
         self.schedule_lo_y = basic_config['schedule_point_list']
         self.to_page = basic_config['to_page']
         self.location_recognition_list = basic_config['location_recognition_list']
-
 
         self.keyword_apper_time_dictionary = {i: 0 for i in self.keyword}
 
