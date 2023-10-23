@@ -24,7 +24,7 @@ class Setup:
         self.click_time = 0.0
 
         self.schedule_pri = [4, 3, 2, 1, 5]  #** 可设置参数，日程区域优先级  1 2 3 4 5 分别表示 已经出的五个区域
-        self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
+        self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc',context='cpu')
         self.latest_img_array = None
 
         # Load static config
@@ -61,7 +61,6 @@ class Setup:
         for i in range(0, len(out)):
             if out[i]["score"] > 0.6:
                 res = res + out[i]["text"]
-        print(res)
         return res
 
     def set_click_time(self):

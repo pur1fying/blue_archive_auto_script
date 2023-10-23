@@ -428,6 +428,16 @@
         "result": "mail"
       },
       {
+        "name_list": [["通知","挑战次数不足"],["通知","入场券不足"]],
+        "count_list": [[1,1],[1,1]],
+        "result": "charge_notice"
+      },
+      {
+        "name_list": [["通知"]],
+        "count_list": [[1]],
+        "result": "notice"
+      },
+      {
         "name_list": [["对手信息"]],
         "count_list": [[1]],
         "result": "component_message"
@@ -477,16 +487,7 @@
         "count_list": [[1]],
         "result": "detailed_message"
       },
-      {
-        "name_list": [["通知","挑战次数不足"],["通知","入场券不足"]],
-        "count_list": [[1,1],[1,1]],
-        "result": "charge_notice"
-      },
-      {
-        "name_list": [["通知"]],
-        "count_list": [[1]],
-        "result": "notice"
-      },
+
 
       {
       "name_list": [["日程信息"]],

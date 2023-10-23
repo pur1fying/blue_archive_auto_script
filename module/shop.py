@@ -56,7 +56,10 @@ def implement(self, activity="shop"):
     elif return_data1[1][0] <= 1e-03:
         log.d("buy operation succeeded", level=1, logger_box=self.loggerBox)
         self.operation("click", (return_data1[0][0], return_data1[0][1]),duration=0.5)
-        self.operation("click", (770, 480))
+        self.operation("click", (770, 480), duration=1)
+        self.operation("click@home", (1240, 29))
+        self.operation("click@home", (1240, 29))
+        self.operation("click@home", (1240, 29))
     elif return_data3[1][0] <= 1e-03:
         log.d("items have been brought", level=1, logger_box=self.loggerBox)
     else:

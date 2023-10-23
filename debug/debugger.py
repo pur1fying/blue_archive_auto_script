@@ -1,7 +1,7 @@
 import threading
 
 from flask import Flask, render_template
-from gevent import pywsgi
+# from gevent import pywsgi
 
 
 class DebuggerView(Flask):
@@ -26,8 +26,9 @@ debugger_view = DebuggerView(__name__)
 
 
 def start_view():
-    server = pywsgi.WSGIServer(('127.0.0.1', 5000), debugger_view, log=None)
-    server.serve_forever()
+    debugger_view.run(host='127.0.0.1', port=5000, debug=False)
+    # server = pywsgi.WSGIServer(('127.0.0.1', 5000), debugger_view, log=None)
+    # server.serve_forever()
 
 
 def start_debugger():

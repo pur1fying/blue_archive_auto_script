@@ -14,7 +14,7 @@ def implement(self):
     if return_data1[1][0] <= 1e-03:
         log.d("collect reward", 1, logger_box=self.loggerBox)
         self.operation("click@collect", (return_data1[0][0], return_data1[0][1]),duration=2)
-        self.operation("click@anywhere", (274, 161),duration=0.5)
+        self.operation("click@anywhere", (274, 161))
         self.operation("click@anywhere", (274, 161))
     elif return_data2[1][0] <= 1e-03:
         log.d("reward has been collected", 1, logger_box=self.loggerBox)
@@ -30,7 +30,7 @@ def implement(self):
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
 
-    target_name = "小春"  # ** 可设置参数 邀请券邀请学生的名字
+    target_name = "爱丽丝"  # ** 可设置参数 邀请券邀请学生的名字
     if return_data1[1][0] <= 1e-03:
         log.d("invitation available begin find student " + target_name, 1, logger_box=self.loggerBox)
         self.operation("click@invitation ticket", (return_data1[0][0], return_data1[0][1]),duration=1)
@@ -115,7 +115,9 @@ def implement(self):
     swipe_action_list = [[640, 640, 0, -640, -640, -640, -640, 0, 640, 640, 640],
                          [0, 0, -360, 0, 0, 0, 0, -360, 0, 0, 0]]
 
-    for i in range(0, len(swipe_action_list[0])):
+    self.operation("stop_getting_screenshot")  #  停止截图
+
+    for i in range(0, len(swipe_action_list[0])+1):
         stop_flag = False
         while not stop_flag:
             shot = self.operation("get_screenshot_array")
@@ -128,7 +130,7 @@ def implement(self):
                     if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
                             pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
-                            self.operation("click@student", (x, y+42))
+                            self.operation("click@student", (min(1270, x+40), y+42))
                             location += 1
                             log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1,
                                   logger_box=self.loggerBox)
@@ -146,9 +148,11 @@ def implement(self):
                 log.d("totally find " + str(location) + " interaction available", 1, logger_box=self.loggerBox)
         if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
             return False
-        self.operation("swipe", [(start_x, start_y), (start_x + swipe_action_list[0][i],
-                              start_y + swipe_action_list[1][i])], duration=0.1)
+        if i != len(swipe_action_list[0]):
+            self.operation("swipe", [(start_x, start_y), (start_x + swipe_action_list[0][i],
+                                start_y + swipe_action_list[1][i])], duration=0.1)
 
+    self.operation("start_getting_screenshot")
     log.d("cafe task finished", 1, logger_box=self.loggerBox)
     self.main_activity[0][1] = 1
     return True

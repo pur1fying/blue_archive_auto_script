@@ -58,7 +58,7 @@ def implement(self):
             else:
                 time.sleep(0.5)
                 log.d("restart momo_talk task", 1, logger_box=self.loggerBox)
-                self.operation("click", (1236, 39))
+                self.operation("click", (1236, 39),duration = 0.2)
                 return implement(self)
         else:
             for i in range(0, len(unread_location)):

@@ -34,15 +34,15 @@ class Main(Setup):
         self.io_err_rate = 10
         self.loggerBox = logger_box
         self.flag_run = False
-        self.click_interval = 0.5
+        self.screenshot_interval = 0.5
         self._server_record = ''
         self._first_started = True
         self.connection = None
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
-        self.common_task_count = [(10, 1, 10),(10,5,10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-        self.hard_task_count = [(5, 3, 3), (4,3,3),(3, 3, 3),(3,2,3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+        self.common_task_count = [(10, 2, 4),(10,3,4),(10, 4, 10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+        self.hard_task_count = [(5, 3, 3), (3,2,3),(3, 1, 3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
         self.scheduler = Scheduler()
@@ -67,7 +67,7 @@ class Main(Setup):
 
             self.unknown_ui_page_count = 0
             self.connection = u2.connect()
-           # self.connection.app_start(self.package_name)
+            # self.connection.app_start(self.package_name)
             t = self.connection.window_size()
             log.d("Screen Size  " + str(t), level=1, logger_box=self.loggerBox)
             if (t[0] == 1280 and t[1] == 720) or (t[1] == 1280 and t[0] == 720):
@@ -83,6 +83,7 @@ class Main(Setup):
             log.d(e, level=3, logger_box=self.loggerBox)
             self.flag_run = False
             return False
+
     def get_x_y(self,target_array,path):
         # print(target_array.dtype)
         if path.startswith("./src"):
@@ -113,6 +114,7 @@ class Main(Setup):
         # cv2.waitKey(0)
         location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2))
         return location, result[upper_left[1], [upper_left[0]]]
+
     def send(self, msg):
         # try:
         if msg == "start":
@@ -160,7 +162,7 @@ class Main(Setup):
                 print(return_data)
                 if return_data[1][0] <= 1e-03:
                     log.d("current_location : " + name, 1, logger_box=self.loggerBox)
-                    time.sleep(1)
+                    time.sleep(self.screenshot_interval)
                     return name
             while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
                 self.pos.pop()
@@ -183,16 +185,16 @@ class Main(Setup):
                         self.unknown_ui_page_count = 0
                         log.d("current_location : " + lo, 1, logger_box=self.loggerBox)
                         return lo
-                time.sleep(1)
+                time.sleep(self.screenshot_interval * 2)
         elif operation_name == "get_screenshot_array":
             try:
                 screenshot = self.connection.screenshot()
                 numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
-                if abs(int(self.click_interval * 100) - 50) > 1e-05:
+                if abs(int(self.screenshot_interval * 100) - 50) > 1e-05:
                     if self.io_err_solved_count == self.io_err_rate:
                         log.d("The IOError cease to happen.", level=1, logger_box=self.loggerBox)
                         log.d("Trying reducing the screenshot interval by 0.1s.", level=1, logger_box=self.loggerBox)
-                        self.click_interval -= 0.1
+                        self.screenshot_interval -= 0.1
                         self.io_err_solved_count = 0
                         self.io_err_count = max(self.io_err_count - 1, 0)
                     else:
@@ -202,11 +204,11 @@ class Main(Setup):
                 log.d("The IOError happened! Trying add the screenshot interval by 0.1s.",
                       level=3, logger_box=self.loggerBox)
                 if self.io_err_count >= self.io_err_rate:
-                    self.click_interval += 0.1
+                    self.screenshot_interval += 0.1
                     self.io_err_count = 0
                 self.io_err_count += 1
                 log.d(f'{e}! Trying screenshot again...', level=3, logger_box=self.loggerBox)
-                time.sleep(1 + int(self.click_interval))
+                time.sleep(1 + int(self.screenshot_interval))
                 return None
 
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
@@ -311,18 +313,18 @@ class Main(Setup):
         special_task_loy = [180, 286, 386, 489, 564, 432, 530, 628]
         fail_cnt = 0
         difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]
-        img_shot = self.operation("get_screenshot_array")
-        ocr_res = self.img_ocr(img_shot)
         log.d("-------------------------------------------------------------------------------", 1,
               logger_box=self.loggerBox)
+        img_shot = self.operation("get_screenshot_array")
         log.d("try to swipe to TOP page", level=1, logger_box=self.loggerBox)
+        ocr_result = self.img_ocr(img_shot)
         while fail_cnt <= 3:
             log.d("SWIPE UPWARDS", level=1, logger_box=self.loggerBox)
             self.operation("swipe", [(762, 200), (762, 460)], duration=0.1)
             time.sleep(1)
             img_shot = self.operation("get_screenshot_array")
-            ocr_res = self.img_ocr(img_shot)
-            if kmp("A", ocr_res) == 0:
+            ocr_result = self.img_ocr(img_shot)
+            if kmp("A", ocr_result) == 0:
                 fail_cnt += 1
                 if fail_cnt <= 3:
                     log.d("FAIL , TRY AGAIN", 1, logger_box=self.loggerBox)
@@ -367,7 +369,7 @@ class Main(Setup):
         self.operation("click", (special_task_lox, special_task_loy[a - 1]))
 
         if self.operation("get_current_position") == "notice":
-            log.d("UNLOCKED", level=2, logger_box=self.loggerBox)
+            log.d("UNLOCK", level=2, logger_box=self.loggerBox)
         else:
             for i in range(0, b - 1):
                 if f:
@@ -383,7 +385,7 @@ class Main(Setup):
             elif lo == "notice":
                 self.operation("click", (767, 501), duration=2)
             else:
-                log.d("AUTO FIGHT UNLOCKED , exit task", level=3, logger_box=self.loggerBox)
+                log.d("AUTO FIGHT UNLOCK , exit task", level=3, logger_box=self.loggerBox)
         return True
 
     def main_to_page(self, index, path=None, name=None, any=False):
@@ -554,7 +556,7 @@ class Main(Setup):
         while self.screenshot_flag_run and self.flag_run:
             threading.Thread(target=self.worker, daemon=True).start()
             # self.worker()
-            time.sleep(0.7)
+            time.sleep(self.screenshot_interval)
             # print(f'{self.flag_run}')
             # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
             # 同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
@@ -610,13 +612,12 @@ class Main(Setup):
             return False
 
 
-
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     t._init_emulator()
     t.flag_run = True
-    path2 = "src/create/finish_instantly.png"
+    path2 = "src/total_force_fight/enter_again.png"
     img = t.operation("get_screenshot_array")
     return_data1 = get_x_y(img, path2)
     print(return_data1)
@@ -628,7 +629,6 @@ if __name__ == '__main__':
         return_data2 = t.get_x_y(img, path2)
         print(t.total_force_fight_difficulty_name[i])
         print(return_data1, return_data2)
-
 
     ocr_res = t.img_ocr(img)
     print(ocr_res)

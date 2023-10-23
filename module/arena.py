@@ -24,12 +24,11 @@ def implement(self):
     if return_data1[1][0] <= 1e-03:
         log.d("collect arena second reward", level=1, logger_box=self.loggerBox)
         self.operation("click@collect_reward2", (return_data1[0][0], return_data1[0][1]),duration=2)
-        time.sleep(2)
         self.operation("click@anywhere", (666, 672), duration=0.5)
     else:
         log.d("arena second reward has been collected", level=1, logger_box=self.loggerBox)
 
-    choice = 1 # ** 总力战打第choice个对手
+    choice = 1  # ** 总力战打第choice个对手
     x = 844
     y = [261, 414, 581]
     y = y[choice - 1]
