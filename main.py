@@ -34,15 +34,15 @@ class Main(Setup):
         self.io_err_rate = 10
         self.loggerBox = logger_box
         self.flag_run = False
-        self.screenshot_interval = 0.5
+        self.screenshot_interval = 0.7
         self._server_record = ''
         self._first_started = True
         self.connection = None
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
-        self.common_task_count = [(10, 2, 4),(10,3,4),(10, 4, 10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-        self.hard_task_count = [(5, 3, 3), (3,2,3),(3, 1, 3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+        self.common_task_count = [(2, 1, 1),(3,2,1)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+        self.hard_task_count = [(1, 1, 3), (2,2,3),(3, 1, 3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
         self.scheduler = Scheduler()
@@ -128,6 +128,7 @@ class Main(Setup):
     #             self.flag_run = False
 
     def operation(self, operation_name, operation_locations=None,duration=0.0, path=None, name=None, anywhere=False):
+        print(self.screenshot_interval)
         if not self.flag_run:
             raise Exception("Shutdown")
         if operation_name[0:5] == "click":
@@ -146,18 +147,19 @@ class Main(Setup):
             y2 = operation_locations[1][1]
             self.connection.swipe(x1, y1, x2, y2, duration=duration)
             return "swipe success"
-        elif operation_name == "stop_getting_screenshot":
-            log.d("STOP getting screenshot", 1, logger_box=self.loggerBox)
+        elif operation_name == "stop_getting_screenshot_for_location":
+            log.d("STOP getting screenshot for location", 1, logger_box=self.loggerBox)
             self.screenshot_flag_run = False
             return True
-        elif operation_name == "start_getting_screenshot":
-            log.d("START getting screenshot", 1, logger_box=self.loggerBox)
+        elif operation_name == "start_getting_screenshot_for_location":
+            log.d("START getting screenshot for location", 1, logger_box=self.loggerBox)
             self.screenshot_flag_run = True
             screenshot_thread = threading.Thread(target=self.run)
             screenshot_thread.start()
             return True
         elif operation_name == "get_current_position":
             if path:
+                self.latest_img_array = self.operation("get_screenshot_array")
                 return_data = get_x_y(self.latest_img_array, path)
                 print(return_data)
                 if return_data[1][0] <= 1e-03:
@@ -185,31 +187,34 @@ class Main(Setup):
                         self.unknown_ui_page_count = 0
                         log.d("current_location : " + lo, 1, logger_box=self.loggerBox)
                         return lo
-                time.sleep(self.screenshot_interval * 2)
+                time.sleep(self.screenshot_interval)
         elif operation_name == "get_screenshot_array":
-            try:
-                screenshot = self.connection.screenshot()
-                numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
-                if abs(int(self.screenshot_interval * 100) - 50) > 1e-05:
-                    if self.io_err_solved_count == self.io_err_rate:
-                        log.d("The IOError cease to happen.", level=1, logger_box=self.loggerBox)
-                        log.d("Trying reducing the screenshot interval by 0.1s.", level=1, logger_box=self.loggerBox)
-                        self.screenshot_interval -= 0.1
-                        self.io_err_solved_count = 0
-                        self.io_err_count = max(self.io_err_count - 1, 0)
-                    else:
-                        self.io_err_solved_count += 1
-                return numpy_array
-            except Exception as e:
-                log.d("The IOError happened! Trying add the screenshot interval by 0.1s.",
-                      level=3, logger_box=self.loggerBox)
-                if self.io_err_count >= self.io_err_rate:
-                    self.screenshot_interval += 0.1
-                    self.io_err_count = 0
-                self.io_err_count += 1
-                log.d(f'{e}! Trying screenshot again...', level=3, logger_box=self.loggerBox)
-                time.sleep(1 + int(self.screenshot_interval))
-                return None
+            # try:
+            #     screenshot = self.connection.screenshot()
+            #     numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
+            #     if abs(int(self.screenshot_interval * 100) - 50) > 1e-05:
+            #         if self.io_err_solved_count == self.io_err_rate:
+            #             log.d("The IOError cease to happen.", level=1, logger_box=self.loggerBox)
+            #             log.d("Trying reducing the screenshot interval by 0.1s.", level=1, logger_box=self.loggerBox)
+            #             self.screenshot_interval -= 0.1
+            #             self.io_err_solved_count = 0
+            #             self.io_err_count = max(self.io_err_count - 1, 0)
+            #         else:
+            #             self.io_err_solved_count += 1
+            #     return numpy_array
+            # except Exception as e:
+            #     log.d("The IOError happened! Trying add the screenshot interval by 0.1s.",
+            #           level=3, logger_box=self.loggerBox)
+            #     if self.io_err_count >= self.io_err_rate:
+            #         self.screenshot_interval += 0.1
+            #         self.io_err_count = 0
+            #     self.io_err_count += 1
+            #     log.d(f'{e}! Trying screenshot again...', level=3, logger_box=self.loggerBox)
+            #     time.sleep(1 + int(self.screenshot_interval))
+            #     return None
+            screenshot = self.connection.screenshot()
+            numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
+            return numpy_array
 
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
         img1 = self.operation("get_screenshot_array")
@@ -264,7 +269,7 @@ class Main(Setup):
         if not flag:
             return False
 
-        self.operation("stop_getting_screenshot")
+        self.operation("stop_getting_screenshot_for_location")
 
         self.change_acc_auto()
 
@@ -289,7 +294,7 @@ class Main(Setup):
                 log.d("fighting", level=1, logger_box=self.loggerBox)
             time.sleep(2)
 
-        self.operation("start_getting_screenshot")
+        self.operation("start_getting_screenshot_for_location")
 
         if not success:
             while 1:
@@ -312,12 +317,12 @@ class Main(Setup):
         special_task_lox = 1120
         special_task_loy = [180, 286, 386, 489, 564, 432, 530, 628]
         fail_cnt = 0
-        difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]
+        #difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]
         log.d("-------------------------------------------------------------------------------", 1,
               logger_box=self.loggerBox)
         img_shot = self.operation("get_screenshot_array")
         log.d("try to swipe to TOP page", level=1, logger_box=self.loggerBox)
-        ocr_result = self.img_ocr(img_shot)
+        #ocr_result = self.img_ocr(img_shot)
         while fail_cnt <= 3:
             log.d("SWIPE UPWARDS", level=1, logger_box=self.loggerBox)
             self.operation("swipe", [(762, 200), (762, 460)], duration=0.1)
@@ -370,6 +375,8 @@ class Main(Setup):
 
         if self.operation("get_current_position") == "notice":
             log.d("UNLOCK", level=2, logger_box=self.loggerBox)
+            self.operation("click", (1240, 39))
+            self.operation("click", (1240, 39))
         else:
             for i in range(0, b - 1):
                 if f:
@@ -380,8 +387,15 @@ class Main(Setup):
             lo = self.operation("get_current_position")
             if lo == "charge_power":
                 log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
+                self.operation("click", (1240, 39))
+                self.operation("click", (1240, 39))
+                self.operation("click", (1240, 39))
             elif lo == "charge_notice":
                 log.d("inadequate ticket , exit task", level=3, logger_box=self.loggerBox)
+                self.operation("click", (1240, 39))
+                self.operation("click", (1240, 39))
+                self.operation("click", (1240, 39))
+
             elif lo == "notice":
                 self.operation("click", (767, 501), duration=2)
             else:
@@ -389,7 +403,6 @@ class Main(Setup):
         return True
 
     def main_to_page(self, index, path=None, name=None, any=False):
-
         self.to_page[7] = [[217, 940], [659, self.schedule_lo_y[self.schedule_pri[0] - 1]],
                            ["schedule", "schedule" + str(self.schedule_pri[0])]]
         procedure = self.to_page[index]
@@ -438,7 +451,7 @@ class Main(Setup):
             #        print("exceed len 2", shot_time)
             self.pos.pop()
 
-    def common_icon_bug_detect_method(self, path, x,y,name,times = 3):
+    def common_icon_bug_detect_method(self, path, x,y,name,times=3,interval = 0.5):
         if not self.flag_run:
             return False
         log.d("------------------------------------------------------------------------------------------------", 1,
@@ -459,8 +472,8 @@ class Main(Setup):
                 return True
             log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
             cnt += 1
-            self.operation("click", (x, y),duration=0.5)
-            return_data = self.get_x_y(self.latest_img_array, path)
+            self.operation("click", (x, y), duration=interval)
+            return_data = self.get_x_y(self.operation("get_screenshot_array"), path)
             print(return_data)
 
         log.d("CAN'T DETECT BUTTON FOR " + name.upper(), 3, logger_box=self.loggerBox)
@@ -488,7 +501,7 @@ class Main(Setup):
                 return True
             log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
             cnt += 1
-            self.operation("click", (x, y))
+            self.operation("click", (x, y), duration=self.screenshot_interval)
 
             t = self.operation("get_current_position",path=path, name=name, anywhere=anywhere)
 
@@ -563,7 +576,7 @@ class Main(Setup):
         print("run stop")
 
     def thread_starter(self):  # 不要每次点击启动都跑这个
-        self.operation("start_getting_screenshot")
+        self.operation("start_getting_screenshot_for_location")
         self.quick_method_to_main_page()
         log.line(self.loggerBox)
         log.d("start activities", level=1, logger_box=self.loggerBox)
@@ -576,10 +589,8 @@ class Main(Setup):
                     self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
                     self.main_to_page(i)
                 if self.solve(next_func_name):
-                    log.d(f'{next_func_name} finished', level=1, logger_box=self.loggerBox)
                     self.scheduler.systole(next_func_name)
                 else:
-                    log.d(f'{next_func_name} failed', level=3, logger_box=self.loggerBox)
                     self.flag_run = False
                     self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
             else:

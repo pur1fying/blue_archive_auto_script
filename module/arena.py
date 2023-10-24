@@ -35,13 +35,17 @@ def implement(self):
     f_skip = False
 
     for i in range(0, 5):
+        print(i)
         self.operation("click", (x, y), duration=1)
-        self.operation("click", (638, 569))
+        self.operation("click", (638, 569),duration = self.screen_shot_interval * 2)
 
         lo = self.operation("get_current_position",)
-        if lo == "notice":#没券了
+        if lo == "notice": #没券了
             self.main_activity[9][1] = 1
             log.d("INADEQUATE TICKET", level=1, logger_box=self.loggerBox)
+            self.operation("click", (1240, 39))
+            self.operation("click", (1240, 39))
+            self.operation("click", (1240, 39))
             return True
         elif lo == "attack_formation":
             if not f_skip:
@@ -56,14 +60,15 @@ def implement(self):
                 f_skip = True
 
             self.operation("click", (1169, 670), duration=1)
-            self.operation("click", (1169, 670))
+            self.operation("click", (1169, 670), duration=1)
+            self.operation("click", (1169, 700), duration= self.screen_shot_interval * 2)
             if not self.common_positional_bug_detect_method("arena", 1169, 670, times=10, anywhere=True):
                 return False
             if i == 4:
                 log.d("FINISH 5 COMBAT,exit arena", level=1, logger_box=self.loggerBox)
                 return True
 
-            self.operation("stop_getting_screenshot")
+            self.operation("stop_getting_screenshot_for_location")
             log.d("WAIT 53 SECONDS FOR THE NEXT COMBAT", level=1, logger_box=self.loggerBox)
             time.sleep(53)
-            self.operation("start_getting_screenshot")
+            self.operation("start_getting_screenshot_for_location")

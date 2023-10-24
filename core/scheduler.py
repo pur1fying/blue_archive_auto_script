@@ -26,18 +26,19 @@ class Scheduler:
                 self._event_config = json.load(f)
 
     def _commit_change(self):
-        with lock:
-            with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
-                json.dump(self._event_config, f, ensure_ascii=False, indent=2)
-            with open(DISPLAY_CONFIG_PATH, 'w', encoding='utf-8') as f:
-                json.dump(self._display_config, f, ensure_ascii=False, indent=2)
+        with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(self._event_config, f, ensure_ascii=False, indent=2)
+        with open(DISPLAY_CONFIG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(self._display_config, f, ensure_ascii=False, indent=2)
 
     def systole(self, task_name: str) -> None:
         cur_time = int(time.time())
         matching_events = [x for x in self._event_config if x['func_name'] == task_name]
         if matching_events:
             matching_events[0]['next_tick'] = cur_time + matching_events[0]['interval']
-        self._commit_change()
+
+        threading.Thread(target=self._commit_change).start()
+        #self._commit_change()
 
     def heartbeat(self) -> Optional[str]:
         self._read_config()

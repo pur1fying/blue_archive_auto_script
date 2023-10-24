@@ -1,10 +1,27 @@
-import os
+def is_prime(n):
+    if n <= 1:
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
 
-# 假设 image_file 包含文件名，例如 "image.jpg"
-image_file = "image.jpg"
-directory_path = "\src\common_button"  # 目录路径
 
-# 使用 os.path.join 合并目录路径和文件名
-path = os.path.join(directory_path, image_file)
+def find_primes_below_n(n):
+    prime_list = [2]
+    for num in range(3, n):
+        if is_prime(num):
+            prime_list.append(num)
+    return prime_list
 
-print(path)  # 输出完整的文件路径，例如 "/src/common_button/image.jpg"
+
+try:
+    n = int(input("请输入一个整数: "))
+    if n <= 0:
+        print("请输入一个大于0的整数。")
+    else:
+        primes = find_primes_below_n(n)
+        print(f"{n}以下的素数: {primes}")
+except ValueError:
+    print("无效输入，请输入一个整数。")
+

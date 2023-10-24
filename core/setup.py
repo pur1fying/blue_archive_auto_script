@@ -23,7 +23,8 @@ class Setup:
         self.pos = []
         self.click_time = 0.0
 
-        self.schedule_pri = [4, 3, 2, 1, 5]  #** 可设置参数，日程区域优先级  1 2 3 4 5 分别表示 已经出的五个区域
+        self.schedule_pri = [5, 1, 4, 3, 2]  #** 可设置参数，日程区域优先级  1 2 3 4 5 分别表示 已经出的五个区域
+        self.schedule_times = [2,2,1,1,1]
         self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc',context='cpu')
         self.latest_img_array = None
 
@@ -59,7 +60,7 @@ class Setup:
         out = self.ocr.ocr(img)
         res = ""
         for i in range(0, len(out)):
-            if out[i]["score"] > 0.6:
+            if out[i]["score"] > 0.4:
                 res = res + out[i]["text"]
         return res
 
