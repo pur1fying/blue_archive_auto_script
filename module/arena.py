@@ -37,7 +37,7 @@ def implement(self):
     for i in range(0, 5):
         print(i)
         self.operation("click", (x, y), duration=1)
-        self.operation("click", (638, 569),duration = self.screen_shot_interval * 2)
+        self.operation("click", (638, 569),duration = self.screenshot_interval * 2)
 
         lo = self.operation("get_current_position",)
         if lo == "notice": #没券了
@@ -61,7 +61,7 @@ def implement(self):
 
             self.operation("click", (1169, 670), duration=1)
             self.operation("click", (1169, 670), duration=1)
-            self.operation("click", (1169, 700), duration= self.screen_shot_interval * 2)
+            self.operation("click", (1169, 700), duration= self.screenshot_interval * 2)
             if not self.common_positional_bug_detect_method("arena", 1169, 670, times=10, anywhere=True):
                 return False
             if i == 4:

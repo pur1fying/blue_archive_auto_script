@@ -53,7 +53,7 @@ def fight_difficulty_x(self, x):
         formation_y = [198, 274, 353, 426]
         if i == 0:
             self.operation("click", (total_force_fight_x, total_force_fight_y),duration=1)
-            self.operation("click", (1015, 524))
+            self.operation("click", (1015, 524),2)
             lo = self.operation("get_current_position")
             if not lo:
                 return False
@@ -197,13 +197,14 @@ def total_force_fight_highest_difficulty_button_judgement(self,button_list):
 
 
 def total_force_fight_highest_difficulty_button_detector(self):
+    self.operation("stop_getting_screenshot_for_location")
     fail_cnt = 0
     button_detected = np.full([len(self.total_force_fight_difficulty_name), 2], False, dtype=bool)
     while fail_cnt <= 3:
         img = self.operation("get_screenshot_array")
 
         for i in range(0, len(self.total_force_fight_difficulty_name)):
-            if button_detected[i].all():
+            if button_detected[i].any():
                 continue
             path1 = "src/total_force_fight/" + self.total_force_fight_name + "/"+ self.total_force_fight_difficulty_name[i] + "_BRIGHT.png"
             path2 = "src/total_force_fight/" + self.total_force_fight_name + "/" +self.total_force_fight_difficulty_name[i] + "_GREY.png"
@@ -219,6 +220,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
                 t = total_force_fight_highest_difficulty_button_judgement(self,button_detected)
                 if type(t) == int:
                     log.d("DETECT HIGHEST UNLOCK LEVEL " + self.total_force_fight_difficulty_name[t], 1, logger_box=self.loggerBox)
+                    self.operation("start_getting_screenshot_for_location")
                     return t
 
             elif return_data2[1][0] <= 1e-02 and not button_detected[i].any():
@@ -227,6 +229,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
                 t = total_force_fight_highest_difficulty_button_judgement(self, button_detected)
                 if type(t) == int:
                     log.d("DETECT HIGHEST UNLOCK LEVEL " + self.total_force_fight_difficulty_name[t], 1, logger_box=self.loggerBox)
+                    self.operation("start_getting_screenshot_for_location")
                     return t
 
         log.d("SWIPE DOWNWARDS", 1, logger_box=self.loggerBox)
@@ -236,10 +239,10 @@ def total_force_fight_highest_difficulty_button_detector(self):
 
         img = self.operation("get_screenshot_array")
         for i in range(0, len(self.total_force_fight_difficulty_name)):
-            if button_detected[i][0].all():
+            if button_detected[i].any():
                 continue
-            path1 = "src/total_force_fight/bina/" + self.total_force_fight_difficulty_name[i] + "_BRIGHT.png"
-            path2 = "src/total_force_fight/bina/" + self.total_force_fight_difficulty_name[i] + "_GREY.png"
+            path1 = "src/total_force_fight/" + self.total_force_fight_name + "/" + self.total_force_fight_difficulty_name[i] + "_BRIGHT.png"
+            path2 = "src/total_force_fight/" +  self.total_force_fight_name + "/" + self.total_force_fight_difficulty_name[i] + "_GREY.png"
             return_data1 = self.get_x_y(img, path1)
             return_data2 = self.get_x_y(img, path2)
             print(self.total_force_fight_difficulty_name[i])
@@ -251,6 +254,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
                 t = total_force_fight_highest_difficulty_button_judgement(self, button_detected)
                 if type(t) == int:
                     log.d("DETECT HIGHEST UNLOCK LEVEL " + self.total_force_fight_difficulty_name[t], 1, logger_box=self.loggerBox)
+                    self.operation("start_getting_screenshot_for_location")
                     return t
 
             elif return_data2[1][0] <= 1e-02 and not button_detected[i].any():
@@ -259,6 +263,7 @@ def total_force_fight_highest_difficulty_button_detector(self):
                 t = total_force_fight_highest_difficulty_button_judgement(self, button_detected)
                 if type(t) == int:
                     log.d("DETECT HIGHEST UNLOCK LEVEL " + self.total_force_fight_difficulty_name[t], 1, logger_box=self.loggerBox)
+                    self.operation("start_getting_screenshot_for_location")
                     return t
 
         fail_cnt = fail_cnt + 1
@@ -267,11 +272,12 @@ def total_force_fight_highest_difficulty_button_detector(self):
         time.sleep(2)
 
     log.d("CAN'T DETECT HIGHEST UNLOCK LEVEL", 3, logger_box=self.loggerBox)
+    self.operation("start_getting_screenshot_for_location")
     return False
 
 
 def implement(self):
-    maxx = 3
+    maxx = 5
     judge_and_finish_unfinished_total_force_fight_task(self)  # 判断有没有正在进行的总力战
     pri_total_force_fight = min(maxx,total_force_fight_highest_difficulty_button_detector(self))  # 第pri+1难度
     if not isinstance(pri_total_force_fight,int):
@@ -347,12 +353,14 @@ def implement(self):
     print(return_data2)
     if return_data1[1][0] <= 1e-03:
         log.d("collect TOTAL FORCE FIGHT ACCUMULATED POINTS REWARD", 1, logger_box=self.loggerBox)
-        self.operation("click", (return_data1[0][0], return_data1[0][1]))
+        self.operation("click", (return_data1[0][0], return_data1[0][1]),duration = 2)
         self.operation("click",(1240,40))
         self.operation("click",(1240,40))
         self.operation("click",(1240,40))
     elif return_data2[1][0] <= 1e-03:
         log.d("NO ACCUMULATED POINTS REWARD can be collected", 1, logger_box=self.loggerBox)
+        self.operation("click", (1240, 40))
+        self.operation("click", (1240, 40))
     else:
         log.d("CAN'T DETECT BUTTON", 3, logger_box=self.loggerBox)
         return False
