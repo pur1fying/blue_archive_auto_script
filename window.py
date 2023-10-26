@@ -1,19 +1,14 @@
 # coding:utf-8
 import sys
+import time
 
 sys.path.append('./')
-
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF, SplashScreen
 from qfluentwidgets import (NavigationItemPosition, FluentWindow,
                             SubtitleLabel, setFont, setThemeColor)
-
-from gui.fragments.home import HomeFragment
-from gui.fragments.process import ProcessFragment
-from gui.fragments.switch import SwitchFragment
-from gui.fragments.settings import SettingsFragment
 
 ICON_DIR = 'gui/assets/logo.png'
 
@@ -42,14 +37,23 @@ class Window(FluentWindow):
         self.show()
 
         setThemeColor('#0078d4')
+
         # create sub interface
-        self.homeInterface = HomeFragment()
+        from gui.fragments.home import HomeFragment
+        from gui.fragments.process import ProcessFragment
+        from gui.fragments.switch import SwitchFragment
+        from gui.fragments.settings import SettingsFragment
+
+        self.homeInterface = HomeFragment(parent=self)
         self.schedulerInterface = SwitchFragment()
         self.processInterface = ProcessFragment()
         self.settingInterface = SettingsFragment()
 
         self.initNavigation()
         self.splashScreen.finish()
+
+    def call_update(self):
+        self.schedulerInterface.update_settings()
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.HOME, '主页')

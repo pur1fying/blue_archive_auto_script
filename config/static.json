@@ -555,7 +555,7 @@
       ["第10任务"]], "count_list": [[1]], "result": "task_10" }, { "name_list": [["第9任务"]], "count_list": [[1]], 
       "result": "task_9" }, { "name_list": [["第7任务"]], "count_list": [[1]], "result": "task_7" }, { "name_list": [[
       "第6任务"]], "count_list": [[1]], "result": "task_6" }, { "name_list": [["第5任务"]], "count_list": [[1]], 
-      "result": "task_5" }, { "name_list": [["第4任务"]], "count_list": [[1]], "result": "task_4" }, { "name_list": [[
+      "result": "task_5" }, { "name_list": [["第4任务"]], "count_list": [[1]], "result": "task_4" },{ "name_list": [["铁路","讲堂","高架"]], "count_list": [[1,1,1]], "result": "rewarded_task" }, { "name_list": [[
       "第3任务"]], "count_list": [[1]], "result": "task_3" }, { "name_list": [["第2任务"]], "count_list": [[1]], 
       "result": "task_2" }, { "name_list": [["第1任务"]], "count_list": [[1]], "result": "task_1" }, { "name_list": [[
       "讲堂", "铁路", "材料"]], "count_list": [[1, 1, 1]], "result": "rewarded_task" }, { "name_list": [["公告", "活动", 

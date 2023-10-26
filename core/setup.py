@@ -1,17 +1,15 @@
-import json
-import time
 import os
-from cnocr import CnOcr
-
-from core import default_config
-from core import STATIC_CONFIG_PATH, EXTEND_CONFIG_PATH, SWITCH_CONFIG_PATH, DEFAULT_CONFIG_PATH, EVENT_CONFIG_PATH, \
-    DISPLAY_CONFIG_PATH
-from core.inject_config import Config
-from core.utils import kmp
-from gui.util.extend_config import ExtendConfig
+import os
+import time
 
 from qfluentwidgets import qconfig
 
+from core import STATIC_CONFIG_PATH, EXTEND_CONFIG_PATH, SWITCH_CONFIG_PATH, DEFAULT_CONFIG_PATH, EVENT_CONFIG_PATH, \
+    DISPLAY_CONFIG_PATH
+from core import default_config
+from core.inject_config import Config
+from core.utils import kmp
+from gui.util.extend_config import ExtendConfig
 
 
 def check_config():
@@ -40,7 +38,6 @@ def check_config():
 class Setup:
     def __init__(self):
         check_config()
-
         self.event_config = Config(EVENT_CONFIG_PATH)
         self.display_config = Config(DISPLAY_CONFIG_PATH)
         self.static_config = Config(STATIC_CONFIG_PATH)
@@ -55,7 +52,6 @@ class Setup:
         self.click_time = 0.0
 
         self.schedule_pri = [4, 3, 2, 1, 5]  # ** 可设置参数，日程区域优先级  1 2 3 4 5 分别表示 已经出的五个区域
-        self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
         self.latest_img_array = None
 
         # Load static config

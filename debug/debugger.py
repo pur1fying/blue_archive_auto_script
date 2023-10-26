@@ -1,3 +1,4 @@
+import socket
 import threading
 
 from flask import Flask, render_template
@@ -26,8 +27,12 @@ debugger_view = DebuggerView(__name__)
 
 
 def start_view():
-    server = pywsgi.WSGIServer(('127.0.0.1', 5000), debugger_view, log=None)
-    server.serve_forever()
+    # if 5000 port is occupied, don't start debugger
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1', 5000))
+    if result != 0:
+        server = pywsgi.WSGIServer(('127.0.0.1', 5000), debugger_view, log=None)
+        server.serve_forever()
 
 
 def start_debugger():

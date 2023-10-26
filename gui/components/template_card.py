@@ -1,56 +1,69 @@
 # coding:utf-8
-import json
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from qfluentwidgets import ExpandSettingCard, ConfigItem, PushButton, qconfig, FlowLayout, CheckBox, SwitchButton, \
+from qfluentwidgets import ExpandSettingCard, SwitchButton, \
     IndicatorPosition, LineEdit
 from qfluentwidgets import FluentIcon as FIF
 
 
-class BasicSettingCard(ExpandSettingCard):
+class TemplateSettingCard(ExpandSettingCard):
     """ Folder list setting card """
 
     statusChanged = pyqtSignal(bool)
     timeChanged = pyqtSignal(str)
 
-    def __init__(self, config_item: ConfigItem, title: str, content: str = None, parent=None):
+    def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None):
         super().__init__(FIF.CHECKBOX, title, content, parent)
-
-        # Constants Definition
-        self.EXTEND_CONFIG_PATH = './gui/config/extend.json'
-        self.DISPLAY_CONFIG_PATH = './gui/config/display.json'
-        self.EVENT_CONFIG_PATH = './core/event.json'
         # Card Top Widgets
         self.status_switch = SwitchButton(self.tr('Off'), self, IndicatorPosition.RIGHT)
         self.timer_box = LineEdit(self)
+        self.timer_box.setFixedWidth(160)
+        if sub_view is not None:
+            self.expand_view = sub_view.Layout(self)
+        else:
+            self.expand_view = None
 
-        # self.hBoxLayout = FlowLayout(self, needAni=True)
-        # self.setFixedSize(720, 200)
-        #
-        # self.config_name = config_name
-        # self.configItem = configItem
-        # self.switch_item = PushButton(self.tr('设置目录'),
-        #                               self, FIF.FOLDER_ADD)
-        # self.hBoxLayout.addWidget(self.status_switch, 0, Qt.AlignRight)
-        # self.hBoxLayout.addSpacing(16)
+        self.status_switch.checkedChanged.connect(self.statusChanged.emit)
+        self.timer_box.textChanged.connect(self.timeChanged.emit)
 
+        self._adjustViewSize()
         self.__initWidget()
 
     def __initWidget(self):
         # Add widgets to layout
-        self.addWidget(self.status_switch)
         self.addWidget(self.timer_box)
+        self.addWidget(self.status_switch)
 
-        # Initialize layout
         self.viewLayout.setSpacing(0)
         self.viewLayout.setAlignment(Qt.AlignTop)
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
+        # Initialize layout
+        if self.expand_view is not None:
+            self.viewLayout.addWidget(self.expand_view)
+            self.expand_view.show()
+        else:
+            self.setExpand(False)
+            self.card.expandButton.hide()
+            self.card.setContentsMargins(0, 0, 30, 0)
+        self._adjustViewSize()
 
-        # self.item = GoodsItem(self.file, self.view)
+    def setChecked(self, isChecked: bool):
+        self.setValue(isChecked)
 
-        for box in self.item.boxes:
-            box.stateChanged.connect(self.__onStateChanged)
 
-        self.viewLayout.addWidget(self.item)
-        self.item.show()
+class SimpleSettingCard(ExpandSettingCard):
+    """ Folder list setting card """
+    def __init__(self, sub_view, title: str = '', content: str = None, parent=None):
+        super().__init__(FIF.CHECKBOX, title, content, parent)
+        self.expand_view = sub_view.Layout(self)
+        self._adjustViewSize()
+        self.__initWidget()
+
+    def __initWidget(self):
+        self.viewLayout.setSpacing(0)
+        self.viewLayout.setAlignment(Qt.AlignTop)
+        self.viewLayout.setContentsMargins(0, 0, 0, 0)
+        # Initialize layout
+        self.viewLayout.addWidget(self.expand_view)
+        self.expand_view.show()
         self._adjustViewSize()

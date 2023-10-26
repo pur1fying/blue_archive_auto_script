@@ -1,5 +1,23 @@
 EXTEND_DEFAULT_CONFIG = """
 {
+ "ShopList": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
     "Settings": {
         "ShopList": [
             0,
@@ -771,6 +789,24 @@ DISPLAY_DEFAULT_CONFIG = """
 
 DEFAULT_CONFIG = """
 {
+ "ShopList": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
     "Daily": {
         "Atelier": true,
         "Cafe": true,

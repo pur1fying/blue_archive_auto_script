@@ -10,8 +10,9 @@ lock = threading.Lock()
 
 
 class Scheduler:
-    def __init__(self):
+    def __init__(self, update_signal):
         super().__init__()
+        self.update_signal = update_signal
         self._event_config = []
         self._display_config = {
             'running': "Empty",
@@ -37,6 +38,7 @@ class Scheduler:
         if matching_events:
             matching_events[0]['next_tick'] = cur_time + matching_events[0]['interval']
         self._commit_change()
+        self.update_signal.emit()
 
     def heartbeat(self) -> Optional[str]:
         self._read_config()

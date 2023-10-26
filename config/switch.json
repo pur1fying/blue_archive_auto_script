@@ -1,4 +1,3 @@
-
 [
   {
     "name": "查收邮箱",
@@ -88,6 +87,12 @@
     "name": "商店购买",
     "tip": "商店里买东西",
     "config": "shopPriority",
+    "type": "CheckboxSettingCard"
+  },
+  {
+    "name": "竞技场商店购买",
+    "tip": "竞技场商店里买东西",
+    "config": "arenaShopPriority",
     "type": "CheckboxSettingCard"
   },
   {

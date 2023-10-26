@@ -1,5 +1,43 @@
-
 {
+    "arenaPriority": [
+        4,
+        3,
+        1,
+        2
+    ],
+    "ArenaShopList": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+    ],
+    "ShopList": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+    ],
     "Daily": {
         "Atelier": true,
         "Cafe": true,
@@ -41,5 +79,8 @@
     "QFluentWidgets": {
         "ThemeColor": "#ff0078d4",
         "ThemeMode": "Light"
-    }
+    },
+    "favorStudent": "莲见",
+    "server": "B服",
+    "adbPort": "0"
 }
