@@ -1,4 +1,7 @@
 {
+    "hardPriority": "3-1-2",
+    "mainlinePriority": "1-2",
+    "specialPriority": "1-1",
     "arenaPriority": [
         4,
         3,
@@ -80,7 +83,15 @@
         "ThemeColor": "#ff0078d4",
         "ThemeMode": "Light"
     },
-    "favorStudent": "莲见",
+    "favorStudent": "小春",
     "server": "B服",
-    "adbPort": "0"
+    "adbPort": "0",
+    "schedulePriority": [
+        1,
+        2,
+        3,
+        5,
+        4
+    ],
+    "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然"
 }

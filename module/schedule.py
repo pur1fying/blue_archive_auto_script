@@ -8,6 +8,7 @@ from gui.util import log
 def implement(self):
     region_name = ["沙勒业务区", "沙勒生活区", "歌赫娜中央区", "阿拜多斯高等学院", "千禧年学习区"]
 
+    self.schedule_pri = self.config.get('schedulePriority')
     lo = [[300, 267], [645, 267], [985, 267],
           [300, 413], [645, 413], [985, 413],
           [300, 531], [645, 531], [985, 531]]
@@ -26,7 +27,7 @@ def implement(self):
             else:
                 self.operation("click@change_to_right", (right_change_page_x, change_page_y))
 
-            cur_lo = self.operation("get_current_position",)
+            cur_lo = self.operation("get_current_position", )
             if cur_lo[0:8] != "schedule":
                 log.d("unexpected page :" + cur_lo, level=3, logger_box=self.loggerBox)
                 return False
@@ -46,11 +47,11 @@ def implement(self):
         for j in range(0, start):
             x = lo[start - j - 1][0]
             y = lo[start - j - 1][1]
-            self.operation("click", (x, y),duration = 0.8)
+            self.operation("click", (x, y), duration=0.8)
             x = 640
             y = 556
             self.operation("click", (x, y))
-            if self.operation("get_current_position",) == "notice":
+            if self.operation("get_current_position", ) == "notice":
                 self.main_activity[7][1] = 1
                 log.d("task schedule finished", level=1, logger_box=self.loggerBox)
                 return True

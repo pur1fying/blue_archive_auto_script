@@ -35,4 +35,3 @@ class Layout(QWidget, ConfigSet):
     def __accept(self):
         self.priority_list = [int(x) for x in self.input.text()]
         self.set('arenaPriority', self.priority_list)
-        print(self.priority_list)

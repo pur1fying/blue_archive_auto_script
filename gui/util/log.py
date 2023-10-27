@@ -28,14 +28,13 @@ def d(message, level=4, logger_box = None):
                   f'{statusHtml[level - 1]} | {datetime.now()} | {message} '
                   f'</div>')
         debugger_view.content += adding
-        threading.Thread(target=logger_box.emit, args=(adding,)).start()
-        # logger_box.emit(adding)
+        # threading.Thread(target=logger_box.emit, args=(adding,)).start()
+        logger_box.emit(adding)
 
 
-def line(logger_box: LoggerBox = None):
-    pass
-    # if logger_box is not None:
+def line(logger_box = None):
+    if logger_box is not None:
         # logger_box.lineEdit.scrollContentsBy(0, 100)
         # logger_box.lineEdit.scroll
-        # logger_box.lineEdit.append('---------------------------------------------------------------------------'
-        #                            '-------------------')
+        logger_box.emit('---------------------------------------------------------------------------'
+                                   '-------------------')

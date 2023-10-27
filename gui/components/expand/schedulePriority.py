@@ -1,4 +1,7 @@
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
+from qfluentwidgets import LineEdit
 
 from gui.util.config_set import ConfigSet
 
@@ -6,5 +9,29 @@ from gui.util.config_set import ConfigSet
 class Layout(QWidget, ConfigSet):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setFixedHeight(120)
+        self.hBoxLayout = QHBoxLayout(self)
 
+        self.label = QLabel('输入你的排序（如"12345"）', self)
+        self.input = LineEdit(self)
+        self.accept = QPushButton('确定', self)
+        _set_ = self.get('schedulePriority')
+        self.priority_list = [int(x) for x in (_set_ if _set_ else [1, 2, 3, 4, 5])]
+        validator = QIntValidator(12345, 54321)
+        self.input.setText(''.join([str(x) for x in self.priority_list]))
+        self.input.setValidator(validator)
+        self.setFixedHeight(53)
+        self.hBoxLayout.setContentsMargins(48, 0, 0, 0)
+
+        self.accept.clicked.connect(self.__accept)
+
+        self.hBoxLayout.addWidget(self.label, 20, Qt.AlignLeft)
+        self.hBoxLayout.addWidget(self.input, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.accept, 0, Qt.AlignCenter)
+
+        self.hBoxLayout.addSpacing(16)
+        self.hBoxLayout.addStretch(1)
+        self.hBoxLayout.setAlignment(Qt.AlignCenter)
+
+    def __accept(self):
+        self.priority_list = [int(x) for x in self.input.text()]
+        self.set('schedulePriority', self.priority_list)

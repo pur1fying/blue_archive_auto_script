@@ -1,12 +1,11 @@
 import os
 import threading
 import time
-from cnocr import CnOcr
 
 import cv2
 import numpy as np
 import uiautomator2 as u2
-from qfluentwidgets import qconfig
+from cnocr import CnOcr
 
 import module
 from core.scheduler import Scheduler
@@ -14,7 +13,6 @@ from core.setup import Setup
 from core.utils import kmp, get_x_y, pd_rgb
 from debug.debugger import start_debugger
 from gui.util import log
-from gui.util.config import conf_global
 from gui.util.config_set import ConfigSet
 
 
@@ -45,8 +43,26 @@ class Main(Setup):
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
-        self.common_task_count = [(10, 1, 10), (10, 5, 10)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-        self.hard_task_count = [(5, 3, 3), (4, 3, 3), (3, 3, 3), (3, 2, 3)]  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+        try:
+            self.common_task_count = self.config.get('mainlinePriority')  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+            self.hard_task_count = self.config.get('hardPriority')  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+            if self.common_task_count == '':
+                self.common_task_count = []
+            else:
+                self.common_task_count = [tuple([int(y) for y in x.split('-')]) for x in
+                                          self.common_task_count.split(',')]
+            if self.hard_task_count == '':
+                self.hard_task_count = []
+            else:
+                self.hard_task_count = [tuple([int(y) for y in x.split('-')]) for x in
+                                        self.hard_task_count.split(',')]
+        except ValueError as e:
+            self.common_task_count = []
+            self.hard_task_count = []
+
+        print(self.common_task_count)
+        print(self.hard_task_count)
+
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
         self.scheduler = Scheduler(update_signal)

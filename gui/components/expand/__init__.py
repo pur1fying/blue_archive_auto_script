@@ -1,7 +1,6 @@
 from .arenaPriority import Layout
 from .cafeInvite import Layout
 from .createPriority import Layout
-from .hardDaily import Layout
 from .mainlinePriority import Layout
 from .schedulePriority import Layout
 from .shopPriority import Layout

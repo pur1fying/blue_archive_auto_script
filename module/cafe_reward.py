@@ -3,7 +3,6 @@ import time
 from core.utils import pd_rgb, get_x_y
 from gui.util import log
 
-
 def implement(self):
     path1 = "src/cafe/collect_button_bright.png"
     path2 = "src/cafe/collect_button_grey.png"
@@ -30,7 +29,7 @@ def implement(self):
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
 
-    target_name = "小春"  # ** 可设置参数 邀请券邀请学生的名字
+    target_name = self.config.get('favorStudent')  # ** 可设置参数 邀请券邀请学生的名字
     if return_data1[1][0] <= 1e-03:
         log.d("invitation available begin find student " + target_name, 1, logger_box=self.loggerBox)
         self.operation("click@invitation ticket", (return_data1[0][0], return_data1[0][1]),duration=1)

@@ -15,13 +15,13 @@ def common_create_collect_operation(self):
     while return_data1[1][0] < 1e-02 or return_data2[1][0] < 1e-02:
         if return_data1[1][0] < 0.01:
             log.d("collect finished creature", level=1, logger_box=self.loggerBox)
-            self.operation("click@collect", (return_data1[0][0], return_data1[0][1]),duration=2)
+            self.operation("click@collect", (return_data1[0][0], return_data1[0][1]), duration=2)
             self.operation("click@anywhere", (628, 665), duration=0.5)
         if return_data2[1][0] < 0.01:
             log.d("accelerate unfinished creature", level=1, logger_box=self.loggerBox)
-            self.operation("click@accelerate", (return_data2[0][0], return_data2[0][1]),duration=0.5)
+            self.operation("click@accelerate", (return_data2[0][0], return_data2[0][1]), duration=0.5)
             self.operation("click@confirm", (755, 477), duration=0.5)
-            self.operation("click@collect", (return_data2[0][0], return_data2[0][1]),duration=2)
+            self.operation("click@collect", (return_data2[0][0], return_data2[0][1]), duration=2)
             self.operation("click@anywhere", (628, 665), duration=0.5)
         self.latest_img_array = self.operation("get_screenshot_array")
         return_data1 = get_x_y(self.latest_img_array, path2)
@@ -29,7 +29,7 @@ def common_create_collect_operation(self):
 
 
 def common_create_judge(self):
-    pri = self.pri  # 可设置参数，越靠前的节点在制造时越优先选择
+    pri = [x for x in self.config.get('createPriority')]  # 可设置参数，越靠前的节点在制造时越优先选择
     node_x = [839, 508, 416, 302, 174]
     node_y = [277, 388, 471, 529, 555]
     # 572 278
@@ -56,7 +56,7 @@ def common_create_judge(self):
 def implement(self):
     path5 = "../src/create/start_button_bright.png"
     path6 = "../src/create/start_button_grey.png"
-    create_times = 30    # ** 制造次数
+    create_times = 30  # ** 制造次数
     create_stop = False
     common_create_collect_operation(self)
     log.d("all creature collected", level=1, logger_box=self.loggerBox)
@@ -99,9 +99,9 @@ def implement(self):
                 node_y = [278, 388, 471, 529, 555]
                 choice = common_create_judge(self)
                 if choice is not None:
-                    self.operation("click", (node_x[choice], node_y[choice]),duration=0.5)
+                    self.operation("click", (node_x[choice], node_y[choice]), duration=0.5)
                     self.operation("click", (1123, 650), duration=3)
-                    self.operation("click", (1123, 650),duration=4)
+                    self.operation("click", (1123, 650), duration=4)
                     if not self.common_positional_bug_detect_method("manufacture_store", 1123, 650):
                         return False
             else:

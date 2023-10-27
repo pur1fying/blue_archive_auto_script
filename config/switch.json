@@ -6,12 +6,6 @@
     "type": "BasicSettingCard"
   },
   {
-    "name": "日常困难",
-    "tip": "帮助你自动打困难关",
-    "config": "hardDaily",
-    "type": "StageSettingCard"
-  },
-  {
     "name": "咖啡厅",
     "tip": "帮助你收集咖啡厅体力和信用点",
     "config": "cafeInvite",
@@ -103,7 +97,7 @@
   },
   {
     "name": "主线清除体力",
-    "tip": "主线关卡自动清除体力",
+    "tip": "主线关卡自动清除体力与每日困难",
     "config": "mainlinePriority",
     "type": "StageSettingCard"
   }
