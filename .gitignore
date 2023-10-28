@@ -1,12 +1,10 @@
 .idea
 __pycache__
+config
 dist
 build
 test
-training
-tmp
 lib
 c.py
 *.log
 *.spec
-*.json

@@ -1,6 +1,5 @@
 # coding:utf-8
 import sys
-import time
 
 sys.path.append('./')
 from PyQt5.QtCore import Qt, QSize

@@ -11,7 +11,6 @@ import module
 from core.scheduler import Scheduler
 from core.setup import Setup
 from core.utils import kmp, get_x_y, pd_rgb
-from core.utils import kmp, get_x_y, pd_rgb
 from debug.debugger import start_debugger
 from gui.util import log
 from gui.util.config_set import ConfigSet
@@ -35,6 +34,7 @@ class Main(Setup):
         self.io_err_solved_count = 0
         self.io_err_count = 0
         self.io_err_rate = 10
+        self.screenshot_interval = 0.5
         self.button_signal = button_signal
         self.flag_run = True
         self.click_interval = 3
@@ -109,8 +109,6 @@ class Main(Setup):
             return False
 
     def get_x_y(self, target_array, path):
-
-    def get_x_y(self, target_array, path):
         # print(target_array.dtype)
         if path.startswith("./src"):
             path = path.replace("./src", "src")
@@ -119,7 +117,6 @@ class Main(Setup):
         img1 = target_array
         img2 = cv2.imread(path)
         if img2 is None:
-            return [[-1, -1], [1]]
             return [[-1, -1], [1]]
         # sys.stdout = open('data.log', 'w+')
         height, width, channels = img2.shape
@@ -214,8 +211,7 @@ class Main(Setup):
                                   logger_box=self.loggerBox)
                         elif self.unknown_ui_page_count == 20:
                             log.d("Unknown ui page", 3, logger_box=self.loggerBox)
-                            self.flag_run = False
-                            self.button_signal.emit("启动")
+                            self.signal_stop()
                             return "UNKNOWN UI PAGE"
                             # exit(0)
                     else:
@@ -251,6 +247,9 @@ class Main(Setup):
             numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
             return numpy_array
 
+    def signal_stop(self):
+        self.flag_run = False
+        self.button_signal.emit("启动")
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
         img1 = self.operation("get_screenshot_array")
         acc_r_ave = img1[625][1196][0] // 3 + img1[625][1215][0] // 3 + img1[625][1230][0] // 3
@@ -258,22 +257,17 @@ class Main(Setup):
         if 250 <= acc_r_ave <= 260:
             log.d("CHANGE acceleration phase from 2 to 3", level=1, logger_box=self.loggerBox)
             self.operation("click@accleration", (1215, 625))
-            self.operation("click@accleration", (1215, 625))
         elif 0 <= acc_r_ave <= 60:
             log.d("ACCELERATION phase 3", level=1, logger_box=self.loggerBox)
         elif 140 <= acc_r_ave <= 180:
             log.d("CHANGE acceleration phase from 1 to 3", level=1, logger_box=self.loggerBox)
             self.operation("click@accelereation", (1215, 625))
             self.operation("click@acceleration", (1215, 625))
-            self.operation("click@accelereation", (1215, 625))
-            self.operation("click@acceleration", (1215, 625))
         else:
             log.d("CAN'T DETECT acceleration BUTTON", level=2, logger_box=self.loggerBox)
-
         auto_r_ave = img1[677][1171][0] // 2 + img1[677][1246][0] // 2
         if 190 <= auto_r_ave <= 230:
             log.d("CHANGE MANUAL to auto", level=1, logger_box=self.loggerBox)
-            self.operation("click@auto", (1215, 678))
             self.operation("click@auto", (1215, 678))
         elif 0 <= auto_r_ave <= 60:
             log.d("AUTO", level=1, logger_box=self.loggerBox)
@@ -287,14 +281,11 @@ class Main(Setup):
         for i in range(0, 20):
             img_shot = self.latest_img_array
             if pd_rgb(img_shot, 838, 690, 45, 65, 200, 220, 240, 255):
-            if pd_rgb(img_shot, 838, 690, 45, 65, 200, 220, 240, 255):
                 flag = True
                 break
             else:
                 lo = self.operation("get_current_position", anywhere=True)
-                lo = self.operation("get_current_position", anywhere=True)
                 if lo == "notice" or lo == "summary":
-                    self.operation("click @confirm", (769, 500), duration=3)
                     self.operation("click @confirm", (769, 500), duration=3)
 
                 path = "src/common_button/plot_menu.png"
@@ -304,12 +295,8 @@ class Main(Setup):
                     self.operation("click @plot_menu", (return_data[0][0], return_data[0][1]), duration=0.5)
                     self.operation("click @skip plot", (1207, 123), duration=1)
                     self.operation("click @confirm", (766, 527), duration=1)
-                    self.operation("click @plot_menu", (return_data[0][0], return_data[0][1]), duration=0.5)
-                    self.operation("click @skip plot", (1207, 123), duration=1)
-                    self.operation("click @confirm", (766, 527), duration=1)
                     continue
                 else:
-                    self.operation("click @anywhere", (1150, 649), duration=1)
                     self.operation("click @anywhere", (1150, 649), duration=1)
 
         if not flag:
@@ -350,7 +337,6 @@ class Main(Setup):
                 return_data1 = get_x_y(self.latest_img_array, path2)
                 if return_data1[1][0] < 1e-03:
                     log.d("Fail Back", level=1, logger_box=self.loggerBox)
-                    self.operation("click@confirm", (return_data1[0][0], return_data1[0][1]))
                     self.operation("click@confirm", (return_data1[0][0], return_data1[0][1]))
                     break
         else:
@@ -399,7 +385,6 @@ class Main(Setup):
             while fail_cnt <= 3:
                 log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
                 self.operation("swipe", [(762, 460), (762, 200)], duration=0.1)
-                self.operation("swipe", [(762, 460), (762, 200)], duration=0.1)
                 time.sleep(1)
                 img_shot = self.operation("get_screenshot_array")
                 ocr_res = self.img_ocr(img_shot)
@@ -431,9 +416,7 @@ class Main(Setup):
             for i in range(0, b - 1):
                 if f:
                     self.operation("click", (1033, 297), duration=0.6)
-                    self.operation("click", (1033, 297), duration=0.6)
                 else:
-                    self.operation("click", (1033, 297), duration=0.2)
                     self.operation("click", (1033, 297), duration=0.2)
             self.operation("click", (937, 404))
             lo = self.operation("get_current_position")
@@ -470,7 +453,6 @@ class Main(Setup):
             y = procedure[1][i]
             page = procedure[2][i]
             self.operation("click", (x, y))
-            if self.operation("get_current_position", path=path, name=name, anywhere=any) != page:
             if self.operation("get_current_position", path=path, name=name, anywhere=any) != page:
                 if times <= 1:
                     times += 1
@@ -544,7 +526,6 @@ class Main(Setup):
         log.d("BEGIN DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
         cnt = 1
         t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
-        t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
         while cnt <= times:
             if not self.flag_run:
                 return False
@@ -560,7 +541,6 @@ class Main(Setup):
             self.operation("click", (x, y), duration=self.screenshot_interval)
 
             t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
-            t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
 
         log.d("CAN'T DETECT POSITION " + pos.upper(), 3, logger_box=self.loggerBox)
         log.d("------------------------------------------------------------------------------------------------", 1,
@@ -568,7 +548,6 @@ class Main(Setup):
         return False
 
     def quick_method_to_main_page(self):
-        log.d("TO MAIN PAGE", 1, logger_box=self.loggerBox)
         log.d("TO MAIN PAGE", 1, logger_box=self.loggerBox)
         image_names = [
             "back_to_main_page",
@@ -623,7 +602,6 @@ class Main(Setup):
                 self.operation("click", (330, 345))
 
             lo = self.operation("get_current_position", anywhere=True)
-            lo = self.operation("get_current_position", anywhere=True)
 
     def run(self):
         while self.screenshot_flag_run and self.flag_run:
@@ -641,29 +619,29 @@ class Main(Setup):
         log.line(self.loggerBox)
         log.d("start activities", level=1, logger_box=self.loggerBox)
         print(self.main_activity)
-        self.main_to_page(8)
-        self.solve(self.main_activity[8][0])
-        for i in range(0, len(self.main_activity)):
-            if not (i == 11 or i == 8):
-                self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-                print(self.main_activity[i][0])
-                self.main_to_page(i)
-                self.solve(self.main_activity[i][0])
-        # while self.flag_run:
-        #     next_func_name = self.scheduler.heartbeat()
-        #     if next_func_name:
-        #         log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
-        #         i = self.activity_name_list.index(next_func_name)
-        #         if i != 14:
-        #             self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-        #             self.main_to_page(i)
-        #         if self.solve(next_func_name):
-        #             self.scheduler.systole(next_func_name)
-        #         else:
-        #             self.flag_run = False
-        #             self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-        #     else:
-        #         time.sleep(2)
+        # self.main_to_page(8)
+        # self.solve(self.main_activity[8][0])
+        # for i in range(0, len(self.main_activity)):
+        #     if not (i == 11 or i == 8):
+        #         self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+        #         print(self.main_activity[i][0])
+        #         self.main_to_page(i)
+        #         self.solve(self.main_activity[i][0])
+        while self.flag_run:
+            next_func_name = self.scheduler.heartbeat()
+            if next_func_name:
+                log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
+                i = self.activity_name_list.index(next_func_name)
+                if i != 14:
+                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+                    self.main_to_page(i)
+                if self.solve(next_func_name):
+                    self.scheduler.systole(next_func_name)
+                else:
+                    self.flag_run = False
+                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+            else:
+                time.sleep(2)
         while self.flag_run:
             next_func_name = self.scheduler.heartbeat()
             if next_func_name:

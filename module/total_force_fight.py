@@ -1,7 +1,7 @@
 import time
 from core.utils import get_x_y, kmp
 from gui.util import log
-from module import common_skip_plot_method
+# from module import common_skip_plot_method
 import numpy as np
 
 

@@ -1,4 +1,3 @@
-import threading
 import time
 
 from core.utils import get_x_y

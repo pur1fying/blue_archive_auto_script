@@ -3,8 +3,9 @@ import time
 from core.utils import pd_rgb, get_x_y
 from gui.util import log
 
+
 def implement(self):
-    self.operation("stop_getting_screenshot_for_location")  #  停止截图
+    self.operation("stop_getting_screenshot_for_location")  # 停止截图
 
     path1 = "src/cafe/collect_button_bright.png"
     path2 = "src/cafe/collect_button_grey.png"
@@ -14,7 +15,7 @@ def implement(self):
     print(return_data2)
     if return_data1[1][0] <= 1e-03:
         log.d("collect reward", 1, logger_box=self.loggerBox)
-        self.operation("click@collect", (return_data1[0][0], return_data1[0][1]),duration=2)
+        self.operation("click@collect", (return_data1[0][0], return_data1[0][1]), duration=2)
         self.operation("click@anywhere", (274, 161))
         self.operation("click@anywhere", (274, 161))
     elif return_data2[1][0] <= 1e-03:
@@ -23,7 +24,7 @@ def implement(self):
     else:
         log.d("can't detect collect reward button", 2, logger_box=self.loggerBox)
 
-    if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161,"cafe", times=4):
+    if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=4):
         return False
 
     img_shot = self.operation("get_screenshot_array")
@@ -39,13 +40,14 @@ def implement(self):
             if not f:
                 break
             target_name = target_name_list[i]
-            self.operation("click@invitation ticket", (return_data1[0][0], return_data1[0][1]),duration=1)
+            self.operation("click@invitation ticket", (return_data1[0][0], return_data1[0][1]), duration=1)
             log.d("begin find student " + target_name, 1, logger_box=self.loggerBox)
             swipe_x = 630
             swipe_y = 580
             dy = 430
 
-            student_name = ["真白（泳装）", "鹤城（泳装)", "梓（泳装）", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子", "明日奈", "菲娜", "艾米", "真纪",
+            student_name = ["真白（泳装）", "鹤城（泳装)", "梓（泳装）", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
+                            "明日奈", "菲娜", "艾米", "真纪",
                             "泉奈", "明里", "芹香", "优香", "小春",
                             "花江", "纯子", "千世", "干世", "莲见", "爱理", "睦月", "野宫", "绫音", "歌原",
                             "芹娜", "小玉", "铃美", "朱莉", "好美", "千夏", "琴里",
@@ -80,8 +82,6 @@ def implement(self):
                         else:
                             break
 
-
-
                 print(detected_name)
                 print(location)
                 if len(detected_name) == 0:
@@ -95,18 +95,20 @@ def implement(self):
 
                 if detected_name[len(detected_name) - 1] == last_student_name:
                     log.d("Can't detect target student", 2, logger_box=self.loggerBox)
-                    self.operation("click", (271, 281),duration=0.2)
+                    self.operation("click", (271, 281), duration=0.2)
                     stop_flag = True
                 else:
                     last_student_name = detected_name[len(detected_name) - 1]
                     for s in range(0, len(detected_name)):
                         if detected_name[s] == target_name:
-                            log.d("find student " + target_name + " at " + str(location[s]), level=1, logger_box=self.loggerBox)
+                            log.d("find student " + target_name + " at " + str(location[s]), level=1,
+                                  logger_box=self.loggerBox)
                             stop_flag = True
                             f = False
-                            self.operation("click", (784, location[s]),duration=0.7)
+                            self.operation("click", (784, location[s]), duration=0.7)
                             self.operation("click@confirm", (770, 500))
-                            if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
+                            if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe",
+                                                                      times=5):
                                 return False
 
                     if not stop_flag:
@@ -126,7 +128,7 @@ def implement(self):
     swipe_action_list = [[640, 640, 0, -640, -640, -640, -640, 0, 640, 640, 640],
                          [0, 0, -360, 0, 0, 0, 0, -360, 0, 0, 0]]
 
-    for i in range(0, len(swipe_action_list[0])+1):
+    for i in range(0, len(swipe_action_list[0]) + 1):
         stop_flag = False
         while not stop_flag:
             shot = self.operation("get_screenshot_array")
@@ -142,7 +144,7 @@ def implement(self):
                         location += 1
                         log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1,
                               logger_box=self.loggerBox)
-                        self.operation("click@student", (min(1270, x+40), y+42))
+                        self.operation("click@student", (min(1270, x + 40), y + 42))
                         for tmp1 in range(-40, 40):
                             for tmp2 in range(-40, 40):
                                 if 0 <= x + tmp1 < 1280:
