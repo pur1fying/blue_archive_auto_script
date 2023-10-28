@@ -9,32 +9,11 @@ from core.utils import kmp
 from gui.util.config_set import ConfigSet
 
 
-def check_config():
-    if not os.path.exists('./config'):
-        os.mkdir('./config')
-    if not os.path.exists('./config/extend.json'):
-        with open('./config/extend.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.EXTEND_DEFAULT_CONFIG)
-    if not os.path.exists('./config/static.json'):
-        with open('./config/static.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.STATIC_DEFAULT_CONFIG)
-    if not os.path.exists('./config/switch.json'):
-        with open('./config/switch.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.SWITCH_DEFAULT_CONFIG)
-    if not os.path.exists('./config/config.json'):
-        with open('./config/config.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.DEFAULT_CONFIG)
-    if not os.path.exists('./config/event.json'):
-        with open('./config/event.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.EVENT_DEFAULT_CONFIG)
-    if not os.path.exists('./config/display.json'):
-        with open('./config/display.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.DISPLAY_DEFAULT_CONFIG)
+
 
 
 class Setup:
     def __init__(self):
-        check_config()
         self.static_config = Config(STATIC_CONFIG_PATH)
         basic_config = self.static_config.get('basic')
         self.base_time = time.time()

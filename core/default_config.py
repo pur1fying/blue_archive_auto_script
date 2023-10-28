@@ -885,3 +885,111 @@ DEFAULT_CONFIG = """
     ]
 }
 """
+
+SWITCH_DEFAULT_CONFIG = '''
+[
+  {
+    "name": "查收邮箱",
+    "tip": "帮助你自动收集邮箱奖励",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "咖啡厅",
+    "tip": "帮助你收集咖啡厅体力和信用点",
+    "config": "cafeInvite",
+    "type": "TextSettingCard"
+  },
+  {
+    "name": "小组",
+    "tip": "帮助你收集小组体力",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "竞技场",
+    "tip": "帮助你自动打竞技场",
+    "config": "arenaPriority",
+    "type": "ComboSettingCard"
+  },
+  {
+    "name": "每日特别委托",
+    "tip": "帮助你自动做特别委托",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "收集奖励",
+    "tip": "帮助你自动收集奖励",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "收集每日体力",
+    "tip": "帮助你自动收集每日体力",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "战术对抗赛商店",
+    "tip": "帮助你自动购买战术对抗赛商店的物品",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "自动制造",
+    "tip": "帮助你自动制造",
+    "config": "createPriority",
+    "type": "ComboSettingCard"
+  },
+  {
+    "name": "收集小组体力",
+    "tip": "帮助你自动收集小组体力",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "自动MomoTalk",
+    "tip": "帮助你自动过关MomoTalk",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "悬赏通缉",
+    "tip": "帮助你打每日悬赏通缉",
+    "config": "specialDaily",
+    "type": "SpecStageSettingCard"
+  },
+  {
+    "name": "日程",
+    "tip": "自动每日日程",
+    "config": "schedulePriority",
+    "type": "TextSettingCard"
+  },
+  {
+    "name": "商店购买",
+    "tip": "商店里买东西",
+    "config": "shopPriority",
+    "type": "CheckboxSettingCard"
+  },
+  {
+    "name": "竞技场商店购买",
+    "tip": "竞技场商店里买东西",
+    "config": "arenaShopPriority",
+    "type": "CheckboxSettingCard"
+  },
+  {
+    "name": "总力战",
+    "tip": "总力战期间自动打总力战",
+    "config": null,
+    "type": "BasicSettingCard"
+  },
+  {
+    "name": "主线清除体力",
+    "tip": "主线关卡自动清除体力与每日困难",
+    "config": "mainlinePriority",
+    "type": "StageSettingCard"
+  }
+]
+
+'''

@@ -8,3 +8,4 @@ lib
 c.py
 *.log
 *.spec
+cnocr/label_cn.txt
