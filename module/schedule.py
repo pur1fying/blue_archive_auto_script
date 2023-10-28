@@ -1,5 +1,4 @@
 from core.utils import pd_rgb
-import uiautomator2 as u2
 import time
 
 from gui.util import log

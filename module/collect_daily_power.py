@@ -25,7 +25,8 @@ def implement(self, activity="collect_daily_power"):
             if not self.common_positional_bug_detect_method("work_task", 217, 63):
                 return False
         else:
-            log.d("Can't detect button", level=2, logger_box=self.loggerBox)
+            log.d("Can't detect button", level=3, logger_box=self.loggerBox)
+            self.signal_stop()
             return False
 
     if activity == "collect_daily_power":

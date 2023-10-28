@@ -9,35 +9,8 @@
     "interval": 86400
   },
   {
-    "event_name": "收集每日体力",
-    "func_name": "collect_daily_power",
-    "next_tick": 1697279803,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": false,
-    "interval": 1
-  },
-  {
-    "event_name": "收集小组体力",
-    "func_name": "group",
-    "next_tick": 1697279810,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": false,
-    "interval": 1
-  },
-  {
     "event_name": "商店购买",
     "func_name": "shop",
-    "next_tick": 1697279828,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": false,
-    "interval": 1
-  },
-  {
-    "event_name": "竞技场商店购买",
-    "func_name": "collect_shop_power",
     "next_tick": 1697279828,
     "event_start": 0,
     "event_end": 0,
@@ -99,6 +72,15 @@
     "interval": 86400
   },
   {
+    "event_name": "竞技场商店购买",
+    "func_name": "collect_shop_power",
+    "next_tick": 1697366228,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 1
+  },
+  {
     "event_name": "总力战",
     "func_name": "total_force_fight",
     "next_tick": 1697366363,
@@ -117,6 +99,15 @@
     "interval": 0
   },
   {
+    "event_name": "收集每日体力",
+    "func_name": "collect_daily_power",
+    "next_tick": 1698143803,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 1
+  },
+  {
     "event_name": "悬赏通缉",
     "func_name": "rewarded_task",
     "next_tick": 1698261827,
@@ -131,13 +122,22 @@
     "next_tick": 1698261870,
     "event_start": 0,
     "event_end": 0,
-    "enabled": true,
+    "enabled": false,
     "interval": 0
   },
   {
     "event_name": "日程",
     "func_name": "schedule",
     "next_tick": 1698441473,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": false,
+    "interval": 1
+  },
+  {
+    "event_name": "收集小组体力",
+    "func_name": "group",
+    "next_tick": 1698478890,
     "event_start": 0,
     "event_end": 0,
     "enabled": false,
