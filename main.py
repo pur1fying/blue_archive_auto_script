@@ -60,9 +60,6 @@ class Main(Setup):
             self.common_task_count = []
             self.hard_task_count = []
 
-        print(self.common_task_count)
-        print(self.hard_task_count)
-
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
         self.scheduler = Scheduler(update_signal)
@@ -157,7 +154,8 @@ class Main(Setup):
 
     def operation(self, operation_name, operation_locations=None, duration=0.0, path=None, name=None, anywhere=False):
         if not self.flag_run:
-            raise Exception("Shutdown")
+            return False
+            # raise Exception("Shutdown")
         if operation_name[0:5] == "click":
             x = operation_locations[0]
             y = operation_locations[1]
@@ -210,7 +208,10 @@ class Main(Setup):
                                   logger_box=self.loggerBox)
                         elif self.unknown_ui_page_count == 20:
                             log.d("Unknown ui page", 3, logger_box=self.loggerBox)
-                            exit(0)
+                            self.flag_run = False
+                            self.button_signal.emit("启动")
+                            return "UNKNOWN UI PAGE"
+                            # exit(0)
                     else:
                         self.unknown_ui_page_count = 0
                         log.d("current_location : " + lo, 1, logger_box=self.loggerBox)

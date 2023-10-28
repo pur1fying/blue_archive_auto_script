@@ -42,6 +42,7 @@ class Scheduler:
 
     def heartbeat(self) -> Optional[str]:
         self._read_config()
+        self.update_signal.emit()
         cur_time = int(time.time())
         self._event_config = sorted(self._event_config, key=lambda x: x['next_tick'])
         _valid_event = [x for x in self._event_config

@@ -1,12 +1,12 @@
 {
     "hardPriority": "3-1-2",
-    "mainlinePriority": "1-2",
+    "mainlinePriority": "1-2-1",
     "specialPriority": "1-1",
     "arenaPriority": [
+        2,
         4,
-        3,
         1,
-        2
+        3
     ],
     "ArenaShopList": [
         0,
@@ -92,6 +92,5 @@
         3,
         5,
         4
-    ],
-    "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然"
+    ]
 }
