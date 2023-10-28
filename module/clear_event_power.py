@@ -5,6 +5,7 @@ from gui.util import log
 
 
 def implement(self):
+    
     if len(self.common_task_count) != 0 or len(self.self.hard_task_count) != 0:
         all_task_x_coordinate = 1118
         common_task_y_coordinates = [242, 342, 438, 538, 569, 469, 369, 269]

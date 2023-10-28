@@ -7,5 +7,6 @@ training
 tmp
 lib
 c.py
-error.log
-error.log
+*.log
+*.spec
+*.json

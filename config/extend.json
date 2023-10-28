@@ -1,0 +1,44 @@
+{
+    "Daily": {
+        "Atelier": true,
+        "Cafe": true,
+        "Collect": true,
+        "Consume": true,
+        "Email": true,
+        "mainStop": "4-4",
+        "ShopList": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "Team": true
+    },
+    "Combat": {
+        "Collaborate": true,
+        "HardMode": true
+    },
+    "Emulator": {
+        "Path": ""
+    },
+    "Settings": {
+        "port": 7555,
+        "server": "B服"
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ff0078d4",
+        "ThemeMode": "Light"
+    }
+}

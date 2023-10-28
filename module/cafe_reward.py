@@ -3,7 +3,6 @@ import time
 from core.utils import pd_rgb, get_x_y
 from gui.util import log
 
-
 def implement(self):
     self.operation("stop_getting_screenshot_for_location")  #  停止截图
 
@@ -32,6 +31,7 @@ def implement(self):
     return_data1 = get_x_y(img_shot, path)
     print(return_data1)
 
+    target_name = self.config.get('favorStudent')  # ** 可设置参数 邀请券邀请学生的名字
     if return_data1[1][0] <= 1e-03:
         target_name_list = ["梓（泳装）", "爱丽丝", "纯子", "瞬"]  # ** 可设置参数 邀请券邀请学生的名字 优先邀请前面的，前面没有选择后面
         f = True

@@ -2,8 +2,18 @@ from gui.util import log
 
 
 def implement(self):
-    dif = [2, 8, 2]  # ** 三个悬赏委托分别打的难度 0 1 2 3 ... 分别表示 A B C D 难度
-    count = [2, 2, 2]  # ** 三个悬赏委托分别打的次数
+    ori_config = self.config.get("specialPriority")
+    try:
+        if ori_config == '':
+            dif = []
+            count = []
+        else:
+            dif = [[int(y) for y in x.split('-')][0] for x in ori_config.split(',')]
+            count = [[int(y) for y in x.split('-')][1] for x in ori_config.split(',')]
+    except ValueError as e:
+        dif = []
+        count = []
+
     self.rewarded_task_status = [False, False, False]
     just_do_task = False
     if not self.rewarded_task_status[0]:

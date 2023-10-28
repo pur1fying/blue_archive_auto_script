@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel)
 
 lock = threading.Lock()
-DISPLAY_CONFIG_PATH = './gui/config/display.json'
+DISPLAY_CONFIG_PATH = './config/display.json'
 
 
 class ProcessFragment(ScrollArea):

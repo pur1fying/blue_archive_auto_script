@@ -5,4 +5,4 @@ PyQt5==5.15.7
 PyQt-Fluent-Widgets==1.2.0
 onnxruntime
 flask
-gevent
+# gevent

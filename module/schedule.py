@@ -8,7 +8,7 @@ from gui.util import log
 def implement(self):
 
     region_name = ["沙勒业务区", "沙勒生活区", "歌赫娜中央区", "阿拜多斯高等学院", "千禧年学习区"]
-
+    self.schedule_pri = self.config.get('schedulePriority')
     lo = [[307, 257], [652, 257], [995, 257],
           [307, 408], [652, 408], [995, 408],
           [307, 560], [652, 560], [985, 560]]

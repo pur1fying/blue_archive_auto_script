@@ -6,12 +6,6 @@
     "type": "BasicSettingCard"
   },
   {
-    "name": "日常困难",
-    "tip": "帮助你自动打困难关",
-    "config": "hardDaily",
-    "type": "StageSettingCard"
-  },
-  {
     "name": "咖啡厅",
     "tip": "帮助你收集咖啡厅体力和信用点",
     "config": "cafeInvite",
@@ -90,6 +84,12 @@
     "type": "CheckboxSettingCard"
   },
   {
+    "name": "竞技场商店购买",
+    "tip": "竞技场商店里买东西",
+    "config": "arenaShopPriority",
+    "type": "CheckboxSettingCard"
+  },
+  {
     "name": "总力战",
     "tip": "总力战期间自动打总力战",
     "config": null,
@@ -97,7 +97,7 @@
   },
   {
     "name": "主线清除体力",
-    "tip": "主线关卡自动清除体力",
+    "tip": "主线关卡自动清除体力与每日困难",
     "config": "mainlinePriority",
     "type": "StageSettingCard"
   }

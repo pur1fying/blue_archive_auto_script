@@ -4,15 +4,15 @@ import threading
 import time
 from typing import Optional
 
-EVENT_CONFIG_PATH = './core/event.json'
-DISPLAY_CONFIG_PATH = './gui/config/display.json'
+from core import EVENT_CONFIG_PATH, DISPLAY_CONFIG_PATH
 
 lock = threading.Lock()
 
 
 class Scheduler:
-    def __init__(self):
+    def __init__(self, update_signal):
         super().__init__()
+        self.update_signal = update_signal
         self._event_config = []
         self._display_config = {
             'running': "Empty",
@@ -36,12 +36,12 @@ class Scheduler:
         matching_events = [x for x in self._event_config if x['func_name'] == task_name]
         if matching_events:
             matching_events[0]['next_tick'] = cur_time + matching_events[0]['interval']
-
-        threading.Thread(target=self._commit_change).start()
-        #self._commit_change()
+        self._commit_change()
+        self.update_signal.emit()
 
     def heartbeat(self) -> Optional[str]:
         self._read_config()
+        self.update_signal.emit()
         cur_time = int(time.time())
         self._event_config = sorted(self._event_config, key=lambda x: x['next_tick'])
         _valid_event = [x for x in self._event_config
