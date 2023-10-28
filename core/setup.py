@@ -74,9 +74,8 @@ class Setup:
         out = self.ocr.ocr(img)
         res = ""
         for i in range(0, len(out)):
-            if out[i]["score"] > 0.6:
+            if out[i]["score"] > 0.4:
                 res = res + out[i]["text"]
-        print(res)
         return res
 
     def set_click_time(self):

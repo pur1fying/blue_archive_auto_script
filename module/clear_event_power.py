@@ -20,8 +20,8 @@ def implement(self):
             log.d("common task begin", level=1, logger_box=self.loggerBox)
             log.d("change to common level", level=1, logger_box=self.loggerBox)
 
-            if not self.operation("click@common_level", (682, 141), duration=0.5):
-                return False
+            self.operation("click@common_level", (926, 141), duration=0.5)
+
             self.common_icon_bug_detect_method("src/event/common_task.png", 682, 141, "common_task",times=6)
 
             for i in range(0, len(self.common_task_count)):
@@ -38,9 +38,11 @@ def implement(self):
                       level=1, logger_box=self.loggerBox)
                 while cur_num != tar_num:
                     if cur_num > tar_num:
-                        self.operation("click@change_to_left", (left_change_page_x, change_page_y))
+                        for j in range(0,cur_num - tar_num):
+                            self.operation("click@change_to_left", (left_change_page_x, change_page_y),duration = 0.1)
                     else:
-                        self.operation("click@change_to_right", (right_change_page_x, change_page_y))
+                        for j in range(0,tar_num - cur_num):
+                            self.operation("click@change_to_right", (right_change_page_x, change_page_y),duration = 0.1)
                     cur_lo = self.operation("get_current_position",)
                     if cur_lo[0:4] != "task":
                         log.d("unexpected page exit task clear event power", level=3, logger_box=self.loggerBox)
@@ -55,9 +57,8 @@ def implement(self):
                     log.d("SWIPE UPWARD", level=1, logger_box=self.loggerBox)
                     time.sleep(1)
                     if tar_num < 4:
-                        tar_level = page_task_numbers[tar_num - 1] + (5 - tar_level) - 1
-                else:
-                    tar_level -= 1
+                        tar_level = page_task_numbers[tar_num - 1] + (5 - tar_level)
+                tar_level -= 1
 
                 self.operation("click", (all_task_x_coordinate, common_task_y_coordinates[tar_level]),duration=0.5)
                 path = "src/event/auto clear bright.png"
@@ -88,7 +89,6 @@ def implement(self):
 
             self.operation("click", (1186, 141), duration=0.5)
             self.common_icon_bug_detect_method("src/event/hard_task.png", 1186, 141, "hard_task",times=6)
-
             for i in range(0, len(self.hard_task_count)):
                 cur_lo = self.operation("get_current_position",)
                 if cur_lo[0:4] != "task":
@@ -103,9 +103,11 @@ def implement(self):
                       level=1, logger_box=self.loggerBox)
                 while cur_num != tar_num:
                     if cur_num > tar_num:
-                        self.operation("click@change_to_left", (left_change_page_x, change_page_y))
+                        for j in range(0,cur_num - tar_num):
+                            self.operation("click@change_to_left", (left_change_page_x, change_page_y),duration = 0.1)
                     else:
-                        self.operation("click@change_to_left", (right_change_page_x, change_page_y))
+                        for j in range(0,tar_num - cur_num):
+                            self.operation("click@change_to_left", (right_change_page_x, change_page_y),duration = 0.1)
                     cur_lo = self.operation("get_current_position",)
                     if cur_lo[0:4] != "task":
                         log.d("unexpected page exit task clear power", level=3, logger_box=self.loggerBox)
@@ -143,7 +145,7 @@ def implement(self):
                         return False
                     continue
                 if lo == "task_message":
-                    log.d("current task AUTO FIGHT UNLOCKED , Try next task", level=2, logger_box=self.loggerBox)
+                    log.d("current task AUTO FIGHT UNLOCK , Try next task", level=2, logger_box=self.loggerBox)
                     if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True,
                                                                     times=8):
                         return False

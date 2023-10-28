@@ -15,11 +15,13 @@ def implement(self, activity="collect_daily_power"):
         print(return_data2)
         if return_data2[1][0] <= 1e-03:
             log.d("work reward has been collected", level=1, logger_box=self.loggerBox)
+            self.operation("click@home", (1240, 29))
             break
         elif return_data1[1][0] <= 1e-03:
             log.d("collect work task reward", level=1, logger_box=self.loggerBox)
             self.operation("click@collect_all", (return_data1[0][0], return_data1[0][1]), duration=2)
             self.operation("click@anywhere", (217, 63), duration=0.5)
+            self.operation("click@anywhere", (217, 63))
             if not self.common_positional_bug_detect_method("work_task", 217, 63):
                 return False
         else:

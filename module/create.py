@@ -34,6 +34,7 @@ def common_create_judge(self):
     node_y = [277, 388, 471, 529, 555]
     # 572 278
     node = []
+    lo = []
     for i in range(0, 5):
         self.operation("click", (node_x[i], node_y[i]))
         time.sleep(0.5 if i == 0 else 0.1)
@@ -45,18 +46,19 @@ def common_create_judge(self):
                     return i
                 else:
                     node.append(pri[k])
+                    lo.append(i)
     log.d("detected nodes:" + str(node), 1, logger_box=self.loggerBox)
     for i in range(1, len(pri)):
         for j in range(0, len(node)):
             if node[j][0:len(pri[i])] == pri[i]:
                 log.d("choose node :" + pri[i], level=1, logger_box=self.loggerBox)
-                return j
+                return lo[j]
 
 
 def implement(self):
     path5 = "../src/create/start_button_bright.png"
     path6 = "../src/create/start_button_grey.png"
-    create_times = 30  # ** 制造次数
+    create_times = 100    # ** 制造次数 请确保有加速券
     create_stop = False
     common_create_collect_operation(self)
     log.d("all creature collected", level=1, logger_box=self.loggerBox)
@@ -71,7 +73,7 @@ def implement(self):
             self.operation("click", (lox, loy[i]))
             if not self.common_positional_bug_detect_method("create", lox, loy[i], 2):
                 return False
-            self.operation("click@material 2", (920, 206), duration=0.2)
+            self.operation("click@material 2", (920, 206), duration=0.3)
             self.latest_img_array = self.operation("get_screenshot_array")
             return_data1 = get_x_y(self.latest_img_array, path5)
             return_data2 = get_x_y(self.latest_img_array, path6)
@@ -80,7 +82,7 @@ def implement(self):
             if return_data2[1][0] < 1e-03:
                 log.d("material 2 INADEQUATE,try material 1", level=1, logger_box=self.loggerBox)
                 for x in range(0, 10):
-                    self.operation("click@material 1", (755, 206), duration=0.2)
+                    self.operation("click@material 1", (755, 206))
 
                 self.latest_img_array = self.operation("get_screenshot_array")
                 return_data1 = get_x_y(self.latest_img_array, path5)

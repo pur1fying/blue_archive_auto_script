@@ -11,6 +11,7 @@ import module
 from core.scheduler import Scheduler
 from core.setup import Setup
 from core.utils import kmp, get_x_y, pd_rgb
+from core.utils import kmp, get_x_y, pd_rgb
 from debug.debugger import start_debugger
 from gui.util import log
 from gui.util.config_set import ConfigSet
@@ -28,7 +29,7 @@ class Main(Setup):
         self.loggerBox = logger_box
         self.config = ConfigSet()
         self.total_force_fight_difficulty_name = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME"]
-        self.total_force_fight_name = "bina"
+        self.total_force_fight_name = "white_and_black"
         self.screenshot_flag_run = None
         self.unknown_ui_page_count = None
         self.io_err_solved_count = 0
@@ -108,6 +109,8 @@ class Main(Setup):
             return False
 
     def get_x_y(self, target_array, path):
+
+    def get_x_y(self, target_array, path):
         # print(target_array.dtype)
         if path.startswith("./src"):
             path = path.replace("./src", "src")
@@ -116,6 +119,7 @@ class Main(Setup):
         img1 = target_array
         img2 = cv2.imread(path)
         if img2 is None:
+            return [[-1, -1], [1]]
             return [[-1, -1], [1]]
         # sys.stdout = open('data.log', 'w+')
         height, width, channels = img2.shape
@@ -137,6 +141,7 @@ class Main(Setup):
         # cv2.waitKey(0)
         location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2))
         return location, result[upper_left[1], [upper_left[0]]]
+
 
     def send(self, msg):
         # try:
@@ -174,23 +179,24 @@ class Main(Setup):
             y2 = operation_locations[1][1]
             self.connection.swipe(x1, y1, x2, y2, duration=duration)
             return "swipe success"
-        elif operation_name == "stop_getting_screenshot":
-            log.d("STOP getting screenshot", 1, logger_box=self.loggerBox)
+        elif operation_name == "stop_getting_screenshot_for_location":
+            log.d("STOP getting screenshot for location", 1, logger_box=self.loggerBox)
             self.screenshot_flag_run = False
             return True
-        elif operation_name == "start_getting_screenshot":
-            log.d("START getting screenshot", 1, logger_box=self.loggerBox)
+        elif operation_name == "start_getting_screenshot_for_location":
+            log.d("START getting screenshot for location", 1, logger_box=self.loggerBox)
             self.screenshot_flag_run = True
             screenshot_thread = threading.Thread(target=self.run)
             screenshot_thread.start()
             return True
         elif operation_name == "get_current_position":
             if path:
+                self.latest_img_array = self.operation("get_screenshot_array")
                 return_data = get_x_y(self.latest_img_array, path)
                 print(return_data)
                 if return_data[1][0] <= 1e-03:
                     log.d("current_location : " + name, 1, logger_box=self.loggerBox)
-                    time.sleep(1)
+                    time.sleep(self.screenshot_interval)
                     return name
             while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
                 self.pos.pop()
@@ -216,32 +222,34 @@ class Main(Setup):
                         self.unknown_ui_page_count = 0
                         log.d("current_location : " + lo, 1, logger_box=self.loggerBox)
                         return lo
-                time.sleep(1)
+                time.sleep(self.screenshot_interval)
         elif operation_name == "get_screenshot_array":
-            try:
-                screenshot = self.connection.screenshot()
-                numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
-                # if abs(int(self.click_interval * 100) - 50) > 1e-05:
-                #     if self.io_err_solved_count == self.io_err_rate:
-                #         log.d("The IOError cease to happen.", level=1, logger_box=self.loggerBox)
-                #         log.d("Trying reducing the screenshot interval by 0.1s.", level=1, logger_box=self.loggerBox)
-                #         self.click_interval -= 0.1
-                #         self.io_err_solved_count = 0
-                #         self.io_err_count = max(self.io_err_count - 1, 0)
-                #     else:
-                #         self.io_err_solved_count += 1
-
-                return numpy_array
-            except Exception as e:
-                log.d("The IOError happened! Trying add the screenshot interval by 0.1s.",
-                      level=3, logger_box=self.loggerBox)
-                if self.io_err_count >= self.io_err_rate:
-                    self.click_interval += 0.1
-                    self.io_err_count = 0
-                self.io_err_count += 1
-                log.d(f'{e}! Trying screenshot again...', level=3, logger_box=self.loggerBox)
-                time.sleep(1 + int(self.click_interval))
-                return None
+            # try:
+            #     screenshot = self.connection.screenshot()
+            #     numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
+            #     if abs(int(self.screenshot_interval * 100) - 50) > 1e-05:
+            #         if self.io_err_solved_count == self.io_err_rate:
+            #             log.d("The IOError cease to happen.", level=1, logger_box=self.loggerBox)
+            #             log.d("Trying reducing the screenshot interval by 0.1s.", level=1, logger_box=self.loggerBox)
+            #             self.screenshot_interval -= 0.1
+            #             self.io_err_solved_count = 0
+            #             self.io_err_count = max(self.io_err_count - 1, 0)
+            #         else:
+            #             self.io_err_solved_count += 1
+            #     return numpy_array
+            # except Exception as e:
+            #     log.d("The IOError happened! Trying add the screenshot interval by 0.1s.",
+            #           level=3, logger_box=self.loggerBox)
+            #     if self.io_err_count >= self.io_err_rate:
+            #         self.screenshot_interval += 0.1
+            #         self.io_err_count = 0
+            #     self.io_err_count += 1
+            #     log.d(f'{e}! Trying screenshot again...', level=3, logger_box=self.loggerBox)
+            #     time.sleep(1 + int(self.screenshot_interval))
+            #     return None
+            screenshot = self.connection.screenshot()
+            numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
+            return numpy_array
 
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
         img1 = self.operation("get_screenshot_array")
@@ -250,10 +258,13 @@ class Main(Setup):
         if 250 <= acc_r_ave <= 260:
             log.d("CHANGE acceleration phase from 2 to 3", level=1, logger_box=self.loggerBox)
             self.operation("click@accleration", (1215, 625))
+            self.operation("click@accleration", (1215, 625))
         elif 0 <= acc_r_ave <= 60:
             log.d("ACCELERATION phase 3", level=1, logger_box=self.loggerBox)
         elif 140 <= acc_r_ave <= 180:
             log.d("CHANGE acceleration phase from 1 to 3", level=1, logger_box=self.loggerBox)
+            self.operation("click@accelereation", (1215, 625))
+            self.operation("click@acceleration", (1215, 625))
             self.operation("click@accelereation", (1215, 625))
             self.operation("click@acceleration", (1215, 625))
         else:
@@ -262,6 +273,7 @@ class Main(Setup):
         auto_r_ave = img1[677][1171][0] // 2 + img1[677][1246][0] // 2
         if 190 <= auto_r_ave <= 230:
             log.d("CHANGE MANUAL to auto", level=1, logger_box=self.loggerBox)
+            self.operation("click@auto", (1215, 678))
             self.operation("click@auto", (1215, 678))
         elif 0 <= auto_r_ave <= 60:
             log.d("AUTO", level=1, logger_box=self.loggerBox)
@@ -275,11 +287,14 @@ class Main(Setup):
         for i in range(0, 20):
             img_shot = self.latest_img_array
             if pd_rgb(img_shot, 838, 690, 45, 65, 200, 220, 240, 255):
+            if pd_rgb(img_shot, 838, 690, 45, 65, 200, 220, 240, 255):
                 flag = True
                 break
             else:
                 lo = self.operation("get_current_position", anywhere=True)
+                lo = self.operation("get_current_position", anywhere=True)
                 if lo == "notice" or lo == "summary":
+                    self.operation("click @confirm", (769, 500), duration=3)
                     self.operation("click @confirm", (769, 500), duration=3)
 
                 path = "src/common_button/plot_menu.png"
@@ -289,14 +304,18 @@ class Main(Setup):
                     self.operation("click @plot_menu", (return_data[0][0], return_data[0][1]), duration=0.5)
                     self.operation("click @skip plot", (1207, 123), duration=1)
                     self.operation("click @confirm", (766, 527), duration=1)
+                    self.operation("click @plot_menu", (return_data[0][0], return_data[0][1]), duration=0.5)
+                    self.operation("click @skip plot", (1207, 123), duration=1)
+                    self.operation("click @confirm", (766, 527), duration=1)
                     continue
                 else:
+                    self.operation("click @anywhere", (1150, 649), duration=1)
                     self.operation("click @anywhere", (1150, 649), duration=1)
 
         if not flag:
             return False
 
-        self.operation("stop_getting_screenshot")
+        self.operation("stop_getting_screenshot_for_location")
 
         self.change_acc_auto()
 
@@ -319,9 +338,9 @@ class Main(Setup):
             else:
                 self.operation("click", (767, 500))
                 log.d("fighting", level=1, logger_box=self.loggerBox)
-            time.sleep(2)
+            time.sleep(1)
 
-        self.operation("start_getting_screenshot")
+        self.operation("start_getting_screenshot_for_location")
 
         if not success:
             while 1:
@@ -331,6 +350,7 @@ class Main(Setup):
                 return_data1 = get_x_y(self.latest_img_array, path2)
                 if return_data1[1][0] < 1e-03:
                     log.d("Fail Back", level=1, logger_box=self.loggerBox)
+                    self.operation("click@confirm", (return_data1[0][0], return_data1[0][1]))
                     self.operation("click@confirm", (return_data1[0][0], return_data1[0][1]))
                     break
         else:
@@ -344,19 +364,19 @@ class Main(Setup):
         special_task_lox = 1120
         special_task_loy = [180, 286, 386, 489, 564, 432, 530, 628]
         fail_cnt = 0
-        difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]
-        img_shot = self.operation("get_screenshot_array")
-        ocr_res = self.img_ocr(img_shot)
+        # difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]
         log.d("-------------------------------------------------------------------------------", 1,
               logger_box=self.loggerBox)
+        img_shot = self.operation("get_screenshot_array")
         log.d("try to swipe to TOP page", level=1, logger_box=self.loggerBox)
+        # ocr_result = self.img_ocr(img_shot)
         while fail_cnt <= 3:
             log.d("SWIPE UPWARDS", level=1, logger_box=self.loggerBox)
             self.operation("swipe", [(762, 200), (762, 460)], duration=0.1)
             time.sleep(1)
             img_shot = self.operation("get_screenshot_array")
-            ocr_res = self.img_ocr(img_shot)
-            if kmp("A", ocr_res) == 0:
+            ocr_result = self.img_ocr(img_shot)
+            if kmp("A", ocr_result) == 0:
                 fail_cnt += 1
                 if fail_cnt <= 3:
                     log.d("FAIL , TRY AGAIN", 1, logger_box=self.loggerBox)
@@ -378,6 +398,7 @@ class Main(Setup):
             log.d("try to swipe to LOWEST page", level=1, logger_box=self.loggerBox)
             while fail_cnt <= 3:
                 log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
+                self.operation("swipe", [(762, 460), (762, 200)], duration=0.1)
                 self.operation("swipe", [(762, 460), (762, 200)], duration=0.1)
                 time.sleep(1)
                 img_shot = self.operation("get_screenshot_array")
@@ -403,27 +424,37 @@ class Main(Setup):
         self.operation("click", (special_task_lox, special_task_loy[a - 1]))
 
         if self.operation("get_current_position") == "notice":
-            log.d("UNLOCKED", level=2, logger_box=self.loggerBox)
+            log.d("UNLOCK", level=2, logger_box=self.loggerBox)
+            self.operation("click", (1240, 39))
+            self.operation("click", (1240, 39))
         else:
             for i in range(0, b - 1):
                 if f:
                     self.operation("click", (1033, 297), duration=0.6)
+                    self.operation("click", (1033, 297), duration=0.6)
                 else:
+                    self.operation("click", (1033, 297), duration=0.2)
                     self.operation("click", (1033, 297), duration=0.2)
             self.operation("click", (937, 404))
             lo = self.operation("get_current_position")
             if lo == "charge_power":
                 log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
+                self.operation("click", (1240, 39))
+                self.operation("click", (1240, 39))
+                self.operation("click", (1240, 39))
             elif lo == "charge_notice":
                 log.d("inadequate ticket , exit task", level=3, logger_box=self.loggerBox)
+                self.operation("click", (1240, 39))
+                self.operation("click", (1240, 39))
+                self.operation("click", (1240, 39))
+
             elif lo == "notice":
                 self.operation("click", (767, 501), duration=2)
             else:
-                log.d("AUTO FIGHT UNLOCKED , exit task", level=3, logger_box=self.loggerBox)
+                log.d("AUTO FIGHT UNLOCK , exit task", level=3, logger_box=self.loggerBox)
         return True
 
     def main_to_page(self, index, path=None, name=None, any=False):
-
         self.to_page[7] = [[217, 940], [659, self.schedule_lo_y[self.schedule_pri[0] - 1]],
                            ["schedule", "schedule" + str(self.schedule_pri[0])]]
         procedure = self.to_page[index]
@@ -439,6 +470,7 @@ class Main(Setup):
             y = procedure[1][i]
             page = procedure[2][i]
             self.operation("click", (x, y))
+            if self.operation("get_current_position", path=path, name=name, anywhere=any) != page:
             if self.operation("get_current_position", path=path, name=name, anywhere=any) != page:
                 if times <= 1:
                     times += 1
@@ -489,8 +521,9 @@ class Main(Setup):
             if return_data[1][0] <= 1e-03:
                 log.d("SUCCESSFULLY DETECT POSITION FOR " + name.upper(), 1, logger_box=self.loggerBox)
                 log.d(
+                    
                     "------------------------------------------------------------------------------------------------",
-                    1, logger_box=self.loggerBox)
+                    1,  logger_box=self.loggerBox)
                 return True
             log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
             cnt += 1
@@ -511,6 +544,7 @@ class Main(Setup):
         log.d("BEGIN DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
         cnt = 1
         t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
+        t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
         while cnt <= times:
             if not self.flag_run:
                 return False
@@ -523,8 +557,9 @@ class Main(Setup):
                 return True
             log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
             cnt += 1
-            self.operation("click", (x, y))
+            self.operation("click", (x, y), duration=self.screenshot_interval)
 
+            t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
             t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
 
         log.d("CAN'T DETECT POSITION " + pos.upper(), 3, logger_box=self.loggerBox)
@@ -533,6 +568,7 @@ class Main(Setup):
         return False
 
     def quick_method_to_main_page(self):
+        log.d("TO MAIN PAGE", 1, logger_box=self.loggerBox)
         log.d("TO MAIN PAGE", 1, logger_box=self.loggerBox)
         image_names = [
             "back_to_main_page",
@@ -566,6 +602,7 @@ class Main(Setup):
                 # print(image_name)
                 return_data = get_x_y(self.latest_img_array, path)
                 #   print(return_data)
+                #   print(return_data)
                 if return_data[1][0] <= 1e-03:
                     click_flag = True
                     self.operation("click", (return_data[0][0], return_data[0][1]))
@@ -586,22 +623,47 @@ class Main(Setup):
                 self.operation("click", (330, 345))
 
             lo = self.operation("get_current_position", anywhere=True)
+            lo = self.operation("get_current_position", anywhere=True)
 
     def run(self):
         while self.screenshot_flag_run and self.flag_run:
             threading.Thread(target=self.worker, daemon=True).start()
             # self.worker()
-            time.sleep(0.7)
+            time.sleep(self.screenshot_interval)
             # print(f'{self.flag_run}')
             # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
             # 同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
         print("run stop")
 
     def thread_starter(self):  # 不要每次点击启动都跑这个
-        self.operation("start_getting_screenshot")
+        self.operation("start_getting_screenshot_for_location")
         self.quick_method_to_main_page()
         log.line(self.loggerBox)
         log.d("start activities", level=1, logger_box=self.loggerBox)
+        print(self.main_activity)
+        self.main_to_page(8)
+        self.solve(self.main_activity[8][0])
+        for i in range(0, len(self.main_activity)):
+            if not (i == 11 or i == 8):
+                self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+                print(self.main_activity[i][0])
+                self.main_to_page(i)
+                self.solve(self.main_activity[i][0])
+        # while self.flag_run:
+        #     next_func_name = self.scheduler.heartbeat()
+        #     if next_func_name:
+        #         log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
+        #         i = self.activity_name_list.index(next_func_name)
+        #         if i != 14:
+        #             self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+        #             self.main_to_page(i)
+        #         if self.solve(next_func_name):
+        #             self.scheduler.systole(next_func_name)
+        #         else:
+        #             self.flag_run = False
+        #             self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+        #     else:
+        #         time.sleep(2)
         while self.flag_run:
             next_func_name = self.scheduler.heartbeat()
             if next_func_name:
@@ -639,6 +701,8 @@ class Main(Setup):
         # if count == 13:
         #     self.send('stop')
 
+        #     self.flag_run = False
+
     def solve(self, activity) -> bool:
         try:
             return module.__dict__[activity].implement(self)
@@ -653,14 +717,13 @@ if __name__ == '__main__':
     t = Main()
     t._init_emulator()
     t.flag_run = True
-    path2 = "src/create/finish_instantly.png"
+    path2 = "src/total_force_fight/enter_again.png"
     img = t.operation("get_screenshot_array")
     return_data1 = get_x_y(img, path2)
     print(return_data1)
-    button_detected = [[False, False], [False, False], [False, False], [False, False], [False, False]]
     for i in range(0, len(t.total_force_fight_difficulty_name)):
-        path1 = "src/total_force_fight/bina/" + t.total_force_fight_difficulty_name[i] + "_BRIGHT.png"
-        path2 = "src/total_force_fight/bina/" + t.total_force_fight_difficulty_name[i] + "_GREY.png"
+        path1 = "src/total_force_fight/white_and_black/" + t.total_force_fight_difficulty_name[i] + "_BRIGHT.png"
+        path2 = "src/total_force_fight/white_and_black/" + t.total_force_fight_difficulty_name[i] + "_GREY.png"
         return_data1 = t.get_x_y(img, path1)
         return_data2 = t.get_x_y(img, path2)
         print(t.total_force_fight_difficulty_name[i])

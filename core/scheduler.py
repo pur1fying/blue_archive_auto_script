@@ -26,11 +26,10 @@ class Scheduler:
                 self._event_config = json.load(f)
 
     def _commit_change(self):
-        with lock:
-            with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
-                json.dump(self._event_config, f, ensure_ascii=False, indent=2)
-            with open(DISPLAY_CONFIG_PATH, 'w', encoding='utf-8') as f:
-                json.dump(self._display_config, f, ensure_ascii=False, indent=2)
+        with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(self._event_config, f, ensure_ascii=False, indent=2)
+        with open(DISPLAY_CONFIG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(self._display_config, f, ensure_ascii=False, indent=2)
 
     def systole(self, task_name: str) -> None:
         cur_time = int(time.time())

@@ -2,8 +2,8 @@ from gui.util import log
 
 
 def implement(self):
-    special_task_guard_count = [4, 1]  # ** [i,j]表示信用回收第i + 1关打j次,如[1,1]表示B难度打1次
-    special_task_credit_count = [4, 1]  # ** [i,j]表示信用回收第i + 1关打j次,如[1,1]表示B难度打1次
+    special_task_guard_count = [1, 1]  # ** [i,j]表示信用回收第i + 1关打j次,如[1,1]表示B难度打1次
+    special_task_credit_count = [2, 1]  # ** [i,j]表示信用回收第i + 1关打j次,如[1,1]表示B难度打1次
     self.special_task_status = [False, False]
     just_do_task = False
     if len(special_task_guard_count) != 0:
