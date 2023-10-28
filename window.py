@@ -1,5 +1,8 @@
 # coding:utf-8
+import os
 import sys
+
+from core import default_config
 
 sys.path.append('./')
 from PyQt5.QtCore import Qt, QSize
@@ -10,6 +13,29 @@ from qfluentwidgets import (NavigationItemPosition, FluentWindow,
                             SubtitleLabel, setFont, setThemeColor)
 
 ICON_DIR = 'gui/assets/logo.png'
+
+
+def check_config():
+    if not os.path.exists('./config'):
+        os.mkdir('./config')
+    if not os.path.exists('./config/extend.json'):
+        with open('./config/extend.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.EXTEND_DEFAULT_CONFIG)
+    if not os.path.exists('./config/static.json'):
+        with open('./config/static.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.STATIC_DEFAULT_CONFIG)
+    if not os.path.exists('./config/switch.json'):
+        with open('./config/switch.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.SWITCH_DEFAULT_CONFIG)
+    if not os.path.exists('./config/config.json'):
+        with open('./config/config.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.DEFAULT_CONFIG)
+    if not os.path.exists('./config/event.json'):
+        with open('./config/event.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.EVENT_DEFAULT_CONFIG)
+    if not os.path.exists('./config/display.json'):
+        with open('./config/display.json', 'w', encoding='utf-8') as f:
+            f.write(default_config.DISPLAY_DEFAULT_CONFIG)
 
 
 class Widget(QFrame):
@@ -92,7 +118,7 @@ if __name__ == '__main__':
     # pa=Main()
     # pa._init_emulator()
     # pa.solve("arena")
-
+    check_config()
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
