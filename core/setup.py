@@ -9,9 +9,6 @@ from core.utils import kmp
 from gui.util.config_set import ConfigSet
 
 
-
-
-
 class Setup:
     def __init__(self):
         self.static_config = Config(STATIC_CONFIG_PATH)

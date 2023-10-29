@@ -120,6 +120,7 @@ class MainThread(QThread):
 
     def run(self):
         self.button_signal.emit("停止")
+        self.logger_signal.emit("Starting Blue Archive Auto Script...")
         if self.Main is None:
             from main import Main
             self.Main = Main
