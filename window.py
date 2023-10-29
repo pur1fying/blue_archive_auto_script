@@ -3,7 +3,8 @@ import os
 import sys
 
 from core import default_config
-
+# Offer the error to the error.log
+sys.stderr = open('error.log', 'w+', encoding='utf-8')
 sys.path.append('./')
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
