@@ -5,9 +5,9 @@ from gui.util import log
 
 
 def implement(self):
-
     region_name = ["沙勒业务区", "沙勒生活区", "歌赫娜中央区", "阿拜多斯高等学院", "千禧年学习区"]
     self.schedule_pri = self.config.get('schedulePriority')
+    self.schedule_times = [2, 2, 1, 1, 1]
     lo = [[307, 257], [652, 257], [995, 257],
           [307, 408], [652, 408], [995, 408],
           [307, 560], [652, 560], [985, 560]]
@@ -51,7 +51,7 @@ def implement(self):
             res = []
             last_available = -1
             for i in range(0, tmp):
-                if pd_rgb(shot, lo[i][0], lo[i][1],250,255,250,255,250,255):
+                if pd_rgb(shot, lo[i][0], lo[i][1], 250, 255, 250, 255, 250, 255):
                     res.append("available")
                     last_available = i
                 elif pd_rgb(shot, lo[i][0], lo[i][1], 230, 249, 230, 249, 230, 249):
@@ -85,6 +85,7 @@ def implement(self):
 
             time.sleep(4)
             self.operation("click", (1090, 170), duration=0.8)
-            self.common_icon_bug_detect_method("src/schedule/all_schedule.png", 1090, 170,"all schedule", times=10,interval=1)
+            self.common_icon_bug_detect_method("src/schedule/all_schedule.png", 1090, 170, "all schedule", times=10,
+                                               interval=1)
         self.operation("click", (680, 680))
         self.operation("start_getting_screenshot_for_location")

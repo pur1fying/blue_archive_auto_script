@@ -791,7 +791,7 @@ DEFAULT_CONFIG = """
 {
     "hardPriority": "3-1-2",
     "mainlinePriority": "1-2-1",
-    "specialPriority": "1-1",
+    "specialPriority": "0-2,0-2,0-2",
     "arenaPriority": [
         2,
         4,
