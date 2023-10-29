@@ -8,7 +8,7 @@ from gui.util.config_set import ConfigSet
 def implement(self, activity="shop"):
     self.operation("stop_getting_screenshot_for_location")
     if activity == "collect_shop_power":
-        buy_list = self.config.get("ArenaShopList")
+        buy_list = np.array(self.config.get("ArenaShopList"))
         self.operation("click", (100, 370), duration=0.5)
         buy_list_for_power_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
                                     [700, 461], [857, 461], [1000, 461], [1162, 461]]
@@ -24,7 +24,7 @@ def implement(self, activity="shop"):
                     time.sleep(0.1)
                     self.operation("click",(buy_list_for_power_items[i % 8][0], buy_list_for_power_items[i % 8][1]))
     else:
-        buy_list = self.config.get("ShopList") # ** 每日商品购买表 1 表示购买
+        buy_list = np.array(self.config.get("ShopList")) # ** 每日商品购买表 1 表示购买
         # buy_list = [0, 0, 0, 0,     # ** 每日商品购买表 1 表示购买
         #             1, 1, 1, 1,
         #             1, 1, 1, 1,
