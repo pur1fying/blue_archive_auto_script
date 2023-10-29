@@ -1,11 +1,8 @@
-import os
 import time
 
 from core import STATIC_CONFIG_PATH
-from core import default_config
 from core.inject_config import Config
 from core.utils import kmp
-
 from gui.util.config_set import ConfigSet
 
 

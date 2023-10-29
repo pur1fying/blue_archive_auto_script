@@ -1,5 +1,4 @@
 import os
-import sys
 import threading
 import time
 
@@ -15,10 +14,6 @@ from core.utils import kmp, get_x_y, pd_rgb
 from debug.debugger import start_debugger
 from gui.util import log
 from gui.util.config_set import ConfigSet
-
-
-# Offer the error to the error.log
-sys.stderr = open('error.log', 'w+', encoding='utf-8')
 
 
 class Main(Setup):

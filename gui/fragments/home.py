@@ -12,6 +12,7 @@ from qfluentwidgets import (
 )
 
 from gui.components.logger_box import LoggerBox
+from gui.util import log
 from window import Window
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
@@ -120,7 +121,7 @@ class MainThread(QThread):
 
     def run(self):
         self.button_signal.emit("停止")
-        self.logger_signal.emit("Starting Blue Archive Auto Script...")
+        log.d("Starting Blue Archive Auto Script...", level=1, logger_box=self.logger_signal)
         if self.Main is None:
             from main import Main
             self.Main = Main
