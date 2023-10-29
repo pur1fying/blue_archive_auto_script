@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import time
 
@@ -17,7 +18,7 @@ from gui.util.config_set import ConfigSet
 
 
 # Offer the error to the error.log
-# sys.stderr = open('error.log', 'w+', encoding='utf-8')
+sys.stderr = open('error.log', 'w+', encoding='utf-8')
 
 
 class Main(Setup):
@@ -139,7 +140,6 @@ class Main(Setup):
         location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2))
         return location, result[upper_left[1], [upper_left[0]]]
 
-
     def send(self, msg):
         # try:
         if msg == "start":
@@ -250,6 +250,7 @@ class Main(Setup):
     def signal_stop(self):
         self.flag_run = False
         self.button_signal.emit("启动")
+
     def change_acc_auto(self):  # 战斗时自动开启3倍速和auto
         img1 = self.operation("get_screenshot_array")
         acc_r_ave = img1[625][1196][0] // 3 + img1[625][1215][0] // 3 + img1[625][1230][0] // 3
@@ -503,9 +504,9 @@ class Main(Setup):
             if return_data[1][0] <= 1e-03:
                 log.d("SUCCESSFULLY DETECT POSITION FOR " + name.upper(), 1, logger_box=self.loggerBox)
                 log.d(
-                    
+
                     "------------------------------------------------------------------------------------------------",
-                    1,  logger_box=self.loggerBox)
+                    1, logger_box=self.loggerBox)
                 return True
             log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
             cnt += 1
