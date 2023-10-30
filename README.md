@@ -7,6 +7,8 @@ baas 是一款免费开源软件，地址：https://github.com/pur1fying/blue_ar
 
 GUI support, thanks **[@キラメイ Kiramei](https://github.com/Kiramei)** 
 
+GUI Framework support, thanks **[zhiyiYo](https://github.com/zhiyiYo)**. **[This is Framework Project](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)**
+
 GUI预览图：
 ![gui](https://github.com/pur1fying/blue_archive_auto_script/blob/master/ui.png)
 
