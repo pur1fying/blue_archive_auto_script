@@ -98,12 +98,12 @@ def fight_difficulty_x(self, x):
         if not res:
             log.d("total force fight attempt " + str(i + 1) + " FAILED", 1, logger_box=self.loggerBox)
             if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 382, 22,
-                                                      "total_force_fight", 4):
+                                                      "total_force_fight", 10):
                 return False
         if res:
             log.d("total force fight SUCCEEDED", level=1, logger_box=self.loggerBox)
             self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 382, 22,
-                                                "total_force_fight", 5)
+                                                "total_force_fight", 10)
             log.d("###################################################################################", 1,
                   logger_box=self.loggerBox)
             return "WIN"
@@ -277,12 +277,14 @@ def total_force_fight_highest_difficulty_button_detector(self):
 
 
 def implement(self):
-    maxx = 5
+    maxx = 4
+    maxx -= 1
     judge_and_finish_unfinished_total_force_fight_task(self)  # 判断有没有正在进行的总力战
-    pri_total_force_fight = min(maxx,total_force_fight_highest_difficulty_button_detector(self))  # 第pri+1难度
+    pri_total_force_fight = total_force_fight_highest_difficulty_button_detector(self)
     if not isinstance(pri_total_force_fight,int):
         return False
-
+    pri_total_force_fight = min(maxx,pri_total_force_fight)  # 第pri+1难度
+    print(pri_total_force_fight)
     Auto = True
 
     total_force_fight_x = 1156
@@ -290,9 +292,6 @@ def implement(self):
     t = fight_difficulty_x(self, pri_total_force_fight)
     win = False
     while t == "WIN" and pri_total_force_fight != len(self.total_force_fight_difficulty_name) - 1:
-        if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 62, 40,
-                                                  "total_force_fight", 10):
-            return False  # 判断有没有在总力战界面
         win = True
         if pri_total_force_fight == maxx:
             break

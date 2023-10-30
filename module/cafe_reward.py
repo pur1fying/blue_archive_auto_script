@@ -24,7 +24,7 @@ def implement(self):
     else:
         log.d("can't detect collect reward button", 2, logger_box=self.loggerBox)
 
-    if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=4):
+    if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=7):
         return False
 
     img_shot = self.operation("get_screenshot_array")
@@ -34,7 +34,16 @@ def implement(self):
 
     target_name = self.config.get('favorStudent')  # ** 可设置参数 邀请券邀请学生的名字
     if return_data1[1][0] <= 1e-03:
-        target_name_list = ["梓（泳装）", "爱丽丝", "纯子", "瞬"]  # ** 可设置参数 邀请券邀请学生的名字 优先邀请前面的，前面没有选择后面
+        target_name_list = ["泉奈","桃","真白(泳装)", "爱丽丝", "纯子", "瞬"]  # ** 可设置参数 邀请券邀请学生的名字 优先邀请前面的，前面没有选择后面
+        for i in range(0, len(target_name_list)):
+            t = ""
+            for j in range(0, len(target_name_list[i])):
+                if target_name_list[i][j] == '(' or target_name_list[i][j] == "（" or target_name_list[i][j] == ")" or \
+                        target_name_list[i][j] == "）":
+                    continue
+                else:
+                    t = t + target_name_list[i][j]
+            target_name_list[i] = t
         f = True
         for i in range(0, len(target_name_list)):
             if not f:
@@ -46,7 +55,7 @@ def implement(self):
             swipe_y = 580
             dy = 430
 
-            student_name = ["真白（泳装）", "鹤城（泳装)", "梓（泳装）", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
+            student_name = ["真白(泳装)", "鹤城(泳装)", "梓(泳装)", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
                             "明日奈", "菲娜", "艾米", "真纪",
                             "泉奈", "明里", "芹香", "优香", "小春",
                             "花江", "纯子", "千世", "干世", "莲见", "爱理", "睦月", "野宫", "绫音", "歌原",
@@ -54,7 +63,14 @@ def implement(self):
                             "春香", "真白", "鹤城", "爱露", "晴奈", "日奈", "伊织", "星野",
                             "白子", "柚子", "花凛", "妮露", "纱绫", "静子", "花子", "风香",
                             "和香", "茜", "泉", "梓", "绿", "堇", "瞬", "桃", "椿", "晴", "响"]
-
+            for i in range(0, len(student_name)):
+                t = ""
+                for j in range(0, len(student_name[i])):
+                    if student_name[i][j] == '(' or student_name[i][j] == "（" or student_name[i][j] == ")" or student_name[i][j] == "）":
+                        continue
+                    else:
+                        t = t + student_name[i][j]
+                student_name[i] = t
             stop_flag = False
             last_student_name = None
 
@@ -72,7 +88,14 @@ def implement(self):
                 for i in range(0, len(out)):
                     for j in range(0, len(student_name)):
                         if len(detected_name) <= 4:
-                            if out[i]['text'] == student_name[j]:
+                            t = out[i]['text']
+                            res = ""
+                            for x in range(0, len(t)):
+                                if t[x] == '(' or t[x] == "（" or t[x] == ")" or t[x] == "）":
+                                    continue
+                                else:
+                                    res = res + t[x]
+                            if res == student_name[j]:
                                 if student_name[j] == "干世":
                                     detected_name.append("千世")
                                 else:
@@ -82,8 +105,6 @@ def implement(self):
                         else:
                             break
 
-                print(detected_name)
-                print(location)
                 if len(detected_name) == 0:
                     log.d("No name detected", 2, logger_box=self.loggerBox)
                     break
