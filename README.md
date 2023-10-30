@@ -7,23 +7,19 @@ baas 是一款免费开源软件，地址：https://github.com/pur1fying/blue_ar
 
 GUI support, thanks **[@キラメイ Kiramei](https://github.com/Kiramei)** 
 
-GUI Framework support, thanks **[zhiyiYo](https://github.com/zhiyiYo)**. **[This is Framework Project](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)**
-
 GUI预览图：
 ![gui](https://github.com/pur1fying/blue_archive_auto_script/blob/master/ui.png)
 
 ## 功能 Features
 
-- **咖啡厅** 邀请券可选择指定学生 咖啡厅好感 咖啡厅奖励
+- **咖啡厅** 邀请券可选择指定学生 咖啡厅摸头 咖啡厅奖励
 - **商店** 支持基物品商店16个商品自动购买 以及竞技场商店13个商品自动购买
 - **收获**：每日小组体力 邮箱 竞技场每日领奖 总力战累计积分领奖 每日任务领奖
 - **体力清理**：可指定任意主线关卡(普通困难) 特别委托 扫荡任意次数 
 - **竞技场** 清理到没有竞技场挑战券为止
 - **制造** 可选择制造物品优先级 制造次数 (确保加速券充足)
 - **momo talk** 自动完成所有未结束对话 完成剧情 领取青辉石
-
-
-
+- **总力战** 清空总力战挑战券并领取奖励
 
 #### 突出特性：
 
@@ -33,53 +29,30 @@ GUI预览图：
 ## 安装 Installation 
   
   **请先确保电脑中已安装完Git！**
-  Release中下载包，双击`Baas.exe`安装环境，请确保有梯子。
-  包文件当中有一个`no_update`，该文件存在时，本程序不作更新
-  当第一次环境安装完成（成功启动界面）后，后续也可以启动`quick_start.bat`，跳过检测快速启动。
-  如果你无法连接到模拟器，请在设置页面中设置adb端口号。
+  解压Release或交流群中的下载包，双击`BlueArchiveAutoScript.exe`安装环境，请耐心等待。
+  安装完成后，BAAS 的ui界面将自动启动。
 
-## 如何使用 
-- **由于 GUI 未完全开发完毕 一些参数设置**
-/module
+## 如何使用
+一些关键的参数
+- **模拟器尺寸须为1280x720**
+- **服务器：官服/b服   (国际服正在开发)**
+- **连接安卓模拟器：请设置端口号(雷电模拟器：5555),(mumu模拟器:7555),(模拟器多开请自行查询对应端口号)**
+- **截图间隔：0.5s (CPU性能高)  /  1s - 2s(CPU性能较低)**
+    BAAS运行时 CPU占用率高，如果想要降低CPU占用率，可以提供GPU加速版本
+## 如何上报bug How to Report Bugs
+在提问题之前至少花费 5 分钟来思考和准备，才会有人花费他的 5 分钟来帮助你。
 
-1."arena.py" line 38
-
-2."cafe_reward.py" line 35
-
-3."clear_special_task_power.py" line 5,6
-
-4."shop.py" line 11 29
-
-/core
-
-  "setup.py" line 13,17
-
-项目目录下
-
-"main.py" line 33, 40, 41
-> 33行代表截屏时间，设置高一点会截屏速度比较慢，但比较稳定
-
-- **连接安卓模拟器**
-- **打开exe点击启动即可**
-
-## 正确地使用调度器
-- 请在调度器启动前把开关设好，在运行中调整开关会导致不可控Bug
-- 若想要调整任务执行与否，请先暂停调度然后开关
-- 若需要设置任务间隔时间，请修改`core/event.json`目标项的`interval`，单位：秒
-- 若需要任务跳过时间间隔，请设置上述文件对应任务的`next_tick`为0。
-
-
-- ## 如何上报bug How to Report Bugs
-- 在qq群内上传出错日志。
-- 在ISSUE中发布你的错误信息。
+在提问题前，请先。
+检查 BAAS 的更新，确认使用的是最新版。
+阅读qq群内的FAQ
+如果是非预期的行为，请提供非预期行为发生时UI界面的日志,模拟器截图或视频。
+如果是程序崩溃/异常终止,请提供出错error.log文件，在根目录下。
 
 ## 已知问题 Known Issues
 
-- **ocr文字识别不稳定**
+- **ocr中文文字识别精度尚可,但不是特别高**
 - **ioERROR** 截图太快导致 降低截图速度 （>=0.5s为合适）
 - **短时间连续的点击操作 模拟器卡顿的情况下会被识别为未被点到**
-
-
 
 ## 联系我们 Contact Us
 

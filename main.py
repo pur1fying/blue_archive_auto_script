@@ -156,12 +156,15 @@ class Main(Setup):
         if operation_name[0:5] == "click":
             x = operation_locations[0]
             y = operation_locations[1]
-            self.connection.click(x, y)
-            self.set_click_time()
             log.d(
                 operation_name + ":(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)),
                 level=1,
                 logger_box=self.loggerBox)
+            noisex = np.random.uniform(-5,5)
+            noisey = np.random.uniform(-5, 5)
+            self.connection.click(x + noisex, y + noisey)
+            self.set_click_time()
+
             time.sleep(duration)
             return "click success"
         elif operation_name == "swipe":
@@ -482,7 +485,7 @@ class Main(Setup):
             #        print("exceed len 2", shot_time)
             self.pos.pop()
 
-    def common_icon_bug_detect_method(self, path, x, y, name, times=3):
+    def common_icon_bug_detect_method(self, path, x, y, name, times=3,interval=0.5):
         if not self.flag_run:
             return False
         log.d("------------------------------------------------------------------------------------------------", 1,
@@ -503,10 +506,10 @@ class Main(Setup):
                     "------------------------------------------------------------------------------------------------",
                     1, logger_box=self.loggerBox)
                 return True
-            log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
+            log.d("FAIL TIME : " + str(cnt) + "min_val: " + str(return_data[1][0]), 2, logger_box=self.loggerBox)
             cnt += 1
-            self.operation("click", (x, y), duration=0.5)
-            return_data = self.get_x_y(self.latest_img_array, path)
+            self.operation("click", (x, y), duration=interval)
+            return_data = self.get_x_y(self.operation("get_screenshot_array"), path)
             print(return_data)
 
         log.d("CAN'T DETECT BUTTON FOR " + name.upper(), 3, logger_box=self.loggerBox)
@@ -691,19 +694,19 @@ if __name__ == '__main__':
     t = Main()
     t._init_emulator()
     t.flag_run = True
-    path2 = "src/total_force_fight/enter_again.png"
+    path2 = "src/total_force_fight/white_and_black/HARDCORE_BRIGHT.png"
     img = t.operation("get_screenshot_array")
     return_data1 = get_x_y(img, path2)
     print(return_data1)
-    for i in range(0, len(t.total_force_fight_difficulty_name)):
-        path1 = "src/total_force_fight/white_and_black/" + t.total_force_fight_difficulty_name[i] + "_BRIGHT.png"
-        path2 = "src/total_force_fight/white_and_black/" + t.total_force_fight_difficulty_name[i] + "_GREY.png"
-        return_data1 = t.get_x_y(img, path1)
-        return_data2 = t.get_x_y(img, path2)
-        print(t.total_force_fight_difficulty_name[i])
-        print(return_data1, return_data2)
-
-    ocr_res = t.img_ocr(img)
-    print(ocr_res)
-    t.get_keyword_appear_time(ocr_res)
-    print(t.return_location())
+    # for i in range(0, len(t.total_force_fight_difficulty_name)):
+    #     path1 = "src/total_force_fight/white_and_black/" + t.total_force_fight_difficulty_name[i] + "_BRIGHT.png"
+    #     path2 = "src/total_force_fight/white_and_black/" + t.total_force_fight_difficulty_name[i] + "_GREY.png"
+    #     return_data1 = t.get_x_y(img, path1)
+    #     return_data2 = t.get_x_y(img, path2)
+    #     print(t.total_force_fight_difficulty_name[i])
+    #     print(return_data1, return_data2)
+    #
+    # ocr_res = t.img_ocr(img)
+    # print(ocr_res)
+    # t.get_keyword_appear_time(ocr_res)
+    # print(t.return_location())
