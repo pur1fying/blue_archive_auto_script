@@ -7,12 +7,14 @@ import requests
 import zipfile
 import logging
 from tqdm import tqdm
-from git import Repo
 
 TMP_PATH = './tmp'
+GET_PYTHON_URL = 'https://ghproxy.com/https://raw.githubusercontent.com/Kiramei/blue_archive_auto_script/file/python-3.9.13-embed-amd64.zip'
 REPO_URL_SSH = 'https://ghproxy.com/https://github.com/pur1fying/blue_archive_auto_script'
 REPO_URL_HTTP = 'https://ghproxy.com/https://github.com/pur1fying/blue_archive_auto_script'
-LOCAL_PATH = './repo_tmp'
+GIT_HOME = './tookit/Git/bin/git.exe'
+GET_PIP_URL = 'https://ghproxy.com/https://raw.githubusercontent.com/Kiramei/blue_archive_auto_script/file/get-pip.py'
+LOCAL_PATH = './blue_archive_auto_script'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -57,9 +59,9 @@ def download_file(url: str):
 
 def install_package():
     try:
-        subprocess.run(["./lib/python.exe", '-m', 'pip', 'install', 'virtualenv'])
+        subprocess.run(["./lib/python.exe", '-m', 'pip', 'install', 'virtualenv', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'])
         subprocess.run(["./lib/python.exe", '-m', 'virtualenv', 'env'])
-        subprocess.run(["./env/Scripts/python", '-m', 'pip', 'install', '-r', './requirements.txt'])
+        subprocess.run(["./env/Scripts/python", '-m', 'pip', 'install', '-r', './requirements.txt', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'])
     except Exception as e:
         raise Exception("Install requirements failed")
 
@@ -74,13 +76,13 @@ def unzip_file(zip_dir, out_dir):
 def check_pth():
     logger.info("Checking pth file...")
     read_file = []
-    with open('./lib/python37._pth', 'r', encoding='utf-8') as f:
+    with open('./lib/python39._pth', 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
             if line.startswith('#import site'):
                 line = line.replace('#', '')
             read_file.append(line)
-    with open('./lib/python37._pth', 'w', encoding='utf-8') as f:
+    with open('./lib/python39._pth', 'w', encoding='utf-8') as f:
         f.writelines(read_file)
 
 
@@ -130,7 +132,7 @@ def check_pip():
     logger.info("Checking pip installation...")
     if not os.path.exists('./lib/Scripts/pip.exe'):
         logger.info("Pip is not installed, trying to install pip...")
-        filepath = download_file('https://bootstrap.pypa.io/get-pip.py')
+        filepath = download_file(GET_PIP_URL)
         proc = subprocess.run(['./lib/python.exe', filepath])
 
 
@@ -138,35 +140,22 @@ def check_python():
     logger.info("Checking python installation...")
     if not os.path.exists('./lib/python.exe'):
         logger.info("Python environment is not installed, trying to install python...")
-        download_url = 'https://www.python.org/ftp/python/3.7.6/python-3.7.6-embed-amd64.zip'
-        filepath = download_file(download_url)
+        filepath = download_file(GET_PYTHON_URL)
         unzip_file(filepath, './lib')
         os.remove(filepath)
 
 
 def check_git():
     logger.info("Checking git installation...")
-    try:
-        if not os.path.exists('./.git'):
-            logger.info("You seem to have no files for baas, trying to clone the project...")
-            Repo.clone_from(REPO_URL_SSH, LOCAL_PATH)
-            mv_repo(LOCAL_PATH)
-            logger.info("Clone success")
-        elif not os.path.exists('./no_update'):
-            logger.info("You seem to have files for baas, trying to pull the project...")
-            Repo('./').remotes.origin.pull()
-            logger.info("Pull success")
-    except Exception as _:
-        try:
-            clear_tmp()
-            create_tmp()
-            logger.info("You seem to have no files for baas, trying to clone the project...")
-            Repo.clone_from(REPO_URL_HTTP, LOCAL_PATH)
-            mv_repo(LOCAL_PATH)
-            logger.info("Clone success")
-            shutil.rmtree(LOCAL_PATH)
-        except Exception as __:
-            traceback.print_exc()
+    if not os.path.exists('./.git'):
+        logger.info("You seem to have no files for baas, trying to clone the project...")
+        subprocess.run([GIT_HOME, 'clone', REPO_URL_SSH])
+        mv_repo(LOCAL_PATH)
+        logger.info("Clone success")
+    elif not os.path.exists('./no_update'):
+        logger.info("You seem to have files for baas, trying to pull the project...")
+        subprocess.run([GIT_HOME, 'pull', REPO_URL_SSH])
+        logger.info("Pull success")
 
 
 def create_tmp():
