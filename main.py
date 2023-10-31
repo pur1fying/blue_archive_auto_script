@@ -352,7 +352,6 @@ class Main(Setup):
         # difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]
         log.d("-------------------------------------------------------------------------------", 1,
               logger_box=self.loggerBox)
-        img_shot = self.operation("get_screenshot_array")
         log.d("try to swipe to TOP page", level=1, logger_box=self.loggerBox)
         # ocr_result = self.img_ocr(img_shot)
         while fail_cnt <= 3:
@@ -417,7 +416,7 @@ class Main(Setup):
                     self.operation("click", (1033, 297), duration=0.6)
                 else:
                     self.operation("click", (1033, 297), duration=0.2)
-            self.operation("click", (937, 404))
+            self.operation("click", (937, 404),duration=0.5)
             lo = self.operation("get_current_position")
             if lo == "charge_power":
                 log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
@@ -506,7 +505,7 @@ class Main(Setup):
                     "------------------------------------------------------------------------------------------------",
                     1, logger_box=self.loggerBox)
                 return True
-            log.d("FAIL TIME : " + str(cnt) + "min_val: " + str(return_data[1][0]), 2, logger_box=self.loggerBox)
+            log.d("FAIL TIME : " + str(cnt) + " min_val: " + str(return_data[1][0]), 2, logger_box=self.loggerBox)
             cnt += 1
             self.operation("click", (x, y), duration=interval)
             return_data = self.get_x_y(self.operation("get_screenshot_array"), path)
@@ -618,47 +617,33 @@ class Main(Setup):
         log.line(self.loggerBox)
         log.d("start activities", level=1, logger_box=self.loggerBox)
         print(self.main_activity)
-        # self.main_to_page(8)
-        # self.solve(self.main_activity[8][0])
-        # for i in range(0, len(self.main_activity)):
-        #     if not (i == 11 or i == 8):
-        #         self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-        #         print(self.main_activity[i][0])
-        #         self.main_to_page(i)
-        #         self.solve(self.main_activity[i][0])
-        while self.flag_run:
-            next_func_name = self.scheduler.heartbeat()
-            if next_func_name:
-                log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
-                i = self.activity_name_list.index(next_func_name)
-                if i != 14:
-                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-                    self.main_to_page(i)
-                if self.solve(next_func_name):
-                    self.scheduler.systole(next_func_name)
-                else:
-                    self.flag_run = False
-                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-            else:
-                time.sleep(2)
-        while self.flag_run:
-            next_func_name = self.scheduler.heartbeat()
-            if next_func_name:
-                log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
-                i = self.activity_name_list.index(next_func_name)
-                if i != 14:
-                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-                    self.main_to_page(i)
-                if self.solve(next_func_name):
-                    log.d(f'{next_func_name} finished', level=1, logger_box=self.loggerBox)
-                    self.scheduler.systole(next_func_name)
-                else:
-                    log.d(f'{next_func_name} failed', level=3, logger_box=self.loggerBox)
-                    self.send('stop')
-                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-            else:
-                time.sleep(2)
-        print("thread_starter stop")
+        # self.main_to_page(4)
+        # self.solve(self.main_activity[4][0])
+        for i in range(0, len(self.main_activity)):
+            print(1)
+            if not (i == 11 or i == 8):
+                self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+                print(self.main_activity[i][0])
+                self.main_to_page(i)
+                self.solve(self.main_activity[i][0])
+
+
+        # while self.flag_run:
+        #     next_func_name = self.scheduler.heartbeat()
+        #     if next_func_name:
+        #         log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
+        #         i = self.activity_name_list.index(next_func_name)
+        #         if i != 14:
+        #             self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+        #             self.main_to_page(i)
+        #         if self.solve(next_func_name):
+        #             self.scheduler.systole(next_func_name)
+        #         else:
+        #             self.flag_run = False
+        #             self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+        #     else:
+        #         time.sleep(2)
+
 
         # for i in range(0, len(self.main_activity)):
         #     print(self.main_activity[i][0], self.main_activity[i][1])
@@ -694,7 +679,7 @@ if __name__ == '__main__':
     t = Main()
     t._init_emulator()
     t.flag_run = True
-    path2 = "src/total_force_fight/white_and_black/HARDCORE_BRIGHT.png"
+    path2 = "src/shop/update.png"
     img = t.operation("get_screenshot_array")
     return_data1 = get_x_y(img, path2)
     print(return_data1)
@@ -706,7 +691,8 @@ if __name__ == '__main__':
     #     print(t.total_force_fight_difficulty_name[i])
     #     print(return_data1, return_data2)
     #
-    # ocr_res = t.img_ocr(img)
-    # print(ocr_res)
-    # t.get_keyword_appear_time(ocr_res)
-    # print(t.return_location())
+
+    ocr_res = t.img_ocr(img)
+    print(str(ocr_res))
+    t.get_keyword_appear_time(ocr_res)
+    print(str(t.return_location()))

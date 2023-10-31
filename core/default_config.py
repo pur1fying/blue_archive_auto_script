@@ -501,8 +501,13 @@ STATIC_DEFAULT_CONFIG = """
         "result": "summary"
       },
       {
-        "name_list": [["相克信息"],["敌方信息"]],
-        "count_list": [[1], [1]],
+        "name_list": [["达成","成就","确认"]],
+        "count_list": [[1,1,1]],
+        "result": "season_best_record"
+      },
+      {
+        "name_list": [["相克信息","敌方信息"]],
+        "count_list": [[1, 1]],
         "result": "enemy_message"
       },
       {
@@ -511,8 +516,8 @@ STATIC_DEFAULT_CONFIG = """
         "result": "student_message"
       },
       {
-        "name_list": [["对战结果"],["失败", "确认"]],
-        "count_list": [[1],[1,1]],
+        "name_list": [["对战结果","失败", "确认"],["对战结果",“胜利", "确认"]],
+        "count_list": [[1,1,1],[1,1,1]],
         "result": "combat_result"
       },
       {

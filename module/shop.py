@@ -55,6 +55,9 @@ def implement(self, activity="shop"):
                     break
             elif return_data3[1][0] <= 1e-03:
                 log.d("items have been brought", level=1, logger_box=self.loggerBox)
+                if i == refresh_time:
+                    self.operation("click@home", (1240, 29))
+                    break
             else:
                 log.d("Can't detect button", level=2, logger_box=self.loggerBox)
                 self.operation("click@home", (1240, 29))
@@ -79,7 +82,7 @@ def implement(self, activity="shop"):
                 self.operation("click@home", (1240, 29))
                 break
     else:
-        refresh_time = 2
+        refresh_time = 0
         buy_list = np.array(self.config.get("ShopList")) # ** 每日商品购买表 1 表示购买
         # buy_list = [0, 0, 0, 0,     # ** 每日商品购买表 1 表示购买
         #             1, 1, 1, 1,
@@ -133,6 +136,9 @@ def implement(self, activity="shop"):
                     break
             elif return_data3[1][0] <= 1e-03:
                 log.d("items have been brought", level=1, logger_box=self.loggerBox)
+                if i == refresh_time:
+                    self.operation("click@home", (1240, 29))
+                    break
             else:
                 log.d("Can't detect button", level=2, logger_box=self.loggerBox)
                 self.operation("click@home", (1240, 29))
