@@ -7,3 +7,4 @@ from .shopPriority import Layout
 from .specialDaily import Layout
 from .serverConfig import Layout
 from .arenaShopPriority import Layout
+from .scriptConfig import Layout

@@ -120,24 +120,20 @@ class MainThread(QThread):
         self.running = False
 
     def run(self):
+        self.running = True
         self.button_signal.emit("停止")
         log.d("Starting Blue Archive Auto Script...", level=1, logger_box=self.logger_signal)
         if self.Main is None:
             from main import Main
             self.Main = Main
-            self._main_thread = self.Main(logger_box=self.logger_signal, button_signal=self.button_signal,
-                                          update_signal=self.update_signal)
-            self._main_thread.send('start')
-            self.running = True
-        else:
-            self._main_thread = self.Main(logger_box=self.logger_signal, button_signal=self.button_signal,
-                                          update_signal=self.update_signal)
-            self._main_thread.send('start')
-            self.running = True
+        self._main_thread = self.Main(logger_box=self.logger_signal, button_signal=self.button_signal,
+                                      update_signal=self.update_signal)
+        self._main_thread.send('start')
 
     def stop_play(self):
+        self.running = False
         if self._main_thread is None:
             return
-        self._main_thread.send('stop')
-        self.running = False
         self.button_signal.emit("启动")
+        self._main_thread.send('stop')
+        self.exit(0)

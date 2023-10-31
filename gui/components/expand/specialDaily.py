@@ -58,11 +58,11 @@ class Layout(QWidget, ConfigSet):
         self.dif = [[int(y) for y in x.split('-')][0] for x in _set_main.split(',')]
         self.count = [[int(y) for y in x.split('-')][1] for x in _set_main.split(',')]
 
-        self.input_1_1.setCurrentIndex(self.dif[0])
+        self.input_1_1.setCurrentIndex(self.dif[0] - 1)
         self.input_1_2.setCurrentIndex(self.count[0] - 1)
-        self.input_2_1.setCurrentIndex(self.dif[1])
+        self.input_2_1.setCurrentIndex(self.dif[1] - 1)
         self.input_2_2.setCurrentIndex(self.count[1] - 1)
-        self.input_3_1.setCurrentIndex(self.dif[2])
+        self.input_3_1.setCurrentIndex(self.dif[2] - 1)
         self.input_3_2.setCurrentIndex(self.count[2] - 1)
 
         self.input_1_1.currentIndexChanged.connect(self._commit)
@@ -93,9 +93,9 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout.addLayout(self.option_3)
 
     def _commit(self):
-        self.dif[0] = self.input_1_1.currentIndex()
-        self.dif[1] = self.input_2_1.currentIndex()
-        self.dif[2] = self.input_3_1.currentIndex()
+        self.dif[0] = self.input_1_1.currentIndex() + 1
+        self.dif[1] = self.input_2_1.currentIndex() + 1
+        self.dif[2] = self.input_3_1.currentIndex() + 1
         self.count[0] = self.input_1_2.currentIndex() + 1
         self.count[1] = self.input_2_2.currentIndex() + 1
         self.count[2] = self.input_3_2.currentIndex() + 1

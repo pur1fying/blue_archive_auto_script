@@ -12,9 +12,11 @@ handler1 = logging.StreamHandler(stream=sys.stdout)
 handler1.setFormatter(formatter)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler1)
+logs = ''
 
 
-def d(message, level=4, logger_box = None):
+def d(message, level=4, logger_box=None):
+    global logs
     while len(logging.root.handlers) > 0:
         logging.root.handlers.pop()
     status = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
@@ -28,13 +30,16 @@ def d(message, level=4, logger_box = None):
                   f'{statusHtml[level - 1]} | {datetime.now()} | {message} '
                   f'</div>')
         debugger_view.content += adding
+        logs += adding
         # threading.Thread(target=logger_box.emit, args=(adding,)).start()
         logger_box.emit(adding)
 
 
-def line(logger_box = None):
+def line(logger_box=None):
     if logger_box is not None:
         # logger_box.lineEdit.scrollContentsBy(0, 100)
         # logger_box.lineEdit.scroll
-        logger_box.emit('---------------------------------------------------------------------------'
-                                   '-------------------')
+        logger_box.emit(
+            '<div style="font-family: Consolas, monospace;color:#2d8cf0;">--------------'
+            '-------------------------------------------------------------'
+            '-------------------</div>')

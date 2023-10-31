@@ -1,15 +1,16 @@
+import json
 import time
 
 from core import STATIC_CONFIG_PATH
-from core.inject_config import Config
 from core.utils import kmp
 from gui.util.config_set import ConfigSet
 
 
 class Setup:
     def __init__(self):
-        self.static_config = Config(STATIC_CONFIG_PATH)
-        basic_config = self.static_config.get('basic')
+        basic_config = {}
+        with open(STATIC_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            basic_config = json.load(f).get('basic')
         self.base_time = time.time()
         self.pos = []
         self.ocr = None

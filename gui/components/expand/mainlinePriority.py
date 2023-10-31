@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
-from qfluentwidgets import LineEdit
+from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
 from gui.util.config_set import ConfigSet
 
@@ -9,8 +9,8 @@ from gui.util.config_set import ConfigSet
 class Layout(QWidget, ConfigSet):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
-
         self.lay1 = QHBoxLayout(self)
         self.lay2 = QHBoxLayout(self)
         self.lay1_hard = QHBoxLayout(self)
@@ -68,10 +68,30 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout.addLayout(self.lay1_hard)
         self.hBoxLayout.addLayout(self.lay2_hard)
 
-    def __accept_main(self):
+    def __accept_main(self, changed_text=None):
         input_content = self.input.text()
         self.set('mainlinePriority', input_content)
+        w = InfoBar(
+            icon=InfoBarIcon.SUCCESS,
+            title='设置成功',
+            content=f'你的普通关卡已经被设置为：{changed_text}',
+            orient=Qt.Vertical,
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=800,
+            parent=self.info_widget
+        )
+        w.show()
 
-    def __accept_hard(self):
-        input_content = self.input_hard.text()
+    def __accept_hard(self, changed_text=None):
+        input_content = changed_text
         self.set('hardPriority', input_content)
+        w = InfoBar(
+            icon=InfoBarIcon.SUCCESS,
+            title='设置成功',
+            content=f'你的困难关卡已经被设置为：{changed_text}',
+            orient=Qt.Vertical,
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=800,
+            parent=self.info_widget
+        )
+        w.show()
