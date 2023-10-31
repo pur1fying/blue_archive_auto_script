@@ -157,7 +157,7 @@ class Main(Setup):
                 operation_name + ":(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)),
                 level=1,
                 logger_box=self.loggerBox)
-            noisex = np.random.uniform(-5,5)
+            noisex = np.random.uniform(-5, 5)
             noisey = np.random.uniform(-5, 5)
             self.connection.click(x + noisex, y + noisey)
             self.set_click_time()
@@ -482,7 +482,7 @@ class Main(Setup):
             #        print("exceed len 2", shot_time)
             self.pos.pop()
 
-    def common_icon_bug_detect_method(self, path, x, y, name, times=3,interval=0.5):
+    def common_icon_bug_detect_method(self, path, x, y, name, times=3, interval=0.5):
         if not self.flag_run:
             return False
         log.d("------------------------------------------------------------------------------------------------", 1,
@@ -666,6 +666,13 @@ class Main(Setup):
             return module.__dict__[activity].implement(self)
         except Exception as e:
             raise ScriptError(e, self)
+
+    def log_screenshot(self):
+        img = self.operation("get_screenshot_array")
+        ocr_res = self.img_ocr(img)
+        log.d("Word: " + str(ocr_res), level=1, logger_box=self.loggerBox)
+        self.get_keyword_appear_time(ocr_res)
+        log.d("Location: " + str(self.return_location()), level=1, logger_box=self.loggerBox)
 
 
 if __name__ == '__main__':
