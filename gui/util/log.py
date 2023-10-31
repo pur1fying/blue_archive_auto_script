@@ -1,9 +1,7 @@
 import logging
 import sys
-import threading
 from datetime import datetime
 
-from gui.components.logger_box import LoggerBox
 from debug.debugger import debugger_view
 
 logger = logging.getLogger("logger_name")

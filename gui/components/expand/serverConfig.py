@@ -50,7 +50,7 @@ class Layout(QWidget, ConfigSet):
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
-            content=f'你的截屏间隔已经被设置为：{changed_text}',
+            content=f'你的端口号已经被设置为：{changed_text}',
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,
