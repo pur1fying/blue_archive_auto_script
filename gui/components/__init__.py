@@ -1,1 +1,0 @@
-from .conf_goods_card import ItemSelectSettingCard

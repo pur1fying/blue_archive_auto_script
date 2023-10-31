@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QLabel
-from qfluentwidgets import FlowLayout, CheckBox
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
+from qfluentwidgets import FlowLayout, CheckBox, LineEdit
 
 from gui.util.config_set import ConfigSet
 
@@ -18,7 +19,11 @@ class Layout(QWidget, ConfigSet):
 
         self.setFixedSize(720, 200)
         self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
-
+        self.label = QLabel('刷新次数', self)
+        self.input = LineEdit(self)
+        self.input.setValidator(QIntValidator(0, 5))
+        self.input.setText(self.get('ArenaShopRefreshTime'))
+        self.accept = QPushButton('确定', self)
         self.boxes = []
         for i in range(13):
             t_cbx = CheckBox(self)
@@ -29,8 +34,13 @@ class Layout(QWidget, ConfigSet):
             layout.addWidget(t_cbx)
             t_cbx.stateChanged.connect(lambda x, index=i: self.alter_status(index))
             self.boxes.append(t_cbx)
-
+        layout.addWidget(self.label)
+        layout.addWidget(self.input)
+        layout.addWidget(self.accept)
+        self.accept.clicked.connect(self.__accept)
     def alter_status(self, index):
         self.boxes[index].setChecked(self.boxes[index].isChecked())
         self.set(key='ArenaShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(13)])
 
+    def __accept(self, input_content=None):
+        self.set('ArenaShopRefreshTime', self.input.text())

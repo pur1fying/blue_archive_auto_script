@@ -2,27 +2,25 @@
 import os
 import sys
 
-from core import default_config
-# Offer the error to the error.log
-
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF, SplashScreen
-from qfluentwidgets import (NavigationItemPosition, FluentWindow,
+from qfluentwidgets import (FluentWindow,
                             SubtitleLabel, setFont, setThemeColor)
 
+from core import default_config
+
+# Offer the error to the error.log
+
+sys.path.append('./')
 ICON_DIR = 'gui/assets/logo.png'
 sys.stderr = open('error.log', 'w+', encoding='utf-8')
-sys.path.append('./')
 
 
 def check_config():
     if not os.path.exists('./config'):
         os.mkdir('./config')
-    if not os.path.exists('./config/extend.json'):
-        with open('./config/extend.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.EXTEND_DEFAULT_CONFIG)
     if not os.path.exists('./config/static.json'):
         with open('./config/static.json', 'w', encoding='utf-8') as f:
             f.write(default_config.STATIC_DEFAULT_CONFIG)
@@ -67,14 +65,13 @@ class Window(FluentWindow):
 
         # create sub interface
         from gui.fragments.home import HomeFragment
-        from gui.fragments.process import ProcessFragment
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
 
         self.homeInterface = HomeFragment(parent=self)
-        self.schedulerInterface = SwitchFragment()
-        self.processInterface = ProcessFragment()
-        self.settingInterface = SettingsFragment()
+        self.schedulerInterface = SwitchFragment(parent=self)
+        # self.processInterface = ProcessFragment()
+        self.settingInterface = SettingsFragment(parent=self)
 
         self.initNavigation()
         self.splashScreen.finish()
@@ -87,10 +84,9 @@ class Window(FluentWindow):
 
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '调度器')
-        self.addSubInterface(self.processInterface, FIF.CALORIES, '调度状态')
 
         # add custom widget to bottom
-        self.addSubInterface(self.settingInterface, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
 
     def initWindow(self):
         self.setFixedSize(900, 700)
@@ -124,7 +120,6 @@ if __name__ == '__main__':
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-    # setTheme(Theme.DARK)
 
     app = QApplication(sys.argv)
     w = Window()

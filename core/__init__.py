@@ -1,6 +1,5 @@
 EVENT_CONFIG_PATH = './config/event.json'
 DISPLAY_CONFIG_PATH = './config/display.json'
 STATIC_CONFIG_PATH = './config/static.json'
-EXTEND_CONFIG_PATH = './config/extend.json'
 DEFAULT_CONFIG_PATH = './config/config.json'
 SWITCH_CONFIG_PATH = './config/switch.json'
