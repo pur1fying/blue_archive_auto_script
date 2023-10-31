@@ -18,6 +18,19 @@ from window import Window
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
 
 
+class MyQLabel(QLabel):
+    button_clicked_signal = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(MyQLabel, self).__init__(parent)
+
+    def mouseReleaseEvent(self, QMouseEvent):
+        self.button_clicked_signal.emit()
+
+    def connect_customized_slot(self, func):
+        self.button_clicked_signal.connect(func)
+
+
 class HomeFragment(QFrame):
     updateButtonState = pyqtSignal(bool)  # 创建用于更新按钮状态的信号
 
@@ -42,7 +55,7 @@ class HomeFragment(QFrame):
         self.infoLayout.addStretch(1)
         self.infoLayout.addWidget(self.info, 0, Qt.AlignRight)
 
-        self.banner = QLabel(self)
+        self.banner = MyQLabel(self)
         self.banner.setFixedHeight(200)
         pixmap = QPixmap(MAIN_BANNER).scaled(
             self.banner.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
@@ -62,6 +75,7 @@ class HomeFragment(QFrame):
         self._main_thread_attach.button_signal.connect(self.set_button_state)
         self._main_thread_attach.logger_signal.connect(self.logger.lineEdit.append)
         self._main_thread_attach.update_signal.connect(self.call_update)
+        self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
         self.startupCard.clicked.connect(self._start_clicked)
         self.setObjectName("0x00000003")
 
@@ -120,24 +134,24 @@ class MainThread(QThread):
         self.running = False
 
     def run(self):
+        self.running = True
         self.button_signal.emit("停止")
         log.d("Starting Blue Archive Auto Script...", level=1, logger_box=self.logger_signal)
         if self.Main is None:
             from main import Main
             self.Main = Main
-            self._main_thread = self.Main(logger_box=self.logger_signal, button_signal=self.button_signal,
-                                          update_signal=self.update_signal)
-            self._main_thread.send('start')
-            self.running = True
-        else:
-            self._main_thread = self.Main(logger_box=self.logger_signal, button_signal=self.button_signal,
-                                          update_signal=self.update_signal)
-            self._main_thread.send('start')
-            self.running = True
+        self._main_thread = self.Main(logger_box=self.logger_signal, button_signal=self.button_signal,
+                                      update_signal=self.update_signal)
+        self._main_thread.send('start')
 
     def stop_play(self):
+        self.running = False
         if self._main_thread is None:
             return
-        self._main_thread.send('stop')
-        self.running = False
         self.button_signal.emit("启动")
+        self._main_thread.send('stop')
+        self.exit(0)
+
+    def get_screen(self):
+        if self._main_thread is not None:
+            return self._main_thread.log_screenshot()

@@ -18,13 +18,6 @@ class SettingsFragment(ScrollArea, ConfigSet):
         self.basicGroup = SettingCardGroup(
             self.tr("基本"), self.scrollWidget)
 
-        # self.folderOption = FileSelectSettingCard(
-        #     conf_global.emulatorPath,
-        #     title=self.tr('模拟器目录'),
-        #     filePath=QStandardPaths.writableLocation(QStandardPaths.MusicLocation),
-        #     parent=self.basicGroup
-        # )
-
         self.serverOption = SimpleSettingCard(
             title='应用相关设置',
             content='选择你的服务器平台，设置你的端口（不知道端口请设置为0）',
@@ -32,27 +25,12 @@ class SettingsFragment(ScrollArea, ConfigSet):
             parent=self.basicGroup
         )
 
-        # self.serverOption = ServerSettingCard(
-        #     configServer=conf_global.server,
-        #     configPort=conf_global.port,
-        #     title=self.tr('应用相关设置'),
-        #     stop='官服',
-        #     parent=self.basicGroup
-        # )
-
-        # self.shopOption = ItemSelectSettingCard(
-        #     conf_global.shopList,
-        #     title=self.tr('商店商品选择'),
-        #     goodsList=[0] * 16,
-        #     parent=self.basicGroup
-        # )
-
-        # self.storyOption = StorySettingCard(
-        #     conf_global.mainStop,
-        #     title=self.tr('主线任务选择'),
-        #     stop='4-4',
-        #     parent=self.basicGroup
-        # )
+        self.scriptOption=SimpleSettingCard(
+            title='脚本相关设置',
+            content='根据你的电脑配置，调整相应的参数。',
+            sub_view=expand.__dict__['scriptConfig'],
+            parent=self.basicGroup
+        )
 
         self.__initLayout()
         self.setObjectName("0x00000004")
@@ -69,11 +47,8 @@ class SettingsFragment(ScrollArea, ConfigSet):
             }
         ''')
         self.viewport().setStyleSheet("background-color: transparent;")
-        # self.basicGroup.addSettingCard(self.folderOption)
-        # self.basicGroup.addSettingCard(self.shopOption)
-        # self.basicGroup.addSettingCard(self.testOption)
-        # self.basicGroup.addSettingCard(self.storyOption)
         self.basicGroup.addSettingCard(self.serverOption)
+        self.basicGroup.addSettingCard(self.scriptOption)
         self.expandLayout.addWidget(self.settingLabel)
         self.expandLayout.addWidget(self.basicGroup)
 

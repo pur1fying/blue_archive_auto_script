@@ -11,12 +11,12 @@ class Layout(QWidget, ConfigSet):
         super().__init__(parent=parent)
         self.hBoxLayout = QHBoxLayout(self)
 
-        self.label = QLabel('输入你的排序（如"12345"）', self)
+        self.label = QLabel('输入你的每个区域日程的次数（如"11111"）', self)
         self.input = LineEdit(self)
         self.accept = QPushButton('确定', self)
         _set_ = self.get('schedulePriority')
-        self.priority_list = [int(x) for x in (_set_ if _set_ else [1, 2, 3, 4, 5])]
-        validator = QIntValidator(12345, 54321)
+        self.priority_list = [int(x) for x in (_set_ if _set_ else [1, 1, 1, 1, 1])]
+        validator = QIntValidator(10000, 50000)
         self.input.setText(''.join([str(x) for x in self.priority_list]))
         self.input.setValidator(validator)
         self.setFixedHeight(53)

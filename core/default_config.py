@@ -1,50 +1,3 @@
-EXTEND_DEFAULT_CONFIG = """
-{
- "ShopList": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-        ],
-    "Settings": {
-        "ShopList": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-        ]
-    },
-    "QFluentWidgets": {
-        "ThemeColor": "#ff0078d4",
-        "ThemeMode": "Light"
-    }
-}
-"""
-
 STATIC_DEFAULT_CONFIG = """
 {
   "basic": {
@@ -643,7 +596,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 0
+    "interval": 86400
   },
   {
     "event_name": "每日特别委托",
@@ -652,7 +605,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 0
+    "interval": 86400
   },
   {
     "event_name": "悬赏通缉",
@@ -661,7 +614,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 1
+    "interval": 86400
   },
   {
     "event_name": "竞技场",
@@ -670,7 +623,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 0
+    "interval": 43200
   },
   {
     "event_name": "收集每日体力",
@@ -679,7 +632,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 1
+    "interval": 1000
   },
   {
     "event_name": "收集小组体力",
@@ -688,7 +641,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 1
+    "interval": 86400
   },
   {
     "event_name": "商店购买",
@@ -697,7 +650,16 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 1
+    "interval": 86400
+  },  
+  {
+    "event_name": "竞技场商店购买",
+    "func_name": "collect_shop_power",
+    "next_tick": 1697279828,
+    "event_start": 0,
+    "event_end": 0,
+    "enabled": true,
+    "interval": 86400
   },
   {
     "event_name": "日程",
@@ -706,7 +668,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 1
+    "interval": 86400
   },
   {
     "event_name": "主线清除体力",
@@ -715,7 +677,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 1
+    "interval": 86400
   },
   {
     "event_name": "自动MomoTalk",
@@ -724,7 +686,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 1
+    "interval": 86400
   },
   {
     "event_name": "咖啡厅",
@@ -733,7 +695,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 0
+    "interval": 20000
   },
   {
     "event_name": "查收邮箱",
@@ -742,7 +704,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 200
+    "interval": 43200
   },
   {
     "event_name": "自动制造",
@@ -751,7 +713,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_start": 0,
     "event_end": 0,
     "enabled": true,
-    "interval": 0
+    "interval": 86400
   },
   {
     "event_name": "收集奖励",
@@ -789,6 +751,9 @@ DISPLAY_DEFAULT_CONFIG = """
 
 DEFAULT_CONFIG = """
 {
+    "ArenaShopRefreshTime": "0",
+    "ShopRefreshTime"："0"，
+    "screenshot_interval": "0.5",
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
     "hardPriority": "3-1-2",
     "mainlinePriority": "1-2-1",
@@ -802,12 +767,12 @@ DEFAULT_CONFIG = """
     "ArenaShopList": [
         0,
         0,
-        1,
-        0,
         0,
         1,
         1,
-        1,
+        0,
+        0,
+        0,
         0,
         0,
         1,
@@ -816,21 +781,21 @@ DEFAULT_CONFIG = """
     ],
     "ShopList": [
         0,
-        1,
-        1,
-        1,
-        0,
-        1,
         0,
         0,
         0,
         1,
         1,
         1,
-        0,
-        0,
-        0,
-        0
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
     ],
     "Daily": {
         "Atelier": true,

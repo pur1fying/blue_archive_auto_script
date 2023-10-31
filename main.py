@@ -8,6 +8,7 @@ import uiautomator2 as u2
 from cnocr import CnOcr
 
 import module
+from core.exception import ScriptError
 from core.scheduler import Scheduler
 from core.setup import Setup
 from core.utils import kmp, get_x_y, pd_rgb
@@ -30,7 +31,7 @@ class Main(Setup):
         self.io_err_solved_count = 0
         self.io_err_count = 0
         self.io_err_rate = 10
-        self.screenshot_interval = 0.5
+        self.screenshot_interval = float(self.config.get('screenshot_interval'))
         self.button_signal = button_signal
         self.flag_run = True
         self.click_interval = 3
@@ -100,9 +101,11 @@ class Main(Setup):
                 self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
             return True
         except Exception as e:
-            log.d(e, level=3, logger_box=self.loggerBox)
-            self.send('stop')
-            return False
+            print(e)
+            threading.Thread(target=self.short_error, daemon=True).start()
+
+    def short_error(self):
+        raise ScriptError('Unable to connect to the emulator, please check the adb setting!', self)
 
     def get_x_y(self, target_array, path):
         # print(target_array.dtype)
@@ -136,18 +139,12 @@ class Main(Setup):
         return location, result[upper_left[1], [upper_left[0]]]
 
     def send(self, msg):
-        # try:
         if msg == "start":
             self.button_signal.emit("停止")
             self.start_instance()
         elif msg == "stop":
             self.button_signal.emit("启动")
             self.flag_run = False
-
-    #         except Exception as e:
-
-    #             log.d(e, level=3, logger_box=self.loggerBox)
-    #             self.send('stop')
 
     def operation(self, operation_name, operation_locations=None, duration=0.0, path=None, name=None, anywhere=False):
         if not self.flag_run:
@@ -160,7 +157,7 @@ class Main(Setup):
                 operation_name + ":(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)),
                 level=1,
                 logger_box=self.loggerBox)
-            noisex = np.random.uniform(-5,5)
+            noisex = np.random.uniform(-5, 5)
             noisey = np.random.uniform(-5, 5)
             self.connection.click(x + noisex, y + noisey)
             self.set_click_time()
@@ -193,9 +190,9 @@ class Main(Setup):
                     log.d("current_location : " + name, 1, logger_box=self.loggerBox)
                     time.sleep(self.screenshot_interval)
                     return name
-            while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
+            while self.flag_run and len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
                 self.pos.pop()
-            while 1:
+            while self.flag_run:
                 if len(self.pos) == 2 and self.pos[0][0] == self.pos[1][0]:
                     lo = self.pos[0][0]
                     self.pos.clear()
@@ -485,7 +482,7 @@ class Main(Setup):
             #        print("exceed len 2", shot_time)
             self.pos.pop()
 
-    def common_icon_bug_detect_method(self, path, x, y, name, times=3,interval=0.5):
+    def common_icon_bug_detect_method(self, path, x, y, name, times=3, interval=0.5):
         if not self.flag_run:
             return False
         log.d("------------------------------------------------------------------------------------------------", 1,
@@ -615,9 +612,10 @@ class Main(Setup):
     def thread_starter(self):  # 不要每次点击启动都跑这个
         self.operation("start_getting_screenshot_for_location")
         self.quick_method_to_main_page()
-        log.line(self.loggerBox)
-        log.d("start activities", level=1, logger_box=self.loggerBox)
-        print(self.main_activity)
+        if not self.flag_run:
+            log.d("Stop activities...", level=1, logger_box=self.loggerBox)
+            log.line(self.loggerBox)
+        # print(self.main_activity)
         # self.main_to_page(8)
         # self.solve(self.main_activity[8][0])
         # for i in range(0, len(self.main_activity)):
@@ -638,23 +636,6 @@ class Main(Setup):
                     self.scheduler.systole(next_func_name)
                 else:
                     self.flag_run = False
-                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-            else:
-                time.sleep(2)
-        while self.flag_run:
-            next_func_name = self.scheduler.heartbeat()
-            if next_func_name:
-                log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
-                i = self.activity_name_list.index(next_func_name)
-                if i != 14:
-                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-                    self.main_to_page(i)
-                if self.solve(next_func_name):
-                    log.d(f'{next_func_name} finished', level=1, logger_box=self.loggerBox)
-                    self.scheduler.systole(next_func_name)
-                else:
-                    log.d(f'{next_func_name} failed', level=3, logger_box=self.loggerBox)
-                    self.send('stop')
                     self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
             else:
                 time.sleep(2)
@@ -684,9 +665,14 @@ class Main(Setup):
         try:
             return module.__dict__[activity].implement(self)
         except Exception as e:
-            log.d(e, level=3, logger_box=self.loggerBox)
-            self.send('stop')
-            return False
+            raise ScriptError(e, self)
+
+    def log_screenshot(self):
+        img = self.operation("get_screenshot_array")
+        ocr_res = self.img_ocr(img)
+        log.d("Word: " + str(ocr_res), level=1, logger_box=self.loggerBox)
+        self.get_keyword_appear_time(ocr_res)
+        log.d("Location: " + str(self.return_location()), level=1, logger_box=self.loggerBox)
 
 
 if __name__ == '__main__':
