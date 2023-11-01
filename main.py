@@ -619,30 +619,30 @@ class Main(Setup):
         print(self.main_activity)
         # self.main_to_page(4)
         # self.solve(self.main_activity[4][0])
-        for i in range(0, len(self.main_activity)):
-            print(1)
-            if not (i == 11 or i == 8):
-                self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-                print(self.main_activity[i][0])
-                self.main_to_page(i)
-                self.solve(self.main_activity[i][0])
+        # for i in range(0, len(self.main_activity)):
+        #     print(1)
+        #     if not (i == 11 or i == 8):
+        #         self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+        #         print(self.main_activity[i][0])
+        #         self.main_to_page(i)
+        #         self.solve(self.main_activity[i][0])
 
 
-        # while self.flag_run:
-        #     next_func_name = self.scheduler.heartbeat()
-        #     if next_func_name:
-        #         log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
-        #         i = self.activity_name_list.index(next_func_name)
-        #         if i != 14:
-        #             self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-        #             self.main_to_page(i)
-        #         if self.solve(next_func_name):
-        #             self.scheduler.systole(next_func_name)
-        #         else:
-        #             self.flag_run = False
-        #             self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-        #     else:
-        #         time.sleep(2)
+        while self.flag_run:
+            next_func_name = self.scheduler.heartbeat()
+            if next_func_name:
+                log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
+                i = self.activity_name_list.index(next_func_name)
+                if i != 14:
+                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+                    self.main_to_page(i)
+                if self.solve(next_func_name):
+                    self.scheduler.systole(next_func_name)
+                else:
+                    self.flag_run = False
+                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+            else:
+                time.sleep(2)
 
 
         # for i in range(0, len(self.main_activity)):
