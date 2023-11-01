@@ -9,3 +9,5 @@ c.py
 *.log
 *.spec
 cnocr/label_cn.txt
+error.log
+output.log

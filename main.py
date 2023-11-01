@@ -8,10 +8,11 @@ import uiautomator2 as u2
 from cnocr import CnOcr
 
 import module
+from core.exception import ScriptError
 from core.scheduler import Scheduler
 from core.setup import Setup
 from core.utils import kmp, get_x_y, pd_rgb
-from debug.debugger import start_debugger
+# from debug.debugger import start_debugger
 from gui.util import log
 from gui.util.config_set import ConfigSet
 
@@ -60,10 +61,11 @@ class Main(Setup):
         self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
         self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
         self.scheduler = Scheduler(update_signal)
-        start_debugger()
+        # start_debugger()
 
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
+        print("--------init emulator----------")
         try:
             server = self.config.get('server')
             self.package_name = 'com.RoamingStar.BlueArchive' \
@@ -98,10 +100,10 @@ class Main(Setup):
             self._server_record = server
             if not self.ocr:
                 self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
+            print("--------Emulator Init Finished----------")
             return True
         except Exception as e:
-            log.d(e, level=3, logger_box=self.loggerBox)
-            self.send('stop')
+            threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
 
     def get_x_y(self, target_array, path):
@@ -616,6 +618,7 @@ class Main(Setup):
         self.quick_method_to_main_page()
         log.line(self.loggerBox)
         log.d("start activities", level=1, logger_box=self.loggerBox)
+        print('--------------Start activities...---------------')
         print(self.main_activity)
         # self.main_to_page(4)
         # self.solve(self.main_activity[4][0])
@@ -669,10 +672,11 @@ class Main(Setup):
         try:
             return module.__dict__[activity].implement(self)
         except Exception as e:
-            log.d(e, level=3, logger_box=self.loggerBox)
-            self.send('stop')
+            threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
 
+    def simple_error(self, info: str):
+        raise ScriptError(message=info, context=self)
 
 if __name__ == '__main__':
     # # print(time.time())
