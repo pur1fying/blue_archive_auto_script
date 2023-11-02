@@ -53,6 +53,7 @@ STATIC_DEFAULT_CONFIG = """
     ],
     "keyword": [
       "提示",
+      "达成",
       "总力战信息",
       "区域",
       "排名",
