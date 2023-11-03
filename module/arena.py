@@ -5,7 +5,7 @@ from gui.util import log
 
 
 def implement(self):
-    self.latest_img_array = self.operation("get_screenshot_array")
+    self.latest_img_array = self.operation("get_screenshot_array")		#	领取两个奖励
     path2 = "../src/arena/collect_reward.png"
     return_data1 = get_x_y(self.latest_img_array, path2)
     print(return_data1)
@@ -27,13 +27,13 @@ def implement(self):
     else:
         log.d("arena second reward has been collected", level=1, logger_box=self.loggerBox)
 
-    choice = 1  # ** 总力战打第choice个对手
+    choice = 1  								# ** 竞技场打第choice个对手
     x = 844
     y = [261, 414, 581]
     y = y[choice - 1]
     f_skip = False
 
-    for i in range(0, 5):
+    for i in range(0, 5):							#	每天最多打五次
         print(i)
         self.operation("click", (x, y), duration=1)
         self.operation("click", (638, 569),duration = self.screenshot_interval * 2)

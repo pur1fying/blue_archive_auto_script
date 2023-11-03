@@ -283,7 +283,7 @@ def implement(self):
     pri_total_force_fight = total_force_fight_highest_difficulty_button_detector(self)
     if not isinstance(pri_total_force_fight,int):
         return False
-    pri_total_force_fight = min(maxx,pri_total_force_fight)  # 第pri+1难度
+    pri_total_force_fight = min(maxx,pri_total_force_fight)  # 判断打第pri难度
     print(pri_total_force_fight)
     Auto = True
 
@@ -301,7 +301,7 @@ def implement(self):
     while (t == "LOSE" or t == "UNLOCK") and pri_total_force_fight >= 0 and win == False:
         if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 62, 40,
                                                   "total_force_fight", 10):
-            return False  # 判断有没有在总力战界面
+            return False  	# 判断有没有在总力战界面
         if t == "LOSE":
             log.d("GIVE UP CURRENT FIGHT", 1, logger_box=self.loggerBox)
             self.operation("click", (1164, 225), duration=1)
@@ -319,11 +319,11 @@ def implement(self):
     if t == "NO_TICKETS":
         Auto = False
 
-    if pri_total_force_fight == -1:
+    if pri_total_force_fight == -1:		#normal打不过
         log.d("打不过最低难度，快找爱丽丝邦邦 QAQ", 4, logger_box=self.loggerBox)
         return True
 
-    if Auto:
+    if Auto:					#至少打过一个难度，可使用扫荡券
         y = find_button_y(self, pri_total_force_fight)
         self.operation("click", (total_force_fight_x,y),duration=1)
         self.operation("click", (1066, 300))
@@ -337,10 +337,10 @@ def implement(self):
             self.operation("click", (768, 511), duration=3)
         self.operation("click", (143, 72))
         self.operation("click", (143, 72))
-
+						
     if not self.common_icon_bug_detect_method("src/total_force_fight/total_force_fight_page.png", 382, 22,"total_force_fight", 10):
         return False
-    self.operation("click", (1184,657),duration=2)
+    self.operation("click", (1184,657),duration=2) 	# 领取 总力战积分奖励
     self.operation("click", (917,163),duration=0.5)
     self.operation("click", (237,303),duration=0.3)
     self.latest_img_array = self.operation("get_screenshot_array")

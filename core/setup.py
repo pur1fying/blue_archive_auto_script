@@ -39,11 +39,11 @@ class Setup:
                     return item_location['result']
         return "UNKNOWN UI PAGE"
 
-    def get_keyword_appear_time(self, string):
+    def get_keyword_appear_time(self, string):      # 用于统计关键字出现的次数
         for i in range(0, len(self.keyword)):
             self.keyword_apper_time_dictionary[self.keyword[i]] = kmp(self.keyword[i], string)
 
-    def img_ocr(self, img):
+    def img_ocr(self, img):                         # 用于文字识别
         time.time()
         out = self.ocr.ocr(img)
         res = ""
@@ -52,10 +52,10 @@ class Setup:
                 res = res + out[i]["text"]
         return res
 
-    def set_click_time(self):
+    def set_click_time(self):                       # 用于计算点击时间，如果截图时间后于点击时间，则该图片会被判断为无效
         self.click_time = time.time() - self.base_time
 
-    def pd(self, list1, list2):
+    def pd(self, list1, list2):                     # 用于判断关键字出现的次数是否满足要求
         for i in range(0, len(list1)):
             if self.keyword_apper_time_dictionary[list1[i]] < list2[i]:
                 return False

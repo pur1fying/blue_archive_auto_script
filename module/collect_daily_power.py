@@ -5,7 +5,7 @@ from gui.util import log
 
 
 def implement(self, activity="collect_daily_power"):
-    while 1:
+    while 1:							#收集 每日任务奖励
         path1 = self.operation("get_screenshot_array")
         path2 = "../src/daily_task/daily_task_collect_all_bright.png"
         path3 = "../src/daily_task/daily_task_collect_all_grey.png"
