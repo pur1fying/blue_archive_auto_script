@@ -4,15 +4,15 @@ from core.utils import get_x_y
 from gui.util import log
 
 
-def implement(self):
-    self.latest_img_array = self.operation("get_screenshot_array")		#	领取两个奖励
+def arena_collect_reward_method(self):
+    self.latest_img_array = self.operation("get_screenshot_array")
     path2 = "../src/arena/collect_reward.png"
     return_data1 = get_x_y(self.latest_img_array, path2)
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
         log.d("collect arena first reward", level=1, logger_box=self.loggerBox)
-        self.operation("click@collect_reward1", (return_data1[0][0], return_data1[0][1]),duration=2)
-        self.operation("click@anywhere", (666, 672),duration=0.5)
+        self.operation("click@collect_reward1", (return_data1[0][0], return_data1[0][1]), duration=2)
+        self.operation("click@anywhere", (666, 672), duration=0.5)
     else:
         log.d("arena first reward has been collected", level=1, logger_box=self.loggerBox)
 
@@ -22,29 +22,33 @@ def implement(self):
     print(return_data1)
     if return_data1[1][0] <= 1e-03:
         log.d("collect arena second reward", level=1, logger_box=self.loggerBox)
-        self.operation("click@collect_reward2", (return_data1[0][0], return_data1[0][1]),duration=2)
+        self.operation("click@collect_reward2", (return_data1[0][0], return_data1[0][1]), duration=2)
         self.operation("click@anywhere", (666, 672), duration=0.5)
     else:
         log.d("arena second reward has been collected", level=1, logger_box=self.loggerBox)
 
-    choice = 1  								# ** 竞技场打第choice个对手
+
+def implement(self):
+    choice = 1  # ** jjc打第choice个对手
     x = 844
     y = [261, 414, 581]
     y = y[choice - 1]
     f_skip = False
 
-    for i in range(0, 5):							#	每天最多打五次
+    for i in range(0, 5):
         print(i)
         self.operation("click", (x, y), duration=1)
         self.operation("click", (638, 569),duration = self.screenshot_interval * 2)
 
         lo = self.operation("get_current_position",)
-        if lo == "notice": #没券了
+        if lo == "notice": # 没券了
             self.main_activity[9][1] = 1
             log.d("INADEQUATE TICKET", level=1, logger_box=self.loggerBox)
-            self.operation("click", (1240, 39))
-            self.operation("click", (1240, 39))
-            self.operation("click", (1240, 39))
+            self.operation("click", (1169, 760))
+            self.operation("click", (1169, 760))
+            self.common_positional_bug_detect_method("arena", 680, 50, times=10)
+            log.d("Collect arena reward", level=1, logger_box=self.loggerBox)
+            arena_collect_reward_method(self)
             return True
         elif lo == "attack_formation":
             if not f_skip:
@@ -64,7 +68,9 @@ def implement(self):
             if not self.common_positional_bug_detect_method("arena", 1169, 670, times=10, anywhere=True):
                 return False
             if i == 4:
-                log.d("FINISH 5 COMBAT,exit arena", level=1, logger_box=self.loggerBox)
+                log.d("FINISH 5 COMBAT,collect arena reward", level=1, logger_box=self.loggerBox)
+                arena_collect_reward_method(self)
+                self.operation("click@home", (1240, 39))
                 return True
 
             self.operation("stop_getting_screenshot_for_location")

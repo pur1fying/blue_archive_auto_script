@@ -53,6 +53,8 @@ STATIC_DEFAULT_CONFIG = """
     ],
     "keyword": [
       "提示",
+      "到访",
+      "今日",
       "达成",
       "总力战信息",
       "区域",
@@ -420,6 +422,11 @@ STATIC_DEFAULT_CONFIG = """
         "result": "main_notice"
       },
       {
+        "name_list": [["今日","到访","成员"]],
+        "count_list": [[1,1,1]],
+        "result": "students_arrived"
+      },
+      {
         "name_list": [["剧情目录"]],
         "count_list": [[1]],
         "result": "plot_index"
@@ -478,6 +485,11 @@ STATIC_DEFAULT_CONFIG = """
         "name_list": [["节点信息"]],
         "count_list": [[1]],
         "result": "node_information"
+      },
+      {
+        "name_list": [["活动","故事","任务","奖励信息"]],
+        "count_list": [[1,1,1,1]],
+        "result": "activity"
       },
       {
         "name_list": [["详细信息"]],
