@@ -158,23 +158,20 @@ class Main(Setup):
         if operation_name[0:5] == "click":								#点击 x，y
             x = operation_locations[0]
             y = operation_locations[1]
-            log.d(
-                operation_name + ":(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)),
-                level=1,
-                logger_box=self.loggerBox)
+            log.d(operation_name + ":(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)),level=1,logger_box=self.loggerBox)
             noisex = np.random.uniform(-5,5)
             noisey = np.random.uniform(-5, 5)
             self.connection.click(x + noisex, y + noisey)
             self.set_click_time()
-	    time.sleep(duration)
-            return "click success"
+            time.sleep(duration)
+            return "click_success"
         elif operation_name == "swipe": 								#由(x1,y1)滑动到(x2,y2)
             x1 = operation_locations[0][0]
             y1 = operation_locations[0][1]
             x2 = operation_locations[1][0]
             y2 = operation_locations[1][1]
             self.connection.swipe(x1, y1, x2, y2, duration=duration)
-            return "swipe success"
+            return "swipe_success"
         elif operation_name == "stop_getting_screenshot_for_location":					#见文档	3.<多线程>
             log.d("STOP getting screenshot for location", 1, logger_box=self.loggerBox)
             self.screenshot_flag_run = False
