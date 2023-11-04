@@ -12,7 +12,6 @@ from tqdm import tqdm
 # gitee的下载地址需要把blob改成raw
 TMP_PATH = './tmp'
 GET_PYTHON_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/python-3.9.13-embed-amd64.zip'
-REPO_URL_SSH = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
 REPO_URL_HTTP = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
 GIT_HOME = './tookit/Git/bin/git.exe'
 GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/get-pip.py'
@@ -162,12 +161,12 @@ def check_git():
     logger.info("Checking git installation...")
     if not os.path.exists('./.git'):
         logger.info("You seem to have no files for baas, trying to clone the project...")
-        subprocess.run([GIT_HOME, 'clone', REPO_URL_SSH])
+        subprocess.run([GIT_HOME, 'clone', '--depth', '1', REPO_URL_HTTP])
         mv_repo(LOCAL_PATH)
         logger.info("Clone success")
     elif not os.path.exists('./no_update'):
         logger.info("You seem to have files for baas, trying to pull the project...")
-        subprocess.run([GIT_HOME, 'pull', REPO_URL_SSH])
+        subprocess.run([GIT_HOME, 'pull', REPO_URL_HTTP])
         logger.info("Pull success")
 
 
