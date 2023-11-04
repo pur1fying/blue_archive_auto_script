@@ -24,30 +24,30 @@ class Main(Setup):
         self.ocr = None
         self.loggerBox = logger_box
         self.config = ConfigSet()
-        self.total_force_fight_difficulty_name = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME"]  #当期总力战难度
-        self.total_force_fight_name = "white_and_black" 				#当期总力战名字
-        self.screenshot_flag_run = None 							
-        self.unknown_ui_page_count = None								#该变量20次未识别出位置会抛出异常
-        self.io_err_solved_count = 0		
+        self.total_force_fight_difficulty_name = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME"]  # 当期总力战难度
+        self.total_force_fight_name = "white_and_black" 				# 当期总力战名字
+        self.screenshot_flag_run = None
+        self.unknown_ui_page_count = None								# 该变量20次未识别出位置会抛出异常
+        self.io_err_solved_count = 0
         self.io_err_count = 0
         self.io_err_rate = 10
-        self.screenshot_interval = 0.5									#截图间隔
-        self.button_signal = button_signal	
-        self.flag_run = True										    #module运行的flag
+        self.screenshot_interval = 0.5									# 截图间隔
+        self.button_signal = button_signal
+        self.flag_run = True										    # module运行的flag
         self.click_interval = 3
         self._server_record = ''
         self._first_started = True
-        self.connection = None									
+        self.connection = None
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
         try:
             self.common_task_count = self.config.get('mainlinePriority')  				# **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
             self.hard_task_count = self.config.get('hardPriority')  					# **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
-            if self.common_task_count == '':								
+            if self.common_task_count == '':
                 self.common_task_count = []
             else:
-                self.common_task_count = [tuple([int(y) for y in x.split('-')]) for x in		
+                self.common_task_count = [tuple([int(y) for y in x.split('-')]) for x in
                                           self.common_task_count.split(',')]
             if self.hard_task_count == '':
                 self.hard_task_count = []
@@ -86,19 +86,19 @@ class Main(Setup):
             #     # time.sleep(10)
             #     log.d("Emulator has been started.", level=1, logger_box=self.loggerBox)
 
-            self.unknown_ui_page_count = 0								
+            self.unknown_ui_page_count = 0
             self.connection.app_start(self.package_name)
             t = self.connection.window_size()
-            log.d("Screen Size  " + str(t), level=1, logger_box=self.loggerBox)				#判断分辨率是否为1280x720
+            log.d("Screen Size  " + str(t), level=1, logger_box=self.loggerBox)				# 判断分辨率是否为1280x720
             if (t[0] == 1280 and t[1] == 720) or (t[1] == 1280 and t[0] == 720):
                 log.d("Screen Size Fitted", level=1, logger_box=self.loggerBox)
             else:
-                log.d("Screen Size unfitted", level=4, logger_box=self.loggerBox)			
-                self.send('stop')									
+                log.d("Screen Size unfitted", level=4, logger_box=self.loggerBox)
+                self.send('stop')
                 return False
             self._first_started = False
             self._server_record = server
-            if not self.ocr:					
+            if not self.ocr:
                 self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
             print("--------Emulator Init Finished----------")
             return True
@@ -106,7 +106,7 @@ class Main(Setup):
             threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
 
-    def get_x_y(self, target_array, path):								#  见文档  1.<模式匹配> 
+    def get_x_y(self, target_array, path):								# 见文档  1.<模式匹配>
         # print(target_array.dtype)
         if path.startswith("./src"):
             path = path.replace("./src", "src")
@@ -121,7 +121,7 @@ class Main(Setup):
         #    print(img2.shape)
         #    for i in range(0, height):
         #        print([x for x in img2[i, :, 0]])
-        result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)					
+        result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
         upper_left = cv2.minMaxLoc(result)[2]
         #    print(img1.shape)
         #    print(upper_left[0], upper_left[1])
@@ -134,7 +134,7 @@ class Main(Setup):
         #    print([x for x in converted[i, :, 0]])
         # cv2.imshow("img1", img1)
         # cv2.waitKey(0)
-        location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2)) 			
+        location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2))
         return location, result[upper_left[1], [upper_left[0]]]
 
     def send(self, msg):
@@ -155,7 +155,7 @@ class Main(Setup):
         if not self.flag_run:
             return False
             # raise Exception("Shutdown")
-        if operation_name[0:5] == "click":								#点击 x，y
+        if operation_name[0:5] == "click":								# 点击 x，y
             x = operation_locations[0]
             y = operation_locations[1]
             log.d(operation_name + ":(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)),level=1,logger_box=self.loggerBox)
@@ -165,14 +165,14 @@ class Main(Setup):
             self.set_click_time()
             time.sleep(duration)
             return "click_success"
-        elif operation_name == "swipe": 								#由(x1,y1)滑动到(x2,y2)
+        elif operation_name == "swipe": 								# 由(x1,y1)滑动到(x2,y2)
             x1 = operation_locations[0][0]
             y1 = operation_locations[0][1]
             x2 = operation_locations[1][0]
             y2 = operation_locations[1][1]
             self.connection.swipe(x1, y1, x2, y2, duration=duration)
             return "swipe_success"
-        elif operation_name == "stop_getting_screenshot_for_location":					#见文档	3.<多线程>
+        elif operation_name == "stop_getting_screenshot_for_location":					# 见文档	3.<多线程>
             log.d("STOP getting screenshot for location", 1, logger_box=self.loggerBox)
             self.screenshot_flag_run = False
             return True
@@ -182,7 +182,7 @@ class Main(Setup):
             screenshot_thread = threading.Thread(target=self.run)
             screenshot_thread.start()
             return True
-        elif operation_name == "get_current_position":							#见文档 	3.<多线程>
+        elif operation_name == "get_current_position":							# 见文档 	3.<多线程>
             if path:
                 self.latest_img_array = self.operation("get_screenshot_array")
                 return_data = get_x_y(self.latest_img_array, path)
@@ -215,7 +215,7 @@ class Main(Setup):
                         log.d("current_location : " + lo, 1, logger_box=self.loggerBox)
                         return lo
                 time.sleep(self.screenshot_interval)
-        elif operation_name == "get_screenshot_array":							#获取模拟器 屏幕截图
+        elif operation_name == "get_screenshot_array":							# 获取模拟器 屏幕截图
             # try:
             #     screenshot = self.connection.screenshot()
             #     numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
@@ -272,10 +272,10 @@ class Main(Setup):
             log.d("can't identify auto button", level=2, logger_box=self.loggerBox)
         print(auto_r_ave)
 
-    def common_fight_practice(self):									#战斗过程
+    def common_fight_practice(self):									# 战斗过程
 
         flag = False
-        for i in range(0, 20):										#判断是否进入战斗，标志的是cost条第一格变成蓝色
+        for i in range(0, 20):										# 判断是否进入战斗，标志的是cost条第一格变成蓝色
             img_shot = self.latest_img_array
             if pd_rgb(img_shot, 838, 690, 45, 65, 200, 220, 240, 255):
                 flag = True
@@ -343,7 +343,7 @@ class Main(Setup):
         time.sleep(4)
         return success
 
-    def special_task_common_operation(self, a, b, f=True):						#完成特殊委托，悬赏委托的方法
+    def special_task_common_operation(self, a, b, f=True):						# 完成特殊委托，悬赏委托的方法
         special_task_lox = 1120
         special_task_loy = [180, 286, 386, 489, 564, 432, 530, 628]
         fail_cnt = 0
@@ -432,8 +432,8 @@ class Main(Setup):
             else:
                 log.d("AUTO FIGHT UNLOCK , exit task", level=3, logger_box=self.loggerBox)
         return True
-	
-    def main_to_page(self, index, path=None, name=None, any=False):					#从主页到某个页面
+
+    def main_to_page(self, index, path=None, name=None, any=False):					# 从主页到某个页面
         self.to_page[7] = [[217, 940], [659, self.schedule_lo_y[self.schedule_pri[0] - 1]],
                            ["schedule", "schedule" + str(self.schedule_pri[0])]]
         procedure = self.to_page[index]
@@ -466,7 +466,7 @@ class Main(Setup):
         if self._init_emulator():
             self.thread_starter()
 
-    def worker(self):											#见文档 3.<多线程>
+    def worker(self):											# 见文档 3.<多线程>
 
         shot_time = time.time() - self.base_time
         self.latest_img_array = self.operation("get_screenshot_array")
@@ -482,7 +482,7 @@ class Main(Setup):
             #        print("exceed len 2", shot_time)
             self.pos.pop()
 
-    def common_icon_bug_detect_method(self, path, x, y, name, times=3,interval=0.5):					#用界面的图标判断是否是目标页面(速度快)
+    def common_icon_bug_detect_method(self, path, x, y, name, times=3,interval=0.5):					# 用界面的图标判断是否是目标页面(速度快)
         if not self.flag_run:
             return False
         log.d("------------------------------------------------------------------------------------------------", 1,
@@ -625,7 +625,6 @@ class Main(Setup):
         #         print(self.main_activity[i][0])
         #         self.main_to_page(i)
         #         self.solve(self.main_activity[i][0])
-
 
         while self.flag_run:
             next_func_name = self.scheduler.heartbeat()

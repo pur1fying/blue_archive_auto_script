@@ -1,0 +1,26 @@
+# EditorConfig is awesome: https://EditorConfig.org
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.py]
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+# Tab indentation (no size specified)
+[*.html]
+charset = utf-8
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+[*.md]
+trim_trailing_whitespace = false
+[*.xml]
+indent_style = space
+indent_size = 2
+[*.json]
+indent_style = space
+indent_size = 2
