@@ -1,11 +1,12 @@
+import logging
 import os.path
-import subprocess
 import shutil
+import subprocess
 import threading
 import traceback
-import requests
 import zipfile
-import logging
+
+import requests
 from tqdm import tqdm
 
 # gitee的下载地址需要把blob改成raw
@@ -15,6 +16,7 @@ REPO_URL_SSH = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
 REPO_URL_HTTP = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
 GIT_HOME = './tookit/Git/bin/git.exe'
 GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/get-pip.py'
+GET_ATX_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/ATX.apk'
 LOCAL_PATH = './blue_archive_auto_script'
 
 logger = logging.getLogger()
@@ -60,9 +62,12 @@ def download_file(url: str):
 
 def install_package():
     try:
-        subprocess.run(["./lib/python.exe", '-m', 'pip', 'install', 'virtualenv', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'])
+        subprocess.run(
+            ["./lib/python.exe", '-m', 'pip', 'install', 'virtualenv', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple',
+             '--no-warn-script-location'])
         subprocess.run(["./lib/python.exe", '-m', 'virtualenv', 'env'])
-        subprocess.run(["./env/Scripts/python", '-m', 'pip', 'install', '-r', './requirements.txt', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'])
+        subprocess.run(["./env/Scripts/python", '-m', 'pip', 'install', '-r', './requirements.txt', '-i',
+                        'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'])
     except Exception as e:
         raise Exception("Install requirements failed")
 
@@ -146,6 +151,13 @@ def check_python():
         os.remove(filepath)
 
 
+def check_atx():
+    logger.info("Checking atx-agent...")
+    if not os.path.exists('./ATX.apk'):
+        logger.info("Downloading atx-agent...")
+        download_file(GET_ATX_URL)
+
+
 def check_git():
     logger.info("Checking git installation...")
     if not os.path.exists('./.git'):
@@ -181,6 +193,7 @@ def check_install():
         check_pip()
         check_git()
         check_pth()
+        check_atx()
         check_requirements()
         # check_onnxruntime()
         run_app()
