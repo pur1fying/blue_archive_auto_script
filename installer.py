@@ -8,12 +8,13 @@ import zipfile
 import logging
 from tqdm import tqdm
 
+# gitee的下载地址需要把blob改成raw
 TMP_PATH = './tmp'
-GET_PYTHON_URL = 'https://ghproxy.com/https://raw.githubusercontent.com/Kiramei/blue_archive_auto_script/file/python-3.9.13-embed-amd64.zip'
-REPO_URL_SSH = 'https://ghproxy.com/https://github.com/pur1fying/blue_archive_auto_script'
-REPO_URL_HTTP = 'https://ghproxy.com/https://github.com/pur1fying/blue_archive_auto_script'
+GET_PYTHON_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/python-3.9.13-embed-amd64.zip'
+REPO_URL_SSH = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
+REPO_URL_HTTP = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
 GIT_HOME = './tookit/Git/bin/git.exe'
-GET_PIP_URL = 'https://ghproxy.com/https://raw.githubusercontent.com/Kiramei/blue_archive_auto_script/file/get-pip.py'
+GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/get-pip.py'
 LOCAL_PATH = './blue_archive_auto_script'
 
 logger = logging.getLogger()
