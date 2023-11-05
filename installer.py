@@ -11,11 +11,11 @@ from tqdm import tqdm
 
 # gitee的下载地址需要把blob改成raw
 TMP_PATH = './tmp'
-GET_PYTHON_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/python-3.9.13-embed-amd64.zip'
+GET_PYTHON_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip'
 REPO_URL_HTTP = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
 GIT_HOME = './tookit/Git/bin/git.exe'
-GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/get-pip.py'
-GET_ATX_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/ATX.apk'
+GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py'
+GET_ATX_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/ATX.apk'
 LOCAL_PATH = './blue_archive_auto_script'
 
 logger = logging.getLogger()
@@ -165,9 +165,15 @@ def check_git():
         mv_repo(LOCAL_PATH)
         logger.info("Clone success")
     elif not os.path.exists('./no_update'):
-        logger.info("You seem to have files for baas, trying to pull the project...")
-        subprocess.run([GIT_HOME, 'pull', REPO_URL_HTTP])
-        logger.info("Pull success")
+        logger.info("You seem to have files for baas, checking update...")
+        status_output = subprocess.check_output(['git', 'status']).decode('utf-8')
+        if "Your branch is up to date" in status_output:
+            logger.info("No updates available")
+        else:
+            logger.info("Pulling updates from the remote repository...")
+            subprocess.run([GIT_HOME, 'reset', '--hard', 'HEAD'])
+            subprocess.run([GIT_HOME, 'pull', REPO_URL_HTTP])
+            logger.info("Pull success")
 
 
 def create_tmp():
