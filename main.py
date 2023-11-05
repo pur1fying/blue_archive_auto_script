@@ -29,6 +29,8 @@ class Main(Setup):
         self.screenshot_flag_run = None
         self.unknown_ui_page_count = None  # 该变量20次未识别出位置会抛出异常
         self.io_err_solved_count = 0
+        self.schedule_times = None  # 日程每个区域的次数
+        self.schedule_pri = None    # 日程区域优先级
         self.io_err_count = 0
         self.io_err_rate = 10
         self.screenshot_interval = 0.5  # 截图间隔
@@ -615,6 +617,11 @@ class Main(Setup):
 
         while self.flag_run:
             next_func_name = self.scheduler.heartbeat()
+            self.schedule_pri = [1, 2, 3, 4, 5]
+            self.schedule_times = self.config.get('schedulePriority')
+            while self.schedule_times[0] == 0:
+                self.schedule_times = self.schedule_times[1:]
+                self.schedule_pri = self.schedule_pri[1:]
             if next_func_name:
                 log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
                 i = self.activity_name_list.index(next_func_name)
