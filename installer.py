@@ -1,20 +1,21 @@
+import logging
 import os.path
-import subprocess
 import shutil
+import subprocess
 import threading
 import traceback
-import requests
 import zipfile
-import logging
+
+import requests
 from tqdm import tqdm
 
 # gitee的下载地址需要把blob改成raw
 TMP_PATH = './tmp'
-GET_PYTHON_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/python-3.9.13-embed-amd64.zip'
-REPO_URL_SSH = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
+GET_PYTHON_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip'
 REPO_URL_HTTP = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
 GIT_HOME = './tookit/Git/bin/git.exe'
-GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script/raw/file/get-pip.py'
+GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py'
+GET_ATX_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/ATX.apk'
 LOCAL_PATH = './blue_archive_auto_script'
 
 logger = logging.getLogger()
@@ -60,9 +61,12 @@ def download_file(url: str):
 
 def install_package():
     try:
-        subprocess.run(["./lib/python.exe", '-m', 'pip', 'install', 'virtualenv', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'])
+        subprocess.run(
+            ["./lib/python.exe", '-m', 'pip', 'install', 'virtualenv', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple',
+             '--no-warn-script-location'])
         subprocess.run(["./lib/python.exe", '-m', 'virtualenv', 'env'])
-        subprocess.run(["./env/Scripts/python", '-m', 'pip', 'install', '-r', './requirements.txt', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'])
+        subprocess.run(["./env/Scripts/python", '-m', 'pip', 'install', '-r', './requirements.txt', '-i',
+                        'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'])
     except Exception as e:
         raise Exception("Install requirements failed")
 
@@ -146,17 +150,30 @@ def check_python():
         os.remove(filepath)
 
 
+def check_atx():
+    logger.info("Checking atx-agent...")
+    if not os.path.exists('./ATX.apk'):
+        logger.info("Downloading atx-agent...")
+        download_file(GET_ATX_URL)
+
+
 def check_git():
     logger.info("Checking git installation...")
     if not os.path.exists('./.git'):
         logger.info("You seem to have no files for baas, trying to clone the project...")
-        subprocess.run([GIT_HOME, 'clone', REPO_URL_SSH])
+        subprocess.run([GIT_HOME, 'clone', '--depth', '1', REPO_URL_HTTP])
         mv_repo(LOCAL_PATH)
         logger.info("Clone success")
     elif not os.path.exists('./no_update'):
-        logger.info("You seem to have files for baas, trying to pull the project...")
-        subprocess.run([GIT_HOME, 'pull', REPO_URL_SSH])
-        logger.info("Pull success")
+        logger.info("You seem to have files for baas, checking update...")
+        status_output = subprocess.check_output(['git', 'status']).decode('utf-8')
+        if "Your branch is up to date" in status_output:
+            logger.info("No updates available")
+        else:
+            logger.info("Pulling updates from the remote repository...")
+            subprocess.run([GIT_HOME, 'reset', '--hard', 'HEAD'])
+            subprocess.run([GIT_HOME, 'pull', REPO_URL_HTTP])
+            logger.info("Pull success")
 
 
 def create_tmp():
@@ -181,6 +198,7 @@ def check_install():
         check_pip()
         check_git()
         check_pth()
+        check_atx()
         check_requirements()
         # check_onnxruntime()
         run_app()
