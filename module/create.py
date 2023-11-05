@@ -116,3 +116,4 @@ def implement(self):
             self.main_to_page(12)
             common_create_collect_operation(self)
             log.d("all creature collected", level=1, logger_box=self.loggerBox)
+            return True
