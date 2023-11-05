@@ -166,8 +166,13 @@ def check_git():
         logger.info("Clone success")
     elif not os.path.exists('./no_update'):
         logger.info("You seem to have files for baas, checking update...")
-        status_output = subprocess.check_output(['git', 'status']).decode('utf-8')
-        if "Your branch is up to date" in status_output:
+        remote_sha = (subprocess.check_output([GIT_HOME, 'ls-remote', '--heads', 'origin', 'refs/heads/master'])
+                      .decode('utf-8')).split('\t')[0]
+        local_sha = (subprocess.check_output([GIT_HOME, 'rev-parse', 'HEAD'])
+                     .decode('utf-8')).split('\n')[0]
+        logger.info(f"remote_sha:{remote_sha}")
+        logger.info(f"local_sha:{local_sha}")
+        if local_sha == remote_sha:
             logger.info("No updates available")
         else:
             logger.info("Pulling updates from the remote repository...")
