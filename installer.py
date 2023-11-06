@@ -160,12 +160,16 @@ def check_atx():
 def check_git():
     logger.info("Checking git installation...")
     if not os.path.exists('./.git'):
-        logger.info("You seem to have no files for baas, trying to clone the project...")
+        logger.info("+--------------------------------+")
+        logger.info("|         INSTALL BAAS           |")
+        logger.info("+--------------------------------+")
         subprocess.run([GIT_HOME, 'clone', '--depth', '1', REPO_URL_HTTP])
         mv_repo(LOCAL_PATH)
-        logger.info("Clone success")
+        logger.info("Install success")
     elif not os.path.exists('./no_update'):
-        logger.info("You seem to have files for baas, checking update...")
+        logger.info("+--------------------------------+")
+        logger.info("|          UPDATE BAAS           |")
+        logger.info("+--------------------------------+")
         remote_sha = (subprocess.check_output([GIT_HOME, 'ls-remote', '--heads', 'origin', 'refs/heads/master'])
                       .decode('utf-8')).split('\t')[0]
         local_sha = (subprocess.check_output([GIT_HOME, 'rev-parse', 'HEAD'])
@@ -178,7 +182,13 @@ def check_git():
             logger.info("Pulling updates from the remote repository...")
             subprocess.run([GIT_HOME, 'reset', '--hard', 'HEAD'])
             subprocess.run([GIT_HOME, 'pull', REPO_URL_HTTP])
-            logger.info("Pull success")
+
+            updated_local_sha = (subprocess.check_output([GIT_HOME, 'rev-parse', 'HEAD'])
+                                 .decode('utf-8')).split('\n')[0]
+            if updated_local_sha == remote_sha:
+                logger.info("Update success")
+            else:
+                logger.warning("Failed to update the source code, please check your network or for conflicting files")
 
 
 def create_tmp():
