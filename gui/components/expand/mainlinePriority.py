@@ -83,7 +83,7 @@ class Layout(QWidget, ConfigSet):
         w.show()
 
     def __accept_hard(self, changed_text=None):
-        input_content = changed_text
+        input_content = self.input_hard.text()
         self.set('hardPriority', input_content)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
