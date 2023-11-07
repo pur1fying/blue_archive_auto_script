@@ -171,6 +171,7 @@ STATIC_DEFAULT_CONFIG = """
       "详细信息",
       "】开启",
       "已更新",
+      "胜利",
       "高架",
       "铁路",
       "预设",
@@ -507,85 +508,274 @@ STATIC_DEFAULT_CONFIG = """
         "result": "notice"
       },
 
-      { "name_list": [["日程信息"]], "count_list": [[1]], "result": "schedule_message" }, { "name_list": [["点击继续"]], 
-      "count_list": [[1]], "result": "click_forward" }, { "name_list": [["聊天", "组员列表"]], "count_list": [[1, 1]], 
-      "result": "group" }, { "name_list": [["访问", "自动加入"]], "count_list": [[1, 1]], "result": "-group" }, 
-      { "name_list": [["帮助"]], "count_list": [[1]], "result": "help" }, { "name_list": [["日程券信息"]], "count_list": [[
-      1]], "result": "schedule_ticket_message" }, { "name_list": [["日程报告"]], "count_list": [[1]], "result": 
-      "schedule_report" }, { "name_list": [["等级提升"]], "count_list": [[1]], "result": "positive_impression_up" }, 
-      { "name_list": [["天","第"]], "count_list": [[6,6]], "result": "sign_in" }, { "name_list": [["全部日程", "奖励",
-      "沙勒业务区"]], "count_list": [[1,1,1]], "result": "schedule1" }, { "name_list": [["全部日程", "奖励","沙勒生活区"]], 
-      "count_list": [[1,1,1]], "result": "schedule2" }, { "name_list": [["全部日程", "奖励","歌赫娜中央区"]], "count_list": [[1,
-      1,1]], "result": "schedule3" }, { "name_list": [["全部日程", "奖励","阿拜多斯高等学院"]], "count_list": [[1,1,1]], 
-      "result": "schedule4" }, { "name_list": [["全部日程", "奖励","千禧年学习区"]], "count_list": [[1,1,1]], "result": 
-      "schedule5" }, { "name_list": [["切换账号"]], "count_list": [[1]], "result": "log_in" }, { "name_list": [["任务信息"]], 
-      "count_list": [[1]], "result": "task_message" }, { "name_list": [["总力战信息"]], "count_list": [[1]], 
-      "result": "total_force_message" }, { "name_list": [["选择值日员"]], "count_list": [[1]], "result": 
-      "choose_person_on_duty" }, { "name_list": [["扫荡完成", "确认"]], "count_list": [[1, 1]], "result": "task_finish" }, 
-      { "name_list": [["调整编队"]], "count_list": [[1]], "result": "adjust_formation" }, { "name_list": [["基本信息", 
-      "家具信息"]], "count_list": [[1, 1]], "result": "cafe_message" }, { "name_list": [["预设"]], "count_list": [[3]], 
-      "result": "preset" }, { "name_list": [["库存", "家具"]], "count_list": [[1, 1]], "result": "furniture" }, 
-      { "name_list": [["账号设置"]], "count_list": [[1]], "result": "set_account_message" }, { "name_list": [["说明"]], 
-      "count_list": [[1]], "result": "declaration" }, { "name_list": [["收益"]], "count_list": [[2]], "result": 
-      "cafe_reward" }, { "name_list": [["成员列表", "成员等级"]], "count_list": [[1, 1]] }, { "name_list": [["账号信息", "变更"]], 
-      "count_list": [[1, 1]], "result": "account_message" }, { "name_list": [["对战纪录", "防御编队"]], "count_list": [[1, 
-      1]], "result": "arena" }, { "name_list": [["菜单"]], "count_list": [[1]], "result": "menu" }, { "name_list": [[
-      "青辉石"]], "count_list": [[2]], "result": "recharge" }, { "name_list": [["礼包"]], "count_list": [[2]], 
-      "result": "recharge" }, { "name_list": [["单价"]], "count_list": [[1]], "result": "charge_power" }, 
-      { "name_list": [["奖励"]], "count_list": [[3]], "result": "schedule" }, { "name_list": [["全部日程"]], "count_list": 
-      [[1]], "result": "all_schedule" }, { "name_list": [["材料列表"]], "count_list": [[1]], "result": 
-      "manufacture_store" }, { "name_list": [["工作任务", "每日", "每周"]], "count_list": [[1, 1, 1]], "result": "work_task" 
-      }, { "name_list": [["成就", "每日", "每周"]], "count_list": [[1, 1, 1]], "result": "work_task" }, { "name_list": [[
-      "全部查看", "列表", "启动"]], "count_list": [[1, 1, 1]], "result": "create" }, { "name_list": [["编队", "队长", "支援"]], 
-      "count_list": [[1, 1, 1]], "result": "attack_formation" }, { "name_list": [["部队编组"]], "count_list": [[1]], 
-      "result": "formation" }, { "name_list": [["全部收纳","邀请券","邀请"]], "count_list": [[1,1,4]], "result": "cafe_invite" 
-      }, { "name_list": [["全部收纳","邀请券"]], "count_list": [[1,1]], "result": "cafe" }, { "name_list": [["舒适度","礼物"]], 
-      "count_list": [[1,1]], "result": "cafe" }, { "name_list": [["家具信息","礼物","全部收纳"]], "count_list": [[1,1,1]], 
-      "result": "cafe" }, { "name_list": [["预设","礼物","全部收纳"]], "count_list": [[1,1,1]], "result": "cafe" }, 
-      { "name_list": [["可以拖动礼物"]], "count_list": [[1]], "result": "give_present" }, { "name_list": [["结束编辑模式"]], 
-      "count_list": [[1]], "result": "edit_mode" }, { "name_list": [["提示"]], "count_list": [[1]], "result": "remind" 
-      }, { "name_list": [["招募"]], "count_list": [[3]], "result": "recruit" }, { "name_list": [["经验值", "信用"]], 
-      "count_list": [[1, 1]], "result": "choose_special_task" }, { "name_list": [["广场"]], "count_list": [[3]], 
-      "result": "special_task_credit" }, { "name_list": [["普通", "困难", "工厂"]], "count_list": [[1, 1, 2]], 
-      "result": "task_8" }, { "name_list": [["普通", "困难", "下水管道"]], "count_list": [[1, 1, 2]], "result": "task_8" }, 
-      { "name_list": [["工厂"]], "count_list": [[3]], "result": "special_task_guard" }, { "name_list": [["高架"]], 
-      "count_list": [[3]], "result": "rewarded_task_road" }, { "name_list": [["火车"]], "count_list": [[3]], 
-      "result": "rewarded_task_rail" }, { "name_list": [["讲堂"]], "count_list": [[3]], "result": 
-      "rewarded_task_classroom" }, { "name_list": [["增益", "袭击"]], "count_list": [[1, 1]], "result": 
-      "rewarded_task_classroom" }, { "name_list": [["部队"]], "count_list": [[3]], "result": "troop_formation" }, 
-      { "name_list": [["装备", "主要能力值"]], "count_list": [[1, 1]], "result": "equipment" }, { "name_list": [["装备", 
-      "主要能力值", "排序"]], "count_list": [[1,1,1]], "result": "sort_equipment" }, { "name_list": [["成员列表", "成员等级"]], 
-      "count_list": [[1, 1]], "result": "member_arrangement" }, { "name_list": [["奖励信息", "排名"]], "count_list": [[1, 
-      1]], "result": "total_force_fight" }, { "name_list": [["奖励信息", "入场"]], "count_list": [[1, 2]], 
-      "result": "total_force_fight" }, { "name_list": [["道具", "使用","排序"]], "count_list": [[1,1,1]], "result": 
-      "sort_item" }, { "name_list": [["道具", "使用","筛选", "种类"]], "count_list": [[1, 1,1,1]], "result": "item_filter" }, 
-      { "name_list": [["道具", "使用"]], "count_list": [[1, 1]], "result": "item" }, { "name_list": [["悬赏通缉", "任务"]], 
-      "count_list": [[1, 1, 1]], "result": "business_area" }, { "name_list": [["第24任务"]], "count_list": [[1]], 
+      {
+      "name_list": [["日程信息"]],
+      "count_list": [[1]],
+      "result": "schedule_message"
+      },
+      {
+        "name_list": [["点击继续"]],
+        "count_list": [[1]],
+        "result": "click_forward"
+      },
+      {
+        "name_list": [["聊天", "组员列表"]],
+        "count_list": [[1, 1]],
+        "result": "group"
+      },
+      {
+        "name_list": [["访问", "自动加入"]],
+        "count_list": [[1, 1]],
+        "result": "-group"
+      },
+      {
+        "name_list": [["帮助"]],
+        "count_list": [[1]],
+        "result": "help"
+      },
+      {
+        "name_list": [["日程券信息"]],
+        "count_list": [[1]],
+        "result": "schedule_ticket_message"
+      },
+      {
+        "name_list": [["日程报告"]],
+        "count_list": [[1]],
+        "result": "schedule_report"
+      },
+      {
+        "name_list": [["等级提升"]],
+        "count_list": [[1]],
+        "result": "positive_impression_up"
+      },
+      {
+        "name_list": [["天","第"]],
+        "count_list": [[6,6]],
+        "result": "sign_in"
+      },
+      {
+        "name_list": [["全部日程", "奖励","沙勒业务区"]],
+        "count_list": [[1,1,1]],
+        "result": "schedule1"
+      },
+      {
+        "name_list": [["全部日程", "奖励","沙勒生活区"]],
+        "count_list": [[1,1,1]],
+        "result": "schedule2"
+      },
+      {
+        "name_list": [["全部日程", "奖励","歌赫娜中央区"]],
+        "count_list": [[1,1,1]],
+        "result": "schedule3"
+      },
+      {
+        "name_list": [["全部日程", "奖励","阿拜多斯高等学院"]],
+        "count_list": [[1,1,1]],
+        "result": "schedule4"
+      },
+      {
+        "name_list": [["全部日程", "奖励","千禧年学习区"]],
+        "count_list": [[1,1,1]], "result":
+        "schedule5"
+      },
+      {
+         "name_list": [["切换账号"]],
+         "count_list": [[1]],
+         "result": "log_in"
+      },
+      {
+         "name_list": [["任务信息"]],
+         "count_list": [[1]],
+         "result": "task_message"
+      },
+      {
+         "name_list": [["总力战信息"]],
+         "count_list": [[1]],
+         "result": "total_force_message"
+      },
+      {
+         "name_list": [["选择值日员"]],
+         "count_list": [[1]],
+         "result":"choose_person_on_duty"
+      },
+      {
+         "name_list": [["扫荡完成", "确认"]],
+         "count_list": [[1, 1]],
+         "result": "task_finish"
+      },
+      {
+         "name_list": [["调整编队"]],
+         "count_list": [[1]],
+         "result": "adjust_formation"
+      },
+      {
+         "name_list": [["基本信息","家具信息"]],
+         "count_list": [[1, 1]],
+         "result": "cafe_message"
+      },
+      {
+         "name_list": [["预设"]],
+         "count_list": [[3]],
+         "result": "preset"
+      },
+      {
+         "name_list": [["库存", "家具"]],
+         "count_list": [[1, 1]],
+         "result": "furniture"
+      },
+      {
+         "name_list": [["账号设置"]],
+         "count_list": [[1]],
+         "result": "set_account_message"
+      },
+      {
+         "name_list": [["说明"]],
+         "count_list": [[1]],
+         "result": "declaration"
+      },
+      {
+         "name_list": [["收益"]],
+         "count_list": [[2]],
+         "result":"cafe_reward"
+      },
+      {
+         "name_list": [["成员列表", "成员等级"]],
+         "count_list": [[1, 1]]
+      },
+      {
+         "name_list": [["账号信息", "变更"]],
+         "count_list": [[1, 1]],
+         "result": "account_message"
+      },
+      {
+         "name_list": [["对战纪录", "防御编队"]],
+         "count_list": [[1,1]],
+         "result": "arena"
+      },
+      {
+         "name_list": [["菜单"]],
+         "count_list": [[1]],
+         "result": "menu"
+      },
+      {  "name_list": [["青辉石"]],
+         "count_list": [[2]],
+         "result": "recharge"
+      },
+      {
+         "name_list": [["礼包"]],
+         "count_list": [[2]],
+         "result": "recharge"
+      },
+      {
+         "name_list": [["单价"]],
+         "count_list": [[1]],
+         "result": "charge_power" },
+      {
+         "name_list": [["奖励"]],
+         "count_list": [[3]],
+          "result": "schedule"
+      },
+      {
+         "name_list": [["全部日程"]],
+         "count_list":[[1]],
+         "result": "all_schedule"
+      },
+      {
+         "name_list": [["材料列表"]],
+         "count_list": [[1]], "result":
+         "manufacture_store"
+      },
+      {
+         "name_list": [["工作任务", "每日", "每周"]],
+         "count_list": [[1, 1, 1]],
+         "result": "work_task"
+      },
+      {
+         "name_list": [["成就", "每日", "每周"]],
+         "count_list": [[1, 1, 1]],
+         "result": "work_task"
+      },
+      {
+         "name_list": [["全部查看", "列表", "启动"]],
+         "count_list": [[1, 1, 1]],
+         "result": "create"
+      },
+      {
+         "name_list": [["编队", "队长", "支援"]],
+         "count_list": [[1, 1, 1]],
+         "result": "attack_formation"
+      },
+      {
+         "name_list": [["部队编组"]],
+         "count_list": [[1]],
+         "result": "formation"
+      },
+      {
+         "name_list": [["全部收纳","邀请券","邀请"]],
+         "count_list": [[1,1,4]],
+         "result": "cafe_invite"
+      },
+      {
+         "name_list": [["全部收纳","邀请券"]],
+         "count_list": [[1,1]],
+         "result": "cafe"
+      },
+      {
+         "name_list": [["舒适度","礼物"]],
+         "count_list": [[1,1]],
+         "result": "cafe"
+      },
+      {
+         "name_list": [["家具信息","礼物","全部收纳"]],
+         "count_list": [[1,1,1]],
+         "result": "cafe"
+      },
+      {
+         "name_list": [["预设","礼物","全部收纳"]], "count_list": [[1,1,1]], "result": "cafe" },
+      { "name_list": [["可以拖动礼物"]], "count_list": [[1]], "result": "give_present" }, { "name_list": [["结束编辑模式"]],
+      "count_list": [[1]], "result": "edit_mode" }, { "name_list": [["提示"]], "count_list": [[1]], "result": "remind"
+      }, { "name_list": [["招募"]], "count_list": [[3]], "result": "recruit" }, { "name_list": [["经验值", "信用"]],
+      "count_list": [[1, 1]], "result": "choose_special_task" }, { "name_list": [["广场"]], "count_list": [[3]],
+      "result": "special_task_credit" }, { "name_list": [["普通", "困难", "工厂"]], "count_list": [[1, 1, 2]],
+      "result": "task_8" }, { "name_list": [["普通", "困难", "下水管道"]], "count_list": [[1, 1, 2]], "result": "task_8" },
+      { "name_list": [["工厂"]], "count_list": [[3]], "result": "special_task_guard" }, { "name_list": [["高架"]],
+      "count_list": [[3]], "result": "rewarded_task_road" }, { "name_list": [["火车"]], "count_list": [[3]],
+      "result": "rewarded_task_rail" }, { "name_list": [["讲堂"]], "count_list": [[3]], "result":
+      "rewarded_task_classroom" }, { "name_list": [["增益", "袭击"]], "count_list": [[1, 1]], "result":
+      "rewarded_task_classroom" }, { "name_list": [["部队"]], "count_list": [[3]], "result": "troop_formation" },
+      { "name_list": [["装备", "主要能力值"]], "count_list": [[1, 1]], "result": "equipment" }, { "name_list": [["装备",
+      "主要能力值", "排序"]], "count_list": [[1,1,1]], "result": "sort_equipment" }, { "name_list": [["成员列表", "成员等级"]],
+      "count_list": [[1, 1]], "result": "member_arrangement" }, { "name_list": [["奖励信息", "排名"]], "count_list": [[1,
+      1]], "result": "total_force_fight" }, { "name_list": [["奖励信息", "入场"]], "count_list": [[1, 2]],
+      "result": "total_force_fight" }, { "name_list": [["道具", "使用","排序"]], "count_list": [[1,1,1]], "result":
+      "sort_item" }, { "name_list": [["道具", "使用","筛选", "种类"]], "count_list": [[1, 1,1,1]], "result": "item_filter" },
+      { "name_list": [["道具", "使用"]], "count_list": [[1, 1]], "result": "item" }, { "name_list": [["悬赏通缉", "任务"]],
+      "count_list": [[1, 1, 1]], "result": "business_area" }, { "name_list": [["第24任务"]], "count_list": [[1]],
       "result": "task_24" }, { "name_list": [["第23任务"]], "count_list": [[1]], "result": "task_23" }, { "name_list": [
-      ["第22任务"]], "count_list": [[1]], "result": "task_22" }, { "name_list": [["第21任务"]], "count_list": [[1]], 
+      ["第22任务"]], "count_list": [[1]], "result": "task_22" }, { "name_list": [["第21任务"]], "count_list": [[1]],
       "result": "task_21" }, { "name_list": [["第20任务"]], "count_list": [[1]], "result": "task_20" }, { "name_list": [
-      ["第19任务"]], "count_list": [[1]], "result": "task_19" }, { "name_list": [["第18任务"]], "count_list": [[1]], 
+      ["第19任务"]], "count_list": [[1]], "result": "task_19" }, { "name_list": [["第18任务"]], "count_list": [[1]],
       "result": "task_18" }, { "name_list": [["第17任务"]], "count_list": [[1]], "result": "task_17" }, { "name_list": [
-      ["第16任务"]], "count_list": [[1]], "result": "task_16" }, { "name_list": [["第15任务"]], "count_list": [[1]], 
+      ["第16任务"]], "count_list": [[1]], "result": "task_16" }, { "name_list": [["第15任务"]], "count_list": [[1]],
       "result": "task_15" }, { "name_list": [["第14任务"]], "count_list": [[1]], "result": "task_14" }, { "name_list": [
-      ["第13任务"]], "count_list": [[1]], "result": "task_13" }, { "name_list": [["第12任务"]], "count_list": [[1]], 
+      ["第13任务"]], "count_list": [[1]], "result": "task_13" }, { "name_list": [["第12任务"]], "count_list": [[1]],
       "result": "task_12" }, { "name_list": [["第11任务"]], "count_list": [[1]], "result": "task_11" }, { "name_list": [
-      ["第10任务"]], "count_list": [[1]], "result": "task_10" }, { "name_list": [["第9任务"]], "count_list": [[1]], 
+      ["第10任务"]], "count_list": [[1]], "result": "task_10" }, { "name_list": [["第9任务"]], "count_list": [[1]],
       "result": "task_9" }, { "name_list": [["第7任务"]], "count_list": [[1]], "result": "task_7" }, { "name_list": [[
-      "第6任务"]], "count_list": [[1]], "result": "task_6" }, { "name_list": [["第5任务"]], "count_list": [[1]], 
+      "第6任务"]], "count_list": [[1]], "result": "task_6" }, { "name_list": [["第5任务"]], "count_list": [[1]],
       "result": "task_5" }, { "name_list": [["第4任务"]], "count_list": [[1]], "result": "task_4" }, { "name_list": [[
-      "第3任务"]], "count_list": [[1]], "result": "task_3" }, { "name_list": [["第2任务"]], "count_list": [[1]], 
+      "第3任务"]], "count_list": [[1]], "result": "task_3" }, { "name_list": [["第2任务"]], "count_list": [[1]],
       "result": "task_2" }, { "name_list": [["第1任务"]], "count_list": [[1]], "result": "task_1" }, { "name_list": [[
-      "讲堂", "铁路", "材料"]], "count_list": [[1, 1, 1]], "result": "rewarded_task" }, { "name_list": [["公告", "活动", 
-      "预告"]], "count_list": [[1, 1, 1]], "result": "story_choose" }, { "name_list": [["主线", "支线", "档案", "故事"]], 
-      "count_list": [[1, 1, 1, 3]], "result": "choose_event" }, { "name_list": [ ["总力战结果"], ["已获得排名积分"] ], 
+      "讲堂", "铁路", "材料"]], "count_list": [[1, 1, 1]], "result": "rewarded_task" }, { "name_list": [["公告", "活动",
+      "预告"]], "count_list": [[1, 1, 1]], "result": "story_choose" }, { "name_list": [["主线", "支线", "档案", "故事"]],
+      "count_list": [[1, 1, 1, 3]], "result": "choose_event" }, { "name_list": [ ["总力战结果"], ["已获得排名积分"] ],
       "count_list": [ [1], [1] ], "result": "total_force_fight_result" }, { "name_list": [["编队", "成员", "商店", "日程",
-      "学院", "成员"], ["小组", "编队", "商店", "制造","学院", "成员"], ["招募", "成员", "商店", "制造","学院", "成员"]], "count_list": [[1, 1, 
-      1, 1,1,2], [1, 1, 1, 1,1,2], [1, 1, 1, 1,1,2]], "result": "momo_talk1" },{ "name_list": [["编队", "成员", "商店", 
-      "日程","好感等级", "成员"], ["小组", "编队", "商店", "制造","好感等级", "成员"], ["招募", "成员", "商店", "制造","好感等级", "成员"]], 
-      "count_list": [[1, 1, 1, 1,1,2], [1, 1, 1, 1,1,2], [1, 1, 1, 1,1,2]], "result": "momo_talk1" }, { "name_list": 
-      [["编队", "成员", "商店", "日程"], ["小组", "编队", "商店", "制造"], ["招募", "成员", "商店", "制造"]], "count_list": [[1, 1, 1, 1], 
-      [1, 1, 1, 1], [1, 1, 1, 1]], "result": "main_page" }, { "name_list": [["购买", "更新"], ["购买", "选择购买"]], 
+      "学院", "成员"], ["小组", "编队", "商店", "制造","学院", "成员"], ["招募", "成员", "商店", "制造","学院", "成员"]], "count_list": [[1, 1,
+      1, 1,1,2], [1, 1, 1, 1,1,2], [1, 1, 1, 1,1,2]], "result": "momo_talk1" },{ "name_list": [["编队", "成员", "商店",
+      "日程","好感等级", "成员"], ["小组", "编队", "商店", "制造","好感等级", "成员"], ["招募", "成员", "商店", "制造","好感等级", "成员"]],
+      "count_list": [[1, 1, 1, 1,1,2], [1, 1, 1, 1,1,2], [1, 1, 1, 1,1,2]], "result": "momo_talk1" }, { "name_list":
+      [["编队", "成员", "商店", "日程"], ["小组", "编队", "商店", "制造"], ["招募", "成员", "商店", "制造"]], "count_list": [[1, 1, 1, 1],
+      [1, 1, 1, 1], [1, 1, 1, 1]], "result": "main_page" }, { "name_list": [["购买", "更新"], ["购买", "选择购买"]],
       "count_list": [[3, 1], [3, 1]], "result": "shop" } ]
 
   },
@@ -669,7 +859,7 @@ EVENT_DEFAULT_CONFIG = """
     "event_end": 0,
     "enabled": true,
     "interval": 86400
-  },  
+  },
   {
     "event_name": "竞技场商店购买",
     "func_name": "collect_shop_power",
@@ -773,9 +963,9 @@ DEFAULT_CONFIG = """
     "ShopRefreshTime": "0",
     "screenshot_interval": "0.5",
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
-    "hardPriority": "3-1-2",
-    "mainlinePriority": "1-2-1",
-    "specialPriority": "0-2,0-2,0-2",
+    "hardPriority": "1-1-1",
+    "mainlinePriority": "1-1-1",
+    "specialPriority": "1-2,1-2,1-2",
     "arenaPriority": [
         2,
         4,
@@ -793,7 +983,7 @@ DEFAULT_CONFIG = """
         0,
         0,
         0,
-        1,
+        0,
         0,
         0
     ],

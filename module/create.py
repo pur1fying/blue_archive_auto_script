@@ -29,7 +29,22 @@ def common_create_collect_operation(self):
 
 
 def common_create_judge(self):
-    pri = [x for x in self.config.get('createPriority')]  # 可设置参数，越靠前的节点在制造时越优先选择
+    pri = [
+      "花",
+      "Mo",
+      "情人节",
+      "果冻",
+      "色彩",
+      "灿烂",
+      "光芒",
+      "玲珑",
+      "白金",
+      "黄金",
+      "铜",
+      "白银",
+      "金属",
+      "隐然"
+    ],  # 可设置参数，越靠前的节点在制造时越优先选择
     node_x = [839, 508, 416, 302, 174]
     node_y = [277, 388, 471, 529, 555]
     # 572 278
@@ -64,7 +79,7 @@ def implement(self):
     log.d("all creature collected", level=1, logger_box=self.loggerBox)
     while not create_stop:
         log.d("left create times: " + str(create_times), level=1, logger_box=self.loggerBox)
-        lox = 967
+        lox = 1109
         loy = [273, 411, 548]
         collect = False
         tmp = min(create_times, 3)
