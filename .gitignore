@@ -8,7 +8,9 @@ lib
 c.py
 *.log
 *.spec
-cnocr/label_cn.txt
+error.html
 error.log
 output.log
+
+cnocr/label_cn.txt
 python-3.9.13-embed-amd64.zip

@@ -1,10 +1,10 @@
 # coding:utf-8
 import os
 import sys
+
 sys.stderr = open('error.log', 'w+', encoding='utf-8')
 sys.stdout = open('output.log', 'w+', encoding='utf-8')
 sys.path.append('./')
-
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
@@ -17,7 +17,6 @@ from core import default_config
 
 # Offer the error to the error.log
 ICON_DIR = 'gui/assets/logo.png'
-
 
 
 def check_config():

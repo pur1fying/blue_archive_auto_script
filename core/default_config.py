@@ -938,7 +938,7 @@ EVENT_DEFAULT_CONFIG = """
 
 DISPLAY_DEFAULT_CONFIG = """
 {
-  "running": "总力战",
+  "running": "Empty",
   "queue": [
     "每日特别委托",
     "悬赏通缉",

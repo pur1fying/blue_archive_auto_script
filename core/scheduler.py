@@ -46,7 +46,8 @@ class Scheduler:
         self._event_config = sorted(self._event_config, key=lambda x: x['next_tick'])
         _valid_event = [x for x in self._event_config
                         if x['enabled'] and (x['event_end'] == 0 or x['event_start'] <= cur_time <= x['event_end'])]
-        if len(_valid_event) != 0 and cur_time > _valid_event[0]['next_tick']:
+        # if len(_valid_event) != 0 and cur_time > _valid_event[0]['next_tick']:
+        if len(_valid_event) != 0:
             self._display_config['running'] = _valid_event[0]['event_name']
             self._display_config['queue'] = [x['event_name'] for x in _valid_event[1:]]
             self._commit_change()

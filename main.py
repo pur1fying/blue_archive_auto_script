@@ -612,8 +612,10 @@ class Main(Setup):
                     self.flag_run = False
                     self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
             else:
-                time.sleep(2)
-
+                # 返回None结束任务
+                log.d('activities all finished', level=1, logger_box=self.loggerBox)
+                break
+        self.signal_stop()
         # for i in range(0, len(self.main_activity)):
         #     print(self.main_activity[i][0], self.main_activity[i][1])
         #     if self.main_activity[i][1] == 0:
