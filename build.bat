@@ -13,5 +13,5 @@ pip install tqdm
 pyinstaller -i gui/assets/logo.ico --name BlueArchiveAutoScript -F installer.py
 
 rmdir /s /q %TEMP_FOLDER%
-deactivate
+
 

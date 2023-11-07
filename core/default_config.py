@@ -35,7 +35,6 @@ STATIC_DEFAULT_CONFIG = """
       "momo_talk"
     ],
     "activity_label_list": [
-
       "咖啡厅收集",
       "领取小组体力",
       "一键领取邮件",
@@ -52,6 +51,7 @@ STATIC_DEFAULT_CONFIG = """
       "领取任务奖励"
     ],
     "keyword": [
+      "胜利",
       "提示",
       "到访",
       "今日",
