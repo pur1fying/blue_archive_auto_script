@@ -30,7 +30,7 @@ class Main(Setup):
         self.unknown_ui_page_count = None  # 该变量20次未识别出位置会抛出异常
         self.io_err_solved_count = 0
         self.schedule_times = None  # 日程每个区域的次数
-        self.schedule_pri = None    # 日程区域优先级
+        self.schedule_pri = None  # 日程区域优先级
         self.io_err_count = 0
         self.io_err_rate = 10
         self.screenshot_interval = 0.5  # 截图间隔
@@ -65,89 +65,19 @@ class Main(Setup):
         self.scheduler = Scheduler(update_signal)
         # start_debugger()
 
-    def _init_emulator(self) -> bool:
-        # noinspection PyBroadException
-        print("--------init emulator----------")
-        try:
-            server = self.config.get('server')
-            self.package_name = 'com.RoamingStar.BlueArchive' \
-                if server == '官服' else 'com.RoamingStar.BlueArchive.bilibili'
-            self.adb_port = self.config.get('adbPort')
-            if not self._first_started and self._server_record == server:
-                return True
-            if not self.adb_port or self.adb_port == '0':
-                self.connection = u2.connect()
-            else:
-                self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
-            if 'com.github.uiautomator' not in self.connection.app_list():
-                self.connection.app_install('ATX.apk')
-            self.unknown_ui_page_count = 0
-            self.connection.app_start(self.package_name)
-            t = self.connection.window_size()
-            log.d("Screen Size  " + str(t), level=1, logger_box=self.loggerBox)  # 判断分辨率是否为1280x720
-            if (t[0] == 1280 and t[1] == 720) or (t[1] == 1280 and t[0] == 720):
-                log.d("Screen Size Fitted", level=1, logger_box=self.loggerBox)
-            else:
-                log.d("Screen Size unfitted", level=4, logger_box=self.loggerBox)
-                self.send('stop')
-                return False
-            self._first_started = False
-            self._server_record = server
-            if not self.ocr:
-                self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
-            print("--------Emulator Init Finished----------")
-            return True
-        except Exception as e:
-            threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
-            return False
-
-    def get_x_y(self, target_array, path):  # 见文档  1.<模式匹配>
-        # print(target_array.dtype)
-        if path.startswith("./src"):
-            path = path.replace("./src", "src")
-        elif path.startswith("../src"):
-            path = path.replace("../src", "src")
-        img1 = target_array
-        img2 = cv2.imread(path)
-        if img2 is None:
-            return [[-1, -1], [1]]
-        # sys.stdout = open('data.log', 'w+')
-        height, width, channels = img2.shape
-        #    print(img2.shape)
-        #    for i in range(0, height):
-        #        print([x for x in img2[i, :, 0]])
-        result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
-        upper_left = cv2.minMaxLoc(result)[2]
-        #    print(img1.shape)
-        #    print(upper_left[0], upper_left[1])
-        # cv2.imshow("img2", img2)
-        converted = img1[upper_left[1]:upper_left[1] + height, upper_left[0]:upper_left[0] + width, :]
-        #     cv2.imshow("img1", converted)
-        sub = cv2.subtract(img2, converted)
-        # cv2.imshow("result", cv2.subtract(img2, converted))
-        # for i in range(0, height):
-        #    print([x for x in converted[i, :, 0]])
-        # cv2.imshow("img1", img1)
-        # cv2.waitKey(0)
-        location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2))
-        return location, result[upper_left[1], [upper_left[0]]]
-
-    def send(self, msg):
-        # try:
-        if msg == "start":
-            self.button_signal.emit("停止")
-            self.start_instance()
-        elif msg == "stop":
-            self.button_signal.emit("启动")
-            self.flag_run = False
-
-    #         except Exception as e:
-
-    #             log.d(e, level=3, logger_box=self.loggerBox)
-    #             self.send('stop')
-
     def operation(self, operation_name, operation_locations=None, duration=0.0, path=None, name=None, anywhere=False):
-        """ 集成了与模拟器 交互 操作 """
+        """
+        集成了与模拟器 交互 操作
+        Args:
+            operation_name: 操作名称
+            operation_locations: 鼠标点击位置
+            duration: 执行速度或等待时间
+        Returns:
+            bool
+            str
+            None
+            ndarray
+        """
         if not self.flag_run:
             return False
             # raise Exception("Shutdown")
@@ -214,29 +144,6 @@ class Main(Setup):
                         return lo
                 time.sleep(self.screenshot_interval)
         elif operation_name == "get_screenshot_array":  # 获取模拟器 屏幕截图
-            # try:
-            #     screenshot = self.connection.screenshot()
-            #     numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
-            #     if abs(int(self.screenshot_interval * 100) - 50) > 1e-05:
-            #         if self.io_err_solved_count == self.io_err_rate:
-            #             log.d("The IOError cease to happen.", level=1, logger_box=self.loggerBox)
-            #             log.d("Trying reducing the screenshot interval by 0.1s.", level=1, logger_box=self.loggerBox)
-            #             self.screenshot_interval -= 0.1
-            #             self.io_err_solved_count = 0
-            #             self.io_err_count = max(self.io_err_count - 1, 0)
-            #         else:
-            #             self.io_err_solved_count += 1
-            #     return numpy_array
-            # except Exception as e:
-            #     log.d("The IOError happened! Trying add the screenshot interval by 0.1s.",
-            #           level=3, logger_box=self.loggerBox)
-            #     if self.io_err_count >= self.io_err_rate:
-            #         self.screenshot_interval += 0.1
-            #         self.io_err_count = 0
-            #     self.io_err_count += 1
-            #     log.d(f'{e}! Trying screenshot again...', level=3, logger_box=self.loggerBox)
-            #     time.sleep(1 + int(self.screenshot_interval))
-            #     return None
             screenshot = self.connection.screenshot()
             numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
             return numpy_array
@@ -247,7 +154,7 @@ class Main(Setup):
 
     def change_acc_auto(self):  # 战斗时开启3倍速和auto
         img1 = self.operation("get_screenshot_array")
-        acc_r_ave = img1[625][1196][0] // 3 + img1[625][1215][0] // 3 + img1[625][1230][0] // 3
+        acc_r_ave = int(img1[625][1196][0]) // 3 + int(img1[625][1215][0]) // 3 + int(img1[625][1230][0]) // 3
         print(acc_r_ave)
         if 250 <= acc_r_ave <= 260:
             log.d("CHANGE acceleration phase from 2 to 3", level=1, logger_box=self.loggerBox)
@@ -260,7 +167,7 @@ class Main(Setup):
             self.operation("click@acceleration", (1215, 625))
         else:
             log.d("CAN'T DETECT acceleration BUTTON", level=2, logger_box=self.loggerBox)
-        auto_r_ave = img1[677][1171][0] // 2 + img1[677][1246][0] // 2
+        auto_r_ave = int(img1[677][1171][0]) // 2 + int(img1[677][1246][0]) // 2
         if 190 <= auto_r_ave <= 230:
             log.d("CHANGE MANUAL to auto", level=1, logger_box=self.loggerBox)
             self.operation("click@auto", (1215, 678))
@@ -271,7 +178,6 @@ class Main(Setup):
         print(auto_r_ave)
 
     def common_fight_practice(self):  # 战斗过程
-
         flag = False
         for i in range(0, 20):  # 判断是否进入战斗，标志的是cost条第一格变成蓝色
             img_shot = self.latest_img_array
@@ -341,15 +247,15 @@ class Main(Setup):
         time.sleep(4)
         return success
 
-    def special_task_common_operation(self, a, b, f=True):  # 完成特殊委托，悬赏委托的方法
+    def special_task_common_operation(self, dif, count, f=True):  # 完成特殊委托，悬赏委托的方法
+        """difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]"""
         special_task_lox = 1120
         special_task_loy = [180, 286, 386, 489, 564, 432, 530, 628]
         fail_cnt = 0
-        # difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]
         log.d("-------------------------------------------------------------------------------", 1,
               logger_box=self.loggerBox)
         log.d("try to swipe to TOP page", level=1, logger_box=self.loggerBox)
-        # ocr_result = self.img_ocr(img_shot)
+        # 判断是否进入关卡选择页面
         while fail_cnt <= 3:
             log.d("SWIPE UPWARDS", level=1, logger_box=self.loggerBox)
             self.operation("swipe", [(762, 200), (762, 460)], duration=0.1)
@@ -370,65 +276,66 @@ class Main(Setup):
                 log.d("-------------------------------------------------------------------------------", 1,
                       logger_box=self.loggerBox)
                 break
-
-        if a >= 6:
+        # 难度>F需要滑动到底部,同时判断滑动是否成功
+        if dif >= 6:
             fail_cnt = 0
             log.d("-------------------------------------------------------------------------------", 1,
                   logger_box=self.loggerBox)
-            log.d("try to swipe to LOWEST page", level=1, logger_box=self.loggerBox)
+            log.d("try to swipe to BOTTOM page", level=1, logger_box=self.loggerBox)
             while fail_cnt <= 3:
                 log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
                 self.operation("swipe", [(762, 460), (762, 200)], duration=0.1)
                 time.sleep(1)
                 img_shot = self.operation("get_screenshot_array")
                 ocr_res = self.img_ocr(img_shot)
-                if (kmp("H", ocr_res) == 0 and kmp("G", ocr_res) == 0 and kmp("F", ocr_res) == 0 and kmp("E",
-                                                                                                         ocr_res) == 0) or kmp(
-                    "A", ocr_res) != 0:
+                kmp_results = [kmp(letter, ocr_res) == 0 for letter in "FGHE"]
+                if all(kmp_results) or kmp("A", ocr_res) != 0:
                     print(ocr_res)
                     fail_cnt += 1
                     if fail_cnt <= 3:
                         log.d("FAIL , TRY AGAIN", 1, logger_box=self.loggerBox)
                     else:
-                        log.d("FAIL to swipe to LOWEST page", level=2, logger_box=self.loggerBox)
+                        log.d("FAIL to swipe to BOTTOM page", level=2, logger_box=self.loggerBox)
                         log.d("-------------------------------------------------------------------------------", 1,
                               logger_box=self.loggerBox)
                         return False
                 else:
-                    log.d("SUCCESSFULLY swipe to LOWEST page", level=1, logger_box=self.loggerBox)
+                    log.d("SUCCESSFULLY swipe to BOTTOM page", level=1, logger_box=self.loggerBox)
                     log.d("-------------------------------------------------------------------------------", 1,
                           logger_box=self.loggerBox)
                     break
-
-        self.operation("click", (special_task_lox, special_task_loy[a - 1]))
-
+        # 点击关卡
+        self.operation("click", (special_task_lox, special_task_loy[dif - 1]))
+        # 未解锁
         if self.operation("get_current_position") == "notice":
-            log.d("UNLOCK", level=2, logger_box=self.loggerBox)
+            log.d("LOCKED", level=2, logger_box=self.loggerBox)
             self.operation("click", (1240, 39))
             self.operation("click", (1240, 39))
+        # 已解锁
         else:
-            for i in range(0, b - 1):
+            for i in range(0, count - 1):
                 if f:
                     self.operation("click", (1033, 297), duration=0.6)
                 else:
                     self.operation("click", (1033, 297), duration=0.2)
             self.operation("click", (937, 404), duration=0.5)
             lo = self.operation("get_current_position")
+            # 体力不足
             if lo == "charge_power":
                 log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
                 self.operation("click", (1240, 39))
                 self.operation("click", (1240, 39))
                 self.operation("click", (1240, 39))
+            # 挑战券不足
             elif lo == "charge_notice":
                 log.d("inadequate ticket , exit task", level=3, logger_box=self.loggerBox)
                 self.operation("click", (1240, 39))
                 self.operation("click", (1240, 39))
                 self.operation("click", (1240, 39))
-
             elif lo == "notice":
                 self.operation("click", (767, 501), duration=2)
             else:
-                log.d("AUTO FIGHT UNLOCK , exit task", level=3, logger_box=self.loggerBox)
+                log.d("AUTO FIGHT LOCKED, exit task", level=3, logger_box=self.loggerBox)
         return True
 
     def main_to_page(self, index, path=None, name=None, any=False):  # 从主页到某个页面
@@ -460,25 +367,36 @@ class Main(Setup):
                 times = 0
                 i += 1
 
-    def start_instance(self):
-        if self._init_emulator():
-            self.thread_starter()
-
-    def worker(self):  # 见文档 3.<多线程>
-
-        shot_time = time.time() - self.base_time
-        self.latest_img_array = self.operation("get_screenshot_array")
-        ct = time.time()
-
-        self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
-        # print("shot time", shot_time,"click time",self.click_time)
-
-        locate_res = self.return_location()
-        if shot_time > self.click_time:
-            self.pos.insert(0, [locate_res, shot_time])
-        if len(self.pos) > 2:
-            #        print("exceed len 2", shot_time)
-            self.pos.pop()
+    def get_x_y(self, target_array, path):  # 见文档  1.<模式匹配>
+        # print(target_array.dtype)
+        if path.startswith("./src"):
+            path = path.replace("./src", "src")
+        elif path.startswith("../src"):
+            path = path.replace("../src", "src")
+        img1 = target_array
+        img2 = cv2.imread(path)
+        if img2 is None:
+            return [[-1, -1], [1]]
+        # sys.stdout = open('data.log', 'w+')
+        height, width, channels = img2.shape
+        #    print(img2.shape)
+        #    for i in range(0, height):
+        #        print([x for x in img2[i, :, 0]])
+        result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
+        upper_left = cv2.minMaxLoc(result)[2]
+        #    print(img1.shape)
+        #    print(upper_left[0], upper_left[1])
+        # cv2.imshow("img2", img2)
+        converted = img1[upper_left[1]:upper_left[1] + height, upper_left[0]:upper_left[0] + width, :]
+        #     cv2.imshow("img1", converted)
+        sub = cv2.subtract(img2, converted)
+        # cv2.imshow("result", cv2.subtract(img2, converted))
+        # for i in range(0, height):
+        #    print([x for x in converted[i, :, 0]])
+        # cv2.imshow("img1", img1)
+        # cv2.waitKey(0)
+        location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2))
+        return location, result[upper_left[1], [upper_left[0]]]
 
     def common_icon_bug_detect_method(self, path, x, y, name, times=3, interval=0.5):  # 用界面的图标判断是否是目标页面(速度快)
         if not self.flag_run:
@@ -597,6 +515,66 @@ class Main(Setup):
 
             lo = self.operation("get_current_position", anywhere=True)
 
+    def _init_emulator(self) -> bool:
+        # noinspection PyBroadException
+        print("--------init emulator----------")
+        try:
+            server = self.config.get('server')
+            self.package_name = 'com.RoamingStar.BlueArchive' \
+                if server == '官服' else 'com.RoamingStar.BlueArchive.bilibili'
+            self.adb_port = self.config.get('adbPort')
+            if not self._first_started and self._server_record == server:
+                return True
+            if not self.adb_port or self.adb_port == '0':
+                self.connection = u2.connect()
+            else:
+                self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
+            if 'com.github.uiautomator' not in self.connection.app_list():
+                self.connection.app_install('ATX.apk')
+            self.unknown_ui_page_count = 0
+            self.connection.app_start(self.package_name)
+            t = self.connection.window_size()
+            log.d("Screen Size  " + str(t), level=1, logger_box=self.loggerBox)  # 判断分辨率是否为1280x720
+            if (t[0] == 1280 and t[1] == 720) or (t[1] == 1280 and t[0] == 720):
+                log.d("Screen Size Fitted", level=1, logger_box=self.loggerBox)
+            else:
+                log.d("Screen Size unfitted", level=4, logger_box=self.loggerBox)
+                self.send('stop')
+                return False
+            self._first_started = False
+            self._server_record = server
+            if not self.ocr:
+                self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
+            print("--------Emulator Init Finished----------")
+            return True
+        except Exception as e:
+            threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
+            return False
+
+    def send(self, msg):
+        if msg == "start":
+            self.button_signal.emit("停止")
+            self.start_instance()
+        elif msg == "stop":
+            self.button_signal.emit("启动")
+            self.flag_run = False
+
+    def worker(self):  # 见文档 3.<多线程>
+
+        shot_time = time.time() - self.base_time
+        self.latest_img_array = self.operation("get_screenshot_array")
+        ct = time.time()
+
+        self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
+        # print("shot time", shot_time,"click time",self.click_time)
+
+        locate_res = self.return_location()
+        if shot_time > self.click_time:
+            self.pos.insert(0, [locate_res, shot_time])
+        if len(self.pos) > 2:
+            #        print("exceed len 2", shot_time)
+            self.pos.pop()
+
     def run(self):  # 见文档3.<多线程>
         while self.screenshot_flag_run and self.flag_run:
             threading.Thread(target=self.worker, daemon=True).start()
@@ -655,6 +633,10 @@ class Main(Setup):
         #     self.send('stop')
 
         #     self.flag_run = False
+
+    def start_instance(self):
+        if self._init_emulator():
+            self.thread_starter()
 
     def solve(self, activity) -> bool:
         try:

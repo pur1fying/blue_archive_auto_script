@@ -33,9 +33,9 @@ class Layout(QWidget, ConfigSet):
         self.input_2_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
         self.input_3_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
 
-        self.input_1_2.addItems(['1', '2'])
-        self.input_2_2.addItems(['1', '2'])
-        self.input_3_2.addItems(['1', '2'])
+        self.input_1_2.addItems(['1', '2', '3', '4', '5'])
+        self.input_2_2.addItems(['1', '2', '3', '4', '5'])
+        self.input_3_2.addItems(['1', '2', '3', '4', '5'])
 
         self.option_1.addWidget(self.label_1_0, 0, Qt.AlignLeft)
         self.option_1.addStretch(1)

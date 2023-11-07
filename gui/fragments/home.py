@@ -47,7 +47,7 @@ class HomeFragment(QFrame):
 
         title = '蔚蓝档案自动脚本'
         self.label = SubtitleLabel(title, self)
-        self.info = SubtitleLabel('正在运行：', self)
+        self.info = SubtitleLabel('无任务', self)
         setFont(self.label, 24)
         setFont(self.info, 24)
 
@@ -82,7 +82,12 @@ class HomeFragment(QFrame):
     def call_update(self, parent=None):
         with open('./config/display.json', 'r', encoding='utf-8') as f:
             config = json.load(f)
-        self.info.setText('正在运行：' + config['running'])
+        if config['running'] is None:
+            self.info.setText('无任务')
+        elif config['running'] == 'Empty':
+            self.info.setText('执行完成')
+        else:
+            self.info.setText('正在运行：' + config['running'])
         if parent:
             parent.call_update()
 

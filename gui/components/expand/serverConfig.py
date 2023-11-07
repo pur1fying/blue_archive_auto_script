@@ -24,7 +24,7 @@ class Layout(QWidget, ConfigSet):
         self.portBox.setText(self.get('adbPort'))
         self.combo.setCurrentText(self.get('server'))
 
-        self.portBox.textChanged.connect(self._save_port)
+        self.portBox.editingFinished.connect(self._save_port)
         self.combo.currentTextChanged.connect(self._save_server)
 
         self.vBoxLayout = QVBoxLayout(self)
@@ -45,12 +45,12 @@ class Layout(QWidget, ConfigSet):
         self.vBoxLayout.addLayout(self.lay1)
         self.vBoxLayout.addLayout(self.lay2)
 
-    def _save_port(self, changed_text=None):
+    def _save_port(self):
         self.set('adbPort', self.portBox.text())
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
-            content=f'你的端口号已经被设置为：{changed_text}',
+            content=f'你的端口号已经被设置为：{self.portBox.text()}',
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,

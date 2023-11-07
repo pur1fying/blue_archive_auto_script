@@ -18,6 +18,8 @@ class TemplateSettingCard(ExpandSettingCard):
         self.status_switch = SwitchButton(self.tr('Off'), self, IndicatorPosition.RIGHT)
         self.timer_box = LineEdit(self)
         self.timer_box.setFixedWidth(160)
+        # 暂时关闭时间功能
+        self.timer_box.setVisible(False)
         if sub_view is not None:
             self.expand_view = sub_view.Layout(self)
         else:
