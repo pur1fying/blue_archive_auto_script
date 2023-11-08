@@ -91,7 +91,7 @@ class Window(FluentWindow):
         self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
 
     def initWindow(self):
-        self.setFixedSize(900, 700)
+        self.resize(900, 700)
         self.setWindowIcon(QIcon(ICON_DIR))
         self.setWindowTitle('BlueArchiveAutoScript')
 
@@ -125,6 +125,8 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     w = Window()
+    # 聚焦窗口
+    w.setFocus(True)
     w.show()
     app.exec_()
 
