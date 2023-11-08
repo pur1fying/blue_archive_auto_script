@@ -3,6 +3,91 @@ import time
 from core.utils import pd_rgb, get_x_y
 from gui.util import log
 
+def interaction_for_cafe_solve_method1(self):
+    start_x = 640
+    start_y = 360
+    swipe_action_list = [[640, 640, 0, -640, -640, -640, -640, 0, 640, 640, 640],
+                         [0, 0, -360, 0, 0, 0, 0, -360, 0, 0, 0]]
+
+    for i in range(0, len(swipe_action_list[0]) + 1):
+        stop_flag = False
+        while not stop_flag:
+            shot = self.operation("get_screenshot_array")
+            location = 0
+            #  print(shot.shape)
+            #  for i in range(0, 720):
+            #      print(shot[i][664][:])
+            for x in range(0, 1280):
+                for y in range(0, 670):
+                    if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 50) and \
+                            pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
+                            pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
+                        location += 1
+                        log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1,
+                              logger_box=self.loggerBox)
+                        self.operation("click@student", (min(1270, x + 40), y + 42))
+                        for tmp1 in range(-40, 40):
+                            for tmp2 in range(-40, 40):
+                                if 0 <= x + tmp1 < 1280:
+                                    shot[y + tmp2][x + tmp1] = [0, 0, 0]
+                                else:
+                                    break
+
+            if location == 0:
+                log.d("no interaction swipe to next stage", 1, logger_box=self.loggerBox)
+                stop_flag = True
+            else:
+                log.d("totally find " + str(location) + " interaction available", 1, logger_box=self.loggerBox)
+        if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
+            return False
+        if i != len(swipe_action_list[0]):
+            self.operation("swipe", [(start_x, start_y), (start_x + swipe_action_list[0][i],
+                                                          start_y + swipe_action_list[1][i])], duration=0.1)
+
+    log.d("cafe task finished", 1, logger_box=self.loggerBox)
+    self.main_activity[0][1] = 1
+    self.operation("start_getting_screenshot_for_location")
+    self.operation("click", (1240, 39))
+
+
+def find_k_b_of_point1_and_point2(point1, point2):
+    k = (point1[1] - point2[1]) / (point1[0] - point2[0])
+    b = point1[1] - k * point1[0]
+    return k, b
+
+
+def interaction_for_cafe_solve_method2(self):
+    self.operation("click",(547,623))
+    self.connection().pinch_in()
+    self.operation("swipe",((665, 675), (425,300)),duration=0.1)
+    k_and_b = [find_k_b_of_point1_and_point2((370, 254), (631, 198)),
+               find_k_b_of_point1_and_point2((665, 677), (992, 570)),
+               find_k_b_of_point1_and_point2((1186, 342), (791, 191)),
+               find_k_b_of_point1_and_point2((164, 508), (299, 609))]
+    print(k_and_b)
+    points = []
+    dx = 40
+    dy = 40
+    for i in range(-2, 18):
+        x = i * dx
+        y = x * k_and_b[3][0] + k_and_b[3][1]
+        points.append([(x, y)])
+        for j in range(1, 100):
+            x_move = x + j * dy
+            b_new = y - x * k_and_b[0][0]
+            y_move = x_move * k_and_b[0][0] + b_new
+            y1 = x_move * k_and_b[1][0] + k_and_b[1][1]
+            y2 = x_move * k_and_b[2][0] + k_and_b[2][1]
+            if y1 >= y_move >= y2:
+                points[i + 2].append((x_move, y_move))
+            else:
+                break
+    for i in range(0, len(points)):
+        print(points[i])
+        for j in range(0, len(points[i])):
+            if points[i][j][0] <= 0:
+                continue
+            self.operation("click",(points[i][j][0], int(points[i][j][1])))
 
 def implement(self):
     self.operation("stop_getting_screenshot_for_location")  # 停止截图
@@ -137,55 +222,9 @@ def implement(self):
                         self.operation("swipe", [(swipe_x, swipe_y), (swipe_x, swipe_y - dy)], duration=0.5)
                         self.operation("click", (617, 500))
 
-
-
-
-
     else:
         log.d("invitation ticket used", 1, logger_box=self.loggerBox)
 
-    start_x = 640
-    start_y = 360
-    swipe_action_list = [[640, 640, 0, -640, -640, -640, -640, 0, 640, 640, 640],
-                         [0, 0, -360, 0, 0, 0, 0, -360, 0, 0, 0]]
-
-    for i in range(0, len(swipe_action_list[0]) + 1):
-        stop_flag = False
-        while not stop_flag:
-            shot = self.operation("get_screenshot_array")
-            location = 0
-            #  print(shot.shape)
-            #  for i in range(0, 720):
-            #      print(shot[i][664][:])
-            for x in range(0, 1280):
-                for y in range(0, 670):
-                    if pd_rgb(shot, x, y, 255, 255, 210, 230, 0, 50) and \
-                            pd_rgb(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
-                            pd_rgb(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
-                        location += 1
-                        log.d("find interaction at (" + str(x) + "," + str(y + 42) + ")", 1,
-                              logger_box=self.loggerBox)
-                        self.operation("click@student", (min(1270, x + 40), y + 42))
-                        for tmp1 in range(-40, 40):
-                            for tmp2 in range(-40, 40):
-                                if 0 <= x + tmp1 < 1280:
-                                    shot[y + tmp2][x + tmp1] = [0, 0, 0]
-                                else:
-                                    break
-
-            if location == 0:
-                log.d("no interaction swipe to next stage", 1, logger_box=self.loggerBox)
-                stop_flag = True
-            else:
-                log.d("totally find " + str(location) + " interaction available", 1, logger_box=self.loggerBox)
-        if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
-            return False
-        if i != len(swipe_action_list[0]):
-            self.operation("swipe", [(start_x, start_y), (start_x + swipe_action_list[0][i],
-                                                          start_y + swipe_action_list[1][i])], duration=0.1)
-
-    log.d("cafe task finished", 1, logger_box=self.loggerBox)
-    self.main_activity[0][1] = 1
-    self.operation("start_getting_screenshot_for_location")
-    self.operation("click", (1240, 39))
+    interaction_for_cafe_solve_method1(self)
+    # interaction_for_cafe_solve_method2(self)
     return True
