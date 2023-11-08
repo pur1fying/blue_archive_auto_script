@@ -80,14 +80,18 @@ class HomeFragment(QFrame):
         self.setObjectName("0x00000003")
 
     def call_update(self, parent=None):
-        with open('./config/display.json', 'r', encoding='utf-8') as f:
-            config = json.load(f)
-        if config['running'] is None or config['running'] == 'Empty':
-            self.info.setText('无任务')
-        else:
-            self.info.setText('正在运行：' + config['running'])
-        if parent:
-            parent.call_update()
+        try:
+            with open('./config/display.json', 'r', encoding='utf-8') as f:
+                config = json.load(f)
+            if config['running'] is None or config['running'] == 'Empty':
+                self.info.setText('无任务')
+            else:
+                self.info.setText('正在运行：' + config['running'])
+            if parent:
+                parent.call_update()
+        except Exception as e:
+            # 有时json会是空值报错, 原因未知
+            print("Empty JSON data")
 
     def set_button_state(self, state):
         self.startupCard.button.setText(state)
