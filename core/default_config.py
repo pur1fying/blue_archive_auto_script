@@ -954,7 +954,7 @@ DEFAULT_CONFIG = """
     "ShopRefreshTime": "0",
     "screenshot_interval": "0.5",
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
-    "createTime": "10",
+    "createTime": "3",
     "totalForceFightDifficulty": "NORMAL",
     "hardPriority": "1-1-1",
     "mainlinePriority": "1-1-1",

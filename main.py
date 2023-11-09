@@ -24,8 +24,10 @@ class Main(Setup):
         self.ocr = None
         self.loggerBox = logger_box
         self.config = ConfigSet()
-        self.total_force_fight_difficulty_name = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME"]  # 当期总力战难度
-        self.total_force_fight_name = "white_and_black"  # 当期总力战名字
+        self.total_force_fight_difficulty_name = ["HARDCORE","VERYHARD","EXTREME","NORMAL", "HARD"]  # 当期总力战难度
+        self.total_force_fight_difficulty_name_ordered = ["NORMAL", "HARD","VERYHARD","HARDCORE","EXTREME"]  # 当期总力战难度
+        self.total_force_fight_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3, "EXTREME": 4}
+        self.total_force_fight_name = "chesed"  # 当期总力战名字
         self.screenshot_flag_run = None
         self.unknown_ui_page_count = None  # 该变量20次未识别出位置会抛出异常
         self.io_err_solved_count = 0
@@ -660,14 +662,6 @@ if __name__ == '__main__':
     img = t.operation("get_screenshot_array")
     return_data1 = get_x_y(img, path2)
     print(return_data1)
-    # for i in range(0, len(t.total_force_fight_difficulty_name)):
-    #     path1 = "src/total_force_fight/white_and_black/" + t.total_force_fight_difficulty_name[i] + "_BRIGHT.png"
-    #     path2 = "src/total_force_fight/white_and_black/" + t.total_force_fight_difficulty_name[i] + "_GREY.png"
-    #     return_data1 = t.get_x_y(img, path1)
-    #     return_data2 = t.get_x_y(img, path2)
-    #     print(t.total_force_fight_difficulty_name[i])
-    #     print(return_data1, return_data2)
-    #
 
     ocr_res = t.img_ocr(img)
     print(str(ocr_res))

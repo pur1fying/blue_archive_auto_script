@@ -73,7 +73,7 @@ def common_create_judge(self):
 def implement(self):
     path5 = "../src/create/start_button_bright.png"
     path6 = "../src/create/start_button_grey.png"
-    create_times = 100    # ** 制造次数 请确保有加速券
+    create_times = int(self.config.get('createTime')) #** 制造次数 请确保有加速券
     create_stop = False
     common_create_collect_operation(self)
     log.d("all creature collected", level=1, logger_box=self.loggerBox)

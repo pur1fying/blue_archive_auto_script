@@ -119,7 +119,7 @@ def implement(self):
 
     target_name = self.config.get('favorStudent')  # ** 可设置参数 邀请券邀请学生的名字
     if return_data1[1][0] <= 1e-03:
-        target_name_list = ["泉奈","桃","真白(泳装)", "爱丽丝", "纯子", "瞬"]  # ** 可设置参数 邀请券邀请学生的名字 优先邀请前面的，前面没有选择后面
+        target_name_list = [self.config.get('favorStudent')]  # ** 可设置参数 邀请券邀请学生的名字 优先邀请前面的，前面没有选择后面
         for i in range(0, len(target_name_list)):
             t = ""
             for j in range(0, len(target_name_list[i])):
@@ -140,7 +140,7 @@ def implement(self):
             swipe_y = 580
             dy = 430
 
-            student_name = ["真白(泳装)", "鹤城(泳装)", "梓(泳装)", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
+            student_name = ["日富美(泳装)", "真白(泳装)", "鹤城(泳装)","白子(骑行)" "梓(泳装)", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
                             "明日奈", "菲娜", "艾米", "真纪",
                             "泉奈", "明里", "芹香", "优香", "小春",
                             "花江", "纯子", "千世", "干世", "莲见", "爱理", "睦月", "野宫", "绫音", "歌原",
