@@ -1140,7 +1140,7 @@ SWITCH_DEFAULT_CONFIG = '''
         "type": "ComboSettingCard"
     },
     {
-        "config": null,
+        "config": "totalForceFightDifficulty",
         "name": "总力战",
         "sort": 13,
         "tip": "总力战期间自动打总力战",
