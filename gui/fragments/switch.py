@@ -36,8 +36,8 @@ class SwitchFragment(ScrollArea):
                 next_tick=item_event['next_tick'],
                 setting_name=item_switch['config']
             )
-            for item_event in self._event_config
             for item_switch in self._switch_config
+            for item_event in self._event_config
             if item_event['event_name'] == item_switch['name']
         ]
 

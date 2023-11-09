@@ -1,19 +1,16 @@
 # coding:utf-8
 import os
 import sys
+from PyQt5.QtCore import Qt, QSize, QJsonDocument
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
+from qfluentwidgets import FluentIcon as FIF, SplashScreen
+from qfluentwidgets import (FluentWindow, SubtitleLabel, setFont, setThemeColor)
+from core import default_config, DEFAULT_CONFIG_PATH
 
 sys.stderr = open('error.log', 'w+', encoding='utf-8')
 sys.stdout = open('output.log', 'w+', encoding='utf-8')
 sys.path.append('./')
-
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
-from qfluentwidgets import FluentIcon as FIF, SplashScreen
-from qfluentwidgets import (FluentWindow,
-                            SubtitleLabel, setFont, setThemeColor)
-
-from core import default_config
 
 # Offer the error to the error.log
 ICON_DIR = 'gui/assets/logo.png'
@@ -25,18 +22,18 @@ def check_config():
     if not os.path.exists('./config/static.json'):
         with open('./config/static.json', 'w', encoding='utf-8') as f:
             f.write(default_config.STATIC_DEFAULT_CONFIG)
-    if not os.path.exists('./config/switch.json'):
-        with open('./config/switch.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.SWITCH_DEFAULT_CONFIG)
     if not os.path.exists('./config/config.json'):
         with open('./config/config.json', 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
     if not os.path.exists('./config/event.json'):
         with open('./config/event.json', 'w', encoding='utf-8') as f:
             f.write(default_config.EVENT_DEFAULT_CONFIG)
-    if not os.path.exists('./config/display.json'):
-        with open('./config/display.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.DISPLAY_DEFAULT_CONFIG)
+
+    # 每次都要重新生成
+    with open('./config/display.json', 'w', encoding='utf-8') as f:
+        f.write(default_config.DISPLAY_DEFAULT_CONFIG)
+    with open('./config/switch.json', 'w', encoding='utf-8') as f:
+        f.write(default_config.SWITCH_DEFAULT_CONFIG)
 
 
 class Widget(QFrame):

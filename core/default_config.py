@@ -788,150 +788,141 @@ STATIC_DEFAULT_CONFIG = """
 """
 EVENT_DEFAULT_CONFIG = """
 [
-  {
-    "event_name": "收集商店体力",
-    "func_name": "collect_shop_power",
-    "next_tick": 0,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": false,
-    "interval": 86400
-  },
-  {
-    "event_name": "总力战",
-    "func_name": "total_force_fight",
-    "next_tick": 1697279362,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "每日特别委托",
-    "func_name": "clear_special_task_power",
-    "next_tick": 1697279418,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "悬赏通缉",
-    "func_name": "rewarded_task",
-    "next_tick": 1697279503,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "竞技场",
-    "func_name": "arena",
-    "next_tick": 1697279787,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 43200
-  },
-  {
-    "event_name": "收集每日体力",
-    "func_name": "collect_daily_power",
-    "next_tick": 1697279803,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 1000
-  },
-  {
-    "event_name": "收集小组体力",
-    "func_name": "group",
-    "next_tick": 1697279810,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "商店购买",
-    "func_name": "shop",
-    "next_tick": 1697279828,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "竞技场商店购买",
-    "func_name": "collect_shop_power",
-    "next_tick": 1697279828,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "日程",
-    "func_name": "schedule",
-    "next_tick": 1697279908,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "主线清除体力",
-    "func_name": "clear_event_power",
-    "next_tick": 1697280038,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "自动MomoTalk",
-    "func_name": "momo_talk",
-    "next_tick": 1697280072,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "咖啡厅",
-    "func_name": "cafe_reward",
-    "next_tick": 1697280134,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 20000
-  },
-  {
-    "event_name": "查收邮箱",
-    "func_name": "mail",
-    "next_tick": 1697280258,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 43200
-  },
-  {
-    "event_name": "自动制造",
-    "func_name": "create",
-    "next_tick": 1697280685,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  },
-  {
-    "event_name": "收集奖励",
-    "func_name": "collect_reward",
-    "next_tick": 1697287970,
-    "event_start": 0,
-    "event_end": 0,
-    "enabled": true,
-    "interval": 86400
-  }
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 20000,
+        "next_tick": 1697280134,
+        "event_name": "咖啡厅",
+        "func_name": "cafe_reward"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697279908,
+        "event_name": "日程",
+        "func_name": "schedule"
+    },
+    {
+        "enabled": true,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 1000,
+        "next_tick": 1699453666,
+        "event_name": "收集每日体力",
+        "func_name": "collect_daily_power"
+    },
+    {
+        "event_name": "收集小组体力",
+        "func_name": "group",
+        "next_tick": 1697279810,
+        "event_start": 0,
+        "event_end": 0,
+        "enabled": true,
+        "interval": 86400
+    },
+    {
+        "enabled": true,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 43200,
+        "next_tick": 1697280258,
+        "event_name": "查收邮箱",
+        "func_name": "mail"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697279828,
+        "event_name": "商店购买",
+        "func_name": "shop"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697279828,
+        "event_name": "竞技场商店购买",
+        "func_name": "collect_shop_power"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697280038,
+        "event_name": "主线清除体力",
+        "func_name": "clear_event_power"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697279418,
+        "event_name": "每日特别委托",
+        "func_name": "clear_special_task_power"
+    },
+    {
+        "enabled": true,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697279503,
+        "event_name": "悬赏通缉",
+        "func_name": "rewarded_task"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 43200,
+        "next_tick": 1697279787,
+        "event_name": "竞技场",
+        "func_name": "arena"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697280685,
+        "event_name": "自动制造",
+        "func_name": "create"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697279362,
+        "event_name": "总力战",
+        "func_name": "total_force_fight"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697280072,
+        "event_name": "自动MomoTalk",
+        "func_name": "momo_talk"
+    },
+    {
+        "enabled": true,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 86400,
+        "next_tick": 1697287970,
+        "event_name": "收集奖励",
+        "func_name": "collect_reward"
+    }
 ]
 
 """
@@ -1062,108 +1053,111 @@ DEFAULT_CONFIG = """
 
 SWITCH_DEFAULT_CONFIG = '''
 [
-  {
-    "name": "查收邮箱",
-    "tip": "帮助你自动收集邮箱奖励",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "咖啡厅",
-    "tip": "帮助你收集咖啡厅体力和信用点",
-    "config": "cafeInvite",
-    "type": "TextSettingCard"
-  },
-  {
-    "name": "小组",
-    "tip": "帮助你收集小组体力",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "竞技场",
-    "tip": "帮助你自动打竞技场",
-    "config": "arenaPriority",
-    "type": "ComboSettingCard"
-  },
-  {
-    "name": "每日特别委托",
-    "tip": "帮助你自动做特别委托",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "收集奖励",
-    "tip": "帮助你自动收集奖励",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "收集每日体力",
-    "tip": "帮助你自动收集每日体力",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "战术对抗赛商店",
-    "tip": "帮助你自动购买战术对抗赛商店的物品",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "自动制造",
-    "tip": "帮助你自动制造",
-    "config": "createPriority",
-    "type": "ComboSettingCard"
-  },
-  {
-    "name": "收集小组体力",
-    "tip": "帮助你自动收集小组体力",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "自动MomoTalk",
-    "tip": "帮助你自动过关MomoTalk",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "悬赏通缉",
-    "tip": "帮助你打每日悬赏通缉",
-    "config": "specialDaily",
-    "type": "SpecStageSettingCard"
-  },
-  {
-    "name": "日程",
-    "tip": "自动每日日程",
-    "config": "schedulePriority",
-    "type": "TextSettingCard"
-  },
-  {
-    "name": "商店购买",
-    "tip": "商店里买东西",
-    "config": "shopPriority",
-    "type": "CheckboxSettingCard"
-  },
-  {
-    "name": "竞技场商店购买",
-    "tip": "竞技场商店里买东西",
-    "config": "arenaShopPriority",
-    "type": "CheckboxSettingCard"
-  },
-  {
-    "name": "总力战",
-    "tip": "总力战期间自动打总力战",
-    "config": null,
-    "type": "BasicSettingCard"
-  },
-  {
-    "name": "主线清除体力",
-    "tip": "主线关卡自动清除体力与每日困难",
-    "config": "mainlinePriority",
-    "type": "StageSettingCard"
-  }
+    {
+        "config": "cafeInvite",
+        "name": "咖啡厅",
+        "sort": 1,
+        "tip": "帮助你收集咖啡厅体力和信用点",
+        "type": "TextSettingCard"
+    },
+    {
+        "config": "schedulePriority",
+        "name": "日程",
+        "sort": 2,
+        "tip": "自动每日日程",
+        "type": "TextSettingCard"
+    },
+    {
+        "config": null,
+        "name": "收集小组体力",
+        "sort": 3,
+        "tip": "帮助你收集小组体力",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": null,
+        "name": "收集每日体力",
+        "sort": 4,
+        "tip": "帮助你自动收集每日体力",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": null,
+        "name": "查收邮箱",
+        "sort": 5,
+        "tip": "帮助你自动收集邮箱奖励",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": "shopPriority",
+        "name": "商店购买",
+        "sort": 6,
+        "tip": "商店里买东西",
+        "type": "CheckboxSettingCard"
+    },
+    {
+        "config": "arenaShopPriority",
+        "name": "竞技场商店购买",
+        "sort": 7,
+        "tip": "竞技场商店里买东西",
+        "type": "CheckboxSettingCard"
+    },
+    {
+        "config": "mainlinePriority",
+        "name": "主线清除体力",
+        "sort": 8,
+        "tip": "主线关卡自动清除体力与每日困难",
+        "type": "StageSettingCard"
+    },
+    {
+        "config": null,
+        "name": "每日特别委托",
+        "sort": 9,
+        "tip": "帮助你自动做特别委托",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": "specialDaily",
+        "name": "悬赏通缉",
+        "sort": 10,
+        "tip": "帮助你打每日悬赏通缉",
+        "type": "SpecStageSettingCard"
+    },
+    {
+        "config": "arenaPriority",
+        "name": "竞技场",
+        "sort": 11,
+        "tip": "帮助你自动打竞技场",
+        "type": "ComboSettingCard"
+    },
+    {
+        "config": "createPriority",
+        "name": "自动制造",
+        "sort": 12,
+        "tip": "帮助你自动制造",
+        "type": "ComboSettingCard"
+    },
+    {
+        "config": null,
+        "name": "总力战",
+        "sort": 13,
+        "tip": "总力战期间自动打总力战",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": null,
+        "name": "自动MomoTalk",
+        "sort": 14,
+        "tip": "帮助你自动过关MomoTalk",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": null,
+        "name": "收集奖励",
+        "sort": 15,
+        "tip": "帮助你自动收集奖励",
+        "type": "BasicSettingCard"
+    }
 ]
 
 '''
