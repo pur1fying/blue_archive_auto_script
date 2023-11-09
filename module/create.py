@@ -1,10 +1,12 @@
 import time
 
-from core.utils import get_x_y, kmp
+from core.utils import get_x_y, kmp,img_crop
 from gui.util import log
 
 
 def common_create_collect_operation(self):
+    self.operation("stop_getting_screenshot_for_location")
+
     self.latest_img_array = self.operation("get_screenshot_array")
     path2 = "./src/create/collect.png"
     path3 = "./src/create/finish_instantly.png"
@@ -27,24 +29,10 @@ def common_create_collect_operation(self):
         return_data1 = get_x_y(self.latest_img_array, path2)
         return_data2 = get_x_y(self.latest_img_array, path3)
 
+    self.operation("start_getting_screenshot_for_location")
 
 def common_create_judge(self):
-    pri = [
-      "花",
-      "Mo",
-      "情人节",
-      "果冻",
-      "色彩",
-      "灿烂",
-      "光芒",
-      "玲珑",
-      "白金",
-      "黄金",
-      "铜",
-      "白银",
-      "金属",
-      "隐然"
-    ],  # 可设置参数，越靠前的节点在制造时越优先选择
+    pri = ["花","Mo","桃桃","万圣节","情人节","果冻","色彩","灿烂","光芒","玲珑","白金","黄金","铜","白银","金属","隐然"]  # 可设置参数，越靠前的节点在制造时越优先选择
     node_x = [839, 508, 416, 302, 174]
     node_y = [277, 388, 471, 529, 555]
     # 572 278
@@ -53,7 +41,7 @@ def common_create_judge(self):
     for i in range(0, 5):
         self.operation("click", (node_x[i], node_y[i]))
         time.sleep(0.5 if i == 0 else 0.1)
-        node_info = self.img_ocr(self.operation("get_screenshot_array"))
+        node_info = self.img_ocr(img_crop(self.operation("get_screenshot_array"),734,1123,207,277))
         for k in range(0, len(pri)):
             if kmp(pri[k], node_info) > 0:
                 if k == 0:
@@ -131,4 +119,5 @@ def implement(self):
             self.main_to_page(12)
             common_create_collect_operation(self)
             log.d("all creature collected", level=1, logger_box=self.loggerBox)
-            return True
+
+    return True

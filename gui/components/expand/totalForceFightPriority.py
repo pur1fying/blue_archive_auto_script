@@ -11,7 +11,7 @@ class Layout(QWidget, ConfigSet):
         self.info_widget = self.parent()
         self.hBoxLayout = QHBoxLayout(self)
         # self.label = QLabel('输入最高难度', self)
-        self.label = QLabel('输入最高难度(功能开发中,先别用)', self)
+        self.label = QLabel('最高难度', self)
         self.input = ComboBox(self)
 
         self.input.addItems(['NORMAL', 'HARD', 'VERYHARD', 'HARDCORE', 'EXTREME'])

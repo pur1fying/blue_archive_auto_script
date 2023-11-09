@@ -4,6 +4,8 @@ STATIC_DEFAULT_CONFIG = """
     "create_list": [
       "花",
       "Mo",
+      "桃桃",
+      "万圣节",
       "情人节",
       "果冻",
       "色彩",
