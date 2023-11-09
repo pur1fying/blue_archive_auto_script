@@ -8,3 +8,4 @@ from .specialDaily import Layout
 from .serverConfig import Layout
 from .arenaShopPriority import Layout
 from .scriptConfig import Layout
+from .totalForceFightPriority import Layout
