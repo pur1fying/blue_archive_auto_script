@@ -79,6 +79,16 @@ class HomeFragment(QFrame):
         self.startupCard.clicked.connect(self._start_clicked)
         self.setObjectName("0x00000003")
 
+    def resizeEvent(self, event):
+        # 自动调整banner尺寸（保持比例）
+        _s = self.banner.size().width() / 1920.0
+        self.banner.setFixedHeight((int) (_s * 450))
+        # 重新设置banner图片以保持清晰度
+        pixmap = QPixmap(MAIN_BANNER).scaled(
+            self.banner.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+        self.banner.setPixmap(pixmap)
+        self.banner.setScaledContents(True)
+
     def call_update(self, parent=None):
         try:
             with open('./config/display.json', 'r', encoding='utf-8') as f:
