@@ -9,7 +9,7 @@ class Layout(QWidget, ConfigSet):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.hBoxLayout = QHBoxLayout(self)
-        self.student_name = ["日富美(泳装)", "真白(泳装)", "鹤城(泳装)","白子(骑行)" "梓(泳装)", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
+        self.student_name = ["日富美(泳装)", "真白(泳装)", "鹤城(泳装)","白子(骑行)","梓(泳装)", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
                             "明日奈", "菲娜", "艾米", "真纪",
                             "泉奈", "明里", "芹香", "优香", "小春",
                             "花江", "纯子", "千世", "干世", "莲见", "爱理", "睦月", "野宫", "绫音", "歌原",

@@ -55,7 +55,7 @@ def fight_difficulty_x(self, x,temp_ocr):
         if i == 0:
             self.operation("click", (total_force_fight_x, total_force_fight_y),duration=self.screenshot_interval * 2)
             self.common_positional_bug_detect_method("detailed_message", total_force_fight_x, total_force_fight_y, times=4, anywhere=True)
-            self.operation("click", (1015, 524),2)
+            self.operation("click", (1015, 524),4)
             lo = self.operation("get_current_position")
             if not lo:
                 return False
