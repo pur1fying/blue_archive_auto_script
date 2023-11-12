@@ -42,6 +42,7 @@ def implement(self, activity="shop"):
             if return_data2[1][0] <= 1e-03:
                 log.d("assets inadequate", level=1, logger_box=self.loggerBox)
                 self.operation("click@home", (1240, 29))
+                break
             elif return_data1[1][0] <= 1e-03:
                 log.d("buy operation succeeded", level=1, logger_box=self.loggerBox)
                 self.operation("click", (return_data1[0][0], return_data1[0][1]), duration=0.5)
@@ -124,6 +125,7 @@ def implement(self, activity="shop"):
             if return_data2[1][0] <= 1e-03:
                 log.d("assets inadequate", level=1, logger_box=self.loggerBox)
                 self.operation("click@home", (1240, 29))
+                break
             elif return_data1[1][0] <= 1e-03:
                 log.d("buy operation succeeded", level=1, logger_box=self.loggerBox)
                 self.operation("click", (return_data1[0][0], return_data1[0][1]), duration=0.5)
