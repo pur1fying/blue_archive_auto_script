@@ -484,6 +484,10 @@ STATIC_DEFAULT_CONFIG = """
         "count_list": [[1,1,1],[1,1,1]],
         "result": "combat_result"
       },
+      { "name_list": [["全部查看", "列表", "启动"]],
+        "count_list": [[1, 1, 1]],
+        "result": "create"
+      },
       {
         "name_list": [["节点信息"]],
         "count_list": [[1]],
@@ -696,11 +700,6 @@ STATIC_DEFAULT_CONFIG = """
          "name_list": [["成就", "每日", "每周"]],
          "count_list": [[1, 1, 1]],
          "result": "work_task"
-      },
-      {
-         "name_list": [["全部查看", "列表", "启动"]],
-         "count_list": [[1, 1, 1]],
-         "result": "create"
       },
       {
          "name_list": [["编队", "队长", "支援"]],
