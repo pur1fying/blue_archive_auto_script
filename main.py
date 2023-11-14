@@ -9,6 +9,7 @@ from cnocr import CnOcr
 
 import module
 from core.exception import ScriptError
+from core.notification import notify
 from core.scheduler import Scheduler
 from core.setup import Setup
 from core.utils import kmp, get_x_y, pd_rgb
@@ -616,6 +617,7 @@ class Main(Setup):
             else:
                 # 返回None结束任务
                 log.d('activities all finished', level=1, logger_box=self.loggerBox)
+                notify(title='', body='任务已完成')
                 break
         self.signal_stop()
         # for i in range(0, len(self.main_activity)):
