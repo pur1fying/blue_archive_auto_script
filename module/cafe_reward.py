@@ -280,4 +280,5 @@ def implement(self):
     # interaction_for_cafe_solve_method1(self)
     # interaction_for_cafe_solve_method2(self)
     interaction_for_cafe_solve_method3(self)
+    self.operation("start_getting_screenshot_for_location")
     return True
