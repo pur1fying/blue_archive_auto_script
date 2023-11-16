@@ -4,6 +4,7 @@ opencv-python==4.8.0.74
 PyQt5==5.15.7
 PyQt-Fluent-Widgets==1.2.0
 onnxruntime
-flask
+flask~=3.0.0
 cnocr>=2.2.4.1
+win11toast~=0.34
 # gevent
