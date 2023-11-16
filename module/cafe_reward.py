@@ -1,7 +1,12 @@
+import threading
 import time
+
+import cv2
+import numpy as np
 
 from core.utils import pd_rgb, get_x_y
 from gui.util import log
+
 
 def interaction_for_cafe_solve_method1(self):
     start_x = 640
@@ -88,6 +93,53 @@ def interaction_for_cafe_solve_method2(self):
             if points[i][j][0] <= 0:
                 continue
             self.operation("click",(points[i][j][0], int(points[i][j][1])))
+
+
+def match(img):
+    res = []
+    path = "src/cafe/happy_face"
+    for i in range(1, 5):
+        img_path = path + str(i) + ".png"
+        print(img_path)
+        template = cv2.imread(img_path)
+        result = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+        threshold = 0.8
+        locations = np.where(result >= threshold)
+        for pt in zip(*locations[::-1]):
+            res.append([pt[0] + template.shape[1] / 2, pt[1] + template.shape[0] / 2 + 58])
+    print(res)
+    return res
+
+
+def shot(self):
+    time.sleep(1)
+    self.latest_img_array = self.operation("get_screenshot_array")
+
+
+def interaction_for_cafe_solve_method3(self):
+    self.connection().pinch_in()
+    self.operation("swipe", ((664, 594), (425, 250)), duration=0.1)
+    for i in range(0, 5):
+        self.operation("click", (167,646),duration=0.5)
+        t1 = threading.Thread(target=shot, args=(self,))
+        t1.start()
+        self.operation("swipe", [(131, 660), (1280, 660)], duration=0.5)
+        t1.join()
+        res = match(self.latest_img_array)
+        print(res)
+        self.operation("click", (1238, 575),duration=0.5)
+
+        for j in range(0, len(res)):
+            self.operation("click", (res[j][0], min(res[j][1], 591)))
+
+        for j in range(0, 5):
+            self.latest_img_array = self.operation("get_screenshot_array")
+            if not pd_rgb(self.latest_img_array, 169, 635, 245, 255, 245, 255, 245, 255):
+                self.operation("click",(365, 249),duration=1)
+        if i != 4:
+            self.operation("click", (68, 636), duration=0.5)
+            self.operation("click", (1169, 90), duration=0.5)
+
 
 def implement(self):
     self.operation("stop_getting_screenshot_for_location")  # 停止截图
@@ -225,6 +277,7 @@ def implement(self):
     else:
         log.d("invitation ticket used", 1, logger_box=self.loggerBox)
 
-    interaction_for_cafe_solve_method1(self)
+    # interaction_for_cafe_solve_method1(self)
     # interaction_for_cafe_solve_method2(self)
+    interaction_for_cafe_solve_method3(self)
     return True
