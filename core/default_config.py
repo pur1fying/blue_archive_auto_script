@@ -1041,6 +1041,7 @@ DEFAULT_CONFIG = """
         "ThemeColor": "#ff0078d4",
         "ThemeMode": "Light"
     },
+    "patStyle": "普通",
     "favorStudent": "小春",
     "server": "B服",
     "adbPort": "0",

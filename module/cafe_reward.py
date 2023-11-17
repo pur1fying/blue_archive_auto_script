@@ -277,8 +277,12 @@ def implement(self):
     else:
         log.d("invitation ticket used", 1, logger_box=self.loggerBox)
 
-    # interaction_for_cafe_solve_method1(self)
-    # interaction_for_cafe_solve_method2(self)
-    interaction_for_cafe_solve_method3(self)
+    pat_style = self.config.get('patStyle')
+    if pat_style == '普通' or pat_style is None:
+        interaction_for_cafe_solve_method1(self)
+    if pat_style == '地毯':
+        interaction_for_cafe_solve_method2(self)
+    if pat_style == '礼物':
+        interaction_for_cafe_solve_method3(self)
     self.operation("start_getting_screenshot_for_location")
     return True
