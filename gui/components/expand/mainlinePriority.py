@@ -68,13 +68,13 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout.addLayout(self.lay1_hard)
         self.hBoxLayout.addLayout(self.lay2_hard)
 
-    def __accept_main(self, changed_text=None):
+    def __accept_main(self):
         input_content = self.input.text()
         self.set('mainlinePriority', input_content)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
-            content=f'你的普通关卡已经被设置为：{changed_text}',
+            content=f'你的普通关卡已经被设置为：{input_content}',
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,
@@ -82,13 +82,13 @@ class Layout(QWidget, ConfigSet):
         )
         w.show()
 
-    def __accept_hard(self, changed_text=None):
+    def __accept_hard(self):
         input_content = self.input_hard.text()
         self.set('hardPriority', input_content)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
-            content=f'你的困难关卡已经被设置为：{changed_text}',
+            content=f'你的困难关卡已经被设置为：{input_content}',
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,
