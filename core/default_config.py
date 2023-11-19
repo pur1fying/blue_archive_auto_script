@@ -736,7 +736,8 @@ STATIC_DEFAULT_CONFIG = """
       { "name_list": [["可以拖动礼物"]], "count_list": [[1]], "result": "give_present" }, { "name_list": [["结束编辑模式"]],
       "count_list": [[1]], "result": "edit_mode" }, { "name_list": [["提示"]], "count_list": [[1]], "result": "remind"
       }, { "name_list": [["招募"]], "count_list": [[3]], "result": "recruit" }, { "name_list": [["经验值", "信用"]],
-      "count_list": [[1, 1]], "result": "choose_special_task" }, { "name_list": [["广场"]], "count_list": [[3]],
+      "count_list": [[1, 1]], "result": "choose_special_task" }, { "name_list": [["第12任务"]], "count_list": [[1]],
+      "result": "task_12" },{ "name_list": [["广场"]], "count_list": [[3]],
       "result": "special_task_credit" }, { "name_list": [["普通", "困难", "工厂"]], "count_list": [[1, 1, 2]],
       "result": "task_8" }, { "name_list": [["普通", "困难", "下水管道"]], "count_list": [[1, 1, 2]], "result": "task_8" },
       { "name_list": [["工厂"]], "count_list": [[3]], "result": "special_task_guard" }, { "name_list": [["高架"]],
@@ -759,8 +760,7 @@ STATIC_DEFAULT_CONFIG = """
       "result": "task_18" }, { "name_list": [["第17任务"]], "count_list": [[1]], "result": "task_17" }, { "name_list": [
       ["第16任务"]], "count_list": [[1]], "result": "task_16" }, { "name_list": [["第15任务"]], "count_list": [[1]],
       "result": "task_15" }, { "name_list": [["第14任务"]], "count_list": [[1]], "result": "task_14" }, { "name_list": [
-      ["第13任务"]], "count_list": [[1]], "result": "task_13" }, { "name_list": [["第12任务"]], "count_list": [[1]],
-      "result": "task_12" }, { "name_list": [["第11任务"]], "count_list": [[1]], "result": "task_11" }, { "name_list": [
+      ["第13任务"]], "count_list": [[1]], "result": "task_13" }, { "name_list": [["第11任务"]], "count_list": [[1]], "result": "task_11" }, { "name_list": [
       ["第10任务"]], "count_list": [[1]], "result": "task_10" }, { "name_list": [["第9任务"]], "count_list": [[1]],
       "result": "task_9" }, { "name_list": [["第7任务"]], "count_list": [[1]], "result": "task_7" }, { "name_list": [[
       "第6任务"]], "count_list": [[1]], "result": "task_6" }, { "name_list": [["第5任务"]], "count_list": [[1]],
