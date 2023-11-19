@@ -4,6 +4,12 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Blue Archive Auto Script",
   description: "用于实现蔚蓝档案自动化",
+  // NOTE: 默认情况下，我们假设站点将部署在域的根路径（/）。
+  // 如果你的网站将在子路径上提供服务，例如 https://mywebsite.com/blog/，
+  // 那么你需要在 VitePress 配置中将 base 选项设置为 /blog/。
+  // 例如，如果你使用的是 GitHub（或 GitLab）页面，并部署到 user.github.io/repo/，
+  // 则需要将你的 base 设置为 /repo/。
+  base: '/blue_archive_auto_script/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [

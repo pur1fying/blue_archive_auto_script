@@ -8,6 +8,8 @@
 
 ### 安装Node.js
 
+需要20.x版本
+
 前往[Nodejs官网](https://nodejs.org/)下载安装包，安装完成后，打开命令行工具，输入 `node -v` 和 `npm -v` 检查是否安装成功
 
 ### 安装pnpm
