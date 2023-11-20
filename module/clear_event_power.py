@@ -1,6 +1,6 @@
 import time
 
-from core.utils import get_x_y
+from core.utils import get_x_y,check_sweep_availability
 from gui.util import log
 
 
@@ -60,24 +60,24 @@ def implement(self):
                 tar_level -= 1
 
                 self.operation("click", (all_task_x_coordinate, common_task_y_coordinates[tar_level]),duration=0.5)
-                path = "src/event/auto clear bright.png"
+
                 img = self.operation("get_screenshot_array")
-                return_data = get_x_y(img, path)
-                if not return_data[1][0] <= 1e-03:
+                if check_sweep_availability(img) == "UNAVAILABLE":
                     log.d("unable to auto clear", level=4, logger_box=self.loggerBox)
                     self.operation("click@anywhere", (649,646))
                     continue
-                for j in range(0, tar_times - 1):
-                    self.operation("click@add", (1033, 297), duration=0.6)
-                self.operation("click", (937, 404))
-                if self.operation("get_current_position",) == "charge_power":
-                    log.d("inadequate power , exit task", level=2, logger_box=self.loggerBox)
-                    return True
-                self.operation("click", (767, 504))
-                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, anywhere=True):
-                    return False
-                log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
-                      level=1, logger_box=self.loggerBox)
+                elif check_sweep_availability(img) == "AVAILABLE":
+                    for j in range(0, tar_times - 1):
+                        self.operation("click@add", (1033, 297), duration=0.6)
+                    self.operation("click", (937, 404))
+                    if self.operation("get_current_position",) == "charge_power":
+                        log.d("inadequate power , exit task", level=2, logger_box=self.loggerBox)
+                        return True
+                    self.operation("click", (767, 504))
+                    if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, times=10, anywhere=True):
+                        return False
+                    log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
+                          level=1, logger_box=self.loggerBox)
                 log.d("common task finished", level=1, logger_box=self.loggerBox)
 
         if len(self.hard_task_count) != 0:
@@ -118,45 +118,44 @@ def implement(self):
                 tar_level -= 1
 
                 self.operation("click", (all_task_x_coordinate, hard_task_y_coordinates[tar_level]),duration=0.5)
-                path = "src/event/auto clear bright.png"
                 img = self.operation("get_screenshot_array")
-                return_data = get_x_y(img, path)
-                if not return_data[1][0] <= 1e-03:
+
+                if check_sweep_availability(img) == "UNAVAILABLE":
                     log.d("unable to auto clear", level=2, logger_box=self.loggerBox)
                     self.operation("click@anywhere", (649, 646))
                     continue
-                for j in range(0, tar_times - 1):
-                    self.operation("click@add", (1033,297))
+                elif check_sweep_availability(img) == "AVAILABLE":
+                    for j in range(0, tar_times - 1):
+                        self.operation("click@add", (1033,297))
+                    time.sleep(0.3)
+                    self.operation("click", (937, 404))
+                    lo = self.operation("get_current_position")
+                    if lo == "charge_power":
+                        log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
+                        return True
 
-                time.sleep(0.3)
-                self.operation("click", (937, 404))
-                lo = self.operation("get_current_position")
-                if lo == "charge_power":
-                    log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
-                    return True
+                    self.hard_task_status[i] = True
 
-                self.hard_task_status[i] = True
-
-                if lo == "charge_notice":
-                    log.d("inadequate fight time available , Try next task", level=3, logger_box=self.loggerBox)
-                    if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True,
+                    if lo == "charge_notice":
+                        log.d("inadequate fight time available , Try next task", level=3, logger_box=self.loggerBox)
+                        if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True,
                                                                     times=8):
+                            return False
+                        continue
+                    if lo == "task_message":
+                        log.d("current task AUTO FIGHT UNLOCK , Try next task", level=2, logger_box=self.loggerBox)
+                        if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True,
+                                                                        times=8):
+                            return False
+                        continue
+
+                    self.operation("click", (767, 504))
+
+                    if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True, times=8):
                         return False
-                    continue
-                if lo == "task_message":
-                    log.d("current task AUTO FIGHT UNLOCK , Try next task", level=2, logger_box=self.loggerBox)
-                    if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True,
-                                                                    times=8):
-                        return False
-                    continue
 
-                self.operation("click", (767, 504))
-
-                if not self.common_positional_bug_detect_method("task_" + str(tar_num), 651, 663, anywhere=True, times=8):
-                    return False
-
-                log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
-                      level=1, logger_box=self.loggerBox)
+                    log.d("task " + str(tar_num) + "-" + str(tar_level) + ": " + str(tar_times) + " finished",
+                          level=1, logger_box=self.loggerBox)
             log.d("hard task finished", level=1, logger_box=self.loggerBox)
 
     self.main_activity[10][1] = 1

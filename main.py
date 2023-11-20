@@ -12,7 +12,7 @@ from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
 from core.setup import Setup
-from core.utils import kmp, get_x_y, pd_rgb
+from core.utils import kmp, get_x_y, pd_rgb,check_sweep_availability
 # from debug.debugger import start_debugger
 from gui.util import log
 from gui.util.config_set import ConfigSet
@@ -660,9 +660,10 @@ if __name__ == '__main__':
     t = Main()
     t._init_emulator()
     t.flag_run = True
-    path2 = "src/shop/update.png"
+    path = "src/event/auto clear bright.png"
     img = t.operation("get_screenshot_array")
-    return_data1 = get_x_y(img, path2)
+    print(check_sweep_availability(img))
+    return_data1 = get_x_y(img, path)
     print(return_data1)
 
     ocr_res = t.img_ocr(img)

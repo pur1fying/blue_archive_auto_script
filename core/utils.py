@@ -84,3 +84,11 @@ def pd_rgb(shot_array, x, y, r_min, r_max, g_min, g_max, b_min, b_max): # 用于
             shot_array[y][x][0] <= b_max:
         return True
     return False
+
+
+def check_sweep_availability(img):
+    if pd_rgb(img, 211, 369, 192, 212, 192, 212, 192, 212) or pd_rgb(img, 211, 402, 192, 212, 192, 212, 192, 212) or pd_rgb(img, 211, 436, 192, 212, 192, 212, 192, 212):
+        return "UNAVAILABLE"
+    if pd_rgb(img, 211, 368, 225,255, 200, 255, 20, 60) and pd_rgb(img, 211, 404, 225,255, 200, 255, 20, 60) and pd_rgb(img, 211, 434, 225,255, 200, 255, 20, 60):
+        return "AVAILABLE"
+    return "UNKNOWN"
