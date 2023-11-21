@@ -27,6 +27,7 @@ class Layout(QWidget, ConfigSet):
         self.favor_student = self.get('favorStudent')
         self.input1.addItems(self.student_name)
         self.input1.setText(self.favor_student)
+        self.input1.setCurrentIndex(self.student_name.index(self.favor_student))
         self.input1.currentTextChanged.connect(self.__accept)
 
         self.label2 = QLabel('选择摸头方式：', self)
@@ -34,6 +35,7 @@ class Layout(QWidget, ConfigSet):
         self.pat_style = self.get('patStyle') or '普通'
         self.input2.addItems(self.pat_styles)
         self.input2.setText(self.pat_style)
+        self.input2.setCurrentIndex(self.pat_styles.index(self.pat_style))
         self.input2.currentTextChanged.connect(self.__accept)
 
         self.setFixedHeight(106)
