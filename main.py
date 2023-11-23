@@ -251,9 +251,9 @@ class Main(Setup):
         return success
 
     def special_task_common_operation(self, dif, count, f=True):  # 完成特殊委托，悬赏委托的方法
-        """difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H"]"""
+        """difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H","I"]"""
         special_task_lox = 1120
-        special_task_loy = [180, 286, 386, 489, 564, 432, 530, 628]
+        special_task_loy = [180, 286, 386, 489, 564,333, 432, 530, 628]
         fail_cnt = 0
         log.d("-------------------------------------------------------------------------------", 1,
               logger_box=self.loggerBox)

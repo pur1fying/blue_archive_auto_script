@@ -12,7 +12,7 @@ class Layout(QWidget, ConfigSet):
         self.lay1 = QHBoxLayout(self)
         self.lay2 = QHBoxLayout(self)
         self.pat_styles = ['普通', '地毯', '礼物']
-        self.student_name = ["日富美(泳装)", "真白(泳装)", "鹤城(泳装)", "白子(骑行)", "梓(泳装)", "爱丽丝", "切里诺",
+        self.student_name = ["瞬(小)","桐乃","纱绫(便服)","日富美(泳装)", "真白(泳装)", "鹤城(泳装)", "白子(骑行)", "梓(泳装)", "爱丽丝", "切里诺",
                              "志美子", "日富美", "佳代子",
                              "明日奈", "菲娜", "艾米", "真纪",
                              "泉奈", "明里", "芹香", "优香", "小春",

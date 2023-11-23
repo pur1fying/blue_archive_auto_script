@@ -29,9 +29,9 @@ class Layout(QWidget, ConfigSet):
         self.input_2_2 = ComboBox(self)
         self.input_3_2 = ComboBox(self)
 
-        self.input_1_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
-        self.input_2_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
-        self.input_3_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
+        self.input_1_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',"I"])
+        self.input_2_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',"I"])
+        self.input_3_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',"I"])
 
         self.input_1_2.addItems(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
         self.input_2_2.addItems(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
