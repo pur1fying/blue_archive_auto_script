@@ -87,3 +87,4 @@ def implement(self):
                                                interval=1)
         self.operation("click", (680, 680))
         self.operation("start_getting_screenshot_for_location")
+    return True
