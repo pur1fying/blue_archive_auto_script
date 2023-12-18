@@ -1,9 +1,22 @@
 from gui.util import log
+from datetime import datetime
+
+x = {
+
+}
+
+def get_next_execute_tick():
+    current_time = datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    next_time = datetime(year, month, day+1, 4)
+    return next_time.timestamp()
 
 
 def implement(self):
-    special_task_guard_count = [1, 1]  # ** [i,j]表示信用回收第i + 1关打j次,如[1,1]表示B难度打1次
-    special_task_credit_count = [1, 1]  # ** [i,j]表示信用回收第i + 1关打j次,如[1,1]表示B难度打1次
+    special_task_guard_count = [1, 1]
+    special_task_credit_count = [1, 1]
     self.special_task_status = [False, False]
     just_do_task = False
     if len(special_task_guard_count) != 0:
@@ -38,5 +51,8 @@ def implement(self):
             log.d("special task Credit unsolved", level=2, logger_box=self.loggerBox)
 
     if self.special_task_status[0] and self.special_task_status[1]:
+        self.next_execute_time_queue.put(["special_task", get_next_execute_tick()])
         return True
     return False
+
+

@@ -1,7 +1,25 @@
 import time
 
-from core.utils import get_x_y,check_sweep_availability
+from core.utils import check_sweep_availability
 from gui.util import log
+from datetime import datetime
+
+
+def get_next_execute_tick():
+    current_time = datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    hour = current_time.hour
+    if 0 <= hour < 4 or 18 <= hour < 24:
+        if current_time.hour < 4:
+            next_time = datetime(year, month, day, 4)
+        else:
+            next_time = datetime(year, month, day+1, 4)
+    else:
+        next_time = datetime(year, month, day, 18)
+    print(next_time)
+    return next_time.timestamp()
 
 
 def get_area_number(self):
@@ -167,3 +185,5 @@ def implement(self):
     self.main_activity[10][1] = 1
     log.d("clear event power task finished", level=1, logger_box=self.loggerBox)
     return True
+
+get_next_execute_tick()

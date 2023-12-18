@@ -1,4 +1,6 @@
-import os
+import json
+import logging
+import sys
 import threading
 import time
 
@@ -12,43 +14,69 @@ from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
 from core.setup import Setup
-from core.utils import kmp, get_x_y, pd_rgb,check_sweep_availability
-# from debug.debugger import start_debugger
+from core.utils import kmp, get_x_y, check_sweep_availability
+from core import position, color, image, stage
 from gui.util import log
 from gui.util.config_set import ConfigSet
 
+func_dict = {
+    'group': module.group.implement,
+    'momo_talk': module.momo_talk.implement,
+    'shop': module.shop.implement,
+    'cafe_reward': module.cafe_reward.implement,
+    'schedule': module.schedule.implement,
+    'rewarded_task': module.rewarded_task.implement,
+    'arena': module.arena.implement,
+    'create': module.create.implement,
+    'explore_normal_task': module.explore_normal_task.implement,
+    'explore_hard_task': module.explore_hard_task.implement,
+    'mail': module.mail.implement,
+    'main_story': module.main_story.start,
+    'scrimmage': module.scrimmage.implement,
+    'collect_reward': module.collect_reward.implement,
+    'normal_task': module.normal_task.implement,
+}
+
 
 class Main(Setup):
-
     def __init__(self, logger_box=None, button_signal=None, update_signal=None):
         super().__init__()
+        self.package_name = None
+        self.server = None
+        self.rgb_feature = None
         self.ocr = None
+        self.config = None
+        self.logger = logging.getLogger("logger_name")
+        formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
+        handler1 = logging.StreamHandler(stream=sys.stdout)
+        handler1.setFormatter(formatter)
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(handler1)
+
+        self.init_all_data()
+
         self.loggerBox = logger_box
-        self.config = ConfigSet()
-        self.total_force_fight_difficulty_name = ["HARDCORE","VERYHARD","EXTREME","NORMAL", "HARD"]  # 当期总力战难度
-        self.total_force_fight_difficulty_name_ordered = ["NORMAL", "HARD","VERYHARD","HARDCORE","EXTREME"]  # 当期总力战难度
-        self.total_force_fight_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3, "EXTREME": 4}
+        self.total_force_fight_difficulty_name = ["HARDCORE", "VERYHARD", "EXTREME", "NORMAL", "HARD"]  # 当期总力战难度
+        self.total_force_fight_difficulty_name_ordered = ["NORMAL", "HARD", "VERYHARD", "HARDCORE",
+                                                          "EXTREME"]  # 当期总力战难度
+        self.total_force_fight_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3,
+                                                       "EXTREME": 4}
         self.total_force_fight_name = "chesed"  # 当期总力战名字
         self.screenshot_flag_run = None
-        self.unknown_ui_page_count = None  # 该变量20次未识别出位置会抛出异常
         self.io_err_solved_count = 0
-        self.schedule_times = None  # 日程每个区域的次数
-        self.schedule_pri = None  # 日程区域优先级
         self.io_err_count = 0
         self.io_err_rate = 10
-        self.screenshot_interval = 0.5  # 截图间隔
+        self.screenshot_interval = self.config['screenshot_interval']
         self.button_signal = button_signal
-        self.flag_run = True  # module运行的flag
-        self.click_interval = 3
-        self._server_record = ''
-        self._first_started = True
-        self.connection = None
+        self.flag_run = True
+        self.next_task = ''
+        self.stage_data = {}
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
         try:
-            self.common_task_count = self.config.get('mainlinePriority')  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-            self.hard_task_count = self.config.get('hardPriority')  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
+            self.common_task_count = self.config['mainlinePriority']  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
+            self.hard_task_count = self.config['hardPriority']  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
             if self.common_task_count == '':
                 self.common_task_count = []
             else:
@@ -68,486 +96,74 @@ class Main(Setup):
         self.scheduler = Scheduler(update_signal)
         # start_debugger()
 
-    def operation(self, operation_name, operation_locations=None, duration=0.0, path=None, name=None, anywhere=False):
-        """
-        集成了与模拟器 交互 操作
-        Args:
-            operation_name: 操作名称
-            operation_locations: 鼠标点击位置
-            duration: 执行速度或等待时间
-        Returns:
-            bool
-            str
-            None
-            ndarray
-        """
-        if not self.flag_run:
-            return False
-            # raise Exception("Shutdown")
-        if operation_name[0:5] == "click":  # 点击 x，y
-            x = operation_locations[0]
-            y = operation_locations[1]
-            log.d(
-                operation_name + ":(" + str(x) + " " + str(y) + ")" + " click_time = " + str(round(self.click_time, 3)),
-                level=1, logger_box=self.loggerBox)
-            noisex = np.random.uniform(-5, 5)
-            noisey = np.random.uniform(-5, 5)
-            self.connection.click(x + noisex, y + noisey)
-            self.set_click_time()
+    def click(self, x, y, wait=True, count=1, rate=0,duration=0):
+        if wait:
+            self.wait_loading()
+        for i in range(count):
+            self.logger.info("click x:%s y:%s", x, y)
+            time.sleep(rate)
+            self.connection.click(x, y)
             time.sleep(duration)
-            return "click_success"
-        elif operation_name == "swipe":  # 由(x1,y1)滑动到(x2,y2)
-            x1 = operation_locations[0][0]
-            y1 = operation_locations[0][1]
-            x2 = operation_locations[1][0]
-            y2 = operation_locations[1][1]
-            self.connection.swipe(x1, y1, x2, y2, duration=duration)
-            return "swipe_success"
-        elif operation_name == "stop_getting_screenshot_for_location":  # 见文档	3.<多线程>
-            log.d("STOP getting screenshot for location", 1, logger_box=self.loggerBox)
-            self.screenshot_flag_run = False
-            return True
-        elif operation_name == "start_getting_screenshot_for_location":  # 见文档 3.<多线程>
-            log.d("START getting screenshot for location", 1, logger_box=self.loggerBox)
-            self.screenshot_flag_run = True
-            screenshot_thread = threading.Thread(target=self.run)
-            screenshot_thread.start()
-            return True
-        elif operation_name == "get_current_position":  # 见文档 3.<多线程>
-            if path:
-                self.latest_img_array = self.operation("get_screenshot_array")
-                return_data = get_x_y(self.latest_img_array, path)
-                print(return_data)
-                if return_data[1][0] <= 1e-03:
-                    log.d("current_location : " + name, 1, logger_box=self.loggerBox)
+
+    def wait_loading(self):
+        """
+        检查是否加载中，
+        """
+        t_start = time.time()
+        while 1:
+            self.latest_img_array = cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
+            if not color.judge_rgb_range(self.latest_img_array, 937, 648, 200, 255, 200, 255, 200, 255) or not \
+                color.judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
+                loading_pos = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
+                rgb_loading = [[200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
+                               [200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
+                               [255, 255, 255, 255, 255, 255]]
+                t = len(loading_pos)
+                for i in range(0, t):
+                    if not color.judge_rgb_range(self.latest_img_array, loading_pos[i][0], loading_pos[i][1],
+                                                 rgb_loading[i][0],
+                                                 rgb_loading[i][1], rgb_loading[i][2], rgb_loading[i][3],
+                                                 rgb_loading[i][4], rgb_loading[i][5]):
+                        break
+                else:
+                    t_load = time.time() - t_start
+                    self.logger.info("loading, t load : " + str(t_load))
+                    if t_load > 20:
+                        self.logger.warning("LOADING TOO LONG add screenshot interval to 1")
+                        self.screenshot_interval = 1
                     time.sleep(self.screenshot_interval)
-                    return name
-            while len(self.pos) > 0 and self.pos[len(self.pos) - 1][1] < self.click_time:
-                self.pos.pop()
-            while 1:
-                if len(self.pos) == 2 and self.pos[0][0] == self.pos[1][0]:
-                    lo = self.pos[0][0]
-                    self.pos.clear()
-                    if lo == "UNKNOWN UI PAGE":
-                        if anywhere:
-                            log.d("anywhere accepted", 1, logger_box=self.loggerBox)
-                            return "click_anywhere"
-                        elif self.unknown_ui_page_count < 20:
-                            self.unknown_ui_page_count += 1
-                            log.d("UNKNOWN UI PAGE COUNT:" + str(self.unknown_ui_page_count), 2,
-                                  logger_box=self.loggerBox)
-                        elif self.unknown_ui_page_count == 20:
-                            log.d("Unknown ui page", 3, logger_box=self.loggerBox)
-                            self.signal_stop()
-                            return "UNKNOWN UI PAGE"
-                            # exit(0)
-                    else:
-                        self.unknown_ui_page_count = 0
-                        log.d("current_location : " + lo, 1, logger_box=self.loggerBox)
-                        return lo
-                time.sleep(self.screenshot_interval)
-        elif operation_name == "get_screenshot_array":  # 获取模拟器 屏幕截图
-            screenshot = self.connection.screenshot()
-            numpy_array = np.array(screenshot)[:, :, [2, 1, 0]]
-            return numpy_array
+                    continue
+
+            return True
+
+    def get_screenshot_array(self):
+        return cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
 
     def signal_stop(self):
         self.flag_run = False
         self.button_signal.emit("启动")
 
-    def change_acc_auto(self):  # 战斗时开启3倍速和auto
-        img1 = self.operation("get_screenshot_array")
-        acc_r_ave = int(img1[625][1196][0]) // 3 + int(img1[625][1215][0]) // 3 + int(img1[625][1230][0]) // 3
-        print(acc_r_ave)
-        if 250 <= acc_r_ave <= 260:
-            log.d("CHANGE acceleration phase from 2 to 3", level=1, logger_box=self.loggerBox)
-            self.operation("click@accleration", (1215, 625))
-        elif 0 <= acc_r_ave <= 60:
-            log.d("ACCELERATION phase 3", level=1, logger_box=self.loggerBox)
-        elif 140 <= acc_r_ave <= 180:
-            log.d("CHANGE acceleration phase from 1 to 3", level=1, logger_box=self.loggerBox)
-            self.operation("click@accelereation", (1215, 625))
-            self.operation("click@acceleration", (1215, 625))
-        else:
-            log.d("CAN'T DETECT acceleration BUTTON", level=2, logger_box=self.loggerBox)
-        auto_r_ave = int(img1[677][1171][0]) // 2 + int(img1[677][1246][0]) // 2
-        if 190 <= auto_r_ave <= 230:
-            log.d("CHANGE MANUAL to auto", level=1, logger_box=self.loggerBox)
-            self.operation("click@auto", (1215, 678))
-        elif 0 <= auto_r_ave <= 60:
-            log.d("AUTO", level=1, logger_box=self.loggerBox)
-        else:
-            log.d("can't identify auto button", level=2, logger_box=self.loggerBox)
-        print(auto_r_ave)
-
-    def common_fight_practice(self):  # 战斗过程
-        flag = False
-        for i in range(0, 20):  # 判断是否进入战斗，标志的是cost条第一格变成蓝色
-            img_shot = self.latest_img_array
-            if pd_rgb(img_shot, 838, 690, 45, 65, 200, 220, 240, 255):
-                flag = True
-                break
-            else:
-                lo = self.operation("get_current_position", anywhere=True)
-                if lo == "notice" or lo == "summary":
-                    self.operation("click @confirm", (769, 500), duration=3)
-
-                path = "src/common_button/plot_menu.png"
-                return_data = get_x_y(img_shot, path)
-                if return_data[1][0] <= 1e-03:
-                    log.d("SKIP PLOT", level=1, logger_box=self.loggerBox)
-                    self.operation("click @plot_menu", (return_data[0][0], return_data[0][1]), duration=0.5)
-                    self.operation("click @skip plot", (1207, 123), duration=1)
-                    self.operation("click @confirm", (766, 527), duration=1)
-                    continue
-                else:
-                    self.operation("click @anywhere", (1150, 649), duration=1)
-
-        if not flag:
-            return False
-
-        self.operation("stop_getting_screenshot_for_location")
-
-        self.change_acc_auto()
-
-        while 1:  # 战斗未结束前每隔一秒截图并判断是否结束
-            self.latest_img_array = self.operation("get_screenshot_array")
-            path1 = "src/common_button/check_blue.png"
-            path3 = "src/common_button/fail_check.png"
-            return_data1 = get_x_y(self.latest_img_array, path1)
-            return_data2 = get_x_y(self.latest_img_array, path3)
-            if return_data1[1][0] < 1e-03 or return_data2[1][0] < 1e-03:
-                if return_data1[1][0] < 1e-03:
-                    log.d("fight succeeded", level=1, logger_box=self.loggerBox)
-                    success = True
-                    self.operation("click@confirm", (return_data1[0][0], return_data1[0][1]))
-                else:
-                    log.d("fight failed", level=1, logger_box=self.loggerBox)
-                    success = False
-                    self.operation("click@confirm", (return_data2[0][0], return_data2[0][1]))
-                break
-            else:
-                self.operation("click", (767, 500))
-                log.d("fighting", level=1, logger_box=self.loggerBox)
-            time.sleep(1)
-
-        self.operation("start_getting_screenshot_for_location")
-
-        if not success:
-            while 1:
-                time.sleep(1)
-                self.latest_img_array = self.operation("get_screenshot_array")
-                path2 = "src/common_button/fail_back.png"
-                return_data1 = get_x_y(self.latest_img_array, path2)
-                if return_data1[1][0] < 1e-03:
-                    log.d("Fail Back", level=1, logger_box=self.loggerBox)
-                    self.operation("click@confirm", (return_data1[0][0], return_data1[0][1]))
-                    break
-        else:
-            self.common_positional_bug_detect_method("fight_success", 1171, 60)
-            self.operation("click@confirm", (772, 657))
-
-        time.sleep(4)
-        return success
-
-    def special_task_common_operation(self, dif, count, f=True):  # 完成特殊委托，悬赏委托的方法
-        """difficulty_name = ["A", "B", "C", "D", "E", "F", "G", "H","I"]"""
-        special_task_lox = 1120
-        special_task_loy = [180, 286, 386, 489, 564,333, 432, 530, 628]
-        fail_cnt = 0
-        log.d("-------------------------------------------------------------------------------", 1,
-              logger_box=self.loggerBox)
-        log.d("try to swipe to TOP page", level=1, logger_box=self.loggerBox)
-        # 判断是否进入关卡选择页面
-        while fail_cnt <= 3:
-            log.d("SWIPE UPWARDS", level=1, logger_box=self.loggerBox)
-            self.operation("swipe", [(762, 200), (762, 460)], duration=0.1)
-            time.sleep(1)
-            img_shot = self.operation("get_screenshot_array")
-            ocr_result = self.img_ocr(img_shot)
-            if kmp("A", ocr_result) == 0:
-                fail_cnt += 1
-                if fail_cnt <= 3:
-                    log.d("FAIL , TRY AGAIN", 1, logger_box=self.loggerBox)
-                else:
-                    log.d("FAIL to swipe to TOP page", level=2, logger_box=self.loggerBox)
-                    log.d("-------------------------------------------------------------------------------", 1,
-                          logger_box=self.loggerBox)
-                    return False
-            else:
-                log.d("SUCCESSFULLY swipe to TOP page", level=1, logger_box=self.loggerBox)
-                log.d("-------------------------------------------------------------------------------", 1,
-                      logger_box=self.loggerBox)
-                break
-        # 难度>F需要滑动到底部,同时判断滑动是否成功
-        if dif >= 6:
-            fail_cnt = 0
-            log.d("-------------------------------------------------------------------------------", 1,
-                  logger_box=self.loggerBox)
-            log.d("try to swipe to BOTTOM page", level=1, logger_box=self.loggerBox)
-            while fail_cnt <= 3:
-                log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
-                self.operation("swipe", [(762, 460), (762, 200)], duration=0.1)
-                time.sleep(1)
-                img_shot = self.operation("get_screenshot_array")
-                ocr_res = self.img_ocr(img_shot)
-                kmp_results = [kmp(letter, ocr_res) == 0 for letter in "FGHE"]
-                if all(kmp_results) or kmp("A", ocr_res) != 0:
-                    print(ocr_res)
-                    fail_cnt += 1
-                    if fail_cnt <= 3:
-                        log.d("FAIL , TRY AGAIN", 1, logger_box=self.loggerBox)
-                    else:
-                        log.d("FAIL to swipe to BOTTOM page", level=2, logger_box=self.loggerBox)
-                        log.d("-------------------------------------------------------------------------------", 1,
-                              logger_box=self.loggerBox)
-                        return False
-                else:
-                    log.d("SUCCESSFULLY swipe to BOTTOM page", level=1, logger_box=self.loggerBox)
-                    log.d("-------------------------------------------------------------------------------", 1,
-                          logger_box=self.loggerBox)
-                    break
-        # 点击关卡
-        self.operation("click", (special_task_lox, special_task_loy[dif - 1]))
-        # 未解锁
-        if self.operation("get_current_position") == "notice":
-            log.d("LOCKED", level=2, logger_box=self.loggerBox)
-            self.operation("click", (1240, 39))
-            self.operation("click", (1240, 39))
-        # 已解锁
-        else:
-            for i in range(0, count - 1):
-                if f:
-                    self.operation("click", (1033, 297), duration=0.6)
-                else:
-                    self.operation("click", (1033, 297), duration=0.2)
-            self.operation("click", (937, 404), duration=0.5)
-            lo = self.operation("get_current_position")
-            # 体力不足
-            if lo == "charge_power":
-                log.d("inadequate power , exit task", level=3, logger_box=self.loggerBox)
-                self.operation("click", (1240, 39))
-                self.operation("click", (1240, 39))
-                self.operation("click", (1240, 39))
-            # 挑战券不足
-            elif lo == "charge_notice":
-                log.d("inadequate ticket , exit task", level=3, logger_box=self.loggerBox)
-                self.operation("click", (1240, 39))
-                self.operation("click", (1240, 39))
-                self.operation("click", (1240, 39))
-            elif lo == "notice":
-                self.operation("click", (767, 501), duration=2)
-            else:
-                log.d("AUTO FIGHT LOCKED, exit task", level=3, logger_box=self.loggerBox)
-        return True
-
-    def main_to_page(self, index, path=None, name=None, any=False):  # 从主页到某个页面
-        self.to_page[7] = [[217, 940], [659, self.schedule_lo_y[self.schedule_pri[0] - 1]],
-                           ["schedule", "schedule" + str(self.schedule_pri[0])]]
-        procedure = self.to_page[index]
-        step = 0
-        if len(procedure) != 0:
-            step = len(procedure[0])
-        if step:
-            log.d("begin main to page " + str(procedure[2][step - 1]), level=1, logger_box=self.loggerBox)
-        i = 0
-        times = 0
-        while i != step and self.flag_run:
-            x = procedure[0][i]
-            y = procedure[1][i]
-            page = procedure[2][i]
-            self.operation("click", (x, y))
-            if self.operation("get_current_position", path=path, name=name, anywhere=any) != page:
-                if times <= 1:
-                    times += 1
-                    log.d("not in page " + str(page) + " , count = " + str(times), level=2, logger_box=self.loggerBox)
-                elif times == 2:
-                    log.d("not in page " + str(page) + " , return to main page", level=2, logger_box=self.loggerBox)
-                    self.common_positional_bug_detect_method("main_page", 1240, 37, anywhere=any, path=path, name=name)
-                    times = 0
-                    i = 0
-            else:
-                times = 0
-                i += 1
-
-    def get_x_y(self, target_array, path):  # 见文档  1.<模式匹配>
-        # print(target_array.dtype)
-        if path.startswith("./src"):
-            path = path.replace("./src", "src")
-        elif path.startswith("../src"):
-            path = path.replace("../src", "src")
-        img1 = target_array
-        img2 = cv2.imread(path)
-        if img2 is None:
-            return [[-1, -1], [1]]
-        # sys.stdout = open('data.log', 'w+')
-        height, width, channels = img2.shape
-        #    print(img2.shape)
-        #    for i in range(0, height):
-        #        print([x for x in img2[i, :, 0]])
-        result = cv2.matchTemplate(img1, img2, cv2.TM_SQDIFF_NORMED)
-        upper_left = cv2.minMaxLoc(result)[2]
-        #    print(img1.shape)
-        #    print(upper_left[0], upper_left[1])
-        # cv2.imshow("img2", img2)
-        converted = img1[upper_left[1]:upper_left[1] + height, upper_left[0]:upper_left[0] + width, :]
-        #     cv2.imshow("img1", converted)
-        sub = cv2.subtract(img2, converted)
-        # cv2.imshow("result", cv2.subtract(img2, converted))
-        # for i in range(0, height):
-        #    print([x for x in converted[i, :, 0]])
-        # cv2.imshow("img1", img1)
-        # cv2.waitKey(0)
-        location = (int(upper_left[0] + width / 2), int(upper_left[1] + height / 2))
-        return location, result[upper_left[1], [upper_left[0]]]
-
-    def common_icon_bug_detect_method(self, path, x, y, name, times=3, interval=0.5):  # 用界面的图标判断是否是目标页面(速度快)
-        if not self.flag_run:
-            return False
-        log.d("------------------------------------------------------------------------------------------------", 1,
-              logger_box=self.loggerBox)
-        log.d("BEGIN DETECT ICON FOR " + name.upper(), 1, logger_box=self.loggerBox)
-        cnt = 1
-        path = path
-        return_data = self.get_x_y(self.operation("get_screenshot_array"), path)
-        print(return_data)
-        while cnt <= times:
-            if not self.flag_run:
-                return False
-
-            if return_data[1][0] <= 1e-03:
-                log.d("SUCCESSFULLY DETECT POSITION FOR " + name.upper(), 1, logger_box=self.loggerBox)
-                log.d(
-                    "------------------------------------------------------------------------------------------------",
-                    1, logger_box=self.loggerBox)
-                return True
-            log.d("FAIL TIME : " + str(cnt) + " min_val: " + str(return_data[1][0]), 2, logger_box=self.loggerBox)
-            cnt += 1
-            self.operation("click", (x, y), duration=interval)
-            return_data = self.get_x_y(self.operation("get_screenshot_array"), path)
-            print(return_data)
-
-        log.d("CAN'T DETECT BUTTON FOR " + name.upper(), 3, logger_box=self.loggerBox)
-        log.d("------------------------------------------------------------------------------------------------", 1,
-              logger_box=self.loggerBox)
-        return False
-
-    def common_positional_bug_detect_method(self, pos, x, y, times=3, anywhere=False, path=None,
-                                            name=None):  # 用位置判断是否是目标的页面(速度慢)
-        if not self.flag_run:
-            return False
-        log.d("------------------------------------------------------------------------------------------------", 1,
-              logger_box=self.loggerBox)
-        log.d("BEGIN DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
-        cnt = 1
-        t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
-        while cnt <= times:
-            if not self.flag_run:
-                return False
-            if t == pos:
-                log.d("SUCCESSFULLY DETECT POSITION " + pos.upper(), 1, logger_box=self.loggerBox)
-                log.d(
-                    "------------------------------------------------------------------------------------------------",
-                    1,
-                    logger_box=self.loggerBox)
-                return True
-            log.d("FAIL TIME : " + str(cnt), 2, logger_box=self.loggerBox)
-            cnt += 1
-            self.operation("click", (x, y), duration=self.screenshot_interval)
-
-            t = self.operation("get_current_position", path=path, name=name, anywhere=anywhere)
-
-        log.d("CAN'T DETECT POSITION " + pos.upper(), 3, logger_box=self.loggerBox)
-        log.d("------------------------------------------------------------------------------------------------", 1,
-              logger_box=self.loggerBox)
-        return False
-
-    def quick_method_to_main_page(self):
-        log.d("TO MAIN PAGE", 1, logger_box=self.loggerBox)
-        image_names = [
-            "back_to_main_page",
-            "menu",
-            "skip_plot_button",
-            "back_to_home",
-            "cross4",
-            "momotalk_cross",
-            "cross1",
-            "cross2",
-            "cross3",
-            "cross6",
-            "cross5",
-        ]
-        lo = self.operation("get_current_position", anywhere=True)
-        while lo != "main_page" and self.flag_run:
-            print(lo)
-            last_x = -1
-            last_y = -1
-            cnt = 0
-            click_flag = False
-            ocr_res = self.img_ocr(self.latest_img_array)
-            if lo == "notice":
-                self.operation("click@confirm", (767, 501))
-            if ocr_res != "":
-                if kmp(ocr_res, "是否跳过"):
-                    self.operation("click@skip", (765, 500))
-                    continue
-            for image_name in image_names:
-                path = os.path.join("src/common_button/", image_name + ".png")
-                # print(image_name)
-                return_data = get_x_y(self.latest_img_array, path)
-                #   print(return_data)
-                #   print(return_data)
-                if return_data[1][0] <= 1e-03:
-                    click_flag = True
-                    self.operation("click", (return_data[0][0], return_data[0][1]))
-                    if image_name == "skip_plot_button":
-                        time.sleep(0.5)
-                        self.operation("click", (770, 518))
-                    break
-                elif abs(last_x - return_data[0][0]) <= 5 and abs(last_y - return_data[0][1]) <= 5:
-                    cnt += 1
-                    if cnt == 4:
-                        click_flag = True
-                        self.operation("click", (last_x, last_y))
-                        break
-                last_x = return_data[0][0]
-                last_y = return_data[0][1]
-            if not click_flag:
-                self.operation("click", (1239, 24))
-                self.operation("click", (330, 345))
-
-            lo = self.operation("get_current_position", anywhere=True)
-
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
         print("--------init emulator----------")
         try:
-            server = self.config.get('server')
-            self.package_name = 'com.RoamingStar.BlueArchive' \
-                if server == '官服' else 'com.RoamingStar.BlueArchive.bilibili'
             self.adb_port = self.config.get('adbPort')
-            if not self._first_started and self._server_record == server:
-                return True
+            self.logger.info("adb port: " + str(self.adb_port))
             if not self.adb_port or self.adb_port == '0':
                 self.connection = u2.connect()
             else:
                 self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
             if 'com.github.uiautomator' not in self.connection.app_list():
                 self.connection.app_install('ATX.apk')
-            self.unknown_ui_page_count = 0
             self.connection.app_start(self.package_name)
-            t = self.connection.window_size()
-            log.d("Screen Size  " + str(t), level=1, logger_box=self.loggerBox)  # 判断分辨率是否为1280x720
-            if (t[0] == 1280 and t[1] == 720) or (t[1] == 1280 and t[0] == 720):
-                log.d("Screen Size Fitted", level=1, logger_box=self.loggerBox)
+            temp = self.connection.window_size()
+            self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
+            if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
+                self.logger.info("Screen Size Fitted")
             else:
-                log.d("Screen Size unfitted", level=4, logger_box=self.loggerBox)
+                self.logger.info("Screen Size unfitted")
                 self.send('stop')
                 return False
-            self._first_started = False
-            self._server_record = server
-            if not self.ocr:
-                self.ocr = CnOcr(rec_model_name='densenet_lite_114-fc')
             print("--------Emulator Init Finished----------")
             return True
         except Exception as e:
@@ -562,58 +178,26 @@ class Main(Setup):
             self.button_signal.emit("启动")
             self.flag_run = False
 
-    def worker(self):  # 见文档 3.<多线程>
-
-        shot_time = time.time() - self.base_time
-        self.latest_img_array = self.operation("get_screenshot_array")
-        ct = time.time()
-
-        self.get_keyword_appear_time(self.img_ocr(self.latest_img_array))
-        # print("shot time", shot_time,"click time",self.click_time)
-
-        locate_res = self.return_location()
-        if shot_time > self.click_time:
-            self.pos.insert(0, [locate_res, shot_time])
-        if len(self.pos) > 2:
-            #        print("exceed len 2", shot_time)
-            self.pos.pop()
-
-    def run(self):  # 见文档3.<多线程>
-        while self.screenshot_flag_run and self.flag_run:
-            threading.Thread(target=self.worker, daemon=True).start()
-            # self.worker()
-            time.sleep(self.screenshot_interval)
-            # print(f'{self.flag_run}')
-            # 可设置参数 time.sleep(i) 截屏速度为i秒/次，越快程序作出反映的时间便越快，
-            # 同时对电脑的性能要求也会提高，目前推荐设置为1，后续优化后可以设置更低的值
-        print("run stop")
-
     def thread_starter(self):  # 主程序，完成用户指定任务
-        self.operation("start_getting_screenshot_for_location")
         self.quick_method_to_main_page()
         log.line(self.loggerBox)
         log.d("start activities", level=1, logger_box=self.loggerBox)
         print('--------------Start activities...---------------')
-        print(self.main_activity)
-
+        for i in range(0, len(self.main_activity)):
+            print(self.main_activity[i][0])
+            self.solve(self.main_activity[i][0])
         while self.flag_run:
             next_func_name = self.scheduler.heartbeat()
-            self.schedule_pri = [1, 2, 3, 4, 5]
-            self.schedule_times = self.config.get('schedulePriority')
-            while self.schedule_times[0] == 0:
-                self.schedule_times = self.schedule_times[1:]
-                self.schedule_pri = self.schedule_pri[1:]
             if next_func_name:
                 log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
                 i = self.activity_name_list.index(next_func_name)
                 if i != 14:
-                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
-                    self.main_to_page(i)
+                    self.quick_method_to_main_page()
                 if self.solve(next_func_name):
                     self.scheduler.systole(next_func_name)
                 else:
                     self.flag_run = False
-                    self.common_positional_bug_detect_method("main_page", 1236, 39, times=7, anywhere=True)
+                    self.quick_method_to_main_page()
             else:
                 # 返回None结束任务
                 log.d('activities all finished', level=1, logger_box=self.loggerBox)
@@ -646,7 +230,7 @@ class Main(Setup):
 
     def solve(self, activity) -> bool:
         try:
-            return module.__dict__[activity].implement(self)
+            return func_dict[activity](self)
         except Exception as e:
             threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
@@ -654,14 +238,338 @@ class Main(Setup):
     def simple_error(self, info: str):
         raise ScriptError(message=info, context=self)
 
+    def quick_method_to_main_page(self):
+        if self.server == "CN":
+            possibles = {
+                'main_page_quick-home': (1236, 31, 3),
+                'main_page_login-feature': (640, 360, 3),
+                'main_page_news': (1142, 104, 3),
+                'main_story_fight-confirm': (1168, 659, 3),
+                'normal_task_task-finish': (1038, 662, 3),
+                'normal_task_prize-confirm': (776, 655, 3),
+                'normal_task_fail-confirm': (643, 658, 3),
+                'normal_task_fight-task-info': (420, 592, 3),
+                'normal_task_mission-operating-task-info': (1000, 664, 3),
+                'normal_task_task-info': (1084, 139, 3),
+                'normal_task_mission-operating-task-info-notice': (416, 595, 3),
+                'normal_task_mission-pause': (768, 501, 3),
+                'normal_task_task-begin-without-further-editing-notice': (888, 163, 3),
+                'normal_task_task-operating-round-over-notice': (888, 163, 3),
+                'buy_ap_notice': (920, 167, 3),
+                'momo_talk_momotalk-peach': (1123, 122, 3),
+                'cafe_students-arrived': (922, 189, 3),
+                'group_sign-up-reward': (920, 159, 3),
+                'cafe_cafe-reward-status': (905, 159, 3),
+                'cafe_invitation-ticket': (835, 97, 3),
+            }
+            fail_cnt = 0
+            while True:
+                stage.wait_loading(self)
+                self.latest_img_array = self.get_screenshot_array()  # 每次公用一张截图
+                res = color.detect_rgb_one_time(self, [], [], ['main_page'])
+                if res == ('end', 'main_page'):
+                    break
+                click_pos = [
+                    [640, 100],
+                    [1236, 31]
+                ]
+                los = [
+                    "reward_acquired",
+                    "home"
+                ]
+                res = color.detect_rgb_one_time(self, click_pos, los, [])
+                if res == ('click', True):
+                    continue
+
+                # region 资源图片可能会出现的位置
+                for asset, obj in possibles.items():
+                    if image.compare_image(self, asset, obj[2], need_loading=False, image=self.latest_img_array,
+                                           need_log=False):
+                        self.logger.info("find " + asset)
+                        self.click(obj[0], obj[1], False)
+                        time.sleep(self.screenshot_interval)
+                        fail_cnt = 0
+                        break
+                else:
+                    fail_cnt += 1
+                    if fail_cnt > 10:
+                        self.logger.info("tentative clicks")
+                        self.click(1236, 31, False)
+                        self.click(640, 360, False)
+                        fail_cnt = 0
+                        time.sleep(self.screenshot_interval)
+            self.click(851, 262, False)  # 和妹子互动
+            return True
+        elif self.server == "Global":
+            click_pos = [
+                [1240, 39],
+                [838, 97],
+                [640, 360],
+                [889, 162],
+                [640, 458],
+                [640, 116],
+                [962, 114],
+                [1138, 114],
+                [640, 558],
+                [640, 360],
+                [640, 360],
+                [640, 360],
+                [1120, 117],
+                [910, 138],
+                [904, 158],
+                [902, 158],
+                [922, 192],
+                [922, 192],
+                [917, 158],
+                [898, 177],
+                [886, 213],
+                [644, 506],
+                [1120, 162],
+                [921, 164],
+                [1129, 142],
+                [1077, 98],
+                [886, 166],
+                [1015, 100],
+                [637, 471],
+                [637, 530],
+                [637, 530],
+                [921, 164],
+                [889, 180],
+                [919, 168],
+                [649, 508],
+                [887, 161],
+                [920, 165],
+                [637, 116],
+                [871, 164],
+            ]
+            los = [
+                "home",
+                "invitation_ticket",
+                "relationship_rank_up",
+                "full_ap_notice",
+                "guide",
+                "reward_acquired",
+                "location_info",
+                "all_locations",
+                "lesson_report",
+                "sign_in1",
+                "sign_in2",
+                "sign_in3",
+                "momotalk",
+                "insufficient_inventory_space",
+                "cafe_earning_status_bright",
+                "cafe_earning_status_grey",
+                "buy_notice_bright",
+                "buy_notice_grey",
+                "club_attendance_reward",
+                "shop_buy_notice_bright",
+                "shop_refresh_guide",
+                "store_login_notice",
+                "room_info",
+                "purchase_bounty_ticket",
+                "mission_info",
+                "sweep_complete",
+                "start_sweep_notice",
+                "battle_opponent",
+                "battle_result_lose",
+                "battle_result_win",
+                "best_season_record_reached",
+                "purchase_scrimmage_ticket",
+                "purchase_ticket_notice",
+                "purchase_ap_notice",
+                "skip_sweep_complete",
+                "charge_challenge_counts",
+                "purchase_lesson_ticket",
+                "area_rank_up",
+                "complete_instantly_notice",
+            ]
+            ends = ["main_page"]
+            color.common_rgb_detect_method(self, click_pos, los, ends)
+            self.click(851, 262, False)
+            return True
+
+    def init_rgb(self):
+        try:
+            self.logger.info("Start initializing rgb_feature")
+            if self.server == 'CN':
+                self.rgb_feature = json.load(open('src/rgb_feature/rgb_feature_CN.json'))['rgb_feature']
+            elif self.server == 'Global':
+                self.rgb_feature = json.load(open('src/rgb_feature/rgb_feature_Global.json'))['rgb_feature']
+            self.logger.info("SUCCESS")
+        except Exception as e:
+            self.logger.error("rgb_feature initialization failed")
+            self.logger.error(e)
+
+    def init_config(self):
+        try:
+
+            self.logger.info("Start initializing config")
+            self.config = self.operate_dict(ConfigSet().config)
+            self.logger.info("SUCCESS")
+        except Exception as e:
+            self.logger.error("Config initialization failed")
+            self.logger.error(e)
+
+    def init_server(self):
+        try:
+            self.logger.info("Start initializing server")
+            if self.config['Settings']['server'] == '官服' or self.config['Settings']['server'] == 'B服':
+                self.server = 'CN'
+            elif self.config['Settings']['server'] == '国际服':
+                self.server = 'Global'
+            self.logger.info("Current server: " + self.server)
+        except Exception as e:
+            self.logger.error("Server initialization failed")
+            self.logger.error(e)
+
+    def swipe(self, fx, fy, tx, ty,duration=None):
+        self.logger.info("swipe %s %s %s %s", fx, fy, tx, ty)
+        if duration is None:
+            self.connection.swipe(fx, fy, tx, ty)
+        else:
+            self.connection.swipe(fx, fy, tx, ty,duration=duration)
+
+    def init_ocr(self):
+        try:
+            self.logger.info("Start initializing OCR")
+            if self.server == 'CN':
+                self.ocrCN = CnOcr(rec_model_name='densenet_lite_114-fc')
+                img_CN = cv2.imread('src/test_ocr/CN.png')
+                self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
+            elif self.server == 'Global':
+                self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det", rec_model_name='en_number_mobile_v2.0', context='gpu')
+                img_EN = cv2.imread('src/test_ocr/EN.png')
+                self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
+            self.ocrNUM = CnOcr(det_model_name='number-densenet_lite_136-fc',rec_model_name='number-densenet_lite_136-fc')
+            img_NUM = cv2.imread('src/test_ocr/NUM.png')
+            self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
+            self.logger.info("OCR initialization concluded")
+        except Exception as e:
+            self.logger.error("OCR initialization failed")
+            self.logger.error(e)
+
+    def get_ap(self):
+        img = self.latest_img_array[10:40, 560:658, :]
+        t1 = time.time()
+        ocr_res = self.ocr.ocr_for_single_line(img)
+        t2 = time.time()
+        self.logger.info("ocr_ap:" + str(t2 - t1))
+        temp = ""
+        for j in range(0, len(ocr_res['text'])):
+            if ocr_res['text'][j] == '/':
+                self.logger.info("ap:" + temp)
+                return [int(ocr_res["text"][:j]), int(ocr_res["text"][j + 1:])]
+        self.logger.info("ap: UNKNOWN")
+        return "UNKNOWN"
+
+    def get_pyroxene(self):
+        img = self.latest_img_array[10:40, 961:1072, :]
+        t1 = time.time()
+        ocr_res = self.ocr.ocr_for_single_line(img)
+        t2 = time.time()
+        self.logger.info("ocr_pyroxene:" + str(t2 - t1))
+        temp = 0
+        for j in range(0, len(ocr_res['text'])):
+            if not ocr_res['text'][j].isdigit():
+                continue
+            temp = temp * 10 + int(ocr_res['text'][j])
+        return temp
+
+    def get_creditpoints(self):
+        img = self.latest_img_array[10:40, 769:896, :]
+        t1 = time.time()
+        ocr_res = self.ocr.ocr_for_single_line(img)
+        t2 = time.time()
+        self.logger.info("ocr_creditpoints:" + str(t2 - t1))
+        temp = 0
+        for j in range(0, len(ocr_res['text'])):
+            if not ocr_res['text'][j].isdigit():
+                continue
+            temp = temp * 10 + int(ocr_res['text'][j])
+        return temp
+
+    def operate_dict(self, dic):
+        for key in dic:
+            if type(dic[key]) is dict:
+                dic[key] = self.operate_dict(dic[key])
+            else:
+                dic[key] = self.operate_item(dic[key])
+        return dic
+
+    def is_float(self, s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+
+    def operate_item(self, item):
+        if type(item) is int or type(item) is bool or type(item) is float:
+            return item
+        if type(item) is str:
+            if item.isdigit():
+                return int(item)
+            elif self.is_float(item):
+                return float(item)
+            else:
+                if item.count(",") == 2:
+                    temp = item.split(",")
+                    for j in range(0, len(temp)):
+                        if temp[j].isdigit():
+                            temp[j] = int(temp[j])
+                    print(item, temp)
+                    item = temp
+                return item
+        else:
+            temp = []
+            for i in range(0, len(item)):
+                if type(item[i]) is dict:
+                    temp.append(self.operate_dict(item[i]))
+                else:
+                    temp.append(self.operate_item(item[i]))
+            return temp
+
+    def init_all_data(self):
+        self.init_config()
+        print(self.config)
+        self.init_server()
+        self.init_package_name()
+        self.init_ocr()
+        self.init_rgb()
+        position.init_image_data(self)
+        self._init_emulator()
+
+    def init_package_name(self):
+        server = self.config['server']
+        if server == '官服':
+            self.package_name = 'com.RoamingStar.BlueArchive'
+        elif server == 'B服':
+            self.package_name = 'com.RoamingStar.BlueArchive.bilibili'
+        elif server == '国际服':
+            self.package_name = 'com.nexon.bluearchive'
+
 
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
-    t._init_emulator()
     t.flag_run = True
+    # t.quick_method_to_main_page()
+    # t.solve('scrimmage')
+    # t.quick_method_to_main_page()
+    # t.solve('collect_reward')
+    # t.quick_method_to_main_page()
+    # t.solve('group')
+    # t.quick_method_to_main_page()
+    # t.solve('cafe_reward')
+    t.quick_method_to_main_page()
+    t.solve('normal_task')
+    t.quick_method_to_main_page()
+    t.solve('explore_normal_task')
+    # t.quick_method_to_main_page()
+    # t.solve('momo_talk')
+    t.thread_starter()
     path = "src/event/auto clear bright.png"
-    img = t.operation("get_screenshot_array")
+    img = t.get_screenshot_array()
     print(check_sweep_availability(img))
     return_data1 = get_x_y(img, path)
     print(return_data1)

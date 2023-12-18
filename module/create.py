@@ -2,6 +2,29 @@ import time
 
 from core.utils import get_x_y, kmp,img_crop
 from gui.util import log
+from datetime import datetime
+
+
+x = {
+    'menu': (107, 9, 162, 36),
+    'workshop': (418, 100, 436, 117),
+    'view-all': (98, 103, 181, 122),
+    'start-make2': (1054, 640, 1182, 669),
+    'choose-node': (1054, 638, 1182, 669),
+    'confirm-acc': (740, 466, 800, 493),
+
+    'receive': (1102, 267, 1150, 290),
+    'immediately': (1076, 267, 1124, 290),
+    'start-make': (931, 303, 1015, 323)
+}
+
+def get_next_execute_tick():
+    current_time = datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    next_time = datetime(year, month, day+1, 4)
+    return next_time.timestamp()
 
 
 def common_create_collect_operation(self):
@@ -30,6 +53,7 @@ def common_create_collect_operation(self):
         return_data2 = get_x_y(self.latest_img_array, path3)
 
     self.operation("start_getting_screenshot_for_location")
+
 
 def common_create_judge(self):
     pri = ["花","Mo","桃桃","万圣节","情人节","果冻","色彩","灿烂","光芒","玲珑","白金","黄金","铜","白银","金属","隐然"]  # 可设置参数，越靠前的节点在制造时越优先选择
@@ -94,7 +118,7 @@ def implement(self):
                 print(return_data2)
                 if return_data2[1][0] < 1e-03:
                     log.d("material 1 INADEQUATE,EXIT create task", level=2, logger_box=self.loggerBox)
-                    self.main_activity[12][1] = 1
+                    self.next_execute_time_queue.put(["create", get_next_execute_tick()])
                     return True
             if return_data1[1][0] < 1e-03:
                 collect = True
@@ -120,4 +144,5 @@ def implement(self):
             common_create_collect_operation(self)
             log.d("all creature collected", level=1, logger_box=self.loggerBox)
 
+    self.next_execute_time_queue.put(["create", get_next_execute_tick()])
     return True

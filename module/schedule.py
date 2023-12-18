@@ -1,8 +1,19 @@
-from core.utils import pd_rgb
+from core.color import judge_rgb_range  as pd_rgb
 import time
 
 from gui.util import log
+from datetime import datetime
+x = {
+    'menu': (107, 9, 162, 36)
+}
 
+def get_next_execute_tick():
+    current_time = datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    next_time = datetime(year, month, day+1, 4)
+    return next_time.timestamp()
 
 def implement(self):
     region_name = ["沙勒业务区", "沙勒生活区", "歌赫娜中央区", "阿拜多斯高等学院", "千禧年学习区"]

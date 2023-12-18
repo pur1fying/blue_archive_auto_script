@@ -1,38 +1,96 @@
 import time
+from core import stage, color, image
 
-from core.utils import get_x_y
-from gui.util import log
+
+x = {
+    'menu': (107, 9, 162, 36)
+}
 
 
 def implement(self, activity="collect_daily_power"):
-    while 1:							#收集 每日任务奖励
-        path1 = self.operation("get_screenshot_array")
-        path2 = "../src/daily_task/daily_task_collect_all_bright.png"
-        path3 = "../src/daily_task/daily_task_collect_all_grey.png"
-        return_data1 = get_x_y(path1, path2)
-        return_data2 = get_x_y(path1, path3)
-        print(return_data1)
-        print(return_data2)
-        if return_data2[1][0] <= 1e-03:
-            log.d("work reward has been collected", level=1, logger_box=self.loggerBox)
-            self.operation("click@home", (1240, 29))
+    to_tasks(self)
+    time.sleep(0.5)
+    if self.server == 'CN':
+        return cn_implement(self)
+    elif self.server == "Global":
+        return global_implement(self)
+
+
+def cn_implement(self):
+    while 1:
+        if color.judge_rgb_range(self.latest_img_array, 1148, 691, 239, 255, 228, 248, 64, 84) and \
+                color.judge_rgb_range(self.latest_img_array, 1142, 649, 239, 255, 228, 248, 64, 84):
+            self.logger.info("claim reward")
+            self.click(1145, 670, wait=False,duration=2)
+            self.click(254, 72, wait=False)
+            self.click(254, 72, wait=False)
+            to_tasks(self)
+        elif color.judge_rgb_range(self.latest_img_array, 1148, 691, 206, 226, 207, 227, 208, 228) and \
+                color.judge_rgb_range(self.latest_img_array, 1142, 649, 206, 226, 207, 227, 208, 228):
+            self.logger.info("claim all grey")
             break
-        elif return_data1[1][0] <= 1e-03:
-            log.d("collect work task reward", level=1, logger_box=self.loggerBox)
-            self.operation("click@collect_all", (return_data1[0][0], return_data1[0][1]), duration=2)
-            self.operation("click@anywhere", (217, 63), duration=0.5)
-            self.operation("click@anywhere", (217, 63))
-            if not self.common_positional_bug_detect_method("work_task", 217, 63):
-                return False
         else:
-            log.d("Can't detect button", level=3, logger_box=self.loggerBox)
-            self.signal_stop()
+            self.logger.info("Can't detect button")
+            return False
+    return True
+
+
+def to_tasks(self):
+    if self.server == 'Global':
+        click_pos = [
+            [70, 232],
+            [910, 138],
+            [254, 72],
+            [889, 162],
+        ]
+        los = [
+            "main_page",
+            "insufficient_inventory_space",
+            "reward_acquired",
+            "full_ap_notice",
+        ]
+        ends = [
+            "tasks",
+        ]
+        color.common_rgb_detect_method(self, click_pos, los, ends)
+    elif self.server == "CN":
+        possibles = {
+            "main_page_home-feature": (70, 232, 3)
+        }
+        image.detect(self, "work_task_menu", possibles)
+
+
+def global_implement(self):
+    while 1:
+        if color.judge_rgb_range(self.latest_img_array, 1148, 691, 239, 255, 228, 248, 64, 84) and \
+                color.judge_rgb_range(self.latest_img_array, 1142, 649, 239, 255, 228, 248, 64, 84):
+            self.logger.info("claim reward")
+            self.click(1145, 670, wait=False,duration=2)
+            self.click(254, 72, wait=False)
+            self.click(254, 72, wait=False)
+            to_tasks(self)
+        elif color.judge_rgb_range(self.latest_img_array, 1148, 691, 185, 205, 184, 204, 188, 208) and \
+                color.judge_rgb_range(self.latest_img_array, 1142, 649, 185, 205, 184, 204, 188, 208):
+            self.logger.info("claim all grey")
+            break
+        else:
+            self.logger.info("Can't detect button")
             return False
 
-    if activity == "collect_daily_power":
-        self.main_activity[3][1] = 1
-        log.d("collect daily power task finished", level=1, logger_box=self.loggerBox)
+    if color.judge_rgb_range(self.latest_img_array, 971, 689, 239, 255, 228, 248, 40, 84) and \
+            color.judge_rgb_range(self.latest_img_array, 964, 649, 239, 255, 228, 248, 40, 84):
+        self.click(976, 670, wait=False,duration=2)
+        self.click(254, 72, wait=False)
+        self.click(254, 72, wait=False)
+        to_tasks(self)
+    elif color.judge_rgb_range(self.latest_img_array, 959, 694, 210, 230, 210, 230, 210, 230) and \
+            color.judge_rgb_range(self.latest_img_array, 957, 650, 210, 230, 210, 230, 210, 230):
+        self.logger.info("claim daily pyroxenes grey")
+    elif color.judge_rgb_range(self.latest_img_array, 959, 694, 112, 152, 116, 156, 119, 159) and \
+            color.judge_rgb_range(self.latest_img_array, 957, 650, 112, 152, 116, 156, 119, 159):
+        self.logger.info("claim daily pyroxenes complete")
     else:
-        self.main_activity[13][1] = 1
-        log.d("collect reward task finished", level=1, logger_box=self.loggerBox)
+        self.logger.info("Can't detect button")
+        return False
     return True
+

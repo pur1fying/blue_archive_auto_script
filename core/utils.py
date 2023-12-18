@@ -1,5 +1,5 @@
 import cv2
-
+from core import color
 
 def build_next_array(patten):               # 用于kmp算法获得next数组
     next_array = [0]
@@ -79,16 +79,12 @@ def get_x_y(target_array, template_path: str):
     return location, result[upper_left[1], [upper_left[0]]]
 
 
-def pd_rgb(shot_array, x, y, r_min, r_max, g_min, g_max, b_min, b_max): # 用于判断像素点的rgb值是否在给定范围内
-    if r_min <= shot_array[y][x][2] <= r_max and g_min <= shot_array[y][x][1] <= g_max and b_min <= \
-            shot_array[y][x][0] <= b_max:
-        return True
-    return False
-
-
 def check_sweep_availability(img):
-    if pd_rgb(img, 211, 369, 192, 212, 192, 212, 192, 212) or pd_rgb(img, 211, 402, 192, 212, 192, 212, 192, 212) or pd_rgb(img, 211, 436, 192, 212, 192, 212, 192, 212):
+    if color.judge_rgb_range(img, 211, 369, 192, 212, 192, 212, 192, 212) or color.judge_rgb_range(img, 211, 402, 192, 212, 192, 212, 192, 212) or color.judge_rgb_range(img, 211, 436, 192, 212, 192, 212, 192, 212):
         return "UNAVAILABLE"
-    if pd_rgb(img, 211, 368, 225,255, 200, 255, 20, 60) and pd_rgb(img, 211, 404, 225,255, 200, 255, 20, 60) and pd_rgb(img, 211, 434, 225,255, 200, 255, 20, 60):
+    if color.judge_rgb_range(img, 211, 368, 225,255, 200, 255, 20, 60) and color.judge_rgb_range(img, 211, 404, 225,255, 200, 255, 20, 60) and color.judge_rgb_range(img, 211, 434, 225,255, 200, 255, 20, 60):
         return "AVAILABLE"
     return "UNKNOWN"
+
+
+

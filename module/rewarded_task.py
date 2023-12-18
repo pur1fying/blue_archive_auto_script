@@ -1,4 +1,18 @@
 from gui.util import log
+from datetime import datetime
+
+x = {
+
+}
+
+
+def get_next_execute_tick():
+    current_time = datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    next_time = datetime(year, month, day+1, 4)
+    return next_time.timestamp()
 
 
 def implement(self):

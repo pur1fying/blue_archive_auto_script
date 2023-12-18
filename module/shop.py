@@ -2,7 +2,25 @@ import time
 import numpy as np
 from core.utils import get_x_y,kmp
 from gui.util import log
-from gui.util.config_set import ConfigSet
+from datetime import datetime
+
+x = {
+    'menu': (107, 9, 162, 36),
+    'buy3': (682, 311, 714, 327),
+    'buy2': (682, 311, 714, 327),
+    'buy1': (682, 311, 714, 327),
+    'confirm': (737, 446, 766, 476)
+}
+
+
+
+def get_next_execute_tick():
+    current_time = datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    next_time = datetime(year, month, day+1, 4)
+    return next_time.timestamp()
 
 
 def implement(self, activity="shop"):

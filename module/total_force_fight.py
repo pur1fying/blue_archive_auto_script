@@ -1,9 +1,19 @@
 import time
 from core.utils import get_x_y, kmp, img_crop
 from gui.util import log
-# from module import common_skip_plot_method
 import numpy as np
 from cnocr import CnOcr
+
+from datetime import datetime
+
+
+def get_next_execute_tick():
+    current_time = datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    next_time = datetime(year, month, day+1, 4)
+    return next_time.timestamp()
 
 
 def find_button_y(self, y, temp_ocr):

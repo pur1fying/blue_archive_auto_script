@@ -2,7 +2,6 @@ import time
 
 from core.utils import get_x_y
 from gui.util import log
-from module import common_skip_plot_method
 
 
 def implement(self):
