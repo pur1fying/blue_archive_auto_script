@@ -44,6 +44,7 @@ def start_fight(self, region):
     mission = calc_need_fight_stage(self, region)
     if mission == "ALL MISSION SWEEP AVAILABLE":
         self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
+        normal_task.to_normal_event(self)
         return "ALL MISSION SSS"
     if mission == 'SUB':
         self.click(645, 511)
@@ -64,14 +65,8 @@ def start_fight(self, region):
     main_story.auto_fight(self)
     if self.config['manual_boss']:
         self.click(1235, 41)
-    end = ('normal_task_menu', 3)
-    possible = {
-        'normal_task_auto-over': (1082, 599, 3),
-        'normal_task_task-finish': (1038, 662, 3),
-        'normal_task_prize-confirm': (776, 655, 3),
-        'main_story_fight-confirm': (1168, 659, 3),
-    }
-    image.detect(self, end, possible)
+
+    normal_task.to_normal_event(self)
     choose_region(self, region - 1)
     choose_region(self, region)
     return start_fight(self, region)

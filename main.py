@@ -24,7 +24,7 @@ func_dict = {
     'momo_talk': module.momo_talk.implement,
     'shop': module.shop.implement,
     'cafe_reward': module.cafe_reward.implement,
-    'schedule': module.schedule.implement,
+    'lesson': module.lesson.implement,
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
     'create': module.create.implement,
@@ -35,6 +35,7 @@ func_dict = {
     'scrimmage': module.scrimmage.implement,
     'collect_reward': module.collect_reward.implement,
     'normal_task': module.normal_task.implement,
+    'hard_task': module.hard_task.implement,
 }
 
 
@@ -46,6 +47,10 @@ class Main(Setup):
         self.rgb_feature = None
         self.ocr = None
         self.config = None
+        self.common_task_count = []
+        self.hard_task_count = []
+        self.common_task_status = []
+        self.hard_task_status = []
         self.logger = logging.getLogger("logger_name")
         formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
         handler1 = logging.StreamHandler(stream=sys.stdout)
@@ -74,25 +79,6 @@ class Main(Setup):
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
-        try:
-            self.common_task_count = self.config['mainlinePriority']  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(普通)打k次
-            self.hard_task_count = self.config['hardPriority']  # **可设置参数 每个元组表示(i,j,k)表示 第i任务第j关(困难)打k次
-            if self.common_task_count == '':
-                self.common_task_count = []
-            else:
-                self.common_task_count = [tuple([int(y) for y in x.split('-')]) for x in
-                                          self.common_task_count.split(',')]
-            if self.hard_task_count == '':
-                self.hard_task_count = []
-            else:
-                self.hard_task_count = [tuple([int(y) for y in x.split('-')]) for x in
-                                        self.hard_task_count.split(',')]
-        except ValueError as e:
-            self.common_task_count = []
-            self.hard_task_count = []
-
-        self.common_task_status = np.full(len(self.common_task_count), False, dtype=bool)
-        self.hard_task_status = np.full(len(self.hard_task_count), False, dtype=bool)
         self.scheduler = Scheduler(update_signal)
         # start_debugger()
 
@@ -111,7 +97,7 @@ class Main(Setup):
         """
         t_start = time.time()
         while 1:
-            self.latest_img_array = cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
+            self.latest_img_array = self.get_screenshot_array()
             if not color.judge_rgb_range(self.latest_img_array, 937, 648, 200, 255, 200, 255, 200, 255) or not \
                 color.judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
                 loading_pos = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
@@ -232,6 +218,7 @@ class Main(Setup):
         try:
             return func_dict[activity](self)
         except Exception as e:
+            self.logger.error(e)
             threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
 
@@ -241,26 +228,36 @@ class Main(Setup):
     def quick_method_to_main_page(self):
         if self.server == "CN":
             possibles = {
-                'main_page_quick-home': (1236, 31, 3),
-                'main_page_login-feature': (640, 360, 3),
-                'main_page_news': (1142, 104, 3),
-                'main_story_fight-confirm': (1168, 659, 3),
-                'normal_task_task-finish': (1038, 662, 3),
-                'normal_task_prize-confirm': (776, 655, 3),
-                'normal_task_fail-confirm': (643, 658, 3),
-                'normal_task_fight-task-info': (420, 592, 3),
-                'normal_task_mission-operating-task-info': (1000, 664, 3),
-                'normal_task_task-info': (1084, 139, 3),
-                'normal_task_mission-operating-task-info-notice': (416, 595, 3),
+                'main_page_quick-home': (1236, 31),
+                'main_page_login-feature': (640, 360),
+                'main_page_news': (1142, 104),
+                'main_page_relationship-rank-up': (640, 360),
+                'main_story_fight-confirm': (1168, 659),
+                'normal_task_task-finish': (1038, 662),
+                'normal_task_prize-confirm': (776, 655),
+                'normal_task_fail-confirm': (643, 658),
+                'normal_task_fight-task-info': (420, 592),
+                "normal_task_sweep-complete": (643, 585),
+                "normal_task_start-sweep-notice": (887, 164),
+                "normal_task_unlock-notice": (887, 164),
+                'normal_task_skip-sweep-complete': (643, 506),
+                "buy_ap_notice": (919, 165),
+                'normal_task_mission-operating-task-info': (1000, 664),
+                'normal_task_task-info': (1084, 139),
+                'normal_task_mission-operating-task-info-notice': (416, 595),
                 'normal_task_mission-pause': (768, 501, 3),
-                'normal_task_task-begin-without-further-editing-notice': (888, 163, 3),
-                'normal_task_task-operating-round-over-notice': (888, 163, 3),
-                'buy_ap_notice': (920, 167, 3),
-                'momo_talk_momotalk-peach': (1123, 122, 3),
-                'cafe_students-arrived': (922, 189, 3),
-                'group_sign-up-reward': (920, 159, 3),
-                'cafe_cafe-reward-status': (905, 159, 3),
-                'cafe_invitation-ticket': (835, 97, 3),
+                'normal_task_task-begin-without-further-editing-notice': (888, 163),
+                'normal_task_task-operating-round-over-notice': (888, 163),
+                'momo_talk_momotalk-peach': (1123, 122),
+                'cafe_students-arrived': (922, 189),
+                'group_sign-up-reward': (920, 159),
+                'cafe_cafe-reward-status': (905, 159),
+                'cafe_invitation-ticket': (835, 97),
+                'lesson_lesson-information': (964, 117),
+                'lesson_all-locations': (1138,117),
+                'lesson_lesson-report':(642,556)
+
+
             }
             fail_cnt = 0
             while True:
@@ -271,11 +268,13 @@ class Main(Setup):
                     break
                 click_pos = [
                     [640, 100],
-                    [1236, 31]
+                    [1236, 31],
+                    [640,360],
                 ]
                 los = [
                     "reward_acquired",
-                    "home"
+                    "home",
+                    'relationship_rank_up',
                 ]
                 res = color.detect_rgb_one_time(self, click_pos, los, [])
                 if res == ('click', True):
@@ -283,7 +282,7 @@ class Main(Setup):
 
                 # region 资源图片可能会出现的位置
                 for asset, obj in possibles.items():
-                    if image.compare_image(self, asset, obj[2], need_loading=False, image=self.latest_img_array,
+                    if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
                                            need_log=False):
                         self.logger.info("find " + asset)
                         self.click(obj[0], obj[1], False)
@@ -413,9 +412,10 @@ class Main(Setup):
     def init_server(self):
         try:
             self.logger.info("Start initializing server")
-            if self.config['Settings']['server'] == '官服' or self.config['Settings']['server'] == 'B服':
+            server = self.config['Settings']['server']
+            if server == '官服' or self == 'B服':
                 self.server = 'CN'
-            elif self.config['Settings']['server'] == '国际服':
+            elif server == '国际服':
                 self.server = 'Global'
             self.logger.info("Current server: " + self.server)
         except Exception as e:
@@ -451,7 +451,10 @@ class Main(Setup):
     def get_ap(self):
         img = self.latest_img_array[10:40, 560:658, :]
         t1 = time.time()
-        ocr_res = self.ocr.ocr_for_single_line(img)
+        if self.server == 'CN':
+            ocr_res = self.ocrCN.ocr_for_single_line(img)
+        elif self.server == 'Global':
+            ocr_res = self.ocrEN.ocr_for_single_line(img)
         t2 = time.time()
         self.logger.info("ocr_ap:" + str(t2 - t1))
         temp = ""
@@ -465,7 +468,10 @@ class Main(Setup):
     def get_pyroxene(self):
         img = self.latest_img_array[10:40, 961:1072, :]
         t1 = time.time()
-        ocr_res = self.ocr.ocr_for_single_line(img)
+        if self.server == 'CN':
+            ocr_res = self.ocrCN.ocr_for_single_line(img)
+        elif self.server == 'Global':
+            ocr_res = self.ocrEN.ocr_for_single_line(img)
         t2 = time.time()
         self.logger.info("ocr_pyroxene:" + str(t2 - t1))
         temp = 0
@@ -478,7 +484,10 @@ class Main(Setup):
     def get_creditpoints(self):
         img = self.latest_img_array[10:40, 769:896, :]
         t1 = time.time()
-        ocr_res = self.ocr.ocr_for_single_line(img)
+        if self.server == 'CN':
+            ocr_res = self.ocrCN.ocr_for_single_line(img)
+        elif self.server == 'Global':
+            ocr_res = self.ocrEN.ocr_for_single_line(img)
         t2 = time.time()
         self.logger.info("ocr_creditpoints:" + str(t2 - t1))
         temp = 0
@@ -540,7 +549,7 @@ class Main(Setup):
         self._init_emulator()
 
     def init_package_name(self):
-        server = self.config['server']
+        server = self.config['Settings']['server']
         if server == '官服':
             self.package_name = 'com.RoamingStar.BlueArchive'
         elif server == 'B服':
@@ -554,6 +563,8 @@ if __name__ == '__main__':
     t = Main()
     t.flag_run = True
     # t.quick_method_to_main_page()
+    # t.solve('lesson')
+    # t.quick_method_to_main_page()
     # t.solve('scrimmage')
     # t.quick_method_to_main_page()
     # t.solve('collect_reward')
@@ -561,10 +572,14 @@ if __name__ == '__main__':
     # t.solve('group')
     # t.quick_method_to_main_page()
     # t.solve('cafe_reward')
-    t.quick_method_to_main_page()
-    t.solve('normal_task')
-    t.quick_method_to_main_page()
-    t.solve('explore_normal_task')
+    # t.quick_method_to_main_page()
+    # t.solve('normal_task')
+    # t.quick_method_to_main_page()
+    # t.solve('mail')
+    # t.quick_method_to_main_page()
+    # t.solve('hard_task')
+    # t.quick_method_to_main_page()
+    # t.solve('explore_normal_task')
     # t.quick_method_to_main_page()
     # t.solve('momo_talk')
     t.thread_starter()

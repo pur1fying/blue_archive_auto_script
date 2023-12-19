@@ -123,7 +123,7 @@ def match(img, server):
     for i in range(1, 5):
         template = cv2.imread("src/images/CN/cafe/happy_face" + str(i) + ".png")
         result = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
-        threshold = 0.8
+        threshold = 0.75
         locations = np.where(result >= threshold)
         for pt in zip(*locations[::-1]):
             res.append([pt[0] + template.shape[1] / 2, pt[1] + template.shape[0] / 2 + 58])
@@ -158,6 +158,7 @@ def interaction_for_cafe_solve_method3(self):
 
         for j in range(0, len(res)):
             self.click(res[j][0], min(res[j][1], 591), wait=False)
+
         time.sleep(2)
         to_cafe(self)
         if i != 4:
@@ -173,7 +174,7 @@ def to_invitation_ticket(self):
             'cafe_cafe-reward-status': (905, 159, 3),
             'cafe_menu': (838, 647, 3),
         }
-        end = ('cafe_invitation-ticket', 3)
+        end = 'cafe_invitation-ticket'
         return image.detect(self, end, possible)
     elif self.server == "Global":
         click_pos = [[836, 650]]

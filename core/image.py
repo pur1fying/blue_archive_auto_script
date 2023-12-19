@@ -35,7 +35,6 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None):
     self.logger.info("Start detecting image possibles :{0}, end:{1}".format(possibles, end))
     while True:
         self.wait_loading()
-        self.latest_img_array = self.get_screenshot_array()  # 每次公用一张截图
         if pre_func is not None:
             res = pre_func(*pre_argv)
             if not res:
@@ -64,6 +63,7 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None):
                     threshold = obj[2]
                 if compare_image(self, asset, threshold, image=self.latest_img_array, need_log=False):
                     if type(obj[0]) is int:
+                        self.logger.info("find : " + asset)
                         self.click(obj[0], obj[1], False)
                         time.sleep(self.screenshot_interval)
                     else:
