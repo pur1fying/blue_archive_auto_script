@@ -32,6 +32,8 @@ func_dict = {
     'collect_reward': module.collect_reward.implement,
     'normal_task': module.normal_task.implement,
     'hard_task': module.hard_task.implement,
+    'clear_special_task_power': module.clear_special_task_power.implement,
+    'de_clothes': module.de_clothes.implement
 }
 
 
@@ -43,6 +45,7 @@ class Main(Setup):
         self.rgb_feature = None
         self.ocr = None
         self.config = None
+        self.next_time = None
         self.ocrCN, self.ocrNUM, self.ocrEN = [None] * 3
         self.common_task_count = []
         self.hard_task_count = []
@@ -185,8 +188,9 @@ class Main(Setup):
                 i = self.activity_name_list.index(next_func_name)
                 if i != 14:
                     self.quick_method_to_main_page()
+                self.next_time = 0
                 if self.solve(next_func_name):
-                    self.scheduler.systole(next_func_name)
+                    self.scheduler.systole(next_func_name, self.next_time)
                 else:
                     self.flag_run = False
                     self.quick_method_to_main_page()
@@ -261,13 +265,18 @@ class Main(Setup):
                 'cafe_invitation-ticket': (835, 97),
                 'lesson_lesson-information': (964, 117),
                 'lesson_all-locations': (1138, 117),
-                'lesson_lesson-report': (642, 556)
-
+                'lesson_lesson-report': (642, 556),
+                "special_task_task-info": (1085, 141),
+                "rewarded_task_purchase-ticket-notice": (888, 162),
+                'arena_battle-win': (640, 530),
+                'arena_battle-lost': (640, 468),
+                'arena_season-record': (640, 538),
+                'arena_best-record': (640, 538),
             }
             fail_cnt = 0
             while True:
                 stage.wait_loading(self)
-                self.latest_img_array = self.get_screenshot_array()  # 每次公用一张截图
+                self.latest_img_array = self.get_screenshot_array()
                 res = color.detect_rgb_one_time(self, [], [], ['main_page'])
                 if res == ('end', 'main_page'):
                     break
@@ -578,6 +587,11 @@ if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     t.flag_run = True
+    t.solve('arena')
+    t.quick_method_to_main_page()
+    # t.solve("rewarded_task")
+    # t.quick_method_to_main_page()
+    # t.solve('clear_special_task_power')
     # t.quick_method_to_main_page()
     # t.solve('lesson')
     # t.quick_method_to_main_page()

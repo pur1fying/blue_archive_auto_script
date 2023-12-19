@@ -21,7 +21,7 @@ def common_rgb_detect_method(self, click, possible_los, ends):
     return False
 
 
-def detect_rgb_one_time(self, click, possible_los, ends):
+def detect_rgb_one_time(self, click=None, possible_los=None, ends=None):
     self.latest_img_array = self.get_screenshot_array()
     for i in range(0, len(ends)):
         for j in range(0, len(self.rgb_feature[ends[i]][0])):

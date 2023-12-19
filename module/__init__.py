@@ -14,3 +14,5 @@ from module import rewarded_task
 from module import scrimmage
 from module import collect_reward
 from module import hard_task
+from module import clear_special_task_power
+from module import de_clothes

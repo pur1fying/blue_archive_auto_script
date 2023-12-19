@@ -24,7 +24,7 @@ def compare_image(self, name, threshold=3, need_loading=False, image=None, need_
     ss_img = screenshot_cut(self, area=area, image=image)
     res_img = position.iad[name]
     diff = cv2.absdiff(ss_img, res_img)
-    mse = np.mean(diff ** 2)
+    mse = np.mean(diff)
     compare = mse <= threshold
     if need_log:
         self.logger.info(f"compare_image {name} mse: {mse} Result:{compare}")

@@ -1,8 +1,6 @@
 import time
 import numpy as np
-from core.utils import get_x_y,kmp
-from gui.util import log
-from datetime import datetime
+from core import color
 
 x = {
     'menu': (107, 9, 162, 36),
@@ -13,184 +11,201 @@ x = {
 }
 
 
-
-def get_next_execute_tick():
-    current_time = datetime.now()
-    year = current_time.year
-    month = current_time.month
-    day = current_time.day
-    next_time = datetime(year, month, day+1, 4)
-    return next_time.timestamp()
-
-
-def implement(self, activity="shop"):
-    self.operation("stop_getting_screenshot_for_location")
-    if activity == "collect_shop_power":
-        refresh_time = int(self.config.get("ArenaShopRefreshTime"))
-        log.d("REFRESH time: " + str(refresh_time), level=1, logger_box=self.loggerBox)
-        buy_list = np.array(self.config.get("ArenaShopList"))
-        self.operation("click", (100, 370), duration=0.5)
-        for i in range(0, refresh_time + 1):
-            # 选择商品
-            buy_list_for_power_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
-                                        [700, 461], [857, 461], [1000, 461], [1162, 461]]
-            for j in range(0, 8):
-                if buy_list[j]:
-                    self.operation("click",(buy_list_for_power_items[j][0], buy_list_for_power_items[j][1]),duration=0.1)
-            if buy_list[8:].any():
-                log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
-                self.operation("swipe", [(932, 550), (932, 0)], duration=0.3)
-                for j in range(8, 13):
-                    if buy_list[j]:
-                        time.sleep(0.1)
-                        self.operation("click",(buy_list_for_power_items[j % 8][0], buy_list_for_power_items[j % 8][1]))
-
-            # 判断是否能够购买
-            time.sleep(0.5)
-            self.latest_img_array = self.operation("get_screenshot_array")
-            path2 = "src/shop/buy_bright.png"
-            path3 = "src/shop/buy_grey.png"
-            path4 = "src/shop/update.png"
-            return_data1 = get_x_y(self.latest_img_array, path2)
-            return_data2 = get_x_y(self.latest_img_array, path3)
-            return_data3 = get_x_y(self.latest_img_array, path4)
-            print(return_data1)
-            print(return_data2)
-            print(return_data3)
-            if return_data2[1][0] <= 1e-03:
-                log.d("assets inadequate", level=1, logger_box=self.loggerBox)
-                self.operation("click@home", (1240, 29))
-                break
-            elif return_data1[1][0] <= 1e-03:
-                log.d("buy operation succeeded", level=1, logger_box=self.loggerBox)
-                self.operation("click", (return_data1[0][0], return_data1[0][1]), duration=0.5)
-                self.operation("click", (770, 480), duration=1)
-                if i != refresh_time:
-                    self.operation("click@anywhere", (650, 58))
-                    self.operation("click@anywhere", (650, 58), duration=0.5)
-                else:   # 最后一次购买
-                    self.operation("click@home", (1240, 29))
-                    self.operation("click@home", (1240, 29))
-                    self.operation("click@home", (1240, 29))
-                    break
-            elif return_data3[1][0] <= 1e-03:
-                log.d("items have been brought", level=1, logger_box=self.loggerBox)
-                if i == refresh_time:
-                    self.operation("click@home", (1240, 29))
-                    break
-            else:
-                log.d("Can't detect button", level=2, logger_box=self.loggerBox)
-                self.operation("click@home", (1240, 29))
-                return False
-
-            # 刷新
-            self.common_icon_bug_detect_method("src/shop/update.png", 650, 58, "refresh", times=5)
-            self.operation("click@refresh", (938, 660), duration=0.5)
-            self.latest_img_array = self.operation("get_screenshot_array")
-            ocr_res = self.img_ocr(self.latest_img_array)
-            if kmp("通知", ocr_res):
-                log.d("zero refresh time", level=2, logger_box=self.loggerBox)
-                self.operation("click@home", (1240, 29))
-                self.operation("click@home", (1240, 29))
-                break
-            elif kmp("说明", ocr_res) or kmp("取消", ocr_res):
-                log.d("refresh available", level=1, logger_box=self.loggerBox)
-                self.operation("click@confirm", (773, 461),duration=0.5)
-            else:
-                log.d("Can't detect if refresh is available", level=2, logger_box=self.loggerBox)
-                self.operation("click@home", (1240, 29))
-                self.operation("click@home", (1240, 29))
-                break
-    else:
-        refresh_time = int(self.config.get("ShopRefreshTime"))
-        log.d("REFRESH time: " + str(refresh_time), level=1, logger_box=self.loggerBox)
-        buy_list = np.array(self.config.get("ShopList")) # ** 每日商品购买表 1 表示购买
-        # buy_list = [0, 0, 0, 0,     # ** 每日商品购买表 1 表示购买
-        #             1, 1, 1, 1,
-        #             1, 1, 1, 1,
-        #             1, 1, 1, 1]
-        buy_list_for_common_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
-                                     [700, 461], [857, 461], [1000, 461], [1162, 461]]
-        for i in range(0, refresh_time + 1):
-            # 选择商品
-            buy_list_for_power_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
-                                        [700, 461], [857, 461], [1000, 461], [1162, 461]]
-            for j in range(0, 8):
-                if buy_list[j]:
-                    self.operation("click", (buy_list_for_power_items[j][0], buy_list_for_power_items[j][1]),
-                                   duration=0.1)
-            if buy_list[8:].any():
-                log.d("SWIPE DOWNWARDS", level=1, logger_box=self.loggerBox)
-                self.operation("swipe", [(932, 550), (932, 0)], duration=0.3)
-                for j in range(8, 16):
-                    if buy_list[j]:
-                        time.sleep(0.1)
-                        self.operation("click",
-                                       (buy_list_for_power_items[j % 8][0], buy_list_for_power_items[j % 8][1]))
-
-            # 判断是否能够购买
-            time.sleep(0.5)
-            self.latest_img_array = self.operation("get_screenshot_array")
-            path2 = "src/shop/buy_bright.png"
-            path3 = "src/shop/buy_grey.png"
-            path4 = "src/shop/update.png"
-            return_data1 = get_x_y(self.latest_img_array, path2)
-            return_data2 = get_x_y(self.latest_img_array, path3)
-            return_data3 = get_x_y(self.latest_img_array, path4)
-            print(return_data1)
-            print(return_data2)
-            print(return_data3)
-            if return_data2[1][0] <= 1e-03:
-                log.d("assets inadequate", level=1, logger_box=self.loggerBox)
-                self.operation("click@home", (1240, 29))
-                break
-            elif return_data1[1][0] <= 1e-03:
-                log.d("buy operation succeeded", level=1, logger_box=self.loggerBox)
-                self.operation("click", (return_data1[0][0], return_data1[0][1]), duration=0.5)
-                self.operation("click", (770, 480), duration=1)
-                if i != refresh_time:
-                    self.operation("click@anywhere", (650, 58))
-                    self.operation("click@anywhere", (650, 58), duration=0.5)
-                else:  # 最后一次购买
-                    self.operation("click@home", (1240, 29))
-                    self.operation("click@home", (1240, 29))
-                    self.operation("click@home", (1240, 29))
-                    break
-            elif return_data3[1][0] <= 1e-03:
-                log.d("items have been brought", level=1, logger_box=self.loggerBox)
-                if i == refresh_time:
-                    self.operation("click@home", (1240, 29))
-                    break
-            else:
-                log.d("Can't detect button", level=2, logger_box=self.loggerBox)
-                self.operation("click@home", (1240, 29))
-                return False
-
-            # 刷新
-            self.common_icon_bug_detect_method("src/shop/update.png", 650, 58, "refresh", times=5)
-            self.operation("click@refresh", (938, 660), duration=0.5)
-            self.latest_img_array = self.operation("get_screenshot_array")
-            ocr_res = self.img_ocr(self.latest_img_array)
-            if kmp("通知", ocr_res):
-                log.d("zero refresh time", level=2, logger_box=self.loggerBox)
-                self.operation("click@home", (1240, 29))
-                self.operation("click@home", (1240, 29))
-                break
-            elif kmp("说明", ocr_res) or kmp("取消", ocr_res):
-                log.d("refresh available", level=1, logger_box=self.loggerBox)
-                self.operation("click@confirm", (773, 461), duration=0.5)
-            else:
-                log.d("Can't detect if refresh is available", level=2, logger_box=self.loggerBox)
-                self.operation("click@home", (1240, 29))
-                self.operation("click@home", (1240, 29))
-                break
-
-    if activity == "collect_shop_power":
-        self.main_activity[5][1] = 1
-        log.d("collect shop power task finished", level=1, logger_box=self.loggerBox)
-    else:
-        self.main_activity[4][1] = 1
-        log.d("shop task finished", level=1, logger_box=self.loggerBox)
-
-    self.operation("start_getting_screenshot_for_location")
+def to_refresh(self, shop):
+    click_pos = [[1160, 620]]
+    if shop == "tactical_challenge_shop":
+        los = ["tactical_challenge_shop", ]
+    elif shop == "common_shop":
+        los = ["common_shop", ]
+    ends = [
+        "shop_refresh_guide",
+        "refresh_unavailable_notice"
+    ]
+    if color.common_rgb_detect_method(self, click_pos, los, ends) == "refresh_unavailable_notice":
+        return False
     return True
+
+
+def implement(self):
+    to_tactical_challenge_shop(self)
+    tactical_challenge_assets = get_tactical_challenge_assets(self.latest_img_array, self.ocr)
+    self.logger.info("tactical assets : " + str(tactical_challenge_assets))
+
+    buy_list_for_power_items = [
+        [700, 204], [857, 204], [1000, 204], [1162, 204],
+        [700, 461], [857, 461], [1000, 461], [1162, 461]
+    ]
+    price = np.array([
+        50, 50, 50, 50,
+        50, 15, 30, 5,
+        25, 60, 100, 4,
+        20, 60, 100], dtype=int)
+    buy_list = np.array(self.global_config["tactical_challenge_shop_buy_list"])
+    asset_required = (buy_list * price).sum()
+    refresh_time = min(self.global_config['tactical_challenge_shop_refresh_time'], 3)
+    refresh_price = [10, 10, 10]
+    for i in range(0, refresh_time + 1):
+        self.logger.info("asset_required : " + str(asset_required))
+        if asset_required > tactical_challenge_assets:
+            self.logger.info("INADEQUATE assets for BUYING")
+            return True
+        for j in range(0, 8):
+            if buy_list[j]:
+                self.click(buy_list_for_power_items[j][0], buy_list_for_power_items[j][1], wait=False)
+                time.sleep(0.1)
+        if buy_list[8:15].any():
+            self.logger.info("SWIPE DOWNWARDS")
+            self.d.swipe(932, 550, 932, 0, duration=0.5)
+            time.sleep(0.5)
+            for j in range(8, 15):
+                if buy_list[j]:
+                    self.click(buy_list_for_power_items[j % 8][0], buy_list_for_power_items[j % 8][1], wait=False)
+                    time.sleep(0.1)
+
+        self.latest_img_array = self.get_screenshot_array()
+
+        if color.judge_rgb_range(self.latest_img_array, 1126, 662, 235, 255, 222, 242, 64, 84):
+            self.logger.info("Purchase available")
+            self.click(1160, 662, wait=False)
+            time.sleep(0.5)
+            self.click(767, 488, wait=False)
+            time.sleep(2)
+            self.click(640, 80, wait=False)
+            self.click(640, 80, wait=False)
+
+            tactical_challenge_assets = tactical_challenge_assets - asset_required
+            self.logger.info("left assets : " + str(tactical_challenge_assets))
+
+            to_tactical_challenge_shop(self)
+
+        elif color.judge_rgb_range(self.latest_img_array, 1126, 662, 206, 226, 206, 226, 206, 226):
+            self.logger.info("Purchase Unavailable")
+            self.click(1240, 39, wait=False)
+            return True
+        self.latest_img_array = self.get_screenshot_array()
+        if i != refresh_time:
+            if tactical_challenge_assets > refresh_price[i] and color.judge_rgb_range(self.latest_img_array, 1130, 670,
+                                                                                      245, 255, 245, 255, 245,
+                                                                                      255) and color.judge_rgb_range(
+                    self.latest_img_array, 1121, 656, 35, 55, 60, 80, 89, 209):
+                self.logger.info("Refresh available")
+                self.click(1160, 662, wait=False)
+                time.sleep(0.5)
+                if not to_refresh(self, "tactical_challenge_shop"):
+                    self.logger.info("refresh Times inadequate")
+                    return True
+                tactical_challenge_assets = tactical_challenge_assets - refresh_price[i]
+                self.click(767, 468, wait=False)
+                time.sleep(0.5)
+                to_tactical_challenge_shop(self)
+    to_common_shop(self)
+    time.sleep(0.5)
+    creditpoints = self.get_creditpoints()
+    pyroxenes = self.get_pyroxene()
+    buy_list_for_common_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
+                                 [700, 461], [857, 461], [1000, 461], [1162, 461]]
+    price = np.array(
+        [
+            12500, 125000, 300000, 500000,
+            10000, 40000, 96000, 128000,
+            10000, 40000, 96000, 128000,
+            20000, 80000, 192000, 256000,
+            8000, 8000, 25000, 25000
+        ], dtype=int)
+
+    buy_list = np.array(self.global_config["common_shop_buy_list"])
+    asset_required = (buy_list * price).sum()
+    refresh_time = min(self.global_config['common_shop_refresh_time'], 3)
+    refresh_price = [40, 60, 80]
+
+    for i in range(0, refresh_time + 1):
+        self.logger.info("asset_required : ", asset_required)
+        if asset_required > creditpoints != -1:
+            self.logger.info("INADEQUATE assets for BUYING")
+            return True
+        for j in range(0, 8):
+            if buy_list[j]:
+                self.click(buy_list_for_common_items[j][0], buy_list_for_common_items[j][1], wait=False)
+                time.sleep(0.1)
+        if buy_list[8:].any():
+            self.logger.info("SWIPE DOWNWARDS")
+            self.d.swipe(932, 550, 932, 0, duration=0.5)
+            time.sleep(0.5)
+            for j in range(8, 16):
+                if buy_list[j]:
+                    self.click(buy_list_for_common_items[j % 8][0], buy_list_for_common_items[j % 8][1], wait=False)
+                    time.sleep(0.1)
+        if buy_list[16:].any():
+            self.logger.info("SWIPE DOWNWARDS")
+            self.d.swipe(932, 275, 932, 0, duration=0.5)
+            time.sleep(0.5)
+            for j in range(16, 20):
+                if buy_list[j]:
+                    self.click(buy_list_for_common_items[j % 8 + 4][0], buy_list_for_common_items[j % 8 + 4][1],
+                               wait=False)
+                    time.sleep(0.1)
+
+        self.latest_img_array = self.get_screenshot_array()
+
+        if color.judge_rgb_range(self.latest_img_array, 1126, 662, 235, 255, 222, 242, 64, 84):
+            self.logger.info("Purchase available")
+            self.click(1160, 662, wait=False)
+            time.sleep(0.5)
+            self.click(767, 488, wait=False)
+            time.sleep(2)
+            self.click(640, 80, wait=False)
+            self.click(640, 80, wait=False)
+            if creditpoints != -1:
+                creditpoints = creditpoints - asset_required
+                self.logger.info("left creditpoints : " + str(creditpoints))
+            to_common_shop(self)
+        elif color.judge_rgb_range(self.latest_img_array, 1126, 665, 206, 226, 206, 226, 206, 226):
+            self.logger.info("Purchase Unavailable")
+            self.click(1240, 39, wait=False)
+            return True
+        self.latest_img_array = self.operation("get_screenshot_array")
+        if i != refresh_time:
+            if pyroxenes != -1 and pyroxenes > refresh_price[i] and \
+                    color.judge_rgb_range(self.latest_img_array, 1130, 670, 245, 255, 245, 255, 245,
+                                          255) and color.judge_rgb_range(self.latest_img_array, 1121, 656, 35, 55, 60,
+                                                                         80, 89, 209):
+                self.logger.info("Refresh available")
+                self.click(1160, 662, wait=False)
+                time.sleep(0.5)
+                if not to_refresh(self, "common_shop"):
+                    self.logger.info("refresh Times inadequate")
+                    return True
+                pyroxenes = pyroxenes - refresh_price[i]
+                self.logger.info("left pyroxenes : " + str(pyroxenes))
+                self.click(767, 468, wait=False)
+                time.sleep(0.5)
+                to_common_shop(self)
+
+    return True
+
+
+def to_common_shop(self):
+    click_pos = [
+        [799, 653],  # main_page
+        [922, 192],  # buy notice bright
+        [922, 192],  # buy notice grey
+        [886, 213],  # shop refresh guide
+        [640, 89],
+        [889, 162],
+        [910, 138],
+        [157, 135],
+    ]
+    los = [
+        "main_page",
+        "buy_notice_bright",
+        "buy_notice_grey",
+        "shop_refresh_guide",
+        "reward_acquired",
+        "full_ap_notice",
+        "insufficient_inventory_space",
+        "tactical_challenge_shop",
+    ]
+    ends = [
+        "common_shop",
+    ]
+    color.common_rgb_detect_method(self, click_pos, los, ends)
