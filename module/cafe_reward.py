@@ -1,7 +1,6 @@
 import threading
 import time
 
-
 import cv2
 import numpy as np
 
@@ -35,7 +34,7 @@ def to_cafe(self):
         click_pos = [
             [1240, 577],
             [640, 154],
-            [640,360],
+            [640, 360],
         ]
         los = [
             "gift",
@@ -78,7 +77,8 @@ def cn_implement(self):
     op = np.full(2, False, dtype=bool)
     if not image.compare_image(self, 'cafe_0.0', 3):
         op[0] = True
-    if self.ocrCN.ocr_for_single_line(image.screenshot_cut(self, (801,586,875,606),self.latest_img_array))['text'] == "可以使用":
+    if self.ocrCN.ocr_for_single_line(image.screenshot_cut(self, (801, 586, 875, 606), self.latest_img_array))[
+        'text'] == "可以使用":
         op[1] = True
     if op[0]:
         self.logger.info("Collect Cafe Earnings")
@@ -95,8 +95,6 @@ def cn_implement(self):
         interaction_for_cafe_solve_method2(self)
     if pat_style == '礼物':
         interaction_for_cafe_solve_method3(self)
-
-
 
 
 def global_implement(self):
@@ -184,6 +182,7 @@ def to_invitation_ticket(self):
 
 
 def invite_girl(self):
+    student_name = None
     if self.server == "CN":
         student_name = ["瞬(小)", "桐乃", "纱绫(便服)", "日富美(泳装)", "真白(泳装)", "鹤城(泳装)",
                         "白子(骑行)" "梓(泳装)", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
@@ -239,11 +238,13 @@ def invite_girl(self):
                         "Saten Ruiko",
                         "Serina", "Shimiko", "Shizuko (Swimsuit)", "Suzumi", "Tomoe",
                         "Tsurugi (Swimsuit)", "Yoshimi", "Yuzu (Maid)"]
+
+    assert student_name is not None
     for i in range(0, len(student_name)):
         t = ""
         for j in range(0, len(student_name[i])):
             if student_name[i][j] == '(' or student_name[i][j] == "（" or student_name[i][j] == ")" or \
-                    student_name[i][j] == "）" or student_name[i][j] == ' ':
+                student_name[i][j] == "）" or student_name[i][j] == ' ':
                 continue
             else:
                 t = t + student_name[i][j]
@@ -256,10 +257,12 @@ def invite_girl(self):
         t = ""
         for j in range(0, len(target_name_list[i])):
             if target_name_list[i][j] == '(' or target_name_list[i][j] == "（" or target_name_list[i][j] == ")" or \
-                    target_name_list[i][j] == "）" or target_name_list[i][j] == ' ':
+                target_name_list[i][j] == "）" or target_name_list[i][j] == ' ':
                 continue
             else:
                 t = t + target_name_list[i][j]
+        # target_name_list = t.lower() + target_name_list[1:]
+        # 此处有Bug
         target_name_list[i] = t.lower()
     f = True
     for i in range(0, len(target_name_list)):
@@ -321,7 +324,7 @@ def invite_girl(self):
                         break
                 if not stop_flag:
                     self.logger.info("didn't find target student swipe to next page")
-                    self.d.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, duration=0.5)
+                    self.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, duration=0.5)
                     self.click(617, 500)
         to_cafe(self)
         if not f:
@@ -343,7 +346,8 @@ def collect(self):
                 [640, 522],
                 [628, 147],
             ]
-        los = ["cafe", "full_ap_notice", "insufficient_inventory_space", "cafe_earning_status_bright", "reward_acquired"]
+        los = ["cafe", "full_ap_notice", "insufficient_inventory_space", "cafe_earning_status_bright",
+               "reward_acquired"]
         ends = ["insufficient_inventory_space", "cafe_earning_status_grey"]
         color.common_rgb_detect_method(self, click_pos, los, ends)
 
@@ -411,7 +415,7 @@ def interaction_for_cafe_solve_method1(self):
                 for y in range(0, 670):
                     if color.judge_rgb_range(shot, x, y, 255, 255, 210, 230, 0, 50) and \
                         color.judge_rgb_range(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
-                            color.judge_rgb_range(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
+                        color.judge_rgb_range(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
                         location += 1
                         self.logger.info("find interaction at (" + str(x) + "," + str(y + 42) + ")")
                         self.operation("click@student", (min(1270, x + 40), y + 42))
@@ -423,7 +427,7 @@ def interaction_for_cafe_solve_method1(self):
                                     break
 
             if location == 0:
-                self.logger.info("no interaction swipe to next stage", 1)
+                self.logger.info("no interaction swipe to next stage")
                 stop_flag = True
             else:
                 self.logger.info("totally find " + str(location) + " interaction available")

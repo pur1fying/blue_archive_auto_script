@@ -1,22 +1,18 @@
 import json
-import logging
-import sys
 import threading
 import time
 
-import cv2
 import numpy as np
 import uiautomator2 as u2
 from cnocr import CnOcr
 
 import module
+from core.utils import *
+from core.setup import Setup
 from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
-from core.setup import Setup
-from core.utils import kmp, get_x_y, check_sweep_availability
 from core import position, color, image, stage
-from gui.util import log
 from gui.util.config_set import ConfigSet
 
 func_dict = {
@@ -40,27 +36,31 @@ func_dict = {
 
 
 class Main(Setup):
-    def __init__(self, logger_box=None, button_signal=None, update_signal=None):
+    def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
         super().__init__()
         self.package_name = None
         self.server = None
         self.rgb_feature = None
         self.ocr = None
         self.config = None
+        self.ocrCN, self.ocrNUM, self.ocrEN = [None] * 3
         self.common_task_count = []
         self.hard_task_count = []
         self.common_task_status = []
         self.hard_task_status = []
-        self.logger = logging.getLogger("logger_name")
-        formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
-        handler1 = logging.StreamHandler(stream=sys.stdout)
-        handler1.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(handler1)
+
+        self.logger = Logger(logger_signal)
+
+        # self.logger = logging.getLogger("logger_name")
+        # formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
+        # handler1 = logging.StreamHandler(stream=sys.stdout)
+        # handler1.setFormatter(formatter)
+        # self.logger.setLevel(logging.INFO)
+        # self.logger.addHandler(handler1)
 
         self.init_all_data()
 
-        self.loggerBox = logger_box
+        # self.loggerBox = logger_signal
         self.total_force_fight_difficulty_name = ["HARDCORE", "VERYHARD", "EXTREME", "NORMAL", "HARD"]  # 当期总力战难度
         self.total_force_fight_difficulty_name_ordered = ["NORMAL", "HARD", "VERYHARD", "HARDCORE",
                                                           "EXTREME"]  # 当期总力战难度
@@ -71,6 +71,9 @@ class Main(Setup):
         self.io_err_solved_count = 0
         self.io_err_count = 0
         self.io_err_rate = 10
+
+        # As all data has been initialized, we can assert that config is not None
+        assert self.config is not None
         self.screenshot_interval = self.config['screenshot_interval']
         self.button_signal = button_signal
         self.flag_run = True
@@ -82,11 +85,11 @@ class Main(Setup):
         self.scheduler = Scheduler(update_signal)
         # start_debugger()
 
-    def click(self, x, y, wait=True, count=1, rate=0,duration=0):
+    def click(self, x, y, wait=True, count=1, rate=0, duration=0):
         if wait:
             self.wait_loading()
         for i in range(count):
-            self.logger.info("click x:%s y:%s", x, y)
+            self.logger.info(f"click x:{x} y:{y}")
             time.sleep(rate)
             self.connection.click(x, y)
             time.sleep(duration)
@@ -127,7 +130,8 @@ class Main(Setup):
 
     def signal_stop(self):
         self.flag_run = False
-        self.button_signal.emit("启动")
+        if self.button_signal is not None:
+            self.button_signal.emit("启动")
 
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
@@ -158,24 +162,26 @@ class Main(Setup):
 
     def send(self, msg):
         if msg == "start":
-            self.button_signal.emit("停止")
+            if self.button_signal is not None:
+                self.button_signal.emit("停止")
             self.start_instance()
         elif msg == "stop":
-            self.button_signal.emit("启动")
+            if self.button_signal is not None:
+                self.button_signal.emit("启动")
             self.flag_run = False
 
     def thread_starter(self):  # 主程序，完成用户指定任务
         self.quick_method_to_main_page()
-        log.line(self.loggerBox)
-        log.d("start activities", level=1, logger_box=self.loggerBox)
+        self.logger.line()
+        self.logger.info("start activities")
         print('--------------Start activities...---------------')
-        for i in range(0, len(self.main_activity)):
+        for i in range(13, len(self.main_activity)):
             print(self.main_activity[i][0])
             self.solve(self.main_activity[i][0])
         while self.flag_run:
             next_func_name = self.scheduler.heartbeat()
             if next_func_name:
-                log.d(f'{next_func_name} start', level=1, logger_box=self.loggerBox)
+                self.logger.info(f'{next_func_name} start')
                 i = self.activity_name_list.index(next_func_name)
                 if i != 14:
                     self.quick_method_to_main_page()
@@ -186,7 +192,7 @@ class Main(Setup):
                     self.quick_method_to_main_page()
             else:
                 # 返回None结束任务
-                log.d('activities all finished', level=1, logger_box=self.loggerBox)
+                self.logger.info('activities all finished')
                 notify(title='', body='任务已完成')
                 break
         self.signal_stop()
@@ -195,7 +201,7 @@ class Main(Setup):
         #     if self.main_activity[i][1] == 0:
         #         log.line(self.loggerBox)
         #         print(self.main_activity[i][0])
-        #         log.d("begin " + self.main_activity[i][0] + " task", level=1, logger_box=self.loggerBox)
+        #         log.d("begin " + self.main_activity[i][0] + " task")
         #         if i != 8 and i != 14:
         #             self.to_main_page()
         #             self.main_to_page(i)
@@ -254,9 +260,8 @@ class Main(Setup):
                 'cafe_cafe-reward-status': (905, 159),
                 'cafe_invitation-ticket': (835, 97),
                 'lesson_lesson-information': (964, 117),
-                'lesson_all-locations': (1138,117),
-                'lesson_lesson-report':(642,556)
-
+                'lesson_all-locations': (1138, 117),
+                'lesson_lesson-report': (642, 556)
 
             }
             fail_cnt = 0
@@ -269,7 +274,7 @@ class Main(Setup):
                 click_pos = [
                     [640, 100],
                     [1236, 31],
-                    [640,360],
+                    [640, 360],
                 ]
                 los = [
                     "reward_acquired",
@@ -401,7 +406,6 @@ class Main(Setup):
 
     def init_config(self):
         try:
-
             self.logger.info("Start initializing config")
             self.config = self.operate_dict(ConfigSet().config)
             self.logger.info("SUCCESS")
@@ -413,7 +417,7 @@ class Main(Setup):
         try:
             self.logger.info("Start initializing server")
             server = self.config['Settings']['server']
-            if server == '官服' or self == 'B服':
+            if server == '官服' or server == 'B服':
                 self.server = 'CN'
             elif server == '国际服':
                 self.server = 'Global'
@@ -422,12 +426,12 @@ class Main(Setup):
             self.logger.error("Server initialization failed")
             self.logger.error(e)
 
-    def swipe(self, fx, fy, tx, ty,duration=None):
-        self.logger.info("swipe %s %s %s %s", fx, fy, tx, ty)
+    def swipe(self, fx, fy, tx, ty, duration=None):
+        self.logger.info(f"swipe {fx} {fy} {tx} {ty}")
         if duration is None:
             self.connection.swipe(fx, fy, tx, ty)
         else:
-            self.connection.swipe(fx, fy, tx, ty,duration=duration)
+            self.connection.swipe(fx, fy, tx, ty, duration=duration)
 
     def init_ocr(self):
         try:
@@ -437,10 +441,12 @@ class Main(Setup):
                 img_CN = cv2.imread('src/test_ocr/CN.png')
                 self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
             elif self.server == 'Global':
-                self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det", rec_model_name='en_number_mobile_v2.0', context='gpu')
+                self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det", rec_model_name='en_number_mobile_v2.0',
+                                   context='gpu')
                 img_EN = cv2.imread('src/test_ocr/EN.png')
                 self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
-            self.ocrNUM = CnOcr(det_model_name='number-densenet_lite_136-fc',rec_model_name='number-densenet_lite_136-fc')
+            self.ocrNUM = CnOcr(det_model_name='number-densenet_lite_136-fc',
+                                rec_model_name='number-densenet_lite_136-fc')
             img_NUM = cv2.imread('src/test_ocr/NUM.png')
             self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
             self.logger.info("OCR initialization concluded")
@@ -449,52 +455,62 @@ class Main(Setup):
             self.logger.error(e)
 
     def get_ap(self):
-        img = self.latest_img_array[10:40, 560:658, :]
+        _img = self.latest_img_array[10:40, 560:658, :]
         t1 = time.time()
         if self.server == 'CN':
-            ocr_res = self.ocrCN.ocr_for_single_line(img)
+            _ocr_res = self.ocrCN.ocr_for_single_line(_img)
         elif self.server == 'Global':
-            ocr_res = self.ocrEN.ocr_for_single_line(img)
+            _ocr_res = self.ocrEN.ocr_for_single_line(_img)
+        else:
+            self.logger.error("Unknown Server Error")
+            return "UNKNOWN"
         t2 = time.time()
         self.logger.info("ocr_ap:" + str(t2 - t1))
         temp = ""
-        for j in range(0, len(ocr_res['text'])):
-            if ocr_res['text'][j] == '/':
+        for j in range(0, len(_ocr_res['text'])):
+            if _ocr_res['text'][j] == '/':
                 self.logger.info("ap:" + temp)
-                return [int(ocr_res["text"][:j]), int(ocr_res["text"][j + 1:])]
+                return [int(_ocr_res["text"][:j]), int(_ocr_res["text"][j + 1:])]
         self.logger.info("ap: UNKNOWN")
         return "UNKNOWN"
 
     def get_pyroxene(self):
-        img = self.latest_img_array[10:40, 961:1072, :]
+        _img = self.latest_img_array[10:40, 961:1072, :]
         t1 = time.time()
         if self.server == 'CN':
-            ocr_res = self.ocrCN.ocr_for_single_line(img)
+            _ocr_res = self.ocrCN.ocr_for_single_line(_img)
         elif self.server == 'Global':
-            ocr_res = self.ocrEN.ocr_for_single_line(img)
+            _ocr_res = self.ocrEN.ocr_for_single_line(_img)
+        else:
+            self.logger.error("Unknown Server Error")
+            return "UNKNOWN"
         t2 = time.time()
         self.logger.info("ocr_pyroxene:" + str(t2 - t1))
         temp = 0
-        for j in range(0, len(ocr_res['text'])):
-            if not ocr_res['text'][j].isdigit():
+
+        for j in range(0, len(_ocr_res['text'])):
+            if not _ocr_res['text'][j].isdigit():
                 continue
-            temp = temp * 10 + int(ocr_res['text'][j])
+            temp = temp * 10 + int(_ocr_res['text'][j])
         return temp
 
     def get_creditpoints(self):
-        img = self.latest_img_array[10:40, 769:896, :]
+        _img = self.latest_img_array[10:40, 769:896, :]
         t1 = time.time()
         if self.server == 'CN':
-            ocr_res = self.ocrCN.ocr_for_single_line(img)
+            _ocr_res = self.ocrCN.ocr_for_single_line(_img)
         elif self.server == 'Global':
-            ocr_res = self.ocrEN.ocr_for_single_line(img)
+            _ocr_res = self.ocrEN.ocr_for_single_line(_img)
+        else:
+            self.logger.error("Unknown Server Error")
+            return "UNKNOWN"
         t2 = time.time()
         self.logger.info("ocr_creditpoints:" + str(t2 - t1))
         temp = 0
-        for j in range(0, len(ocr_res['text'])):
-            if not ocr_res['text'][j].isdigit():
+        for j in range(0, len(_ocr_res['text'])):
+            if not _ocr_res['text'][j].isdigit():
                 continue
-            temp = temp * 10 + int(ocr_res['text'][j])
+            temp = temp * 10 + int(_ocr_res['text'][j])
         return temp
 
     def operate_dict(self, dic):

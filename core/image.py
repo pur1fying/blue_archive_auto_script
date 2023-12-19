@@ -27,7 +27,7 @@ def compare_image(self, name, threshold=3, need_loading=False, image=None, need_
     mse = np.mean(diff ** 2)
     compare = mse <= threshold
     if need_log:
-        self.logger.info("compare_image %s mse: %s Result:%s", name, mse, compare)
+        self.logger.info(f"compare_image {name} mse: {mse} Result:{compare}")
     return compare
 
 

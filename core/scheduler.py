@@ -40,7 +40,8 @@ class Scheduler:
 
     def heartbeat(self) -> Optional[str]:
         # self._read_config()
-        self.update_signal.emit()
+        if self.update_signal is not None:
+            self.update_signal.emit()
         # self._event_config = sorted(self._event_config, key=lambda x: x['next_tick'])
         _valid_event = [x for x in self._event_config if x['enabled']]
         if len(_valid_event) != 0:

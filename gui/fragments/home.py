@@ -157,7 +157,7 @@ class MainThread(QThread):
         if self.Main is None:
             from main import Main
             self.Main = Main
-        self._main_thread = self.Main(logger_box=self.logger_signal, button_signal=self.button_signal,
+        self._main_thread = self.Main(logger_signal=self.logger_signal, button_signal=self.button_signal,
                                       update_signal=self.update_signal)
         self._main_thread.send('start')
 
