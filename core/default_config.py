@@ -951,21 +951,34 @@ DISPLAY_DEFAULT_CONFIG = """
 
 DEFAULT_CONFIG = """
 {
-    "ArenaShopRefreshTime": "0",
-    "ShopRefreshTime": "0",
-    "screenshot_interval": "0.5",
+    "purchase_arena_ticket_times": "0",
+    "screenshot_interval": "0.1",
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
     "createTime": "3",
     "totalForceFightDifficulty": "NORMAL",
-    "hardPriority": "1-1-1",
-    "mainlinePriority": "1-1-1",
-    "specialPriority": "1-2,1-2,1-2",
-    "arenaPriority": [
-        2,
-        4,
-        1,
-        3
-    ],
+    "hardPriority": "10-3-3,9-3-3,3-3-1",
+    "mainlinePriority": "11-5-1,10-2-1",
+    "rewarded_task_times": "2,2,2",
+    "purchase_rewarded_task_ticket_times": "0",
+    "special_task_times": "1,1",
+    "purchase_scrimmage_ticket_times": "0",
+    "scrimmage_times": "2,2,2",
+    "patStyle": "礼物",
+    "favorStudent": ["爱丽丝","Aris"],
+    "server": "国服",
+    "adbPort": "7555",
+    "lesson_times":[0,0,0,0,1,4],
+    "purchase_lesson_ticket_times": "0",
+    "explore_normal_task_regions": [13,15,16],
+    "explore_hard_task_regions": [7,8],
+    "manual_boss": false,
+    "burst1": 1,
+    "burst2": 2,
+    "pierce1": 1,
+    "pierce2": 2,
+    "mystic1": 1,
+    "mystic2": 2,
+    "ArenaShopRefreshTime": "0",
     "ArenaShopList": [
         0,
         0,
@@ -981,6 +994,7 @@ DEFAULT_CONFIG = """
         0,
         0
     ],
+    "ShopRefreshTime": "0",
     "ShopList": [
         0,
         0,
@@ -1035,23 +1049,13 @@ DEFAULT_CONFIG = """
     },
     "Settings": {
         "port": "",
-        "server": "B服"
+        "server": "官服"
     },
     "QFluentWidgets": {
         "ThemeColor": "#ff0078d4",
         "ThemeMode": "Light"
-    },
-    "patStyle": "普通",
-    "favorStudent": "小春",
-    "server": "B服",
-    "adbPort": "0",
-    "schedulePriority": [
-        1,
-        2,
-        3,
-        5,
-        4
-    ]
+    }
+
 }
 """
 
