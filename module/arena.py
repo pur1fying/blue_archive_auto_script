@@ -65,8 +65,7 @@ def choose_enemy(self):
     refresh = 0
     while True:
         if refresh > 10:
-            less_level -= 1
-            continue
+            break
         opponent_lv = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[298:317, 551:581])['text'])
         self.logger.info("opponent level " + str(opponent_lv))
         if opponent_lv + less_level <= self_lv:

@@ -1,9 +1,10 @@
 import json
+from json import JSONDecodeError
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel, QHBoxLayout
-from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets import FluentIcon as FIF, TextEdit
 from qfluentwidgets import (
     PrimaryPushSettingCard,
     SubtitleLabel,
@@ -13,6 +14,7 @@ from qfluentwidgets import (
 
 from gui.components.logger_box import LoggerBox
 from gui.util import log
+from gui.util.config_set import ConfigSet
 from window import Window
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
@@ -31,7 +33,7 @@ class MyQLabel(QLabel):
         self.button_clicked_signal.connect(func)
 
 
-class HomeFragment(QFrame):
+class HomeFragment(QFrame, ConfigSet):
     updateButtonState = pyqtSignal(bool)  # 创建用于更新按钮状态的信号
 
     def __init__(self, parent: Window = None):
@@ -41,11 +43,12 @@ class HomeFragment(QFrame):
         self.expandLayout = ExpandLayout(self)
         self.vBoxLayout = QVBoxLayout(self)
 
-        self.infoBox = QFrame(self)
-        self.infoBox.setFixedHeight(45)
-        self.infoLayout = QHBoxLayout(self.infoBox)
+        self.info_box = QFrame(self)
+        self.info_box.setFixedHeight(45)
+        self.infoLayout = QHBoxLayout(self.info_box)
 
         title = '蔚蓝档案自动脚本'
+        self.banner_visible = self.get('bannerVisibility')
         self.label = SubtitleLabel(title, self)
         self.info = SubtitleLabel('无任务', self)
         setFont(self.label, 24)
@@ -57,37 +60,47 @@ class HomeFragment(QFrame):
 
         self.banner = MyQLabel(self)
         self.banner.setFixedHeight(200)
+        self.banner.setMaximumHeight(200)
         pixmap = QPixmap(MAIN_BANNER).scaled(
             self.banner.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
         self.banner.setPixmap(pixmap)
         self.banner.setScaledContents(True)
+        self.banner.setVisible(self.banner_visible)
 
-        self.startupCard = PrimaryPushSettingCard(
+        self.startup_card = PrimaryPushSettingCard(
             self.tr('启动'),
             FIF.CARE_RIGHT_SOLID,
             self.tr('档案，启动'),
             '开始你的档案之旅',
             self
         )
+
+        self.logger_box = TextEdit(self)
+        self.logger_box.setReadOnly(True)
+
         self.__initLayout()
 
         self._main_thread_attach = MainThread()
         self._main_thread_attach.button_signal.connect(self.set_button_state)
-        self._main_thread_attach.logger_signal.connect(self.logger.lineEdit.append)
+        self._main_thread_attach.logger_signal.connect(self.logger_box.append)
         self._main_thread_attach.update_signal.connect(self.call_update)
         self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
-        self.startupCard.clicked.connect(self._start_clicked)
+        self.startup_card.clicked.connect(self._start_clicked)
         self.setObjectName("0x00000003")
 
     def resizeEvent(self, event):
         # 自动调整banner尺寸（保持比例）
         _s = self.banner.size().width() / 1920.0
-        self.banner.setFixedHeight((int) (_s * 450))
+        self.banner.setFixedHeight(min(int(_s * 450), 200))
         # 重新设置banner图片以保持清晰度
         pixmap = QPixmap(MAIN_BANNER).scaled(
             self.banner.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
         self.banner.setPixmap(pixmap)
         self.banner.setScaledContents(True)
+        if self.banner_visible:
+            self.logger_box.setFixedHeight(int(self.parent().height() * 0.4))
+        else:
+            self.logger_box.setFixedHeight(int(self.parent().height() * 0.7))
 
     def call_update(self, parent=None):
         try:
@@ -99,20 +112,21 @@ class HomeFragment(QFrame):
                 self.info.setText('正在运行：' + config['running'])
             if parent:
                 parent.call_update()
-        except Exception as e:
+        except JSONDecodeError:
             # 有时json会是空值报错, 原因未知
             print("Empty JSON data")
 
     def set_button_state(self, state):
-        self.startupCard.button.setText(state)
+        self.startup_card.button.setText(state)
         self._main_thread_attach.running = True if state == "停止" else False
 
     def __initLayout(self):
         self.expandLayout.setSpacing(28)
-        self.expandLayout.addWidget(self.banner)
-        self.expandLayout.addWidget(self.infoBox)
-        self.expandLayout.addWidget(self.startupCard)
-        self.logger = LoggerBox(self.expandLayout, self)
+        if self.banner_visible:
+            self.expandLayout.addWidget(self.banner)
+        self.expandLayout.addWidget(self.info_box)
+        self.expandLayout.addWidget(self.startup_card)
+        self.expandLayout.addWidget(self.logger_box)
         # self.startupCard.clicked.connect(self.__init_starter)
 
     def _start_clicked(self):

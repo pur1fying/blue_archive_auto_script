@@ -11,7 +11,6 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout = QVBoxLayout(self)
 
         self.lay1 = QHBoxLayout(self)
-        self.lay2 = QHBoxLayout(self)
 
         self.option_1 = QHBoxLayout(self)
         self.option_2 = QHBoxLayout(self)
@@ -21,17 +20,9 @@ class Layout(QWidget, ConfigSet):
         self.label_2_0 = QLabel('沙漠铁路', self)
         self.label_3_0 = QLabel('讲堂', self)
 
-        self.input_1_1 = ComboBox(self)
-        self.input_2_1 = ComboBox(self)
-        self.input_3_1 = ComboBox(self)
-
         self.input_1_2 = ComboBox(self)
         self.input_2_2 = ComboBox(self)
         self.input_3_2 = ComboBox(self)
-
-        self.input_1_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',"I"])
-        self.input_2_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',"I"])
-        self.input_3_1.addItems(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',"I"])
 
         self.input_1_2.addItems(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
         self.input_2_2.addItems(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
@@ -39,37 +30,27 @@ class Layout(QWidget, ConfigSet):
 
         self.option_1.addWidget(self.label_1_0, 0, Qt.AlignLeft)
         self.option_1.addStretch(1)
-        self.option_1.addWidget(self.input_1_1, 0, Qt.AlignRight)
         self.option_1.addWidget(self.input_1_2, 0, Qt.AlignRight)
 
         self.option_2.addWidget(self.label_2_0, 0, Qt.AlignLeft)
         self.option_2.addStretch(1)
-        self.option_2.addWidget(self.input_2_1, 0, Qt.AlignRight)
         self.option_2.addWidget(self.input_2_2, 0, Qt.AlignRight)
 
         self.option_3.addWidget(self.label_3_0, 0, Qt.AlignLeft)
         self.option_3.addStretch(1)
-        self.option_3.addWidget(self.input_3_1, 0, Qt.AlignRight)
         self.option_3.addWidget(self.input_3_2, 0, Qt.AlignRight)
 
         self.label = QLabel('请在下拉框中选择相应悬赏委托的难度和次数：', self)
 
-        _set_main = self.get('specialPriority')
-        self.dif = [[int(y) for y in x.split('-')][0] for x in _set_main.split(',')]
-        self.count = [[int(y) for y in x.split('-')][1] for x in _set_main.split(',')]
+        _set_main = self.get('rewarded_task_times')
+        self.count = [int(x) for x in _set_main.split(',')]
 
-        self.input_1_1.setCurrentIndex(self.dif[0] - 1)
         self.input_1_2.setCurrentIndex(self.count[0] - 1)
-        self.input_2_1.setCurrentIndex(self.dif[1] - 1)
         self.input_2_2.setCurrentIndex(self.count[1] - 1)
-        self.input_3_1.setCurrentIndex(self.dif[2] - 1)
         self.input_3_2.setCurrentIndex(self.count[2] - 1)
 
-        self.input_1_1.currentIndexChanged.connect(self._commit)
         self.input_1_2.currentIndexChanged.connect(self._commit)
-        self.input_2_1.currentIndexChanged.connect(self._commit)
         self.input_2_2.currentIndexChanged.connect(self._commit)
-        self.input_3_1.currentIndexChanged.connect(self._commit)
         self.input_3_2.currentIndexChanged.connect(self._commit)
 
         self.setFixedHeight(200)
@@ -93,11 +74,8 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout.addLayout(self.option_3)
 
     def _commit(self):
-        self.dif[0] = self.input_1_1.currentIndex() + 1
-        self.dif[1] = self.input_2_1.currentIndex() + 1
-        self.dif[2] = self.input_3_1.currentIndex() + 1
         self.count[0] = self.input_1_2.currentIndex() + 1
         self.count[1] = self.input_2_2.currentIndex() + 1
         self.count[2] = self.input_3_2.currentIndex() + 1
-        _formatted = ','.join([str(self.dif[i]) + '-' + str(self.count[i]) for i in range(0, 3)])
+        _formatted = ','.join([str(self.count[i]) for i in range(0, 3)])
         self.set('specialPriority', _formatted)

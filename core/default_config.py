@@ -923,6 +923,15 @@ EVENT_DEFAULT_CONFIG = """
         "next_tick": 1697287970,
         "event_name": "收集奖励",
         "func_name": "collect_reward"
+    },
+    {
+        "enabled": false,
+        "event_start": 0,
+        "event_end": 0,
+        "interval": 20000,
+        "next_tick": 1697280134,
+        "event_name": "学院交流会",
+        "func_name": "cafe_reward"
     }
 ]
 
@@ -1062,6 +1071,13 @@ DEFAULT_CONFIG = """
 SWITCH_DEFAULT_CONFIG = '''
 [
     {
+        "config": "featureSwitch",
+        "name": "功能开关",
+        "sort": 0,
+        "tip": "重要，此处为功能开关，控制各功能是否开启，启动前请检查是否开启。",
+        "type": "SwitchSettingCard"
+    },
+    {
         "config": "cafeInvite",
         "name": "咖啡厅",
         "sort": 1,
@@ -1074,27 +1090,6 @@ SWITCH_DEFAULT_CONFIG = '''
         "sort": 2,
         "tip": "自动每日日程",
         "type": "TextSettingCard"
-    },
-    {
-        "config": null,
-        "name": "收集小组体力",
-        "sort": 3,
-        "tip": "帮助你收集小组体力",
-        "type": "BasicSettingCard"
-    },
-    {
-        "config": null,
-        "name": "收集每日体力",
-        "sort": 4,
-        "tip": "帮助你自动收集每日体力",
-        "type": "BasicSettingCard"
-    },
-    {
-        "config": null,
-        "name": "查收邮箱",
-        "sort": 5,
-        "tip": "帮助你自动收集邮箱奖励",
-        "type": "BasicSettingCard"
     },
     {
         "config": "shopPriority",
@@ -1116,13 +1111,6 @@ SWITCH_DEFAULT_CONFIG = '''
         "sort": 8,
         "tip": "主线关卡自动清除体力与每日困难",
         "type": "StageSettingCard"
-    },
-    {
-        "config": null,
-        "name": "每日特别委托",
-        "sort": 9,
-        "tip": "帮助你自动做特别委托",
-        "type": "BasicSettingCard"
     },
     {
         "config": "specialDaily",
@@ -1150,20 +1138,6 @@ SWITCH_DEFAULT_CONFIG = '''
         "name": "总力战",
         "sort": 13,
         "tip": "总力战期间自动打总力战",
-        "type": "BasicSettingCard"
-    },
-    {
-        "config": null,
-        "name": "自动MomoTalk",
-        "sort": 14,
-        "tip": "帮助你自动过关MomoTalk",
-        "type": "BasicSettingCard"
-    },
-    {
-        "config": null,
-        "name": "收集奖励",
-        "sort": 15,
-        "tip": "帮助你自动收集奖励",
         "type": "BasicSettingCard"
     }
 ]

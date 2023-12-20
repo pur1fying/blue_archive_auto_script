@@ -10,7 +10,7 @@ class Layout(QWidget, ConfigSet):
         super().__init__(parent=parent)
         self.setFixedHeight(120)
 
-        self.goods = self.get(key='ShopList')
+        self.goods = self.get(key='CommonShopList')
 
         layout = FlowLayout(self, needAni=True)
         layout.setContentsMargins(30, 30, 30, 30)

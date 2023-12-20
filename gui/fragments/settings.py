@@ -25,11 +25,28 @@ class SettingsFragment(ScrollArea, ConfigSet):
             parent=self.basicGroup
         )
 
-        self.scriptOption=SimpleSettingCard(
+        self.scriptOption = SimpleSettingCard(
             title='脚本相关设置',
             content='根据你的电脑配置，调整相应的参数。',
             sub_view=expand.__dict__['scriptConfig'],
             parent=self.basicGroup
+        )
+
+        self.exploreGroup = SettingCardGroup(
+            self.tr("相关设置"), self.scrollWidget)
+
+        self.exploreOption = SimpleSettingCard(
+            title='推图设置',
+            content='根据你的电脑配置，调整相应的参数。',
+            sub_view=expand.__dict__['exploreConfig'],
+            parent=self.exploreGroup
+        )
+
+        self.otherOption = SimpleSettingCard(
+            title='其他设置',
+            content='其他的一些小功能与设置',
+            sub_view=expand.__dict__['otherConfig'],
+            parent=self.exploreGroup
         )
 
         self.__initLayout()
@@ -49,7 +66,10 @@ class SettingsFragment(ScrollArea, ConfigSet):
         self.viewport().setStyleSheet("background-color: transparent;")
         self.basicGroup.addSettingCard(self.serverOption)
         self.basicGroup.addSettingCard(self.scriptOption)
+        self.exploreGroup.addSettingCard(self.exploreOption)
+        self.exploreGroup.addSettingCard(self.otherOption)
         self.expandLayout.addWidget(self.settingLabel)
         self.expandLayout.addWidget(self.basicGroup)
+        self.expandLayout.addWidget(self.exploreGroup)
 
         self.setWidget(self.scrollWidget)
