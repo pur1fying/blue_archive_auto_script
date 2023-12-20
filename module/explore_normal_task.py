@@ -52,6 +52,12 @@ def start_fight(self, region):
         time.sleep(1)
         self.click(1171, 670)
     else:
+        possibles = {
+            'normal_task_help': (1017, 131),
+            'normal_task_task-info': (946, 540)
+        }
+        image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
+                     pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']))
         prev_index = 0
         for n, p in self.stage_data[mission]['start'].items():
             cu_index = choose_team(self, mission, n)
@@ -225,6 +231,7 @@ def choose_region(self, region):
             self.click(40, 360, wait=False, count=cu_region - region, rate=0.1)
         else:
             self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1)
+        time.sleep(1)
         self.latest_img_array = self.get_screenshot_array()
         cu_region = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[178:208, 122:163, :])['text'])
 

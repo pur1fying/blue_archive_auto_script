@@ -117,7 +117,7 @@ def start_admission(self):
 
 
 def change_acc_auto(self):  # 战斗时开启3倍速和auto
-    img1 = cv2.cvtColor(np.array(self.d.screenshot()), cv2.COLOR_RGB2BGR)
+    img1 = self.get_screenshot_array()
     acc_r_ave = int(img1[625][1196][0]) // 3 + int(img1[625][1215][0]) // 3 + int(img1[625][1230][0]) // 3
     if 250 <= acc_r_ave <= 260:
         self.logger.info("CHANGE acceleration phase from 2 to 3")

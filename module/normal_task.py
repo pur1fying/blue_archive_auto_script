@@ -29,6 +29,7 @@ x = {
     'task-begin-without-further-editing-notice': (695, 334, 758, 365),  # 任务开始前不再编辑部队的提示
     'task-operating-round-over-notice': (598, 332, 708, 365),  # 任务执行过程中回合结束的提示
     'task-operating-feature': (13, 7, 67, 40),  # 任务执行过程中的特征（左上）
+    'help': (597, 111, 675, 150)
 }
 
 
@@ -104,7 +105,7 @@ def implement(self):
             choose_region(self, tar_region)
             self.swipe(917, 220, 917, 552, duration=0.1)
             time.sleep(1)
-            if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission-1]) == "unlock_notice":
+            if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
                 self.logger.info("task unlocked")
                 continue
             t = check_sweep_availability(self.latest_img_array, server=self.server)

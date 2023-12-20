@@ -11,7 +11,7 @@ class ScriptError(Exception):
         context.send('stop')
         self.context.logger.error(message)
         super().__init__(self.message)
-        self.log_into_file()
+        # self.log_into_file()
 
     def log_into_file(self):
         with open('error.html', 'a') as f:
