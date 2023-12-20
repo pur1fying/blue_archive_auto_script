@@ -168,6 +168,14 @@ def to_normal_event(self):
         image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
                      pre_argv=(self, click_pos, los, ["event_normal"]))
     elif self.server == 'Global':
+        possibles = {
+            'normal_task_fight-complete-confirm': (1160, 666),
+            'normal_task_reward-acquired-confirm': (800,660),
+            'normal_task_mission-conclude-confirm': (1042, 671),
+        }
+        end = [
+            "normal_task_select-area",
+        ]
         click_pos = [
             [1077, 98],
             [805, 165],
@@ -196,7 +204,7 @@ def to_normal_event(self):
         ends = [
             "event_normal",
         ]
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        image.detect(self, end=end, possibles=possibles, pre_func=color.detect_rgb_one_time,pre_argv=(self, click_pos, los, ends))
 
 
 def to_task_info(self, x, y):

@@ -116,23 +116,31 @@ def start_admission(self):
     return start_admission(self)
 
 
-def change_acc_auto(self):  # 战斗时开启3倍速和auto
+def change_acc_auto(self):
     img1 = self.get_screenshot_array()
-    acc_r_ave = int(img1[625][1196][0]) // 3 + int(img1[625][1215][0]) // 3 + int(img1[625][1230][0]) // 3
+    if self.server == 'CN':
+        y = 625
+    elif self.server == 'Global':
+        y = 575
+    acc_r_ave = int(img1[y][1196][0]) // 3 + int(img1[y][1215][0]) // 3 + int(img1[y][1230][0]) // 3
     if 250 <= acc_r_ave <= 260:
         self.logger.info("CHANGE acceleration phase from 2 to 3")
-        self.click(1215, 625)
+        self.click(1215, y)
     elif 0 <= acc_r_ave <= 60:
         self.logger.info("ACCELERATION phase 3")
     elif 140 <= acc_r_ave <= 180:
         self.logger.info("CHANGE acceleration phase from 1 to 3")
-        self.click(1215, 625, count=2)
+        self.click(1215, y, wait=False,count=2)
     else:
         self.logger.warning("CAN'T DETECT acceleration BUTTON")
-    auto_r_ave = int(img1[677][1171][0]) // 2 + int(img1[677][1246][0]) // 2
+    if self.server == 'CN':
+        y = 677
+    elif self.server == 'Global':
+        y = 627
+    auto_r_ave = int(img1[y][1171][0]) // 2 + int(img1[y][1246][0]) // 2
     if 190 <= auto_r_ave <= 230:
         self.logger.info("CHANGE MANUAL to auto")
-        self.click(1215, 678)
+        self.click(1215, y,wait=False)
     elif 0 <= auto_r_ave <= 60:
         self.logger.info("AUTO")
     else:
@@ -142,10 +150,16 @@ def change_acc_auto(self):  # 战斗时开启3倍速和auto
 def auto_fight(self):
     while True:
         img = self.get_screenshot_array()
-        if not color.judge_rgb_range(img, 831, 692, 44, 64, 197, 217, 240, 255):
-            time.sleep(self.screenshot_interval)
-        else:
-            break
+        if self.server == 'CN':
+            if not color.judge_rgb_range(img, 831, 692, 44, 64, 197, 217, 240, 255):
+                time.sleep(self.screenshot_interval)
+            else:
+                break
+        elif self.server == 'Global':
+            if not color.judge_rgb_range(img, 831, 643, 0, 40, 150, 190, 240, 255):
+                time.sleep(self.screenshot_interval)
+            else:
+                break
     change_acc_auto(self)
 
 

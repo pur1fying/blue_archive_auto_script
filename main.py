@@ -95,7 +95,9 @@ class Main(Setup):
         for i in range(count):
             self.logger.info(f"click x:{x} y:{y}")
             time.sleep(rate)
-            self.connection.click(x, y)
+            noisex = np.random.uniform(-5, 5)
+            noisey = np.random.uniform(-5, 5)
+            self.connection.click(x + noisex, y + noisey)
             time.sleep(duration)
 
     def wait_loading(self):
@@ -149,7 +151,10 @@ class Main(Setup):
                 self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
             if 'com.github.uiautomator' not in self.connection.app_list():
                 self.connection.app_install('ATX.apk')
-            self.connection.app_start(self.package_name)
+            if self.server == 'CN':
+                self.connection.app_start(self.package_name)
+            elif self.server == 'Global':
+                self.connection.app_start(self.package_name,activity='.MxUnityPlayerActivity')
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
@@ -274,6 +279,7 @@ class Main(Setup):
                 'arena_battle-lost': (640, 468),
                 'arena_season-record': (640, 538),
                 'arena_best-record': (640, 538),
+
             }
             fail_cnt = 0
             while True:
@@ -400,7 +406,16 @@ class Main(Setup):
                 "complete_instantly_notice",
             ]
             ends = ["main_page"]
-            color.common_rgb_detect_method(self, click_pos, los, ends)
+            possibles = {
+                'normal_task_fight-complete-confirm': (1160, 666),
+                'normal_task_reward-acquired-confirm': (800, 660),
+                'normal_task_task-operating-mission-info': (397, 592),
+                'normal_task_mission-operating-feature':(995,668),
+                'normal_task_quit-mission-info':(772,511),
+                'normal_task_mission-conclude-confirm':(1042,671),
+            }
+
+            image.detect(self,end=None, possibles=possibles, pre_func=color.detect_rgb_one_time, pre_argv=(self,click_pos, los, ends))
             return True
 
     def init_rgb(self):
@@ -615,7 +630,8 @@ if __name__ == '__main__':
     # t.solve('mail')
     # t.quick_method_to_main_page()
     # t.solve('hard_task')
-    t.quick_method_to_main_page()
+    # t.quick_method_to_main_page()
+
     t.solve('explore_normal_task')
     t.quick_method_to_main_page()
     t.solve('momo_talk')

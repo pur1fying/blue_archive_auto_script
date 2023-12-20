@@ -54,6 +54,7 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None):
                         asset = (asset, 3)
                     threshold = asset[1]
                     if compare_image(self, asset[0], threshold, image=self.latest_img_array,need_log=False):
+                        self.logger.info('end : ' + asset[0])
                         return asset[0]
 
         if possibles is not None:

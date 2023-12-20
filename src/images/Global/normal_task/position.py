@@ -78,9 +78,7 @@ def init_image_data(self):
                     'formation-teleport-notice': (542, 317, 625, 351),
                     'add-ally-notice': (730, 284, 846, 314),
                     'quit-mission-info':(536,142,740,182),
-                    'mission-conclude-confirm':(959,641,1102,687),
-                    'fight-skip': (1111, 531, 1136, 556),
-                    'auto-over': (1072, 589, 1094, 611),
+                    'mission-fail-confirm':(959,641,1102,687)
                 }
             }
             filepath = 'src/images/Global'
