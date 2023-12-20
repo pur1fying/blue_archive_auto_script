@@ -375,7 +375,7 @@ def start_lesson(self):
             'lesson_lesson-report',
             'lesson_inadequate-lesson-ticket',
         ]
-        return image.detect(self, end=ends, possibles=possibles)
+        return image.detect(self, end=ends, possibles=possibles,pre_func=color.detect_rgb_one_time,pre_argv=(self,[[640,100]],['area_rank_up'],[]))
     elif self.server == 'Global':
         click_pos = [
             [640, 556],

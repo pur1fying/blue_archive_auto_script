@@ -14,7 +14,7 @@ from module.momo_talk import x as momo_talk_x
 from module.normal_task import x as normal_task_x
 from module.rewarded_task import x as rewarded_task_x
 from module.lesson import x as lesson_x
-from module.shop import x as shop_x
+from module.common_shop import x as shop_x
 from module.buy_ap import x as buy_ap_x
 from module.collect_daily_power import x as collect_daily_power_x
 
@@ -43,7 +43,8 @@ def init_image_data(self):
                     'quick-home': (1215, 5, 1255, 42),  # 快速回到首页,右上
                     'login-feature': (1105, 601, 1142, 640),  # 登录界面
                     'news': (250, 85, 328, 117),  # 公告
-                    'relationship-rank-up':(754,595,776,647)
+                    'relationship-rank-up':(754,595,776,647),
+                    'full-notice':(563,277, 613,312)
                 },
                 'arena': arena_x,
                 'cafe': cafe_reward_x,

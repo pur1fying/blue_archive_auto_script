@@ -19,12 +19,12 @@ def get_next_execute_tick():
 def implement(self):
     if self.server == 'CN':
         possible = {
-            'main_page_home-feature': (578, 648, 3),
+            'main_page_home-feature': (578, 648),
         }
-        end = {
-            ('group_sign-up-reward', 3),
-            ('group_menu', 3),
-        }
+        end = [
+            'group_sign-up-reward',
+            'group_menu',
+        ]
         res = image.detect(self, end, possible)
         if res == 'group_sign-up-reward':
             self.logger.info('get 10 AP')

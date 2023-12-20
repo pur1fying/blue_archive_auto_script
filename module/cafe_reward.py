@@ -30,6 +30,8 @@ def to_cafe(self):
             'cafe_cafe-reward-status': (905, 159, 3),
             'cafe_invitation-ticket': (835, 97, 3),
             'cafe_students-arrived': (922, 189, 3),
+            'main_page_full-notice': (887, 165),
+
         }
         click_pos = [
             [1240, 577],
@@ -244,7 +246,7 @@ def invite_girl(self):
         t = ""
         for j in range(0, len(student_name[i])):
             if student_name[i][j] == '(' or student_name[i][j] == "（" or student_name[i][j] == ")" or \
-                student_name[i][j] == "）" or student_name[i][j] == ' ':
+                    student_name[i][j] == "）" or student_name[i][j] == ' ':
                 continue
             else:
                 t = t + student_name[i][j]
@@ -257,7 +259,7 @@ def invite_girl(self):
         t = ""
         for j in range(0, len(target_name_list[i])):
             if target_name_list[i][j] == '(' or target_name_list[i][j] == "（" or target_name_list[i][j] == ")" or \
-                target_name_list[i][j] == "）" or target_name_list[i][j] == ' ':
+                    target_name_list[i][j] == "）" or target_name_list[i][j] == ' ':
                 continue
             else:
                 t = t + target_name_list[i][j]
@@ -336,7 +338,6 @@ def collect(self):
         self.click(1150, 643)
         time.sleep(1)
         self.click(640, 522)
-        to_cafe(self)
     elif self.server == "Global":
         click_pos = \
             [

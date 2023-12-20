@@ -18,7 +18,7 @@ from gui.util.config_set import ConfigSet
 func_dict = {
     'group': module.group.implement,
     'momo_talk': module.momo_talk.implement,
-    'shop': module.shop.implement,
+    'common_shop': module.common_shop.implement,
     'cafe_reward': module.cafe_reward.implement,
     'lesson': module.lesson.implement,
     'rewarded_task': module.rewarded_task.implement,
@@ -33,7 +33,8 @@ func_dict = {
     'normal_task': module.normal_task.implement,
     'hard_task': module.hard_task.implement,
     'clear_special_task_power': module.clear_special_task_power.implement,
-    'de_clothes': module.de_clothes.implement
+    'de_clothes': module.de_clothes.implement,
+    'tactical_challenge_shop': module.tactical_challenge_shop.implement,
 }
 
 
@@ -242,6 +243,7 @@ class Main(Setup):
                 'main_page_login-feature': (640, 360),
                 'main_page_news': (1142, 104),
                 'main_page_relationship-rank-up': (640, 360),
+                'main_page_full-notice':(887,165),
                 'main_story_fight-confirm': (1168, 659),
                 'normal_task_task-finish': (1038, 662),
                 'normal_task_prize-confirm': (776, 655),
@@ -284,11 +286,13 @@ class Main(Setup):
                     [640, 100],
                     [1236, 31],
                     [640, 360],
+                    [640,100],
                 ]
                 los = [
                     "reward_acquired",
                     "home",
                     'relationship_rank_up',
+                    'area_rank_up'
                 ]
                 res = color.detect_rgb_one_time(self, click_pos, los, [])
                 if res == ('click', True):
@@ -311,7 +315,6 @@ class Main(Setup):
                         self.click(640, 360, False)
                         fail_cnt = 0
                         time.sleep(self.screenshot_interval)
-            self.click(851, 262, False)  # 和妹子互动
             return True
         elif self.server == "Global":
             click_pos = [
@@ -398,7 +401,6 @@ class Main(Setup):
             ]
             ends = ["main_page"]
             color.common_rgb_detect_method(self, click_pos, los, ends)
-            self.click(851, 262, False)
             return True
 
     def init_rgb(self):
@@ -587,31 +589,36 @@ if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     t.flag_run = True
+    t.solve('de_clothes')
+    t.solve('common_shop')
+    t.quick_method_to_main_page()
+    t.solve('tactical_challenge_shop')
+    t.quick_method_to_main_page()
     t.solve('arena')
     t.quick_method_to_main_page()
-    # t.solve("rewarded_task")
-    # t.quick_method_to_main_page()
-    # t.solve('clear_special_task_power')
-    # t.quick_method_to_main_page()
-    # t.solve('lesson')
-    # t.quick_method_to_main_page()
-    # t.solve('scrimmage')
-    # t.quick_method_to_main_page()
-    # t.solve('collect_reward')
-    # t.quick_method_to_main_page()
-    # t.solve('group')
-    # t.quick_method_to_main_page()
-    # t.solve('cafe_reward')
-    # t.quick_method_to_main_page()
-    # t.solve('normal_task')
-    # t.quick_method_to_main_page()
-    # t.solve('mail')
-    # t.quick_method_to_main_page()
-    # t.solve('hard_task')
-    # t.quick_method_to_main_page()
-    # t.solve('explore_normal_task')
-    # t.quick_method_to_main_page()
-    # t.solve('momo_talk')
+    t.solve("rewarded_task")
+    t.quick_method_to_main_page()
+    t.solve('clear_special_task_power')
+    t.quick_method_to_main_page()
+    t.solve('lesson')
+    t.quick_method_to_main_page()
+    t.solve('scrimmage')
+    t.quick_method_to_main_page()
+    t.solve('collect_reward')
+    t.quick_method_to_main_page()
+    t.solve('group')
+    t.quick_method_to_main_page()
+    t.solve('cafe_reward')
+    t.quick_method_to_main_page()
+    t.solve('normal_task')
+    t.quick_method_to_main_page()
+    t.solve('mail')
+    t.quick_method_to_main_page()
+    t.solve('hard_task')
+    t.quick_method_to_main_page()
+    t.solve('explore_normal_task')
+    t.quick_method_to_main_page()
+    t.solve('momo_talk')
     t.thread_starter()
     path = "src/event/auto clear bright.png"
     img = t.get_screenshot_array()

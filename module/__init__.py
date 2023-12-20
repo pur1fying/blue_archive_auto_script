@@ -3,7 +3,7 @@ from module import explore_hard_task
 from module import normal_task
 from module import main_story
 from module import arena
-from module import shop
+from module import common_shop
 from module import lesson
 from module import group
 from module import momo_talk
@@ -16,3 +16,4 @@ from module import collect_reward
 from module import hard_task
 from module import clear_special_task_power
 from module import de_clothes
+from module import tactical_challenge_shop
