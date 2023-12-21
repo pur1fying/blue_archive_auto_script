@@ -42,6 +42,7 @@ func_dict = {
 class Main(Setup):
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
         super().__init__()
+        self.main_activity = None
         self.package_name = None
         self.server = None
         self.rgb_feature = None
@@ -84,9 +85,6 @@ class Main(Setup):
         self.flag_run = True
         self.next_task = ''
         self.stage_data = {}
-        self.activity_name_list = self.main_activity.copy()
-        for i in range(0, len(self.main_activity)):
-            self.main_activity[i] = [self.main_activity[i], 0]
         # self.scheduler = Scheduler(update_signal)
         # start_debugger()
 
@@ -197,9 +195,9 @@ class Main(Setup):
         for i in range(0, len(self.main_activity)):
             if not self.flag_run:
                 return False
-            print(self.main_activity[i][0])
-            if self.get_enable(self.main_activity[i][0]):
-                self.solve(self.main_activity[i][0])
+            print(self.main_activity[i])
+            if self.get_enable(self.main_activity[i]):
+                self.solve(self.main_activity[i])
         self.logger.info('activities all finished')
         notify(title='邦邦卡邦', body='任务已完成')
         # while self.flag_run:
@@ -428,6 +426,8 @@ class Main(Setup):
         try:
             self.logger.info("Start initializing config")
             self.config = self.operate_dict(ConfigSet().config)
+            self.main_activity = self.config['activity_list']
+            print(self.main_activity)
             self.logger.info("SUCCESS")
         except Exception as e:
             self.logger.error("Config initialization failed")
@@ -640,5 +640,3 @@ if __name__ == '__main__':
 
     ocr_res = t.img_ocr(img)
     print(str(ocr_res))
-    t.get_keyword_appear_time(ocr_res)
-    print(str(t.return_location()))

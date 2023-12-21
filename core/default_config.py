@@ -1,33 +1,3 @@
-STATIC_DEFAULT_CONFIG = """
-{
-  "basic": {
-    "activity_list": [
-      "arena",
-      "cafe_reward",
-      "lesson",
-      "group",
-      "mail",
-      "collect_daily_power",
-      "common_shop",
-      "tactical_challenge_power",
-      "rewarded_task",
-      "normal_task",
-      "hard_task",
-      "scrimmage",
-      "clear_special_task_power",
-      "collect_reward",
-      "momo_talk",
-      "create",
-      "total_force_fight"
-    ],
-  },
-  "totalForceFight": {
-    "start_time": 0,
-    "end_time": 1,
-    "has_collect_reward": false
-  }
-}
-"""
 EVENT_DEFAULT_CONFIG = """
 [
   {
@@ -270,6 +240,25 @@ DEFAULT_CONFIG = """
         0,
         0,
         0
+    ],
+    "activity_list": [
+        "arena",
+        "cafe_reward",
+        "lesson",
+        "group",
+        "mail",
+        "collect_daily_power",
+        "common_shop",
+        "tactical_challenge_power",
+        "rewarded_task",
+        "normal_task",
+        "hard_task",
+        "scrimmage",
+        "clear_special_task_power",
+        "collect_reward",
+        "momo_talk",
+        "create",
+        "total_force_fight"
     ]
 }
 """
