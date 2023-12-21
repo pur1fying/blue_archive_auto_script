@@ -78,7 +78,7 @@ def node1_judge(self):
         img = self.get_screenshot_array()
         # cv2.imshow("img",img)
         # cv2.waitKey(0)
-        node_info = self.ocr.ocr_for_single_line(img[204:273, 814:1233, :])["text"].lower()
+        node_info = self.ocrEN.ocr_for_single_line(img[204:273, 814:1233, :])["text"].lower()
         temp = ""
         for j in range(0, len(node_info)):
             if is_english_letter(node_info[j]):
@@ -124,7 +124,7 @@ def start_crafting(self):
     ends = [
         "crafting_chamber_material_synthesis",
     ]
-    self.common_rgb_detect_method(click_pos, los, ends)
+    color.common_rgb_detect_method(self, click_pos, los, ends)
 
 
 def global_implement(self):

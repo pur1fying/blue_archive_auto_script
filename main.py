@@ -8,7 +8,6 @@ from cnocr import CnOcr
 
 import module
 from core.utils import *
-from core.setup import Setup
 from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
@@ -39,9 +38,8 @@ func_dict = {
 }
 
 
-class Main(Setup):
+class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
-        super().__init__()
         self.main_activity = None
         self.package_name = None
         self.server = None
@@ -77,7 +75,7 @@ class Main(Setup):
         self.io_err_solved_count = 0
         self.io_err_count = 0
         self.io_err_rate = 10
-
+        self.latest_img_array = None
         # As all data has been initialized, we can assert that config is not None
         assert self.config is not None
         self.screenshot_interval = self.config['screenshot_interval']
@@ -109,7 +107,7 @@ class Main(Setup):
         while 1:
             self.latest_img_array = self.get_screenshot_array()
             if not color.judge_rgb_range(self.latest_img_array, 937, 648, 200, 255, 200, 255, 200, 255) or not \
-                color.judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
+                    color.judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
                 loading_pos = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
                 rgb_loading = [[200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
                                [200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],

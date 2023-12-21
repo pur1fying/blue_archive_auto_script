@@ -131,18 +131,6 @@ def implement(self):
     return True
 
 
-def get_area_number(self):
-    t1 = time.time()
-    img = self.latest_img_array[182:213, 121:164, :]
-    ocr_result = self.ocr.ocr_for_single_line(img)
-    print(ocr_result)
-    t2 = time.time()
-    print("time2", t2 - t1)
-    print("cur_num", ocr_result["text"])
-    self.logger.info("cur_num" + ocr_result["text"])
-    return int(ocr_result["text"])
-
-
 def to_normal_event(self):
     if self.server == 'CN':
         possibles = {
@@ -170,7 +158,7 @@ def to_normal_event(self):
     elif self.server == 'Global':
         possibles = {
             'normal_task_fight-complete-confirm': (1160, 666),
-            'normal_task_reward-acquired-confirm': (800,660),
+            'normal_task_reward-acquired-confirm': (800, 660),
             'normal_task_mission-conclude-confirm': (1042, 671),
         }
         end = [
@@ -204,7 +192,8 @@ def to_normal_event(self):
         ends = [
             "event_normal",
         ]
-        image.detect(self, end=end, possibles=possibles, pre_func=color.detect_rgb_one_time,pre_argv=(self, click_pos, los, ends))
+        image.detect(self, end=end, possibles=possibles, pre_func=color.detect_rgb_one_time,
+                     pre_argv=(self, click_pos, los, ends))
 
 
 def to_task_info(self, x, y):
@@ -232,7 +221,7 @@ def to_task_info(self, x, y):
             "mission_info",
             "unlock_notice"
         ]
-        return self.common_rgb_detect_method(click_pos, los, ends)
+        return color.common_rgb_detect_method(self, click_pos, los, ends)
 
 
 def start_sweep(self):

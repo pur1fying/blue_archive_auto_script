@@ -103,7 +103,7 @@ def implement(self):
 def get_area_number(self):
     t1 = time.time()
     img = self.latest_img_array[182:213, 121:164, :]
-    ocr_result = self.ocr.ocr_for_single_line(img)
+    ocr_result = self.ocrEN.ocr_for_single_line(img)
     print(ocr_result)
     t2 = time.time()
     print("time2", t2 - t1)
@@ -194,7 +194,7 @@ def to_task_info(self, x, y):
             "mission_info",
             "unlock_notice"
         ]
-        return self.common_rgb_detect_method(click_pos, los, ends)
+        return color.common_rgb_detect_method(self, click_pos, los, ends)
 
 
 def start_sweep(self):

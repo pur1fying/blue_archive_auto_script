@@ -148,13 +148,13 @@ def purchase_scrimmage_ticket(self, times):
 
 def global_implement(self):
     scrimmage_area_name = ["Trinity", "Gehenna", "Millennium"]
-    buy_ticket_times = min(self.global_config['purchase_scrimmage_ticket_times'], 12)  # ** 购买悬赏委托券的次数
+    buy_ticket_times = min(self.config['purchase_scrimmage_ticket_times'], 12)  # ** 购买悬赏委托券的次数
 
     if buy_ticket_times > 0:
         to_choose_scrimmage(self)
         purchase_scrimmage_ticket(self, buy_ticket_times)
 
-    count = self.global_config['scrimmage_times']
+    count = self.config['scrimmage_times']
 
     self.scrimmage_task_status = [False, False, False]
     just_do_task = False
@@ -173,7 +173,7 @@ def global_implement(self):
                 if count[i] == "max":
                     return True,
             elif res == "inadequate_ap" or res == "inadequate_ticket":
-                print(self.scrimmage_task_status)
+                self.logger.info(str(self.scrimmage_task_status))
                 return True
-    print(self.scrimmage_task_status)
+    self.logger.info(str(self.scrimmage_task_status))
     return True

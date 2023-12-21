@@ -356,7 +356,7 @@ def collect(self):
 def get_invitation_ticket_status(self):
     img = self.latest_img_array[585:606, 731:870, :]
     t1 = time.time()
-    ocr_res = self.ocr.ocr_for_single_line(img)
+    ocr_res = self.ocrEN.ocr_for_single_line(img)
     t2 = time.time()
     self.logger.info("ocr_ticket:" + str(t2 - t1))
     temp = ""
@@ -380,7 +380,7 @@ def get_invitation_ticket_status(self):
 def get_cafe_earning_status1(self):
     img = self.latest_img_array[643:675, 1093:1205, :]
     t1 = time.time()
-    ocr_res = self.ocr.ocr_for_single_line(img)
+    ocr_res = self.ocrEN.ocr_for_single_line(img)
     t2 = time.time()
     self.logger.info("ocr_cafe_earnings:" + str(t2 - t1))
     temp = ""

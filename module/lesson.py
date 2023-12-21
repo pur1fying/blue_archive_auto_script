@@ -54,7 +54,7 @@ def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
     elif self.server == 'Global':
         img = self.latest_img_array[101:129, 932:1253, :]
         t1 = time.time()
-        ocr_res = self.ocr.ocr_for_single_line(img)
+        ocr_res = self.ocrEN.ocr_for_single_line(img)
         t2 = time.time()
         self.logger.info("ocr_lesson_region:" + str(t2 - t1))
         temp = ocr_res['text']
@@ -155,7 +155,7 @@ def global_implement(self):
         temp2.append(self.lesson_times[i])
 
     to_lesson_location_selection(self)
-    buy_ticket_times = min(self.global_config['purchase_lesson_ticket_times'], 4)  # ** 购买日程券的次数
+    buy_ticket_times = min(self.config['purchase_lesson_ticket_times'], 4)  # ** 购买日程券的次数
     if buy_ticket_times > 0:
         purchase_lesson_ticket(self, buy_ticket_times)
     res = get_lesson_tickets(self)
@@ -238,7 +238,7 @@ def get_lesson_tickets(self):
     # cv2.imshow("img",img)
     # cv2.waitKey(0)
     t1 = time.time()
-    ocr_res = self.ocr.ocr_for_single_line(img)
+    ocr_res = self.ocrEN.ocr_for_single_line(img)
     t2 = time.time()
     print("ocr_lesson_ticket:", t2 - t1)
     self.logger.info("ocr_lesson_ticket:" + str(t2 - t1))
