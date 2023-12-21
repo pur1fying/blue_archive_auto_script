@@ -268,7 +268,7 @@ def choose_team(self, mission_num, force):
         self.exit("No formation added into corresponding config")
     to_formation_edit_i(self, index, self.stage_data[mission_num]['start'][force])
     if color.judge_rgb_range(self.latest_img_array, 1166, 684, 250, 255, 105, 125, 68, 88) \
-        and color.judge_rgb_range(self.latest_img_array, 1156, 626, 250, 255, 105, 125, 68, 88):
+            and color.judge_rgb_range(self.latest_img_array, 1156, 626, 250, 255, 105, 125, 68, 88):
         self.exit("please choose another formation")
     to_normal_task_wait_to_begin_page(self)
     return index

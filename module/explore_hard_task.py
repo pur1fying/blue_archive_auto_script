@@ -4,6 +4,7 @@ from core import color
 from module import explore_normal_task
 import importlib
 
+
 def implement(self):
     if self.server == "CN":
         explore_normal_task.implement(self)
