@@ -115,13 +115,13 @@ def global_implement(self):
         unread_location = []
         while location_y <= 630:
             if np.array_equal(self.latest_img_array[location_y][location_x], red_dot) and \
-                np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
+                    np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
                 unread_location.append([location_x, location_y + dy / 2])
                 location_y += 60
             else:
                 location_y += 1
         length = len(unread_location)
-        self.logger.info("find  " + str(length) + "  unread message")
+        self.logger.info("find  " + str(length) + "  unread message(s)")
         if length == 0:
             if main_to_momotalk:
                 self.logger.info("momo_talk task finished")
@@ -159,33 +159,42 @@ def to_momotalk2(self):
 
 
 def common_solve_affection_story_method(self):
-    fail_cnt = 0
-    self.connection.swipe(924, 330, 924, 230, duration=0.1)
-    self.click(924, 330, wait=False)
-    while fail_cnt <= 5:
+    self.latest_img_array = self.get_screenshot_array()
+    res = get_reply_position(self.latest_img_array)
+    if res[0] == 'end':
+        self.connection.swipe(924, 330, 924, 230, duration=0.1)
+        self.click(924, 330, wait=False)
+    start_time = time.time()
+    while time.time() <= start_time + 10:
         img = self.get_screenshot_array()
-        i = 156
-        while i < 657:
-            if color.judge_rgb_range(img, 786, i, 29, 49, 143, 163, 219, 239):
-                fail_cnt = 0
-                self.click(826, min(i + 65, 625), wait=False)
-                break
-            elif color.judge_rgb_range(img, 862, i, 245, 255, 227, 247, 230, 250) and \
-                color.judge_rgb_range(img, 862, i + 10, 245, 255, 125, 155, 145, 175):
-                self.logger.info("ENTER affection story")
-                self.click(826, min(625, i + 30), wait=False)
-                time.sleep(0.5)
-                common_skip_plot_method(self)
-                to_momotalk2(self)
-                return
-            else:
-                i += 1
-        time.sleep(2)
-        fail_cnt += 1
-        self.logger.info("can't find target button cnt = " + str(fail_cnt))
+        res = get_reply_position(img)
+        if res[0] == 'reply':
+            self.logger.info("reply")
+            self.click(826, res[1], wait=False)
+            start_time = time.time()
+            time.sleep(1)
+        elif res[0] == 'affection':
+            self.logger.info("ENTER affection story")
+            self.click(826, res[1], wait=False)
+            time.sleep(0.5)
+            common_skip_plot_method(self)
+            to_momotalk2(self)
+            return
+        time.sleep(self.screenshot_interval)
     self.logger.info("current conversation over")
 
 
+def get_reply_position(img):
+    i = 156
+    while i < 657:
+        if color.judge_rgb_range(img, 786, i, 29, 49, 143, 163, 219, 239):
+            return 'reply', min(i + 65, 625)
+        elif color.judge_rgb_range(img, 862, i, 245, 255, 227, 247, 230, 250) and \
+                color.judge_rgb_range(img, 862, i + 10, 245, 255, 125, 155, 145, 175):
+            return 'affection', min(625, i + 30)
+        else:
+            i += 1
+    return 'end', 0
 def pd_menu_bright(img_array):
     if color.judge_rgb_range(img_array, 1165, 45, 230, 255, 230, 255, 230, 255) and color.judge_rgb_range(img_array,
                                                                                                           1238, 45, 230,
