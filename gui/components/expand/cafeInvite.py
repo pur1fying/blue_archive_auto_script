@@ -11,8 +11,10 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout = QVBoxLayout(self)
         self.lay1 = QHBoxLayout(self)
         self.lay2 = QHBoxLayout(self)
-        self.pat_styles = ['普通', '地毯', '礼物']
-        self.student_name = ["瞬(小)","桐乃","纱绫(便服)","日富美(泳装)", "真白(泳装)", "鹤城(泳装)", "白子(骑行)", "梓(泳装)", "爱丽丝", "切里诺",
+        self.pat_styles = ['普通', '地毯', '拖动礼物']
+        self.student_name = ["亚子", "夏", "玛丽", "瞬(小)", "桐乃", "纱绫(便服)", "日富美(泳装)", "真白(泳装)",
+                             "鹤城(泳装)", "白子(骑行)", "日奈(泳装)", "伊织(泳装)",
+                             "梓(泳装)", "爱丽丝", "切里诺",
                              "志美子", "日富美", "佳代子",
                              "明日奈", "菲娜", "艾米", "真纪",
                              "泉奈", "明里", "芹香", "优香", "小春",
@@ -26,8 +28,8 @@ class Layout(QWidget, ConfigSet):
         self.input1 = ComboBox(self)
         self.favor_student = self.get('favorStudent')
         self.input1.addItems(self.student_name)
-        self.input1.setText(self.favor_student)
-        self.input1.setCurrentIndex(self.student_name.index(self.favor_student))
+        self.input1.setText(','.join(self.favor_student))
+        self.input1.setCurrentIndex(self.student_name.index(self.favor_student[0]))
         self.input1.currentTextChanged.connect(self.__accept)
 
         self.label2 = QLabel('选择摸头方式：', self)

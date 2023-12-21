@@ -1,6 +1,5 @@
 import json
 import time
-
 from core import STATIC_CONFIG_PATH
 from core.utils import kmp
 from gui.util.config_set import ConfigSet
@@ -23,7 +22,6 @@ class Setup:
 
         # Load static config
         self.main_activity = basic_config['activity_list']
-        self.main_activity_label = basic_config['activity_label_list']
         self.keyword = basic_config['keyword']
         self.schedule_lo_y = basic_config['schedule_point_list']
         self.to_page = basic_config['to_page']

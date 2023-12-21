@@ -1,34 +1,41 @@
-from core.utils import get_x_y
+from core import color, image
+
 from gui.util import log
+import time
+
+x = {
+    'menu': (107, 9, 162, 36)
+}
+
+
+def to_mail(self):
+    if self.server == 'CN':
+        possibles = {
+            "main_page_home-feature": (1141, 43)
+        }
+        image.detect(self, end='mail_menu', possibles=possibles)
+    elif self.server == 'Global':
+        click_pos = [[1141, 43]]
+        pd_los = ["main_page"]
+        end = ["mail"]
+        color.common_rgb_detect_method(self, click_pos, pd_los, end)
 
 
 def implement(self):
-    self.operation("stop_getting_screenshot_for_location")
-
-    self.latest_img_array = self.operation("get_screenshot_array")
-    path2 = "../src/mail/collect_all_bright.png"
-    path3 = "../src/mail/collect_all_grey.png"
-    return_data1 = get_x_y(self.latest_img_array, path2)
-    return_data2 = get_x_y(self.latest_img_array, path3)
-    print(return_data1)
-    print(return_data2)
-    if return_data2[1][0] <= 1e-03:
-        log.d("mail reward has been collected", level=1, logger_box=self.loggerBox)
-        self.operation("click", (1236, 39))
-    elif return_data1[1][0] <= 1e-03:
-        log.d("collect mail reward", level=1, logger_box=self.loggerBox)
-        self.operation("click", (return_data1[0][0], return_data1[0][1]), duration=1.5)
-        self.operation("click", (1236, 39),duration=0.5)
-        self.operation("click", (1236, 39))
-        self.operation("click", (1236, 39))
-
+    to_mail(self)
+    img = self.latest_img_array
+    if color.judge_rgb_range(img, 1142, 646, 206, 226, 207, 227, 208, 228):
+        self.logger.info("mail reward HAS BEEN COLLECTED, quit")
+        self.click(1236, 39)
+    elif color.judge_rgb_range(img, 1142, 646, 235, 255, 233, 243, 65, 85):
+        self.logger.info("COLLECT mail reward")
+        time.sleep(0.5)
+        self.click(1142, 670, duration=2)
+        self.click(1236, 39, duration=0.5)
+        self.click(1236, 39)
+        self.click(1236, 39)
     else:
-        log.d("Can't detect button", level=2, logger_box=self.loggerBox)
-        self.operation("click", (1236, 39))
+        self.logger.info("Can't detect button")
+        self.click(1236, 39)
         return False
-
-    self.main_activity[2][1] = 1
-    log.d("mail task finished", level=1, logger_box=self.loggerBox)
-
-    self.operation("start_getting_screenshot_for_location")
     return True

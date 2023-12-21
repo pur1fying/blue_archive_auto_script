@@ -14,7 +14,7 @@ class Layout(QWidget, ConfigSet):
         self.info_widget = self.parent().parent().parent()
         self.folderLabel = QLabel('请选择您的服务器', self)
         self.serverLabel = QLabel('请填写您的adb端口号', self)
-        server_type = ['官服', 'B服']
+        server_type = ['官服', 'B服', '国际服']
         self.portBox = LineEdit(self)
         self.combo = ComboBox(self)
         self.combo.addItems(server_type)

@@ -1,7 +1,13 @@
+from typing import Union
+
 import cv2
+from core import color
+import logging
+from datetime import datetime
+import sys
 
 
-def build_next_array(patten):               # 用于kmp算法获得next数组
+def build_next_array(patten):  # 用于kmp算法获得next数组
     next_array = [0]
     prefix_len = 0
     i = 1
@@ -19,7 +25,7 @@ def build_next_array(patten):               # 用于kmp算法获得next数组
     return next_array
 
 
-def kmp(patten, string):                    # 用于统计关键字出现的次数
+def kmp(patten, string):  # 用于统计关键字出现的次数
     next_array = build_next_array(patten)
     i = 0
     j = 0
@@ -79,16 +85,108 @@ def get_x_y(target_array, template_path: str):
     return location, result[upper_left[1], [upper_left[0]]]
 
 
-def pd_rgb(shot_array, x, y, r_min, r_max, g_min, g_max, b_min, b_max): # 用于判断像素点的rgb值是否在给定范围内
-    if r_min <= shot_array[y][x][2] <= r_max and g_min <= shot_array[y][x][1] <= g_max and b_min <= \
-            shot_array[y][x][0] <= b_max:
-        return True
-    return False
-
-
 def check_sweep_availability(img):
-    if pd_rgb(img, 211, 369, 192, 212, 192, 212, 192, 212) or pd_rgb(img, 211, 402, 192, 212, 192, 212, 192, 212) or pd_rgb(img, 211, 436, 192, 212, 192, 212, 192, 212):
+    if color.judge_rgb_range(img, 211, 369, 192, 212, 192, 212, 192, 212) or color.judge_rgb_range(img, 211, 402, 192,
+                                                                                                   212, 192, 212, 192,
+                                                                                                   212) or color.judge_rgb_range(
+        img, 211, 436, 192, 212, 192, 212, 192, 212):
         return "UNAVAILABLE"
-    if pd_rgb(img, 211, 368, 225,255, 200, 255, 20, 60) and pd_rgb(img, 211, 404, 225,255, 200, 255, 20, 60) and pd_rgb(img, 211, 434, 225,255, 200, 255, 20, 60):
+    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) and color.judge_rgb_range(img, 211, 404, 225,
+                                                                                                  255, 200, 255, 20,
+                                                                                                  60) and color.judge_rgb_range(
+        img, 211, 434, 225, 255, 200, 255, 20, 60):
         return "AVAILABLE"
     return "UNKNOWN"
+
+
+class Logger:
+    """
+    Logger class for logging
+    """
+
+    def __init__(self, logger_signal):
+        """
+        :param logger_signal: Logger Box signal
+        """
+        # Init logger box signal, logs and logger
+        # logger box signal is used to output log to logger box
+        self.logs = ""
+        self.logger_signal = logger_signal
+        self.logger = logging.getLogger("BAAS_Logger")
+        formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
+        handler1 = logging.StreamHandler(stream=sys.stdout)
+        handler1.setFormatter(formatter)
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(handler1)
+
+    def __out__(self, message: str, level: int = 4) -> None:
+        """
+        Output log
+        :param message: log message
+        :param level: log level
+        :return: None
+        """
+        while len(logging.root.handlers) > 0:
+            logging.root.handlers.pop()
+        # Status Text: INFO, WARNING, ERROR, CRITICAL
+        status = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
+        # Status Color: Blue, Orange, Red, Purple
+        statusColor = ['#2d8cf0', '#f90', '#ed3f14', '#3e0480']
+        # Status HTML: <b style="color:$color">status</b>
+        statusHtml = [
+            f'<b style="color:{_color};">{status}</b>'
+            for _color, status in zip(statusColor, status)]
+        # If logger box is not None, output log to logger box
+        # else output log to console
+        if self.logger_signal is not None:
+            adding = (f'''
+                    <div style="font-family: Consolas, monospace;color:{statusColor[level - 1]};">
+                        {statusHtml[level - 1]} | {datetime.now()} | {message}
+                    </div>
+                        ''')
+            self.logs += adding
+            self.logger_signal.emit(adding)
+        else:
+            print(f'{statusHtml[level - 1]} | {datetime.now()} | {message}')
+
+    def info(self, message: str) -> None:
+        """
+        :param message: log message
+
+        Output info log
+        """
+        self.__out__(message, 1)
+
+    def warning(self, message: str) -> None:
+        """
+        :param message: log message
+
+        Output warn log
+        """
+        self.__out__(message, 2)
+
+    def error(self, message: Union[str, Exception]) -> None:
+        """
+        :param message: log message
+
+        Output error log
+        """
+        self.__out__(message, 3)
+
+    def critical(self, message: str) -> None:
+        """
+        :param message: log message
+
+        Output critical log
+        """
+        self.__out__(message, 4)
+
+    def line(self) -> None:
+        """
+        Output line
+        """
+        self.__out__(
+            '<div style="font-family: Consolas, monospace;color:#2d8cf0;">--------------'
+            '-------------------------------------------------------------'
+            '-------------------</div>')
+

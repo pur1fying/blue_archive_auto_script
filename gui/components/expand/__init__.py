@@ -9,3 +9,6 @@ from .serverConfig import Layout
 from .arenaShopPriority import Layout
 from .scriptConfig import Layout
 from .totalForceFightPriority import Layout
+from .exploreConfig import Layout
+from .otherConfig import Layout
+from .featureSwitch import Layout

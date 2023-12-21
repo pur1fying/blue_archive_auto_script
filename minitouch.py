@@ -24,4 +24,3 @@ try:
         print(f"{n}以下的素数: {primes}")
 except ValueError:
     print("无效输入，请输入一个整数。")
-

@@ -1,15 +1,17 @@
 # coding:utf-8
 import os
 import sys
-from PyQt5.QtCore import Qt, QSize, QJsonDocument
+
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF, SplashScreen
 from qfluentwidgets import (FluentWindow, SubtitleLabel, setFont, setThemeColor)
-from core import default_config, DEFAULT_CONFIG_PATH
 
-sys.stderr = open('error.log', 'w+', encoding='utf-8')
-sys.stdout = open('output.log', 'w+', encoding='utf-8')
+from core import default_config
+
+# sys.stderr = open('error.log', 'w+', encoding='utf-8')
+# sys.stdout = open('output.log', 'w+', encoding='utf-8')
 sys.path.append('./')
 
 # Offer the error to the error.log

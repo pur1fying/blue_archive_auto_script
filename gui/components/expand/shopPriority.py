@@ -10,7 +10,7 @@ class Layout(QWidget, ConfigSet):
         super().__init__(parent=parent)
         self.setFixedHeight(120)
 
-        self.goods = self.get(key='ShopList')
+        self.goods = self.get(key='CommonShopList')
 
         layout = FlowLayout(self, needAni=True)
         layout.setContentsMargins(30, 30, 30, 30)
@@ -23,7 +23,7 @@ class Layout(QWidget, ConfigSet):
         self.label.setFixedWidth(160)
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 5))
-        self.input.setText(self.get('ShopRefreshTime'))
+        self.input.setText(self.get('CommonShopRefreshTime'))
         self.accept = QPushButton('确定', self)
         self.boxes = []
         for i in range(16):
@@ -42,7 +42,7 @@ class Layout(QWidget, ConfigSet):
 
     def alter_status(self, index):
         self.boxes[index].setChecked(self.boxes[index].isChecked())
-        self.set(key='ShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(16)])
+        self.set(key='CommonShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(16)])
 
     def __accept(self, input_content=None):
-        self.set('ShopRefreshTime', self.input.text())
+        self.set('CommonShopRefreshTime', self.input.text())
