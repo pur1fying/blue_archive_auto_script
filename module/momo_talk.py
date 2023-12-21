@@ -187,7 +187,8 @@ def common_solve_affection_story_method(self):
 def get_reply_position(img):
     i = 156
     while i < 657:
-        if color.judge_rgb_range(img, 786, i, 29, 49, 143, 163, 219, 239):
+        if color.judge_rgb_range(img, 786, i, 29, 49, 143, 163, 219, 239) and \
+                color.judge_rgb_range(img, 786, i+20, 29, 49, 143, 163, 219, 239):
             return 'reply', min(i + 65, 625)
         elif color.judge_rgb_range(img, 862, i, 245, 255, 227, 247, 230, 250) and \
                 color.judge_rgb_range(img, 862, i + 10, 245, 255, 125, 155, 145, 175):
@@ -195,6 +196,8 @@ def get_reply_position(img):
         else:
             i += 1
     return 'end', 0
+
+
 def pd_menu_bright(img_array):
     if color.judge_rgb_range(img_array, 1165, 45, 230, 255, 230, 255, 230, 255) and color.judge_rgb_range(img_array,
                                                                                                           1238, 45, 230,
@@ -238,12 +241,12 @@ def pd_enter_button(img_array):
 
 def common_skip_plot_method(self):
     fail_cnt = 0
-    while fail_cnt <= 60:
+    while fail_cnt <= 20/self.screenshot_interval:
         self.latest_img_array = self.get_screenshot_array()
         if pd_enter_button(self.latest_img_array):
             self.logger.info("Begin Relationship Story")
             self.click(920, 556, wait=False)
-            time.sleep(7)
+            time.sleep(4)
         elif pd_confirm_button(self.latest_img_array):
             self.logger.info("find CONFIRM button")
             self.click(766, 520, wait=False)

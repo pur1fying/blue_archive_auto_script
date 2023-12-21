@@ -60,6 +60,11 @@ def init_image_data(self):
                 'normal_task': normal_task_x,
                 'main_story': main_story_x,
                 'buy_ap': buy_ap_x,
+                'plot':{
+                    'menu':(1172,21, 1231,56),
+                    'skip-plot-button':(1193,103, 1235,132),
+                    'skip-plot-notice':(606,124, 672,160)
+                }
             }
             filepath = 'src/images/CN'
         elif self.server == 'Global':

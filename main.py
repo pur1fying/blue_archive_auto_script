@@ -107,7 +107,7 @@ class Main:
         while 1:
             self.latest_img_array = self.get_screenshot_array()
             if not color.judge_rgb_range(self.latest_img_array, 937, 648, 200, 255, 200, 255, 200, 255) or not \
-                    color.judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
+                color.judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
                 loading_pos = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
                 rgb_loading = [[200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
                                [200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
@@ -268,7 +268,9 @@ class Main:
                 'arena_battle-lost': (640, 468),
                 'arena_season-record': (640, 538),
                 'arena_best-record': (640, 538),
-
+                'plot_menu': (1202, 37),
+                'plot_skip-plot-button': (1208, 116),
+                'plot_skip-plot-notice': (770, 519),
             }
             fail_cnt = 0
             while True:
@@ -597,11 +599,11 @@ class Main:
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
-    t.solve('explore_normal_task')
+    t.solve('momo_talk')
     t.flag_run = True
     # t.solve('de_clothes')
     # t.solve('common_shop')
-    # t.quick_method_to_main_page()
+    t.quick_method_to_main_page()
     # t.solve('tactical_challenge_shop')
     # t.quick_method_to_main_page()
     # t.solve('arena')
