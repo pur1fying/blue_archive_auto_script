@@ -16,10 +16,8 @@ def get_root_path():
 def notify(title=None, body=None):
     root_path = get_root_path()
     _notify(
-            title=title,
-            body=body,
-            app_id='BlueArchiveAutoScript.exe',
-            icon=root_path + icon_path,
-            )
-
-
+        title=title,
+        body=body,
+        app_id='BlueArchiveAutoScript.exe',
+        icon=root_path + icon_path,
+    )

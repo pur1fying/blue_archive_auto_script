@@ -1,12 +1,11 @@
 import threading
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
-from qfluentwidgets import ComboBox, LineEdit, PushButton
+from PyQt5.QtWidgets import QHBoxLayout, QLabel
+from qfluentwidgets import LineEdit, PushButton
 
 import main
 from .expandTemplate import TemplateLayout
-from gui.util.config_set import ConfigSet
 
 
 class Layout(TemplateLayout):

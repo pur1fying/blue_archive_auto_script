@@ -597,6 +597,7 @@ class Main:
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
+    t.solve('explore_normal_task')
     t.flag_run = True
     # t.solve('de_clothes')
     # t.solve('common_shop')

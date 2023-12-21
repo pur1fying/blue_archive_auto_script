@@ -14,6 +14,8 @@ class Layout(QWidget, ConfigSet):
         self.info_widget = self.parent().parent().parent()
         self.folderLabel = QLabel('请选择您的服务器', self)
         self.serverLabel = QLabel('请填写您的adb端口号', self)
+        self.port_note = QLabel('常用端口：MuMu：7555；蓝叠/雷电：5555；夜神：62001或59865；', self)
+        self.port_note_ = QLabel('Mumu12：16384；逍遥：21503；多开请自行查询端口。', self)
         server_type = ['官服', 'B服', '国际服']
         self.portBox = LineEdit(self)
         self.combo = ComboBox(self)
@@ -28,11 +30,16 @@ class Layout(QWidget, ConfigSet):
         self.combo.currentTextChanged.connect(self._save_server)
 
         self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setContentsMargins(48, 0, 60, 0)
-        self.setFixedHeight(120)
+        self.vBoxLayout.setContentsMargins(48, 10, 60, 10)
+
 
         self.lay1 = QHBoxLayout(self.vBoxLayout.widget())
+        self.note = QVBoxLayout(self.vBoxLayout.widget())
         self.lay2 = QHBoxLayout(self.vBoxLayout.widget())
+
+        self.note.addWidget(self.port_note, 0, Qt.AlignLeft)
+        self.note.addWidget(self.port_note_, 0, Qt.AlignLeft)
+        self.note.setAlignment(Qt.AlignVCenter)
 
         self.lay1.addWidget(self.folderLabel, 17, Qt.AlignLeft)
         self.lay1.addWidget(self.combo, 0, Qt.AlignRight)
@@ -43,6 +50,7 @@ class Layout(QWidget, ConfigSet):
         self.lay2.setAlignment(Qt.AlignVCenter)
 
         self.vBoxLayout.addLayout(self.lay1)
+        self.vBoxLayout.addLayout(self.note)
         self.vBoxLayout.addLayout(self.lay2)
 
     def _save_port(self):

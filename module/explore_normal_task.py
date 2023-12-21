@@ -13,6 +13,7 @@ x = {
 
 
 def implement(self):
+    # test_(self)
     if self.server == 'CN':
         possible = {
             'main_page_home-feature': (1195, 576, 3),
@@ -80,7 +81,7 @@ def start_fight(self, region):
                 self.click(1194, 601)
         start_action(self, mission, self.stage_data)
     main_story.auto_fight(self)
-    if self.config['manual_boss']:
+    if self.config['manual_boss'] and mission != 'SUB':
         self.click(1235, 41)
 
     normal_task.to_normal_event(self)
@@ -412,7 +413,7 @@ def test_(self):
     normal_task.to_normal_event(self)
     choose_region(self, region)
     self.stage_data = get_stage_data(region)
-    for i in range(4, 6):
+    for i in range(1, 6):
         self.swipe(917, 220, 917, 552, duration=0.1)
         time.sleep(1)
         to_mission_info(self)
