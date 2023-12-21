@@ -51,7 +51,7 @@ class TemplateLayout(QWidget, ConfigSet):
                 currentKey = cfg.key
                 inputComponent = ComboBox(self)
                 inputComponent.addItems(cfg.selection)
-                inputComponent.setCurrentIndex(int(self.get(currentKey)) - 1)
+                inputComponent.setCurrentIndex(cfg.selection.index(self.get(currentKey)))
                 inputComponent.currentIndexChanged.connect(
                     partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'button':
@@ -61,7 +61,7 @@ class TemplateLayout(QWidget, ConfigSet):
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 confirmButton = PushButton('确定', self)
-                confirmButton.click.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
+                confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':
                 inputComponent = QLabel(cfg.selection, self)
             else:

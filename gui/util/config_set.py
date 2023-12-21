@@ -5,7 +5,7 @@ from core.notification import notify
 
 class ConfigSet:
     def __init__(self):
-        super().__init__()
+        self.config = None
         self._init_config()
 
     def _init_config(self):
@@ -13,9 +13,11 @@ class ConfigSet:
             self.config = json.load(f)
 
     def get(self, key):
+        self._init_config()
         return self.config.get(key)
 
     def set(self, key, value):
+        self._init_config()
         self._init_config()
         self.config[key] = value
         with open('./config/config.json', 'w', encoding='utf-8') as f:
