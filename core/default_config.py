@@ -1,8 +1,9 @@
 EVENT_DEFAULT_CONFIG = """
+
 [
   {
     "enabled": true,
-    "priority": 1,
+    "priority": 0,
     "interval": 10800,
     "next_tick": 1697280134,
     "event_name": "咖啡厅",
@@ -10,7 +11,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 2,
+    "priority": 1,
     "interval": 0,
     "next_tick": 1697279908,
     "event_name": "日程",
@@ -18,8 +19,8 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 3,
-    "interval": 1000,
+    "priority": 4,
+    "interval": 0,
     "next_tick": 1699453666,
     "event_name": "收集每日体力",
     "func_name": "collect_daily_power"
@@ -28,13 +29,13 @@ EVENT_DEFAULT_CONFIG = """
     "event_name": "收集小组体力",
     "func_name": "group",
     "next_tick": 1697279810,
-    "priority": 4,
+    "priority": 2,
     "enabled": true,
     "interval": 0
   },
   {
     "enabled": true,
-    "priority": 5,
+    "priority": 3,
     "interval": 0,
     "next_tick": 1697280258,
     "event_name": "查收邮箱",
@@ -42,7 +43,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 6,
+    "priority": 5,
     "interval": 0,
     "next_tick": 1697279828,
     "event_name": "商店购买",
@@ -50,7 +51,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 7,
+    "priority": 6,
     "interval": 0,
     "next_tick": 1697279828,
     "event_name": "竞技场商店购买",
@@ -66,7 +67,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 8,
+    "priority": 9,
     "interval": 0,
     "next_tick": 1697280038,
     "event_name": "困难关清体力",
@@ -74,7 +75,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 9,
+    "priority": 11,
     "interval": 0,
     "next_tick": 1697279418,
     "event_name": "每日特别委托",
@@ -82,7 +83,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 10,
+    "priority": 7,
     "interval": 0,
     "next_tick": 1697279503,
     "event_name": "悬赏通缉",
@@ -90,7 +91,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 11,
+    "priority": -1,
     "interval": 0,
     "next_tick": 1697279787,
     "event_name": "竞技场",
@@ -98,7 +99,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 0,
+    "priority": 14,
     "interval": 0,
     "next_tick": 1697280685,
     "event_name": "自动制造",
@@ -106,7 +107,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 0,
+    "priority": 15,
     "interval": 0,
     "next_tick": 1697279362,
     "event_name": "总力战",
@@ -114,15 +115,15 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 0,
-    "interval": 0,
+    "priority": 13,
+    "interval": 10800,
     "next_tick": 1697280072,
     "event_name": "自动MomoTalk",
     "func_name": "momo_talk"
   },
   {
     "enabled": true,
-    "priority": 0,
+    "priority": 12,
     "interval": 0,
     "next_tick": 1697287970,
     "event_name": "收集奖励",
@@ -130,7 +131,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 0,
+    "priority": 10,
     "interval": 0,
     "next_tick": 1697280134,
     "event_name": "学院交流会",
@@ -176,7 +177,7 @@ DEFAULT_CONFIG = """
     "special_task_times": "1,1",
     "purchase_scrimmage_ticket_times": "0",
     "scrimmage_times": "2,2,2",
-    "patStyle": "地毯",
+    "patStyle": "拖动礼物",
     "antiHarmony": true,
     "bannerVisibility": true,
     "favorStudent": [

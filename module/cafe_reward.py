@@ -21,7 +21,7 @@ def implement(self):
         cn_implement(self)
     elif self.server == "Global":
         global_implement(self)
-
+    return True
 
 def to_cafe(self):
     if self.server == 'CN':
@@ -93,10 +93,11 @@ def cn_implement(self):
     pat_style = self.config['patStyle']
     if pat_style == '普通' or pat_style is None:
         interaction_for_cafe_solve_method3(self)
-    if pat_style == '地毯':
+    elif pat_style == '地毯':
         interaction_for_cafe_solve_method3(self)
-    if pat_style == '礼物':
+    elif pat_style == '拖动礼物':
         interaction_for_cafe_solve_method3(self)
+    return True
 
 
 def global_implement(self):
@@ -147,7 +148,7 @@ def shot(self):
 def interaction_for_cafe_solve_method3(self):
     self.connection().pinch_in()
     self.swipe(709, 558, 709, 209, duration=0.5)
-    for i in range(0, 5):
+    for i in range(0, 0):
         to_gift(self)
         t1 = threading.Thread(target=shot, args=(self,))
         t1.start()

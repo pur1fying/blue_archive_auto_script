@@ -32,7 +32,7 @@ def compare_image(self, name, threshold=3, need_loading=False, image=None, need_
 
 
 def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None):
-    self.logger.info("Start detecting image possibles :{0}, end:{1}".format(possibles, end))
+    # self.logger.info("Start detecting image possibles :{0}, end:{1}".format(possibles, end))
     while True:
         if not self.flag_run:
             return False

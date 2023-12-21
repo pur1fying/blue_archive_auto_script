@@ -8,6 +8,7 @@ def implement(self):
         self.logger.info('CN is not supported')
     elif self.server == 'Global':
         global_implement(self)
+    return True
 
 
 def start_sweep(self):

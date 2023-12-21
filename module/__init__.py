@@ -17,3 +17,4 @@ from module import hard_task
 from module import clear_special_task_power
 from module import de_clothes
 from module import tactical_challenge_shop
+from module import total_force_fight

@@ -20,6 +20,7 @@ def implement(self):
         cn_implement(self)
     elif self.server == "Global":
         global_implement(self)
+    return True
 
 
 def check_mode(self):
@@ -188,7 +189,7 @@ def get_reply_position(img):
     i = 156
     while i < 657:
         if color.judge_rgb_range(img, 786, i, 29, 49, 143, 163, 219, 239) and \
-                color.judge_rgb_range(img, 786, i+20, 29, 49, 143, 163, 219, 239):
+                color.judge_rgb_range(img, 786, i+10, 29, 49, 143, 163, 219, 239):
             return 'reply', min(i + 65, 625)
         elif color.judge_rgb_range(img, 862, i, 245, 255, 227, 247, 230, 250) and \
                 color.judge_rgb_range(img, 862, i + 10, 245, 255, 125, 155, 145, 175):

@@ -28,9 +28,9 @@ def get_next_execute_tick():
 def implement(self):
     self.lesson_times = self.config['lesson_times']
     if self.server == 'CN':
-        cn_implement(self)
+        return cn_implement(self)
     elif self.server == 'Global':
-        global_implement(self)
+        return global_implement(self)
 
 
 def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
@@ -132,6 +132,7 @@ def cn_implement(self):
             if res == "lesson_report":
                 self.logger.info("complete one lesson")
                 continue
+    return True
 
 
 def global_implement(self):
@@ -231,6 +232,7 @@ def global_implement(self):
                 if lesson_tickets == 0:
                     self.logger.info("no tickets")
                     return True
+    return True
 
 
 def get_lesson_tickets(self):

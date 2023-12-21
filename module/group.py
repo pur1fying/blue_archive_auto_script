@@ -33,7 +33,6 @@ def implement(self):
         if res == "club_attendance_reward":
             self.logger.info("get 10 AP")
         self.click(1236, 39, wait=False, count=2)
-        return True
     return True
 
 

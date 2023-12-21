@@ -34,7 +34,8 @@ func_dict = {
     'clear_special_task_power': module.clear_special_task_power.implement,
     'de_clothes': module.de_clothes.implement,
     'tactical_challenge_shop': module.tactical_challenge_shop.implement,
-    'collect_daily_power': module.collect_reward.implement
+    'collect_daily_power': module.collect_reward.implement,
+    'total_force_fight': module.total_force_fight.implement,
 }
 
 
@@ -83,7 +84,7 @@ class Main:
         self.flag_run = True
         self.next_task = ''
         self.stage_data = {}
-        # self.scheduler = Scheduler(update_signal)
+        self.scheduler = Scheduler(update_signal)
         # start_debugger()
 
     def click(self, x, y, wait=True, count=1, rate=0, duration=0):
@@ -188,35 +189,28 @@ class Main:
         return False
 
     def thread_starter(self):  # 主程序，完成用户指定任务
-        self.logger.line()
-        self.logger.info("start activities")
-        for i in range(0, len(self.main_activity)):
-            if not self.flag_run:
-                return False
-            print(self.main_activity[i])
-            if self.get_enable(self.main_activity[i]):
-                self.solve(self.main_activity[i])
-        self.logger.info('activities all finished')
-        notify(title='邦邦卡邦', body='任务已完成')
-        # while self.flag_run:
-        #     next_func_name = self.scheduler.heartbeat()
-        #     if next_func_name:
-        #         self.logger.info(f'{next_func_name} start')
-        #         i = self.activity_name_list.index(next_func_name)
-        #         if i != 14:
-        #             self.quick_method_to_main_page()
-        #         self.next_time = 0
-        #         if self.solve(next_func_name):
-        #             self.scheduler.systole(next_func_name, self.next_time)
-        #         else:
-        #             self.flag_run = False
-        #             self.quick_method_to_main_page()
-        #     else:
-        #         # 返回None结束任务
-        #         self.logger.info('activities all finished')
-        #         notify(title='', body='任务已完成')
-        #         break
-        self.signal_stop()
+        try:
+            self.logger.line()
+            self.logger.info("start activities")
+            while self.flag_run:
+                next_func_name = self.scheduler.heartbeat()
+                self.next_time = 0
+                if next_func_name:
+                    self.logger.info(f"current activity: {next_func_name}")
+                    if self.solve(next_func_name):
+                        self.scheduler.systole(next_func_name, self.next_time)
+                    else:
+                        self.flag_run = False
+                        self.quick_method_to_main_page()
+                else:
+                    self.logger.info('activities all finished')
+                    notify(title='', body='任务已全部完成')
+                    break
+            self.signal_stop()
+        except Exception as e:
+            notify(title='', body='任务已停止')
+            self.logger.error(e)
+            self.signal_stop()
 
     def solve(self, activity) -> bool:
         try:
@@ -603,6 +597,7 @@ class Main:
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
+    t.thread_starter()
     t.solve('momo_talk')
     t.flag_run = True
     # t.solve('de_clothes')
