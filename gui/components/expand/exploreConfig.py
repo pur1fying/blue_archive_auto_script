@@ -1,3 +1,5 @@
+import threading
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import ComboBox, LineEdit, PushButton
@@ -81,6 +83,10 @@ class Layout(TemplateLayout):
         self.hBoxLayout.addLayout(self.push_card)
 
     def _accept_push(self):
+        thread = threading.Thread(target=self.start_push, daemon=True)
+        thread.start()
+
+    def start_push(self):
         push_list = [int(x) for x in self.input_push.text().split(',')]
         self.set('explore_normal_task_regions', push_list)
         t = main.Main()
