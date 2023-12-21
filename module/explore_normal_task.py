@@ -13,6 +13,7 @@ x = {
 
 
 def implement(self):
+    # test_(self)
     if self.server == 'CN':
         possible = {
             'main_page_home-feature': (1195, 576, 3),
@@ -80,7 +81,7 @@ def start_fight(self, region):
                 self.click(1194, 601)
         start_action(self, mission, self.stage_data)
     main_story.auto_fight(self)
-    if self.config['manual_boss']:
+    if self.config['manual_boss'] and mission != 'SUB':
         self.click(1235, 41)
 
     normal_task.to_normal_event(self)
@@ -268,7 +269,7 @@ def choose_team(self, mission_num, force):
         self.exit("No formation added into corresponding config")
     to_formation_edit_i(self, index, self.stage_data[mission_num]['start'][force])
     if color.judge_rgb_range(self.latest_img_array, 1166, 684, 250, 255, 105, 125, 68, 88) \
-            and color.judge_rgb_range(self.latest_img_array, 1156, 626, 250, 255, 105, 125, 68, 88):
+        and color.judge_rgb_range(self.latest_img_array, 1156, 626, 250, 255, 105, 125, 68, 88):
         self.exit("please choose another formation")
     to_normal_task_wait_to_begin_page(self)
     return index
@@ -412,7 +413,7 @@ def test_(self):
     normal_task.to_normal_event(self)
     choose_region(self, region)
     self.stage_data = get_stage_data(region)
-    for i in range(4, 6):
+    for i in range(1, 6):
         self.swipe(917, 220, 917, 552, duration=0.1)
         time.sleep(1)
         to_mission_info(self)
