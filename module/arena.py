@@ -23,7 +23,7 @@ def implement(self):
         return True
     else:
         self.logger.info("TICKETS: " + str(tickets))
-        # choose_enemy(self)
+        choose_enemy(self)
         choice = 1
         x = 844
         y = [261, 414, 581]
@@ -59,18 +59,23 @@ def implement(self):
 
 
 def choose_enemy(self):
-    less_level = 2
+    less_level = self.config['ArenaLevelDiff']
+    max_refresh = self.config['maxArenaRefreshTimes']
+    self.logger.info("less level acceptable:" + str(less_level))
+    self.logger.info("max refresh times:" + str(max_refresh))
     self_lv = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[215:250, 165:208])['text'])
     self.logger.info("self level " + str(self_lv))
     refresh = 0
     while True:
-        if refresh > 10:
+        if refresh >= max_refresh:
             break
         opponent_lv = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[298:317, 551:581])['text'])
         self.logger.info("opponent level " + str(opponent_lv))
         if opponent_lv + less_level <= self_lv:
             break
+        self.logger.info("refresh")
         self.click(1158, 145)
+        stage.wait_loading(self)
         time.sleep(1)
         refresh += 1
         self.latest_img_array = self.get_screenshot_array()
