@@ -3,11 +3,16 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import SwitchButton, PushButton
 
 from .expandTemplate import TemplateLayout
+import main
+from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
 
 def fhx():
-    # To do: 反和谐功能添加
-    pass
+    try:
+        t = main.Main()
+        t.solve('de_clothes')
+    except Exception as e:
+        print(e)
 
 
 class Layout(TemplateLayout):

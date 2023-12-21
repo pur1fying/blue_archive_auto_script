@@ -30,6 +30,7 @@ def init_image_data(self):
     try:
         global iad, ibd
         base_path = ''
+        self.logger.info("Start initializing image data")
         if self.server == 'CN':
             ibd = {
                 'work_task': collect_daily_power_x,
@@ -95,6 +96,5 @@ def init_image_data(self):
                 iad[key] = cv2.imread(filepath)
 
         self.logger.info("Image data successfully initialized total assets : {0}".format(len(iad)))
-        self.logger.info("Start initializing image data")
     except Exception as e:
         self.logger.error("Failed to initialize image data {0}".format(e))

@@ -22,7 +22,7 @@ class Layout(QWidget, ConfigSet):
         self.label = QLabel('刷新次数', self)
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 5))
-        self.input.setText(self.get('ArenaShopRefreshTime'))
+        self.input.setText(self.get('TacticalChallengeShopRefreshTime'))
         self.accept = QPushButton('确定', self)
         self.boxes = []
         for i in range(13):
@@ -40,7 +40,7 @@ class Layout(QWidget, ConfigSet):
         self.accept.clicked.connect(self.__accept)
     def alter_status(self, index):
         self.boxes[index].setChecked(self.boxes[index].isChecked())
-        self.set(key='ArenaShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(13)])
+        self.set(key='TacticalChallengeShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(13)])
 
     def __accept(self, input_content=None):
-        self.set('ArenaShopRefreshTime', self.input.text())
+        self.set('TacticalChallengeShopRefreshTime', self.input.text())

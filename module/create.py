@@ -54,6 +54,8 @@ def common_create_judge(self):
 
 
 def implement(self):
+    self.logger.info("reconstructing create task")
+    return True
     to_crafting_chamber(self)
     if self.server == 'CN':
         start_make(self)

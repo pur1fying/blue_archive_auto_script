@@ -35,6 +35,7 @@ func_dict = {
     'clear_special_task_power': module.clear_special_task_power.implement,
     'de_clothes': module.de_clothes.implement,
     'tactical_challenge_shop': module.tactical_challenge_shop.implement,
+    'collect_daily_power': module.collect_reward.implement
 }
 
 
@@ -86,10 +87,12 @@ class Main(Setup):
         self.activity_name_list = self.main_activity.copy()
         for i in range(0, len(self.main_activity)):
             self.main_activity[i] = [self.main_activity[i], 0]
-        self.scheduler = Scheduler(update_signal)
+        # self.scheduler = Scheduler(update_signal)
         # start_debugger()
 
     def click(self, x, y, wait=True, count=1, rate=0, duration=0):
+        if not self.flag_run:
+            return False
         if wait:
             self.wait_loading()
         for i in range(count):
@@ -132,6 +135,8 @@ class Main(Setup):
             return True
 
     def get_screenshot_array(self):
+        if not self.flag_run:
+            return False
         return cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
 
     def signal_stop(self):
@@ -141,7 +146,7 @@ class Main(Setup):
 
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
-        print("--------init emulator----------")
+        self.logger.info("--------Init Emulator----------")
         try:
             self.adb_port = self.config.get('adbPort')
             self.logger.info("adb port: " + str(self.adb_port))
@@ -154,7 +159,7 @@ class Main(Setup):
             if self.server == 'CN':
                 self.connection.app_start(self.package_name)
             elif self.server == 'Global':
-                self.connection.app_start(self.package_name,activity='.MxUnityPlayerActivity')
+                self.connection.app_start(self.package_name, activity='.MxUnityPlayerActivity')
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
@@ -163,7 +168,7 @@ class Main(Setup):
                 self.logger.info("Screen Size unfitted")
                 self.send('stop')
                 return False
-            print("--------Emulator Init Finished----------")
+            self.logger.info("--------Emulator Init Finished----------")
             return True
         except Exception as e:
             threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
@@ -173,65 +178,53 @@ class Main(Setup):
         if msg == "start":
             if self.button_signal is not None:
                 self.button_signal.emit("停止")
-            self.start_instance()
+            self.thread_starter()
         elif msg == "stop":
             if self.button_signal is not None:
                 self.button_signal.emit("启动")
             self.flag_run = False
 
+    def get_enable(self, activity):
+        events = json.load(open('config/event.json', 'r', encoding='utf-8'))
+        for event in events:
+            if event['func_name'] == activity:
+                return event['enabled']
+        return False
+
     def thread_starter(self):  # 主程序，完成用户指定任务
-        self.quick_method_to_main_page()
         self.logger.line()
         self.logger.info("start activities")
-        print('--------------Start activities...---------------')
-        for i in range(13, len(self.main_activity)):
+        for i in range(0, len(self.main_activity)):
+            if not self.flag_run:
+                return False
             print(self.main_activity[i][0])
-            self.solve(self.main_activity[i][0])
-        while self.flag_run:
-            next_func_name = self.scheduler.heartbeat()
-            if next_func_name:
-                self.logger.info(f'{next_func_name} start')
-                i = self.activity_name_list.index(next_func_name)
-                if i != 14:
-                    self.quick_method_to_main_page()
-                self.next_time = 0
-                if self.solve(next_func_name):
-                    self.scheduler.systole(next_func_name, self.next_time)
-                else:
-                    self.flag_run = False
-                    self.quick_method_to_main_page()
-            else:
-                # 返回None结束任务
-                self.logger.info('activities all finished')
-                notify(title='', body='任务已完成')
-                break
+            if self.get_enable(self.main_activity[i][0]):
+                self.solve(self.main_activity[i][0])
+        self.logger.info('activities all finished')
+        notify(title='邦邦卡邦', body='任务已完成')
+        # while self.flag_run:
+        #     next_func_name = self.scheduler.heartbeat()
+        #     if next_func_name:
+        #         self.logger.info(f'{next_func_name} start')
+        #         i = self.activity_name_list.index(next_func_name)
+        #         if i != 14:
+        #             self.quick_method_to_main_page()
+        #         self.next_time = 0
+        #         if self.solve(next_func_name):
+        #             self.scheduler.systole(next_func_name, self.next_time)
+        #         else:
+        #             self.flag_run = False
+        #             self.quick_method_to_main_page()
+        #     else:
+        #         # 返回None结束任务
+        #         self.logger.info('activities all finished')
+        #         notify(title='', body='任务已完成')
+        #         break
         self.signal_stop()
-        # for i in range(0, len(self.main_activity)):
-        #     print(self.main_activity[i][0], self.main_activity[i][1])
-        #     if self.main_activity[i][1] == 0:
-        #         log.line(self.loggerBox)
-        #         print(self.main_activity[i][0])
-        #         log.d("begin " + self.main_activity[i][0] + " task")
-        #         if i != 8 and i != 14:
-        #             self.to_main_page()
-        #             self.main_to_page(i)
-        #         self.solve(self.main_activity[i][0])
-        #         print(self.main_activity[i][0], self.main_activity[i][1])
-        # count = 0
-        # for i in range(0, len(self.main_activity)):
-        #     if self.main_activity[i][1] == 1:
-        #         count += 1
-        # if count == 13:
-        #     self.send('stop')
-
-        #     self.flag_run = False
-
-    def start_instance(self):
-        if self._init_emulator():
-            self.thread_starter()
 
     def solve(self, activity) -> bool:
         try:
+            self.quick_method_to_main_page()
             return func_dict[activity](self)
         except Exception as e:
             self.logger.error(e)
@@ -248,7 +241,7 @@ class Main(Setup):
                 'main_page_login-feature': (640, 360),
                 'main_page_news': (1142, 104),
                 'main_page_relationship-rank-up': (640, 360),
-                'main_page_full-notice':(887,165),
+                'main_page_full-notice': (887, 165),
                 'main_story_fight-confirm': (1168, 659),
                 'normal_task_task-finish': (1038, 662),
                 'normal_task_prize-confirm': (776, 655),
@@ -292,7 +285,7 @@ class Main(Setup):
                     [640, 100],
                     [1236, 31],
                     [640, 360],
-                    [640,100],
+                    [640, 100],
                 ]
                 los = [
                     "reward_acquired",
@@ -410,12 +403,13 @@ class Main(Setup):
                 'normal_task_fight-complete-confirm': (1160, 666),
                 'normal_task_reward-acquired-confirm': (800, 660),
                 'normal_task_task-operating-mission-info': (397, 592),
-                'normal_task_mission-operating-feature':(995,668),
-                'normal_task_quit-mission-info':(772,511),
-                'normal_task_mission-conclude-confirm':(1042,671),
+                'normal_task_mission-operating-feature': (995, 668),
+                'normal_task_quit-mission-info': (772, 511),
+                'normal_task_mission-conclude-confirm': (1042, 671),
             }
 
-            image.detect(self,end=None, possibles=possibles, pre_func=color.detect_rgb_one_time, pre_argv=(self,click_pos, los, ends))
+            image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
+                         pre_argv=(self, click_pos, los, ends))
             return True
 
     def init_rgb(self):
@@ -442,7 +436,7 @@ class Main(Setup):
     def init_server(self):
         try:
             self.logger.info("Start initializing server")
-            server = self.config['Settings']['server']
+            server = self.config['server']
             if server == '官服' or server == 'B服':
                 self.server = 'CN'
             elif server == '国际服':
@@ -453,6 +447,8 @@ class Main(Setup):
             self.logger.error(e)
 
     def swipe(self, fx, fy, tx, ty, duration=None):
+        if not self.flag_run:
+            return False
         self.logger.info(f"swipe {fx} {fy} {tx} {ty}")
         if duration is None:
             self.connection.swipe(fx, fy, tx, ty)
@@ -591,7 +587,7 @@ class Main(Setup):
         self._init_emulator()
 
     def init_package_name(self):
-        server = self.config['Settings']['server']
+        server = self.config['server']
         if server == '官服':
             self.package_name = 'com.RoamingStar.BlueArchive'
         elif server == 'B服':

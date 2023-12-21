@@ -286,6 +286,8 @@ def total_force_fight_highest_difficulty_button_detector(self, maxx, temp_ocr):
 
 
 def implement(self):
+    self.logger.info("reconstructing total_force_fight task")
+    return True
     temp_ocr = CnOcr(det_model_name="en_PP-OCRv3_det", rec_model_name='en_number_mobile_v2.0')
     maxx_name = self.config.get('totalForceFightDifficulty')
     self.name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3, "EXTREME": 4}

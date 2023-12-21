@@ -13,7 +13,6 @@ x = {
 
 
 def implement(self):
-    test_(self)
     if self.server == 'CN':
         possible = {
             'main_page_home-feature': (1195, 576, 3),

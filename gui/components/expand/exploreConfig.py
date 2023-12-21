@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import ComboBox, LineEdit, PushButton
 
+import main
 from .expandTemplate import TemplateLayout
 from gui.util.config_set import ConfigSet
 
@@ -10,7 +11,7 @@ class Layout(TemplateLayout):
     def __init__(self, parent=None):
         configItems = [
             {
-                'label': '是否手动boss战（进入关卡后暂停）',
+                'label': '是否手动boss战（进入关卡后暂停等待手操）',
                 'key': 'manual_boss',
                 'type': 'switch'
             },
@@ -81,6 +82,6 @@ class Layout(TemplateLayout):
 
     def _accept_push(self):
         push_list = [int(x) for x in self.input_push.text().split(',')]
-        # todo: execute proceed the map function
-        print(push_list)
-        pass
+        self.set('explore_normal_task_regions', push_list)
+        t = main.Main()
+        t.solve('explore_normal_task')

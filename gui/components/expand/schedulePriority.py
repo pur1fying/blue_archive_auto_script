@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
 from qfluentwidgets import LineEdit
 
@@ -11,12 +11,12 @@ class Layout(QWidget, ConfigSet):
         super().__init__(parent=parent)
         self.hBoxLayout = QHBoxLayout(self)
 
-        self.label = QLabel('输入你的每个区域日程的次数（如"11111"）', self)
+        self.label = QLabel('输入你的每个区域日程的次数（国服6个区域，国际服9个区域）（如"111111"）', self)
         self.input = LineEdit(self)
         self.accept = QPushButton('确定', self)
-        _set_ = self.get('schedulePriority')
+        _set_ = self.get('lesson_times')
         self.priority_list = [int(x) for x in (_set_ if _set_ else [1, 1, 1, 1, 1])]
-        validator = QIntValidator(10000, 50000)
+        validator = QDoubleValidator(10000.0, 10000000000.0, 0, self)
         self.input.setText(''.join([str(x) for x in self.priority_list]))
         self.input.setValidator(validator)
         self.setFixedHeight(53)
@@ -34,4 +34,4 @@ class Layout(QWidget, ConfigSet):
 
     def __accept(self):
         self.priority_list = [int(x) for x in self.input.text()]
-        self.set('schedulePriority', self.priority_list)
+        self.set('lesson_times', self.priority_list)

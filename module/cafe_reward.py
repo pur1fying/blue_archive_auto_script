@@ -92,9 +92,9 @@ def cn_implement(self):
         invite_girl(self)
     pat_style = self.config['patStyle']
     if pat_style == '普通' or pat_style is None:
-        interaction_for_cafe_solve_method1(self)
+        interaction_for_cafe_solve_method3(self)
     if pat_style == '地毯':
-        interaction_for_cafe_solve_method2(self)
+        interaction_for_cafe_solve_method3(self)
     if pat_style == '礼物':
         interaction_for_cafe_solve_method3(self)
 
@@ -416,10 +416,10 @@ def interaction_for_cafe_solve_method1(self):
                 for y in range(0, 670):
                     if color.judge_rgb_range(shot, x, y, 255, 255, 210, 230, 0, 50) and \
                         color.judge_rgb_range(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
-                        color.judge_rgb_range(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
+                            color.judge_rgb_range(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
                         location += 1
                         self.logger.info("find interaction at (" + str(x) + "," + str(y + 42) + ")")
-                        self.operation("click@student", (min(1270, x + 40), y + 42))
+                        self.click(min(1270, x + 40), y + 42)
                         for tmp1 in range(-40, 40):
                             for tmp2 in range(-40, 40):
                                 if 0 <= x + tmp1 < 1280:
@@ -435,8 +435,8 @@ def interaction_for_cafe_solve_method1(self):
         if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
             return False
         if i != len(swipe_action_list[0]):
-            self.operation("swipe", [(start_x, start_y), (start_x + swipe_action_list[0][i],
-                                                          start_y + swipe_action_list[1][i])], duration=0.1)
+            self.swipe(start_x, start_y, start_x + swipe_action_list[0][i],
+                                                          start_y + swipe_action_list[1][i], duration=0.1)
 
     self.logger.info("cafe task finished")
     self.main_activity[0][1] = 1
