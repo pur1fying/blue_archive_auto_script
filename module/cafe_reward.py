@@ -159,9 +159,23 @@ def interaction_for_cafe_solve_method3(self):
         t1.join()
         res = match(self.latest_img_array, server=self.server)
         to_cafe(self)
-
-        for j in range(0, len(res)):
-            self.click(res[j][0], min(res[j][1], 591), wait=False)
+        if res:
+            print(res)
+            res.sort(key=lambda x: x[0])
+            temp = 0
+            print(res)
+            while temp < len(res):
+                if temp == len(res) - 1:
+                    break
+                print(res[temp][0], res[temp + 1][0])
+                print(res[temp][1], res[temp + 1][1])
+                if abs(res[temp][0] - res[temp + 1][0]) <= 10 and abs(res[temp][1] - res[temp + 1][1]) <= 10:
+                    res.pop(temp+1)
+                else:
+                    temp += 1
+            self.logger.info("totally find " + str(len(res)) + " interactions")
+            for j in range(0, len(res)):
+                self.click(res[j][0], min(res[j][1], 591), wait=False)
 
         time.sleep(2)
         to_cafe(self)
