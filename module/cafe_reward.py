@@ -130,7 +130,7 @@ def match(img, server):
         threshold = 0.75
         locations = np.where(result >= threshold)
         for pt in zip(*locations[::-1]):
-            res.append([pt[0] + template.shape[1] / 2, pt[1] + template.shape[0] / 2 + 58])
+            res.append([int(pt[0] + template.shape[1] / 2), int(pt[1] + template.shape[0] / 2 + 58)])
     return res
 
 
@@ -163,16 +163,26 @@ def interaction_for_cafe_solve_method3(self):
             print(res)
             res.sort(key=lambda x: x[0])
             temp = 0
-            print(res)
             while temp < len(res):
                 if temp == len(res) - 1:
                     break
-                print(res[temp][0], res[temp + 1][0])
-                print(res[temp][1], res[temp + 1][1])
-                if abs(res[temp][0] - res[temp + 1][0]) <= 10 and abs(res[temp][1] - res[temp + 1][1]) <= 10:
-                    res.pop(temp+1)
-                else:
+                tt = temp + 1
+                pop_f = False
+                while abs(res[temp][0] - res[tt][0]) <= 10:
+                    if abs(res[temp][1] - res[tt][1]) <= 10:
+                        res.pop(tt)
+                        pop_f = True
+                        print(res)
+                        if tt > len(res) - 1:
+                            break
+                    else:
+                        tt = tt + 1
+                        if tt > len(res) - 1:
+                            break
+                if not pop_f:
                     temp += 1
+                else:
+                    continue
             self.logger.info("totally find " + str(len(res)) + " interactions")
             for j in range(0, len(res)):
                 self.click(res[j][0], min(res[j][1], 591), wait=False)

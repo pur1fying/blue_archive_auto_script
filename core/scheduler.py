@@ -44,22 +44,49 @@ class Scheduler:
         else:
             return (t.replace(hour=4, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
 
-    def systole(self, task_name: str, next_time=0) -> None:
+    def get_next_14hour(self):
+        t = datetime.now()
+        hour = t.hour
+        if hour < 14:
+            return t.replace(hour=14, minute=0, second=0, microsecond=0).timestamp()
+        else:
+            return (t.replace(hour=14, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
+
+    def get_next_13hour(self):
+        t = datetime.now()
+        hour = t.hour
+        if hour < 13:
+            return t.replace(hour=13, minute=0, second=0, microsecond=0).timestamp()
+        else:
+            return (t.replace(hour=13, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
+    def systole(self, task_name: str, next_time=0,server=None) -> None:
+        res = None
         for event in self._event_config:
             if event['func_name'] == task_name:
-                print(task_name)
                 if next_time != 0:
                     event['next_tick'] = time.time() + next_time
                 else:
                     if event['interval'] == 0:
-                        event['next_tick'] = self.get_next_4hour()
+                        if task_name == 'arena':
+                            if server == 'CN':
+                                if datetime.now().hour < 14:
+                                    event['next_tick'] = self.get_next_14hour()
+                                else:
+                                    event['next_tick'] = self.get_next_4hour()
+                            elif server == 'Global':
+                                if datetime.now().hour < 13:
+                                    event['next_tick'] = self.get_next_13hour()
+                                else:
+                                    event['next_tick'] = self.get_next_4hour()
+                        else:
+                            event['next_tick'] = self.get_next_4hour()
                     else:
                         event['next_tick'] = time.time() + event['interval']
-                    print(datetime.fromtimestamp(event['next_tick']))
-        print(sorted(self._event_config, key=lambda x: x['next_tick']))
+                res = datetime.fromtimestamp(event['next_tick'])
+                break
         self._commit_change()
         self.update_signal.emit()
-
+        return res
     def heartbeat(self) -> Optional[str]:
         # self._read_config()
         self._read_config()

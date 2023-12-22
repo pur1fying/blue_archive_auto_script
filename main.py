@@ -198,7 +198,8 @@ class Main:
                 if next_func_name:
                     self.logger.info(f"current activity: {next_func_name}")
                     if self.solve(next_func_name):
-                        self.scheduler.systole(next_func_name, self.next_time)
+                        self.logger.info(str(next_func_name) + " next_time :" + str(
+                            self.scheduler.systole(next_func_name, self.next_time, self.server)))
                     else:
                         self.flag_run = False
                         self.quick_method_to_main_page()
@@ -455,7 +456,7 @@ class Main:
             if self.server == 'CN':
                 self.ocrCN = CnOcr(det_model_name='ch_PP-OCRv3_det',
                                    det_model_fp='src/ocr_models/ch_PP-OCRv3_det_infer.onnx',
-                                    rec_model_name='densenet_lite_114-fc',
+                                   rec_model_name='densenet_lite_114-fc',
                                    rec_model_fp='src/ocr_models/cn_densenet_lite_136.onnx')
                 img_CN = cv2.imread('src/test_ocr/CN.png')
                 self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
@@ -463,7 +464,7 @@ class Main:
                 self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
                                    det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
                                    rec_model_name='en_number_mobile_v2.0',
-                                   rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx',)
+                                   rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
                 img_EN = cv2.imread('src/test_ocr/EN.png')
                 self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
             self.ocrNUM = CnOcr(det_model_name='en_PP-OCRv3_det',
@@ -602,7 +603,7 @@ if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     # t.thread_starter()
-    t.solve('scrimmage')
+    t.solve('cafe_reward')
     t.flag_run = True
     # t.solve('de_clothes')
     # t.solve('common_shop')
