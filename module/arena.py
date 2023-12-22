@@ -54,9 +54,10 @@ def implement(self):
         to_tactical_challenge(self)
         if tickets > 1:
             self.next_time = 55
+            return True
         elif tickets == 1:
             collect_tactical_challenge_reward(self)
-
+            return True
 
 def choose_enemy(self):
     less_level = self.config['ArenaLevelDiff']
