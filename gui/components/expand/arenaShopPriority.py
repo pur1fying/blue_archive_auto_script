@@ -1,6 +1,6 @@
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
-from qfluentwidgets import FlowLayout, CheckBox, LineEdit
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from qfluentwidgets import ComboBox
 
 from gui.util.config_set import ConfigSet
 
@@ -8,39 +8,77 @@ from gui.util.config_set import ConfigSet
 class Layout(QWidget, ConfigSet):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setFixedHeight(120)
 
-        self.goods = self.get(key='TacticalChallengeShopList')
+        self.hBoxLayout = QVBoxLayout(self)
 
-        layout = FlowLayout(self, needAni=True)
-        layout.setContentsMargins(30, 30, 30, 30)
-        layout.setVerticalSpacing(20)
-        layout.setHorizontalSpacing(10)
+        self.lay1 = QHBoxLayout(self)
 
-        self.setFixedSize(720, 200)
-        self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
-        self.label = QLabel('刷新次数', self)
-        self.input = LineEdit(self)
-        self.input.setValidator(QIntValidator(0, 5))
-        self.input.setText(self.get('TacticalChallengeShopRefreshTime'))
-        self.accept = QPushButton('确定', self)
-        self.boxes = []
-        for i in range(13):
-            t_cbx = CheckBox(self)
-            t_cbx.setChecked(self.goods[i] == 1)
-            ccs = QLabel(f"商品{i + 1}", self)
-            ccs.setFixedWidth(80)
-            layout.addWidget(ccs)
-            layout.addWidget(t_cbx)
-            t_cbx.stateChanged.connect(lambda x, index=i: self.alter_status(index))
-            self.boxes.append(t_cbx)
-        layout.addWidget(self.label)
-        layout.addWidget(self.input)
-        layout.addWidget(self.accept)
-        self.accept.clicked.connect(self.__accept)
-    def alter_status(self, index):
-        self.boxes[index].setChecked(self.boxes[index].isChecked())
-        self.set(key='TacticalChallengeShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(13)])
+        self.option_1 = QHBoxLayout(self)
+        self.option_2 = QHBoxLayout(self)
+        self.option_3 = QHBoxLayout(self)
 
-    def __accept(self, input_content=None):
-        self.set('TacticalChallengeShopRefreshTime', self.input.text())
+        self.label_1_0 = QLabel('高架公路', self)
+        self.label_2_0 = QLabel('沙漠铁路', self)
+        self.label_3_0 = QLabel('讲堂', self)
+
+        self.input_1_2 = ComboBox(self)
+        self.input_2_2 = ComboBox(self)
+        self.input_3_2 = ComboBox(self)
+
+        selection = [str(i) for i in range(1, 13)]
+
+        self.input_1_2.addItems(selection)
+        self.input_2_2.addItems(selection)
+        self.input_3_2.addItems(selection)
+
+        self.option_1.addWidget(self.label_1_0, 0, Qt.AlignLeft)
+        self.option_1.addStretch(1)
+        self.option_1.addWidget(self.input_1_2, 0, Qt.AlignRight)
+
+        self.option_2.addWidget(self.label_2_0, 0, Qt.AlignLeft)
+        self.option_2.addStretch(1)
+        self.option_2.addWidget(self.input_2_2, 0, Qt.AlignRight)
+
+        self.option_3.addWidget(self.label_3_0, 0, Qt.AlignLeft)
+        self.option_3.addStretch(1)
+        self.option_3.addWidget(self.input_3_2, 0, Qt.AlignRight)
+
+        self.label = QLabel('请在下拉框中选择相应悬赏委托的次数：', self)
+
+        _set_main = self.get('rewarded_task_times')
+        self.count = [int(x) for x in _set_main.split(',')]
+
+        self.input_1_2.setCurrentIndex(self.count[0] - 1)
+        self.input_2_2.setCurrentIndex(self.count[1] - 1)
+        self.input_3_2.setCurrentIndex(self.count[2] - 1)
+
+        self.input_1_2.currentIndexChanged.connect(self._commit)
+        self.input_2_2.currentIndexChanged.connect(self._commit)
+        self.input_3_2.currentIndexChanged.connect(self._commit)
+
+        self.setFixedHeight(200)
+
+        self.lay1.setContentsMargins(10, 0, 0, 10)
+        self.option_1.setContentsMargins(10, 0, 0, 10)
+        self.option_2.setContentsMargins(10, 0, 0, 10)
+        self.option_3.setContentsMargins(10, 0, 0, 10)
+
+        self.lay1.addWidget(self.label, 0, Qt.AlignLeft)
+
+        self.lay1.addStretch(1)
+        self.lay1.setAlignment(Qt.AlignCenter)
+
+        self.hBoxLayout.addSpacing(16)
+        self.hBoxLayout.setAlignment(Qt.AlignCenter)
+
+        self.hBoxLayout.addLayout(self.lay1)
+        self.hBoxLayout.addLayout(self.option_1)
+        self.hBoxLayout.addLayout(self.option_2)
+        self.hBoxLayout.addLayout(self.option_3)
+
+    def _commit(self):
+        self.count[0] = self.input_1_2.currentIndex() + 1
+        self.count[1] = self.input_2_2.currentIndex() + 1
+        self.count[2] = self.input_3_2.currentIndex() + 1
+        _formatted = ','.join([str(self.count[i]) for i in range(0, 3)])
+        self.set('rewarded_task_times', _formatted)

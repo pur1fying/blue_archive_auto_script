@@ -18,7 +18,6 @@ class ConfigSet:
 
     def set(self, key, value):
         self._init_config()
-        self._init_config()
         self.config[key] = value
         with open('./config/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)

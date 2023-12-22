@@ -8,6 +8,7 @@ from gui.util.config_set import ConfigSet
 class Layout(QWidget, ConfigSet):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
         self.hBoxLayout = QVBoxLayout(self)
 
         self.lay1 = QHBoxLayout(self)
@@ -24,9 +25,11 @@ class Layout(QWidget, ConfigSet):
         self.input_2_2 = ComboBox(self)
         self.input_3_2 = ComboBox(self)
 
-        self.input_1_2.addItems(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
-        self.input_2_2.addItems(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
-        self.input_3_2.addItems(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
+        selection = [str(i) for i in range(1, 13)]
+
+        self.input_1_2.addItems(selection)
+        self.input_2_2.addItems(selection)
+        self.input_3_2.addItems(selection)
 
         self.option_1.addWidget(self.label_1_0, 0, Qt.AlignLeft)
         self.option_1.addStretch(1)
@@ -78,4 +81,4 @@ class Layout(QWidget, ConfigSet):
         self.count[1] = self.input_2_2.currentIndex() + 1
         self.count[2] = self.input_3_2.currentIndex() + 1
         _formatted = ','.join([str(self.count[i]) for i in range(0, 3)])
-        self.set('specialPriority', _formatted)
+        self.set('rewarded_task_times', _formatted)

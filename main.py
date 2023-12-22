@@ -453,18 +453,24 @@ class Main:
         try:
             self.logger.info("Start initializing OCR")
             if self.server == 'CN':
-                self.ocrCN = CnOcr(rec_model_name='densenet_lite_114-fc',
+                self.ocrCN = CnOcr(det_model_name='ch_PP-OCRv3_det',
+                                   det_model_fp='src/ocr_models/ch_PP-OCRv3_det_infer.onnx',
+                                    rec_model_name='densenet_lite_114-fc',
                                    rec_model_fp='src/ocr_models/cn_densenet_lite_136.onnx')
                 img_CN = cv2.imread('src/test_ocr/CN.png')
                 self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
             elif self.server == 'Global':
-                self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det", rec_model_name='en_number_mobile_v2.0',
-                                   context='gpu')
+                self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
+                                   det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
+                                   rec_model_name='en_number_mobile_v2.0',
+                                   rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx',)
                 img_EN = cv2.imread('src/test_ocr/EN.png')
                 self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
-            self.ocrNUM = CnOcr(det_model_name='number-densenet_lite_136-fc',
+            self.ocrNUM = CnOcr(det_model_name='en_PP-OCRv3_det',
+                                det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
                                 rec_model_name='number-densenet_lite_136-fc',
-                                det_model_fp='src/ocr_models/number-densenet_lite_136.onnx')
+                                rec_model_fp='src/ocr_models/number-densenet_lite_136.onnx')
+
             img_NUM = cv2.imread('src/test_ocr/NUM.png')
             self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
             self.logger.info("OCR initialization concluded")
