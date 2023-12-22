@@ -40,7 +40,7 @@ class Layout(QWidget, ConfigSet):
         self.option_3.addStretch(1)
         self.option_3.addWidget(self.input_3_2, 0, Qt.AlignRight)
 
-        self.label = QLabel('请在下拉框中选择相应悬赏委托的难度和次数：', self)
+        self.label = QLabel('请在下拉框中选择相应悬赏委托的次数：', self)
 
         _set_main = self.get('rewarded_task_times')
         self.count = [int(x) for x in _set_main.split(',')]
