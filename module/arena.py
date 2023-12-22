@@ -39,8 +39,11 @@ def implement(self):
         ends = [
             "attack_team_formation",
         ]
-        image.detect(self, 'arena_edit-force', {}, pre_func=color.detect_rgb_one_time,
+        if self.server == 'CN':
+            image.detect(self, 'arena_edit-force', {}, pre_func=color.detect_rgb_one_time,
                      pre_argv=(self, click_pos, los, ends))
+        elif self.server == 'Global':
+            color.common_rgb_detect_method(self, click_pos, los, ends)
         res = check_skip_button(self.latest_img_array, self.server)
         if res == "OFF":
             self.logger.info("TURN ON SKIP")

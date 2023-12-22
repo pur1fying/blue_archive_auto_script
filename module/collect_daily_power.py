@@ -55,7 +55,8 @@ def to_tasks(self):
         color.common_rgb_detect_method(self, click_pos, los, ends)
     elif self.server == "CN":
         possibles = {
-            "main_page_home-feature": (70, 232, 3)
+            "main_page_home-feature": (70, 232),
+            'main_page_full-notice': (887, 165),
         }
         image.detect(self, "work_task_menu", possibles)
 

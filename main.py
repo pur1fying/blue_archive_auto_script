@@ -459,8 +459,6 @@ class Main:
                 self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
             elif self.server == 'Global':
                 self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det", rec_model_name='en_number_mobile_v2.0',
-                                   rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx',
-                                   det_model_fp='src/ocr_models/en_PP-OCRv3_rec_infer.onnx',
                                    context='gpu')
                 img_EN = cv2.imread('src/test_ocr/EN.png')
                 self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
@@ -598,7 +596,7 @@ if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     # t.thread_starter()
-    t.solve('lesson')
+    t.solve('scrimmage')
     t.flag_run = True
     # t.solve('de_clothes')
     # t.solve('common_shop')

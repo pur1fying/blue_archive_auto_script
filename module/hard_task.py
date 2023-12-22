@@ -8,7 +8,8 @@ def read_task(self, task_string):
     try:
         region = 0
         mainline_available_missions = [1, 2, 3]
-        mainline_available_regions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        mainline_available_regions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
+                                      23, ]
         for i in range(0, len(task_string)):
             if task_string[i].isdigit():
                 region = region * 10 + int(task_string[i])
@@ -140,7 +141,7 @@ def to_hard_event(self):
     elif self.server == 'Global':
         click_pos = [
             [1077, 98],
-            [805, 165],
+            [1186, 165],
             [1198, 580],
             [823, 261],
             [640, 116],
@@ -153,7 +154,7 @@ def to_hard_event(self):
         ]
         los = [
             "sweep_complete",
-            "event_hard",
+            "event_normal",
             "main_page",
             "campaign",
             "reward_acquired",
@@ -164,7 +165,7 @@ def to_hard_event(self):
             "unlock_notice",
         ]
         ends = [
-            "event_normal",
+            "event_hard",
         ]
         color.common_rgb_detect_method(self, click_pos, los, ends)
 
@@ -188,7 +189,7 @@ def to_task_info(self, x, y):
             [x, y],
         ]
         los = [
-            "event_normal"
+            "event_hard"
         ]
         ends = [
             "mission_info",

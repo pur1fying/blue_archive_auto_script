@@ -23,7 +23,7 @@ def implement(self):
         return True
 
     if self.server == 'Global':
-        buy_ticket_times = min(0, self.config['purchase_bounty_ticket_times'])  # ** 购买悬赏委托券的次数
+        buy_ticket_times = min(0, self.config['purchase_rewarded_task_ticket_times'])  # ** 购买悬赏委托券的次数
         if buy_ticket_times > 0:
             to_choose_bounty(self)
             purchase_bounty_ticket(self, buy_ticket_times)

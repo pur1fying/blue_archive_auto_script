@@ -14,6 +14,7 @@ def implement(self):
         [700, 204], [857, 204], [1000, 204], [1162, 204],
         [700, 461], [857, 461], [1000, 461], [1162, 461]
     ]
+    buy_list = np.array(self.config["TacticalChallengeShopList"])
     if self.server == 'CN':
         price = np.array([
             50, 50, 50, 15,
@@ -26,7 +27,6 @@ def implement(self):
             50, 15, 30, 5,
             25, 60, 100, 4,
             20, 60, 100], dtype=int)
-    buy_list = np.array(self.config["TacticalChallengeShopList"])
     if buy_list.shape != price.shape:
         self.logger.error("buy_list and price shape not match")
         return True
@@ -109,7 +109,7 @@ def to_tactical_challenge_shop(self):
     elif self.server == 'Global':
         click_pos = [
             [796, 653],  # main_page
-            [160, 456],  # common shop
+            [160, 531],  # common shop
             [922, 192],  # buy notice bright
             [922, 192],  # buy notice grey
             [886, 213],  # shop refresh guide

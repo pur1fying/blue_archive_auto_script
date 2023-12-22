@@ -20,6 +20,7 @@ def implement(self):
     if self.server == "CN":
         cn_implement(self)
     elif self.server == "Global":
+        time.sleep(1)
         global_implement(self)
     return True
 
@@ -102,6 +103,7 @@ def cn_implement(self):
 
 
 def global_implement(self):
+    self.latest_img_array = self.get_screenshot_array()
     op = np.full(2, False, dtype=bool)
     op[0] = get_invitation_ticket_status(self)
     op[1] = get_cafe_earning_status1(self)

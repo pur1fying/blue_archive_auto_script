@@ -56,7 +56,7 @@ def scrimmage_common_operation(self, a, b):
         click_pos[0][1] = los[i]
         color.common_rgb_detect_method(self, click_pos, pd_los, ends)
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
-        if t == "AVAILABLE":
+        if t == "sss":
             if b == "max":
                 self.click(1085, 300)
                 time.sleep(1)
@@ -69,7 +69,7 @@ def scrimmage_common_operation(self, a, b):
                 return "sweep_complete"
             if res == "purchase_ap_notice":
                 return "inadequate_ap"
-        elif t == "UNAVAILABLE":
+        elif t == "no-pass" or t == "pass":
             to_scrimmage(self, a)
 
     return True

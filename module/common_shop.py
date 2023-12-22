@@ -64,7 +64,7 @@ def implement(self):
         if self.server == 'CN':
             pass
         elif self.server == 'Global':
-            self.logger.info("asset_required : ", asset_required)
+            self.logger.info("asset_required : " + str(asset_required))
             if asset_required > creditpoints != -1:
                 self.logger.info("INADEQUATE assets for BUYING")
                 return True
