@@ -35,6 +35,7 @@ def implement(self):
 
 def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
     if self.server == 'CN':
+        self.latest_img_array = self.get_screenshot_array()
         t1 = time.time()
         name = self.ocrCN.ocr_for_single_line(self.latest_img_array[97:128, 925:1240])['text']
         t2 = time.time()
@@ -42,6 +43,10 @@ def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
         for i in range(3, -1, -1):
             if name[i] in ['评', '级'] or name[i].isdigit():
                 name = name[i + 1:]
+                break
+        for i in range(0, len(name)):
+            if name[i] == ' ':
+                name = name[i+1:]
                 break
         acc = []
         for i in range(0, len(region_name)):

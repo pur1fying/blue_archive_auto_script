@@ -597,8 +597,8 @@ class Main:
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
-    t.thread_starter()
-    t.solve('momo_talk')
+    # t.thread_starter()
+    t.solve('lesson')
     t.flag_run = True
     # t.solve('de_clothes')
     # t.solve('common_shop')

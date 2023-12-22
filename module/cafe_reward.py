@@ -91,6 +91,7 @@ def cn_implement(self):
     else:
         invite_girl(self)
     pat_style = self.config['patStyle']
+    print(pat_style)
     if pat_style == '普通' or pat_style is None:
         interaction_for_cafe_solve_method3(self)
     elif pat_style == '地毯':
@@ -148,7 +149,7 @@ def shot(self):
 def interaction_for_cafe_solve_method3(self):
     self.connection().pinch_in()
     self.swipe(709, 558, 709, 209, duration=0.5)
-    for i in range(0, 0):
+    for i in range(0, 4):
         to_gift(self)
         t1 = threading.Thread(target=shot, args=(self,))
         t1.start()
