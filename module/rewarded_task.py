@@ -138,6 +138,7 @@ def bounty_common_operation(self, a, b):
             to_bounty(self, a)
 
     self.swipe(926, 190, 926, 650, duration=1)
+    time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()
     line = self.latest_img_array[:, 1076, :]
     los = []

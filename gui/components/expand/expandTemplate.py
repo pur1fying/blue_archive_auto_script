@@ -46,14 +46,12 @@ class TemplateLayout(QWidget, ConfigSet):
                 currentKey = cfg.key
                 inputComponent = SwitchButton(self)
                 inputComponent.setChecked(self.get(currentKey))
-                inputComponent.setChecked(self._get(currentKey))
                 inputComponent.checkedChanged.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'combo':
                 currentKey = cfg.key
                 inputComponent = ComboBox(self)
                 inputComponent.addItems(cfg.selection)
                 inputComponent.setCurrentIndex(cfg.selection.index(self.get(currentKey)))
-                inputComponent.setCurrentIndex(cfg.selection.index(self._get(currentKey)))
                 inputComponent.currentIndexChanged.connect(
                     partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'button':
@@ -62,6 +60,7 @@ class TemplateLayout(QWidget, ConfigSet):
             elif cfg.type == 'text':
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
+                inputComponent.setText(self.get(currentKey))
                 confirmButton = PushButton('确定', self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':
@@ -94,6 +93,3 @@ class TemplateLayout(QWidget, ConfigSet):
             .parent().parent().parent().parent().parent()
         )
         infoChanged.show()
-
-    def _get(self, key):
-        return self.get(key)

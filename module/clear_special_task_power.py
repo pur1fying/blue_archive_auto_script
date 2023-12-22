@@ -172,6 +172,7 @@ def commissions_common_operation(self, a, b):
             to_commissions(self, a)
 
     self.swipe(926, 140, 926, 640, duration=1)
+    time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()
     i = 675
     line = self.latest_img_array[:, 1076, :]
@@ -205,6 +206,7 @@ def commissions_common_operation(self, a, b):
             to_commissions(self, a)
 
     self.swipe(926, 188, 926, 381, duration=1)
+    time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()
     line = self.latest_img_array[:, 1076, :]
     i = 675
