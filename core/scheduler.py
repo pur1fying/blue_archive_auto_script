@@ -10,9 +10,6 @@ from core import EVENT_CONFIG_PATH, DISPLAY_CONFIG_PATH
 lock = threading.Lock()
 
 
-
-
-
 class Scheduler:
     def __init__(self, update_signal):
         super().__init__()
@@ -59,7 +56,8 @@ class Scheduler:
             return t.replace(hour=13, minute=0, second=0, microsecond=0).timestamp()
         else:
             return (t.replace(hour=13, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
-    def systole(self, task_name: str, next_time=0,server=None) -> None:
+
+    def systole(self, task_name: str, next_time=0, server=None):
         res = None
         for event in self._event_config:
             if event['func_name'] == task_name:
@@ -87,22 +85,26 @@ class Scheduler:
         self._commit_change()
         self.update_signal.emit()
         return res
+
     def heartbeat(self) -> Optional[str]:
         # self._read_config()
         self._read_config()
         self.update_signal.emit()
         # self._event_config = sorted(self._event_config, key=lambda x: x['next_tick'])
         _valid_event = [x for x in self._event_config if x['enabled']]
-        self._event_config = sorted(self._event_config, key=lambda x: x['next_tick'])
         _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time.time()]
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])
         if len(_valid_event) != 0:
             self._display_config['running'] = _valid_event[0]['event_name']
-            self._display_config['queue'] = [x['event_name'] for x in _valid_event[1:]]
             self._commit_change()
             return _valid_event[0]['func_name']
         else:
-            self._display_config['running'] = "Empty"
-            self._display_config['queue'] = [x['event_name'] for x in _valid_event]
+            self._display_config['running'] = "Waiting"
             self._commit_change()
             return None
+
+    def get_next_execute_time(self):
+        _valid_event = [x for x in self._event_config if x['enabled']]
+        _valid_event.sort(key=lambda x: x['next_tick'])
+        return _valid_event[0]['next_tick'] - time.time()
+

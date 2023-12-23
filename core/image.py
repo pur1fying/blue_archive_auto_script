@@ -36,7 +36,7 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None):
     while True:
         if not self.flag_run:
             return False
-        self.wait_loading()
+        stage.wait_loading(self)
         if pre_func is not None:
             res = pre_func(*pre_argv)
             if not res:

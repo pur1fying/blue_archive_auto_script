@@ -2,7 +2,7 @@ import time
 
 import cv2
 import numpy as np
-from core import color,image
+from core import color, image
 
 
 def wait_loading(self):
@@ -17,15 +17,18 @@ def wait_loading(self):
                            [255, 255, 255, 255, 255, 255]]
             t = len(loading_pos)
             for i in range(0, t):
-                if not color.judge_rgb_range(self.latest_img_array, loading_pos[i][0], loading_pos[i][1], rgb_loading[i][0],
-                                       rgb_loading[i][1], rgb_loading[i][2], rgb_loading[i][3],
-                                       rgb_loading[i][4], rgb_loading[i][5]):
+                if not color.judge_rgb_range(self.latest_img_array, loading_pos[i][0], loading_pos[i][1],
+                                             rgb_loading[i][0],
+                                             rgb_loading[i][1], rgb_loading[i][2], rgb_loading[i][3],
+                                             rgb_loading[i][4], rgb_loading[i][5]):
                     break
             else:
                 t_load = time.time() - t_start
+                t_load = round(t_load, 3)
                 self.logger.info("loading, t load : " + str(t_load))
                 if t_load > 20:
                     self.logger.warning("LOADING TOO LONG add screenshot interval to 1")
+                    t_load = 0
                     self.screenshot_interval = 1
                 time.sleep(self.screenshot_interval)
                 continue

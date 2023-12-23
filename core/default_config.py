@@ -136,6 +136,14 @@ EVENT_DEFAULT_CONFIG = """
     "next_tick": 1697280134,
     "event_name": "学院交流会",
     "func_name": "scrimmage"
+  },
+  {
+    "enabled": true,
+    "priority": -2,
+    "interval": 0,
+    "next_tick": 0,
+    "event_name": "凌晨四点重启",
+    "func_name": "restart"
   }
 ]
 """

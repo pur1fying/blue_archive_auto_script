@@ -72,17 +72,10 @@ class Main:
         self.total_force_fight_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3,
                                                        "EXTREME": 4}
         self.total_force_fight_name = "chesed"  # 当期总力战名字
-        self.screenshot_flag_run = None
-        self.io_err_solved_count = 0
-        self.io_err_count = 0
-        self.io_err_rate = 10
         self.latest_img_array = None
-        # As all data has been initialized, we can assert that config is not None
-        assert self.config is not None
         self.screenshot_interval = self.config['screenshot_interval']
         self.button_signal = button_signal
         self.flag_run = True
-        self.next_task = ''
         self.stage_data = {}
         self.scheduler = Scheduler(update_signal)
         # start_debugger()
@@ -91,7 +84,7 @@ class Main:
         if not self.flag_run:
             return False
         if wait:
-            self.wait_loading()
+            stage.wait_loading(self)
         for i in range(count):
             self.logger.info(f"click x:{x} y:{y}")
             time.sleep(rate)
@@ -99,37 +92,6 @@ class Main:
             noisey = np.random.uniform(-5, 5)
             self.connection.click(x + noisex, y + noisey)
             time.sleep(duration)
-
-    def wait_loading(self):
-        """
-        检查是否加载中，
-        """
-        t_start = time.time()
-        while 1:
-            self.latest_img_array = self.get_screenshot_array()
-            if not color.judge_rgb_range(self.latest_img_array, 937, 648, 200, 255, 200, 255, 200, 255) or not \
-                color.judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
-                loading_pos = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
-                rgb_loading = [[200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
-                               [200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
-                               [255, 255, 255, 255, 255, 255]]
-                t = len(loading_pos)
-                for i in range(0, t):
-                    if not color.judge_rgb_range(self.latest_img_array, loading_pos[i][0], loading_pos[i][1],
-                                                 rgb_loading[i][0],
-                                                 rgb_loading[i][1], rgb_loading[i][2], rgb_loading[i][3],
-                                                 rgb_loading[i][4], rgb_loading[i][5]):
-                        break
-                else:
-                    t_load = time.time() - t_start
-                    self.logger.info("loading, t load : " + str(t_load))
-                    if t_load > 20:
-                        self.logger.warning("LOADING TOO LONG add screenshot interval to 1")
-                        self.screenshot_interval = 1
-                    time.sleep(self.screenshot_interval)
-                    continue
-
-            return True
 
     def get_screenshot_array(self):
         if not self.flag_run:
@@ -197,21 +159,33 @@ class Main:
                 self.next_time = 0
                 if next_func_name:
                     self.logger.info(f"current activity: {next_func_name}")
-                    if self.solve(next_func_name):
-                        self.logger.info(str(next_func_name) + " next_time :" + str(
-                            self.scheduler.systole(next_func_name, self.next_time, self.server)))
+                    if next_func_name == 'restart':
+                        self.logger.info("CHECK RESTART")
+                        cur_package = self.connection.app_current()['package']
+                        self.logger.info("current package: " + cur_package)
+                        now = datetime.now()
+                        if cur_package == self.package_name and abs(
+                                time.time() - datetime(year=now.year, month=now.month, day=now.day, hour=4).timestamp()) <= 60:
+                            self.logger.info("--STOP CURRENT BLUE ARCHIVE--")
+                            self.connection.app_stop(self.package_name)
+                        self._init_emulator()
+                        next_tick = self.scheduler.systole('restart')
+                        self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
+                    elif self.solve(next_func_name):
+                        next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
+                        next_tick.replace(microsecond=0)
+                        self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                     else:
-                        self.flag_run = False
+                        self.logger.info("error occurred, stop all activities")
                         self.quick_method_to_main_page()
+                        self.signal_stop()
                 else:
-                    self.quick_method_to_main_page()
-                    self.logger.info('activities all finished')
-                    notify(title='', body='任务已全部完成')
-                    break
+                    time.sleep(1)
+
             self.signal_stop()
         except Exception as e:
-
             notify(title='', body='任务已停止')
+            self.logger.info("error occurred, stop all activities")
             self.logger.error(e)
             self.signal_stop()
 
