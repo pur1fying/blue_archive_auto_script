@@ -118,10 +118,7 @@ def start_admission(self):
 
 def change_acc_auto(self):
     img1 = self.get_screenshot_array()
-    if self.server == 'CN':
-        y = 625
-    elif self.server == 'Global':
-        y = 575
+    y = 625
     acc_r_ave = int(img1[y][1196][0]) // 3 + int(img1[y][1215][0]) // 3 + int(img1[y][1230][0]) // 3
     if 250 <= acc_r_ave <= 260:
         self.logger.info("CHANGE acceleration phase from 2 to 3")
@@ -153,11 +150,6 @@ def auto_fight(self):
         img = self.get_screenshot_array()
         if self.server == 'CN':
             if not color.judge_rgb_range(img, 831, 692, 44, 64, 197, 217, 240, 255):
-                time.sleep(self.screenshot_interval)
-            else:
-                break
-        elif self.server == 'Global':
-            if not (color.judge_rgb_range(img, 831, 643, 0, 40, 150, 190, 240, 255) or color.judge_rgb_range(img, 831, 692, 0, 64, 150, 217, 240, 255)):
                 time.sleep(self.screenshot_interval)
             else:
                 break
