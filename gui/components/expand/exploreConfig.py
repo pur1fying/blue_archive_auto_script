@@ -59,6 +59,10 @@ class Layout(TemplateLayout):
             {
                 'label': '                      8[贯穿,贯穿]   7[爆发,爆发]    6[贯穿,贯穿]    5[爆发]4[贯穿]',
                 'type': 'label'
+            },
+            {
+                'label': '如果有多支队伍一队编号必须小于二队，如15图神秘1队编号要小于神秘2队',
+                'type': 'label'
             }
         ]
 
