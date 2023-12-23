@@ -132,9 +132,11 @@ def to_hard_event(self):
         }
         click_pos = [
             [1064, 165],
+            [640, 100]
         ]
         los = [
             "event_normal",
+            'level_up'
         ]
         image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
                      pre_argv=(self, click_pos, los, ["event_hard"]))
@@ -210,7 +212,7 @@ def start_sweep(self):
             "buy_ap_notice",
             "normal_task_charge-challenge-counts",
         ]
-        res = image.detect(self, end=ends, possibles=possibles)
+        res = image.detect(self, end=ends, possibles=possibles,pre_func=color.detect_rgb_one_time,pre_argv=(self, [[640, 200]], ['level_up'],[]))
         if res == "normal_task_sweep-complete":
             return "sweep_complete"
         elif res == "normal_task_skip-sweep-complete":

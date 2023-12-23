@@ -148,7 +148,8 @@ def change_acc_auto(self):
 
 
 def auto_fight(self):
-    while True:
+    t_start = time.time()
+    while time.time() <= t_start + 20:
         img = self.get_screenshot_array()
         if self.server == 'CN':
             if not color.judge_rgb_range(img, 831, 692, 44, 64, 197, 217, 240, 255):
@@ -156,7 +157,7 @@ def auto_fight(self):
             else:
                 break
         elif self.server == 'Global':
-            if not color.judge_rgb_range(img, 831, 643, 0, 40, 150, 190, 240, 255):
+            if not (color.judge_rgb_range(img, 831, 643, 0, 40, 150, 190, 240, 255) or color.judge_rgb_range(img, 831, 692, 0, 64, 150, 217, 240, 255)):
                 time.sleep(self.screenshot_interval)
             else:
                 break

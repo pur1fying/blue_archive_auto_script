@@ -204,11 +204,13 @@ class Main:
                         self.flag_run = False
                         self.quick_method_to_main_page()
                 else:
+                    self.quick_method_to_main_page()
                     self.logger.info('activities all finished')
                     notify(title='', body='任务已全部完成')
                     break
             self.signal_stop()
         except Exception as e:
+
             notify(title='', body='任务已停止')
             self.logger.error(e)
             self.signal_stop()
@@ -279,12 +281,14 @@ class Main:
                     [1236, 31],
                     [640, 360],
                     [640, 100],
+                    [640, 200]
                 ]
                 los = [
                     "reward_acquired",
                     "home",
                     'relationship_rank_up',
-                    'area_rank_up'
+                    'area_rank_up',
+                    'level_up'
                 ]
                 res = color.detect_rgb_one_time(self, click_pos, los, [])
                 if res == ('click', True):

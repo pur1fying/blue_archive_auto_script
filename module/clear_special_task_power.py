@@ -58,7 +58,7 @@ def start_sweep(self):
             "normal_task_sweep-complete",
             "buy_ap_notice",
         ]
-        res = image.detect(self, end=ends, possibles=possibles)
+        res = image.detect(self, end=ends, possibles=possibles,pre_func=color.detect_rgb_one_time,pre_argv=(self, [[640, 200]], ['level_up'],[]))
         if res == "normal_task_sweep-complete":
             return "sweep_complete"
         elif res == "normal_task_skip-sweep-complete":

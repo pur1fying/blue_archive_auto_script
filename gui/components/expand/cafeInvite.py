@@ -64,7 +64,7 @@ class Layout(QWidget, ConfigSet):
     def __accept(self):
         self.favor_student = self.input1.text()
         self.pat_style = self.input2.text()
-        self.set('favorStudent', self.favor_student)
+        self.set('favorStudent', [self.favor_student])
         self.set('patStyle', self.pat_style)
         print(self.favor_student)
         print(self.pat_style)
