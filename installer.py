@@ -176,7 +176,7 @@ def check_git():
                      .decode('utf-8')).split('\n')[0]
         logger.info(f"remote_sha:{remote_sha}")
         logger.info(f"local_sha:{local_sha}")
-        if local_sha == remote_sha & subprocess.check_output(['git', 'diff'])==b'':
+        if local_sha == remote_sha & subprocess.check_output(['GIT_HOME', 'diff'])==b'':
             logger.info("No updates available")
         else:
             logger.info("Pulling updates from the remote repository...")
