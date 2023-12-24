@@ -34,6 +34,7 @@ def to_refresh(self):
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     to_common_shop(self)
     time.sleep(0.5)
     creditpoints = self.get_creditpoints()

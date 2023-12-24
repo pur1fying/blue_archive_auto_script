@@ -41,6 +41,14 @@ class Scheduler:
         else:
             return (t.replace(hour=4, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
 
+    def get_next_18hour(self):
+        t = datetime.now()
+        hour = t.hour
+        if hour < 18:
+            return t.replace(hour=18, minute=0, second=0, microsecond=0).timestamp()
+        else:
+            return (t.replace(hour=18, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
+
     def get_next_14hour(self):
         t = datetime.now()
         hour = t.hour
@@ -76,6 +84,11 @@ class Scheduler:
                                     event['next_tick'] = self.get_next_13hour()
                                 else:
                                     event['next_tick'] = self.get_next_4hour()
+                        elif task_name == 'collect_daily_power':
+                            if datetime.now().hour < 18:
+                                event['next_tick'] = self.get_next_18hour()
+                            else:
+                                event['next_tick'] = self.get_next_4hour()
                         else:
                             event['next_tick'] = self.get_next_4hour()
                     else:

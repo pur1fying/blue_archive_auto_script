@@ -13,6 +13,7 @@ x = {
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     # test_(self)
     if self.server == 'CN':
         possible = {

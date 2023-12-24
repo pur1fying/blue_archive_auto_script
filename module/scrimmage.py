@@ -4,6 +4,7 @@ from core import color
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     if self.server == 'CN':
         self.logger.info('CN is not supported')
     elif self.server == 'Global':

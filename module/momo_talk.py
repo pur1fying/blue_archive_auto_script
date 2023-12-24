@@ -16,6 +16,7 @@ x = {
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     if self.server == 'CN':
         cn_implement(self)
     elif self.server == "Global":
@@ -77,7 +78,7 @@ def cn_implement(self):
             else:
                 self.logger.info("restart momo_talk task")
                 self.quick_method_to_main_page()
-                return global_implement(self)
+                return implement(self)
         else:
             for i in range(0, len(unread_location)):
                 self.click(unread_location[i][0], unread_location[i][1], wait=False)
@@ -130,8 +131,7 @@ def global_implement(self):
                 return True
             else:
                 self.logger.info("restart momo_talk task")
-                self.quick_method_to_main_page()
-                return global_implement(self)
+                return implement(self)
         else:
             for i in range(0, len(unread_location)):
                 self.click(unread_location[i][0], unread_location[i][1], wait=False)

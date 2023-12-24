@@ -15,6 +15,7 @@ x = {
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     to_tactical_challenge(self)
     tickets = get_tickets(self.latest_img_array, self.ocrNUM, self.server)
     if tickets == 0:

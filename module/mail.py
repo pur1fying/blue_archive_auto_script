@@ -22,6 +22,7 @@ def to_mail(self):
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     to_mail(self)
     img = self.latest_img_array
     if color.judge_rgb_range(img, 1142, 646, 206, 226, 207, 227, 208, 228):

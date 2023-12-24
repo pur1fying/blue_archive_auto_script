@@ -43,6 +43,7 @@ def read_task(self, task_string):
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     self.hard_task_count = []
     temp = self.config['hardPriority']
     if type(temp) == str:

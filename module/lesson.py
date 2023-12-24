@@ -26,6 +26,7 @@ def get_next_execute_tick():
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     self.lesson_times = self.config['lesson_times']
     if self.server == 'CN':
         return cn_implement(self)

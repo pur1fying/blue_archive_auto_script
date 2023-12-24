@@ -101,5 +101,7 @@ def init_image_data(self):
                 iad[key] = cv2.imread(filepath)
 
         self.logger.info("Image data successfully initialized total assets : {0}".format(len(iad)))
+        return True
     except Exception as e:
         self.logger.error("Failed to initialize image data {0}".format(e))
+        return False

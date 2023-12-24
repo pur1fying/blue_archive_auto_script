@@ -9,6 +9,7 @@ x = {
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     try:
         count = self.config["rewarded_task_times"]
         if type(count) is str:

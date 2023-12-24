@@ -17,6 +17,7 @@ def get_next_execute_tick():
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     if self.server == 'CN':
         possible = {
             'main_page_home-feature': (578, 648),

@@ -12,6 +12,7 @@ x = {
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     try:
         count = self.config["special_task_times"].split(",")
         for i in range(0, len(count)):

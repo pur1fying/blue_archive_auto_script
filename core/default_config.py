@@ -5,7 +5,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 0,
     "interval": 10800,
-    "next_tick": 1697280134,
+    "next_tick": 0,
     "event_name": "咖啡厅",
     "func_name": "cafe_reward"
   },
@@ -13,7 +13,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 1,
     "interval": 0,
-    "next_tick": 1697279908,
+    "next_tick": 0,
     "event_name": "日程",
     "func_name": "lesson"
   },
@@ -21,14 +21,14 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 4,
     "interval": 0,
-    "next_tick": 1699453666,
+    "next_tick": 0,
     "event_name": "收集每日体力",
     "func_name": "collect_daily_power"
   },
   {
     "event_name": "收集小组体力",
     "func_name": "group",
-    "next_tick": 1697279810,
+    "next_tick": 0,
     "priority": 2,
     "enabled": true,
     "interval": 0
@@ -37,7 +37,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 3,
     "interval": 0,
-    "next_tick": 1697280258,
+    "next_tick": 0,
     "event_name": "查收邮箱",
     "func_name": "mail"
   },
@@ -45,7 +45,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 5,
     "interval": 0,
-    "next_tick": 1697279828,
+    "next_tick": 0,
     "event_name": "商店购买",
     "func_name": "common_shop"
   },
@@ -53,7 +53,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 6,
     "interval": 0,
-    "next_tick": 1697279828,
+    "next_tick": 0,
     "event_name": "竞技场商店购买",
     "func_name": "tactical_challenge_shop"
   },
@@ -61,7 +61,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 8,
     "interval": 0,
-    "next_tick": 1697280038,
+    "next_tick": 0,
     "event_name": "普通关清体力",
     "func_name": "normal_task"
   },
@@ -69,7 +69,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 9,
     "interval": 0,
-    "next_tick": 1697280038,
+    "next_tick": 0,
     "event_name": "困难关清体力",
     "func_name": "hard_task"
   },
@@ -77,7 +77,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 11,
     "interval": 0,
-    "next_tick": 1697279418,
+    "next_tick": 0,
     "event_name": "每日特别委托",
     "func_name": "clear_special_task_power"
   },
@@ -85,7 +85,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 7,
     "interval": 0,
-    "next_tick": 1697279503,
+    "next_tick": 0,
     "event_name": "悬赏通缉",
     "func_name": "rewarded_task"
   },
@@ -93,7 +93,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": -1,
     "interval": 0,
-    "next_tick": 1697279787,
+    "next_tick": 0,
     "event_name": "竞技场",
     "func_name": "arena"
   },
@@ -101,7 +101,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 14,
     "interval": 0,
-    "next_tick": 1697280685,
+    "next_tick": 0,
     "event_name": "自动制造",
     "func_name": "create"
   },
@@ -109,7 +109,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 15,
     "interval": 0,
-    "next_tick": 1697279362,
+    "next_tick": 0,
     "event_name": "总力战",
     "func_name": "total_force_fight"
   },
@@ -117,7 +117,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 13,
     "interval": 10800,
-    "next_tick": 1697280072,
+    "next_tick": 0,
     "event_name": "自动MomoTalk",
     "func_name": "momo_talk"
   },
@@ -125,7 +125,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 12,
     "interval": 0,
-    "next_tick": 1697287970,
+    "next_tick": 0,
     "event_name": "收集奖励",
     "func_name": "collect_reward"
   },
@@ -133,7 +133,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": 10,
     "interval": 0,
-    "next_tick": 1697280134,
+    "next_tick": 0,
     "event_name": "学院交流会",
     "func_name": "scrimmage"
   },
@@ -144,6 +144,14 @@ EVENT_DEFAULT_CONFIG = """
     "next_tick": 0,
     "event_name": "凌晨四点重启",
     "func_name": "restart"
+  },
+  {
+    "enabled": true,
+    "priority": -3,
+    "interval": 10700,
+    "next_tick": 0,
+    "event_name": "定时刷新U2",
+    "func_name": "refresh_uiautomator2"
   }
 ]
 """

@@ -6,6 +6,7 @@ from core import color, image
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     to_tactical_challenge_shop(self)
     time.sleep(0.5)
     tactical_challenge_assets = get_tactical_challenge_assets(self.latest_img_array, self.ocrNUM)

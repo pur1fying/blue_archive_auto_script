@@ -71,6 +71,7 @@ def read_task(self, task_string):
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     self.normal_task_count = []
     temp = self.config['mainlinePriority']
     if type(temp) == str:

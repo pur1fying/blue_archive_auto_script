@@ -16,6 +16,7 @@ x = {
 
 
 def implement(self):
+    self.quick_method_to_main_page()
     to_cafe(self)
     if self.server == "CN":
         cn_implement(self)
@@ -282,7 +283,7 @@ def invite_girl(self):
 
     target_name_list = self.config['favorStudent']
     student_name.sort(key=len, reverse=True)
-    self.logger.info("inviting" + str(target_name_list))
+    self.logger.info("inviting : " + str(target_name_list))
     for i in range(0, len(target_name_list)):
         t = ""
         for j in range(0, len(target_name_list[i])):

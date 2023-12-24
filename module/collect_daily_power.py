@@ -7,6 +7,7 @@ x = {
 
 
 def implement(self, activity="collect_daily_power"):
+    self.quick_method_to_main_page()
     to_tasks(self)
     time.sleep(0.5)
     if self.server == 'CN':

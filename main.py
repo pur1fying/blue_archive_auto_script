@@ -5,7 +5,7 @@ import time
 import numpy as np
 import uiautomator2 as u2
 from cnocr import CnOcr
-
+import concurrent.futures
 import module
 from core.utils import *
 from core.exception import ScriptError
@@ -36,6 +36,8 @@ func_dict = {
     'tactical_challenge_shop': module.tactical_challenge_shop.implement,
     'collect_daily_power': module.collect_reward.implement,
     'total_force_fight': module.total_force_fight.implement,
+    'restart': module.restart.implement,
+    'refresh_uiautomator2': module.refresh_uiautomator2.implement,
 }
 
 
@@ -63,7 +65,6 @@ class Main:
         # self.logger.setLevel(logging.INFO)
         # self.logger.addHandler(handler1)
 
-        self.init_all_data()
 
         # self.loggerBox = logger_signal
         self.total_force_fight_difficulty_name = ["HARDCORE", "VERYHARD", "EXTREME", "NORMAL", "HARD"]  # 当期总力战难度
@@ -73,8 +74,11 @@ class Main:
                                                        "EXTREME": 4}
         self.total_force_fight_name = "chesed"  # 当期总力战名字
         self.latest_img_array = None
-        self.screenshot_interval = self.config['screenshot_interval']
         self.button_signal = button_signal
+
+        if not self.init_all_data():
+            return
+        self.screenshot_interval = self.config['screenshot_interval']
         self.flag_run = True
         self.stage_data = {}
         self.scheduler = Scheduler(update_signal)
@@ -86,7 +90,7 @@ class Main:
         if wait:
             stage.wait_loading(self)
         for i in range(count):
-            self.logger.info(f"click x:{x} y:{y}")
+            self.logger.info(f"click ({x} ,{y})")
             time.sleep(rate)
             noisex = np.random.uniform(-5, 5)
             noisey = np.random.uniform(-5, 5)
@@ -105,7 +109,7 @@ class Main:
 
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
-        self.logger.info("--------Init Emulator----------")
+        self.logger.info("--------------Init Emulator----------------")
         try:
             self.adb_port = self.config.get('adbPort')
             self.logger.info("adb port: " + str(self.adb_port))
@@ -124,13 +128,13 @@ class Main:
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
                 self.logger.info("Screen Size Fitted")
             else:
-                self.logger.info("Screen Size unfitted")
-                self.send('stop')
+                self.logger.info("Screen Size unfitted, Please set the screen size to 1280x720")
                 return False
             self.logger.info("--------Emulator Init Finished----------")
             return True
         except Exception as e:
-            threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
+            self.logger.error(e)
+            self.logger.error("Emulator initialization failed")
             return False
 
     def send(self, msg):
@@ -159,19 +163,7 @@ class Main:
                 self.next_time = 0
                 if next_func_name:
                     self.logger.info(f"current activity: {next_func_name}")
-                    if next_func_name == 'restart':
-                        self.logger.info("CHECK RESTART")
-                        cur_package = self.connection.app_current()['package']
-                        self.logger.info("current package: " + cur_package)
-                        now = datetime.now()
-                        if cur_package == self.package_name and abs(
-                                time.time() - datetime(year=now.year, month=now.month, day=now.day, hour=4).timestamp()) <= 60:
-                            self.logger.info("--STOP CURRENT BLUE ARCHIVE--")
-                            self.connection.app_stop(self.package_name)
-                        self._init_emulator()
-                        next_tick = self.scheduler.systole('restart')
-                        self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
-                    elif self.solve(next_func_name):
+                    if self.solve(next_func_name):
                         next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
                         next_tick.replace(microsecond=0)
                         self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
@@ -191,7 +183,6 @@ class Main:
 
     def solve(self, activity) -> bool:
         try:
-            self.quick_method_to_main_page()
             return func_dict[activity](self)
         except Exception as e:
             self.logger.error(e)
@@ -390,34 +381,39 @@ class Main:
                 self.rgb_feature = json.load(open('src/rgb_feature/rgb_feature_CN.json'))['rgb_feature']
             elif self.server == 'Global':
                 self.rgb_feature = json.load(open('src/rgb_feature/rgb_feature_Global.json'))['rgb_feature']
-            self.logger.info("SUCCESS")
+            self.logger.info("Successfully initialized rgb_feature")
+            return True
         except Exception as e:
             self.logger.error("rgb_feature initialization failed")
             self.logger.error(e)
+            return False
 
     def init_config(self):
         try:
-            self.logger.info("Start initializing config")
+            self.logger.info("Start Reading Config")
             self.config = self.operate_dict(ConfigSet().config)
             self.main_activity = self.config['activity_list']
-            print(self.main_activity)
             self.logger.info("SUCCESS")
+            return True
         except Exception as e:
             self.logger.error("Config initialization failed")
             self.logger.error(e)
+            return False
 
     def init_server(self):
         try:
-            self.logger.info("Start initializing server")
+            self.logger.info("Start Detecting Server")
             server = self.config['server']
             if server == '官服' or server == 'B服':
                 self.server = 'CN'
             elif server == '国际服':
                 self.server = 'Global'
-            self.logger.info("Current server: " + self.server)
+            self.logger.info("Current Server: " + self.server)
+            return True
         except Exception as e:
             self.logger.error("Server initialization failed")
             self.logger.error(e)
+            return False
 
     def swipe(self, fx, fy, tx, ty, duration=None):
         if not self.flag_run:
@@ -453,9 +449,11 @@ class Main:
             img_NUM = cv2.imread('src/test_ocr/NUM.png')
             self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
             self.logger.info("OCR initialization concluded")
+            return True
         except Exception as e:
             self.logger.error("OCR initialization failed")
             self.logger.error(e)
+            return False
 
     def get_ap(self):
         _img = self.latest_img_array[10:40, 560:658, :]
@@ -558,15 +556,23 @@ class Main:
             return temp
 
     def init_all_data(self):
+        self.logger.info("--------Initialing All Data----------")
         self.init_config()
-        print(self.config)
         self.init_server()
         self.init_package_name()
-        self.init_ocr()
-        self.init_rgb()
-        position.init_image_data(self)
-        self._init_emulator()
-
+        init_results = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            init_results.append(executor.submit(self.init_ocr))
+            init_results.append(executor.submit(self.init_rgb))
+            init_results.append(executor.submit(position.init_image_data, self))
+            init_results.append(executor.submit(self._init_emulator))
+        for i in range(0,len(init_results)):
+            if init_results[i].result() is False:
+                self.logger.info("--------Initialization Failed----------")
+                self.signal_stop()
+                return False
+        self.logger.info("--------Initialization Finished----------")
+        return True
     def init_package_name(self):
         server = self.config['server']
         if server == '官服':
@@ -575,13 +581,15 @@ class Main:
             self.package_name = 'com.RoamingStar.BlueArchive.bilibili'
         elif server == '国际服':
             self.package_name = 'com.nexon.bluearchive'
+        return True
 
 
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     # t.thread_starter()
-    t.solve('cafe_reward')
+    # t.thread_starter()
+    t.solve('refresh_uiautomator2')
     t.flag_run = True
     # t.solve('de_clothes')
     # t.solve('common_shop')
