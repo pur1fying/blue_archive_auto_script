@@ -17,7 +17,7 @@
 !installer.py
 !main.py
 !minitouch.py
-|requirements.txt
+!requirements.txt
 !ui.png
 !windows.py
 !window.spec
