@@ -11,7 +11,7 @@
 !.gitignore
 !ATX.apk
 !LICENSE
-!REDME.md
+!README.md
 !bulid.bat
 !img.png
 !installer.py
@@ -19,5 +19,5 @@
 !minitouch.py
 !requirements.txt
 !ui.png
-!windows.py
+!window.py
 !window.spec
