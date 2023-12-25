@@ -55,7 +55,7 @@ class Main:
         self.hard_task_count = []
         self.common_task_status = []
         self.hard_task_status = []
-
+        self.task_finish_to_main_page = False
         self.logger = Logger(logger_signal)
 
         # self.logger = logging.getLogger("logger_name")
@@ -163,6 +163,7 @@ class Main:
                 self.next_time = 0
                 if next_func_name:
                     self.logger.info(f"current activity: {next_func_name}")
+                    self.task_finish_to_main_page = True
                     if self.solve(next_func_name):
                         next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
                         next_tick.replace(microsecond=0)
@@ -172,6 +173,10 @@ class Main:
                         self.quick_method_to_main_page()
                         self.signal_stop()
                 else:
+                    if self.task_finish_to_main_page:
+                        self.logger.info("all activities finished, return to main page")
+                        self.quick_method_to_main_page()
+                        self.task_finish_to_main_page = False
                     time.sleep(1)
 
             self.signal_stop()
