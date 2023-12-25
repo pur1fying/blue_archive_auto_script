@@ -39,6 +39,7 @@ def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
         self.latest_img_array = self.get_screenshot_array()
         t1 = time.time()
         name = self.ocrCN.ocr_for_single_line(self.latest_img_array[97:128, 925:1240])['text']
+        name.replace('<unused3>', '')
         t2 = time.time()
         self.logger.info("ocr_lesson_name:" + str(t2 - t1))
         for i in range(4, -1, -1):
@@ -56,7 +57,7 @@ def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
         t = np.argmax(acc)
         if acc[t] < 0.8:
             self.logger.info("can't find lesson name")
-            return False
+            return 'NOT FOUND'
         else:
             return t
     elif self.server == 'Global':
@@ -94,6 +95,7 @@ def cn_implement(self):
 
         to_before_all_locations(self)
         cur_num = get_region_num(self, region_name)
+
         self.logger.info("now in page " + region_name[cur_num])
         while cur_num != tar_num:
             if cur_num > tar_num:
