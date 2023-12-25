@@ -256,10 +256,11 @@ def common_skip_plot_method(self):
             fail_cnt += 1
             if pd_menu_bright(self.latest_img_array):
                 self.logger.info("find MENU button")
-                self.click(1205, 34, wait=False)
+                self.click(1205, 34, wait=False,duration=0.3)
             elif pd_skip_plot_button(self.latest_img_array):
                 self.logger.info("find SKIP PLOT button")
-                self.click(1213, 116, wait=False)
+                self.click(1213, 116, wait=False,duration=0.3)
+                time.sleep(0.3)
             self.logger.info("Didn't find confirm button, fail count: " + str(fail_cnt))
         time.sleep(self.screenshot_interval)
     self.logger.info("skip plot fail")
