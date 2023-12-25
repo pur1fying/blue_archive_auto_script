@@ -103,5 +103,6 @@ def init_image_data(self):
         self.logger.info("Image data successfully initialized total assets : {0}".format(len(iad)))
         return True
     except Exception as e:
-        self.logger.error("Failed to initialize image data {0}".format(e))
+        self.logger.error(e)
+        self.logger.error("Failed to initialize image data")
         return False

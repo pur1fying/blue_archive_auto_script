@@ -93,7 +93,6 @@ def cn_implement(self):
     else:
         invite_girl(self)
     pat_style = self.config['patStyle']
-    print(pat_style)
     if pat_style == '普通' or pat_style is None:
         interaction_for_cafe_solve_method3(self)
     elif pat_style == '地毯':
@@ -161,7 +160,6 @@ def interaction_for_cafe_solve_method3(self):
         res = match(self.latest_img_array, server=self.server)
         to_cafe(self)
         if res:
-            print(res)
             res.sort(key=lambda x: x[0])
             temp = 0
             while temp < len(res):
@@ -173,7 +171,6 @@ def interaction_for_cafe_solve_method3(self):
                     if abs(res[temp][1] - res[tt][1]) <= 10:
                         res.pop(tt)
                         pop_f = True
-                        print(res)
                         if tt > len(res) - 1:
                             break
                     else:

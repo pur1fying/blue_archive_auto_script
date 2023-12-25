@@ -45,6 +45,7 @@ def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
             if name[i] in ['评', '级', ' '] or name[i].isdigit():
                 name = name[i + 1:]
                 break
+        self.logger.info("ocr_lesson_name: " + name)
         acc = []
         for i in range(0, len(region_name)):
             cnt = 0
@@ -52,7 +53,12 @@ def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
                 if region_name[i][j] == name[j]:
                     cnt += 1
             acc.append(cnt / len(region_name[i]))
-        return np.argmax(acc)
+        t = np.argmax(acc)
+        if acc[t] < 0.8:
+            self.logger.info("can't find lesson name")
+            return False
+        else:
+            return t
     elif self.server == 'Global':
         img = self.latest_img_array[101:129, 932:1253, :]
         t1 = time.time()

@@ -168,7 +168,6 @@ def get_tickets(img, ocr, server):
     elif server == 'Global':
         img = img[477:498, 209:227]
     ocr_res = ocr.ocr_for_single_line(img)
-    print(ocr_res)
     if ocr_res["text"] == "-":
         return 0
     return int(ocr_res["text"])

@@ -401,19 +401,13 @@ class Main:
             return False
 
     def init_server(self):
-        try:
-            self.logger.info("Start Detecting Server")
-            server = self.config['server']
-            if server == '官服' or server == 'B服':
-                self.server = 'CN'
-            elif server == '国际服':
-                self.server = 'Global'
-            self.logger.info("Current Server: " + self.server)
-            return True
-        except Exception as e:
-            self.logger.error("Server initialization failed")
-            self.logger.error(e)
-            return False
+        self.logger.info("Start Detecting Server")
+        server = self.config['server']
+        if server == '官服' or server == 'B服':
+            self.server = 'CN'
+        elif server == '国际服':
+            self.server = 'Global'
+        self.logger.info("Current Server: " + self.server)
 
     def swipe(self, fx, fy, tx, ty, duration=None):
         if not self.flag_run:
@@ -456,24 +450,31 @@ class Main:
             return False
 
     def get_ap(self):
-        _img = self.latest_img_array[10:40, 560:658, :]
-        t1 = time.time()
-        if self.server == 'CN':
-            _ocr_res = self.ocrCN.ocr_for_single_line(_img)
-        elif self.server == 'Global':
-            _ocr_res = self.ocrEN.ocr_for_single_line(_img)
-        else:
-            self.logger.error("Unknown Server Error")
+        try:
+            _img = self.latest_img_array[10:40, 560:658, :]
+            t1 = time.time()
+            if self.server == 'CN':
+                _ocr_res = self.ocrCN.ocr_for_single_line(_img)
+            elif self.server == 'Global':
+                _ocr_res = self.ocrEN.ocr_for_single_line(_img)
+            else:
+                self.logger.error("Unknown Server Error")
+                return "UNKNOWN"
+            t2 = time.time()
+            self.logger.info("ocr_ap:" + str(t2 - t1))
+            self.logger.info("ap:" + _ocr_res["text"])
+            temp = ""
+            for j in range(0, len(_ocr_res['text'])):
+                if _ocr_res['text'] != ' ':
+                    temp += _ocr_res['text'][j]
+            for j in range(0, len(temp)):
+                if temp == '/':
+                    return [int(temp[:j]), int(temp[j + 1:])]
+            self.logger.info("ap: UNKNOWN")
             return "UNKNOWN"
-        t2 = time.time()
-        self.logger.info("ocr_ap:" + str(t2 - t1))
-        temp = ""
-        for j in range(0, len(_ocr_res['text'])):
-            if _ocr_res['text'][j] == '/':
-                self.logger.info("ap:" + temp)
-                return [int(_ocr_res["text"][:j]), int(_ocr_res["text"][j + 1:])]
-        self.logger.info("ap: UNKNOWN")
-        return "UNKNOWN"
+        except Exception as e:
+            self.logger.error(e)
+            return "UNKNOWN"
 
     def get_pyroxene(self):
         _img = self.latest_img_array[10:40, 961:1072, :]
@@ -543,7 +544,6 @@ class Main:
                     for j in range(0, len(temp)):
                         if temp[j].isdigit():
                             temp[j] = int(temp[j])
-                    print(item, temp)
                     item = temp
                 return item
         else:
@@ -568,11 +568,11 @@ class Main:
             init_results.append(executor.submit(self._init_emulator))
         for i in range(0,len(init_results)):
             if init_results[i].result() is False:
-                self.logger.info("--------Initialization Failed----------")
                 self.signal_stop()
                 return False
         self.logger.info("--------Initialization Finished----------")
         return True
+
     def init_package_name(self):
         server = self.config['server']
         if server == '官服':
@@ -589,6 +589,10 @@ if __name__ == '__main__':
     t = Main()
     # t.thread_starter()
     # t.thread_starter()
+    img1= cv2.imread('qxn.jpg')
+    img1 = img1[10:40, 560:658, :]
+    print(t.ocrCN.ocr_for_single_line(img1))
+    exit(0)
     t.solve('refresh_uiautomator2')
     t.flag_run = True
     # t.solve('de_clothes')
