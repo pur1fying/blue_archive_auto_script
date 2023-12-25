@@ -61,8 +61,6 @@ def implement(self):
             if ap == "UNKNOWN":
                 self.logger.info("UNKNOWN AP")
                 ap = 999
-            else:
-                ap = ap[0]
             self.logger.info("hard task " + str(self.hard_task_count[i]) + " begin")
             tar_region = self.hard_task_count[i][0]
             tar_mission = self.hard_task_count[i][1]

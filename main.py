@@ -461,15 +461,15 @@ class Main:
                 self.logger.error("Unknown Server Error")
                 return "UNKNOWN"
             t2 = time.time()
-            self.logger.info("ocr_ap: " + str(t2 - t1))
-            self.logger.info("ap: " + _ocr_res["text"])
-            temp = ""
+            self.logger.info("ocr_ap: " + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
+            ap = 0
             for j in range(0, len(_ocr_res['text'])):
-                if _ocr_res['text'] != ' ':
-                    temp += _ocr_res['text'][j]
-            for j in range(0, len(temp)):
-                if temp[j] == '/':
-                    return [int(temp[:j]), int(temp[j + 1:])]
+                if (not _ocr_res['text'][j].isdigit()) and _ocr_res['text'][j] != '/' and _ocr_res['text'][j] != '.':
+                    return "UNKNOWN"
+                if _ocr_res['text'][j].isdigit():
+                    ap = ap * 10 + int(_ocr_res['text'][j])
+                elif _ocr_res['text'][j] == '/':
+                    return ap
             return "UNKNOWN"
         except Exception as e:
             self.logger.error(e)
@@ -486,7 +486,7 @@ class Main:
             self.logger.error("Unknown Server Error")
             return "UNKNOWN"
         t2 = time.time()
-        self.logger.info("ocr_pyroxene:" + str(t2 - t1))
+        self.logger.info("ocr_pyroxene:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"] )
         temp = 0
 
         for j in range(0, len(_ocr_res['text'])):
@@ -506,7 +506,7 @@ class Main:
             self.logger.error("Unknown Server Error")
             return "UNKNOWN"
         t2 = time.time()
-        self.logger.info("ocr_creditpoints:" + str(t2 - t1))
+        self.logger.info("ocr_creditpoints:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
         temp = 0
         for j in range(0, len(_ocr_res['text'])):
             if not _ocr_res['text'][j].isdigit():
@@ -588,7 +588,7 @@ if __name__ == '__main__':
     t = Main()
     # t.thread_starter()
     # t.thread_starter()
-    t.solve('normal_task')
+    t.solve('tactical_challenge_shop')
     img1= cv2.imread('qxn.jpg')
     img1 = img1[10:40, 560:658, :]
     print(t.ocrCN.ocr_for_single_line(img1))

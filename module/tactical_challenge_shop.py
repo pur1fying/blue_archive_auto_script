@@ -160,7 +160,7 @@ def to_refresh(self):
 
 
 def get_tactical_challenge_assets(img, ocr):
-    img = img[63:102, 1108:1240]
+    img = img[63:102, 1140:1240]
     t1 = time.time()
     ocr_res = ocr.ocr_for_single_line(img)
     print(time.time() - t1)
