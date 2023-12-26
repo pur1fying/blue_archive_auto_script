@@ -70,6 +70,8 @@ def scrimmage_common_operation(self, a, b):
                 return "sweep_complete"
             if res == "purchase_ap_notice":
                 return "inadequate_ap"
+            if res == "purchase_scrimmage_ticket":
+                return "inadequate_ticket"
         elif t == "no-pass" or t == "pass":
             to_scrimmage(self, a)
 
