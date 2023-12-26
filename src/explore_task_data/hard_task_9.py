@@ -1,5 +1,5 @@
 stage_data = {
-    '9-1-sss-box-task': {
+    '9-1-sss-present-task': {
         'start': {
             '1': (493, 301),
             '2': (573, 576)
