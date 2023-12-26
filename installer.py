@@ -13,7 +13,7 @@ from tqdm import tqdm
 TMP_PATH = './tmp'
 GET_PYTHON_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip'
 REPO_URL_HTTP = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
-GIT_HOME = './tookit/Git/bin/git.exe'
+GIT_HOME = './toolkit/Git/bin/git.exe'
 GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py'
 GET_ATX_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/ATX.apk'
 LOCAL_PATH = './blue_archive_auto_script'
@@ -176,7 +176,7 @@ def check_git():
                      .decode('utf-8')).split('\n')[0]
         logger.info(f"remote_sha:{remote_sha}")
         logger.info(f"local_sha:{local_sha}")
-        if local_sha == remote_sha & subprocess.check_output(['GIT_HOME', 'diff'])==b'':
+        if local_sha == remote_sha and subprocess.check_output([GIT_HOME, 'diff']) == b'':
             logger.info("No updates available")
         else:
             logger.info("Pulling updates from the remote repository...")
