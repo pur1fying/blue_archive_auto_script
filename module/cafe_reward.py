@@ -311,7 +311,7 @@ def invite_girl(self):
             detected_name = []
             location = []
             for i in range(0, len(out)):
-                t = out[i]['text']
+                t = out[i]['text'].replace('<unused3>', '')
                 res = ""
                 for x in range(0, len(t)):
                     if t[x] == '(' or t[x] == "（" or t[x] == ")" or t[x] == "）" or t[x] == ' ':
