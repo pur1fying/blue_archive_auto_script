@@ -39,10 +39,10 @@ def get_region_num(self, region_name, letter_dict=None, region_name_len=None):
         self.latest_img_array = self.get_screenshot_array()
         t1 = time.time()
         name = self.ocrCN.ocr_for_single_line(self.latest_img_array[97:128, 925:1240])['text']
-        name.replace('<unused3>', '')
+        name = name.replace('<unused3>', '')
         t2 = time.time()
         self.logger.info("ocr_lesson_name:" + str(t2 - t1))
-        for i in range(4, -1, -1):
+        for i in range(6, -1, -1):
             if name[i] in ['评', '级', ' '] or name[i].isdigit():
                 name = name[i + 1:]
                 break

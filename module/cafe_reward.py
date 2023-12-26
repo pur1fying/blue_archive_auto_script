@@ -81,8 +81,8 @@ def cn_implement(self):
     op = np.full(2, False, dtype=bool)
     if not image.compare_image(self, 'cafe_0.0', 3):
         op[0] = True
-    if self.ocrCN.ocr_for_single_line(image.screenshot_cut(self, (801, 586, 875, 606), self.latest_img_array))[
-        'text'] == "可以使用":
+    res = self.ocrCN.ocr_for_single_line(image.screenshot_cut(self, (801, 586, 875, 606), self.latest_img_array))['text'].replace('<unused3>', '')
+    if  res == "可以使用":
         op[1] = True
     if op[0]:
         self.logger.info("Collect Cafe Earnings")
