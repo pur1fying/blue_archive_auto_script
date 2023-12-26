@@ -6,11 +6,14 @@ from core.notification import notify
 class ConfigSet:
     def __init__(self):
         self.config = None
+        self.static_config = None
         self._init_config()
 
     def _init_config(self):
         with open('./config/config.json', 'r', encoding='utf-8') as f:
             self.config = json.load(f)
+        with open('./config/static.json', 'r', encoding='utf-8') as f:
+            self.static_config = json.load(f)
 
     def get(self, key):
         self._init_config()
