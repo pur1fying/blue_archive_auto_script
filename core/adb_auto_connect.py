@@ -146,4 +146,6 @@ def get_simulator_port(simulator_type , multi_instance = 0):
             return f"{multi_instance}:58526"
         else:
             return f"127.0.0.1:58526"
+    elif simulator_type == "manual"
+        return f"{multi_instance}"
     return None
