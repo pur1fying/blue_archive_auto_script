@@ -9,39 +9,40 @@ class Layout(TemplateLayout):
     def __init__(self, parent=None):
         configItems = [
             {
-                'label': '是否手动已经SSS',
-                'key': 'hard_task_sss',
+                'label': '打到SSS',
+                'key': 'hard_task_need_sss',
                 'type': 'switch'
             },
             {
-                'label': '是否需要拾取钻石',
-                'key': 'hard_task_collect_present',
+                'label': '拾取宝箱',
+                'key': 'hard_task_need_present',
                 'type': 'switch'
             },
             {
-                'label': '是否已经完成该困难关',
-                'key': 'hard_task_accomplishment',
+                'label': '完成成就任务',
+                'key': 'hard_task_need_task',
                 'type': 'switch'
             },
             {
                 'label': """
-    一组由逗号隔开的数据
-    按逗号拆分后变为一个列表如果列表元素只有一个数字
-    例子：
-    15
-    need_sss true
-    need_present false
-    need task true
-    15图所有关打到sss并且完成挑战任务
-    及根据need_sss/present/task 将这个图所有任务(15-1,15-2,15-3)都完成对应要求
+    推图关卡中填写的数据不应该超出这些字符或单词 "-" , "sss", "present", "task", "," , 和数字
+    按逗号拆分后变为若干关卡
+    1.如果只有一个数字
+    例子:15
+    根据上面三个按钮的开关 将(15-1,15-2,15-3)打到sss/拿礼物/完成挑战任务
 
-    如果是一个数字并跟字符串，则用‘-’分隔
+    2.如果是一个数字并跟字符串，则用‘-’分隔
     例子: 15-sss-present
-    会将这张图所有任务(15-1,15-2,15-3)打到sss并拿礼物
+    会将(15-1,15-2,15-3)打到sss并拿礼物
 
-    如果有两个数字则指定到对应关卡
-    例子:15-3-sss
-    会将15-3打到sss
+    3.如果有两个数字则指定到对应关卡
+    例子:15-3-sss-task
+    会将15-3打到sss并且完成挑战任务
+
+    4.例子
+    开关都开启，填写: 7,8-sss,9-3-task
+    表示依次执行(7-1,7-2,7-3)打到sss,拿礼物并完成挑战任务,(8-1,8-2,8-3)打到sss，9-3完成挑战任务
+    注:Baas会自动判断关卡是否已经打到sss，是否拿了礼物，如果已经打到sss或拿了礼物，则不会再次打该关卡
                 """,
                 'type': 'label'
             },

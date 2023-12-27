@@ -223,9 +223,9 @@ DEFAULT_CONFIG = """
     "pierce2": "2",
     "mystic1": "1",
     "mystic2": "2",
-    "hard_task_collect_present": true,
-    "hard_task_accomplishment": true,
-    "hard_task_sss": true,
+    "hard_task_need_sss": true,
+    "hard_task_need_present": true,
+    "hard_task_need_task": true,
     "TacticalChallengeShopRefreshTime": "0",
     "TacticalChallengeShopList": [
         0,
