@@ -128,7 +128,7 @@ class Main:
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
                 self.logger.info("Screen Size Fitted")
             else:
-                self.logger.info("Screen Size unfitted, Please set the screen size to 1280x720")
+                self.logger.critical("Screen Size unfitted, Please set the screen size to 1280x720")
                 return False
             self.logger.info("--------Emulator Init Finished----------")
             return True
@@ -573,6 +573,7 @@ class Main:
         for i in range(0,len(init_results)):
             if init_results[i].result() is False:
                 self.signal_stop()
+                self.logger.critical("Initialization Failed")
                 return False
         self.logger.info("--------Initialization Finished----------")
         return True
@@ -593,7 +594,7 @@ if __name__ == '__main__':
     t = Main()
     # t.thread_starter()
     # t.thread_starter()
-    t.solve('tactical_challenge_shop')
+    t.solve('explore_hard_task')
     img1= cv2.imread('qxn.jpg')
     img1 = img1[10:40, 560:658, :]
     print(t.ocrCN.ocr_for_single_line(img1))
@@ -628,7 +629,7 @@ if __name__ == '__main__':
     # t.solve('hard_task')
     # t.quick_method_to_main_page()
 
-    t.solve('explore_normal_task')
+    t.solve('explore_hard_task')
     t.quick_method_to_main_page()
     t.solve('momo_talk')
     t.thread_starter()

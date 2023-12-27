@@ -213,7 +213,7 @@ DEFAULT_CONFIG = """
     "explore_normal_task_regions": [
 
     ],
-    "explore_hard_task_regions": [
+    "explore_hard_task_list": [
 
     ],
     "manual_boss": false,
@@ -223,6 +223,9 @@ DEFAULT_CONFIG = """
     "pierce2": "2",
     "mystic1": "1",
     "mystic2": "2",
+    "hard_task_collect_present": true,
+    "hard_task_accomplishment": true,
+    "hard_task_sss": true,
     "TacticalChallengeShopRefreshTime": "0",
     "TacticalChallengeShopList": [
         0,
