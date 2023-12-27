@@ -1,5 +1,4 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 

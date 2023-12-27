@@ -1,14 +1,9 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
-from qfluentwidgets import SwitchButton, PushButton
-
 from .expandTemplate import TemplateLayout
-import main
-from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
 
 def fhx():
     try:
+        import main
         t = main.Main()
         t.solve('de_clothes')
     except Exception as e:

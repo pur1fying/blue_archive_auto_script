@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel
 from qfluentwidgets import LineEdit, PushButton
 
-import main
+
 from .expandTemplate import TemplateLayout
 
 
@@ -61,7 +61,9 @@ class Layout(TemplateLayout):
                 'type': 'label'
             },
             {
-                'label': '如果有多支队伍一队编号必须小于二队，如15图神秘1队编号要小于神秘2队',
+                'label': '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                         '<b>如果有多个队伍一定要设置主队编号小于副队(如15图神秘1队必须小于神秘2队编号)</b>',
                 'type': 'label'
             }
         ]
@@ -98,6 +100,7 @@ class Layout(TemplateLayout):
         thread.start()
 
     def start_push(self):
+        import main
         push_list = [int(x) for x in self.input_push.text().split(',')]
         self.set('explore_normal_task_regions', push_list)
         t = main.Main()

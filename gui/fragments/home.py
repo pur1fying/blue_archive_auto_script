@@ -98,7 +98,7 @@ class HomeFragment(QFrame, ConfigSet):
         self.banner.setPixmap(pixmap)
         self.banner.setScaledContents(True)
         if self.banner_visible:
-            self.logger_box.setFixedHeight(int(self.parent().height() * 0.4))
+            self.logger_box.setFixedHeight(int(self.parent().height() * 0.35))
         else:
             self.logger_box.setFixedHeight(int(self.parent().height() * 0.7))
 

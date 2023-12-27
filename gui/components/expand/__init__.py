@@ -11,4 +11,5 @@ from .scriptConfig import Layout
 from .totalForceFightPriority import Layout
 from .exploreConfig import Layout
 from .otherConfig import Layout
+from .hardTaskConfig import Layout
 from .featureSwitch import Layout
