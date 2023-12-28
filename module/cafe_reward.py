@@ -151,7 +151,8 @@ def shot(self):
 def interaction_for_cafe_solve_method3(self):
     self.connection().pinch_in()
     self.swipe(709, 558, 709, 209, duration=0.5)
-    for i in range(0, 4):
+    max_times = 4
+    for i in range(0, max_times):
         to_gift(self)
         t1 = threading.Thread(target=shot, args=(self,))
         t1.start()
@@ -187,7 +188,7 @@ def interaction_for_cafe_solve_method3(self):
 
         time.sleep(2)
         to_cafe(self)
-        if i != 4:
+        if i != max_times - 1:
             self.click(68, 636)
             time.sleep(1)
             self.click(1169, 90)
