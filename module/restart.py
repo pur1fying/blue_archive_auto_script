@@ -13,5 +13,5 @@ def implement(self):
         self.connection.app_stop(self.package_name)
         time.sleep(2)
         self.logger.info("--START BLUE ARCHIVE--")
-        self.connection.app_start(self.package_name)
+        self._init_emulator()
     return True
