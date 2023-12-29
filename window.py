@@ -21,9 +21,6 @@ ICON_DIR = 'gui/assets/logo.png'
 def check_config():
     if not os.path.exists('./config'):
         os.mkdir('./config')
-    if not os.path.exists('./config/static.json'):
-        with open('./config/static.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.STATIC_DEFAULT_CONFIG)
     if not os.path.exists('./config/config.json'):
         with open('./config/config.json', 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)

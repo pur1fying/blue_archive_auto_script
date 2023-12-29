@@ -57,6 +57,7 @@ class Layout(TemplateLayout):
         self.input_push = LineEdit(self)
         self.accept_push = PushButton('保存配置', self)
 
+        self.input_push.setText(self.get('explore_hard_task_list'))
         self.input_push.setFixedWidth(700)
         self.accept_push.clicked.connect(self._accept_push)
 
@@ -81,10 +82,23 @@ class Layout(TemplateLayout):
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
-            content=f'你的困难关配置已经被设置为：{value}',
+            content=f'你的困难关配置已经被设置为：{value}，正在推困难关。',
             orient=Qt.Vertical,  # vertical layout
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,
             parent=self.parent().parent().parent().parent().parent().parent().parent()
         )
         w.show()
+        import threading
+        threading.Thread(target=self.action).start()
+
+    def get_thread(self, parent=None):
+        if parent is None:
+            parent = self.parent()
+        for component in parent.children():
+            if type(component).__name__ == 'HomeFragment':
+                return component.get_main_thread()
+        return self.get_thread(parent.parent())
+
+    def action(self):
+        self.get_thread().start_hard_task()

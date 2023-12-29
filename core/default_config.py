@@ -307,13 +307,6 @@ SWITCH_DEFAULT_CONFIG = '''
         "type": "TextSettingCard"
     },
     {
-        "config": "hardTaskConfig",
-        "name": "困难图相关",
-        "sort": 3,
-        "tip": "困难图推图以及日常困难图。",
-        "type": "TextSettingCard"
-    },
-    {
         "config": "shopPriority",
         "name": "商店购买",
         "sort": 6,

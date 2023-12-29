@@ -107,6 +107,9 @@ class Main:
         if self.button_signal is not None:
             self.button_signal.emit("启动")
 
+    def init_emulator(self):
+        self._init_emulator()
+
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
         self.logger.info("--------------Init Emulator----------------")

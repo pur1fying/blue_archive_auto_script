@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel
 from qfluentwidgets import LineEdit, PushButton
 
-
 from .expandTemplate import TemplateLayout
 
 
@@ -77,6 +76,7 @@ class Layout(TemplateLayout):
         self.input_push = LineEdit(self)
         self.accept_push = PushButton('开始推图', self)
 
+        self.input_push.setText(self.get('explore_normal_task_regions').__str__().replace('[', '').replace(']', ''))
         self.input_push.setFixedWidth(700)
         self.accept_push.clicked.connect(self._accept_push)
 
@@ -99,9 +99,15 @@ class Layout(TemplateLayout):
         thread = threading.Thread(target=self.start_push, daemon=True)
         thread.start()
 
+    def get_thread(self, parent=None):
+        if parent is None:
+            parent = self.parent()
+        for component in parent.children():
+            if type(component).__name__ == 'HomeFragment':
+                return component.get_main_thread()
+        return self.get_thread(parent.parent())
+
     def start_push(self):
-        import main
         push_list = [int(x) for x in self.input_push.text().split(',')]
         self.set('explore_normal_task_regions', push_list)
-        t = main.Main()
-        t.solve('explore_normal_task')
+        self.get_thread().start_normal_task()
