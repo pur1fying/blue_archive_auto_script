@@ -28,7 +28,7 @@ def wait_loading(self):
                 self.logger.info("loading, t load : " + str(t_load))
                 if t_load > 20:
                     self.logger.warning("LOADING TOO LONG add screenshot interval to 1")
-                    t_load = 0
+                    t_start = time.time()
                     self.screenshot_interval = 1
                 time.sleep(self.screenshot_interval)
                 continue

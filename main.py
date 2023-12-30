@@ -43,6 +43,7 @@ func_dict = {
 
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+        self.flag_run = None
         self.static_config = None
         self.main_activity = None
         self.package_name = None
@@ -66,7 +67,6 @@ class Main:
         # self.logger.setLevel(logging.INFO)
         # self.logger.addHandler(handler1)
 
-
         # self.loggerBox = logger_signal
         self.total_force_fight_difficulty_name = ["HARDCORE", "VERYHARD", "EXTREME", "NORMAL", "HARD"]  # 当期总力战难度
         self.total_force_fight_difficulty_name_ordered = ["NORMAL", "HARD", "VERYHARD", "HARDCORE",
@@ -80,7 +80,6 @@ class Main:
         if not self.init_all_data():
             return
         self.screenshot_interval = self.config['screenshot_interval']
-        self.flag_run = True
         self.stage_data = {}
         self.scheduler = Scheduler(update_signal)
         # start_debugger()
@@ -108,6 +107,9 @@ class Main:
         if self.button_signal is not None:
             self.button_signal.emit("启动")
 
+    def init_emulator(self):
+        self._init_emulator()
+
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
         self.logger.info("--------------Init Emulator----------------")
@@ -129,7 +131,7 @@ class Main:
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
                 self.logger.info("Screen Size Fitted")
             else:
-                self.logger.info("Screen Size unfitted, Please set the screen size to 1280x720")
+                self.logger.critical("Screen Size unfitted, Please set the screen size to 1280x720")
                 return False
             self.logger.info("--------Emulator Init Finished----------")
             return True
@@ -179,8 +181,6 @@ class Main:
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
                     time.sleep(1)
-
-            self.signal_stop()
         except Exception as e:
             notify(title='', body='任务已停止')
             self.logger.info("error occurred, stop all activities")
@@ -430,26 +430,29 @@ class Main:
         try:
             self.logger.info("Start initializing OCR")
             if self.server == 'CN':
-                self.ocrCN = CnOcr(det_model_name='ch_PP-OCRv3_det',
-                                   det_model_fp='src/ocr_models/ch_PP-OCRv3_det_infer.onnx',
-                                   rec_model_name='densenet_lite_114-fc',
-                                   rec_model_fp='src/ocr_models/cn_densenet_lite_136.onnx')
-                img_CN = cv2.imread('src/test_ocr/CN.png')
-                self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
+                if not self.ocrCN:
+                    self.ocrCN = CnOcr(det_model_name='ch_PP-OCRv3_det',
+                                       det_model_fp='src/ocr_models/ch_PP-OCRv3_det_infer.onnx',
+                                       rec_model_name='densenet_lite_114-fc',
+                                       rec_model_fp='src/ocr_models/cn_densenet_lite_136.onnx')
+                    img_CN = cv2.imread('src/test_ocr/CN.png')
+                    self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
             elif self.server == 'Global':
-                self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
-                                   det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                                   rec_model_name='en_number_mobile_v2.0',
-                                   rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
-                img_EN = cv2.imread('src/test_ocr/EN.png')
-                self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
-            self.ocrNUM = CnOcr(det_model_name='en_PP-OCRv3_det',
-                                det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                                rec_model_name='number-densenet_lite_136-fc',
-                                rec_model_fp='src/ocr_models/number-densenet_lite_136.onnx')
+                if not self.ocrEN:
+                    self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
+                                       det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
+                                       rec_model_name='en_number_mobile_v2.0',
+                                       rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
+                    img_EN = cv2.imread('src/test_ocr/EN.png')
+                    self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
+            if not self.ocrNUM:
+                self.ocrNUM = CnOcr(det_model_name='en_PP-OCRv3_det',
+                                    det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
+                                    rec_model_name='number-densenet_lite_136-fc',
+                                    rec_model_fp='src/ocr_models/number-densenet_lite_136.onnx')
 
-            img_NUM = cv2.imread('src/test_ocr/NUM.png')
-            self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
+                img_NUM = cv2.imread('src/test_ocr/NUM.png')
+                self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
             self.logger.info("OCR initialization concluded")
             return True
         except Exception as e:
@@ -494,7 +497,7 @@ class Main:
             self.logger.error("Unknown Server Error")
             return "UNKNOWN"
         t2 = time.time()
-        self.logger.info("ocr_pyroxene:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"] )
+        self.logger.info("ocr_pyroxene:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
         temp = 0
 
         for j in range(0, len(_ocr_res['text'])):
@@ -573,9 +576,10 @@ class Main:
             init_results.append(executor.submit(self.init_rgb))
             init_results.append(executor.submit(position.init_image_data, self))
             init_results.append(executor.submit(self._init_emulator))
-        for i in range(0,len(init_results)):
+        for i in range(0, len(init_results)):
             if init_results[i].result() is False:
                 self.signal_stop()
+                self.logger.critical("Initialization Failed")
                 return False
         self.logger.info("--------Initialization Finished----------")
         return True
@@ -596,6 +600,8 @@ if __name__ == '__main__':
     t = Main()
     # t.thread_starter()
     # t.thread_starter()
+    t.solve('explore_hard_task')
+    img1 = cv2.imread('qxn.jpg')
     # t.solve('tactical_challenge_shop')
     img1= cv2.imread('qxn.jpg')
     img1 = img1[10:40, 560:658, :]
@@ -631,7 +637,7 @@ if __name__ == '__main__':
     # t.solve('hard_task')
     # t.quick_method_to_main_page()
 
-    t.solve('explore_normal_task')
+    t.solve('explore_hard_task')
     t.quick_method_to_main_page()
     t.solve('momo_talk')
     t.thread_starter()

@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
 from qfluentwidgets import LineEdit
 
