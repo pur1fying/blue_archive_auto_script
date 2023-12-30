@@ -362,7 +362,10 @@ def get_cafe_earning_status1(self):
     for j in range(0, len(ocr_res['text'])):
         if ocr_res['text'][j] == ' ':
             continue
-        temp = temp + ocr_res['text'][j]
+        if ocr_res['text'][j] == ',':
+            temp = temp + '.'
+        else:
+            temp = temp + ocr_res['text'][j]
     temp = temp.lower()
     if temp[len(temp) - 1] == "%":
         t = float(temp[:len(temp) - 1])
