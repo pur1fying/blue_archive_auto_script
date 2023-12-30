@@ -12,6 +12,7 @@ from qfluentwidgets import (
     ExpandLayout
 )
 
+from core.notification import notify
 from gui.components.logger_box import LoggerBox
 from gui.util import log
 from gui.util.config_set import ConfigSet
@@ -188,6 +189,8 @@ class MainThread(QThread):
             self.Main = Main
             self._main_thread = self.Main(logger_signal=self.logger_signal, button_signal=self.button_signal,
                                           update_signal=self.update_signal)
+        self._main_thread.init_all_data()
+        self._main_thread.flag_run = True
 
     def display(self, text):
         self.button_signal.emit(text)
@@ -201,14 +204,19 @@ class MainThread(QThread):
         self._init_script()
         self.display('停止')
         # 这里可能有Bug，若用户还未登入，则会报错。
-        self._main_thread.solve('explore_hard_task')
+        if self._main_thread.solve('explore_hard_task'):
+            notify(title='BAAS', body='困难图推图已完成')
 
     def start_normal_task(self):
         self._init_script()
         self.display('停止')
         # 这里可能有Bug，若用户还未登入，则会报错。
-        self._main_thread.solve('explore_normal_task')
+        if self._main_thread.solve('explore_normal_task'):
+            notify(title='BAAS', body='普通图推图已完成')
 
     def start_fhx(self):
         self._init_script()
-        self._main_thread.solve('de_clothes')
+        if self._main_thread.solve('de_clothes'):
+            notify(title='BAAS', body='反和谐成功，请重启BA下载资源')
+        else:
+            notify(title='BAAS', body='反和谐失败')

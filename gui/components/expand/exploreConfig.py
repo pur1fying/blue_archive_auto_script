@@ -1,8 +1,6 @@
-import threading
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel
-from qfluentwidgets import LineEdit, PushButton
+from qfluentwidgets import LineEdit, PushButton, InfoBar, InfoBarIcon, InfoBarPosition
 
 from .expandTemplate import TemplateLayout
 
@@ -96,8 +94,21 @@ class Layout(TemplateLayout):
         self.hBoxLayout.addLayout(self.push_card)
 
     def _accept_push(self):
-        thread = threading.Thread(target=self.start_push, daemon=True)
-        thread.start()
+        push_list = [int(x) for x in self.input_push.text().split(',')]
+        self.set('explore_normal_task_regions', push_list)
+        value = self.input_push.text()
+        w = InfoBar(
+            icon=InfoBarIcon.SUCCESS,
+            title='设置成功',
+            content=f'你的普通关配置已经被设置为：{value}，正在推普通关。',
+            orient=Qt.Vertical,  # vertical layout
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=800,
+            parent=self.parent().parent().parent().parent().parent().parent().parent()
+        )
+        w.show()
+        import threading
+        threading.Thread(target=self.action).start()
 
     def get_thread(self, parent=None):
         if parent is None:
@@ -107,7 +118,5 @@ class Layout(TemplateLayout):
                 return component.get_main_thread()
         return self.get_thread(parent.parent())
 
-    def start_push(self):
-        push_list = [int(x) for x in self.input_push.text().split(',')]
-        self.set('explore_normal_task_regions', push_list)
+    def action(self):
         self.get_thread().start_normal_task()

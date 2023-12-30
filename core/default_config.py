@@ -213,9 +213,7 @@ DEFAULT_CONFIG = """
     "explore_normal_task_regions": [
 
     ],
-    "explore_hard_task_list": [
-
-    ],
+    "explore_hard_task_list": "此处填写需要推图的关卡",
     "manual_boss": false,
     "burst1": "1",
     "burst2": "2",
@@ -223,9 +221,9 @@ DEFAULT_CONFIG = """
     "pierce2": "2",
     "mystic1": "1",
     "mystic2": "2",
-    "hard_task_need_sss": true,
-    "hard_task_need_present": true,
-    "hard_task_need_task": true,
+    "explore_hard_task_need_sss": true,
+    "explore_hard_task_need_present": true,
+    "explore_hard_task_need_task": true,
     "TacticalChallengeShopRefreshTime": "0",
     "TacticalChallengeShopList": [
         0,

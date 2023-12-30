@@ -7,8 +7,10 @@ import importlib
 
 def implement(self):
     t = self.config['explore_hard_task_list']
-    temp = ''
-    if type(t) is list:
+    if type(t) is int:
+        t = str(t)
+    elif type(t) is list:
+        temp = ''
         for i in range(0, len(t)):
             temp = temp + str(t[i]) + ','
         t = temp
@@ -18,7 +20,7 @@ def implement(self):
     tasks = get_explore_hard_task_data(t, need_sss, need_task, need_present)
     mission_los = [249, 363, 476]
     self.logger.info("VALID TASK LIST " + str(tasks))
-    # self.quick_method_to_main_page()
+    self.quick_method_to_main_page()
     # test_(self)
     hard_task.to_hard_event(self)
     for i in range(0, len(tasks)):
@@ -89,6 +91,7 @@ def implement(self):
                     self.click(1235, 41)
                 hard_task.to_hard_event(self)
                 choose_region(self, region - 1)
+    return True
 
 
 def get_stage_data(region):

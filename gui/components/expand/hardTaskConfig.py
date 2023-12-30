@@ -10,17 +10,17 @@ class Layout(TemplateLayout):
         configItems = [
             {
                 'label': '打到SSS',
-                'key': 'hard_task_need_sss',
+                'key': 'explore_hard_task_need_sss',
                 'type': 'switch'
             },
             {
-                'label': '拾取宝箱',
-                'key': 'hard_task_need_present',
+                'label': '拿礼物',
+                'key': 'explore_hard_task_need_present',
                 'type': 'switch'
             },
             {
                 'label': '完成成就任务',
-                'key': 'hard_task_need_task',
+                'key': 'explore_hard_task_need_task',
                 'type': 'switch'
             },
             {
@@ -53,9 +53,9 @@ class Layout(TemplateLayout):
         self.push_card = QHBoxLayout(self)
         self.push_card_label = QHBoxLayout(self)
         self.label_tip_push = QLabel(
-            '<b>按照以上说明填写推困难图选项</b>', self)
+            '<b>困难图队伍属性和普通图相同(见普通图推图设置)，请按照以上说明选择推困难图关卡并按对应图设置队伍</b>', self)
         self.input_push = LineEdit(self)
-        self.accept_push = PushButton('保存配置', self)
+        self.accept_push = PushButton('开始推图', self)
 
         self.input_push.setText(self.get('explore_hard_task_list'))
         self.input_push.setFixedWidth(700)

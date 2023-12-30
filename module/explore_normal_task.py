@@ -24,6 +24,7 @@ def implement(self):
         choose_region(self, region)
         self.stage_data = get_stage_data(region)
         start_fight(self, region)
+    return True
 
 
 def start_fight(self, region):
