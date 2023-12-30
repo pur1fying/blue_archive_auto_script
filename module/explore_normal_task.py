@@ -52,7 +52,8 @@ def start_fight(self, region):
         for n, p in self.stage_data[mission]['start'].items():
             cu_index = choose_team(self, mission, n)
             if cu_index < prev_index:
-                self.exit("please set the first formation number smaller than the second one")
+                self.logger.critical("please set the first formation number smaller than the second one")
+                return False
             prev_index = cu_index
         start_mission(self)
         if self.server == 'CN':

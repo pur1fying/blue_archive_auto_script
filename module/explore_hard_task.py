@@ -71,7 +71,8 @@ def implement(self):
                 for number, position in current_task_stage_data['start'].items():
                     cu_index = choose_team(self, number, position, current_task_stage_data)
                     if cu_index < prev_index:
-                        self.exit("please set the first formation number smaller than the second one")
+                        self.logger.critical("please set the first formation number smaller than the second one")
+                        return False
                     prev_index = cu_index
                 start_mission(self)
                 if self.server == 'CN':

@@ -43,6 +43,8 @@ func_dict = {
 
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+        self.scheduler = None
+        self.screenshot_interval = None
         self.flag_run = None
         self.static_config = None
         self.main_activity = None
@@ -76,12 +78,11 @@ class Main:
         self.total_force_fight_name = "chesed"  # 当期总力战名字
         self.latest_img_array = None
         self.button_signal = button_signal
-
+        self.update_signal = update_signal
         if not self.init_all_data():
             return
-        self.screenshot_interval = self.config['screenshot_interval']
         self.stage_data = {}
-        self.scheduler = Scheduler(update_signal)
+
         # start_debugger()
 
     def click(self, x, y, wait=True, count=1, rate=0, duration=0):
@@ -172,7 +173,7 @@ class Main:
                         next_tick.replace(microsecond=0)
                         self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                     else:
-                        self.logger.info("error occurred, stop all activities")
+                        self.logger.error("error occurred, stop all activities")
                         self.quick_method_to_main_page()
                         self.signal_stop()
                 else:
@@ -581,6 +582,8 @@ class Main:
                 self.signal_stop()
                 self.logger.critical("Initialization Failed")
                 return False
+        self.screenshot_interval = self.config['screenshot_interval']
+        self.scheduler = Scheduler(self.update_signal)
         self.logger.info("--------Initialization Finished----------")
         return True
 
@@ -599,7 +602,7 @@ if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     # t.thread_starter()
-    # t.thread_starter()
+    t.thread_starter()
     t.solve('explore_hard_task')
     img1 = cv2.imread('qxn.jpg')
     # t.solve('tactical_challenge_shop')
