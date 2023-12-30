@@ -63,7 +63,7 @@ def cn_implement(self):
         unread_location = []
         while location_y <= 630:
             if np.array_equal(self.latest_img_array[location_y][location_x], red_dot) and \
-                    np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
+                np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
                 unread_location.append([location_x, location_y + dy / 2])
                 location_y += 60
             else:
@@ -117,7 +117,7 @@ def global_implement(self):
         unread_location = []
         while location_y <= 630:
             if np.array_equal(self.latest_img_array[location_y][location_x], red_dot) and \
-                    np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
+                np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
                 unread_location.append([location_x, location_y + dy / 2])
                 location_y += 60
             else:
@@ -170,10 +170,14 @@ def common_solve_affection_story_method(self):
         img = self.get_screenshot_array()
         res = get_reply_position(img)
         if res[0] == 'reply':
-            self.logger.info("reply")
-            self.click(826, res[1], wait=False)
+            if res[1] >= 625:
+                self.logger.info("swipe upward")
+                self.connection.swipe(924, 330, 924, 230, duration=0.1)
+                self.click(924, 330, wait=False)
+            else:
+                self.logger.info("reply")
+                self.click(826, res[1], wait=False)
             start_time = time.time()
-            time.sleep(1)
         elif res[0] == 'affection':
             self.logger.info("ENTER affection story")
             self.click(826, res[1], wait=False)
@@ -189,10 +193,10 @@ def get_reply_position(img):
     i = 156
     while i < 657:
         if color.judge_rgb_range(img, 786, i, 29, 49, 143, 163, 219, 239) and \
-                color.judge_rgb_range(img, 786, i+10, 29, 49, 143, 163, 219, 239):
-            return 'reply', min(i + 65, 625)
+            color.judge_rgb_range(img, 786, i + 10, 29, 49, 143, 163, 219, 239):
+            return 'reply', i + 65
         elif color.judge_rgb_range(img, 862, i, 245, 255, 227, 247, 230, 250) and \
-                color.judge_rgb_range(img, 862, i + 10, 245, 255, 125, 155, 145, 175):
+            color.judge_rgb_range(img, 862, i + 10, 245, 255, 125, 155, 145, 175):
             return 'affection', min(625, i + 30)
         else:
             i += 1
@@ -200,49 +204,39 @@ def get_reply_position(img):
 
 
 def pd_menu_bright(img_array):
-    if color.judge_rgb_range(img_array, 1165, 45, 230, 255, 230, 255, 230, 255) and color.judge_rgb_range(img_array,
-                                                                                                          1238, 45, 230,
-                                                                                                          255, 230, 255,
-                                                                                                          230, 255):
+    if color.judge_rgb_range(img_array, 1165, 45, 230, 255, 230, 255, 230, 255) and \
+        color.judge_rgb_range(img_array, 1238, 45, 230, 255, 230, 255, 230, 255):
         return True
     return False
 
 
 def pd_skip_plot_button(img_array):
-    if color.judge_rgb_range(img_array, 1189, 120, 34, 54, 59, 79, 90, 110) and color.judge_rgb_range(img_array, 1128,
-                                                                                                      104, 34, 54,
-                                                                                                      59, 79, 90,
-                                                                                                      110) and color.judge_rgb_range(
-        img_array, 1125, 120, 245, 255, 245, 255, 245, 255) and color.judge_rgb_range(img_array, 1207, 120, 245, 255,
-                                                                                      245,
-                                                                                      255, 245, 255):
+    if color.judge_rgb_range(img_array, 1189, 120, 34, 54, 59, 79, 90, 110) and \
+        color.judge_rgb_range(img_array, 1128, 104, 34, 54, 59, 79, 90, 110) and \
+        color.judge_rgb_range(img_array, 1125, 120, 245, 255, 245, 255, 245, 255) and \
+        color.judge_rgb_range(img_array, 1207, 120, 245, 255, 245, 255, 245, 255):
         return True
     return False
 
 
 def pd_confirm_button(img_array):
-    if color.judge_rgb_range(img_array, 691, 552, 110, 130, 210, 230, 245, 255) and color.judge_rgb_range(img_array,
-                                                                                                          848, 525, 110,
-                                                                                                          130, 210, 230,
-                                                                                                          245, 255):
+    if color.judge_rgb_range(img_array, 691, 552, 110, 130, 210, 230, 245, 255) and \
+        color.judge_rgb_range(img_array, 848, 525, 110, 130, 210, 230, 245, 255):
         return True
     return False
 
 
 def pd_enter_button(img_array):
-    if color.judge_rgb_range(img_array, 817, 582, 110, 130, 210, 230, 245, 255) and color.judge_rgb_range(img_array,
-                                                                                                          761, 418, 35,
-                                                                                                          55, 66, 86,
-                                                                                                          104,
-                                                                                                          124) and color.judge_rgb_range(
-        img_array, 1034, 582, 110, 130, 210, 230, 245, 255):
+    if color.judge_rgb_range(img_array, 817, 582, 110, 130, 210, 230, 245, 255) and \
+        color.judge_rgb_range(img_array, 761, 418, 35, 55, 66, 86, 104, 124) and \
+        color.judge_rgb_range(img_array, 1034, 582, 110, 130, 210, 230, 245, 255):
         return True
     return False
 
 
 def common_skip_plot_method(self):
     fail_cnt = 0
-    while fail_cnt <= 20/self.screenshot_interval:
+    while fail_cnt <= 20 / self.screenshot_interval:
         self.latest_img_array = self.get_screenshot_array()
         if pd_enter_button(self.latest_img_array):
             self.logger.info("Begin Relationship Story")
@@ -256,12 +250,13 @@ def common_skip_plot_method(self):
             fail_cnt += 1
             if pd_menu_bright(self.latest_img_array):
                 self.logger.info("find MENU button")
-                self.click(1205, 34, wait=False,duration=0.3)
+                self.click(1205, 34, wait=False, duration=0.3)
             elif pd_skip_plot_button(self.latest_img_array):
                 self.logger.info("find SKIP PLOT button")
-                self.click(1213, 116, wait=False,duration=0.3)
+                self.click(1213, 116, wait=False, duration=0.3)
                 time.sleep(0.3)
-            self.logger.info("Didn't find confirm button, fail count: " + str(fail_cnt))
+            else:
+                self.logger.info("Didn't find confirm button, fail count: " + str(fail_cnt))
         time.sleep(self.screenshot_interval)
     self.logger.info("skip plot fail")
     return False
