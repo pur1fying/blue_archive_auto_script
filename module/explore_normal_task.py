@@ -15,16 +15,7 @@ x = {
 def implement(self):
     self.quick_method_to_main_page()
     # test_(self)
-    if self.server == 'CN':
-        possible = {
-            'main_page_home-feature': (1195, 576, 3),
-            'main_page_bus': (815, 285, 3),
-        }
-        image.detect(self, 'normal_task_menu', possible)
-        choose_mode(self)
-
-    elif self.server == "Global":
-        normal_task.to_normal_event(self)
+    normal_task.to_normal_event(self)
     for i in range(0, len(self.config['explore_normal_task_regions'])):
         region = self.config['explore_normal_task_regions'][i]
         if not 4 <= region <= 16:
@@ -33,13 +24,7 @@ def implement(self):
         choose_region(self, region)
         self.stage_data = get_stage_data(region)
         start_fight(self, region)
-
-
-def choose_mode(self):
-    while not color.judge_rgb_range(self.latest_img_array, 680, 138, 36, 56, 56, 76, 77, 97):
-        self.click(927, 147)
-        time.sleep(1)
-        self.latest_img_array = self.get_screenshot_array()
+    return True
 
 
 def start_fight(self, region):
@@ -146,11 +131,9 @@ def end_round(self):
     if self.server == 'CN':
         click_pos1 = [
             [1170, 670],
-            [794, 207],
         ]
         lo1 = [
             "normal_task_mission_operating",
-            "present",
         ]
         end1 = ["round_over_notice"]
         color.common_rgb_detect_method(self, click_pos1, lo1, end1)
@@ -281,13 +264,11 @@ def to_normal_task_mission_operation_page(self):
         [886, 162],
         [890, 162],
         [995, 102],
-        [794, 207],
     ]
     los = [
         "formation_teleport_notice",
         "round_over_notice",
         "normal_task_mission_info",
-        "present",
     ]
     ends = ["normal_task_mission_operating"]
     color.common_rgb_detect_method(self, click_pos, los, ends)
@@ -365,12 +346,10 @@ def wait_over(self):
     click_pos1 = [
         [998, 670],
         [886, 162],
-        [794, 207],
     ]
     lo1 = [
         "normal_task_mission_operating",
         "formation_teleport_notice",
-        "present",
     ]
     end1 = ["normal_task_mission_info"]
     color.common_rgb_detect_method(self, click_pos1, lo1, end1)

@@ -18,6 +18,7 @@ sys.path.append('./')
 ICON_DIR = 'gui/assets/logo.png'
 
 
+
 def update_config_reserve_old(config_old, config_new):  # 保留旧配置原有的键，添加新配置中没有的，删除新配置中没有的键
     for key in config_new:
         if key not in config_old:

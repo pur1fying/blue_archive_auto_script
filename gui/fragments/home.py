@@ -12,6 +12,7 @@ from qfluentwidgets import (
     ExpandLayout
 )
 
+from core.notification import notify
 from gui.components.logger_box import LoggerBox
 from gui.util import log
 from gui.util.config_set import ConfigSet
@@ -98,7 +99,7 @@ class HomeFragment(QFrame, ConfigSet):
         self.banner.setPixmap(pixmap)
         self.banner.setScaledContents(True)
         if self.banner_visible:
-            self.logger_box.setFixedHeight(int(self.parent().height() * 0.4))
+            self.logger_box.setFixedHeight(int(self.parent().height() * 0.35))
         else:
             self.logger_box.setFixedHeight(int(self.parent().height() * 0.7))
 
@@ -136,6 +137,9 @@ class HomeFragment(QFrame, ConfigSet):
         else:
             self._main_thread_attach.start()
 
+    def get_main_thread(self):
+        return self._main_thread_attach
+
     # def __init_starter(self):
     # if self._main_thread is None:
     #     from main import Main
@@ -166,23 +170,53 @@ class MainThread(QThread):
 
     def run(self):
         self.running = True
-        self.button_signal.emit("停止")
+        self.display('停止')
         log.d("Starting Blue Archive Auto Script...", level=1, logger_box=self.logger_signal)
-        if self.Main is None:
-            from main import Main
-            self.Main = Main
-        self._main_thread = self.Main(logger_signal=self.logger_signal, button_signal=self.button_signal,
-                                      update_signal=self.update_signal)
+        self._init_script()
         self._main_thread.send('start')
 
     def stop_play(self):
         self.running = False
         if self._main_thread is None:
             return
-        self.button_signal.emit("启动")
+        self.display('启动')
         self._main_thread.send('stop')
         self.exit(0)
 
+    def _init_script(self):
+        if self.Main is None:
+            from main import Main
+            self.Main = Main
+            self._main_thread = self.Main(logger_signal=self.logger_signal, button_signal=self.button_signal,
+                                          update_signal=self.update_signal)
+        self._main_thread.init_all_data()
+        self._main_thread.flag_run = True
+
+    def display(self, text):
+        self.button_signal.emit(text)
+
     def get_screen(self):
-        if self._main_thread is not None:
-            return self._main_thread.log_screenshot()
+        self._init_script()
+        self._main_thread.init_emulator()
+        return self._main_thread.log_screenshot()
+
+    def start_hard_task(self):
+        self._init_script()
+        self.display('停止')
+        # 这里可能有Bug，若用户还未登入，则会报错。
+        if self._main_thread.solve('explore_hard_task'):
+            notify(title='BAAS', body='困难图推图已完成')
+
+    def start_normal_task(self):
+        self._init_script()
+        self.display('停止')
+        # 这里可能有Bug，若用户还未登入，则会报错。
+        if self._main_thread.solve('explore_normal_task'):
+            notify(title='BAAS', body='普通图推图已完成')
+
+    def start_fhx(self):
+        self._init_script()
+        if self._main_thread.solve('de_clothes'):
+            notify(title='BAAS', body='反和谐成功，请重启BA下载资源')
+        else:
+            notify(title='BAAS', body='反和谐失败')

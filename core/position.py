@@ -30,6 +30,8 @@ def init_image_data(self):
     try:
         global iad, ibd
         base_path = ''
+        iad.clear()
+        ibd.clear()
         self.logger.info("Start initializing image data")
         if self.server == 'CN':
             ibd = {
