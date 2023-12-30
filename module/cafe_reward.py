@@ -151,7 +151,8 @@ def shot(self):
 def interaction_for_cafe_solve_method3(self):
     self.connection().pinch_in()
     self.swipe(709, 558, 709, 209, duration=0.5)
-    for i in range(0, 4):
+    max_times = 4
+    for i in range(0, max_times):
         to_gift(self)
         t1 = threading.Thread(target=shot, args=(self,))
         t1.start()
@@ -187,7 +188,7 @@ def interaction_for_cafe_solve_method3(self):
 
         time.sleep(2)
         to_cafe(self)
-        if i != 4:
+        if i != max_times - 1:
             self.click(68, 636)
             time.sleep(1)
             self.click(1169, 90)
@@ -212,61 +213,9 @@ def to_invitation_ticket(self):
 def invite_girl(self):
     student_name = None
     if self.server == "CN":
-        student_name = ["小夏","亚子","玛丽","瞬(小)", "桐乃","伊织(泳装)","日奈(泳装)", "纱绫(便服)", "日富美(泳装)", "真白(泳装)", "鹤城(泳装)",
-                        "白子(骑行)" "梓(泳装)", "爱丽丝", "切里诺", "志美子", "日富美", "佳代子",
-                        "明日奈", "菲娜", "艾米", "真纪",
-                        "泉奈", "明里", "芹香", "优香", "小春",
-                        "花江", "纯子", "千世", "干世", "莲见", "爱理", "睦月", "野宫", "绫音", "歌原",
-                        "芹娜", "小玉", "铃美", "朱莉", "好美", "千夏", "琴里",
-                        "春香", "真白", "鹤城", "爱露", "晴奈", "日奈", "伊织", "星野",
-                        "白子", "柚子", "花凛", "妮露", "纱绫", "静子", "花子", "风香",
-                        "和香", "茜", "泉", "梓", "绿", "堇", "瞬", "桃", "椿", "晴", "响"]
+        student_name = self.static_config['CN_student_name']
     elif self.server == "Global":
-        student_name = ["Akane (Bunny)", "Ako", "Aris", "Aris (Maid)", "Aru", "Aru (New Year)",
-                        "Asuna (Bunny)",
-                        "Atsuko", "Azusa", "Azusa (Swimsuit)",
-                        "Cherino", "Cherino (Hot Spring)", "Chihiro", "Chinatsu (Hot Spring)", "Chise (Swimsuit)",
-                        "Eimi",
-                        "Fuuka (New Year)", "Hanae (Christmas)", "Hanako (Swimsuit)", "Haruka (New Year)",
-                        "Haruna", "Haruna (New Year)", "Haruna (Track)", "Hatsune Miku", "Hibiki",
-                        "Hifumi", "Hifumi (Swimsuit)", "Himari", "Hina", "Hina (Swimsuit)", "Hinata",
-                        "Hinata (Swimsuit)",
-                        "Hiyori", "Hoshino", "Hoshino (Swimsuit)",
-                        "Ichika", "Iori", "Iori (Swimsuit)", "Iroha", "Izumi", "Izuna", "Izuna (Swimsuit)",
-                        "Kaede", "Kaho", "Kanna", "Karin", "Karin (Bunny)", "Kasumi", "Kayoko (New Year)",
-                        "Kazusa",
-                        "Koharu", "Kokona", "Kotori (Cheer Squad)", "Koyuki",
-                        "Maki", "Mari (Track)", "Marina", "Mashiro", "Mashiro (Swimsuit)", "Megu", "Meru",
-                        "Midori",
-                        "Mika", "Mimori", "Mimori (Swimsuit)", "Mina", "Mine",
-                        "Minori", "Misaka Mikoto", "Misaki", "Miyako", "Miyako (Swimsuit)", "Miyu", "Moe",
-                        "Mutsuki (New Year)",
-                        "Nagisa", "Natsu", "Neru", "Neru (Bunny Girl)", "Noa", "Nodoka (Hot Spring)",
-                        "Nonomi (Swimsuit)",
-                        "Reisa", "Rumi",
-                        "Saki", "Saki (Swimsuit)", "Sakurako", "Saori", "Saya", "Saya (Casual)", "Sena",
-                        "Serina (Christmas)",
-                        "Shigure", "Shigure (Hot Spring)", "Shiroko",
-                        "Shiroko (Cycling)", "Shiroko (Swimsuit)", "Shokuhou Misaki", "Shun", "Shun (Small)", "Sumire",
-                        "Toki", "Toki (Bunny)", "Tsukuyo", "Tsurugi",
-                        "Ui", "Ui (Swimsuit)", "Utaha (Cheer Squad)",
-                        "Wakamo", "Wakamo (Swimsuit)", "Yuuka (Track)", "Yuzu",
-
-                        "Airi", "Akane", "Akari", "Ayane",
-                        "Chise", "Fuuka", "Hanae", "Hanako", "Hare", "Hasumi", "Junko", "Kayoko", "Kirino", "Mari",
-                        "Momiji",
-                        "Momoi", "Mutsuki", "Nonomi", "Serika",
-                        "Shizuko", "Tsubaki", "Utaha", "Yuuka",
-
-                        "Asuna", "Asuna (Bunny)",
-                        "Ayane (Swimsuit)", "Chinatsu", "Fubuki", "Haruka", "Hasumi (Track)",
-                        "Hibiki (Cheer Squad)",
-                        "Izumi (Swimsuit)", "Junko (New Year)", "Juri",
-                        "Koharu (Swimsuit)", "Kotama", "Kotori", "Michiru", "Miyu (Swimsuit)", "Nodoka", "Pina",
-                        "Saten Ruiko",
-                        "Serina", "Shimiko", "Shizuko (Swimsuit)", "Suzumi", "Tomoe",
-                        "Tsurugi (Swimsuit)", "Yoshimi", "Yuzu (Maid)"]
-
+        student_name = self.static_config['Global_student_name']
     assert student_name is not None
     for i in range(0, len(student_name)):
         t = ""

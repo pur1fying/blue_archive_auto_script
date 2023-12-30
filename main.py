@@ -44,6 +44,7 @@ func_dict = {
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
         self.flag_run = None
+        self.static_config = None
         self.main_activity = None
         self.package_name = None
         self.server = None
@@ -396,7 +397,9 @@ class Main:
     def init_config(self):
         try:
             self.logger.info("Start Reading Config")
-            self.config = self.operate_dict(ConfigSet().config)
+            t = ConfigSet()
+            self.config = self.operate_dict(t.config)
+            self.static_config = self.operate_dict(t.static_config)
             self.main_activity = self.config['activity_list']
             self.logger.info("SUCCESS")
             return True
@@ -599,6 +602,8 @@ if __name__ == '__main__':
     # t.thread_starter()
     t.solve('explore_hard_task')
     img1 = cv2.imread('qxn.jpg')
+    # t.solve('tactical_challenge_shop')
+    img1= cv2.imread('qxn.jpg')
     img1 = img1[10:40, 560:658, :]
     print(t.ocrCN.ocr_for_single_line(img1))
     exit(0)

@@ -1,5 +1,5 @@
 stage_data = {
-    '10-1-sss-present': {
+    '10-1-task-present': {
         'start': {
             '1': (757, 260),
             '2': (501, 284)
@@ -22,7 +22,7 @@ stage_data = {
             {'t': 'click', 'p': (832, 342), "desc": "1 upper right"},
         ]
     },
-    '10-1-task': {
+    '10-1-sss': {
         'start': {
             '1': (757, 260),
             '2': (501, 284)
