@@ -242,30 +242,29 @@ class Main:
                 'plot_skip-plot-notice': (770, 519),
             }
             fail_cnt = 0
+            click_pos = [
+                [640, 100],
+                [1236, 31],
+                [640, 360],
+                [640, 100],
+                [640, 200]
+                ]
+            los = [
+                "reward_acquired",
+                "home",
+                'relationship_rank_up',
+                'area_rank_up',
+                'level_up'
+            ]
             while True:
                 stage.wait_loading(self)
                 self.latest_img_array = self.get_screenshot_array()
                 res = color.detect_rgb_one_time(self, [], [], ['main_page'])
                 if res == ('end', 'main_page'):
                     break
-                click_pos = [
-                    [640, 100],
-                    [1236, 31],
-                    [640, 360],
-                    [640, 100],
-                    [640, 200]
-                ]
-                los = [
-                    "reward_acquired",
-                    "home",
-                    'relationship_rank_up',
-                    'area_rank_up',
-                    'level_up'
-                ]
                 res = color.detect_rgb_one_time(self, click_pos, los, [])
                 if res == ('click', True):
                     continue
-
                 # region 资源图片可能会出现的位置
                 for asset, obj in possibles.items():
                     if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
@@ -376,9 +375,34 @@ class Main:
                 'normal_task_quit-mission-info': (772, 511),
                 'normal_task_mission-conclude-confirm': (1042, 671),
             }
+            fail_cnt = 0
+            while True:
+                stage.wait_loading(self)
+                self.latest_img_array = self.get_screenshot_array()
+                res = color.detect_rgb_one_time(self, [], [], ends)
+                if res == ('end', 'main_page'):
+                    break
+                res = color.detect_rgb_one_time(self, click_pos, los, [])
+                if res == ('click', True):
+                    continue
 
-            image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                         pre_argv=(self, click_pos, los, ends))
+                # region 资源图片可能会出现的位置
+                for asset, obj in possibles.items():
+                    if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
+                                           need_log=False):
+                        self.logger.info("find " + asset)
+                        self.click(obj[0], obj[1], False)
+                        time.sleep(self.screenshot_interval)
+                        fail_cnt = 0
+                        break
+                else:
+                    time.sleep(self.screenshot_interval)
+                    fail_cnt += 1
+                    if fail_cnt > 10:
+                        self.logger.info("tentative clicks")
+                        self.click(1236, 31, False)
+                        self.click(640, 360, False)
+                        fail_cnt = 0
             return True
 
     def init_rgb(self):
@@ -602,6 +626,7 @@ if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     # t.thread_starter()
+    t.init_all_data()
     t.thread_starter()
     t.solve('explore_hard_task')
     img1 = cv2.imread('qxn.jpg')

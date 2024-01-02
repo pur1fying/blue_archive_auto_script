@@ -1,5 +1,34 @@
 import time
 
+def wait_loading(self):
+    t_start = time.time()
+    while 1:
+        self.latest_img_array = self.get_screenshot_array()
+        if not judge_rgb_range(self.latest_img_array, 937, 648, 200, 255, 200, 255, 200, 255) or not \
+                judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
+            loading_pos = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
+            rgb_loading = [[200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
+                           [200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
+                           [255, 255, 255, 255, 255, 255]]
+            t = len(loading_pos)
+            for i in range(0, t):
+                if not judge_rgb_range(self.latest_img_array, loading_pos[i][0], loading_pos[i][1],
+                                             rgb_loading[i][0],
+                                             rgb_loading[i][1], rgb_loading[i][2], rgb_loading[i][3],
+                                             rgb_loading[i][4], rgb_loading[i][5]):
+                    break
+            else:
+                t_load = time.time() - t_start
+                t_load = round(t_load, 3)
+                self.logger.info("loading, t load : " + str(t_load))
+                if t_load > 20:
+                    self.logger.warning("LOADING TOO LONG add screenshot interval to 1")
+                    t_start = time.time()
+                    self.screenshot_interval = 1
+                time.sleep(self.screenshot_interval)
+                continue
+
+        return True
 
 def common_rgb_detect_method(self, click, possible_los, ends):
     t_start = time.time()
@@ -7,6 +36,7 @@ def common_rgb_detect_method(self, click, possible_los, ends):
     while t_total <= 60:
         if not self.flag_run:
             return False
+        wait_loading(self)
         res = detect_rgb_one_time(self, click, possible_los, ends)
         if not res:
             time.sleep(self.screenshot_interval)
@@ -22,7 +52,6 @@ def common_rgb_detect_method(self, click, possible_los, ends):
 
 
 def detect_rgb_one_time(self, click=None, possible_los=None, ends=None):
-    self.latest_img_array = self.get_screenshot_array()
     for i in range(0, len(ends)):
         for j in range(0, len(self.rgb_feature[ends[i]][0])):
             if not judge_rgb_range(self.latest_img_array,
