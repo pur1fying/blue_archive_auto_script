@@ -30,6 +30,7 @@ def wait_loading(self):
 
         return True
 
+
 def common_rgb_detect_method(self, click, possible_los, ends):
     t_start = time.time()
     t_total = 0

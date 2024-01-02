@@ -42,7 +42,7 @@ def implement(self):
         ]
         if self.server == 'CN':
             image.detect(self, 'arena_edit-force', {}, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, ends))
+                         pre_argv=(self, click_pos, los, ends))
         elif self.server == 'Global':
             color.common_rgb_detect_method(self, click_pos, los, ends)
         res = check_skip_button(self.latest_img_array, self.server)
@@ -62,6 +62,7 @@ def implement(self):
         elif tickets == 1:
             collect_tactical_challenge_reward(self)
             return True
+
 
 def choose_enemy(self):
     less_level = self.config['ArenaLevelDiff']

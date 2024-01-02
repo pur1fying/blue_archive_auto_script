@@ -279,7 +279,6 @@ class Main:
                     if fail_cnt > 10:
                         self.logger.info("tentative clicks")
                         self.click(1236, 31, False)
-                        self.click(640, 360, False)
                         fail_cnt = 0
                         time.sleep(self.screenshot_interval)
             return True
@@ -400,8 +399,7 @@ class Main:
                     fail_cnt += 1
                     if fail_cnt > 10:
                         self.logger.info("tentative clicks")
-                        self.click(1236, 31, False)
-                        self.click(640, 360, False)
+                        self.click(1228, 41, False)
                         fail_cnt = 0
             return True
 

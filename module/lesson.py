@@ -97,7 +97,7 @@ def cn_implement(self):
         cur_num = get_region_num(self, region_name)
 
         self.logger.info("now in page " + region_name[cur_num])
-        while cur_num != tar_num:
+        while cur_num != tar_num and self.flag_run:
             if cur_num > tar_num:
                 if (cur_num - tar_num) * 2 < len(region_name):
                     self.click(left_change_page_x, change_page_y, count=cur_num - tar_num, wait=False, duration=1.5)
@@ -216,7 +216,8 @@ def global_implement(self):
             res = []
             last_available = -1
             for i in range(0, 9):
-                if color.judge_rgb_range(self.latest_img_array, lo[i][0], lo[i][1], 250, 255, 250, 255, 250, 255):
+                print(self.latest_img_array[lo[i][1], lo[i][0]])
+                if color.judge_rgb_range(self.latest_img_array, lo[i][0], lo[i][1], 254, 255, 254, 255, 254, 255):
                     res.append("available")
                     last_available = i
                 elif color.judge_rgb_range(self.latest_img_array, lo[i][0], lo[i][1], 230, 249, 230, 249, 230, 249):

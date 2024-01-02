@@ -246,7 +246,7 @@ def start_choose_side_team(self, index):
 
 def choose_region(self, region):
     cu_region = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[178:208, 122:163, :])['text'])
-    while cu_region != region:
+    while cu_region != region and self.flag_run:
         if cu_region > region:
             self.click(40, 360, wait=False, count=cu_region - region, rate=0.1)
         else:
