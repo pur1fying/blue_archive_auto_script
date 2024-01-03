@@ -27,9 +27,9 @@ class Layout(TemplateLayout):
                 'label': """
     推图关卡中填写的数据不应该超出这些字符或单词 "-" , "sss", "present", "task", "," , 和数字
     按逗号拆分后变为若干关卡
-    1.如果只有一个数字
-    例子:15
-    根据上面三个按钮的开关 将(15-1,15-2,15-3)打到sss/拿礼物/完成挑战任务
+    1.如果只有一个数字 或 指定关卡
+    例子:15,12-2
+    根据上面三个按钮的开关 将(15-1,15-2,15-3,12-2)打到sss/拿礼物/完成挑战任务
 
     2.如果是一个数字并跟字符串，则用‘-’分隔
     例子: 15-sss-present
@@ -53,7 +53,7 @@ class Layout(TemplateLayout):
         self.push_card = QHBoxLayout(self)
         self.push_card_label = QHBoxLayout(self)
         self.label_tip_push = QLabel(
-            '<b>困难图队伍属性和普通图相同(见普通图推图设置)，请按照以上说明选择推困难图关卡并按对应图设置队伍</b>', self)
+            '<b>困难图队伍属性和普通图相同(见普通图推图设置)，请按照以上说明选择推困难图关卡并按对应图设置队伍(额外需要: H15-3贯穿2队 H16-3:贯穿1队)</b>', self)
         self.input_push = LineEdit(self)
         self.accept_push = PushButton('开始推图', self)
 

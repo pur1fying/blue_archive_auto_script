@@ -28,7 +28,7 @@ def implement(self):
         region = int(data[0])
         mission = int(data[1])
         unfinished_tasks = data[2:]
-        if not 7 <= region <= 10:
+        if not 6 <= region <= 16:
             self.logger.warning("Region not support")
             return True
         self.stage_data = get_stage_data(region)
@@ -470,12 +470,20 @@ def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=T
                 continue
             if temp[0].isdigit() and temp[1].isdigit():  # 指定关卡
                 tt = ''
-                if 'sss' in temp:
-                    tt = tt + '-sss'
-                if 'present' in temp:
-                    tt = tt + '-present'
-                if 'task' in temp:
-                    tt = tt + '-task'
+                if len (temp) == 2:
+                    if need_sss:
+                        tt = tt + '-sss'
+                    if need_present:
+                        tt = tt + '-present'
+                    if need_task:
+                        tt = tt + '-task'
+                else:
+                    if 'sss' in temp:
+                        tt = tt + '-sss'
+                    if 'present' in temp:
+                        tt = tt + '-present'
+                    if 'task' in temp:
+                        tt = tt + '-task'
                 tasks.append(temp[0] + '-' + temp[1] + tt)
             elif temp[0].isdigit() and not temp[1].isdigit():
                 tt = ''
