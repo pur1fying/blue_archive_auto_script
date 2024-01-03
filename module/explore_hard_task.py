@@ -6,6 +6,7 @@ import importlib
 
 
 def implement(self):
+    self.scheduler.change_display("困难关推图")
     t = self.config['explore_hard_task_list']
     if type(t) is int:
         t = str(t)
@@ -23,6 +24,8 @@ def implement(self):
     self.quick_method_to_main_page()
     # test_(self)
     hard_task.to_hard_event(self)
+    self.logger.info("Add screen shot interval to 1.0 seconds")
+    self.screenshot_interval = 1.0
     for i in range(0, len(tasks)):
         data = tasks[i].split('-')
         region = int(data[0])
@@ -220,7 +223,7 @@ def start_action(self, stage_data):
 
 def start_choose_side_team(self, index):
     if index not in [1, 2, 3, 4]:
-        self.exit("No formation added into corresponding config")
+        exit("No formation added into corresponding config")
     self.logger.info("According to the config. Choose formation {0}".format(index))
     loy = [195, 275, 354, 423]
     y = loy[index - 1]
@@ -264,7 +267,7 @@ def choose_team(self, number, position, data):
     to_formation_edit_i(self, index, position)
     if color.judge_rgb_range(self.latest_img_array, 1166, 684, 250, 255, 105, 125, 68, 88) \
             and color.judge_rgb_range(self.latest_img_array, 1156, 626, 250, 255, 105, 125, 68, 88):
-        self.exit("please choose another formation")
+        exit("please choose another formation")
     to_normal_task_wait_to_begin_page(self)
     return index
 
@@ -428,7 +431,7 @@ def test_(self):
         for n, p in self.stage_data[mission]['start'].items():
             cu_index = choose_team(self, mission, n)
             if cu_index < prev_index:
-                self.exit("please set the first formation number smaller than the second one")
+                exit("please set the first formation number smaller than the second one")
             prev_index = cu_index
         start_mission(self)
         if self.server == 'CN':

@@ -13,9 +13,12 @@ x = {
 
 
 def implement(self):
+    self.scheduler.change_display("普通关推图")
     self.quick_method_to_main_page()
     # test_(self)
     normal_task.to_normal_event(self)
+    self.logger.info("Add screen shot interval to 1.0 seconds")
+    self.screenshot_interval = 1.0
     for i in range(0, len(self.config['explore_normal_task_regions'])):
         region = self.config['explore_normal_task_regions'][i]
         if not 4 <= region <= 16:
@@ -211,7 +214,7 @@ def start_action(self, gk, stage_data):
 
 def start_choose_side_team(self, index):
     if index not in [1, 2, 3, 4]:
-        self.exit("No formation added into corresponding config")
+        exit("No formation added into corresponding config")
     self.logger.info("According to the config. Choose formation {0}".format(index))
     loy = [195, 275, 354, 423]
     y = loy[index - 1]
@@ -251,11 +254,11 @@ def choose_team(self, mission_num, force):
     index = self.config[self.stage_data[mission_num]['attr'][force]]
     self.logger.info("According to the config. Choose formation {0}".format(index))
     if index not in [1, 2, 3, 4]:
-        self.exit("No formation added into corresponding config")
+        exit("No formation added into corresponding config")
     to_formation_edit_i(self, index, self.stage_data[mission_num]['start'][force])
     if color.judge_rgb_range(self.latest_img_array, 1166, 684, 250, 255, 105, 125, 68, 88) \
         and color.judge_rgb_range(self.latest_img_array, 1156, 626, 250, 255, 105, 125, 68, 88):
-        self.exit("please choose another formation")
+        exit("please choose another formation")
     to_normal_task_wait_to_begin_page(self)
     return index
 
@@ -415,7 +418,7 @@ def test_(self):
         for n, p in self.stage_data[mission]['start'].items():
             cu_index = choose_team(self, mission, n)
             if cu_index < prev_index:
-                self.exit("please set the first formation number smaller than the second one")
+                exit("please set the first formation number smaller than the second one")
             prev_index = cu_index
         start_mission(self)
         if self.server == 'CN':
