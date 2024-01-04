@@ -38,6 +38,7 @@ func_dict = {
     'total_force_fight': module.total_force_fight.implement,
     'restart': module.restart.implement,
     'refresh_uiautomator2': module.refresh_uiautomator2.implement,
+    'no_227_kinosaki_spa': module.no_227_kinosaki_spa.implement,
 }
 
 
@@ -618,6 +619,13 @@ class Main:
         elif server == '国际服':
             self.package_name = 'com.nexon.bluearchive'
         return True
+
+    def set_screenshot_interval(self, interval):
+        if interval < 0.1:
+            self.logger.error("screenshot_interval must be greater than 0.1")
+            interval = 0.1
+        self.logger.info("screenshot_interval set to " + str(interval))
+        self.screenshot_interval = interval
 
 
 if __name__ == '__main__':

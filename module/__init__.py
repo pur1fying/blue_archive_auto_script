@@ -20,3 +20,4 @@ from module import tactical_challenge_shop
 from module import total_force_fight
 from module import restart
 from module import refresh_uiautomator2
+from module import no_227_kinosaki_spa

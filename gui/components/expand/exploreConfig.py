@@ -9,6 +9,11 @@ class Layout(TemplateLayout):
     def __init__(self, parent=None):
         configItems = [
             {
+                'label': '开启此按钮点击推图进行活动关推图',
+                'key': 'explore_activity',
+                'type': 'switch'
+            },
+            {
                 'label': '是否手动boss战（进入关卡后暂停等待手操）',
                 'key': 'manual_boss',
                 'type': 'switch'
@@ -94,8 +99,9 @@ class Layout(TemplateLayout):
         self.hBoxLayout.addLayout(self.push_card)
 
     def _accept_push(self):
-        push_list = [int(x) for x in self.input_push.text().split(',')]
-        self.set('explore_normal_task_regions', push_list)
+        if self.input_push.text() != '':
+            push_list = [int(x) for x in self.input_push.text().split(',')]
+            self.set('explore_normal_task_regions', push_list)
         value = self.input_push.text()
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,

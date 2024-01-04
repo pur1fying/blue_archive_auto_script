@@ -215,6 +215,7 @@ DEFAULT_CONFIG = """
     ],
     "explore_hard_task_list": "此处填写需要推图的关卡",
     "manual_boss": false,
+    "explore_activity":false,
     "burst1": "1",
     "burst2": "2",
     "pierce1": "1",

@@ -191,6 +191,7 @@ class MainThread(QThread):
                                           update_signal=self.update_signal)
         self._main_thread.init_all_data()
         self._main_thread.flag_run = True
+        self._main_thread.screenshot_updated = False
 
     def display(self, text):
         self.button_signal.emit(text)
@@ -211,6 +212,8 @@ class MainThread(QThread):
         self._init_script()
         self.display('停止')
         # 这里可能有Bug，若用户还未登入，则会报错。
+        if self._main_thread.solve('no_227_kinosaki_spa'):
+            notify(title='BAAS', body='活动推图已完成')
         if self._main_thread.solve('explore_normal_task'):
             notify(title='BAAS', body='普通图推图已完成')
 
