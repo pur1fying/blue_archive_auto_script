@@ -16,9 +16,7 @@ def implement(self):
     self.scheduler.change_display("普通关推图")
     self.quick_method_to_main_page()
     # test_(self)
-    normal_task.to_normal_event(self)
-    self.logger.info("Add screen shot interval to 1.0 seconds")
-    self.screenshot_interval = 1.0
+    normal_task.to_normal_event(self, skip_first_screenshot=True)
     for i in range(0, len(self.config['explore_normal_task_regions'])):
         region = self.config['explore_normal_task_regions'][i]
         if not 4 <= region <= 16:
@@ -34,13 +32,14 @@ def start_fight(self, region):
     mission = calc_need_fight_stage(self, region)
     if mission == "ALL MISSION SWEEP AVAILABLE":
         self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
-        normal_task.to_normal_event(self)
+        normal_task.to_normal_event(self, skip_first_screenshot=True)
         return "ALL MISSION SSS"
     if mission == 'SUB':
-        self.click(645, 511)
+        self.click(645, 511, wait_over=True)
         start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
         time.sleep(1)
-        self.click(1171, 670)
+        self.click(1171, 670, wait_over=True)
+        self.set_screenshot_interval(1)
     else:
         possibles = {
             'normal_task_help': (1017, 131),
@@ -48,9 +47,10 @@ def start_fight(self, region):
         }
         if self.server == 'CN':
             image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                         pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']))
+                         pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']),skip_first_screenshot=True)
         elif self.server == 'Global':
-            image.detect(self, end='normal_task_mission-wait-to-begin-feature', possibles=possibles)
+            image.detect(self, end='normal_task_mission-wait-to-begin-feature', possibles=possibles,
+                         skip_first_screenshot=True)
         prev_index = 0
         for n, p in self.stage_data[mission]['start'].items():
             cu_index = choose_team(self, mission, n)
@@ -69,8 +69,10 @@ def start_fight(self, region):
                 self.click(1194, 547)
             if not color.judge_rgb_range(self.latest_img_array, 1048, 604, 65, 105, 213, 255, 235, 255):
                 self.click(1194, 601)
+        self.set_screenshot_interval(1)
         start_action(self, mission, self.stage_data)
     main_story.auto_fight(self)
+    self.set_screenshot_interval(self.config['screenshot_interval'])
     if self.config['manual_boss'] and mission != 'SUB':
         self.click(1235, 41)
 
@@ -140,22 +142,22 @@ def end_round(self):
             "normal_task_mission_operating",
         ]
         end1 = ["round_over_notice"]
-        color.common_rgb_detect_method(self, click_pos1, lo1, end1)
+        color.common_rgb_detect_method(self, click_pos1, lo1, end1, skip_first_screenshot=True)
         click_pos2 = [[767, 501]]
         lo2 = ["round_over_notice"]
         end2 = ["normal_task_mission_operating"]
-        color.common_rgb_detect_method(self, click_pos2, lo2, end2)
+        color.common_rgb_detect_method(self, click_pos2, lo2, end2, skip_first_screenshot=True)
     elif self.server == 'Global':
         possibles = {
             'normal_task_mission-operating-feature': (1170, 670),
         }
         end = 'normal_task_end-phase-notice'
-        image.detect(self, end, possibles)
+        image.detect(self, end, possibles, skip_first_screenshot=True)
         possibles = {
             'normal_task_end-phase-notice': (767, 501),
         }
         end = 'normal_task_mission-operating-feature'
-        image.detect(self, end, possibles)
+        image.detect(self, end, possibles, skip_first_screenshot=True)
 
 
 def confirm_teleport(self):
@@ -165,14 +167,14 @@ def confirm_teleport(self):
         click_pos2 = [[767, 501]]
         lo2 = ["formation_teleport_notice"]
         end2 = ["normal_task_mission_operating"]
-        color.common_rgb_detect_method(self, click_pos2, lo2, end2)
+        color.common_rgb_detect_method(self, click_pos2, lo2, end2, skip_first_screenshot=True)
     elif self.server == 'Global':
         image.detect(self, 'normal_task_formation-teleport-notice')
         possibles = {
             'normal_task_formation-teleport-notice': (767, 501),
         }
         end = 'normal_task_mission-operating-feature'
-        image.detect(self, end, possibles)
+        image.detect(self, end, possibles, skip_first_screenshot=True)
 
 
 def start_action(self, gk, stage_data):
@@ -188,9 +190,9 @@ def start_action(self, gk, stage_data):
         self.logger.info(msg)
         force_index = get_force(self)
         if act['t'] == 'click':
-            self.click(*act['p'])
+            self.click(*act['p'], wait_over=True)
         elif act['t'] == 'exchange':
-            self.click(83, 557)
+            self.click(83, 557, wait_over=True)
         elif act['t'] == 'move':
             confirm_teleport(self)
         elif act['t'] == 'end-turn':

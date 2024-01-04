@@ -6,7 +6,7 @@ import importlib
 
 
 def implement(self):
-    self.scheduler.change_display("困难关推图")
+    # self.scheduler.change_display("困难关推图")
     t = self.config['explore_hard_task_list']
     if type(t) is int:
         t = str(t)
@@ -23,9 +23,7 @@ def implement(self):
     self.logger.info("VALID TASK LIST " + str(tasks))
     self.quick_method_to_main_page()
     # test_(self)
-    hard_task.to_hard_event(self)
-    self.logger.info("Add screen shot interval to 1.0 seconds")
-    self.screenshot_interval = 1.0
+    hard_task.to_hard_event(self, True)
     for i in range(0, len(tasks)):
         data = tasks[i].split('-')
         region = int(data[0])
@@ -59,7 +57,7 @@ def implement(self):
             status = judge_need_fight(self, current_task)
             if status == "no-need-fight":
                 self.logger.warning("according to the mission info current mission no need fight")
-                hard_task.to_hard_event(self)
+                hard_task.to_hard_event(self, True)
             elif status == 'need-fight':
                 possibles = {
                     'normal_task_help': (1017, 131),
@@ -67,9 +65,11 @@ def implement(self):
                 }
                 if self.server == 'CN':
                     image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                                 pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']))
+                                 pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']),
+                                 skip_first_screenshot=True)
                 elif self.server == 'Global':
-                    image.detect(self, end='normal_task_mission-wait-to-begin-feature', possibles=possibles)
+                    image.detect(self, end='normal_task_mission-wait-to-begin-feature', possibles=possibles,
+                                 skip_first_screenshot=True)
                 prev_index = 0
                 for number, position in current_task_stage_data['start'].items():
                     cu_index = choose_team(self, number, position, current_task_stage_data)
@@ -89,7 +89,9 @@ def implement(self):
                         self.click(1194, 547)
                     if not color.judge_rgb_range(self.latest_img_array, 1048, 604, 65, 105, 213, 255, 235, 255):
                         self.click(1194, 601)
+                self.set_screenshot_interval(1)
                 start_action(self, current_task_stage_data)
+                self.set_screenshot_interval(self.config['screenshot_interval'])
                 main_story.auto_fight(self)
                 if self.config['manual_boss']:
                     self.click(1235, 41)
@@ -107,8 +109,8 @@ def get_stage_data(region):
 
 def check_present(self):
     if color.judge_rgb_range(self.latest_img_array, 226, 511, 103, 123, 227, 247, 245, 255) \
-            and color.judge_rgb_range(self.latest_img_array, 190, 526, 103, 123, 227, 247, 245, 255)\
-            and color.judge_rgb_range(self.latest_img_array, 216,540, 245,255,180,210,220,255):
+        and color.judge_rgb_range(self.latest_img_array, 190, 526, 103, 123, 227, 247, 245, 255) \
+        and color.judge_rgb_range(self.latest_img_array, 216, 540, 245, 255, 180, 210, 220, 255):
         return 'find-present'
     else:
         return 'no-present'
@@ -126,6 +128,7 @@ def judge_need_fight(self, current_task):
         if res == 'find-present':
             return 'need-fight'
     return 'no-need-fight'
+
 
 def get_force(self):
     self.latest_img_array = self.get_screenshot_array()
@@ -149,11 +152,11 @@ def end_round(self):
             "present",
         ]
         end1 = ["round_over_notice"]
-        color.common_rgb_detect_method(self, click_pos1, lo1, end1)
+        color.common_rgb_detect_method(self, click_pos1, lo1, end1, skip_first_screenshot=True)
         click_pos2 = [[767, 501]]
         lo2 = ["round_over_notice"]
         end2 = ["normal_task_mission_operating"]
-        color.common_rgb_detect_method(self, click_pos2, lo2, end2)
+        color.common_rgb_detect_method(self, click_pos2, lo2, end2, skip_first_screenshot=True)
     elif self.server == 'Global':
         possibles = {
             'normal_task_mission-operating-feature': (1170, 670),
@@ -174,14 +177,14 @@ def confirm_teleport(self):
         click_pos2 = [[767, 501]]
         lo2 = ["formation_teleport_notice"]
         end2 = ["normal_task_mission_operating"]
-        color.common_rgb_detect_method(self, click_pos2, lo2, end2)
+        color.common_rgb_detect_method(self, click_pos2, lo2, end2, skip_first_screenshot=True)
     elif self.server == 'Global':
         image.detect(self, 'normal_task_formation-teleport-notice')
         possibles = {
             'normal_task_formation-teleport-notice': (767, 501),
         }
         end = 'normal_task_mission-operating-feature'
-        image.detect(self, end, possibles)
+        image.detect(self, end, possibles, skip_first_screenshot=True)
 
 
 def start_action(self, stage_data):
@@ -197,9 +200,9 @@ def start_action(self, stage_data):
         self.logger.info(msg)
         force_index = get_force(self)
         if act['t'] == 'click':
-            self.click(*act['p'])
+            self.click(*act['p'], wait_over=True)
         elif act['t'] == 'exchange':
-            self.click(83, 557)
+            self.click(83, 557, wait_over=True)
         elif act['t'] == 'move':
             confirm_teleport(self)
         elif act['t'] == 'end-turn':
@@ -218,61 +221,35 @@ def start_action(self, stage_data):
             wait_over(self)
             time.sleep(2)
         if i != len(actions) - 1:
-            to_normal_task_mission_operation_page(self)
-
-
-def start_choose_side_team(self, index):
-    if index not in [1, 2, 3, 4]:
-        exit("No formation added into corresponding config")
-    self.logger.info("According to the config. Choose formation {0}".format(index))
-    loy = [195, 275, 354, 423]
-    y = loy[index - 1]
-    click_pos = [
-        [74, y],
-        [74, y],
-        [74, y],
-        [74, y],
-    ]
-    los = [
-        "formation_edit1",
-        "formation_edit2",
-        "formation_edit3",
-        "formation_edit4",
-    ]
-    ends = [
-        "formation_edit" + str(index)
-    ]
-    los.pop(index - 1)
-    click_pos.pop(index - 1)
-    color.common_rgb_detect_method(self, click_pos, los, ends)
+            to_normal_task_mission_operating_page(self)
 
 
 def choose_region(self, region):
     cu_region = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[178:208, 122:163, :])['text'])
     while cu_region != region and self.flag_run:
         if cu_region > region:
-            self.click(40, 360, wait=False, count=cu_region - region, rate=0.1)
+            self.click(40, 360, wait=False, count=cu_region - region, rate=0.1, wait_over=True)
         else:
-            self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1)
+            self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(1)
         self.latest_img_array = self.get_screenshot_array()
         cu_region = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[178:208, 122:163, :])['text'])
 
 
-def choose_team(self, number, position, data):
+def choose_team(self, number, position, data, skip_first_screenshot=True):
     index = self.config[data['attr'][number]]
     self.logger.info("According to the config. Choose formation {0}".format(index))
     if index not in [1, 2, 3, 4]:
         exit("No formation added into corresponding config")
-    to_formation_edit_i(self, index, position)
+    to_formation_edit_i(self, index, position, skip_first_screenshot)
     if color.judge_rgb_range(self.latest_img_array, 1166, 684, 250, 255, 105, 125, 68, 88) \
-            and color.judge_rgb_range(self.latest_img_array, 1156, 626, 250, 255, 105, 125, 68, 88):
+        and color.judge_rgb_range(self.latest_img_array, 1156, 626, 250, 255, 105, 125, 68, 88):
         exit("please choose another formation")
-    to_normal_task_wait_to_begin_page(self)
+    to_normal_task_wait_to_begin_page(self, skip_first_screenshot)
     return index
 
 
-def to_normal_task_mission_operation_page(self):
+def to_normal_task_mission_operating_page(self):
     click_pos = [
         [886, 162],
         [890, 162],
@@ -289,7 +266,7 @@ def to_normal_task_mission_operation_page(self):
     color.common_rgb_detect_method(self, click_pos, los, ends)
 
 
-def to_normal_task_wait_to_begin_page(self):
+def to_normal_task_wait_to_begin_page(self, skip_first_screenshot=False):
     click_pos = [
         [995, 101],
         [1154, 625],
@@ -318,12 +295,12 @@ def to_normal_task_wait_to_begin_page(self):
             'normal_task_mission-operating-feature'
         ]
         image.detect(self, possibles=possibles, end=ends, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, []))
+                     pre_argv=(self, click_pos, los, []), skip_first_screenshot=skip_first_screenshot)
     elif self.server == 'CN':
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
 
 
-def to_formation_edit_i(self, i, lo):
+def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
     loy = [195, 275, 354, 423]
     y = loy[i - 1]
     click_pos = [
@@ -352,9 +329,9 @@ def to_formation_edit_i(self, i, lo):
             'normal_task_mission-wait-to-begin-feature': (lo[0], lo[1]),
         }
         image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, ends))
+                     pre_argv=(self, click_pos, los, ends), skip_first_screenshot=skip_first_screenshot)
     elif self.server == 'CN':
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
 
 
 def wait_over(self):
@@ -369,7 +346,7 @@ def wait_over(self):
         "present",
     ]
     end1 = ["normal_task_mission_info"]
-    color.common_rgb_detect_method(self, click_pos1, lo1, end1)
+    color.common_rgb_detect_method(self, click_pos1, lo1, end1, skip_first_screenshot=True)
 
 
 def start_mission(self):
@@ -454,13 +431,6 @@ def test_(self):
         choose_region(self, region)
 
 
-def get_stage_data(region):
-    module_path = 'src.explore_task_data.hard_task_' + str(region)
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
-
-
 def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=True):
     st = st.split(',')
     tasks = []
@@ -473,7 +443,7 @@ def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=T
                 continue
             if temp[0].isdigit() and temp[1].isdigit():  # 指定关卡
                 tt = ''
-                if len (temp) == 2:
+                if len(temp) == 2:
                     if need_sss:
                         tt = tt + '-sss'
                     if need_present:

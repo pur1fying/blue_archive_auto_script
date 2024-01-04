@@ -17,6 +17,7 @@ from module.lesson import x as lesson_x
 from module.common_shop import x as shop_x
 from module.buy_ap import x as buy_ap_x
 from module.collect_daily_power import x as collect_daily_power_x
+from module.no_227_kinosaki_spa import x as activity_x
 
 iad = {
 
@@ -62,11 +63,12 @@ def init_image_data(self):
                 'normal_task': normal_task_x,
                 'main_story': main_story_x,
                 'buy_ap': buy_ap_x,
-                'plot':{
-                    'menu':(1172,21, 1231,56),
-                    'skip-plot-button':(1193,103, 1235,132),
-                    'skip-plot-notice':(606,124, 672,160)
-                }
+                'plot': {
+                    'menu': (1172, 21, 1231, 56),
+                    'skip-plot-button': (1193, 103, 1235, 132),
+                    'skip-plot-notice': (606, 124, 672, 160)
+                },
+                'activity': activity_x,
             }
             filepath = 'src/images/CN'
         elif self.server == 'Global':
@@ -85,8 +87,8 @@ def init_image_data(self):
                     'end-phase-notice': (595, 372, 669, 402),
                     'formation-teleport-notice': (542, 317, 625, 351),
                     'add-ally-notice': (730, 284, 846, 314),
-                    'quit-mission-info':(536,142,740,182),
-                    'mission-conclude-confirm':(959,641,1102,687),
+                    'quit-mission-info': (536, 142, 740, 182),
+                    'mission-conclude-confirm': (959, 641, 1102, 687),
                     'fight-skip': (1111, 531, 1136, 556),
                     'auto-over': (1072, 589, 1094, 611),
                 }

@@ -2,7 +2,6 @@ import time
 
 from core import color, image
 from gui.util import log
-from datetime import datetime
 
 x = {
     'request-select': (658, 141, 935, 186),
@@ -48,10 +47,14 @@ def implement(self):
     return True
 
 
-def start_sweep(self):
+def start_sweep(self, skip_first_screenshot=False):
     if self.server == 'CN':
         possibles = {
             "special_task_task-info": (941, 411),
+        }
+        ends = "normal_task_start-sweep-notice"
+        image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
+        possibles = {
             "normal_task_start-sweep-notice": (765, 501)
         }
         ends = [
@@ -59,7 +62,8 @@ def start_sweep(self):
             "normal_task_sweep-complete",
             "buy_ap_notice",
         ]
-        res = image.detect(self, end=ends, possibles=possibles,pre_func=color.detect_rgb_one_time,pre_argv=(self, [[640, 200]], ['level_up'],[]))
+        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=True,
+                           pre_func=color.detect_rgb_one_time, pre_argv=(self, [[640, 200]], ['level_up'], []))
         if res == "normal_task_sweep-complete":
             return "sweep_complete"
         elif res == "normal_task_skip-sweep-complete":
@@ -67,12 +71,12 @@ def start_sweep(self):
         elif res == "buy_ap_notice":
             return "purchase_ap_notice"
     elif self.server == 'Global':
+        color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
+                                       ["start_sweep_notice"], skip_first_screenshot=skip_first_screenshot)
         click_pos = [
-            [941, 411],
             [765, 501]
         ]
         pd_los = [
-            "mission_info",
             "start_sweep_notice"
         ]
         ends = [
@@ -80,10 +84,10 @@ def start_sweep(self):
             "sweep_complete",
             "purchase_ap_notice",
         ]
-        return color.common_rgb_detect_method(self, click_pos, pd_los, ends)
+        return color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
 
 
-def to_commissions(self, num):
+def to_commissions(self, num, skip_first_screenshot=False):
     if self.server == 'CN':
         possibles = {
             "main_page_home-feature": (1198, 580),
@@ -161,10 +165,10 @@ def commissions_common_operation(self, a, b):
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
-                self.click(1085, 300, duration=1)
+                self.click(1085, 300, duration=1, wait_over=True)
             else:
-                self.click(1014, 300, count=b - 1, duration=1)
-            res = start_sweep(self)
+                self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
+            res = start_sweep(self, skip_first_screenshot=True)
             if res == "sweep_complete" or res == "skip_sweep_complete":
                 return "sweep_complete"
             if res == "purchase_ap_notice":
@@ -214,7 +218,7 @@ def commissions_common_operation(self, a, b):
     los = []
     while i > 196:
         if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-                131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
+            131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
             los.append(i - 35)
             i -= 100
         else:

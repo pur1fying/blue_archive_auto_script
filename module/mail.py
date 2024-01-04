@@ -1,6 +1,5 @@
 from core import color, image
 
-from gui.util import log
 import time
 
 x = {
@@ -13,12 +12,12 @@ def to_mail(self):
         possibles = {
             "main_page_home-feature": (1141, 43)
         }
-        image.detect(self, end='mail_menu', possibles=possibles)
+        image.detect(self, end='mail_menu', possibles=possibles, skip_first_screenshot=True)
     elif self.server == 'Global':
         click_pos = [[1141, 43]]
         pd_los = ["main_page"]
         end = ["mail"]
-        color.common_rgb_detect_method(self, click_pos, pd_los, end)
+        color.common_rgb_detect_method(self, click_pos, pd_los, end, True)
 
 
 def implement(self):

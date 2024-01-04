@@ -4,7 +4,7 @@ import time
 import cv2
 import numpy as np
 
-from core import image, position, color
+from core import image, color
 
 x = {
     'menu': (107, 9, 162, 36),
@@ -17,7 +17,7 @@ x = {
 
 def implement(self):
     self.quick_method_to_main_page()
-    to_cafe(self)
+    to_cafe(self, True)
     if self.server == "CN":
         cn_implement(self)
     elif self.server == "Global":
@@ -25,7 +25,8 @@ def implement(self):
         global_implement(self)
     return True
 
-def to_cafe(self):
+
+def to_cafe(self, skip_first_screenshot=False):
     if self.server == 'CN':
         possible = {
             'main_page_home-feature': (89, 653, 3),
@@ -46,7 +47,7 @@ def to_cafe(self):
             "relationship_rank_up"
         ]
         return image.detect(self, 'cafe_menu', possible, pre_func=color.detect_rgb_one_time,
-                            pre_argv=(self, click_pos, los, ['cafe']))
+                            pre_argv=(self, click_pos, los, ['cafe']), skip_first_screenshot=skip_first_screenshot)
     elif self.server == "Global":
         click_pos = \
             [
@@ -74,19 +75,20 @@ def to_cafe(self):
             "reward_acquired"
         ]
         end = ["cafe"]
-        color.common_rgb_detect_method(self, click_pos, los, end)
+        color.common_rgb_detect_method(self, click_pos, los, end, skip_first_screenshot)
 
 
 def cn_implement(self):
     op = np.full(2, False, dtype=bool)
     if not image.compare_image(self, 'cafe_0.0', 3):
         op[0] = True
-    res = self.ocrCN.ocr_for_single_line(image.screenshot_cut(self, (801, 586, 875, 606), self.latest_img_array))['text'].replace('<unused3>', '')
-    if  res == "可以使用":
+    res = self.ocrCN.ocr_for_single_line(image.screenshot_cut(self, (801, 586, 875, 606), self.latest_img_array))[
+        'text'].replace('<unused3>', '')
+    if res == "可以使用":
         op[1] = True
     if op[0]:
         self.logger.info("Collect Cafe Earnings")
-        collect(self)
+        collect(self, True)
         to_cafe(self)
     if not op[1]:
         self.logger.info("Invitation ticket unavailable")
@@ -109,8 +111,8 @@ def global_implement(self):
     op[1] = get_cafe_earning_status1(self)
     if op[1]:
         self.logger.info("Collect Cafe Earnings")
-        collect(self)
-        to_cafe(self)
+        collect(self, True)
+        to_cafe(self, True)
 
     if not op[0]:
         self.logger.info("Invitation ticket unavailable")
@@ -118,7 +120,6 @@ def global_implement(self):
         invite_girl(self)
     interaction_for_cafe_solve_method3(self)
     self.logger.info("cafe task finished")
-    self.click(1240, 39)
     return True
 
 
@@ -150,7 +151,7 @@ def shot(self):
 
 def interaction_for_cafe_solve_method3(self):
     self.connection().pinch_in()
-    self.swipe(709, 558, 709, 209, duration=0.5)
+    self.swipe(709, 558, 709, 209, duration=0.2)
     max_times = 4
     for i in range(0, max_times):
         to_gift(self)
@@ -184,30 +185,30 @@ def interaction_for_cafe_solve_method3(self):
                     continue
             self.logger.info("totally find " + str(len(res)) + " interactions")
             for j in range(0, len(res)):
-                self.click(res[j][0], min(res[j][1], 591), wait=False)
+                self.click(res[j][0], min(res[j][1], 591), wait=False, wait_over=True)
 
         time.sleep(2)
         to_cafe(self)
         if i != max_times - 1:
-            self.click(68, 636)
+            self.click(68, 636, wait_over=True)
             time.sleep(1)
-            self.click(1169, 90)
+            self.click(1169, 90, wait_over=True)
             time.sleep(1)
 
 
-def to_invitation_ticket(self):
+def to_invitation_ticket(self, skip_first_screenshot=False):
     if self.server == "CN":
         possible = {
             'cafe_cafe-reward-status': (905, 159, 3),
             'cafe_menu': (838, 647, 3),
         }
         end = 'cafe_invitation-ticket'
-        return image.detect(self, end, possible)
+        return image.detect(self, end, possible, skip_first_screenshot=skip_first_screenshot)
     elif self.server == "Global":
         click_pos = [[836, 650]]
         los = ["cafe"]
         end = ["invitation_ticket"]
-        color.common_rgb_detect_method(self, click_pos, los, end)
+        color.common_rgb_detect_method(self, click_pos, los, end, skip_first_screenshot=skip_first_screenshot)
 
 
 def invite_girl(self):
@@ -221,7 +222,7 @@ def invite_girl(self):
         t = ""
         for j in range(0, len(student_name[i])):
             if student_name[i][j] == '(' or student_name[i][j] == "（" or student_name[i][j] == ")" or \
-                    student_name[i][j] == "）" or student_name[i][j] == ' ':
+                student_name[i][j] == "）" or student_name[i][j] == ' ':
                 continue
             else:
                 t = t + student_name[i][j]
@@ -234,7 +235,7 @@ def invite_girl(self):
         t = ""
         for j in range(0, len(target_name_list[i])):
             if target_name_list[i][j] == '(' or target_name_list[i][j] == "（" or target_name_list[i][j] == ")" or \
-                    target_name_list[i][j] == "）" or target_name_list[i][j] == ' ':
+                target_name_list[i][j] == "）" or target_name_list[i][j] == ' ':
                 continue
             else:
                 t = t + target_name_list[i][j]
@@ -243,7 +244,7 @@ def invite_girl(self):
         target_name_list[i] = t.lower()
     f = True
     for i in range(0, len(target_name_list)):
-        to_invitation_ticket(self)
+        to_invitation_ticket(self, skip_first_screenshot=True)
         target_name = target_name_list[i]
         self.logger.info("begin find student " + target_name)
         swipe_x = 630
@@ -295,24 +296,22 @@ def invite_girl(self):
                         self.logger.info("find student " + target_name + " at " + str(location[s]))
                         stop_flag = True
                         f = False
-                        self.click(784, location[s], wait=False)
-                        time.sleep(0.7)
-                        self.click(770, 500)
+                        self.click(784, location[s], wait=False, duration=0.7, wait_over=True)
+                        self.click(770, 500, wait_over=True)
                         break
                 if not stop_flag:
                     self.logger.info("didn't find target student swipe to next page")
                     self.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, duration=0.5)
-                    self.click(617, 500)
-        to_cafe(self)
+                    self.click(617, 500, wait_over=True)
+        to_cafe(self, skip_first_screenshot=True)
         if not f:
             break
 
 
-def collect(self):
+def collect(self, skip_first_screenshot=False):
     if self.server == "CN":
-        self.click(1150, 643)
-        time.sleep(1)
-        self.click(640, 522)
+        self.click(1150, 643, duration=1, wait_over=True)
+        self.click(640, 522, wait_over=True)
     elif self.server == "Global":
         click_pos = \
             [
@@ -325,7 +324,7 @@ def collect(self):
         los = ["cafe", "full_ap_notice", "insufficient_inventory_space", "cafe_earning_status_bright",
                "reward_acquired"]
         ends = ["insufficient_inventory_space", "cafe_earning_status_grey"]
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
 
 
 def get_invitation_ticket_status(self):
@@ -394,7 +393,7 @@ def interaction_for_cafe_solve_method1(self):
                 for y in range(0, 670):
                     if color.judge_rgb_range(shot, x, y, 255, 255, 210, 230, 0, 50) and \
                         color.judge_rgb_range(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
-                            color.judge_rgb_range(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
+                        color.judge_rgb_range(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
                         location += 1
                         self.logger.info("find interaction at (" + str(x) + "," + str(y + 42) + ")")
                         self.click(min(1270, x + 40), y + 42)
@@ -414,7 +413,7 @@ def interaction_for_cafe_solve_method1(self):
             return False
         if i != len(swipe_action_list[0]):
             self.swipe(start_x, start_y, start_x + swipe_action_list[0][i],
-                                                          start_y + swipe_action_list[1][i], duration=0.1)
+                       start_y + swipe_action_list[1][i], duration=0.1)
 
     self.logger.info("cafe task finished")
     self.main_activity[0][1] = 1

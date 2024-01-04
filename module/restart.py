@@ -1,7 +1,6 @@
 from datetime import datetime
 import time
 
-
 def implement(self):
     self.logger.info("CHECK RESTART")
     cur_package = self.connection.app_current()['package']

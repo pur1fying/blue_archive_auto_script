@@ -3,7 +3,6 @@ import numpy as np
 from core import color, image
 import time
 
-from gui.util import log
 from datetime import datetime
 
 x = {

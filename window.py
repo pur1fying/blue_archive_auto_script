@@ -18,9 +18,12 @@ sys.path.append('./')
 ICON_DIR = 'gui/assets/logo.png'
 
 
-
 def update_config_reserve_old(config_old, config_new):  # 保留旧配置原有的键，添加新配置中没有的，删除新配置中没有的键
     for key in config_new:
+        if key == 'TacticalChallengeShopList':
+            if len(config_old[key]) == 13:
+                config_old[key] = config_new[key]
+            continue
         if key not in config_old:
             config_old[key] = config_new[key]
     dels = []
@@ -69,6 +72,7 @@ def check_user_config():
         data = update_config_reserve_old(data, json.loads(default_config.DEFAULT_CONFIG))
         with open('./config/config.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
+            print(1)
         return
     except Exception as e:
         print(e)

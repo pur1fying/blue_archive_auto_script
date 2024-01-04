@@ -11,7 +11,7 @@ from core.utils import *
 from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
-from core import position, color, image, stage
+from core import position, color, image
 from gui.util.config_set import ConfigSet
 
 func_dict = {
@@ -38,11 +38,14 @@ func_dict = {
     'total_force_fight': module.total_force_fight.implement,
     'restart': module.restart.implement,
     'refresh_uiautomator2': module.refresh_uiautomator2.implement,
+    'no_227_kinosaki_spa': module.no_227_kinosaki_spa.implement,
 }
 
 
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+        self.img_cnt = 0
+        self.latest_screenshot_time = None
         self.scheduler = None
         self.screenshot_interval = None
         self.flag_run = None
@@ -54,6 +57,7 @@ class Main:
         self.ocr = None
         self.config = None
         self.next_time = None
+        self.screenshot_updated = None
         self.ocrCN, self.ocrNUM, self.ocrEN = [None] * 3
         self.common_task_count = []
         self.hard_task_count = []
@@ -85,23 +89,46 @@ class Main:
 
         # start_debugger()
 
-    def click(self, x, y, wait=True, count=1, rate=0, duration=0):
+    def click(self, x, y, wait=True, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
             return False
         if wait:
-            stage.wait_loading(self)
+            color.wait_loading(self)
+        click_ = threading.Thread(target=self.click_thread, args=(x, y, count, rate, duration))
+        click_.start()
+        if wait_over:  # wait for click to be over
+            click_.join()
+
+    def click_thread(self, x, y, count=1, rate=0, duration=0):
         for i in range(count):
             self.logger.info(f"click ({x} ,{y})")
-            time.sleep(rate)
-            noisex = np.random.uniform(-5, 5)
-            noisey = np.random.uniform(-5, 5)
-            self.connection.click(x + noisex, y + noisey)
-            time.sleep(duration)
+            if rate > 0:
+                time.sleep(rate)
+            noisex = int(np.random.uniform(-5, 5))
+            noisey = int(np.random.uniform(-5, 5))
+            x = x + noisex
+            y = y + noisey
+            x = max(0, x)
+            y = max(0, y)
+            x = min(1280, x)
+            y = min(720, y)
+            self.connection.click(x, y)
+            if duration > 0:
+                time.sleep(duration)
+        print(datetime)
 
     def get_screenshot_array(self):
         if not self.flag_run:
             return False
-        return cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
+        self.latest_screenshot_time = time.time()
+        img = cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
+        self.img_cnt += 1
+        cv2.imwrite("D:\\github\\bass\\blue_archive_auto_script\\test\\" + str(self.img_cnt) + ".png", img)
+        return img
+
+    def screenshot_worker_thread(self):
+        self.latest_img_array = self.get_screenshot_array()
+        self.screenshot_updated = True
 
     def signal_stop(self):
         self.flag_run = False
@@ -199,7 +226,7 @@ class Main:
     def simple_error(self, info: str):
         raise ScriptError(message=info, context=self)
 
-    def quick_method_to_main_page(self):
+    def quick_method_to_main_page(self, skip_first_screenshot=False):
         if self.server == "CN":
             possibles = {
                 'main_page_quick-home': (1236, 31),
@@ -216,6 +243,7 @@ class Main:
                 "normal_task_start-sweep-notice": (887, 164),
                 "normal_task_unlock-notice": (887, 164),
                 'normal_task_skip-sweep-complete': (643, 506),
+                "normal_task_charge-challenge-counts": (887, 164),
                 "buy_ap_notice": (919, 165),
                 'normal_task_mission-operating-task-info': (1000, 664),
                 'normal_task_task-info': (1084, 139),
@@ -240,6 +268,7 @@ class Main:
                 'plot_menu': (1202, 37),
                 'plot_skip-plot-button': (1208, 116),
                 'plot_skip-plot-notice': (770, 519),
+                'activity_story-fight-success-confirm': (638, 674)
             }
             fail_cnt = 0
             click_pos = [
@@ -248,7 +277,7 @@ class Main:
                 [640, 360],
                 [640, 100],
                 [640, 200]
-                ]
+            ]
             los = [
                 "reward_acquired",
                 "home",
@@ -257,8 +286,7 @@ class Main:
                 'level_up'
             ]
             while True:
-                stage.wait_loading(self)
-                self.latest_img_array = self.get_screenshot_array()
+                color.wait_loading(self, skip_first_screenshot)
                 res = color.detect_rgb_one_time(self, [], [], ['main_page'])
                 if res == ('end', 'main_page'):
                     break
@@ -271,7 +299,6 @@ class Main:
                                            need_log=False):
                         self.logger.info("find " + asset)
                         self.click(obj[0], obj[1], False)
-                        time.sleep(self.screenshot_interval)
                         fail_cnt = 0
                         break
                 else:
@@ -280,7 +307,6 @@ class Main:
                         self.logger.info("tentative clicks")
                         self.click(1236, 31, False)
                         fail_cnt = 0
-                        time.sleep(self.screenshot_interval)
             return True
         elif self.server == "Global":
             click_pos = [
@@ -376,8 +402,7 @@ class Main:
             }
             fail_cnt = 0
             while True:
-                stage.wait_loading(self)
-                self.latest_img_array = self.get_screenshot_array()
+                color.wait_loading(self, skip_first_screenshot)
                 res = color.detect_rgb_one_time(self, [], [], ends)
                 if res == ('end', 'main_page'):
                     break
@@ -402,6 +427,10 @@ class Main:
                         self.click(1228, 41, False)
                         fail_cnt = 0
             return True
+
+    def wait_screenshot_updated(self):
+        while not self.screenshot_updated:
+            time.sleep(0.01)
 
     def init_rgb(self):
         try:
@@ -605,6 +634,7 @@ class Main:
                 self.logger.critical("Initialization Failed")
                 return False
         self.screenshot_interval = self.config['screenshot_interval']
+        self.latest_screenshot_time = 0
         self.scheduler = Scheduler(self.update_signal)
         self.logger.info("--------Initialization Finished----------")
         return True
@@ -619,17 +649,25 @@ class Main:
             self.package_name = 'com.nexon.bluearchive'
         return True
 
+    def set_screenshot_interval(self, interval):
+        interval = max(0.1, interval)
+        self.logger.info(f"set screenshot interval to {interval}")
+        self.screenshot_interval = interval
+
 
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     # t.thread_starter()
+    t.flag_run = True
     t.init_all_data()
+    t.solve('no_227_kinosaki_spa')
+    exit(0)
     t.thread_starter()
     t.solve('explore_hard_task')
     img1 = cv2.imread('qxn.jpg')
     # t.solve('tactical_challenge_shop')
-    img1= cv2.imread('qxn.jpg')
+    img1 = cv2.imread('qxn.jpg')
     img1 = img1[10:40, 560:658, :]
     print(t.ocrCN.ocr_for_single_line(img1))
     exit(0)
