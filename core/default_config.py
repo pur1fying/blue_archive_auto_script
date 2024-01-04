@@ -524,6 +524,9 @@ STATIC_DEFAULT_CONFIG = '''
                             "Yuzu (Maid)"
                             ],
     "CN_student_name": [
+                        "切里诺(温泉)",
+                        "和香(温泉)",
+                        "千夏(温泉)",
                         "小夏",
                         "亚子",
                         "玛丽",
