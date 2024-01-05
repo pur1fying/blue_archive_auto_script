@@ -3,7 +3,6 @@ import numpy as np
 from core import color, image
 import time
 
-from gui.util import log
 from datetime import datetime
 
 x = {
@@ -100,16 +99,17 @@ def cn_implement(self):
         while cur_num != tar_num and self.flag_run:
             if cur_num > tar_num:
                 if (cur_num - tar_num) * 2 < len(region_name):
-                    self.click(left_change_page_x, change_page_y, count=cur_num - tar_num, wait=False, duration=1.5)
+                    self.click(left_change_page_x, change_page_y, count=cur_num - tar_num, wait=False,
+                               duration=1.5, wait_over=True)
                 else:
                     self.click(right_change_page_x, change_page_y, count=len(region_name) - cur_num + tar_num,
-                               wait=False, duration=1.5)
+                               wait=False, duration=1.5, wait_over=True)
             else:
                 if (tar_num - cur_num) * 2 < len(region_name):
-                    self.click(right_change_page_x, change_page_y, count=tar_num - cur_num, duration=1.5)
+                    self.click(right_change_page_x, change_page_y, count=tar_num - cur_num, duration=1.5, wait_over=True)
                 else:
                     self.click(left_change_page_x, change_page_y, count=len(region_name) - tar_num + cur_num,
-                               wait=False, duration=1.5)
+                               wait=False, duration=1.5, wait_over=True)
             to_before_all_locations(self)
             cur_num = get_region_num(self, region_name)
             self.logger.info("now in page " + region_name[cur_num])

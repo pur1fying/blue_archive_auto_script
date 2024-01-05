@@ -2,7 +2,6 @@ import time
 
 from core import color, image
 from gui.util import log
-from datetime import datetime
 
 x = {
     'request-select': (658, 141, 935, 186),
@@ -34,45 +33,53 @@ def implement(self):
         if count[i] == "max" or count[i] > 0:
             self.logger.info("Start commissions task: " + commissions_name[i] + " count : " + str(count[i]))
             just_do_task = True
-            to_commissions(self, i + 1)
+            to_commissions(self, i + 1, skip_first_screenshot=True)
             res = commissions_common_operation(self, i + 1, count[i])
             self.logger.info("Finish commissions task: " + commissions_name[i])
-            if res == "sweep_complete":
+            if res == "sweep_complete" or res == "skip_sweep_complete":
                 self.commissions_status[i] = True
                 if count[i] == "max":
                     return True
-            elif res == "inadequate_ap":
-                self.logger.info("INADEQUATE AP")
+            elif res == "purchase_ap_notice":
+                self.logger.warning("INADEQUATE AP")
                 return True
     self.logger.info("COMMISSIONS STATUS: " + str(self.commissions_status))
     return True
 
 
-def start_sweep(self):
+def start_sweep(self, skip_first_screenshot=False):
     if self.server == 'CN':
         possibles = {
             "special_task_task-info": (941, 411),
+        }
+        ends = [
+            "buy_ap_notice",
+            "normal_task_start-sweep-notice",
+        ]
+        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
+        if res == "buy_ap_notice":
+            return "purchase_ap_notice"
+        possibles = {
             "normal_task_start-sweep-notice": (765, 501)
         }
         ends = [
             "normal_task_skip-sweep-complete",
             "normal_task_sweep-complete",
-            "buy_ap_notice",
         ]
-        res = image.detect(self, end=ends, possibles=possibles,pre_func=color.detect_rgb_one_time,pre_argv=(self, [[640, 200]], ['level_up'],[]))
+        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=True,
+                           pre_func=color.detect_rgb_one_time, pre_argv=(self, [[640, 200]], ['level_up'], []))
         if res == "normal_task_sweep-complete":
             return "sweep_complete"
         elif res == "normal_task_skip-sweep-complete":
             return "skip_sweep_complete"
-        elif res == "buy_ap_notice":
-            return "purchase_ap_notice"
+
     elif self.server == 'Global':
+        color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
+                                       ["start_sweep_notice"], skip_first_screenshot=skip_first_screenshot)
         click_pos = [
-            [941, 411],
             [765, 501]
         ]
         pd_los = [
-            "mission_info",
             "start_sweep_notice"
         ]
         ends = [
@@ -80,10 +87,10 @@ def start_sweep(self):
             "sweep_complete",
             "purchase_ap_notice",
         ]
-        return color.common_rgb_detect_method(self, click_pos, pd_los, ends)
+        return color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
 
 
-def to_commissions(self, num):
+def to_commissions(self, num, skip_first_screenshot=False):
     if self.server == 'CN':
         possibles = {
             "main_page_home-feature": (1198, 580),
@@ -95,7 +102,7 @@ def to_commissions(self, num):
             possibles["special_task_request-select"] = (992, 277)
         elif num == 2:
             possibles["special_task_request-select"] = (992, 406)
-        image.detect(self, 'special_task_level-list', possibles)
+        image.detect(self, 'special_task_level-list', possibles, skip_first_screenshot=skip_first_screenshot)
 
     elif self.server == 'Global':
         click_pos = [
@@ -124,7 +131,7 @@ def to_commissions(self, num):
         ends = [
             "commissions",
         ]
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot=skip_first_screenshot)
 
 
 def commissions_common_operation(self, a, b):
@@ -140,7 +147,6 @@ def commissions_common_operation(self, a, b):
     possibles = {
         "special_task_level-list": (1118, 0)
     }
-    self.latest_img_array = self.get_screenshot_array()
     i = 675
     line = self.latest_img_array[:, 1076, :]
     los = []
@@ -161,16 +167,12 @@ def commissions_common_operation(self, a, b):
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
-                self.click(1085, 300, duration=1)
+                self.click(1085, 300, duration=1, wait_over=True)
             else:
-                self.click(1014, 300, count=b - 1, duration=1)
-            res = start_sweep(self)
-            if res == "sweep_complete" or res == "skip_sweep_complete":
-                return "sweep_complete"
-            if res == "purchase_ap_notice":
-                return "inadequate_ap"
+                self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
+            return start_sweep(self, skip_first_screenshot=True)
         elif t == "no-pass" or t == "pass":
-            to_commissions(self, a)
+            to_commissions(self, a, skip_first_screenshot=True)
 
     self.swipe(926, 140, 926, 640, duration=1)
     time.sleep(1)
@@ -188,23 +190,19 @@ def commissions_common_operation(self, a, b):
     for i in range(0, len(los)):
         if self.server == 'CN':
             possibles["special_task_level-list"] = (1118, los[i])
-            image.detect(self, 'special_task_task-info', possibles)
+            image.detect(self, 'special_task_task-info', possibles, skip_first_screenshot=True)
         elif self.server == 'Global':
             click_pos[0][1] = los[i]
-            color.common_rgb_detect_method(self, click_pos, pd_los, ends)
+            color.common_rgb_detect_method(self, click_pos, pd_los, ends, skip_first_screenshot=True)
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
-                self.click(1085, 300, duration=1)
+                self.click(1085, 300, duration=1, wait_over=True)
             else:
-                self.click(1014, 300, count=b - 1, duration=1)
-            res = start_sweep(self)
-            if res == "sweep_complete" or res == "skip_sweep_complete":
-                return "sweep_complete"
-            if res == "purchase_ap_notice":
-                return "inadequate_ap"
+                self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
+            return start_sweep(self, skip_first_screenshot=True)
         elif t == "no-pass" or t == "pass":
-            to_commissions(self, a)
+            to_commissions(self, a, skip_first_screenshot=True)
 
     self.swipe(926, 188, 926, 381, duration=1)
     time.sleep(1)
@@ -214,7 +212,7 @@ def commissions_common_operation(self, a, b):
     los = []
     while i > 196:
         if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-                131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
+            131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
             los.append(i - 35)
             i -= 100
         else:
@@ -222,21 +220,17 @@ def commissions_common_operation(self, a, b):
     for i in range(0, len(los)):
         if self.server == 'CN':
             possibles["special_task_level-list"] = (1118, los[i])
-            image.detect(self, 'special_task_task-info', possibles)
+            image.detect(self, 'special_task_task-info', possibles, skip_first_screenshot=True)
         elif self.server == 'Global':
             click_pos[0][1] = los[i]
-            color.common_rgb_detect_method(self, click_pos, pd_los, ends)
+            color.common_rgb_detect_method(self, click_pos, pd_los, ends, skip_first_screenshot=True)
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
-                self.click(1085, 300, duration=1)
+                self.click(1085, 300, duration=1, wait_over=True)
             else:
-                self.click(1014, 300, count=b - 1, duration=1)
-            res = start_sweep(self)
-            if res == "sweep_complete" or res == "skip_sweep_complete":
-                return "sweep_complete"
-            if res == "purchase_ap_notice":
-                return "inadequate_ap"
+                self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
+            return start_sweep(self, skip_first_screenshot=True)
         elif t == "no-pass" or t == "pass":
-            to_commissions(self, a)
+            to_commissions(self, a, skip_first_screenshot=True)
     return True

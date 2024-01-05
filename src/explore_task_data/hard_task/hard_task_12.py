@@ -110,7 +110,7 @@ stage_data = {
             {'t': 'click', 'p': (400, 335), 'desc': "1 left"},
             {'t': 'end-turn', 'wait-over': True},
 
-            {'t': 'click', 'p': (465, 400), 'ec': True, 'desc': "1 lower left"},
+            {'t': 'click', 'p': (465, 400), 'desc': "1 lower left"},
         ]
     },
 }

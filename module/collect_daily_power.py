@@ -1,5 +1,5 @@
 import time
-from core import stage, color, image
+from core import color, image
 
 x = {
     'menu': (107, 9, 162, 36)
@@ -8,7 +8,7 @@ x = {
 
 def implement(self, activity="collect_daily_power"):
     self.quick_method_to_main_page()
-    to_tasks(self)
+    to_tasks(self, True)
     time.sleep(0.5)
     if self.server == 'CN':
         return cn_implement(self)
@@ -21,9 +21,9 @@ def cn_implement(self):
         if color.judge_rgb_range(self.latest_img_array, 1148, 691, 239, 255, 228, 248, 64, 84) and \
             color.judge_rgb_range(self.latest_img_array, 1142, 649, 239, 255, 228, 248, 64, 84):
             self.logger.info("claim reward")
-            self.click(1145, 670, wait=False, duration=2)
-            self.click(254, 72, wait=False)
-            self.click(254, 72, wait=False)
+            self.click(1145, 670, wait=False, duration=2, wait_over=True)
+            self.click(254, 72, wait=False, wait_over=True)
+            self.click(254, 72, wait=False, wait_over=True)
             to_tasks(self)
         elif color.judge_rgb_range(self.latest_img_array, 1148, 691, 206, 226, 207, 227, 208, 228) and \
             color.judge_rgb_range(self.latest_img_array, 1142, 649, 206, 226, 207, 227, 208, 228):
@@ -35,7 +35,7 @@ def cn_implement(self):
     return True
 
 
-def to_tasks(self):
+def to_tasks(self, skip_first_screenshot=False):
     if self.server == 'Global':
         click_pos = [
             [70, 232],
@@ -52,14 +52,14 @@ def to_tasks(self):
         ends = [
             "tasks",
         ]
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
     elif self.server == "CN":
         possibles = {
             "main_page_home-feature": (70, 232),
             'main_page_full-notice': (887, 165),
         }
         image.detect(self, "work_task_menu", possibles, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, [[640, 100]], ['reward_acquired'], []))
+                     pre_argv=(self, [[640, 100]], ['reward_acquired'], []), skip_first_screenshot=skip_first_screenshot)
 
 
 def global_implement(self):
@@ -67,9 +67,9 @@ def global_implement(self):
         if color.judge_rgb_range(self.latest_img_array, 1148, 691, 239, 255, 228, 248, 64, 84) and \
             color.judge_rgb_range(self.latest_img_array, 1142, 649, 239, 255, 228, 248, 64, 84):
             self.logger.info("claim reward")
-            self.click(1145, 670, wait=False, duration=2)
-            self.click(254, 72, wait=False)
-            self.click(254, 72, wait=False)
+            self.click(1145, 670, wait=False, duration=2, wait_over=True)
+            self.click(254, 72, wait=False, wait_over=True)
+            self.click(254, 72, wait=False, wait_over=True)
             to_tasks(self)
         elif color.judge_rgb_range(self.latest_img_array, 1148, 691, 185, 205, 184, 204, 188, 208) and \
             color.judge_rgb_range(self.latest_img_array, 1142, 649, 185, 205, 184, 204, 188, 208):
@@ -81,9 +81,9 @@ def global_implement(self):
 
     if color.judge_rgb_range(self.latest_img_array, 971, 689, 239, 255, 228, 248, 40, 84) and \
         color.judge_rgb_range(self.latest_img_array, 964, 649, 239, 255, 228, 248, 40, 84):
-        self.click(976, 670, wait=False, duration=2)
-        self.click(254, 72, wait=False)
-        self.click(254, 72, wait=False)
+        self.click(976, 670, wait=False, duration=2, wait_over=True)
+        self.click(254, 72, wait=False, wait_over=True)
+        self.click(254, 72, wait=False, wait_over=True)
         to_tasks(self)
     elif color.judge_rgb_range(self.latest_img_array, 959, 694, 210, 230, 210, 230, 210, 230) and \
         color.judge_rgb_range(self.latest_img_array, 957, 650, 210, 230, 210, 230, 210, 230):

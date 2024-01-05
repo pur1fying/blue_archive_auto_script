@@ -2,9 +2,6 @@ import time
 import numpy as np
 
 from core import color, image
-from core.utils import get_x_y
-from gui.util import log
-from datetime import datetime
 
 x = {
     'momotalk-peach': (144, 107, 169, 130),
@@ -25,37 +22,53 @@ def implement(self):
 
 
 def check_mode(self):
-    if image.compare_image(self, "momo_talk_newest", threshold=3):
-        self.logger.info("change NEWEST to UNREAD mode")
-        self.click(514, 177, wait=False)
-        time.sleep(0.3)
-        self.click(444, 297, wait=False)
-        time.sleep(0.3)
-        self.click(461, 365, wait=False)
-        time.sleep(0.3)
-    elif image.compare_image(self, "momo_talk_unread", threshold=3):
-        self.logger.info("UNREAD mode")
-    else:
-        self.logger.info("can't detect mode button")
-        return False
-    self.latest_img_array = self.get_screenshot_array()
-    if image.compare_image(self, "momo_talk_up", threshold=3):
-        self.logger.info("change UP to DOWN")
-        self.click(634, 169, wait=False)
-    elif image.compare_image(self, "momo_talk_down", threshold=3):
-        self.logger.info("DOWN mode")
-    else:
-        self.logger.info("can't detect up/down button")
-        return False
-    return True
+    if self.server == 'CN':
+        if image.compare_image(self, "momo_talk_newest", threshold=3):
+            self.logger.info("change NEWEST to UNREAD mode")
+            self.click(514, 177, wait=False, wait_over=True)
+            time.sleep(0.3)
+            self.click(444, 297, wait=False, wait_over=True)
+            time.sleep(0.3)
+            self.click(461, 365, wait=False, wait_over=True)
+            time.sleep(0.3)
+        elif image.compare_image(self, "momo_talk_unread", threshold=3):
+            self.logger.info("UNREAD mode")
+        else:
+            self.logger.info("can't detect mode button")
+            return False
+        self.latest_img_array = self.get_screenshot_array()
+        if image.compare_image(self, "momo_talk_up", threshold=3):
+            self.logger.info("change UP to DOWN")
+            self.click(634, 169, wait=False, wait_over=True)
+        elif image.compare_image(self, "momo_talk_down", threshold=3):
+            self.logger.info("DOWN mode")
+        else:
+            self.logger.info("can't detect up/down button")
+            return False
+        return True
+    elif self.server == 'Global':
+        if color.judge_rgb_range(self.latest_img_array, 487, 177, 50, 150, 50, 150, 50, 150) and \
+            color.judge_rgb_range(self.latest_img_array, 486, 183, 245, 255, 245, 255, 245, 255):
+            self.logger.info("change NEWEST to UNREAD mode")
+            self.click(514, 177, wait=False, wait_over=True)
+            time.sleep(0.3)
+            self.click(563, 297, wait=False, wait_over=True)
+            time.sleep(0.3)
+            self.click(454, 426, wait=False, wait_over=True)
+            time.sleep(0.3)
+        elif color.judge_rgb_range(self.latest_img_array, 486, 183, 50, 150, 50, 150, 50, 150) and \
+            color.judge_rgb_range(self.latest_img_array, 487, 177, 245, 255, 245, 255, 245, 255):
+            self.logger.info("UNREAD mode")
+        else:
+            self.logger.info("can't detect mode button")
 
 
-def cn_implement(self):
-    to_momotalk2(self)
-    check_mode(self)
+def cn_implement(self, need_check_mode=True):
+    to_momotalk2(self, True)
+    if need_check_mode:
+        check_mode(self)
     main_to_momotalk = True
     while 1:
-        self.latest_img_array = self.get_screenshot_array()
         location_y = 210
         red_dot = np.array([25, 71, 251])
         location_x = 637
@@ -78,35 +91,25 @@ def cn_implement(self):
             else:
                 self.logger.info("restart momo_talk task")
                 self.quick_method_to_main_page()
-                return implement(self)
+                return cn_implement(self, need_check_mode=False)
         else:
             for i in range(0, len(unread_location)):
                 self.click(unread_location[i][0], unread_location[i][1], wait=False)
                 time.sleep(0.5)
                 common_solve_affection_story_method(self)
         main_to_momotalk = False
-        self.click(170, 197, wait=False)
+        self.click(170, 197, wait=False, wait_over=True)
         time.sleep(0.2)
-        self.click(170, 270, wait=False)
+        self.click(170, 270, wait=False, wait_over=True)
         time.sleep(0.2)
+        self.latest_img_array = self.get_screenshot_array()
 
 
-def global_implement(self):
-    to_momotalk2(self)
-    if color.judge_rgb_range(self.latest_img_array, 487, 177, 50, 150, 50, 150, 50, 150) and \
-        color.judge_rgb_range(self.latest_img_array, 486, 183, 245, 255, 245, 255, 245, 255):
-        self.logger.info("change NEWEST to UNREAD mode")
-        self.click(514, 177, wait=False)
-        time.sleep(0.3)
-        self.click(563, 297, wait=False)
-        time.sleep(0.3)
-        self.click(454, 426, wait=False)
-        time.sleep(0.3)
-    elif color.judge_rgb_range(self.latest_img_array, 486, 183, 50, 150, 50, 150, 50, 150) and \
-        color.judge_rgb_range(self.latest_img_array, 487, 177, 245, 255, 245, 255, 245, 255):
-        self.logger.info("UNREAD mode")
-    else:
-        self.logger.info("can't detect mode button")
+
+def global_implement(self, need_check_mode=True):
+    to_momotalk2(self, True)
+    if need_check_mode:
+        check_mode(self)
     main_to_momotalk = True
     while 1:
         self.latest_img_array = self.get_screenshot_array()
@@ -131,20 +134,21 @@ def global_implement(self):
                 return True
             else:
                 self.logger.info("restart momo_talk task")
-                return implement(self)
+                self.quick_method_to_main_page()
+                return global_implement(self, need_check_mode=False)
         else:
             for i in range(0, len(unread_location)):
                 self.click(unread_location[i][0], unread_location[i][1], wait=False)
                 time.sleep(0.5)
                 common_solve_affection_story_method(self)
         main_to_momotalk = False
-        self.click(170, 197, wait=False)
+        self.click(170, 197, wait=False, wait_over=True)
         time.sleep(0.2)
-        self.click(170, 270, wait=False)
+        self.click(170, 270, wait=False, wait_over=True)
         time.sleep(0.2)
 
 
-def to_momotalk2(self):
+def to_momotalk2(self, skip_first_screenshot=False):
     click_pos = [
         [166, 150],
         [170, 278],
@@ -156,7 +160,7 @@ def to_momotalk2(self):
         "reward_acquired",
     ]
     ends = ["momotalk2"]
-    color.common_rgb_detect_method(self, click_pos, los, ends)
+    color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
 
 
 def common_solve_affection_story_method(self):
@@ -240,23 +244,23 @@ def common_skip_plot_method(self):
         self.latest_img_array = self.get_screenshot_array()
         if pd_enter_button(self.latest_img_array):
             self.logger.info("Begin Relationship Story")
-            self.click(920, 556, wait=False)
+            self.click(920, 556, wait=False, wait_over=True)
             time.sleep(4)
         elif pd_confirm_button(self.latest_img_array):
             self.logger.info("find CONFIRM button")
-            self.click(766, 520, wait=False)
+            self.click(766, 520, wait=False, wait_over=True)
             return True
         else:
             fail_cnt += 1
             if pd_menu_bright(self.latest_img_array):
                 self.logger.info("find MENU button")
-                self.click(1205, 34, wait=False, duration=0.3)
+                self.click(1205, 34, wait=False, duration=0.3, wait_over=True)
             elif pd_skip_plot_button(self.latest_img_array):
                 self.logger.info("find SKIP PLOT button")
-                self.click(1213, 116, wait=False, duration=0.3)
+                self.click(1213, 116, wait=False, duration=0.3, wait_over=True)
                 time.sleep(0.3)
             else:
                 self.logger.info("Didn't find confirm button, fail count: " + str(fail_cnt))
         time.sleep(self.screenshot_interval)
-    self.logger.info("skip plot fail")
+    self.logger.error("skip plot fail")
     return False

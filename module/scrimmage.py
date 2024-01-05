@@ -13,12 +13,11 @@ def implement(self):
 
 
 def start_sweep(self):
+    color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"], ["start_sweep_notice"], True)
     click_pos = [
-        [941, 411],
         [765, 501]
     ]
     pd_los = [
-        "mission_info",
         "start_sweep_notice"
     ]
     ends = [
@@ -27,7 +26,7 @@ def start_sweep(self):
         "purchase_scrimmage_ticket",
         "purchase_ap_notice",
     ]
-    return color.common_rgb_detect_method(self, click_pos, pd_los, ends)
+    return color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
 
 
 def scrimmage_common_operation(self, a, b):
@@ -55,15 +54,15 @@ def scrimmage_common_operation(self, a, b):
     print(los)
     for i in range(0, len(los)):
         click_pos[0][1] = los[i]
-        color.common_rgb_detect_method(self, click_pos, pd_los, ends)
+        color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
-                self.click(1085, 300)
+                self.click(1085, 300, wait=False, wait_over=True)
                 time.sleep(1)
             else:
                 for j in range(0, b - 1):
-                    self.click(1014, 300)
+                    self.click(1014, 300, wait=False, wait_over=True)
                     time.sleep(1)
             res = start_sweep(self)
             if res == "sweep_complete" or res == "skip_sweep_complete":
@@ -73,12 +72,12 @@ def scrimmage_common_operation(self, a, b):
             if res == "purchase_scrimmage_ticket":
                 return "inadequate_ticket"
         elif t == "no-pass" or t == "pass":
-            to_scrimmage(self, a)
+            to_scrimmage(self, a, True)
 
     return True
 
 
-def to_scrimmage(self, num):
+def to_scrimmage(self, num, skip_first_screenshot=False):
     click_pos = [
         [1198, 580],
         [716, 599],
@@ -108,7 +107,7 @@ def to_scrimmage(self, num):
     ends = [
         "scrimmage",
     ]
-    color.common_rgb_detect_method(self, click_pos, los, ends)
+    color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
 
 
 def to_choose_scrimmage(self):
@@ -123,17 +122,16 @@ def to_choose_scrimmage(self):
     ends = [
         "choose_scrimmage",
     ]
-    color.common_rgb_detect_method(self, click_pos, los, ends)
+    color.common_rgb_detect_method(self, click_pos, los, ends, True)
 
 
 def purchase_scrimmage_ticket(self, times):
-    self.click(148, 101)
-    time.sleep(1.5)
+    self.click(148, 101, wait=False,duration=1.5, wait_over=True)
     if times == 12:  # max
-        self.click(879, 346, wait=False)
+        self.click(879, 346, wait=False, wait_over=True)
     else:
         for i in range(0, times - 1):
-            self.click(807, 346, wait=False)
+            self.click(807, 346, wait=False, wait_over=True)
     click_pos = [
         [766, 507],
         [766, 507],
@@ -169,7 +167,7 @@ def global_implement(self):
         if (count[i] == "max" or count[i] > 0) and not self.scrimmage_task_status[i]:
             self.logger.info("Start scrimmage task: " + scrimmage_area_name[i] + " count : " + str(count[i]))
             just_do_task = True
-            to_scrimmage(self, i + 1)
+            to_scrimmage(self, i + 1, True)
             res = scrimmage_common_operation(self, i + 1, count[i])
             self.logger.info("Finish scrimmage task: " + scrimmage_area_name[i])
             if res == "sweep_complete":

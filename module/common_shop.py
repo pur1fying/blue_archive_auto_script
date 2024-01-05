@@ -4,8 +4,8 @@ from core import color, image
 
 x = {
     'confirm': (737, 446, 766, 476),
-    'refresh-notice':(575,270, 628,302),
-    'refresh-unavailable-notice':(547,315, 600,350)
+    'refresh-notice': (575, 270, 628, 302),
+    'refresh-unavailable-notice': (547, 315, 600, 350)
 }
 
 
@@ -14,11 +14,11 @@ def to_refresh(self):
         ends = [
             "shop_refresh-notice",
             "shop_refresh-unavailable-notice",
-
         ]
         click_pos = [[949, 664]]
         los = ["common_shop"]
-        if image.detect(self,end=ends,pre_func=color.detect_rgb_one_time,pre_argv=(self,click_pos, los, [])) == "shop_refresh-unavailable-notice":
+        if image.detect(self, end=ends, pre_func=color.detect_rgb_one_time,
+                        pre_argv=(self, click_pos, los, [])) == "shop_refresh-unavailable-notice":
             return False
         return True
     elif self.server == 'Global':
@@ -35,7 +35,7 @@ def to_refresh(self):
 
 def implement(self):
     self.quick_method_to_main_page()
-    to_common_shop(self)
+    to_common_shop(self, True)
     time.sleep(0.5)
     creditpoints = self.get_creditpoints()
     pyroxenes = self.get_pyroxene()
@@ -131,7 +131,7 @@ def implement(self):
     return True
 
 
-def to_common_shop(self):
+def to_common_shop(self, skip_first_screenshot=False):
     if self.server == 'CN':
         click_pos = [
             [823, 653],  # main_page
@@ -146,7 +146,8 @@ def to_common_shop(self):
         ends = [
             "common_shop",
         ]
-        image.detect(self,pre_func=color.detect_rgb_one_time,pre_argv=(self, click_pos, los, ends))
+        image.detect(self, pre_func=color.detect_rgb_one_time, pre_argv=(self, click_pos, los, ends),
+                     skip_first_screenshot=skip_first_screenshot)
     elif self.server == 'Global':
         click_pos = [
             [799, 653],  # main_page
@@ -171,4 +172,4 @@ def to_common_shop(self):
         ends = [
             "common_shop",
         ]
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
