@@ -219,6 +219,7 @@ class MainThread(QThread):
             if self._main_thread.solve('explore_normal_task'):
                 notify(title='BAAS', body='普通图推图已完成')
 
+
     def start_fhx(self):
         self._init_script()
         if self._main_thread.solve('de_clothes'):

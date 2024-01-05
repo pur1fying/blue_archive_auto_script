@@ -19,6 +19,7 @@ from module.buy_ap import x as buy_ap_x
 from module.collect_daily_power import x as collect_daily_power_x
 from module.activities.no_227_kinosaki_spa import x as activity_x
 
+
 iad = {
 
 }

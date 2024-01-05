@@ -652,8 +652,10 @@ class Main:
         return True
 
     def set_screenshot_interval(self, interval):
-        interval = max(0.1, interval)
-        self.logger.info(f"set screenshot interval to {interval}")
+        if interval < 0.1:
+            self.logger.error("screenshot_interval must be greater than 0.1")
+            interval = 0.1
+        self.logger.info("screenshot_interval set to " + str(interval))
         self.screenshot_interval = interval
 
 
