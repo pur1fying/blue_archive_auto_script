@@ -84,8 +84,14 @@ def start_sweep(self, skip_first_screenshot=False):
         elif res == "normal_task_skip-sweep-complete":
             return "skip_sweep_complete"
     elif self.server == 'Global':
-        color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
-                                       ["start_sweep_notice"], skip_first_screenshot=skip_first_screenshot)
+        ends = [
+            "purchase_bounty_ticket",
+            "start_sweep_notice",
+        ]
+        res = color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
+                                             ends, skip_first_screenshot=skip_first_screenshot)
+        if res == "purchase_bounty_ticket":
+            return res
         click_pos = [
             [765, 501]
         ]
@@ -95,7 +101,6 @@ def start_sweep(self, skip_first_screenshot=False):
         ends = [
             "skip_sweep_complete",
             "sweep_complete",
-            "purchase_bounty_ticket",
         ]
         return color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
 
@@ -118,7 +123,7 @@ def bounty_common_operation(self, a, b):
     los = []
     while i > 196:
         if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-                131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
+            131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
             los.append(i - 35)
             i -= 100
         else:

@@ -383,7 +383,7 @@ def to_mission_info(self, y):
 
 def test_(self):
     region = 16
-    normal_task.to_normal_event(self)
+    normal_task.to_normal_event(self, True)
     choose_region(self, region)
     self.stage_data = get_stage_data(region)
     for i in range(1, 6):

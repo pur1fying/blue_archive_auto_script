@@ -197,22 +197,24 @@ def global_implement(self):
         while cur_num != tar_num:
             if cur_num > tar_num:
                 if (cur_num - tar_num) * 2 < len(region_name):
-                    self.click(left_change_page_x, change_page_y, count=cur_num - tar_num, wait=False, duration=1.5)
+                    self.click(left_change_page_x, change_page_y, count=cur_num - tar_num,
+                               wait=False, duration=1.5, wait_over=True)
                 else:
                     self.click(right_change_page_x, change_page_y, count=len(region_name) - cur_num + tar_num,
-                               wait=False, duration=1.5)
+                               wait=False, duration=1.5, wait_over=True)
             else:
                 if (tar_num - cur_num) * 2 < len(region_name):
-                    self.click(right_change_page_x, change_page_y, count=tar_num - cur_num, duration=1.5)
+                    self.click(right_change_page_x, change_page_y, count=tar_num - cur_num,
+                               wait=False, duration=1.5, wait_over=True)
                 else:
                     self.click(left_change_page_x, change_page_y, count=len(region_name) - tar_num + cur_num,
-                               wait=False, duration=1.5)
+                               wait=False, duration=1.5, wait_over=True)
             to_before_all_locations(self)
             cur_num = get_region_num(self, region_name, letter_dict, region_name_len)
             self.logger.info("now in page " + region_name[cur_num])
 
         for j in range(0, times):
-            to_all_locations(self)
+            to_all_locations(self, True)
             res = []
             last_available = -1
             for i in range(0, 9):
@@ -369,13 +371,13 @@ def to_location_info(self, x, y):
         possibles = {
             "lesson_all-locations": (x, y)
         }
-        image.detect(self, end='lesson_lesson-information', possibles=possibles)
+        image.detect(self, end='lesson_lesson-information', possibles=possibles, skip_first_screenshot=True)
 
     if self.server == 'Global':
         click_pos = [[x, y]]
         los = ["all_locations"]
         ends = ["location_info"]
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, True)
 
 
 def start_lesson(self):
@@ -407,7 +409,7 @@ def start_lesson(self):
         return color.common_rgb_detect_method(self, click_pos, los, ends)
 
 
-def to_all_locations(self):
+def to_all_locations(self, skip_first_screenshot=False):
     if self.server == "CN":
         possibles = {
             'lesson_choose-lesson': (1160, 664),
@@ -417,7 +419,7 @@ def to_all_locations(self):
             'main_page_relationship-rank-up': (640, 360),
 
         }
-        image.detect(self, 'lesson_all-locations', possibles)
+        image.detect(self, 'lesson_all-locations', possibles, skip_first_screenshot=skip_first_screenshot)
     elif self.server == "Global":
         click_pos = [
             [1160, 664],
@@ -436,4 +438,4 @@ def to_all_locations(self):
         ends = [
             "all_locations",
         ]
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)

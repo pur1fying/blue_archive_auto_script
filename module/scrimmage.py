@@ -13,20 +13,21 @@ def implement(self):
 
 
 def start_sweep(self):
-    color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"], ["start_sweep_notice"], True)
-    click_pos = [
-        [765, 501]
+    ends = [
+        "purchase_scrimmage_ticket",
+        "purchase_ap_notice",
+        "start_sweep_notice",
     ]
-    pd_los = [
-        "start_sweep_notice"
-    ]
+    res = color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"], ends, True)
+    if res == "purchase_scrimmage_ticket" or res == "purchase_ap_notice":
+        return res
     ends = [
         "skip_sweep_complete",
         "sweep_complete",
         "purchase_scrimmage_ticket",
         "purchase_ap_notice",
     ]
-    return color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
+    return color.common_rgb_detect_method(self, [[765, 501]], ["start_sweep_notice"], ends, True)
 
 
 def scrimmage_common_operation(self, a, b):

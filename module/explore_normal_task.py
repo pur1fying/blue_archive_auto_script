@@ -16,7 +16,7 @@ def implement(self):
     self.scheduler.change_display("普通关推图")
     self.quick_method_to_main_page()
     # test_(self)
-    normal_task.to_normal_event(self, skip_first_screenshot=True)
+    normal_task.to_normal_event(self, True)
     for i in range(0, len(self.config['explore_normal_task_regions'])):
         region = self.config['explore_normal_task_regions'][i]
         if not 4 <= region <= 16:
@@ -32,7 +32,7 @@ def start_fight(self, region):
     mission = calc_need_fight_stage(self, region)
     if mission == "ALL MISSION SWEEP AVAILABLE":
         self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
-        normal_task.to_normal_event(self, skip_first_screenshot=True)
+        normal_task.to_normal_event(self, True)
         return "ALL MISSION SSS"
     if mission == 'SUB':
         self.click(645, 511, wait_over=True)

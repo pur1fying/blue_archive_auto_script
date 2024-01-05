@@ -84,7 +84,7 @@ def implement(self):
     if len(self.normal_task_count) != 0:
         normal_task_y_coordinates = [242, 341, 439, 537, 611]
         for i in range(0, len(self.normal_task_count)):
-            to_normal_event(self)
+            to_normal_event(self, True)
             ap = self.get_ap()
             if ap == "UNKNOWN":
                 self.logger.info("UNKNOWN AP")
@@ -124,7 +124,7 @@ def implement(self):
             elif t == "pass" or t == "no-pass":
                 self.logger.info("AUTO SWEEP UNAVAILABLE")
 
-            to_normal_event(self)
+            to_normal_event(self, True)
         self.logger.info("common task finished")
 
     return True
@@ -155,7 +155,7 @@ def to_normal_event(self, skip_first_screenshot=False):
             'level_up'
         ]
         image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, ["event_normal"]),skip_first_screenshot=skip_first_screenshot)
+                     pre_argv=(self, click_pos, los, ["event_normal"]), skip_first_screenshot=skip_first_screenshot)
     elif self.server == 'Global':
         possibles = {
             'normal_task_fight-complete-confirm': (1160, 666),
@@ -194,7 +194,7 @@ def to_normal_event(self, skip_first_screenshot=False):
             "event_normal",
         ]
         image.detect(self, end=end, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, ends),skip_first_screenshot=skip_first_screenshot)
+                     pre_argv=(self, click_pos, los, ends), skip_first_screenshot=skip_first_screenshot)
 
 
 def to_task_info(self, x, y):
@@ -253,20 +253,19 @@ def start_sweep(self, skip_first_screenshot=False):
             return "skip_sweep_complete"
 
     elif self.server == 'Global':
-        color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
-                                       ["start_sweep_notice"], skip_first_screenshot=skip_first_screenshot)
-        click_pos = [
-            [765, 501]
+        ends = [
+            "purchase_ap_notice",
+            "start_sweep_notice",
         ]
-        pd_los = [
-            "start_sweep_notice"
-        ]
+        res = color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
+                                             ends, skip_first_screenshot=skip_first_screenshot)
+        if res == "purchase_ap_notice":
+            return res
         ends = [
             "skip_sweep_complete",
             "sweep_complete",
-            "purchase_ap_notice",
         ]
-        return color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
+        return color.common_rgb_detect_method(self, [[765, 501]], ["start_sweep_notice"], ends, True)
 
 
 def choose_region(self, region):

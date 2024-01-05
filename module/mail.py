@@ -30,10 +30,10 @@ def implement(self):
     elif color.judge_rgb_range(img, 1142, 646, 235, 255, 233, 243, 65, 85):
         self.logger.info("COLLECT mail reward")
         time.sleep(0.5)
-        self.click(1142, 670, duration=2)
-        self.click(1236, 39, duration=0.5)
-        self.click(1236, 39)
-        self.click(1236, 39)
+        self.click(1142, 670, duration=2, wait_over=True)
+        self.click(1236, 39, wait_over=True)
+        self.click(1236, 39, wait_over=True)
+        self.click(1236, 39, wait_over=True)
     else:
         self.logger.info("Can't detect button")
         self.click(1236, 39)
