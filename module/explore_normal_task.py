@@ -210,7 +210,7 @@ def start_action(self, gk, stage_data):
             self.logger.info("wait move available")
             wait_over(self)
             time.sleep(2)
-        if i != len(actions) - 1:
+        if i != len(actions) - 1 and 'ensure-ui' not in act:
             to_normal_task_mission_operation_page(self)
 
 

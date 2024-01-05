@@ -220,7 +220,7 @@ def start_action(self, actions):
             self.logger.info("wait move available")
             wait_over(self)
             time.sleep(2)
-        if i != len(actions) - 1:
+        if i != len(actions) - 1 and 'ensure-ui' not in act:
             to_normal_task_mission_operating_page(self)
 
 

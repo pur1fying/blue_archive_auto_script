@@ -140,6 +140,14 @@ def to_hard_event(self, skip_first_screenshot=False):
         image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
                      pre_argv=(self, click_pos, los, ["event_hard"]), skip_first_screenshot=skip_first_screenshot)
     elif self.server == 'Global':
+        possibles = {
+            'normal_task_fight-complete-confirm': (1160, 666),
+            'normal_task_reward-acquired-confirm': (800, 660),
+            'normal_task_mission-conclude-confirm': (1042, 671),
+        }
+        end = [
+            "normal_task_select-area",
+        ]
         click_pos = [
             [1077, 98],
             [1186, 165],
@@ -168,7 +176,8 @@ def to_hard_event(self, skip_first_screenshot=False):
         ends = [
             "event_hard",
         ]
-        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
+        image.detect(self, end=end, possibles=possibles, pre_func=color.detect_rgb_one_time,
+                     pre_argv=(self, click_pos, los, ends), skip_first_screenshot=skip_first_screenshot)
 
 
 def to_task_info(self, x, y):

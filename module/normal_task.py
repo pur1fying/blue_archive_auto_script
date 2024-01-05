@@ -157,6 +157,7 @@ def to_normal_event(self, skip_first_screenshot=False):
         image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
                      pre_argv=(self, click_pos, los, ["event_normal"]), skip_first_screenshot=skip_first_screenshot)
     elif self.server == 'Global':
+        print(1)
         possibles = {
             'normal_task_fight-complete-confirm': (1160, 666),
             'normal_task_reward-acquired-confirm': (800, 660),

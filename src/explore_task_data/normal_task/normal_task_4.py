@@ -42,7 +42,7 @@ stage_data = {
         'action': [
             {'t': 'click', 'p': (581, 345), "desc": "upper right"},
             {'t': 'move', "wait-over": True, "desc": "teleport"},
-            {'t': 'click', 'p': (656, 338), "desc": "choose self"},
+            {'t': 'click', 'p': (656, 338), "desc": "choose self", 'ensure-ui': False},
             {'t': 'move', "wait-over": True, "desc": "teleport"},
             {'t': 'click', 'p': (626, 380), "desc": "lower right"},
         ]
@@ -70,7 +70,7 @@ stage_data = {
         },
         'action': [
             {'t': 'click', 'p': (719, 474), "wait-over": True, 'desc': "right"},
-            {'t': 'click', 'p': (634, 452), "desc": "choose self"},
+            {'t': 'click', 'p': (634, 452), "desc": "choose self", 'ensure-ui': False},
             {'t': 'move', "wait-over": True, "desc": "teleport"},
             {'t': 'click', 'p': (524, 293), "wait-over": True, "desc": 'left'},
             {'t': 'click', 'p': (419, 305), "desc": "left"}
