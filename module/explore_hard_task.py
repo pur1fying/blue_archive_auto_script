@@ -160,6 +160,7 @@ def end_round(self):
     elif self.server == 'Global':
         possibles = {
             'normal_task_mission-operating-feature': (1170, 670),
+            'normal_task_obtain-present': (640, 519),
         }
         end = 'normal_task_end-phase-notice'
         image.detect(self, end, possibles)

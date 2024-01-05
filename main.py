@@ -400,6 +400,7 @@ class Main:
                 'normal_task_mission-operating-feature': (995, 668),
                 'normal_task_quit-mission-info': (772, 511),
                 'normal_task_mission-conclude-confirm': (1042, 671),
+                'normal_task_obtain-present': (640,519),
             }
             fail_cnt = 0
             while True:

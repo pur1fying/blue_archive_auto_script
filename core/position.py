@@ -19,7 +19,6 @@ from module.buy_ap import x as buy_ap_x
 from module.collect_daily_power import x as collect_daily_power_x
 from module.activities.no_227_kinosaki_spa import x as activity_x
 
-
 iad = {
 
 }
@@ -92,6 +91,7 @@ def init_image_data(self):
                     'mission-conclude-confirm': (959, 641, 1102, 687),
                     'fight-skip': (1111, 531, 1136, 556),
                     'auto-over': (1072, 589, 1094, 611),
+                    'obtain-present': (585, 496, 698, 532)
                 }
             }
             filepath = 'src/images/Global'
