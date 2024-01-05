@@ -115,7 +115,6 @@ class Main:
             self.connection.click(x, y)
             if duration > 0:
                 time.sleep(duration)
-        print(datetime)
 
     def get_screenshot_array(self):
         if not self.flag_run:
@@ -123,7 +122,7 @@ class Main:
         self.latest_screenshot_time = time.time()
         img = cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
         self.img_cnt += 1
-        cv2.imwrite("D:\\github\\bass\\blue_archive_auto_script\\test\\" + str(self.img_cnt) + ".png", img)
+        # cv2.imwrite("D:\\github\\bass\\blue_archive_auto_script\\test\\" + str(self.img_cnt) + ".png", img)
         return img
 
     def screenshot_worker_thread(self):
@@ -299,6 +298,7 @@ class Main:
                                            need_log=False):
                         self.logger.info("find " + asset)
                         self.click(obj[0], obj[1], False)
+                        self.latest_screenshot_time = time.time()
                         fail_cnt = 0
                         break
                 else:
@@ -306,6 +306,7 @@ class Main:
                     if fail_cnt > 10:
                         self.logger.info("tentative clicks")
                         self.click(1236, 31, False)
+                        self.latest_screenshot_time = time.time()
                         fail_cnt = 0
             return True
         elif self.server == "Global":
@@ -416,7 +417,7 @@ class Main:
                                            need_log=False):
                         self.logger.info("find " + asset)
                         self.click(obj[0], obj[1], False)
-                        time.sleep(self.screenshot_interval)
+                        self.latest_screenshot_time = time.time()
                         fail_cnt = 0
                         break
                 else:
@@ -425,6 +426,7 @@ class Main:
                     if fail_cnt > 10:
                         self.logger.info("tentative clicks")
                         self.click(1228, 41, False)
+                        time.sleep(self.screenshot_interval)
                         fail_cnt = 0
             return True
 
@@ -661,20 +663,11 @@ if __name__ == '__main__':
     # t.thread_starter()
     t.flag_run = True
     t.init_all_data()
-    t.solve('no_227_kinosaki_spa')
-    exit(0)
-    t.thread_starter()
+    # t.thread_starter()
     t.solve('explore_hard_task')
-    img1 = cv2.imread('qxn.jpg')
-    # t.solve('tactical_challenge_shop')
-    img1 = cv2.imread('qxn.jpg')
-    img1 = img1[10:40, 560:658, :]
-    print(t.ocrCN.ocr_for_single_line(img1))
-    exit(0)
-    t.solve('refresh_uiautomator2')
-    t.flag_run = True
-    # t.solve('de_clothes')
-    # t.solve('common_shop')
+    t.solve('tactical_challenge_shop')
+    t.solve('de_clothes')
+    t.solve('common_shop')
     t.quick_method_to_main_page()
     # t.solve('tactical_challenge_shop')
     # t.quick_method_to_main_page()

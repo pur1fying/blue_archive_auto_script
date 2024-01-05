@@ -72,7 +72,6 @@ def check_user_config():
         data = update_config_reserve_old(data, json.loads(default_config.DEFAULT_CONFIG))
         with open('./config/config.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
-            print(1)
         return
     except Exception as e:
         print(e)

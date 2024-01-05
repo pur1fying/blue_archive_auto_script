@@ -14,7 +14,6 @@ def to_refresh(self):
         ends = [
             "shop_refresh-notice",
             "shop_refresh-unavailable-notice",
-
         ]
         click_pos = [[949, 664]]
         los = ["common_shop"]

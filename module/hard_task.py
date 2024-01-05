@@ -56,7 +56,7 @@ def implement(self):
     if len(self.hard_task_count) != 0:
         hard_task_y_coordinates = [253, 364, 478]
         for i in range(0, len(self.hard_task_count)):
-            to_hard_event(self)
+            to_hard_event(self, True)
             ap = self.get_ap()
             if ap == "UNKNOWN":
                 self.logger.info("UNKNOWN AP")
@@ -87,14 +87,14 @@ def implement(self):
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("hard task " + str(self.hard_task_count[i]) + " finished")
                 elif res == "purchase_ap_notice":
-                    self.logger.info("INADEQUATE AP")
+                    self.logger.warning("INADEQUATE AP")
                     return True
                 elif res == "charge_challenge_counts":
-                    self.logger.info("Challenge counts insufficient")
+                    self.logger.warning("Current Task Challenge Counts INSUFFICIENT")
             elif t == "pass" or t == "no-pass":
-                self.logger.info("AUTO SWEEP UNAVAILABLE")
+                self.logger.warning("AUTO SWEEP UNAVAILABLE")
 
-            to_hard_event(self, skip_first_screenshot=True)
+            to_hard_event(self, True)
         self.logger.info("hard task finished")
 
     return True
@@ -204,27 +204,30 @@ def start_sweep(self, skip_first_screenshot=False):
         possibles = {
             "normal_task_task-info": (941, 411),
         }
-        ends = "normal_task_start-sweep-notice"
-        image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
+        ends = [
+            "buy_ap_notice",
+            "normal_task_charge-challenge-counts",
+            "normal_task_start-sweep-notice",
+        ]
+        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
+        if res == "buy_ap_notice":
+            return "purchase_ap_notice"
+        elif res == "normal_task_charge-challenge-counts":
+            return "charge_challenge_counts"
         possibles = {
             "normal_task_start-sweep-notice": (765, 501)
         }
         ends = [
             "normal_task_skip-sweep-complete",
             "normal_task_sweep-complete",
-            "buy_ap_notice",
-            "normal_task_charge-challenge-counts",
         ]
-        res = image.detect(self, end=ends, possibles=possibles,pre_func=color.detect_rgb_one_time,
-                           pre_argv=(self, [[640, 200]], ['level_up'],[]), skip_first_screenshot=True)
+        res = image.detect(self, end=ends, possibles=possibles, pre_func=color.detect_rgb_one_time,
+                           pre_argv=(self, [[640, 200]], ['level_up'], []), skip_first_screenshot=True)
         if res == "normal_task_sweep-complete":
             return "sweep_complete"
         elif res == "normal_task_skip-sweep-complete":
             return "skip_sweep_complete"
-        elif res == "buy_ap_notice":
-            return "purchase_ap_notice"
-        elif res == "normal_task_charge-challenge-counts":
-            return "charge_challenge_counts"
+
     elif self.server == 'Global':
         color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
                                        ["start_sweep_notice"], skip_first_screenshot=skip_first_screenshot)

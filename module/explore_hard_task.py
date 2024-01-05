@@ -90,7 +90,7 @@ def implement(self):
                     if not color.judge_rgb_range(self.latest_img_array, 1048, 604, 65, 105, 213, 255, 235, 255):
                         self.click(1194, 601)
                 self.set_screenshot_interval(1)
-                start_action(self, current_task_stage_data)
+                start_action(self, current_task_stage_data['action'])
                 self.set_screenshot_interval(self.config['screenshot_interval'])
                 main_story.auto_fight(self)
                 if self.config['manual_boss']:
@@ -101,7 +101,7 @@ def implement(self):
 
 
 def get_stage_data(region):
-    module_path = 'src.explore_task_data.hard_task_' + str(region)
+    module_path = 'src.explore_task_data.hard_task.hard_task_' + str(region)
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -187,8 +187,7 @@ def confirm_teleport(self):
         image.detect(self, end, possibles, skip_first_screenshot=True)
 
 
-def start_action(self, stage_data):
-    actions = stage_data['action']
+def start_action(self, actions):
     for i, act in enumerate(actions):
         if 'before' in act:
             self.logger.info("wait {0} seconds".format(act['before']))

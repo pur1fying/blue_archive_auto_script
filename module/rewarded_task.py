@@ -61,24 +61,28 @@ def start_sweep(self, skip_first_screenshot=False):
         possibles = {
             "special_task_task-info": (941, 411),
         }
-        ends = "normal_task_start-sweep-notice"
-        image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
+        ends = [
+            "buy_ap_notice",
+            "rewarded_task_purchase-ticket-notice",
+            "normal_task_start-sweep-notice",
+        ]
+        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
+        if res == "buy_ap_notice":
+            return "purchase_ap_notice"
+        elif res == "rewarded_task_purchase-ticket-notice":
+            return "purchase_bounty_ticket"
         possibles = {
             "normal_task_start-sweep-notice": (765, 501)
         }
         ends = [
             "normal_task_skip-sweep-complete",
             "normal_task_sweep-complete",
-            "buy_ap_notice",
-            "rewarded_task_purchase-ticket-notice",
         ]
         res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=True)
         if res == "normal_task_sweep-complete":
             return "sweep_complete"
         elif res == "normal_task_skip-sweep-complete":
             return "skip_sweep_complete"
-        elif res == "rewarded_task_purchase-ticket-notice":
-            return "purchase_bounty_ticket"
     elif self.server == 'Global':
         color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
                                        ["start_sweep_notice"], skip_first_screenshot=skip_first_screenshot)
@@ -109,7 +113,6 @@ def bounty_common_operation(self, a, b):
     possibles = {
         "special_task_level-list": (1118, 0)
     }
-    self.latest_img_array = self.get_screenshot_array()
     i = 675
     line = self.latest_img_array[:, 1076, :]
     los = []
@@ -134,11 +137,7 @@ def bounty_common_operation(self, a, b):
                 self.click(1085, 300, duration=1, wait_over=True)
             else:
                 self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
-            res = start_sweep(self, True)
-            if res == "sweep_complete" or res == "skip_sweep_complete":
-                return "sweep_complete"
-            if res == "purchase_bounty_ticket":
-                return "inadequate_ticket"
+            return start_sweep(self, True)
         elif t == "no-pass" or t == "pass":
             to_bounty(self, a, True)
 

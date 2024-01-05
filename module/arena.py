@@ -13,7 +13,7 @@ x = {
 
 def implement(self):
     self.quick_method_to_main_page()
-    to_tactical_challenge(self, skip_first_screenshot=True)
+    to_tactical_challenge(self, True)
     tickets = get_tickets(self.latest_img_array, self.ocrNUM, self.server)
     if tickets == 0:
         self.logger.info("INADEQUATE TICKETS COLLECT REWARD")
@@ -51,8 +51,8 @@ def implement(self):
         else:
             self.logger.info("Can't find SKIP BUTTON")
             return False
-        fight(self, skip_first_screenshot=True)
-        to_tactical_challenge(self, skip_first_screenshot=True)
+        fight(self, True)
+        to_tactical_challenge(self, True)
         if tickets > 1:
             self.next_time = 55
             return True
@@ -78,6 +78,7 @@ def choose_enemy(self):
             break
         self.logger.info("refresh")
         self.click(1158, 145, wait=False, wait_over=True)
+        time.sleep(1)
         color.wait_loading(self)
         refresh += 1
 

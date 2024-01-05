@@ -83,7 +83,7 @@ def start_fight(self, region):
 
 
 def get_stage_data(region):
-    module_path = 'src.explore_task_data.normal_task_' + str(region)
+    module_path = 'src.explore_task_data.normal_task.normal_task_' + str(region)
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -215,8 +215,6 @@ def start_action(self, gk, stage_data):
 
 
 def start_choose_side_team(self, index):
-    if index not in [1, 2, 3, 4]:
-        exit("No formation added into corresponding config")
     self.logger.info("According to the config. Choose formation {0}".format(index))
     loy = [195, 275, 354, 423]
     y = loy[index - 1]

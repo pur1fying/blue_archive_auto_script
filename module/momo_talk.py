@@ -69,7 +69,6 @@ def cn_implement(self, need_check_mode=True):
         check_mode(self)
     main_to_momotalk = True
     while 1:
-        self.latest_img_array = self.get_screenshot_array()
         location_y = 210
         red_dot = np.array([25, 71, 251])
         location_x = 637
@@ -103,6 +102,8 @@ def cn_implement(self, need_check_mode=True):
         time.sleep(0.2)
         self.click(170, 270, wait=False, wait_over=True)
         time.sleep(0.2)
+        self.latest_img_array = self.get_screenshot_array()
+
 
 
 def global_implement(self, need_check_mode=True):

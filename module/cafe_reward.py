@@ -297,12 +297,12 @@ def invite_girl(self):
                         stop_flag = True
                         f = False
                         self.click(784, location[s], wait=False, duration=0.7, wait_over=True)
-                        self.click(770, 500, wait_over=True)
+                        self.click(770, 500, wait=False, wait_over=True)
                         break
                 if not stop_flag:
                     self.logger.info("didn't find target student swipe to next page")
                     self.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, duration=0.5)
-                    self.click(617, 500, wait_over=True)
+                    self.click(617, 500, wait=False, wait_over=True)
         to_cafe(self, skip_first_screenshot=True)
         if not f:
             break

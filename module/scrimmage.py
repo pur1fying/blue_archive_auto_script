@@ -54,15 +54,15 @@ def scrimmage_common_operation(self, a, b):
     print(los)
     for i in range(0, len(los)):
         click_pos[0][1] = los[i]
-        color.common_rgb_detect_method(self, click_pos, pd_los, ends)
+        color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
-                self.click(1085, 300)
+                self.click(1085, 300, wait=False, wait_over=True)
                 time.sleep(1)
             else:
                 for j in range(0, b - 1):
-                    self.click(1014, 300)
+                    self.click(1014, 300, wait=False, wait_over=True)
                     time.sleep(1)
             res = start_sweep(self)
             if res == "sweep_complete" or res == "skip_sweep_complete":

@@ -97,6 +97,7 @@ def detect_rgb_one_time(self, click=None, possible_los=None, ends=None):
         else:
             self.logger.info("find : " + possible_los[i])
             self.click(click[i][0], click[i][1], wait=False)  # 出现possible_los中的任意一个，点击对应的click坐标
+            self.latest_screenshot_time = time.time()
             return "click", True
     return False
 

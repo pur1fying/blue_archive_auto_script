@@ -74,7 +74,7 @@ def implement(self):
     self.quick_method_to_main_page()
     self.normal_task_count = []
     temp = self.config['mainlinePriority']
-    if type(temp) == str:
+    if type(temp) is str:
         temp = temp.split(',')
     for i in range(0, len(temp)):
         if read_task(self, temp[i]):
@@ -99,13 +99,13 @@ def implement(self):
                 ap_needed = tar_times * 10
             self.logger.info("ap_needed : " + str(ap_needed))
             if ap_needed > ap:
-                self.logger.info("INADEQUATE AP for task")
+                self.logger.warning("INADEQUATE AP for task")
                 return True
             choose_region(self, tar_region)
             self.swipe(917, 220, 917, 552, duration=0.1)
             time.sleep(1)
             if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
-                self.logger.info("task unlocked")
+                self.logger.warning("task unlocked")
                 continue
             t = check_sweep_availability(self.latest_img_array, server=self.server)
             if t == "sss":
@@ -230,8 +230,13 @@ def start_sweep(self, skip_first_screenshot=False):
         possibles = {
             "normal_task_task-info": (941, 411),
         }
-        ends = "normal_task_start-sweep-notice"
-        image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
+        ends = [
+            "normal_task_start-sweep-notice",
+            "buy_ap_notice"
+        ]
+        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
+        if res == "buy_ap_notice":
+            return "purchase_ap_notice"
         possibles = {
             "normal_task_task-info": (941, 411),
             "normal_task_start-sweep-notice": (765, 501)
@@ -239,7 +244,6 @@ def start_sweep(self, skip_first_screenshot=False):
         ends = [
             "normal_task_skip-sweep-complete",
             "normal_task_sweep-complete",
-            "buy_ap_notice",
         ]
         res = image.detect(self, end=ends, possibles=possibles, pre_func=color.detect_rgb_one_time,
                            pre_argv=(self, [[640, 200]], ['level_up'], []), skip_first_screenshot=True)
@@ -247,8 +251,7 @@ def start_sweep(self, skip_first_screenshot=False):
             return "sweep_complete"
         elif res == "normal_task_skip-sweep-complete":
             return "skip_sweep_complete"
-        elif res == "buy_ap_notice":
-            return "purchase_ap_notice"
+
     elif self.server == 'Global':
         color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
                                        ["start_sweep_notice"], skip_first_screenshot=skip_first_screenshot)
@@ -262,9 +265,8 @@ def start_sweep(self, skip_first_screenshot=False):
             "skip_sweep_complete",
             "sweep_complete",
             "purchase_ap_notice",
-            "charge_challenge_counts",
         ]
-        return color.common_rgb_detect_method(self, click_pos, pd_los, ends, skip_first_screenshot, True)
+        return color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
 
 
 def choose_region(self, region):

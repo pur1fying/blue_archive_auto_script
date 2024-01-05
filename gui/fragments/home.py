@@ -212,10 +212,12 @@ class MainThread(QThread):
         self._init_script()
         self.display('停止')
         # 这里可能有Bug，若用户还未登入，则会报错。
-        if self._main_thread.solve('no_227_kinosaki_spa'):
-            notify(title='BAAS', body='活动推图已完成')
-        if self._main_thread.solve('explore_normal_task'):
-            notify(title='BAAS', body='普通图推图已完成')
+        if self._main_thread.config['explore_activity']:
+            if self._main_thread.solve('no_227_kinosaki_spa'):
+                notify(title='BAAS', body='活动推图已完成')
+        else:
+            if self._main_thread.solve('explore_normal_task'):
+                notify(title='BAAS', body='普通图推图已完成')
 
     def start_fhx(self):
         self._init_script()

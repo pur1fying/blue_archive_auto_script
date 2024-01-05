@@ -71,6 +71,7 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_fi
                     if type(obj[0]) is int:
                         self.logger.info("find : " + asset)
                         self.click(obj[0], obj[1], False)
+                        self.latest_screenshot_time = time.time()
                     else:
                         if obj[0](*obj[1]):
                             return asset
