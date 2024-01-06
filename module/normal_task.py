@@ -239,7 +239,6 @@ def start_sweep(self, skip_first_screenshot=False):
         if res == "buy_ap_notice":
             return "purchase_ap_notice"
         possibles = {
-            "normal_task_task-info": (941, 411),
             "normal_task_start-sweep-notice": (765, 501)
         }
         ends = [
