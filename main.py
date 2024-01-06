@@ -53,6 +53,7 @@ class Main:
         self.main_activity = None
         self.package_name = None
         self.server = None
+        self.first_start = True
         self.rgb_feature = None
         self.ocr = None
         self.config = None
@@ -149,10 +150,6 @@ class Main:
                 self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
             if 'com.github.uiautomator' not in self.connection.app_list():
                 self.connection.app_install('ATX.apk')
-            if self.server == 'CN':
-                self.connection.app_start(self.package_name)
-            elif self.server == 'Global':
-                self.connection.app_start(self.package_name, activity='.MxUnityPlayerActivity')
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
@@ -189,6 +186,8 @@ class Main:
             self.logger.line()
             self.logger.info("start activities")
             while self.flag_run:
+                if self.first_start:
+                    self.solve('restart')
                 next_func_name = self.scheduler.heartbeat()
                 self.next_time = 0
                 if next_func_name:
@@ -653,9 +652,9 @@ class Main:
         return True
 
     def set_screenshot_interval(self, interval):
-        if interval < 0.1:
-            self.logger.error("screenshot_interval must be greater than 0.1")
-            interval = 0.1
+        if interval < 0.3:
+            self.logger.warning("screenshot_interval must be greater than 0.3")
+            interval = 0.3
         self.logger.info("screenshot_interval set to " + str(interval))
         self.screenshot_interval = interval
 
