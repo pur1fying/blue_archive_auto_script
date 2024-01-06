@@ -40,6 +40,7 @@ class Layout(QWidget, ConfigSet):
 
     def alter_status(self, index):
         self.boxes[index].setChecked(self.boxes[index].isChecked())
+        self._read_config()
         for i in range(len(self.enable_list)):
             self._event_config[i]['enabled'] = self.boxes[i].isChecked()
         self._save_config()
