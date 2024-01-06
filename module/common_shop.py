@@ -71,7 +71,8 @@ def implement(self):
                 return True
         for j in range(0, 8):
             if buy_list[j]:
-                self.click(buy_list_for_common_items[j][0], buy_list_for_common_items[j][1], wait=False)
+                self.click(buy_list_for_common_items[j][0], buy_list_for_common_items[j][1],
+                           wait=False, wait_over=True)
                 time.sleep(0.1)
         if buy_list[8:].any():
             self.logger.info("SWIPE DOWNWARDS")
@@ -79,7 +80,8 @@ def implement(self):
             time.sleep(0.5)
             for j in range(8, 16):
                 if buy_list[j]:
-                    self.click(buy_list_for_common_items[j % 8][0], buy_list_for_common_items[j % 8][1], wait=False)
+                    self.click(buy_list_for_common_items[j % 8][0], buy_list_for_common_items[j % 8][1],
+                               wait=False, wait_over=True)
                     time.sleep(0.1)
         if self.server == 'CN':
             pass
@@ -91,19 +93,19 @@ def implement(self):
                 for j in range(16, 20):
                     if buy_list[j]:
                         self.click(buy_list_for_common_items[j % 8 + 4][0], buy_list_for_common_items[j % 8 + 4][1],
-                                   wait=False)
+                                   wait=False, wait_over=True)
                         time.sleep(0.1)
 
         self.latest_img_array = self.get_screenshot_array()
 
         if color.judge_rgb_range(self.latest_img_array, 1126, 662, 235, 255, 222, 242, 64, 84):
             self.logger.info("Purchase available")
-            self.click(1160, 662, wait=False)
+            self.click(1160, 662, wait=False, wait_over=True)
             time.sleep(0.5)
-            self.click(767, 488, wait=False)
+            self.click(767, 488, wait=False, wait_over=True)
             time.sleep(2)
-            self.click(640, 80, wait=False)
-            self.click(640, 80, wait=False)
+            self.click(640, 80, wait=False, wait_over=True)
+            self.click(640, 80, wait=False, wait_over=True)
             if self.server == 'CN':
                 pass
             if self.server == 'Global':
@@ -124,8 +126,7 @@ def implement(self):
                     return True
                 pyroxenes = pyroxenes - refresh_price[i]
                 self.logger.info("left pyroxenes : " + str(pyroxenes))
-                self.click(767, 468, wait=False)
-                time.sleep(0.5)
+                self.click(767, 468, wait=False, wait_over=True,duration=0.5)
                 to_common_shop(self)
 
     return True
