@@ -635,7 +635,7 @@ class Main:
                 self.signal_stop()
                 self.logger.critical("Initialization Failed")
                 return False
-        self.screenshot_interval = self.config['screenshot_interval']
+        self.set_screenshot_interval(self.config['screenshot_interval'])
         self.latest_screenshot_time = 0
         self.scheduler = Scheduler(self.update_signal)
         self.logger.info("--------Initialization Finished----------")
