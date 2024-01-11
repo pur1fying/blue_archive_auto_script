@@ -1,10 +1,9 @@
 import time
-
-from core import color, image
-from core.utils import get_x_y, kmp,img_crop
-from gui.util import log
 from datetime import datetime
 
+from core import color, image
+from core.utils import kmp, img_crop
+from gui.util import log
 
 x = {
     'menu': (107, 9, 162, 36),
@@ -18,16 +17,19 @@ x = {
     'start-make': (931, 303, 1015, 323)
 }
 
+
 def get_next_execute_tick():
     current_time = datetime.now()
     year = current_time.year
     month = current_time.month
     day = current_time.day
-    next_time = datetime(year, month, day+1, 4)
+    next_time = datetime(year, month, day + 1, 4)
     return next_time.timestamp()
 
+
 def common_create_judge(self):
-    pri = ["花","Mo","桃桃","万圣节","情人节","果冻","色彩","灿烂","光芒","玲珑","白金","黄金","铜","白银","金属","隐然"]  # 可设置参数，越靠前的节点在制造时越优先选择
+    pri = ["花", "Mo", "桃桃", "万圣节", "情人节", "果冻", "色彩", "灿烂", "光芒", "玲珑", "白金", "黄金", "铜", "白银",
+           "金属", "隐然"]  # 可设置参数，越靠前的节点在制造时越优先选择
     node_x = [839, 508, 416, 302, 174]
     node_y = [277, 388, 471, 529, 555]
     # 572 278
@@ -36,7 +38,7 @@ def common_create_judge(self):
     for i in range(0, 5):
         self.operation("click", (node_x[i], node_y[i]))
         time.sleep(0.5 if i == 0 else 0.1)
-        node_info = self.img_ocr(img_crop(self.operation("get_screenshot_array"),734,1123,207,277))
+        node_info = self.img_ocr(img_crop(self.operation("get_screenshot_array"), 734, 1123, 207, 277))
         for k in range(0, len(pri)):
             if kmp(pri[k], node_info) > 0:
                 if k == 0:
@@ -103,10 +105,10 @@ def node1_judge(self):
 
 def check_availability(img):
     if color.judge_rgb_range(img, 1112, 681, 210, 230, 210, 230, 210, 230) and \
-            color.judge_rgb_range(img, 1105, 627, 210, 230, 210, 230, 210, 230):
+        color.judge_rgb_range(img, 1105, 627, 210, 230, 210, 230, 210, 230):
         return "grey"
     elif color.judge_rgb_range(img, 1112, 681, 235, 255, 233, 253, 65, 85) and \
-            color.judge_rgb_range(img, 1105, 627, 235, 255, 233, 253, 65, 85):
+        color.judge_rgb_range(img, 1105, 627, 235, 255, 233, 253, 65, 85):
         return "bright"
     else:
         return "unknown"
@@ -331,7 +333,7 @@ def get_high_priority(self):
             if ratio < 80:
                 continue
             if not check_item or \
-                    self.tc['config']['priority'].index(priority) < self.tc['config']['priority'].index(check_item):
+                self.tc['config']['priority'].index(priority) < self.tc['config']['priority'].index(check_item):
                 check_item = priority
                 check_index = i
     return check_index
@@ -366,13 +368,13 @@ def check_crafting_list_status(self):
     res = []
     for i in range(0, len(loy)):
         if color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 100, 130, 205, 235, 235, 255) and \
-                color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 100, 130, 205, 235, 235, 255):
+            color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 100, 130, 205, 235, 235, 255):
             res.append("complete_instantly")
         elif color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 230, 255, 215, 255, 60, 90) and \
-                color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 230, 255, 215, 255, 60, 90):
+            color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 230, 255, 215, 255, 60, 90):
             res.append("receive")
         elif color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 215, 255, 215, 255, 215, 255) and \
-                color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 215, 255, 215, 255, 215, 255):
+            color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 215, 255, 215, 255, 215, 255):
             res.append("empty")
         else:
             res.append("unknown")
@@ -421,13 +423,13 @@ def common_create_collect_operation(self, use_acc_ticket=False):
         res = []
         for i in range(0, len(loy)):
             if color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 100, 130, 205, 235, 235, 255) and \
-                    color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 100, 130, 205, 235, 235, 255):
+                color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 100, 130, 205, 235, 235, 255):
                 res.append("complete_instantly")
             elif color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 230, 255, 215, 255, 60, 90) and \
-                    color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 230, 255, 215, 255, 60, 90):
+                color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 230, 255, 215, 255, 60, 90):
                 res.append("receive")
             elif color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 215, 255, 215, 255, 215, 255) and \
-                    color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 215, 255, 215, 255, 215, 255):
+                color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 215, 255, 215, 255, 215, 255):
                 res.append("empty")
             else:
                 res.append("unknown")
@@ -459,13 +461,13 @@ def common_create_collect_operation(self, use_acc_ticket=False):
             res = []
             for i in range(0, len(loy)):
                 if color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 100, 130, 205, 235, 235, 255) and \
-                        color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 100, 130, 205, 235, 235, 255):
+                    color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 100, 130, 205, 235, 235, 255):
                     res.append("complete_instantly")
                 elif color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 230, 255, 215, 255, 60, 90) and \
-                        color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 230, 255, 215, 255, 60, 90):
+                    color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 230, 255, 215, 255, 60, 90):
                     res.append("receive")
                 elif color.judge_rgb_range(self.latest_img_array, lox, loy[i][0], 215, 255, 215, 255, 215, 255) and \
-                        color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 215, 255, 215, 255, 215, 255):
+                    color.judge_rgb_range(self.latest_img_array, lox, loy[i][1], 215, 255, 215, 255, 215, 255):
                     res.append("empty")
                 else:
                     res.append("unknown")

@@ -1,6 +1,7 @@
-from datetime import datetime
-import time
 import random
+import time
+from datetime import datetime
+
 from core import color
 
 
@@ -26,8 +27,10 @@ def implement(self):
 
 def start(self):
     self.logger.info("--START BLUE ARCHIVE--")
-    activity = '.MxUnityPlayerActivity' if self.server == 'Global' else None
-    self.connection.app_start(self.package_name, activity=activity)
+    activity_name = self.activity_name
+    if self.server == 'CN':
+        activity_name = None
+    self.connection.app_start(self.package_name, activity_name)
     if self.server == 'CN':
         self.logger.info("--ENSURE UI AT MAIN PAGE--")
         self.quick_method_to_main_page()

@@ -1,8 +1,5 @@
 import time
 
-import cv2
-import numpy as np
-
 from core import color, image
 
 x = {
@@ -127,7 +124,7 @@ def change_acc_auto(self):
         self.logger.info("ACCELERATION phase 3")
     elif 140 <= acc_r_ave <= 180:
         self.logger.info("CHANGE acceleration phase from 1 to 3")
-        self.click(1215, y, wait=False,count=2)
+        self.click(1215, y, wait=False, count=2)
     else:
         self.logger.warning("CAN'T DETECT acceleration BUTTON")
     if self.server == 'CN':
@@ -137,7 +134,7 @@ def change_acc_auto(self):
     auto_r_ave = int(img1[y][1171][0]) // 2 + int(img1[y][1246][0]) // 2
     if 190 <= auto_r_ave <= 230:
         self.logger.info("CHANGE MANUAL to auto")
-        self.click(1215, y,wait=False)
+        self.click(1215, y, wait=False)
     elif 0 <= auto_r_ave <= 60:
         self.logger.info("AUTO")
     else:

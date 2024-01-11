@@ -1,17 +1,11 @@
-from core import color, image
-
 import time
 
-x = {
-    'menu': (107, 9, 162, 36)
-}
+from core import color, image
 
 
 def to_mail(self):
-    if self.server == 'CN':
-        possibles = {
-            "main_page_home-feature": (1141, 43)
-        }
+    if self.server == 'CN' or self.server == 'JP':
+        possibles = {"main_page_home-feature": (1141, 43)}
         image.detect(self, end='mail_menu', possibles=possibles, skip_first_screenshot=True)
     elif self.server == 'Global':
         click_pos = [[1141, 43]]
@@ -26,16 +20,13 @@ def implement(self):
     img = self.latest_img_array
     if color.judge_rgb_range(img, 1142, 646, 206, 226, 207, 227, 208, 228):
         self.logger.info("mail reward HAS BEEN COLLECTED, quit")
-        self.click(1236, 39)
+        self.click(1236, 39, wait=False)
     elif color.judge_rgb_range(img, 1142, 646, 235, 255, 233, 243, 65, 85):
         self.logger.info("COLLECT mail reward")
         time.sleep(0.5)
         self.click(1142, 670, duration=2, wait_over=True)
-        self.click(1236, 39, wait_over=True)
-        self.click(1236, 39, wait_over=True)
-        self.click(1236, 39, wait_over=True)
     else:
         self.logger.info("Can't detect button")
-        self.click(1236, 39)
+        self.click(1236, 39, wait=False)
         return False
     return True

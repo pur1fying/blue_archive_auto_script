@@ -1,27 +1,8 @@
+import time
+
 import numpy as np
 
 from core import color, image
-import time
-
-from datetime import datetime
-
-x = {
-    'location-selection': (107, 9, 162, 36),
-    'choose-lesson': (107, 9, 224, 40),
-    'lesson-information': (575, 100, 703, 135),
-    'all-locations': (575, 100, 703, 135),
-    'lesson-report': (582, 120, 705, 158),
-    'inadequate-lesson-ticket': (694,313,747,348)
-}
-
-
-def get_next_execute_tick():
-    current_time = datetime.now()
-    year = current_time.year
-    month = current_time.month
-    day = current_time.day
-    next_time = datetime(year, month, day + 1, 4)
-    return next_time.timestamp()
 
 
 def implement(self):
@@ -108,7 +89,8 @@ def cn_implement(self):
                                wait=False, duration=1.5, wait_over=True)
             else:
                 if (tar_num - cur_num) * 2 < len(region_name):
-                    self.click(right_change_page_x, change_page_y, count=tar_num - cur_num, duration=1.5, wait_over=True)
+                    self.click(right_change_page_x, change_page_y, count=tar_num - cur_num, duration=1.5,
+                               wait_over=True)
                 else:
                     self.click(left_change_page_x, change_page_y, count=len(region_name) - tar_num + cur_num,
                                wait=False, duration=1.5, wait_over=True)
@@ -323,7 +305,7 @@ def to_before_all_locations(self):
             'lesson_location-selection': (937, 186),
             'lesson_lesson-information': (964, 117),
             'lesson_all-locations': (1138, 117),
-            'lesson_lesson-report':(642,556),
+            'lesson_lesson-report': (642, 556),
             'main_page_relationship-rank-up': (640, 360),
         }
         image.detect(self, 'lesson_choose-lesson', possibles)
@@ -394,7 +376,8 @@ def start_lesson(self):
             'lesson_lesson-report',
             'lesson_inadequate-lesson-ticket',
         ]
-        return image.detect(self, end=ends, possibles=possibles,pre_func=color.detect_rgb_one_time,pre_argv=(self,[[640,100]],['area_rank_up'],[]))
+        return image.detect(self, end=ends, possibles=possibles, pre_func=color.detect_rgb_one_time,
+                            pre_argv=(self, [[640, 100]], ['area_rank_up'], []))
     elif self.server == 'Global':
         click_pos = [
             [640, 556],

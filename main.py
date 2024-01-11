@@ -13,6 +13,7 @@ from core.notification import notify
 from core.scheduler import Scheduler
 from core import position, color, image
 from gui.util.config_set import ConfigSet
+from core import ocr
 
 func_dict = {
     'group': module.group.implement,
@@ -44,11 +45,13 @@ func_dict = {
 
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+        self.activity_name = None
         self.img_cnt = 0
-        self.latest_screenshot_time = None
+        self.latest_screenshot_time = 0
         self.scheduler = None
         self.screenshot_interval = None
         self.flag_run = None
+        self.current_game_activity = None
         self.static_config = None
         self.main_activity = None
         self.package_name = None
@@ -84,8 +87,6 @@ class Main:
         self.latest_img_array = None
         self.button_signal = button_signal
         self.update_signal = update_signal
-        if not self.init_all_data():
-            return
         self.stage_data = {}
 
         # start_debugger()
@@ -225,7 +226,7 @@ class Main:
         raise ScriptError(message=info, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
-        if self.server == "CN":
+        if self.server == "CN" or self.server == "JP":
             possibles = {
                 'main_page_quick-home': (1236, 31),
                 'main_page_login-feature': (640, 360),
@@ -242,7 +243,7 @@ class Main:
                 "normal_task_unlock-notice": (887, 164),
                 'normal_task_skip-sweep-complete': (643, 506),
                 "normal_task_charge-challenge-counts": (887, 164),
-                "buy_ap_notice": (919, 165),
+                "purchase_ap_notice": (919, 165),
                 'normal_task_mission-operating-task-info': (1000, 664),
                 'normal_task_task-info': (1084, 139),
                 'normal_task_mission-operating-task-info-notice': (416, 595),
@@ -251,8 +252,8 @@ class Main:
                 'normal_task_task-operating-round-over-notice': (888, 163),
                 'momo_talk_momotalk-peach': (1123, 122),
                 'cafe_students-arrived': (922, 189),
+                'cafe_quick-home': (1236, 31),
                 'group_sign-up-reward': (920, 159),
-                'cafe_cafe-reward-status': (905, 159),
                 'cafe_invitation-ticket': (835, 97),
                 'lesson_lesson-information': (964, 117),
                 'lesson_all-locations': (1138, 117),
@@ -263,11 +264,21 @@ class Main:
                 'arena_battle-lost': (640, 468),
                 'arena_season-record': (640, 538),
                 'arena_best-record': (640, 538),
+                'arena_opponent-info': (1012, 98),
                 'plot_menu': (1202, 37),
                 'plot_skip-plot-button': (1208, 116),
                 'plot_skip-plot-notice': (770, 519),
                 'activity_story-fight-success-confirm': (638, 674)
             }
+            update = {
+                'CN': {
+                    'cafe_cafe-reward-status': (905, 159),
+                },
+                'JP': {
+                    "cafe_cafe-reward-status": (985, 147),
+                }
+            }
+            possibles.update(**update[self.server])
             fail_cnt = 0
             click_pos = [
                 [640, 100],
@@ -399,7 +410,7 @@ class Main:
                 'normal_task_mission-operating-feature': (995, 668),
                 'normal_task_quit-mission-info': (772, 511),
                 'normal_task_mission-conclude-confirm': (1042, 671),
-                'normal_task_obtain-present': (640,519),
+                'normal_task_obtain-present': (640, 519),
             }
             fail_cnt = 0
             while True:
@@ -437,10 +448,8 @@ class Main:
     def init_rgb(self):
         try:
             self.logger.info("Start initializing rgb_feature")
-            if self.server == 'CN':
-                self.rgb_feature = json.load(open('src/rgb_feature/rgb_feature_CN.json'))['rgb_feature']
-            elif self.server == 'Global':
-                self.rgb_feature = json.load(open('src/rgb_feature/rgb_feature_Global.json'))['rgb_feature']
+            temp = 'src/rgb_feature/rgb_feature_' + self.server + '.json'
+            self.rgb_feature = json.load(open(temp, 'r', encoding='utf-8'))['rgb_feature']
             self.logger.info("Successfully initialized rgb_feature")
             return True
         except Exception as e:
@@ -469,6 +478,9 @@ class Main:
             self.server = 'CN'
         elif server == '国际服':
             self.server = 'Global'
+        elif server == '日服':
+            self.server = 'JP'
+        self.current_game_activity = self.static_config['current_game_activity'][self.server]
         self.logger.info("Current Server: " + self.server)
 
     def swipe(self, fx, fy, tx, ty, duration=None):
@@ -483,30 +495,7 @@ class Main:
     def init_ocr(self):
         try:
             self.logger.info("Start initializing OCR")
-            if self.server == 'CN':
-                if not self.ocrCN:
-                    self.ocrCN = CnOcr(det_model_name='ch_PP-OCRv3_det',
-                                       det_model_fp='src/ocr_models/ch_PP-OCRv3_det_infer.onnx',
-                                       rec_model_name='densenet_lite_114-fc',
-                                       rec_model_fp='src/ocr_models/cn_densenet_lite_136.onnx')
-                    img_CN = cv2.imread('src/test_ocr/CN.png')
-                    self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
-            elif self.server == 'Global':
-                if not self.ocrEN:
-                    self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
-                                       det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                                       rec_model_name='en_number_mobile_v2.0',
-                                       rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
-                    img_EN = cv2.imread('src/test_ocr/EN.png')
-                    self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
-            if not self.ocrNUM:
-                self.ocrNUM = CnOcr(det_model_name='en_PP-OCRv3_det',
-                                    det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                                    rec_model_name='number-densenet_lite_136-fc',
-                                    rec_model_fp='src/ocr_models/number-densenet_lite_136.onnx')
-
-                img_NUM = cv2.imread('src/test_ocr/NUM.png')
-                self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
+            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=[self.server, 'NUM'])
             self.logger.info("OCR initialization concluded")
             return True
         except Exception as e:
@@ -595,7 +584,7 @@ class Main:
             return False
 
     def operate_item(self, item):
-        if type(item) is int or type(item) is bool or type(item) is float:
+        if type(item) is int or type(item) is bool or type(item) is float or item is None:
             return item
         if type(item) is str:
             if item.isdigit():
@@ -623,7 +612,7 @@ class Main:
         self.logger.info("--------Initialing All Data----------")
         self.init_config()
         self.init_server()
-        self.init_package_name()
+        self.init_package_activity_name()
         init_results = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
             init_results.append(executor.submit(self.init_ocr))
@@ -641,14 +630,20 @@ class Main:
         self.logger.info("--------Initialization Finished----------")
         return True
 
-    def init_package_name(self):
+    def init_package_activity_name(self):
         server = self.config['server']
         if server == '官服':
             self.package_name = 'com.RoamingStar.BlueArchive'
+            self.activity_name = 'com.yostar.sdk.bridge.YoStarUnityPlayerActivity'
         elif server == 'B服':
             self.package_name = 'com.RoamingStar.BlueArchive.bilibili'
+            self.activity_name = 'com.yostar.sdk.bridge.YoStarUnityPlayerActivity'
         elif server == '国际服':
             self.package_name = 'com.nexon.bluearchive'
+            self.activity_name = '.MxUnityPlayerActivity'
+        elif server == '日服':
+            self.package_name = 'com.YostarJP.BlueArchive'
+            self.activity_name = 'com.yostarjp.bluearchive.MxUnityPlayerActivity'
         return True
 
     def set_screenshot_interval(self, interval):
@@ -665,13 +660,9 @@ if __name__ == '__main__':
     # t.thread_starter()
     t.flag_run = True
     t.init_all_data()
-    # t.thread_starter()
-    t.solve('explore_hard_task')
-    t.solve('tactical_challenge_shop')
-    t.solve('de_clothes')
-    t.solve('common_shop')
-    t.quick_method_to_main_page()
-    # t.solve('tactical_challenge_shop')
+    # t.solve('cafe_reward')
+    # t.solve('momo_talk')
+    t.solve('mail')
     # t.quick_method_to_main_page()
     # t.solve('arena')
     # t.quick_method_to_main_page()
@@ -695,7 +686,6 @@ if __name__ == '__main__':
     # t.quick_method_to_main_page()
     # t.solve('hard_task')
     # t.quick_method_to_main_page()
-
     t.solve('explore_hard_task')
     t.quick_method_to_main_page()
     t.solve('momo_talk')

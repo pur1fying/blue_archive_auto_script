@@ -4,123 +4,70 @@ import time
 import cv2
 import numpy as np
 
-from core import image, color
-
-x = {
-    'menu': (107, 9, 162, 36),
-    '0.0': (1114, 642, 1155, 665),
-    'students-arrived': (572, 240, 662, 269),
-    'cafe-reward-status': (625, 135, 688, 171),
-    'invitation-ticket': (421, 78, 451, 111),
-}
+from core import image, color, picture
 
 
 def implement(self):
     self.quick_method_to_main_page()
     to_cafe(self, True)
-    if self.server == "CN":
-        cn_implement(self)
-    elif self.server == "Global":
-        time.sleep(1)
-        global_implement(self)
-    return True
-
-
-def to_cafe(self, skip_first_screenshot=False):
-    if self.server == 'CN':
-        possible = {
-            'main_page_home-feature': (89, 653, 3),
-            'cafe_cafe-reward-status': (905, 159, 3),
-            'cafe_invitation-ticket': (835, 97, 3),
-            'cafe_students-arrived': (922, 189, 3),
-            'main_page_full-notice': (887, 165),
-
-        }
-        click_pos = [
-            [1240, 577],
-            [640, 154],
-            [640, 360],
-        ]
-        los = [
-            "gift",
-            "reward_acquired",
-            "relationship_rank_up"
-        ]
-        return image.detect(self, 'cafe_menu', possible, pre_func=color.detect_rgb_one_time,
-                            pre_argv=(self, click_pos, los, ['cafe']), skip_first_screenshot=skip_first_screenshot)
-    elif self.server == "Global":
-        click_pos = \
-            [
-                [889, 162],
-                [836, 97],
-                [640, 360],
-                [95, 699],
-                [640, 458],
-                [910, 138],
-                [902, 156],
-                [902, 156],
-                [1240, 574],
-                [628, 147],
-            ]
-        los = [
-            "full_ap_notice",
-            "invitation_ticket",
-            "relationship_rank_up",
-            "main_page",
-            "guide",
-            "insufficient_inventory_space",
-            "cafe_earning_status_bright",
-            "cafe_earning_status_grey",
-            "gift",
-            "reward_acquired"
-        ]
-        end = ["cafe"]
-        color.common_rgb_detect_method(self, click_pos, los, end, skip_first_screenshot)
-
-
-def cn_implement(self):
+    self.latest_img_array = self.get_screenshot_array()
     op = np.full(2, False, dtype=bool)
-    if not image.compare_image(self, 'cafe_0.0', 3):
-        op[0] = True
-    res = self.ocrCN.ocr_for_single_line(image.screenshot_cut(self, (801, 586, 875, 606), self.latest_img_array))[
-        'text'].replace('<unused3>', '')
-    if res == "可以使用":
-        op[1] = True
+    op[1] = get_invitation_ticket_status(self)
+    op[0] = get_cafe_earning_status(self)
     if op[0]:
         self.logger.info("Collect Cafe Earnings")
         collect(self, True)
-        to_cafe(self)
-    if not op[1]:
-        self.logger.info("Invitation ticket unavailable")
-    else:
-        invite_girl(self)
-    pat_style = self.config['patStyle']
-    if pat_style == '普通' or pat_style is None:
-        interaction_for_cafe_solve_method3(self)
-    elif pat_style == '地毯':
-        interaction_for_cafe_solve_method3(self)
-    elif pat_style == '拖动礼物':
-        interaction_for_cafe_solve_method3(self)
-    return True
-
-
-def global_implement(self):
-    self.latest_img_array = self.get_screenshot_array()
-    op = np.full(2, False, dtype=bool)
-    op[0] = get_invitation_ticket_status(self)
-    op[1] = get_cafe_earning_status1(self)
-    if op[1]:
-        self.logger.info("Collect Cafe Earnings")
-        collect(self, True)
         to_cafe(self, True)
-
-    if not op[0]:
-        self.logger.info("Invitation ticket unavailable")
-    else:
+    if op[1]:
         invite_girl(self)
     interaction_for_cafe_solve_method3(self)
     self.logger.info("cafe task finished")
     return True
+
+
+def to_cafe(self, skip_first_screenshot=False):
+    img_possibles = {
+        'CN': {
+            'main_page_home-feature': (89, 653),
+            'cafe_cafe-reward-status': (905, 159),
+            'cafe_invitation-ticket': (835, 97),
+            'cafe_students-arrived': (922, 189),
+            'main_page_full-notice': (887, 165),
+        },
+        'Global': None,
+        'JP': {
+            'main_page_home-feature': (89, 653),
+            'cafe_cafe-reward-status': (982, 149),
+            'cafe_invitation-ticket': (835, 97),
+            'cafe_students-arrived': (922, 189),
+            # 'main_page_full-notice': (887, 165),
+        }
+    }
+    rgb_possibles = {
+        'CN': {
+            'gift': [1240, 577],
+            'reward_acquired': [640, 154],
+            'relationship_rank_up': [640, 360]
+        },
+        'Global': {
+            "full_ap_notice": [889, 162],
+            "invitation_ticket": [836, 97],
+            "relationship_rank_up": [640, 360],
+            "main_page": [95, 699],
+            "guide": [640, 458],
+            "insufficient_inventory_space": [910, 138],
+            "cafe_earning_status_bright": [902, 156],
+            "cafe_earning_status_grey": [902, 156],
+            "gift": [1240, 574],
+            "reward_acquired": [628, 147],
+        },
+        'JP': {
+            'gift': [1240, 577],
+            'reward_acquired': [640, 154],
+            'relationship_rank_up': [640, 360]
+        }
+    }
+    picture.co_detect(self, 'cafe_menu',img_possibles[self.server],'cafe', rgb_possibles[self.server], skip_first_screenshot)
 
 
 def match(img, server):
@@ -135,10 +82,8 @@ def match(img, server):
     return res
 
 
-def to_gift(self):
-    click_pos = [
-        [163, 639],
-    ]
+def cafe_to_gift(self):
+    click_pos = [[163, 639]]
     los = ["cafe"]
     ends = ["gift"]
     color.common_rgb_detect_method(self, click_pos, los, ends)
@@ -149,18 +94,25 @@ def shot(self):
     self.latest_img_array = self.get_screenshot_array()
 
 
+def gift_to_cafe(self):
+    click_pos = [[1240, 574]]
+    los = ["gift"]
+    ends = ["cafe"]
+    color.common_rgb_detect_method(self, click_pos, los, ends)
+
+
 def interaction_for_cafe_solve_method3(self):
     self.connection().pinch_in()
     self.swipe(709, 558, 709, 209, duration=0.2)
     max_times = 4
     for i in range(0, max_times):
-        to_gift(self)
+        cafe_to_gift(self)
         t1 = threading.Thread(target=shot, args=(self,))
         t1.start()
         self.swipe(131, 660, 1280, 660, duration=0.5)
         t1.join()
         res = match(self.latest_img_array, server=self.server)
-        to_cafe(self)
+        gift_to_cafe(self)
         if res:
             res.sort(key=lambda x: x[0])
             temp = 0
@@ -217,6 +169,9 @@ def invite_girl(self):
         student_name = self.static_config['CN_student_name']
     elif self.server == "Global":
         student_name = self.static_config['Global_student_name']
+    elif self.server == "JP":
+        self.logger.warning("JP server not support")
+        return False
     assert student_name is not None
     for i in range(0, len(student_name)):
         t = ""
@@ -309,7 +264,7 @@ def invite_girl(self):
 
 
 def collect(self, skip_first_screenshot=False):
-    if self.server == "CN":
+    if self.server == "CN" or self.server == "JP":
         self.click(1150, 643, duration=1, wait_over=True)
         self.click(640, 522, wait_over=True)
     elif self.server == "Global":
@@ -328,51 +283,63 @@ def collect(self, skip_first_screenshot=False):
 
 
 def get_invitation_ticket_status(self):
-    img = self.latest_img_array[585:606, 731:870, :]
-    t1 = time.time()
-    ocr_res = self.ocrEN.ocr_for_single_line(img)
-    t2 = time.time()
-    self.logger.info("ocr_ticket:" + str(t2 - t1))
-    temp = ""
-    for j in range(0, len(ocr_res['text'])):
-        if ocr_res['text'][j] == ' ':
-            continue
-        temp = temp + ocr_res['text'][j]
-    temp = temp.lower()
-    if temp == "availableforuse":
-        print("Invite ticket available for use")
-        self.logger.info("Invite ticket available for use")
-        return True
-    elif temp[2] == temp[5] == ':':
-        self.logger.info("Invite ticket next available time : " + temp)
-        return False
-    else:
-        self.logger.info("Invite ticket UNKNOWN STATUS")
-        return False
-
-
-def get_cafe_earning_status1(self):
-    img = self.latest_img_array[643:675, 1093:1205, :]
-    t1 = time.time()
-    ocr_res = self.ocrEN.ocr_for_single_line(img)
-    t2 = time.time()
-    self.logger.info("ocr_cafe_earnings:" + str(t2 - t1))
-    temp = ""
-    for j in range(0, len(ocr_res['text'])):
-        if ocr_res['text'][j] == ' ':
-            continue
-        if ocr_res['text'][j] == ',':
-            temp = temp + '.'
-        else:
-            temp = temp + ocr_res['text'][j]
-    temp = temp.lower()
-    if temp[len(temp) - 1] == "%":
-        t = float(temp[:len(temp) - 1])
-        self.logger.info("Cafe earnings : " + str(t) + "%")
-        if t > 0:
+    if self.server == 'CN' or self.server == 'Global':
+        invitation_ticket_status_region = {
+            'CN': (801, 586, 875, 606),
+            'Global': (731, 585, 870, 606),
+            'JP': None
+        }
+        temp = self.ocr.get_region_pure_english(self.latest_img_array, invitation_ticket_status_region[self.server])
+        if self.server == 'Global':
+            if temp == "availableforuse":
+                self.logger.info("Invite ticket available for use")
+                return True
+            else:
+                return False
+        if self.server == 'CN':
+            if temp == "可以使用":
+                self.logger.info("Invite ticket available for use")
+                return True
+            else:
+                self.logger.info("Invitation ticket unavailable")
+                return False
+    elif self.server == 'JP':
+        if color.judge_rgb_range(self.latest_img_array,851,647,250,255,250,255,250,255):
+            self.logger.info("Invite ticket available for use")
             return True
-    self.logger.info("Cafe earnings UNKNOWN STATUS")
-    return False
+        else:
+            self.logger.info("Invitation ticket unavailable")
+            return False
+
+
+def get_cafe_earning_status(self):
+    if self.server == 'Global':
+        img = self.latest_img_array[643:675, 1093:1205, :]
+        t1 = time.time()
+        ocr_res = self.ocrEN.ocr_for_single_line(img)
+        t2 = time.time()
+        self.logger.info("ocr_cafe_earnings:" + str(t2 - t1))
+        temp = ""
+        for j in range(0, len(ocr_res['text'])):
+            if ocr_res['text'][j] == ' ':
+                continue
+            if ocr_res['text'][j] == ',':
+                temp = temp + '.'
+            else:
+                temp = temp + ocr_res['text'][j]
+        temp = temp.lower()
+        if temp[len(temp) - 1] == "%":
+            t = float(temp[:len(temp) - 1])
+            self.logger.info("Cafe earnings : " + str(t) + "%")
+            if t > 0:
+                return True
+        self.logger.info("Cafe earnings UNKNOWN STATUS")
+        return False
+    elif self.server == 'CN' or self.server == 'JP':
+        if not image.compare_image(self, 'cafe_0.0', 3):
+            return True
+
+
 
 
 def interaction_for_cafe_solve_method1(self):

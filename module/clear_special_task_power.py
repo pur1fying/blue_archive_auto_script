@@ -3,12 +3,6 @@ import time
 from core import color, image
 from gui.util import log
 
-x = {
-    'request-select': (658, 141, 935, 186),
-    'level-list': (887, 98, 979, 123),
-    'task-info': (578, 124, 702, 153),
-}
-
 
 def implement(self):
     self.quick_method_to_main_page()
@@ -79,7 +73,7 @@ def start_sweep(self, skip_first_screenshot=False):
             "start_sweep_notice",
         ]
         res = color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
-                                       ends, skip_first_screenshot=skip_first_screenshot)
+                                             ends, skip_first_screenshot=skip_first_screenshot)
         if res == "purchase_ap_notice":
             return res
         ends = [

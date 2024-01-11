@@ -1,24 +1,9 @@
 from core import color, image
-from datetime import datetime
-
-x = {
-    'menu': (107, 9, 162, 36),
-    'sign-up-reward': (610, 141, 673, 176)
-}
-
-
-def get_next_execute_tick():
-    current_time = datetime.now()
-    year = current_time.year
-    month = current_time.month
-    day = current_time.day
-    next_time = datetime(year, month, day+1, 4)
-    return next_time.timestamp()
 
 
 def implement(self):
     self.quick_method_to_main_page()
-    if self.server == 'CN':
+    if self.server == 'CN' or self.server == 'JP':
         possible = {
             'main_page_home-feature': (578, 648),
         }

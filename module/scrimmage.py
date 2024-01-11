@@ -47,7 +47,7 @@ def scrimmage_common_operation(self, a, b):
     i = 675
     while i > 196:
         if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-                131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
+            131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
             los.append(i - 35)
             i -= 100
         else:
@@ -60,7 +60,6 @@ def scrimmage_common_operation(self, a, b):
         if t == "sss":
             if b == "max":
                 self.click(1085, 300, wait=False, wait_over=True)
-                time.sleep(1)
             else:
                 for j in range(0, b - 1):
                     self.click(1014, 300, wait=False, wait_over=True)
@@ -127,7 +126,7 @@ def to_choose_scrimmage(self):
 
 
 def purchase_scrimmage_ticket(self, times):
-    self.click(148, 101, wait=False,duration=1.5, wait_over=True)
+    self.click(148, 101, wait=False, duration=1.5, wait_over=True)
     if times == 12:  # max
         self.click(879, 346, wait=False, wait_over=True)
     else:

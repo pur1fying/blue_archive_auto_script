@@ -1,9 +1,6 @@
 import time
-from core import color, image
 
-x = {
-    'menu': (107, 9, 162, 36)
-}
+from core import color, image
 
 
 def implement(self, activity="collect_daily_power"):
@@ -59,7 +56,8 @@ def to_tasks(self, skip_first_screenshot=False):
             'main_page_full-notice': (887, 165),
         }
         image.detect(self, "work_task_menu", possibles, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, [[640, 100]], ['reward_acquired'], []), skip_first_screenshot=skip_first_screenshot)
+                     pre_argv=(self, [[640, 100]], ['reward_acquired'], []),
+                     skip_first_screenshot=skip_first_screenshot)
 
 
 def global_implement(self):

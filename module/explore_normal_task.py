@@ -1,15 +1,8 @@
 import importlib
 import time
 
-import cv2
-import numpy as np
-
 from core import color, image
 from module import main_story, normal_task
-from src import explore_task_data
-
-x = {
-}
 
 
 def implement(self):
@@ -47,7 +40,7 @@ def start_fight(self, region):
         }
         if self.server == 'CN':
             image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                         pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']),skip_first_screenshot=True)
+                         pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']), skip_first_screenshot=True)
         elif self.server == 'Global':
             image.detect(self, end='normal_task_mission-wait-to-begin-feature', possibles=possibles,
                          skip_first_screenshot=True)

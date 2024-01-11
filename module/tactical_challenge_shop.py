@@ -9,25 +9,14 @@ def implement(self):
     self.quick_method_to_main_page()
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
     time.sleep(0.5)
-    tactical_challenge_assets = get_tactical_challenge_assets(self.latest_img_array, self.ocrNUM)
+    tactical_challenge_assets = get_tactical_challenge_assets(self)
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))
     buy_list_for_power_items = [
         [700, 204], [857, 204], [1000, 204], [1162, 204],
         [700, 461], [857, 461], [1000, 461], [1162, 461]
     ]
     buy_list = np.array(self.config["TacticalChallengeShopList"])
-    if self.server == 'CN':
-        price = np.array([
-            50, 50, 50, 50,
-            15, 30, 5, 25,
-            60, 100, 4, 20,
-            60, 100], dtype=int)
-    elif self.server == 'Global':
-        price = np.array([
-            50, 50, 50, 50,
-            50, 15, 30, 5,
-            25, 60, 100, 4,
-            20, 60, 100], dtype=int)
+    price = np.array(self.static_config["tactical_challenge_shop_price_list"][self.server], dtype=int)
     if buy_list.shape != price.shape:
         self.logger.error("buy_list and price shape not match")
         return True
@@ -105,7 +94,7 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
         }
         image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
                      pre_argv=(self, click_pos, los, ends), skip_first_screenshot=skip_first_screenshot)
-    elif self.server == 'Global':
+    elif self.server == 'Global' or self.server == 'JP':
         click_pos = [
             [796, 653],  # main_page
             [160, 531],  # common shop
@@ -133,7 +122,7 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
 
 
 def to_refresh(self):
-    if self.server == 'CN':
+    if self.server == 'CN' or self.server == 'JP':
         ends = [
             "shop_refresh-notice",
             "shop_refresh-unavailable-notice"
@@ -141,7 +130,7 @@ def to_refresh(self):
         click_pos = [[949, 664]]
         los = ["tactical_challenge_shop"]
         if image.detect(self, end=ends, pre_func=color.detect_rgb_one_time,
-                        pre_argv=(self,click_pos, los, [])) == "shop_refresh-unavailable-notice":
+                        pre_argv=(self, click_pos, los, [])) == "shop_refresh-unavailable-notice":
             return False
         return True
     elif self.server == 'Global':
@@ -156,9 +145,10 @@ def to_refresh(self):
         return True
 
 
-def get_tactical_challenge_assets(img, ocr):
-    img = img[63:102, 1140:1240]
-    t1 = time.time()
-    ocr_res = ocr.ocr_for_single_line(img)
-    print(time.time() - t1)
-    return int(ocr_res["text"])
+def get_tactical_challenge_assets(self):
+    tactical_challenge_assets_region = {
+        'CN': [1140, 63, 1240, 102],
+        'Global': [1140, 63, 1240, 102],
+        'JP': [907, 68, 1045, 98]
+    }
+    return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server])

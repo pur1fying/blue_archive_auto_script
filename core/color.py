@@ -68,6 +68,8 @@ def common_rgb_detect_method(self, click, possible_los, ends, skip_first_screens
 
 def detect_rgb_one_time(self, click=None, possible_los=None, ends=None):
     for i in range(0, len(ends)):
+        if ends[i] not in self.rgb_feature:
+            continue
         for j in range(0, len(self.rgb_feature[ends[i]][0])):
             if not judge_rgb_range(self.latest_img_array,
                                    self.rgb_feature[ends[i]][0][j][0],
@@ -83,6 +85,8 @@ def detect_rgb_one_time(self, click=None, possible_los=None, ends=None):
             self.logger.info("end : " + ends[i])  # 出现end中的任意一个，返回对应的位置字符串
             return "end", ends[i]
     for i in range(0, len(possible_los)):  # 可能的图标
+        if possible_los[i] not in self.rgb_feature:
+            continue
         for j in range(0, len(self.rgb_feature[possible_los[i]][0])):  # 每个图标多个，判断rgb
             if not judge_rgb_range(self.latest_img_array,
                                    self.rgb_feature[possible_los[i]][0][j][0],

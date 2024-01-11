@@ -1,8 +1,8 @@
+import importlib
 import time
 
 from core import color, image
-from module import explore_normal_task, main_story, normal_task, hard_task
-import importlib
+from module import main_story, normal_task, hard_task
 
 
 def implement(self):

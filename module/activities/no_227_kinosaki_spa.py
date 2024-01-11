@@ -148,7 +148,7 @@ def explore_mission(self):
 
 
 def explore_challenge(self):
-    to_no_227_kinosaki_spa(self, 'challenge',True)
+    to_no_227_kinosaki_spa(self, 'challenge', True)
 
 
 def to_no_227_kinosaki_spa(self, region, skip_first_screenshot=False):

@@ -1,11 +1,7 @@
-from gui.util import log
 import time
-from core import color, image
 
-x = {
-    'location-select': (658, 141, 935, 186),
-    'purchase-ticket-notice': (557, 297, 692, 330)
-}
+from core import color, image
+from gui.util import log
 
 
 def implement(self):
