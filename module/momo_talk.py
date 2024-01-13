@@ -2,9 +2,6 @@ import time
 import numpy as np
 
 from core import color, image
-from core.utils import get_x_y
-from gui.util import log
-from datetime import datetime
 
 x = {
     'momotalk-peach': (144, 107, 169, 130),
@@ -25,37 +22,53 @@ def implement(self):
 
 
 def check_mode(self):
-    if image.compare_image(self, "momo_talk_newest", threshold=3):
-        self.logger.info("change NEWEST to UNREAD mode")
-        self.click(514, 177, wait=False)
-        time.sleep(0.3)
-        self.click(444, 297, wait=False)
-        time.sleep(0.3)
-        self.click(461, 365, wait=False)
-        time.sleep(0.3)
-    elif image.compare_image(self, "momo_talk_unread", threshold=3):
-        self.logger.info("UNREAD mode")
-    else:
-        self.logger.info("can't detect mode button")
-        return False
-    self.latest_img_array = self.get_screenshot_array()
-    if image.compare_image(self, "momo_talk_up", threshold=3):
-        self.logger.info("change UP to DOWN")
-        self.click(634, 169, wait=False)
-    elif image.compare_image(self, "momo_talk_down", threshold=3):
-        self.logger.info("DOWN mode")
-    else:
-        self.logger.info("can't detect up/down button")
-        return False
-    return True
+    if self.server == 'CN':
+        if image.compare_image(self, "momo_talk_newest", threshold=3):
+            self.logger.info("change NEWEST to UNREAD mode")
+            self.click(514, 177, wait=False, wait_over=True)
+            time.sleep(0.3)
+            self.click(444, 297, wait=False, wait_over=True)
+            time.sleep(0.3)
+            self.click(461, 365, wait=False, wait_over=True)
+            time.sleep(0.3)
+        elif image.compare_image(self, "momo_talk_unread", threshold=3):
+            self.logger.info("UNREAD mode")
+        else:
+            self.logger.info("can't detect mode button")
+            return False
+        self.latest_img_array = self.get_screenshot_array()
+        if image.compare_image(self, "momo_talk_up", threshold=3):
+            self.logger.info("change UP to DOWN")
+            self.click(634, 169, wait=False, wait_over=True)
+        elif image.compare_image(self, "momo_talk_down", threshold=3):
+            self.logger.info("DOWN mode")
+        else:
+            self.logger.info("can't detect up/down button")
+            return False
+        return True
+    elif self.server == 'Global':
+        if color.judge_rgb_range(self.latest_img_array, 487, 177, 50, 150, 50, 150, 50, 150) and \
+            color.judge_rgb_range(self.latest_img_array, 486, 183, 245, 255, 245, 255, 245, 255):
+            self.logger.info("change NEWEST to UNREAD mode")
+            self.click(514, 177, wait=False, wait_over=True)
+            time.sleep(0.3)
+            self.click(563, 297, wait=False, wait_over=True)
+            time.sleep(0.3)
+            self.click(454, 426, wait=False, wait_over=True)
+            time.sleep(0.3)
+        elif color.judge_rgb_range(self.latest_img_array, 486, 183, 50, 150, 50, 150, 50, 150) and \
+            color.judge_rgb_range(self.latest_img_array, 487, 177, 245, 255, 245, 255, 245, 255):
+            self.logger.info("UNREAD mode")
+        else:
+            self.logger.info("can't detect mode button")
 
 
-def cn_implement(self):
-    to_momotalk2(self)
-    check_mode(self)
+def cn_implement(self, need_check_mode=True):
+    to_momotalk2(self, True)
+    if need_check_mode:
+        check_mode(self)
     main_to_momotalk = True
     while 1:
-        self.latest_img_array = self.get_screenshot_array()
         location_y = 210
         red_dot = np.array([25, 71, 251])
         location_x = 637
@@ -63,7 +76,7 @@ def cn_implement(self):
         unread_location = []
         while location_y <= 630:
             if np.array_equal(self.latest_img_array[location_y][location_x], red_dot) and \
-                    np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
+                np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
                 unread_location.append([location_x, location_y + dy / 2])
                 location_y += 60
             else:
@@ -78,35 +91,25 @@ def cn_implement(self):
             else:
                 self.logger.info("restart momo_talk task")
                 self.quick_method_to_main_page()
-                return implement(self)
+                return cn_implement(self, need_check_mode=False)
         else:
             for i in range(0, len(unread_location)):
                 self.click(unread_location[i][0], unread_location[i][1], wait=False)
                 time.sleep(0.5)
                 common_solve_affection_story_method(self)
         main_to_momotalk = False
-        self.click(170, 197, wait=False)
+        self.click(170, 197, wait=False, wait_over=True)
         time.sleep(0.2)
-        self.click(170, 270, wait=False)
+        self.click(170, 270, wait=False, wait_over=True)
         time.sleep(0.2)
+        self.latest_img_array = self.get_screenshot_array()
 
 
-def global_implement(self):
-    to_momotalk2(self)
-    if color.judge_rgb_range(self.latest_img_array, 487, 177, 50, 150, 50, 150, 50, 150) and \
-        color.judge_rgb_range(self.latest_img_array, 486, 183, 245, 255, 245, 255, 245, 255):
-        self.logger.info("change NEWEST to UNREAD mode")
-        self.click(514, 177, wait=False)
-        time.sleep(0.3)
-        self.click(563, 297, wait=False)
-        time.sleep(0.3)
-        self.click(454, 426, wait=False)
-        time.sleep(0.3)
-    elif color.judge_rgb_range(self.latest_img_array, 486, 183, 50, 150, 50, 150, 50, 150) and \
-        color.judge_rgb_range(self.latest_img_array, 487, 177, 245, 255, 245, 255, 245, 255):
-        self.logger.info("UNREAD mode")
-    else:
-        self.logger.info("can't detect mode button")
+
+def global_implement(self, need_check_mode=True):
+    to_momotalk2(self, True)
+    if need_check_mode:
+        check_mode(self)
     main_to_momotalk = True
     while 1:
         self.latest_img_array = self.get_screenshot_array()
@@ -117,7 +120,7 @@ def global_implement(self):
         unread_location = []
         while location_y <= 630:
             if np.array_equal(self.latest_img_array[location_y][location_x], red_dot) and \
-                    np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
+                np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
                 unread_location.append([location_x, location_y + dy / 2])
                 location_y += 60
             else:
@@ -131,20 +134,21 @@ def global_implement(self):
                 return True
             else:
                 self.logger.info("restart momo_talk task")
-                return implement(self)
+                self.quick_method_to_main_page()
+                return global_implement(self, need_check_mode=False)
         else:
             for i in range(0, len(unread_location)):
                 self.click(unread_location[i][0], unread_location[i][1], wait=False)
                 time.sleep(0.5)
                 common_solve_affection_story_method(self)
         main_to_momotalk = False
-        self.click(170, 197, wait=False)
+        self.click(170, 197, wait=False, wait_over=True)
         time.sleep(0.2)
-        self.click(170, 270, wait=False)
+        self.click(170, 270, wait=False, wait_over=True)
         time.sleep(0.2)
 
 
-def to_momotalk2(self):
+def to_momotalk2(self, skip_first_screenshot=False):
     click_pos = [
         [166, 150],
         [170, 278],
@@ -156,7 +160,7 @@ def to_momotalk2(self):
         "reward_acquired",
     ]
     ends = ["momotalk2"]
-    color.common_rgb_detect_method(self, click_pos, los, ends)
+    color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
 
 
 def common_solve_affection_story_method(self):
@@ -170,10 +174,14 @@ def common_solve_affection_story_method(self):
         img = self.get_screenshot_array()
         res = get_reply_position(img)
         if res[0] == 'reply':
-            self.logger.info("reply")
-            self.click(826, res[1], wait=False)
+            if res[1] >= 625:
+                self.logger.info("swipe upward")
+                self.connection.swipe(924, 330, 924, 230, duration=0.1)
+                self.click(924, 330, wait=False)
+            else:
+                self.logger.info("reply")
+                self.click(826, res[1], wait=False)
             start_time = time.time()
-            time.sleep(1)
         elif res[0] == 'affection':
             self.logger.info("ENTER affection story")
             self.click(826, res[1], wait=False)
@@ -189,10 +197,10 @@ def get_reply_position(img):
     i = 156
     while i < 657:
         if color.judge_rgb_range(img, 786, i, 29, 49, 143, 163, 219, 239) and \
-                color.judge_rgb_range(img, 786, i+10, 29, 49, 143, 163, 219, 239):
-            return 'reply', min(i + 65, 625)
+            color.judge_rgb_range(img, 786, i + 10, 29, 49, 143, 163, 219, 239):
+            return 'reply', i + 65
         elif color.judge_rgb_range(img, 862, i, 245, 255, 227, 247, 230, 250) and \
-                color.judge_rgb_range(img, 862, i + 10, 245, 255, 125, 155, 145, 175):
+            color.judge_rgb_range(img, 862, i + 10, 245, 255, 125, 155, 145, 175):
             return 'affection', min(625, i + 30)
         else:
             i += 1
@@ -200,68 +208,59 @@ def get_reply_position(img):
 
 
 def pd_menu_bright(img_array):
-    if color.judge_rgb_range(img_array, 1165, 45, 230, 255, 230, 255, 230, 255) and color.judge_rgb_range(img_array,
-                                                                                                          1238, 45, 230,
-                                                                                                          255, 230, 255,
-                                                                                                          230, 255):
+    if color.judge_rgb_range(img_array, 1165, 45, 230, 255, 230, 255, 230, 255) and \
+        color.judge_rgb_range(img_array, 1238, 45, 230, 255, 230, 255, 230, 255):
         return True
     return False
 
 
 def pd_skip_plot_button(img_array):
-    if color.judge_rgb_range(img_array, 1189, 120, 34, 54, 59, 79, 90, 110) and color.judge_rgb_range(img_array, 1128,
-                                                                                                      104, 34, 54,
-                                                                                                      59, 79, 90,
-                                                                                                      110) and color.judge_rgb_range(
-        img_array, 1125, 120, 245, 255, 245, 255, 245, 255) and color.judge_rgb_range(img_array, 1207, 120, 245, 255,
-                                                                                      245,
-                                                                                      255, 245, 255):
+    if color.judge_rgb_range(img_array, 1189, 120, 34, 54, 59, 79, 90, 110) and \
+        color.judge_rgb_range(img_array, 1128, 104, 34, 54, 59, 79, 90, 110) and \
+        color.judge_rgb_range(img_array, 1125, 120, 245, 255, 245, 255, 245, 255) and \
+        color.judge_rgb_range(img_array, 1207, 120, 245, 255, 245, 255, 245, 255):
         return True
     return False
 
 
 def pd_confirm_button(img_array):
-    if color.judge_rgb_range(img_array, 691, 552, 110, 130, 210, 230, 245, 255) and color.judge_rgb_range(img_array,
-                                                                                                          848, 525, 110,
-                                                                                                          130, 210, 230,
-                                                                                                          245, 255):
+    if color.judge_rgb_range(img_array, 691, 552, 110, 130, 210, 230, 245, 255) and \
+        color.judge_rgb_range(img_array, 848, 525, 110, 130, 210, 230, 245, 255):
         return True
     return False
 
 
 def pd_enter_button(img_array):
-    if color.judge_rgb_range(img_array, 817, 582, 110, 130, 210, 230, 245, 255) and color.judge_rgb_range(img_array,
-                                                                                                          761, 418, 35,
-                                                                                                          55, 66, 86,
-                                                                                                          104,
-                                                                                                          124) and color.judge_rgb_range(
-        img_array, 1034, 582, 110, 130, 210, 230, 245, 255):
+    if color.judge_rgb_range(img_array, 817, 582, 110, 130, 210, 230, 245, 255) and \
+        color.judge_rgb_range(img_array, 761, 418, 35, 55, 66, 86, 104, 124) and \
+        color.judge_rgb_range(img_array, 1034, 582, 110, 130, 210, 230, 245, 255):
         return True
     return False
 
 
 def common_skip_plot_method(self):
     fail_cnt = 0
-    while fail_cnt <= 20/self.screenshot_interval:
+    while fail_cnt <= 20 / self.screenshot_interval:
         self.latest_img_array = self.get_screenshot_array()
         if pd_enter_button(self.latest_img_array):
             self.logger.info("Begin Relationship Story")
-            self.click(920, 556, wait=False)
+            self.click(920, 556, wait=False, wait_over=True)
             time.sleep(4)
         elif pd_confirm_button(self.latest_img_array):
             self.logger.info("find CONFIRM button")
-            self.click(766, 520, wait=False)
+            self.click(766, 520, wait=False, wait_over=True)
             return True
         else:
             fail_cnt += 1
             if pd_menu_bright(self.latest_img_array):
                 self.logger.info("find MENU button")
-                self.click(1205, 34, wait=False,duration=0.3)
+                self.click(1205, 34, wait=False, duration=0.3, wait_over=True)
             elif pd_skip_plot_button(self.latest_img_array):
                 self.logger.info("find SKIP PLOT button")
-                self.click(1213, 116, wait=False,duration=0.3)
+                self.click(1213, 116, wait=False, duration=0.3, wait_over=True)
                 time.sleep(0.3)
-            self.logger.info("Didn't find confirm button, fail count: " + str(fail_cnt))
+            else:
+                self.logger.info("Didn't find confirm button, fail count: " + str(fail_cnt))
         time.sleep(self.screenshot_interval)
-    self.logger.info("skip plot fail")
+    self.logger.error("skip plot fail")
     return False

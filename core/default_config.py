@@ -213,24 +213,27 @@ DEFAULT_CONFIG = """
     "explore_normal_task_regions": [
 
     ],
-    "explore_hard_task_regions": [
-
-    ],
+    "explore_hard_task_list": "此处填写需要推图的关卡",
     "manual_boss": false,
+    "explore_activity": false,
     "burst1": "1",
     "burst2": "2",
     "pierce1": "1",
     "pierce2": "2",
     "mystic1": "1",
     "mystic2": "2",
+    "explore_hard_task_need_sss": true,
+    "explore_hard_task_need_present": true,
+    "explore_hard_task_need_task": true,
     "TacticalChallengeShopRefreshTime": "0",
     "TacticalChallengeShopList": [
         0,
         0,
         0,
         0,
-        1,
-        1,
+        0,
+        0,
+        0,
         0,
         0,
         0,
@@ -522,6 +525,9 @@ STATIC_DEFAULT_CONFIG = '''
                             "Yuzu (Maid)"
                             ],
     "CN_student_name": [
+                        "切里诺(温泉)",
+                        "和香(温泉)",
+                        "千夏(温泉)",
                         "小夏",
                         "亚子",
                         "玛丽",

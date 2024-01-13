@@ -26,7 +26,7 @@ def implement(self):
             'group_sign-up-reward',
             'group_menu',
         ]
-        res = image.detect(self, end, possible)
+        res = image.detect(self, end, possible, skip_first_screenshot=True)
         if res == 'group_sign-up-reward':
             self.logger.info('get 10 AP')
     elif self.server == "Global":
@@ -48,4 +48,4 @@ def to_club(self):
         "club",
         "club_attendance_reward"
     ]
-    return color.common_rgb_detect_method(self, click_pos, los, ends)
+    return color.common_rgb_detect_method(self, click_pos, los, ends, True)

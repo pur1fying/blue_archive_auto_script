@@ -121,3 +121,7 @@ class Scheduler:
         _valid_event.sort(key=lambda x: x['next_tick'])
         return _valid_event[0]['next_tick'] - time.time()
 
+    def change_display(self, task_name):
+        self._display_config['running'] = task_name
+        self._commit_change()
+        self.update_signal.emit()

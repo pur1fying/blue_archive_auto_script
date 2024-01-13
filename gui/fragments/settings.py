@@ -36,9 +36,16 @@ class SettingsFragment(ScrollArea, ConfigSet):
             self.tr("相关设置"), self.scrollWidget)
 
         self.exploreOption = SimpleSettingCard(
-            title='推图设置',
-            content='根据你的电脑配置，调整相应的参数。',
+            title='普通图推图设置',
+            content='根据你的推图需求，调整相应的参数。',
             sub_view=expand.__dict__['exploreConfig'],
+            parent=self.exploreGroup
+        )
+
+        self.hardOption = SimpleSettingCard(
+            title='困难图推图设置',
+            content='根据你所需困难图刷关，设置参数。',
+            sub_view=expand.__dict__['hardTaskConfig'],
             parent=self.exploreGroup
         )
 
@@ -67,6 +74,7 @@ class SettingsFragment(ScrollArea, ConfigSet):
         self.basicGroup.addSettingCard(self.serverOption)
         self.basicGroup.addSettingCard(self.scriptOption)
         self.exploreGroup.addSettingCard(self.exploreOption)
+        self.exploreGroup.addSettingCard(self.hardOption)
         self.exploreGroup.addSettingCard(self.otherOption)
         self.expandLayout.addWidget(self.settingLabel)
         self.expandLayout.addWidget(self.basicGroup)

@@ -1,9 +1,10 @@
 import cv2
-from main import Main
+
 from .expandTemplate import TemplateLayout
 
 
 def screenshot():
+    from main import Main
     main = Main()
     test_img = main.get_screenshot_array()
     cv2.imshow('Test Screenshot', test_img)

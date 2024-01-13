@@ -1,4 +1,27 @@
 stage_data = {
+    '10-1-task-present': {
+        'start': {
+            '1': (757, 260),
+            '2': (501, 284)
+        },
+        'attr': {
+            '1': 'burst1',
+            '2': 'mystic1'
+        },
+        'action': [
+            {'t': 'click', 'p': (701, 386), 'ec': True, "desc": "1 lower left"},
+            {'t': 'click', 'p': (463, 384), 'wait-over': True, "desc": "2 lower left"},
+
+            {'t': 'exchange', 'ec': True},
+            {'t': 'click', 'p': (441, 475), 'ec': True, "desc": "2 lower left"},
+            {'t': 'click', 'p': (764, 398), 'wait-over': True, "desc": "1 lower right"},
+
+            {'t': 'click', 'p': (825, 476), "desc": "1 lower right"},
+            {'t': 'end-turn', 'wait-over': True},
+
+            {'t': 'click', 'p': (832, 342), "desc": "1 upper right"},
+        ]
+    },
     '10-1-sss': {
         'start': {
             '1': (757, 260),
@@ -24,29 +47,7 @@ stage_data = {
             {'t': 'click', 'p': (901, 388), "desc": "1 right"},
         ]
     },
-    '10-1-present-task': {
-        'start': {
-            '1': (757, 260),
-            '2': (501, 284)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
-        },
-        'action': [
-            {'t': 'click', 'p': (701, 386), 'ec': True, "desc": "1 lower left"},
-            {'t': 'click', 'p': (463, 384), 'wait-over': True, "desc": "2 lower left"},
 
-            {'t': 'exchange', 'ec': True},
-            {'t': 'click', 'p': (441, 475), 'ec': True, "desc": "2 lower left"},
-            {'t': 'click', 'p': (764, 398), 'wait-over': True, "desc": "1 lower right"},
-
-            {'t': 'click', 'p': (825, 476), "desc": "1 lower right"},
-            {'t': 'end-turn', 'wait-over': True},
-
-            {'t': 'click', 'p': (832, 342), "desc": "1 upper right"},
-        ]
-    },
     '10-2-sss-present': {
         'start': {
             '1': (463, 260),

@@ -11,7 +11,7 @@ from core.utils import *
 from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
-from core import position, color, image, stage
+from core import position, color, image
 from gui.util.config_set import ConfigSet
 
 func_dict = {
@@ -38,19 +38,27 @@ func_dict = {
     'total_force_fight': module.total_force_fight.implement,
     'restart': module.restart.implement,
     'refresh_uiautomator2': module.refresh_uiautomator2.implement,
+    'no_227_kinosaki_spa': module.no_227_kinosaki_spa.implement,
 }
 
 
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+        self.img_cnt = 0
+        self.latest_screenshot_time = None
+        self.scheduler = None
+        self.screenshot_interval = None
+        self.flag_run = None
         self.static_config = None
         self.main_activity = None
         self.package_name = None
         self.server = None
+        self.first_start = True
         self.rgb_feature = None
         self.ocr = None
         self.config = None
         self.next_time = None
+        self.screenshot_updated = None
         self.ocrCN, self.ocrNUM, self.ocrEN = [None] * 3
         self.common_task_count = []
         self.hard_task_count = []
@@ -66,7 +74,6 @@ class Main:
         # self.logger.setLevel(logging.INFO)
         # self.logger.addHandler(handler1)
 
-
         # self.loggerBox = logger_signal
         self.total_force_fight_difficulty_name = ["HARDCORE", "VERYHARD", "EXTREME", "NORMAL", "HARD"]  # 当期总力战难度
         self.total_force_fight_difficulty_name_ordered = ["NORMAL", "HARD", "VERYHARD", "HARDCORE",
@@ -76,37 +83,60 @@ class Main:
         self.total_force_fight_name = "chesed"  # 当期总力战名字
         self.latest_img_array = None
         self.button_signal = button_signal
-
+        self.update_signal = update_signal
         if not self.init_all_data():
             return
-        self.screenshot_interval = self.config['screenshot_interval']
-        self.flag_run = True
         self.stage_data = {}
-        self.scheduler = Scheduler(update_signal)
+
         # start_debugger()
 
-    def click(self, x, y, wait=True, count=1, rate=0, duration=0):
+    def click(self, x, y, wait=True, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
             return False
         if wait:
-            stage.wait_loading(self)
+            color.wait_loading(self)
+        click_ = threading.Thread(target=self.click_thread, args=(x, y, count, rate, duration))
+        click_.start()
+        if wait_over:  # wait for click to be over
+            click_.join()
+
+    def click_thread(self, x, y, count=1, rate=0, duration=0):
         for i in range(count):
             self.logger.info(f"click ({x} ,{y})")
-            time.sleep(rate)
-            noisex = np.random.uniform(-5, 5)
-            noisey = np.random.uniform(-5, 5)
-            self.connection.click(x + noisex, y + noisey)
-            time.sleep(duration)
+            if rate > 0:
+                time.sleep(rate)
+            noisex = int(np.random.uniform(-5, 5))
+            noisey = int(np.random.uniform(-5, 5))
+            x = x + noisex
+            y = y + noisey
+            x = max(0, x)
+            y = max(0, y)
+            x = min(1280, x)
+            y = min(720, y)
+            self.connection.click(x, y)
+            if duration > 0:
+                time.sleep(duration)
 
     def get_screenshot_array(self):
         if not self.flag_run:
             return False
-        return cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
+        self.latest_screenshot_time = time.time()
+        img = cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
+        self.img_cnt += 1
+        # cv2.imwrite("D:\\github\\bass\\blue_archive_auto_script\\test\\" + str(self.img_cnt) + ".png", img)
+        return img
+
+    def screenshot_worker_thread(self):
+        self.latest_img_array = self.get_screenshot_array()
+        self.screenshot_updated = True
 
     def signal_stop(self):
         self.flag_run = False
         if self.button_signal is not None:
             self.button_signal.emit("启动")
+
+    def init_emulator(self):
+        self._init_emulator()
 
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
@@ -120,16 +150,12 @@ class Main:
                 self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
             if 'com.github.uiautomator' not in self.connection.app_list():
                 self.connection.app_install('ATX.apk')
-            if self.server == 'CN':
-                self.connection.app_start(self.package_name)
-            elif self.server == 'Global':
-                self.connection.app_start(self.package_name, activity='.MxUnityPlayerActivity')
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
                 self.logger.info("Screen Size Fitted")
             else:
-                self.logger.info("Screen Size unfitted, Please set the screen size to 1280x720")
+                self.logger.critical("Screen Size unfitted, Please set the screen size to 1280x720")
                 return False
             self.logger.info("--------Emulator Init Finished----------")
             return True
@@ -160,6 +186,8 @@ class Main:
             self.logger.line()
             self.logger.info("start activities")
             while self.flag_run:
+                if self.first_start:
+                    self.solve('restart')
                 next_func_name = self.scheduler.heartbeat()
                 self.next_time = 0
                 if next_func_name:
@@ -170,7 +198,7 @@ class Main:
                         next_tick.replace(microsecond=0)
                         self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                     else:
-                        self.logger.info("error occurred, stop all activities")
+                        self.logger.error("error occurred, stop all activities")
                         self.quick_method_to_main_page()
                         self.signal_stop()
                 else:
@@ -179,8 +207,6 @@ class Main:
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
                     time.sleep(1)
-
-            self.signal_stop()
         except Exception as e:
             notify(title='', body='任务已停止')
             self.logger.info("error occurred, stop all activities")
@@ -198,7 +224,7 @@ class Main:
     def simple_error(self, info: str):
         raise ScriptError(message=info, context=self)
 
-    def quick_method_to_main_page(self):
+    def quick_method_to_main_page(self, skip_first_screenshot=False):
         if self.server == "CN":
             possibles = {
                 'main_page_quick-home': (1236, 31),
@@ -215,6 +241,7 @@ class Main:
                 "normal_task_start-sweep-notice": (887, 164),
                 "normal_task_unlock-notice": (887, 164),
                 'normal_task_skip-sweep-complete': (643, 506),
+                "normal_task_charge-challenge-counts": (887, 164),
                 "buy_ap_notice": (919, 165),
                 'normal_task_mission-operating-task-info': (1000, 664),
                 'normal_task_task-info': (1084, 139),
@@ -239,39 +266,38 @@ class Main:
                 'plot_menu': (1202, 37),
                 'plot_skip-plot-button': (1208, 116),
                 'plot_skip-plot-notice': (770, 519),
+                'activity_story-fight-success-confirm': (638, 674)
             }
             fail_cnt = 0
+            click_pos = [
+                [640, 100],
+                [1236, 31],
+                [640, 360],
+                [640, 100],
+                [640, 200]
+            ]
+            los = [
+                "reward_acquired",
+                "home",
+                'relationship_rank_up',
+                'area_rank_up',
+                'level_up'
+            ]
             while True:
-                stage.wait_loading(self)
-                self.latest_img_array = self.get_screenshot_array()
+                color.wait_loading(self, skip_first_screenshot)
                 res = color.detect_rgb_one_time(self, [], [], ['main_page'])
                 if res == ('end', 'main_page'):
                     break
-                click_pos = [
-                    [640, 100],
-                    [1236, 31],
-                    [640, 360],
-                    [640, 100],
-                    [640, 200]
-                ]
-                los = [
-                    "reward_acquired",
-                    "home",
-                    'relationship_rank_up',
-                    'area_rank_up',
-                    'level_up'
-                ]
                 res = color.detect_rgb_one_time(self, click_pos, los, [])
                 if res == ('click', True):
                     continue
-
                 # region 资源图片可能会出现的位置
                 for asset, obj in possibles.items():
                     if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
                                            need_log=False):
                         self.logger.info("find " + asset)
                         self.click(obj[0], obj[1], False)
-                        time.sleep(self.screenshot_interval)
+                        self.latest_screenshot_time = time.time()
                         fail_cnt = 0
                         break
                 else:
@@ -279,9 +305,8 @@ class Main:
                     if fail_cnt > 10:
                         self.logger.info("tentative clicks")
                         self.click(1236, 31, False)
-                        self.click(640, 360, False)
+                        self.latest_screenshot_time = time.time()
                         fail_cnt = 0
-                        time.sleep(self.screenshot_interval)
             return True
         elif self.server == "Global":
             click_pos = [
@@ -374,11 +399,40 @@ class Main:
                 'normal_task_mission-operating-feature': (995, 668),
                 'normal_task_quit-mission-info': (772, 511),
                 'normal_task_mission-conclude-confirm': (1042, 671),
+                'normal_task_obtain-present': (640,519),
             }
+            fail_cnt = 0
+            while True:
+                color.wait_loading(self, skip_first_screenshot)
+                res = color.detect_rgb_one_time(self, [], [], ends)
+                if res == ('end', 'main_page'):
+                    break
+                res = color.detect_rgb_one_time(self, click_pos, los, [])
+                if res == ('click', True):
+                    continue
 
-            image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                         pre_argv=(self, click_pos, los, ends))
+                # region 资源图片可能会出现的位置
+                for asset, obj in possibles.items():
+                    if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
+                                           need_log=False):
+                        self.logger.info("find " + asset)
+                        self.click(obj[0], obj[1], False)
+                        self.latest_screenshot_time = time.time()
+                        fail_cnt = 0
+                        break
+                else:
+                    time.sleep(self.screenshot_interval)
+                    fail_cnt += 1
+                    if fail_cnt > 10:
+                        self.logger.info("tentative clicks")
+                        self.click(1228, 41, False)
+                        time.sleep(self.screenshot_interval)
+                        fail_cnt = 0
             return True
+
+    def wait_screenshot_updated(self):
+        while not self.screenshot_updated:
+            time.sleep(0.01)
 
     def init_rgb(self):
         try:
@@ -430,26 +484,29 @@ class Main:
         try:
             self.logger.info("Start initializing OCR")
             if self.server == 'CN':
-                self.ocrCN = CnOcr(det_model_name='ch_PP-OCRv3_det',
-                                   det_model_fp='src/ocr_models/ch_PP-OCRv3_det_infer.onnx',
-                                   rec_model_name='densenet_lite_114-fc',
-                                   rec_model_fp='src/ocr_models/cn_densenet_lite_136.onnx')
-                img_CN = cv2.imread('src/test_ocr/CN.png')
-                self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
+                if not self.ocrCN:
+                    self.ocrCN = CnOcr(det_model_name='ch_PP-OCRv3_det',
+                                       det_model_fp='src/ocr_models/ch_PP-OCRv3_det_infer.onnx',
+                                       rec_model_name='densenet_lite_114-fc',
+                                       rec_model_fp='src/ocr_models/cn_densenet_lite_136.onnx')
+                    img_CN = cv2.imread('src/test_ocr/CN.png')
+                    self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
             elif self.server == 'Global':
-                self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
-                                   det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                                   rec_model_name='en_number_mobile_v2.0',
-                                   rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
-                img_EN = cv2.imread('src/test_ocr/EN.png')
-                self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
-            self.ocrNUM = CnOcr(det_model_name='en_PP-OCRv3_det',
-                                det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                                rec_model_name='number-densenet_lite_136-fc',
-                                rec_model_fp='src/ocr_models/number-densenet_lite_136.onnx')
+                if not self.ocrEN:
+                    self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
+                                       det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
+                                       rec_model_name='en_number_mobile_v2.0',
+                                       rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
+                    img_EN = cv2.imread('src/test_ocr/EN.png')
+                    self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
+            if not self.ocrNUM:
+                self.ocrNUM = CnOcr(det_model_name='en_PP-OCRv3_det',
+                                    det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
+                                    rec_model_name='number-densenet_lite_136-fc',
+                                    rec_model_fp='src/ocr_models/number-densenet_lite_136.onnx')
 
-            img_NUM = cv2.imread('src/test_ocr/NUM.png')
-            self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
+                img_NUM = cv2.imread('src/test_ocr/NUM.png')
+                self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
             self.logger.info("OCR initialization concluded")
             return True
         except Exception as e:
@@ -494,7 +551,7 @@ class Main:
             self.logger.error("Unknown Server Error")
             return "UNKNOWN"
         t2 = time.time()
-        self.logger.info("ocr_pyroxene:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"] )
+        self.logger.info("ocr_pyroxene:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
         temp = 0
 
         for j in range(0, len(_ocr_res['text'])):
@@ -573,10 +630,14 @@ class Main:
             init_results.append(executor.submit(self.init_rgb))
             init_results.append(executor.submit(position.init_image_data, self))
             init_results.append(executor.submit(self._init_emulator))
-        for i in range(0,len(init_results)):
+        for i in range(0, len(init_results)):
             if init_results[i].result() is False:
                 self.signal_stop()
+                self.logger.critical("Initialization Failed")
                 return False
+        self.set_screenshot_interval(self.config['screenshot_interval'])
+        self.latest_screenshot_time = 0
+        self.scheduler = Scheduler(self.update_signal)
         self.logger.info("--------Initialization Finished----------")
         return True
 
@@ -590,21 +651,25 @@ class Main:
             self.package_name = 'com.nexon.bluearchive'
         return True
 
+    def set_screenshot_interval(self, interval):
+        if interval < 0.3:
+            self.logger.warning("screenshot_interval must be greater than 0.3")
+            interval = 0.3
+        self.logger.info("screenshot_interval set to " + str(interval))
+        self.screenshot_interval = interval
+
 
 if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     # t.thread_starter()
-    # t.thread_starter()
-    # t.solve('tactical_challenge_shop')
-    img1= cv2.imread('qxn.jpg')
-    img1 = img1[10:40, 560:658, :]
-    print(t.ocrCN.ocr_for_single_line(img1))
-    exit(0)
-    t.solve('refresh_uiautomator2')
     t.flag_run = True
-    # t.solve('de_clothes')
-    # t.solve('common_shop')
+    t.init_all_data()
+    # t.thread_starter()
+    t.solve('explore_hard_task')
+    t.solve('tactical_challenge_shop')
+    t.solve('de_clothes')
+    t.solve('common_shop')
     t.quick_method_to_main_page()
     # t.solve('tactical_challenge_shop')
     # t.quick_method_to_main_page()
@@ -631,7 +696,7 @@ if __name__ == '__main__':
     # t.solve('hard_task')
     # t.quick_method_to_main_page()
 
-    t.solve('explore_normal_task')
+    t.solve('explore_hard_task')
     t.quick_method_to_main_page()
     t.solve('momo_talk')
     t.thread_starter()

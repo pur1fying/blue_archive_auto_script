@@ -1,16 +1,18 @@
-import threading
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel
-from qfluentwidgets import LineEdit, PushButton
+from qfluentwidgets import LineEdit, PushButton, InfoBar, InfoBarIcon, InfoBarPosition
 
-import main
 from .expandTemplate import TemplateLayout
 
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None):
         configItems = [
+            {
+                'label': '开启此按钮点击推图进行活动关推图(当前活动:227号温泉乡) 需要爆发一队编号小于贯穿一队',
+                'key': 'explore_activity',
+                'type': 'switch'
+            },
             {
                 'label': '是否手动boss战（进入关卡后暂停等待手操）',
                 'key': 'manual_boss',
@@ -61,7 +63,9 @@ class Layout(TemplateLayout):
                 'type': 'label'
             },
             {
-                'label': '如果有多支队伍一队编号必须小于二队，如15图神秘1队编号要小于神秘2队',
+                'label': '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                         '<b>如果有多个队伍一定要设置主队编号小于副队(如15图神秘1队必须小于神秘2队编号)</b>',
                 'type': 'label'
             }
         ]
@@ -75,6 +79,7 @@ class Layout(TemplateLayout):
         self.input_push = LineEdit(self)
         self.accept_push = PushButton('开始推图', self)
 
+        self.input_push.setText(self.get('explore_normal_task_regions').__str__().replace('[', '').replace(']', ''))
         self.input_push.setFixedWidth(700)
         self.accept_push.clicked.connect(self._accept_push)
 
@@ -94,11 +99,30 @@ class Layout(TemplateLayout):
         self.hBoxLayout.addLayout(self.push_card)
 
     def _accept_push(self):
-        thread = threading.Thread(target=self.start_push, daemon=True)
-        thread.start()
+        if self.input_push.text() != '':
+            push_list = [int(x) for x in self.input_push.text().split(',')]
+            self.set('explore_normal_task_regions', push_list)
+        value = self.input_push.text()
+        w = InfoBar(
+            icon=InfoBarIcon.SUCCESS,
+            title='设置成功',
+            content=f'你的普通关配置已经被设置为：{value}，正在推普通关。',
+            orient=Qt.Vertical,  # vertical layout
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=800,
+            parent=self.parent().parent().parent().parent().parent().parent().parent()
+        )
+        w.show()
+        import threading
+        threading.Thread(target=self.action).start()
 
-    def start_push(self):
-        push_list = [int(x) for x in self.input_push.text().split(',')]
-        self.set('explore_normal_task_regions', push_list)
-        t = main.Main()
-        t.solve('explore_normal_task')
+    def get_thread(self, parent=None):
+        if parent is None:
+            parent = self.parent()
+        for component in parent.children():
+            if type(component).__name__ == 'HomeFragment':
+                return component.get_main_thread()
+        return self.get_thread(parent.parent())
+
+    def action(self):
+        self.get_thread().start_normal_task()

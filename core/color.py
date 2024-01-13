@@ -1,12 +1,57 @@
+import threading
 import time
 
 
-def common_rgb_detect_method(self, click, possible_los, ends):
+def wait_loading(self, skip_first_screenshot=False):
+    t_start = time.time()
+    while 1:
+        screenshot_interval = time.time() - self.latest_screenshot_time
+        if screenshot_interval < self.screenshot_interval:
+            time.sleep(self.screenshot_interval - screenshot_interval)
+        threading.Thread(target=self.screenshot_worker_thread).start()
+        if not self.screenshot_updated:  # wait for screenshot
+            if skip_first_screenshot:
+                skip_first_screenshot = False
+            else:
+                self.wait_screenshot_updated()
+                self.screenshot_updated = False
+        if not judge_rgb_range(self.latest_img_array, 937, 648, 200, 255, 200, 255, 200, 255) or not \
+                judge_rgb_range(self.latest_img_array, 919, 636, 200, 255, 200, 255, 200, 255):
+            loading_pos = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
+            rgb_loading = [[200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
+                           [200, 255, 200, 255, 200, 255], [200, 255, 200, 255, 200, 255],
+                           [255, 255, 255, 255, 255, 255]]
+            t = len(loading_pos)
+            for i in range(0, t):
+                if not judge_rgb_range(self.latest_img_array, loading_pos[i][0], loading_pos[i][1],
+                                             rgb_loading[i][0],
+                                             rgb_loading[i][1], rgb_loading[i][2], rgb_loading[i][3],
+                                             rgb_loading[i][4], rgb_loading[i][5]):
+                    break
+            else:
+                t_load = time.time() - t_start
+                t_load = round(t_load, 3)
+                self.logger.info("loading, t load : " + str(t_load))
+                if t_load > 20:
+                    self.logger.warning("LOADING TOO LONG add screenshot interval to 1")
+                    t_start = time.time()
+                    self.set_screenshot_interval(1)
+                time.sleep(self.screenshot_interval)
+                continue
+
+        return True
+
+
+def common_rgb_detect_method(self, click, possible_los, ends, skip_first_screenshot=False):
     t_start = time.time()
     t_total = 0
     while t_total <= 60:
         if not self.flag_run:
             return False
+        if skip_first_screenshot:
+            skip_first_screenshot = False
+        else:
+            wait_loading(self)
         res = detect_rgb_one_time(self, click, possible_los, ends)
         if not res:
             time.sleep(self.screenshot_interval)
@@ -22,7 +67,6 @@ def common_rgb_detect_method(self, click, possible_los, ends):
 
 
 def detect_rgb_one_time(self, click=None, possible_los=None, ends=None):
-    self.latest_img_array = self.get_screenshot_array()
     for i in range(0, len(ends)):
         for j in range(0, len(self.rgb_feature[ends[i]][0])):
             if not judge_rgb_range(self.latest_img_array,
@@ -51,8 +95,9 @@ def detect_rgb_one_time(self, click=None, possible_los=None, ends=None):
                                    self.rgb_feature[possible_los[i]][1][j][5]):
                 break
         else:
-            self.logger.info("position : " + possible_los[i])
-            self.click(click[i][0], click[i][1])  # 出现possible_los中的任意一个，点击对应的click坐标
+            self.logger.info("find : " + possible_los[i])
+            self.click(click[i][0], click[i][1], wait=False)  # 出现possible_los中的任意一个，点击对应的click坐标
+            self.latest_screenshot_time = time.time()
             return "click", True
     return False
 

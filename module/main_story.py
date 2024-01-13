@@ -3,7 +3,7 @@ import time
 import cv2
 import numpy as np
 
-from core import color, stage, image
+from core import color, image
 
 x = {
     'story': (107, 9, 162, 36),

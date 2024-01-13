@@ -4,8 +4,8 @@ from core import color, image
 
 x = {
     'confirm': (737, 446, 766, 476),
-    'refresh-notice':(575,270, 628,302),
-    'refresh-unavailable-notice':(547,315, 600,350)
+    'refresh-notice': (575, 270, 628, 302),
+    'refresh-unavailable-notice': (547, 315, 600, 350)
 }
 
 
@@ -14,11 +14,11 @@ def to_refresh(self):
         ends = [
             "shop_refresh-notice",
             "shop_refresh-unavailable-notice",
-
         ]
         click_pos = [[949, 664]]
         los = ["common_shop"]
-        if image.detect(self,end=ends,pre_func=color.detect_rgb_one_time,pre_argv=(self,click_pos, los, [])) == "shop_refresh-unavailable-notice":
+        if image.detect(self, end=ends, pre_func=color.detect_rgb_one_time,
+                        pre_argv=(self, click_pos, los, [])) == "shop_refresh-unavailable-notice":
             return False
         return True
     elif self.server == 'Global':
@@ -35,7 +35,7 @@ def to_refresh(self):
 
 def implement(self):
     self.quick_method_to_main_page()
-    to_common_shop(self)
+    to_common_shop(self, True)
     time.sleep(0.5)
     creditpoints = self.get_creditpoints()
     pyroxenes = self.get_pyroxene()
@@ -71,7 +71,8 @@ def implement(self):
                 return True
         for j in range(0, 8):
             if buy_list[j]:
-                self.click(buy_list_for_common_items[j][0], buy_list_for_common_items[j][1], wait=False)
+                self.click(buy_list_for_common_items[j][0], buy_list_for_common_items[j][1],
+                           wait=False, wait_over=True)
                 time.sleep(0.1)
         if buy_list[8:].any():
             self.logger.info("SWIPE DOWNWARDS")
@@ -79,7 +80,8 @@ def implement(self):
             time.sleep(0.5)
             for j in range(8, 16):
                 if buy_list[j]:
-                    self.click(buy_list_for_common_items[j % 8][0], buy_list_for_common_items[j % 8][1], wait=False)
+                    self.click(buy_list_for_common_items[j % 8][0], buy_list_for_common_items[j % 8][1],
+                               wait=False, wait_over=True)
                     time.sleep(0.1)
         if self.server == 'CN':
             pass
@@ -91,19 +93,19 @@ def implement(self):
                 for j in range(16, 20):
                     if buy_list[j]:
                         self.click(buy_list_for_common_items[j % 8 + 4][0], buy_list_for_common_items[j % 8 + 4][1],
-                                   wait=False)
+                                   wait=False, wait_over=True)
                         time.sleep(0.1)
 
         self.latest_img_array = self.get_screenshot_array()
 
         if color.judge_rgb_range(self.latest_img_array, 1126, 662, 235, 255, 222, 242, 64, 84):
             self.logger.info("Purchase available")
-            self.click(1160, 662, wait=False)
+            self.click(1160, 662, wait=False, wait_over=True)
             time.sleep(0.5)
-            self.click(767, 488, wait=False)
+            self.click(767, 488, wait=False, wait_over=True)
             time.sleep(2)
-            self.click(640, 80, wait=False)
-            self.click(640, 80, wait=False)
+            self.click(640, 80, wait=False, wait_over=True)
+            self.click(640, 80, wait=False, wait_over=True)
             if self.server == 'CN':
                 pass
             if self.server == 'Global':
@@ -124,14 +126,13 @@ def implement(self):
                     return True
                 pyroxenes = pyroxenes - refresh_price[i]
                 self.logger.info("left pyroxenes : " + str(pyroxenes))
-                self.click(767, 468, wait=False)
-                time.sleep(0.5)
+                self.click(767, 468, wait=False, wait_over=True,duration=0.5)
                 to_common_shop(self)
 
     return True
 
 
-def to_common_shop(self):
+def to_common_shop(self, skip_first_screenshot=False):
     if self.server == 'CN':
         click_pos = [
             [823, 653],  # main_page
@@ -146,7 +147,8 @@ def to_common_shop(self):
         ends = [
             "common_shop",
         ]
-        image.detect(self,pre_func=color.detect_rgb_one_time,pre_argv=(self, click_pos, los, ends))
+        image.detect(self, pre_func=color.detect_rgb_one_time, pre_argv=(self, click_pos, los, ends),
+                     skip_first_screenshot=skip_first_screenshot)
     elif self.server == 'Global':
         click_pos = [
             [799, 653],  # main_page
@@ -171,4 +173,4 @@ def to_common_shop(self):
         ends = [
             "common_shop",
         ]
-        color.common_rgb_detect_method(self, click_pos, los, ends)
+        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
