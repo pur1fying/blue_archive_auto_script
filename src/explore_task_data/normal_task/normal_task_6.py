@@ -16,7 +16,7 @@ stage_data = {
             {'t': 'click', 'p': (697, 490), "wait-over": True, 'ec': True, "desc": "2 right"},
 
             {'t': 'click', 'p': (781, 326), 'ec': True, "desc": "1 right"},
-            {'t': 'end-turn', 'ec': True, "desc": 'round over',"wait-over": True},
+            {'t': 'end-turn'},
 
             {'t': 'click', 'p': (844, 328),'ec': True, "desc": "1 right"},
             {'t': 'end-turn'},
@@ -74,17 +74,15 @@ stage_data = {
         },
         'action': [
 
-            {'t': 'exchange', 'ec': True, 'desc': 'change to 2'},
-            {'t': 'click', 'p': (629, 447), 'ec': True, "desc": "2 lower left"},
-            {'t': 'click', 'p': (629, 447), "desc": "choose 2"},
-            {'t': 'click', 'p': (529, 447), "desc": "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (629, 447), 'ec': True, "desc": "2 lower left"},
+            {'t': 'choose_and_change', 'p': (629, 447), "desc": "swap 1 2"},
             {'t': 'click', 'p': (692, 535), "wait-over": True, "desc": "1 lower right"},
 
             {'t': 'click', 'p': (625, 432), 'ec': True, "desc": "1 lower right"},
-            {'t': 'end-turn', 'ec': True, "desc": 'round over',"wait-over": True},
+            {'t': 'end-turn'},
 
             {'t': 'click', 'p': (851, 484),'ec': True, "desc": "1 right"},
-            {'t': 'end-turn'},
+            {'t': ''},
         ]
     },
     '6-5': {
@@ -100,8 +98,7 @@ stage_data = {
             {'t': 'click', 'p': (715, 429), "ec": True, "desc": "1 lower left"},
             {'t': 'click', 'p': (535, 348), "wait-over": True, "ec": True, "desc": "2 lower left"},
 
-            {'t': 'exchange', 'ec': True, 'desc': 'change to 2'},
-            {'t': 'click', 'p': (653, 352), "ec": True, "desc": "2 lower right"},
+            {'t': 'exchange_and_click', 'p': (653, 352), "ec": True, "desc": "2 lower right"},
             {'t': 'click', 'p': (713, 446), "wait-over": True, "desc": "1 lower left"},
 
             {'t': 'click', 'p': (845, 461), 'ec': True, "desc": "1 lower right"},

@@ -67,7 +67,7 @@ def to_cafe(self, skip_first_screenshot=False):
             'relationship_rank_up': [640, 360]
         }
     }
-    picture.co_detect(self, 'cafe_menu',img_possibles[self.server],'cafe', rgb_possibles[self.server], skip_first_screenshot)
+    picture.co_detect(self,'cafe' ,rgb_possibles[self.server],'cafe_menu',img_possibles[self.server] , skip_first_screenshot)
 
 
 def match(img, server):

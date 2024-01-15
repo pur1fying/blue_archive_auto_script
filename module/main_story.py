@@ -114,9 +114,8 @@ def start_admission(self):
 
 
 def change_acc_auto(self):
-    img1 = self.get_screenshot_array()
     y = 625
-    acc_r_ave = int(img1[y][1196][0]) // 3 + int(img1[y][1215][0]) // 3 + int(img1[y][1230][0]) // 3
+    acc_r_ave = int(self.latest_img_array[y][1196][0]) // 3 + int(self.latest_img_array[y][1215][0]) // 3 + int(self.latest_img_array[y][1230][0]) // 3
     if 250 <= acc_r_ave <= 260:
         self.logger.info("CHANGE acceleration phase from 2 to 3")
         self.click(1215, y)
@@ -127,11 +126,8 @@ def change_acc_auto(self):
         self.click(1215, y, wait=False, count=2)
     else:
         self.logger.warning("CAN'T DETECT acceleration BUTTON")
-    if self.server == 'CN':
-        y = 677
-    elif self.server == 'Global':
-        y = 627
-    auto_r_ave = int(img1[y][1171][0]) // 2 + int(img1[y][1246][0]) // 2
+    y = 677
+    auto_r_ave = int(self.latest_img_array[y][1171][0]) // 2 + int(self.latest_img_array[y][1246][0]) // 2
     if 190 <= auto_r_ave <= 230:
         self.logger.info("CHANGE MANUAL to auto")
         self.click(1215, y, wait=False)
@@ -141,15 +137,18 @@ def change_acc_auto(self):
         self.logger.warning("can't identify auto button")
 
 
-def auto_fight(self):
+def enter_fight(self):
     t_start = time.time()
     while time.time() <= t_start + 20:
-        img = self.get_screenshot_array()
-        if self.server == 'CN':
-            if not color.judge_rgb_range(img, 831, 692, 44, 64, 197, 217, 240, 255):
-                time.sleep(self.screenshot_interval)
-            else:
-                break
+        self.latest_img_array = self.get_screenshot_array()
+        if not color.judge_rgb_range(self.latest_img_array, 831, 692, 0, 64, 161, 217, 240, 255):
+            time.sleep(self.screenshot_interval)
+        else:
+            break
+
+
+def auto_fight(self):
+    enter_fight(self)
     change_acc_auto(self)
 
 

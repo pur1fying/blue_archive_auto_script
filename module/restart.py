@@ -31,7 +31,7 @@ def start(self):
     if self.server == 'CN':
         activity_name = None
     self.connection.app_start(self.package_name, activity_name)
-    if self.server == 'CN':
+    if self.server == 'CN' or self.server == 'JP':
         self.logger.info("--ENSURE UI AT MAIN PAGE--")
         self.quick_method_to_main_page()
         time.sleep(2)

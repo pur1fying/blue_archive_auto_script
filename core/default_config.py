@@ -614,6 +614,18 @@ STATIC_DEFAULT_CONFIG = '''
         "CN": [50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100],
         "JP": [50, 50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100],
         "Global": [50, 50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100]
+    },
+    "package_name": {
+        "官服": "com.RoamingStar.BlueArchive",
+        "B服": "com.RoamingStar.BlueArchive.bilibili",
+        "国际服": "com.nexon.bluearchive",
+        "日服": "com.YostarJP.BlueArchive"
+    },
+    "activity_name": {
+        "官服": "com.yostar.sdk.bridge.YoStarUnityPlayerActivity",
+        "B服": "com.yostar.sdk.bridge.YoStarUnityPlayerActivity",
+        "国际服": ".MxUnityPlayerActivity",
+        "日服": "com.yostarjp.bluearchive.MxUnityPlayerActivity"
     }
 }
 '''

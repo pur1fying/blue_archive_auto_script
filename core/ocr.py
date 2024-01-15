@@ -14,7 +14,7 @@ class Baas_ocr:
         try:
             if 'CN' in ocr_needed:
                 self.init_CNocr()
-            if 'EN' in ocr_needed:
+            if 'Global' in ocr_needed:
                 self.init_ENocr()
             if 'JP' in ocr_needed:
                 self.init_JPocr()
@@ -119,3 +119,19 @@ class Baas_ocr:
 
     def is_chinese_char(self, char):
         return 0x4e00 <= ord(char) <= 0x9fff
+
+    def get_region_res(self, img, region, model='CN'):
+        img = img[region[1]:region[3], region[0]:region[2]]
+        t1 = time.time()
+        res = ""
+        if model == 'CN':
+            res = self.ocrCN.ocr_for_single_line(img)['text']
+        elif model == 'Global':
+            res = self.ocrEN.ocr_for_single_line(img)['text']
+        elif model == 'NUM':
+            res = self.ocrNUM.ocr_for_single_line(img)['text']
+        ocr_time = round(time.time() - t1, 3)
+        res.replace('<unused3>', '')
+        res.replace('<unused2>', '')
+        self.logger.info("ocr res : " + res + " time: " + str(ocr_time))
+        return res

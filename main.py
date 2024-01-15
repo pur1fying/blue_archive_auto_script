@@ -4,7 +4,6 @@ import time
 
 import numpy as np
 import uiautomator2 as u2
-from cnocr import CnOcr
 import concurrent.futures
 import module
 from core.utils import *
@@ -102,19 +101,22 @@ class Main:
             click_.join()
 
     def click_thread(self, x, y, count=1, rate=0, duration=0):
+        if count == 1:
+            self.logger.info("click (" + str(x) + " ," + str(y) + ")")
+        else:
+            self.logger.info("click (" + str(x) + " ," + str(y) + ") " + str(count) + " times")
         for i in range(count):
-            self.logger.info(f"click ({x} ,{y})")
             if rate > 0:
                 time.sleep(rate)
             noisex = int(np.random.uniform(-5, 5))
             noisey = int(np.random.uniform(-5, 5))
-            x = x + noisex
-            y = y + noisey
-            x = max(0, x)
-            y = max(0, y)
-            x = min(1280, x)
-            y = min(720, y)
-            self.connection.click(x, y)
+            click_x = x + noisex
+            click_y = y + noisey
+            click_x = max(0, click_x)
+            click_y = max(0, click_y)
+            click_x = min(1280, click_x)
+            click_y = min(720, click_y)
+            self.connection.click(click_x, click_y)
             if duration > 0:
                 time.sleep(duration)
 
@@ -229,6 +231,7 @@ class Main:
         if self.server == "CN" or self.server == "JP":
             possibles = {
                 'main_page_quick-home': (1236, 31),
+                'normal_task_fight-end-back-to-main-page': (511, 662),
                 'main_page_login-feature': (640, 360),
                 'main_page_news': (1142, 104),
                 'main_page_relationship-rank-up': (640, 360),
@@ -245,7 +248,6 @@ class Main:
                 "normal_task_charge-challenge-counts": (887, 164),
                 "purchase_ap_notice": (919, 165),
                 'normal_task_mission-operating-task-info': (1000, 664),
-                'normal_task_task-info': (1084, 139),
                 'normal_task_mission-operating-task-info-notice': (416, 595),
                 'normal_task_mission-pause': (768, 501, 3),
                 'normal_task_task-begin-without-further-editing-notice': (888, 163),
@@ -259,7 +261,6 @@ class Main:
                 'lesson_all-locations': (1138, 117),
                 'lesson_lesson-report': (642, 556),
                 "special_task_task-info": (1085, 141),
-                "rewarded_task_purchase-ticket-notice": (888, 162),
                 'arena_battle-win': (640, 530),
                 'arena_battle-lost': (640, 468),
                 'arena_season-record': (640, 538),
@@ -273,29 +274,36 @@ class Main:
             update = {
                 'CN': {
                     'cafe_cafe-reward-status': (905, 159),
+                    'normal_task_task-info': (1084, 139),
+                    "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
+                    "special_task_task-info": (1085, 141),
                 },
                 'JP': {
                     "cafe_cafe-reward-status": (985, 147),
+                    'normal_task_task-info': (1126, 141),
+                    "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
+                    "special_task_task-info": (1126, 141),
                 }
             }
             possibles.update(**update[self.server])
             fail_cnt = 0
             click_pos = [
-                [640, 100],
                 [1236, 31],
                 [640, 360],
                 [640, 100],
-                [640, 200]
+                [640, 200],
             ]
             los = [
-                "reward_acquired",
                 "home",
                 'relationship_rank_up',
                 'area_rank_up',
                 'level_up'
             ]
             while True:
-                color.wait_loading(self, skip_first_screenshot)
+                if skip_first_screenshot:
+                    skip_first_screenshot = False
+                else:
+                    color.wait_loading(self)
                 res = color.detect_rgb_one_time(self, [], [], ['main_page'])
                 if res == ('end', 'main_page'):
                     break
@@ -404,17 +412,24 @@ class Main:
             ]
             ends = ["main_page"]
             possibles = {
+                'normal_task_fight-end-back-to-main-page': (511, 662),
                 'normal_task_fight-complete-confirm': (1160, 666),
                 'normal_task_reward-acquired-confirm': (800, 660),
-                'normal_task_task-operating-mission-info': (397, 592),
-                'normal_task_mission-operating-feature': (995, 668),
-                'normal_task_quit-mission-info': (772, 511),
+                'normal_task_mission-operating-task-info-notice': (397, 592),
+                'normal_task_task-operating-feature': (995, 668),
+                'normal_task_mission-pause': (772, 511),
                 'normal_task_mission-conclude-confirm': (1042, 671),
                 'normal_task_obtain-present': (640, 519),
+                'fighting_pause-button': (1235, 54),
+                'fighting_pause-notice': (905, 513),
+                'fighting_retreat-notice': (760, 495),
             }
             fail_cnt = 0
             while True:
-                color.wait_loading(self, skip_first_screenshot)
+                if skip_first_screenshot:
+                    skip_first_screenshot = False
+                else:
+                    color.wait_loading(self)
                 res = color.detect_rgb_one_time(self, [], [], ends)
                 if res == ('end', 'main_page'):
                     break
@@ -444,6 +459,7 @@ class Main:
     def wait_screenshot_updated(self):
         while not self.screenshot_updated:
             time.sleep(0.01)
+        self.screenshot_updated = False
 
     def init_rgb(self):
         try:
@@ -495,7 +511,7 @@ class Main:
     def init_ocr(self):
         try:
             self.logger.info("Start initializing OCR")
-            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=[self.server, 'NUM'])
+            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=['CN', 'Global', 'NUM'])
             self.logger.info("OCR initialization concluded")
             return True
         except Exception as e:
@@ -504,68 +520,48 @@ class Main:
             return False
 
     def get_ap(self):
-        try:
-            _img = self.latest_img_array[10:40, 560:658, :]
-            t1 = time.time()
-            if self.server == 'CN':
-                _ocr_res = self.ocrCN.ocr_for_single_line(_img)
-            elif self.server == 'Global':
-                _ocr_res = self.ocrEN.ocr_for_single_line(_img)
-            else:
-                self.logger.error("Unknown Server Error")
+        region = {
+            'CN': [557, 10, 662, 40],
+            'Global': [557, 10, 662, 40],
+            'JP': [557, 10, 662, 40],
+        }
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
+        ap = 0
+        for j in range(0, len(_ocr_res)):
+            if (not _ocr_res[j].isdigit()) and _ocr_res[j] != '/' and _ocr_res[j] != '.':
                 return "UNKNOWN"
-            t2 = time.time()
-            self.logger.info("ocr_ap: " + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
-            ap = 0
-            for j in range(0, len(_ocr_res['text'])):
-                if (not _ocr_res['text'][j].isdigit()) and _ocr_res['text'][j] != '/' and _ocr_res['text'][j] != '.':
-                    return "UNKNOWN"
-                if _ocr_res['text'][j].isdigit():
-                    ap = ap * 10 + int(_ocr_res['text'][j])
-                elif _ocr_res['text'][j] == '/':
-                    return ap
-            return "UNKNOWN"
-        except Exception as e:
-            self.logger.error(e)
-            return "UNKNOWN"
+            if _ocr_res[j].isdigit():
+                ap = ap * 10 + int(_ocr_res[j])
+            elif _ocr_res[j] == '/':
+                return ap
+        return "UNKNOWN"
 
     def get_pyroxene(self):
-        _img = self.latest_img_array[10:40, 961:1072, :]
-        t1 = time.time()
-        if self.server == 'CN':
-            _ocr_res = self.ocrCN.ocr_for_single_line(_img)
-        elif self.server == 'Global':
-            _ocr_res = self.ocrEN.ocr_for_single_line(_img)
-        else:
-            self.logger.error("Unknown Server Error")
-            return "UNKNOWN"
-        t2 = time.time()
-        self.logger.info("ocr_pyroxene:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
+        region = {
+            'CN': [961, 10, 1072, 40],
+            'Global': [961, 10, 1072, 40],
+            'JP': [961, 10, 1072, 40],
+        }
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
         temp = 0
-
-        for j in range(0, len(_ocr_res['text'])):
-            if not _ocr_res['text'][j].isdigit():
+        for j in range(0, len(_ocr_res)):
+            if not _ocr_res[j].isdigit():
                 continue
-            temp = temp * 10 + int(_ocr_res['text'][j])
+            temp = temp * 10 + int(_ocr_res[j])
         return temp
 
     def get_creditpoints(self):
-        _img = self.latest_img_array[10:40, 769:896, :]
-        t1 = time.time()
-        if self.server == 'CN':
-            _ocr_res = self.ocrCN.ocr_for_single_line(_img)
-        elif self.server == 'Global':
-            _ocr_res = self.ocrEN.ocr_for_single_line(_img)
-        else:
-            self.logger.error("Unknown Server Error")
-            return "UNKNOWN"
-        t2 = time.time()
-        self.logger.info("ocr_creditpoints:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
+        region = {
+            'CN': [769, 10, 896, 40],
+            'Global': [769, 10, 896, 40],
+            'JP': [769, 10, 896, 40],
+        }
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
         temp = 0
-        for j in range(0, len(_ocr_res['text'])):
-            if not _ocr_res['text'][j].isdigit():
+        for j in range(0, len(_ocr_res)):
+            if not _ocr_res[j].isdigit():
                 continue
-            temp = temp * 10 + int(_ocr_res['text'][j])
+            temp = temp * 10 + int(_ocr_res[j])
         return temp
 
     def operate_dict(self, dic):
@@ -632,18 +628,8 @@ class Main:
 
     def init_package_activity_name(self):
         server = self.config['server']
-        if server == '官服':
-            self.package_name = 'com.RoamingStar.BlueArchive'
-            self.activity_name = 'com.yostar.sdk.bridge.YoStarUnityPlayerActivity'
-        elif server == 'B服':
-            self.package_name = 'com.RoamingStar.BlueArchive.bilibili'
-            self.activity_name = 'com.yostar.sdk.bridge.YoStarUnityPlayerActivity'
-        elif server == '国际服':
-            self.package_name = 'com.nexon.bluearchive'
-            self.activity_name = '.MxUnityPlayerActivity'
-        elif server == '日服':
-            self.package_name = 'com.YostarJP.BlueArchive'
-            self.activity_name = 'com.yostarjp.bluearchive.MxUnityPlayerActivity'
+        self.package_name = self.static_config['package_name'][server]
+        self.activity_name = self.static_config['activity_name'][server]
         return True
 
     def set_screenshot_interval(self, interval):
@@ -662,11 +648,11 @@ if __name__ == '__main__':
     t.init_all_data()
     # t.solve('cafe_reward')
     # t.solve('momo_talk')
-    t.solve('mail')
+    # t.solve('mail')
     # t.quick_method_to_main_page()
     # t.solve('arena')
-    # t.quick_method_to_main_page()
     # t.solve("rewarded_task")
+    # t.quick_method_to_main_page()
     # t.quick_method_to_main_page()
     # t.solve('clear_special_task_power')
     # t.quick_method_to_main_page()
@@ -695,6 +681,3 @@ if __name__ == '__main__':
     print(check_sweep_availability(img))
     return_data1 = get_x_y(img, path)
     print(return_data1)
-
-    ocr_res = t.img_ocr(img)
-    print(str(ocr_res))

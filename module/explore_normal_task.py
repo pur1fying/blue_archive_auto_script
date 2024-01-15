@@ -126,7 +126,7 @@ def get_force(self):
     return int(ocr_res)
 
 
-def end_round(self):
+def end_turn(self):
     if self.server == 'CN':
         click_pos1 = [
             [1170, 670],
@@ -170,41 +170,69 @@ def confirm_teleport(self):
         image.detect(self, end, possibles, skip_first_screenshot=True)
 
 
-def start_action(self, gk, stage_data):
-    actions = stage_data[gk]['action']
+def start_action(self, actions):
+    self.logger.info("Start Actions total : " + str(len(actions)))
     for i, act in enumerate(actions):
-        if 'before' in act:
-            self.logger.info("wait {0} seconds".format(act['before']))
-            time.sleep(act['before'])
-        time.sleep(1)
-        msg = "start {0} operation".format(i + 1)
+        desc = "start " + str(i + 1) + " operation : "
         if 'desc' in act:
-            msg += ' desc:{0}'.format(act['desc'])
-        self.logger.info(msg)
+            desc += act['desc']
+        self.logger.info(desc)
         force_index = get_force(self)
-        if act['t'] == 'click':
-            self.click(*act['p'], wait_over=True)
-        elif act['t'] == 'exchange':
-            self.click(83, 557, wait_over=True)
-        elif act['t'] == 'move':
-            confirm_teleport(self)
-        elif act['t'] == 'end-turn':
-            end_round(self)
-        if 'ec' in act:
-            self.logger.info("wait change formation.")
-            origin = force_index
-            while force_index == origin:
-                force_index = get_force(self)
-        if 'after' in act:
-            self.logger.info("wait {0} seconds".format(act['after']))
-            time.sleep(act['after'])
+        op = act['t']
+        if type(op) is str:
+            op = [op]
+        if type(act['p']) is tuple:
+            act['p'] = [act['p']]
+        for j in range(0, len(op)):
+            time.sleep(1)
+            if op[j] == 'click':
+                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
+                act['p'].pop(0)
+            elif op[j] == 'teleport':
+                confirm_teleport(self)
+            elif op[j] == 'exchange':
+                self.click(83, 557, wait=False, wait_over=True)
+                wait_formation_change(self, force_index)
+            elif op[j] == 'exchange_twice':
+                self.click(83, 557, wait=False, wait_over=True)
+                wait_formation_change(self, force_index)
+                self.click(83, 557, wait=False, wait_over=True)
+                wait_formation_change(self, force_index)
+            elif [op] == 'end-turn':
+                end_turn(self)
+                if i != len(actions) - 1:
+                    wait_over(self)
+            elif op[j] == 'click_and_teleport':
+                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
+                act['p'].pop(0)
+                confirm_teleport(self)
+            elif op[j] == 'choose_and_change':
+                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True, duration=0.3)
+                self.click(act['p'][0][0] - 100,  act['p'][0][1], wait=False, wait_over=True)
+                act['p'].pop(0)
+            elif op[j] == 'exchange_and_click':
+                self.click(83, 557, wait=False, wait_over=True)
+                wait_formation_change(self, force_index)
+                time.sleep(0.5)
+                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
+                act['p'].pop(0)
+            elif op[j] == 'exchange_twice_and_click':
+                self.click(83, 557, wait=False, wait_over=True)
+                wait_formation_change(self, force_index)
+                self.click(83, 557, wait=False, wait_over=True)
+                wait_formation_change(self, force_index)
+                time.sleep(0.5)
+                self.click(act['p'][0], act['p'][1], wait=False, wait_over=True)
+                act['p'].pop(0)
 
+        if 'ec' in act:
+            wait_formation_change(self, force_index)
         if 'wait-over' in act:
             self.logger.info("wait move available")
             wait_over(self)
             time.sleep(2)
-        if i != len(actions) - 1 and 'ensure-ui' not in act:
-            to_normal_task_mission_operation_page(self)
+        if i != len(actions) - 1:
+            to_normal_task_mission_operating_page(self)
 
 
 def start_choose_side_team(self, index):
@@ -232,16 +260,20 @@ def start_choose_side_team(self, index):
 
 
 def choose_region(self, region):
-    cu_region = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[178:208, 122:163, :])['text'])
+    square = {
+        'CN': [122, 178, 163, 208],
+        'Global': [122, 178, 163, 208],
+        'JP': [122, 178, 163, 208]
+    }
+    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
     while cu_region != region and self.flag_run:
         if cu_region > region:
-            self.click(40, 360, wait=False, count=cu_region - region, rate=0.1)
+            self.click(40, 360, wait=False, count=cu_region - region, rate=0.1, wait_over=True)
         else:
-            self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1)
-        time.sleep(1)
+            self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
+        time.sleep(0.5)
         self.latest_img_array = self.get_screenshot_array()
-        cu_region = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[178:208, 122:163, :])['text'])
-
+        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
 
 def choose_team(self, mission_num, force):
     index = self.config[self.stage_data[mission_num]['attr'][force]]
@@ -256,7 +288,7 @@ def choose_team(self, mission_num, force):
     return index
 
 
-def to_normal_task_mission_operation_page(self):
+def to_normal_task_mission_operating_page(self):
     click_pos = [
         [886, 162],
         [890, 162],
@@ -385,50 +417,9 @@ def to_mission_info(self):
         image.detect(self, end, possible)
 
 
-def test_(self):
-    region = 16
-    normal_task.to_normal_event(self)
-    choose_region(self, region)
-    self.stage_data = get_stage_data(region)
-    for i in range(1, 6):
-        self.swipe(917, 220, 917, 552, duration=0.1)
-        time.sleep(1)
-        to_mission_info(self)
-        for j in range(1, i):
-            self.click(1172, 358, wait=False)
-            time.sleep(1)
-        mission = str(region) + '-' + str(i)
-        possibles = {
-            'normal_task_help': (1017, 131),
-            'normal_task_task-info': (946, 540)
-        }
-        if self.server == 'CN':
-            image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                         pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']))
-        elif self.server == 'Global':
-            image.detect(self, end='normal_task_mission-wait-to-begin-feature', possibles=possibles)
-        prev_index = 0
-        for n, p in self.stage_data[mission]['start'].items():
-            cu_index = choose_team(self, mission, n)
-            if cu_index < prev_index:
-                exit("please set the first formation number smaller than the second one")
-            prev_index = cu_index
-        start_mission(self)
-        if self.server == 'CN':
-            if not image.compare_image(self, 'normal_task_fight-skip', threshold=3, image=self.latest_img_array):
-                self.click(1194, 547)
-            if not image.compare_image(self, 'normal_task_auto-over', threshold=3, image=self.latest_img_array):
-                self.click(1194, 600)
-        elif self.server == 'Global':
-            if not color.judge_rgb_range(self.latest_img_array, 1096, 550, 65, 105, 213, 255, 235, 255):
-                self.click(1194, 547)
-            if not color.judge_rgb_range(self.latest_img_array, 1048, 604, 65, 105, 213, 255, 235, 255):
-                self.click(1194, 601)
-        start_action(self, mission, self.stage_data)
-        main_story.auto_fight(self)
-        if self.config['manual_boss']:
-            self.click(1235, 41)
-
-        normal_task.to_normal_event(self)
-        choose_region(self, region - 1)
-        choose_region(self, region)
+def wait_formation_change(self, force_index):
+    self.logger.info("Wait formation change")
+    origin = force_index
+    while force_index == origin and self.flag_run:
+        force_index = get_force(self)
+        time.sleep(self.screenshot_interval)
