@@ -9,7 +9,9 @@ x = {
     'enter2': (96, 140, 116, 150),
     'menu': (103, 7, 167, 38),
     'play-guide': (535, 132, 656, 171),
-    'story-fight-success-confirm': (602, 644, 677, 689)
+    'story-fight-success-confirm': ((602, 644, 677, 689)),
+    'SUB': (344, 207, 415, 242),
+    'SUB-task-info':(571,140,706,177)
 }
 
 
@@ -18,7 +20,7 @@ def implement(self):
     self.quick_method_to_main_page()
     # explore_story(self)
     explore_mission(self)
-    # explore_challenge(self)
+    explore_challenge(self)
     return True
 
 
@@ -39,13 +41,15 @@ def check_sweep_availability(img):
 
 def explore_story(self):
     for counts in range(0, 7):
-        to_no_227_kinosaki_spa(self, 'story', True)
+        to_no_227_kinosaki_spa(self, 'story')
         line = self.latest_img_array[:, 1086, :]
         los = []
         possibles = {
             "activity_menu": (1086, 0)
         }
-        ends = "normal_task_task-info"
+        ends = [
+            "normal_task_task-info"
+        ]
         i = 590
         while i > 196:
             if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
@@ -87,23 +91,24 @@ def calc_task_state(self):
         res = check_sweep_availability(self.latest_img_array)
         if res == "pass" or res == "no-pass":
             return i
-        elif res == "sss":
-            self.click(1171, 346, wait_over=True)
-            time.sleep(0.5)
+        elif res == "sss" and i != 11:
+            self.click(1171, 346)
+            time.sleep(1)
             self.latest_img_array = self.get_screenshot_array()
+    self.logger.info("All task complete")
     return "ALL-COMPLETE"
 
 
 def explore_mission(self):
     while True:
-        to_no_227_kinosaki_spa(self, 'mission', True)
+        to_no_227_kinosaki_spa(self, 'mission')
         self.swipe(914, 151, 921, 584, 0.1)
         time.sleep(1)
         possibles = {
             "activity_menu": (1123, 203)
         }
         ends = "normal_task_task-info"
-        image.detect(self, ends, possibles, skip_first_screenshot=True)
+        image.detect(self, ends, possibles)
         id = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
         work = ['sub', 'sub', 'sub', 'gird', 'sub', 'sub', 'sub', 'gird', 'sub', 'sub', 'sub', 'gird']
         task_state = calc_task_state(self)
@@ -112,17 +117,17 @@ def explore_mission(self):
         else:
             current_task_stage = self.stage_data[id[task_state]]
             if work[task_state] == 'sub':
-                self.click(933, 536, wait_over=True)
+                self.click(933, 536)
                 start_choose_side_team(self, self.config[current_task_stage['attr']])
                 time.sleep(1)
-                self.click(1171, 670, wait_over=True)
+                self.click(1171, 670)
             elif work[task_state] == 'gird':
                 possibles = {
                     'normal_task_help': (1017, 131),
                     'normal_task_task-info': (946, 540)
                 }
                 image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                             pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']), skip_first_screenshot=True)
+                             pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']))
                 prev_index = 0
                 for n, p in current_task_stage['start'].items():
                     cu_index = choose_team(self, self.config[current_task_stage['attr'][n]], p)
@@ -138,20 +143,101 @@ def explore_mission(self):
                     self.click(1194, 600)
                 self.set_screenshot_interval(1)
                 start_action(self, self.stage_data[id[task_state]]['action'])
-                self.set_screenshot_interval(self.config['screenshot_interval'])
             main_story.auto_fight(self)
             if self.config['manual_boss'] and work[task_state] == 'gird':
                 self.logger.info("Manual Boss Fight, Wait human take over")
                 self.click(1235, 41)
             to_no_227_kinosaki_spa(self, 'story')
-            to_no_227_kinosaki_spa(self, 'mission', True)
+            to_no_227_kinosaki_spa(self, 'mission')
+
+
+def calc_challenge_state(self):
+    id = ['01', '02', '03', '04', '05']
+    for i in range(0, 5):
+        if image.compare_image(self, 'activity_SUB', threshold=3, image=self.latest_img_array):
+            return "challenge_SUB"
+        if i == 2:
+            self.click(1171, 346)
+            time.sleep(1)
+            self.latest_img_array = self.get_screenshot_array()
+            continue
+        if i == 4:
+            return "ALL-COMPLETE"
+        res = check_sweep_availability(self.latest_img_array)
+        if res == "pass" or res == "no-pass":
+            return "challenge_" + id[i]
+        elif res == "sss":
+            self.click(1171, 346)
+            time.sleep(1)
+            self.latest_img_array = self.get_screenshot_array()
+    return "ALL-COMPLETE"
 
 
 def explore_challenge(self):
-    to_no_227_kinosaki_spa(self, 'challenge', True)
+    while True:
+        to_no_227_kinosaki_spa(self, 'challenge')
+        self.swipe(914, 151, 921, 584, 0.1)
+        time.sleep(1)
+        possibles = {"activity_menu": (1123, 203)}
+        ends = [
+            "normal_task_task-info",
+            "activity_SUB-task-info",
+        ]
+        res = image.detect(self, ends, possibles)
+        work = {
+            'challenge_SUB': 'sub1',
+            'challenge_01': 'sub2',
+            'challenge_02': 'gird',
+            'challenge_03': 'sub2',
+            'challenge_04': 'gird',
+            'challenge_05': 'sub2',
+        }
+        task_state = calc_challenge_state(self)
+        if res == "activity_SUB-task-info":
+            task_state = "challenge_SUB"
+        if task_state == "ALL-COMPLETE":
+            return True
+        else:
+            current_task_stage = self.stage_data[task_state]
+            if work[task_state] == "sub1" or work[task_state] == "sub2":
+                if work[task_state] == "sub1":
+                    self.click(640, 512, wait=False, wait_over=True)
+                if work[task_state] == "sub2":
+                    self.click(933, 536, wait=False, wait_over=True)
+                start_choose_side_team(self, self.config[current_task_stage['attr']])
+                time.sleep(1)
+                self.click(1171, 670, wait=False, wait_over=True)
+            else:
+                possibles = {
+                    'normal_task_help': (1017, 131),
+                    'normal_task_task-info': (946, 540)
+                }
+                image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
+                             pre_argv=(self, [], [], ['normal_task_wait_to_begin_page']))
+                prev_index = 0
+                for n, p in current_task_stage['start'].items():
+                    cu_index = choose_team(self, self.config[current_task_stage['attr'][n]], p)
+                    if cu_index < prev_index:
+                        self.logger.critical("please set the first formation number smaller than the second one")
+                        return False
+                    prev_index = cu_index
+                start_mission(self)
+                if not image.compare_image(self, 'normal_task_fight-skip', threshold=3,
+                                           image=self.latest_img_array):
+                    self.click(1194, 547)
+                if not image.compare_image(self, 'normal_task_auto-over', threshold=3, image=self.latest_img_array):
+                    self.click(1194, 600)
+                self.set_screenshot_interval(1)
+                start_action(self, self.stage_data[task_state]['action'])
+            main_story.auto_fight(self)
+            if self.config['manual_boss'] and work[task_state] == 'gird':
+                self.logger.info("Manual Boss Fight, Wait human take over")
+                self.click(1235, 41)
+            to_no_227_kinosaki_spa(self, 'story')
+            to_no_227_kinosaki_spa(self, 'challenge')
 
 
-def to_no_227_kinosaki_spa(self, region, skip_first_screenshot=False):
+def to_no_227_kinosaki_spa(self, region):
     possibles = {
         "activity_enter1": (1196, 195),
         "activity_enter2": (100, 149),
@@ -160,6 +246,7 @@ def to_no_227_kinosaki_spa(self, region, skip_first_screenshot=False):
         "plot_skip-plot-button": (1213, 116),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
+        "normal_task_task-info": (1087, 141),
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
         'normal_task_prize-confirm': (776, 655),
@@ -168,7 +255,7 @@ def to_no_227_kinosaki_spa(self, region, skip_first_screenshot=False):
         'activity_story-fight-success-confirm': (638, 674)
     }
     ends = "activity_menu"
-    image.detect(self, ends, possibles, skip_first_screenshot=skip_first_screenshot)
+    image.detect(self, ends, possibles)
     if region == 'mission':
         rgb_lo = 863
         click_lo = 1027
@@ -194,7 +281,7 @@ def explore_no_227_kinosaki(self):
 
 
 def get_stage_data():
-    module_path = 'src.explore_task_data.activities.no_227_kinosaki_spa'
+    module_path = 'src.explore_task_data.no_227_kinosaki_spa'
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -266,7 +353,7 @@ def start_action(self, actions):
             self.logger.info("wait move available")
             wait_over(self)
             time.sleep(2)
-        if i != len(actions) - 1:
+        if i != len(actions) - 1 and 'ensure-ui' not in act:
             to_normal_task_mission_operation_page(self)
 
 
