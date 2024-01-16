@@ -228,233 +228,112 @@ class Main:
         raise ScriptError(message=info, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
-        if self.server == "CN" or self.server == "JP":
-            possibles = {
-                'main_page_quick-home': (1236, 31),
-                'normal_task_fight-end-back-to-main-page': (511, 662),
-                'main_page_login-feature': (640, 360),
-                'main_page_news': (1142, 104),
-                'main_page_relationship-rank-up': (640, 360),
-                'main_page_full-notice': (887, 165),
-                'main_story_fight-confirm': (1168, 659),
-                'normal_task_task-finish': (1038, 662),
-                'normal_task_prize-confirm': (776, 655),
-                'normal_task_fail-confirm': (643, 658),
-                'normal_task_fight-task-info': (420, 592),
-                "normal_task_sweep-complete": (643, 585),
-                "normal_task_start-sweep-notice": (887, 164),
-                "normal_task_unlock-notice": (887, 164),
-                'normal_task_skip-sweep-complete': (643, 506),
-                "normal_task_charge-challenge-counts": (887, 164),
-                "purchase_ap_notice": (919, 165),
-                'normal_task_mission-operating-task-info': (1000, 664),
-                'normal_task_mission-operating-task-info-notice': (416, 595),
-                'normal_task_mission-pause': (768, 501, 3),
-                'normal_task_task-begin-without-further-editing-notice': (888, 163),
-                'normal_task_task-operating-round-over-notice': (888, 163),
-                'momo_talk_momotalk-peach': (1123, 122),
-                'cafe_students-arrived': (922, 189),
-                'cafe_quick-home': (1236, 31),
-                'group_sign-up-reward': (920, 159),
-                'cafe_invitation-ticket': (835, 97),
-                'lesson_lesson-information': (964, 117),
-                'lesson_all-locations': (1138, 117),
-                'lesson_lesson-report': (642, 556),
+        possibles = {
+            'main_page_quick-home': (1236, 31),
+            'normal_task_fight-end-back-to-main-page': (511, 662),
+            'main_page_login-feature': (640, 360),
+            'main_page_news': (1142, 104),
+            'main_page_relationship-rank-up': (640, 360),
+            'main_page_full-notice': (887, 165),
+            'normal_task_fight-confirm': (1168, 659),
+            'normal_task_task-finish': (1038, 662),
+            'normal_task_prize-confirm': (776, 655),
+            'normal_task_fail-confirm': (643, 658),
+            'normal_task_fight-task-info': (420, 592),
+            "normal_task_sweep-complete": (643, 585),
+            "normal_task_start-sweep-notice": (887, 164),
+            "normal_task_unlock-notice": (887, 164),
+            'normal_task_skip-sweep-complete': (643, 506),
+            "normal_task_charge-challenge-counts": (887, 164),
+            "purchase_ap_notice": (919, 165),
+            'normal_task_mission-operating-task-info': (1000, 664),
+            'normal_task_mission-operating-task-info-notice': (416, 595),
+            'normal_task_mission-pause': (768, 501, 3),
+            'normal_task_task-begin-without-further-editing-notice': (888, 163),
+            'normal_task_task-operating-round-over-notice': (888, 163),
+            'momo_talk_momotalk-peach': (1123, 122),
+            'cafe_students-arrived': (922, 189),
+            'cafe_quick-home': (1236, 31),
+            'group_sign-up-reward': (920, 159),
+            'cafe_invitation-ticket': (835, 97),
+            'lesson_lesson-information': (964, 117),
+            'lesson_all-locations': (1138, 117),
+            'lesson_lesson-report': (642, 556),
+            "special_task_task-info": (1085, 141),
+            'arena_battle-win': (640, 530),
+            'arena_battle-lost': (640, 468),
+            'arena_season-record': (640, 538),
+            'arena_best-record': (640, 538),
+            'arena_opponent-info': (1012, 98),
+            'plot_menu': (1202, 37),
+            'plot_skip-plot-button': (1208, 116),
+            'plot_skip-plot-notice': (770, 519),
+            'activity_story-fight-success-confirm': (638, 674),
+        }
+        update = {
+            'CN': {
+                'cafe_cafe-reward-status': (905, 159),
+                'normal_task_task-info': (1084, 139),
+                "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
-                'arena_battle-win': (640, 530),
-                'arena_battle-lost': (640, 468),
-                'arena_season-record': (640, 538),
-                'arena_best-record': (640, 538),
-                'arena_opponent-info': (1012, 98),
-                'plot_menu': (1202, 37),
-                'plot_skip-plot-button': (1208, 116),
-                'plot_skip-plot-notice': (770, 519),
-                'activity_story-fight-success-confirm': (638, 674)
+            },
+            'JP': {
+                "cafe_cafe-reward-status": (985, 147),
+                'normal_task_task-info': (1126, 141),
+                "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
+                "special_task_task-info": (1126, 141),
+            },
+            'Global': {
+                'main_page_news': (1227, 56),
+                "special_task_task-info": (1085, 141),
+                'cafe_cafe-reward-status': (905, 159),
+                'normal_task_task-info': (1084, 139),
+                'main_page_login-store': (883, 162),
+                'main_page_insufficient-inventory-space': (912, 140),
             }
-            update = {
-                'CN': {
-                    'cafe_cafe-reward-status': (905, 159),
-                    'normal_task_task-info': (1084, 139),
-                    "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
-                    "special_task_task-info": (1085, 141),
-                },
-                'JP': {
-                    "cafe_cafe-reward-status": (985, 147),
-                    'normal_task_task-info': (1126, 141),
-                    "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
-                    "special_task_task-info": (1126, 141),
-                }
-            }
-            possibles.update(**update[self.server])
-            fail_cnt = 0
-            click_pos = [
-                [1236, 31],
-                [640, 360],
-                [640, 100],
-                [640, 200],
-            ]
-            los = [
-                "home",
-                'relationship_rank_up',
-                'area_rank_up',
-                'level_up'
-            ]
-            while True:
-                if skip_first_screenshot:
-                    skip_first_screenshot = False
-                else:
-                    color.wait_loading(self)
-                res = color.detect_rgb_one_time(self, [], [], ['main_page'])
-                if res == ('end', 'main_page'):
+        }
+        possibles.update(**update[self.server])
+        fail_cnt = 0
+        click_pos = [
+            [1236, 31],
+            [640, 360],
+            [640, 100],
+            [640, 200],
+        ]
+        los = [
+            "home",
+            'relationship_rank_up',
+            'area_rank_up',
+            'level_up'
+        ]
+        while True:
+            if skip_first_screenshot:
+                skip_first_screenshot = False
+            else:
+                color.wait_loading(self)
+            res = color.detect_rgb_one_time(self, [], [], ['main_page'])
+            if res == ('end', 'main_page'):
+                break
+            res = color.detect_rgb_one_time(self, click_pos, los, [])
+            if res == ('click', True):
+                continue
+            # region 资源图片可能会出现的位置
+            for asset, obj in possibles.items():
+                if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
+                                       need_log=False):
+                    self.logger.info("find " + asset)
+                    self.click(obj[0], obj[1], False)
+                    self.latest_screenshot_time = time.time()
+                    fail_cnt = 0
                     break
-                res = color.detect_rgb_one_time(self, click_pos, los, [])
-                if res == ('click', True):
-                    continue
-                # region 资源图片可能会出现的位置
-                for asset, obj in possibles.items():
-                    if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
-                                           need_log=False):
-                        self.logger.info("find " + asset)
-                        self.click(obj[0], obj[1], False)
-                        self.latest_screenshot_time = time.time()
-                        fail_cnt = 0
-                        break
-                else:
-                    fail_cnt += 1
-                    if fail_cnt > 10:
-                        self.logger.info("tentative clicks")
-                        self.click(1236, 31, False)
-                        self.latest_screenshot_time = time.time()
-                        fail_cnt = 0
-            return True
-        elif self.server == "Global":
-            click_pos = [
-                [1240, 39],
-                [838, 97],
-                [640, 360],
-                [889, 162],
-                [640, 458],
-                [640, 116],
-                [962, 114],
-                [1138, 114],
-                [640, 558],
-                [640, 360],
-                [640, 360],
-                [640, 360],
-                [1120, 117],
-                [910, 138],
-                [904, 158],
-                [902, 158],
-                [922, 192],
-                [922, 192],
-                [917, 158],
-                [898, 177],
-                [886, 213],
-                [644, 506],
-                [1120, 162],
-                [921, 164],
-                [1129, 142],
-                [1077, 98],
-                [886, 166],
-                [1015, 100],
-                [637, 471],
-                [637, 530],
-                [637, 530],
-                [921, 164],
-                [889, 180],
-                [919, 168],
-                [649, 508],
-                [887, 161],
-                [920, 165],
-                [637, 116],
-                [871, 164],
-            ]
-            los = [
-                "home",
-                "invitation_ticket",
-                "relationship_rank_up",
-                "full_ap_notice",
-                "guide",
-                "reward_acquired",
-                "location_info",
-                "all_locations",
-                "lesson_report",
-                "sign_in1",
-                "sign_in2",
-                "sign_in3",
-                "momotalk",
-                "insufficient_inventory_space",
-                "cafe_earning_status_bright",
-                "cafe_earning_status_grey",
-                "buy_notice_bright",
-                "buy_notice_grey",
-                "club_attendance_reward",
-                "shop_buy_notice_bright",
-                "shop_refresh_guide",
-                "store_login_notice",
-                "room_info",
-                "purchase_bounty_ticket",
-                "mission_info",
-                "sweep_complete",
-                "start_sweep_notice",
-                "battle_opponent",
-                "battle_result_lose",
-                "battle_result_win",
-                "best_season_record_reached",
-                "purchase_scrimmage_ticket",
-                "purchase_ticket_notice",
-                "purchase_ap_notice",
-                "skip_sweep_complete",
-                "charge_challenge_counts",
-                "purchase_lesson_ticket",
-                "area_rank_up",
-                "complete_instantly_notice",
-            ]
-            ends = ["main_page"]
-            possibles = {
-                'normal_task_fight-end-back-to-main-page': (511, 662),
-                'normal_task_fight-complete-confirm': (1160, 666),
-                'normal_task_reward-acquired-confirm': (800, 660),
-                'normal_task_mission-operating-task-info-notice': (397, 592),
-                'normal_task_task-operating-feature': (995, 668),
-                'normal_task_mission-pause': (772, 511),
-                'normal_task_mission-conclude-confirm': (1042, 671),
-                'normal_task_obtain-present': (640, 519),
-                'fighting_pause-button': (1235, 54),
-                'fighting_pause-notice': (905, 513),
-                'fighting_retreat-notice': (760, 495),
-            }
-            fail_cnt = 0
-            while True:
-                if skip_first_screenshot:
-                    skip_first_screenshot = False
-                else:
-                    color.wait_loading(self)
-                res = color.detect_rgb_one_time(self, [], [], ends)
-                if res == ('end', 'main_page'):
-                    break
-                res = color.detect_rgb_one_time(self, click_pos, los, [])
-                if res == ('click', True):
-                    continue
-
-                # region 资源图片可能会出现的位置
-                for asset, obj in possibles.items():
-                    if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
-                                           need_log=False):
-                        self.logger.info("find " + asset)
-                        self.click(obj[0], obj[1], False)
-                        self.latest_screenshot_time = time.time()
-                        fail_cnt = 0
-                        break
-                else:
-                    time.sleep(self.screenshot_interval)
-                    fail_cnt += 1
-                    if fail_cnt > 10:
-                        self.logger.info("tentative clicks")
-                        self.click(1228, 41, False)
-                        time.sleep(self.screenshot_interval)
-                        fail_cnt = 0
-            return True
+            else:
+                fail_cnt += 1
+                if fail_cnt > 10:
+                    self.logger.info("tentative clicks")
+                    self.click(1236, 31, False)
+                    self.latest_screenshot_time = time.time()
+                    fail_cnt = 0
+        return True
 
     def wait_screenshot_updated(self):
         while not self.screenshot_updated:
@@ -638,7 +517,7 @@ class Main:
             interval = 0.3
         self.logger.info("screenshot_interval set to " + str(interval))
         self.screenshot_interval = interval
-
+        
 
 if __name__ == '__main__':
     # # print(time.time())
@@ -656,9 +535,9 @@ if __name__ == '__main__':
     # t.quick_method_to_main_page()
     # t.solve('clear_special_task_power')
     # t.quick_method_to_main_page()
-    # t.solve('lesson')
-    # t.quick_method_to_main_page()
-    # t.solve('scrimmage')
+    t.solve('lesson')
+    t.quick_method_to_main_page()
+    t.solve('scrimmage')
     # t.quick_method_to_main_page()
     # t.solve('collect_reward')
     # t.quick_method_to_main_page()
@@ -670,7 +549,7 @@ if __name__ == '__main__':
     # t.quick_method_to_main_page()
     # t.solve('mail')
     # t.quick_method_to_main_page()
-    # t.solve('hard_task')
+    t.solve('hard_task')
     # t.quick_method_to_main_page()
     t.solve('explore_hard_task')
     t.quick_method_to_main_page()

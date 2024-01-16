@@ -32,7 +32,7 @@ def implement(self):
 
     for i in range(0, 3):
         if just_do_task:
-            self.quick_method_to_main_page(skip_first_screenshot=True)
+            to_choose_bounty(self, True)
         if count[i] == "max" or count[i] > 0:
             self.logger.info("Start bounty task: " + bounty_name[i] + " count : " + str(count[i]))
             just_do_task = True
@@ -108,7 +108,11 @@ def one_detect(self, a, b):
             if b == "max":
                 self.click(1085, 300, duration=1, wait_over=True)
             else:
-                self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
+                if b > 1:
+                    duration = 0
+                    if b > 4:
+                        duration = 1
+                    self.click(1014, 300, count=b - 1, duration=duration, wait_over=True)
             return start_sweep(self)
         elif t == "no-pass" or t == "pass":
             to_bounty(self, a, True)
@@ -164,15 +168,14 @@ def to_bounty(self, num, skip_first_screenshot=False):
 def to_choose_bounty(self, skip_first_screenshot=False):
     img_ends = "rewarded_task_location-select"
     img_possibles = {
+        "main_page_back-arrow": (57, 41),
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
     }
     rgb_ends = "choose_bounty"
     rgb_possibles = {
         "main_page": (1198, 580),
-        "campaign": (746, 423)
     }
-
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles,
                       skip_first_screenshot=skip_first_screenshot)
 

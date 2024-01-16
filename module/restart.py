@@ -37,12 +37,6 @@ def start(self):
         time.sleep(2)
     elif self.server == 'Global':
         color.wait_loading(self)
-        while not color.detect_rgb_one_time(self, [], [], ['main_page']):
-            x = random.randint(0, 200)
-            y = random.randint(30, 150)
-            self.click(x + 1050, y, wait=False, wait_over=True)
-            color.wait_loading(self)
-        time.sleep(2)
         self.quick_method_to_main_page()
         time.sleep(2)
         while not color.detect_rgb_one_time(self, [], [], ['main_page']):

@@ -1,16 +1,6 @@
 import time
-
 import numpy as np
-
 from core import color, image
-
-x = {
-    'momotalk-peach': (144, 107, 169, 130),
-    'newest': (493, 168, 527, 185),
-    'unread': (493, 168, 527, 185),
-    'down': (634, 169, 645, 186),
-    'up': (634, 169, 645, 186),
-}
 
 
 def implement(self, need_check_mode=True):

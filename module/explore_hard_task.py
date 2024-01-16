@@ -5,9 +5,6 @@ from core import color, image, picture
 from module import main_story, normal_task, hard_task
 
 
-
-
-
 def implement(self):
     # self.scheduler.change_display("困难关推图")
     t = self.config['explore_hard_task_list']
@@ -83,11 +80,8 @@ def implement(self):
                 main_story.auto_fight(self)
                 if self.config['manual_boss']:
                     self.click(1235, 41)
-                hard_task.to_hard_event(self)
-                if region >= 1:
-                    choose_region(self, region - 1)
-                else:
-                    pass
+                normal_task.to_normal_event(self)
+                hard_task.to_hard_event(self, True)
     return True
 
 
@@ -237,6 +231,7 @@ def wait_formation_change(self, force_index):
         time.sleep(self.screenshot_interval)
     return force_index
 
+
 def choose_region(self, region):
     square = {
         'CN': [122, 178, 163, 208],
@@ -339,9 +334,11 @@ def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=T
     for i in range(0, len(st)):
         if '-' in st[i]:
             temp = st[i].split('-')
-            if len(temp) > 5:
+            if len(temp) > 5 or not temp[0].isdigit():
                 continue
             if temp.count('sss') > 1 or temp.count('present') > 1 or temp.count('task') > 1 or not temp[0].isdigit():
+                continue
+            if int(temp[0]) < 6 or int(temp[0]) > 16:
                 continue
             if temp[0].isdigit() and temp[1].isdigit():  # 指定关卡
                 tt = ''

@@ -83,8 +83,11 @@ def implement(self):
                 if tar_times == "max":
                     self.click(1085, 300, rate=1, wait=False, wait_over=True)
                 else:
-                    if tar_times >= 2:
-                        self.click(1014, 300, count=tar_times - 1, wait=False, duration=1, wait_over=True)
+                    if tar_times > 1:
+                        duration = 0
+                        if tar_times > 4:
+                            duration = 1
+                        self.click(1014, 300, count=tar_times - 1, wait=False, duration=duration, wait_over=True)
                 res = start_sweep(self, skip_first_screenshot=True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("common task " + str(self.normal_task_count[i]) + " finished")

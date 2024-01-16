@@ -11,5 +11,7 @@ x_y_range = {
     'login-feature': (1105, 601, 1142, 640),  # 登录界面
     'news': (250, 85, 328, 117),  # 公告
     'relationship-rank-up': (754, 595, 776, 647),
-    'full-notice': (563, 277, 613, 312)
+    'full-notice': (563, 277, 613, 312),
+    'back-arrow': (37, 20, 80, 57)
+
 }

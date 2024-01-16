@@ -67,7 +67,8 @@ def to_cafe(self, skip_first_screenshot=False):
             'relationship_rank_up': [640, 360]
         }
     }
-    picture.co_detect(self,'cafe' ,rgb_possibles[self.server],'cafe_menu',img_possibles[self.server] , skip_first_screenshot)
+    picture.co_detect(self, 'cafe', rgb_possibles[self.server], 'cafe_menu', img_possibles[self.server],
+                      skip_first_screenshot)
 
 
 def match(img, server):
@@ -208,21 +209,23 @@ def invite_girl(self):
         stop_flag = False
         last_student_name = None
         while not stop_flag:
+            region = {
+                'CN': (489, 185, 865, 604),
+                'Global': (489, 185, 865, 604),
+                'JP': (489, 185, 865, 604),
+            }
             img_shot = self.get_screenshot_array()
-            if self.server == 'CN':
-                out = self.ocrCN.ocr(img_shot)
-            elif self.server == 'Global':
-                out = self.ocrEN.ocr(img_shot)
+            out = self.ocr.get_region_raw_res(img_shot, region[self.server], model=self.server)
             detected_name = []
             location = []
-            for i in range(0, len(out)):
-                t = out[i]['text'].replace('<unused3>', '')
+            for k in range(0, len(out)):
+                temp = out[k]['text']
                 res = ""
-                for x in range(0, len(t)):
-                    if t[x] == '(' or t[x] == "（" or t[x] == ")" or t[x] == "）" or t[x] == ' ':
+                for x in range(0, len(temp)):
+                    if temp[x] == '(' or temp[x] == "（" or temp[x] == ")" or temp[x] == "）" or temp[x] == ' ':
                         continue
                     else:
-                        res = res + t[x]
+                        res = res + temp[x]
                 res = res.lower()
                 for j in range(0, len(student_name)):
                     if len(detected_name) <= 4:
@@ -231,15 +234,15 @@ def invite_girl(self):
                                 detected_name.append("千世")
                             else:
                                 detected_name.append(student_name[j])
-                            location.append(out[i]['position'][0][1] + 25)
+                            location.append(out[i]['position'][0][1] + 210)
                     else:
                         break
             if len(detected_name) == 0:
                 self.logger.info("No name detected")
                 break
             st = ""
-            for i in range(0, len(detected_name)):
-                st = st + detected_name[i] + " "
+            for x in range(0, len(detected_name)):
+                st = st + detected_name[x] + " "
             self.logger.info("detected name :" + st)
             if detected_name[len(detected_name) - 1] == last_student_name:
                 self.logger.warning("Can't detect target student")
@@ -283,63 +286,17 @@ def collect(self, skip_first_screenshot=False):
 
 
 def get_invitation_ticket_status(self):
-    if self.server == 'CN' or self.server == 'Global':
-        invitation_ticket_status_region = {
-            'CN': (801, 586, 875, 606),
-            'Global': (731, 585, 870, 606),
-            'JP': None
-        }
-        temp = self.ocr.get_region_pure_english(self.latest_img_array, invitation_ticket_status_region[self.server])
-        if self.server == 'Global':
-            if temp == "availableforuse":
-                self.logger.info("Invite ticket available for use")
-                return True
-            else:
-                return False
-        if self.server == 'CN':
-            if temp == "可以使用":
-                self.logger.info("Invite ticket available for use")
-                return True
-            else:
-                self.logger.info("Invitation ticket unavailable")
-                return False
-    elif self.server == 'JP':
-        if color.judge_rgb_range(self.latest_img_array,851,647,250,255,250,255,250,255):
-            self.logger.info("Invite ticket available for use")
-            return True
-        else:
-            self.logger.info("Invitation ticket unavailable")
-            return False
+    if color.judge_rgb_range(self.latest_img_array, 851, 647, 250, 255, 250, 255, 250, 255):
+        self.logger.info("Invite ticket available for use")
+        return True
+    else:
+        self.logger.info("Invitation ticket unavailable")
+        return False
 
 
 def get_cafe_earning_status(self):
-    if self.server == 'Global':
-        img = self.latest_img_array[643:675, 1093:1205, :]
-        t1 = time.time()
-        ocr_res = self.ocrEN.ocr_for_single_line(img)
-        t2 = time.time()
-        self.logger.info("ocr_cafe_earnings:" + str(t2 - t1))
-        temp = ""
-        for j in range(0, len(ocr_res['text'])):
-            if ocr_res['text'][j] == ' ':
-                continue
-            if ocr_res['text'][j] == ',':
-                temp = temp + '.'
-            else:
-                temp = temp + ocr_res['text'][j]
-        temp = temp.lower()
-        if temp[len(temp) - 1] == "%":
-            t = float(temp[:len(temp) - 1])
-            self.logger.info("Cafe earnings : " + str(t) + "%")
-            if t > 0:
-                return True
-        self.logger.info("Cafe earnings UNKNOWN STATUS")
-        return False
-    elif self.server == 'CN' or self.server == 'JP':
-        if not image.compare_image(self, 'cafe_0.0', 3):
-            return True
-
-
+    if not image.compare_image(self, 'cafe_0.0', 3):
+        return True
 
 
 def interaction_for_cafe_solve_method1(self):

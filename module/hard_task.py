@@ -74,7 +74,7 @@ def implement(self):
                 self.logger.info("INADEQUATE AP for task")
                 return True
             choose_region(self, tar_region)
-            if to_task_info(self, all_task_x_coordinate, hard_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
+            if to_task_info(self, all_task_x_coordinate, hard_task_y_coordinates[tar_mission - 1], True) == "unlock_notice":
                 self.logger.info("task unlocked")
                 continue
             t = check_sweep_availability(self.latest_img_array, server=self.server)
@@ -82,8 +82,10 @@ def implement(self):
                 if tar_times == "max":
                     self.click(1085, 300, rate=1, wait=False, wait_over=True)
                 else:
-                    if tar_times >= 2:
-                       self.click(1014, 300, count=tar_times - 1, wait=False, wait_over=True)
+                    duration = 0
+                    if tar_times > 4:
+                        duration = 1
+                    self.click(1014, 300, count=tar_times - 1, wait=False, duration=duration, wait_over=True)
                 res = start_sweep(self, True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("hard task " + str(self.hard_task_count[i]) + " finished")
@@ -112,7 +114,6 @@ def to_hard_event(self, skip_first_screenshot=False):
         "sweep_complete": (1077, 98),
         "event_normal": (1064, 165),
         "main_page": (1198, 580),
-        "reward_acquired": (640, 116),
         "start_sweep_notice": (887, 164),
         "charge_challenge_counts": (887, 161),
         "unlock_notice": (887, 161),
@@ -130,7 +131,7 @@ def to_hard_event(self, skip_first_screenshot=False):
         'normal_task_auto-over': (1082, 599),
         'normal_task_task-finish': (1038, 662),
         'normal_task_prize-confirm': (776, 655),
-        'main_story_fight-confirm': (1168, 659),
+        'normal_task_fight-confirm': (1168, 659),
         'normal_task_fight-complete-confirm': (1160, 666),
         'normal_task_reward-acquired-confirm': (800, 660),
         'normal_task_mission-conclude-confirm': (1042, 671),
@@ -139,20 +140,17 @@ def to_hard_event(self, skip_first_screenshot=False):
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
-def to_task_info(self, x, y):
+def to_task_info(self, x, y, skip_first_screenshot=False):
     rgb_ends = [
         "mission_info",
         "unlock_notice"
     ]
-    rgb_possibles = {"event_normal": (x, y)}
-    img_possibles = {
-        "normal_task_menu": (x, y, 3),
-    }
+    rgb_possibles = {"event_hard": (x, y)}
     img_ends = [
         "normal_task_unlock-notice",
         "normal_task_task-info"
     ]
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles)
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, None, skip_first_screenshot)
     if res == "normal_task_unlock-notice" or res == 'unlock_notice':
         return "unlock_notice"
     return True

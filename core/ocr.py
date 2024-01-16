@@ -135,3 +135,19 @@ class Baas_ocr:
         res.replace('<unused2>', '')
         self.logger.info("ocr res : " + res + " time: " + str(ocr_time))
         return res
+
+    def get_region_raw_res(self, img, region, model='CN'):
+        img = img[region[1]:region[3], region[0]:region[2]]
+        t1 = time.time()
+        res = ""
+        if model == 'CN':
+            res = self.ocrCN.ocr(img)
+        elif model == 'Global':
+            res = self.ocrEN.ocr(img)
+        elif model == 'NUM':
+            res = self.ocrNUM.ocr(img)
+        ocr_time = round(time.time() - t1, 3)
+        for i in range(0, len(res)):
+            res[i]['text'] = res[i]['text'].replace('<unused3>', '')
+            res[i]['text'] = res[i]['text'].replace('<unused2>', '')
+        return res

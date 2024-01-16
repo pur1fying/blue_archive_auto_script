@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 
-from core import color, image
+from core import color, image, picture
 
 
 def implement(self):
@@ -122,33 +122,26 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
 
 
 def to_refresh(self):
-    if self.server == 'CN' or self.server == 'JP':
-        ends = [
-            "shop_refresh-notice",
-            "shop_refresh-unavailable-notice"
-        ]
-        click_pos = [[949, 664]]
-        los = ["tactical_challenge_shop"]
-        if image.detect(self, end=ends, pre_func=color.detect_rgb_one_time,
-                        pre_argv=(self, click_pos, los, [])) == "shop_refresh-unavailable-notice":
-            return False
+    refresh_lo = {
+        'CN': [949, 664],
+        'Global': [1160, 620],
+        'JP': [1160, 664]
+    }
+    img_ends = [
+        "shop_refresh-notice",
+        "shop_refresh-unavailable-notice"
+    ]
+    rgb_possibles = {"tactical_challenge_shop": refresh_lo[self.server]}
+    res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
+    if res == "shop_refresh_guide" or res == "shop_refresh-notice":
         return True
-    elif self.server == 'Global':
-        click_pos = [[1160, 620]]
-        los = ["tactical_challenge_shop"]
-        ends = [
-            "shop_refresh_guide",
-            "refresh_unavailable_notice"
-        ]
-        if color.common_rgb_detect_method(self, click_pos, los, ends) == "refresh_unavailable_notice":
-            return False
-        return True
+    return False
 
 
 def get_tactical_challenge_assets(self):
     tactical_challenge_assets_region = {
         'CN': [1140, 63, 1240, 102],
-        'Global': [1140, 63, 1240, 102],
+        'Global': [1109, 63, 1240, 102],
         'JP': [907, 68, 1045, 98]
     }
     return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server])

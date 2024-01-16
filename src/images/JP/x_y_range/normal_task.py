@@ -27,7 +27,7 @@ x_y_range = {
     'task-operating-feature': (10, 7, 67, 40),  # 任务执行过程中的特征（左上）
     'help': (597, 111, 696, 150),
     'task-wait-to-begin-feature': (99, 6, 160, 42),
-    'teleport-notice': (585, 496, 698, 532),
+    'teleport-notice': (437,313, 655, 352),
     'present': (572,185,704,225),
     'fight-confirm': (1120, 646, 1222, 681),
 }

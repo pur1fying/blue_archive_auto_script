@@ -126,7 +126,11 @@ def one_detect(self,a,b):
             if b == "max":
                 self.click(1085, 300, duration=1, wait_over=True)
             else:
-                self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
+                if b > 1:
+                    duration = 0
+                    if b > 4:
+                        duration = 1
+                    self.click(1014, 300, count=b - 1, duration=duration, wait_over=True)
             return start_sweep(self, skip_first_screenshot=True)
         elif t == "no-pass" or t == "pass":
             to_commissions(self, a, skip_first_screenshot=True)

@@ -2,7 +2,7 @@ import time
 from core import color, image
 
 
-def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibles=None,  skip_first_screenshot=False, tentitive_click = False):
+def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibles=None,  skip_first_screenshot=False, tentitive_click=False, tentitivex=1238,tentitivey=45):
     fail_cnt = 0
     while True:
         if not self.flag_run:
@@ -62,21 +62,22 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
                     f = 1
                     break
         if f == 0:
-            for position, click in img_possibles.items():
-                threshold = 3
-                if len(position) == 3:
-                    threshold = position[2]
-                if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
-                                       need_log=False):
-                    self.logger.info("find " + position)
-                    self.click(click[0], click[1], False)
-                    self.latest_screenshot_time = time.time()
-                    fail_cnt = 0
-                    break
+            if img_possibles is not None:
+                for position, click in img_possibles.items():
+                    threshold = 3
+                    if len(position) == 3:
+                        threshold = position[2]
+                    if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
+                                           need_log=False):
+                        self.logger.info("find " + position)
+                        self.click(click[0], click[1], False)
+                        self.latest_screenshot_time = time.time()
+                        fail_cnt = 0
+                        break
             if tentitive_click:
                 fail_cnt += 1
                 if fail_cnt > 20:
                     self.logger.info("tentative clicks")
-                    self.click(1228, 41, False)
+                    self.click(tentitivex,tentitivey, False)
                     time.sleep(self.screenshot_interval)
                     fail_cnt = 0
