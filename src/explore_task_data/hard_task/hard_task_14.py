@@ -18,12 +18,10 @@ stage_data = {
             {'t': 'click', 'p': (895, 340), 'ec': True, 'desc': "1 right"},
             {'t': 'click', 'p': (665, 365), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (412, 322), 'ec': True, 'desc': "2 left"},
+            {'t': 'exchange_and_click', 'p': (412, 322), 'ec': True, 'desc': "2 left"},
             {'t': 'click', 'p': (760, 405), 'wait-over': True, 'desc': "1 lower right"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (450, 420), 'wait-over': True, 'desc': "2 lower left"},
+            {'t': 'exchange_and_click', 'p': (450, 420), 'wait-over': True, 'desc': "2 lower left"},
             {'t': 'click', 'p': (715, 515), 'desc': "1 lower left"},
         ]
     },
@@ -41,16 +39,13 @@ stage_data = {
             {'t': 'click', 'p': (605, 395), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
 
             {'t': 'click', 'p': (640, 320), 'ec': True, 'desc': "1 left"},
-            {'t': 'click', 'p': (643, 323), 'desc': "choose 1"},
-            {'t': 'click', 'p': (540, 320), 'desc': "change 1 2"},
+            {'t': 'choose_and_change', 'p': (643, 323), 'desc': "swap 1 2"},
             {'t': 'click', 'p': (580, 235), 'wait-over': True, 'desc': "2 upper left"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (520, 275), 'ec': True, 'desc': "2 left"},
+            {'t': 'exchange_and_click', 'p': (520, 275), 'ec': True, 'desc': "2 left"},
             {'t': 'click', 'p': (565, 445), 'wait-over': True, 'desc': "1 left"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (620, 200), 'wait-over': True, 'desc': "2 upper left"},
+            {'t': 'exchange_and_click', 'p': (620, 200), 'wait-over': True, 'desc': "2 upper left"},
             {'t': 'click', 'p': (575, 425), 'desc': "1 upper left"},
         ]
     },
@@ -70,10 +65,8 @@ stage_data = {
             {'t': 'click', 'p': (630, 465), 'ec': True, 'desc': "1 left"},
             {'t': 'click', 'p': (550, 465), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (625, 460), 'ec': True, 'desc': "2 lower right"},
-            {'t': 'click', 'p': (625, 460), 'desc': "choose 2"},
-            {'t': 'click', 'p': (520, 455), 'desc': "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (625, 460), 'ec': True, 'desc': "2 lower right"},
+            {'t': 'choose_and_change', 'p': (625, 460), 'desc': "swap 1 2"},
             {'t': 'click', 'p': (565, 545), 'wait-over': True, 'desc': "1 lower left"},
 
             {'t': 'click', 'p': (390, 435), 'wait-over': True, 'desc': "1 left"},

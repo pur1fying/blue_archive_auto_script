@@ -13,16 +13,13 @@ stage_data = {
         },
         'action': [
             # 第一回合
-            {'t': 'exchange', 'ec': True},
-            {'t': 'click', 'p': (756, 388), 'ec': True, "desc": "2 right"},
+            {'t': 'exchange_and_click', 'p': (756, 388), 'ec': True, "desc": "2 right"},
             {'t': 'click', 'p': (636, 555), 'wait-over': True, "desc": "1 lower right"},
             # 第二回合
-            {'t': 'exchange', 'ec': True},
-            {'t': 'click', 'p': (867, 316), 'ec': True, "desc": "2 right"},
+            {'t': 'exchange_and_click', 'p': (867, 316), 'ec': True, "desc": "2 right"},
             {'t': 'click', 'p': (619, 461), 'wait-over': True, "desc": "1 lower right"},
             # 第三回合
-            {'t': 'exchange', 'ec': True},
-            {'t': 'click', 'p': (839, 298), 'ec': True, "desc": "2 right"},
+            {'t': 'exchange_and_click', 'p': (839, 298), 'ec': True, "desc": "2 right"},
             {'t': 'click', 'p': (669, 491), "desc": "1 right"},
         ]
     },
@@ -45,13 +42,11 @@ stage_data = {
             {'t': 'click', 'p': (580, 380), 'ec': True, "wait-over": True, "desc": "2 left"},
 
             # 第三回合
-            {'before': 2, 't': 'click', 'p': (74, 558), 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (600, 228), 'ec': True, "desc": "2 upper right"},
+            {'t': 'exchange_and_click', 'p': (600, 228), 'ec': True, "desc": "2 upper right"},
             {'t': 'click', 'p': (545, 443), "wait-over": True, "desc": "1 left"},
 
             # 第四回合
-            {'t': 'click', 'p': (74, 558), 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (802, 280), 'ec': True, "desc": "2 right"},
+            {'t': 'exchange_and_click', 'p': (802, 280), 'ec': True, "desc": "2 right"},
             {'t': 'click', 'p': (493, 402), "desc": "1 upper left"},
         ]
     },
@@ -71,15 +66,14 @@ stage_data = {
 
             # 第二回合
             {'t': 'click', 'p': (866, 408), 'ec': True, "desc": "1 right"},
-            {'t': 'click', 'p': (677, 396), "wait-over": True, "after": 5, "desc": "2 upper right"},
+            {'t': 'click', 'p': (677, 396), "wait-over": True, "desc": "2 upper right"},
 
             # 第三回合
             {'t': 'click', 'p': (842, 317), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (412, 339), 'ec': True, "wait-over": True, "desc": "2 left"},
 
             # 第四回合
-            {'t': 'click', 'p': (74, 558), 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (439, 303), 'ec': True, "desc": "2 upper left"},
+            {'t': 'exchange_and_click', 'p': (439, 303), 'ec': True, "desc": "2 upper left"},
             {'t': 'click', 'p': (767, 399), "desc": "1 lower right"},
 
         ]
@@ -99,14 +93,12 @@ stage_data = {
             {'t': 'click', 'p': (610, 381), 'ec': True, "wait-over": True, "desc": "2 upper right"},
 
             # 第二回合
-            {'t': 'click', 'p': (74, 558), 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (547, 302), 'ec': True, "desc": "2 upper left"},
-            {'t': 'click', 'p': (547, 302), "desc": "choose 2"},
-            {'t': 'click', 'p': (448, 293), "desc": "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (547, 302), 'ec': True, "desc": "2 upper left"},
+            {'t': 'choose_and_change', 'p': (547, 302), "desc": "swap 1 2"},
             {'t': 'click', 'p': (493, 219), "wait-over": True, "desc": "1 upper left"},
 
             # 第三回合
-            {'before': 3, 't': 'click', 'p': (412, 315), 'ec': True, "desc": "1 left"},
+            {'t': 'click', 'p': (412, 315), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (763, 408), "wait-over": True, 'ec': True, "desc": "2 lower right"},
 
             # 第四回合
@@ -134,15 +126,12 @@ stage_data = {
             {'t': 'click', 'p': (630, 336), 'ec': True, "wait-over": True, "desc": "2 right"},
 
             # 第三回合
-            {'t': 'click', 'p': (74, 558), 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (581, 407), 'ec': True, "desc": "2 lower right"},
-            {'t': 'click', 'p': (581, 407), "desc": "choose 2"},
-            {'t': 'click', 'p': (478, 401), "desc": "change 1 2"},
-            {'t': 'click', 'p': (517, 494), "wait-over": True, "after": 5, "desc": "1 lower left"},
+            {'t': 'exchange_and_click', 'p': (581, 407), 'ec': True, "desc": "2 lower right"},
+            {'t': 'choose_and_change', 'p': (581, 407), "desc": "swap 1 2"},
+            {'t': 'click', 'p': (517, 494), "wait-over": True, "desc": "1 lower left"},
 
             # 第四回合
-            {"before": 3, 't': 'click', 'p': (74, 558), 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (727, 483), 'ec': True, "desc": "2 lower left"},
+            {'t': 'exchange_and_click', 'p': (727, 483), 'ec': True, "desc": "2 lower left"},
             {'t': 'click', 'p': (519, 409), "desc": "1 lower left"},
         ]
     },

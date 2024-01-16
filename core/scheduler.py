@@ -79,7 +79,7 @@ class Scheduler:
                                     event['next_tick'] = self.get_next_14hour()
                                 else:
                                     event['next_tick'] = self.get_next_4hour()
-                            elif server == 'Global':
+                            elif server == 'Global' or server == 'JP':
                                 if datetime.now().hour < 13:
                                     event['next_tick'] = self.get_next_13hour()
                                 else:

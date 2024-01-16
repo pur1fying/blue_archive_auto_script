@@ -9,21 +9,17 @@ stage_data = {
             '2': 'mystic2'
         },
         'action': [
-            {'t': 'click', 'p': (900, 410), 'desc': "1 right"},
-            {'t': 'move', 'wait-over': True, 'desc': "teleport"},
+            {'t': 'click_and_teleport', 'wait-over': True, 'p': (900, 410), 'desc': "1 right and tp"},
             {'t': 'click', 'p': (555, 315), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
 
             {'t': 'click', 'p': (685, 230), 'ec': True, 'desc': "1 upper left"},
             {'t': 'click', 'p': (555, 340), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (565, 355), 'ec': True, 'desc': "2 upper right"},
-            {'t': 'click', 'p': (570, 355), 'desc': "choose 2"},
-            {'t': 'click', 'p': (460, 350), 'desc': "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (565, 355), 'ec': True, 'desc': "2 upper right"},
+            {'t': 'choose_and_change', 'p': (570, 355), 'desc': "swap 1 2"},
             {'t': 'click', 'p': (510, 275), 'wait-over': True, 'desc': "1 upper left"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (655, 410), 'wait-over': True, 'desc': "2 lower left"},
+            {'t': 'exchange_and_click', 'p': (655, 410), 'wait-over': True, 'desc': "2 lower left"},
             {'t': 'click', 'p': (450, 290), 'desc': "1 left"},
         ]
     },
@@ -37,22 +33,17 @@ stage_data = {
             '2': 'mystic2'
         },
         'action': [
-            {'t': 'click', 'p': (445, 485), 'desc': "1 lower left"},
-            {'t': 'move', 'wait-over': True, 'desc': "teleport"},
+            {'t': 'click_and_teleport', 'wait-over': True, 'p': (445, 485), 'desc': "1 lower left and tp"},
             {'t': 'click', 'p': (700, 320), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
 
-            {'t': 'click', 'p': (790, 475), 'desc': "1 lower right"},
-            {'t': 'move', 'wait-over': True, 'desc': "teleport"},
+            {'t': 'click_and_teleport', 'wait-over': True, 'p': (790, 475), 'desc': "1 lower right and tp"},
             {'t': 'click', 'p': (630, 270), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (670, 220), 'ec': True, 'desc': "2 upper right"},
-            {'t': 'click', 'p': (670, 275), 'desc': "choose 2"},
-            {'t': 'click', 'p': (563, 270), 'desc': "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (670, 220), 'ec': True, 'desc': "2 upper right"},
+            {'t': 'choose_and_change', 'p': (670, 275), 'desc': "swap 1 2"},
             {'t': 'click', 'p': (725, 195), 'wait-over': True, 'desc': "1 upper right"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (765, 535), 'wait-over': True, 'desc': "2 lower right"},
+            {'t': 'exchange_and_click', 'p': (765, 535), 'wait-over': True, 'desc': "2 lower right"},
             {'t': 'click', 'p': (775, 280), 'desc': "1 right"},
         ]
     },
@@ -68,39 +59,27 @@ stage_data = {
             '3': 'pierce1'
         },
         'action': [
-            {'t': 'click', 'p': (545, 505), 'desc': "1 left"},
-            {'t': 'move', 'wait-over': True, 'desc': "teleport"},
+            {'t': 'click_and_teleport', 'wait-over': True, 'p': (545, 505), 'desc': "1 left and tp"},
             {'t': 'click', 'p': (670, 300), 'ec': True, 'desc': "2 right"},
-            {'t': 'click', 'p': (765, 270), 'desc': "3 right"},
-            {'t': 'move', 'wait-over': True, 'desc': "teleport"},
+            {'t': 'click_and_teleport', 'wait-over': True, 'p': (765, 270), 'desc': "3 right and tp"},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (705, 370), 'ec': True, 'desc': "2 right"},
-            {'t': 'exchange', 'ec': True, 'desc': "change to 1"},
-            {'t': 'exchange', 'ec': True, 'desc': "change to 3"},
-            {'t': 'click', 'p': (705, 370), 'desc': "choose 2"},
-            {'t': 'click', 'p': (600, 365), 'desc': "change 2 3"},
+            {'t': 'exchange_and_click', 'p': (705, 370), 'ec': True, 'desc': "2 right"},
+            {'t': ['exchange_twice', 'choose_and_change'], 'p': (705, 370), 'desc': "swap 2 3"},
             {'t': 'click', 'p': (820, 370), 'ec': True, 'desc': "3 right"},
-            {'t': 'click', 'p': (785, 375), 'desc': "choose 3"},
-            {'t': 'click', 'p': (680, 365), 'desc': "change 1 3"},
+            {'t': 'choose_and_change', 'p': (785, 375), 'desc': "swap 1 3"},
             {'t': 'click', 'p': (905, 375), 'wait-over': True, 'desc': "1 right"},
 
             {'t': 'click', 'p': (905, 380), 'ec': True, 'desc': "1 right"},
-            {'t': 'click', 'p': (500, 425), 'desc': "choose self", 'ensure-ui': False},
-            {'t': 'move', 'wait-over': True, 'desc': "teleport"},
-            {'t': 'click', 'p': (645, 155), 'desc': "2 upper right"},
-            {'t': 'move', 'wait-over': True, 'desc': "teleport"},
+            {'t': 'click_and_teleport', 'p': (500, 425), "wait-over":True ,'desc': "2 tp"},
+            {'t': 'click_and_teleport', 'p': (645, 155), 'wait-over': True, 'desc': "2 upper right and tp"},
             {'t': 'click', 'p': (695, 595), 'wait-over': True, 'desc': "3 upper right"},
 
             {'t': 'click', 'p': (815, 405), 'ec': True, 'desc': "1 lower right"},
             {'t': 'click', 'p': (635, 205), 'ec': True, 'desc': "2 upper right"},
-            {'t': 'end-turn', 'wait-over': True},
+            {'t': 'end-turn'},
 
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'click', 'p': (675, 355), 'ec': True, 'desc': "2 lower right"},
-            {'t': 'exchange', 'ec': True, 'desc': "change to 2"},
-            {'t': 'exchange', 'ec': True, 'desc': "change to 3"},
-            {'t': 'click', 'p': (465, 550), 'wait-over': True, 'desc': "2 lower right"},
+            {'t': 'exchange_and_click', 'p': (675, 355), 'ec': True, 'desc': "2 lower right"},
+            {'t': 'exchange_twice_and_click', 'p': (465, 550), 'wait-over': True, 'desc': "2 lower right"},
             {'t': 'click', 'p': (715, 425), 'desc': "1 lower left"},
         ]
     },

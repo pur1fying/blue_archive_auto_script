@@ -1,16 +1,12 @@
 import time
-import numpy as np
-from core import color, image
 
-x = {
-    'confirm': (737, 446, 766, 476),
-    'refresh-notice': (575, 270, 628, 302),
-    'refresh-unavailable-notice': (547, 315, 600, 350)
-}
+import numpy as np
+
+from core import color, image
 
 
 def to_refresh(self):
-    if self.server == 'CN':
+    if self.server == 'CN' or self.server == 'JP':
         ends = [
             "shop_refresh-notice",
             "shop_refresh-unavailable-notice",
@@ -42,21 +38,11 @@ def implement(self):
     buy_list_for_common_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
                                  [700, 461], [857, 461], [1000, 461], [1162, 461]]
     buy_list = np.array(self.config["CommonShopList"])
-    if self.server == 'CN':
-        pass
-    elif self.server == 'Global':
-        price = np.array(
-            [
-                12500, 125000, 300000, 500000,
-                10000, 40000, 96000, 128000,
-                10000, 40000, 96000, 128000,
-                20000, 80000, 192000, 256000,
-                8000, 8000, 25000, 25000
-            ], dtype=int)
-        if price.shape != buy_list.shape:
-            self.logger.critical("price shape not match buy_list shape")
-            return True
-        asset_required = (buy_list * price).sum()
+    price = np.array(self.static_config["common_shop_price_list"][self.server], dtype=int)
+    if price.shape != buy_list.shape:
+        self.logger.critical("price shape not match buy_list shape")
+        return True
+    asset_required = (buy_list * price).sum()
 
     refresh_time = min(self.config['CommonShopRefreshTime'], 3)
     refresh_price = [40, 60, 80]
@@ -126,51 +112,34 @@ def implement(self):
                     return True
                 pyroxenes = pyroxenes - refresh_price[i]
                 self.logger.info("left pyroxenes : " + str(pyroxenes))
-                self.click(767, 468, wait=False, wait_over=True,duration=0.5)
+                self.click(767, 468, wait=False, wait_over=True, duration=0.5)
                 to_common_shop(self)
 
     return True
 
 
 def to_common_shop(self, skip_first_screenshot=False):
-    if self.server == 'CN':
-        click_pos = [
-            [823, 653],  # main_page
-            [640, 89],
-            [100, 141],
-        ]
-        los = [
-            "main_page",
-            "reward_acquired",
-            "tactical_challenge_shop",
-        ]
-        ends = [
-            "common_shop",
-        ]
-        image.detect(self, pre_func=color.detect_rgb_one_time, pre_argv=(self, click_pos, los, ends),
-                     skip_first_screenshot=skip_first_screenshot)
-    elif self.server == 'Global':
-        click_pos = [
-            [799, 653],  # main_page
-            [922, 192],  # buy notice bright
-            [922, 192],  # buy notice grey
-            [886, 213],  # shop refresh guide
-            [640, 89],
-            [889, 162],
-            [910, 138],
-            [157, 135],
-        ]
-        los = [
-            "main_page",
-            "buy_notice_bright",
-            "buy_notice_grey",
-            "shop_refresh_guide",
-            "reward_acquired",
-            "full_ap_notice",
-            "insufficient_inventory_space",
-            "tactical_challenge_shop",
-        ]
-        ends = [
-            "common_shop",
-        ]
-        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
+    click_pos = [
+        [799, 653],  # main_page
+        [922, 192],  # buy notice bright
+        [922, 192],  # buy notice grey
+        [886, 213],  # shop refresh guide
+        [640, 89],
+        [889, 162],
+        [910, 138],
+        [157, 135],
+    ]
+    los = [
+        "main_page",
+        "buy_notice_bright",
+        "buy_notice_grey",
+        "shop_refresh_guide",
+        "reward_acquired",
+        "full_ap_notice",
+        "insufficient_inventory_space",
+        "tactical_challenge_shop",
+    ]
+    ends = [
+        "common_shop",
+    ]
+    color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
