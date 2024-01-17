@@ -21,7 +21,10 @@ def implement(self):
     if op[1]:
         invite_girl(self)
     interaction_for_cafe_solve_method3(self)
-    self.logger.info("cafe task finished")
+    if self.server == 'JP':
+        self.logger.info("start no2 cafe relationship interaction")
+        to_no2_cafe(self)
+        interaction_for_cafe_solve_method3(self)
     return True
 
 
@@ -69,6 +72,12 @@ def to_cafe(self, skip_first_screenshot=False):
     }
     picture.co_detect(self, 'cafe', rgb_possibles[self.server], 'cafe_menu', img_possibles[self.server],
                       skip_first_screenshot)
+
+
+def to_no2_cafe(self):
+    self.click(112, 97, wait_over=True, duration=0.5)
+    self.click(245, 159, wait_over=True, duration=0.5)
+    to_cafe(self)
 
 
 def match(img, server):
