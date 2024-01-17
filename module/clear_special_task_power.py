@@ -45,7 +45,7 @@ def implement(self):
 
 def start_sweep(self, skip_first_screenshot=False):
     img_ends = [
-        "puechase_ap_notice",
+        "purchase_ap_notice",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"special_task_task-info": (941, 411)}
