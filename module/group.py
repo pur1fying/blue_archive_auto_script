@@ -1,36 +1,18 @@
-from core import color, image
+from core import picture
 
 
 def implement(self):
     self.quick_method_to_main_page()
-    if self.server == 'CN' or self.server == 'JP':
-        possible = {
-            'main_page_home-feature': (578, 648),
-        }
-        end = [
-            'group_sign-up-reward',
-            'group_menu',
-        ]
-        res = image.detect(self, end, possible, skip_first_screenshot=True)
-        if res == 'group_sign-up-reward':
-            self.logger.info('get 10 AP')
-    elif self.server == "Global":
-        res = to_club(self)
-        if res == "club_attendance_reward":
-            self.logger.info("get 10 AP")
-        self.click(1236, 39, wait=False, count=2)
+    rgb_possible = {'main_page': (578, 648)}
+    img_possible = {'main_page_home-feature': (578, 648)}
+    img_ends = [
+        'group_sign-up-reward',
+        'group_menu',
+        'group_join-club'
+    ]
+    res = picture.co_detect(self, None,rgb_possible, img_possible, img_ends,True)
+    if res == 'group_sign-up-reward':
+        self.logger.info('GET 10 AP')
+    elif res == 'group_join-club':
+        self.logger.warning('NOT in a club')
     return True
-
-
-def to_club(self):
-    click_pos = [
-        [562, 656]
-    ]
-    los = [
-        "main_page"
-    ]
-    ends = [
-        "club",
-        "club_attendance_reward"
-    ]
-    return color.common_rgb_detect_method(self, click_pos, los, ends, True)
