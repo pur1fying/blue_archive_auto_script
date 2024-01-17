@@ -65,13 +65,9 @@ def implement(self):
                 }
                 img_ends = "normal_task_task-wait-to-begin-feature"
                 image.detect(self, img_ends, img_possibles)
-                prev_index = 0
-                for number, position in current_task_stage_data['start'].items():
-                    cu_index = choose_team(self, number, position, current_task_stage_data)
-                    if cu_index < prev_index:
-                        self.logger.critical("please set the first formation number smaller than the second one")
-                        return False
-                    prev_index = cu_index
+                res, los = cacl_team_number(self, current_task_stage_data)
+                for j in range(0, len(res)):
+                    choose_team(self, res[j], los[j], True)
                 start_mission(self)
                 check_skip_fight_and_auto_over(self)
                 self.set_screenshot_interval(1)
@@ -125,7 +121,7 @@ def get_force(self):
     ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server])
     if ocr_res == "UNKNOWN":
         return get_force(self)
-    if ocr_res == "7":
+    if ocr_res == 7:
         return 1
     if ocr_res not in [1, 2, 3, 4]:
         return get_force(self)
@@ -249,12 +245,10 @@ def choose_region(self, region):
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
 
 
-def choose_team(self, number, position, data, skip_first_screenshot=True):
-    index = self.config[data['attr'][number]]
-    self.logger.info("According to the config. Choose formation {0}".format(index))
-    to_formation_edit_i(self, index, position, skip_first_screenshot)
+def choose_team(self, number, position, skip_first_screenshot=True):
+    self.logger.info("According to the config. Choose formation " + str(number))
+    to_formation_edit_i(self, number, position, skip_first_screenshot)
     to_normal_task_wait_to_begin_page(self, skip_first_screenshot)
-    return index
 
 
 def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
@@ -385,3 +379,48 @@ def check_skip_fight_and_auto_over(self):
         self.click(1194, 547)
     if not image.compare_image(self, 'normal_task_auto-over', threshold=3, image=self.latest_img_array):
         self.click(1194, 600)
+
+
+def cacl_team_number(self, current_task_stage_data):
+    pri = {
+        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2'],
+        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2'],
+        'burst1': ['burst1', 'burst2', 'pierce1', 'pierce2', 'mystic1', 'mystic2'],
+        'burst2': ['burst2', 'pierce1', 'pierce2', 'mystic1', 'mystic2'],
+        'mystic1': ['mystic1', 'mystic2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+        'mystic2': ['mystic2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+    }
+    length = len(current_task_stage_data['start'])
+    used = {
+        'pierce1': False,
+        'pierce2': False,
+        'burst1': False,
+        'burst2': False,
+        'mystic1': False,
+        'mystic2': False
+    }
+    last_chosen = 0
+    res = []
+    los = []
+    for attr, position in current_task_stage_data['start'].items():
+        los.append(position)
+        for i in range(0, len(pri[attr])):
+            possible_attr = pri[attr][i]
+            possible_index = self.config[possible_attr]
+            if not used[possible_attr] and 4 - possible_index >= length - i - 1 and last_chosen < possible_index:
+                res.append(possible_index)
+                used[possible_attr] = True
+                last_chosen = self.config[possible_attr]
+                break
+    if len(res) != length:
+        self.logger.warning("Insufficient forces are chosen")
+        if length - len(res) <= 4 - last_chosen:
+            for i in range(0, length - len(res)):
+                res.append(last_chosen + i + 1)
+        else:
+            self.logger.warning("USE formations as the number increase")
+            res.clear()
+            for i in range(0, length):
+                res.append(i + 1)
+    self.logger.info("Choose formations : " + str(res))
+    return res, los

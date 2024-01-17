@@ -1,6 +1,7 @@
 prefix = "normal_task"
 path = "normal_task"
 x_y_range = {
+    "fight-end-back-to-main-page":(419,642,600,678),
     'fight-confirm': (1144, 649, 1194, 674),  # 战斗结果
     'charge-challenge-counts': (495, 348, 599, 381),  # 购买挑战次数
     'unlock-notice': (607, 144, 676, 176),  # 解锁提示

@@ -1,12 +1,8 @@
 stage_data = {
     '14-1-sss-present-task': {
         'start': {
-            '1': (550, 305),
-            '2': (581, 686)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (550, 305),
+            'mystic1': (581, 686),
         },
         'action': [
             {'t': 'click', 'p': (785, 275), 'ec': True, 'desc': "1 right"},
@@ -27,12 +23,8 @@ stage_data = {
     },
     '14-2-sss-present-task': {
         'start': {
-            '1': (875, 305),
-            '2': (475, 585)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (875, 305),
+            'mystic1': (475, 585),
         },
         'action': [
             {'t': 'click', 'p': (690, 390), 'ec': True, 'desc': "1 lower left"},
@@ -51,12 +43,8 @@ stage_data = {
     },
     '14-3-sss-present-task': {
         'start': {
-            '1': (875, 345),
-            '2': (425, 200)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (875, 345),
+            'mystic1': (425, 200),
         },
         'action': [
             {'t': 'click', 'p': (655, 430), 'ec': True, 'desc': "1 left"},

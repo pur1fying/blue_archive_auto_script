@@ -1,12 +1,8 @@
 stage_data = {
     '9-1-sss-present-task': {
         'start': {
-            '1': (493, 301),
-            '2': (573, 576)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1'
+            'burst1': (493, 301),
+            'pierce1': (573, 576),
         },
         'action': [
             {'t': 'click', 'p': (688, 278), 'ec': True, "desc": "1 right"},
@@ -23,12 +19,8 @@ stage_data = {
     },
     '9-2-sss-present': {
         'start': {
-            '1': (438, 222),
-            '2': (532, 641)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1'
+            'burst1': (438, 222),
+            'pierce1': (532, 641),
         },
         'action': [
             {'t': 'click', 'p': (674, 350), 'ec': True, "desc": "1 lower right"},
@@ -46,10 +38,7 @@ stage_data = {
     },
     '9-2-task': {
         'start': {
-            '1': (438, 222),
-        },
-        'attr': {
-            '1': 'burst1',
+            'burst1': (438, 222),
         },
         'action': [
             {'t': 'click', 'p': (584, 381), 'wait-over': True, "desc": "1 lower right"},
@@ -60,12 +49,8 @@ stage_data = {
 
     '9-3-sss-present-task': {
         'start': {
-            '1': (761, 465),
-            '2': (729, 283)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1'
+            'burst1': (761, 465),
+            'pierce1': (729, 283),
         },
         'action': [
             {'t': 'exchange_and_click', 'p': (579, 422), 'ec': True, "desc": "2 lower left"},

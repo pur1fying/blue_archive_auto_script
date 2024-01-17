@@ -4,10 +4,7 @@ stage_data = {
     },
     '5-1': {
         'start': {
-            '1': (523, 305),
-        },
-        'attr': {
-            '1': 'burst1'
+            'burst1': (523, 305),
         },
         'action': [
             {'t': 'click', 'p': (703, 474), "wait-over": True ,"desc": "lower right"},
@@ -17,10 +14,7 @@ stage_data = {
     },
     '5-2': {
         'start': {
-            '1': (460, 474),
-        },
-        'attr': {
-            '1': 'burst1'
+            'burst1': (460, 474),
         },
         'action': [
             {'t': 'click', 'p': (652, 439), "wait-over": True, "desc": "right"},
@@ -30,10 +24,7 @@ stage_data = {
     },
     '5-3': {
         'start': {
-            '1': (524, 348),
-        },
-        'attr': {
-            '1': 'burst1'
+            'burst1': (524, 348),
         },
         'action': [
             {'t': 'click', 'p': (700, 474), "wait-over": True ,"desc": "lower right"},
@@ -43,10 +34,7 @@ stage_data = {
     },
     '5-4': {
         'start': {
-            '1': (460, 470),
-        },
-        'attr': {
-            '1': 'burst1'
+            'burst1': (460, 470),
         },
         'action': [
             {'t': 'click', 'p': (585, 356), "wait-over": True, 'desc': "upper right"},
@@ -57,10 +45,7 @@ stage_data = {
     },
     '5-5': {
         'start': {
-            '1': (427, 386),
-        },
-        'attr': {
-            '1': 'burst1'
+            'burst1': (427, 386),
         },
         'action': [
             {'t': 'click', 'p': (625, 390), "wait-over": True, "desc": "right"},

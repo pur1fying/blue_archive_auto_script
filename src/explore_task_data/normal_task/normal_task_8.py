@@ -4,12 +4,8 @@ stage_data = {
     },
     '8-1': {
         'start': {
-            '1': (640, 303),
-            '2': (518, 390)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (640, 303),
+            'pierce2': (518, 390),
         },
         'action': [
             {'t': 'click', 'p': (877, 392), 'ec': True, "desc": "1 right"},
@@ -28,12 +24,8 @@ stage_data = {
     },
     '8-2': {
         'start': {
-            '1': (730, 558),
-            '2': (567, 482)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (730, 558),
+            'pierce2': (567, 482),
         },
         'action': [
             {'t': 'click', 'p': (634, 390), 'ec': True, "desc": "1 upper left"},
@@ -51,12 +43,8 @@ stage_data = {
     },
     '8-3': {
         'start': {
-            '1': (404, 343),
-            '2': (618, 364)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (404, 343),
+            'pierce2': (618, 364),
         },
         'action': [
             {'t': 'click', 'p': (582, 474), 'ec': True, "desc": "1 lower right"},
@@ -72,12 +60,8 @@ stage_data = {
     },
     '8-4': {
         'start': {
-            '1': (335, 561),
-            '2': (650, 451)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (335, 561),
+            'pierce2': (650, 451),
         },
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (580, 308), "desc": "1 upper right and tp"},
@@ -96,12 +80,8 @@ stage_data = {
     },
     '8-5': {
         'start': {
-            '1': (396, 469),
-            '2': (577, 351)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (396, 469),
+            'pierce2': (577, 351),
         },
         'action': [
             {'t': 'exchange_and_click', 'p': (698, 482), "ec": True, "desc": "2 lower right"},

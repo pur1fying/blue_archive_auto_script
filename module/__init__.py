@@ -12,6 +12,8 @@ from module import hard_task
 from module import lesson
 from module import mail
 from module import main_story
+from module import mini_story
+from module import group_story
 from module import momo_talk
 from module import normal_task
 from module import refresh_uiautomator2

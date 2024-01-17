@@ -4,12 +4,8 @@ stage_data = {
     },
     '9-1': {
         'start': {
-            '1': (492, 302),
-            '2': (812, 398)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1',
+            'burst1': (492, 302),
+            'pierce1': (812, 398),
         },
         'action': [
             {'t': 'click', 'p': (441, 415), 'ec': True, "desc": "1 lower left"},
@@ -25,12 +21,8 @@ stage_data = {
     },
     '9-2': {
         'start': {
-            '1': (430, 345),
-            '2': (923, 443)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1',
+            'burst1': (430, 345),
+            'pierce1': (923, 443),
         },
         'action': [
             {'t': 'click', 'p': (618, 366), 'ec': True, "desc": "1 right"},
@@ -44,12 +36,8 @@ stage_data = {
     },
     '9-3': {
         'start': {
-            '1': (430, 386),
-            '2': (623, 556)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1',
+            'burst1': (430, 386),
+            'pierce1': (623, 556),
         },
         'action': [
             {'t': 'click', 'p': (631, 326), 'ec': True, "desc": "1 right"},
@@ -64,12 +52,8 @@ stage_data = {
     },
     '9-4': {
         'start': {
-            '1': (337, 555),
-            '2': (1116, 288)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1',
+            'burst1': (337, 555),
+            'pierce1': (1116, 288),
         },
         'action': [
             {'t': 'click', 'p': (565, 352), 'ec': True, "desc": "1 upper right"},
@@ -87,12 +71,8 @@ stage_data = {
     },
     '9-5': {
         'start': {
-            '1': (433, 383),
-            '2': (626, 225)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1',
+            'burst1': (433, 383),
+            'pierce1': (626, 225),
         },
         'action': [
 

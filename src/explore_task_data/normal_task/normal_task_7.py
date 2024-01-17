@@ -4,12 +4,8 @@ stage_data = {
     },
     '7-1': {
         'start': {
-            '1': (306, 470),
-            '2': (511, 258)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'burst2',
+            'burst1': (306, 470),
+            'burst2': (511, 258),
         },
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (663, 461), "desc": "1 right and tp"},
@@ -25,12 +21,8 @@ stage_data = {
     },
     '7-2': {
         'start': {
-            '1': (373, 386),
-            '2': (563, 306)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'burst2',
+            'burst1': (373, 386),
+            'burst2': (563, 306),
         },
         'action': [
             {'t': 'exchange_and_click', 'p': (700, 475), 'ec': True, "desc": "2 lower left"},
@@ -44,12 +36,8 @@ stage_data = {
     },
     '7-3': {
         'start': {
-            '1': (579, 385),
-            '2': (938, 476)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'burst2',
+            'burst1': (579, 385),
+            'burst2': (938, 476),
         },
         'action': [
             {'t': 'click_and_teleport', 'p': (718, 345), 'ec': True, "desc": "2 upper left and tp"},
@@ -62,12 +50,8 @@ stage_data = {
     },
     '7-4': {
         'start': {
-            '1': (395, 559),
-            '2': (486, 370)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'burst2',
+            'burst1': (395, 559),
+            'burst2': (486, 370),
         },
         'action': [
             {'t': 'click', 'p': (679, 463),'ec': True,  "desc": "1 right"},
@@ -85,12 +69,8 @@ stage_data = {
     },
     '7-5': {
         'start': {
-            '1': (523, 385),
-            '2': (813, 309)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'burst2',
+            'burst1': (523, 385),
+            'burst2': (813, 309),
         },
         'action': [
             {'t': 'exchange_and_click', 'p': (706, 418), "ec": True, "desc": "2 lower left"},

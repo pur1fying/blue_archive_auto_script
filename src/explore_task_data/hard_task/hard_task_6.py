@@ -1,12 +1,8 @@
 stage_data = {
     '6-1-sss-present': {
         'start': {
-            '1': (555, 220),
-            '2': (454, 432)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (555, 220),
+            'pierce2': (454, 432),
         },
         'action': [
             {'t': 'click', 'p': (693, 333), 'ec': True, 'desc': "1 lower right"},
@@ -23,12 +19,8 @@ stage_data = {
     },
     '6-1-task': {
         'start': {
-            '1': (555, 220),
-            '2': (454, 432)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (555, 220),
+            'pierce2': (454, 432),
         },
         'action': [
             {'t': 'click', 'p': (693, 333), 'ec': True, 'desc': "1 lower right"},
@@ -42,12 +34,8 @@ stage_data = {
     },
     '6-2-sss-present': {
         'start': {
-            '1': (556, 265),
-            '2': (436, 441)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (556, 265),
+            'pierce2': (436, 441),
         },
         'action': [
             {'t': 'click', 'p': (534, 356), 'ec': True, 'desc': "1 lower left"},
@@ -66,12 +54,8 @@ stage_data = {
     },
     '6-2-task': {
         'start': {
-            '1': (556, 265),
-            '2': (436, 441)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (556, 265),
+            'pierce2': (436, 441),
         },
         'action': [
             {'t': 'click', 'p': (694, 343), 'ec': True, 'desc': "1 lower right"},
@@ -83,12 +67,8 @@ stage_data = {
     },
     '6-3-sss-present-task': {
         'start': {
-            '1': (855, 515),
-            '2': (569, 203)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (855, 515),
+            'pierce2': (569, 203),
         },
         'action': [
             {'t': 'click', 'p': (611, 477), 'ec': True, 'desc': "1 left"},

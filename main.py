@@ -26,7 +26,9 @@ func_dict = {
     'explore_normal_task': module.explore_normal_task.implement,
     'explore_hard_task': module.explore_hard_task.implement,
     'mail': module.mail.implement,
-    'main_story': module.main_story.start,
+    'main_story': module.main_story.implement,
+    'group_story': module.group_story.implement,
+    'mini_story': module.mini_story.implement,
     'scrimmage': module.scrimmage.implement,
     'collect_reward': module.collect_reward.implement,
     'normal_task': module.normal_task.implement,
@@ -262,7 +264,6 @@ class Main:
             'lesson_lesson-information': (964, 117),
             'lesson_all-locations': (1138, 117),
             'lesson_lesson-report': (642, 556),
-            "special_task_task-info": (1085, 141),
             'arena_battle-win': (640, 530),
             'arena_battle-lost': (640, 468),
             'arena_season-record': (640, 538),
@@ -288,9 +289,9 @@ class Main:
             },
             'Global': {
                 'main_page_news': (1227, 56),
-                "special_task_task-info": (1085, 141),
+                "special_task_task-info": (1126, 141),
                 'cafe_cafe-reward-status': (905, 159),
-                'normal_task_task-info': (1084, 139),
+                'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),
             }
@@ -520,7 +521,7 @@ class Main:
             interval = 0.3
         self.logger.info("screenshot_interval set to " + str(interval))
         self.screenshot_interval = interval
-        
+
 
 if __name__ == '__main__':
     # # print(time.time())
@@ -538,7 +539,7 @@ if __name__ == '__main__':
     # t.quick_method_to_main_page()
     # t.solve('clear_special_task_power')
     # t.quick_method_to_main_page()
-    t.solve('lesson')
+    t.solve('explore_normal_task')
     t.quick_method_to_main_page()
     t.solve('scrimmage')
     # t.quick_method_to_main_page()

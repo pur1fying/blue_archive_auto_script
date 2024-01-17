@@ -13,5 +13,4 @@ x_y_range = {
     'relationship-rank-up': (754, 595, 776, 647),
     'full-notice': (563, 277, 613, 312),
     'back-arrow': (37, 20, 80, 57)
-
 }

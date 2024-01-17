@@ -44,7 +44,7 @@ def implement(self):
                 if count[i] == "max":
                     return True
             elif res == "inadequate_ticket":
-                self.logger.info("INADEQUATE TICKET")
+                self.logger.warning("INADEQUATE TICKET")
                 if self.server == 'Global' or self.server == 'JP':
                     self.logger.info(self.rewarded_task_status)
                     return True
@@ -163,10 +163,13 @@ def to_choose_bounty(self, skip_first_screenshot=False):
     }
     img_ends = "rewarded_task_location-select"
     img_possibles = {
+        "normal_task_sweep-complete": (643, 585),
+        "normal_task_start-sweep-notice": (887, 164),
         "rewarded_task_level-list": (57, 41),
         "rewarded_task_task-info": (task_info_cross_x[self.server], 141),
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
+        'rewarded_task_purchase-bounty-ticket-notice': (888, 163),
     }
     rgb_ends = "choose_bounty"
     rgb_possibles = {"main_page": (1198, 580)}

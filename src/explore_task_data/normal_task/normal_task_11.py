@@ -4,12 +4,8 @@ stage_data = {
     },
     '11-1': {
         'start': {
-            '1': (496, 525),
-            '2': (794, 130)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (496, 525),
+            'mystic1': (794, 130),
         },
         'action': [
             {'t': 'click', 'p': (499, 412), 'ec': True, "desc": "1 upper left"},
@@ -23,12 +19,8 @@ stage_data = {
     },
     '11-2': {
         'start': {
-            '1': (281, 347),
-            '2': (791, 287)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (281, 347),
+            'mystic1': (791, 287),
         },
         'action': [
             {'t': 'click', 'p': (553, 478), 'ec': True, "desc": "1 lower right"},
@@ -46,12 +38,8 @@ stage_data = {
     },
     '11-3': {
         'start': {
-            '1': (315, 466),
-            '2': (919, 178)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (315, 466),
+            'mystic1': (919, 178),
         },
         'action': [
             {'t': 'click', 'p': (635, 461), 'ec': True, "desc": "1 right"},
@@ -66,12 +54,8 @@ stage_data = {
     },
     '11-4': {
         'start': {
-            '1': (940, 350),
-            '2': (841, 285)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (940, 350),
+            'mystic1': (841, 285),
         },
         'action': [
 
@@ -93,12 +77,8 @@ stage_data = {
     },
     '11-5': {
         'start': {
-            '1': (374, 429),
-            '2': (1114, 591)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (374, 429),
+            'mystic1': (1114, 591),
         },
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (719, 351), "desc": "2 upper left"},

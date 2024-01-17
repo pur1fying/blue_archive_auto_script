@@ -22,5 +22,7 @@ x_y_range = {
     'task-operating-feature': (10, 7, 125, 40),  # 任务执行过程中的特征（左上）
     'fight-end-back-to-main-page': (419, 642, 600, 678),
     'task-wait-to-begin-feature': (99, 6, 220, 42),
-    'unlock-notice':(587, 144, 696, 176)
+    'unlock-notice': (587, 144, 696, 176),
+    "start-sweep-notice": (437, 477, 844, 525),
+    "sweep-complete":(550,561,730,604)
 }

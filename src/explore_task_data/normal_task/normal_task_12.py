@@ -4,12 +4,8 @@ stage_data = {
     },
     '12-1': {
         'start': {
-            '1': (370, 428),
-            '2': (566, 328)
-        },
-        'attr': {
-            '1': 'mystic1',
-            '2': 'burst1'
+            'mystic1': (370, 428),
+            'burst1': (566, 328),
         },
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (640, 560), "desc": "1 lower right"},
@@ -25,12 +21,8 @@ stage_data = {
     },
     '12-2': {
         'start': {
-            '1': (733, 387),
-            '2': (574, 474)
-        },
-        'attr': {
-            '1': 'mystic1',
-            '2': 'burst1'
+            'mystic1': (733, 387),
+            'burst1': (574, 474),
         },
         'action': [
             {'t': 'click', 'p': (581, 309), 'ec': True, "desc": "1 left"},
@@ -46,12 +38,8 @@ stage_data = {
     },
     '12-3': {
         'start': {
-            '1': (763, 558),
-            '2': (586, 147)
-        },
-        'attr': {
-            '1': 'mystic1',
-            '2': 'burst1'
+            'mystic1': (763, 558),
+            'burst1': (586, 147),
         },
         'action': [
             {'t': 'click', 'p': (615, 413), 'ec': True},
@@ -68,12 +56,8 @@ stage_data = {
     },
     '12-4': {
         'start': {
-            '1': (342, 386),
-            '2': (619, 223)
-        },
-        'attr': {
-            '1': 'mystic1',
-            '2': 'burst1'
+            'mystic1': (342, 386),
+            'burst1': (619, 223),
         },
         'action': [
             {'t': 'click', 'p': (622, 424), 'ec': True, "desc": "1 right"},
@@ -94,12 +78,8 @@ stage_data = {
     },
     '12-5': {
         'start': {
-            '1': (549, 556),
-            '2': (835, 478)
-        },
-        'attr': {
-            '1': 'mystic1',
-            '2': 'burst1'
+            'mystic1': (549, 556),
+            'burst1': (835, 478),
         },
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (582, 359), "desc": "1 upper right"},

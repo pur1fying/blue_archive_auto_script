@@ -1,12 +1,8 @@
 stage_data = {
     '10-1-task-present': {
         'start': {
-            '1': (757, 260),
-            '2': (501, 284)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (757, 260),
+            'mystic1': (501, 284),
         },
         'action': [
             {'t': 'click', 'p': (701, 386), 'ec': True, "desc": "1 lower left"},
@@ -23,12 +19,8 @@ stage_data = {
     },
     '10-1-sss': {
         'start': {
-            '1': (757, 260),
-            '2': (501, 284)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (757, 260),
+            'mystic1': (501, 284),
         },
         'action': [
             {'t': 'click', 'p': (642, 296), 'ec': True, "desc": "1 left"},
@@ -49,12 +41,8 @@ stage_data = {
 
     '10-2-sss-present': {
         'start': {
-            '1': (463, 260),
-            '2': (637, 305)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (463, 260),
+            'mystic1': (637, 305),
         },
         'action': [
             {'t': 'exchange_and_click', 'p': (577, 472), 'ec': True, "desc": "2 lower left"},
@@ -78,12 +66,8 @@ stage_data = {
     },
     '10-2-task': {
         'start': {
-            '1': (463, 260),
-            '2': (637, 305)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (463, 260),
+            'mystic1': (637, 305),
         },
         'action': [
             {'t': 'exchange_and_click', 'p': (577, 472), 'ec': True, "desc": "2 lower left"},
@@ -102,12 +86,8 @@ stage_data = {
 
     '10-3-sss-present': {
         'start': {
-            '1': (697, 473),
-            '2': (328, 460)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (697, 473),
+            'mystic1': (328, 460),
         },
         'action': [
             {'t': 'click', 'p': (663, 406), 'ec': True, "desc": "1 left"},
@@ -130,12 +110,8 @@ stage_data = {
     },
     '10-3-task': {
         'start': {
-            '1': (697, 473),
-            '2': (328, 460)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'mystic1'
+            'burst1': (697, 473),
+            'mystic1': (328, 460),
         },
         'action': [
             {'t': 'click', 'p': (663, 406), 'ec': True, "desc": "1 left"},

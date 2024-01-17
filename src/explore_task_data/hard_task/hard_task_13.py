@@ -1,12 +1,8 @@
 stage_data = {
     '13-1-sss-present-task': {
         'start': {
-            '1': (730, 260),
-            '2': (845, 440)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2'
+            'pierce1': (730, 260),
+            'pierce2': (845, 440),
         },
         'action': [
             {'t': 'click', 'p': (585, 340), 'wait-over': True, 'desc': "1 lower left"},
@@ -25,12 +21,8 @@ stage_data = {
     },
     '13-2-sss-present': {
         'start': {
-            '1': (758, 222),
-            '2': (845, 445)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2'
+            'pierce1': (758, 222),
+            'pierce2': (845, 445),
         },
         'action': [
             {'t': 'click', 'p': (590, 340), 'ec': True, 'desc': "1 lower left"},
@@ -48,12 +40,8 @@ stage_data = {
     },
     '13-2-task': {
         'start': {
-            '1': (758, 222),
-            '2': (845, 445)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2'
+            'pierce1': (758, 222),
+            'pierce2': (845, 445),
         },
         'action': [
             {'t': 'click', 'p': (590, 340), 'ec': True, 'desc': "1 lower left"},
@@ -69,12 +57,8 @@ stage_data = {
     },
     '13-3-sss-present-task': {
         'start': {
-            '1': (785, 185),
-            '2': (365, 275)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2'
+            'pierce1': (785, 185),
+            'pierce2': (365, 275),
         },
         'action': [
             {'t': 'click', 'p': (660, 355), 'ec': True, 'desc': "1 left"},

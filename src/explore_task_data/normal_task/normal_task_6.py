@@ -4,12 +4,8 @@ stage_data = {
     },
     '6-1': {
         'start': {
-            '1': (494, 269),
-            '2': (467, 548)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (494, 269),
+            'pierce2': (467, 548),
         },
         'action': [
             {'t': 'click', 'p': (682, 348), 'ec': True, "desc": "1 lower right"},
@@ -25,12 +21,8 @@ stage_data = {
     },
     '6-2': {
         'start': {
-            '1': (460, 556),
-            '2': (499, 216)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (460, 556),
+            'pierce2': (499, 216),
         },
         'action': [
             {'t': 'click', 'p': (680, 418), 'ec': True, "desc": "1 upper left"},
@@ -46,8 +38,8 @@ stage_data = {
     },
     '6-3': {
         'start': {
-            '1': (520, 560),
-            '2': (466, 146)
+            'pierce1': (520, 560),
+            'pierce2': (466, 146),
         },
         'attr': {
             '1': 'pierce1',
@@ -65,12 +57,8 @@ stage_data = {
     },
     '6-4': {
         'start': {
-            '1': (403, 347),
-            '2': (679, 285)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (403, 347),
+            'pierce2': (679, 285),
         },
         'action': [
 
@@ -87,12 +75,8 @@ stage_data = {
     },
     '6-5': {
         'start': {
-            '1': (818, 261),
-            '2': (583, 225)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (818, 261),
+            'pierce2': (583, 225),
         },
         'action': [
             {'t': 'click', 'p': (715, 429), "ec": True, "desc": "1 lower left"},

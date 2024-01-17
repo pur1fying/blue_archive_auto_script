@@ -6,9 +6,8 @@ from module import main_story, normal_task, hard_task
 
 
 def implement(self):
-    self.scheduler.change_display("普通关推图")
+    # self.scheduler.change_display("普通关推图")
     self.quick_method_to_main_page()
-    # test_(self)
     normal_task.to_normal_event(self, True)
     for i in range(0, len(self.config['explore_normal_task_regions'])):
         region = self.config['explore_normal_task_regions'][i]
@@ -17,7 +16,7 @@ def implement(self):
             return True
         choose_region(self, region)
         self.stage_data = get_stage_data(region)
-        for i in range(0, 5):
+        for k in range(0, 5):
             mission = calc_need_fight_stage(self, region)
             if mission == "ALL MISSION SWEEP AVAILABLE":
                 self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
@@ -30,23 +29,20 @@ def implement(self):
                 self.click(1171, 670, wait_over=True)
                 self.set_screenshot_interval(1)
             else:
+                current_task_stage_data = self.stage_data[mission]
                 img_possibles = {
                     'normal_task_help': (1017, 131),
                     'normal_task_task-info': (946, 540)
                 }
                 img_ends = "normal_task_task-wait-to-begin-feature"
                 image.detect(self, img_ends, img_possibles)
-                prev_index = 0
-                for n, p in self.stage_data[mission]['start'].items():
-                    cu_index = choose_team(self, mission, n)
-                    if cu_index < prev_index:
-                        self.logger.critical("please set the first formation number smaller than the second one")
-                        return False
-                    prev_index = cu_index
+                res,los = cacl_team_number(self, current_task_stage_data)
+                for j in range(0, len(res)):
+                    choose_team(self, res[j], los[j], True)
                 start_mission(self)
                 check_skip_fight_and_auto_over(self)
                 self.set_screenshot_interval(1)
-                start_action(self, mission, self.stage_data)
+                start_action(self, current_task_stage_data['action'])
             self.set_screenshot_interval(self.config['screenshot_interval'])
             main_story.auto_fight(self)
             if self.config['manual_boss'] and mission != 'SUB':
@@ -54,6 +50,7 @@ def implement(self):
             hard_task.to_hard_event(self)
             normal_task.to_normal_event(self, True)
     return True
+
 
 def get_stage_data(region):
     module_path = 'src.explore_task_data.normal_task.normal_task_' + str(region)
@@ -105,12 +102,11 @@ def get_force(self):
     ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server])
     if ocr_res == "UNKNOWN":
         return get_force(self)
-    if ocr_res == "7":
+    if ocr_res == 7:
         return 1
     if ocr_res not in [1, 2, 3, 4]:
         return get_force(self)
     return ocr_res
-
 
 
 def end_turn(self):
@@ -127,7 +123,6 @@ def end_turn(self):
     picture.co_detect(self, None, None, img_end, img_possibles, True)
 
 
-
 def confirm_teleport(self):
     self.logger.info("Wait Teleport Notice")
     picture.co_detect(self, None, None, "normal_task_teleport-notice", None)
@@ -135,7 +130,6 @@ def confirm_teleport(self):
     img_end = 'normal_task_task-operating-feature'
     img_possibles = {'normal_task_teleport-notice': (767, 501), }
     picture.co_detect(self, None, None, img_end, img_possibles, True)
-
 
 
 def start_action(self, actions):
@@ -206,9 +200,8 @@ def start_action(self, actions):
             to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
 
 
-
 def start_choose_side_team(self, index):
-    self.logger.info("According to the config. Choose formation {0}".format(index))
+    self.logger.info("According to the config. Choose formation " + str(index))
     loy = [195, 275, 354, 423]
     y = loy[index - 1]
     click_pos = [
@@ -248,61 +241,27 @@ def choose_region(self, region):
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
 
 
-def choose_team(self, number, position, data, skip_first_screenshot=True):
-    index = self.config[data['attr'][number]]
-    self.logger.info("According to the config. Choose formation {0}".format(index))
-    to_formation_edit_i(self, index, position, skip_first_screenshot)
+def to_normal_task_wait_to_begin_page(self, skip_first_screenshot=False):
+    rgb_possibles = {
+        "formation_edit1": (1154, 625),
+        "formation_edit2": (1154, 625),
+        "formation_edit3": (1154, 625),
+        "formation_edit4": (1154, 625),
+    }
+    img_ends = [
+        'normal_task_task-wait-to-begin-feature',
+        'normal_task_task-operating-feature'
+    ]
+    img_possibles = {
+        'task-begin-without-further-editing-notice': (888, 164)
+    }
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+
+
+def choose_team(self, number, position, skip_first_screenshot=False):
+    self.logger.info("According to the config. Choose formation " + str(number))
+    to_formation_edit_i(self, number, position, skip_first_screenshot)
     to_normal_task_wait_to_begin_page(self, skip_first_screenshot)
-    return index
-
-
-def to_normal_task_mission_operating_page(self):
-    click_pos = [
-        [886, 162],
-        [890, 162],
-        [995, 102],
-    ]
-    los = [
-        "formation_teleport_notice",
-        "round_over_notice",
-        "normal_task_mission_info",
-    ]
-    ends = ["normal_task_mission_operating"]
-    color.common_rgb_detect_method(self, click_pos, los, ends)
-
-
-def to_normal_task_wait_to_begin_page(self):
-    click_pos = [
-        [995, 101],
-        [1154, 625],
-        [1154, 625],
-        [1154, 625],
-        [1154, 625],
-    ]
-    los = [
-        "mission_info",
-        "formation_edit1",
-        "formation_edit2",
-        "formation_edit3",
-        "formation_edit4",
-    ]
-    ends = [
-        "normal_task_wait_to_begin_page"
-    ]
-    if self.server == 'Global':
-        click_pos.pop(0)
-        los.pop(0)
-        possibles = {
-            'normal_task_add-ally-notice': (888, 164)
-        }
-        ends = [
-            'normal_task_mission-wait-to-begin-feature',
-            'normal_task_mission-operating-feature'
-        ]
-        image.detect(self, possibles=possibles, end=ends, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, []))
-    elif self.server == 'CN':
-        color.common_rgb_detect_method(self, click_pos, los, ends)
 
 
 def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
@@ -362,3 +321,59 @@ def check_skip_fight_and_auto_over(self):
         self.click(1194, 547)
     if not image.compare_image(self, 'normal_task_auto-over', threshold=3, image=self.latest_img_array):
         self.click(1194, 600)
+
+
+def cacl_team_number(self, current_task_stage_data):
+    pri = {
+        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2'],
+        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2'],
+        'burst1': ['burst1', 'burst2', 'pierce1', 'pierce2', 'mystic1', 'mystic2'],
+        'burst2': ['burst2', 'pierce1', 'pierce2', 'mystic1', 'mystic2'],
+        'mystic1': ['mystic1', 'mystic2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+        'mystic2': ['mystic2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+    }
+    length = len(current_task_stage_data['start'])
+    used = {
+        'pierce1': False,
+        'pierce2': False,
+        'burst1': False,
+        'burst2': False,
+        'mystic1': False,
+        'mystic2': False
+    }
+    last_chosen = 0
+    res = []
+    los = []
+    for attr, position in current_task_stage_data['start'].items():
+        los.append(position)
+        for i in range(0, len(pri[attr])):
+            possible_attr = pri[attr][i]
+            possible_index = self.config[possible_attr]
+            if not used[possible_attr] and 4 - possible_index >= length - len(res) - 1 and last_chosen < possible_index:
+                res.append(possible_index)
+                used[possible_attr] = True
+                last_chosen = self.config[possible_attr]
+                break
+    if len(res) != length:
+        self.logger.warning("Insufficient forces are chosen")
+        if length - len(res) <= 4 - last_chosen:
+            for i in range(0, length - len(res)):
+                res.append(last_chosen + i + 1)
+        else:
+            self.logger.warning("USE formations as the number increase")
+            res.clear()
+            for i in range(0, length):
+                res.append(i + 1)
+    self.logger.info("Choose formations : " + str(res))
+    return res, los
+
+
+def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
+    img_possibles = {
+        "normal_task-present": (794, 207),
+        "normal_task_mission-operating-task-info-notice": (995, 101),
+        "normal_task_end-turn": (890, 162),
+        "normal_task_teleport-notice": (886, 162),
+    }
+    img_ends = "normal_task_task-operating-feature"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
