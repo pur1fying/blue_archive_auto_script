@@ -18,7 +18,7 @@ class Layout(TemplateLayout):
                 'label': '请选择您的服务器',
                 'type': 'combo',
                 'key': 'server',
-                'selection': ['官服', 'B服', '国际服']
+                'selection': ['官服', 'B服', '国际服', '日服']
             },
             {
                 'label': '常用端口号一览，请根据你的模拟器设置端口，多开请自行查询。',

@@ -4,7 +4,6 @@ import time
 
 import numpy as np
 import uiautomator2 as u2
-from cnocr import CnOcr
 import concurrent.futures
 import module
 from core.utils import *
@@ -13,6 +12,7 @@ from core.notification import notify
 from core.scheduler import Scheduler
 from core import position, color, image
 from gui.util.config_set import ConfigSet
+from core import ocr
 
 func_dict = {
     'group': module.group.implement,
@@ -44,11 +44,13 @@ func_dict = {
 
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+        self.activity_name = None
         self.img_cnt = 0
-        self.latest_screenshot_time = None
+        self.latest_screenshot_time = 0
         self.scheduler = None
         self.screenshot_interval = None
         self.flag_run = None
+        self.current_game_activity = None
         self.static_config = None
         self.main_activity = None
         self.package_name = None
@@ -85,8 +87,6 @@ class Main:
         self.latest_img_array = None
         self.button_signal = button_signal
         self.update_signal = update_signal
-        if not self.init_all_data():
-            return
         self.stage_data = {}
 
         # start_debugger()
@@ -102,19 +102,22 @@ class Main:
             click_.join()
 
     def click_thread(self, x, y, count=1, rate=0, duration=0):
+        if count == 1:
+            self.logger.info("click (" + str(x) + " ," + str(y) + ")")
+        else:
+            self.logger.info("click (" + str(x) + " ," + str(y) + ") " + str(count) + " times")
         for i in range(count):
-            self.logger.info(f"click ({x} ,{y})")
             if rate > 0:
                 time.sleep(rate)
             noisex = int(np.random.uniform(-5, 5))
             noisey = int(np.random.uniform(-5, 5))
-            x = x + noisex
-            y = y + noisey
-            x = max(0, x)
-            y = max(0, y)
-            x = min(1280, x)
-            y = min(720, y)
-            self.connection.click(x, y)
+            click_x = x + noisex
+            click_y = y + noisey
+            click_x = max(0, click_x)
+            click_y = max(0, click_y)
+            click_x = min(1280, click_x)
+            click_y = min(720, click_y)
+            self.connection.click(click_x, click_y)
             if duration > 0:
                 time.sleep(duration)
 
@@ -228,222 +231,123 @@ class Main:
         raise ScriptError(message=info, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
-        if self.server == "CN":
-            possibles = {
-                'main_page_quick-home': (1236, 31),
-                'main_page_login-feature': (640, 360),
-                'main_page_news': (1142, 104),
-                'main_page_relationship-rank-up': (640, 360),
-                'main_page_full-notice': (887, 165),
-                'main_story_fight-confirm': (1168, 659),
-                'normal_task_task-finish': (1038, 662),
-                'normal_task_prize-confirm': (776, 655),
-                'normal_task_fail-confirm': (643, 658),
-                'normal_task_fight-task-info': (420, 592),
-                "normal_task_sweep-complete": (643, 585),
-                "normal_task_start-sweep-notice": (887, 164),
-                "normal_task_unlock-notice": (887, 164),
-                'normal_task_skip-sweep-complete': (643, 506),
-                "normal_task_charge-challenge-counts": (887, 164),
-                "buy_ap_notice": (919, 165),
-                'normal_task_mission-operating-task-info': (1000, 664),
-                'normal_task_task-info': (1084, 139),
-                'normal_task_mission-operating-task-info-notice': (416, 595),
-                'normal_task_mission-pause': (768, 501, 3),
-                'normal_task_task-begin-without-further-editing-notice': (888, 163),
-                'normal_task_task-operating-round-over-notice': (888, 163),
-                'momo_talk_momotalk-peach': (1123, 122),
-                'cafe_students-arrived': (922, 189),
-                'group_sign-up-reward': (920, 159),
+        possibles = {
+            'main_page_quick-home': (1236, 31),
+            'normal_task_fight-end-back-to-main-page': (511, 662),
+            'main_page_login-feature': (640, 360),
+            'main_page_news': (1142, 104),
+            'main_page_relationship-rank-up': (640, 360),
+            'main_page_full-notice': (887, 165),
+            'normal_task_fight-confirm': (1168, 659),
+            'normal_task_task-finish': (1038, 662),
+            'normal_task_prize-confirm': (776, 655),
+            'normal_task_fail-confirm': (643, 658),
+            'normal_task_fight-task-info': (420, 592),
+            "normal_task_sweep-complete": (643, 585),
+            "normal_task_start-sweep-notice": (887, 164),
+            "normal_task_unlock-notice": (887, 164),
+            'normal_task_skip-sweep-complete': (643, 506),
+            "normal_task_charge-challenge-counts": (887, 164),
+            "purchase_ap_notice": (919, 165),
+            'normal_task_mission-operating-task-info': (1000, 664),
+            'normal_task_mission-operating-task-info-notice': (416, 595),
+            'normal_task_mission-pause': (768, 501, 3),
+            'normal_task_task-begin-without-further-editing-notice': (888, 163),
+            'normal_task_task-operating-round-over-notice': (888, 163),
+            'momo_talk_momotalk-peach': (1123, 122),
+            'cafe_students-arrived': (922, 189),
+            'cafe_quick-home': (1236, 31),
+            'group_sign-up-reward': (920, 159),
+            'cafe_invitation-ticket': (835, 97),
+            'lesson_lesson-information': (964, 117),
+            'lesson_all-locations': (1138, 117),
+            'lesson_lesson-report': (642, 556),
+            "special_task_task-info": (1085, 141),
+            'arena_battle-win': (640, 530),
+            'arena_battle-lost': (640, 468),
+            'arena_season-record': (640, 538),
+            'arena_best-record': (640, 538),
+            'arena_opponent-info': (1012, 98),
+            'plot_menu': (1202, 37),
+            'plot_skip-plot-button': (1208, 116),
+            'plot_skip-plot-notice': (770, 519),
+            'activity_story-fight-success-confirm': (638, 674),
+        }
+        update = {
+            'CN': {
                 'cafe_cafe-reward-status': (905, 159),
-                'cafe_invitation-ticket': (835, 97),
-                'lesson_lesson-information': (964, 117),
-                'lesson_all-locations': (1138, 117),
-                'lesson_lesson-report': (642, 556),
+                'normal_task_task-info': (1084, 139),
+                "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
-                "rewarded_task_purchase-ticket-notice": (888, 162),
-                'arena_battle-win': (640, 530),
-                'arena_battle-lost': (640, 468),
-                'arena_season-record': (640, 538),
-                'arena_best-record': (640, 538),
-                'plot_menu': (1202, 37),
-                'plot_skip-plot-button': (1208, 116),
-                'plot_skip-plot-notice': (770, 519),
-                'activity_story-fight-success-confirm': (638, 674)
+            },
+            'JP': {
+                "cafe_cafe-reward-status": (985, 147),
+                'normal_task_task-info': (1126, 141),
+                "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
+                "special_task_task-info": (1126, 141),
+            },
+            'Global': {
+                'main_page_news': (1227, 56),
+                "special_task_task-info": (1085, 141),
+                'cafe_cafe-reward-status': (905, 159),
+                'normal_task_task-info': (1084, 139),
+                'main_page_login-store': (883, 162),
+                'main_page_insufficient-inventory-space': (912, 140),
             }
-            fail_cnt = 0
-            click_pos = [
-                [640, 100],
-                [1236, 31],
-                [640, 360],
-                [640, 100],
-                [640, 200]
-            ]
-            los = [
-                "reward_acquired",
-                "home",
-                'relationship_rank_up',
-                'area_rank_up',
-                'level_up'
-            ]
-            while True:
-                color.wait_loading(self, skip_first_screenshot)
-                res = color.detect_rgb_one_time(self, [], [], ['main_page'])
-                if res == ('end', 'main_page'):
+        }
+        possibles.update(**update[self.server])
+        fail_cnt = 0
+        click_pos = [
+            [1236, 31],
+            [640, 360],
+            [640, 100],
+            [640, 200],
+        ]
+        los = [
+            "home",
+            'relationship_rank_up',
+            'area_rank_up',
+            'level_up'
+        ]
+        while True:
+            if skip_first_screenshot:
+                skip_first_screenshot = False
+            else:
+                color.wait_loading(self)
+            res = color.detect_rgb_one_time(self, [], [], ['main_page'])
+            if res == ('end', 'main_page'):
+                break
+            res = color.detect_rgb_one_time(self, click_pos, los, [])
+            if res == ('click', True):
+                continue
+            # region 资源图片可能会出现的位置
+            for asset, obj in possibles.items():
+                if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
+                                       need_log=False):
+                    self.logger.info("find " + asset)
+                    self.click(obj[0], obj[1], False)
+                    self.latest_screenshot_time = time.time()
+                    fail_cnt = 0
                     break
-                res = color.detect_rgb_one_time(self, click_pos, los, [])
-                if res == ('click', True):
-                    continue
-                # region 资源图片可能会出现的位置
-                for asset, obj in possibles.items():
-                    if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
-                                           need_log=False):
-                        self.logger.info("find " + asset)
-                        self.click(obj[0], obj[1], False)
-                        self.latest_screenshot_time = time.time()
-                        fail_cnt = 0
-                        break
-                else:
-                    fail_cnt += 1
-                    if fail_cnt > 10:
-                        self.logger.info("tentative clicks")
-                        self.click(1236, 31, False)
-                        self.latest_screenshot_time = time.time()
-                        fail_cnt = 0
-            return True
-        elif self.server == "Global":
-            click_pos = [
-                [1240, 39],
-                [838, 97],
-                [640, 360],
-                [889, 162],
-                [640, 458],
-                [640, 116],
-                [962, 114],
-                [1138, 114],
-                [640, 558],
-                [640, 360],
-                [640, 360],
-                [640, 360],
-                [1120, 117],
-                [910, 138],
-                [904, 158],
-                [902, 158],
-                [922, 192],
-                [922, 192],
-                [917, 158],
-                [898, 177],
-                [886, 213],
-                [644, 506],
-                [1120, 162],
-                [921, 164],
-                [1129, 142],
-                [1077, 98],
-                [886, 166],
-                [1015, 100],
-                [637, 471],
-                [637, 530],
-                [637, 530],
-                [921, 164],
-                [889, 180],
-                [919, 168],
-                [649, 508],
-                [887, 161],
-                [920, 165],
-                [637, 116],
-                [871, 164],
-            ]
-            los = [
-                "home",
-                "invitation_ticket",
-                "relationship_rank_up",
-                "full_ap_notice",
-                "guide",
-                "reward_acquired",
-                "location_info",
-                "all_locations",
-                "lesson_report",
-                "sign_in1",
-                "sign_in2",
-                "sign_in3",
-                "momotalk",
-                "insufficient_inventory_space",
-                "cafe_earning_status_bright",
-                "cafe_earning_status_grey",
-                "buy_notice_bright",
-                "buy_notice_grey",
-                "club_attendance_reward",
-                "shop_buy_notice_bright",
-                "shop_refresh_guide",
-                "store_login_notice",
-                "room_info",
-                "purchase_bounty_ticket",
-                "mission_info",
-                "sweep_complete",
-                "start_sweep_notice",
-                "battle_opponent",
-                "battle_result_lose",
-                "battle_result_win",
-                "best_season_record_reached",
-                "purchase_scrimmage_ticket",
-                "purchase_ticket_notice",
-                "purchase_ap_notice",
-                "skip_sweep_complete",
-                "charge_challenge_counts",
-                "purchase_lesson_ticket",
-                "area_rank_up",
-                "complete_instantly_notice",
-            ]
-            ends = ["main_page"]
-            possibles = {
-                'normal_task_fight-complete-confirm': (1160, 666),
-                'normal_task_reward-acquired-confirm': (800, 660),
-                'normal_task_task-operating-mission-info': (397, 592),
-                'normal_task_mission-operating-feature': (995, 668),
-                'normal_task_quit-mission-info': (772, 511),
-                'normal_task_mission-conclude-confirm': (1042, 671),
-                'normal_task_obtain-present': (640,519),
-            }
-            fail_cnt = 0
-            while True:
-                color.wait_loading(self, skip_first_screenshot)
-                res = color.detect_rgb_one_time(self, [], [], ends)
-                if res == ('end', 'main_page'):
-                    break
-                res = color.detect_rgb_one_time(self, click_pos, los, [])
-                if res == ('click', True):
-                    continue
-
-                # region 资源图片可能会出现的位置
-                for asset, obj in possibles.items():
-                    if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
-                                           need_log=False):
-                        self.logger.info("find " + asset)
-                        self.click(obj[0], obj[1], False)
-                        self.latest_screenshot_time = time.time()
-                        fail_cnt = 0
-                        break
-                else:
-                    time.sleep(self.screenshot_interval)
-                    fail_cnt += 1
-                    if fail_cnt > 10:
-                        self.logger.info("tentative clicks")
-                        self.click(1228, 41, False)
-                        time.sleep(self.screenshot_interval)
-                        fail_cnt = 0
-            return True
+            else:
+                fail_cnt += 1
+                if fail_cnt > 10:
+                    self.logger.info("tentative clicks")
+                    self.click(1236, 31, False)
+                    self.latest_screenshot_time = time.time()
+                    fail_cnt = 0
+        return True
 
     def wait_screenshot_updated(self):
         while not self.screenshot_updated:
             time.sleep(0.01)
+        self.screenshot_updated = False
 
     def init_rgb(self):
         try:
             self.logger.info("Start initializing rgb_feature")
-            if self.server == 'CN':
-                self.rgb_feature = json.load(open('src/rgb_feature/rgb_feature_CN.json'))['rgb_feature']
-            elif self.server == 'Global':
-                self.rgb_feature = json.load(open('src/rgb_feature/rgb_feature_Global.json'))['rgb_feature']
+            temp = 'src/rgb_feature/rgb_feature_' + self.server + '.json'
+            self.rgb_feature = json.load(open(temp, 'r', encoding='utf-8'))['rgb_feature']
             self.logger.info("Successfully initialized rgb_feature")
             return True
         except Exception as e:
@@ -472,6 +376,9 @@ class Main:
             self.server = 'CN'
         elif server == '国际服':
             self.server = 'Global'
+        elif server == '日服':
+            self.server = 'JP'
+        self.current_game_activity = self.static_config['current_game_activity'][self.server]
         self.logger.info("Current Server: " + self.server)
 
     def swipe(self, fx, fy, tx, ty, duration=None):
@@ -486,30 +393,7 @@ class Main:
     def init_ocr(self):
         try:
             self.logger.info("Start initializing OCR")
-            if self.server == 'CN':
-                if not self.ocrCN:
-                    self.ocrCN = CnOcr(det_model_name='ch_PP-OCRv3_det',
-                                       det_model_fp='src/ocr_models/ch_PP-OCRv3_det_infer.onnx',
-                                       rec_model_name='densenet_lite_114-fc',
-                                       rec_model_fp='src/ocr_models/cn_densenet_lite_136.onnx')
-                    img_CN = cv2.imread('src/test_ocr/CN.png')
-                    self.logger.info("Test ocrCN : " + self.ocrCN.ocr_for_single_line(img_CN)['text'])
-            elif self.server == 'Global':
-                if not self.ocrEN:
-                    self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
-                                       det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                                       rec_model_name='en_number_mobile_v2.0',
-                                       rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
-                    img_EN = cv2.imread('src/test_ocr/EN.png')
-                    self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
-            if not self.ocrNUM:
-                self.ocrNUM = CnOcr(det_model_name='en_PP-OCRv3_det',
-                                    det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                                    rec_model_name='number-densenet_lite_136-fc',
-                                    rec_model_fp='src/ocr_models/number-densenet_lite_136.onnx')
-
-                img_NUM = cv2.imread('src/test_ocr/NUM.png')
-                self.logger.info("Test ocrNUM : " + self.ocrNUM.ocr_for_single_line(img_NUM)['text'])
+            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=['CN', 'Global', 'NUM'])
             self.logger.info("OCR initialization concluded")
             return True
         except Exception as e:
@@ -518,68 +402,48 @@ class Main:
             return False
 
     def get_ap(self):
-        try:
-            _img = self.latest_img_array[10:40, 560:658, :]
-            t1 = time.time()
-            if self.server == 'CN':
-                _ocr_res = self.ocrCN.ocr_for_single_line(_img)
-            elif self.server == 'Global':
-                _ocr_res = self.ocrEN.ocr_for_single_line(_img)
-            else:
-                self.logger.error("Unknown Server Error")
+        region = {
+            'CN': [557, 10, 662, 40],
+            'Global': [557, 10, 662, 40],
+            'JP': [557, 10, 662, 40],
+        }
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
+        ap = 0
+        for j in range(0, len(_ocr_res)):
+            if (not _ocr_res[j].isdigit()) and _ocr_res[j] != '/' and _ocr_res[j] != '.':
                 return "UNKNOWN"
-            t2 = time.time()
-            self.logger.info("ocr_ap: " + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
-            ap = 0
-            for j in range(0, len(_ocr_res['text'])):
-                if (not _ocr_res['text'][j].isdigit()) and _ocr_res['text'][j] != '/' and _ocr_res['text'][j] != '.':
-                    return "UNKNOWN"
-                if _ocr_res['text'][j].isdigit():
-                    ap = ap * 10 + int(_ocr_res['text'][j])
-                elif _ocr_res['text'][j] == '/':
-                    return ap
-            return "UNKNOWN"
-        except Exception as e:
-            self.logger.error(e)
-            return "UNKNOWN"
+            if _ocr_res[j].isdigit():
+                ap = ap * 10 + int(_ocr_res[j])
+            elif _ocr_res[j] == '/':
+                return ap
+        return "UNKNOWN"
 
     def get_pyroxene(self):
-        _img = self.latest_img_array[10:40, 961:1072, :]
-        t1 = time.time()
-        if self.server == 'CN':
-            _ocr_res = self.ocrCN.ocr_for_single_line(_img)
-        elif self.server == 'Global':
-            _ocr_res = self.ocrEN.ocr_for_single_line(_img)
-        else:
-            self.logger.error("Unknown Server Error")
-            return "UNKNOWN"
-        t2 = time.time()
-        self.logger.info("ocr_pyroxene:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
+        region = {
+            'CN': [961, 10, 1072, 40],
+            'Global': [961, 10, 1072, 40],
+            'JP': [961, 10, 1072, 40],
+        }
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
         temp = 0
-
-        for j in range(0, len(_ocr_res['text'])):
-            if not _ocr_res['text'][j].isdigit():
+        for j in range(0, len(_ocr_res)):
+            if not _ocr_res[j].isdigit():
                 continue
-            temp = temp * 10 + int(_ocr_res['text'][j])
+            temp = temp * 10 + int(_ocr_res[j])
         return temp
 
     def get_creditpoints(self):
-        _img = self.latest_img_array[10:40, 769:896, :]
-        t1 = time.time()
-        if self.server == 'CN':
-            _ocr_res = self.ocrCN.ocr_for_single_line(_img)
-        elif self.server == 'Global':
-            _ocr_res = self.ocrEN.ocr_for_single_line(_img)
-        else:
-            self.logger.error("Unknown Server Error")
-            return "UNKNOWN"
-        t2 = time.time()
-        self.logger.info("ocr_creditpoints:" + str(t2 - t1)[0:5] + " " + _ocr_res["text"])
+        region = {
+            'CN': [769, 10, 896, 40],
+            'Global': [769, 10, 896, 40],
+            'JP': [769, 10, 896, 40],
+        }
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
         temp = 0
-        for j in range(0, len(_ocr_res['text'])):
-            if not _ocr_res['text'][j].isdigit():
+        for j in range(0, len(_ocr_res)):
+            if not _ocr_res[j].isdigit():
                 continue
-            temp = temp * 10 + int(_ocr_res['text'][j])
+            temp = temp * 10 + int(_ocr_res[j])
         return temp
 
     def operate_dict(self, dic):
@@ -598,7 +462,7 @@ class Main:
             return False
 
     def operate_item(self, item):
-        if type(item) is int or type(item) is bool or type(item) is float:
+        if type(item) is int or type(item) is bool or type(item) is float or item is None:
             return item
         if type(item) is str:
             if item.isdigit():
@@ -626,7 +490,7 @@ class Main:
         self.logger.info("--------Initialing All Data----------")
         self.init_config()
         self.init_server()
-        self.init_package_name()
+        self.init_package_activity_name()
         init_results = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
             init_results.append(executor.submit(self.init_ocr))
@@ -644,14 +508,10 @@ class Main:
         self.logger.info("--------Initialization Finished----------")
         return True
 
-    def init_package_name(self):
+    def init_package_activity_name(self):
         server = self.config['server']
-        if server == '官服':
-            self.package_name = 'com.RoamingStar.BlueArchive'
-        elif server == 'B服':
-            self.package_name = 'com.RoamingStar.BlueArchive.bilibili'
-        elif server == '国际服':
-            self.package_name = 'com.nexon.bluearchive'
+        self.package_name = self.static_config['package_name'][server]
+        self.activity_name = self.static_config['activity_name'][server]
         return True
 
     def set_screenshot_interval(self, interval):
@@ -660,7 +520,7 @@ class Main:
             interval = 0.3
         self.logger.info("screenshot_interval set to " + str(interval))
         self.screenshot_interval = interval
-
+        
 
 if __name__ == '__main__':
     # # print(time.time())
@@ -668,23 +528,19 @@ if __name__ == '__main__':
     # t.thread_starter()
     t.flag_run = True
     t.init_all_data()
-    # t.thread_starter()
-    t.solve('explore_hard_task')
-    t.solve('tactical_challenge_shop')
-    t.solve('de_clothes')
-    t.solve('common_shop')
-    t.quick_method_to_main_page()
-    # t.solve('tactical_challenge_shop')
+    # t.solve('cafe_reward')
+    # t.solve('momo_talk')
+    # t.solve('mail')
     # t.quick_method_to_main_page()
     # t.solve('arena')
-    # t.quick_method_to_main_page()
     # t.solve("rewarded_task")
+    # t.quick_method_to_main_page()
     # t.quick_method_to_main_page()
     # t.solve('clear_special_task_power')
     # t.quick_method_to_main_page()
-    # t.solve('lesson')
-    # t.quick_method_to_main_page()
-    # t.solve('scrimmage')
+    t.solve('lesson')
+    t.quick_method_to_main_page()
+    t.solve('scrimmage')
     # t.quick_method_to_main_page()
     # t.solve('collect_reward')
     # t.quick_method_to_main_page()
@@ -696,9 +552,8 @@ if __name__ == '__main__':
     # t.quick_method_to_main_page()
     # t.solve('mail')
     # t.quick_method_to_main_page()
-    # t.solve('hard_task')
+    t.solve('hard_task')
     # t.quick_method_to_main_page()
-
     t.solve('explore_hard_task')
     t.quick_method_to_main_page()
     t.solve('momo_talk')
@@ -708,6 +563,3 @@ if __name__ == '__main__':
     print(check_sweep_availability(img))
     return_data1 = get_x_y(img, path)
     print(return_data1)
-
-    ocr_res = t.img_ocr(img)
-    print(str(ocr_res))
