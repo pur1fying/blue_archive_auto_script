@@ -140,15 +140,10 @@ def purchase_scrimmage_ticket(self, times):
         self.click(879, 346, wait=False, wait_over=True)
     else:
         self.click(807, 346, wait=False, count=times - 1, wait_over=True)
-    rgb_ends = "choose_scrimmage",
-    rgb_possibles = {
-        "purchase_scrimmage_ticket": (766, 507),
-        "purchase_ticket_notice": (766, 507),
-        "reward_acquired": (640, 116),
-    }
+    rgb_possibles = {"reward_acquired": (640, 116)}
     img_ends = "scrimmage_academy-select"
     img_possibles = {
         "scrimmage_task_purchase-scrimmage-ticket": (766, 507),
         "rewarded_task_purchase-scrimmage-ticket-notice": (766, 507),
     }
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=False)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=False)

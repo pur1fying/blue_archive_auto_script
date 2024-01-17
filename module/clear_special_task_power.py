@@ -52,17 +52,12 @@ def start_sweep(self, skip_first_screenshot=False):
     res = picture.co_detect(self, None,None, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice" or res == "buy_ap_notice":
         return "inadequate_ap"
-    rgb_ends = [
-        "skip_sweep_complete",
-        "sweep_complete"
-    ]
-    rgb_possibles = {"start_sweep_notice": (765, 501)}
     img_ends = [
         "normal_task_skip-sweep-complete",
         "normal_task_sweep-complete",
     ]
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
 
 
@@ -77,16 +72,6 @@ def to_commissions(self, num, skip_first_screenshot=False):
         'Global': 515,
         'JP': 515
     }
-    rgb_ends = "commissions"
-    rgb_possibles = {
-        "main_page":(1198, 580),
-        "campaign":(746, select_commissions_y[self.server]),
-        "choose_commissions":(992, commissions_y[self.server][num]),
-        "reward_acquired":(640, 116),
-        "mission_info":(1129, 142),
-        "start_sweep_notice":(886, 164),
-        "skip_sweep_complete":(649, 508),
-    }
     img_ends = 'special_task_level-list'
     img_possibles = {
         "main_page_home-feature": (1198, 580),
@@ -94,7 +79,7 @@ def to_commissions(self, num, skip_first_screenshot=False):
         "special_task_request-select": (992, commissions_y[self.server][num]),
         "special_task_task-info": (1085, 141),
     }
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
 
 def one_detect(self,a,b):
@@ -109,11 +94,9 @@ def one_detect(self,a,b):
         else:
             i -= 1
     for i in range(0, len(los)):
-        rgb_possibles = {"commissions":(1118, los[i])}
-        rgb_ends = "mission_info"
         img_possibles = {"special_task_level-list": (1118, los[i])}
         img_ends = "special_task_task-info"
-        picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
+        picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
@@ -127,7 +110,6 @@ def one_detect(self,a,b):
             return start_sweep(self, skip_first_screenshot=True)
         elif t == "no-pass" or t == "pass":
             to_commissions(self, a, skip_first_screenshot=True)
-
     return "0SWEEPABLE"
 
 

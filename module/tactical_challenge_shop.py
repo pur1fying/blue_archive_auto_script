@@ -124,7 +124,7 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
 def to_refresh(self):
     refresh_lo = {
         'CN': [949, 664],
-        'Global': [1160, 620],
+        'Global': [1160, 657],
         'JP': [1160, 664]
     }
     img_ends = [
