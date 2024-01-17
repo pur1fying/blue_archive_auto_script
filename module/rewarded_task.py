@@ -56,6 +56,7 @@ def implement(self):
     return True
 
 
+<<<<<<< Updated upstream
 def start_sweep(self, skip_first_screenshot=False):
     if self.server == 'CN':
         possibles = {
@@ -118,6 +119,27 @@ def bounty_common_operation(self, a, b):
     possibles = {
         "special_task_level-list": (1118, 0)
     }
+=======
+def start_sweep(self):
+    img_ends = [
+        "rewarded_task_purchase-bounty-ticket-notice",
+        "normal_task_start-sweep-notice",
+    ]
+    img_possibles = {"rewarded_task_task-info": (941, 411)}
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    if res == "rewarded_task_purchase-bounty-ticket-notice" or res == "purchase_bounty_ticket":
+        return "inadequate_ticket"
+    img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
+    img_ends = [
+        "normal_task_skip-sweep-complete",
+        "normal_task_sweep-complete",
+    ]
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    return "sweep_complete"
+
+
+def one_detect(self, a, b):
+>>>>>>> Stashed changes
     i = 675
     line = self.latest_img_array[:, 1076, :]
     los = []
@@ -130,12 +152,20 @@ def bounty_common_operation(self, a, b):
             i -= 1
     print(los)
     for i in range(0, len(los)):
+<<<<<<< Updated upstream
         if self.server == 'CN':
             possibles["special_task_level-list"] = (1118, los[i])
             image.detect(self, 'special_task_task-info', possibles, skip_first_screenshot=True)
         elif self.server == 'Global':
             click_pos[0][1] = los[i]
             color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
+=======
+        rgb_ends = ["mission_info"]
+        rgb_possibles = {"bounty": (1118, los[i])}
+        img_ends = ["special_task_task-info"]
+        img_possibles = {"rewarded_task_level-list": (1118, los[i])}
+        picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
+>>>>>>> Stashed changes
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
@@ -185,6 +215,7 @@ def bounty_common_operation(self, a, b):
 
 
 def to_bounty(self, num, skip_first_screenshot=False):
+<<<<<<< Updated upstream
     if self.server == 'CN':
         possibles = {
             "main_page_home-feature": (1198, 580),
@@ -244,6 +275,56 @@ def to_choose_bounty(self, skip_first_screenshot=False):
         "choose_bounty",
     ]
     color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
+=======
+    bounty_location_y = {
+        'CN': [0, 277, 406, 554],
+        'JP': [0, 206, 309, 418],
+        'Global': [0, 206, 309, 418]
+    }
+    choose_bounty_location_y = {
+        'CN': 477,
+        'JP': 431,
+        'Global': 431
+    }
+    task_info_cross_x = {
+        'CN': 1085,
+        'JP': 1129,
+        'Global': 1129
+    }
+    rgb_ends = "bounty"
+    rgb_possibles = {
+        "main_page": (1198, 580),
+        "reward_acquired": (640, 116)
+    }
+    img_ends = "rewarded_task_level-list"
+    img_possibles = {
+        "main_page_home-feature": (1198, 580),
+        "main_page_bus": (731, choose_bounty_location_y[self.server]),
+        "rewarded_task_location-select": (992, bounty_location_y[self.server][num]),
+        "special_task_task-info": (task_info_cross_x[self.server], 141),
+    }
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+
+
+def to_choose_bounty(self, skip_first_screenshot=False):
+    task_info_cross_x = {
+        'CN': 1085,
+        'JP': 1129,
+        'Global': 1129
+    }
+    img_ends = "rewarded_task_location-select"
+    img_possibles = {
+        'rewarded_task_level-list': (57, 41),
+        "normal_task_sweep-complete": (643, 585),
+        "normal_task_skip-sweep-complete": (643, 471),
+        "rewarded_task_task-info": (task_info_cross_x[self.server], 141),
+        "main_page_home-feature": (1198, 580),
+        "main_page_bus": (731, 431),
+    }
+    rgb_possibles = {"main_page": (1198, 580)}
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles,
+                      skip_first_screenshot=skip_first_screenshot)
+>>>>>>> Stashed changes
 
 
 def purchase_bounty_ticket(self, times):

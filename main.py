@@ -66,7 +66,8 @@ class Main:
         self.hard_task_status = []
         self.task_finish_to_main_page = False
         self.logger = Logger(logger_signal)
-
+        self.first_start_u2 = True
+        self.last_start_u2_time = 0
         # self.logger = logging.getLogger("logger_name")
         # formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
         # handler1 = logging.StreamHandler(stream=sys.stdout)
@@ -150,6 +151,8 @@ class Main:
                 self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
             if 'com.github.uiautomator' not in self.connection.app_list():
                 self.connection.app_install('ATX.apk')
+            self.first_start_u2 = False
+            self.last_start_u2_time = time.time()
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
