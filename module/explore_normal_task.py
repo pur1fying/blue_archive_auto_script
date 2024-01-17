@@ -284,7 +284,7 @@ def wait_over(self):
     img_ends = "normal_task_mission-operating-task-info-notice"
     img_possibles = {
         'normal_task_task-operating-feature': (997, 670),
-        'normal_task_present': (794, 207),
+        'normal_task_teleport-notice': (885, 164),
     }
     image.detect(self, img_ends, img_possibles)
 
@@ -370,7 +370,6 @@ def cacl_team_number(self, current_task_stage_data):
 
 def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
     img_possibles = {
-        "normal_task-present": (794, 207),
         "normal_task_mission-operating-task-info-notice": (995, 101),
         "normal_task_end-turn": (890, 162),
         "normal_task_teleport-notice": (886, 162),

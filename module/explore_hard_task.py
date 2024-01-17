@@ -300,6 +300,7 @@ def wait_over(self):
     img_possibles = {
         'normal_task_task-operating-feature': (997, 670),
         'normal_task_present': (794, 207),
+        'normal_task_teleport-notice': (885, 164),
     }
     image.detect(self, img_ends, img_possibles)
 
