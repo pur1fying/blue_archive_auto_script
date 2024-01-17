@@ -4,9 +4,13 @@ from core import color, picture
 
 
 def implement(self):
+    self.quick_method_to_main_page()
+    if self.server == 'CN':
+        self.logger.info('CN is not supported')
+        return True
     scrimmage_area_name = ["Trinity", "Gehenna", "Millennium"]
     buy_ticket_times = min(self.config['purchase_scrimmage_ticket_times'], 12)  # ** 购买悬赏委托券的次数
-
+    buy_ticket_times = max(buy_ticket_times, 0)
     if buy_ticket_times > 0:
         to_choose_scrimmage(self)
         purchase_scrimmage_ticket(self, buy_ticket_times)
@@ -17,12 +21,10 @@ def implement(self):
     just_do_task = False
 
     for i in range(0, 3):
-        if just_do_task:
-            self.quick_method_to_main_page()
         if (count[i] == "max" or count[i] > 0) and not self.scrimmage_task_status[i]:
             self.logger.info("Start scrimmage task: " + scrimmage_area_name[i] + " count : " + str(count[i]))
             if just_do_task:
-                to_choose_scrimmage(self,True)
+                self.quick_method_to_main_page()
             just_do_task = True
             to_scrimmage(self, i + 1, True)
             res = scrimmage_common_operation(self, i + 1, count[i])
@@ -30,7 +32,7 @@ def implement(self):
             if res == "sweep_complete":
                 self.scrimmage_task_status[i] = True
                 if count[i] == "max":
-                    return True,
+                    return True
             elif res == "inadequate_ap" or res == "inadequate_ticket":
                 self.logger.info(str(self.scrimmage_task_status))
                 return True
@@ -74,9 +76,11 @@ def scrimmage_common_operation(self, a, b):
         else:
             i -= 1
     for i in range(0, len(los)):
+        rgb_possibles = {'scrimmage': (1118, los[i])}
+        rgb_ends = 'mission_info'
         img_possibles = {'scrimmage_level-list': (1118, los[i])}
         img_ends = "scrimmage_task-info"
-        picture.co_detect(self, None,None, img_ends, img_possibles, True)
+        picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
@@ -101,7 +105,13 @@ def to_scrimmage(self, num, skip_first_screenshot=False):
     rgb_ends = "scrimmage"
     rgb_possibles = {
         "main_page": (1198, 580),
+        "campaign": (716, 599),
+        "choose_scrimmage": (992, select_scrimmage_y[self.server][num]),
         "reward_acquired": (640, 116),
+        "purchase_scrimmage_ticket": (920, 167),
+        "mission_info": (1129, 142),
+        "purchase_ap_notice": (919, 164),
+        "skip_sweep_complete": (649, 508),
     }
     img_ends = "scrimmage_level-list"
     img_possibles = {
@@ -115,15 +125,13 @@ def to_scrimmage(self, num, skip_first_screenshot=False):
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 
-def to_choose_scrimmage(self, skip_first_screenshot=False):
-    rgb_ends = "choose_scrimmage"
-    rgb_possibles = {"main_page": (1198, 580)}
+def to_choose_scrimmage(self):
     img_ends = "scrimmage_academy-select"
     img_possibles = {
         "main_page-home-feature": (1198, 580),
         "main_page-bus": (716, 599),
     }
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, None,None, img_ends, img_possibles)
 
 
 def purchase_scrimmage_ticket(self, times):

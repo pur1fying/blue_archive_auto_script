@@ -1,11 +1,7 @@
-from gui.util import log
 import time
-from core import color, image
 
-x = {
-    'location-select': (658, 141, 935, 186),
-    'purchase-ticket-notice': (557, 297, 692, 330)
-}
+from core import color, image, picture
+from gui.util import log
 
 
 def implement(self):
@@ -23,8 +19,9 @@ def implement(self):
         log.logger.error(e)
         return True
 
-    if self.server == 'Global':
-        buy_ticket_times = min(0, self.config['purchase_rewarded_task_ticket_times'])  # ** 购买悬赏委托券的次数
+    if self.server == 'Global' or self.server == 'JP':
+        buy_ticket_times = max(0, self.config['purchase_rewarded_task_ticket_times'])  # ** 购买悬赏委托券的次数
+        buy_ticket_times = min(buy_ticket_times, 12)
         if buy_ticket_times > 0:
             to_choose_bounty(self, True)
             purchase_bounty_ticket(self, buy_ticket_times)
@@ -35,7 +32,7 @@ def implement(self):
 
     for i in range(0, 3):
         if just_do_task:
-            self.quick_method_to_main_page()
+            to_choose_bounty(self, True)
         if count[i] == "max" or count[i] > 0:
             self.logger.info("Start bounty task: " + bounty_name[i] + " count : " + str(count[i]))
             just_do_task = True
@@ -48,85 +45,30 @@ def implement(self):
                     return True
             elif res == "inadequate_ticket":
                 self.logger.info("INADEQUATE TICKET")
-                if self.server == 'Global':
+                if self.server == 'Global' or self.server == 'JP':
                     self.logger.info(self.rewarded_task_status)
                     return True
+            elif res == "0SWEEPABLE":
+                self.logger.warning("0 SWEEPABLE")
 
     self.logger.info(self.rewarded_task_status)
     return True
 
 
-<<<<<<< Updated upstream
-def start_sweep(self, skip_first_screenshot=False):
-    if self.server == 'CN':
-        possibles = {
-            "special_task_task-info": (941, 411),
-        }
-        ends = [
-            "buy_ap_notice",
-            "rewarded_task_purchase-ticket-notice",
-            "normal_task_start-sweep-notice",
-        ]
-        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
-        if res == "buy_ap_notice":
-            return "purchase_ap_notice"
-        elif res == "rewarded_task_purchase-ticket-notice":
-            return "purchase_bounty_ticket"
-        possibles = {
-            "normal_task_start-sweep-notice": (765, 501)
-        }
-        ends = [
-            "normal_task_skip-sweep-complete",
-            "normal_task_sweep-complete",
-        ]
-        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=True)
-        if res == "normal_task_sweep-complete":
-            return "sweep_complete"
-        elif res == "normal_task_skip-sweep-complete":
-            return "skip_sweep_complete"
-    elif self.server == 'Global':
-        ends = [
-            "purchase_bounty_ticket",
-            "start_sweep_notice",
-        ]
-        res = color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
-                                             ends, skip_first_screenshot=skip_first_screenshot)
-        if res == "purchase_bounty_ticket":
-            return res
-        click_pos = [
-            [765, 501]
-        ]
-        pd_los = [
-            "start_sweep_notice"
-        ]
-        ends = [
-            "skip_sweep_complete",
-            "sweep_complete",
-        ]
-        return color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
-
-
-def bounty_common_operation(self, a, b):
-    click_pos = [
-        [1118, 0]
-    ]
-    pd_los = [
-        "bounty"
-    ]
-    ends = [
-        "mission_info",
-    ]
-    possibles = {
-        "special_task_level-list": (1118, 0)
-    }
-=======
 def start_sweep(self):
+    rgb_ends = [
+        "purchase_bounty_ticket",
+        "start_sweep_notice",
+    ]
+    rgb_possibles = {'mission_info': (941, 411)}
     img_ends = [
         "rewarded_task_purchase-bounty-ticket-notice",
         "normal_task_start-sweep-notice",
     ]
-    img_possibles = {"rewarded_task_task-info": (941, 411)}
-    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    img_possibles = {
+        "rewarded_task_task-info": (941, 411),
+    }
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     if res == "rewarded_task_purchase-bounty-ticket-notice" or res == "purchase_bounty_ticket":
         return "inadequate_ticket"
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
@@ -134,12 +76,16 @@ def start_sweep(self):
         "normal_task_skip-sweep-complete",
         "normal_task_sweep-complete",
     ]
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    rgb_possibles = {"start_sweep_notice": (765, 501)}
+    rgb_ends = [
+        "skip_sweep_complete",
+        "sweep_complete",
+    ]
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     return "sweep_complete"
 
 
 def one_detect(self, a, b):
->>>>>>> Stashed changes
     i = 675
     line = self.latest_img_array[:, 1076, :]
     los = []
@@ -152,130 +98,38 @@ def one_detect(self, a, b):
             i -= 1
     print(los)
     for i in range(0, len(los)):
-<<<<<<< Updated upstream
-        if self.server == 'CN':
-            possibles["special_task_level-list"] = (1118, los[i])
-            image.detect(self, 'special_task_task-info', possibles, skip_first_screenshot=True)
-        elif self.server == 'Global':
-            click_pos[0][1] = los[i]
-            color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
-=======
         rgb_ends = ["mission_info"]
         rgb_possibles = {"bounty": (1118, los[i])}
-        img_ends = ["special_task_task-info"]
+        img_ends = ["rewarded_task_task-info"]
         img_possibles = {"rewarded_task_level-list": (1118, los[i])}
         picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
->>>>>>> Stashed changes
         t = color.check_sweep_availability(self.latest_img_array, server=self.server)
         if t == "sss":
             if b == "max":
                 self.click(1085, 300, duration=1, wait_over=True)
             else:
-                self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
-            return start_sweep(self, True)
+                if b > 1:
+                    duration = 0
+                    if b > 4:
+                        duration = 1
+                    self.click(1014, 300, count=b - 1, duration=duration, wait_over=True)
+            return start_sweep(self)
         elif t == "no-pass" or t == "pass":
             to_bounty(self, a, True)
+    return "0SWEEPABLE"
 
+
+def bounty_common_operation(self, a, b):
+    res = one_detect(self, a, b)
+    if res != "0SWEEPABLE":
+        return res
     self.swipe(926, 190, 926, 650, duration=1)
     time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()
-    line = self.latest_img_array[:, 1076, :]
-    los = []
-    i = 675
-    while i > 196:
-        if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-            131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
-            los.append(i - 35)
-            i -= 100
-        else:
-            i -= 1
-    print(los)
-    for i in range(0, len(los)):
-        if self.server == 'CN':
-            possibles["special_task_level-list"] = (1118, los[i])
-            image.detect(self, 'special_task_task-info', possibles, skip_first_screenshot=True)
-        elif self.server == 'Global':
-            click_pos[0][1] = los[i]
-            color.common_rgb_detect_method(self, click_pos, pd_los, ends, True)
-        t = color.check_sweep_availability(self.latest_img_array, server=self.server)
-        if t == "sss":
-            if b == "max":
-                self.click(1085, 300, duration=1, wait_over=True)
-            else:
-                self.click(1014, 300, count=b - 1, duration=1, wait_over=True)
-            res = start_sweep(self, True)
-            if res == "sweep_complete" or res == "skip_sweep_complete":
-                return "sweep_complete"
-            if res == "purchase_bounty_ticket":
-                return "inadequate_ticket"
-        elif t == "no-pass" or t == "pass":
-            to_bounty(self, a, True)
-
-    return True
+    return one_detect(self, a, b)
 
 
 def to_bounty(self, num, skip_first_screenshot=False):
-<<<<<<< Updated upstream
-    if self.server == 'CN':
-        possibles = {
-            "main_page_home-feature": (1198, 580),
-            "main_page_bus": (731, 477),
-            "rewarded_task_location-select": (992, 0),
-            "special_task_task-info": (1085, 141),
-        }
-        if num == 1:
-            possibles["rewarded_task_location-select"] = (992, 277)
-        elif num == 2:
-            possibles["rewarded_task_location-select"] = (992, 406)
-        elif num == 3:
-            possibles["rewarded_task_location-select"] = (992, 554)
-        image.detect(self, 'special_task_level-list', possibles, skip_first_screenshot=skip_first_screenshot)
-    elif self.server == 'Global':
-        click_pos = [
-            [1198, 580],
-            [746, 423],
-            [992, 206],
-            [640, 116],
-            [920, 167],
-            [1129, 142],
-            [649, 508],
-
-        ]
-        if num == 1:
-            click_pos[2][1] = 206
-        elif num == 2:
-            click_pos[2][1] = 309
-        elif num == 3:
-            click_pos[2][1] = 418
-        los = [
-            "main_page",
-            "campaign",
-            "choose_bounty",
-            "reward_acquired",
-            "purchase_bounty_ticket",
-            "mission_info",
-            "skip_sweep_complete",
-        ]
-        ends = [
-            "bounty",
-        ]
-        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
-
-
-def to_choose_bounty(self, skip_first_screenshot=False):
-    click_pos = [
-        [1198, 580],
-        [746, 423],
-    ]
-    los = [
-        "main_page",
-        "campaign",
-    ]
-    ends = [
-        "choose_bounty",
-    ]
-    color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
-=======
     bounty_location_y = {
         'CN': [0, 277, 406, 554],
         'JP': [0, 206, 309, 418],
@@ -291,19 +145,14 @@ def to_choose_bounty(self, skip_first_screenshot=False):
         'JP': 1129,
         'Global': 1129
     }
-    rgb_ends = "bounty"
-    rgb_possibles = {
-        "main_page": (1198, 580),
-        "reward_acquired": (640, 116)
-    }
     img_ends = "rewarded_task_level-list"
     img_possibles = {
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, choose_bounty_location_y[self.server]),
         "rewarded_task_location-select": (992, bounty_location_y[self.server][num]),
-        "special_task_task-info": (task_info_cross_x[self.server], 141),
+        "rewarded_task_task-info": (task_info_cross_x[self.server], 141),
     }
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, None,None, img_ends, img_possibles)
 
 
 def to_choose_bounty(self, skip_first_screenshot=False):
@@ -314,36 +163,32 @@ def to_choose_bounty(self, skip_first_screenshot=False):
     }
     img_ends = "rewarded_task_location-select"
     img_possibles = {
-        'rewarded_task_level-list': (57, 41),
-        "normal_task_sweep-complete": (643, 585),
-        "normal_task_skip-sweep-complete": (643, 471),
+        "rewarded_task_level-list": (57, 41),
         "rewarded_task_task-info": (task_info_cross_x[self.server], 141),
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
     }
+    rgb_ends = "choose_bounty"
     rgb_possibles = {"main_page": (1198, 580)}
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles,
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles,
                       skip_first_screenshot=skip_first_screenshot)
->>>>>>> Stashed changes
 
 
 def purchase_bounty_ticket(self, times):
-    self.click(148, 101, duration=1.5, wait_over=True)
+    self.click(148, 101, duration=1.5, wait=False, wait_over=True)
     if times == 12:  # max
         self.click(879, 346, wait=False, wait_over=True)
     else:
         self.click(807, 346, wait=False, count=times - 1, wait_over=True)
-    click_pos = [
-        [766, 507],
-        [766, 507],
-        [640, 116],
-    ]
-    pd_los = [
-        "purchase_bounty_ticket",
-        "purchase_ticket_notice",
-        "reward_acquired",
-    ]
-    ends = [
-        "choose_bounty",
-    ]
-    color.common_rgb_detect_method(self, click_pos, pd_los, ends)
+    rgb_ends = "choose_bounty",
+    rgb_possibles = {
+        "purchase_bounty_ticket": (766, 507),
+        "purchase_ticket_notice": (766, 507),
+        "reward_acquired": (640, 116),
+    }
+    img_ends = "rewarded_task_location-select"
+    img_possibles = {
+        "rewarded_task_purchase-bounty-ticket": (766, 507),
+        "rewarded_task_purchase-bounty-ticket-notice": (766, 507),
+    }
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=False)
