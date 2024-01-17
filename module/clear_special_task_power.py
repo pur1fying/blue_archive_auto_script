@@ -71,7 +71,7 @@ def to_commissions(self, num, skip_first_screenshot=False):
         'CN': [0, 277, 406],
         'Global': [0, 206, 309],
         'JP': [0, 206, 309]
-    },
+    }
     task_info_cross_x = {
         'CN': 1085,
         'JP': 1129,
