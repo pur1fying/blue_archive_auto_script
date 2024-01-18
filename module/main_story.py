@@ -51,11 +51,11 @@ def change_acc_auto(self):
     y = 625
     acc_phase = judge_acc(self)
     if acc_phase == 1:
-        self.logger.info("CHANGE acceleration phase from 2 to 3")
+        self.logger.info("CHANGE acceleration phase from 1 to 3")
         self.click(1215, y)
     elif acc_phase == 2:
-        self.logger.info("CHANGE acceleration phase from 1 to 3")
-        self.click(1215, y, wait=False, count=2)
+        self.logger.info("CHANGE acceleration phase from 2 to 3")
+        self.click(1215, y, wait=False, wait_over=True, count=2)
     elif acc_phase == 3:
         self.logger.info("ACCELERATION phase 3")
     else:
