@@ -41,6 +41,7 @@ func_dict = {
     'restart': module.restart.implement,
     'refresh_uiautomator2': module.refresh_uiautomator2.implement,
     'no_227_kinosaki_spa': module.no_227_kinosaki_spa.implement,
+    'no_68_spring_wild_dream': module.no_68_spring_wild_dream.implement,
 }
 
 
@@ -272,7 +273,7 @@ class Main:
             'plot_menu': (1202, 37),
             'plot_skip-plot-button': (1208, 116),
             'plot_skip-plot-notice': (770, 519),
-            'activity_story-fight-success-confirm': (638, 674),
+            'activity_fight-success-confirm': (640, 663),
         }
         update = {
             'CN': {
@@ -286,6 +287,7 @@ class Main:
                 'normal_task_task-info': (1126, 141),
                 "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
                 "special_task_task-info": (1126, 141),
+                'main_page_attendance-reward': (642, 489),
             },
             'Global': {
                 'main_page_news': (1227, 56),
@@ -539,7 +541,7 @@ if __name__ == '__main__':
     # t.quick_method_to_main_page()
     # t.solve('clear_special_task_power')
     # t.quick_method_to_main_page()
-    t.solve('explore_normal_task')
+    t.solve('no_68_spring_wild_dream')
     t.quick_method_to_main_page()
     t.solve('scrimmage')
     # t.quick_method_to_main_page()
