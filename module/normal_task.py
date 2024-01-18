@@ -172,7 +172,7 @@ def start_sweep(self, skip_first_screenshot=False):
         "mission_info": (941, 411),
     }
     img_ends = [
-        "buy_ap_notice",
+        "purchase_ap_notice",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}

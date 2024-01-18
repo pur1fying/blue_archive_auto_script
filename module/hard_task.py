@@ -166,13 +166,13 @@ def start_sweep(self, skip_first_screenshot=False):
         "mission_info": (941, 411),
     }
     img_ends = [
-        "buy_ap_notice",
+        "purchase_ap_notice",
         "normal_task_start-sweep-notice",
         "normal_task_charge-challenge-counts",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
     res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice" or res == "buy_ap_notice":
+    if res == "purchase_ap_notice":
         return "inadequate_ap"
     if res == "charge_challenge_counts" or res == "normal_task_charge-challenge-counts":
         return "charge_challenge_counts"

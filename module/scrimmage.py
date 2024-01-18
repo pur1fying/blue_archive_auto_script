@@ -99,6 +99,11 @@ def to_scrimmage(self, num, skip_first_screenshot=False):
         'JP': [0, 206, 309, 418],
         'Global': [0, 206, 309, 418],
     }
+    task_info_cross = {
+        'CN': 1088,
+        'JP': 1129,
+        'Global': 1129,
+    }
     rgb_ends = "scrimmage"
     rgb_possibles = {
         "main_page": (1198, 580),
@@ -117,7 +122,7 @@ def to_scrimmage(self, num, skip_first_screenshot=False):
         "scrimmage_task_purchase-scrimmage-ticket": (766, 507),
         "scrimmage_academy-select": (992, select_scrimmage_y[self.server][num]),
         "rewarded_task_purchase-scrimmage-ticket-notice": (766, 507),
-        "scrimmage_task-info": (1129, 142),
+        "scrimmage_task-info": (task_info_cross[self.server], 142),
     }
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 

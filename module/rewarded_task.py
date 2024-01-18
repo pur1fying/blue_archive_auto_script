@@ -62,14 +62,14 @@ def start_sweep(self):
     ]
     rgb_possibles = {'mission_info': (941, 411)}
     img_ends = [
-        "rewarded_task_purchase-bounty-ticket-notice",
+        "rewarded_task_purchase-bounty-ticket",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {
         "rewarded_task_task-info": (941, 411),
     }
     res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
-    if res == "rewarded_task_purchase-bounty-ticket-notice" or res == "purchase_bounty_ticket":
+    if res == "rewarded_task_purchase-bounty-ticket" or res == "purchase_bounty_ticket":
         return "inadequate_ticket"
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     img_ends = [

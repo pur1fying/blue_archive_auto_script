@@ -1,3 +1,4 @@
+import json
 import time
 
 from core import image, color, picture
@@ -7,6 +8,45 @@ from module import main_story
 def implement(self):
     self.quick_method_to_main_page()
     explore_mission(self)
+    if self.config["activity_sweep"]:
+        sweep(self, self.config["activity_sweep_task_number"], self.config["activity_sweep_times"])
+    if self.config["activity_exchange_reward"]:
+        exchange_reward(self)
+
+
+def sweep(self, number, times):
+    to_no_69_spring_wild_dream(self, "mission", True)
+    self.swipe(919, 136, 943, 720, duration=0.05)
+    time.sleep(0.5)
+    self.swipe(919, 136, 943, 720, duration=0.05)
+    time.sleep(0.7)
+    ap = self.get_ap()
+    sweep_one_time_ap = [0, 10, 10, 10, 10, 12, 12, 12, 12, 15, 15, 15, 15]
+    sweep_times = times
+    click_times = sweep_times
+    duration = 1
+    if sweep_times > 50:
+        sweep_times = int(ap / sweep_one_time_ap[number])
+        click_times = int(sweep_times / 2) + 1
+        duration = 0.3
+    if sweep_times <= 0:
+        self.logger.warning("inadequate ap")
+        return True
+    self.logger.info("Start sweep task " + str(number) + " :" + str(sweep_times) + " times")
+    to_task_info(self, number)
+    res = check_sweep_availability(self.latest_img_array)
+    if res == "sss":
+        self.click(1032, 299, count=click_times, duration=duration, wait=False, wait_over=True)
+        res = start_sweep(self, True)
+        if res == "inadequate_ap":
+            self.logger.warning("inadequate ap")
+            return True
+        elif res == "sweep_complete":
+            self.logger.info("sweep task" + str(number) + " finished")
+            return True
+    elif res == "pass" or res == "no-pass":
+        self.logger.warning("task not sss, sweep unavailable")
+        return True
 
 
 def explore_story(self):
@@ -43,13 +83,14 @@ def explore_mission(self):
         time.sleep(0.7)
         to_task_info(self, last_target_task)
         res = check_sweep_availability(self.latest_img_array)
-        while res == "sss":
+        while res == "sss" and last_target_task <= 11:
             self.logger.info("Current task sss check next task")
             self.click(1168, 353, duration=1, wait=False, wait_over=True)
             last_target_task += 1
             image.detect(self, "normal_task_task-info")
             res = check_sweep_availability(self.latest_img_array)
-        if last_target_task > 12:
+        if last_target_task >= 12:
+            self.logger.info("All TASK SSS")
             return True
         if res == "no-pass" or res == "pass":
             number = self.config[characteristic[last_target_task - 1]]
@@ -75,6 +116,7 @@ def to_no_69_spring_wild_dream(self, region, skip_first_screenshot=False):
         'activity_fight-success-confirm': (640, 663),
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
+        'purchase_ap_notice': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
         "normal_task_task-info": (1087, 141),
@@ -90,9 +132,12 @@ def to_no_69_spring_wild_dream(self, region, skip_first_screenshot=False):
         'normal_task_fight-complete-confirm': (1160, 666),
         'normal_task_reward-acquired-confirm': (800, 660),
         'normal_task_mission-conclude-confirm': (1042, 671),
+        "activity_exchange-confirm": (673, 603),
     }
     ends = "activity_menu"
     image.detect(self, ends, possibles, skip_first_screenshot=skip_first_screenshot)
+    if region is None:
+        return True
     rgb_lo = {
         "mission": 863,
         "story": 688,
@@ -121,7 +166,7 @@ def to_task_info(self, number):
         self.swipe(916, 483, 916, 219, duration=0.5)
         time.sleep(0.7)
     if number in [8, 9, 10, 11, 12]:
-        self.swipe(943,698, 943, 0, duration=0.1)
+        self.swipe(943, 698, 943, 0, duration=0.1)
         time.sleep(0.7)
     possibles = {'activity_menu': (1124, lo[index[number - 1]])}
     ends = "normal_task_task-info"
@@ -156,3 +201,96 @@ def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
     rgb_possibles.pop("formation_edit" + str(i))
     img_possibles = {"normal_task_task-info": (lo[0], lo[1])}
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
+
+
+def start_sweep(self, skip_first_screenshot=False):
+    rgb_ends = [
+        "purchase_ap_notice",
+        "start_sweep_notice",
+    ]
+    rgb_possibles = {
+        "mission_info": (941, 411),
+    }
+    img_ends = [
+        "purchase_ap_notice",
+        "normal_task_start-sweep-notice",
+    ]
+    img_possibles = {"normal_task_task-info": (941, 411)}
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    if res == "purchase_ap_notice" or res == "buy_ap_notice":
+        return "inadequate_ap"
+    rgb_ends = [
+        "skip_sweep_complete",
+        "sweep_complete"
+    ]
+    rgb_possibles = {"start_sweep_notice": (765, 501)}
+    img_ends = [
+        "normal_task_skip-sweep-complete",
+        "normal_task_sweep-complete",
+    ]
+    img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    return "sweep_complete"
+
+
+def to_exchange(self, skip_first_screenshot=False):
+    img_possibles = {
+        "activity_menu": (230, 639),
+        "activity_set-exchange-times-menu": (935, 195),
+        "activity_exchange-confirm": (673, 603),
+    }
+    img_ends = "activity_exchange-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+
+
+def to_set_exchange_times_menu(self, skip_first_screenshot=False):
+    img_possibles = {"activity_exchange-menu": (122, 105)}
+    img_ends = "activity_set-exchange-times-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+
+
+def continue_exchange(self):
+    img_possibles = {"activity_continue-exchange": (931, 600)}
+    img_ends = "activity_continue-exchange-grey"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def exchange_reward(self):
+    to_no_69_spring_wild_dream(self, None, True)
+    to_exchange(self, True)
+    if not self.config["activity_exchange_50_times_at_once"]:
+        to_set_exchange_times_menu(self, True)
+        self.config["activity_exchange_50_times_at_once"] = True
+        with open('./config/config.json', 'w', encoding='utf-8') as f:
+            json.dump(self.config, f, ensure_ascii=False, indent=2)
+        if not image.compare_image(self, "activity_exchange-50-times-at-once", 3):
+            self.logger.info("set exchange times to 50 times at once")
+            self.click(778, 320, wait_over=True)
+            img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
+            img_ends = "activity_exchange-menu"
+            picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    while 1:
+        while color.judge_rgb_range(self.latest_img_array, 314, 684, 235, 255, 223, 243, 65, 85):
+            self.click(453, 651, wait=False, wait_over=True)
+            time.sleep(0.5)
+            continue_exchange(self)
+            to_exchange(self, True)
+        while color.judge_rgb_range(self.latest_img_array, 479, 681, 109, 129, 211, 231, 235, 255):
+            self.click(453, 651, wait=False, wait_over=True)
+            time.sleep(0.5)
+            continue_exchange(self)
+            to_exchange(self, True)
+        if image.compare_image(self, "activity_refresh-exchange-times-grey", 3):
+            self.logger.info("exchange complete")
+            return True
+        if image.compare_image(self, "activity_refresh-exchange-times-bright", 3):
+            refresh_exchange_times(self)
+
+
+def refresh_exchange_times(self):
+    img_possibles = {"activity_exchange-menu": (1155, 114)}
+    img_ends = "activity_refresh-exchange-times-notice"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    img_possibles = {"activity_refresh-exchange-times-notice": (768, 500)}
+    img_ends = "activity_exchange-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
