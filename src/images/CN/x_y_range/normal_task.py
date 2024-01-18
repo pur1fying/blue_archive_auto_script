@@ -28,4 +28,5 @@ x_y_range = {
     'help': (597, 111, 675, 150),
     'task-wait-to-begin-feature': (99, 6, 163, 42),
     'present': (572,185,704,225),
+    "teleport-notice":(526,309,740,351)
 }
