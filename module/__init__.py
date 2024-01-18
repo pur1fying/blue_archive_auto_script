@@ -23,3 +23,4 @@ from module import scrimmage
 from module import tactical_challenge_shop
 from module import total_force_fight
 from module.activities import no_227_kinosaki_spa
+from module.activities import no_68_spring_wild_dream

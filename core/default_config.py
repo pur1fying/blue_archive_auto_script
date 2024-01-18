@@ -601,7 +601,7 @@ STATIC_DEFAULT_CONFIG = '''
                         "响"
                         ],
     "current_game_activity": {
-        "CN": "no_227_kinosaki_spa",
+        "CN": "no_68_spring_wild_dream",
         "Global": null,
         "JP": null
     },

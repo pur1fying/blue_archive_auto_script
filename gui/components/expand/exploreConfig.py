@@ -9,7 +9,7 @@ class Layout(TemplateLayout):
     def __init__(self, parent=None):
         configItems = [
             {
-                'label': '开启此按钮点击推图进行活动关推图(当前活动:227号温泉乡) 需要爆发一队编号小于贯穿一队',
+                'label': '开启此按钮点击推图进行活动任务关推图(当前活动:69号新春狂想曲)',
                 'key': 'explore_activity',
                 'type': 'switch'
             },

@@ -4,16 +4,6 @@ import time
 from core import color, image
 from module import main_story
 
-x = {
-    'enter1': (1180, 180, 1202, 200),
-    'enter2': (96, 140, 116, 150),
-    'menu': (103, 7, 167, 38),
-    'play-guide': (535, 132, 656, 171),
-    'story-fight-success-confirm': ((602, 644, 677, 689)),
-    'SUB': (344, 207, 415, 242),
-    'SUB-task-info':(571,140,706,177)
-}
-
 
 def implement(self):
     self.stage_data = get_stage_data()
@@ -486,3 +476,5 @@ def to_normal_task_mission_operation_page(self):
     ]
     ends = ["normal_task_mission_operating"]
     color.common_rgb_detect_method(self, click_pos, los, ends)
+
+
