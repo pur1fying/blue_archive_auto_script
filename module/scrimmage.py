@@ -5,13 +5,10 @@ from core import color, picture
 
 def implement(self):
     self.quick_method_to_main_page()
-    if self.server == 'CN':
-        self.logger.info('CN is not supported')
-        return True
     scrimmage_area_name = ["Trinity", "Gehenna", "Millennium"]
     buy_ticket_times = min(self.config['purchase_scrimmage_ticket_times'], 12)  # ** 购买悬赏委托券的次数
     buy_ticket_times = max(buy_ticket_times, 0)
-    if buy_ticket_times > 0:
+    if buy_ticket_times > 0 and self.server != 'CN':
         to_choose_scrimmage(self)
         purchase_scrimmage_ticket(self, buy_ticket_times)
 
@@ -98,7 +95,7 @@ def scrimmage_common_operation(self, a, b):
 
 def to_scrimmage(self, num, skip_first_screenshot=False):
     select_scrimmage_y = {
-        'CN': [0, 206, 309, 418],
+        'CN': [0, 280, 423, 564],
         'JP': [0, 206, 309, 418],
         'Global': [0, 206, 309, 418],
     }

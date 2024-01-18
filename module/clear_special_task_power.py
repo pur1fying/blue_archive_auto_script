@@ -62,11 +62,6 @@ def start_sweep(self, skip_first_screenshot=False):
 
 
 def to_commissions(self, num, skip_first_screenshot=False):
-    select_commissions_y = {
-        'CN': 581,
-        'Global': 515,
-        'JP': 515
-    }
     commissions_y = {
         'CN': [0, 277, 406],
         'Global': [0, 206, 309],
@@ -80,7 +75,7 @@ def to_commissions(self, num, skip_first_screenshot=False):
     img_ends = 'special_task_level-list'
     img_possibles = {
         "main_page_home-feature": (1198, 580),
-        "main_page_bus": (724, select_commissions_y[self.server]),
+        "main_page_bus": (724, 515),
         "special_task_request-select": (992, commissions_y[self.server][num]),
         "special_task_task-info": (task_info_cross_x[self.server], 141),
     }

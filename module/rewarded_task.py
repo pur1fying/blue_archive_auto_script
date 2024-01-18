@@ -135,11 +135,6 @@ def to_bounty(self, num, skip_first_screenshot=False):
         'JP': [0, 206, 309, 418],
         'Global': [0, 206, 309, 418]
     }
-    choose_bounty_location_y = {
-        'CN': 477,
-        'JP': 431,
-        'Global': 431
-    }
     task_info_cross_x = {
         'CN': 1085,
         'JP': 1129,
@@ -148,7 +143,7 @@ def to_bounty(self, num, skip_first_screenshot=False):
     img_ends = "rewarded_task_level-list"
     img_possibles = {
         "main_page_home-feature": (1198, 580),
-        "main_page_bus": (731, choose_bounty_location_y[self.server]),
+        "main_page_bus": (731, 431),
         "rewarded_task_location-select": (992, bounty_location_y[self.server][num]),
         "rewarded_task_task-info": (task_info_cross_x[self.server], 141),
     }
