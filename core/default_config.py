@@ -631,6 +631,1347 @@ STATIC_DEFAULT_CONFIG = '''
         "B服": "com.yostar.sdk.bridge.YoStarUnityPlayerActivity",
         "国际服": ".MxUnityPlayerActivity",
         "日服": "com.yostarjp.bluearchive.MxUnityPlayerActivity"
-    }
+    },
+  "student_names":
+    [
+      {
+        "CN_name": "优香",
+        "CN_implementation": true,
+        "Global_name": "Yuuka",
+        "Global_implementation": true,
+        "JP_name": "ユウカ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "爱莉",
+        "CN_implementation": true,
+        "Global_name": "Airi",
+        "Global_implementation": true,
+        "JP_name": "アイリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "茜",
+        "CN_implementation": true,
+        "Global_name": "Akane",
+        "Global_implementation": true,
+        "JP_name": "アカネ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "响",
+        "CN_implementation": true,
+        "Global_name": "Hibiki",
+        "Global_implementation": true,
+        "JP_name": "ヒビキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "日奈",
+        "CN_implementation": true,
+        "Global_name": "Hina",
+        "Global_implementation": true,
+        "JP_name": "ヒナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "伊织",
+        "CN_implementation": true,
+        "Global_name": "Iori",
+        "Global_implementation": true,
+        "JP_name": "イオリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "泉",
+        "CN_implementation": true,
+        "Global_name": "Izumi",
+        "Global_implementation": true,
+        "JP_name": "イズミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "日富美",
+        "CN_implementation": true,
+        "Global_name": "Hifumi",
+        "Global_implementation": true,
+        "JP_name": "ヒフミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "星野",
+        "CN_implementation": true,
+        "Global_name": "Hoshino",
+        "Global_implementation": true,
+        "JP_name": "ホシノ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "野宫",
+        "CN_implementation": true,
+        "Global_name": "Nonomi",
+        "Global_implementation": true,
+        "JP_name": "ノノミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "芹香",
+        "CN_implementation": true,
+        "Global_name": "Serika",
+        "Global_implementation": true,
+        "JP_name": "セリカ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "千世",
+        "CN_implementation": true,
+        "Global_name": "Chise",
+        "Global_implementation": true,
+        "JP_name": "チセ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "绫音",
+        "CN_implementation": true,
+        "Global_name": "Ayane",
+        "Global_implementation": true,
+        "JP_name": "アヤネ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "白子",
+        "CN_implementation": true,
+        "Global_name": "Shiroko",
+        "Global_implementation": true,
+        "JP_name": "シロコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "纱绫",
+        "CN_implementation": true,
+        "Global_name": "Saya",
+        "Global_implementation": true,
+        "JP_name": "サヤ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "瞬",
+        "CN_implementation": true,
+        "Global_name": "Shun",
+        "Global_implementation": true,
+        "JP_name": "シュン",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "芹娜",
+        "CN_implementation": true,
+        "Global_name": "Serina",
+        "Global_implementation": true,
+        "JP_name": "セリナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "花子",
+        "CN_implementation": true,
+        "Global_name": "Hanako",
+        "Global_implementation": true,
+        "JP_name": "ハナコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "椿",
+        "CN_implementation": true,
+        "Global_name": "Tsubaki",
+        "Global_implementation": true,
+        "JP_name": "ツバキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "鹤城",
+        "CN_implementation": true,
+        "Global_name": "Tsurugi",
+        "Global_implementation": true,
+        "JP_name": "ツルギ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "枫香",
+        "CN_implementation": true,
+        "Global_name": "Fuuka",
+        "Global_implementation": true,
+        "JP_name": "フウカ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "花江",
+        "CN_implementation": true,
+        "Global_name": "Hanae",
+        "Global_implementation": true,
+        "JP_name": "ハナエ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "纯子",
+        "CN_implementation": true,
+        "Global_name": "Junko",
+        "Global_implementation": true,
+        "JP_name": "ジュンコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "睦月",
+        "CN_implementation": true,
+        "Global_name": "Mutsuki",
+        "Global_implementation": true,
+        "JP_name": "ムツキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "明里",
+        "CN_implementation": true,
+        "Global_name": "Akari",
+        "Global_implementation": true,
+        "JP_name": "アカリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "莲见",
+        "CN_implementation": true,
+        "Global_name": "Hasumi",
+        "Global_implementation": true,
+        "JP_name": "ハスミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "千夏",
+        "CN_implementation": true,
+        "Global_name": "Chinatsu",
+        "Global_implementation": true,
+        "JP_name": "チナツ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "阿露",
+        "CN_implementation": true,
+        "Global_name": "Aru",
+        "Global_implementation": true,
+        "JP_name": "アル",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "好美",
+        "CN_implementation": true,
+        "Global_name": "Yoshimi",
+        "Global_implementation": true,
+        "JP_name": "ヨシミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "艾米",
+        "CN_implementation": true,
+        "Global_name": "Eimi",
+        "Global_implementation": true,
+        "JP_name": "エイミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "晴",
+        "CN_implementation": true,
+        "Global_name": "Hare",
+        "Global_implementation": true,
+        "JP_name": "ハレ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "花凛",
+        "CN_implementation": true,
+        "Global_name": "Karin",
+        "Global_implementation": true,
+        "JP_name": "カリン",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "佳代子",
+        "CN_implementation": true,
+        "Global_name": "Kayoko",
+        "Global_implementation": true,
+        "JP_name": "カヨコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "铃美",
+        "CN_implementation": true,
+        "Global_name": "Suzumi",
+        "Global_implementation": true,
+        "JP_name": "スズミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "真纪",
+        "CN_implementation": true,
+        "Global_name": "Maki",
+        "Global_implementation": true,
+        "JP_name": "マキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "歌原",
+        "CN_implementation": true,
+        "Global_name": "Utaha",
+        "Global_implementation": true,
+        "JP_name": "ウタハ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "朱莉",
+        "CN_implementation": true,
+        "Global_name": "Juri",
+        "Global_implementation": true,
+        "JP_name": "ジュリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "堇",
+        "CN_implementation": true,
+        "Global_name": "Sumire",
+        "Global_implementation": true,
+        "JP_name": "スミレ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "遥香",
+        "CN_implementation": true,
+        "Global_name": "Haruka",
+        "Global_implementation": true,
+        "JP_name": "ハルカ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "志美子",
+        "CN_implementation": true,
+        "Global_name": "Shimiko",
+        "Global_implementation": true,
+        "JP_name": "シミコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "晴奈",
+        "CN_implementation": true,
+        "Global_name": "Haruna",
+        "Global_implementation": true,
+        "JP_name": "ハルナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "小鸟",
+        "CN_implementation": true,
+        "Global_name": "Kotori",
+        "Global_implementation": true,
+        "JP_name": "コトリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "小玉",
+        "CN_implementation": true,
+        "Global_name": "Kotama",
+        "Global_implementation": true,
+        "JP_name": "コタマ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "妮禄",
+        "CN_implementation": true,
+        "Global_name": "Neru",
+        "Global_implementation": true,
+        "JP_name": "ネル",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "菲娜",
+        "CN_implementation": true,
+        "Global_name": "Pina",
+        "Global_implementation": true,
+        "JP_name": "フィーナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "真白",
+        "CN_implementation": true,
+        "Global_name": "Shizuko",
+        "Global_implementation": true,
+        "JP_name": "シズコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "静子",
+        "CN_implementation": true,
+        "Global_name": "Aru",
+        "Global_implementation": true,
+        "JP_name": "アル",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "泉奈",
+        "CN_implementation": true,
+        "Global_name": "Izuna",
+        "Global_implementation": true,
+        "JP_name": "イズナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "明日奈",
+        "CN_implementation": true,
+        "Global_name": "Asuna",
+        "Global_implementation": true,
+        "JP_name": "アスナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "桃井",
+        "CN_implementation": true,
+        "Global_name": "Momoi",
+        "Global_implementation": true,
+        "JP_name": "モモイ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "绿",
+        "CN_implementation": true,
+        "Global_name": "Midori",
+        "Global_implementation": true,
+        "JP_name": "ミドリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "和香",
+        "CN_implementation": true,
+        "Global_name": "Nodoka",
+        "Global_implementation": true,
+        "JP_name": "ノドカ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "切里诺",
+        "CN_implementation": true,
+        "Global_name": "Cherino",
+        "Global_implementation": true,
+        "JP_name": "チェリノ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "柚子",
+        "CN_implementation": true,
+        "Global_name": "Yuzu",
+        "Global_implementation": true,
+        "JP_name": "ユズ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "梓",
+        "CN_implementation": true,
+        "Global_name": "Azusa",
+        "Global_implementation": true,
+        "JP_name": "アズサ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "小春",
+        "CN_implementation": true,
+        "Global_name": "Koharu",
+        "Global_implementation": true,
+        "JP_name": "コハル",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "真白(泳装)",
+        "CN_implementation": true,
+        "Global_name": "Mashiro(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "マシロ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "梓(泳装)",
+        "CN_implementation": true,
+        "Global_name": "Azusa(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "アズサ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "鹤城(泳装)",
+        "CN_implementation": true,
+        "Global_name": "Tsurugi(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "ツルギ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "日富美(泳装)",
+        "CN_implementation": true,
+        "Global_name": "Hifumi(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "ヒフミ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "泉(泳装)",
+        "CN_implementation": true,
+        "Global_name": "Izumi(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "イズミ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "日奈(泳装)",
+        "CN_implementation": true,
+        "Global_name": "Hina(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "ヒナ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "伊织(泳装)",
+        "CN_implementation": true,
+        "Global_name": "Iori(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "イオリ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "白子（骑行)",
+        "CN_implementation": true,
+        "Global_name": "Shiroko (Cycling)",
+        "Global_implementation": true,
+        "JP_name": "シロコ(ライディング)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "桐乃",
+        "CN_implementation": true,
+        "Global_name": "Kirino",
+        "Global_implementation": true,
+        "JP_name": "キリノ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "瞬(小)",
+        "CN_implementation": true,
+        "Global_name": "Shun(Small)",
+        "Global_implementation": true,
+        "JP_name": "シュン(幼女)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "纱绫(私服)",
+        "CN_implementation": true,
+        "Global_name": "Saya(Casual)",
+        "Global_implementation": true,
+        "JP_name": "サヤ(私服)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "玛丽",
+        "CN_implementation": true,
+        "Global_name": "Mari",
+        "Global_implementation": true,
+        "JP_name": "マリー",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "夏",
+        "CN_implementation": true,
+        "Global_name": "Natsu",
+        "Global_implementation": true,
+        "JP_name": "ナツ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "亚子",
+        "CN_implementation": true,
+        "Global_name": "Ako",
+        "Global_implementation": true,
+        "JP_name": "アコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "智惠",
+        "CN_implementation": true,
+        "Global_name": "Tomoe",
+        "Global_implementation": true,
+        "JP_name": "トモエ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "千夏(温泉)",
+        "CN_implementation": true,
+        "Global_name": "Chinatsu (Hot Spring)",
+        "Global_implementation": true,
+        "JP_name": "チナツ(温泉)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "切里诺(温泉)",
+        "CN_implementation": false,
+        "Global_name": "Cherino(Hot Spring)",
+        "Global_implementation": true,
+        "JP_name": "チェリノ(温泉)",
+        "JP_implementation": true
+      },
+
+      {
+        "CN_name": "时雨(温泉)",
+        "CN_implementation":false ,
+        "Global_name": "Shigure(Hot Spring)",
+        "Global_implementation": false,
+        "JP_name": "シグレ(温泉)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "和香(温泉)",
+        "CN_implementation": true,
+        "Global_name": "Nodoka(Hot Spring)",
+        "Global_implementation": true,
+        "JP_name": "ノドカ(温泉)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "阿露(正月)",
+        "CN_implementation": true,
+        "Global_name": "Aru(New Year)",
+        "Global_implementation": true,
+        "JP_name": "アル(正月)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "睦月(正月)",
+        "CN_implementation": true,
+        "Global_name": "Mutsuki(New Year)",
+        "Global_implementation": true,
+        "JP_name": "ムツキ(正月)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "芹香(正月)",
+        "CN_implementation": false,
+        "Global_name": "Serika(New Year)",
+        "Global_implementation": true,
+        "JP_name": "セリカ(正月)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "花凛(兔女郎)",
+        "CN_implementation": false,
+        "Global_name": "Karin (Bunny)",
+        "Global_implementation": true,
+        "JP_name": "カリン(バニーガール)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "妮禄(兔女郎)",
+        "CN_implementation": false,
+        "Global_name": "Neru (Bunny)",
+        "Global_implementation": true,
+        "JP_name": "ネル(バニーガール)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "茜(兔女郎)",
+        "CN_implementation": false,
+        "Global_name": "Akane (Bunny)",
+        "Global_implementation": true,
+        "JP_name": "アカネ(バニーガール)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "明日奈(兔女郎)",
+        "CN_implementation": false,
+        "Global_name": "Asuna (Bunny)",
+        "Global_implementation": true,
+        "JP_name": " アスナ(バニーガール)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "时(兔女郎)",
+        "CN_implementation": false,
+        "Global_name": "Toki(Bunny)",
+        "Global_implementation": true,
+        "JP_name": " トキ(バニーガール)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "若藻",
+        "CN_implementation": false,
+        "Global_name": "Wakamo",
+        "Global_implementation": true,
+        "JP_name": "ワカモ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "吹雪",
+        "CN_implementation": false,
+        "Global_name": "Fubuki",
+        "Global_implementation": true,
+        "JP_name": "フブキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "濑名",
+        "CN_implementation": false,
+        "Global_name": "Sena",
+        "Global_implementation": true,
+        "JP_name": "セナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "千寻",
+        "CN_implementation": false,
+        "Global_name": "Chihiro",
+        "Global_implementation": true,
+        "JP_name": "チヒロ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "弥守",
+        "CN_implementation": false,
+        "Global_name": "Mimori",
+        "Global_implementation": true,
+        "JP_name": "ミモリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "忧",
+        "CN_implementation": false,
+        "Global_name": "Ui",
+        "Global_implementation": true,
+        "JP_name": "ウイ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "日向",
+        "CN_implementation": false,
+        "Global_name": " Hinata",
+        "Global_implementation": true,
+        "JP_name": "ヒナタ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "玛丽娜",
+        "CN_implementation": false,
+        "Global_name": "Marina",
+        "Global_implementation": true,
+        "JP_name": "マリナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "咲",
+        "CN_implementation": false,
+        "Global_name": "Saki",
+        "Global_implementation": true,
+        "JP_name": "サキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "宫子",
+        "CN_implementation": false,
+        "Global_name": "Miyako",
+        "Global_implementation": true,
+        "JP_name": "ミヤコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "美游",
+        "CN_implementation": false,
+        "Global_name": "Miyu",
+        "Global_implementation": true,
+        "JP_name": "ミユ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "枫",
+        "CN_implementation": false,
+        "Global_name": "Kaede",
+        "Global_implementation": true,
+        "JP_name": "カエデ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "伊吕波",
+        "CN_implementation": false,
+        "Global_name": "Iroha",
+        "Global_implementation": true,
+        "JP_name": "イロハ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "满",
+        "CN_implementation": false,
+        "Global_name": "Michiru",
+        "Global_implementation": true,
+        "JP_name": "ミチル",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "月咏",
+        "CN_implementation": false,
+        "Global_name": "Tsukuyo",
+        "Global_implementation": true,
+        "JP_name": "ツクヨ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "美咲",
+        "CN_implementation": false,
+        "Global_name": "Misaki",
+        "Global_implementation": true,
+        "JP_name": "ミサキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "日和",
+        "CN_implementation": false,
+        "Global_name": "Hiyori",
+        "Global_implementation": true,
+        "JP_name": "ヒヨリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "亚津子",
+        "CN_implementation": false,
+        "Global_name": "Atsuko",
+        "Global_implementation": true,
+        "JP_name": "アツコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "野宫(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Nonomi(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "ノノミ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "静子泳装)",
+        "CN_implementation": false,
+        "Global_name": "Shizuko(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "シズコ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "若藻((泳装)",
+        "CN_implementation": false,
+        "Global_name": "Wakamo(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "ワカモ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "绫音(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Ayane(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "アヤネ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "星野(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Hoshino(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "ホシノ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "千世(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Chise(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "チセ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "泉奈(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Izuna(Swimsuit)",
+        "Global_implementation": true,
+        "JP_name": "イズナ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "纱织",
+        "CN_implementation": false,
+        "Global_name": "Saori",
+        "Global_implementation": true,
+        "JP_name": "サオリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "和纱",
+        "CN_implementation": false,
+        "Global_name": "Kazusa",
+        "Global_implementation": true,
+        "JP_name": "カズサ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "萌绘",
+        "CN_implementation": false,
+        "Global_name": "Moe",
+        "Global_implementation": true,
+        "JP_name": "モエ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "心奈",
+        "CN_implementation": false,
+        "Global_name": "Kokona",
+        "Global_implementation": true,
+        "JP_name": "ココナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "歌原(应援团)",
+        "CN_implementation": false,
+        "Global_name": "Utaha (Cheer Squad)",
+        "Global_implementation": true,
+        "JP_name": "ウタハ(応援团)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "响(应援团)",
+        "CN_implementation": false,
+        "Global_name": "Hibiki (Cheer Squad)",
+        "Global_implementation": true,
+        "JP_name": "ヒビキ(応援团)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "小鸟(应援团)",
+        "CN_implementation": false,
+        "Global_name": "Kotori(Cheer Squad)",
+        "Global_implementation": false,
+        "JP_name": "コトリ(応援团)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "诺亚",
+        "CN_implementation": false,
+        "Global_name": "Noa",
+        "Global_implementation": true,
+        "JP_name": "ノア",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "优香(体操服)",
+        "CN_implementation": false,
+        "Global_name": "Yuuka(Track)",
+        "Global_implementation": true,
+        "JP_name": "ユウカ(体操服)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "晴奈(体操服)",
+        "CN_implementation": false,
+        "Global_name": "Haruna(Track)",
+        "Global_implementation": false,
+        "JP_name": "ハルナ(体操服)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "莲见(体操服)",
+        "CN_implementation": false,
+        "Global_name": "Hasumi(Track)",
+        "Global_implementation": true,
+        "JP_name": "ハスミ(体操服)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "玛丽(体操服)",
+        "CN_implementation": false,
+        "Global_name": "Mari(Track)",
+        "Global_implementation": true,
+        "JP_name": "マリー(体操服)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "日鞠",
+        "CN_implementation": false,
+        "Global_name": "Himari",
+        "Global_implementation": true,
+        "JP_name": "ヒマリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "时雨",
+        "CN_implementation": false,
+        "Global_name": "Shigure",
+        "Global_implementation": true,
+        "JP_name": "シグレ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "花江(圣诞节)",
+        "CN_implementation": false,
+        "Global_name": "Hanae (Christmas)",
+        "Global_implementation": true,
+        "JP_name": "ハナエ(クリスマス)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "芹娜(圣诞节)",
+        "CN_implementation": false,
+        "Global_name": "Serina (Christmas)",
+        "Global_implementation": true,
+        "JP_name": "セリナ(クリスマス)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "纯子(正月)",
+        "CN_implementation": true,
+        "Global_name": "Junko(New Year)",
+        "Global_implementation": true,
+        "JP_name": "ジュンコ(正月)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "晴奈(正月)",
+        "CN_implementation": true,
+        "Global_name": "Haruna(New Year)",
+        "Global_implementation": true,
+        "JP_name": "ハルナ(正月)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "枫香(正月)",
+        "CN_implementation": true,
+        "Global_name": "Fuuka(New Year)",
+        "Global_implementation": true,
+        "JP_name": "フウカ(正月)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "遥香(正月)",
+        "CN_implementation": true,
+        "Global_name": "Haruka(New Year)",
+        "Global_implementation": true,
+        "JP_name": "ハルカ(正月)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "佳代子(正月)",
+        "CN_implementation": true,
+        "Global_name": "Kayoko(New Year)",
+        "Global_implementation": true,
+        "JP_name": "カヨコ(正月)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "美弥",
+        "CN_implementation": false,
+        "Global_name": "Mine",
+        "Global_implementation": true,
+        "JP_name": "ミネ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "未花",
+        "CN_implementation": false,
+        "Global_name": "Mika",
+        "Global_implementation": true,
+        "JP_name": "ミカ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "惠",
+        "CN_implementation": false,
+        "Global_name": "Megu",
+        "Global_implementation": true,
+        "JP_name": "メグ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "叶渚",
+        "CN_implementation": false,
+        "Global_name": "Kanna",
+        "Global_implementation": true,
+        "JP_name": "カンナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "樱子",
+        "CN_implementation": false,
+        "Global_name": "Sakurako",
+        "Global_implementation": true,
+        "JP_name": "サクラコ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "时",
+        "CN_implementation": false,
+        "Global_name": "Toki",
+        "Global_implementation": true,
+        "JP_name": "トキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "渚",
+        "CN_implementation": false,
+        "Global_name": "Nagisa",
+        "Global_implementation": true,
+        "JP_name": "ナギサ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "小雪",
+        "CN_implementation": false,
+        "Global_name": "Koyuki",
+        "Global_implementation": true,
+        "JP_name": "コユキ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "果穗",
+        "CN_implementation": false,
+        "Global_name": "Kaho",
+        "Global_implementation": true,
+        "JP_name": "カホ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "爱丽丝(女仆)",
+        "CN_implementation": false,
+        "Global_name": "Aris (Maid)",
+        "Global_implementation": true,
+        "JP_name": "アリス(メイド)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "柚子(女仆)",
+        "CN_implementation": false,
+        "Global_name": "Yuzu (Maid)",
+        "Global_implementation": true,
+        "JP_name": "ユズ(メイド)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "玲纱",
+        "CN_implementation": false,
+        "Global_name": "Reisa",
+        "Global_implementation": true,
+        "JP_name": "レイサ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "南",
+        "CN_implementation": false,
+        "Global_name": "Mina",
+        "Global_implementation": true,
+        "JP_name": "ミナ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "留美",
+        "CN_implementation": false,
+        "Global_name": "Rumi",
+        "Global_implementation": true,
+        "JP_name": "ルミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "实梨",
+        "CN_implementation": false,
+        "Global_name": "Minori",
+        "Global_implementation": true,
+        "JP_name": "ミノリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "小玉(野营)",
+        "CN_implementation": false,
+        "Global_name": "Kotama(Camping)",
+        "Global_implementation": false,
+        "JP_name": "コタマ(キャンプ)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "晴(野营)",
+        "CN_implementation": false,
+        "Global_name": "Hare(Camping)",
+        "Global_implementation": false,
+        "JP_name": "ハレ(キャンプ)",
+        "JP_implementation": true
+      },
+
+      {
+        "CN_name": "宫子(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Miyako(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "ミヤコ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "咲(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Saki(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "サキ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "美游(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Miyu(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "ミユ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "白子(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Shiroko(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "シロコ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "忧(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Ui(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "ウイ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "日向(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Hinata(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "ヒナタ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "花子(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Hanako(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "ハナコ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "小春(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Koharu(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "コハル(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "弥守(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Mimori(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "ミモリ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "艾米(泳装)",
+        "CN_implementation": false,
+        "Global_name": "Eimi(Swimsuit)",
+        "Global_implementation": false,
+        "JP_name": "エイミ(水着)",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "梅露",
+        "CN_implementation": false,
+        "Global_name": "Meru",
+        "Global_implementation": false,
+        "JP_name": "メル",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "红叶",
+        "CN_implementation": false,
+        "Global_name": "Momiji",
+        "Global_implementation": false,
+        "JP_name": "モミジ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "霞",
+        "CN_implementation": false,
+        "Global_name": "Kasumi",
+        "Global_implementation": false,
+        "JP_name": "カスミ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "一花",
+        "CN_implementation": false,
+        "Global_name": "ichika",
+        "Global_implementation": false,
+        "JP_name": "イチカ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "佐天 泪子",
+        "CN_implementation": false,
+        "Global_name": "佐天 泪子",
+        "Global_implementation": false,
+        "JP_name": "佐天 涙子",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "食蜂 操祈",
+        "CN_implementation": false,
+        "Global_name": "食蜂 操祈",
+        "Global_implementation": false,
+        "JP_name": "食蜂 操祈",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "御坂 美琴",
+        "CN_implementation": false,
+        "Global_name": "Mikoto",
+        "Global_implementation": false,
+        "JP_name": "御坂 美琴",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "紫",
+        "CN_implementation": false,
+        "Global_name": "ユカリ",
+        "Global_implementation": false,
+        "JP_name": "ユカリ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "桔梗",
+        "CN_implementation": false,
+        "Global_name": "キキョウ",
+        "Global_implementation": false,
+        "JP_name": "キキョウ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "莲华",
+        "CN_implementation": false,
+        "Global_name": "レンゲ",
+        "Global_implementation": false,
+        "JP_name": "レンゲ",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "爱丽丝",
+        "CN_implementation": true,
+        "Global_name": "Aris",
+        "EN_implementation": true,
+        "JP_name": "アリス",
+        "JP_implementation": true
+      }
+    ]
 }
 '''

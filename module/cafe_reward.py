@@ -173,16 +173,16 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         color.common_rgb_detect_method(self, click_pos, los, end, skip_first_screenshot=skip_first_screenshot)
 
 
+def get_student_name(self):
+    current_server_student_name_list = []
+    target = self.server + "_student_name"
+    for i in range(0, self.static_config['student_names']):
+        current_server_student_name_list.append(self.static_config['student_name'][i][target])
+    return current_server_student_name_list
+
+
 def invite_girl(self):
-    student_name = None
-    if self.server == "CN":
-        student_name = self.static_config['CN_student_name']
-    elif self.server == "Global":
-        student_name = self.static_config['Global_student_name']
-    elif self.server == "JP":
-        self.logger.warning("JP server not support")
-        return False
-    assert student_name is not None
+    student_name = get_student_name(self)
     for i in range(0, len(student_name)):
         t = ""
         for j in range(0, len(student_name[i])):

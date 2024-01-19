@@ -2,7 +2,7 @@ import time
 from core import color, image
 
 
-def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibles=None,  skip_first_screenshot=False, tentitive_click=False, tentitivex=1238,tentitivey=45):
+def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibles=None,  skip_first_screenshot=False, tentitive_click=False, tentitivex=1238,tentitivey=45, max_fail_cnt=10):
     fail_cnt = 0
     while True:
         if not self.flag_run:
@@ -76,7 +76,7 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
                         break
             if tentitive_click:
                 fail_cnt += 1
-                if fail_cnt > 20:
+                if fail_cnt > 10:
                     self.logger.info("tentative clicks")
                     self.click(tentitivex,tentitivey, False)
                     time.sleep(self.screenshot_interval)

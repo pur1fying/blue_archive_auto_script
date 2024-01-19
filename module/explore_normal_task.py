@@ -6,7 +6,8 @@ from module import main_story, normal_task, hard_task
 
 
 def implement(self):
-    # self.scheduler.change_display("普通关推图")
+    self.scheduler.change_display("普通关推图")
+    self.logger.info("Start Normal Task valid tasks : " + str(self.config['explore_normal_task_regions']))
     self.quick_method_to_main_page()
     normal_task.to_normal_event(self, True)
     for i in range(0, len(self.config['explore_normal_task_regions'])):

@@ -252,7 +252,7 @@ def to_set_exchange_times_menu(self, skip_first_screenshot=False):
 def continue_exchange(self):
     img_possibles = {"activity_continue-exchange": (931, 600)}
     img_ends = "activity_continue-exchange-grey"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, True, tentitive_click=True, max_fail_cnt=5)
 
 
 def exchange_reward(self):
@@ -266,9 +266,9 @@ def exchange_reward(self):
         if not image.compare_image(self, "activity_exchange-50-times-at-once", 3):
             self.logger.info("set exchange times to 50 times at once")
             self.click(778, 320, wait_over=True)
-            img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
-            img_ends = "activity_exchange-menu"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
+        img_ends = "activity_exchange-menu"
+        picture.co_detect(self, None, None, img_ends, img_possibles, True)
     while 1:
         while color.judge_rgb_range(self.latest_img_array, 314, 684, 235, 255, 223, 243, 65, 85):
             self.click(453, 651, wait=False, wait_over=True)

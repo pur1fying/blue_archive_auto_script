@@ -6,9 +6,6 @@ from core import color, image, picture
 
 
 def implement(self):
-    if self.server == 'JP':
-        self.logger.info("JP server not supported")
-        return True
     self.quick_method_to_main_page()
     self.lesson_times = self.config['lesson_times']
     region_name_origin = {

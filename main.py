@@ -12,7 +12,7 @@ from core.notification import notify
 from core.scheduler import Scheduler
 from core import position, color, image
 from gui.util.config_set import ConfigSet
-from core import ocr
+from core.ocr import ocr
 
 func_dict = {
     'group': module.group.implement,
@@ -396,7 +396,7 @@ class Main:
     def init_ocr(self):
         try:
             self.logger.info("Start initializing OCR")
-            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=['CN', 'Global', 'NUM'])
+            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=['CN', 'Global', 'NUM', 'JP'])
             self.logger.info("OCR initialization concluded")
             return True
         except Exception as e:

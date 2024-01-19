@@ -23,7 +23,8 @@ class Layout(QWidget, ConfigSet):
         self.label.setFixedWidth(160)
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 5))
-        self.input.setText(self.get('CommonShopRefreshTime'))
+        print(self.get('CommonShopRefreshTime'))
+        self.input.setText(str(self.get('CommonShopRefreshTime')))
         self.accept = QPushButton('确定', self)
         self.boxes = []
         for i in range(16):
