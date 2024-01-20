@@ -60,12 +60,8 @@ def get_stage_data(region):
 
 
 def check_task_state(self):
-    if self.server == 'CN':
-        if image.compare_image(self, 'normal_task_side-quest', 3, image=self.latest_img_array):
-            return 'SUB'
-    elif self.server == 'Global':
-        if image.compare_image(self, 'normal_task_SUB-mission-info', 3, image=self.latest_img_array):
-            return 'SUB'
+    if image.compare_image(self, 'normal_task_SUB', 3, image=self.latest_img_array):
+        return "SUB"
     return color.check_sweep_availability(self.latest_img_array, self.server)
 
 
