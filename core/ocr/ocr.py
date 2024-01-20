@@ -132,6 +132,8 @@ class Baas_ocr:
             res = self.ocrEN.ocr_for_single_line(img)['text']
         elif model == 'NUM':
             res = self.ocrNUM.ocr_for_single_line(img)['text']
+        elif model == 'JP':
+            res = self.ocrJP.ocr_for_single_line(img)['text']
         ocr_time = round(time.time() - t1, 3)
         res.replace('<unused3>', '')
         res.replace('<unused2>', '')
@@ -148,7 +150,10 @@ class Baas_ocr:
             res = self.ocrEN.ocr(img)
         elif model == 'NUM':
             res = self.ocrNUM.ocr(img)
+        elif model == 'JP':
+            res = self.ocrJP.ocr(img)
         ocr_time = round(time.time() - t1, 3)
+        self.logger.info("ocr time: " + str(ocr_time))
         for i in range(0, len(res)):
             res[i]['text'] = res[i]['text'].replace('<unused3>', '')
             res[i]['text'] = res[i]['text'].replace('<unused2>', '')

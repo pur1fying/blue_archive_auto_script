@@ -90,8 +90,6 @@ def init_args():
     parser.add_argument("--rec_image_shape", type=str, default="3, 48, 320")
     parser.add_argument("--rec_batch_num", type=int, default=6)
     parser.add_argument("--max_text_length", type=int, default=25)
-    parser.add_argument("--rec_char_dict_path", type=str,
-                        default="D:/github/bass/blue_archive_auto_script\src\ocr_dict\japan_dict.txt")
     parser.add_argument("--use_space_char", type=str2bool, default=True)
     parser.add_argument("--vis_font_path", type=str, default="./doc/fonts/simfang.ttf")
     parser.add_argument("--drop_score", type=float, default=0.5)
@@ -158,14 +156,20 @@ def create_predictor(args, mode):
         # sess = ort.InferenceSession(model_file_path)
         # return sess, sess.get_inputs()[0], None, None
     else:
+        path1 = os.path.abspath(os.path.dirname(__file__))
+        father_path = os.path.abspath(os.path.dirname(path1) + os.path.sep + ".")
+        father_path = os.path.abspath(os.path.dirname(father_path) + os.path.sep + ".")
+        father_path = os.path.abspath(os.path.dirname(father_path) + os.path.sep + ".")
+        model_name = ("inference.pdmodel", "inference.pdiparams")
         if mode == 'det':
-            model_file_path = 'D:/github/bass/blue_archive_auto_script/src\ocr_models\Multilingual_PP-OCRv3_det_slim_infer/inference.pdmodel'
-            params_file_path = 'D:/github/bass/blue_archive_auto_script/src\ocr_models\Multilingual_PP-OCRv3_det_slim_infer/inference.pdiparams'
+            dir = "src/ocr_models/Multilingual_PP-OCRv3_det_slim_infer"
+            model_file_path = father_path + "/" + dir + "/" + model_name[0]
+            params_file_path = father_path + "/" + dir + "/" + model_name[1]
         elif mode == 'rec':
-            model_file_path = 'D:/github/bass/blue_archive_auto_script/src\ocr_models/japan_PP-OCRv3_rec_infer/inference.pdmodel'
-            params_file_path = 'D:/github/bass/blue_archive_auto_script/src\ocr_models/japan_PP-OCRv3_rec_infer/inference.pdiparams'
+            dir = "src/ocr_models/japan_PP-OCRv3_rec_infer"
+            model_file_path = father_path + "/" + dir + "/" + model_name[0]
+            params_file_path = father_path + "/" + dir + "/" + model_name[1]
         config = inference.Config(model_file_path, params_file_path)
-        precision = inference.PrecisionType.Float32
         config.disable_gpu()
         if args.enable_mkldnn:
             # cache 10 different shapes for mkldnn to avoid memory leak

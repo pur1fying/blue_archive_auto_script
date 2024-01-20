@@ -149,9 +149,14 @@ class TextRecognizer(object):
         self.rec_image_shape = [int(v) for v in args.rec_image_shape.split(",")]
         self.rec_batch_num = args.rec_batch_num
         self.rec_algorithm = args.rec_algorithm
+        path1 = os.path.abspath(os.path.dirname(__file__))
+        father_path = os.path.abspath(os.path.dirname(path1) + os.path.sep + ".")
+        father_path = os.path.abspath(os.path.dirname(father_path) + os.path.sep + ".")
+        father_path = os.path.abspath(os.path.dirname(father_path) + os.path.sep + ".")
+        dir = "src/ocr_dict/japan_dict.txt"
         postprocess_params = {
             'name': 'CTCLabelDecode',
-            "character_dict_path": args.rec_char_dict_path,
+            "character_dict_path": os.path.join(father_path, dir),
             "use_space_char": args.use_space_char
         }
         config = copy.deepcopy(postprocess_params)

@@ -365,6 +365,39 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "lesson_region_name":{
+        "CN": [
+            "沙勒业务区",
+            "沙勒生活区",
+            "歌赫娜中央区",
+            "阿拜多斯高等学院",
+            "千禧年学习区",
+            "崔尼蒂广场区"
+            ],
+        "Global": [
+            "Schale Office",
+            "Schale Residence Hall",
+            "Gehenna Hub",
+            "Abydos Main Building",
+            "Millennium Study Center",
+            "Trinity Plaza Area",
+            "Red Winter Federal Academy",
+            "Hyakkiyako Central Area",
+            "D.U. Shiratori City"
+        ],
+        "JP": [
+            "シャーレオフィス",
+            "シャーレ居住区",
+            "ゲヘナ学園・中央区",
+            "アビドス高等学校",
+            "ミレニアム・スタデイーエリア",
+            "トリニティ・スクエア",
+            "レッドウインター連邦学園",
+            "百鬼夜行中心部",
+            "D.U.シラトリ区",
+            "山海経中央特区"
+          ]
+    },
     "Global_student_name": [
                             "Akane (Bunny)",
                             "Ako",

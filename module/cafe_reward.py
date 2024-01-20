@@ -175,9 +175,9 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
 
 def get_student_name(self):
     current_server_student_name_list = []
-    target = self.server + "_student_name"
-    for i in range(0, self.static_config['student_names']):
-        current_server_student_name_list.append(self.static_config['student_name'][i][target])
+    target = self.server + "_name"
+    for i in range(0, len(self.static_config['student_names'])):
+        current_server_student_name_list.append(self.static_config['student_names'][i][target])
     return current_server_student_name_list
 
 
