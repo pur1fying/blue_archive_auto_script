@@ -52,6 +52,9 @@ def to_tasks(self, skip_first_screenshot=False):
     img_possibles = {
         "main_page_home-feature": (70, 232),
         'main_page_full-notice': (887, 165),
+        'plot_menu': (1202, 37),
+        'plot_skip-plot-button': (1208, 116),
+        'plot_skip-plot-notice': (770, 519),
     }
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 

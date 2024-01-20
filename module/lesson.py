@@ -123,7 +123,7 @@ def pre_process_lesson_name(self, name):
     temp = ""
     if self.server == "Global":
         if name.startswith("rank"):
-            name = name[5:]
+            name = name[4:]
         for i in range(0, len(name)):
             if name[i] == ' ' or name[i].isdigit():
                 continue
@@ -134,6 +134,8 @@ def pre_process_lesson_name(self, name):
                 continue
             temp += name[i]
     elif self.server == "CN":
+        if name.startswith("评级"):
+            name = name[2:]
         temp = ""
         for i in range(0, len(name)):
             if name[i] == ' ' or is_english(name[i]) or name[i].isdigit():
