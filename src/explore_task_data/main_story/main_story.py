@@ -3,10 +3,10 @@ stage_data = {
         "will-fight": False,
         "start": [],
         "actions": [
-            {'t': 'click', 'p': (701, 305), 'wait-over': True, 'desc': "upper right"},
-            {'t': 'click', 'p': (817, 303), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (571, 370), 'wait-over': True, 'desc': "upper right"},
+            {'t': 'click', 'p': (687, 373), 'wait-over': True, 'desc': "right"},
 
-            {'t': 'click_and_teleport', 'p': (884, 329), 'wait-over': True, 'desc': "right and tp"},
+            {'t': 'click_and_teleport', 'p': (808, 374), 'wait-over': True, 'desc': "right and tp"},
             {'t': 'click', 'p': (781, 362), 'wait-over': True, 'desc': "right"},
 
             {'t': 'click', 'p': (753, 318), 'wait-over': True, 'desc': "upper right"},
@@ -36,7 +36,7 @@ stage_data = {
         "will-fight": True,
         "start": [],
         "actions": [
-            {'t': 'click', 'p': (707, 305), 'wait-over': True, 'desc': "1 upper right"},
+            {'t': 'click', 'p': (576, 368), 'wait-over': True, 'desc': "1 upper right"},
             {'t': 'click', 'p': (698, 473), 'wait-over': True, 'desc': "2 lower right"},
             {'t': 'click', 'p': (758, 391), 'ec': True, 'desc': "1 right"},
             {'t': 'click', 'p': (678, 454), 'desc': "2 right"},
@@ -46,7 +46,7 @@ stage_data = {
         "will-fight": True,
         "start": [],
         "actions": [
-            {'t': 'click', 'p': (702, 294), 'wait-over': True, 'desc': "1 upper right"},
+            {'t': 'click', 'p': (574, 365), 'wait-over': True, 'desc': "1 upper right"},
             {'t': 'click', 'p': (759, 388), 'wait-over': True, 'desc': "2 right"},
 
             {'t': 'exchange_and_click', 'p': (797, 510), 'ec': True, 'desc': "2 right"},
@@ -60,10 +60,10 @@ stage_data = {
         "will-fight": True,
         "start": [],
         "actions": [
-            {'t': 'click', 'p': (586, 407), 'ec': True, 'desc': "1 lower right"},
-            {'t': 'click', 'p': (835, 431), 'wait-over': True, 'desc': "2 lower right"},
+            {'t': 'click', 'p': (562, 534), 'ec': True, 'desc': "1 lower right"},
+            {'t': 'click', 'p': (845, 499), 'wait-over': True, 'desc': "2 lower right"},
 
-            {'t': 'click', 'p': (555, 501), 'ec': True, 'desc': "2 lower right"},
+            {'t': 'click', 'p': (555, 517), 'ec': True, 'desc': "2 lower right"},
             {'t': 'end-turn'},
 
             {'t': 'click', 'p': (442, 516), 'ec': True, 'desc': "1 lower left"},

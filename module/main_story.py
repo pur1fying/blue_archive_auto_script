@@ -12,9 +12,12 @@ def implement(self):
     self.main_story_stage_data = getattr(stage_module, "stage_data")
     self.quick_method_to_main_page()
     to_main_story(self, True)
-    push_episode_list = [1, 2, 3, 4, 5, 4]
-    if self.server == 'CN':
-        push_episode_list = [1, 2, 3]
+    origin_list = {
+        'CN': [1, 2, 3],
+        'Global': [1, 2, 3, 4, 5, 4],
+        'JP': [5, 4, 6]
+    }
+    push_episode_list = origin_list[self.server]
     for i in range(0, len(push_episode_list)):
         current_episode = push_episode_list[i]
         is_final = False
@@ -99,7 +102,12 @@ def check_episode(self):
 
 
 def to_episode(self, num):
-    episode_position = [0, [305, 255], [526, 449], [892, 255], [597, 449], [850, 630]]
+    origin_position = {
+        'CN': [0, [305, 255], [526, 449], [892, 255]],
+        'Global': [0, [305, 255], [526, 449], [892, 255], [597, 449], [850, 630]],
+        'JP': [0, [305, 255], [526, 449], [892, 255], [278, 463], [850, 630], [729, 249]]
+    }
+    episode_position = origin_position[self.server]
     if num in [1, 2, 3, 4]:
         self.swipe(14, 364, 654, 364, 0.1)
         time.sleep(0.7)
@@ -135,7 +143,10 @@ def clear_current_plot(self, skip_first_screenshot=False):
         'plot_menu': (1202, 37),
         'plot_skip-plot-button': (1208, 116),
         'plot_skip-plot-notice': (770, 519),
-        'main_page_notice': (887, 166)
+        'main_page_notice': (887, 166),
+        'normal_task_fight-confirm': (1168, 659),
+        'normal_task_fail-confirm': (643, 658),
+        'normal_task_task-finish': (1038, 662),
     }
     img_ends = [
         "main_story_episode-cleared-feature",
@@ -143,12 +154,17 @@ def clear_current_plot(self, skip_first_screenshot=False):
         "main_story_plot-not-open",
         "plot_formation",
         "plot_self-formation",
-        "normal_task_mission-wait-to-begin-feature"
+        "normal_task_task-wait-to-begin-feature",
+        "main_story_continue-plot",
+        "episode5"
     ]
     res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    if res == "main_story_continue-plot":
+        self.click(772, 516, wait=False, wait_over=True)
+        return clear_current_plot(self)
     if res == "main_story_episode-cleared-feature" or res == "main_story_plot-index":
         return res
-    if res == "normal_task_mission-wait-to-begin-feature":
+    if res == "normal_task_task-wait-to-begin-feature":
         stage_data = check_state_and_get_stage_data(self)
         for i in range(0, len(stage_data['start'])):
             to_formation_edit_i(self, i + 1, stage_data['start'][i])
@@ -166,24 +182,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
         img_possibles = {"plot_self-formation": (1157, 651)}
     picture.co_detect(self, rgb_ends, None, None, img_possibles, True)
     auto_fight(self)
-    rgb_possibles = {'reward_acquired': (640, 100)}
-    img_possibles = {
-        "main_story_episode-info": (650, 511),
-        'plot_menu': (1202, 37),
-        'plot_skip-plot-button': (1208, 116),
-        'plot_skip-plot-notice': (770, 519),
-        'normal_task_fight-confirm': (1168, 659),
-        'normal_task_fail-confirm': (643, 658),
-        'normal_task_mission-wait-to-begin-feature': (993, 97),
-        'normal_task_task-finish': (1038, 662),
-        'main_page_notice': (887, 166)
-    }
-    img_ends = [
-        "main_story_episode-cleared-feature",
-        "main_story_plot-index",
-        "main_story_plot-not-open",
-    ]
-    return picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    return clear_current_plot(self)
 
 
 def auto_choose_formation(self, skip_first_screenshot=False, rgb_possibles=None, rgb_ends=None):
@@ -220,6 +219,10 @@ def push_episode(self, num, is_final=False):
             to_main_story(self, True)
         to_episode(self, num)
         episode_status = check_episode(self)
+    if not is_final:
+        self.logger.warning("-- Episode " + str(num) + " ALL Cleared --")
+    else:
+        self.logger.warning("-- Final Episode ALL Cleared --")
 
 
 def to_main_story(self, skip_first_screenshot=False):
@@ -256,7 +259,7 @@ def to_episode_info(self, pos, skip_first_screenshot=False):
 
 
 def check_state_and_get_stage_data(self):
-    self.logger.info("CHECKING CURRENT STATE")
+    self.logger.info("-- CHECKING CURRENT STATE --")
     img_possibles = {"normal_task_mission-operating-task-info": (993, 642)}
     img_ends = "normal_task_mission-operating-task-info-notice"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -268,6 +271,6 @@ def check_state_and_get_stage_data(self):
                 if image.compare_image(self, name, need_log=False):
                     self.logger.info("CURRENT STATE: " + filename[:-4])
                     img_possibles = {"normal_task_mission-operating-task-info-notice": (993, 97)}
-                    img_ends = "normal_task_mission-wait-to-begin-feature"
+                    img_ends = "normal_task_task-wait-to-begin-feature"
                     picture.co_detect(self, None, None, img_ends, img_possibles, True)
                     return self.main_story_stage_data[filename[:-4]]

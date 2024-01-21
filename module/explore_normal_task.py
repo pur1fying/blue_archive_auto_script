@@ -304,23 +304,20 @@ def wait_over(self, will_fight=False):
                                                  self.rgb_feature[position][1][j][4],
                                                  self.rgb_feature[position][1][j][5]):
                         break
-                    else:
-                        self.logger.info("find : " + position)
-                        f = 1
-                        if position == "fighting_feature":
-                            self.set_screenshot_interval(0.3)
-                            main_story.auto_fight(self)
-                            to_normal_task_mission_operating_page(self)
-                            self.set_screenshot_interval(1)
-                        self.latest_screenshot_time = time.time()
-                        break
+                else:
+                    self.logger.info("find : " + position)
+                    f = 1
+                    if position == "fighting_feature":
+                        self.set_screenshot_interval(0.3)
+                        main_story.auto_fight(self)
+                        to_normal_task_mission_operating_page(self)
+                        self.set_screenshot_interval(1)
+                    self.latest_screenshot_time = time.time()
+                    break
         if f == 0:
             if img_possibles is not None:
                 for position, click in img_possibles.items():
-                    threshold = 3
-                    if len(position) == 3:
-                        threshold = position[2]
-                    if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
+                    if image.compare_image(self, position, 3, need_loading=False, image=self.latest_img_array,
                                            need_log=False):
                         self.logger.info("find " + position)
                         self.click(click[0], click[1], False)
@@ -331,7 +328,6 @@ def wait_over(self, will_fight=False):
 def start_mission(self):
     img_ends = "normal_task_task-operating-feature"
     img_possibles = {
-        'normal_task_fight-task': (1171, 670),
         'normal_task_task-begin-without-further-editing-notice': (768, 498),
         'normal_task_task-operating-round-over-notice': (888, 163),
         'normal_task_task-wait-to-begin-feature': (1171, 670),
