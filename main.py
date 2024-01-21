@@ -237,6 +237,7 @@ class Main:
         possibles = {
             'main_page_quick-home': (1236, 31),
             'normal_task_fight-end-back-to-main-page': (511, 662),
+            "main_page_enter-existing-fight": (514, 501),
             'main_page_login-feature': (640, 360),
             'main_page_news': (1142, 104),
             'main_page_relationship-rank-up': (640, 360),

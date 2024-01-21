@@ -70,9 +70,7 @@ def implement(self):
                     choose_team(self, res[j], los[j], True)
                 start_mission(self)
                 check_skip_fight_and_auto_over(self)
-                self.set_screenshot_interval(1)
                 start_action(self, current_task_stage_data['action'])
-                self.set_screenshot_interval(self.config['screenshot_interval'])
                 main_story.auto_fight(self)
                 if self.config['manual_boss']:
                     self.click(1235, 41)
@@ -152,6 +150,7 @@ def confirm_teleport(self):
 
 
 def start_action(self, actions):
+    self.set_screenshot_interval(1)
     self.logger.info("Start Actions total : " + str(len(actions)))
     for i, act in enumerate(actions):
         desc = "start " + str(i + 1) + " operation : "
@@ -169,8 +168,8 @@ def start_action(self, actions):
         for j in range(0, len(op)):
             time.sleep(1)
             if op[j] == 'click':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
             elif op[j] == 'teleport':
                 confirm_teleport(self)
             elif op[j] == 'exchange':
@@ -187,27 +186,27 @@ def start_action(self, actions):
                     wait_over(self)
                     skip_first_screenshot = True
             elif op[j] == 'click_and_teleport':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
                 confirm_teleport(self)
             elif op[j] == 'choose_and_change':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True, duration=0.3)
-                self.click(act['p'][0][0] - 100, act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True, duration=0.3)
+                self.click(pos[0] - 100, pos[1], wait=False, wait_over=True)
             elif op[j] == 'exchange_and_click':
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
             elif op[j] == 'exchange_twice_and_click':
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
-                self.click(act['p'][0], act['p'][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
 
         if 'ec' in act:
             wait_formation_change(self, force_index)
@@ -217,6 +216,7 @@ def start_action(self, actions):
             time.sleep(2)
         if i != len(actions) - 1:
             to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
+    self.set_screenshot_interval(self.config['screenshot_interval'])
 
 
 def wait_formation_change(self, force_index):

@@ -28,7 +28,10 @@ def init_image_data(self):
                     x_y_range = getattr(data, 'x_y_range', None)
                     path = getattr(data, 'path', None)
                     prefix = getattr(data, 'prefix', None)
-                    image_x_y_range[prefix] = x_y_range
+                    if prefix in image_x_y_range:
+                        image_x_y_range[prefix].update(x_y_range)
+                    else:
+                        image_x_y_range[prefix] = x_y_range
                     for key in x_y_range:
                         img_path = 'src/images/' + self.server + '/' + path + '/' + key + '.png'
                         if os.path.exists(img_path):

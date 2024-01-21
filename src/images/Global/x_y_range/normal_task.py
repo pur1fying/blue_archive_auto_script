@@ -25,5 +25,6 @@ x_y_range = {
     'task-wait-to-begin-feature': (99, 6, 220, 42),
     'unlock-notice': (587, 144, 696, 176),
     "start-sweep-notice": (437, 477, 844, 525),
-    "sweep-complete":(550,561,730,604)
+    "sweep-complete":(550,561,730,604),
+    "task-finish":(950, 648, 1100, 678)
 }

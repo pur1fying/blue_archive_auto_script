@@ -9,6 +9,8 @@ x_y_range = {
     # 'login-feature': (1105, 601, 1142, 640),  # 登录界面
     'news': (50, 102, 96, 144),
     # 'relationship-rank-up': (754, 595, 776, 647),
-    'full-notice': ( 538, 333, 742, 370),
-    'back-arrow': (37,20, 80, 57)
+    'full-notice': (538, 333, 742, 370),
+    'back-arrow': (37, 20, 80, 57),
+    "enter-existing-fight": (466, 293, 805, 370),
+    "notice":(580,145,699,177)
 }

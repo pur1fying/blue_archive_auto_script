@@ -28,7 +28,6 @@ def implement(self):
                 start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
                 time.sleep(1)
                 self.click(1171, 670, wait_over=True)
-                self.set_screenshot_interval(1)
             else:
                 current_task_stage_data = self.stage_data[mission]
                 img_possibles = {
@@ -37,14 +36,12 @@ def implement(self):
                 }
                 img_ends = "normal_task_task-wait-to-begin-feature"
                 image.detect(self, img_ends, img_possibles)
-                res,los = cacl_team_number(self, current_task_stage_data)
+                res, los = cacl_team_number(self, current_task_stage_data)
                 for j in range(0, len(res)):
                     choose_team(self, res[j], los[j], True)
                 start_mission(self)
                 check_skip_fight_and_auto_over(self)
-                self.set_screenshot_interval(1)
                 start_action(self, current_task_stage_data['action'])
-            self.set_screenshot_interval(self.config['screenshot_interval'])
             main_story.auto_fight(self)
             if self.config['manual_boss'] and mission != 'SUB':
                 self.click(1235, 41)
@@ -129,7 +126,8 @@ def confirm_teleport(self):
     picture.co_detect(self, None, None, img_end, img_possibles, True)
 
 
-def start_action(self, actions):
+def start_action(self, actions, will_fight=False):
+    self.set_screenshot_interval(1)
     self.logger.info("Start Actions total : " + str(len(actions)))
     for i, act in enumerate(actions):
         desc = "start " + str(i + 1) + " operation : "
@@ -147,8 +145,8 @@ def start_action(self, actions):
         for j in range(0, len(op)):
             time.sleep(1)
             if op[j] == 'click':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
             elif op[j] == 'teleport':
                 confirm_teleport(self)
             elif op[j] == 'exchange':
@@ -162,40 +160,40 @@ def start_action(self, actions):
             elif op[j] == 'end-turn':
                 end_turn(self)
                 if i != len(actions) - 1:
-                    wait_over(self)
+                    wait_over(self, will_fight)
                     skip_first_screenshot = True
             elif op[j] == 'click_and_teleport':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
                 confirm_teleport(self)
             elif op[j] == 'choose_and_change':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True, duration=0.3)
-                self.click(act['p'][0][0] - 100, act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True, duration=0.3)
+                self.click(pos[0] - 100, pos[1], wait=False, wait_over=True)
             elif op[j] == 'exchange_and_click':
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
             elif op[j] == 'exchange_twice_and_click':
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
-                self.click(act['p'][0], act['p'][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
 
         if 'ec' in act:
             wait_formation_change(self, force_index)
         if 'wait-over' in act:
-            wait_over(self)
+            wait_over(self, will_fight)
             skip_first_screenshot = True
             time.sleep(2)
         if i != len(actions) - 1:
             to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
-
+    self.set_screenshot_interval(self.config['screenshot_interval'])
 
 def start_choose_side_team(self, index):
     self.logger.info("According to the config. Choose formation " + str(index))
@@ -276,14 +274,58 @@ def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
-def wait_over(self):
+def wait_over(self, will_fight=False):
     self.logger.info("Wait until move available")
     img_ends = "normal_task_mission-operating-task-info-notice"
+    rgb_possibles = {"fighting_feature": (0, 0)}
     img_possibles = {
         'normal_task_task-operating-feature': (997, 670),
         'normal_task_teleport-notice': (885, 164),
+        "normal_task_fight-confirm": (1171, 670),
     }
-    image.detect(self, img_ends, img_possibles)
+    while True:
+        if not self.flag_run:
+            return False
+        color.wait_loading(self)
+        if image.compare_image(self, img_ends, 3, image=self.latest_img_array, need_log=False):
+            self.logger.info('end : ' + img_ends)
+            return
+        f = 0
+        if will_fight:
+            for position, click in rgb_possibles.items():
+                for j in range(0, len(self.rgb_feature[position][0])):
+                    if not color.judge_rgb_range(self.latest_img_array,
+                                                 self.rgb_feature[position][0][j][0],
+                                                 self.rgb_feature[position][0][j][1],
+                                                 self.rgb_feature[position][1][j][0],
+                                                 self.rgb_feature[position][1][j][1],
+                                                 self.rgb_feature[position][1][j][2],
+                                                 self.rgb_feature[position][1][j][3],
+                                                 self.rgb_feature[position][1][j][4],
+                                                 self.rgb_feature[position][1][j][5]):
+                        break
+                    else:
+                        self.logger.info("find : " + position)
+                        f = 1
+                        if position == "fighting_feature":
+                            self.set_screenshot_interval(0.3)
+                            main_story.auto_fight(self)
+                            to_normal_task_mission_operating_page(self)
+                            self.set_screenshot_interval(1)
+                        self.latest_screenshot_time = time.time()
+                        break
+        if f == 0:
+            if img_possibles is not None:
+                for position, click in img_possibles.items():
+                    threshold = 3
+                    if len(position) == 3:
+                        threshold = position[2]
+                    if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
+                                           need_log=False):
+                        self.logger.info("find " + position)
+                        self.click(click[0], click[1], False)
+                        self.latest_screenshot_time = time.time()
+                        break
 
 
 def start_mission(self):
@@ -370,6 +412,7 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
         "normal_task_mission-operating-task-info-notice": (995, 101),
         "normal_task_end-turn": (890, 162),
         "normal_task_teleport-notice": (886, 162),
+        "normal_task_fight-confirm": (1171, 670),
     }
     img_ends = "normal_task_task-operating-feature"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
