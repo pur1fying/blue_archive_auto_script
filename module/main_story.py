@@ -12,7 +12,7 @@ def to_main_story(self, skip_first_screenshot=False):
     img_possibles = {
         "main_page_bus": (1098, 261),
         "main_story_enter-main-story": (327, 510),
-        "main_story_final-ep-feature": (149, 109),
+        "main_story_episode5": (149, 109),
         "main_story_select-episode": (60, 36),
     }
     img_ends = "main_story_menu"
@@ -38,10 +38,14 @@ def to_episode_info(self, pos, skip_first_screenshot=False):
 def implement(self):
     self.logger.info("START pushing main story")
     self.quick_method_to_main_page()
-    max_episode = 4
+    max_episode = 5
     if self.server == 'CN':
         max_episode = 3
     for i in range(1, max_episode + 1):
+        if i != 5:
+            self.logger.info("-- Pushing Episode " + str(i) + " --")
+        else:
+            self.logger.info("-- Pushing Finial Episode --")
         to_main_story(self, True)
         to_episode(self, i)
         episode_status = check_episode(self)
@@ -137,9 +141,10 @@ def check_episode(self):
 
 
 def to_episode(self, num):
-    self.swipe(14, 364, 654, 364, 0.1)
-    time.sleep(0.7)
-    episode_position = [0, [305, 255], [526, 449], [892, 255], [597, 449]]
+    episode_position = [0, [305, 255], [526, 449], [892, 255], [597, 449], [850, 630]]
+    if num in [1, 2, 3, 4]:
+        self.swipe(14, 364, 654, 364, 0.1)
+        time.sleep(0.7)
     if num == 4:
         self.swipe(654, 364, 14, 364, 0.1)
         time.sleep(0.7)
@@ -186,13 +191,17 @@ def clear_current_plot(self, skip_first_screenshot=False):
         "main_story_episode-cleared-feature",
         "main_story_plot-index",
         "main_story_plot-not-open",
-        "plot_formation"
+        "plot_formation",
+        "plot_self-formation"
     ]
     res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
-    if res == "plot_formation":
-        img_possibles = {"plot_formation": (1157, 651)}
+    if res == "plot_formation" or res == "plot_self-formation":
         rgb_ends = "fighting_feature"
-        picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
+        img_possibles = {"plot_formation": (1157, 651)}
+        if res == "plot_self-formation":
+            auto_choose_formation(self, True)
+            img_possibles = {"plot_self-formation": (1157, 651)}
+        picture.co_detect(self, rgb_ends, None, None, img_possibles, True)
         auto_fight(self)
         rgb_possibles = {'reward_acquired': (640, 100)}
         img_possibles = {
@@ -210,3 +219,14 @@ def clear_current_plot(self, skip_first_screenshot=False):
         ]
         return picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return res
+
+
+def auto_choose_formation(self, skip_first_screenshot=False):
+    self.logger.info("AUTO choose formation")
+    img_possibles = {"plot_self-formation": (1180, 183)}
+    img_ends = "plot_change-unit-formation"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+    self.click(649, 596, wait_over=True, wait=False)
+    img_possibles = {"plot_change-unit-formation": (1130, 586)}
+    img_ends = "plot_self-formation"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)

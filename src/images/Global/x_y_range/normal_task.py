@@ -10,6 +10,7 @@ x_y_range = {
     'mission-wait-to-begin-feature': (103, 6, 213, 42),
     'mission-operating-feature': (10, 10, 121, 40),
     'end-turn': (595, 372, 669, 402),
+    "fail-confirm":(560,637,700,676),
     'move-force-confirm': (542, 317, 625, 351),
     'task-begin-without-further-editing-notice': (730, 284, 846, 314),
     'mission-pause': (536, 142, 740, 182),

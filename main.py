@@ -531,4 +531,4 @@ if __name__ == '__main__':
     # t.thread_starter()
     t.flag_run = True
     t.init_all_data()
-    t.solve('lesson')
+    t.solve('main_story')
