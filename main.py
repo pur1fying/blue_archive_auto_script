@@ -532,4 +532,4 @@ if __name__ == '__main__':
     # t.thread_starter()
     t.flag_run = True
     t.init_all_data()
-    t.solve('main_story')
+    t.solve('explore_normal_task')

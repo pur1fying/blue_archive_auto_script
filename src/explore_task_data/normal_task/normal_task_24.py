@@ -1,8 +1,8 @@
 stage_data = {
-    '16': {
+    '24': {
         'SUB': "pierce1"
     },
-    '16-1': {
+    '24-1': {
         'start': {
             'pierce1': (728, 303),
             'mystic1': (882, 562),
@@ -21,7 +21,7 @@ stage_data = {
             {'t': 'click', 'p': (776, 214),  "desc": "2 upper right"},
         ]
     },
-    '16-2': {
+    '24-2': {
         'start': {
             'pierce1': (428, 472),
             'mystic1': (409, 269),
@@ -40,7 +40,7 @@ stage_data = {
             {'t': 'click', 'p': (890, 348), "desc": "1 right"},
         ]
     },
-    '16-3': {
+    '24-3': {
         'start': {
             'pierce1': (370, 388),
             'mystic1': (1102, 562),
@@ -63,7 +63,7 @@ stage_data = {
             {'t': 'click', 'p': (839, 303), "desc": "1 upper right"},
         ]
     },
-    '16-4': {
+    '24-4': {
         'start': {
             'pierce1': (343, 473),
             'mystic1': (812, 510),
@@ -81,7 +81,7 @@ stage_data = {
 
         ]
     },
-    '16-5': {
+    '24-5': {
         'start': {
             'pierce1': (307, 403),
             'mystic1': (854, 238),

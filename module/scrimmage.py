@@ -53,12 +53,13 @@ def start_sweep(self):
     if res == "purchase_ap-notice":
         self.logger.warning("INADEQUATE AP")
         return "inadequate_ap"
+    rgb_possibles = {"level_up": (640, 200)}
     img_ends = [
         "normal_task_sweep-complete",
         "normal_task_skip-sweep-complete"
     ]
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
-    picture.co_detect(self, None,None, img_ends, img_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, None,rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     return "sweep_complete"
 
 

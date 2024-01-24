@@ -128,7 +128,6 @@ def to_hard_event(self, skip_first_screenshot=False):
         "normal_task_task-info": (task_info_x[self.server], 140),
         'normal_task_skip-sweep-complete': (643, 506),
         "buy_ap_notice": (919, 165),
-        'normal_task_auto-over': (1082, 599),
         'normal_task_task-finish': (1038, 662),
         'normal_task_prize-confirm': (776, 655),
         'normal_task_fight-confirm': (1168, 659),
@@ -180,7 +179,7 @@ def start_sweep(self, skip_first_screenshot=False):
         "skip_sweep_complete",
         "sweep_complete"
     ]
-    rgb_possibles = {"start_sweep_notice": (765, 501)}
+    rgb_possibles = {"level_up": (640, 200)}
     img_ends = [
         "normal_task_skip-sweep-complete",
         "normal_task_sweep-complete",

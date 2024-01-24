@@ -24,7 +24,7 @@ def implement(self, activity="collect_daily_power"):
             return True
     if color.judge_rgb_range(self.latest_img_array, 971, 689, 239, 255, 228, 248, 40, 84) and \
         color.judge_rgb_range(self.latest_img_array, 964, 649, 239, 255, 228, 248, 40, 84):
-        self.click(976, 670, wait=False, duration=2, wait_over=True)
+        self.click(976, 670, wait=False, duration=0.3, wait_over=True)
         self.click(254, 72, wait=False, wait_over=True)
         self.click(254, 72, wait=False, wait_over=True)
         to_tasks(self)

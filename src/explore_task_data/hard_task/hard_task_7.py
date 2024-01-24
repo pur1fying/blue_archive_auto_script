@@ -2,7 +2,7 @@ stage_data = {
     '7-1-sss-present': {
         'start': {
             'burst1': (697, 473),
-            'mystic1': (328, 460),
+            'burst2': (328, 460),
         },
         'action': [
             {'t': 'click', 'p': (663, 406), 'ec': True, "desc": "1 left"},

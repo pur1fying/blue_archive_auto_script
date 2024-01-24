@@ -39,7 +39,7 @@ stage_data = {
             'burst2': (938, 476),
         },
         'action': [
-            {'t': 'click_and_teleport', 'p': (718, 345), 'ec': True, "desc": "2 upper left and tp"},
+            {'t': ['exchange', 'click_and_teleport'], 'p': (718, 345), 'ec': True, "desc": "2 upper left and tp"},
             {'t': 'choose_and_change', 'p': (564, 438), "desc": "swap 1 2"},
             {'t': 'click', 'p': (503, 522), 'wait-over': True, "desc": "1 lower left"},
 
@@ -50,7 +50,7 @@ stage_data = {
     '7-4': {
         'start': {
             'burst1': (395, 559),
-            'burst2': (486, 370),
+            'burst2': (466, 365),
         },
         'action': [
             {'t': 'click', 'p': (679, 463), 'ec': True, "desc": "1 right"},

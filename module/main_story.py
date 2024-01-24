@@ -50,6 +50,7 @@ def judge_auto(self):
 
 
 def change_acc_auto(self):
+    self.logger.info("-- CHANGE acceleration phase and auto --")
     y = 625
     acc_phase = judge_acc(self)
     if acc_phase == 1:
@@ -75,6 +76,8 @@ def change_acc_auto(self):
 
 
 def enter_fight(self):
+    rgb_ends = "fighting_feature"
+    picture.co_detect(self, rgb_ends, None, None, None, True)
     t_start = time.time()
     while time.time() <= t_start + 10:
         self.latest_img_array = self.get_screenshot_array()
@@ -84,9 +87,10 @@ def enter_fight(self):
             break
 
 
-def auto_fight(self):
+def auto_fight(self, need_change_acc=True):
     enter_fight(self)
-    change_acc_auto(self)
+    if need_change_acc:
+        change_acc_auto(self)
 
 
 def check_episode(self):
