@@ -1,5 +1,8 @@
 import json
+import time
+from hashlib import md5
 from json import JSONDecodeError
+from random import random
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
@@ -85,9 +88,11 @@ class HomeFragment(QFrame, ConfigSet):
         self._main_thread_attach.button_signal.connect(self.set_button_state)
         self._main_thread_attach.logger_signal.connect(self.logger_box.append)
         self._main_thread_attach.update_signal.connect(self.call_update)
-        self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
+        # self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
         self.startup_card.clicked.connect(self._start_clicked)
-        self.setObjectName("0x00000003")
+        # set a hash object name for this widget
+        self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
+        self.setObjectName(self.object_name)
 
     def resizeEvent(self, event):
         # 自动调整banner尺寸（保持比例）
@@ -220,7 +225,6 @@ class MainThread(QThread):
         else:
             if self._main_thread.solve('explore_normal_task'):
                 notify(title='BAAS', body='普通图推图已完成')
-
 
     def start_fhx(self):
         self._init_script()

@@ -31,3 +31,5 @@ psutil~=5.9.5
 colorama~=0.4.6
 urllib3~=2.0.6
 fsspec~=2023.9.2
+
+paddlepaddle

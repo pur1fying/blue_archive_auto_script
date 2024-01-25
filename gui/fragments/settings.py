@@ -1,3 +1,7 @@
+import time
+from hashlib import md5
+from random import random
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SettingCardGroup)
@@ -57,7 +61,8 @@ class SettingsFragment(ScrollArea, ConfigSet):
         )
 
         self.__initLayout()
-        self.setObjectName("0x00000004")
+        self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
+        self.setObjectName(self.object_name)
 
     def __initLayout(self):
         self.expandLayout.setSpacing(28)

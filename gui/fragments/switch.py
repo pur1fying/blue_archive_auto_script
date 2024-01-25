@@ -1,6 +1,9 @@
 import json
 import threading
+import time
 from datetime import datetime
+from hashlib import md5
+from random import random
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
@@ -45,7 +48,8 @@ class SwitchFragment(ScrollArea):
 
         self.__initLayout()  # 调用__initLayout()方法初始化布局
         self.__initWidget()  # 调用__initWidget()方法初始化部件
-        self.setObjectName("0x00000002")  # 设置对象名称为"0x00000002"
+        self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
+        self.setObjectName(self.object_name)
 
     # def _change_status(self, event_name: str, event_enabled: str) -> None:
     #     self._read_config()  # 读取配置文件并更新_event_config列表

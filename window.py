@@ -1,12 +1,14 @@
 # coding:utf-8
+import json
 import os
 import sys
-import json
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
-from qfluentwidgets import FluentIcon as FIF, SplashScreen
-from qfluentwidgets import (FluentWindow, SubtitleLabel, setFont, setThemeColor)
+
+from PyQt5.QtCore import Qt, QSize, QPoint
+from PyQt5.QtGui import QIcon, QColor
+from PyQt5.QtWidgets import QApplication, QHBoxLayout
+from qfluentwidgets import FluentIcon as FIF, SplashScreen, MSFluentWindow, TabBar, \
+    MSFluentTitleBar
+from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from core import default_config
 
@@ -122,7 +124,7 @@ def check_config():
         f.write(default_config.SWITCH_DEFAULT_CONFIG)
 
 
-class Widget(QFrame):
+class Widget(MSFluentWindow):
 
     def __init__(self, text: str, parent=None):
         super().__init__(parent=parent)
@@ -136,13 +138,48 @@ class Widget(QFrame):
         self.setObjectName(text.replace(' ', '-'))
 
 
-class Window(FluentWindow):
+class CustomTitleBar(MSFluentTitleBar):
+    """ Title bar with icon and title """
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        # add buttons
+        self.toolButtonLayout = QHBoxLayout()
+        self.hBoxLayout.insertLayout(4, self.toolButtonLayout)
+
+        # add tab bar
+        self.tabBar = TabBar(self)
+
+        self.tabBar.setMovable(True)
+        self.tabBar.setTabMaximumWidth(120)
+        self.tabBar.setTabShadowEnabled(False)
+        self.tabBar.setScrollable(True)
+        self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
+
+        self.tabBar.tabCloseRequested.connect(self.tabBar.removeTab)
+
+        self.hBoxLayout.insertWidget(5, self.tabBar, 1)
+        self.hBoxLayout.setStretch(6, 0)
+
+        # self.hBoxLayout.insertSpacing(8, 20)
+
+    def canDrag(self, pos: QPoint):
+        if not super().canDrag(pos):
+            return False
+        pos.setX(pos.x() - self.tabBar.x())
+        return not self.tabBar.tabRegion().contains(pos)
+
+
+class Window(MSFluentWindow):
 
     def __init__(self):
         super().__init__()
         self.initWindow()
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
+        self.setTitleBar(CustomTitleBar(self))
+        self.tabBar = self.titleBar.tabBar
         self.show()
 
         setThemeColor('#0078d4')
@@ -158,6 +195,7 @@ class Window(FluentWindow):
         self.settingInterface = SettingsFragment(parent=self)
 
         self.initNavigation()
+        self.dispatchWindow()
         self.splashScreen.finish()
 
     def call_update(self):
@@ -165,24 +203,44 @@ class Window(FluentWindow):
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.HOME, '主页')
-
-        self.navigationInterface.addSeparator()
+        # self.navigationInterface.addSeparator()
         self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '调度器')
-
         # add custom widget to bottom
         self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
+        # Add some tabs in the group
+        self.addTab(self.homeInterface.object_name, 'home', None)
+        self.addTab(self.schedulerInterface.object_name, 'scheduler', None)
+        self.stackedWidget.currentChanged.connect(self.onTabChanged)
+        self.tabBar.currentChanged.connect(self.onTabChanged)
+        self.tabBar.tabAddRequested.connect(self.onTabAddRequested)
 
     def initWindow(self):
         self.resize(900, 700)
-        self.setWindowIcon(QIcon(ICON_DIR))
-        self.setWindowTitle('BlueArchiveAutoScript')
-
         desktop = QApplication.desktop().availableGeometry()
         _w, _h = desktop.width(), desktop.height()
         self.move(_w // 2 - self.width() // 2, _h // 2 - self.height() // 2)
 
     def closeEvent(self, event):
         super().closeEvent(event)
+
+    def onTabChanged(self, _: int):
+        objectName = self.tabBar.currentTab().routeKey()
+        print(objectName)
+        # self.stackedWidget.setCurrentWidget(self.schedulerInterface)
+        # self.homeInterface.setCurrentWidget(self.findChild(self.homeInterface, objectName))
+        # self.stackedWidget.setCurrentWidget(self.homeInterface)
+
+    def onTabAddRequested(self):
+        text = f'硝子酱一级棒卡哇伊×{self.tabBar.count()}'
+        self.addTab(text, text, 'resource/Smiling_with_heart.png')
+
+    def addTab(self, routeKey, text, icon):
+        self.tabBar.addTab(routeKey, text, icon)
+        # self.homeInterface.addWidget(TabInterface(text, icon, routeKey, self))
+
+    def dispatchWindow(self):
+        self.setWindowIcon(QIcon(ICON_DIR))
+        self.setWindowTitle('BlueArchiveAutoScript')
 
 
 def start():

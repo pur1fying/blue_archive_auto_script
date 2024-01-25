@@ -151,6 +151,7 @@ class Main:
         try:
             self.adb_port = self.config.get('adbPort')
             self.logger.info("adb port: " + str(self.adb_port))
+
             if not self.adb_port or self.adb_port == '0':
                 self.connection = u2.connect()
             else:
