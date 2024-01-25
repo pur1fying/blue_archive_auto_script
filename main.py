@@ -47,40 +47,96 @@ func_dict = {
 
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+        self.static_config = None
+        self.ocr = ocr.Baas_ocr(logger=Logger(logger_signal), ocr_needed=['NUM', 'CN', 'Global', 'JP'])
+        self.logger = Logger(logger_signal)
+        self.threads = {}
+
+    def start_thread(self, index="1", logger_signal=None, button_signal=None, update_signal=None,
+                     config_path='config/config1'):
+        t = Baas_thread(logger_signal, button_signal, update_signal, config_path)
+        t.static_config = self.static_config
+        t.init_all_data()
+        t.flag_run = True
+        t.ocr = self.ocr
+        self.threads.setdefault(index, t)
+        threading.Thread(target=t.thread_starter, args=index).start()
+        return True
+
+    def init_static_config(self):
+        try:
+            self.logger.info("-- Start Reading Static Config --")
+            self.static_config = self.operate_dict(json.load(open('config/static.json', 'r', encoding='utf-8')))
+            self.logger.info("SUCCESS")
+            return True
+        except Exception as e:
+            self.logger.error("Static Config initialization failed")
+            self.logger.error(e)
+            return False
+
+    def operate_dict(self, dic):
+        for key in dic:
+            if type(dic[key]) is dict:
+                dic[key] = self.operate_dict(dic[key])
+            else:
+                dic[key] = self.operate_item(dic[key])
+        return dic
+
+    def is_float(self, s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+
+    def operate_item(self, item):
+        if type(item) is int or type(item) is bool or type(item) is float or item is None:
+            return item
+        if type(item) is str:
+            if item.isdigit():
+                return int(item)
+            elif self.is_float(item):
+                return float(item)
+            else:
+                if item.count(",") == 2:
+                    temp = item.split(",")
+                    for j in range(0, len(temp)):
+                        if temp[j].isdigit():
+                            temp[j] = int(temp[j])
+                    item = temp
+                return item
+        else:
+            temp = []
+            for i in range(0, len(item)):
+                if type(item[i]) is dict:
+                    temp.append(self.operate_dict(item[i]))
+                else:
+                    temp.append(self.operate_item(item[i]))
+            return temp
+
+
+class Baas_thread():
+    def __init__(self, logger_signal=None, button_signal=None, update_signal=None, config_path=None):
         self.activity_name = None
-        self.img_cnt = 0
+        self.config_path = config_path
         self.latest_screenshot_time = 0
         self.scheduler = None
         self.screenshot_interval = None
         self.flag_run = None
         self.current_game_activity = None
-        self.static_config = None
-        self.main_activity = None
         self.package_name = None
         self.server = None
         self.first_start = True
         self.rgb_feature = None
-        self.ocr = None
         self.config = None
         self.next_time = None
         self.screenshot_updated = None
-        self.ocrCN, self.ocrNUM, self.ocrEN = [None] * 3
-        self.common_task_count = []
-        self.hard_task_count = []
-        self.common_task_status = []
-        self.hard_task_status = []
         self.task_finish_to_main_page = False
+        self.static_config = None
+        self.ocr = None
         self.logger = Logger(logger_signal)
         self.first_start_u2 = True
         self.last_start_u2_time = 0
-        # self.logger = logging.getLogger("logger_name")
-        # formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
-        # handler1 = logging.StreamHandler(stream=sys.stdout)
-        # handler1.setFormatter(formatter)
-        # self.logger.setLevel(logging.INFO)
-        # self.logger.addHandler(handler1)
-
-        # self.loggerBox = logger_signal
         self.total_force_fight_difficulty_name = ["HARDCORE", "VERYHARD", "EXTREME", "NORMAL", "HARD"]  # 当期总力战难度
         self.total_force_fight_difficulty_name_ordered = ["NORMAL", "HARD", "VERYHARD", "HARDCORE",
                                                           "EXTREME"]  # 当期总力战难度
@@ -91,8 +147,7 @@ class Main:
         self.button_signal = button_signal
         self.update_signal = update_signal
         self.stage_data = {}
-
-        # start_debugger()
+        self.activity_name = None
 
     def click(self, x, y, wait=True, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
@@ -129,8 +184,6 @@ class Main:
             return False
         self.latest_screenshot_time = time.time()
         img = cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
-        self.img_cnt += 1
-        # cv2.imwrite("D:\\github\\bass\\blue_archive_auto_script\\test\\" + str(self.img_cnt) + ".png", img)
         return img
 
     def screenshot_worker_thread(self):
@@ -191,14 +244,16 @@ class Main:
                 return event['enabled']
         return False
 
-    def thread_starter(self):  # 主程序，完成用户指定任务
+    def thread_starter(self, index):
         try:
-            self.logger.line()
-            self.logger.info("start activities")
+            self.logger.info("-------------- Start Scheduler" + str(index) + " ----------------")
+            for i in range(0, len(self.config['activity_list'])):
+                self.solve(self.config['activity_list'][i])
             while self.flag_run:
                 if self.first_start:
                     self.solve('restart')
                 next_func_name = self.scheduler.heartbeat()
+                print(next_func_name)
                 self.next_time = 0
                 if next_func_name:
                     self.logger.info(f"current activity: {next_func_name}")
@@ -314,7 +369,7 @@ class Main:
             'area_rank_up',
             'level_up'
         ]
-        while True:
+        while self.flag_run:
             if skip_first_screenshot:
                 skip_first_screenshot = False
             else:
@@ -344,7 +399,7 @@ class Main:
         return True
 
     def wait_screenshot_updated(self):
-        while not self.screenshot_updated:
+        while (not self.screenshot_updated) and self.flag_run:
             time.sleep(0.01)
         self.screenshot_updated = False
 
@@ -363,10 +418,8 @@ class Main:
     def init_config(self):
         try:
             self.logger.info("Start Reading Config")
-            t = ConfigSet()
+            t = ConfigSet(self.config_path)
             self.config = self.operate_dict(t.config)
-            self.static_config = self.operate_dict(t.static_config)
-            self.main_activity = self.config['activity_list']
             self.logger.info("SUCCESS")
             return True
         except Exception as e:
@@ -383,6 +436,8 @@ class Main:
             self.server = 'Global'
         elif server == '日服':
             self.server = 'JP'
+        self.package_name = self.static_config['package_name'][server]
+        self.activity_name = self.static_config['activity_name'][server]
         self.current_game_activity = self.static_config['current_game_activity'][self.server]
         self.logger.info("Current Server: " + self.server)
 
@@ -394,17 +449,6 @@ class Main:
             self.connection.swipe(fx, fy, tx, ty)
         else:
             self.connection.swipe(fx, fy, tx, ty, duration=duration)
-
-    def init_ocr(self):
-        try:
-            self.logger.info("Start initializing OCR")
-            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=['CN', 'Global', 'NUM', 'JP'])
-            self.logger.info("OCR initialization concluded")
-            return True
-        except Exception as e:
-            self.logger.error("OCR initialization failed")
-            self.logger.error(e)
-            return False
 
     def get_ap(self):
         region = {
@@ -495,28 +539,19 @@ class Main:
         self.logger.info("--------Initialing All Data----------")
         self.init_config()
         self.init_server()
-        self.init_package_activity_name()
         init_results = []
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            init_results.append(executor.submit(self.init_ocr))
-            init_results.append(executor.submit(self.init_rgb))
-            init_results.append(executor.submit(position.init_image_data, self))
-            init_results.append(executor.submit(self._init_emulator))
+        init_results.append(self.init_rgb())
+        init_results.append(position.init_image_data(self))
+        init_results.append(self._init_emulator())
         for i in range(0, len(init_results)):
-            if init_results[i].result() is False:
+            if init_results[i] is False:
                 self.signal_stop()
                 self.logger.critical("Initialization Failed")
                 return False
         self.set_screenshot_interval(self.config['screenshot_interval'])
         self.latest_screenshot_time = 0
-        self.scheduler = Scheduler(self.update_signal)
+        self.scheduler = Scheduler(self.update_signal, self.config_path)
         self.logger.info("--------Initialization Finished----------")
-        return True
-
-    def init_package_activity_name(self):
-        server = self.config['server']
-        self.package_name = self.static_config['package_name'][server]
-        self.activity_name = self.static_config['activity_name'][server]
         return True
 
     def set_screenshot_interval(self, interval):
@@ -531,6 +566,12 @@ if __name__ == '__main__':
     # # print(time.time())
     t = Main()
     # t.thread_starter()
-    t.flag_run = True
-    t.init_all_data()
-    t.solve('explore_normal_task')
+    t.init_static_config()
+    t.start_thread("1")
+    print(1)
+    t.start_thread("2", None, None, None, "config/config2")
+    print(2)
+    t.start_thread("3", None, None, None, "config/config3")
+    print(3)
+    t.start_thread("4", None, None, None, "config/config4")
+    print(4)

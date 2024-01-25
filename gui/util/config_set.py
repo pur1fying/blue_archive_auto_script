@@ -1,19 +1,16 @@
 import json
-
 from core.notification import notify
 
 
 class ConfigSet:
-    def __init__(self):
+    def __init__(self, config_path=None):
         self.config = None
         self.static_config = None
-        self._init_config()
+        self._init_config(config_path)
 
-    def _init_config(self):
-        with open('./config/config.json', 'r', encoding='utf-8') as f:
+    def _init_config(self, config_path=None):
+        with open(config_path + "/config.json", 'r', encoding='utf-8') as f:
             self.config = json.load(f)
-        with open('./config/static.json', 'r', encoding='utf-8') as f:
-            self.static_config = json.load(f)
 
     def get(self, key):
         self._init_config()

@@ -125,6 +125,7 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
+
 def get_tickets(self):
     ticket_num_region = {
         'CN': (193, 477, 206, 498),

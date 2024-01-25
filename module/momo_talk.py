@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from core import color, image
+from core import color, image, picture
 
 
 def implement(self, need_check_mode=True):
@@ -8,6 +8,8 @@ def implement(self, need_check_mode=True):
     to_momotalk2(self, True)
     if need_check_mode:
         check_mode(self)
+        time.sleep(0.5)
+        self.latest_img_array = self.get_screenshot_array()
     main_to_momotalk = True
     while 1:
         color.wait_loading(self)
@@ -130,7 +132,9 @@ def common_solve_affection_story_method(self):
             self.click(826, res[1], wait=False)
             time.sleep(0.5)
             common_skip_plot_method(self)
-            to_momotalk2(self)
+            rgb_end = "reward_acquired"
+            picture.co_detect(self, rgb_end)
+            to_momotalk2(self, True)
             return
         time.sleep(self.screenshot_interval)
     self.logger.info("current conversation over")

@@ -349,7 +349,6 @@ def interaction_for_cafe_solve_method1(self):
                        start_y + swipe_action_list[1][i], duration=0.1)
 
     self.logger.info("cafe task finished")
-    self.main_activity[0][1] = 1
     self.operation("start_getting_screenshot_for_location")
     self.operation("click", (1240, 39))
 

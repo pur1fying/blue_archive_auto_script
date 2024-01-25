@@ -278,7 +278,6 @@ DEFAULT_CONFIG = """
         "mail",
         "collect_daily_power",
         "common_shop",
-        "tactical_challenge_power",
         "rewarded_task",
         "normal_task",
         "hard_task",

@@ -21,10 +21,10 @@ def screenshot_cut(self, area, image=None):
 def compare_image(self, name, threshold=3, need_loading=False, image=None, need_log=True):
     if need_loading:
         color.wait_loading(self)
-    if name not in position.image_dic:
+    if name not in position.image_dic[self.server]:
         return False
-    area = get_area(name)
-    res_img = position.image_dic[name]
+    area = get_area(self.server, name)
+    res_img = position.image_dic[self.server][name]
     ss_img = screenshot_cut(self, area=area, image=image)
     diff = cv2.absdiff(ss_img, res_img)
     mean_diff = np.mean(diff)
@@ -80,11 +80,11 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_fi
                     break
 
 
-def get_area(name):
+def get_area(server, name):
     module, name = name.rsplit("_", 1)
-    if position.image_x_y_range[module][name] is None:
+    if position.image_x_y_range[server][module][name] is None:
         return False
-    return position.image_x_y_range[module][name]
+    return position.image_x_y_range[server][module][name]
 
 
 def process_image(self, img, name, threshold=10, step=5):

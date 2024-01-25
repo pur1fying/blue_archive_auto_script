@@ -5,14 +5,15 @@ import time
 from datetime import datetime, timedelta
 from typing import Optional
 
-from core import EVENT_CONFIG_PATH, DISPLAY_CONFIG_PATH
+from core import DISPLAY_CONFIG_PATH
 
 lock = threading.Lock()
 
 
 class Scheduler:
-    def __init__(self, update_signal):
+    def __init__(self, update_signal, path):
         super().__init__()
+        self.event_config_path = path
         self.update_signal = update_signal
         self._event_config = []
         self._display_config = {
@@ -23,12 +24,13 @@ class Scheduler:
 
     def _read_config(self):
         with lock:
-            with open(EVENT_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            with open(self.event_config_path + "/event.json", 'r', encoding='utf-8') as f:
                 self._event_config = json.load(f)
+
 
     def _commit_change(self):
         """event_config只能被switch修改,调度时在内存中操作"""
-        with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
+        with open(self.event_config_path + "/event.json", 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
         with open(DISPLAY_CONFIG_PATH, 'w', encoding='utf-8') as f:
             json.dump(self._display_config, f, ensure_ascii=False, indent=2)
