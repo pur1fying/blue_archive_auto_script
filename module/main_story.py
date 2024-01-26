@@ -76,8 +76,12 @@ def change_acc_auto(self):
 
 
 def enter_fight(self):
+    img_possibles = {
+        'normal_task_present': (640, 519),
+        'normal_task_teleport-notice': (767, 501)
+    }
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, None, None, None, True)
+    picture.co_detect(self, rgb_ends, None, img_possibles, None, True)
     t_start = time.time()
     while time.time() <= t_start + 10:
         self.latest_img_array = self.get_screenshot_array()

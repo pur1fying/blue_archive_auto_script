@@ -47,50 +47,26 @@ def implement(self, need_check_mode=True):
 
 
 def check_mode(self):
-    mode_confirm_y = {
-        'CN': 365,
-        'Global': 426,
-        'JP': 426,
-    }
-    mode_unread_x = {
-        'CN': 444,
-        'Global': 563,
-        'JP': 555,
-    }
-    if self.server == 'CN' or self.server == 'JP':
-        if image.compare_image(self, "momo_talk_newest", threshold=3):
-            self.logger.info("change NEWEST to UNREAD mode")
-            self.click(514, 177, wait=False, duration=0.3, wait_over=True)
-            self.click(mode_unread_x[self.server], 297, wait=False, duration=0.3, wait_over=True)
-            self.click(461, mode_confirm_y[self.server], wait=False, duration=0.3, wait_over=True)
-        elif image.compare_image(self, "momo_talk_unread", threshold=3):
-            self.logger.info("UNREAD mode")
-        else:
-            self.logger.info("can't detect mode button")
-            return False
-        self.latest_img_array = self.get_screenshot_array()
-        if image.compare_image(self, "momo_talk_up", threshold=3):
-            self.logger.info("change UP to DOWN")
-            self.click(634, 169, duration=0.2, wait=False, wait_over=True)
-        elif image.compare_image(self, "momo_talk_down", threshold=3):
-            self.logger.info("DOWN mode")
-        else:
-            self.logger.info("can't detect up/down button")
-            return False
-        return True
-    elif self.server == 'Global':
-        if color.judge_rgb_range(self.latest_img_array, 487, 177, 50, 150, 50, 150, 50, 150) and \
-            color.judge_rgb_range(self.latest_img_array, 486, 183, 245, 255, 245, 255, 245, 255):
-            self.logger.info("change NEWEST to UNREAD mode")
-            self.click(514, 177, wait=False, duration=0.3, wait_over=True)
-            self.click(mode_unread_x[self.server], 297, wait=False, duration=0.3, wait_over=True)
-            self.click(461, mode_confirm_y[self.server], wait=False, duration=0.3, wait_over=True)
-        elif color.judge_rgb_range(self.latest_img_array, 486, 183, 50, 150, 50, 150, 50, 150) and \
-            color.judge_rgb_range(self.latest_img_array, 487, 177, 245, 255, 245, 255, 245, 255):
-            self.logger.info("UNREAD mode")
-        else:
-            self.logger.info("can't detect mode button")
-            return False
+    if image.compare_image(self, "momo_talk_newest", threshold=3):
+        self.logger.info("change NEWEST to UNREAD mode")
+        self.click(514, 177, wait=False, duration=0.3, wait_over=True)
+        self.click(562, 297, wait=False, duration=0.3, wait_over=True)
+        self.click(461, 426, wait=False, duration=0.3, wait_over=True)
+    elif image.compare_image(self, "momo_talk_unread", threshold=3):
+        self.logger.info("UNREAD mode")
+    else:
+        self.logger.info("can't detect mode button")
+        return False
+    self.latest_img_array = self.get_screenshot_array()
+    if image.compare_image(self, "momo_talk_up", threshold=3):
+        self.logger.info("change UP to DOWN")
+        self.click(634, 169, duration=0.2, wait=False, wait_over=True)
+    elif image.compare_image(self, "momo_talk_down", threshold=3):
+        self.logger.info("DOWN mode")
+    else:
+        self.logger.info("can't detect up/down button")
+        return False
+    return True
 
 
 def to_momotalk2(self, skip_first_screenshot=False):

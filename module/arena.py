@@ -1,5 +1,4 @@
 import time
-
 from core import color, image, picture
 
 
@@ -27,15 +26,7 @@ def implement(self):
         if res == 'arena_purchase-tactical-challenge-ticket':
             self.logger.warning("no tickets")
             return True
-        res = check_skip_button(self.latest_img_array, self.server)
-        if res == "OFF":
-            self.logger.info("TURN ON SKIP")
-            self.click(1108, 608, wait=False, wait_over=True)
-        elif res == "ON":
-            self.logger.info("SKIP ON")
-        else:
-            self.logger.info("Can't find SKIP BUTTON")
-            return True
+        turn_on_arena_skip(self)
         fight(self, True)
         to_tactical_challenge(self, True)
         if tickets > 1:
@@ -160,3 +151,17 @@ def fight(self, skip_first_screenshot=False):
         'arena_battle-lost'
     ]
     image.detect(self, ends, possibles, skip_first_screenshot=skip_first_screenshot)
+
+
+def turn_on_arena_skip(self):
+    res = check_skip_button(self.latest_img_array, self.server)
+    if res == "OFF":
+        self.logger.info("TURN ON SKIP")
+        self.click(1225, 608, wait=False, wait_over=True, duration=0.3)
+    elif res == "ON":
+        self.logger.info("SKIP ON")
+        return
+    else:
+        self.logger.info("Can't find SKIP BUTTON")
+    self.latest_img_array = self.get_screenshot_array()
+    return turn_on_arena_skip(self)

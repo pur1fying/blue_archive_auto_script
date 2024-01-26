@@ -1,9 +1,7 @@
 import random
 import time
-
 import cv2
 import numpy as np
-
 from core import position, color
 
 
@@ -18,7 +16,7 @@ def screenshot_cut(self, area, image=None):
             return image[area[1]:area[3], area[0]:area[2], :]
 
 
-def compare_image(self, name, threshold=3, need_loading=False, image=None, need_log=True):
+def compare_image(self, name, threshold=10, need_loading=False, image=None, need_log=True):
     if need_loading:
         color.wait_loading(self)
     if name not in position.image_dic[self.server]:

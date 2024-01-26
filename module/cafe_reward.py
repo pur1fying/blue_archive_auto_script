@@ -10,7 +10,6 @@ from core import image, color, picture
 def implement(self):
     self.quick_method_to_main_page()
     to_cafe(self, True)
-    self.latest_img_array = self.get_screenshot_array()
     op = np.full(2, False, dtype=bool)
     op[1] = get_invitation_ticket_status(self)
     op[0] = get_cafe_earning_status(self)
@@ -31,15 +30,19 @@ def implement(self):
 def to_cafe(self, skip_first_screenshot=False):
     img_possibles = {
         'CN': {
-            'main_page_home-feature': (89, 653),
             'cafe_cafe-reward-status': (905, 159),
             'cafe_invitation-ticket': (835, 97),
             'cafe_students-arrived': (922, 189),
             'main_page_full-notice': (887, 165),
         },
-        'Global': None,
+        'Global': {
+            'cafe_cafe-reward-status': (904, 159),
+            'cafe_invitation-ticket': (835, 97),
+            'cafe_students-arrived': (922, 189),
+            'main_page_full-notice': (887, 165),
+            'main_page_insufficient-inventory-space': (908, 138)
+        },
         'JP': {
-            'main_page_home-feature': (89, 653),
             'cafe_cafe-reward-status': (982, 149),
             'cafe_invitation-ticket': (835, 97),
             'cafe_students-arrived': (922, 189),
@@ -48,23 +51,19 @@ def to_cafe(self, skip_first_screenshot=False):
     }
     rgb_possibles = {
         'CN': {
+            "main_page": [95, 699],
             'gift': [1240, 577],
             'reward_acquired': [640, 154],
             'relationship_rank_up': [640, 360]
         },
         'Global': {
-            "full_ap_notice": [889, 162],
-            "invitation_ticket": [836, 97],
             "relationship_rank_up": [640, 360],
             "main_page": [95, 699],
-            "guide": [640, 458],
-            "insufficient_inventory_space": [910, 138],
-            "cafe_earning_status_bright": [902, 156],
-            "cafe_earning_status_grey": [902, 156],
             "gift": [1240, 574],
             "reward_acquired": [628, 147],
         },
         'JP': {
+            "main_page": [95, 699],
             'gift': [1240, 577],
             'reward_acquired': [640, 154],
             'relationship_rank_up': [640, 360]
@@ -149,9 +148,9 @@ def interaction_for_cafe_solve_method3(self):
             for j in range(0, len(res)):
                 self.click(res[j][0], min(res[j][1], 591), wait=False, wait_over=True)
 
-        time.sleep(2)
-        to_cafe(self)
         if i != max_times - 1:
+            time.sleep(2)
+            to_cafe(self)
             self.click(68, 636, wait_over=True)
             time.sleep(1)
             self.click(1169, 90, wait_over=True)
@@ -159,18 +158,12 @@ def interaction_for_cafe_solve_method3(self):
 
 
 def to_invitation_ticket(self, skip_first_screenshot=False):
-    if self.server == "CN":
-        possible = {
-            'cafe_cafe-reward-status': (905, 159, 3),
-            'cafe_menu': (838, 647, 3),
-        }
-        end = 'cafe_invitation-ticket'
-        return image.detect(self, end, possible, skip_first_screenshot=skip_first_screenshot)
-    elif self.server == "Global":
-        click_pos = [[836, 650]]
-        los = ["cafe"]
-        end = ["invitation_ticket"]
-        color.common_rgb_detect_method(self, click_pos, los, end, skip_first_screenshot=skip_first_screenshot)
+    img_possible = {
+        'cafe_cafe-reward-status': (905, 159),
+        'cafe_menu': (838, 647),
+    }
+    img_end = 'cafe_invitation-ticket'
+    picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
 
 
 def get_student_name(self):
@@ -178,81 +171,53 @@ def get_student_name(self):
     target = self.server + "_name"
     for i in range(0, len(self.static_config['student_names'])):
         current_server_student_name_list.append(self.static_config['student_names'][i][target])
-    return current_server_student_name_list
+    return operate_name(current_server_student_name_list)
 
 
 def invite_girl(self):
     student_name = get_student_name(self)
-    for i in range(0, len(student_name)):
-        t = ""
-        for j in range(0, len(student_name[i])):
-            if student_name[i][j] == '(' or student_name[i][j] == "（" or student_name[i][j] == ")" or \
-                student_name[i][j] == "）" or student_name[i][j] == ' ':
-                continue
-            else:
-                t = t + student_name[i][j]
-        student_name[i] = t.lower()
-
     target_name_list = self.config['favorStudent']
     student_name.sort(key=len, reverse=True)
-    self.logger.info("inviting : " + str(target_name_list))
-    for i in range(0, len(target_name_list)):
-        t = ""
-        for j in range(0, len(target_name_list[i])):
-            if target_name_list[i][j] == '(' or target_name_list[i][j] == "（" or target_name_list[i][j] == ")" or \
-                target_name_list[i][j] == "）" or target_name_list[i][j] == ' ':
-                continue
-            else:
-                t = t + target_name_list[i][j]
-        # target_name_list = t.lower() + target_name_list[1:]
-        # 此处有Bug
-        target_name_list[i] = t.lower()
+    self.logger.info("INVITING : " + str(target_name_list))
     f = True
     for i in range(0, len(target_name_list)):
         to_invitation_ticket(self, skip_first_screenshot=True)
         target_name = target_name_list[i]
-        self.logger.info("begin find student " + target_name)
-        swipe_x = 630
-        swipe_y = 580
-        dy = 430
+        self.logger.info("Begin Find Student " + target_name)
+        target_name = operate_name(target_name)
         stop_flag = False
         last_student_name = None
         while not stop_flag:
             region = {
-                'CN': (489, 185, 865, 604),
-                'Global': (489, 185, 865, 604),
-                'JP': (489, 185, 865, 604),
+                'CN': (489, 185, 709, 604),
+                'Global': (489, 185, 709, 604),
+                'JP': (489, 185, 709, 604),
             }
-            img_shot = self.get_screenshot_array()
-            out = self.ocr.get_region_raw_res(img_shot, region[self.server], model=self.server)
+            out = self.ocr.get_region_raw_res(self.latest_img_array, region[self.server], model=self.server)
             detected_name = []
             location = []
             for k in range(0, len(out)):
                 temp = out[k]['text']
-                res = ""
-                for x in range(0, len(temp)):
-                    if temp[x] == '(' or temp[x] == "（" or temp[x] == ")" or temp[x] == "）" or temp[x] == ' ':
-                        continue
-                    else:
-                        res = res + temp[x]
-                res = res.lower()
+                res = operate_name(temp)
                 for j in range(0, len(student_name)):
-                    if len(detected_name) <= 4:
-                        if res == student_name[j]:
-                            if student_name[j] == "干世":
-                                detected_name.append("千世")
-                            else:
-                                detected_name.append(student_name[j])
-                            location.append(out[i]['position'][0][1] + 210)
-                    else:
-                        break
+                    if res == student_name[j]:
+                        if student_name[j] == "干世":
+                            detected_name.append("千世")
+                        else:
+                            detected_name.append(student_name[j])
+                        location.append(out[k]['position'][0][1] + 210)
+                        if len(detected_name) == 5:
+                            break
+
             if len(detected_name) == 0:
                 self.logger.info("No name detected")
                 break
             st = ""
             for x in range(0, len(detected_name)):
-                st = st + detected_name[x] + " "
-            self.logger.info("detected name :" + st)
+                st = st + detected_name[x]
+                if x != len(detected_name) - 1:
+                    st = st + ","
+            self.logger.info("detected name : [ " + st + " ]")
             if detected_name[len(detected_name) - 1] == last_student_name:
                 self.logger.warning("Can't detect target student")
                 stop_flag = True
@@ -268,30 +233,17 @@ def invite_girl(self):
                         break
                 if not stop_flag:
                     self.logger.info("didn't find target student swipe to next page")
-                    self.swipe(swipe_x, swipe_y, swipe_x, swipe_y - dy, duration=0.5)
-                    self.click(617, 500, wait=False, wait_over=True)
+                    self.swipe(412, 580, 412, 150, duration=0.3)
+                    self.click(412, 500, wait=False, wait_over=True)
+                    self.latest_img_array = self.get_screenshot_array()
         to_cafe(self, skip_first_screenshot=True)
         if not f:
             break
 
 
 def collect(self, skip_first_screenshot=False):
-    if self.server == "CN" or self.server == "JP":
-        self.click(1150, 643, duration=1, wait_over=True)
-        self.click(640, 522, wait_over=True)
-    elif self.server == "Global":
-        click_pos = \
-            [
-                [1150, 643],
-                [889, 162],
-                [910, 138],
-                [640, 522],
-                [628, 147],
-            ]
-        los = ["cafe", "full_ap_notice", "insufficient_inventory_space", "cafe_earning_status_bright",
-               "reward_acquired"]
-        ends = ["insufficient_inventory_space", "cafe_earning_status_grey"]
-        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
+    self.click(1150, 643, duration=1, wait_over=True)
+    self.click(640, 522, wait_over=True)
 
 
 def get_invitation_ticket_status(self):
@@ -391,3 +343,25 @@ def interaction_for_cafe_solve_method2(self):
             if points[i][j][0] <= 0:
                 continue
             self.operation("click", (points[i][j][0], int(points[i][j][1])))
+
+
+def operate_name(name):
+    if type(name) is str:
+        t = ""
+        for i in range(0, len(name)):
+            if name[i] == '(' or name[i] == "（" or name[i] == ")" or \
+                name[i] == "）" or name[i] == ' ':
+                continue
+            else:
+                t = t + name[i]
+        return t.lower()
+    for i in range(0, len(name)):
+        t = ""
+        for j in range(0, len(name[i])):
+            if name[i][j] == '(' or name[i][j] == "（" or name[i][j] == ")" or \
+                name[i][j] == "）" or name[i][j] == ' ':
+                continue
+            else:
+                t = t + name[i][j]
+        name[i] = t.lower()
+    return name

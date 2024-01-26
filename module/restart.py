@@ -26,21 +26,9 @@ def implement(self):
 
 
 def start(self):
-    self.logger.info("--START BLUE ARCHIVE--")
+    self.logger.info("-- START BLUE ARCHIVE --")
     activity_name = self.activity_name
     if self.server == 'CN':
         activity_name = None
     self.connection.app_start(self.package_name, activity_name)
-    if self.server == 'CN' or self.server == 'JP':
-        self.logger.info("--ENSURE UI AT MAIN PAGE--")
-        self.quick_method_to_main_page()
-        time.sleep(2)
-    elif self.server == 'Global':
-        color.wait_loading(self)
-        self.quick_method_to_main_page()
-        time.sleep(2)
-        while not color.detect_rgb_one_time(self, [], [], ['main_page']):
-            x = random.randint(0, 200)
-            y = random.randint(30, 150)
-            self.click(x + 1050, y, wait=False, wait_over=True)
-            color.wait_loading(self)
+

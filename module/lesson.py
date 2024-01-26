@@ -1,5 +1,6 @@
 from core import color, image, picture
 
+
 def implement(self):
     self.quick_method_to_main_page()
     self.lesson_times = self.config["lesson_times"]
@@ -151,7 +152,7 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
         'JP': (932, 94, 1240, 129),
     }
     check_fail_times = 0
-    while 1:
+    while self.flag_run:
         name = self.ocr.get_region_res(self.latest_img_array, region[self.server], self.server)
         name = pre_process_lesson_name(self, name)
         self.logger.info("ocr lesson_name: " + name)

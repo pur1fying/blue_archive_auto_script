@@ -4,9 +4,7 @@ from core import color, image
 
 def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibles=None,  skip_first_screenshot=False, tentitive_click=False, tentitivex=1238,tentitivey=45, max_fail_cnt=10):
     fail_cnt = 0
-    while True:
-        if not self.flag_run:
-            return False
+    while self.flag_run:
         if skip_first_screenshot:
             skip_first_screenshot = False
         else:
@@ -61,19 +59,24 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
                     self.latest_screenshot_time = time.time()
                     f = 1
                     break
-        if f == 0:
-            if img_possibles is not None:
-                for position, click in img_possibles.items():
-                    threshold = 3
-                    if len(position) == 3:
-                        threshold = position[2]
-                    if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
-                                           need_log=False):
-                        self.logger.info("find " + position)
-                        self.click(click[0], click[1], False)
-                        self.latest_screenshot_time = time.time()
-                        fail_cnt = 0
-                        break
+        if f == 1:
+            continue
+        if img_possibles is not None:
+            for position, click in img_possibles.items():
+                threshold = 3
+                if len(position) == 3:
+                    threshold = position[2]
+                if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
+                                       need_log=False):
+                    self.logger.info("find " + position)
+                    self.click(click[0], click[1], False)
+                    self.latest_screenshot_time = time.time()
+                    fail_cnt = 0
+                    f = 1
+                    break
+        if f == 1:
+            continue
+        if not deal_with_pop_ups(self):
             if tentitive_click:
                 fail_cnt += 1
                 if fail_cnt > 10:
@@ -81,3 +84,30 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
                     self.click(tentitivex,tentitivey, False)
                     time.sleep(self.screenshot_interval)
                     fail_cnt = 0
+
+
+def deal_with_pop_ups(self):
+    img_possibles = {
+        'CN': {
+            'main_page_news': (1142, 104),
+            'main_page_news2': (1142, 104),
+        },
+        'JP': {
+            'main_page_news': (1142, 104),
+        },
+        'Global': {
+            'main_page_news': (1227, 56),
+            'main_page_login-store': (883, 162),
+        }
+    }
+    for position, click in img_possibles[self.server].items():
+        threshold = 3
+        if len(position) == 3:
+            threshold = position[2]
+        if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
+                               need_log=False):
+            self.logger.info("find " + position)
+            self.click(click[0], click[1], False)
+            self.latest_screenshot_time = time.time()
+            return True, position
+    return False

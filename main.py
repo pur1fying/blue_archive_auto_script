@@ -1,16 +1,14 @@
 import json
 import threading
 import time
-
 import numpy as np
 import uiautomator2 as u2
-import concurrent.futures
 import module
 from core.utils import *
 from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
-from core import position, color, image
+from core import position, color, image, picture
 from gui.util.config_set import ConfigSet
 from core.ocr import ocr
 
@@ -57,7 +55,6 @@ class Main:
         t = Baas_thread(logger_signal, button_signal, update_signal, config_path)
         t.static_config = self.static_config
         t.init_all_data()
-        t.flag_run = True
         t.ocr = self.ocr
         self.threads.setdefault(index, t)
         threading.Thread(target=t.thread_starter, args=index).start()
@@ -213,6 +210,7 @@ class Baas_thread():
                 self.connection.app_install('ATX.apk')
             self.first_start_u2 = False
             self.last_start_u2_time = time.time()
+            self.latest_img_array = self.get_screenshot_array()
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
             if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
@@ -290,12 +288,11 @@ class Baas_thread():
         raise ScriptError(message=info, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
-        possibles = {
+        img_possibles = {
             'main_page_quick-home': (1236, 31),
             'normal_task_fight-end-back-to-main-page': (511, 662),
             "main_page_enter-existing-fight": (514, 501),
             'main_page_login-feature': (640, 360),
-            'main_page_news': (1142, 104),
             'main_page_relationship-rank-up': (640, 360),
             'main_page_full-notice': (887, 165),
             'normal_task_fight-confirm': (1168, 659),
@@ -334,12 +331,15 @@ class Baas_thread():
         }
         update = {
             'CN': {
+                'main_page_news': (1142, 104),
+                'main_page_news2': (1142, 104),
                 'cafe_cafe-reward-status': (905, 159),
                 'normal_task_task-info': (1084, 139),
                 "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
             },
             'JP': {
+                'main_page_news': (1142, 104),
                 "cafe_cafe-reward-status": (985, 147),
                 'normal_task_task-info': (1126, 141),
                 "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
@@ -355,48 +355,13 @@ class Baas_thread():
                 'main_page_insufficient-inventory-space': (912, 140),
             }
         }
-        possibles.update(**update[self.server])
-        fail_cnt = 0
-        click_pos = [
-            [1236, 31],
-            [640, 360],
-            [640, 100],
-            [640, 200],
-        ]
-        los = [
-            "home",
-            'relationship_rank_up',
-            'area_rank_up',
-            'level_up'
-        ]
-        while self.flag_run:
-            if skip_first_screenshot:
-                skip_first_screenshot = False
-            else:
-                color.wait_loading(self)
-            res = color.detect_rgb_one_time(self, [], [], ['main_page'])
-            if res == ('end', 'main_page'):
-                break
-            res = color.detect_rgb_one_time(self, click_pos, los, [])
-            if res == ('click', True):
-                continue
-            # region 资源图片可能会出现的位置
-            for asset, obj in possibles.items():
-                if image.compare_image(self, asset, 3, need_loading=False, image=self.latest_img_array,
-                                       need_log=False):
-                    self.logger.info("find " + asset)
-                    self.click(obj[0], obj[1], False)
-                    self.latest_screenshot_time = time.time()
-                    fail_cnt = 0
-                    break
-            else:
-                fail_cnt += 1
-                if fail_cnt > 10:
-                    self.logger.info("tentative clicks")
-                    self.click(1236, 31, False)
-                    self.latest_screenshot_time = time.time()
-                    fail_cnt = 0
-        return True
+        img_possibles.update(**update[self.server])
+        rgb_possibles = {
+            'relationship_rank_up': (640, 360),
+            'area_rank_up': (640, 100),
+            'level_up': (640, 200),
+        }
+        picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot, tentitive_click=True)
 
     def wait_screenshot_updated(self):
         while (not self.screenshot_updated) and self.flag_run:
@@ -537,8 +502,11 @@ class Baas_thread():
 
     def init_all_data(self):
         self.logger.info("--------Initialing All Data----------")
+        self.flag_run = True
         self.init_config()
         self.init_server()
+        self.set_screenshot_interval(self.config['screenshot_interval'])
+        self.scheduler = Scheduler(self.update_signal, self.config_path)
         init_results = []
         init_results.append(self.init_rgb())
         init_results.append(position.init_image_data(self))
@@ -548,9 +516,7 @@ class Baas_thread():
                 self.signal_stop()
                 self.logger.critical("Initialization Failed")
                 return False
-        self.set_screenshot_interval(self.config['screenshot_interval'])
         self.latest_screenshot_time = 0
-        self.scheduler = Scheduler(self.update_signal, self.config_path)
         self.logger.info("--------Initialization Finished----------")
         return True
 
@@ -567,11 +533,17 @@ if __name__ == '__main__':
     t = Main()
     # t.thread_starter()
     t.init_static_config()
-    t.start_thread("1")
-    print(1)
-    t.start_thread("2", None, None, None, "config/config2")
-    print(2)
-    t.start_thread("3", None, None, None, "config/config3")
-    print(3)
-    t.start_thread("4", None, None, None, "config/config4")
-    print(4)
+    # t.start_thread("1")
+    # print(1)
+    # t.start_thread("2", None, None, None, "config/config2")
+    # print(2)
+    # t.start_thread("3", None, None, None, "config/config3")
+    # print(3)
+    # t.start_thread("4", None, None, None, "config/config4")
+    # print(4)
+    tt = Baas_thread(None,None,None, "config/config1")
+    tt.static_config = t.static_config
+    tt.init_all_data()
+    tt.ocr = t.ocr
+    # tt.solve("mini_story")
+    tt.solve("group_story")

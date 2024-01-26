@@ -12,5 +12,5 @@ x_y_range = {
     'full-notice': (538, 333, 742, 370),
     'back-arrow': (37, 20, 80, 57),
     "enter-existing-fight": (466, 293, 805, 370),
-    "notice":(580,145,699,177)
+    "notice": (580, 145, 699, 177)
 }

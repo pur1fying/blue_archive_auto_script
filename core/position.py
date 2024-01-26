@@ -9,10 +9,11 @@ image_dic = {
 
 }
 initialized_image = {
-            'CN': False,
-            'Global': False,
-            'JP': False
-    }
+    'CN': False,
+    'Global': False,
+    'JP': False
+}
+
 
 def init_image_data(self):
     try:
