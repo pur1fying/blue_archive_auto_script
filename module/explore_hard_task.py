@@ -257,7 +257,7 @@ def choose_team(self, number, position, skip_first_screenshot=True):
 
 def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
     img_possibles = {
-        "normal_task-present": (794, 207),
+        "normal_task_present": (794, 207),
         "normal_task_mission-operating-task-info-notice": (995, 101),
         "normal_task_end-turn": (890, 162),
         "normal_task_teleport-notice": (886, 162),

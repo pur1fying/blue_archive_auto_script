@@ -197,8 +197,11 @@ DEFAULT_CONFIG = """
     "patStyle": "拖动礼物",
     "antiHarmony": true,
     "bannerVisibility": true,
-    "favorStudent": [
+    "favorStudent1": [
         "爱丽丝"
+    ],
+    "favorStudent2": [
+        "爱丽丝(女仆)"
     ],
     "server": "官服",
     "adbPort": "5555",
@@ -368,6 +371,49 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "common_shop_price_list": {
+        "CN": [
+            ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],
+            ["学院交流会[崔尼蒂]券",30,"pyroxene"],["学院交流会[歌赫娜]券",30,"pyroxene"],["学院交流会[千禧年]券",30,"pyroxene"],["初级经验珠", 10000, "creditpoints"],
+            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 20000, "creditpoints"],
+            ["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+        ],
+        "Global": [
+            ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+        ],
+        "JP": [
+            ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+        ]
+    },
+    "tactical_challenge_shop_price_list": {
+        "CN": [
+            ["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],["歌原神明文字x5",50],
+            ["30AP", 15],["60AP", 30], ["初级经验书x5", 5],["中级经验书x10", 25],
+            ["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],["信用点x5k", 20],
+            ["信用点x75k", 60],["信用点x125k", 10]
+        ],
+        "Global": [
+             ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
+             ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
+             ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
+             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
+        ],
+        "JP": [
+             ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
+             ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
+             ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
+             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
+        ]
+    },
     "lesson_region_name":{
         "CN": [
             "沙勒业务区",
@@ -645,16 +691,6 @@ STATIC_DEFAULT_CONFIG = '''
         "CN": "no_68_spring_wild_dream",
         "Global": null,
         "JP": null
-    },
-    "common_shop_price_list": {
-        "CN": [30,30,30,30,10000,40000,96000,128000,10000,40000,96000,128000,8000,8000,25000,25000],
-        "JP": [12500, 125000, 300000, 500000, 10000, 40000, 96000, 128000, 10000, 40000, 96000, 128000, 20000, 80000, 192000, 256000, 8000, 8000, 25000, 25000],
-        "Global": [12500, 125000, 300000, 500000, 10000, 40000, 96000, 128000, 10000, 40000, 96000, 128000, 20000, 80000, 192000, 256000, 8000, 8000, 25000, 25000]
-    },
-    "tactical_challenge_shop_price_list": {
-        "CN": [50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100],
-        "JP": [50, 50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100],
-        "Global": [50, 50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100]
     },
     "package_name": {
         "官服": "com.RoamingStar.BlueArchive",
@@ -1572,7 +1608,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_implementation": false,
         "Global_name": "Utaha (Cheer Squad)",
         "Global_implementation": true,
-        "JP_name": "ウタハ(応援团)",
+        "JP_name": "ウタハ(応援団)",
         "JP_implementation": true
       },
       {
@@ -1580,7 +1616,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_implementation": false,
         "Global_name": "Hibiki (Cheer Squad)",
         "Global_implementation": true,
-        "JP_name": "ヒビキ(応援团)",
+        "JP_name": "ヒビキ(応援団)",
         "JP_implementation": true
       },
       {
@@ -1588,7 +1624,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_implementation": false,
         "Global_name": "Kotori(Cheer Squad)",
         "Global_implementation": false,
-        "JP_name": "コトリ(応援团)",
+        "JP_name": "コトリ(応援団)",
         "JP_implementation": true
       },
       {

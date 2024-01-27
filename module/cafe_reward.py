@@ -3,7 +3,6 @@ import time
 
 import cv2
 import numpy as np
-
 from core import image, color, picture
 
 
@@ -18,11 +17,13 @@ def implement(self):
         collect(self, True)
         to_cafe(self)
     if op[1]:
-        invite_girl(self)
+        invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
     if self.server == 'JP':
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
+        if get_invitation_ticket_status(self):
+            invite_girl(self, 2)
         interaction_for_cafe_solve_method3(self)
     return True
 
@@ -171,12 +172,15 @@ def get_student_name(self):
     target = self.server + "_name"
     for i in range(0, len(self.static_config['student_names'])):
         current_server_student_name_list.append(self.static_config['student_names'][i][target])
-    return operate_name(current_server_student_name_list)
+    return operate_name(current_server_student_name_list, self.server)
 
 
-def invite_girl(self):
+def invite_girl(self, no=1):
     student_name = get_student_name(self)
-    target_name_list = self.config['favorStudent']
+    if no == 1:
+        target_name_list = self.config['favorStudent1']
+    elif no == 2:
+        target_name_list = self.config['favorStudent2']
     student_name.sort(key=len, reverse=True)
     self.logger.info("INVITING : " + str(target_name_list))
     f = True
@@ -184,7 +188,7 @@ def invite_girl(self):
         to_invitation_ticket(self, skip_first_screenshot=True)
         target_name = target_name_list[i]
         self.logger.info("Begin Find Student " + target_name)
-        target_name = operate_name(target_name)
+        target_name = operate_name(target_name, self.server)
         stop_flag = False
         last_student_name = None
         while not stop_flag:
@@ -193,12 +197,12 @@ def invite_girl(self):
                 'Global': (489, 185, 709, 604),
                 'JP': (489, 185, 709, 604),
             }
-            out = self.ocr.get_region_raw_res(self.latest_img_array, region[self.server], model=self.server)
+            out = operate_student_name(self.ocr.get_region_raw_res(self.latest_img_array, region[self.server], model=self.server))
             detected_name = []
             location = []
             for k in range(0, len(out)):
                 temp = out[k]['text']
-                res = operate_name(temp)
+                res = operate_name(temp, self.server)
                 for j in range(0, len(student_name)):
                     if res == student_name[j]:
                         if student_name[j] == "干世":
@@ -345,12 +349,14 @@ def interaction_for_cafe_solve_method2(self):
             self.operation("click", (points[i][j][0], int(points[i][j][1])))
 
 
-def operate_name(name):
+def operate_name(name, server):
     if type(name) is str:
         t = ""
         for i in range(0, len(name)):
             if name[i] == '(' or name[i] == "（" or name[i] == ")" or \
                 name[i] == "）" or name[i] == ' ':
+                continue
+            elif server == 'JP' and is_english(name[i]):
                 continue
             else:
                 t = t + name[i]
@@ -361,7 +367,48 @@ def operate_name(name):
             if name[i][j] == '(' or name[i][j] == "（" or name[i][j] == ")" or \
                 name[i][j] == "）" or name[i][j] == ' ':
                 continue
+            elif server == 'JP' and is_english(name[i]):
+                continue
             else:
                 t = t + name[i][j]
         name[i] = t.lower()
     return name
+
+
+def operate_student_name(names):
+    res = []
+    i = 0
+    length = len(names)
+    while i < length-1:
+        start_position = names[i]['position']
+        temp = [(start_position[0][0], names[i]['text'])]
+        while calc_y_difference(start_position, names[i+1]['position']) <= 10 and i < length-2:
+            temp.append((names[i+1]['position'][0][0], names[i+1]['text']))
+            i += 1
+        temp.sort(key=lambda x: x[0])
+        t = ""
+        for j in range(0, len(temp)):
+            t += temp[j][1]
+        res.append({'text': t, 'position': start_position})
+        i += 1
+    return res
+
+
+def calc_y_difference(position1, position2):
+    return abs(position1[0][1] - position2[0][1]) + abs(position1[1][1] - position2[1][1])
+
+
+def is_upper_english(char):
+    if 'A' <= char <= 'Z':
+        return True
+    return False
+
+
+def is_lower_english(char):
+    if 'a' <= char <= 'z':
+        return True
+    return False
+
+
+def is_english(char):
+    return is_upper_english(char) or is_lower_english(char)
