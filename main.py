@@ -360,6 +360,7 @@ class Baas_thread():
             'relationship_rank_up': (640, 360),
             'area_rank_up': (640, 100),
             'level_up': (640, 200),
+            'reward_acquired': (640, 100),
         }
         picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot, tentitive_click=True)
 

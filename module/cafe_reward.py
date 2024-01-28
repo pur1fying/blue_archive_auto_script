@@ -30,48 +30,19 @@ def implement(self):
 
 def to_cafe(self, skip_first_screenshot=False):
     img_possibles = {
-        'CN': {
-            'cafe_cafe-reward-status': (905, 159),
-            'cafe_invitation-ticket': (835, 97),
-            'cafe_students-arrived': (922, 189),
-            'main_page_full-notice': (887, 165),
-        },
-        'Global': {
-            'cafe_cafe-reward-status': (904, 159),
-            'cafe_invitation-ticket': (835, 97),
-            'cafe_students-arrived': (922, 189),
-            'main_page_full-notice': (887, 165),
-            'main_page_insufficient-inventory-space': (908, 138)
-        },
-        'JP': {
-            'cafe_cafe-reward-status': (982, 149),
-            'cafe_invitation-ticket': (835, 97),
-            'cafe_students-arrived': (922, 189),
-            # 'main_page_full-notice': (887, 165),
-        }
+        'cafe_cafe-reward-status': (904, 159),
+        'cafe_invitation-ticket': (835, 97),
+        'cafe_students-arrived': (922, 189),
+        'main_page_full-notice': (887, 165),
+        'main_page_insufficient-inventory-space': (908, 138)
     }
     rgb_possibles = {
-        'CN': {
-            "main_page": [95, 699],
-            'gift': [1240, 577],
-            'reward_acquired': [640, 154],
-            'relationship_rank_up': [640, 360]
-        },
-        'Global': {
-            "relationship_rank_up": [640, 360],
-            "main_page": [95, 699],
-            "gift": [1240, 574],
-            "reward_acquired": [628, 147],
-        },
-        'JP': {
-            "main_page": [95, 699],
-            'gift': [1240, 577],
-            'reward_acquired': [640, 154],
-            'relationship_rank_up': [640, 360]
-        }
+        "main_page": [95, 699],
+        'gift': [1240, 577],
+        'reward_acquired': [640, 154],
+        'relationship_rank_up': [640, 360]
     }
-    picture.co_detect(self, 'cafe', rgb_possibles[self.server], 'cafe_menu', img_possibles[self.server],
-                      skip_first_screenshot)
+    picture.co_detect(self, 'cafe', rgb_possibles, 'cafe_menu', img_possibles, skip_first_screenshot)
 
 
 def to_no2_cafe(self):
@@ -80,7 +51,7 @@ def to_no2_cafe(self):
     to_cafe(self)
 
 
-def match(img, server):
+def match(img):
     res = []
     for i in range(1, 5):
         template = cv2.imread("src/images/CN/cafe/happy_face" + str(i) + ".png")
@@ -121,7 +92,7 @@ def interaction_for_cafe_solve_method3(self):
         t1.start()
         self.swipe(131, 660, 1280, 660, duration=0.5)
         t1.join()
-        res = match(self.latest_img_array, server=self.server)
+        res = match(self.latest_img_array)
         gift_to_cafe(self)
         if res:
             res.sort(key=lambda x: x[0])
@@ -197,13 +168,14 @@ def invite_girl(self, no=1):
                 'Global': (489, 185, 709, 604),
                 'JP': (489, 185, 709, 604),
             }
-            out = operate_student_name(self.ocr.get_region_raw_res(self.latest_img_array, region[self.server], model=self.server))
+            out = operate_student_name(
+                self.ocr.get_region_raw_res(self.latest_img_array, region[self.server], model=self.server))
             detected_name = []
             location = []
             for k in range(0, len(out)):
                 temp = out[k]['text']
                 res = operate_name(temp, self.server)
-                for j in range(0, len(student_name)):
+                for j in range(0, len(student_name)):  # 此处可用二分查找优化
                     if res == student_name[j]:
                         if student_name[j] == "干世":
                             detected_name.append("千世")
@@ -264,89 +236,10 @@ def get_cafe_earning_status(self):
         return True
 
 
-def interaction_for_cafe_solve_method1(self):
-    start_x = 640
-    start_y = 360
-    swipe_action_list = [[640, 640, 0, -640, -640, -640, -640, 0, 640, 640, 640],
-                         [0, 0, -360, 0, 0, 0, 0, -360, 0, 0, 0]]
-
-    for i in range(0, len(swipe_action_list[0]) + 1):
-        stop_flag = False
-        while not stop_flag:
-            shot = self.get_screenshot_array()
-            location = 0
-            #  print(shot.shape)
-            #  for i in range(0, 720):
-            #      print(shot[i][664][:])
-            for x in range(0, 1280):
-                for y in range(0, 670):
-                    if color.judge_rgb_range(shot, x, y, 255, 255, 210, 230, 0, 50) and \
-                        color.judge_rgb_range(shot, x, y + 21, 255, 255, 210, 230, 0, 50) and \
-                        color.judge_rgb_range(shot, x, y + 41, 255, 255, 210, 230, 0, 50):
-                        location += 1
-                        self.logger.info("find interaction at (" + str(x) + "," + str(y + 42) + ")")
-                        self.click(min(1270, x + 40), y + 42)
-                        for tmp1 in range(-40, 40):
-                            for tmp2 in range(-40, 40):
-                                if 0 <= x + tmp1 < 1280:
-                                    shot[y + tmp2][x + tmp1] = [0, 0, 0]
-                                else:
-                                    break
-
-            if location == 0:
-                self.logger.info("no interaction swipe to next stage")
-                stop_flag = True
-            else:
-                self.logger.info("totally find " + str(location) + " interaction available")
-        if not self.common_icon_bug_detect_method("src/cafe/present.png", 274, 161, "cafe", times=5):
-            return False
-        if i != len(swipe_action_list[0]):
-            self.swipe(start_x, start_y, start_x + swipe_action_list[0][i],
-                       start_y + swipe_action_list[1][i], duration=0.1)
-
-    self.logger.info("cafe task finished")
-    self.operation("start_getting_screenshot_for_location")
-    self.operation("click", (1240, 39))
-
-
 def find_k_b_of_point1_and_point2(point1, point2):
     k = (point1[1] - point2[1]) / (point1[0] - point2[0])
     b = point1[1] - k * point1[0]
     return k, b
-
-
-def interaction_for_cafe_solve_method2(self):
-    self.operation("click", (547, 623))
-    self.connection().pinch_in()
-    self.operation("swipe", ((665, 675), (425, 300)), duration=0.1)
-    k_and_b = [find_k_b_of_point1_and_point2((370, 254), (631, 198)),
-               find_k_b_of_point1_and_point2((665, 677), (992, 570)),
-               find_k_b_of_point1_and_point2((1186, 342), (791, 191)),
-               find_k_b_of_point1_and_point2((164, 508), (299, 609))]
-    print(k_and_b)
-    points = []
-    dx = 40
-    dy = 40
-    for i in range(-2, 18):
-        x = i * dx
-        y = x * k_and_b[3][0] + k_and_b[3][1]
-        points.append([(x, y)])
-        for j in range(1, 100):
-            x_move = x + j * dy
-            b_new = y - x * k_and_b[0][0]
-            y_move = x_move * k_and_b[0][0] + b_new
-            y1 = x_move * k_and_b[1][0] + k_and_b[1][1]
-            y2 = x_move * k_and_b[2][0] + k_and_b[2][1]
-            if y1 >= y_move >= y2:
-                points[i + 2].append((x_move, y_move))
-            else:
-                break
-    for i in range(0, len(points)):
-        print(points[i])
-        for j in range(0, len(points[i])):
-            if points[i][j][0] <= 0:
-                continue
-            self.operation("click", (points[i][j][0], int(points[i][j][1])))
 
 
 def operate_name(name, server):
@@ -379,11 +272,11 @@ def operate_student_name(names):
     res = []
     i = 0
     length = len(names)
-    while i < length-1:
+    while i < length - 1:
         start_position = names[i]['position']
         temp = [(start_position[0][0], names[i]['text'])]
-        while calc_y_difference(start_position, names[i+1]['position']) <= 10 and i < length-2:
-            temp.append((names[i+1]['position'][0][0], names[i+1]['text']))
+        while calc_y_difference(start_position, names[i + 1]['position']) <= 10 and i < length - 2:
+            temp.append((names[i + 1]['position'][0][0], names[i + 1]['text']))
             i += 1
         temp.sort(key=lambda x: x[0])
         t = ""
