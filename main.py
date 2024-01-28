@@ -157,10 +157,19 @@ class Baas_thread():
             click_.join()
 
     def click_thread(self, x, y, count=1, rate=0, duration=0):
+        xspace_needed = 5 - len(str(x))
+        yspace_needed = 3 - len(str(y))
+        xspace = ""
+        yspace = ""
+        for i in range(0, xspace_needed):
+            xspace += " "
+        for i in range(0, yspace_needed):
+            yspace += " "
         if count == 1:
-            self.logger.info("click (" + str(x) + " ," + str(y) + ")")
+
+            self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ")")
         else:
-            self.logger.info("click (" + str(x) + " ," + str(y) + ") " + str(count) + " times")
+            self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ") " + str(count) + " times")
         for i in range(count):
             if rate > 0:
                 time.sleep(rate)
@@ -393,6 +402,11 @@ class Baas_thread():
             self.logger.error(e)
             return False
 
+    def save_config(self):
+        with open(self.config_path + "/config.json", 'w', encoding='utf-8') as f:
+            json.dump(self.config, f, indent=4, ensure_ascii=False)
+
+
     def init_server(self):
         self.logger.info("Start Detecting Server")
         server = self.config['server']
@@ -547,4 +561,4 @@ if __name__ == '__main__':
     tt.init_all_data()
     tt.ocr = t.ocr
     # tt.solve("mini_story")
-    tt.solve("explore_hard_task")
+    tt.solve("create")

@@ -184,7 +184,10 @@ DEFAULT_CONFIG = """
     "ArenaLevelDiff": 5,
     "maxArenaRefreshTimes": 10,
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
+    "use_acceleration_ticket": false,
     "createTime": "3",
+    "createTimeLastRefreshTime": "0",
+    "alreadyCreateTime": "0",
     "totalForceFightDifficulty": "NORMAL",
     "hardPriority": "1-1-1",
     "mainlinePriority": "5-1-1",
@@ -414,6 +417,95 @@ STATIC_DEFAULT_CONFIG = '''
              ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 100]
         ]
     },
+    "node_name": {
+        "花":{
+            "CN": "花",
+            "Global": "Flower",
+            "JP": "花"
+        }
+    },
+    "create_default_priority": {
+        "CN": [
+                "花",
+                "MomoFriends咖啡厅",
+                "果冻游戏中心",
+                "情人节",
+                "夏日",
+                "万圣节",
+                "温泉浴场",
+                "新年",
+                "色彩",
+                "灿烂",
+                "武器部件",
+                "铜",
+                "光芒",
+                "玲珑",
+                "白金",
+                "黄金",
+                "白银",
+                "金属",
+                "隐然"
+            ],
+        "Global":
+            [
+                "Flower",
+                "Momo Friends Cafe Set",
+                "Jellies Arcade Set",
+                "Valentine's Set",
+                "Summer Pool Party Set",
+                "Jack-O-Lantern Cafe Set",
+                "Hot Springs Resort Set",
+                "New Year's House Set",
+                "Military Campground Set",
+                "Beachside Set",
+                "Field Day Set",
+                "Abydos Classroom Set",
+                "Game Development Department Set",
+                "Sunshine Resort Set",
+                "Department Store Set",
+                "Gehenna Party Set",
+                "Colorful",
+                "Radiant",
+                "Weapon Parts",
+                "Copper",
+                "Platinum",
+                "Gold",
+                "Silver",
+                "Metal",
+                "Shiny",
+                "Brilliant",
+                "Subtle"
+        ]
+        "JP": [
+            "花弁",
+            "モモフレンズのカフェシリーズ",
+            "ゼリーズゲーセンシリーズ",
+            "バレンタインシリーズ",
+            "サマーリゾートシリーズ",
+            "ハロウィーンカフェシリーズ",
+            "伝統的な温泉郷シリーズ",
+            "お正月シリーズ",
+            "ミリタリーアウトドア",
+            "ビーチサイドシリーズ",
+            "大運動会シリーズ",
+            "アビドス教室シリーズ",
+            "ゲーム開発部シリーズ",
+            "サンシャインリゾートシリーズ",
+            "デパートシリーズ",
+            "ゲヘナパーティーシリーズ",
+            "煌めき",
+            "パーツ",
+            "輝き",
+            "铜",
+            "金属",
+            "銀",
+            "金",
+            "プラチナ",
+            "明かり",
+            "瞬き"
+            ]
+    },
+    }
     "lesson_region_name":{
         "CN": [
             "沙勒业务区",
