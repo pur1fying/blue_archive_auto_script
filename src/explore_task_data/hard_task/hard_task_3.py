@@ -13,7 +13,7 @@ stage_data = {
     },
     '3-1-task': {
         'start': {
-            'pierce1': (436, 388),
+            'pierce1': (370, 426),
         },
         'action': [
             {'t': 'click', 'p': (629, 405), 'wait-over': True, 'desc': "right"},
@@ -27,7 +27,7 @@ stage_data = {
             'pierce1': (425, 575),
         },
         'action': [
-            {'t': 'click', 'p': (505, 378), 'wait-over': True, 'desc': "upper right"},
+            {'t': 'click', 'p': (613, 382), 'wait-over': True, 'desc': "upper right"},
             {'t': 'click', 'p': (745, 330), 'wait-over': True, 'desc': "upper right"},
             {'t': 'click', 'p': (775, 439), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (665, 543), 'desc': "lower right"},

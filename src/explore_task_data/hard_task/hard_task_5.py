@@ -35,7 +35,7 @@ stage_data = {
     },
     '5-3-task': {
         'start': {
-            'burst1': (434, 464),
+            'burst1': (464, 219),
         },
         'action': [
             {'t': 'click', 'p': (596, 380), 'wait-over': True, 'desc': "lower right"},

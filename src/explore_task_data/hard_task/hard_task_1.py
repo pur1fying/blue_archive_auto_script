@@ -24,7 +24,7 @@ stage_data = {
             'burst1': (547, 513),
         },
         'action': [
-            {'t': 'click', 'p': (534, 356), 'wait-over': True, 'desc': "upper right"},
+            {'t': 'click', 'p': (641, 385), 'wait-over': True, 'desc': "upper right"},
             {'t': 'click', 'p': (701, 300), 'wait-over': True, 'desc': "upper right"},
             {'t': 'click', 'p': (589, 305), 'desc': "upper right"},
 
@@ -35,7 +35,7 @@ stage_data = {
             'burst1': (547, 513),
         },
         'action': [
-            {'t': 'click', 'p': (534, 356), 'wait-over': True, 'desc': "upper left"},
+            {'t': 'click', 'p': (641, 385), 'wait-over': True, 'desc': "upper left"},
             {'t': 'click', 'p': (582, 297), 'desc': "upper left"},
 
         ]

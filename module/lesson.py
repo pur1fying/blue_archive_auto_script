@@ -37,7 +37,7 @@ def implement(self):
     res = get_lesson_tickets(self)
     if res == "UNKNOWN":
         self.logger.info("UNKNOWN tickets")
-        lesson_tickets = 7
+        lesson_tickets = 999
     else:
         lesson_tickets = res[0]
         self.logger.info("tickets: " + str(lesson_tickets))
@@ -184,9 +184,9 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
 
 def get_lesson_tickets(self):
     region = {
-        "CN": (280, 85, 320, 114),
-        "Global": (220, 88, 262, 112),
-        "JP": (188, 88, 232, 112),
+        "CN": (280, 85, 340, 114),
+        "Global": (220, 88, 282, 112),
+        "JP": (188, 88, 252, 112),
     }
     ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
     if ocr_res[0] == 'Z':

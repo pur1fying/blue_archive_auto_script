@@ -82,17 +82,11 @@ def enter_fight(self):
     }
     rgb_ends = "fighting_feature"
     picture.co_detect(self, rgb_ends, None,None,  img_possibles, True)
-    t_start = time.time()
-    while time.time() <= t_start + 10:
-        self.latest_img_array = self.get_screenshot_array()
-        if not color.judge_rgb_range(self.latest_img_array, 897, 692, 0, 64, 161, 217, 240, 255):
-            time.sleep(self.screenshot_interval)
-        else:
-            break
 
 
 def auto_fight(self, need_change_acc=True):
     enter_fight(self)
+    time.sleep(1)
     if need_change_acc:
         change_acc_auto(self)
 

@@ -4,7 +4,7 @@ from core import color, picture
 
 
 def implement(self):
-    # self.quick_method_to_main_page()
+    self.quick_method_to_main_page()
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
     time.sleep(0.5)
     tactical_challenge_assets = get_tactical_challenge_assets(self)

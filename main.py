@@ -546,4 +546,4 @@ if __name__ == '__main__':
     tt.init_all_data()
     tt.ocr = t.ocr
     # tt.solve("mini_story")
-    tt.solve("tactical_challenge_shop")
+    tt.solve("explore_hard_task")
