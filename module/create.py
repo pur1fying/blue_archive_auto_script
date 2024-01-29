@@ -345,5 +345,5 @@ def get_next_execute_time(self, status):
                 if res[i][0] == "0":
                     res[i] = res[i][1:]
             time_deltas.append(int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2]))
-    if time_deltas != []:
+    if time_deltas:
         self.next_time = min(time_deltas)

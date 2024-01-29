@@ -561,4 +561,4 @@ if __name__ == '__main__':
     tt.init_all_data()
     tt.ocr = t.ocr
     # tt.solve("mini_story")
-    tt.solve("create")
+    tt.solve("lesson")

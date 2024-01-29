@@ -1,3 +1,5 @@
+import time
+
 from core import color, image, picture
 
 
@@ -14,18 +16,7 @@ def implement(self):
         for j in range(0, len(temp)):
             letter_dict[i].setdefault(temp[j], 0)
             letter_dict[i][temp[j]] += 1
-    pd_lo = {
-        'CN': [[307, 257], [652, 257], [995, 257],
-               [307, 408], [652, 408], [995, 408],
-               [307, 560], [652, 560], [985, 560]],
-        'Global': [[289, 204], [643, 204], [985, 204],
-                   [289, 359], [643, 359], [985, 359],
-                   [289, 511], [643, 511], [985, 511]],
-        'JP': [[289, 204], [643, 204], [985, 204],
-                   [289, 359], [643, 359], [985, 359],
-                   [289, 511], [643, 511], [985, 511]]
-    }
-    pd_lo = pd_lo[self.server]
+
     click_lo = [[307, 257], [652, 257], [995, 257],
                 [307, 408], [652, 408], [995, 408],
                 [307, 560], [652, 560], [985, 560]]
@@ -35,6 +26,7 @@ def implement(self):
         self.logger.info("Purchase lesson ticket times :" + str(purchase_ticket_times))
         purchase_lesson_ticket(self, purchase_ticket_times)
     res = get_lesson_tickets(self)
+    res = [10, 10]
     if res == "UNKNOWN":
         self.logger.info("UNKNOWN tickets")
         lesson_tickets = 999
@@ -44,6 +36,8 @@ def implement(self):
         if lesson_tickets == 0:
             self.logger.info("no tickets")
             return True
+    self.swipe(940, 213, 940, 560, duration=0.1)
+    time.sleep(0.5)
     left_change_page_x = 32
     right_change_page_x = 1247
     change_page_y = 360
@@ -81,32 +75,13 @@ def implement(self):
             self.logger.info("now in page " + region_name[cur_num])
         for j in range(0, times):
             to_all_locations(self, True)
-            res = []
-            last_available = -1
-            for i in range(0, 9):
-                if color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
-                    res.append("available")
-                    last_available = i
-                elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230,
-                                           249):
-                    res.append("done")
-                elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 140, 160, 140, 160, 140,
-                                           160):
-                    res.append("lock")
-                elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
-                                           215):
-                    res.append("no activity")
-                else:
-                    res.append("unknown")
-            self.logger.info("schedule status: ")
-            self.logger.info(res[0:3])
-            self.logger.info(res[3:6])
-            self.logger.info(res[6:9])
-
-            if last_available == -1:
+            res = [get_lesson_each_region_status(self), get_lesson_relationship_counts(self)]
+            out_lesson_status(self, res)
+            choice = choose_lesson(self, res, cur_num)
+            if choice == -1:
                 break
-
-            to_location_info(self, click_lo[last_available][0], click_lo[last_available][1])
+            self.logger.info("CHOOSE lesson " + str(choice + 1))
+            to_location_info(self, click_lo[choice][0], click_lo[choice][1])
             res = start_lesson(self)
             if res == "inadequate_ticket":
                 self.logger.info("INADEQUATE LESSON TICKET")
@@ -122,6 +97,7 @@ def implement(self):
 
 def pre_process_lesson_name(self, name):
     temp = ""
+    name = name.lower()
     if self.server == "Global":
         if name.startswith("rank"):
             name = name[4:]
@@ -155,7 +131,6 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
     while self.flag_run:
         name = self.ocr.get_region_res(self.latest_img_array, region[self.server], self.server)
         name = pre_process_lesson_name(self, name)
-        self.logger.info("ocr lesson_name: " + name)
         acc = []
         detected_name_dict = {}
         for i in range(0, len(name)):
@@ -169,7 +144,7 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
                 if j not in detected_name_dict_keys:
                     continue
                 cnt = cnt + letter_dict[i][j] - abs(letter_dict[i][j] - detected_name_dict[j])
-            acc.append(cnt/region_name_len[i])
+            acc.append(cnt / region_name_len[i])
         max_acc = max(acc)
         if max_acc < 0.5:
             self.logger.info("NOT FOUND")
@@ -282,7 +257,7 @@ def to_all_locations(self, skip_first_screenshot=False):
         'main_page_relationship-rank-up': (640, 360),
     }
     rgb_possibles = {'relationship_rank_up': (640, 360)}
-    picture.co_detect(self, None,rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 
 def is_upper_english(char):
@@ -303,3 +278,77 @@ def is_english(char):
 
 def is_chinese_char(char):
     return 0x4e00 <= ord(char) <= 0x9fff
+
+
+def get_lesson_relationship_counts(self):
+    position = [(443, 288), (787, 288), (1132, 288),
+                (443, 441), (787, 441), (1132, 441),
+                (443, 591), (787, 591), (1132, 591)]
+    dx = 51
+    res = []
+    for i in range(0, 9):
+        cnt = 0
+        for j in range(0, 3):
+            if color.judge_rgb_range(self.latest_img_array, position[i][0] - dx * j, position[i][1], 245, 255, 108, 128,
+                                     134, 154):
+                cnt += 1
+        res.append(cnt)
+    return res
+
+
+def get_lesson_each_region_status(self):
+    pd_lo = [[289, 204], [643, 204], [985, 204],
+             [289, 359], [643, 359], [985, 359],
+             [289, 511], [643, 511], [985, 511]]
+    res = []
+    for i in range(0, 9):
+        if color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
+            res.append("available")
+        elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230,
+                                   249):
+            res.append("done")
+        elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 140, 160, 140, 160, 140,
+                                   160):
+            res.append("lock")
+        elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
+                                   215):
+            res.append("no activity")
+        else:
+            res.append("unknown")
+    return res
+
+
+def out_lesson_status(self, res):
+    message = "schedule status:"
+    for i in range(0, 9):
+        if i % 3 == 0:
+            message += "\n"
+        message += "\t" + res[0][i]
+        if res[0][i] == "available":
+            message += " :" + str(res[1][i])
+    self.logger.info(message)
+
+
+def choose_lesson(self, res, region):
+    if self.config['lesson_relationship_first']:
+        max_relationship = -1
+        lo = -1
+        for i in range(0, 9):
+            if res[0][i] == "available":
+                if res[1][i] >= max_relationship:
+                    max_relationship = res[1][i]
+                    lo = i
+        return lo
+    else:
+        tier = ["superior", "advanced", "normal", "primary"]
+        pri = self.config['lesson_each_region_object_priority'][region]
+        if pri == []:
+            for i in range(8, -1, -1):
+                if res[0][i] == "available":
+                    return i
+        else:
+            for i in range(0, len(tier)):
+                if tier[i] in pri:
+                    for j in range(2 * (3 - i), 2 * (4 - i)):
+                        if res[0][j] == "available":
+                            return j
