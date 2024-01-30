@@ -6,7 +6,7 @@ from .expandTemplate import TemplateLayout
 
 
 class Layout(TemplateLayout):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, _: str = 'config.json'):
         configItems = [
             {
                 'label': '开启此按钮点击推图进行活动任务关推图(当前活动:69号新春狂想曲)',

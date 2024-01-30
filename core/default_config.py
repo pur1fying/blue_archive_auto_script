@@ -179,6 +179,7 @@ DISPLAY_DEFAULT_CONFIG = """
 
 DEFAULT_CONFIG = """
 {
+    "name": "新的配置",
     "purchase_arena_ticket_times": "0",
     "screenshot_interval": "0.3",
     "ArenaLevelDiff": 5,

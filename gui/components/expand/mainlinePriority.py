@@ -6,8 +6,9 @@ from gui.util.config_set import ConfigSet
 
 
 class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_dir: str = 'config.json'):
         super().__init__(parent=parent)
+        ConfigSet.__init__(self, config_dir)
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
         self.lay1 = QHBoxLayout(self)

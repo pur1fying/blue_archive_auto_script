@@ -22,8 +22,9 @@ class ConfigItem:
 
 
 class TemplateLayout(QWidget, ConfigSet):
-    def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None):
+    def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config_dir: str = 'config.json'):
         super().__init__(parent=parent)
+        ConfigSet.__init__(self, config_dir)
         if isinstance(configItems[0], dict):
             _configItems = []
             for item in configItems:

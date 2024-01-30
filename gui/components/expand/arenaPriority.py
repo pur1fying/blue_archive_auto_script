@@ -7,8 +7,9 @@ from gui.util.config_set import ConfigSet
 
 
 class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_dir: str = 'config.json'):
         super().__init__(parent=parent)
+        ConfigSet.__init__(self, config_dir)
         self.setFixedHeight(120)
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
@@ -50,7 +51,7 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout.addLayout(self.lay_1)
         self.hBoxLayout.addLayout(self.lay_2)
 
-    def __accept_1(self, changed_text=None):
+    def __accept_1(self):
         self.level_diff = int(self.input_1.text())
         self.set('ArenaLevelDiff', self.level_diff)
         w = InfoBar(

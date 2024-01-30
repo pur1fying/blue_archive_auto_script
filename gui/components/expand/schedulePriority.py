@@ -7,8 +7,9 @@ from gui.util.config_set import ConfigSet
 
 
 class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_dir: str = 'config.json'):
         super().__init__(parent=parent)
+        ConfigSet.__init__(self, config_dir)
         self.hBoxLayout = QHBoxLayout(self)
 
         self.label = QLabel('输入你的每个区域日程的次数（国服6个区域，国际服9个区域）（如"111111"）', self)

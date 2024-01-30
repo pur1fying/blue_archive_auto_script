@@ -1,14 +1,18 @@
 # coding:utf-8
+import datetime
 import json
 import os
 import sys
+from functools import partial
 
 from PyQt5.QtCore import Qt, QSize, QPoint
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF, SplashScreen, MSFluentWindow, TabBar, \
-    MSFluentTitleBar
+    MSFluentTitleBar, MessageBox
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
+
+from gui.components.dialog_panel import SaveSettingMessageBox
 
 from core import default_config
 
@@ -138,7 +142,7 @@ class Widget(MSFluentWindow):
         self.setObjectName(text.replace(' ', '-'))
 
 
-class CustomTitleBar(MSFluentTitleBar):
+class BAASTitleBar(MSFluentTitleBar):
     """ Title bar with icon and title """
 
     def __init__(self, parent):
@@ -150,14 +154,13 @@ class CustomTitleBar(MSFluentTitleBar):
 
         # add tab bar
         self.tabBar = TabBar(self)
-
-        self.tabBar.setMovable(True)
+        self.tabBar.setMovable(False)
         self.tabBar.setTabMaximumWidth(120)
         self.tabBar.setTabShadowEnabled(False)
         self.tabBar.setScrollable(True)
         self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
 
-        self.tabBar.tabCloseRequested.connect(self.tabBar.removeTab)
+        # self.tabBar.tabCloseRequested.connect(self.tabRemoveRequest)
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
         self.hBoxLayout.setStretch(6, 0)
@@ -178,22 +181,40 @@ class Window(MSFluentWindow):
         self.initWindow()
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
-        self.setTitleBar(CustomTitleBar(self))
+        self.setTitleBar(BAASTitleBar(self))
         self.tabBar = self.titleBar.tabBar
+        self.navi_btn_list = []
         self.show()
 
         setThemeColor('#0078d4')
+        self.__switchStatus = True
+        config_dir_list = []
+        for _dir_ in os.listdir('./config'):
+            if _dir_.endswith('.json') and _dir_.startswith('config_u_'):
+                config_dir_list.append(_dir_)
+
+        if len(config_dir_list) == 0:
+            # copy the default config to config_u.json
+            with open('./config/config.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            serial_name = int(datetime.datetime.now().timestamp())
+            with open(f'./config/config_u_{serial_name}.json', 'w', encoding='utf-8') as f:
+                f.write(json.dumps(data, ensure_ascii=False, indent=2))
+            config_dir_list.append(f'config_u_{serial_name}.json')
 
         # create sub interface
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
-
-        self.homeInterface = HomeFragment(parent=self)
-        self.schedulerInterface = SwitchFragment(parent=self)
+        self._sub_list = [[HomeFragment(parent=self, config_dir=x) for x in config_dir_list],
+                          [SwitchFragment(parent=self, config_dir=x) for x in config_dir_list],
+                          [SettingsFragment(parent=self, config_dir=x) for x in config_dir_list]]
+        # _sc_list = [SwitchFragment(parent=self, config_dir=x) for x in config_dir_list]
+        self.homeInterface = self._sub_list[0][0]
+        self.schedulerInterface = self._sub_list[1][0]
+        self.settingInterface = self._sub_list[2][0]
         # self.processInterface = ProcessFragment()
-        self.settingInterface = SettingsFragment(parent=self)
-
+        # self.navigationInterface..connect(self.onNavigationChanged)
         self.initNavigation()
         self.dispatchWindow()
         self.splashScreen.finish()
@@ -202,17 +223,28 @@ class Window(MSFluentWindow):
         self.schedulerInterface.update_settings()
 
     def initNavigation(self):
-        self.addSubInterface(self.homeInterface, FIF.HOME, '主页')
-        # self.navigationInterface.addSeparator()
-        self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '调度器')
+        self.navi_btn_list = [
+            self.addSubInterface(self.homeInterface, FIF.HOME, '主页'),
+            self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '配置'),
+            self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
+        ]
+
+        for ind, btn in enumerate(self.navi_btn_list):
+            btn.disconnect()
+            btn.clicked.connect(partial(self.onNavigationChanged, ind))
+
+        for sub in self._sub_list:
+            for tab in sub[1:]:
+                self.stackedWidget.addWidget(tab)
         # add custom widget to bottom
-        self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
+
         # Add some tabs in the group
-        self.addTab(self.homeInterface.object_name, 'home', None)
-        self.addTab(self.schedulerInterface.object_name, 'scheduler', None)
-        self.stackedWidget.currentChanged.connect(self.onTabChanged)
+        for home_tab in self._sub_list[0]:
+            self.addTab(home_tab.object_name, home_tab.config['name'], None)
+        # self.stackedWidget.currentChanged.connect(self.onTabChanged)
         self.tabBar.currentChanged.connect(self.onTabChanged)
         self.tabBar.tabAddRequested.connect(self.onTabAddRequested)
+        self.tabBar.tabCloseRequested.connect(self.onTabCloseRequested)
 
     def initWindow(self):
         self.resize(900, 700)
@@ -223,20 +255,62 @@ class Window(MSFluentWindow):
     def closeEvent(self, event):
         super().closeEvent(event)
 
-    def onTabChanged(self, _: int):
+    def onNavigationChanged(self, index: int):
+        for ind, btn in enumerate(self.navi_btn_list):
+            btn.setSelected(True if ind == index else False)
         objectName = self.tabBar.currentTab().routeKey()
-        print(objectName)
-        # self.stackedWidget.setCurrentWidget(self.schedulerInterface)
-        # self.homeInterface.setCurrentWidget(self.findChild(self.homeInterface, objectName))
-        # self.stackedWidget.setCurrentWidget(self.homeInterface)
+        # new_interface = list(filter(lambda x: x.object_name == objectName, self._home_list))[0]
+        col = [x.object_name for x in self._sub_list[0]].index(objectName)
+        self.dispatchSubView(index, col)
+
+    def onTabChanged(self, _: int):
+        self.__switchStatus = False
+        objectName = self.tabBar.currentTab().routeKey()
+        currentName = self.stackedWidget.currentWidget().objectName()
+        row = -1
+        for i0, sub in enumerate(self._sub_list):
+            for i1, tab in enumerate(sub):
+                if tab.object_name == currentName:
+                    row = i0
+        assert row != -1
+        col = [x.object_name for x in self._sub_list[0]].index(objectName)
+        self.dispatchSubView(row, col)
+
+    def dispatchSubView(self, i0: int, i1: int):
+        self.stackedWidget.setCurrentWidget(self._sub_list[i0][i1], popOut=False)
 
     def onTabAddRequested(self):
-        text = f'硝子酱一级棒卡哇伊×{self.tabBar.count()}'
-        self.addTab(text, text, 'resource/Smiling_with_heart.png')
+        addDialog = SaveSettingMessageBox(self)
+        if addDialog.exec_():
+            text = addDialog.pathLineEdit.text()
+            serial_name = int(datetime.datetime.now().timestamp())
+            with open('./config/config.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            data['name'] = text
+            with open(f'./config/config_u_{serial_name}.json', 'w', encoding='utf-8') as f:
+                f.write(json.dumps(data, ensure_ascii=False, indent=2))
+            from gui.fragments.home import HomeFragment
+            from gui.fragments.switch import SwitchFragment
+            from gui.fragments.settings import SettingsFragment
+            _sub_list_ = [
+                HomeFragment(parent=self, config_dir=f'config_u_{serial_name}.json'),
+                SwitchFragment(parent=self, config_dir=f'config_u_{serial_name}.json'),
+                SettingsFragment(parent=self, config_dir=f'config_u_{serial_name}.json')
+            ]
+            for i in range(0, len(_sub_list_)):
+                self._sub_list[i].append(_sub_list_[i])
+                self.stackedWidget.addWidget(_sub_list_[i])
+            self.addTab(_sub_list_[0].object_name, text, 'resource/Smiling_with_heart.png')
+
+    def onTabCloseRequested(self, i0):
+        title = f'是否要删除配置：{self._sub_list[0][i0].config["name"]}？'
+        content = """你需要在确认后重启BAAS以完成更改。"""
+        closeRequestBox = MessageBox(title, content, self)
+        if closeRequestBox.exec():
+            print('Yes button is pressed')
 
     def addTab(self, routeKey, text, icon):
         self.tabBar.addTab(routeKey, text, icon)
-        # self.homeInterface.addWidget(TabInterface(text, icon, routeKey, self))
 
     def dispatchWindow(self):
         self.setWindowIcon(QIcon(ICON_DIR))
