@@ -4,12 +4,8 @@ stage_data = {
     },
     '16-1': {
         'start': {
-            '1': (728, 303),
-            '2': (882, 562)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (728, 303),
+            'mystic1': (882, 562),
         },
         'action': [
             # 第一回合
@@ -30,12 +26,8 @@ stage_data = {
     },
     '16-2': {
         'start': {
-            '1': (428, 472),
-            '2': (409, 269)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (428, 472),
+            'mystic1': (409, 269),
         },
         'action': [
             # 第一回合
@@ -51,19 +43,14 @@ stage_data = {
             {'t': 'click', 'p': (657, 357), 'ec': True, "wait-over": True, "desc": "2 lower right"},
 
             # 第四回合
-            {'t': 'exchange', 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (439, 505), 'ec': True, "desc": "2 lower left"},
+            {'t': 'exchange_and_click', 'p': (439, 505), 'ec': True, "desc": "2 lower left"},
             {'t': 'click', 'p': (890, 348), "desc": "1 right"},
         ]
     },
     '16-3': {
         'start': {
-            '1': (370, 388),
-            '2': (1102, 562)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (370, 388),
+            'mystic1': (1102, 562),
         },
         'action': [
             # 第一回合
@@ -75,31 +62,23 @@ stage_data = {
             {'t': 'click', 'p': (702, 373), "wait-over": True, 'ec': True, "desc": "2 upper left"},
 
             # 第三回合
-            {'t': 'exchange', 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (653, 304), 'ec': True, "desc": "2 lower left"},
-            {'t': 'click', 'p': (653, 304), "desc": "choose 2"},
-            {'t': 'click', 'p': (553, 304), "desc": "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (653, 304), 'ec': True, "desc": "2 lower left"},
+            {'t': 'choose_and_change', 'p': (653, 304), "desc": "swap 1 2"},
             {'t': 'click', 'p': (718, 223),"wait-over": True, "desc": "1 upper right"},
 
             # 第四回合
-            {'t': 'exchange', 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (433, 487), 'ec': True, "desc": "2 lower left"},
+            {'t': 'exchange_and_click', 'p': (433, 487), 'ec': True, "desc": "2 lower left"},
             {'t': 'click', 'p': (893, 357), "wait-over": True,"desc": "1 right"},
 
             # 第五回合
-            {'t': 'exchange', 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (439, 321), 'ec': True, "desc": "2 upper left"},
+            {'t': 'exchange_and_click', 'p': (439, 321), 'ec': True, "desc": "2 upper left"},
             {'t': 'click', 'p': (839, 303), "desc": "1 upper right"},
         ]
     },
     '16-4': {
         'start': {
-            '1': (343, 473),
-            '2': (812, 510)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (343, 473),
+            'mystic1': (812, 510),
         },
         'action': [
             # 第一回合
@@ -107,10 +86,8 @@ stage_data = {
             {'t': 'click', 'p': (697, 365), 'ec': True, "wait-over": True, "desc": "2 upper left"},
 
             # 第二回合
-            {'t': 'exchange', 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (660, 292), 'ec': True, "desc": "2 upper left"},
-            {'t': 'click', 'p': (660, 292), "desc": "choose 2"},
-            {'t': 'click', 'p': (560, 292), "desc": "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (660, 292), 'ec': True, "desc": "2 upper left"},
+            {'t': 'choose_and_change', 'p': (660, 292), "desc": "swap 1 2"},
             {'t': 'click', 'p': (715, 223), "wait-over": True, "desc": "1 upper right"},
 
             # 第三回合
@@ -121,12 +98,8 @@ stage_data = {
     },
     '16-5': {
         'start': {
-            '1': (307, 403),
-            '2': (854, 238)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'mystic1'
+            'pierce1': (307, 403),
+            'mystic1': (854, 238),
         },
         'action': [
             # 第一回合
@@ -138,10 +111,8 @@ stage_data = {
             {'t': 'click', 'p': (634, 367), "wait-over": True, 'ec': True, "desc": "2 lower left"},
 
             # 第三回合
-            {'t': 'exchange', 'ec': True, "desc": "change to 2"},
-            {'t': 'click', 'p': (694, 425), 'ec': True, "desc": "2 lower right"},
-            {'t': 'click', 'p': (694, 425), "desc": "choose 2"},
-            {'t': 'click', 'p': (593, 420), "desc": "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (694, 425), 'ec': True, "desc": "2 lower right"},
+            {'t': 'choose_and_change', 'p': (694, 425), "desc": "swap 1 2"},
             {'t': 'click', 'p': (813, 425), "wait-over": True,"desc": "1 right"},
 
             # 第四回合

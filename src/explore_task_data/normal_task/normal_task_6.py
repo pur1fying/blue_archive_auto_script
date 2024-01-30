@@ -4,19 +4,15 @@ stage_data = {
     },
     '6-1': {
         'start': {
-            '1': (494, 269),
-            '2': (467, 548)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (494, 269),
+            'pierce2': (467, 548),
         },
         'action': [
             {'t': 'click', 'p': (682, 348), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (697, 490), "wait-over": True, 'ec': True, "desc": "2 right"},
 
             {'t': 'click', 'p': (781, 326), 'ec': True, "desc": "1 right"},
-            {'t': 'end-turn', 'ec': True, "desc": 'round over',"wait-over": True},
+            {'t': 'end-turn'},
 
             {'t': 'click', 'p': (844, 328),'ec': True, "desc": "1 right"},
             {'t': 'end-turn'},
@@ -25,12 +21,8 @@ stage_data = {
     },
     '6-2': {
         'start': {
-            '1': (460, 556),
-            '2': (499, 216)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (460, 556),
+            'pierce2': (499, 216),
         },
         'action': [
             {'t': 'click', 'p': (680, 418), 'ec': True, "desc": "1 upper left"},
@@ -46,8 +38,8 @@ stage_data = {
     },
     '6-3': {
         'start': {
-            '1': (520, 560),
-            '2': (466, 146)
+            'pierce1': (520, 560),
+            'pierce2': (466, 146),
         },
         'attr': {
             '1': 'pierce1',
@@ -65,43 +57,32 @@ stage_data = {
     },
     '6-4': {
         'start': {
-            '1': (403, 347),
-            '2': (679, 285)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (403, 347),
+            'pierce2': (679, 285),
         },
         'action': [
 
-            {'t': 'exchange', 'ec': True, 'desc': 'change to 2'},
-            {'t': 'click', 'p': (629, 447), 'ec': True, "desc": "2 lower left"},
-            {'t': 'click', 'p': (629, 447), "desc": "choose 2"},
-            {'t': 'click', 'p': (529, 447), "desc": "change 1 2"},
+            {'t': 'exchange_and_click', 'p': (629, 447), 'ec': True, "desc": "2 lower left"},
+            {'t': 'choose_and_change', 'p': (629, 447), "desc": "swap 1 2"},
             {'t': 'click', 'p': (692, 535), "wait-over": True, "desc": "1 lower right"},
 
             {'t': 'click', 'p': (625, 432), 'ec': True, "desc": "1 lower right"},
-            {'t': 'end-turn', 'ec': True, "desc": 'round over',"wait-over": True},
+            {'t': 'end-turn'},
 
             {'t': 'click', 'p': (851, 484),'ec': True, "desc": "1 right"},
-            {'t': 'end-turn'},
+            {'t': ''},
         ]
     },
     '6-5': {
         'start': {
-            '1': (818, 261),
-            '2': (583, 225)
-        },
-        'attr': {
-            '1': 'pierce1',
-            '2': 'pierce2',
+            'pierce1': (818, 261),
+            'pierce2': (583, 225),
         },
         'action': [
             {'t': 'click', 'p': (715, 429), "ec": True, "desc": "1 lower left"},
             {'t': 'click', 'p': (535, 348), "wait-over": True, "ec": True, "desc": "2 lower left"},
 
-            {'t': 'exchange', 'ec': True, 'desc': 'change to 2'},
-            {'t': 'click', 'p': (653, 352), "ec": True, "desc": "2 lower right"},
+            {'t': 'exchange_and_click', 'p': (653, 352), "ec": True, "desc": "2 lower right"},
             {'t': 'click', 'p': (713, 446), "wait-over": True, "desc": "1 lower left"},
 
             {'t': 'click', 'p': (845, 461), 'ec': True, "desc": "1 lower right"},

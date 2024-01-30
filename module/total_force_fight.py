@@ -1,10 +1,11 @@
 import time
-from core.utils import get_x_y, kmp, img_crop
-from gui.util import log
+from datetime import datetime
+
 import numpy as np
 from cnocr import CnOcr
 
-from datetime import datetime
+from core.utils import get_x_y, kmp, img_crop
+from gui.util import log
 
 
 def get_next_execute_tick():

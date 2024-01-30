@@ -222,6 +222,11 @@ DEFAULT_CONFIG = """
     "pierce2": "2",
     "mystic1": "1",
     "mystic2": "2",
+    "activity_sweep": false,
+    "activity_sweep_task_number": 1,
+    "activity_sweep_times": 0,
+    "activity_exchange_reward": false,
+    "activity_exchange_50_times_at_once": false,
     "explore_hard_task_need_sss": true,
     "explore_hard_task_need_present": true,
     "explore_hard_task_need_task": true,
@@ -599,7 +604,33 @@ STATIC_DEFAULT_CONFIG = '''
                         "椿",
                         "晴",
                         "响"
-                        ]
-
+                        ],
+    "current_game_activity": {
+        "CN": "no_68_spring_wild_dream",
+        "Global": null,
+        "JP": null
+    },
+    "common_shop_price_list": {
+        "CN": [30,30,30,30,10000,40000,96000,128000,10000,40000,96000,128000,8000,8000,25000,25000],
+        "JP": [12500, 125000, 300000, 500000, 10000, 40000, 96000, 128000, 10000, 40000, 96000, 128000, 20000, 80000, 192000, 256000, 8000, 8000, 25000, 25000],
+        "Global": [12500, 125000, 300000, 500000, 10000, 40000, 96000, 128000, 10000, 40000, 96000, 128000, 20000, 80000, 192000, 256000, 8000, 8000, 25000, 25000]
+    },
+    "tactical_challenge_shop_price_list": {
+        "CN": [50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100],
+        "JP": [50, 50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100],
+        "Global": [50, 50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100]
+    },
+    "package_name": {
+        "官服": "com.RoamingStar.BlueArchive",
+        "B服": "com.RoamingStar.BlueArchive.bilibili",
+        "国际服": "com.nexon.bluearchive",
+        "日服": "com.YostarJP.BlueArchive"
+    },
+    "activity_name": {
+        "官服": "com.yostar.sdk.bridge.YoStarUnityPlayerActivity",
+        "B服": "com.yostar.sdk.bridge.YoStarUnityPlayerActivity",
+        "国际服": ".MxUnityPlayerActivity",
+        "日服": "com.yostarjp.bluearchive.MxUnityPlayerActivity"
+    }
 }
 '''

@@ -1,36 +1,7 @@
 import time
 
-from core import color, image
+from core import color, image, picture
 from core.color import check_sweep_availability
-
-x = {
-    'charge-challenge-counts': (495, 348, 599, 381),  # 购买挑战次数
-    'unlock-notice': (607, 144, 676, 176),  # 解锁提示
-    'start-sweep-notice': (607, 144, 676, 176),  # 开始扫荡提示
-    'sweep-complete': (601, 561, 682, 604),  # 扫荡完成
-    'skip-sweep-complete': (597, 488, 684, 531),  # 跳过扫荡完成
-    'menu': (107, 9, 162, 36),
-    'task-info': (578, 124, 702, 153),  # 任务信息弹窗
-    'fight-task': (107, 9, 162, 36),  # 战斗任务弹窗
-    'force-edit': (107, 9, 162, 36),  # 部队编辑界面
-    'fight-skip': (1111, 531, 1136, 556),  # 跳过战斗
-    'auto-over': (1072, 589, 1094, 611),  # 回合自动结束
-    'side-quest': (360, 215, 401, 234),  # 支线任务
-    'attack': (1126, 642, 1191, 670),  # 编队界面右下角出击
-    'prize-confirm': (742, 642, 803, 668),  # 获得奖励确认按钮(支线通关)
-    'task-finish': (1000, 648, 1063, 678),  # 任务完成确认按钮(主线通关)
-    'move-force-confirm': (732, 483, 800, 516),  # 移动部队确认按钮
-    'end-turn': (732, 483, 800, 516),  # 结束回合确认按钮
-    'fight-task-info': (580, 83, 638, 113),  # 战斗过程中的任务信息弹窗
-    'fail-confirm': (643, 637, 671, 676),  # 战斗失败确认按钮
-    'mission-operating-task-info': (1000, 671, 1019, 679),  # 任务执行过程中任务信息(左下蓝色)
-    'mission-operating-task-info-notice': (579, 81, 702, 116),  # 任务执行过程中任务信息(弹窗)
-    'mission-pause': (583, 139, 707, 177),  # 中断任务
-    'task-begin-without-further-editing-notice': (695, 334, 758, 365),  # 任务开始前不再编辑部队的提示
-    'task-operating-round-over-notice': (598, 332, 708, 365),  # 任务执行过程中回合结束的提示
-    'task-operating-feature': (13, 7, 67, 40),  # 任务执行过程中的特征（左上）
-    'help': (597, 111, 675, 150)
-}
 
 
 def read_task(self, task_string):
@@ -112,7 +83,11 @@ def implement(self):
                 if tar_times == "max":
                     self.click(1085, 300, rate=1, wait=False, wait_over=True)
                 else:
-                    self.click(1014, 300, count=tar_times - 1, wait=False, duration=1, wait_over=True)
+                    if tar_times > 1:
+                        duration = 0
+                        if tar_times > 4:
+                            duration = 1
+                        self.click(1014, 300, count=tar_times - 1, wait=False, duration=duration, wait_over=True)
                 res = start_sweep(self, skip_first_screenshot=True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("common task " + str(self.normal_task_count[i]) + " finished")
@@ -131,145 +106,100 @@ def implement(self):
 
 
 def to_normal_event(self, skip_first_screenshot=False):
-    if self.server == 'CN':
-        possibles = {
-            "main_page_home-feature": (1198, 580),
-            "main_page_bus": (823, 261),
-            "normal_task_sweep-complete": (643, 585),
-            "normal_task_start-sweep-notice": (887, 164),
-            "normal_task_unlock-notice": (887, 164),
-            "normal_task_task-info": (1087, 140),
-            'normal_task_skip-sweep-complete': (643, 506),
-            "buy_ap_notice": (919, 165),
-            'normal_task_auto-over': (1082, 599),
-            'normal_task_task-finish': (1038, 662),
-            'normal_task_prize-confirm': (776, 655),
-            'main_story_fight-confirm': (1168, 659),
-        }
-        click_pos = [
-            [805, 165],
-            [640, 200]
-        ]
-        los = [
-            "event_hard",
-            'level_up'
-        ]
-        image.detect(self, end=None, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, ["event_normal"]), skip_first_screenshot=skip_first_screenshot)
-    elif self.server == 'Global':
-        print(1)
-        possibles = {
-            'normal_task_fight-complete-confirm': (1160, 666),
-            'normal_task_reward-acquired-confirm': (800, 660),
-            'normal_task_mission-conclude-confirm': (1042, 671),
-        }
-        end = [
-            "normal_task_select-area",
-        ]
-        click_pos = [
-            [1077, 98],
-            [805, 165],
-            [1198, 580],
-            [823, 261],
-            [640, 116],
-            [1129, 142],
-            [919, 168],
-            [887, 164],
-            [887, 161],
-            [887, 161],
-
-        ]
-        los = [
-            "sweep_complete",
-            "event_hard",
-            "main_page",
-            "campaign",
-            "reward_acquired",
-            "mission_info",
-            "purchase_ap_notice",
-            "start_sweep_notice",
-            "charge_challenge_counts",
-            "unlock_notice",
-        ]
-        ends = [
-            "event_normal",
-        ]
-        image.detect(self, end=end, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, ends), skip_first_screenshot=skip_first_screenshot)
+    task_info_x = {
+        'CN': 1087,
+        'Global': 1128,
+        'JP': 1128
+    }
+    rgb_ends = 'event_normal'
+    rgb_possibles = {
+        "sweep_complete":(1077, 98),
+        "event_hard": (805, 165),
+        "main_page": (1198, 580),
+        "campaign": (823, 261),
+        "mission_info": (task_info_x[self.server], 142),
+        "purchase_ap_notice": (919, 168),
+        "start_sweep_notice": (887, 164),
+        "charge_challenge_counts": (887, 161),
+        "unlock_notice": (887, 161),
+        "level_up": (640, 200),
+    }
+    img_possibles = {
+        "main_page_home-feature": (1198, 580),
+        "main_page_bus": (823, 261),
+        "normal_task_sweep-complete": (643, 585),
+        "normal_task_start-sweep-notice": (887, 164),
+        "normal_task_unlock-notice": (887, 164),
+        "normal_task_task-info": (task_info_x[self.server], 140),
+        'normal_task_skip-sweep-complete': (643, 506),
+        "buy_ap_notice": (919, 165),
+        'normal_task_auto-over': (1082, 599),
+        'normal_task_task-finish': (1038, 662),
+        'normal_task_prize-confirm': (776, 655),
+        'normal_task_fight-confirm': (1168, 659),
+        'normal_task_fight-complete-confirm': (1160, 666),
+        'normal_task_reward-acquired-confirm': (800, 660),
+        'normal_task_mission-conclude-confirm': (1042, 671),
+    }
+    picture.co_detect(self, rgb_ends, rgb_possibles,None, img_possibles, skip_first_screenshot)
 
 
 def to_task_info(self, x, y):
-    if self.server == 'CN':
-        possibles = {
-            "normal_task_menu": (x, y, 3),
-        }
-        ends = [
-            "normal_task_unlock-notice",
-            "normal_task_task-info"
-        ]
-        res = image.detect(self, end=ends, possibles=possibles)
-        if res == "normal_task_task-info":
-            return "mission_info"
-        else:
-            return "unlock_notice"
-    elif self.server == 'Global':
-        click_pos = [
-            [x, y],
-        ]
-        los = [
-            "event_normal"
-        ]
-        ends = [
-            "mission_info",
-            "unlock_notice"
-        ]
-        return color.common_rgb_detect_method(self, click_pos, los, ends)
+    rgb_ends = [
+        "mission_info",
+        "unlock_notice"
+    ]
+    rgb_possibles = {"event_normal": (x, y)}
+    img_possibles = {
+        "normal_task_select-area": (x, y, 3),
+    }
+    img_ends = [
+        "normal_task_unlock-notice",
+        "normal_task_task-info"
+    ]
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles)
+    if res == "normal_task_unlock-notice" or res == 'unlock_notice':
+        return "unlock_notice"
+    return True
 
 
 def start_sweep(self, skip_first_screenshot=False):
-    if self.server == 'CN':
-        possibles = {
-            "normal_task_task-info": (941, 411),
-        }
-        ends = [
-            "normal_task_start-sweep-notice",
-            "buy_ap_notice"
-        ]
-        res = image.detect(self, end=ends, possibles=possibles, skip_first_screenshot=skip_first_screenshot)
-        if res == "buy_ap_notice":
-            return "purchase_ap_notice"
-        possibles = {
-            "normal_task_start-sweep-notice": (765, 501)
-        }
-        ends = [
-            "normal_task_skip-sweep-complete",
-            "normal_task_sweep-complete",
-        ]
-        res = image.detect(self, end=ends, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                           pre_argv=(self, [[640, 200]], ['level_up'], []), skip_first_screenshot=True)
-        if res == "normal_task_sweep-complete":
-            return "sweep_complete"
-        elif res == "normal_task_skip-sweep-complete":
-            return "skip_sweep_complete"
-
-    elif self.server == 'Global':
-        ends = [
-            "purchase_ap_notice",
-            "start_sweep_notice",
-        ]
-        res = color.common_rgb_detect_method(self, [[941, 411]], ["mission_info"],
-                                             ends, skip_first_screenshot=skip_first_screenshot)
-        if res == "purchase_ap_notice":
-            return res
-        ends = [
-            "skip_sweep_complete",
-            "sweep_complete",
-        ]
-        return color.common_rgb_detect_method(self, [[765, 501]], ["start_sweep_notice"], ends, True)
+    rgb_ends = [
+        "purchase_ap_notice",
+        "start_sweep_notice",
+    ]
+    rgb_possibles = {
+        "mission_info": (941, 411),
+    }
+    img_ends = [
+        "purchase_ap_notice",
+        "normal_task_start-sweep-notice",
+    ]
+    img_possibles = {"normal_task_task-info": (941, 411)}
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    if res == "purchase_ap_notice" or res == "buy_ap_notice":
+        return "inadequate_ap"
+    rgb_ends = [
+        "skip_sweep_complete",
+        "sweep_complete"
+    ]
+    rgb_possibles = {"start_sweep_notice": (765, 501)}
+    img_ends = [
+        "normal_task_skip-sweep-complete",
+        "normal_task_sweep-complete",
+    ]
+    img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    return "sweep_complete"
 
 
 def choose_region(self, region):
-    cu_region = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[178:208, 122:163, :])['text'])
+    square = {
+        'CN': [122, 178, 163, 208],
+        'Global': [122, 178, 163, 208],
+        'JP': [122, 178, 163, 208]
+    }
+    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
     while cu_region != region and self.flag_run:
         if cu_region > region:
             self.click(40, 360, wait=False, count=cu_region - region, rate=0.1, wait_over=True)
@@ -277,4 +207,4 @@ def choose_region(self, region):
             self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
         self.latest_img_array = self.get_screenshot_array()
-        cu_region = int(self.ocrNUM.ocr_for_single_line(self.latest_img_array[178:208, 122:163, :])['text'])
+        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])

@@ -21,9 +21,11 @@ def screenshot_cut(self, area, image=None):
 def compare_image(self, name, threshold=3, need_loading=False, image=None, need_log=True):
     if need_loading:
         color.wait_loading(self)
+    if name not in position.image_dic:
+        return False
     area = get_area(name)
+    res_img = position.image_dic[name]
     ss_img = screenshot_cut(self, area=area, image=image)
-    res_img = position.iad[name]
     diff = cv2.absdiff(ss_img, res_img)
     mean_diff = np.mean(diff)
     compare = mean_diff <= threshold
@@ -80,7 +82,9 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_fi
 
 def get_area(name):
     module, name = name.rsplit("_", 1)
-    return position.ibd[module][name]
+    if position.image_x_y_range[module][name] is None:
+        return False
+    return position.image_x_y_range[module][name]
 
 
 def process_image(self, img, name, threshold=10, step=5):

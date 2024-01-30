@@ -2,7 +2,7 @@ import json
 import threading
 
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from core import EVENT_CONFIG_PATH, DISPLAY_CONFIG_PATH
@@ -33,64 +33,28 @@ class Scheduler:
         with open(DISPLAY_CONFIG_PATH, 'w', encoding='utf-8') as f:
             json.dump(self._display_config, f, ensure_ascii=False, indent=2)
 
-    def get_next_4hour(self):
-        t = datetime.now()
-        hour = t.hour
-        if hour < 4:
-            return t.replace(hour=4, minute=0, second=0, microsecond=0).timestamp()
-        else:
-            return (t.replace(hour=4, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
-
-    def get_next_18hour(self):
-        t = datetime.now()
-        hour = t.hour
-        if hour < 18:
-            return t.replace(hour=18, minute=0, second=0, microsecond=0).timestamp()
-        else:
-            return (t.replace(hour=18, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
-
-    def get_next_14hour(self):
-        t = datetime.now()
-        hour = t.hour
-        if hour < 14:
-            return t.replace(hour=14, minute=0, second=0, microsecond=0).timestamp()
-        else:
-            return (t.replace(hour=14, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
-
-    def get_next_13hour(self):
-        t = datetime.now()
-        hour = t.hour
-        if hour < 13:
-            return t.replace(hour=13, minute=0, second=0, microsecond=0).timestamp()
-        else:
-            return (t.replace(hour=13, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp()
+    @classmethod
+    def get_next_hour(cls, hour):
+        t = datetime.now(timezone.utc)
+        td = timedelta(int(t.hour >= hour))
+        return (t.replace(hour=hour, minute=0, second=0, microsecond=0) + td).timestamp()
 
     def systole(self, task_name: str, next_time=0, server=None):
         res = None
+        daily_reset = 20 - int(server == "Global")
         for event in self._event_config:
             if event['func_name'] == task_name:
                 if next_time != 0:
                     event['next_tick'] = time.time() + next_time
                 else:
                     if event['interval'] == 0:
-                        if task_name == 'arena':
-                            if server == 'CN':
-                                if datetime.now().hour < 14:
-                                    event['next_tick'] = self.get_next_14hour()
-                                else:
-                                    event['next_tick'] = self.get_next_4hour()
-                            elif server == 'Global':
-                                if datetime.now().hour < 13:
-                                    event['next_tick'] = self.get_next_13hour()
-                                else:
-                                    event['next_tick'] = self.get_next_4hour()
-                        elif task_name == 'collect_daily_power':
-                            if datetime.now().hour < 18:
-                                event['next_tick'] = self.get_next_18hour()
-                            else:
-                                event['next_tick'] = self.get_next_4hour()
-                        else:
-                            event['next_tick'] = self.get_next_4hour()
+                        hour = {
+                            "arena": 6 - int(server == "Global"),
+                            "collect_daily_power": 10,
+                        }.get(task_name, daily_reset)
+                        if hour < datetime.now(timezone.utc).hour and daily_reset > datetime.now(timezone.utc).hour:
+                            hour = daily_reset
+                        event['next_tick'] = self.get_next_hour(hour)
                     else:
                         event['next_tick'] = time.time() + event['interval']
                 res = datetime.fromtimestamp(event['next_tick'])
