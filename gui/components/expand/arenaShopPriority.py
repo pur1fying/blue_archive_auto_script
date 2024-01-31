@@ -6,8 +6,9 @@ from gui.util.config_set import ConfigSet
 
 
 class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_dir: str = 'config.json'):
         super().__init__(parent=parent)
+        ConfigSet.__init__(self, config_dir)
         self.setFixedHeight(120)
 
         self.goods = self.get(key='TacticalChallengeShopList')
@@ -44,5 +45,5 @@ class Layout(QWidget, ConfigSet):
         self.set(key='TacticalChallengeShopList',
                  value=[1 if self.boxes[i].isChecked() else 0 for i in range(0, goods_count)])
 
-    def __accept(self, input_content=None):
+    def __accept(self):
         self.set('TacticalChallengeShopRefreshTime', self.input.text())

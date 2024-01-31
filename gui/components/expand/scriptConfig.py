@@ -9,8 +9,9 @@ from gui.util.config_set import ConfigSet
 class Layout(QWidget, ConfigSet):
     """ Folder item """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_dir: str = 'config.json'):
         super().__init__(parent=parent)
+        ConfigSet.__init__(self, config_dir)
         self.info_widget = self.parent().parent().parent()
         self.serverLabel = QLabel('请填写您的截图间隔：', self)
         self.screenshot_box = LineEdit(self)

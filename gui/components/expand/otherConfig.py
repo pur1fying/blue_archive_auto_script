@@ -2,7 +2,7 @@ from .expandTemplate import TemplateLayout
 
 
 class Layout(TemplateLayout):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, _: str = 'config.json'):
         configItems = [
             {
                 'label': '一键反和谐',

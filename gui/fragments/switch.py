@@ -13,19 +13,22 @@ from qfluentwidgets import SettingCardGroup
 from core import EVENT_CONFIG_PATH, SWITCH_CONFIG_PATH
 from gui.components import expand
 from gui.components.template_card import TemplateSettingCard
+from gui.util.config_set import ConfigSet
 
 lock = threading.Lock()
 
 
-class SwitchFragment(ScrollArea):
-    def __init__(self, parent=None):
+class SwitchFragment(ScrollArea, ConfigSet):
+    def __init__(self, parent=None, config_dir: str = 'config.json'):
         super().__init__(parent=parent)
+        ConfigSet.__init__(self, config_dir)
+        self.config_dir = config_dir
         # 创建一个QWidget实例作为滚动区域的内容部件
         self.scrollWidget = QWidget()
         # 创建一个ExpandLayout实例作为滚动区域的布局管理器
         self.expandLayout = ExpandLayout(self.scrollWidget)
         # 创建一个标题为“调度设置”的TitleLabel实例
-        self.settingLabel = TitleLabel(self.tr("调度设置"), self.scrollWidget)
+        self.settingLabel = TitleLabel(self.tr(f"配置设置 {self.config['name']}"), self.scrollWidget)
         # 初始化basicGroup变量,_setting_cards列表
         self.basicGroup = None
         self._setting_cards = []
@@ -98,7 +101,8 @@ class SwitchFragment(ScrollArea):
             title=name,
             content=tip,
             parent=self.basicGroup,
-            sub_view=expand.__dict__[setting_name] if setting_name else None
+            sub_view=expand.__dict__[setting_name] if setting_name else None,
+            config_dir=self.config_dir
         )  # 创建TemplateSettingCard实例
         # _switch_card.status_switch.setChecked(enabled)  # 设置状态开关的选中状态
         # _switch_card.statusChanged.connect(lambda x: self._change_status(name, x))  # 连接状态开关的状态更改信号和_change_status()方法

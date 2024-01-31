@@ -16,7 +16,6 @@ from qfluentwidgets import (
 )
 
 from core.notification import notify
-from gui.components.logger_box import LoggerBox
 from gui.util import log
 from gui.util.config_set import ConfigSet
 from window import Window
@@ -40,8 +39,9 @@ class MyQLabel(QLabel):
 class HomeFragment(QFrame, ConfigSet):
     updateButtonState = pyqtSignal(bool)  # 创建用于更新按钮状态的信号
 
-    def __init__(self, parent: Window = None):
+    def __init__(self, parent: Window = None, config_dir: str = 'config.json'):
         super().__init__(parent=parent)
+        ConfigSet.__init__(self, config_dir)
         # self._main_thread = None
         self.once = True
         self.expandLayout = ExpandLayout(self)
@@ -51,7 +51,7 @@ class HomeFragment(QFrame, ConfigSet):
         self.info_box.setFixedHeight(45)
         self.infoLayout = QHBoxLayout(self.info_box)
 
-        title = '蔚蓝档案自动脚本'
+        title = f'蔚蓝档案自动脚本 {self.config.get("name")}'
         self.banner_visible = self.get('bannerVisibility')
         self.label = SubtitleLabel(title, self)
         self.info = SubtitleLabel('无任务', self)
@@ -107,6 +107,7 @@ class HomeFragment(QFrame, ConfigSet):
             self.logger_box.setFixedHeight(int(self.parent().height() * 0.35))
         else:
             self.logger_box.setFixedHeight(int(self.parent().height() * 0.7))
+
 
     def call_update(self, parent=None):
         try:
