@@ -488,7 +488,7 @@ STATIC_DEFAULT_CONFIG = '''
                 "Shiny",
                 "Brilliant",
                 "Subtle"
-        ]
+        ],
         "JP": [
             "花弁",
             "モモフレンズのカフェシリーズ",
@@ -518,7 +518,6 @@ STATIC_DEFAULT_CONFIG = '''
             "瞬き"
             ]
     },
-    }
     "lesson_region_name":{
         "CN": [
             "沙勒业务区",
