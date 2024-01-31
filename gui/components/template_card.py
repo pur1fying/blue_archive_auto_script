@@ -12,7 +12,7 @@ class TemplateSettingCard(ExpandSettingCard):
     # statusChanged = pyqtSignal(bool)
     # timeChanged = pyqtSignal(str)
 
-    def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None, config_dir='config.json'):
+    def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None, config=None):
         super().__init__(FIF.CHECKBOX, title, content, parent)
         # Card Top Widgets
         # self.status_switch = SwitchButton(self.tr('Off'), self, IndicatorPosition.RIGHT)
@@ -21,7 +21,7 @@ class TemplateSettingCard(ExpandSettingCard):
         # 暂时关闭调度功能
         # self.timer_box.setVisible(False)
         if sub_view is not None:
-            self.expand_view = sub_view.Layout(self, config_dir)
+            self.expand_view = sub_view.Layout(self, config)
         else:
             self.expand_view = None
 
@@ -56,9 +56,9 @@ class TemplateSettingCard(ExpandSettingCard):
 class SimpleSettingCard(ExpandSettingCard):
     """ Folder list setting card """
 
-    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config_dir='config.json'):
+    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None):
         super().__init__(FIF.CHECKBOX, title, content, parent)
-        self.expand_view = sub_view.Layout(self, config_dir)
+        self.expand_view = sub_view.Layout(self, config)
         self._adjustViewSize()
         self.__initWidget()
 

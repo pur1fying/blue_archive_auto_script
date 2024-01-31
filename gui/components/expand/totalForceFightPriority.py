@@ -5,10 +5,10 @@ from qfluentwidgets import InfoBar, InfoBarIcon, InfoBarPosition, ComboBox
 from gui.util.config_set import ConfigSet
 
 
-class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None, config_dir: str = 'config.json'):
+class Layout(QWidget):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
         self.info_widget = self.parent()
         self.hBoxLayout = QHBoxLayout(self)
         # self.label = QLabel('输入最高难度', self)
@@ -16,7 +16,7 @@ class Layout(QWidget, ConfigSet):
         self.input = ComboBox(self)
 
         self.input.addItems(['NORMAL', 'HARD', 'VERYHARD', 'HARDCORE', 'EXTREME'])
-        self.input.setText(self.get('totalForceFightDifficulty'))
+        self.input.setText(self.config.get('totalForceFightDifficulty'))
         self.input.currentIndexChanged.connect(self.__accept)
 
         self.setFixedHeight(53)
@@ -30,7 +30,7 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout.setAlignment(Qt.AlignCenter)
 
     def __accept(self):
-        self.set('totalForceFightDifficulty', self.input.text())
+        self.config.set('totalForceFightDifficulty', self.input.text())
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',

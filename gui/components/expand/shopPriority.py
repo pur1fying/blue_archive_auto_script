@@ -2,16 +2,14 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
 from qfluentwidgets import FlowLayout, CheckBox, LineEdit
 
-from gui.util.config_set import ConfigSet
 
-
-class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None, config_dir: str = 'config.json'):
+class Layout(QWidget):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config=config
         self.setFixedHeight(120)
 
-        self.goods = self.get(key='CommonShopList')
+        self.goods = self.config.get(key='CommonShopList')
 
         layout = FlowLayout(self, needAni=True)
         layout.setContentsMargins(30, 30, 30, 30)
@@ -24,8 +22,8 @@ class Layout(QWidget, ConfigSet):
         self.label.setFixedWidth(160)
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 5))
-        print(self.get('CommonShopRefreshTime'))
-        self.input.setText(str(self.get('CommonShopRefreshTime')))
+        print(self.config.get('CommonShopRefreshTime'))
+        self.input.setText(str(self.config.get('CommonShopRefreshTime')))
         self.accept = QPushButton('确定', self)
         self.boxes = []
         for i in range(16):
@@ -44,7 +42,7 @@ class Layout(QWidget, ConfigSet):
 
     def alter_status(self, index):
         self.boxes[index].setChecked(self.boxes[index].isChecked())
-        self.set(key='CommonShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(16)])
+        self.config.set(key='CommonShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(16)])
 
     def __accept(self, input_content=None):
-        self.set('CommonShopRefreshTime', self.input.text())
+        self.config.set('CommonShopRefreshTime', self.input.text())

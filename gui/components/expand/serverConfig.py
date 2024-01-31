@@ -12,7 +12,7 @@ def screenshot():
 
 
 class Layout(TemplateLayout):
-    def __init__(self, parent=None, _: str = 'config.json'):
+    def __init__(self, parent=None, config=None):
         configItems = [
             {
                 'label': '请选择您的服务器',
@@ -43,4 +43,4 @@ class Layout(TemplateLayout):
                 'selection': screenshot
             }
         ]
-        super().__init__(parent=parent, configItems=configItems)
+        super().__init__(parent=parent, configItems=configItems, config=config)

@@ -3,13 +3,11 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayo
 from PyQt5.QtGui import QIntValidator
 from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
-from gui.util.config_set import ConfigSet
 
-
-class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None, config_dir: str = 'config.json'):
+class Layout(QWidget):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
         self.setFixedHeight(120)
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
@@ -22,13 +20,13 @@ class Layout(QWidget, ConfigSet):
         self.accept_1 = QPushButton('确定', self)
         self.accept_2 = QPushButton('确定', self)
 
-        self.level_diff = self.get('ArenaLevelDiff')
+        self.level_diff = self.config.get('ArenaLevelDiff')
         validator_1 = QIntValidator(-50, 50)
         self.input_1.setText(str(self.level_diff))
         self.input_1.setValidator(validator_1)
         self.hBoxLayout.setContentsMargins(24, 0, 24, 0)
 
-        self.refresh_times = self.get('maxArenaRefreshTimes')
+        self.refresh_times = self.config.get('maxArenaRefreshTimes')
         validator_2 = QIntValidator(0, 50)
         self.input_2.setText(str(self.refresh_times))
         self.input_2.setValidator(validator_2)
@@ -53,7 +51,7 @@ class Layout(QWidget, ConfigSet):
 
     def __accept_1(self):
         self.level_diff = int(self.input_1.text())
-        self.set('ArenaLevelDiff', self.level_diff)
+        self.config.set('ArenaLevelDiff', self.level_diff)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
@@ -65,9 +63,9 @@ class Layout(QWidget, ConfigSet):
         )
         w.show()
 
-    def __accept_2(self, changed_text=None):
+    def __accept_2(self, _=None):
         self.refresh_times = int(self.input_2.text())
-        self.set('maxArenaRefreshTimes', self.refresh_times)
+        self.config.set('maxArenaRefreshTimes', self.refresh_times)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',

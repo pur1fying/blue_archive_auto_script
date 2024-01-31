@@ -6,9 +6,9 @@ from gui.util.config_set import ConfigSet
 
 
 class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None, config_dir: str = 'config.json'):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
 
         self.hBoxLayout = QVBoxLayout(self)
 
@@ -46,7 +46,7 @@ class Layout(QWidget, ConfigSet):
 
         self.label = QLabel('请在下拉框中选择相应悬赏委托的次数：', self)
 
-        _set_main = self.get('rewarded_task_times')
+        _set_main = self.config.get('rewarded_task_times')
         self.count = [int(x) for x in _set_main.split(',')]
 
         self.input_1_2.setCurrentIndex(self.count[0] - 1)
@@ -82,4 +82,4 @@ class Layout(QWidget, ConfigSet):
         self.count[1] = self.input_2_2.currentIndex() + 1
         self.count[2] = self.input_3_2.currentIndex() + 1
         _formatted = ','.join([str(self.count[i]) for i in range(0, 3)])
-        self.set('rewarded_task_times', _formatted)
+        self.config.set('rewarded_task_times', _formatted)
