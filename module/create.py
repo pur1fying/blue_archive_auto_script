@@ -38,7 +38,7 @@ def implement(self):
                     break
                 need_acc_collect = True
                 self.config['alreadyCreateTime'] += 1
-                self.save_config()
+                self.config_set.set("alreadyCreateTime", self.config['alreadyCreateTime'])
                 self.logger.info("today total create times: " + str(self.config['alreadyCreateTime']))
                 if self.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
@@ -276,9 +276,11 @@ def check_refresh_daily_create_times(self):
         return
     else:
         self.config['alreadyCreateTimes'] = 0
+        self.config_set.set("alreadyCreateTimes", 0)
         self.config['createTimeLastRefreshTime'] = time.time()
+        self.config_set.set("createTimeLastRefreshTime", self.config['createTimeLastRefreshTime'])
         self.logger.info("refresh daily create times")
-        self.save_config()
+
 
 
 def check_order_of_materials(self):

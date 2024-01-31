@@ -108,7 +108,6 @@ class HomeFragment(QFrame, ConfigSet):
         else:
             self.logger_box.setFixedHeight(int(self.parent().height() * 0.7))
 
-
     def call_update(self, parent=None):
         try:
             with open('./config/display.json', 'r', encoding='utf-8') as f:

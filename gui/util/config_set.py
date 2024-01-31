@@ -4,6 +4,7 @@ from core.notification import notify
 
 class ConfigSet:
     def __init__(self, config_dir: str = 'config.json'):
+        print(config_dir)
         self.config = None
         self.static_config = None
         self.config_dir = config_dir
@@ -19,9 +20,10 @@ class ConfigSet:
         self._init_config()
         return self.config.get(key)
 
-    def set(self, key, value, config_path="config"):
+    def set(self, key, value):
         self._init_config()
         self.config[key] = value
+        print(self.config_dir)
         with open(f'./config/{self.config_dir}', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
         if not self.check(key, value):
@@ -32,3 +34,5 @@ class ConfigSet:
         with open(f'./config/{self.config_dir}', 'r', encoding='utf-8') as f:
             new_config = json.load(f)
         return new_config.get(key) == value
+
+
