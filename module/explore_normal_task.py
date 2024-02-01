@@ -16,7 +16,7 @@ def implement(self):
             return True
         choose_region(self, region)
         self.stage_data = get_stage_data(region)
-        for k in range(0, 5):
+        for k in range(0, 10):
             mission = calc_need_fight_stage(self, region)
             if mission == "ALL MISSION SWEEP AVAILABLE":
                 self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
