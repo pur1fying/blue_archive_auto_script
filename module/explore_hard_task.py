@@ -29,7 +29,7 @@ def implement(self):
         region = int(data[0])
         mission = int(data[1])
         unfinished_tasks = data[2:]
-        if not 6 <= region <= 16:
+        if not 6 <= region <= 17:
             self.logger.warning("Region not support")
             return True
         self.stage_data = get_stage_data(region)
