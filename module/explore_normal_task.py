@@ -11,7 +11,7 @@ def implement(self):
     normal_task.to_normal_event(self, True)
     for i in range(0, len(self.config['explore_normal_task_regions'])):
         region = self.config['explore_normal_task_regions'][i]
-        if not 4 <= region <= 16:
+        if not 4 <= region <= 17:
             self.logger.warning("Region not support")
             return True
         choose_region(self, region)
