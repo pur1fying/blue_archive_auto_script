@@ -1,10 +1,10 @@
 stage_data = {
     '17': {
-        'SUB': "pierce1"
+        'SUB': "burst1"
     },
     '17-1': {
         'start': {
-            'mystic1': (550, 511),
+            'burst1': (550, 511),
             'pierce1': (344, 297),
         },
         'action': [
