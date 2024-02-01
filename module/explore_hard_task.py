@@ -333,8 +333,6 @@ def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=T
                 continue
             if temp.count('sss') > 1 or temp.count('present') > 1 or temp.count('task') > 1 or not temp[0].isdigit():
                 continue
-            if int(temp[0]) < 6 or int(temp[0]) > 16:
-                continue
             if temp[0].isdigit() and temp[1].isdigit():  # 指定关卡
                 tt = ''
                 if len(temp) == 2:
