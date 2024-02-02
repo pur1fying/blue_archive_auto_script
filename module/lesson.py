@@ -253,6 +253,7 @@ def start_lesson(self):
         'lesson_purchase-lesson-ticket',
     ]
     rgb_possibles = {
+        'reward_acquired': (637, 116),
         'relationship_rank_up': (640, 360),
         'area_rank_up': (637, 116),
     }
