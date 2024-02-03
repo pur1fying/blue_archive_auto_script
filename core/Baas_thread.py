@@ -1,9 +1,8 @@
 import cv2
-
 from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
-from core import position, color, image, picture
+from core import position, color, picture
 from core.utils import Logger
 import time
 import numpy as np
@@ -36,7 +35,7 @@ func_dict = {
     'de_clothes': module.de_clothes.implement,
     'tactical_challenge_shop': module.tactical_challenge_shop.implement,
     'collect_daily_power': module.collect_reward.implement,
-    'total_force_fight': module.total_force_fight.implement,
+    'total_assault': module.total_assault.implement,
     'restart': module.restart.implement,
     'refresh_uiautomator2': module.refresh_uiautomator2.implement,
     'no_227_kinosaki_spa': module.no_227_kinosaki_spa.implement,
@@ -57,6 +56,7 @@ class Baas_thread:
         self.server = None
         self.first_start = True
         self.rgb_feature = None
+        self.config_path = self.config_set.config_dir
         self.config = None
         self.next_time = None
         self.screenshot_updated = None
@@ -66,13 +66,8 @@ class Baas_thread:
         self.logger = Logger(logger_signal)
         self.first_start_u2 = True
         self.last_start_u2_time = 0
-        self.total_force_fight_difficulty_name = ["HARDCORE", "VERYHARD", "EXTREME", "NORMAL", "HARD"]  # 当期总力战难度
-        self.total_force_fight_difficulty_name_ordered = ["NORMAL", "HARD", "VERYHARD", "HARDCORE",
-                                                          "EXTREME"]  # 当期总力战难度
-        self.total_force_fight_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3,
-                                                       "EXTREME": 4}
-        self.total_force_fight_name = "chesed"  # 当期总力战名字
         self.latest_img_array = None
+        self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
         self.button_signal = button_signal
         self.update_signal = update_signal
         self.stage_data = {}

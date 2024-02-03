@@ -106,12 +106,12 @@ EVENT_DEFAULT_CONFIG = """
     "func_name": "create"
   },
   {
-    "enabled": true,
+    "enabled": false,
     "priority": 15,
     "interval": 0,
     "next_tick": 0,
     "event_name": "总力战",
-    "func_name": "total_force_fight"
+    "func_name": "total_assault"
   },
   {
     "enabled": true,
@@ -305,7 +305,7 @@ DEFAULT_CONFIG = """
         "collect_reward",
         "momo_talk",
         "create",
-        "total_force_fight"
+        "total_assault"
     ]
 }
 """

@@ -49,7 +49,7 @@ def choose_enemy(self):
     }
     opponent_level_region = {
         'CN': (551, 298, 581, 317),
-        'Global': (551, 298, 581, 317),
+        'Global': (490, 298, 515, 317),
         'JP': (496, 291, 520, 315),
     }
     self_lv = self.ocr.get_region_num(self.latest_img_array, self_level_region[self.server])

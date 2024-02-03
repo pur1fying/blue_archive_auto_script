@@ -1,7 +1,8 @@
 import json
 import threading
-from core.utils import *
+from core.utils import Logger
 from core.ocr import ocr
+from gui.util.config_set import ConfigSet
 
 
 class Main:
@@ -72,8 +73,6 @@ class Main:
             return temp
 
 
-
-
 if __name__ == '__main__':
     from core.Baas_thread import Baas_thread
     # # print(time.time())
@@ -88,9 +87,10 @@ if __name__ == '__main__':
     # print(3)
     # t.start_thread("4", None, None, None, "config/config4")
     # print(4)
-    tt = Baas_thread(None,None,None, "config/config1")
+    config = ConfigSet(config_dir="config1")
+    tt = Baas_thread(config,None,None,None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
     # tt.solve("mini_story")
-    tt.solve("lesson")
+    tt.solve("total_assault")

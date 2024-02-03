@@ -1,8 +1,6 @@
 import time
-
-from core import color, image, picture
+from core import picture
 from core.color import check_sweep_availability
-
 
 def read_task(self, task_string):
     try:
@@ -202,5 +200,5 @@ def choose_region(self, region):
         else:
             self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
-        self.latest_img_array = self.get_screenshot_array()
+        to_hard_event(self)
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])

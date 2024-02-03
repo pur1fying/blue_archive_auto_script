@@ -11,7 +11,7 @@ class ConfigSet:
         self._init_config()
 
     def _init_config(self):
-        with open(f'./config/{self.config_dir}', 'r', encoding='utf-8') as f:
+        with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
             self.config = json.load(f)
         with open("config/static.json", 'r', encoding='utf-8') as f:
             self.static_config = json.load(f)

@@ -238,6 +238,7 @@ def start_lesson(self):
         'lesson_purchase-lesson-ticket',
     ]
     rgb_possibles = {
+        'reward_acquired': (637, 116),
         'relationship_rank_up': (640, 360),
         'area_rank_up': (637, 116),
     }
@@ -256,7 +257,10 @@ def to_all_locations(self, skip_first_screenshot=False):
         'lesson_lesson-report': (1036, 124),
         'main_page_relationship-rank-up': (640, 360),
     }
-    rgb_possibles = {'relationship_rank_up': (640, 360)}
+    rgb_possibles = {
+        'relationship_rank_up': (640, 360),
+        'reward_acquired': (637, 116),
+    }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 

@@ -245,7 +245,7 @@ def choose_region(self, region):
         else:
             self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
-        self.latest_img_array = self.get_screenshot_array()
+        hard_task.to_hard_event(self)
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
 
 
