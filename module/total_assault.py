@@ -1,6 +1,8 @@
 import time
 import numpy as np
 from core import color, picture
+from module import main_story
+
 
 def implement(self):
     # self.quick_method_to_main_page()
@@ -12,7 +14,8 @@ def implement(self):
     #     return False
     maxx_name = self.config['totalForceFightDifficulty']
     self.logger.info("begin auto total assault highest difficulty: " + maxx_name)
-    total_assault_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3, "EXTREME": 4, "INSANE": 5, "TORMENT": 6}
+    total_assault_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3, "EXTREME": 4,
+                                          "INSANE": 5, "TORMENT": 6}
     maxx = total_assault_difficulty_name_dict[maxx_name]
     maxx = 4
     if judge_unfinished_fight(self):
@@ -20,141 +23,83 @@ def implement(self):
     pri_total_assault, y = total_assault_highest_difficulty_button_detection(self, maxx)
     total_assault_x = 1156
     res = fight_difficulty_x(self, pri_total_assault, y)
-    tickets -= 1
-    win = False
-    while res == "WIN" and pri_total_assault != len(self.total_assault_difficulty_name) - 1 and tickets > 0:
-        win = True
-        if pri_total_assault == maxx:
-          break
-        pri_total_assault += 1
-        res = fight_difficulty_x(self, pri_total_assault)
+    if res == "NO_TICKETS":
+        tickets = 0
 
-    while (res == "LOSE" or res == "UNLOCK") and pri_total_assault >= 0 and win == False and tickets > 0:
-        if res == "LOSE":
-            give_up_current_fight(self)
-        pri_total_assault -= 1
-        t = fight_difficulty_x(self, pri_total_assault)
+    else:
+        tickets -= 1
+        win = False
+        while res == "WIN" and pri_total_assault != len(self.total_assault_difficulty_name) - 1 and tickets > 0:
+            win = True
+            if pri_total_assault == maxx:
+                break
+            pri_total_assault += 1
+            res = fight_difficulty_x(self, pri_total_assault)
 
+        while (res == "LOSE" or res == "UNLOCK") and pri_total_assault >= 0 and win == False and tickets > 0:
+            if res == "LOSE":
+                give_up_current_fight(self)
+            pri_total_assault -= 1
+            t = fight_difficulty_x(self, pri_total_assault)
 
     if pri_total_assault == -1:  # normal打不过
         self.logger.info("打不过NORMAL, 快找爱丽丝邦邦 QAQ")
         return True
 
     if tickets > 0:
-        sweep(self)
+        start_sweep(self, pri_total_assault, tickets)
 
     collect_season_reward(self)
+    collect_accumulated_point_reward(self)
 
 
 def find_button_y(self, y):
     self.logger.info("start FIND BUTTON FOR difficulty " + self.total_assault_difficulty_name_ordered[y])
-    for try_cnt in range(0, 3):
-        img = self.get_screenshot_array()
-        img = img_crop(img, 661, 811, 0, 720)
-        ocr_res = temp_ocr.ocr(img)
-
-        for i in range(0, len(ocr_res)):
-            if kmp(self.total_assault_difficulty_name_ordered[y].lower(), ocr_res[i]["text"].lower()):
-                return ocr_res[i]["position"][3][1]
-
+    target_dict = {}
+    temp = self.total_assault_difficulty_name_ordered[y].lower()
+    for i in range(0, len(temp)):
+        target_dict.setdefault(temp[i], 0)
+        target_dict[temp[i]] += 1
+    while self.flag_run:
+        res = detect_level_y(self, target_dict)
+        if res != "NOT_FOUND":
+            return res
         self.logger.info("SWIPE DOWNWARDS")
-        self.swipe", [(950, 590), (950, 330)], duration=0.1)
-        time.sleep(2)
-
-        for i in range(0, len(ocr_res)):
-            if kmp(self.total_assault_difficulty_name[y].lower(), ocr_res[i]["text"].lower()):
-                return ocr_res[i]["position"][3][1]
-
-        if try_cnt != 3:
-            self.logger.info("SWIPE UPWARDS")
-            self.swipe", [(950, 330), (950, 590)], duration=0.1)
-            time.sleep(2)
-
-    self.logger.info("CAN'T DETECT BRIGHT BUTTON FOR LEVEL " + self.total_assault_difficulty_name_ordered[y], 3,
-          logger_box=self.loggerBox)
-    return False
+        self.swipe(950, 590, 950, 330, duration=0.1)
+        time.sleep(1)
+        self.latest_img_array = self.get_screenshot_array()
+        res = detect_level_y(self, target_dict)
+        if res != "NOT_FOUND":
+            return res
+        self.logger.info("SWIPE UPWARDS")
+        self.swipe(950, 330, 950, 590, duration=0.1)
+        time.sleep(1)
+        self.latest_img_array = self.get_screenshot_array()
 
 
-def fight_difficulty_x(self, x, temp_ocr):
-    total_assault_x = 1156
-    self.logger.info("###################################################################################", 1,
-          logger_box=self.loggerBox)
-    self.logger.info("start total force fight difficulty : " + self.total_assault_difficulty_name_ordered[x], 1,
-          logger_box=self.loggerBox)
-    self.stop_getting_screenshot_for_location")
-    total_assault_y = find_button_y(self, x, temp_ocr)
-    if not total_assault_y:
-        self.logger.info("FAIL")
-        self.logger.info("###################################################################################", 1,
-              logger_box=self.loggerBox)
-        return False
-    self.logger.info("SUCCESS")
-
-    self.start_getting_screenshot_for_location")
+def fight_difficulty_x(self, level, y_for_x=0):
+    self.logger.info("start total force fight difficulty : " + self.total_assault_difficulty_names[level])
+    if y_for_x == 0:
+        y_for_x = find_button_y(self, level)
     for i in range(0, 4):
-        formation_x = 64
-        formation_y = [198, 274, 353, 426]
-        if i == 0:
-            self.click(total_assault_x, total_assault_y), duration=self.screenshot_interval * 2)
-            self.common_positional_bug_detect_method("detailed_message", total_assault_x, total_assault_y,
-                                                     times=4, anywhere=True)
-            self.click(1015, 524), 4)
-            lo = self.get_current_position")
-            if not lo:
-                return False
-            if lo == "notice":
-                self.logger.info("TICKET INADEQUATE QUIT TOTAL FORCE FIGHT TASK", 2, logger_box=self.loggerBox)
-                return "NO_TICKETS"
-            elif lo == "attack_formation":
-                time.sleep(1)
-                self.logger.info("choose formation : " + str(i + 1) + " and start fight")
-                self.click(formation_x, formation_y[0]), duration=1)
-                self.click(1157, 666), duration=1)
-                self.click(770, 500))
-                ####
-            elif lo == "total_assault":
-                self.logger.info("CURRENT difficulty UNLOCK, try LOWER difficulty")
-                return "UNLOCK"
-            else:
-                self.logger.info("UNEXPECTED PAGE", 3, logger_box=self.loggerBox)
-                return "UNEXPECTED_PAGE"
-        else:
-            flag = False
-            for j in range(0, 4):
-                path = "src/total_assault/enter_again.png"
-                return_data = self.get_x_y(self.latest_img_array, path)
-                print(return_data)
-                if return_data[1][0] <= 1e-03:
-                    flag = True
-                    self.click(return_data[0][0], return_data[0][1]), duration=1)
-                    self.click(1015, 524))
-                    if not self.common_positional_bug_detect_method("attack_formation", 1015, 524):
-                        return "UNEXPECTED_PAGE"
-                    self.logger.info("choose formation " + str(i + 1) + " and start fight")
-                    self.click(formation_x, formation_y[i]), duration=1)
-                    self.click(1157, 666))
-                    break
-                else:
-                    time.sleep(1)
-            if not flag:
-                return "UNEXPECTED_PAGE"
-
-        res = self.common_fight_practice()
-        if not res:
+        self.logger.info("choose formation : " + str(i + 1) + " and start fight")
+        to_room_info(self, (1156, y_for_x if i == 0 else 219), True)
+        res = to_formation_edit_i(self, i, (1019, 524), True)
+        if res == "total_assault_inadequate-ticket":
+            self.logger.warning("TICKET INADEQUATE QUIT auto total assault")
+            return "NO_TICKETS"
+        enter_fight(self)
+        main_story.auto_fight(self, True if i == 0 else False)
+        res = get_fight_result(self)
+        if res == "total_assault_battle-lost-confirm":
             self.logger.info("total force fight attempt " + str(i + 1) + " FAILED")
-            if not self.common_icon_bug_detect_method("src/total_assault/total_assault_page.png", 382, 22,
-                                                      "total_assault", 10):
-                return False
-        if res:
-            self.logger.info("total force fight SUCCEEDED", level=1, logger_box=self.loggerBox)
-            self.common_icon_bug_detect_method("src/total_assault/total_assault_page.png", 382, 22,
-                                               "total_assault", 10)
-            self.logger.info("###################################################################################", 1,
-                  logger_box=self.loggerBox)
+            to_total_assault(self, True)
+            return False
+        if res == "total_assault_battle-win-confirm":
+            self.logger.info("total assault auto fight SUCCEEDED")
+            to_total_assault(self, True)
             return "WIN"
     self.logger.info("4 attempts ALL FAILED")
-    self.logger.info("###################################################################################", 1,
-          logger_box=self.loggerBox)
     return "LOSE"
 
 
@@ -163,12 +108,11 @@ def finish_existing_total_assault_task(self):
     to_room_info(self, (1157, 219), True)
     unable_to_fight_formation = np.full(4, False, dtype=bool)
     for i in range(0, 4):
-        to_formation_edit_i(self, i + 1, (1021, 530), True)
         for j in range(0, 4):
             if not unable_to_fight_formation[j]:
                 unable_to_fight_formation[j] = True
                 self.logger.info("detect formation " + str(j + 1))
-                to_formation_edit_i(self, j + 1, (1021, 530), True)
+                to_formation_edit_i(self, j, (1021, 530), True)
                 if not judge_formation_usable(self):
                     self.logger.info("FORMATION " + str(j + 1) + " UNUSABLE")
                     break
@@ -180,13 +124,10 @@ def finish_existing_total_assault_task(self):
                 if res:
                     self.logger.info("total force fight SUCCEEDED")
                     return "WIN"
-                break
+                continue
         if unable_to_fight_formation.all():
             self.logger.info("0 USABLE FORMATION")
-            self.logger.info("GIVE UP current fight")
-            self.click(x, y, duration=1)
-            self.click(800, 533, duration=1)
-            self.click(800, 500, duration=3)
+            give_up_current_fight(self)
             return "GIVE_UP_FIGHT"
 
 
@@ -228,44 +169,56 @@ def total_assault_highest_difficulty_button_detection(self, maxx):
 
 
 def judge_unfinished_fight(self):
-    if color.judge_rgb_range(self.latest_img_array, 1105, 206, 131, 121, 218, 238, 245, 255) and color.judge_rgb_range(
-            self.latest_img_array, 1109, 252, 131, 121, 218, 238, 245, 255):
+    if color.judge_rgb_range(self.latest_img_array, 1105, 206, 131, 151, 218, 238, 245, 255) and color.judge_rgb_range(
+        self.latest_img_array, 1109, 252, 131, 151, 218, 238, 245, 255):
         return True
     self.logger.info("NO UNFINISHED FIGHT")
     return False
 
 
-# def collect_point_reward(self):
-#     to_total_assault_info(self, True)
-#     if return_data1[1][0] <= 1e-03:
-#         self.logger.info("collect TOTAL FORCE FIGHT ACCUMULATED POINTS REWARD")
-#         self.click(return_data1[0][0], return_data1[0][1]), duration=2)
-#         self.click(1240, 40))
-#         self.click(1240, 40))
-#         self.click(1240, 40))
-#     elif return_data2[1][0] <= 1e-03:
-#         self.logger.info("NO ACCUMULATED POINTS REWARD can be collected")
-#         self.click(1240, 40))
-#         self.click(1240, 40))
-#     else:
-#         self.logger.info("CAN'T DETECT BUTTON", 3, logger_box=self.loggerBox)
-#         return False
-#     return True
+def collect_accumulated_point_reward(self):
+    self.logger.info("collect accumulated point reward")
+    to_total_assault_info(self, True)
+    rgb_possibles = {
+        'total_assault_rank_info': (928, 162),
+        'total_assault_accumulated_point_reward': (241, 238),
+        'reward_acquired': (640, 100),
+    }
+    rgb_ends = "total_assault_rank_reward"
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
+    judge_and_collect_reward(self)
 
 
 def collect_season_reward(self):
+    self.logger.info("collect season reward")
     to_total_assault_info(self, True)
-    self.click(1184, 657, duration=2)
-    self.click(917, 163, duration=0.5)
-    self.click(237, 303, duration=0.3)
+    rgb_possibles = {
+        'total_assault_rank_info': (928, 162),
+        'total_assault_rank_reward': (241, 311),
+        'reward_acquired': (640, 100),
+    }
+    rgb_ends = "total_assault_accumulated_point_reward"
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
+    judge_and_collect_reward(self)
+
+
+def judge_and_collect_reward(self):
+    if color.judge_rgb_range(self.latest_img_array, 962, 558, 213, 233, 213, 233, 213, 233):
+        self.logger.info("need not collect")
+        return False
+    self.logger.info("collect")
+    self.click(1054, 580, duration=1, wait_over=True, wait=False)
 
 
 def to_total_assault(self, skip_first_screenshot):
     rgb_possibles = {"main_page": (1193, 572)}
     img_possibles = {
         "main_page_bus": (922, 447),
-        "total_assault_battle-fail-confirm": (577, 636),
+        "total_assault_battle-lost-confirm": (640, 636),
         "total_assault_battle-win-confirm": (1144, 649),
+        "total_assault_room-info": (1123, 168),
+        'total_assault_inadequate-ticket': (886, 162),
+        'total_assault_edit-force': (62, 38),
     }
     img_ends = "total_assault_menu"
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
@@ -276,6 +229,7 @@ def to_room_info(self, lo, skip_first_screenshot):
     img_ends = "total_assault_room-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
+
 def to_total_assault_info(self, skip_first_screenshot):
     img_possibles = {"total_assault_menu": (1174, 636)}
     img_ends = "total_assault_total-assault-info"
@@ -284,25 +238,26 @@ def to_total_assault_info(self, skip_first_screenshot):
 
 def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
     loy = [195, 275, 354, 423]
-    y = loy[i - 1]
-    rgb_ends = "formation_edit" + str(i)
+    y = loy[i]
+    rgb_ends = "formation_edit" + str(i+1)
     rgb_possibles = {
         "formation_edit1": (74, y),
         "formation_edit2": (74, y),
         "formation_edit3": (74, y),
         "formation_edit4": (74, y),
     }
-    rgb_possibles.pop("formation_edit" + str(i))
+    rgb_possibles.pop("formation_edit" + str(i+1))
+    img_ends = "total_assault_inadequate-ticket"
     img_possibles = {"total_assault_room-info": lo}
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
+    return picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 
 def judge_formation_usable(self):
     regions = [(223, 432, 1087, 461), (283, 674, 376, 696), (634, 674, 727, 696)]
     word = {
         'CN': ['无', '法', '作', '战'],
-        'Global': ['U', 'N', 'U', 'S', 'A', 'B', 'L', 'E'],
-        'JP': ['参','加', '不', '可'],
+        'Global': ['u', 'n', 'u', 's', 'a', 'b', 'l', 'e'],
+        'JP': ['参', '加', '不', '可'],
     }
     mode = {
         'CN': 'CN',
@@ -310,11 +265,16 @@ def judge_formation_usable(self):
         'JP': 'CN',
     }
     for k in range(0, 3):
+        time.sleep(1)
+        self.latest_img_array = self.get_screenshot_array()
         for region in regions:
-            time.sleep(1)
-            self.latest_img_array = self.get_screenshot_array
             ocr_res = self.ocr.get_region_res(self.latest_img_array, region, mode[self.server])
-            return False
+            cnt = 0
+            for j in range(0, len(ocr_res)):
+                if ocr_res[j].lower() in word[self.server]:
+                    cnt += 1
+            if cnt >= len(word[self.server])/2:
+                return False
     return True
 
 
@@ -366,7 +326,8 @@ def one_detect(self, button_detected, maxx, character_dict):
                 y = int(ocr_res[j]["position"][3][1]) + region[1]
                 if color.judge_rgb_range(self.latest_img_array, 1163, y, 235, 255, 223, 243, 65, 85):
                     temp = 0
-                self.logger.info("find " + self.total_assault_difficulty_names[maximum_acc_index].upper() + " " + name[temp] + " button")
+                self.logger.info("find " + self.total_assault_difficulty_names[maximum_acc_index].upper() + " " + name[
+                    temp] + " button")
                 if maximum_acc_index >= maxx and temp == 0:
                     return (maxx, y), button_detected
                 button_detected[maximum_acc_index][temp] = True
@@ -377,4 +338,74 @@ def one_detect(self, button_detected, maxx, character_dict):
 
 
 def give_up_current_fight(self):
+    self.logger.info("give up current fight")
+    to_total_assault(self, True)
     to_room_info(self, (1157, 219), True)
+    img_possibles = {
+        "total_assault_room-info": (821, 522),
+        "total_assault_give-up-notice": (766, 501),
+    }
+    img_ends = "total_assault_menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+
+def detect_level_y(self, target_dict):
+    region = (661, 161, 833, 608)
+    ocr_res = self.ocr.get_region_raw_res(self.latest_img_array, region, "Global")
+    for i in range(0, len(ocr_res)):
+        temp = ocr_res[i]["text"].lower()
+        ocr_dict = {}
+        for j in range(0, len(temp)):
+            ocr_dict.setdefault(temp[j], 0)
+            ocr_dict[temp[j]] += 1
+        acc = calc_acc(target_dict, ocr_dict)
+        if acc > 0.8:
+            return int(ocr_res[i]["position"][3][1]) + region[1]
+    return "NOT_FOUND"
+
+
+def enter_fight(self):
+    img_possibles = {
+        "total_assault_enter-fight-without-further-editing-notice": (767, 498),
+        "total_assault_use-ticket-notice": (767, 498),
+        "total_assault_edit-force": (1159, 654),
+    }
+    rgb_ends = 'fighting_feature'
+    rgb_possibles = {
+        "formation_edit1": (1159, 654),
+        "formation_edit2": (1159, 654),
+        "formation_edit3": (1159, 654),
+        "formation_edit4": (1159, 654),
+    }
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+
+
+def get_fight_result(self):
+    img_ends = [
+        "total_assault_battle-lost-confirm",
+        "total_assault_battle-win-confirm"
+    ]
+    return picture.co_detect(self, None, None, img_ends)
+
+
+def start_sweep(self, pri_total_assault, tickets):
+    self.logger.info("SWEEP :" + str(pri_total_assault) + " " + str(tickets) + " times")
+    y = find_button_y(self, pri_total_assault)
+    to_room_info(self, (1157, y), True)
+    self.click(1069, 297, wait_over=True, wait=False, duration=0.1, count=tickets)
+    img_ends = [
+        "total_assault_inadequate-ticket",
+        "normal_task_start-sweep-notice",
+    ]
+    img_possibles = {"total_assault_room-info": (941, 411)}
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    if res == "total_assault_inadequate-ticket":
+        return "inadequate_ticket"
+    img_ends = [
+        "normal_task_skip-sweep-complete",
+        "normal_task_sweep-complete",
+    ]
+    img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
+    picture.co_detect(self, None, img_ends, img_possibles, True)
+    return "sweep_complete"

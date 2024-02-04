@@ -167,15 +167,12 @@ def start_sweep(self, skip_first_screenshot=False):
         "purchase_ap_notice",
         "start_sweep_notice",
     ]
-    rgb_possibles = {
-        "mission_info": (941, 411),
-    }
     img_ends = [
         "purchase_ap_notice",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice" or res == "buy_ap_notice":
         return "inadequate_ap"
     rgb_ends = [
@@ -188,7 +185,7 @@ def start_sweep(self, skip_first_screenshot=False):
         "normal_task_sweep-complete",
     ]
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
     return "sweep_complete"
 
 

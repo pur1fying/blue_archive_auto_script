@@ -1,6 +1,5 @@
 import threading
 import time
-
 import cv2
 import numpy as np
 from core import image, color, picture

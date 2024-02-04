@@ -9,5 +9,6 @@ x_y_range = {
     'use-ticket-notice': (433, 325, 847, 395),
     'battle-lost-confirm': (577, 636, 691, 683),
     'battle-win-confirm': (1144, 649, 1194, 674),
-
+    'inadequate-ticket': (508, 311,754, 351),
+    'give-up-notice': (574, 315, 706, 347)
 }
