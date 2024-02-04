@@ -58,7 +58,7 @@ def implement(self):
     # test(self)
     self.scheduler.change_display("普通关推图")
     self.quick_method_to_main_page()
-    if self.config['explore_normal_task_force_fight']:
+    if self.config['explore_normal_task_force_each_fight']:
         normal_task.to_normal_event(self)
         tasks = get_explore_normal_task_missions(self.config['explore_normal_task_missions'])
         self.logger.info("VALID TASKS : " + str(tasks))
