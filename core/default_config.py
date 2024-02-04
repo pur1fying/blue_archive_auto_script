@@ -193,6 +193,7 @@ DEFAULT_CONFIG = """
     "special_task_times": "1,1",
     "purchase_scrimmage_ticket_times": "0",
     "scrimmage_times": "2,2,2",
+    "explore_normal_task_force_each_fight" : false,
     "patStyle": "拖动礼物",
     "antiHarmony": true,
     "bannerVisibility": true,
