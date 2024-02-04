@@ -190,6 +190,7 @@ DEFAULT_CONFIG = """
     "mainlinePriority": "5-1-1",
     "rewarded_task_times": "2,2,2",
     "purchase_rewarded_task_ticket_times": "0",
+    "explore_normal_task_force_sss": true,
     "special_task_times": "1,1",
     "purchase_scrimmage_ticket_times": "0",
     "scrimmage_times": "2,2,2",
