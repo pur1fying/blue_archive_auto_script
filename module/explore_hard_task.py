@@ -29,9 +29,6 @@ def implement(self):
         region = int(data[0])
         mission = int(data[1])
         unfinished_tasks = data[2:]
-        if not 6 <= region <= 17:
-            self.logger.warning("Region not support")
-            return True
         self.stage_data = get_stage_data(region)
         while len(unfinished_tasks) != 0:
             current_task = [unfinished_tasks.pop(0)]
@@ -65,14 +62,17 @@ def implement(self):
                 }
                 img_ends = "normal_task_task-wait-to-begin-feature"
                 image.detect(self, img_ends, img_possibles)
-                res, los = cacl_team_number(self, current_task_stage_data)
+                res, los = calc_team_number(self, current_task_stage_data)
                 for j in range(0, len(res)):
-                    choose_team(self, res[j], los[j], True)
+                    if res[j] == "swipe":
+                        time.sleep(1)
+                        self.swipe(los[j][0], los[j][1], los[j][2], los[j][3], duration=los[j][4])
+                        time.sleep(1)
+                    else:
+                        choose_team(self, res[j], los[j], True)
                 start_mission(self)
                 check_skip_fight_and_auto_over(self)
-                self.set_screenshot_interval(1)
                 start_action(self, current_task_stage_data['action'])
-                self.set_screenshot_interval(self.config['screenshot_interval'])
                 main_story.auto_fight(self)
                 if self.config['manual_boss']:
                     self.click(1235, 41)
@@ -117,7 +117,7 @@ def get_force(self):
         'Global': (116, 542, 131, 570),
         'JP': (116, 542, 131, 570)
     }
-    self.latest_img_array = self.get_screenshot_array()
+    to_normal_task_mission_operating_page(self)
     ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server])
     if ocr_res == "UNKNOWN":
         return get_force(self)
@@ -129,7 +129,7 @@ def get_force(self):
 
 
 def end_turn(self):
-    self.logger.info("--End Turn--")
+    self.logger.info("-- End Turn --")
     img_end = 'normal_task_end-turn'
     img_possibles = {
         'normal_task_task-operating-feature': (1170, 670),
@@ -152,6 +152,7 @@ def confirm_teleport(self):
 
 
 def start_action(self, actions):
+    self.set_screenshot_interval(1)
     self.logger.info("Start Actions total : " + str(len(actions)))
     for i, act in enumerate(actions):
         desc = "start " + str(i + 1) + " operation : "
@@ -169,8 +170,8 @@ def start_action(self, actions):
         for j in range(0, len(op)):
             time.sleep(1)
             if op[j] == 'click':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
             elif op[j] == 'teleport':
                 confirm_teleport(self)
             elif op[j] == 'exchange':
@@ -187,27 +188,29 @@ def start_action(self, actions):
                     wait_over(self)
                     skip_first_screenshot = True
             elif op[j] == 'click_and_teleport':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
                 confirm_teleport(self)
             elif op[j] == 'choose_and_change':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True, duration=0.3)
-                self.click(act['p'][0][0] - 100, act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True, duration=0.3)
+                self.click(pos[0] - 100, pos[1], wait=False, wait_over=True)
             elif op[j] == 'exchange_and_click':
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
             elif op[j] == 'exchange_twice_and_click':
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
-                self.click(act['p'][0], act['p'][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
+            elif op[j] == 'ensure-ui':
+                to_normal_task_mission_operating_page(self)
 
         if 'ec' in act:
             wait_formation_change(self, force_index)
@@ -217,6 +220,7 @@ def start_action(self, actions):
             time.sleep(2)
         if i != len(actions) - 1:
             to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
+    self.set_screenshot_interval(self.config['screenshot_interval'])
 
 
 def wait_formation_change(self, force_index):
@@ -241,7 +245,7 @@ def choose_region(self, region):
         else:
             self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
-        self.latest_img_array = self.get_screenshot_array()
+        hard_task.to_hard_event(self)
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
 
 
@@ -253,7 +257,7 @@ def choose_team(self, number, position, skip_first_screenshot=True):
 
 def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
     img_possibles = {
-        "normal_task-present": (794, 207),
+        "normal_task_present": (794, 207),
         "normal_task_mission-operating-task-info-notice": (995, 101),
         "normal_task_end-turn": (890, 162),
         "normal_task_teleport-notice": (886, 162),
@@ -333,6 +337,8 @@ def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=T
                 continue
             if temp.count('sss') > 1 or temp.count('present') > 1 or temp.count('task') > 1 or not temp[0].isdigit():
                 continue
+            if int(temp[0]) < 0 or int(temp[0]) > 24:
+                continue
             if temp[0].isdigit() and temp[1].isdigit():  # 指定关卡
                 tt = ''
                 if len(temp) == 2:
@@ -380,14 +386,16 @@ def check_skip_fight_and_auto_over(self):
         self.click(1194, 600)
 
 
-def cacl_team_number(self, current_task_stage_data):
+def calc_team_number(self, current_task_stage_data):
     pri = {
-        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2'],
-        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2'],
-        'burst1': ['burst1', 'burst2', 'pierce1', 'pierce2', 'mystic1', 'mystic2'],
-        'burst2': ['burst2', 'pierce1', 'pierce2', 'mystic1', 'mystic2'],
-        'mystic1': ['mystic1', 'mystic2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
-        'mystic2': ['mystic2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
+        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
+        'burst1': ['burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
+        'burst2': ['burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
+        'mystic1': ['mystic1', 'mystic2', 'shock1', 'shock2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+        'mystic2': ['mystic2', 'burst1', 'shock1', 'shock2', 'burst2', 'pierce1', 'pierce2'],
+        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ],
+        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ]
     }
     length = len(current_task_stage_data['start'])
     used = {
@@ -396,17 +404,24 @@ def cacl_team_number(self, current_task_stage_data):
         'burst1': False,
         'burst2': False,
         'mystic1': False,
-        'mystic2': False
+        'mystic2': False,
+        'shock1': False,
+        'shock2': False,
     }
+    keys = used.keys()
     last_chosen = 0
     res = []
     los = []
     for attr, position in current_task_stage_data['start'].items():
+        if attr not in keys:
+            res.append(attr)
+            los.append(position)
+            continue
         los.append(position)
         for i in range(0, len(pri[attr])):
             possible_attr = pri[attr][i]
             possible_index = self.config[possible_attr]
-            if not used[possible_attr] and 4 - possible_index >= length - i - 1 and last_chosen < possible_index:
+            if not used[possible_attr] and 4 - possible_index >= length - len(res) - 1 and last_chosen < possible_index:
                 res.append(possible_index)
                 used[possible_attr] = True
                 last_chosen = self.config[possible_attr]

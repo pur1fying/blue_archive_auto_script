@@ -1,55 +1,136 @@
 import importlib
 import time
-
 from core import color, image, picture
 from module import main_story, normal_task, hard_task
 
+def test(self):
+    normal_task.to_normal_event(self)
+    for i in range(4, 6):
+        region = 7
+        self.logger.info("-- Start Pushing Region " + str(region) + " --")
+        choose_region(self, region)
+        self.swipe(917, 220, 917, 552, duration=0.1)
+        time.sleep(1)
+        to_mission_info(self, 238, True)
+        for j in range(0, i - 1):
+            self.click(1172, 358, wait=False)
+            time.sleep(1)
+        to_mission_info(self, 238, True)
+        self.stage_data = get_stage_data(region)
+        mission = str(region) + "-" + str(i)
+        if mission == "ALL MISSION SWEEP AVAILABLE":
+            self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
+            normal_task.to_normal_event(self, True)
+            break
+        if mission == 'SUB':
+            self.click(645, 511, wait_over=True)
+            start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
+            time.sleep(1)
+            self.click(1171, 670, wait_over=True)
+        else:
+            current_task_stage_data = self.stage_data[mission]
+            img_possibles = {
+                'normal_task_help': (1017, 131),
+                'normal_task_task-info': (946, 540)
+            }
+            img_ends = "normal_task_task-wait-to-begin-feature"
+            image.detect(self, img_ends, img_possibles)
+
+            res, los = calc_team_number(self, current_task_stage_data)
+            for j in range(0, len(res)):
+                if res[j] == "swipe":
+                    time.sleep(1)
+                    self.swipe(los[j][0], los[j][1], los[j][2], los[j][3], duration=los[j][4])
+                    time.sleep(1)
+                else:
+                    choose_team(self, res[j], los[j], True)
+            start_mission(self)
+            check_skip_fight_and_auto_over(self)
+            start_action(self, current_task_stage_data['action'])
+        main_story.auto_fight(self)
+        if self.config['manual_boss'] and mission != 'SUB':
+            self.click(1235, 41)
+        hard_task.to_hard_event(self)
+        normal_task.to_normal_event(self, True)
+
 
 def implement(self):
-    # self.scheduler.change_display("普通关推图")
+    # test(self)
+    self.scheduler.change_display("普通关推图")
     self.quick_method_to_main_page()
-    normal_task.to_normal_event(self, True)
-    for i in range(0, len(self.config['explore_normal_task_regions'])):
-        region = self.config['explore_normal_task_regions'][i]
-        if not 4 <= region <= 17:
-            self.logger.warning("Region not support")
-            return True
-        choose_region(self, region)
-        self.stage_data = get_stage_data(region)
-        for k in range(0, 15):
-            mission = calc_need_fight_stage(self, region)
-            if mission == "ALL MISSION SWEEP AVAILABLE":
-                self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
-                normal_task.to_normal_event(self, True)
-                break
-            if mission == 'SUB':
-                self.click(645, 511, wait_over=True)
-                start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
-                time.sleep(1)
-                self.click(1171, 670, wait_over=True)
-                self.set_screenshot_interval(1)
-            else:
-                current_task_stage_data = self.stage_data[mission]
-                img_possibles = {
-                    'normal_task_help': (1017, 131),
-                    'normal_task_task-info': (946, 540)
-                }
-                img_ends = "normal_task_task-wait-to-begin-feature"
-                image.detect(self, img_ends, img_possibles)
-                res,los = cacl_team_number(self, current_task_stage_data)
-                for j in range(0, len(res)):
-                    choose_team(self, res[j], los[j], True)
-                start_mission(self)
-                check_skip_fight_and_auto_over(self)
-                self.set_screenshot_interval(1)
-                start_action(self, current_task_stage_data['action'])
-            self.set_screenshot_interval(self.config['screenshot_interval'])
+    if self.config['explore_normal_task_force_fight']:
+        normal_task.to_normal_event(self)
+        tasks = get_explore_normal_task_missions(self.config['explore_normal_task_missions'])
+        self.logger.info("VALID TASKS : " + str(tasks))
+        for i in range(0, len(tasks)):
+            region = tasks[i][0]
+            mission = tasks[i][1]
+            self.logger.info("-- Start Pushing " + str(region) + "-" + str(mission) + " --")
+            choose_region(self, region)
+            self.swipe(917, 220, 917, 552, duration=0.1)
+            time.sleep(1)
+            normal_task_y_coordinates = [242, 341, 439, 537, 611]
+            to_mission_info(self, normal_task_y_coordinates[mission-1], True)
+            self.stage_data = get_stage_data(region)
+            mission = str(region) + "-" + str(i)
+            current_task_stage_data = self.stage_data[mission]
+            img_possibles = {
+                'normal_task_help': (1017, 131),
+                'normal_task_task-info': (946, 540)
+            }
+            img_ends = "normal_task_task-wait-to-begin-feature"
+            image.detect(self, img_ends, img_possibles)
+            choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
+            check_skip_fight_and_auto_over(self)
+            start_action(self, current_task_stage_data['action'])
             main_story.auto_fight(self)
-            if self.config['manual_boss'] and mission != 'SUB':
+            if self.config['manual_boss']:
                 self.click(1235, 41)
             hard_task.to_hard_event(self)
             normal_task.to_normal_event(self, True)
-    return True
+    else:
+        need_change_acc = True
+        self.logger.info("VALID REGIONS : " + str(self.config['explore_normal_task_regions']))
+        self.quick_method_to_main_page()
+        normal_task.to_normal_event(self, True)
+        for i in range(0, len(self.config['explore_normal_task_regions'])):
+            region = self.config['explore_normal_task_regions'][i]
+            self.logger.info("-- Start Pushing Region " + str(region) + " --")
+            if not 4 <= region <= 24:
+                self.logger.warning("Region not support")
+                continue
+            choose_region(self, region)
+            self.stage_data = get_stage_data(region)
+            for k in range(0, 5):
+                mission = calc_need_fight_stage(self, region, self.config['explore_norma_task_force_sss'])
+                if mission == "ALL MISSION SWEEP AVAILABLE":
+                    self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
+                    normal_task.to_normal_event(self, True)
+                    break
+                if mission == 'SUB':
+                    self.click(645, 511, wait_over=True)
+                    start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
+                    time.sleep(1)
+                    self.click(1171, 670, wait_over=True)
+                else:
+                    current_task_stage_data = self.stage_data[mission]
+                    img_possibles = {
+                        'normal_task_help': (1017, 131),
+                        'normal_task_task-info': (946, 540)
+                    }
+                    img_ends = "normal_task_task-wait-to-begin-feature"
+                    image.detect(self, img_ends, img_possibles)
+                    choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
+                    start_mission(self)
+                    check_skip_fight_and_auto_over(self)
+                    start_action(self, current_task_stage_data['action'])
+                main_story.auto_fight(self, need_change_acc)
+                need_change_acc = False
+                if self.config['manual_boss']:
+                    self.click(1235, 41)
+                hard_task.to_hard_event(self)
+                normal_task.to_normal_event(self, True)
+        return True
 
 
 def get_stage_data(region):
@@ -61,29 +142,32 @@ def get_stage_data(region):
 
 def check_task_state(self):
     if image.compare_image(self, 'normal_task_SUB', 3, image=self.latest_img_array):
-        return "SUB"
+        return 'SUB'
     return color.check_sweep_availability(self.latest_img_array, self.server)
 
 
-def calc_need_fight_stage(self, region):
+def calc_need_fight_stage(self, region, force_sss):
     self.swipe(917, 220, 917, 552, duration=0.1)
     time.sleep(1)
-    to_mission_info(self, 238)
+    to_mission_info(self, 238, True)
     for i in range(1, 6):
         task_state = check_task_state(self)
         self.logger.info("Current mission status : {0}".format(task_state))
         if task_state == 'SUB':
             self.logger.info("Start SUB Fight")
             return task_state
-        if task_state == 'no-pass' or task_state == 'pass':
-            self.logger.info("Start main line fight")
+        if task_state == 'no-pass':
+            self.logger.info("Current task not pass. Start main line fight")
+            return str(region) + "-" + str(i)
+        if task_state == 'pass' and force_sss:
+            self.logger.info("Current task not sss. Start main line fight")
             return str(region) + "-" + str(i)
         if task_state == 'sss':
             self.logger.info("CURRENT MISSION SSS")
         if i == 5:
             return "ALL MISSION SWEEP AVAILABLE"
         self.logger.info("Check next mission")
-        self.click(1172, 358, wait=False)
+        self.click(1172, 358, wait=False, wait_over=True)
         time.sleep(1)
         self.latest_img_array = self.get_screenshot_array()
 
@@ -94,7 +178,7 @@ def get_force(self):
         'Global': (116, 542, 131, 570),
         'JP': (116, 542, 131, 570)
     }
-    self.latest_img_array = self.get_screenshot_array()
+    to_normal_task_mission_operating_page(self)
     ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server])
     if ocr_res == "UNKNOWN":
         return get_force(self)
@@ -128,7 +212,8 @@ def confirm_teleport(self):
     picture.co_detect(self, None, None, img_end, img_possibles, True)
 
 
-def start_action(self, actions):
+def start_action(self, actions, will_fight=False):
+    self.set_screenshot_interval(1)
     self.logger.info("Start Actions total : " + str(len(actions)))
     for i, act in enumerate(actions):
         desc = "start " + str(i + 1) + " operation : "
@@ -146,8 +231,8 @@ def start_action(self, actions):
         for j in range(0, len(op)):
             time.sleep(1)
             if op[j] == 'click':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
             elif op[j] == 'teleport':
                 confirm_teleport(self)
             elif op[j] == 'exchange':
@@ -161,39 +246,40 @@ def start_action(self, actions):
             elif op[j] == 'end-turn':
                 end_turn(self)
                 if i != len(actions) - 1:
-                    wait_over(self)
+                    wait_over(self, will_fight)
                     skip_first_screenshot = True
             elif op[j] == 'click_and_teleport':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
                 confirm_teleport(self)
             elif op[j] == 'choose_and_change':
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True, duration=0.3)
-                self.click(act['p'][0][0] - 100, act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True, duration=0.3)
+                self.click(pos[0] - 100, pos[1], wait=False, wait_over=True, duration=1)
             elif op[j] == 'exchange_and_click':
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
-                self.click(act['p'][0][0], act['p'][0][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
             elif op[j] == 'exchange_twice_and_click':
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 self.click(83, 557, wait=False, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
-                self.click(act['p'][0], act['p'][1], wait=False, wait_over=True)
-                act['p'].pop(0)
+                pos = act['p'][0]
+                self.click(pos[0], pos[1], wait=False, wait_over=True)
 
         if 'ec' in act:
             wait_formation_change(self, force_index)
         if 'wait-over' in act:
-            wait_over(self)
+            wait_over(self, will_fight)
             skip_first_screenshot = True
             time.sleep(2)
         if i != len(actions) - 1:
             to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
+    self.set_screenshot_interval(self.config['screenshot_interval'])
 
 
 def start_choose_side_team(self, index):
@@ -233,7 +319,7 @@ def choose_region(self, region):
         else:
             self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
-        self.latest_img_array = self.get_screenshot_array()
+        normal_task.to_normal_event(self)
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
 
 
@@ -275,20 +361,60 @@ def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
-def wait_over(self):
+def wait_over(self, will_fight=False):
     self.logger.info("Wait until move available")
     img_ends = "normal_task_mission-operating-task-info-notice"
+    rgb_possibles = {"fighting_feature": (0, 0)}
     img_possibles = {
         'normal_task_task-operating-feature': (997, 670),
         'normal_task_teleport-notice': (885, 164),
+        "normal_task_fight-confirm": (1171, 670),
     }
-    image.detect(self, img_ends, img_possibles)
+    while True:
+        if not self.flag_run:
+            return False
+        color.wait_loading(self)
+        if image.compare_image(self, img_ends, 3, image=self.latest_img_array, need_log=False):
+            self.logger.info('end : ' + img_ends)
+            return
+        f = 0
+        if will_fight:
+            for position, click in rgb_possibles.items():
+                for j in range(0, len(self.rgb_feature[position][0])):
+                    if not color.judge_rgb_range(self.latest_img_array,
+                                                 self.rgb_feature[position][0][j][0],
+                                                 self.rgb_feature[position][0][j][1],
+                                                 self.rgb_feature[position][1][j][0],
+                                                 self.rgb_feature[position][1][j][1],
+                                                 self.rgb_feature[position][1][j][2],
+                                                 self.rgb_feature[position][1][j][3],
+                                                 self.rgb_feature[position][1][j][4],
+                                                 self.rgb_feature[position][1][j][5]):
+                        break
+                else:
+                    self.logger.info("find : " + position)
+                    f = 1
+                    if position == "fighting_feature":
+                        self.set_screenshot_interval(0.3)
+                        main_story.auto_fight(self)
+                        to_normal_task_mission_operating_page(self)
+                        self.set_screenshot_interval(1)
+                    self.latest_screenshot_time = time.time()
+                    break
+        if f == 0:
+            if img_possibles is not None:
+                for position, click in img_possibles.items():
+                    if image.compare_image(self, position, 3, need_loading=False, image=self.latest_img_array,
+                                           need_log=False):
+                        self.logger.info("find " + position)
+                        self.click(click[0], click[1], False)
+                        self.latest_screenshot_time = time.time()
+                        break
 
 
 def start_mission(self):
     img_ends = "normal_task_task-operating-feature"
     img_possibles = {
-        'normal_task_fight-task': (1171, 670),
         'normal_task_task-begin-without-further-editing-notice': (768, 498),
         'normal_task_task-operating-round-over-notice': (888, 163),
         'normal_task_task-wait-to-begin-feature': (1171, 670),
@@ -297,10 +423,10 @@ def start_mission(self):
     image.detect(self, img_ends, img_possibles)
 
 
-def to_mission_info(self, y):
+def to_mission_info(self, y, skip_first_screenshot=False):
     img_end = "normal_task_task-info"
     img_possible = {'normal_task_select-area': (1114, y, 3)}
-    image.detect(self, img_end, img_possible)
+    image.detect(self, img_end, img_possible, skip_first_screenshot=skip_first_screenshot)
 
 
 def wait_formation_change(self, force_index):
@@ -319,14 +445,16 @@ def check_skip_fight_and_auto_over(self):
         self.click(1194, 600)
 
 
-def cacl_team_number(self, current_task_stage_data):
+def calc_team_number(self, current_task_stage_data):
     pri = {
-        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2'],
-        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2'],
-        'burst1': ['burst1', 'burst2', 'pierce1', 'pierce2', 'mystic1', 'mystic2'],
-        'burst2': ['burst2', 'pierce1', 'pierce2', 'mystic1', 'mystic2'],
-        'mystic1': ['mystic1', 'mystic2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
-        'mystic2': ['mystic2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
+        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
+        'burst1': ['burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
+        'burst2': ['burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
+        'mystic1': ['mystic1', 'mystic2', 'shock1', 'shock2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+        'mystic2': ['mystic2', 'burst1', 'shock1', 'shock2', 'burst2', 'pierce1', 'pierce2'],
+        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ],
+        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ]
     }
     length = len(current_task_stage_data['start'])
     used = {
@@ -335,12 +463,19 @@ def cacl_team_number(self, current_task_stage_data):
         'burst1': False,
         'burst2': False,
         'mystic1': False,
-        'mystic2': False
+        'mystic2': False,
+        'shock1': False,
+        'shock2': False,
     }
+    keys = used.keys()
     last_chosen = 0
     res = []
     los = []
     for attr, position in current_task_stage_data['start'].items():
+        if attr not in keys:
+            res.append(attr)
+            los.append(position)
+            continue
         los.append(position)
         for i in range(0, len(pri[attr])):
             possible_attr = pri[attr][i]
@@ -369,6 +504,47 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
         "normal_task_mission-operating-task-info-notice": (995, 101),
         "normal_task_end-turn": (890, 162),
         "normal_task_teleport-notice": (886, 162),
+        "normal_task_fight-confirm": (1171, 670),
     }
     img_ends = "normal_task_task-operating-feature"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+
+
+def get_explore_normal_task_missions(self, st):
+    try:
+        st = st.split(',')
+        tasks = []
+        for i in range(0, len(st)):
+            if '-' in st[i]:
+                temp = st[i].split('-')
+                region = int(temp[0])
+                if region < 4 or region > 24:
+                    self.logger.error("region" + temp[0] + "not support")
+                    continue
+                if len(temp) != 2:
+                    continue
+                tasks.append([int(temp[0]), int(temp[1])])
+            else:
+                region = int(st[i])
+                if region < 4 or region > 24:
+                    self.logger.error("region" + st[i] + "not support")
+                    continue
+                for j in range(1, 6):
+                    tasks.append([int(st[i]), j])
+        return tasks
+    except Exception as e:
+        self.logger.error(e)
+        self.logger.error("explore_normal_task_missions config error")
+        return False
+
+
+def choose_team_according_to_stage_data_and_config(self, current_task_stage_data):
+    res, los = calc_team_number(self, current_task_stage_data)
+    for j in range(0, len(res)):
+        if res[j] == "swipe":
+            time.sleep(1)
+            self.swipe(los[j][0], los[j][1], los[j][2], los[j][3], duration=los[j][4])
+            time.sleep(1)
+        else:
+            choose_team(self, res[j], los[j], True)
+    start_mission(self)
