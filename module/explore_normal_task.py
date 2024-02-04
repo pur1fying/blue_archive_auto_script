@@ -102,7 +102,7 @@ def implement(self):
             choose_region(self, region)
             self.stage_data = get_stage_data(region)
             for k in range(0, 5):
-                mission = calc_need_fight_stage(self, region, self.config['explore_norma_task_force_sss'])
+                mission = calc_need_fight_stage(self, region, self.config['explore_normal_task_force_sss'])
                 if mission == "ALL MISSION SWEEP AVAILABLE":
                     self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
                     normal_task.to_normal_event(self, True)
