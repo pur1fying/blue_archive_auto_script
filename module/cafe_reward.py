@@ -131,18 +131,12 @@ def interaction_for_cafe_solve_method3(self):
 
 
 def to_invitation_ticket(self, skip_first_screenshot=False):
-    if self.server == "CN":
-        possible = {
-            'cafe_cafe-reward-status': (905, 159, 3),
-            'cafe_menu': (838, 647, 3),
-        }
-        end = 'cafe_invitation-ticket'
-        return image.detect(self, end, possible, skip_first_screenshot=skip_first_screenshot)
-    elif self.server == "Global":
-        click_pos = [[836, 650]]
-        los = ["cafe"]
-        end = ["invitation_ticket"]
-        color.common_rgb_detect_method(self, click_pos, los, end, skip_first_screenshot=skip_first_screenshot)
+    possible = {
+        'cafe_cafe-reward-status': (905, 159),
+        'cafe_menu': (838, 647),
+    }
+    end = 'cafe_invitation-ticket'
+    return image.detect(self, end, possible, skip_first_screenshot=skip_first_screenshot)
 
 
 def invite_girl(self):
