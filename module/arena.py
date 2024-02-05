@@ -64,7 +64,7 @@ def choose_enemy(self):
     self_lv = self.ocr.get_region_num(self.latest_img_array, self_level_region[self.server])
     self.logger.info("self level " + str(self_lv))
     refresh = 0
-    while True:
+    while self.flag_run:
         if refresh >= max_refresh:
             break
         opponent_lv = self.ocr.get_region_num(self.latest_img_array, opponent_level_region[self.server])
