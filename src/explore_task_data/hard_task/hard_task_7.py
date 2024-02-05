@@ -12,7 +12,7 @@ stage_data = {
             {'t': 'click_and_teleport', 'p': (503, 504), 'wait-over': True, 'ec': True, "desc": "2 left and tp"},
 
             {'t': 'choose_and_change', 'p': (668, 335), "desc": "swap 1 2"},
-            {'t': 'click_and_teleport', 'p': (667, 355), 'ec': True, "desc": "1 choose self and tp"},
+            {'t': 'click_and_teleport', 'p': (667, 355), "desc": "1 choose self and tp"},
             {'t': 'click', 'p': (527, 364), 'ec': True, "desc": "1 upper left"},
             {'t': 'click', 'p': (525, 268), 'ec': True, 'wait-over': True, "desc": "2 left"},
 
