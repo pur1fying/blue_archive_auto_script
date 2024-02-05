@@ -216,7 +216,7 @@ def invite_girl(self, no=1):
             break
 
 
-def collect(self, skip_first_screenshot=False):
+def collect(self):
     self.click(1150, 643, duration=1, wait_over=True)
     self.click(640, 522, wait_over=True)
 

@@ -162,8 +162,7 @@ def pd_enter_button(img_array):
 
 
 def common_skip_plot_method(self):
-    fail_cnt = 0
-    while fail_cnt <= 20 / self.screenshot_interval:
+    while self.flag_run:
         color.wait_loading(self)
         if pd_enter_button(self.latest_img_array):
             self.logger.info("Begin Relationship Story")
@@ -173,14 +172,9 @@ def common_skip_plot_method(self):
             self.click(766, 520, wait=False, wait_over=True)
             return True
         else:
-            fail_cnt += 1
             if pd_menu_bright(self.latest_img_array):
                 self.logger.info("find MENU button")
                 self.click(1205, 34, wait=False, duration=0.1, wait_over=True)
             elif pd_skip_plot_button(self.latest_img_array):
                 self.logger.info("find SKIP PLOT button")
                 self.click(1213, 116, wait=False, duration=0.1, wait_over=True)
-            else:
-                self.logger.info("Didn't find confirm button, fail count: " + str(fail_cnt))
-    self.logger.error("skip plot fail")
-    return False
