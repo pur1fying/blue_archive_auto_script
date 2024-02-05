@@ -30,48 +30,20 @@ def implement(self):
 
 def to_cafe(self, skip_first_screenshot=False):
     img_possibles = {
-        'CN': {
-            'main_page_home-feature': (89, 653),
-            'cafe_cafe-reward-status': (905, 159),
-            'cafe_invitation-ticket': (835, 97),
-            'cafe_students-arrived': (922, 189),
-            'main_page_full-notice': (887, 165),
-        },
-        'Global': None,
-        'JP': {
-            'main_page_home-feature': (89, 653),
-            'cafe_cafe-reward-status': (982, 149),
-            'cafe_invitation-ticket': (835, 97),
-            'cafe_students-arrived': (922, 189),
-            # 'main_page_full-notice': (887, 165),
-        }
+        'cafe_cafe-reward-status': (904, 159),
+        'cafe_invitation-ticket': (835, 97),
+        'cafe_students-arrived': (922, 189),
+        'main_page_full-notice': (887, 165),
+        'main_page_insufficient-inventory-space': (908, 138)
     }
     rgb_possibles = {
-        'CN': {
-            'gift': [1240, 577],
-            'reward_acquired': [640, 154],
-            'relationship_rank_up': [640, 360]
-        },
-        'Global': {
-            "full_ap_notice": [889, 162],
-            "invitation_ticket": [836, 97],
-            "relationship_rank_up": [640, 360],
-            "main_page": [95, 699],
-            "guide": [640, 458],
-            "insufficient_inventory_space": [910, 138],
-            "cafe_earning_status_bright": [902, 156],
-            "cafe_earning_status_grey": [902, 156],
-            "gift": [1240, 574],
-            "reward_acquired": [628, 147],
-        },
-        'JP': {
-            'gift': [1240, 577],
-            'reward_acquired': [640, 154],
-            'relationship_rank_up': [640, 360]
-        }
+        "main_page": [95, 699],
+        'gift': [1240, 577],
+        'reward_acquired': [640, 154],
+        'relationship_rank_up': [640, 360]
     }
-    picture.co_detect(self, 'cafe', rgb_possibles[self.server], 'cafe_menu', img_possibles[self.server],
-                      skip_first_screenshot)
+    picture.co_detect(self, 'cafe', rgb_possibles, 'cafe_menu', img_possibles, skip_first_screenshot)
+
 
 
 def to_no2_cafe(self):
@@ -276,22 +248,8 @@ def invite_girl(self):
 
 
 def collect(self, skip_first_screenshot=False):
-    if self.server == "CN" or self.server == "JP":
-        self.click(1150, 643, duration=1, wait_over=True)
-        self.click(640, 522, wait_over=True)
-    elif self.server == "Global":
-        click_pos = \
-            [
-                [1150, 643],
-                [889, 162],
-                [910, 138],
-                [640, 522],
-                [628, 147],
-            ]
-        los = ["cafe", "full_ap_notice", "insufficient_inventory_space", "cafe_earning_status_bright",
-               "reward_acquired"]
-        ends = ["insufficient_inventory_space", "cafe_earning_status_grey"]
-        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
+    self.click(1150, 643, duration=1, wait_over=True)
+    self.click(640, 522, wait_over=True)
 
 
 def get_invitation_ticket_status(self):
