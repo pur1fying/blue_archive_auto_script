@@ -1,5 +1,3 @@
-import time
-
 from core import color, picture
 
 
@@ -117,9 +115,9 @@ def to_scrimmage(self, num, skip_first_screenshot=False):
     img_possibles = {
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (716, 599),
-        "scrimmage_task_purchase-scrimmage-ticket": (766, 507),
+        "scrimmage_purchase-scrimmage-ticket": (886, 162),
         "scrimmage_academy-select": (992, select_scrimmage_y[self.server][num]),
-        "scrimmage_purchase-scrimmage-ticket-notice": (766, 507),
+        "scrimmage_purchase-scrimmage-ticket-notice": (886, 162),
         "scrimmage_task-info": (task_info_cross[self.server], 142),
     }
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
@@ -136,7 +134,10 @@ def to_choose_scrimmage(self, skip_first_screenshot=False):
         "main_page-home-feature": (1198, 580),
         "main_page-bus": (716, 599),
         "scrimmage_level-list": (59, 45),
+        'normal_task_skip-sweep-complete': (643, 506),
+        "normal_task_sweep-complete": (643, 585),
         "scrimmage_task-info": (task_info_cross[self.server], 142),
+        "scrimmage_purchase-scrimmage-ticket": (886, 162),
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 

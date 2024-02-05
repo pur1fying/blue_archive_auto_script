@@ -5,52 +5,54 @@ from module import main_story
 
 
 def implement(self):
-    # self.quick_method_to_main_page()
+    self.quick_method_to_main_page()
     to_total_assault(self, True)
     tickets = get_total_assault_tickets(self)
     self.logger.info("TICKETS: " + str(tickets))
-    # if tickets == 0:
-    #     self.logger.warning("NO TICKETS")
-    #     return False
+    if tickets == 0:
+        self.logger.warning("NO TICKETS")
+        return False
     maxx_name = self.config['totalForceFightDifficulty']
     self.logger.info("begin auto total assault highest difficulty: " + maxx_name)
     total_assault_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3, "EXTREME": 4,
                                           "INSANE": 5, "TORMENT": 6}
     maxx = total_assault_difficulty_name_dict[maxx_name]
-    maxx = 4
     if judge_unfinished_fight(self):
         finish_existing_total_assault_task(self)
     pri_total_assault, y = total_assault_highest_difficulty_button_detection(self, maxx)
-    total_assault_x = 1156
     res = fight_difficulty_x(self, pri_total_assault, y)
+    max_sweepable = -1
     if res == "NO_TICKETS":
         tickets = 0
-
     else:
         tickets -= 1
-        win = False
-        while res == "WIN" and pri_total_assault != len(self.total_assault_difficulty_name) - 1 and tickets > 0:
-            win = True
+        while res == "WIN" and pri_total_assault != len(self.total_assault_difficulty_name) - 2 and tickets > 0 and self.flag_run:
             if pri_total_assault == maxx:
                 break
+            max_sweepable = pri_total_assault
             pri_total_assault += 1
-            res = fight_difficulty_x(self, pri_total_assault)
+            res = fight_difficulty_x(self, pri_total_assault + 1)
+            if res == "WIN":
+                max_sweepable = pri_total_assault
 
-        while (res == "LOSE" or res == "UNLOCK") and pri_total_assault >= 0 and win == False and tickets > 0:
-            if res == "LOSE":
-                give_up_current_fight(self)
+        while res == "LOSE" and pri_total_assault >= 0 and tickets > 0 and self.flag_run:
+            give_up_current_fight(self)
             pri_total_assault -= 1
-            t = fight_difficulty_x(self, pri_total_assault)
+            res = fight_difficulty_x(self, pri_total_assault)
+            if res == "WIN":
+                max_sweepable = pri_total_assault
+                break
 
-    if pri_total_assault == -1:  # normal打不过
-        self.logger.info("打不过NORMAL, 快找爱丽丝邦邦 QAQ")
+    if pri_total_assault == -1:
+        self.logger.critical("打不过NORMAL, 快找爱丽丝邦邦 QAQ")
         return True
 
-    if tickets > 0:
-        start_sweep(self, pri_total_assault, tickets)
+    if tickets > 0 and max_sweepable != -1:
+        start_sweep(self, max_sweepable, tickets)
 
     collect_season_reward(self)
     collect_accumulated_point_reward(self)
+    return True
 
 
 def find_button_y(self, y):
@@ -87,17 +89,16 @@ def fight_difficulty_x(self, level, y_for_x=0):
         res = to_formation_edit_i(self, i, (1019, 524), True)
         if res == "total_assault_inadequate-ticket":
             self.logger.warning("TICKET INADEQUATE QUIT auto total assault")
+            to_total_assault(self, True)
             return "NO_TICKETS"
         enter_fight(self)
         main_story.auto_fight(self, True if i == 0 else False)
         res = get_fight_result(self)
+        to_total_assault(self, True)
         if res == "total_assault_battle-lost-confirm":
             self.logger.info("total force fight attempt " + str(i + 1) + " FAILED")
-            to_total_assault(self, True)
-            return False
         if res == "total_assault_battle-win-confirm":
             self.logger.info("total assault auto fight SUCCEEDED")
-            to_total_assault(self, True)
             return "WIN"
     self.logger.info("4 attempts ALL FAILED")
     return "LOSE"
@@ -117,14 +118,15 @@ def finish_existing_total_assault_task(self):
                     self.logger.info("FORMATION " + str(j + 1) + " UNUSABLE")
                     break
                 self.logger.info("CONTINUE with FORMATION " + str(j + 1))
-                self.click(1160, 666)
-                res = self.common_fight_practice()
-                if not res:
-                    self.logger.info("total force fight attempt FAILED")
-                if res:
-                    self.logger.info("total force fight SUCCEEDED")
+                enter_fight(self)
+                main_story.auto_fight(self, True)
+                res = get_fight_result(self)
+                to_total_assault(self, True)
+                if res == "total_assault_battle-lost-confirm":
+                    self.logger.info("total assault FAILED")
+                if res == "total_assault_battle-win-confirm":
+                    self.logger.info("total assault auto fight SUCCEEDED")
                     return "WIN"
-                continue
         if unable_to_fight_formation.all():
             self.logger.info("0 USABLE FORMATION")
             give_up_current_fight(self)
@@ -219,6 +221,8 @@ def to_total_assault(self, skip_first_screenshot):
         "total_assault_room-info": (1123, 168),
         'total_assault_inadequate-ticket': (886, 162),
         'total_assault_edit-force': (62, 38),
+        "normal_task_sweep-complete": (643, 585),
+        'normal_task_skip-sweep-complete': (643, 506),
     }
     img_ends = "total_assault_menu"
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
@@ -239,14 +243,14 @@ def to_total_assault_info(self, skip_first_screenshot):
 def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
     loy = [195, 275, 354, 423]
     y = loy[i]
-    rgb_ends = "formation_edit" + str(i+1)
+    rgb_ends = "formation_edit" + str(i + 1)
     rgb_possibles = {
         "formation_edit1": (74, y),
         "formation_edit2": (74, y),
         "formation_edit3": (74, y),
         "formation_edit4": (74, y),
     }
-    rgb_possibles.pop("formation_edit" + str(i+1))
+    rgb_possibles.pop("formation_edit" + str(i + 1))
     img_ends = "total_assault_inadequate-ticket"
     img_possibles = {"total_assault_room-info": lo}
     return picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
@@ -273,7 +277,7 @@ def judge_formation_usable(self):
             for j in range(0, len(ocr_res)):
                 if ocr_res[j].lower() in word[self.server]:
                     cnt += 1
-            if cnt >= len(word[self.server])/2:
+            if cnt >= len(word[self.server]) / 2:
                 return False
     return True
 
@@ -339,7 +343,6 @@ def one_detect(self, button_detected, maxx, character_dict):
 
 def give_up_current_fight(self):
     self.logger.info("give up current fight")
-    to_total_assault(self, True)
     to_room_info(self, (1157, 219), True)
     img_possibles = {
         "total_assault_room-info": (821, 522),
@@ -347,7 +350,6 @@ def give_up_current_fight(self):
     }
     img_ends = "total_assault_menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
 
 
 def detect_level_y(self, target_dict):
@@ -370,6 +372,9 @@ def enter_fight(self):
         "total_assault_enter-fight-without-further-editing-notice": (767, 498),
         "total_assault_use-ticket-notice": (767, 498),
         "total_assault_edit-force": (1159, 654),
+        'plot_menu': (1202, 37),
+        'plot_skip-plot-button': (1208, 116),
+        'plot_skip-plot-notice': (770, 519),
     }
     rgb_ends = 'fighting_feature'
     rgb_possibles = {
@@ -400,12 +405,11 @@ def start_sweep(self, pri_total_assault, tickets):
     ]
     img_possibles = {"total_assault_room-info": (941, 411)}
     res = picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    if res == "total_assault_inadequate-ticket":
-        return "inadequate_ticket"
-    img_ends = [
-        "normal_task_skip-sweep-complete",
-        "normal_task_sweep-complete",
-    ]
-    img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
-    picture.co_detect(self, None, img_ends, img_possibles, True)
-    return "sweep_complete"
+    if res != "total_assault_inadequate-ticket":
+        img_ends = [
+            "normal_task_skip-sweep-complete",
+            "normal_task_sweep-complete",
+        ]
+        img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
+        picture.co_detect(self, None, img_ends, img_possibles, True)
+    to_total_assault(self, True)
