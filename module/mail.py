@@ -1,17 +1,11 @@
 import time
-
 from core import color, image
 
 
 def to_mail(self):
-    if self.server == 'CN' or self.server == 'JP':
-        possibles = {"main_page_home-feature": (1141, 43)}
-        image.detect(self, end='mail_menu', possibles=possibles, skip_first_screenshot=True)
-    elif self.server == 'Global':
-        click_pos = [[1141, 43]]
-        pd_los = ["main_page"]
-        end = ["mail"]
-        color.common_rgb_detect_method(self, click_pos, pd_los, end, True)
+    possibles = {"main_page_home-feature": (1141, 43)}
+    image.detect(self, end='mail_menu', possibles=possibles, skip_first_screenshot=True)
+
 
 
 def implement(self):
