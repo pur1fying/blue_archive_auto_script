@@ -68,65 +68,76 @@ def check_static_config():
         return
 
 
-def check_user_config():
-    if not os.path.exists('./config/config.json'):
-        with open('./config/config.json', 'w', encoding='utf-8') as f:
+def check_display_config(dir_path='./default_config'):
+    path = './config/' + dir_path + '/display.json'
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(default_config.DISPLAY_DEFAULT_CONFIG)
+
+
+def check_switch_config(dir_path='./default_config'):
+    path = './config/' + dir_path + '/switch.json'
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(default_config.SWITCH_DEFAULT_CONFIG)
+
+
+def check_user_config(dir_path='./default_config'):
+    path = './config/' + dir_path + '/config.json'
+    if not os.path.exists(path):
+        with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
             return
     try:
-        with open('./config/config.json', 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         data = update_config_reserve_old(data, json.loads(default_config.DEFAULT_CONFIG))
-        with open('./config/config.json', 'w', encoding='utf-8') as f:
+        with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
         return
     except Exception as e:
         print(e)
-        os.remove('./config/config.json')
-        with open('./config/config.json', 'w', encoding='utf-8') as f:
+        os.remove(path)
+        with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
         return
 
 
-def check_event_config():
-    if not os.path.exists('./config/event.json'):  # 如果不存在event.json则创建
-        with open('./config/event.json', 'w', encoding='utf-8') as f:
-            f.write(default_config.EVENT_DEFAULT_CONFIG)  # 写入默认配置
-            return
+def check_event_config(dir_path='./default_config'):
+    path = './config/' + dir_path + '/event.json'
+    default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
     try:
-        with open('./config/event.json', 'r', encoding='utf-8') as f:  # 如果存在则检查是否有新的配置项
+        with open(path, 'r', encoding='utf-8') as f:  # 如果存在则检查是否有新的配置项
             data = json.load(f)
-        default_config.EVENT_DEFAULT_CONFIG = json.loads(default_config.EVENT_DEFAULT_CONFIG)
-        for i in range(0, len(default_config.EVENT_DEFAULT_CONFIG)):
+        for i in range(0, len(default_event_config)):
             exist = False
             for j in range(0, len(data)):
-                if data[j]['func_name'] == default_config.EVENT_DEFAULT_CONFIG[i]['func_name']:
+                if data[j]['func_name'] == default_event_config[i]['func_name']:
                     exist = True
                     break
             if not exist:
-                data.insert(i, default_config.EVENT_DEFAULT_CONFIG[i])
-        with open('./config/event.json', 'w', encoding='utf-8') as f:
+                data.insert(i, default_event_config[i])
+        with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
     except Exception as e:
         print(e)
-        os.remove('./config/event.json')
-        with open('./config/event.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(json.loads(default_config.EVENT_DEFAULT_CONFIG), ensure_ascii=False, indent=2))
+        os.remove(path)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
         return
 
 
-def check_config():
+def check_config(dir_path):
     if not os.path.exists('./config'):
         os.mkdir('./config')
     check_static_config()
-    check_user_config()
-    check_event_config()
-
-    # 每次都要重新生成
-    with open('./config/display.json', 'w', encoding='utf-8') as f:
-        f.write(default_config.DISPLAY_DEFAULT_CONFIG)
-    with open('./config/switch.json', 'w', encoding='utf-8') as f:
-        f.write(default_config.SWITCH_DEFAULT_CONFIG)
+    if type(dir_path) is not list:
+        dir_path = [dir_path]
+    for path in dir_path:
+        if not os.path.exists('./config/' + path):
+            os.mkdir('./config/' + path)
+        check_user_config(path)
+        check_event_config(path)
+        check_display_config(path)
+        check_switch_config(path)
 
 
 class Widget(MSFluentWindow):
@@ -186,22 +197,18 @@ class Window(MSFluentWindow):
         self.tabBar = self.titleBar.tabBar
         self.navi_btn_list = []
         self.show()
-
         setThemeColor('#0078d4')
         self.__switchStatus = True
         config_dir_list = []
         for _dir_ in os.listdir('./config'):
-            if _dir_.endswith('.json') and _dir_.startswith('config_u_'):
-                config_dir_list.append(ConfigSet(_dir_))
+            if os.path.isdir(f'./config/{_dir_}'):
+                files = os.listdir(f'./config/{_dir_}')
+                if 'config.json' in files:
+                    config_dir_list.append(_dir_)
 
         if len(config_dir_list) == 0:
-            # copy the default config to config_u.json
-            with open('./config/config.json', 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            serial_name = int(datetime.datetime.now().timestamp())
-            with open(f'./config/config_u_{serial_name}.json', 'w', encoding='utf-8') as f:
-                f.write(json.dumps(data, ensure_ascii=False, indent=2))
-            config_dir_list.append(f'config_u_{serial_name}.json')
+            config_dir_list.append('default_config')
+        check_config(config_dir_list)
 
         # create sub interface
         from gui.fragments.home import HomeFragment
@@ -333,7 +340,6 @@ if __name__ == '__main__':
     # pa=Main()
     # pa._init_emulator()
     # pa.solve("arena")
-    check_config()
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)

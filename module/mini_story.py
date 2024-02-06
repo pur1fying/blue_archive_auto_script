@@ -1,7 +1,4 @@
 import time
-
-import cv2
-
 from core import color, picture, image
 
 

@@ -245,7 +245,7 @@ def choose_region(self, region):
         else:
             self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
-        self.latest_img_array = self.get_screenshot_array()
+        hard_task.to_hard_event(self)
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
 
 
@@ -257,7 +257,7 @@ def choose_team(self, number, position, skip_first_screenshot=True):
 
 def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
     img_possibles = {
-        "normal_task-present": (794, 207),
+        "normal_task_present": (794, 207),
         "normal_task_mission-operating-task-info-notice": (995, 101),
         "normal_task_end-turn": (890, 162),
         "normal_task_teleport-notice": (886, 162),

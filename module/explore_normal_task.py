@@ -58,7 +58,7 @@ def implement(self):
     # test(self)
     self.scheduler.change_display("普通关推图")
     self.quick_method_to_main_page()
-    if self.config['explore_normal_task_force_fight']:
+    if self.config['explore_normal_task_force_each_fight']:
         normal_task.to_normal_event(self)
         tasks = get_explore_normal_task_missions(self.config['explore_normal_task_missions'])
         self.logger.info("VALID TASKS : " + str(tasks))
@@ -102,7 +102,7 @@ def implement(self):
             choose_region(self, region)
             self.stage_data = get_stage_data(region)
             for k in range(0, 5):
-                mission = calc_need_fight_stage(self, region, self.config['explore_norma_task_force_sss'])
+                mission = calc_need_fight_stage(self, region, self.config['explore_normal_task_force_sss'])
                 if mission == "ALL MISSION SWEEP AVAILABLE":
                     self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
                     normal_task.to_normal_event(self, True)
@@ -319,7 +319,7 @@ def choose_region(self, region):
         else:
             self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
-        self.latest_img_array = self.get_screenshot_array()
+        normal_task.to_normal_event(self)
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
 
 

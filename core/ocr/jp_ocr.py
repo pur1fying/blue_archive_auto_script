@@ -36,8 +36,10 @@ class PPOCR_JP:
                 max_y = max(max_y, box[i][1])
                 min_y = min(min_y, box[i][1])
             upper_left = [int(min_x), int(min_y)]
+            upper_right = [int(max_x), int(min_y)]
+            lower_left = [int(min_x), int(max_y)]
             lower_right = [int(max_x), int(max_y)]
-            rectangles.append((upper_left, lower_right))
+            rectangles.append((upper_left, upper_right, lower_right, lower_left))
         rectangles.sort(key=lambda x: x[0][1])
         for upper_left, lower_right in rectangles:
             img_list.append(img[upper_left[1]:lower_right[1], upper_left[0]:lower_right[0]])

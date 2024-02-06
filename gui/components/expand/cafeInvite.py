@@ -18,7 +18,7 @@ class Layout(QWidget):
             self.student_name.append(self.config.static_config['Global_student_name'][i])
         self.label1 = QLabel('选择你要邀请的学生(国际服选英文)：', self)
         self.input1 = ComboBox(self)
-        self.favor_student = self.config.get('favorStudent')
+        self.favor_student = self.config.get('favorStudent1')
         self.input1.addItems(self.student_name)
         self.input1.setText(','.join(self.favor_student))
         self.input1.setCurrentIndex(self.student_name.index(self.favor_student[0]))

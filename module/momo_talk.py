@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from core import color, image
+from core import color, image, picture
 
 
 def implement(self, need_check_mode=True):
@@ -8,6 +8,8 @@ def implement(self, need_check_mode=True):
     to_momotalk2(self, True)
     if need_check_mode:
         check_mode(self)
+        time.sleep(0.5)
+        self.latest_img_array = self.get_screenshot_array()
     main_to_momotalk = True
     while 1:
         color.wait_loading(self)
@@ -45,50 +47,26 @@ def implement(self, need_check_mode=True):
 
 
 def check_mode(self):
-    mode_confirm_y = {
-        'CN': 365,
-        'Global': 426,
-        'JP': 426,
-    }
-    mode_unread_x = {
-        'CN': 444,
-        'Global': 563,
-        'JP': 555,
-    }
-    if self.server == 'CN' or self.server == 'JP':
-        if image.compare_image(self, "momo_talk_newest", threshold=3):
-            self.logger.info("change NEWEST to UNREAD mode")
-            self.click(514, 177, wait=False, duration=0.3, wait_over=True)
-            self.click(mode_unread_x[self.server], 297, wait=False, duration=0.3, wait_over=True)
-            self.click(461, mode_confirm_y[self.server], wait=False, duration=0.3, wait_over=True)
-        elif image.compare_image(self, "momo_talk_unread", threshold=3):
-            self.logger.info("UNREAD mode")
-        else:
-            self.logger.info("can't detect mode button")
-            return False
-        self.latest_img_array = self.get_screenshot_array()
-        if image.compare_image(self, "momo_talk_up", threshold=3):
-            self.logger.info("change UP to DOWN")
-            self.click(634, 169, duration=0.2, wait=False, wait_over=True)
-        elif image.compare_image(self, "momo_talk_down", threshold=3):
-            self.logger.info("DOWN mode")
-        else:
-            self.logger.info("can't detect up/down button")
-            return False
-        return True
-    elif self.server == 'Global':
-        if color.judge_rgb_range(self.latest_img_array, 487, 177, 50, 150, 50, 150, 50, 150) and \
-            color.judge_rgb_range(self.latest_img_array, 486, 183, 245, 255, 245, 255, 245, 255):
-            self.logger.info("change NEWEST to UNREAD mode")
-            self.click(514, 177, wait=False, duration=0.3, wait_over=True)
-            self.click(mode_unread_x[self.server], 297, wait=False, duration=0.3, wait_over=True)
-            self.click(461, mode_confirm_y[self.server], wait=False, duration=0.3, wait_over=True)
-        elif color.judge_rgb_range(self.latest_img_array, 486, 183, 50, 150, 50, 150, 50, 150) and \
-            color.judge_rgb_range(self.latest_img_array, 487, 177, 245, 255, 245, 255, 245, 255):
-            self.logger.info("UNREAD mode")
-        else:
-            self.logger.info("can't detect mode button")
-            return False
+    if image.compare_image(self, "momo_talk_newest", threshold=3):
+        self.logger.info("change NEWEST to UNREAD mode")
+        self.click(514, 177, wait=False, duration=0.3, wait_over=True)
+        self.click(562, 297, wait=False, duration=0.3, wait_over=True)
+        self.click(461, 426, wait=False, duration=0.3, wait_over=True)
+    elif image.compare_image(self, "momo_talk_unread", threshold=3):
+        self.logger.info("UNREAD mode")
+    else:
+        self.logger.info("can't detect mode button")
+        return False
+    self.latest_img_array = self.get_screenshot_array()
+    if image.compare_image(self, "momo_talk_up", threshold=3):
+        self.logger.info("change UP to DOWN")
+        self.click(634, 169, duration=0.2, wait=False, wait_over=True)
+    elif image.compare_image(self, "momo_talk_down", threshold=3):
+        self.logger.info("DOWN mode")
+    else:
+        self.logger.info("can't detect up/down button")
+        return False
+    return True
 
 
 def to_momotalk2(self, skip_first_screenshot=False):
@@ -130,7 +108,9 @@ def common_solve_affection_story_method(self):
             self.click(826, res[1], wait=False)
             time.sleep(0.5)
             common_skip_plot_method(self)
-            to_momotalk2(self)
+            rgb_end = "reward_acquired"
+            picture.co_detect(self, rgb_end)
+            to_momotalk2(self, True)
             return
         time.sleep(self.screenshot_interval)
     self.logger.info("current conversation over")

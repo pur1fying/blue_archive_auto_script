@@ -1,10 +1,10 @@
 stage_data = {
     '17': {
-        'SUB': "pierce1"
+        'SUB': "burst1"
     },
     '17-1': {
         'start': {
-            'mystic1': (550, 511),
+            'burst1': (550, 511),
             'pierce1': (344, 297),
         },
         'action': [
@@ -64,9 +64,8 @@ stage_data = {
             {'t': 'click', 'p': (773, 401), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (627, 332), 'ec': True, "wait-over": True, "desc": "2 right"},
 
-            {'t': 'exchange'},
+            {'t': 'exchange_and_click', 'p': (631, 335), "ec": True, "desc": "2 right"},
             {'t': 'choose_and_change', 'p': (631, 327), "desc": "swap 1 2"},
-            {'t': 'click', 'p': (690, 251), "ec": True, "desc": "2 right"},
             {'t': 'click', 'p': (690, 251), "wait-over": True, "desc": "1 upper right"},
 
             {'t': 'click', 'p': (622, 192), 'ec': True, "desc": "1 upper left"},

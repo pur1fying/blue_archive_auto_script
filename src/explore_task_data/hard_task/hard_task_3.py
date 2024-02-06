@@ -1,46 +1,48 @@
 stage_data = {
     '3-1-sss-present': {
         'start': {
-            'pierce1': (436, 388),
+            'pierce1': (370, 426),
         },
         'action': [
-            {'t': 'click', 'p': (633, 427), 'wait-over': True, 'desc': "right and tp"},
-            {'t': 'click', 'p': (633, 427), 'wait-over': True, 'desc': "choose self and tp"},
-            {'t': 'click', 'p': (693, 341), 'wait-over': True, 'desc': "right"},
-            {'t': 'click', 'p': (639, 320), 'desc': "lower left"},
+            {'t': 'click', 'p': (629, 405), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (705, 410), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (841, 423), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (712, 296), 'wait-over': True, 'desc': "upper right"},
+            {'t': 'click', 'p': (775, 378), 'desc': "lower right"},
         ]
     },
     '3-1-task': {
         'start': {
-            'pierce1': (436, 388),
+            'pierce1': (370, 426),
         },
         'action': [
-            {'t': 'click', 'p': (633, 427), 'wait-over': True, 'desc': "right"},
-            {'t': 'click', 'p': (693, 341), 'wait-over': True, 'desc': "right"},
-            {'t': 'click', 'p': (744, 261), 'desc': "lower right"},
+            {'t': 'click', 'p': (629, 405), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (705, 410), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (841, 423), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (778, 381), 'desc': "right"},
         ]
     },
     '3-2-sss-present-task': {
         'start': {
-            'pierce1': (436, 388),
+            'pierce1': (425, 575),
         },
         'action': [
-            {'t': 'click', 'p': (573, 403), 'wait-over': True, 'desc': "lower right"},
-            {'t': 'click', 'p': (628, 513), 'wait-over': True, 'desc': "lower right"},
-            {'t': 'click', 'p': (648, 532), 'wait-over': True, 'desc': "lower right"},
-            {'t': 'click', 'p': (772, 498), 'desc': "right"},
+            {'t': 'click', 'p': (613, 382), 'wait-over': True, 'desc': "upper right"},
+            {'t': 'click', 'p': (745, 330), 'wait-over': True, 'desc': "upper right"},
+            {'t': 'click', 'p': (775, 439), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (665, 543), 'desc': "lower right"},
         ]
     },
     '3-3-sss-present-task': {
         'start': {
-            'pierce1': (436, 388),
+            'pierce1': (346, 261),
         },
         'action': [
-            {'t': 'click', 'p': (619, 389), 'wait-over': True, 'desc': "right"},
-            {'t': 'click', 'p': (734, 454), 'wait-over': True, 'desc': "right"},
-            {'t': 'click', 'p': (725, 523), 'wait-over': True, 'desc': "lower right"},
-            {'t': 'click', 'p': (823, 490), 'wait-over': True, 'desc': "right"},
-            {'t': 'click', 'p': (642, 449), 'desc': "left"},
+            {'t': 'click', 'p': (626, 336), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (761, 363), 'wait-over': True, 'desc': "lower right"},
+            {'t': 'click', 'p': (731, 387), 'wait-over': True, 'desc': "lower right"},
+            {'t': 'click', 'p': (823, 373), 'wait-over': True, 'desc': "right"},
+            {'t': 'click', 'p': (784, 368), 'desc': "right"},
 
         ]
     },

@@ -1,69 +1,85 @@
 stage_data = {
     '23-1-sss-present-task': {
         'start': {
-            'pierce1': (670, 470),
-            'mystic1': (370, 215),
+            'burst1': (398, 695),
+            'pierce1': (688, 157),
         },
         'action': [
-            {'t': 'click', 'p': (605, 475), 'ec': True, 'desc': "1 left"},
-            {'t': 'click', 'p': (590, 385), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
+            {'t': 'click', 'p': (719, 507), 'ec': True, 'desc': "1 right"},
+            {'t': 'click', 'p': (735, 360), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
 
-            {'t': 'click', 'p': (565, 500), 'ec': True, 'desc': "1 left"},
-            {'t': 'click', 'p': (515, 410), 'ec': True, 'wait-over': True, 'desc': "2 lower left"},
+            {'t': 'click', 'p': (723, 424), 'ec': True, 'desc': "1 upper right"},
+            {'t': 'click', 'p': (768, 372), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
 
-            {'t': 'click', 'p': (508, 580), 'ec': True, 'desc': "1 lower left"},
-            {'t': 'click', 'p': (630, 410), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
+            {'t': ['exchange', 'click_and_teleport'], 'p': (885, 367), 'ec': True,'desc': "2 right and tp"},
+            {'t': 'click', 'p': (626, 411), 'wait-over': True, 'desc': "1 upper right"},
 
-            {'t': 'click', 'p': (395, 450), 'ec': True, 'desc': "1 left"},
-            {'t': 'click', 'p': (900, 365), 'ec': True, 'wait-over': True, 'desc': "2 right"},
+            {'t': 'exchange_and_click', 'p': (698, 241), 'ec': True, 'desc': "2 upper left"},
+            {'t': 'click', 'p': (560, 277), 'wait-over': True, 'desc': "1 upper right"},
 
-            {'t': 'exchange_and_click', 'p': (725, 450), 'wait-over': True, 'desc': "1 upper left"},
-            {'t': 'click', 'p': (445, 330), 'desc': "2 lower left"},
+            {'t': 'choose_and_change', 'p': (685, 288), 'desc': "swap 1 2"},
+            {'t': 'click', 'p': (742, 205), 'ec': True, 'desc': "1 upper right"},
+            {'t': 'click', 'p': (464, 283), 'ec': True, 'wait-over': True, 'desc': "2 upper left"},
+
+            {'t': 'exchange_and_click', 'ec': True, 'p': (431, 385), 'desc': "2 left"},
+            {'t': 'click', 'p': (841, 304), 'desc': "1 upper right"},
         ]
     },
     '23-2-sss-present-task': {
         'start': {
-            'pierce1': (550, 385),
-            'mystic1': (520, 560),
+            'burst1': (458, 346),
+            'pierce1': (921, 274),
         },
         'action': [
-            {'t': 'click', 'p': (565, 325), 'ec': True, 'desc': "1 left"},
-            {'t': 'click', 'p': (505, 410), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
+            {'t': 'click', 'p': (614, 403), 'ec': True, 'desc': "1 right"},
+            {'t': 'click_and_teleport', 'p': (721, 442), 'ec': True, 'wait-over': True, 'desc': "2 lower right and tp"},
 
-            {'t': 'exchange_and_click', 'p': (455, 330), 'ec': True, 'desc': "1 upper left"},
-            {'t': 'choose_and_change', 'p': (510, 345), 'desc': "swap 1 2"},
-            {'t': 'click', 'p': (395, 340), 'wait-over': True, 'desc': "1 left"},
+            {'t': 'exchange_and_click', 'p': (581, 208), 'ec': True, 'desc': "2 upper left"},
+            {'t': 'click_and_teleport', 'p': (659, 358), 'wait-over': True, 'desc': "1 upper right and tp"},
 
-            {'t': 'click', 'p': (440, 445), 'ec': True, 'desc': "1 lower left"},
-            {'t': 'click', 'p': (845, 455), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
+            {'t': 'click', 'p': (607, 488), 'ec': True, 'desc': "1 lower left"},
+            {'t': 'click', 'p': (417, 310), 'ec': True, 'wait-over': True, 'desc': "2 left"},
 
-            {'t': 'exchange_and_click', 'p': (728, 468), 'wait-over': True, 'desc': "2 lower left"},
-            {'t': 'click', 'p': (555, 475), 'desc': "1 lower right"},
+            {'t': 'exchange_and_click', 'p': (670, 297), 'ec': True, 'desc': "2 right"},
+            {'t': 'click', 'p': (807, 558), 'wait-over': True,'desc': "1 lower right"},
+
+            {'t': 'click', 'p': (667, 573), 'ec': True, 'desc': "1 lower left"},
+            {'t': 'click', 'p': (461, 286), 'ec': True, 'wait-over': True, 'desc': "2 left"},
+
+            {'t': 'exchange_and_click', 'p': (506, 209), 'ec': True, 'desc': "2 upper left"},
+            {'t': 'click', 'p': (593, 495), 'desc': "1 left"},
+
         ]
     },
     '23-3-sss-present-task': {
         'start': {
-            'pierce1': (940, 470),
-            'mystic1': (170, 425),
-            'pierce2': (380, 240),
+            'burst1': (462, 304),
+            'pierce1': (807, 411),
+            'burst2': (710, 160),
         },
         'action': [
-            {'t': 'click', 'p': (665, 415), 'ec': True, 'desc': "1 left"},
-            {'t': 'click', 'p': (550, 315), 'ec': True, 'desc': "2 upper right"},
-            {'t': 'click', 'p': (640, 320), 'ec': True, 'wait-over': True, 'desc': "3 right"},
+            {'t': 'click', 'p': (562, 503), 'ec': True, 'desc': "1 lower right"},
+            {'t': 'click', 'p': (635, 454), 'ec': True, 'desc': "2 left"},
+            {'t': 'click_and_teleport', 'p': (795, 274), 'ec': True, 'wait-over': True, 'desc': "3 right and tp"},
 
-            {'t': 'click', 'p': (720, 280), 'ec': True, 'desc': "1 upper left"},
-            {'t': 'click', 'p': (565, 265), 'ec': True, 'desc': "2 upper right"},
-            {'t': 'choose_and_change', 'p': (645, 320), 'desc': "swap 2 3"},
-            {'t': 'click', 'p': (760, 315), 'ec': True, 'wait-over': True, 'desc': "3 right"},
+            {'t': 'choose_and_change', 'p': (704, 409), 'desc': "swap 1 2"},
+            {'t': 'click', 'p': (823, 412), 'ec': True, 'desc': "1 right"},
+            {'t': 'exchange_and_click', 'p': (620, 422), 'ec': True, 'desc': "3 right"},
+            {'t': 'click', 'p': (566, 355), 'ec': True, 'wait-over': True, 'desc': "2 left"},
 
-            {'t': 'exchange_and_click', 'p': (440, 445), 'ec': True, 'desc': "2 lower left"},
-            {'t': 'exchange_twice_and_click', 'p': (835, 430), 'wait-over': True, 'desc': "3 lower right"},
-            {'t': 'choose_and_change', 'p': (665, 410), 'desc': "swap 1 2"},
-            {'t': 'click', 'p': (605, 495), 'wait-over': True, 'desc': "1 lower left"},
+            {'t': ['exchange_twice','choose_and_change'], 'p': (497, 372), 'desc': "swap 1 3"},
+            {'t': 'click', 'p': (443, 292), 'ec': True, 'desc': "3 upper left"},
+            {'t': 'click', 'p': (846, 483), 'ec': True, 'desc': "1 lower right"},
+            {'t': 'click_and_teleport', 'p': (383, 427), 'ec': True, 'wait-over': True, 'desc': "2 left and tp"},
 
-            {'t': 'exchange_twice_and_click', 'p': (845, 325), 'ec': True, 'desc': "3 upper left"},
-            {'t': 'click', 'p': (435, 490), 'desc': "1 lower left"},
+            {'t': 'exchange_and_click', 'p': (631, 199), 'ec': True, 'desc': "2 upper left"},
+            {'t': 'click', 'p': (670, 463), 'ec': True, 'desc': "1 lower right"},
+            {'t': 'click', 'p': (616, 343), 'ec': True, 'wait-over': True, 'desc': "3 right"},
+
+            {'t': 'exchange_and_click', 'p': (534, 193), 'ec': True, 'desc': "2 upper left"},
+            {'t': 'exchange_twice_and_click', 'p': (596, 390), 'ec': True, 'desc': "3 upper right"},
+            {'t': 'click', 'p': (668, 578), 'desc': "1 lower left"},
+
         ]
     },
 }

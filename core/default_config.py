@@ -106,12 +106,12 @@ EVENT_DEFAULT_CONFIG = """
     "func_name": "create"
   },
   {
-    "enabled": true,
+    "enabled": false,
     "priority": 15,
     "interval": 0,
     "next_tick": 0,
     "event_name": "总力战",
-    "func_name": "total_force_fight"
+    "func_name": "total_assault"
   },
   {
     "enabled": true,
@@ -185,7 +185,10 @@ DEFAULT_CONFIG = """
     "ArenaLevelDiff": 5,
     "maxArenaRefreshTimes": 10,
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
+    "use_acceleration_ticket": false,
     "createTime": "3",
+    "createTimeLastRefreshTime": "0",
+    "alreadyCreateTime": "0",
     "totalForceFightDifficulty": "NORMAL",
     "hardPriority": "1-1-1",
     "mainlinePriority": "5-1-1",
@@ -198,8 +201,11 @@ DEFAULT_CONFIG = """
     "patStyle": "拖动礼物",
     "antiHarmony": true,
     "bannerVisibility": true,
-    "favorStudent": [
+    "favorStudent1": [
         "爱丽丝"
+    ],
+    "favorStudent2": [
+        "爱丽丝(女仆)"
     ],
     "server": "官服",
     "adbPort": "5555",
@@ -210,6 +216,18 @@ DEFAULT_CONFIG = """
         1,
         1,
         1
+    ],
+    "lesson_relationship_first": false,
+    "lesson_each_region_object_priority": [
+        ["primary","normal","advanced","superior"],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
     ],
     "purchase_lesson_ticket_times": "0",
     "explore_normal_task_regions": [
@@ -279,7 +297,6 @@ DEFAULT_CONFIG = """
         "mail",
         "collect_daily_power",
         "common_shop",
-        "tactical_challenge_power",
         "rewarded_task",
         "normal_task",
         "hard_task",
@@ -288,7 +305,7 @@ DEFAULT_CONFIG = """
         "collect_reward",
         "momo_talk",
         "create",
-        "total_force_fight"
+        "total_assault"
     ]
 }
 """
@@ -370,6 +387,137 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "common_shop_price_list": {
+        "CN": [
+            ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],
+            ["学院交流会[崔尼蒂]券",30,"pyroxene"],["学院交流会[歌赫娜]券",30,"pyroxene"],["学院交流会[千禧年]券",30,"pyroxene"],["初级经验珠", 10000, "creditpoints"],
+            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 20000, "creditpoints"],
+            ["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+        ],
+        "Global": [
+            ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+        ],
+        "JP": [
+            ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+        ]
+    },
+    "tactical_challenge_shop_price_list": {
+        "CN": [
+            ["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],["歌原神明文字x5",50],
+            ["30AP", 15],["60AP", 30], ["初级经验书x5", 5],["中级经验书x10", 25],
+            ["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],["信用点x5k", 20],
+            ["信用点x75k", 60],["信用点x125k", 10]
+        ],
+        "Global": [
+             ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
+             ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
+             ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
+             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
+        ],
+        "JP": [
+             ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
+             ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
+             ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
+             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 100]
+        ]
+    },
+    "node_name": {
+        "花":{
+            "CN": "花",
+            "Global": "Flower",
+            "JP": "花"
+        }
+    },
+    "create_default_priority": {
+        "CN": [
+                "花",
+                "MomoFriends咖啡厅",
+                "果冻游戏中心",
+                "情人节",
+                "夏日",
+                "万圣节",
+                "温泉浴场",
+                "新年",
+                "色彩",
+                "灿烂",
+                "武器部件",
+                "铜",
+                "光芒",
+                "玲珑",
+                "白金",
+                "黄金",
+                "白银",
+                "金属",
+                "隐然"
+            ],
+        "Global":
+            [
+                "Flower",
+                "Momo Friends Cafe Set",
+                "Jellies Arcade Set",
+                "Valentine's Set",
+                "Summer Pool Party Set",
+                "Jack-O-Lantern Cafe Set",
+                "Hot Springs Resort Set",
+                "New Year's House Set",
+                "Military Campground Set",
+                "Beachside Set",
+                "Field Day Set",
+                "Abydos Classroom Set",
+                "Game Development Department Set",
+                "Sunshine Resort Set",
+                "Department Store Set",
+                "Gehenna Party Set",
+                "Colorful",
+                "Radiant",
+                "Weapon Parts",
+                "Copper",
+                "Platinum",
+                "Gold",
+                "Silver",
+                "Metal",
+                "Shiny",
+                "Brilliant",
+                "Subtle"
+        ],
+        "JP": [
+            "花弁",
+            "モモフレンズのカフェシリーズ",
+            "ゼリーズゲーセンシリーズ",
+            "バレンタインシリーズ",
+            "サマーリゾートシリーズ",
+            "ハロウィーンカフェシリーズ",
+            "伝統的な温泉郷シリーズ",
+            "お正月シリーズ",
+            "ミリタリーアウトドア",
+            "ビーチサイドシリーズ",
+            "大運動会シリーズ",
+            "アビドス教室シリーズ",
+            "ゲーム開発部シリーズ",
+            "サンシャインリゾートシリーズ",
+            "デパートシリーズ",
+            "ゲヘナパーティーシリーズ",
+            "煌めき",
+            "パーツ",
+            "輝き",
+            "铜",
+            "金属",
+            "銀",
+            "金",
+            "プラチナ",
+            "明かり",
+            "瞬き"
+            ]
+    },
     "lesson_region_name":{
         "CN": [
             "沙勒业务区",
@@ -647,16 +795,6 @@ STATIC_DEFAULT_CONFIG = '''
         "CN": "no_68_spring_wild_dream",
         "Global": null,
         "JP": null
-    },
-    "common_shop_price_list": {
-        "CN": [30,30,30,30,10000,40000,96000,128000,10000,40000,96000,128000,8000,8000,25000,25000],
-        "JP": [12500, 125000, 300000, 500000, 10000, 40000, 96000, 128000, 10000, 40000, 96000, 128000, 20000, 80000, 192000, 256000, 8000, 8000, 25000, 25000],
-        "Global": [12500, 125000, 300000, 500000, 10000, 40000, 96000, 128000, 10000, 40000, 96000, 128000, 20000, 80000, 192000, 256000, 8000, 8000, 25000, 25000]
-    },
-    "tactical_challenge_shop_price_list": {
-        "CN": [50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100],
-        "JP": [50, 50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100],
-        "Global": [50, 50, 50, 50, 50, 15, 30, 5, 25, 60, 100, 4, 20, 60, 100]
     },
     "package_name": {
         "官服": "com.RoamingStar.BlueArchive",
@@ -1574,7 +1712,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_implementation": false,
         "Global_name": "Utaha (Cheer Squad)",
         "Global_implementation": true,
-        "JP_name": "ウタハ(応援团)",
+        "JP_name": "ウタハ(応援団)",
         "JP_implementation": true
       },
       {
@@ -1582,7 +1720,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_implementation": false,
         "Global_name": "Hibiki (Cheer Squad)",
         "Global_implementation": true,
-        "JP_name": "ヒビキ(応援团)",
+        "JP_name": "ヒビキ(応援団)",
         "JP_implementation": true
       },
       {
@@ -1590,7 +1728,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_implementation": false,
         "Global_name": "Kotori(Cheer Squad)",
         "Global_implementation": false,
-        "JP_name": "コトリ(応援团)",
+        "JP_name": "コトリ(応援団)",
         "JP_implementation": true
       },
       {

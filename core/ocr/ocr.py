@@ -1,34 +1,48 @@
 import time
-
 import cv2
 from cnocr import CnOcr
+
+
 class Baas_ocr:
-    def __init__(self, logger, ocr_needed):
+    def __init__(self, logger, ocr_needed=None):
         self.logger = logger
         self.ocrEN = None
         self.ocrCN = None
         self.ocrJP = None
         self.ocrNUM = None
+        self.initialized = {
+            'CN': False,
+            'Global': False,
+            'NUM': False,
+            'JP': False
+        }
+        self.init(ocr_needed)
+
+    def init(self, ocr_needed):
         try:
-            if 'CN' in ocr_needed:
-                self.init_CNocr()
-            if 'Global' in ocr_needed:
-                self.init_ENocr()
-            if 'NUM' in ocr_needed:
-                self.init_NUMocr()
-            if 'JP' in ocr_needed:
-                self.init_JPocr()
+            for i in range(0, len(ocr_needed)):
+                if not self.initialized[ocr_needed[i]]:
+                    self.initialized[ocr_needed[i]] = True
+                    if ocr_needed[i] == 'CN':
+                        self.init_CNocr()
+                    elif ocr_needed[i] == 'Global':
+                        self.init_ENocr()
+                    elif ocr_needed[i] == 'NUM':
+                        self.init_NUMocr()
+                    elif ocr_needed[i] == 'JP':
+                        self.init_JPocr()
         except Exception as e:
             self.logger.error("OCR init error: " + str(e))
             raise e
 
     def init_ENocr(self):
-        self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
-                           det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
-                           rec_model_name='en_number_mobile_v2.0',
-                           rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
-        img_EN = cv2.imread('src/test_ocr/EN.png')
-        self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
+        if self.ocrEN is None:
+            self.ocrEN = CnOcr(det_model_name="en_PP-OCRv3_det",
+                               det_model_fp='src/ocr_models/en_PP-OCRv3_det_infer.onnx',
+                               rec_model_name='en_number_mobile_v2.0',
+                               rec_model_fp='src/ocr_models/en_number_mobile_v2.0_rec_infer.onnx', )
+            img_EN = cv2.imread('src/test_ocr/EN.png')
+            self.logger.info("Test ocrEN : " + self.ocrEN.ocr_for_single_line(img_EN)['text'])
         return True
 
     def init_CNocr(self):

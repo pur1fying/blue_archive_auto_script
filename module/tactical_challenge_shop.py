@@ -1,8 +1,6 @@
 import time
-
 import numpy as np
-
-from core import color, image, picture
+from core import color, picture
 
 
 def implement(self):
@@ -11,15 +9,11 @@ def implement(self):
     time.sleep(0.5)
     tactical_challenge_assets = get_tactical_challenge_assets(self)
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))
-    buy_list_for_power_items = [
-        [700, 204], [857, 204], [1000, 204], [1162, 204],
-        [700, 461], [857, 461], [1000, 461], [1162, 461]
-    ]
     buy_list = np.array(self.config["TacticalChallengeShopList"])
-    price = np.array(self.static_config["tactical_challenge_shop_price_list"][self.server], dtype=int)
-    if buy_list.shape != price.shape:
-        self.logger.error("buy_list and price shape not match")
-        return True
+    price = self.static_config["tactical_challenge_shop_price_list"][self.server]
+    for i in range(0, len(price)):
+        price[i] = price[i][1]
+    price = np.array(price)
     asset_required = (buy_list * price).sum()
     refresh_time = min(self.config['TacticalChallengeShopRefreshTime'], 3)
     refresh_price = [10, 10, 10]
@@ -28,21 +22,8 @@ def implement(self):
         if asset_required > tactical_challenge_assets:
             self.logger.info("INADEQUATE assets for BUYING")
             return True
-        for j in range(0, 8):
-            if buy_list[j]:
-                self.click(buy_list_for_power_items[j][0], buy_list_for_power_items[j][1],
-                           duration=0.1, wait=False, wait_over=True)
-        if buy_list[8:].any():
-            self.logger.info("SWIPE DOWNWARDS")
-            self.swipe(932, 550, 932, 0, duration=0.5)
-            time.sleep(0.5)
-            for j in range(8, len(buy_list)):
-                if buy_list[j]:
-                    self.click(buy_list_for_power_items[j % 8][0], buy_list_for_power_items[j % 8][1],
-                               duration=0.1, wait=False, wait_over=True)
-
+        buy(self, buy_list)
         self.latest_img_array = self.get_screenshot_array()
-
         if color.judge_rgb_range(self.latest_img_array, 1126, 662, 235, 255, 222, 242, 64, 84):
             self.logger.info("Purchase available")
             self.click(1160, 662, wait=False, wait_over=True)
@@ -68,70 +49,37 @@ def implement(self):
                     self.logger.info("refresh Times inadequate")
                     return True
                 tactical_challenge_assets = tactical_challenge_assets - refresh_price[i]
-                self.logger.info("left coins : " + str(tactical_challenge_assets))
+                self.logger.info("left tactical challenge assets : " + str(tactical_challenge_assets))
                 self.click(767, 468, duration=0.5, wait=False, wait_over=True)
                 to_tactical_challenge_shop(self)
     return True
 
 
 def to_tactical_challenge_shop(self, skip_first_screenshot=False):
-    if self.server == 'CN':
-        click_pos = [
-            [823, 653],  # main_page
-            [640, 89],
-            [100, 378],
-        ]
-        los = [
-            "main_page",
-            "reward_acquired",
-            "common_shop",
-        ]
-        ends = [
-            "tactical_challenge_shop",
-        ]
-        possibles = {
-            'main_page_full-notice': (887, 165),
-        }
-        image.detect(self, possibles=possibles, pre_func=color.detect_rgb_one_time,
-                     pre_argv=(self, click_pos, los, ends), skip_first_screenshot=skip_first_screenshot)
-    elif self.server == 'Global' or self.server == 'JP':
-        click_pos = [
-            [796, 653],  # main_page
-            [160, 531],  # common shop
-            [922, 192],  # buy notice bright
-            [922, 192],  # buy notice grey
-            [886, 213],  # shop refresh guide
-            [640, 89],
-            [889, 162],
-            [910, 138],
-        ]
-        los = [
-            "main_page",
-            "common_shop",
-            "buy_notice_bright",
-            "buy_notice_grey",
-            "shop_refresh_guide",
-            "reward_acquired",
-            "full_ap_notice",
-            "insufficient_inventory_space",
-        ]
-        ends = [
-            "tactical_challenge_shop",
-        ]
-        color.common_rgb_detect_method(self, click_pos, los, ends, skip_first_screenshot)
+    rgb_ends = "tactical_challenge_shop",
+    tactical_challenge_x = {
+        'CN': 823,
+        'Global': 823,
+        'JP': 778,
+    }
+    rgb_possibles = {
+        "main_page": (tactical_challenge_x[self.server], 653),
+        "reward_acquired": (640, 89),
+        "common_shop": (160, 531),
+    }
+    img_possibles = {
+        'main_page_full-notice': (887, 165),
+        "main_page_insufficient_inventory_space": (910, 138),
+    }
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
 def to_refresh(self):
-    refresh_lo = {
-        'CN': [949, 664],
-        'Global': [1160, 657],
-        'JP': [1160, 664]
-    }
     img_ends = [
         "shop_refresh-notice",
         "shop_refresh-unavailable-notice"
     ]
-    rgb_possibles = {"tactical_challenge_shop": refresh_lo[self.server]}
+    rgb_possibles = {"tactical_challenge_shop": (1160, 664)}
     res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
     if res == "shop_refresh_guide" or res == "shop_refresh-notice":
         return True
@@ -145,3 +93,29 @@ def get_tactical_challenge_assets(self):
         'JP': [907, 68, 1045, 98]
     }
     return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server])
+
+
+def buy(self, buy_list):
+    buy_list_for_common_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
+                                 [700, 461], [857, 461], [1000, 461], [1162, 461]]
+    i = 0
+    length = len(buy_list)
+    while i < length:
+        if buy_list[i]:
+            self.click(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1],
+                       wait=False, wait_over=True)
+            time.sleep(0.1)
+        if i % 8 == 7:
+            if not buy_list[i + 1:].any():
+                break
+            if length - i > 0:
+                if length - i > 5:
+                    self.logger.info("SWIPE DOWNWARDS")
+                    self.swipe(932, 550, 932, 0, duration=0.5)
+                    time.sleep(0.5)
+                else:
+                    buy_list_for_common_items = buy_list_for_common_items[4:]
+                    self.logger.info("SWIPE DOWNWARDS")
+                    self.swipe(932, 275, 932, 0, duration=0.5)
+                    time.sleep(0.5)
+        i = i + 1

@@ -1,8 +1,5 @@
-import random
 import time
 from datetime import datetime
-
-from core import color
 
 
 def implement(self):
@@ -14,8 +11,7 @@ def implement(self):
         start(self)
         return True
     self.logger.info("CHECK RESTART")
-    now = datetime.now()
-    if abs(time.time() - datetime(year=now.year, month=now.month, day=now.day, hour=4).timestamp()) <= 60:
+    if check_need_restart(self):
         self.logger.info("current package: " + cur_package)
         self.logger.info("--STOP CURRENT BLUE ARCHIVE--")
         self.connection.app_stop(self.package_name)
@@ -26,21 +22,19 @@ def implement(self):
 
 
 def start(self):
-    self.logger.info("--START BLUE ARCHIVE--")
+    self.logger.info("-- START BLUE ARCHIVE --")
     activity_name = self.activity_name
     if self.server == 'CN':
         activity_name = None
     self.connection.app_start(self.package_name, activity_name)
-    if self.server == 'CN' or self.server == 'JP':
-        self.logger.info("--ENSURE UI AT MAIN PAGE--")
-        self.quick_method_to_main_page()
-        time.sleep(2)
-    elif self.server == 'Global':
-        color.wait_loading(self)
-        self.quick_method_to_main_page()
-        time.sleep(2)
-        while not color.detect_rgb_one_time(self, [], [], ['main_page']):
-            x = random.randint(0, 200)
-            y = random.randint(30, 150)
-            self.click(x + 1050, y, wait=False, wait_over=True)
-            color.wait_loading(self)
+
+
+def check_need_restart(self):
+    now = datetime.now()
+    if self.server == 'CN':
+        if abs(time.time() - datetime(year=now.year, month=now.month, day=now.day, hour=4).timestamp()) <= 60:
+            return True
+    elif self.server == 'Global' or self.server == 'JP':
+        if abs(time.time() - datetime(year=now.year, month=now.month, day=now.day, hour=3).timestamp()) <= 60:
+            return True
+    return False

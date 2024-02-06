@@ -22,6 +22,7 @@ class Layout(QWidget):
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 5))
         self.input.setText(self.config.get('TacticalChallengeShopRefreshTime'))
+
         self.accept = QPushButton('确定', self)
         self.boxes = []
         for i in range(0, goods_count):

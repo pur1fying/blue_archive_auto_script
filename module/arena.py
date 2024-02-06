@@ -1,5 +1,4 @@
 import time
-
 from core import color, image, picture
 
 
@@ -27,15 +26,7 @@ def implement(self):
         if res == 'arena_purchase-tactical-challenge-ticket':
             self.logger.warning("no tickets")
             return True
-        res = check_skip_button(self.latest_img_array, self.server)
-        if res == "OFF":
-            self.logger.info("TURN ON SKIP")
-            self.click(1108, 608, wait=False, wait_over=True)
-        elif res == "ON":
-            self.logger.info("SKIP ON")
-        else:
-            self.logger.info("Can't find SKIP BUTTON")
-            return True
+        turn_on_arena_skip(self)
         fight(self, True)
         to_tactical_challenge(self, True)
         if tickets > 1:
@@ -58,13 +49,13 @@ def choose_enemy(self):
     }
     opponent_level_region = {
         'CN': (551, 298, 581, 317),
-        'Global': (551, 298, 581, 317),
+        'Global': (490, 298, 515, 317),
         'JP': (496, 291, 520, 315),
     }
     self_lv = self.ocr.get_region_num(self.latest_img_array, self_level_region[self.server])
     self.logger.info("self level " + str(self_lv))
     refresh = 0
-    while True:
+    while self.flag_run:
         if refresh >= max_refresh:
             break
         opponent_lv = self.ocr.get_region_num(self.latest_img_array, opponent_level_region[self.server])
@@ -125,6 +116,7 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
+
 def get_tickets(self):
     ticket_num_region = {
         'CN': (193, 477, 206, 498),
@@ -159,3 +151,17 @@ def fight(self, skip_first_screenshot=False):
         'arena_battle-lost'
     ]
     image.detect(self, ends, possibles, skip_first_screenshot=skip_first_screenshot)
+
+
+def turn_on_arena_skip(self):
+    res = check_skip_button(self.latest_img_array, self.server)
+    if res == "OFF":
+        self.logger.info("TURN ON SKIP")
+        self.click(1225, 608, wait=False, wait_over=True, duration=0.3)
+    elif res == "ON":
+        self.logger.info("SKIP ON")
+        return
+    else:
+        self.logger.info("Can't find SKIP BUTTON")
+    self.latest_img_array = self.get_screenshot_array()
+    return turn_on_arena_skip(self)

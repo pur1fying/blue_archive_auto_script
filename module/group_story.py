@@ -3,7 +3,7 @@ from core import color, picture, image
 
 
 def implement(self):
-    # self.quick_method_to_main_page()
+    self.quick_method_to_main_page()
     to_group_story(self, True)
     time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()
@@ -24,7 +24,7 @@ def implement(self):
                     clear_current_plot(self, True)
                 to_group_story(self, True)
         if not need_check_next_page:
-            self.logger.info("ALL EPISODES CLEARED")
+            self.logger.info("-- ALL EPISODES CLEARED --")
             return True
         else:
             self.logger.info("Check Next page")
@@ -105,11 +105,11 @@ def to_episode_info(self, pos, skip_first_screenshot=False):
 
 
 def check_current_episode_cleared(self):
-    if image.compare_image(self.latest_img_array, "group_story_episode-cleared-feature", 3, need_log=False,
+    if image.compare_image(self, "group_story_episode-cleared-feature", 3, need_log=False,
                            image=self.latest_img_array):
-        self.logger.info("Current episode not cleared")
+        self.logger.info("Current episode cleared")
         return True
-    self.logger.info("Current episode cleared")
+    self.logger.info("Current episode not cleared")
     return False
 
 
