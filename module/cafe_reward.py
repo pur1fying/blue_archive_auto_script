@@ -13,7 +13,7 @@ def implement(self):
     op[0] = get_cafe_earning_status(self)
     if op[0]:
         self.logger.info("Collect Cafe Earnings")
-        collect(self, True)
+        collect(self)
         to_cafe(self)
     if op[1]:
         invite_girl(self, 1)
