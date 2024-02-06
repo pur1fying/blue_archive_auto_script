@@ -6,7 +6,7 @@ from .expandTemplate import TemplateLayout
 
 
 class Layout(TemplateLayout):
-    def __init__(self, parent=None, _: str = 'config.json'):
+    def __init__(self, parent=None, config=None):
         configItems = [
             {
                 'label': '开启此按钮点击推图进行活动任务关推图(当前活动:69号新春狂想曲)',
@@ -70,7 +70,7 @@ class Layout(TemplateLayout):
             }
         ]
 
-        super().__init__(parent=parent, configItems=configItems)
+        super().__init__(parent=parent, configItems=configItems, config=config)
 
         self.push_card = QHBoxLayout(self)
         self.push_card_label = QHBoxLayout(self)
@@ -79,7 +79,8 @@ class Layout(TemplateLayout):
         self.input_push = LineEdit(self)
         self.accept_push = PushButton('开始推图', self)
 
-        self.input_push.setText(self.get('explore_normal_task_regions').__str__().replace('[', '').replace(']', ''))
+        self.input_push.setText(
+            self.config.get('explore_normal_task_regions').__str__().replace('[', '').replace(']', ''))
         self.input_push.setFixedWidth(700)
         self.accept_push.clicked.connect(self._accept_push)
 
@@ -101,7 +102,7 @@ class Layout(TemplateLayout):
     def _accept_push(self):
         if self.input_push.text() != '':
             push_list = [int(x) for x in self.input_push.text().split(',')]
-            self.set('explore_normal_task_regions', push_list)
+            self.config.set('explore_normal_task_regions', push_list)
         value = self.input_push.text()
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
@@ -122,7 +123,7 @@ class Layout(TemplateLayout):
         for component in parent.children():
             if type(component).__name__ == 'HomeFragment':
                 return component.get_main_thread()
-        return self.get_thread(parent.parent())
+        return self.config.get_thread(parent.parent())
 
     def action(self):
-        self.get_thread().start_normal_task()
+        self.config.get_thread().start_normal_task()

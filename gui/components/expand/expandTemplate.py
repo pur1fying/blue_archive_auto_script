@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
-from gui.util.config_set import ConfigSet
 from functools import partial
 
 
@@ -21,10 +20,10 @@ class ConfigItem:
         self.type = kwargs.get('type')
 
 
-class TemplateLayout(QWidget, ConfigSet):
-    def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config_dir: str = 'config.json'):
+class TemplateLayout(QWidget):
+    def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
         if isinstance(configItems[0], dict):
             _configItems = []
             for item in configItems:
@@ -46,13 +45,13 @@ class TemplateLayout(QWidget, ConfigSet):
             if cfg.type == 'switch':
                 currentKey = cfg.key
                 inputComponent = SwitchButton(self)
-                inputComponent.setChecked(self.get(currentKey))
+                inputComponent.setChecked(self.config.get(currentKey))
                 inputComponent.checkedChanged.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'combo':
                 currentKey = cfg.key
                 inputComponent = ComboBox(self)
                 inputComponent.addItems(cfg.selection)
-                inputComponent.setCurrentIndex(cfg.selection.index(self.get(currentKey)))
+                inputComponent.setCurrentIndex(cfg.selection.index(self.config.get(currentKey)))
                 inputComponent.currentIndexChanged.connect(
                     partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'button':
@@ -61,7 +60,7 @@ class TemplateLayout(QWidget, ConfigSet):
             elif cfg.type == 'text':
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
-                inputComponent.setText(self.get(currentKey))
+                inputComponent.setText(self.config.get(currentKey))
                 confirmButton = PushButton('确定', self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':
@@ -82,7 +81,7 @@ class TemplateLayout(QWidget, ConfigSet):
         elif isinstance(target, LineEdit):
             value = target.text()
         assert value is not None
-        self.set(key, value)
+        self.config.set(key, value)
         infoChanged = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',

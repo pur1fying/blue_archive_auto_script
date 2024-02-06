@@ -8,13 +8,12 @@ from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SettingCardGro
 
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
-from gui.util.config_set import ConfigSet
 
 
-class SettingsFragment(ScrollArea, ConfigSet):
-    def __init__(self, parent=None, config_dir: str = 'config.json'):
+class SettingsFragment(ScrollArea):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
         self.settingLabel = TitleLabel(self.tr(f"普通设置 {self.config['name']}"), self.scrollWidget)
@@ -27,7 +26,7 @@ class SettingsFragment(ScrollArea, ConfigSet):
             content='选择你的服务器平台，设置你的端口（不知道端口请设置为0）',
             sub_view=expand.__dict__['serverConfig'],
             parent=self.basicGroup,
-            config_dir=self.config_dir
+            config=self.config
         )
 
         self.scriptOption = SimpleSettingCard(
@@ -35,7 +34,7 @@ class SettingsFragment(ScrollArea, ConfigSet):
             content='根据你的电脑配置，调整相应的参数。',
             sub_view=expand.__dict__['scriptConfig'],
             parent=self.basicGroup,
-            config_dir=self.config_dir
+            config=self.config
         )
 
         self.exploreGroup = SettingCardGroup(
@@ -46,7 +45,7 @@ class SettingsFragment(ScrollArea, ConfigSet):
             content='根据你的推图需求，调整相应的参数。',
             sub_view=expand.__dict__['exploreConfig'],
             parent=self.exploreGroup,
-            config_dir=self.config_dir
+            config=self.config
         )
 
         self.hardOption = SimpleSettingCard(
@@ -54,7 +53,7 @@ class SettingsFragment(ScrollArea, ConfigSet):
             content='根据你所需困难图刷关，设置参数。',
             sub_view=expand.__dict__['hardTaskConfig'],
             parent=self.exploreGroup,
-            config_dir=self.config_dir
+            config=self.config
         )
 
         self.otherOption = SimpleSettingCard(
@@ -62,7 +61,7 @@ class SettingsFragment(ScrollArea, ConfigSet):
             content='其他的一些小功能与设置',
             sub_view=expand.__dict__['otherConfig'],
             parent=self.exploreGroup,
-            config_dir=self.config_dir
+            config=self.config
         )
 
         self.__initLayout()

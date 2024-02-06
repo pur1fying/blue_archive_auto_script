@@ -6,7 +6,7 @@ from .expandTemplate import TemplateLayout
 
 
 class Layout(TemplateLayout):
-    def __init__(self, parent=None, _: str = 'config.json'):
+    def __init__(self, parent=None, config=None):
         configItems = [
             {
                 'label': '打到SSS',
@@ -48,16 +48,17 @@ class Layout(TemplateLayout):
             },
         ]
 
-        super().__init__(parent=parent, configItems=configItems)
+        super().__init__(parent=parent, configItems=configItems, config=config)
 
         self.push_card = QHBoxLayout(self)
         self.push_card_label = QHBoxLayout(self)
         self.label_tip_push = QLabel(
-            '<b>困难图队伍属性和普通图相同(见普通图推图设置)，请按照以上说明选择推困难图关卡并按对应图设置队伍(额外需要: H15-3贯穿2队 H16-3:贯穿1队)</b>', self)
+            '<b>困难图队伍属性和普通图相同(见普通图推图设置)，请按照以上说明选择推困难图关卡并按对应图设置队伍(额外需要: H15-3贯穿2队 H16-3:贯穿1队)</b>',
+            self)
         self.input_push = LineEdit(self)
         self.accept_push = PushButton('开始推图', self)
 
-        self.input_push.setText(self.get('explore_hard_task_list'))
+        self.input_push.setText(self.config.get('explore_hard_task_list'))
         self.input_push.setFixedWidth(700)
         self.accept_push.clicked.connect(self._accept_push)
 
@@ -78,7 +79,7 @@ class Layout(TemplateLayout):
 
     def _accept_push(self):
         value = self.input_push.text()
-        self.set('explore_hard_task_list', value)
+        self.config.set('explore_hard_task_list', value)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
@@ -98,7 +99,7 @@ class Layout(TemplateLayout):
         for component in parent.children():
             if type(component).__name__ == 'HomeFragment':
                 return component.get_main_thread()
-        return self.get_thread(parent.parent())
+        return self.config.get_thread(parent.parent())
 
     def action(self):
-        self.get_thread().start_hard_task()
+        self.config.get_thread().start_hard_task()

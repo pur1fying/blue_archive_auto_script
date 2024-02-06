@@ -2,16 +2,14 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
 from qfluentwidgets import FlowLayout, CheckBox, LineEdit
 
-from gui.util.config_set import ConfigSet
 
-
-class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None, config_dir: str = 'config.json'):
+class Layout(QWidget):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
         self.setFixedHeight(120)
 
-        self.goods = self.get(key='TacticalChallengeShopList')
+        self.goods = self.config.get(key='TacticalChallengeShopList')
         goods_count = len(self.goods)
         layout = FlowLayout(self, needAni=True)
         layout.setContentsMargins(30, 30, 30, 30)
@@ -23,7 +21,8 @@ class Layout(QWidget, ConfigSet):
         self.label = QLabel('刷新次数', self)
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 5))
-        self.input.setText(str(self.get('TacticalChallengeShopRefreshTime')))
+        self.input.setText(self.config.get('TacticalChallengeShopRefreshTime'))
+
         self.accept = QPushButton('确定', self)
         self.boxes = []
         for i in range(0, goods_count):
@@ -42,8 +41,8 @@ class Layout(QWidget, ConfigSet):
 
     def alter_status(self, index, goods_count):
         self.boxes[index].setChecked(self.boxes[index].isChecked())
-        self.set(key='TacticalChallengeShopList',
-                 value=[1 if self.boxes[i].isChecked() else 0 for i in range(0, goods_count)])
+        self.config.set(key='TacticalChallengeShopList',
+                        value=[1 if self.boxes[i].isChecked() else 0 for i in range(0, goods_count)])
 
     def __accept(self):
-        self.set('TacticalChallengeShopRefreshTime', self.input.text())
+        self.config.set('TacticalChallengeShopRefreshTime', self.input.text())
