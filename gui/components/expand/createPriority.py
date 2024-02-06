@@ -2,13 +2,11 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
-from gui.util.config_set import ConfigSet
 
-
-class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None, config_dir: str = 'config.json'):
+class Layout(QWidget):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
         self.hBoxLayout = QVBoxLayout(self)
 
         self.lay1 = QHBoxLayout(self)
@@ -19,8 +17,8 @@ class Layout(QWidget, ConfigSet):
         self.input2 = LineEdit(self)
         self.accept = QPushButton('确定', self)
 
-        priority = self.get('createPriority')
-        time = self.get('createTime')
+        priority = self.config.get('createPriority')
+        time = self.config.get('createTime')
 
         self.setFixedHeight(120)
         self.input1.setText(priority)
@@ -51,8 +49,8 @@ class Layout(QWidget, ConfigSet):
         input1_content = self.input1.text()
         input2_content = self.input2.text()
 
-        self.set('createPriority', input1_content)
-        self.set('createTime', input2_content)
+        self.config.set('createPriority', input1_content)
+        self.config.set('createTime', input2_content)
 
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,

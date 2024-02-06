@@ -15,6 +15,7 @@ from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 from gui.components.dialog_panel import SaveSettingMessageBox
 
 from core import default_config
+from gui.util.config_set import ConfigSet
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
 # sys.stdout = open('output.log', 'w+', encoding='utf-8')
@@ -213,9 +214,9 @@ class Window(MSFluentWindow):
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
-        self._sub_list = [[HomeFragment(parent=self, config_dir=x+'/config.json') for x in config_dir_list],
-                          [SwitchFragment(parent=self, config_dir=x+'/config.json') for x in config_dir_list],
-                          [SettingsFragment(parent=self, config_dir=x+'/config.json') for x in config_dir_list]]
+        self._sub_list = [[HomeFragment(parent=self, config=x) for x in config_dir_list],
+                          [SwitchFragment(parent=self, config=x) for x in config_dir_list],
+                          [SettingsFragment(parent=self, config=x) for x in config_dir_list]]
         # _sc_list = [SwitchFragment(parent=self, config_dir=x) for x in config_dir_list]
         self.homeInterface = self._sub_list[0][0]
         self.schedulerInterface = self._sub_list[1][0]

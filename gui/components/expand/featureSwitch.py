@@ -4,22 +4,20 @@ from PyQt5.QtWidgets import QWidget, QLabel
 from qfluentwidgets import FlowLayout, CheckBox
 
 from core import EVENT_CONFIG_PATH
-from gui.util.config_set import ConfigSet
 
 
-class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None, config_dir: str = 'config.json'):
+class Layout(QWidget):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
         self._event_config = None
         self._read_config()
         assert self._event_config is not None
         self.enable_list = [item['enabled'] for item in self._event_config]
         self.labels = [item['event_name'] for item in self._event_config]
 
-        # self.setFixedHeight(120)
 
-        # self.goods = self.get(key='CommonShopList')
+        # self.goods = self.config.get(key='CommonShopList')
 
         layout = FlowLayout(self, needAni=True)
         layout.setContentsMargins(30, 30, 30, 30)
@@ -55,4 +53,4 @@ class Layout(QWidget, ConfigSet):
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
 
     def __accept(self, input_content=None):
-        self.set('ShopRefreshTime', self.input.text())
+        self.config.set('ShopRefreshTime', self.input.text())

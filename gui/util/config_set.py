@@ -30,6 +30,9 @@ class ConfigSet:
             notify('', '修改配置失败,请重新设置')
             print(f'failed to set config {key}')
 
+    def __getitem__(self, item: str):
+        return self.config[item]
+
     def check(self, key, value):
         with open(f'./config/{self.config_dir}', 'r', encoding='utf-8') as f:
             new_config = json.load(f)

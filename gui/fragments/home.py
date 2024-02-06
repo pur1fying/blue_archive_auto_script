@@ -17,7 +17,6 @@ from qfluentwidgets import (
 
 from core.notification import notify
 from gui.util import log
-from gui.util.config_set import ConfigSet
 from window import Window
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
@@ -36,12 +35,12 @@ class MyQLabel(QLabel):
         self.button_clicked_signal.connect(func)
 
 
-class HomeFragment(QFrame, ConfigSet):
+class HomeFragment(QFrame):
     updateButtonState = pyqtSignal(bool)  # 创建用于更新按钮状态的信号
 
-    def __init__(self, parent: Window = None, config_dir: str = 'config.json'):
+    def __init__(self, parent: Window = None, config=None):
         super().__init__(parent=parent)
-        ConfigSet.__init__(self, config_dir)
+        self.config = config
         # self._main_thread = None
         self.once = True
         self.expandLayout = ExpandLayout(self)
@@ -52,7 +51,7 @@ class HomeFragment(QFrame, ConfigSet):
         self.infoLayout = QHBoxLayout(self.info_box)
 
         title = f'蔚蓝档案自动脚本 {self.config.get("name")}'
-        self.banner_visible = self.get('bannerVisibility')
+        self.banner_visible = self.config.get('bannerVisibility')
         self.label = SubtitleLabel(title, self)
         self.info = SubtitleLabel('无任务', self)
         setFont(self.label, 24)
@@ -219,7 +218,7 @@ class MainThread(QThread):
         # 这里可能有Bug，若用户还未登入，则会报错。
         server = self._main_thread.server
         current_activity = self._main_thread.static_config['current_game_activity'][server]
-        if self._main_thread.config['explore_activity'] and current_activity != None:
+        if self._main_thread.config['explore_activity'] and current_activity is not None:
             if self._main_thread.solve(current_activity):
                 notify(title='BAAS', body='活动推图已完成')
         else:
