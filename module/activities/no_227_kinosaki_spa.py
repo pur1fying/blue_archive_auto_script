@@ -14,18 +14,18 @@ def implement(self):
     return True
 
 
-def check_sweep_availability(img):
-    if color.judge_rgb_range(img, 211, 369, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(img, 211, 402, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(img, 211, 436, 192, 212, 192, 212, 192, 212):
+def check_sweep_availability(self):
+    if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
+        color.judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
+        color.judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
         return "no-pass"
-    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(img, 211, 404, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(img, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
+        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
+        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "sss"
-    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(img, 211, 404, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(img, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
+        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
+        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "pass"
 
 
@@ -126,10 +126,9 @@ def explore_mission(self):
                         return False
                     prev_index = cu_index
                 start_mission(self)
-                if not image.compare_image(self, 'normal_task_fight-skip', threshold=3,
-                                           image=self.latest_img_array):
+                if not image.compare_image(self, 'normal_task_fight-skip'):
                     self.click(1194, 547)
-                if not image.compare_image(self, 'normal_task_auto-over', threshold=3, image=self.latest_img_array):
+                if not image.compare_image(self, 'normal_task_auto-over'):
                     self.click(1194, 600)
                 self.set_screenshot_interval(1)
                 start_action(self, self.stage_data[id[task_state]]['action'])
@@ -144,7 +143,7 @@ def explore_mission(self):
 def calc_challenge_state(self):
     id = ['01', '02', '03', '04', '05']
     for i in range(0, 5):
-        if image.compare_image(self, 'activity_SUB', threshold=3, image=self.latest_img_array):
+        if image.compare_image(self, 'activity_SUB'):
             return "challenge_SUB"
         if i == 2:
             self.click(1171, 346)
@@ -191,12 +190,12 @@ def explore_challenge(self):
             current_task_stage = self.stage_data[task_state]
             if work[task_state] == "sub1" or work[task_state] == "sub2":
                 if work[task_state] == "sub1":
-                    self.click(640, 512, wait=False, wait_over=True)
+                    self.click(640, 512,  wait_over=True)
                 if work[task_state] == "sub2":
-                    self.click(933, 536, wait=False, wait_over=True)
+                    self.click(933, 536,  wait_over=True)
                 start_choose_side_team(self, self.config[current_task_stage['attr']])
                 time.sleep(1)
-                self.click(1171, 670, wait=False, wait_over=True)
+                self.click(1171, 670,  wait_over=True)
             else:
                 possibles = {
                     'normal_task_help': (1017, 131),
@@ -212,10 +211,9 @@ def explore_challenge(self):
                         return False
                     prev_index = cu_index
                 start_mission(self)
-                if not image.compare_image(self, 'normal_task_fight-skip', threshold=3,
-                                           image=self.latest_img_array):
+                if not image.compare_image(self, 'normal_task_fight-skip'):
                     self.click(1194, 547)
-                if not image.compare_image(self, 'normal_task_auto-over', threshold=3, image=self.latest_img_array):
+                if not image.compare_image(self, 'normal_task_auto-over'):
                     self.click(1194, 600)
                 self.set_screenshot_interval(1)
                 start_action(self, self.stage_data[task_state]['action'])
@@ -258,7 +256,7 @@ def to_no_227_kinosaki_spa(self, region):
     while True:
         if not self.flag_run:
             return False
-        if not color.judge_rgb_range(self.latest_img_array, rgb_lo, 134, 20, 60, 40, 70, 70, 100):
+        if not color.judge_rgb_range(self, rgb_lo, 134, 20, 60, 40, 70, 70, 100):
             self.click(click_lo, 90)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()

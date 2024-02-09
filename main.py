@@ -87,10 +87,14 @@ if __name__ == '__main__':
     # print(3)
     # t.start_thread("4", None, None, None, "config/config4")
     # print(4)
-    config = ConfigSet(config_dir="config1")
+    config = ConfigSet(config_dir="default_config")
     tt = Baas_thread(config,None,None,None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
+    # tt.solve("main_story")
+    # tt.solve("group_story")
+    # tt.solve("cafe_reward")
     # tt.solve("mini_story")
+
     tt.solve("create")

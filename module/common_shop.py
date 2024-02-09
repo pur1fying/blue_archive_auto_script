@@ -29,18 +29,18 @@ def implement(self):
         buy(self, buy_list)
         self.latest_img_array = self.get_screenshot_array()
 
-        if color.judge_rgb_range(self.latest_img_array, 1126, 662, 235, 255, 222, 242, 64, 84):
+        if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
             self.logger.info("Purchase available")
-            self.click(1160, 662, wait=False, wait_over=True)
+            self.click(1160, 662,  wait_over=True)
             time.sleep(0.5)
-            self.click(767, 488, wait=False, wait_over=True)
+            self.click(767, 488,  wait_over=True)
             time.sleep(2)
-            self.click(640, 80, wait=False, wait_over=True)
-            self.click(640, 80, wait=False, wait_over=True)
+            self.click(640, 80,  wait_over=True)
+            self.click(640, 80,  wait_over=True)
             assets = calculate_left_assets(self, assets, asset_required)
 
             to_common_shop(self)
-        elif color.judge_rgb_range(self.latest_img_array, 1126, 665, 206, 226, 206, 226, 206, 226):
+        elif color.judge_rgb_range(self, 1126, 665, 206, 226, 206, 226, 206, 226):
             self.logger.info("Purchase Unavailable")
             self.click(1240, 39, wait=False)
             return True
@@ -51,7 +51,7 @@ def implement(self):
                     self.logger.info("refresh Times inadequate")
                     return True
                 assets = calculate_left_assets(self, assets, {"creditpoints": 0, "pyroxenes": refresh_price[i]})
-                self.click(767, 468, wait=False, wait_over=True, duration=0.5)
+                self.click(767, 468,  wait_over=True, duration=0.5)
                 to_common_shop(self)
 
     return True
@@ -79,7 +79,7 @@ def buy(self, buy_list):
     while i < length:
         if buy_list[i]:
             self.click(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1],
-                       wait=False, wait_over=True)
+                        wait_over=True)
             time.sleep(0.1)
         if i % 8 == 7:
             if not buy_list[i + 1:].any():

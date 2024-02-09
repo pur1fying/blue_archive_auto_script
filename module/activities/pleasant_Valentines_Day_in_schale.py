@@ -32,7 +32,7 @@ def sweep(self, number, times):
     to_task_info(self, number)
     res = check_sweep_availability(self.latest_img_array)
     if res == "sss":
-        self.click(1032, 299, count=click_times, duration=duration, wait=False, wait_over=True)
+        self.click(1032, 299, count=click_times, duration=duration,  wait_over=True)
         res = start_sweep(self, True)
         if res == "inadequate_ap":
             self.logger.warning("inadequate ap")
@@ -81,7 +81,7 @@ def explore_mission(self):
         res = check_sweep_availability(self.latest_img_array)
         while res == "sss" and last_target_task <= 11:
             self.logger.info("Current task sss check next task")
-            self.click(1168, 353, duration=1, wait=False, wait_over=True)
+            self.click(1168, 353, duration=1,  wait_over=True)
             last_target_task += 1
             image.detect(self, "normal_task_task-info")
             res = check_sweep_availability(self.latest_img_array)
@@ -100,7 +100,7 @@ def explore_mission(self):
 
 def explore_challenge(self):
     to_pleasant_Valentines_Day_in_schale(self, "challenge")
-    if color.judge_rgb_range(self.latest_img_array, 945, 351, 200, 230, 200, 230, 200, 230):
+    if color.judge_rgb_range(self, 945, 351, 200, 230, 200, 230, 200, 230):
         self.logger.warning("Challenge not open")
         return False
 
@@ -146,7 +146,7 @@ def to_pleasant_Valentines_Day_in_schale(self, region, skip_first_screenshot=Fal
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self.latest_img_array, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
+        if not color.judge_rgb_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
             self.click(click_lo[region], 76)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
@@ -168,18 +168,18 @@ def to_task_info(self, number):
     image.detect(self, ends, possibles)
 
 
-def check_sweep_availability(img):
-    if color.judge_rgb_range(img, 211, 369, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(img, 211, 402, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(img, 211, 436, 192, 212, 192, 212, 192, 212):
+def check_sweep_availability(self):
+    if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
+        color.judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
+        color.judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
         return "no-pass"
-    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(img, 211, 404, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(img, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
+        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
+        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "sss"
-    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(img, 211, 404, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(img, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
+        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
+        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "pass"
 
 

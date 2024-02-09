@@ -2,7 +2,8 @@ import time
 from core import color, image
 
 
-def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibles=None,  skip_first_screenshot=False, tentitive_click=False, tentitivex=1238,tentitivey=45, max_fail_cnt=10):
+def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possibles=None, skip_first_screenshot=False,
+              tentitive_click=False, tentitivex=1238, tentitivey=45, max_fail_cnt=10):
     fail_cnt = 0
     while self.flag_run:
         if skip_first_screenshot:
@@ -16,7 +17,7 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
                 if rgb_ends[i] not in self.rgb_feature:
                     continue
                 for j in range(0, len(self.rgb_feature[rgb_ends[i]][0])):
-                    if not color.judge_rgb_range(self.latest_img_array,
+                    if not color.judge_rgb_range(self,
                                                  self.rgb_feature[rgb_ends[i]][0][j][0],
                                                  self.rgb_feature[rgb_ends[i]][0][j][1],
                                                  self.rgb_feature[rgb_ends[i]][1][j][0],
@@ -30,10 +31,13 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
                     self.logger.info("end : " + rgb_ends[i])
                     return rgb_ends[i]
         if img_ends is not None:
-            if type(img_ends) is str:
+            if type(img_ends) is str or type(img_ends) is tuple:
                 img_ends = [img_ends]
             for i in range(0, len(img_ends)):
-                if image.compare_image(self, img_ends[i], 3, image=self.latest_img_array, need_log=False):
+                threshold = 0.8
+                if len(img_ends[i]) == 2:
+                    threshold = img_ends[i][1]
+                if image.compare_image(self, img_ends[i],  False, threshold):
                     self.logger.info('end : ' + img_ends[i])
                     return img_ends[i]
         f = 0
@@ -42,7 +46,7 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
                 if position not in self.rgb_feature:
                     continue
                 for j in range(0, len(self.rgb_feature[position][0])):
-                    if not color.judge_rgb_range(self.latest_img_array,
+                    if not color.judge_rgb_range(self,
                                                  self.rgb_feature[position][0][j][0],
                                                  self.rgb_feature[position][0][j][1],
                                                  self.rgb_feature[position][1][j][0],
@@ -55,7 +59,7 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
                 else:
                     fail_cnt = 0
                     self.logger.info("find : " + position)
-                    self.click(click[0], click[1], False)
+                    self.click(click[0], click[1])
                     self.latest_screenshot_time = time.time()
                     f = 1
                     break
@@ -63,13 +67,12 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
             continue
         if img_possibles is not None:
             for position, click in img_possibles.items():
-                threshold = 3
-                if len(position) == 3:
-                    threshold = position[2]
-                if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
-                                       need_log=False):
+                threshold = 0.8
+                if len(click) == 3:
+                    threshold = click[2]
+                if image.compare_image(self, position, False, threshold):
                     self.logger.info("find " + position)
-                    self.click(click[0], click[1], False)
+                    self.click(click[0], click[1])
                     self.latest_screenshot_time = time.time()
                     fail_cnt = 0
                     f = 1
@@ -79,9 +82,9 @@ def co_detect(self, rgb_ends=None,rgb_possibles=None,  img_ends=None,img_possibl
         if not deal_with_pop_ups(self):
             if tentitive_click:
                 fail_cnt += 1
-                if fail_cnt > 10:
+                if fail_cnt > max_fail_cnt:
                     self.logger.info("tentative clicks")
-                    self.click(tentitivex,tentitivey, False)
+                    self.click(tentitivex, tentitivey)
                     time.sleep(self.screenshot_interval)
                     fail_cnt = 0
 
@@ -101,13 +104,9 @@ def deal_with_pop_ups(self):
         }
     }
     for position, click in img_possibles[self.server].items():
-        threshold = 3
-        if len(position) == 3:
-            threshold = position[2]
-        if image.compare_image(self, position, threshold, need_loading=False, image=self.latest_img_array,
-                               need_log=False):
+        if image.compare_image(self, position, need_log=False):
             self.logger.info("find " + position)
-            self.click(click[0], click[1], False)
+            self.click(click[0], click[1])
             self.latest_screenshot_time = time.time()
             return True, position
     return False

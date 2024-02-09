@@ -73,8 +73,8 @@ class Baas_ocr:
             img_JP = cv2.imread('src/test_ocr/JP.png')
             self.logger.info("Test ocrJP : " + self.ocrJP.ocr_for_single_line(img_JP)['text'])
 
-    def get_region_num(self, img, region, category=int):
-        img = img[region[1]:region[3], region[0]:region[2]]
+    def get_region_num(self, img, region, category=int, ratio=1.0):
+        img = self.get_region_img(img, region, ratio)
         t1 = time.time()
         res = self.ocrNUM.ocr_for_single_line(img)['text']
         ocr_time = round(time.time() - t1, 3)
@@ -92,8 +92,8 @@ class Baas_ocr:
             return "UNKNOWN"
         return category(temp)
 
-    def get_region_pure_english(self, img, region):
-        img = img[region[1]:region[3], region[0]:region[2]]
+    def get_region_pure_english(self, img, region, ratio=1.0):
+        img = self.get_region_img(img, region, ratio)
         t1 = time.time()
         res = self.ocrEN.ocr_for_single_line(img)['text']
         ocr_time = round(time.time() - t1, 3)
@@ -106,8 +106,8 @@ class Baas_ocr:
                 temp += res[i]
         return temp
 
-    def get_region_pure_chinese(self, img, region):
-        img = img[region[1]:region[3], region[0]:region[2]]
+    def get_region_pure_chinese(self, img, region, ratio=1.0):
+        img = self.get_region_img(img, region, ratio)
         t1 = time.time()
         res = self.ocrCN.ocr_for_single_line(img)['text']
         ocr_time = round(time.time() - t1, 3)
@@ -136,8 +136,8 @@ class Baas_ocr:
     def is_chinese_char(self, char):
         return 0x4e00 <= ord(char) <= 0x9fff
 
-    def get_region_res(self, img, region, model='CN'):
-        img = img[region[1]:region[3], region[0]:region[2]]
+    def get_region_res(self, img, region, model='CN', ratio=1.0):
+        img = self.get_region_img(img, region, ratio)
         t1 = time.time()
         res = ""
         if model == 'CN':
@@ -154,8 +154,8 @@ class Baas_ocr:
         self.logger.info("ocr res : " + res + " time: " + str(ocr_time))
         return res
 
-    def get_region_raw_res(self, img, region, model='CN'):
-        img = img[region[1]:region[3], region[0]:region[2]]
+    def get_region_raw_res(self, img, region, model='CN', ratio=1.0):
+        img = self.get_region_img(img, region, ratio)
         t1 = time.time()
         res = ""
         if model == 'CN':
@@ -172,3 +172,7 @@ class Baas_ocr:
             res[i]['text'] = res[i]['text'].replace('<unused3>', '')
             res[i]['text'] = res[i]['text'].replace('<unused2>', '')
         return res
+
+    def get_region_img(self, img, region, ratio=1.0):
+        img = img[int(region[1] * ratio):int(region[3] * ratio), int(region[0] * ratio):int(region[2] * ratio)]
+        return img

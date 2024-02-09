@@ -61,7 +61,7 @@ def implement(self):
                     'normal_task_task-info': (946, 540)
                 }
                 img_ends = "normal_task_task-wait-to-begin-feature"
-                image.detect(self, img_ends, img_possibles)
+                picture.co_detect(self, None, None, img_ends, img_possibles, True)
                 res, los = calc_team_number(self, current_task_stage_data)
                 for j in range(0, len(res)):
                     if res[j] == "swipe":
@@ -89,9 +89,9 @@ def get_stage_data(region):
 
 
 def check_present(self):
-    if color.judge_rgb_range(self.latest_img_array, 226, 511, 103, 123, 227, 247, 245, 255) \
-        and color.judge_rgb_range(self.latest_img_array, 190, 526, 103, 123, 227, 247, 245, 255) \
-        and color.judge_rgb_range(self.latest_img_array, 216, 540, 245, 255, 180, 210, 220, 255):
+    if color.judge_rgb_range(self, 226, 511, 103, 123, 227, 247, 245, 255) \
+        and color.judge_rgb_range(self, 190, 526, 103, 123, 227, 247, 245, 255) \
+        and color.judge_rgb_range(self, 216, 540, 245, 255, 180, 210, 220, 255):
         return 'find-present'
     else:
         return 'no-present'
@@ -101,7 +101,7 @@ def judge_need_fight(self, current_task):
     if 'task' in current_task:
         return 'need-fight'
     if 'sss' in current_task:
-        res = color.check_sweep_availability(self.latest_img_array, self.server)
+        res = color.check_sweep_availability(self)
         if res == 'no-pass' or res == 'pass':
             return 'need-fight'
     if 'present' in current_task:
@@ -118,7 +118,7 @@ def get_force(self):
         'JP': (116, 542, 131, 570)
     }
     to_normal_task_mission_operating_page(self)
-    ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server])
+    ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server], self.ratio)
     if ocr_res == "UNKNOWN":
         return get_force(self)
     if ocr_res == 7:
@@ -171,16 +171,16 @@ def start_action(self, actions):
             time.sleep(1)
             if op[j] == 'click':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True)
             elif op[j] == 'teleport':
                 confirm_teleport(self)
             elif op[j] == 'exchange':
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
             elif op[j] == 'exchange_twice':
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
             elif op[j] == 'end-turn':
                 end_turn(self)
@@ -189,26 +189,26 @@ def start_action(self, actions):
                     skip_first_screenshot = True
             elif op[j] == 'click_and_teleport':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True)
                 confirm_teleport(self)
             elif op[j] == 'choose_and_change':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True, duration=0.3)
-                self.click(pos[0] - 100, pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True, duration=0.3)
+                self.click(pos[0] - 100, pos[1],  wait_over=True)
             elif op[j] == 'exchange_and_click':
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True)
             elif op[j] == 'exchange_twice_and_click':
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True)
             elif op[j] == 'ensure-ui':
                 to_normal_task_mission_operating_page(self)
 
@@ -238,15 +238,15 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
+    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
     while cu_region != region and self.flag_run:
         if cu_region > region:
-            self.click(40, 360, wait=False, count=cu_region - region, rate=0.1, wait_over=True)
+            self.click(40, 360,  count=cu_region - region, rate=0.1, wait_over=True)
         else:
-            self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
+            self.click(1245, 360,  count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
         hard_task.to_hard_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
+        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
 
 
 def choose_team(self, number, position, skip_first_screenshot=True):
@@ -306,7 +306,7 @@ def wait_over(self):
         'normal_task_present': (794, 207),
         'normal_task_teleport-notice': (885, 164),
     }
-    image.detect(self, img_ends, img_possibles)
+    picture.co_detect(self, None, None, img_ends, img_possibles)
 
 
 def start_mission(self):
@@ -318,14 +318,13 @@ def start_mission(self):
         'normal_task_task-wait-to-begin-feature': (1171, 670),
         'normal_task_end-turn': (888, 163),
     }
-    image.detect(self, img_ends, img_possibles)
+    picture.co_detect(self, None, None, img_ends, img_possibles)
 
 
 def to_mission_info(self, y):
     img_end = "normal_task_task-info"
     img_possible = {'normal_task_select-area': (1114, y, 3)}
-    image.detect(self, img_end, img_possible)
-
+    picture.co_detect(self, None, None, img_end, img_possible, True)
 
 def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=True):
     st = st.split(',')
@@ -380,9 +379,9 @@ def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=T
 
 
 def check_skip_fight_and_auto_over(self):
-    if not image.compare_image(self, 'normal_task_fight-skip', threshold=3, image=self.latest_img_array):
+    if not image.compare_image(self, 'normal_task_fight-skip'):
         self.click(1194, 547)
-    if not image.compare_image(self, 'normal_task_auto-over', threshold=3, image=self.latest_img_array):
+    if not image.compare_image(self, 'normal_task_auto-over'):
         self.click(1194, 600)
 
 

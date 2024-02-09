@@ -28,7 +28,7 @@ def implement(self):
             return True
         else:
             self.logger.info("Check Next page")
-            self.click(1255, 357, duration=1.5, wait_over=True, wait=False)
+            self.click(1255, 357, duration=1.5, wait_over=True)
             self.latest_img_array = self.get_screenshot_array()
 
 
@@ -41,13 +41,13 @@ def check_6_region_status(self):
     for y in possibles_y:
         for x in possibles_x:
             if self.server == 'JP' or self.server == "Global":
-                ocr_res = self.ocr.get_region_pure_english(self.latest_img_array, (x, y, x + dx, y + dy))
+                ocr_res = self.ocr.get_region_pure_english(self.latest_img_array, (x, y, x + dx, y + dy), self.ratio)
                 if ocr_res.lower() == 'new':
                     res.append(True)
                 else:
                     res.append(False)
             if self.server == 'CN':
-                ocr_res = self.ocr.get_region_pure_chinese(self.latest_img_array, (x, y, x + dx, y + dy))
+                ocr_res = self.ocr.get_region_pure_chinese(self.latest_img_array, (x, y, x + dx, y + dy), self.ratio)
                 if ocr_res.lower() == '新':
                     res.append(True)
                 else:
@@ -72,9 +72,8 @@ def to_group_story(self, skip_first_screenshot=False):
 
 
 def judge_need_check_next_page(self):
-    line = self.latest_img_array[357:358, 1231:1280]
-    for i in range(0, line.shape[1]):
-        if color.judge_rgb_range(line, i, 0, 60, 80, 89, 109, 142, 162):
+    for i in range(1231, 1280):
+        if color.judge_rgb_range(self, i, 357, 60, 80, 89, 109, 142, 162):
             self.logger.info("Need check next page")
             return True
     self.logger.info("Last page")
@@ -105,8 +104,7 @@ def to_episode_info(self, pos, skip_first_screenshot=False):
 
 
 def check_current_episode_cleared(self):
-    if image.compare_image(self, "group_story_episode-cleared-feature", 3, need_log=False,
-                           image=self.latest_img_array):
+    if image.compare_image(self, "group_story_episode-cleared-feature", need_log=False):
         self.logger.info("Current episode cleared")
         return True
     self.logger.info("Current episode not cleared")
@@ -116,7 +114,7 @@ def check_current_episode_cleared(self):
 def one_detect(self):
     possibles = [[1073, 251], [1073, 351]]
     for i in range(0, len(possibles)):
-        if color.judge_rgb_range(self.latest_img_array, possibles[i][0], possibles[i][1], 109, 129, 211, 231, 245, 255):
+        if color.judge_rgb_range(self, possibles[i][0], possibles[i][1], 109, 129, 211, 231, 245, 255):
             return possibles[i]
     return False
 

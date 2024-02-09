@@ -86,12 +86,12 @@ def get_x_y(target_array, template_path: str):
 
 
 def check_sweep_availability(img):
-    if color.judge_rgb_range(img, 211, 369, 192, 212, 192, 212, 192, 212) or color.judge_rgb_range(img, 211, 402, 192,
+    if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) or color.judge_rgb_range(self, 211, 402, 192,
                                                                                                    212, 192, 212, 192,
                                                                                                    212) or color.judge_rgb_range(
         img, 211, 436, 192, 212, 192, 212, 192, 212):
         return "UNAVAILABLE"
-    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) and color.judge_rgb_range(img, 211, 404, 225,
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and color.judge_rgb_range(self, 211, 404, 225,
                                                                                                   255, 200, 255, 20,
                                                                                                   60) and color.judge_rgb_range(
         img, 211, 434, 225, 255, 200, 255, 20, 60):

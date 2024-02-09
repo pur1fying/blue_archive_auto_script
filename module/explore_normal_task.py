@@ -34,7 +34,7 @@ def test(self):
                 'normal_task_task-info': (946, 540)
             }
             img_ends = "normal_task_task-wait-to-begin-feature"
-            image.detect(self, img_ends, img_possibles)
+            picture.co_detect(self, None, img_possibles, img_ends, None, True)
 
             res, los = calc_team_number(self, current_task_stage_data)
             for j in range(0, len(res)):
@@ -79,7 +79,7 @@ def implement(self):
                 'normal_task_task-info': (946, 540)
             }
             img_ends = "normal_task_task-wait-to-begin-feature"
-            image.detect(self, img_ends, img_possibles)
+            picture.co_detect(self, None, img_possibles, img_ends, None, True)
             choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
             check_skip_fight_and_auto_over(self)
             start_action(self, current_task_stage_data['action'])
@@ -141,7 +141,7 @@ def get_stage_data(region):
 
 
 def check_task_state(self):
-    if image.compare_image(self, 'normal_task_SUB', 3, image=self.latest_img_array):
+    if image.compare_image(self, 'normal_task_SUB'):
         return 'SUB'
     return color.check_sweep_availability(self.latest_img_array, self.server)
 
@@ -167,7 +167,7 @@ def calc_need_fight_stage(self, region, force_sss):
         if i == 5:
             return "ALL MISSION SWEEP AVAILABLE"
         self.logger.info("Check next mission")
-        self.click(1172, 358, wait=False, wait_over=True)
+        self.click(1172, 358,  wait_over=True)
         time.sleep(1)
         self.latest_img_array = self.get_screenshot_array()
 
@@ -179,7 +179,7 @@ def get_force(self):
         'JP': (116, 542, 131, 570)
     }
     to_normal_task_mission_operating_page(self)
-    ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server])
+    ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server], self.ratio)
     if ocr_res == "UNKNOWN":
         return get_force(self)
     if ocr_res == 7:
@@ -232,16 +232,16 @@ def start_action(self, actions, will_fight=False):
             time.sleep(1)
             if op[j] == 'click':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True)
             elif op[j] == 'teleport':
                 confirm_teleport(self)
             elif op[j] == 'exchange':
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
             elif op[j] == 'exchange_twice':
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
             elif op[j] == 'end-turn':
                 end_turn(self)
@@ -250,26 +250,26 @@ def start_action(self, actions, will_fight=False):
                     skip_first_screenshot = True
             elif op[j] == 'click_and_teleport':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True)
                 confirm_teleport(self)
             elif op[j] == 'choose_and_change':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True, duration=0.3)
-                self.click(pos[0] - 100, pos[1], wait=False, wait_over=True, duration=1)
+                self.click(pos[0], pos[1],  wait_over=True, duration=0.3)
+                self.click(pos[0] - 100, pos[1],  wait_over=True, duration=1)
             elif op[j] == 'exchange_and_click':
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True)
             elif op[j] == 'exchange_twice_and_click':
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
-                self.click(83, 557, wait=False, wait_over=True)
+                self.click(83, 557,  wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
                 pos = act['p'][0]
-                self.click(pos[0], pos[1], wait=False, wait_over=True)
+                self.click(pos[0], pos[1],  wait_over=True)
 
         if 'ec' in act:
             wait_formation_change(self, force_index)
@@ -286,24 +286,15 @@ def start_choose_side_team(self, index):
     self.logger.info("According to the config. Choose formation " + str(index))
     loy = [195, 275, 354, 423]
     y = loy[index - 1]
-    click_pos = [
-        [74, y],
-        [74, y],
-        [74, y],
-        [74, y],
-    ]
-    los = [
-        "formation_edit1",
-        "formation_edit2",
-        "formation_edit3",
-        "formation_edit4",
-    ]
-    ends = [
-        "formation_edit" + str(index)
-    ]
-    los.pop(index - 1)
-    click_pos.pop(index - 1)
-    color.common_rgb_detect_method(self, click_pos, los, ends)
+    rgb_possibles = {
+        "formation_edit1": (74, y),
+        "formation_edit2": (74, y),
+        "formation_edit3": (74, y),
+        "formation_edit4": (74, y),
+    }
+    rgb_ends = "formation_edit" + str(index)
+    rgb_possibles.pop("formation_edit" + str(index))
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
 
 
 def choose_region(self, region):
@@ -312,15 +303,15 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
+    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
     while cu_region != region and self.flag_run:
         if cu_region > region:
-            self.click(40, 360, wait=False, count=cu_region - region, rate=0.1, wait_over=True)
+            self.click(40, 360,  count=cu_region - region, rate=0.1, wait_over=True)
         else:
-            self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
+            self.click(1245, 360,  count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
         normal_task.to_normal_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
+        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
 
 
 def to_normal_task_wait_to_begin_page(self, skip_first_screenshot=False):
@@ -374,14 +365,14 @@ def wait_over(self, will_fight=False):
         if not self.flag_run:
             return False
         color.wait_loading(self)
-        if image.compare_image(self, img_ends, 3, image=self.latest_img_array, need_log=False):
+        if image.compare_image(self, img_ends,  need_log=False):
             self.logger.info('end : ' + img_ends)
             return
         f = 0
         if will_fight:
             for position, click in rgb_possibles.items():
                 for j in range(0, len(self.rgb_feature[position][0])):
-                    if not color.judge_rgb_range(self.latest_img_array,
+                    if not color.judge_rgb_range(self,
                                                  self.rgb_feature[position][0][j][0],
                                                  self.rgb_feature[position][0][j][1],
                                                  self.rgb_feature[position][1][j][0],
@@ -404,8 +395,7 @@ def wait_over(self, will_fight=False):
         if f == 0:
             if img_possibles is not None:
                 for position, click in img_possibles.items():
-                    if image.compare_image(self, position, 3, need_loading=False, image=self.latest_img_array,
-                                           need_log=False):
+                    if image.compare_image(self, position, need_log=False):
                         self.logger.info("find " + position)
                         self.click(click[0], click[1], False)
                         self.latest_screenshot_time = time.time()
@@ -439,9 +429,9 @@ def wait_formation_change(self, force_index):
 
 
 def check_skip_fight_and_auto_over(self):
-    if not image.compare_image(self, 'normal_task_fight-skip', threshold=3, image=self.latest_img_array):
+    if not image.compare_image(self, 'normal_task_fight-skip'):
         self.click(1194, 547)
-    if not image.compare_image(self, 'normal_task_auto-over', threshold=3, image=self.latest_img_array):
+    if not image.compare_image(self, 'normal_task_auto-over'):
         self.click(1194, 600)
 
 

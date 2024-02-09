@@ -36,7 +36,7 @@ def sweep(self, number, times):
     to_task_info(self, number)
     res = check_sweep_availability(self.latest_img_array)
     if res == "sss":
-        self.click(1032, 299, count=click_times, duration=duration, wait=False, wait_over=True)
+        self.click(1032, 299, count=click_times, duration=duration,  wait_over=True)
         res = start_sweep(self, True)
         if res == "inadequate_ap":
             self.logger.warning("inadequate ap")
@@ -85,7 +85,7 @@ def explore_mission(self):
         res = check_sweep_availability(self.latest_img_array)
         while res == "sss" and last_target_task <= 11:
             self.logger.info("Current task sss check next task")
-            self.click(1168, 353, duration=1, wait=False, wait_over=True)
+            self.click(1168, 353, duration=1,  wait_over=True)
             last_target_task += 1
             image.detect(self, "normal_task_task-info")
             res = check_sweep_availability(self.latest_img_array)
@@ -104,7 +104,7 @@ def explore_mission(self):
 
 def explore_challenge(self):
     to_no_69_spring_wild_dream(self, "challenge")
-    if color.judge_rgb_range(self.latest_img_array, 945, 351, 200, 230, 200, 230, 200, 230):
+    if color.judge_rgb_range(self, 945, 351, 200, 230, 200, 230, 200, 230):
         self.logger.warning("Challenge not open")
         return False
 
@@ -151,7 +151,7 @@ def to_no_69_spring_wild_dream(self, region, skip_first_screenshot=False):
     while True:
         if not self.flag_run:
             return False
-        if not color.judge_rgb_range(self.latest_img_array, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
+        if not color.judge_rgb_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
             self.click(click_lo[region], 76)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
@@ -174,17 +174,17 @@ def to_task_info(self, number):
 
 
 def check_sweep_availability(img):
-    if color.judge_rgb_range(img, 211, 369, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(img, 211, 402, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(img, 211, 436, 192, 212, 192, 212, 192, 212):
+    if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
+        color.judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
+        color.judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
         return "no-pass"
-    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(img, 211, 404, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(img, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
+        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
+        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "sss"
-    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(img, 211, 404, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(img, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
+        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
+        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "pass"
 
 
@@ -263,27 +263,27 @@ def exchange_reward(self):
         self.config["activity_exchange_50_times_at_once"] = True
         with open('./config/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, ensure_ascii=False, indent=2)
-        if not image.compare_image(self, "activity_exchange-50-times-at-once", 3):
+        if not image.compare_image(self, "activity_exchange-50-times-at-once"):
             self.logger.info("set exchange times to 50 times at once")
             self.click(778, 320, wait_over=True)
         img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
         img_ends = "activity_exchange-menu"
         picture.co_detect(self, None, None, img_ends, img_possibles, True)
     while 1:
-        while color.judge_rgb_range(self.latest_img_array, 314, 684, 235, 255, 223, 243, 65, 85):
-            self.click(453, 651, wait=False, wait_over=True)
+        while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
+            self.click(453, 651,  wait_over=True)
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        while color.judge_rgb_range(self.latest_img_array, 479, 681, 109, 129, 211, 231, 235, 255):
-            self.click(453, 651, wait=False, wait_over=True)
+        while color.judge_rgb_range(self, 479, 681, 109, 129, 211, 231, 235, 255):
+            self.click(453, 651,  wait_over=True)
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        if image.compare_image(self, "activity_refresh-exchange-times-grey", 3):
+        if image.compare_image(self, "activity_refresh-exchange-times-grey"):
             self.logger.info("exchange complete")
             return True
-        if image.compare_image(self, "activity_refresh-exchange-times-bright", 3):
+        if image.compare_image(self, "activity_refresh-exchange-times-bright"):
             refresh_exchange_times(self)
 
 

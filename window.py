@@ -104,6 +104,10 @@ def check_user_config(dir_path='./default_config'):
 def check_event_config(dir_path='./default_config'):
     path = './config/' + dir_path + '/event.json'
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
+    if not os.path.exists(path):
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
+        return
     try:
         with open(path, 'r', encoding='utf-8') as f:  # 如果存在则检查是否有新的配置项
             data = json.load(f)

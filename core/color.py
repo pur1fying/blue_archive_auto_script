@@ -14,15 +14,15 @@ def wait_loading(self):
         white_position = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
         if self.server == "CN":
             not_white_position = [[1048, 638], [950, 660]]
-            white_position = [[1040, 654], [970, 651], [1102,659], [1077, 665], [1201, 665]]
+            white_position = [[1040, 654], [970, 651], [1102, 659], [1077, 665], [1201, 665]]
         for i in range(0, len(not_white_position)):
-            if judge_rgb_range(self.latest_img_array, not_white_position[i][0], not_white_position[i][1],
+            if judge_rgb_range(self, not_white_position[i][0], not_white_position[i][1],
                                200, 255, 200, 255, 200, 255):
                 break
         else:
             for i in range(0, len(white_position)):
-                if not judge_rgb_range(self.latest_img_array, white_position[i][0], white_position[i][1],
-                                   200, 255, 200, 255, 200, 255):
+                if not judge_rgb_range(self, white_position[i][0], white_position[i][1],
+                                       200, 255, 200, 255, 200, 255):
                     break
             else:
                 t_load = time.time() - t_start
@@ -37,104 +37,40 @@ def wait_loading(self):
         return True
 
 
-def common_rgb_detect_method(self, click, possible_los, ends, skip_first_screenshot=False):
-    t_start = time.time()
-    t_total = 0
-    while t_total <= 60:
-        if not self.flag_run:
-            return False
-        if skip_first_screenshot:
-            skip_first_screenshot = False
-        else:
-            wait_loading(self)
-        res = detect_rgb_one_time(self, click, possible_los, ends)
-        if not res:
-            time.sleep(self.screenshot_interval)
-            continue
-        elif res[0] == "end":
-            return res[1]
-        elif res[0] == "click":
-            time.sleep(self.screenshot_interval)
-            continue
-        t_total = time.time() - t_start
-    self.logger.critical("Wait Too Long")
-    return False
-
-
-def detect_rgb_one_time(self, click=None, possible_los=None, ends=None):
-    for i in range(0, len(ends)):
-        if ends[i] not in self.rgb_feature:
-            continue
-        for j in range(0, len(self.rgb_feature[ends[i]][0])):
-            if not judge_rgb_range(self.latest_img_array,
-                                   self.rgb_feature[ends[i]][0][j][0],
-                                   self.rgb_feature[ends[i]][0][j][1],
-                                   self.rgb_feature[ends[i]][1][j][0],
-                                   self.rgb_feature[ends[i]][1][j][1],
-                                   self.rgb_feature[ends[i]][1][j][2],
-                                   self.rgb_feature[ends[i]][1][j][3],
-                                   self.rgb_feature[ends[i]][1][j][4],
-                                   self.rgb_feature[ends[i]][1][j][5]):
-                break
-        else:
-            self.logger.info("end : " + ends[i])  # 出现end中的任意一个，返回对应的位置字符串
-            return "end", ends[i]
-    for i in range(0, len(possible_los)):  # 可能的图标
-        if possible_los[i] not in self.rgb_feature:
-            continue
-        for j in range(0, len(self.rgb_feature[possible_los[i]][0])):  # 每个图标多个，判断rgb
-            if not judge_rgb_range(self.latest_img_array,
-                                   self.rgb_feature[possible_los[i]][0][j][0],
-                                   self.rgb_feature[possible_los[i]][0][j][1],
-                                   self.rgb_feature[possible_los[i]][1][j][0],
-                                   self.rgb_feature[possible_los[i]][1][j][1],
-                                   self.rgb_feature[possible_los[i]][1][j][2],
-                                   self.rgb_feature[possible_los[i]][1][j][3],
-                                   self.rgb_feature[possible_los[i]][1][j][4],
-                                   self.rgb_feature[possible_los[i]][1][j][5]):
-                break
-        else:
-            self.logger.info("find : " + possible_los[i])
-            self.click(click[i][0], click[i][1], wait=False)  # 出现possible_los中的任意一个，点击对应的click坐标
-            self.latest_screenshot_time = time.time()
-            return "click", True
-    return False
-
-
-def judge_rgb_range(shot_array, x, y, r_min, r_max, g_min, g_max, b_min, b_max):
-    if r_min <= shot_array[y][x][2] <= r_max and \
-        g_min <= shot_array[y][x][1] <= g_max and \
-        b_min <= shot_array[y][x][0] <= b_max:
+def judge_rgb_range(self, x, y, r_min, r_max, g_min, g_max, b_min, b_max):
+    if r_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][2] <= r_max and \
+        g_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][1] <= g_max and \
+        b_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][0] <= b_max:
         return True
     return False
 
 
-def check_sweep_availability(img, server):
-    if server == "CN":
-        if judge_rgb_range(img, 211, 369, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(img, 211, 402, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(img, 211, 436, 192, 212, 192, 212, 192, 212):
+def check_sweep_availability(self):
+    if self.server == "CN":
+        if judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
+            judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
+            judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
             return "no-pass"
-        if judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(img, 211, 404, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(img, 211, 434, 225, 255, 200, 255, 20, 60):
+        if judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
+            judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
+            judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
             return "sss"
-        if judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(img, 211, 404, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(img, 211, 434, 225, 255, 200, 255, 20, 60):
+        if judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
+            judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
+            judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
             return "pass"
         return "UNKNOWN"
-    elif server == "Global" or server == "JP":
-        if judge_rgb_range(img, 169, 369, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(img, 169, 405, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(img, 169, 439, 192, 212, 192, 212, 192, 212):
+    elif self.server == "Global" or self.server == "JP":
+        if judge_rgb_range(self, 169, 369, 192, 212, 192, 212, 192, 212) and \
+            judge_rgb_range(self, 169, 405, 192, 212, 192, 212, 192, 212) and \
+            judge_rgb_range(self, 169, 439, 192, 212, 192, 212, 192, 212):
             return "no-pass"
-        if judge_rgb_range(img, 169, 369, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(img, 169, 405, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(img, 169, 439, 225, 255, 200, 255, 20, 60):
+        if judge_rgb_range(self, 169, 369, 225, 255, 200, 255, 20, 60) and \
+            judge_rgb_range(self, 169, 405, 225, 255, 200, 255, 20, 60) and \
+            judge_rgb_range(self, 169, 439, 225, 255, 200, 255, 20, 60):
             return "sss"
-        if judge_rgb_range(img, 169, 369, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(img, 169, 405, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(img, 169, 439, 225, 255, 200, 255, 20, 60):
+        if judge_rgb_range(self, 169, 369, 225, 255, 200, 255, 20, 60) or \
+            judge_rgb_range(self, 169, 405, 225, 255, 200, 255, 20, 60) or \
+            judge_rgb_range(self, 169, 439, 225, 255, 200, 255, 20, 60):
             return "pass"
         return "UNKNOWN"

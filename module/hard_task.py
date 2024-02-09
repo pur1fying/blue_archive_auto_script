@@ -75,15 +75,15 @@ def implement(self):
             if to_task_info(self, all_task_x_coordinate, hard_task_y_coordinates[tar_mission - 1], True) == "normal_task_unlock-notice":
                 self.logger.info("task unlocked")
                 continue
-            t = check_sweep_availability(self.latest_img_array, server=self.server)
+            t = check_sweep_availability(self)
             if t == "sss":
                 if tar_times == "max":
-                    self.click(1085, 300, rate=1, wait=False, wait_over=True)
+                    self.click(1085, 300, rate=1,  wait_over=True)
                 else:
                     duration = 0
                     if tar_times > 4:
                         duration = 1
-                    self.click(1014, 300, count=tar_times - 1, wait=False, duration=duration, wait_over=True)
+                    self.click(1014, 300, count=tar_times - 1,  duration=duration, wait_over=True)
                 res = start_sweep(self, True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("hard task " + str(self.hard_task_count[i]) + " finished")
@@ -179,12 +179,12 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
+    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
     while cu_region != region and self.flag_run:
         if cu_region > region:
-            self.click(40, 360, wait=False, count=cu_region - region, rate=0.1, wait_over=True)
+            self.click(40, 360,  count=cu_region - region, rate=0.1, wait_over=True)
         else:
-            self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
+            self.click(1245, 360,  count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
         to_hard_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
+        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)

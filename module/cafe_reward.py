@@ -68,10 +68,9 @@ def match(img):
 
 
 def cafe_to_gift(self):
-    click_pos = [[163, 639]]
-    los = ["cafe"]
-    ends = ["gift"]
-    color.common_rgb_detect_method(self, click_pos, los, ends)
+    rgb_possibles = {"cafe": (163, 639)}
+    rgb_ends = ["gift"]
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
 
 
 def shot(self):
@@ -80,10 +79,9 @@ def shot(self):
 
 
 def gift_to_cafe(self):
-    click_pos = [[1240, 574]]
-    los = ["gift"]
-    ends = ["cafe"]
-    color.common_rgb_detect_method(self, click_pos, los, ends)
+    rgb_possibles = {"gift": (1240, 574)}
+    rgb_ends = "cafe"
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
 
 
 def interaction_for_cafe_solve_method3(self):
@@ -96,7 +94,8 @@ def interaction_for_cafe_solve_method3(self):
         t1.start()
         self.swipe(131, 660, 1280, 660, duration=0.5)
         t1.join()
-        res = match(self.latest_img_array)
+        img = cv2.resize(self.latest_img_array, (1280, 720), interpolation=cv2.INTER_AREA)
+        res = match(img)
         gift_to_cafe(self)
         if res:
             res.sort(key=lambda x: x[0])
@@ -122,7 +121,7 @@ def interaction_for_cafe_solve_method3(self):
                     continue
             self.logger.info("totally find " + str(len(res)) + " interactions")
             for j in range(0, len(res)):
-                self.click(res[j][0], min(res[j][1], 591), wait=False, wait_over=True)
+                self.click(res[j][0], min(res[j][1], 591),  wait_over=True)
 
         if i != max_times - 1:
             time.sleep(2)
@@ -173,19 +172,19 @@ def invite_girl(self, no=1):
                 'JP': (489, 185, 709, 604),
             }
             out = operate_student_name(
-                self.ocr.get_region_raw_res(self.latest_img_array, region[self.server], model=self.server))
+                self.ocr.get_region_raw_res(self.latest_img_array, region[self.server], self.server, self.ratio))
             detected_name = []
             location = []
             for k in range(0, len(out)):
                 temp = out[k]['text']
                 res = operate_name(temp, self.server)
-                for j in range(0, len(student_name)):  # 此处可用二分查找优化
+                for j in range(0, len(student_name)):
                     if res == student_name[j]:
                         if student_name[j] == "干世":
                             detected_name.append("千世")
                         else:
                             detected_name.append(student_name[j])
-                        location.append(out[k]['position'][0][1] + 210)
+                        location.append((out[k]['position'][0][1]/self.ratio) + 210)
                         if len(detected_name) == 5:
                             break
 
@@ -208,15 +207,15 @@ def invite_girl(self, no=1):
                         self.logger.info("find student " + target_name + " at " + str(location[s]))
                         stop_flag = True
                         f = False
-                        self.click(784, location[s], wait=False, duration=0.7, wait_over=True)
-                        self.click(770, 500, wait=False, wait_over=True)
+                        self.click(784, location[s],  duration=0.7, wait_over=True)
+                        self.click(770, 500,  wait_over=True)
                         break
                 if not stop_flag:
                     self.logger.info("didn't find target student swipe to next page")
                     self.swipe(412, 580, 412, 150, duration=0.3)
-                    self.click(412, 500, wait=False, wait_over=True)
+                    self.click(412, 500,  wait_over=True)
                     self.latest_img_array = self.get_screenshot_array()
-        to_cafe(self, skip_first_screenshot=True)
+        to_cafe(self)
         if not f:
             break
 
@@ -227,7 +226,7 @@ def collect(self):
 
 
 def get_invitation_ticket_status(self):
-    if color.judge_rgb_range(self.latest_img_array, 851, 647, 250, 255, 250, 255, 250, 255):
+    if color.judge_rgb_range(self, 851, 647, 250, 255, 250, 255, 250, 255):
         self.logger.info("Invite ticket available for use")
         return True
     else:
@@ -236,7 +235,7 @@ def get_invitation_ticket_status(self):
 
 
 def get_cafe_earning_status(self):
-    if not image.compare_image(self, 'cafe_0.0', 3):
+    if not image.compare_image(self, 'cafe_0.0'):
         return True
 
 

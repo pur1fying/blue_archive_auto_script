@@ -24,22 +24,22 @@ def implement(self):
             return True
         buy(self, buy_list)
         self.latest_img_array = self.get_screenshot_array()
-        if color.judge_rgb_range(self.latest_img_array, 1126, 662, 235, 255, 222, 242, 64, 84):
+        if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
             self.logger.info("Purchase available")
-            self.click(1160, 662, wait=False, wait_over=True)
+            self.click(1160, 662,  wait_over=True)
             time.sleep(0.5)
-            self.click(767, 488, wait=False, wait_over=True)
+            self.click(767, 488,  wait_over=True)
             time.sleep(2)
-            self.click(640, 80, wait=False, wait_over=True)
-            self.click(640, 80, wait=False, wait_over=True)
+            self.click(640, 80,  wait_over=True)
+            self.click(640, 80,  wait_over=True)
 
             tactical_challenge_assets = tactical_challenge_assets - asset_required
             self.logger.info("left assets : " + str(tactical_challenge_assets))
             to_tactical_challenge_shop(self)
 
-        elif color.judge_rgb_range(self.latest_img_array, 1126, 662, 206, 226, 206, 226, 206, 226):
+        elif color.judge_rgb_range(self, 1126, 662, 206, 226, 206, 226, 206, 226):
             self.logger.info("Purchase Unavailable")
-            self.click(1240, 39, wait=False, wait_over=True)
+            self.click(1240, 39,  wait_over=True)
             return True
         self.latest_img_array = self.get_screenshot_array()
         if i != refresh_time:
@@ -50,7 +50,7 @@ def implement(self):
                     return True
                 tactical_challenge_assets = tactical_challenge_assets - refresh_price[i]
                 self.logger.info("left tactical challenge assets : " + str(tactical_challenge_assets))
-                self.click(767, 468, duration=0.5, wait=False, wait_over=True)
+                self.click(767, 468, duration=0.5,  wait_over=True)
                 to_tactical_challenge_shop(self)
     return True
 
@@ -92,7 +92,7 @@ def get_tactical_challenge_assets(self):
         'Global': [1109, 63, 1240, 102],
         'JP': [907, 68, 1045, 98]
     }
-    return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server])
+    return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server], self.ratio)
 
 
 def buy(self, buy_list):
@@ -103,7 +103,7 @@ def buy(self, buy_list):
     while i < length:
         if buy_list[i]:
             self.click(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1],
-                       wait=False, wait_over=True)
+                        wait_over=True)
             time.sleep(0.1)
         if i % 8 == 7:
             if not buy_list[i + 1:].any():
