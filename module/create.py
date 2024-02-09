@@ -38,7 +38,7 @@ def implement(self):
                     break
                 need_acc_collect = True
                 self.config['alreadyCreateTime'] += 1
-                self.config_set.set("alreadyCreateTime", self.config['alreadyCreateTime'])
+                # self.config_set.set("alreadyCreateTime", self.config['alreadyCreateTime'])
                 self.logger.info("today total create times: " + str(self.config['alreadyCreateTime']))
                 if self.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
@@ -53,25 +53,25 @@ def implement(self):
 
 
 def common_create_judge(self):
-    # pri = ["花",
-    #             "MomoFriends咖啡厅",
-    #             "果冻游戏中心",
-    #             "情人节",
-    #             "夏日",
-    #             "万圣节",
-    #             "温泉浴场",
-    #             "新年",
-    #             "色彩",
-    #             "灿烂",
-    #             "武器部件",
-    #             "铜",
-    #             "光芒",
-    #             "玲珑",
-    #             "白金",
-    #             "黄金",
-    #             "白银",
-    #             "金属",
-    #             "隐然"]
+    pri = ["花",
+                "MomoFriends咖啡厅",
+                "果冻游戏中心",
+                "情人节",
+                "夏日",
+                "万圣节",
+                "温泉浴场",
+                "新年",
+                "色彩",
+                "灿烂",
+                "武器部件",
+                "铜",
+                "光芒",
+                "玲珑",
+                "白金",
+                "黄金",
+                "白银",
+                "金属",
+                "隐然"]
     # pri = [
     #     "Flower",
     #     "Momo Friends Cafe Set",
@@ -130,7 +130,7 @@ def common_create_judge(self):
     #     "明かり",
     #     "瞬き"
     # ]
-    pri = self.config['createPriority']
+    # pri = self.config['createPriority']
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
     node_x = [839, 508, 416, 302, 174]
@@ -323,9 +323,10 @@ def choose_materials(self):
 def preprocess_node_info(st, server):
     st = st.replace(" ", "")
     st = st.replace("・", "")
+    st = st.replace(".", "")
+    st = st.replace("’", "")
     if server == 'Global':
         st = st.lower()
-        st = st.replace("’", "")
     return st
 
 

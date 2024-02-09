@@ -28,8 +28,13 @@ def implement(self):
 
 
 def to_cafe(self, skip_first_screenshot=False):
+    reward_status_cross_x = {
+        'CN': 904,
+        'JP': 985,
+        'Global': 904,
+    }
     img_possibles = {
-        'cafe_cafe-reward-status': (904, 159),
+        'cafe_cafe-reward-status': (reward_status_cross_x[self.server], 159),
         'cafe_invitation-ticket': (835, 97),
         'cafe_students-arrived': (922, 189),
         'main_page_full-notice': (887, 165),

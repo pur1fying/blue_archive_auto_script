@@ -40,6 +40,7 @@ func_dict = {
     'refresh_uiautomator2': module.refresh_uiautomator2.implement,
     'no_227_kinosaki_spa': module.no_227_kinosaki_spa.implement,
     'no_68_spring_wild_dream': module.no_68_spring_wild_dream.implement,
+    'pleasant_Valentines_Day_in_schale': module.pleasant_Valentines_Day_in_schale.implement,
 }
 
 

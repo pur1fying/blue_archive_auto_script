@@ -51,7 +51,7 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_fi
                 continue
         if end is not None:
             if type(end) is str:
-                if compare_image(self, end, 3, image=self.latest_img_array, need_log=False):
+                if compare_image(self, end, 10, image=self.latest_img_array, need_log=False):
                     self.logger.info('end : ' + end)
                     return end
             elif type(end) is list:
