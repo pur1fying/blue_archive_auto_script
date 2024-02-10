@@ -792,7 +792,7 @@ STATIC_DEFAULT_CONFIG = '''
                         "响"
                         ],
     "current_game_activity": {
-        "CN": "no_68_spring_wild_dream",
+        "CN": "pleasant_Valentines_Day_in_schale",
         "Global": null,
         "JP": null
     },

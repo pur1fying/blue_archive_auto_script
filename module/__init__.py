@@ -24,3 +24,4 @@ from module import tactical_challenge_shop
 from module import total_assault
 from module.activities import no_227_kinosaki_spa
 from module.activities import no_68_spring_wild_dream
+from module.activities import pleasant_Valentines_Day_in_schale

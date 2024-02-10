@@ -14,7 +14,7 @@ def implement(self):
     to_main_story(self, True)
     origin_list = {
         'CN': [1, 2, 3],
-        'Global': [1, 2, 3, 4, 5, 4],
+        'Global': [5, 4],
         'JP': [5, 4, 6]
     }
     push_episode_list = origin_list[self.server]
@@ -58,7 +58,7 @@ def change_acc_auto(self):
         self.click(1215, y, wait=False, wait_over=True, count=2)
     elif acc_phase == 2:
         self.logger.info("CHANGE acceleration phase from 2 to 3")
-        self.click(1215, y)
+        self.click(1215, y, wait=False, wait_over=True)
     elif acc_phase == 3:
         self.logger.info("ACCELERATION phase 3")
     else:

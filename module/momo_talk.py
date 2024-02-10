@@ -58,7 +58,7 @@ def check_mode(self):
         self.logger.info("can't detect mode button")
         return False
     self.latest_img_array = self.get_screenshot_array()
-    if image.compare_image(self, "momo_talk_up", threshold=3):
+    if image.compare_image(self, "momo_talk_up"):
         self.logger.info("change UP to DOWN")
         self.click(634, 169, duration=0.2, wait=False, wait_over=True)
     elif image.compare_image(self, "momo_talk_down", threshold=3):
