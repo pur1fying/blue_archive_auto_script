@@ -5,35 +5,32 @@ import numpy as np
 from core import position, color
 
 
-def screenshot_cut(self, area, image=None):
-    if len(area) == 0:
-        return self.get_screenshot_array()
-    else:
-        if image is None:
-            self.latest_img_array = self.get_screenshot_array()
-            return self.latest_img_array[area[1]:area[3], area[0]:area[2], :]
-        else:
-            return image[area[1]:area[3], area[0]:area[2], :]
+def screenshot_cut(self, area):
+    return self.latest_img_array[int(area[1]*self.ratio):int(area[3]*self.ratio), int(area[0]*self.ratio):int(area[2]*self.ratio), :]
 
 
-def compare_image(self, name, threshold=10, need_loading=False, image=None, need_log=True):
-    if need_loading:
-        color.wait_loading(self)
+def compare_image(self, name, need_log=True, threshold=0.8):
     if name not in position.image_dic[self.server]:
         return False
     area = get_area(self.server, name)
     res_img = position.image_dic[self.server][name]
-    ss_img = screenshot_cut(self, area=area, image=image)
-    diff = cv2.absdiff(ss_img, res_img)
-    mean_diff = np.mean(diff)
-    compare = mean_diff <= threshold
+    ss_img = screenshot_cut(self, area)
+    res_img_average_rgb = np.mean(res_img, axis=(0, 1))
+    ss_img_average_rgb = np.mean(ss_img, axis=(0, 1))
+    if abs(res_img_average_rgb[0] - ss_img_average_rgb[0]) > 20 or abs(res_img_average_rgb[1] - ss_img_average_rgb[1]) > 20 or abs(res_img_average_rgb[2] - ss_img_average_rgb[2]) > 20:
+        return False
+    if res_img.shape[0] < ss_img.shape[0]:
+        ss_img = cv2.resize(ss_img, (res_img.shape[1], res_img.shape[0]), interpolation=cv2.INTER_AREA)
+    elif res_img.shape[0] > ss_img.shape[0]:
+        res_img = cv2.resize(res_img, (ss_img.shape[1], ss_img.shape[0]), interpolation=cv2.INTER_AREA)
+    similarity = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)[0][0]
+    self.logger.info(name + " : " + str(similarity))
     if need_log:
-        self.logger.info(f"compare_image {name} Mean Difference: {mean_diff} Result:{compare}")
-    return compare
+        self.logger.info(name + " : " + str(similarity))
+    return similarity > threshold
 
 
 def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_first_screenshot=False):
-    # self.logger.info("Start detecting image possibles :{0}, end:{1}".format(possibles, end))
     while True:
         if not self.flag_run:
             return False
@@ -51,26 +48,20 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_fi
                 continue
         if end is not None:
             if type(end) is str:
-                if compare_image(self, end, 10, image=self.latest_img_array, need_log=False):
+                if compare_image(self, end, need_log=False):
                     self.logger.info('end : ' + end)
                     return end
             elif type(end) is list:
                 for asset in end:
-                    if type(asset) is str:
-                        asset = (asset, 3)
-                    threshold = asset[1]
-                    if compare_image(self, asset[0], threshold, image=self.latest_img_array, need_log=False):
+                    if compare_image(self, asset[0],  need_log=False):
                         self.logger.info('end : ' + asset[0])
                         return asset[0]
         if possibles is not None:
             for asset, obj in possibles.items():
-                threshold = 3
-                if len(obj) >= 3:
-                    threshold = obj[2]
-                if compare_image(self, asset, threshold, image=self.latest_img_array, need_log=False):
+                if compare_image(self, asset,  need_log=False):
                     if type(obj[0]) is int:
                         self.logger.info("find : " + asset)
-                        self.click(obj[0], obj[1], False)
+                        self.click(obj[0], obj[1])
                         self.latest_screenshot_time = time.time()
                     else:
                         if obj[0](*obj[1]):

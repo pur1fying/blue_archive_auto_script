@@ -49,7 +49,7 @@ def start_sweep(self, skip_first_screenshot=False):
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"special_task_task-info": (941, 411)}
-    res = picture.co_detect(self, None,None, img_ends, img_possibles, skip_first_screenshot)
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice" or res == "buy_ap_notice":
         return "inadequate_ap"
     img_ends = [
@@ -83,22 +83,22 @@ def to_commissions(self, num, skip_first_screenshot=False):
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
 
-def one_detect(self,a,b):
+def one_detect(self, a, b):
     i = 675
-    line = self.latest_img_array[:, 1076, :]
     los = []
     while i > 196:
-        if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-                131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
+        if color.judge_rgb_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
+            color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
+            continue
         else:
             i -= 1
     for i in range(0, len(los)):
         img_possibles = {"special_task_level-list": (1118, los[i])}
         img_ends = "special_task_task-info"
         picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
-        t = color.check_sweep_availability(self.latest_img_array, server=self.server)
+        t = color.check_sweep_availability(self)
         if t == "sss":
             if b == "max":
                 self.click(1085, 300, duration=1, wait_over=True)
@@ -115,16 +115,16 @@ def one_detect(self,a,b):
 
 
 def commissions_common_operation(self, a, b):
-    res = one_detect(self,a,b)
+    res = one_detect(self, a, b)
     if res != "0SWEEPABLE":
         return res
     self.swipe(926, 140, 926, 640, duration=1)
     time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()
-    res = one_detect(self,a,b)
+    res = one_detect(self, a, b)
     if res != "0SWEEPABLE":
         return res
     self.swipe(926, 188, 926, 381, duration=1)
     time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()
-    return one_detect(self,a,b)
+    return one_detect(self, a, b)

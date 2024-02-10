@@ -24,7 +24,7 @@ class ConfigSet:
         self._init_config()
         self.config[key] = value
         print(self.config_dir)
-        with open(f'./config/{self.config_dir}', 'w', encoding='utf-8') as f:
+        with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
         if not self.check(key, value):
             notify('', '修改配置失败,请重新设置')
@@ -34,7 +34,7 @@ class ConfigSet:
         return self.config[item]
 
     def check(self, key, value):
-        with open(f'./config/{self.config_dir}', 'r', encoding='utf-8') as f:
+        with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
             new_config = json.load(f)
         return new_config.get(key) == value
 

@@ -171,7 +171,7 @@ def total_assault_highest_difficulty_button_detection(self, maxx):
 
 
 def judge_unfinished_fight(self):
-    if color.judge_rgb_range(self.latest_img_array, 1105, 206, 131, 151, 218, 238, 245, 255) and color.judge_rgb_range(
+    if color.judge_rgb_range(self, 1105, 206, 131, 151, 218, 238, 245, 255) and color.judge_rgb_range(
         self.latest_img_array, 1109, 252, 131, 151, 218, 238, 245, 255):
         return True
     self.logger.info("NO UNFINISHED FIGHT")
@@ -205,11 +205,11 @@ def collect_season_reward(self):
 
 
 def judge_and_collect_reward(self):
-    if color.judge_rgb_range(self.latest_img_array, 962, 558, 213, 233, 213, 233, 213, 233):
+    if color.judge_rgb_range(self, 962, 558, 213, 233, 213, 233, 213, 233):
         self.logger.info("need not collect")
         return False
     self.logger.info("collect")
-    self.click(1054, 580, duration=1, wait_over=True, wait=False)
+    self.click(1054, 580, duration=1, wait_over=True)
 
 
 def to_total_assault(self, skip_first_screenshot):
@@ -272,7 +272,7 @@ def judge_formation_usable(self):
         time.sleep(1)
         self.latest_img_array = self.get_screenshot_array()
         for region in regions:
-            ocr_res = self.ocr.get_region_res(self.latest_img_array, region, mode[self.server])
+            ocr_res = self.ocr.get_region_res(self.latest_img_array, region, mode[self.server], self.ratio)
             cnt = 0
             for j in range(0, len(ocr_res)):
                 if ocr_res[j].lower() in word[self.server]:
@@ -288,7 +288,7 @@ def get_total_assault_tickets(self):
         'Global': (1100, 0, 1280, 40),
         'JP': (1100, 0, 1280, 40),
     }
-    res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
+    res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
     if res[0].isdigit():
         return int(res[0])
     return 3
@@ -311,7 +311,7 @@ def calc_acc(dict1, dict2):
 def one_detect(self, button_detected, maxx, character_dict):
     name = ["BRIGHT", "GREY"]
     region = (661, 161, 833, 608)
-    ocr_res = self.ocr.get_region_raw_res(self.latest_img_array, region, "Global")
+    ocr_res = self.ocr.get_region_raw_res(self.latest_img_array, region, "Global", self.ratio)
     for i in range(0, len(button_detected)):
         if button_detected[i].any():
             continue
@@ -327,8 +327,8 @@ def one_detect(self, button_detected, maxx, character_dict):
             maximum_acc_index = acc.index(max(acc))
             if acc[maximum_acc_index] > 0.8 and (not button_detected[maximum_acc_index].any()):
                 temp = 1
-                y = int(ocr_res[j]["position"][3][1]) + region[1]
-                if color.judge_rgb_range(self.latest_img_array, 1163, y, 235, 255, 223, 243, 65, 85):
+                y = int(ocr_res[j]["position"][3][1]/self.ratio) + region[1]
+                if color.judge_rgb_range(self, 1163, y, 235, 255, 223, 243, 65, 85):
                     temp = 0
                 self.logger.info("find " + self.total_assault_difficulty_names[maximum_acc_index].upper() + " " + name[
                     temp] + " button")
@@ -354,7 +354,7 @@ def give_up_current_fight(self):
 
 def detect_level_y(self, target_dict):
     region = (661, 161, 833, 608)
-    ocr_res = self.ocr.get_region_raw_res(self.latest_img_array, region, "Global")
+    ocr_res = self.ocr.get_region_raw_res(self.latest_img_array, region, "Global", self.ratio)
     for i in range(0, len(ocr_res)):
         temp = ocr_res[i]["text"].lower()
         ocr_dict = {}
@@ -398,7 +398,7 @@ def start_sweep(self, pri_total_assault, tickets):
     self.logger.info("SWEEP :" + str(pri_total_assault) + " " + str(tickets) + " times")
     y = find_button_y(self, pri_total_assault)
     to_room_info(self, (1157, y), True)
-    self.click(1069, 297, wait_over=True, wait=False, duration=0.1, count=tickets)
+    self.click(1069, 297, wait_over=True,  duration=0.1, count=tickets)
     img_ends = [
         "total_assault_inadequate-ticket",
         "normal_task_start-sweep-notice",

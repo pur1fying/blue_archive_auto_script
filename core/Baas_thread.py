@@ -59,6 +59,7 @@ class Baas_thread:
         self.rgb_feature = None
         self.config_path = self.config_set.config_dir
         self.config = None
+        self.ratio = None
         self.next_time = None
         self.screenshot_updated = None
         self.task_finish_to_main_page = False
@@ -74,11 +75,9 @@ class Baas_thread:
         self.stage_data = {}
         self.activity_name = None
 
-    def click(self, x, y, wait=True, count=1, rate=0, duration=0, wait_over=False):
+    def click(self, x, y, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
             return False
-        if wait:
-            color.wait_loading(self)
         click_ = threading.Thread(target=self.click_thread, args=(x, y, count, rate, duration))
         click_.start()
         if wait_over:  # wait for click to be over
@@ -101,14 +100,14 @@ class Baas_thread:
         for i in range(count):
             if rate > 0:
                 time.sleep(rate)
-            noisex = int(np.random.uniform(-5, 5))
-            noisey = int(np.random.uniform(-5, 5))
+            noisex = np.random.uniform(-5, 5)
+            noisey = np.random.uniform(-5, 5)
             click_x = x + noisex
             click_y = y + noisey
             click_x = max(0, click_x)
             click_y = max(0, click_y)
-            click_x = min(1280, click_x)
-            click_y = min(720, click_y)
+            click_x = int(min(1280, click_x)*self.ratio)
+            click_y = int(min(720, click_y)*self.ratio)
             self.connection.click(click_x, click_y)
             if duration > 0:
                 time.sleep(duration)
@@ -150,11 +149,9 @@ class Baas_thread:
             self.latest_img_array = self.get_screenshot_array()
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
-            if (temp[0] == 1280 and temp[1] == 720) or (temp[1] == 1280 and temp[0] == 720):
-                self.logger.info("Screen Size Fitted")
-            else:
-                self.logger.critical("Screen Size unfitted, Please set the screen size to 1280x720")
-                return False
+            width = max(temp[0], temp[1])
+            self.ratio = width / 1280
+            self.logger.info("Screen Size Ratio: " + str(self.ratio))
             self.logger.info("--------Emulator Init Finished----------")
             return True
         except Exception as e:
@@ -243,9 +240,10 @@ class Baas_thread:
             'normal_task_skip-sweep-complete': (643, 506),
             "normal_task_charge-challenge-counts": (887, 164),
             "purchase_ap_notice": (919, 165),
+            "normal_task_task-operating-feature": (1000, 660),
             'normal_task_mission-operating-task-info': (1000, 664),
             'normal_task_mission-operating-task-info-notice': (416, 595),
-            'normal_task_mission-pause': (768, 501, 3),
+            'normal_task_mission-pause': (768, 501),
             'normal_task_task-begin-without-further-editing-notice': (888, 163),
             'normal_task_task-operating-round-over-notice': (888, 163),
             'momo_talk_momotalk-peach': (1123, 122),
@@ -347,10 +345,7 @@ class Baas_thread:
         if not self.flag_run:
             return False
         self.logger.info(f"swipe {fx} {fy} {tx} {ty}")
-        if duration is None:
-            self.connection.swipe(fx, fy, tx, ty)
-        else:
-            self.connection.swipe(fx, fy, tx, ty, duration=duration)
+        self.connection.swipe(fx*self.ratio, fy*self.ratio, tx*self.ratio, ty*self.ratio, duration)
 
     def get_ap(self):
         region = {
@@ -358,7 +353,7 @@ class Baas_thread:
             'Global': [557, 10, 662, 40],
             'JP': [557, 10, 662, 40],
         }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
         ap = 0
         for j in range(0, len(_ocr_res)):
             if (not _ocr_res[j].isdigit()) and _ocr_res[j] != '/' and _ocr_res[j] != '.':
@@ -375,7 +370,7 @@ class Baas_thread:
             'Global': [961, 10, 1072, 40],
             'JP': [961, 10, 1072, 40],
         }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
         temp = 0
         for j in range(0, len(_ocr_res)):
             if not _ocr_res[j].isdigit():
@@ -389,7 +384,7 @@ class Baas_thread:
             'Global': [769, 10, 896, 40],
             'JP': [769, 10, 896, 40],
         }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
+        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
         temp = 0
         for j in range(0, len(_ocr_res)):
             if not _ocr_res[j].isdigit():

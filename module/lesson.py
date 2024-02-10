@@ -1,6 +1,6 @@
 import time
 
-from core import color, image, picture
+from core import color, picture
 
 
 def implement(self):
@@ -26,7 +26,6 @@ def implement(self):
         self.logger.info("Purchase lesson ticket times :" + str(purchase_ticket_times))
         purchase_lesson_ticket(self, purchase_ticket_times)
     res = get_lesson_tickets(self)
-    res = [10, 10]
     if res == "UNKNOWN":
         self.logger.info("UNKNOWN tickets")
         lesson_tickets = 999
@@ -53,18 +52,18 @@ def implement(self):
         while cur_num != tar_num and self.flag_run:
             if cur_num > tar_num:
                 if (cur_num - tar_num) * 2 < len(region_name):
-                    self.click(left_change_page_x, change_page_y, count=cur_num - tar_num, wait=False,
+                    self.click(left_change_page_x, change_page_y, count=cur_num - tar_num,
                                duration=1.5, wait_over=True)
                 else:
                     self.click(right_change_page_x, change_page_y, count=len(region_name) - cur_num + tar_num,
-                               wait=False, duration=1.5, wait_over=True)
+                                duration=1.5, wait_over=True)
             else:
                 if (tar_num - cur_num) * 2 < len(region_name):
                     self.click(right_change_page_x, change_page_y, count=tar_num - cur_num, duration=1.5,
                                wait_over=True)
                 else:
                     self.click(left_change_page_x, change_page_y, count=len(region_name) - tar_num + cur_num,
-                               wait=False, duration=1.5, wait_over=True)
+                                duration=1.5, wait_over=True)
             to_select_location(self)
             res = get_lesson_region_num(self, letter_dict, region_name_len)
             if res != 'NOT FOUND':
@@ -129,7 +128,7 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
     }
     check_fail_times = 0
     while self.flag_run:
-        name = self.ocr.get_region_res(self.latest_img_array, region[self.server], self.server)
+        name = self.ocr.get_region_res(self.latest_img_array, region[self.server], self.server, self.ratio)
         name = pre_process_lesson_name(self, name)
         acc = []
         detected_name_dict = {}
@@ -163,7 +162,7 @@ def get_lesson_tickets(self):
         "Global": (220, 88, 282, 112),
         "JP": (188, 88, 252, 112),
     }
-    ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global')
+    ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
     if ocr_res[0] == 'Z':
         return [7, 7]
     if ocr_res[1] == '1':
@@ -176,7 +175,7 @@ def get_lesson_tickets(self):
 
 
 def purchase_lesson_ticket(self, times):
-    self.click(148, 101, wait=False, rate=1.5)
+    self.click(148, 101,  rate=1.5)
     if times == 4:  # max
         self.click(879, 346, wait=False)
     else:
@@ -223,8 +222,9 @@ def to_select_location(self, skip_first_screenshot=False):
 
 
 def to_location_info(self, x, y):
-    possibles = {"lesson_all-locations": (x, y)}
-    image.detect(self, end='lesson_lesson-information', possibles=possibles, skip_first_screenshot=True)
+    img_possibles = {"lesson_all-locations": (x, y)}
+    img_ends = 'lesson_lesson-information'
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def start_lesson(self):
@@ -285,7 +285,7 @@ def is_chinese_char(char):
 
 
 def get_lesson_relationship_counts(self):
-    position = [(443, 288), (787, 288), (1132, 288),
+    position = [(443, 290), (787, 290), (1132, 290),
                 (443, 441), (787, 441), (1132, 441),
                 (443, 591), (787, 591), (1132, 591)]
     dx = 51
@@ -293,7 +293,7 @@ def get_lesson_relationship_counts(self):
     for i in range(0, 9):
         cnt = 0
         for j in range(0, 3):
-            if color.judge_rgb_range(self.latest_img_array, position[i][0] - dx * j, position[i][1], 245, 255, 108, 128,
+            if color.judge_rgb_range(self, position[i][0] - dx * j, position[i][1], 245, 255, 108, 128,
                                      134, 154):
                 cnt += 1
         res.append(cnt)
@@ -306,15 +306,14 @@ def get_lesson_each_region_status(self):
              [289, 511], [643, 511], [985, 511]]
     res = []
     for i in range(0, 9):
-        if color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
+        if color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
             res.append("available")
-        elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230,
+        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230,
                                    249):
             res.append("done")
-        elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 140, 160, 140, 160, 140,
-                                   160):
+        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31,160):
             res.append("lock")
-        elif color.judge_rgb_range(self.latest_img_array, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
+        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
                                    215):
             res.append("no activity")
         else:

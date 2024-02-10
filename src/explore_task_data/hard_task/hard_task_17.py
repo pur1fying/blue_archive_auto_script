@@ -34,7 +34,7 @@ stage_data = {
             {'t': 'choose_and_change', 'p': (564, 433), 'desc': "swap 1 2"},
             {'t': 'click', 'p': (500, 517), 'ec': True, 'wait-over': True, 'desc': "2 lower left"},
 
-            {'t': 'exchange_and_click', 'p': (592, 561), 'wait-over': True, 'desc': "2 lower right"},
+            {'t': 'exchange_and_click', 'p': (592, 561), 'ec': True, 'desc': "2 lower right"},
             {'t': 'click', 'p': (851, 300), 'wait-over': True, 'desc': "1 right"},
 
             {'t': 'exchange_and_click', 'p': (607, 568), 'wait-over': True, 'desc': "2 lower right"},

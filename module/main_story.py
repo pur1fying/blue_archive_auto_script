@@ -14,8 +14,8 @@ def implement(self):
     to_main_story(self, True)
     origin_list = {
         'CN': [1, 2, 3],
-        'Global': [5, 4],
-        'JP': [5, 4, 6]
+        'Global': [1, 2, 3, 4, 5, 4],
+        'JP': [1, 2, 3, 4, 5, 4, 6]
     }
     push_episode_list = origin_list[self.server]
     for i in range(0, len(push_episode_list)):
@@ -28,24 +28,24 @@ def implement(self):
 
 
 def judge_acc(self):
-    if color.judge_rgb_range(self.latest_img_array, 1170, 621, 200, 255, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self.latest_img_array, 1250, 621, 200, 255, 200, 255, 200, 255):
+    if color.judge_rgb_range(self, 1170, 621, 200, 255, 200, 255, 200, 255) and \
+        color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
         return 1
-    elif color.judge_rgb_range(self.latest_img_array, 1250, 621, 100, 150, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self.latest_img_array, 1170, 621, 100, 155, 200, 255, 200, 255):
+    elif color.judge_rgb_range(self, 1250, 621, 100, 150, 200, 255, 200, 255) and \
+        color.judge_rgb_range(self, 1170, 621, 100, 155, 200, 255, 200, 255):
         return 2
-    elif color.judge_rgb_range(self.latest_img_array, 1250, 621, 210, 255, 180, 240, 0, 80) and \
-        color.judge_rgb_range(self.latest_img_array, 1170, 621, 200, 255, 180, 240, 0, 80):
+    elif color.judge_rgb_range(self, 1250, 621, 210, 255, 180, 240, 0, 80) and \
+        color.judge_rgb_range(self, 1170, 621, 200, 255, 180, 240, 0, 80):
         return 3
     return 'UNKNOWN'
 
 
 def judge_auto(self):
-    if color.judge_rgb_range(self.latest_img_array, 1250, 677, 200, 255, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self.latest_img_array, 1170, 677, 200, 255, 200, 255, 200, 255):
+    if color.judge_rgb_range(self, 1250, 677, 200, 255, 200, 255, 200, 255) and \
+        color.judge_rgb_range(self, 1170, 677, 200, 255, 200, 255, 200, 255):
         return 'off'
-    elif color.judge_rgb_range(self.latest_img_array, 1250, 677, 200, 255, 180, 240, 0, 80) and \
-        color.judge_rgb_range(self.latest_img_array, 1170, 677, 200, 255, 180, 240, 0, 80):
+    elif color.judge_rgb_range(self, 1250, 677, 200, 255, 180, 240, 0, 80) and \
+        color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 240, 0, 80):
         return 'on'
 
 
@@ -55,10 +55,10 @@ def change_acc_auto(self):
     acc_phase = judge_acc(self)
     if acc_phase == 1:
         self.logger.info("CHANGE acceleration phase from 1 to 3")
-        self.click(1215, y, wait=False, wait_over=True, count=2)
+        self.click(1215, y,  wait_over=True, count=2)
     elif acc_phase == 2:
         self.logger.info("CHANGE acceleration phase from 2 to 3")
-        self.click(1215, y, wait=False, wait_over=True)
+        self.click(1215, y,  wait_over=True)
     elif acc_phase == 3:
         self.logger.info("ACCELERATION phase 3")
     else:
@@ -98,7 +98,7 @@ def check_episode(self):
     b = position1[1] - k * position1[0]
     for i in range(833, 982):
         y = int(k * i + b)
-        if color.judge_rgb_range(self.latest_img_array, i, y, 250, 255, 177, 200, 0, 80):
+        if color.judge_rgb_range(self, i, y, 250, 255, 177, 200, 0, 80):
             return i + 155, y + 17
     return "ALL_CLEAR"
 
@@ -127,12 +127,12 @@ def to_episode(self, num):
     return True
 
 
-def check_current_plot_status(img, position):
-    if color.judge_rgb_range(img, position[0], position[1], 245, 255, 214, 234, 0, 40):
+def check_current_plot_status(self, position):
+    if color.judge_rgb_range(self, position[0], position[1], 245, 255, 214, 234, 0, 40):
         return "CLEAR"
-    if color.judge_rgb_range(img, position[0], position[1], 170, 196, 178, 199, 178, 199):
+    if color.judge_rgb_range(self, position[0], position[1], 170, 196, 178, 199, 178, 199):
         return "UNLOCK"
-    if color.judge_rgb_range(img, position[0], position[1], 197, 207, 200, 210, 200, 210):
+    if color.judge_rgb_range(self, position[0], position[1], 197, 207, 200, 210, 200, 210):
         return "UNCLEAR"
 
 
@@ -154,15 +154,15 @@ def clear_current_plot(self, skip_first_screenshot=False):
         "main_story_episode-cleared-feature",
         "main_story_plot-index",
         "main_story_plot-not-open",
-        "plot_formation",
-        "plot_self-formation",
+        ("plot_formation", 0.9),
+        ("plot_self-formation", 0.9),
         "normal_task_task-wait-to-begin-feature",
         "main_story_continue-plot",
         "episode5"
     ]
     res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     if res == "main_story_continue-plot":
-        self.click(772, 516, wait=False, wait_over=True)
+        self.click(772, 516,  wait_over=True)
         return clear_current_plot(self)
     if res == "main_story_episode-cleared-feature" or res == "main_story_plot-index":
         return res
@@ -192,7 +192,7 @@ def auto_choose_formation(self, skip_first_screenshot=False, rgb_possibles=None,
     img_possibles = {"plot_self-formation": (1180, 183)}
     img_ends = "plot_change-unit-formation"
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
-    self.click(649, 596, wait_over=True, wait=False)
+    self.click(649, 596, wait_over=True)
     img_possibles = {"plot_change-unit-formation": (1130, 586)}
     img_ends = "plot_self-formation"
     picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
@@ -211,7 +211,7 @@ def push_episode(self, num, is_final=False):
         while res == "main_story_plot-index":
             possible_pos = [[728, 257], [668, 362]]
             for pos in possible_pos:
-                if check_current_plot_status(self.latest_img_array, pos) == "UNCLEAR":
+                if check_current_plot_status(self, pos) == "UNCLEAR":
                     to_episode_info(self, pos, True)
                     res = clear_current_plot(self, True)
                     break

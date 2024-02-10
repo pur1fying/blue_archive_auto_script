@@ -25,7 +25,6 @@ class Scheduler:
             with open(self.event_config_path, 'r', encoding='utf-8') as f:
                 self._event_config = json.load(f)
 
-
     def _commit_change(self):
         """event_config只能被switch修改,调度时在内存中操作"""
         with open(self.event_config_path, 'w', encoding='utf-8') as f:

@@ -41,13 +41,13 @@ def check_6_region_status(self):
     for y in possibles_y:
         for x in possibles_x:
             if self.server == 'JP' or self.server == "Global":
-                ocr_res = self.ocr.get_region_pure_english(self.latest_img_array, (x, y, x + dx, y + dy))
+                ocr_res = self.ocr.get_region_pure_english(self.latest_img_array, (x, y, x + dx, y + dy), self.ratio)
                 if ocr_res.lower() == 'new':
                     res.append(True)
                 else:
                     res.append(False)
             if self.server == 'CN':
-                ocr_res = self.ocr.get_region_pure_chinese(self.latest_img_array, (x, y, x + dx, y + dy))
+                ocr_res = self.ocr.get_region_pure_chinese(self.latest_img_array, (x, y, x + dx, y + dy), self.ratio)
                 if ocr_res.lower() == '新':
                     res.append(True)
                 else:
@@ -105,8 +105,7 @@ def to_episode_info(self, pos, skip_first_screenshot=False):
 
 
 def check_current_episode_cleared(self):
-    if image.compare_image(self.latest_img_array, "mini_story_episode-cleared-feature", 3, need_log=False,
-                           image=self.latest_img_array):
+    if image.compare_image(self.latest_img_array, "mini_story_episode-cleared-feature", need_log=False):
         self.logger.info("Current episode not cleared")
         return True
     self.logger.info("Current episode cleared")
@@ -116,7 +115,7 @@ def check_current_episode_cleared(self):
 def one_detect(self):
     possibles = [[1073, 251], [1073, 351]]
     for i in range(0, len(possibles)):
-        if color.judge_rgb_range(self.latest_img_array, possibles[i][0], possibles[i][1], 109, 129, 211, 231, 245, 255):
+        if color.judge_rgb_range(self, possibles[i][0], possibles[i][1], 109, 129, 211, 231, 245, 255):
             return possibles[i]
     return False
 

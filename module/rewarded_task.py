@@ -87,23 +87,22 @@ def start_sweep(self):
 
 def one_detect(self, a, b):
     i = 675
-    line = self.latest_img_array[:, 1076, :]
     los = []
     while i > 196:
-        if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-            131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
+        if color.judge_rgb_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
+            color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
+            continue
         else:
             i -= 1
-    print(los)
     for i in range(0, len(los)):
         rgb_ends = ["mission_info"]
         rgb_possibles = {"bounty": (1118, los[i])}
         img_ends = ["rewarded_task_task-info"]
         img_possibles = {"rewarded_task_level-list": (1118, los[i])}
         picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
-        t = color.check_sweep_availability(self.latest_img_array, server=self.server)
+        t = color.check_sweep_availability(self)
         if t == "sss":
             if b == "max":
                 self.click(1085, 300, duration=1, wait_over=True)
@@ -147,7 +146,7 @@ def to_bounty(self, num, skip_first_screenshot=False):
         "rewarded_task_location-select": (992, bounty_location_y[self.server][num]),
         "rewarded_task_task-info": (task_info_cross_x[self.server], 141),
     }
-    picture.co_detect(self, None,None, img_ends, img_possibles)
+    picture.co_detect(self, None, None, img_ends, img_possibles)
 
 
 def to_choose_bounty(self, skip_first_screenshot=False):
@@ -173,11 +172,11 @@ def to_choose_bounty(self, skip_first_screenshot=False):
 
 
 def purchase_bounty_ticket(self, times):
-    self.click(148, 101, duration=1.5, wait=False, wait_over=True)
+    self.click(148, 101, duration=1.5, wait_over=True)
     if times == 12:  # max
-        self.click(879, 346, wait=False, wait_over=True)
+        self.click(879, 346, wait_over=True)
     else:
-        self.click(807, 346, wait=False, count=times - 1, wait_over=True)
+        self.click(807, 346, count=times - 1, wait_over=True)
     rgb_ends = "choose_bounty",
     rgb_possibles = {
         "purchase_bounty_ticket": (766, 507),

@@ -43,7 +43,7 @@ def implement(self):
                 if self.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
                     need_acc_collect = False
-                self.click(1066, 664, wait=False, wait_over=True, duration=4)
+                self.click(1066, 664,  wait_over=True, duration=4)
                 common_create_judge(self)
                 to_manufacture_store(self)
         if need_acc_collect:
@@ -138,14 +138,14 @@ def common_create_judge(self):
     node = []
     lo = []
     for i in range(0, 5):
-        self.click(node_x[i], node_y[i], wait=False, wait_over=True)
+        self.click(node_x[i], node_y[i],  wait_over=True)
         if i == 0:
             node_x[0] = 571
             node_y[0] = 278
         time.sleep(0.7 if i == 0 else 0.1)
         self.latest_img_array = self.get_screenshot_array()
         region = (815, 201, 1223, 275)
-        node_info = preprocess_node_info(self.ocr.get_region_res(self.latest_img_array, region, self.server),
+        node_info = preprocess_node_info(self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio),
                                          self.server)
         for k in range(0, len(pri)):
             if pri[k] == node_info:
@@ -161,7 +161,7 @@ def common_create_judge(self):
             if node[j][0:len(pri[i])] == pri[i]:
                 self.logger.info("choose node : " + pri[i])
                 if lo[j] != 4:
-                    self.click(node_x[lo[j]], node_y[lo[j]], wait=False, wait_over=True)
+                    self.click(node_x[lo[j]], node_y[lo[j]],  wait_over=True)
                     return
 
 
@@ -196,11 +196,11 @@ def check_crafting_list_status(self):
     y_position = y_position[self.server]
     status = [None, None, None]
     for j in range(0, 3):
-        if color.judge_rgb_range(self.latest_img_array, 1126, y_position[j], 90, 130, 200, 230, 245, 255):
+        if color.judge_rgb_range(self, 1126, y_position[j], 90, 130, 200, 230, 245, 255):
             status[j] = "unfinished"
-        elif color.judge_rgb_range(self.latest_img_array, 1126, y_position[j], 235, 255, 222, 255, 53, 93):
+        elif color.judge_rgb_range(self, 1126, y_position[j], 235, 255, 222, 255, 53, 93):
             status[j] = "finished"
-        elif color.judge_rgb_range(self.latest_img_array, 1126, y_position[j], 222, 255, 222, 255, 222, 255):
+        elif color.judge_rgb_range(self, 1126, y_position[j], 222, 255, 222, 255, 222, 255):
             status[j] = "empty"
     return status
 
@@ -219,8 +219,8 @@ def receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket
 def collect(self, status, use_acceleration_ticket):
     if self.server == 'JP':
         if "finished" in status:
-            self.click(1126, 617, wait=False, wait_over=True, duration=1.5)
-            self.click(640, 100, wait=False, wait_over=True, count=2)
+            self.click(1126, 617,  wait_over=True, duration=1.5)
+            self.click(640, 100,  wait_over=True, count=2)
             to_manufacture_store(self)
         if ("unfinished" in status) and use_acceleration_ticket:
             img_possibles = {"create_crafting-list": (1126, 617)}
@@ -245,15 +245,15 @@ def collect(self, status, use_acceleration_ticket):
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
             status[i] = "finished"
         if status[i] == "finished":
-            self.click(1126, y_position[i], wait=False, wait_over=True, duration=1.5)
-            self.click(640, 100, wait=False, wait_over=True, count=2)
+            self.click(1126, y_position[i],  wait_over=True, duration=1.5)
+            self.click(640, 100,  wait_over=True, count=2)
             to_manufacture_store(self)
 
 
-def check_create_availability(img):
-    if color.judge_rgb_range(img, 1112, 681, 210, 230, 210, 230, 210, 230):
+def check_create_availability(self):
+    if color.judge_rgb_range(self, 1112, 681, 210, 230, 210, 230, 210, 230):
         return "grey"
-    elif color.judge_rgb_range(img, 1112, 681, 235, 255, 233, 253, 65, 85):
+    elif color.judge_rgb_range(self, 1112, 681, 235, 255, 233, 253, 65, 85):
         return "bright"
     else:
         return "unknown"
@@ -267,12 +267,10 @@ def to_node1(self, y, skip_first_screenshot=False):
 
 def check_refresh_daily_create_times(self):
     now = datetime.now()
-    day = now.day
     hour = now.hour
     last_refresh = datetime.fromtimestamp(self.config['createTimeLastRefreshTime'])
-    last_refresh_day = last_refresh.day
     last_refresh_hour = last_refresh.hour
-    if day == last_refresh_day and (hour < 4 and last_refresh_hour < 4) or (hour >= 4 and last_refresh_hour >= 4):
+    if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and ((hour < 4 and last_refresh_hour < 4) or (hour >= 4 and last_refresh_hour >= 4)):
         return
     else:
         self.config['alreadyCreateTimes'] = 0
@@ -284,36 +282,36 @@ def check_refresh_daily_create_times(self):
 
 
 def check_order_of_materials(self):
-    if not image.compare_image(self, "create_basic", 3, need_log=False, image=self.latest_img_array):
+    if not image.compare_image(self, "create_basic", need_log=False):
         self.logger.info("CHANGE SORT TO BASIC")
         img_possibles = {"create_unlock-no1-grey": (1109, 106)}
         img_ends = "create_sort"
         picture.co_detect(self, None, None, img_ends, img_possibles, True)
         if self.server == 'JP':
-            self.click(138, 217, wait=False, wait_over=True, duration=0.3)
-            self.click(299, 186, wait=False, wait_over=True, duration=0.3)
+            self.click(138, 217,  wait_over=True, duration=0.3)
+            self.click(299, 186,  wait_over=True, duration=0.3)
         else:
-            self.click(168, 168, wait=False, wait_over=True, duration=0.3)
+            self.click(168, 168,  wait_over=True, duration=0.3)
         img_possibles = {"create_sort": (766, 576)}
         img_ends = "create_unlock-no1-grey"
         picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    if image.compare_image(self, "create_point-down", 3, need_log=False, image=self.latest_img_array):
+    if image.compare_image(self, "create_point-down", need_log=False):
         self.logger.info("CHANGE order arrow from DOWN TO UP")
-        self.click(1213, 104, wait=False, wait_over=True, duration=0.3)
-    if image.compare_image(self, "create_point-up", 3, need_log=False, image=self.latest_img_array):
+        self.click(1213, 104,  wait_over=True, duration=0.3)
+    if image.compare_image(self, "create_point-up",  need_log=False):
         self.logger.info("order arrow UP")
 
 
 def choose_materials(self):
-    self.click(907, 204, wait=False, wait_over=True, duration=0.3)
+    self.click(907, 204,  wait_over=True, duration=0.3)
     self.latest_img_array = self.get_screenshot_array()
-    res = check_create_availability(self.latest_img_array)
+    res = check_create_availability(self)
     if res == "bright":
         return True
     self.logger.info("material 1 inadequate check material 2")
-    self.click(772, 304, wait=False, wait_over=True, count=10, duration=0.1)
+    self.click(772, 304,  wait_over=True, count=10, duration=0.1)
     self.latest_img_array = self.get_screenshot_array()
-    res = check_create_availability(self.latest_img_array)
+    res = check_create_availability(self)
     if res == "bright":
         return True
     self.logger.info("material 2 inadequate")
@@ -340,7 +338,7 @@ def get_next_execute_time(self, status):
     time_deltas = []
     for i in range(0, 3):
         if status[i] == "unfinished":
-            res = self.ocr.get_region_res(self.latest_img_array, regions[i], 'Global')
+            res = self.ocr.get_region_res(self.latest_img_array, regions[i], 'Global', self.ratio)
             if res.count(":") != 2:
                 continue
             res = res.split(":")

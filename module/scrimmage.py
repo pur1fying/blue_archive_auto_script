@@ -63,14 +63,14 @@ def start_sweep(self):
 
 def scrimmage_common_operation(self, a, b):
     self.latest_img_array = self.get_screenshot_array()
-    line = self.latest_img_array[:, 1076, :]
-    los = []
     i = 675
+    los = []
     while i > 196:
-        if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-            131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
+        if color.judge_rgb_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
+            color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
+            continue
         else:
             i -= 1
     for i in range(0, len(los)):
@@ -79,10 +79,10 @@ def scrimmage_common_operation(self, a, b):
         img_possibles = {'scrimmage_level-list': (1118, los[i])}
         img_ends = "scrimmage_task-info"
         picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
-        t = color.check_sweep_availability(self.latest_img_array, server=self.server)
+        t = color.check_sweep_availability(self)
         if t == "sss":
             if b == "max":
-                self.click(1085, 300, wait=False, wait_over=True)
+                self.click(1085, 300,  wait_over=True)
             else:
                 if b > 1:
                     duration = 0
@@ -143,11 +143,11 @@ def to_choose_scrimmage(self, skip_first_screenshot=False):
 
 
 def purchase_scrimmage_ticket(self, times):
-    self.click(148, 101, wait=False, duration=1.5, wait_over=True)
+    self.click(148, 101,  duration=1.5, wait_over=True)
     if times == 12:  # max
-        self.click(879, 346, wait=False, wait_over=True)
+        self.click(879, 346,  wait_over=True)
     else:
-        self.click(807, 346, wait=False, count=times - 1, wait_over=True)
+        self.click(807, 346,  count=times - 1, wait_over=True)
     rgb_possibles = {"reward_acquired": (640, 116)}
     img_ends = "scrimmage_academy-select"
     img_possibles = {
