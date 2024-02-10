@@ -193,6 +193,7 @@ DEFAULT_CONFIG = """
     "hardPriority": "1-1-1",
     "mainlinePriority": "5-1-1",
     "explore_normal_task_force_each_fight" : false,
+    "main_story_regions": "",
     "rewarded_task_times": "2,2,2",
     "purchase_rewarded_task_ticket_times": "0",
     "special_task_times": "1,1",

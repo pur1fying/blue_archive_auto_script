@@ -12,12 +12,14 @@ def implement(self):
     self.main_story_stage_data = getattr(stage_module, "stage_data")
     self.quick_method_to_main_page()
     to_main_story(self, True)
-    origin_list = {
-        'CN': [1, 2, 3],
-        'Global': [1, 2, 3, 4, 5, 4],
-        'JP': [1, 2, 3, 4, 5, 4, 6]
-    }
-    push_episode_list = origin_list[self.server]
+    push_episode_list = self.config['main_story_regions']
+    if not push_episode_list:
+        default_list = {
+            'CN': [1, 2, 3],
+            'Global': [1, 2, 3, 4, 5, 4],
+            'JP': [1, 2, 3, 4, 5, 4, 6]
+        }
+        push_episode_list = default_list[self.server]
     for i in range(0, len(push_episode_list)):
         current_episode = push_episode_list[i]
         is_final = False
