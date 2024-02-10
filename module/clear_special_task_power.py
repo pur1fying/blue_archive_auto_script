@@ -101,7 +101,7 @@ def one_detect(self, a, b):
         t = color.check_sweep_availability(self)
         if t == "sss":
             if b == "max":
-                self.click(1085, 300, duration=1, wait_over=True)
+                self.click(1085, 300, wait_over=True)
             else:
                 if b > 1:
                     duration = 0

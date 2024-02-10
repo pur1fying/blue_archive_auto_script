@@ -2,4 +2,4 @@ import module.collect_daily_power
 
 
 def implement(self):
-    return module.collect_daily_power.implement(self, activity="collect_reward")
+    return module.collect_daily_power.implement(self)

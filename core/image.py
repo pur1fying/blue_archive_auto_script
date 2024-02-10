@@ -19,10 +19,7 @@ def compare_image(self, name, need_log=True, threshold=0.8):
     ss_img_average_rgb = np.mean(ss_img, axis=(0, 1))
     if abs(res_img_average_rgb[0] - ss_img_average_rgb[0]) > 20 or abs(res_img_average_rgb[1] - ss_img_average_rgb[1]) > 20 or abs(res_img_average_rgb[2] - ss_img_average_rgb[2]) > 20:
         return False
-    if res_img.shape[0] < ss_img.shape[0]:
-        ss_img = cv2.resize(ss_img, (res_img.shape[1], res_img.shape[0]), interpolation=cv2.INTER_AREA)
-    elif res_img.shape[0] > ss_img.shape[0]:
-        res_img = cv2.resize(res_img, (ss_img.shape[1], ss_img.shape[0]), interpolation=cv2.INTER_AREA)
+    ss_img = cv2.resize(ss_img, (res_img.shape[1], res_img.shape[0]), interpolation=cv2.INTER_AREA)
     similarity = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)[0][0]
     self.logger.info(name + " : " + str(similarity))
     if need_log:

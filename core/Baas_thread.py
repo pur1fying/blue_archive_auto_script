@@ -179,24 +179,20 @@ class Baas_thread:
     def thread_starter(self, index):
         try:
             self.logger.info("-------------- Start Scheduler" + str(index) + " ----------------")
-            for i in range(0, len(self.config['activity_list'])):
-                self.solve(self.config['activity_list'][i])
             while self.flag_run:
                 if self.first_start:
                     self.solve('restart')
                 next_func_name = self.scheduler.heartbeat()
-                print(next_func_name)
                 self.next_time = 0
                 if next_func_name:
                     self.logger.info(f"current activity: {next_func_name}")
                     self.task_finish_to_main_page = True
-                    if self.solve(next_func_name):
+                    if self.solve(next_func_name) and self.flag_run:
                         next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
                         next_tick.replace(microsecond=0)
                         self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                     else:
                         self.logger.error("error occurred, stop all activities")
-                        self.quick_method_to_main_page()
                         self.signal_stop()
                 else:
                     if self.task_finish_to_main_page:

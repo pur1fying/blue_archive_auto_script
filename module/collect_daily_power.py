@@ -3,7 +3,7 @@ import time
 from core import color, picture
 
 
-def implement(self, activity="collect_daily_power"):
+def implement(self):
     self.quick_method_to_main_page()
     to_tasks(self, True)
     time.sleep(0.5)

@@ -70,7 +70,7 @@ def change_acc_auto(self):
     auto_phase = judge_auto(self)
     if auto_phase == 'off':
         self.logger.info("CHANGE MANUAL to auto")
-        self.click(1215, y, wait=False)
+        self.click(1215, y)
     elif auto_phase == 'on':
         self.logger.info("AUTO")
     else:

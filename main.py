@@ -82,6 +82,7 @@ if __name__ == '__main__':
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
+    tt.solve("total_assault")
     tt.solve("cafe_reward")
     tt.solve("momo_talk")
     tt.solve("explore_normal_task")

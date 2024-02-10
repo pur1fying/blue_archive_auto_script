@@ -56,9 +56,9 @@ def implement(self):
 
 
 def find_button_y(self, y):
-    self.logger.info("start FIND BUTTON FOR difficulty " + self.total_assault_difficulty_name_ordered[y])
+    self.logger.info("start FIND BUTTON FOR difficulty " + self.total_assault_difficulty_names[y])
     target_dict = {}
-    temp = self.total_assault_difficulty_name_ordered[y].lower()
+    temp = self.total_assault_difficulty_names[y].lower()
     for i in range(0, len(temp)):
         target_dict.setdefault(temp[i], 0)
         target_dict[temp[i]] += 1
@@ -67,14 +67,14 @@ def find_button_y(self, y):
         if res != "NOT_FOUND":
             return res
         self.logger.info("SWIPE DOWNWARDS")
-        self.swipe(950, 590, 950, 330, duration=0.1)
+        self.swipe(950, 590, 950, 0, duration=0.1)
         time.sleep(1)
         self.latest_img_array = self.get_screenshot_array()
         res = detect_level_y(self, target_dict)
         if res != "NOT_FOUND":
             return res
         self.logger.info("SWIPE UPWARDS")
-        self.swipe(950, 330, 950, 590, duration=0.1)
+        self.swipe(950, 168, 950, 720, duration=0.1)
         time.sleep(1)
         self.latest_img_array = self.get_screenshot_array()
 
@@ -157,7 +157,7 @@ def total_assault_highest_difficulty_button_detection(self, maxx):
         if res != "NOT_FOUND":
             return res
         self.logger.info("SWIPE DOWNWARDS")
-        self.swipe(950, 590, 950, 330, duration=0.1)
+        self.swipe(950, 590, 950, 0, duration=0.1)
         time.sleep(1)
         self.latest_img_array = self.get_screenshot_array()
         res, button_detected = one_detect(self, button_detected, maxx, character_dict)
@@ -165,7 +165,7 @@ def total_assault_highest_difficulty_button_detection(self, maxx):
             return res
         if try_cnt != 3:
             self.logger.info("SWIPE UPWARDS")
-            self.swipe(950, 330, 950, 590, duration=0.1)
+            self.swipe(950, 168, 950, 720, duration=0.1)
             time.sleep(1)
             self.latest_img_array = self.get_screenshot_array()
 
@@ -283,12 +283,8 @@ def judge_formation_usable(self):
 
 
 def get_total_assault_tickets(self):
-    region = {
-        'CN': (943, 111, 979, 135),
-        'Global': (1100, 0, 1280, 40),
-        'JP': (1100, 0, 1280, 40),
-    }
-    res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
+    region = (943, 111, 979, 135)
+    res = self.ocr.get_region_res(self.latest_img_array, region, 'Global', self.ratio)
     if res[0].isdigit():
         return int(res[0])
     return 3
@@ -333,6 +329,8 @@ def one_detect(self, button_detected, maxx, character_dict):
                 self.logger.info("find " + self.total_assault_difficulty_names[maximum_acc_index].upper() + " " + name[
                     temp] + " button")
                 if maximum_acc_index >= maxx and temp == 0:
+                    if maximum_acc_index != maxx:
+                        y = 0
                     return (maxx, y), button_detected
                 button_detected[maximum_acc_index][temp] = True
                 t = total_assault_highest_difficulty_button_judgement(button_detected)

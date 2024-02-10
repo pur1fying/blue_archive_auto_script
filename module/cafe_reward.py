@@ -8,14 +8,11 @@ from core import image, color, picture
 def implement(self):
     self.quick_method_to_main_page()
     to_cafe(self, True)
-    op = np.full(2, False, dtype=bool)
-    op[1] = get_invitation_ticket_status(self)
-    op[0] = get_cafe_earning_status(self)
-    if op[0] and self.config['cafe_reward_collect_hour_reward']:
+    if self.config['cafe_reward_collect_hour_reward'] and get_cafe_earning_status(self):
         self.logger.info("Collect Cafe Earnings")
         collect(self)
         to_cafe(self)
-    if op[1] and self.config['cafe_reward_use_invitation_ticket']:
+    if self.config['cafe_reward_use_invitation_ticket'] and get_invitation_ticket_status(self):
         invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
     if self.server == 'JP' and self.config['cafe_reward_has_no2_cafe']:
@@ -41,10 +38,10 @@ def to_cafe(self, skip_first_screenshot=False):
         'main_page_insufficient-inventory-space': (908, 138)
     }
     rgb_possibles = {
-        "main_page": [95, 699],
-        'gift': [1240, 577],
-        'reward_acquired': [640, 154],
-        'relationship_rank_up': [640, 360]
+        "main_page": (95, 699),
+        'gift': (1240, 577),
+        'reward_acquired': (640, 154),
+        'relationship_rank_up': (640, 360)
     }
     picture.co_detect(self, 'cafe', rgb_possibles, 'cafe_menu', img_possibles, skip_first_screenshot)
 
@@ -69,7 +66,7 @@ def match(img):
 
 def cafe_to_gift(self):
     rgb_possibles = {"cafe": (163, 639)}
-    rgb_ends = ["gift"]
+    rgb_ends = "gift"
     picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
 
 

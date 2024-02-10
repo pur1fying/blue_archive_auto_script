@@ -64,7 +64,7 @@ def choose_enemy(self):
         self.logger.info("opponent level " + str(opponent_lv))
         if opponent_lv + less_level <= self_lv:
             break
-        self.logger.info("refresh")
+        self.logger.info("refresh total times : " + str(refresh + 1))
         self.click(1158, 145, wait_over=True)
         time.sleep(1)
         color.wait_loading(self)
