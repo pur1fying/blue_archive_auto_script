@@ -40,8 +40,8 @@ def implement(self):
 def choose_enemy(self):
     less_level = self.config['ArenaLevelDiff']
     max_refresh = self.config['maxArenaRefreshTimes']
-    self.logger.info("less level acceptable:" + str(less_level))
-    self.logger.info("max refresh times:" + str(max_refresh))
+    self.logger.info("less level acceptable: " + str(less_level))
+    self.logger.info("max refresh times: " + str(max_refresh))
     self_level_region = {
         'CN': (165, 215, 208, 250),
         'Global': (165, 215, 208, 250),
@@ -52,13 +52,13 @@ def choose_enemy(self):
         'Global': (490, 298, 515, 317),
         'JP': (496, 291, 520, 315),
     }
-    self_lv = self.ocr.get_region_num(self.latest_img_array, self_level_region[self.server], self.ratio)
+    self_lv = self.ocr.get_region_num(self.latest_img_array, self_level_region[self.server], int, self.ratio)
     self.logger.info("self level " + str(self_lv))
     refresh = 0
     while self.flag_run:
         if refresh >= max_refresh:
             break
-        opponent_lv = self.ocr.get_region_num(self.latest_img_array, opponent_level_region[self.server], self.ratio)
+        opponent_lv = self.ocr.get_region_num(self.latest_img_array, opponent_level_region[self.server], int, self.ratio)
         if opponent_lv == "UNKNOWN":
             continue
         self.logger.info("opponent level " + str(opponent_lv))
@@ -123,7 +123,7 @@ def get_tickets(self):
         'Global': (209, 477, 227, 498),
         'JP': (196, 477, 218, 498),
     }
-    ocr_res = self.ocr.get_region_num(self.latest_img_array, ticket_num_region[self.server], self.ratio)
+    ocr_res = self.ocr.get_region_num(self.latest_img_array, ticket_num_region[self.server], int, self.ratio)
     return ocr_res
 
 

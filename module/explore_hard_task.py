@@ -118,7 +118,7 @@ def get_force(self):
         'JP': (116, 542, 131, 570)
     }
     to_normal_task_mission_operating_page(self)
-    ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server], self.ratio)
+    ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
     if ocr_res == "UNKNOWN":
         return get_force(self)
     if ocr_res == 7:
@@ -171,16 +171,16 @@ def start_action(self, actions):
             time.sleep(1)
             if op[j] == 'click':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1],  wait_over=True)
+                self.click(pos[0], pos[1], wait_over=True)
             elif op[j] == 'teleport':
                 confirm_teleport(self)
             elif op[j] == 'exchange':
-                self.click(83, 557,  wait_over=True)
+                self.click(83, 557, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
             elif op[j] == 'exchange_twice':
-                self.click(83, 557,  wait_over=True)
+                self.click(83, 557, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
-                self.click(83, 557,  wait_over=True)
+                self.click(83, 557, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
             elif op[j] == 'end-turn':
                 end_turn(self)
@@ -189,26 +189,26 @@ def start_action(self, actions):
                     skip_first_screenshot = True
             elif op[j] == 'click_and_teleport':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1],  wait_over=True)
+                self.click(pos[0], pos[1], wait_over=True)
                 confirm_teleport(self)
             elif op[j] == 'choose_and_change':
                 pos = act['p'][0]
-                self.click(pos[0], pos[1],  wait_over=True, duration=0.3)
-                self.click(pos[0] - 100, pos[1],  wait_over=True)
+                self.click(pos[0], pos[1], wait_over=True, duration=0.3)
+                self.click(pos[0] - 100, pos[1], wait_over=True)
             elif op[j] == 'exchange_and_click':
-                self.click(83, 557,  wait_over=True)
+                self.click(83, 557, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
                 pos = act['p'][0]
-                self.click(pos[0], pos[1],  wait_over=True)
+                self.click(pos[0], pos[1], wait_over=True)
             elif op[j] == 'exchange_twice_and_click':
-                self.click(83, 557,  wait_over=True)
+                self.click(83, 557, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
-                self.click(83, 557,  wait_over=True)
+                self.click(83, 557, wait_over=True)
                 force_index = wait_formation_change(self, force_index)
                 time.sleep(0.5)
                 pos = act['p'][0]
-                self.click(pos[0], pos[1],  wait_over=True)
+                self.click(pos[0], pos[1], wait_over=True)
             elif op[j] == 'ensure-ui':
                 to_normal_task_mission_operating_page(self)
 
@@ -238,15 +238,15 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
+    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
     while cu_region != region and self.flag_run:
         if cu_region > region:
-            self.click(40, 360,  count=cu_region - region, rate=0.1, wait_over=True)
+            self.click(40, 360, count=cu_region - region, rate=0.1, wait_over=True)
         else:
-            self.click(1245, 360,  count=region - cu_region, rate=0.1, wait_over=True)
+            self.click(1245, 360, count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
         hard_task.to_hard_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
+        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
 
 
 def choose_team(self, number, position, skip_first_screenshot=True):
@@ -318,13 +318,15 @@ def start_mission(self):
         'normal_task_task-wait-to-begin-feature': (1171, 670),
         'normal_task_end-turn': (888, 163),
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles)
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def to_mission_info(self, y):
-    img_end = "normal_task_task-info"
-    img_possible = {'normal_task_select-area': (1114, y, 3)}
-    picture.co_detect(self, None, None, img_end, img_possible, True)
+    rgb_possibles = {"event_hard": (1114, y)}
+    img_ends = "normal_task_task-info"
+    img_possibles = {'normal_task_select-area': (1114, y)}
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
+
 
 def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=True):
     st = st.split(',')

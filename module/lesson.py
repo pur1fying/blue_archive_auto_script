@@ -1,6 +1,6 @@
 import time
 
-from core import color, image, picture
+from core import color, picture
 
 
 def implement(self):
@@ -26,7 +26,6 @@ def implement(self):
         self.logger.info("Purchase lesson ticket times :" + str(purchase_ticket_times))
         purchase_lesson_ticket(self, purchase_ticket_times)
     res = get_lesson_tickets(self)
-    res = [10, 10]
     if res == "UNKNOWN":
         self.logger.info("UNKNOWN tickets")
         lesson_tickets = 999
@@ -225,7 +224,7 @@ def to_select_location(self, skip_first_screenshot=False):
 def to_location_info(self, x, y):
     img_possibles = {"lesson_all-locations": (x, y)}
     img_ends = 'lesson_lesson-information'
-    picture.co_detect(self, img_ends, img_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def start_lesson(self):
@@ -286,7 +285,7 @@ def is_chinese_char(char):
 
 
 def get_lesson_relationship_counts(self):
-    position = [(443, 288), (787, 288), (1132, 288),
+    position = [(443, 290), (787, 290), (1132, 290),
                 (443, 441), (787, 441), (1132, 441),
                 (443, 591), (787, 591), (1132, 591)]
     dx = 51
@@ -312,8 +311,7 @@ def get_lesson_each_region_status(self):
         elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230,
                                    249):
             res.append("done")
-        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 140, 160, 140, 160, 140,
-                                   160):
+        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31,160):
             res.append("lock")
         elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
                                    215):

@@ -1,6 +1,6 @@
 import time
 
-from core import color, image, picture
+from core import picture
 from core.color import check_sweep_availability
 
 
@@ -150,7 +150,7 @@ def to_task_info(self, x, y):
     ]
     rgb_possibles = {"event_normal": (x, y)}
     img_possibles = {
-        "normal_task_select-area": (x, y, 3),
+        "normal_task_select-area": (x, y),
     }
     img_ends = [
         "normal_task_unlock-notice",
@@ -195,7 +195,7 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
+    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
     while cu_region != region and self.flag_run:
         if cu_region > region:
             self.click(40, 360,  count=cu_region - region, rate=0.1, wait_over=True)
@@ -203,4 +203,4 @@ def choose_region(self, region):
             self.click(1245, 360,  count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
         to_normal_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], self.ratio)
+        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)

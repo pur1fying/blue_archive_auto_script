@@ -85,7 +85,7 @@ def gift_to_cafe(self):
 
 
 def interaction_for_cafe_solve_method3(self):
-    self.connection().pinch_in()
+    self.connection().pinch_in(percent=50, steps=30)
     self.swipe(709, 558, 709, 209, duration=0.2)
     max_times = 4
     for i in range(0, max_times):

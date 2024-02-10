@@ -243,7 +243,7 @@ class Baas_thread:
             "normal_task_task-operating-feature": (1000, 660),
             'normal_task_mission-operating-task-info': (1000, 664),
             'normal_task_mission-operating-task-info-notice': (416, 595),
-            'normal_task_mission-pause': (768, 501, 3),
+            'normal_task_mission-pause': (768, 501),
             'normal_task_task-begin-without-further-editing-notice': (888, 163),
             'normal_task_task-operating-round-over-notice': (888, 163),
             'momo_talk_momotalk-peach': (1123, 122),

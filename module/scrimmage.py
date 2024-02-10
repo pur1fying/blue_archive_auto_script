@@ -63,14 +63,14 @@ def start_sweep(self):
 
 def scrimmage_common_operation(self, a, b):
     self.latest_img_array = self.get_screenshot_array()
-    line = self.latest_img_array[:, 1076, :]
-    los = []
     i = 675
+    los = []
     while i > 196:
-        if 131 <= line[i][2] <= 151 and 218 <= line[i][1] <= 238 and 245 <= line[i][0] <= 255 and \
-            131 <= line[i - 30][2] <= 151 and 218 <= line[i - 30][1] <= 238 and 245 <= line[i - 30][0] <= 255:
+        if color.judge_rgb_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
+            color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
+            continue
         else:
             i -= 1
     for i in range(0, len(los)):

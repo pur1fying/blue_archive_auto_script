@@ -13,24 +13,20 @@ def implement(self, need_check_mode=True):
     main_to_momotalk = True
     while 1:
         color.wait_loading(self)
-        location_y = 210
-        red_dot = np.array([25, 71, 251])
-        location_x = 637
+        y = 210
         dy = 18
         unread_location = []
-        while location_y <= 630:
-            if np.array_equal(self.latest_img_array[location_y][location_x], red_dot) and \
-                np.array_equal(self.latest_img_array[location_y + dy][location_x], red_dot):
-                unread_location.append([location_x, location_y + dy / 2])
-                location_y += 60
+        while y <= 630:
+            if color.judge_rgb_range(self, 637, y, 25, 25, 71, 71, 251, 251):
+                unread_location.append([637, y + dy / 2])
+                y += 60
             else:
-                location_y += 1
+                y += 1
         length = len(unread_location)
         self.logger.info("find  " + str(length) + "  unread message")
         if length == 0:
             if main_to_momotalk:
                 self.logger.info("momo_talk task finished")
-                self.click(1124, 117, wait=False)
                 return True
             else:
                 self.logger.info("restart momo_talk task")
@@ -38,7 +34,7 @@ def implement(self, need_check_mode=True):
                 return implement(self, need_check_mode=False)
         else:
             for i in range(0, len(unread_location)):
-                self.click(unread_location[i][0], unread_location[i][1], wait_over=True, wait=False)
+                self.click(unread_location[i][0], unread_location[i][1], wait_over=True)
                 time.sleep(0.5)
                 common_solve_affection_story_method(self)
         main_to_momotalk = False
@@ -81,7 +77,7 @@ def to_momotalk2(self, skip_first_screenshot=False):
 
 def common_solve_affection_story_method(self):
     self.latest_img_array = self.get_screenshot_array()
-    res = get_reply_position(self.latest_img_array)
+    res = get_reply_position(self)
     if res[0] == 'end':
         self.swipe(924, 330, 924, 230, duration=0.1)
         self.click(924, 330, wait=False)
@@ -111,7 +107,7 @@ def common_solve_affection_story_method(self):
     self.logger.info("current conversation over")
 
 
-def get_reply_position(img):
+def get_reply_position(self):
     i = 156
     while i < 657:
         if color.judge_rgb_range(self, 786, i, 29, 49, 143, 163, 219, 239) and \
@@ -125,14 +121,14 @@ def get_reply_position(img):
     return 'end', 0
 
 
-def pd_menu_bright(img_array):
+def pd_menu_bright(self):
     if color.judge_rgb_range(self, 1165, 45, 230, 255, 230, 255, 230, 255) and \
         color.judge_rgb_range(self, 1252, 45, 230, 255, 230, 255, 230, 255):
         return True
     return False
 
 
-def pd_skip_plot_button(img_array):
+def pd_skip_plot_button(self):
     if color.judge_rgb_range(self, 1189, 120, 34, 54, 59, 79, 90, 110) and \
         color.judge_rgb_range(self, 1128, 104, 34, 54, 59, 79, 90, 110) and \
         color.judge_rgb_range(self, 1125, 120, 245, 255, 245, 255, 245, 255) and \
@@ -141,14 +137,14 @@ def pd_skip_plot_button(img_array):
     return False
 
 
-def pd_confirm_button(img_array):
+def pd_confirm_button(self):
     if color.judge_rgb_range(self, 691, 552, 110, 130, 210, 230, 245, 255) and \
         color.judge_rgb_range(self, 848, 525, 110, 130, 210, 230, 245, 255):
         return True
     return False
 
 
-def pd_enter_button(img_array):
+def pd_enter_button(self):
     if color.judge_rgb_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
         color.judge_rgb_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
         color.judge_rgb_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):
@@ -159,17 +155,17 @@ def pd_enter_button(img_array):
 def common_skip_plot_method(self):
     while self.flag_run:
         color.wait_loading(self)
-        if pd_enter_button(self.latest_img_array):
+        if pd_enter_button(self):
             self.logger.info("Begin Relationship Story")
             self.click(920, 556, duration=4, wait_over=True)
-        elif pd_confirm_button(self.latest_img_array):
+        elif pd_confirm_button(self):
             self.logger.info("find CONFIRM button")
             self.click(766, 520, wait_over=True)
             return True
         else:
-            if pd_menu_bright(self.latest_img_array):
+            if pd_menu_bright(self):
                 self.logger.info("find MENU button")
                 self.click(1205, 34, duration=0.1, wait_over=True)
-            elif pd_skip_plot_button(self.latest_img_array):
+            elif pd_skip_plot_button(self):
                 self.logger.info("find SKIP PLOT button")
                 self.click(1213, 116, duration=0.1, wait_over=True)

@@ -19,13 +19,15 @@ def compare_image(self, name, need_log=True, threshold=0.8):
     ss_img_average_rgb = np.mean(ss_img, axis=(0, 1))
     if abs(res_img_average_rgb[0] - ss_img_average_rgb[0]) > 20 or abs(res_img_average_rgb[1] - ss_img_average_rgb[1]) > 20 or abs(res_img_average_rgb[2] - ss_img_average_rgb[2]) > 20:
         return False
-    ss_img = cv2.resize(ss_img, (res_img.shape[1], res_img.shape[0]), interpolation=cv2.INTER_AREA)
-    mean_diff = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)[0][0]
-    compare = mean_diff >= threshold
-    self.logger.info(f"compare_image {name} Mean Difference: {mean_diff} Result:{compare}")
+    if res_img.shape[0] < ss_img.shape[0]:
+        ss_img = cv2.resize(ss_img, (res_img.shape[1], res_img.shape[0]), interpolation=cv2.INTER_AREA)
+    elif res_img.shape[0] > ss_img.shape[0]:
+        res_img = cv2.resize(res_img, (ss_img.shape[1], ss_img.shape[0]), interpolation=cv2.INTER_AREA)
+    similarity = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)[0][0]
+    self.logger.info(name + " : " + str(similarity))
     if need_log:
-        self.logger.info(f"compare_image {name} Mean Difference: {mean_diff} Result:{compare}")
-    return compare
+        self.logger.info(name + " : " + str(similarity))
+    return similarity > threshold
 
 
 def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_first_screenshot=False):
