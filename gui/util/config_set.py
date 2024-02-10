@@ -3,7 +3,7 @@ from core.notification import notify
 
 
 class ConfigSet:
-    def __init__(self, config_dir: str = 'config.json'):
+    def __init__(self, config_dir):
         print(config_dir)
         self.config = None
         self.static_config = None

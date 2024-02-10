@@ -111,14 +111,14 @@ class SwitchFragment(ScrollArea):
 
     def _commit_change(self):
         with lock:
-            with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
+            with open('./config/'+self.config.config_dir+'/event.json', 'w', encoding='utf-8') as f:
                 json.dump(self._event_config, f, ensure_ascii=False, indent=2)  # 将_event_config列表写入配置文件
 
     def _read_config(self):
         with lock:
-            with open(EVENT_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            with open('./config/'+self.config.config_dir+'/event.json', 'r', encoding='utf-8') as f:
                 self._event_config = json.load(f)  # 从配置文件中读取数据并更新_event_config列表
-            with open(SWITCH_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            with open('./config/'+self.config.config_dir+'/switch.json', 'r', encoding='utf-8') as f:
                 self._switch_config = json.load(f)  # 从配置文件中读取数据并更新_switch_config列表
 
     def update_settings(self):

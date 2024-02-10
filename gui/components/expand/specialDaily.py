@@ -5,7 +5,7 @@ from qfluentwidgets import ComboBox
 from gui.util.config_set import ConfigSet
 
 
-class Layout(QWidget, ConfigSet):
+class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config

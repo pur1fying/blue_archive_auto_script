@@ -119,7 +119,7 @@ def check_event_config(dir_path='./default_config'):
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
     except Exception as e:
         print(e)
-        os.remove(path)
+        # os.remove(path)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
         return
@@ -200,15 +200,20 @@ class Window(MSFluentWindow):
         setThemeColor('#0078d4')
         self.__switchStatus = True
         config_dir_list = []
+
+        if not os.path.exists('./config'):
+            os.mkdir('./config')
+
         for _dir_ in os.listdir('./config'):
             if os.path.isdir(f'./config/{_dir_}'):
                 files = os.listdir(f'./config/{_dir_}')
                 if 'config.json' in files:
-                    config_dir_list.append(_dir_)
+                    check_config(_dir_)
+                    config_dir_list.append(ConfigSet(config_dir=_dir_))
 
         if len(config_dir_list) == 0:
-            config_dir_list.append('default_config')
-        check_config(config_dir_list)
+            config_dir_list.append(ConfigSet('default_config'))
+
 
         # create sub interface
         from gui.fragments.home import HomeFragment

@@ -45,11 +45,11 @@ class Layout(QWidget):
         self._save_config()
 
     def _read_config(self):
-        with open(EVENT_CONFIG_PATH, 'r', encoding='utf-8') as f:
+        with open('./config/'+self.config.config_dir+'/event.json', 'r', encoding='utf-8') as f:
             self._event_config = json.load(f)
 
     def _save_config(self):
-        with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
+        with open('./config/'+self.config.config_dir+'/event.json', 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
 
     def __accept(self, input_content=None):
