@@ -11,17 +11,17 @@ def implement(self):
     op = np.full(2, False, dtype=bool)
     op[1] = get_invitation_ticket_status(self)
     op[0] = get_cafe_earning_status(self)
-    if op[0]:
+    if op[0] and self.config['cafe_reward_collect_hour_reward']:
         self.logger.info("Collect Cafe Earnings")
         collect(self)
         to_cafe(self)
-    if op[1]:
+    if op[1] and self.config['cafe_reward_use_invitation_ticket']:
         invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
-    if self.server == 'JP':
+    if self.server == 'JP' and self.config['cafe_reward_has_no2_cafe']:
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
-        if get_invitation_ticket_status(self):
+        if get_invitation_ticket_status(self) and self.config['cafe_reward_use_invitation_ticket']:
             invite_girl(self, 2)
         interaction_for_cafe_solve_method3(self)
     return True

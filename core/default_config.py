@@ -182,7 +182,7 @@ DEFAULT_CONFIG = """
     "name": "新的配置",
     "purchase_arena_ticket_times": "0",
     "screenshot_interval": "0.3",
-    "ArenaLevelDiff": 5,
+    "ArenaLevelDiff": 0,
     "maxArenaRefreshTimes": 10,
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
     "use_acceleration_ticket": false,
@@ -201,6 +201,9 @@ DEFAULT_CONFIG = """
     "patStyle": "拖动礼物",
     "antiHarmony": true,
     "bannerVisibility": true,
+    "cafe_reward_has_no2_cafe": false,
+    "cafe_reward_collect_hour_reward": true,
+    "cafe_reward_use_invitation_ticket": true,
     "favorStudent1": [
         "爱丽丝"
     ],
