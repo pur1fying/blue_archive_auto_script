@@ -2,6 +2,7 @@
 import datetime
 import json
 import os
+import shutil
 import sys
 from functools import partial
 
@@ -9,7 +10,7 @@ from PyQt5.QtCore import Qt, QSize, QPoint
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF, SplashScreen, MSFluentWindow, TabBar, \
-    MSFluentTitleBar, MessageBox
+    MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from gui.components.dialog_panel import SaveSettingMessageBox
@@ -203,7 +204,7 @@ class Window(MSFluentWindow):
         self.show()
         setThemeColor('#0078d4')
         self.__switchStatus = True
-        config_dir_list = []
+        self.config_dir_list = []
 
         if not os.path.exists('./config'):
             os.mkdir('./config')
@@ -213,19 +214,18 @@ class Window(MSFluentWindow):
                 files = os.listdir(f'./config/{_dir_}')
                 if 'config.json' in files:
                     check_config(_dir_)
-                    config_dir_list.append(ConfigSet(config_dir=_dir_))
+                    self.config_dir_list.append(ConfigSet(config_dir=_dir_))
 
-        if len(config_dir_list) == 0:
-            config_dir_list.append(ConfigSet('default_config'))
-
+        if len(self.config_dir_list) == 0:
+            self.config_dir_list.append(ConfigSet('default_config'))
 
         # create sub interface
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
-        self._sub_list = [[HomeFragment(parent=self, config=x) for x in config_dir_list],
-                          [SwitchFragment(parent=self, config=x) for x in config_dir_list],
-                          [SettingsFragment(parent=self, config=x) for x in config_dir_list]]
+        self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
+                          [SwitchFragment(parent=self, config=x) for x in self.config_dir_list],
+                          [SettingsFragment(parent=self, config=x) for x in self.config_dir_list]]
         # _sc_list = [SwitchFragment(parent=self, config_dir=x) for x in config_dir_list]
         self.homeInterface = self._sub_list[0][0]
         self.schedulerInterface = self._sub_list[1][0]
@@ -298,21 +298,38 @@ class Window(MSFluentWindow):
 
     def onTabAddRequested(self):
         addDialog = SaveSettingMessageBox(self)
+        addDialog.pathLineEdit.setFocus()
         if addDialog.exec_():
             text = addDialog.pathLineEdit.text()
-            serial_name = int(datetime.datetime.now().timestamp())
-            with open('./config/config.json', 'r', encoding='utf-8') as f:
-                data = json.load(f)
+            if text in list(map(lambda x: x.config['name'], self.config_dir_list)):
+                ib = InfoBar(
+                    icon=InfoBarIcon.ERROR,
+                    title='设置成功',
+                    content=f'名为“{text}”的配置已经存在！',
+                    orient=Qt.Vertical,  # vertical layout
+                    position=InfoBarPosition.TOP_RIGHT,
+                    duration=2000,
+                    parent=self
+                )
+                ib.show()
+                return
+            serial_name = str(int(datetime.datetime.now().timestamp()))
+            os.mkdir(f'./config/{serial_name}')
+            check_event_config(serial_name)
+            check_display_config(serial_name)
+            check_switch_config(serial_name)
+            data = json.loads(default_config.DEFAULT_CONFIG)
             data['name'] = text
-            with open(f'./config/config_u_{serial_name}.json', 'w', encoding='utf-8') as f:
+            with open(f'./config/{serial_name}/config.json', 'w', encoding='utf-8') as f:
                 f.write(json.dumps(data, ensure_ascii=False, indent=2))
             from gui.fragments.home import HomeFragment
             from gui.fragments.switch import SwitchFragment
             from gui.fragments.settings import SettingsFragment
+            _config = ConfigSet(config_dir=serial_name)
             _sub_list_ = [
-                HomeFragment(parent=self, config_dir=f'config_u_{serial_name}.json'),
-                SwitchFragment(parent=self, config_dir=f'config_u_{serial_name}.json'),
-                SettingsFragment(parent=self, config_dir=f'config_u_{serial_name}.json')
+                HomeFragment(parent=self, config=_config),
+                SwitchFragment(parent=self, config=_config),
+                SettingsFragment(parent=self, config=_config)
             ]
             for i in range(0, len(_sub_list_)):
                 self._sub_list[i].append(_sub_list_[i])
@@ -320,11 +337,12 @@ class Window(MSFluentWindow):
             self.addTab(_sub_list_[0].object_name, text, 'resource/Smiling_with_heart.png')
 
     def onTabCloseRequested(self, i0):
-        title = f'是否要删除配置：{self._sub_list[0][i0].config["name"]}？'
+        config_name = self._sub_list[0][i0].config["name"]
+        title = f'是否要删除配置：{config_name}？'
         content = """你需要在确认后重启BAAS以完成更改。"""
         closeRequestBox = MessageBox(title, content, self)
         if closeRequestBox.exec():
-            print('Yes button is pressed')
+            shutil.rmtree(f'./config/{self._sub_list[0][i0].config.config_dir}')
 
     def addTab(self, routeKey, text, icon):
         self.tabBar.addTab(routeKey, text, icon)
