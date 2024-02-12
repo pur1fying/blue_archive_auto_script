@@ -10,7 +10,9 @@ class Layout(QWidget):
         self.hBoxLayout = QVBoxLayout(self)
         self.lay1 = QHBoxLayout(self)
         self.lay2 = QHBoxLayout(self)
+        self.lay2_ = QHBoxLayout(self)
         self.lay3 = QHBoxLayout(self)
+        self.lay3_ = QHBoxLayout(self)
         self.lay4 = QHBoxLayout(self)
         self.lay5 = QHBoxLayout(self)
         self.lay6 = QHBoxLayout(self)
@@ -36,12 +38,13 @@ class Layout(QWidget):
             self.second_switch = CheckBox(self)
             self.second_switch.setChecked(self.config.get('cafe_reward_has_no2_cafe'))
             self.second_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_has_no2_cafe',
-                                                                        self.invite_switch.isChecked()))
+                                                                            self.invite_switch.isChecked()))
             self.lay6.addWidget(self.label_3, 20, Qt.AlignLeft)
             self.lay6.addWidget(self.second_switch, 0, Qt.AlignRight)
 
         self.pat_styles = ['普通', '地毯', '拖动礼物']
         self.student_name = []
+
         self.label1 = QLabel('列表选择你要添加邀请的学生，修改后请点击确定：', self)
         for i in range(0, len(self.config.static_config['student_names'])):
             if self.config.static_config['student_names'][i][self.config.server_mode + '_implementation']:
@@ -58,6 +61,24 @@ class Layout(QWidget):
         self.favor_student1 = self.check_valid_student_names()
         self.config.set('favorStudent1', self.favor_student1)
         self.input.setText(','.join(self.favor_student1))
+
+        if self.config.server_mode == 'JP':
+            self.student_name_ = []
+            self.label4 = QLabel('如果有第二咖啡厅，选择你需要邀请的学生', self)
+            for i in range(0, len(self.config.static_config['student_names'])):
+                if self.config.static_config['student_names'][i][self.config.server_mode + '_implementation']:
+                    self.student_name_.append(
+                        self.config.static_config['student_names'][i][self.config.server_mode + '_name'])
+            self.input4 = ComboBox(self)
+            self.input_ = LineEdit(self)
+            self.input_.setFixedWidth(650)
+            self.ac_btn_ = QPushButton('确定', self)
+
+            self.favor_student2 = self.config.get('favorStudent2')
+            self.input4.addItems(self.student_name)
+            self.favor_student2 = self.check_valid_student_names_()
+            self.config.set('favorStudent2', self.favor_student2)
+            self.input_.setText(','.join(self.favor_student2))
 
         self.label2 = QLabel('选择摸头方式：', self)
         self.input2 = ComboBox(self)
@@ -103,6 +124,20 @@ class Layout(QWidget):
             self.lay6.addStretch(1)
             self.lay6.setAlignment(Qt.AlignCenter)
 
+            self.lay2_.setContentsMargins(10, 0, 0, 0)
+            self.lay2_.addWidget(self.label4, 20, Qt.AlignLeft)
+            self.lay2_.addWidget(self.input4, 0, Qt.AlignRight)
+            self.lay2_.addSpacing(16)
+            self.lay2_.addStretch(1)
+            self.lay2_.setAlignment(Qt.AlignCenter)
+
+            self.lay3_.setContentsMargins(10, 0, 0, 0)
+            self.lay3_.addWidget(self.input_, 0, Qt.AlignLeft)
+            self.lay3_.addWidget(self.ac_btn_, 20, Qt.AlignRight)
+            self.lay3_.addSpacing(16)
+            self.lay3_.addStretch(1)
+            self.lay3_.setAlignment(Qt.AlignCenter)
+
         self.hBoxLayout.addSpacing(16)
         self.hBoxLayout.setAlignment(Qt.AlignCenter)
 
@@ -112,6 +147,9 @@ class Layout(QWidget):
             self.hBoxLayout.addLayout(self.lay6)
         self.hBoxLayout.addLayout(self.lay1)
         self.hBoxLayout.addLayout(self.lay3)
+        if self.config.server_mode == 'JP':
+            self.hBoxLayout.addLayout(self.lay2_)
+            self.hBoxLayout.addLayout(self.lay3_)
         self.hBoxLayout.addLayout(self.lay2)
         self.__init_Signals_and_Slots()
 
@@ -120,6 +158,12 @@ class Layout(QWidget):
         self.favor_student1 = self.check_valid_student_names()
         self.config.set('favorStudent1', self.favor_student1)
         self.input.setText(','.join(self.favor_student1))
+
+    def __add_student_name_in_the_last_second(self):
+        self.favor_student2.append(self.input4.currentText())
+        self.favor_student2 = self.check_valid_student_names_()
+        self.config.set('favorStudent2', self.favor_student2)
+        self.input_.setText(','.join(self.favor_student2))
 
     def __accept_pat_style(self):
         self.pat_style = self.input2.text()
@@ -131,15 +175,31 @@ class Layout(QWidget):
         self.config.set('favorStudent1', self.favor_student1)
         print(self.favor_student1)
 
+    def __student_name_change_by_keyboard_input_(self):
+        text = self.input_.text()
+        self.favor_student2 = text.split(',')
+        self.config.set('favorStudent2', self.favor_student2)
+
     def __init_Signals_and_Slots(self):
         self.input2.currentTextChanged.connect(self.__accept_pat_style)
         self.input1.currentTextChanged.connect(self.__add_student_name_in_the_last)
+        self.input4.currentTextChanged.connect(self.__add_student_name_in_the_last_second)
         self.ac_btn.clicked.connect(self.__student_name_change_by_keyboard_input)
+        self.ac_btn_.clicked.connect(self.__student_name_change_by_keyboard_input_)
 
     def check_valid_student_names(self):
         temp = []
         appeared_names = []
         for fav in self.favor_student1:
+            if fav in self.student_name and (fav not in appeared_names):
+                temp.append(fav)
+                appeared_names.append(fav)
+        return temp
+
+    def check_valid_student_names_(self):
+        temp = []
+        appeared_names = []
+        for fav in self.favor_student2:
             if fav in self.student_name and (fav not in appeared_names):
                 temp.append(fav)
                 appeared_names.append(fav)
