@@ -30,10 +30,7 @@ class ConfigSet:
     def set(self, key, value):
         self._init_config()
         self.config[key] = value
-<<<<<<< Updated upstream
         print(self.config_dir)
-=======
->>>>>>> Stashed changes
         with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
         if not self.check(key, value):
