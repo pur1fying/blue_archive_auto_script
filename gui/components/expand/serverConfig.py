@@ -15,7 +15,7 @@ class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
         configItems = [
             {
-                'label': '请选择您的服务器',
+                'label': '请选择您的服务器，请慎重切换服务器，切换服务器后请重新启动脚本',
                 'type': 'combo',
                 'key': 'server',
                 'selection': ['官服', 'B服', '国际服', '日服']

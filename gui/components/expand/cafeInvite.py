@@ -13,13 +13,8 @@ class Layout(QWidget):
         self.lay3 = QHBoxLayout(self)
         self.pat_styles = ['普通', '地毯', '拖动礼物']
         self.student_name = []
-        if self.config.server_mode == 0:
-            for i in range(0, len(self.config.static_config['CN_student_name'])):
-                self.student_name.append(self.config.static_config['CN_student_name'][i])
-        if self.config.server_mode == 1:
-            for i in range(0, len(self.config.static_config['Global_student_name'])):
-                self.student_name.append(self.config.static_config['Global_student_name'][i])
-        self.label1 = QLabel('选择你要添加邀请的学生：', self)
+        self.__check_server()
+        self.label1 = QLabel('列表选择你要添加邀请的学生，修改后请点击确定：', self)
         self.input1 = ComboBox(self)
         self.input = LineEdit(self)
         self.input.setFixedWidth(650)
@@ -28,19 +23,20 @@ class Layout(QWidget):
         self.favor_student = self.config.get('favorStudent1')
         self.input1.addItems(self.student_name)
         # self.input1.setText(','.join(self.favor_student))
-        student_list = []
+        self.student_list = []
+        # Judge if the favor student is in the student list
         for fav in self.favor_student:
             if fav in self.student_name:
-                student_list.append(fav)
-        if len(student_list) == 0:
+                self.student_list.append(fav)
+        # If the favor student is not in the student list,
+        # add the first student in the list
+        if len(self.student_list) == 0:
             self.input1.setCurrentIndex(0)
-            student_list.append(self.student_name[0])
-        self.config.set('favorStudent1', student_list)
-        self.input.setText(','.join(student_list))
-        self.input1.currentTextChanged.connect(self.__accept)
-        self.input1.customContextMenuRequested.connect(
-            self.__accept
-        )
+            self.student_list.append(self.student_name[0])
+        self.config.set('favorStudent1', self.student_list)
+        self.input.setText(','.join(self.student_list))
+        self.input1.currentTextChanged.connect(self.__add_student)
+        self.ac_btn.clicked.connect(self.__accept)
 
         self.label2 = QLabel('选择摸头方式：', self)
         self.input2 = ComboBox(self)
@@ -48,7 +44,7 @@ class Layout(QWidget):
         self.input2.addItems(self.pat_styles)
         self.input2.setText(self.pat_style)
         self.input2.setCurrentIndex(self.pat_styles.index(self.pat_style))
-        self.input2.currentTextChanged.connect(self.__accept)
+        self.input2.currentTextChanged.connect(self.__accept_pat_style)
 
         self.lay1.setContentsMargins(10, 0, 0, 0)
         self.lay1.addWidget(self.label1, 20, Qt.AlignLeft)
@@ -79,10 +75,24 @@ class Layout(QWidget):
         self.hBoxLayout.addLayout(self.lay2)
 
     def __accept(self):
-        self.favor_student = self.input1.text()
-        print(self.pat_style)
+        self.favor_student = self.input.text().split(',')
+        self.config.set('favorStudent1', self.favor_student)
+
+    def __accept_pat_style(self):
         self.pat_style = self.input2.text()
-        self.config.set('favorStudent1', [self.favor_student])
         self.config.set('patStyle', self.pat_style)
-        print(self.favor_student)
-        print(self.pat_style)
+
+    def __add_student(self):
+        add_student = self.input1.text()
+        self.student_list.append(add_student)
+        self.input.setText(','.join(self.student_list))
+
+    def __check_server(self):
+        student_name = []
+        if self.config.server_mode == 0:
+            student_name = self.config.static_config['CN_student_name']
+        elif self.config.server_mode == 1:
+            student_name = self.config.static_config['Global_student_name']
+
+        for i in range(0, student_name.__len__()):
+            self.student_name.append(student_name[i])
