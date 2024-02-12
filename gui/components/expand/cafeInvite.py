@@ -183,9 +183,10 @@ class Layout(QWidget):
     def __init_Signals_and_Slots(self):
         self.input2.currentTextChanged.connect(self.__accept_pat_style)
         self.input1.currentTextChanged.connect(self.__add_student_name_in_the_last)
-        self.input4.currentTextChanged.connect(self.__add_student_name_in_the_last_second)
         self.ac_btn.clicked.connect(self.__student_name_change_by_keyboard_input)
-        self.ac_btn_.clicked.connect(self.__student_name_change_by_keyboard_input_)
+        if self.config.server_mode == 'JP':
+            self.input4.currentTextChanged.connect(self.__add_student_name_in_the_last_second)
+            self.ac_btn_.clicked.connect(self.__student_name_change_by_keyboard_input_)
 
     def check_valid_student_names(self):
         temp = []
