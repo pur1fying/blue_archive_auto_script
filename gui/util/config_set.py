@@ -6,6 +6,7 @@ class ConfigSet:
     def __init__(self, config_dir):
         print(config_dir)
         self.config = None
+        # Config Server Mode 0: CN, 1: EN, 2: JP
         self.server_mode = 0
         self.static_config = None
         self.config_dir = config_dir
@@ -30,7 +31,6 @@ class ConfigSet:
     def set(self, key, value):
         self._init_config()
         self.config[key] = value
-        print(self.config_dir)
         with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
         if not self.check(key, value):
