@@ -7,7 +7,7 @@ class ConfigSet:
         print(config_dir)
         self.config = None
         # Config Server Mode 0: CN, 1: EN, 2: JP
-        self.server_mode = 0
+        self.server_mode = 'CN'
         self.static_config = None
         self.config_dir = config_dir
         self._init_config()
@@ -18,11 +18,11 @@ class ConfigSet:
         with open("config/static.json", 'r', encoding='utf-8') as f:
             self.static_config = json.load(f)
         if self.config['server'] == '国服' or self.config['server'] == 'B服':
-            self.server_mode = 0
+            self.server_mode = 'CN'
         elif self.config['server'] == '国际服':
-            self.server_mode = 1
+            self.server_mode = 'Global'
         elif self.config['server'] == '日服':
-            self.server_mode = 2
+            self.server_mode = 'JP'
 
     def get(self, key):
         self._init_config()

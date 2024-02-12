@@ -13,30 +13,22 @@ class Layout(QWidget):
         self.lay3 = QHBoxLayout(self)
         self.pat_styles = ['普通', '地毯', '拖动礼物']
         self.student_name = []
-        self.__check_server()
         self.label1 = QLabel('列表选择你要添加邀请的学生，修改后请点击确定：', self)
+        for i in range(0, len(self.config.static_config['student_names'])):
+            if self.config.static_config['student_names'][i][self.config.server_mode + '_implementation']:
+                self.student_name.append(self.config.static_config['student_names'][i][self.config.server_mode + '_name'])
         self.input1 = ComboBox(self)
         self.input = LineEdit(self)
         self.input.setFixedWidth(650)
         self.ac_btn = QPushButton('确定', self)
 
-        self.favor_student = self.config.get('favorStudent1')
+        self.favor_student1 = self.config.get('favorStudent1')
         self.input1.addItems(self.student_name)
         # self.input1.setText(','.join(self.favor_student))
-        self.student_list = []
-        # Judge if the favor student is in the student list
-        for fav in self.favor_student:
-            if fav in self.student_name:
-                self.student_list.append(fav)
-        # If the favor student is not in the student list,
-        # add the first student in the list
-        if len(self.student_list) == 0:
-            self.input1.setCurrentIndex(0)
-            self.student_list.append(self.student_name[0])
-        self.config.set('favorStudent1', self.student_list)
-        self.input.setText(','.join(self.student_list))
-        self.input1.currentTextChanged.connect(self.__add_student)
-        self.ac_btn.clicked.connect(self.__accept)
+        self.favor_student1 = self.check_valid_student_names()
+        self.config.set('favorStudent1', self.favor_student1)
+        self.input.setText(','.join(self.favor_student1))
+
 
         self.label2 = QLabel('选择摸头方式：', self)
         self.input2 = ComboBox(self)
@@ -44,7 +36,7 @@ class Layout(QWidget):
         self.input2.addItems(self.pat_styles)
         self.input2.setText(self.pat_style)
         self.input2.setCurrentIndex(self.pat_styles.index(self.pat_style))
-        self.input2.currentTextChanged.connect(self.__accept_pat_style)
+
 
         self.lay1.setContentsMargins(10, 0, 0, 0)
         self.lay1.addWidget(self.label1, 20, Qt.AlignLeft)
@@ -73,26 +65,34 @@ class Layout(QWidget):
         self.hBoxLayout.addLayout(self.lay1)
         self.hBoxLayout.addLayout(self.lay3)
         self.hBoxLayout.addLayout(self.lay2)
+        self.__init_Signals_and_Slots()
 
-    def __accept(self):
-        self.favor_student = self.input.text().split(',')
-        self.config.set('favorStudent1', self.favor_student)
+    def __add_student_name_in_the_last(self):
+        self.favor_student1.append(self.input1.currentText())
+        self.favor_student1 = self.check_valid_student_names()
+        self.config.set('favorStudent1', self.favor_student1)
+        self.input.setText(','.join(self.favor_student1))
 
     def __accept_pat_style(self):
         self.pat_style = self.input2.text()
         self.config.set('patStyle', self.pat_style)
 
-    def __add_student(self):
-        add_student = self.input1.text()
-        self.student_list.append(add_student)
-        self.input.setText(','.join(self.student_list))
+    def __student_name_change_by_keyboard_input(self):
+        text = self.input.text()
+        self.favor_student1 = text.split(',')
+        self.config.set('favorStudent1', self.favor_student1)
+        print(self.favor_student1)
 
-    def __check_server(self):
-        student_name = []
-        if self.config.server_mode == 0:
-            student_name = self.config.static_config['CN_student_name']
-        elif self.config.server_mode == 1:
-            student_name = self.config.static_config['Global_student_name']
+    def __init_Signals_and_Slots(self):
+        self.input2.currentTextChanged.connect(self.__accept_pat_style)
+        self.input1.currentTextChanged.connect(self.__add_student_name_in_the_last)
+        self.ac_btn.clicked.connect(self.__student_name_change_by_keyboard_input)
 
-        for i in range(0, student_name.__len__()):
-            self.student_name.append(student_name[i])
+    def check_valid_student_names(self):
+        temp = []
+        appeared_names = []
+        for fav in self.favor_student1:
+            if fav in self.student_name and (fav not in appeared_names):
+                temp.append(fav)
+                appeared_names.append(fav)
+        return temp
