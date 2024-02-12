@@ -12,12 +12,10 @@ class Layout(QWidget):
         # self.label = QLabel('输入最高难度', self)
         self.label = QLabel('最高难度', self)
         self.input = ComboBox(self)
-
-        self.input.addItems(['NORMAL', 'HARD', 'VERYHARD', 'HARDCORE', 'EXTREME'])
-        if self.config.server_mode in ['JP', 'Global']:
-            self.input.addItems(['NIGHTMARE', 'INSANE'])
-        elif self.config.get('totalForceFightDifficulty') in ['NIGHTMARE', 'INSANE']:
-            self.config.set('totalForceFightDifficulty', 'EXTREME')
+        self.difficulties = self.config.static_config['total_assault_difficulties'][self.config.server_mode]
+        self.input.addItems(self.difficulties)
+        if self.config.get('totalForceFightDifficulty') not in self.difficulties:
+            self.config.set('totalForceFightDifficulty', self.difficulties[0])
         self.input.setText(self.config.get('totalForceFightDifficulty'))
         self.input.currentIndexChanged.connect(self.__accept)
 

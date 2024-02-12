@@ -579,6 +579,11 @@ STATIC_DEFAULT_CONFIG = '''
         "国际服": ".MxUnityPlayerActivity",
         "日服": "com.yostarjp.bluearchive.MxUnityPlayerActivity"
     },
+    "total_assault_difficulties": {
+        "CN": [ "NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME" ],
+        "Global": [ "NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT" ],
+        "JP": [ "NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME" , "INSANE", "TORMENT" ]
+    },
   "student_names":
     [
       {

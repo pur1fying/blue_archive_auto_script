@@ -60,7 +60,7 @@ class TemplateLayout(QWidget):
             elif cfg.type == 'text':
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
-                inputComponent.setText(self.config.get(currentKey))
+                inputComponent.setText(str(self.config.get(currentKey)))
                 confirmButton = PushButton('确定', self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':

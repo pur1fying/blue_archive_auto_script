@@ -20,16 +20,14 @@ class Layout(QWidget):
         self.label_1 = QLabel('是否要领取奖励:', self)
         self.income_switch = CheckBox(self)
         self.income_switch.setChecked(self.config.get('cafe_reward_collect_hour_reward'))
-        self.income_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_collect_hour_reward',
-                                                                        self.income_switch.isChecked()))
+
         self.lay4.addWidget(self.label_1, 20, Qt.AlignLeft)
         self.lay4.addWidget(self.income_switch, 0, Qt.AlignRight)
 
         self.label_2 = QLabel('是否使用邀请券:', self)
         self.invite_switch = CheckBox(self)
         self.invite_switch.setChecked(self.config.get('cafe_reward_use_invitation_ticket'))
-        self.invite_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_use_invitation_ticket',
-                                                                        self.invite_switch.isChecked()))
+
         self.lay5.addWidget(self.label_2, 20, Qt.AlignLeft)
         self.lay5.addWidget(self.invite_switch, 0, Qt.AlignRight)
 
@@ -37,8 +35,7 @@ class Layout(QWidget):
             self.label_3 = QLabel('是否有二号咖啡厅:', self)
             self.second_switch = CheckBox(self)
             self.second_switch.setChecked(self.config.get('cafe_reward_has_no2_cafe'))
-            self.second_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_has_no2_cafe',
-                                                                            self.invite_switch.isChecked()))
+
             self.lay6.addWidget(self.label_3, 20, Qt.AlignLeft)
             self.lay6.addWidget(self.second_switch, 0, Qt.AlignRight)
 
@@ -150,6 +147,7 @@ class Layout(QWidget):
         if self.config.server_mode == 'JP':
             self.hBoxLayout.addLayout(self.lay2_)
             self.hBoxLayout.addLayout(self.lay3_)
+            self.Slot_for_no_2_cafe_Checkbox(self.second_switch.isChecked())
         self.hBoxLayout.addLayout(self.lay2)
         self.__init_Signals_and_Slots()
 
@@ -184,9 +182,14 @@ class Layout(QWidget):
         self.input2.currentTextChanged.connect(self.__accept_pat_style)
         self.input1.currentTextChanged.connect(self.__add_student_name_in_the_last)
         self.ac_btn.clicked.connect(self.__student_name_change_by_keyboard_input)
+        self.income_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_collect_hour_reward',
+                                                                        self.income_switch.isChecked()))
+        self.invite_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_use_invitation_ticket',
+                                                                        self.invite_switch.isChecked()))
         if self.config.server_mode == 'JP':
             self.input4.currentTextChanged.connect(self.__add_student_name_in_the_last_second)
             self.ac_btn_.clicked.connect(self.__student_name_change_by_keyboard_input_)
+            self.second_switch.stateChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
 
     def check_valid_student_names(self):
         temp = []
@@ -205,3 +208,10 @@ class Layout(QWidget):
                 temp.append(fav)
                 appeared_names.append(fav)
         return temp
+
+    def Slot_for_no_2_cafe_Checkbox(self, state):
+        self.config.set('cafe_reward_has_no2_cafe', state == Qt.Checked)
+        self.input4.setVisible(state == Qt.Checked)
+        self.ac_btn_.setVisible(state == Qt.Checked)
+        self.label4.setVisible(state == Qt.Checked)
+        self.input_.setVisible(state == Qt.Checked)
