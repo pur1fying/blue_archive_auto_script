@@ -7,8 +7,7 @@ class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config
-        self.setFixedHeight(120)
-
+        self.__check_server()
         self.goods = self.config.get(key='TacticalChallengeShopList')
         goods_count = len(self.goods)
         layout = FlowLayout(self, needAni=True)
@@ -16,11 +15,11 @@ class Layout(QWidget):
         layout.setVerticalSpacing(20)
         layout.setHorizontalSpacing(10)
 
-        self.setFixedSize(720, 200)
+        self.setFixedHeight(250)
         self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
         self.label = QLabel('刷新次数', self)
         self.input = LineEdit(self)
-        self.input.setValidator(QIntValidator(0, 5))
+        self.input.setValidator(QIntValidator(0, 3))
         self.input.setText(self.config.get('TacticalChallengeShopRefreshTime'))
 
         self.accept = QPushButton('确定', self)
@@ -46,3 +45,9 @@ class Layout(QWidget):
 
     def __accept(self):
         self.config.set('TacticalChallengeShopRefreshTime', self.input.text())
+
+    def __check_server(self):
+        if self.config.server_mode in ['Global', 'JP'] and len(self.config.get('TacticalChallengeShopList')) != 15:
+            self.config.set('TacticalChallengeShopList', [0] * 15)
+        elif self.config.server_mode == 'CN' and len(self.config.get('TacticalChallengeShopList')) != 14:
+            self.config.set('TacticalChallengeShopList', [0] * 14)

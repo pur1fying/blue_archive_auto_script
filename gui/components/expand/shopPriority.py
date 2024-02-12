@@ -7,8 +7,7 @@ class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config
-        self.setFixedHeight(120)
-
+        self.__check_server()
         self.goods = self.config.get(key='CommonShopList')
 
         layout = FlowLayout(self, needAni=True)
@@ -26,7 +25,7 @@ class Layout(QWidget):
         self.input.setText(str(self.config.get('CommonShopRefreshTime')))
         self.accept = QPushButton('确定', self)
         self.boxes = []
-        for i in range(16):
+        for i in range(len(self.goods)):
             t_cbx = CheckBox(self)
             t_cbx.setChecked(self.goods[i] == 1)
             ccs = QLabel(f"商品{i + 1}", self)
@@ -46,3 +45,9 @@ class Layout(QWidget):
 
     def __accept(self, input_content=None):
         self.config.set('CommonShopRefreshTime', self.input.text())
+
+    def __check_server(self):
+        if self.config.server_mode in ['Global', 'JP'] and len(self.config.get('CommonShopList')) != 20:
+            self.config.set('CommonShopList', [0] * 20)
+        elif self.config.server_mode == 'CN' and len(self.config.get('CommonShopList')) != 19:
+            self.config.set('CommonShopList', [0] * 19)

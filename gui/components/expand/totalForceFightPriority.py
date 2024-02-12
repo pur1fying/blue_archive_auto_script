@@ -2,8 +2,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel
 from qfluentwidgets import InfoBar, InfoBarIcon, InfoBarPosition, ComboBox
 
-from gui.util.config_set import ConfigSet
-
 
 class Layout(QWidget):
     def __init__(self, parent=None, config=None):
