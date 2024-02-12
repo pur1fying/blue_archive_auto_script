@@ -17,7 +17,7 @@ class Layout(QWidget):
         self.label = QLabel('普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：', self)
         self.input = LineEdit(self)
         self.accept = QPushButton('确定', self)
-        self.label_hard = QLabel('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号：', self)
+        self.label_hard = QLabel('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：', self)
         self.input_hard = LineEdit(self)
         self.accept_hard = QPushButton('确定', self)
 

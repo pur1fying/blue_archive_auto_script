@@ -13,3 +13,4 @@ from .exploreConfig import Layout
 from .otherConfig import Layout
 from .hardTaskConfig import Layout
 from .featureSwitch import Layout
+from .sweepCountConfig import Layout

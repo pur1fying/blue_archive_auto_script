@@ -14,6 +14,10 @@ class Layout(QWidget):
         self.input = ComboBox(self)
 
         self.input.addItems(['NORMAL', 'HARD', 'VERYHARD', 'HARDCORE', 'EXTREME'])
+        if self.config.server_mode in ['JP', 'Global']:
+            self.input.addItems(['NIGHTMARE', 'INSANE'])
+        elif self.config.get('totalForceFightDifficulty') in ['NIGHTMARE', 'INSANE']:
+            self.config.set('totalForceFightDifficulty', 'EXTREME')
         self.input.setText(self.config.get('totalForceFightDifficulty'))
         self.input.currentIndexChanged.connect(self.__accept)
 
