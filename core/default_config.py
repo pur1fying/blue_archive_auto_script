@@ -251,7 +251,7 @@ DEFAULT_CONFIG = """
     "shock2": "3",
     "activity_sweep": false,
     "activity_sweep_task_number": 1,
-    "activity_sweep_times": 0,
+    "activity_sweep_times": "0",
     "activity_exchange_reward": false,
     "activity_exchange_50_times_at_once": false,
     "explore_hard_task_need_sss": true,
@@ -384,6 +384,13 @@ SWITCH_DEFAULT_CONFIG = '''
         "name": "总力战",
         "sort": 13,
         "tip": "总力战期间自动打总力战",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": "sweepCountConfig",
+        "name": "扫荡设置",
+        "sort": 14,
+        "tip": "各种扫荡次数设置",
         "type": "BasicSettingCard"
     }
 ]
