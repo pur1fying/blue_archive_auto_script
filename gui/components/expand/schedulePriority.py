@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
+from PyQt5.QtGui import QDoubleValidator, QIntValidator
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QCheckBox
 from qfluentwidgets import LineEdit
 
 from gui.util import notification
@@ -10,55 +10,107 @@ class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config
+        self.item_levels = ["primary", "normal", "advanced", "superior"]
         ls_names = self.config.static_config['lesson_region_name']
-        self.count = [ls_names["CN"].__len__(), ls_names["Global"].__len__(), ls_names["JP"].__len__()]
-        self.__check_version()
-        self.hBoxLayout = QVBoxLayout(self)
-        self.h1 = QHBoxLayout(self)
-        self.label = QLabel(
-            f'输入你的每个区域日程的次数（国服、国际服、日服分别有{"、".join(list(map(lambda x: str(x), self.count)))}个区域）'
-            f'（如"111111"）', self)
-        self.input = LineEdit(self)
-        self.accept = QPushButton('确定', self)
-        _set_ = self.config.get('lesson_times')
-        self.priority_list = [int(x) for x in (_set_ if _set_ else [1, 1, 1, 1, 1])]
-        validate = QDoubleValidator()
-        self.input.setText(''.join([str(x) for x in self.priority_list]))
-        self.input.setFixedWidth(300)
-        self.input.setValidator(validate)
-        self.hBoxLayout.setContentsMargins(48, 0, 0, 0)
+        self.lesson_names = ls_names[self.config.server_mode]
+        self.priority_list = self.config.get('lesson_times')
+        self.needed_levels = self.config.get('lesson_each_region_object_priority')
+        self.check_config_validation()
+        self.vBoxLayout = QVBoxLayout(self)
+        self.relationship_check_box_description = QLabel('优先做好感等级多的日程', self)
+        self.relationship_check_box = QCheckBox('', self)
+        self.hBoxLayout = QHBoxLayout(self)
+        self.check_box_for_lesson_levels = []
+        self.lesson_time_input = []
+        int_validator = QIntValidator(0, 99, self)
+        for i in range(0, len(self.lesson_names)):
+            self.check_box_for_lesson_levels.append([])
+            for j in range(0, 4):
+                self.check_box_for_lesson_levels[i].append(QCheckBox(self))
+                if self.item_levels[j] in self.needed_levels[i]:
+                    self.check_box_for_lesson_levels[i][j].setChecked(True)
+            self.lesson_time_input.append(LineEdit(self))
+            self.lesson_time_input[i].setValidator(int_validator)
+            self.lesson_time_input[i].setText(str(self.priority_list[i]))
+            self.lesson_time_input[i].setFixedWidth(50)
 
-        self.accept.clicked.connect(self.__accept)
+        self.__init_Signals_and_Slots()
+        self.__init_layouts()
 
-        self.hBoxLayout.addWidget(self.label, 20, Qt.AlignLeft)
-        self.h1.addWidget(self.input, 0, Qt.AlignLeft)
-        self.h1.addWidget(self.accept, 0, Qt.AlignRight)
-        self.h1.setContentsMargins(0, 10, 0, 0)
-        self.hBoxLayout.addLayout(self.h1)
-        self.hBoxLayout.setContentsMargins(20, 10, 0, 0)
+    def check_config_validation(self):
+        if len(self.priority_list) != len(self.lesson_names):
+            self.priority_list = [1] * len(self.lesson_names)
+            self.config.set('lesson_times', self.priority_list)
+        if len(self.needed_levels) != len(self.lesson_names):
+            temp = []
+            for i in range(0, len(self.lesson_names)):
+                temp.append(self.item_levels)
+            self.needed_levels = temp
+            self.config.set('lesson_each_region_object_priority', self.needed_levels)
 
-        self.hBoxLayout.addSpacing(16)
-        self.hBoxLayout.addStretch(1)
-        self.hBoxLayout.setAlignment(Qt.AlignLeft)
+    def Slot_for_lesson_level_change(self):
+        res = []
+        for i in range(0, len(self.lesson_names)):
+            temp = []
+            for j in range(0, 4):
+                if self.check_box_for_lesson_levels[i][j].isChecked():
+                    temp.append(self.item_levels[j])
+            res.append(temp)
+        self.needed_levels = res
+        self.config.set('lesson_each_region_object_priority', self.needed_levels)
 
-    def __accept(self):
-        pre_list = [int(x) for x in self.input.text()]
-        info_widget = self.parent().parent().parent().parent().parent().parent().parent()
-        if self.config.server_mode == 'Global' and pre_list.__len__() != self.count[1]:
-            return notification.error('日程次数', f'国际服模式下，输入的区域次数不满足{self.count[1]}个', info_widget)
-        elif self.config.server_mode == 'CN' and pre_list.__len__() != self.count[0]:
-            return notification.error('日程次数', f'国服模式下，输入的区域次数不满足{self.count[0]}个', info_widget)
-        elif self.config.server_mode == 'JP' and pre_list.__len__() != self.count[2]:
-            return notification.error('日程次数', f'日服模式下，输入的区域次数不满足{self.count[2]}个', info_widget)
-        self.priority_list = pre_list
+    def Slot_for_lesson_time_change(self):
+        res = []
+        for i in range(0, len(self.lesson_names)):
+            res.append(int(self.lesson_time_input[i].text()))
+        self.priority_list = res
         self.config.set('lesson_times', self.priority_list)
+        info_widget = self.parent().parent().parent().parent().parent().parent().parent()
         return notification.success('日程次数', f'日程次数设置成功为:{self.priority_list}', info_widget)
 
-    def __check_version(self):
-        conf = self.config.get('lesson_times')
-        if self.config.server_mode == 'Global' and conf.__len__() != self.count[1]:
-            self.config.set('lesson_times', [1] * self.count[1])
-        elif self.config.server_mode == 'CN' and conf.__len__() != self.count[0]:
-            self.config.set('lesson_times', [1] * self.count[0])
-        elif self.config.server_mode == 'JP' and conf.__len__() != self.count[2]:
-            self.config.set('lesson_times', [1] * self.count[2])
+    def __init_Signals_and_Slots(self):
+        self.relationship_check_box.stateChanged.connect(self.Slot_for_relationship_check_box)
+        for i in range(0, len(self.lesson_names)):
+            for j in range(0, 4):
+                self.check_box_for_lesson_levels[i][j].stateChanged.connect(self.Slot_for_lesson_level_change)
+            self.lesson_time_input[i].textChanged.connect(self.Slot_for_lesson_time_change)
+
+    def __init_layouts(self):
+        self.__init_relationship_check_box_layout()
+        self.__init_region_name_layout()
+        self.__init_lesson_level_layout()
+        self.__init_lesson_times_layout()
+        self.vBoxLayout.addLayout(self.hBoxLayout)
+
+    def __init_relationship_check_box_layout(self):
+        temp = QHBoxLayout(self)
+        temp.addWidget(self.relationship_check_box_description)
+        temp.addWidget(self.relationship_check_box)
+        self.vBoxLayout.addLayout(temp)
+
+    def __init_region_name_layout(self):
+        temp = QVBoxLayout(self)
+        temp.addWidget(QLabel("区域名称", self), 0, Qt.AlignLeft)
+        for i in range(0, len(self.lesson_names)):
+            temp.addWidget(QLabel(self.lesson_names[i], self), 0, Qt.AlignLeft)
+        self.hBoxLayout.addLayout(temp)
+
+    def __init_lesson_level_layout(self):
+        name = ["初级", "普通", "高级", "特级"]
+        for i in range(0, 4):
+            temp = QVBoxLayout(self)
+            temp.addWidget(QLabel(name[i], self), 0, Qt.AlignLeft)
+            for j in range(0, len(self.lesson_names)):
+                temp.addWidget(self.check_box_for_lesson_levels[j][i], 0, Qt.AlignLeft)
+            self.hBoxLayout.addLayout(temp)
+
+    def __init_lesson_times_layout(self):
+        temp = QVBoxLayout(self)
+        temp.addWidget(QLabel("日程次数", self), 0, Qt.AlignLeft)
+        for i in range(0, len(self.lesson_names)):
+            temp.addWidget(self.lesson_time_input[i], 0, Qt.AlignLeft)
+        self.hBoxLayout.addLayout(temp)
+
+    def Slot_for_relationship_check_box(self, state):
+        self.config.set('lesson_relationship_first', state == Qt.Checked)
+

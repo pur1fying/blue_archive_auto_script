@@ -224,14 +224,15 @@ DEFAULT_CONFIG = """
     "lesson_relationship_first": false,
     "lesson_each_region_object_priority": [
         ["primary","normal","advanced","superior"],
-        [],
-        [],
-        [],
-        [],
-        [],
-        [],
-        [],
-        []
+        ["primary","normal","advanced","superior"],
+        ["primary","normal","advanced","superior"],
+        ["primary","normal","advanced","superior"],
+        ["primary","normal","advanced","superior"],
+        ["primary","normal","advanced","superior"],
+        ["primary","normal","advanced","superior"],
+        ["primary","normal","advanced","superior"],
+        ["primary","normal","advanced","superior"],
+        ["primary","normal","advanced","superior"]
     ],
     "purchase_lesson_ticket_times": "0",
     "explore_normal_task_regions": [
