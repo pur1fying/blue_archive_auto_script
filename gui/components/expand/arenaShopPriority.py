@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout
 from qfluentwidgets import FlowLayout, CheckBox, LineEdit
 
 
@@ -11,9 +11,9 @@ class Layout(QWidget):
         self.goods = self.config.get(key='TacticalChallengeShopList')
         goods_count = len(self.goods)
         layout = FlowLayout(self, needAni=True)
-        layout.setContentsMargins(30, 30, 30, 30)
-        layout.setVerticalSpacing(20)
-        layout.setHorizontalSpacing(10)
+        layout.setContentsMargins(30, 0, 0, 30)
+        layout.setVerticalSpacing(0)
+        # layout.setHorizontalSpacing(0)
 
         self.setFixedHeight(250)
         self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
@@ -28,9 +28,13 @@ class Layout(QWidget):
             t_cbx = CheckBox(self)
             t_cbx.setChecked(self.goods[i] == 1)
             ccs = QLabel(f"商品{i + 1}", self)
-            ccs.setFixedWidth(80)
-            layout.addWidget(ccs)
-            layout.addWidget(t_cbx)
+            ccs.setFixedWidth(60)
+            wrapper_widget = QWidget()
+            wrapper = QHBoxLayout()
+            wrapper.addWidget(ccs)
+            wrapper.addWidget(t_cbx)
+            wrapper_widget.setLayout(wrapper)
+            layout.addWidget(wrapper_widget)
             t_cbx.stateChanged.connect(lambda x, index=i: self.alter_status(index, goods_count))
             self.boxes.append(t_cbx)
         layout.addWidget(self.label)

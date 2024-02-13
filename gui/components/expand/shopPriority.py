@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout
 from qfluentwidgets import FlowLayout, CheckBox, LineEdit
 
 
@@ -11,11 +11,12 @@ class Layout(QWidget):
         self.goods = self.config.get(key='CommonShopList')
 
         layout = FlowLayout(self, needAni=True)
-        layout.setContentsMargins(30, 30, 30, 30)
-        layout.setVerticalSpacing(20)
-        layout.setHorizontalSpacing(10)
 
-        self.setFixedSize(720, 290)
+        layout.setContentsMargins(30, 0, 30, 0)
+        layout.setVerticalSpacing(0)
+        # layout.setHorizontalSpacing(10)
+
+        self.setFixedHeight(260)
         self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
         self.label = QLabel('刷新次数', self)
         self.label.setFixedWidth(160)
@@ -29,9 +30,13 @@ class Layout(QWidget):
             t_cbx = CheckBox(self)
             t_cbx.setChecked(self.goods[i] == 1)
             ccs = QLabel(f"商品{i + 1}", self)
-            ccs.setFixedWidth(80)
-            layout.addWidget(ccs)
-            layout.addWidget(t_cbx)
+            ccs.setFixedWidth(50)
+            wrapper_widget = QWidget()
+            wrapper = QHBoxLayout()
+            wrapper.addWidget(ccs)
+            wrapper.addWidget(t_cbx)
+            wrapper_widget.setLayout(wrapper)
+            layout.addWidget(wrapper_widget)
             t_cbx.stateChanged.connect(lambda x, index=i: self.alter_status(index))
             self.boxes.append(t_cbx)
         layout.addWidget(self.label)

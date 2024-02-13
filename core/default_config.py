@@ -389,9 +389,9 @@ SWITCH_DEFAULT_CONFIG = '''
     },
     {
         "config": "sweepCountConfig",
-        "name": "扫荡设置",
+        "name": "扫荡及购买券设置",
         "sort": 14,
-        "tip": "各种扫荡次数设置",
+        "tip": "各种扫荡及购买券次数设置",
         "type": "BasicSettingCard"
     }
 ]

@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator, QIntValidator
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QCheckBox
-from qfluentwidgets import LineEdit
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from qfluentwidgets import LineEdit, CheckBox
 
 from gui.util import notification
 
@@ -18,18 +18,21 @@ class Layout(QWidget):
         self.check_config_validation()
         self.vBoxLayout = QVBoxLayout(self)
         self.relationship_check_box_description = QLabel('优先做好感等级多的日程', self)
-        self.relationship_check_box = QCheckBox('', self)
+        self.relationship_check_box = CheckBox('', self)
         self.hBoxLayout = QHBoxLayout(self)
         self.check_box_for_lesson_levels = []
         self.lesson_time_input = []
         int_validator = QIntValidator(0, 99, self)
+        self.vBoxLayout.setSpacing(7)
         for i in range(0, len(self.lesson_names)):
             self.check_box_for_lesson_levels.append([])
             for j in range(0, 4):
-                self.check_box_for_lesson_levels[i].append(QCheckBox(self))
+                self.check_box_for_lesson_levels[i].append(CheckBox(self))
                 if self.item_levels[j] in self.needed_levels[i]:
                     self.check_box_for_lesson_levels[i][j].setChecked(True)
-            self.lesson_time_input.append(LineEdit(self))
+            itm = LineEdit(self)
+            itm.setFixedHeight(30)
+            self.lesson_time_input.append(itm)
             self.lesson_time_input[i].setValidator(int_validator)
             self.lesson_time_input[i].setText(str(self.priority_list[i]))
             self.lesson_time_input[i].setFixedWidth(50)
@@ -99,6 +102,8 @@ class Layout(QWidget):
         name = ["初级", "普通", "高级", "特级"]
         for i in range(0, 4):
             temp = QVBoxLayout(self)
+            temp.setContentsMargins(0, 5, 0, 5)
+            temp.setSpacing(15)
             temp.addWidget(QLabel(name[i], self), 0, Qt.AlignLeft)
             for j in range(0, len(self.lesson_names)):
                 temp.addWidget(self.check_box_for_lesson_levels[j][i], 0, Qt.AlignLeft)
