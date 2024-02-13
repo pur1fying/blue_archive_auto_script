@@ -6,6 +6,7 @@ from qfluentwidgets import ComboBox, LineEdit, CheckBox
 class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
+        self.setFixedHeight(300)
         self.config = config
         self.hBoxLayout = QVBoxLayout(self)
         self.lay1 = QHBoxLayout(self)       # ComboBox 选择第一咖啡厅学生名字
