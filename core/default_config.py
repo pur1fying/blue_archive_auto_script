@@ -202,6 +202,7 @@ DEFAULT_CONFIG = """
     "patStyle": "拖动礼物",
     "antiHarmony": true,
     "bannerVisibility": true,
+    "cafe_reward_lowest_affection_first": true,
     "cafe_reward_has_no2_cafe": false,
     "cafe_reward_collect_hour_reward": true,
     "cafe_reward_use_invitation_ticket": true,
