@@ -1,7 +1,7 @@
 import random
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QScrollBar
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QScrollBar, QCheckBox
 from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition, TabBar
 
 
@@ -14,11 +14,19 @@ class Layout(QWidget):
         self.lay1 = QHBoxLayout(self)
         self.lay2 = QHBoxLayout(self)
         self.lay3 = QHBoxLayout(self)
+        self.layout_for_acc_ticket = QHBoxLayout(self)
 
         self.label = QLabel('目前制造物品优先级，排在前面的会优先选择', self)
         self.input1 = QLabel(self)
         self.input2 = LineEdit(self)
         self.accept = QPushButton('确定', self)
+        self.label_for_use_acc_ticket_check_box = QLabel('是否使用加速券', self)
+        self.use_acc_ticket_checkbox = QCheckBox(self)
+        self.use_acc_ticket_checkbox.setChecked(self.config.get('use_acceleration_ticket'))
+        self.use_acc_ticket_checkbox.stateChanged.connect(self.Slot_for_use_acc_ticket_check_box)
+        self.layout_for_acc_ticket.addWidget(self.label_for_use_acc_ticket_check_box)
+        self.layout_for_acc_ticket.addWidget(self.use_acc_ticket_checkbox)
+        self.hBoxLayout.addLayout(self.layout_for_acc_ticket)
 
         time = self.config.get('createTime')
 
@@ -31,7 +39,7 @@ class Layout(QWidget):
         self.tabBar.setMovable(True)
         self.tabBar.setTabsClosable(False)
         self.tabBar.setScrollable(True)
-        self.tabBar.setTabMaximumWidth(50)
+        self.tabBar.setTabMaximumWidth(200)
         self.tabBar.setAddButtonVisible(False)
         self.tabBar.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.tabBar.setFixedHeight(60)
@@ -66,10 +74,10 @@ class Layout(QWidget):
 
     def __accept_main(self):
         # input1_content = self.input1.text()
-        # input2_content = self.input2.text()
+        input2_content = self.input2.text()
         #
         # self.config.set('createPriority', input1_content)
-        # self.config.set('createTime', input2_content)
+        self.config.set('createTime', input2_content)
         #
         # w = InfoBar(
         #     icon=InfoBarIcon.SUCCESS,
@@ -108,3 +116,6 @@ class Layout(QWidget):
             if i != len(self.create_priority) - 1:
                 res += '>'
         self.input1.setText(res)
+
+    def Slot_for_use_acc_ticket_check_box(self, state):
+        self.config.set('use_acceleration_ticket', state == Qt.Checked)

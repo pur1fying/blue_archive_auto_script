@@ -421,6 +421,8 @@ def calc_team_number(self, current_task_stage_data):
         los.append(position)
         for i in range(0, len(pri[attr])):
             possible_attr = pri[attr][i]
+            if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
+                continue
             possible_index = self.config[possible_attr]
             if not used[possible_attr] and 4 - possible_index >= length - len(res) - 1 and last_chosen < possible_index:
                 res.append(possible_index)

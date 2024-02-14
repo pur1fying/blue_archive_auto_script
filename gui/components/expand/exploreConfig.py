@@ -7,6 +7,7 @@ from .expandTemplate import TemplateLayout
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
+        self.config = config
         configItems = [
             {
                 'label': '开启此按钮点击推图进行活动任务关推图(当前活动:69号新春狂想曲)',
@@ -16,6 +17,16 @@ class Layout(TemplateLayout):
             {
                 'label': '是否手动boss战（进入关卡后暂停等待手操）',
                 'key': 'manual_boss',
+                'type': 'switch'
+            },
+            {
+                'label': '是否不强制打到sss（启用后跳过已通过但未sss的关卡）',
+                'key': 'explore_normal_task_force_sss',
+                'type': 'switch'
+            },
+            {
+                'label': '开启后强制打每一个指定的关卡（不管是否sss）',
+                'key': 'explore_normal_task_force_each_fight',
                 'type': 'switch'
             },
             {
@@ -54,6 +65,23 @@ class Layout(TemplateLayout):
                 'selection': ['1', '2', '3', '4'],
                 'type': 'combo'
             },
+            ]
+        if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
+            configItems.extend([
+                {
+                    'label': '振动一队',
+                    'key': 'shock1',
+                    'selection': ['1', '2', '3', '4'],
+                    'type': 'combo'
+                },
+                {
+                    'label': '振动二队',
+                    'key': 'shock2',
+                    'selection': ['1', '2', '3', '4'],
+                    'type': 'combo'
+                }
+            ])
+        configItems.extend([
             {
                 'label': '各图需要队伍 16[贯穿,神秘] 15[神秘,神秘] 14[爆发,神秘] 13[贯穿,贯穿] 12[神秘,爆发] 11[贯穿,神秘] 10[爆发,神秘] 9[爆发,贯穿] ',
                 'type': 'label'
@@ -68,7 +96,7 @@ class Layout(TemplateLayout):
                          '<b>如果有多个队伍一定要设置主队编号小于副队(如15图神秘1队必须小于神秘2队编号)</b>',
                 'type': 'label'
             }
-        ]
+        ])
 
         super().__init__(parent=parent, configItems=configItems, config=config)
 
