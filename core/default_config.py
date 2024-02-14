@@ -442,13 +442,6 @@ STATIC_DEFAULT_CONFIG = '''
              ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 100]
         ]
     },
-    "node_name": {
-        "花":{
-            "CN": "花",
-            "Global": "Flower",
-            "JP": "花"
-        }
-    },
     "create_default_priority": {
         "CN": [
                 "花",

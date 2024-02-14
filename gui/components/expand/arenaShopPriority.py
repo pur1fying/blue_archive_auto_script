@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from qfluentwidgets import FlowLayout, CheckBox, LineEdit
 
 
@@ -7,6 +7,7 @@ class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config
+        self.default_goods = self.config.static_config['tactical_challenge_shop_price_list'][self.config.server_mode]
         self.__check_server()
         self.goods = self.config.get(key='TacticalChallengeShopList')
         goods_count = len(self.goods)
@@ -15,7 +16,7 @@ class Layout(QWidget):
         layout.setVerticalSpacing(0)
         # layout.setHorizontalSpacing(0)
 
-        self.setFixedHeight(250)
+        self.setFixedHeight(400)
         self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
         self.label = QLabel('刷新次数', self)
         self.input = LineEdit(self)
@@ -27,11 +28,17 @@ class Layout(QWidget):
         for i in range(0, goods_count):
             t_cbx = CheckBox(self)
             t_cbx.setChecked(self.goods[i] == 1)
-            ccs = QLabel(f"商品{i + 1}", self)
-            ccs.setFixedWidth(60)
+            ccs = QLabel(self.default_goods[i][0], self)
+            ccs.setFixedWidth(110)
+            price_text = str(self.default_goods[i][1])
+            price_label = QLabel(price_text, self)
+            price_label.setFixedWidth(110)
+            VLayout = QVBoxLayout(self)
+            VLayout.addWidget(price_label)
+            VLayout.addWidget(ccs)
             wrapper_widget = QWidget()
             wrapper = QHBoxLayout()
-            wrapper.addWidget(ccs)
+            wrapper.addLayout(VLayout)
             wrapper.addWidget(t_cbx)
             wrapper_widget.setLayout(wrapper)
             layout.addWidget(wrapper_widget)
@@ -51,7 +58,5 @@ class Layout(QWidget):
         self.config.set('TacticalChallengeShopRefreshTime', self.input.text())
 
     def __check_server(self):
-        if self.config.server_mode in ['Global', 'JP'] and len(self.config.get('TacticalChallengeShopList')) != 15:
-            self.config.set('TacticalChallengeShopList', [0] * 15)
-        elif self.config.server_mode == 'CN' and len(self.config.get('TacticalChallengeShopList')) != 14:
-            self.config.set('TacticalChallengeShopList', [0] * 14)
+        if len(self.config.get('TacticalChallengeShopList')) != len(self.default_goods):
+            self.config.set('TacticalChallengeShopList', len(self.default_goods) * [1])

@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from qfluentwidgets import FlowLayout, CheckBox, LineEdit
 
 
@@ -7,6 +7,7 @@ class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config
+        self.default_goods = self.config.static_config['common_shop_price_list'][self.config.server_mode]
         self.__check_server()
         self.goods = self.config.get(key='CommonShopList')
 
@@ -16,7 +17,7 @@ class Layout(QWidget):
         layout.setVerticalSpacing(0)
         # layout.setHorizontalSpacing(10)
 
-        self.setFixedHeight(260)
+        self.setFixedHeight(500)
         self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
         self.label = QLabel('刷新次数', self)
         self.label.setFixedWidth(160)
@@ -29,11 +30,21 @@ class Layout(QWidget):
         for i in range(len(self.goods)):
             t_cbx = CheckBox(self)
             t_cbx.setChecked(self.goods[i] == 1)
-            ccs = QLabel(f"商品{i + 1}", self)
-            ccs.setFixedWidth(50)
+            ccs = QLabel(self.default_goods[i][0], self)
+            ccs.setFixedWidth(150)
+            price_text = str(self.default_goods[i][1])
+            if self.default_goods[i][2] == 'creditpoints':
+                price_text += '信用点'
+            else:
+                price_text += '青辉石'
+            price_label = QLabel(price_text, self)
+            price_label.setFixedWidth(150)
             wrapper_widget = QWidget()
+            VLayout = QVBoxLayout(self)
+            VLayout.addWidget(ccs)
+            VLayout.addWidget(price_label)
             wrapper = QHBoxLayout()
-            wrapper.addWidget(ccs)
+            wrapper.addLayout(VLayout)
             wrapper.addWidget(t_cbx)
             wrapper_widget.setLayout(wrapper)
             layout.addWidget(wrapper_widget)
@@ -52,7 +63,6 @@ class Layout(QWidget):
         self.config.set('CommonShopRefreshTime', self.input.text())
 
     def __check_server(self):
-        if self.config.server_mode in ['Global', 'JP'] and len(self.config.get('CommonShopList')) != 20:
-            self.config.set('CommonShopList', [0] * 20)
-        elif self.config.server_mode == 'CN' and len(self.config.get('CommonShopList')) != 19:
-            self.config.set('CommonShopList', [0] * 19)
+        if len(self.config.get('CommonShopList')) != len(self.default_goods):
+            self.config.set('CommonShopList', len(self.default_goods) * [1])
+

@@ -10,21 +10,20 @@ class Layout(QWidget):
         super().__init__(parent=parent)
         self.config = config
         self.hBoxLayout = QVBoxLayout(self)
-
+        self.create_priority = self.get_create_priority()
         self.lay1 = QHBoxLayout(self)
         self.lay2 = QHBoxLayout(self)
         self.lay3 = QHBoxLayout(self)
 
-        self.label = QLabel('用">"分割物品，排在前面的会优先选择', self)
-        self.input1 = LineEdit(self)
+        self.label = QLabel('目前制造物品优先级，排在前面的会优先选择', self)
+        self.input1 = QLabel(self)
         self.input2 = LineEdit(self)
         self.accept = QPushButton('确定', self)
 
-        priority = self.config.get('createPriority')  # type: str
         time = self.config.get('createTime')
 
         # self.setFixedHeight(120)
-        self.input1.setText(priority)
+        self.set_priority_text()
         self.input1.setFixedWidth(600)
         self.input2.setText(time)
 
@@ -38,7 +37,7 @@ class Layout(QWidget):
         self.tabBar.setFixedHeight(60)
 
         self.tabBar.setFixedWidth(750)
-        for item in priority.split('>'):
+        for item in self.create_priority:
             self.tabBar.addTab(f'{random.Random().randint(0, 1000)}_{item}', item)
 
         self.lay1.setContentsMargins(10, 0, 0, 10)
@@ -84,3 +83,28 @@ class Layout(QWidget):
         # w.show()
         print('test')
         print('>'.join(list(map(lambda x: x.text(), self.tabBar.items))))
+        for i in range(0, len(self.create_priority)):
+            self.create_priority[i] = self.tabBar.items[i].text()
+        self.config.set('createPriority', self.create_priority)
+        self.set_priority_text()
+
+    def get_create_priority(self):
+        default_priority = self.config.static_config['create_default_priority'][self.config.server_mode]
+        current_priority = self.config.get('createPriority')
+        res = []
+        for i in range(0, len(current_priority)):
+            if current_priority[i] in default_priority:
+                res.append(current_priority[i])
+        for j in range(0, len(default_priority)):
+            if default_priority[j] not in res:
+                res.append(default_priority[j])
+        self.config.set('createPriority', res)
+        return res
+
+    def set_priority_text(self):
+        res = ""
+        for i in range(0, len(self.create_priority)):
+            res += self.create_priority[i]
+            if i != len(self.create_priority) - 1:
+                res += '>'
+        self.input1.setText(res)
