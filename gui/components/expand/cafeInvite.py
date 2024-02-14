@@ -6,7 +6,7 @@ from qfluentwidgets import ComboBox, LineEdit, CheckBox
 class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        self.setFixedHeight(300)
+        self.setFixedHeight(325)
         self.config = config
         self.hBoxLayout = QVBoxLayout(self)
         self.lay_for_invitation_ticket_affection_lowest_priority = QHBoxLayout(self)# 邀请券的好感等级低
@@ -21,22 +21,25 @@ class Layout(QWidget):
 
         self.label_for_invitation_ticket_affection_lowest_priority = QLabel('优先邀请好感等级低学生:', self)
         self.invitation_ticket_affection_lowest_priority = CheckBox(self)
-        self.invitation_ticket_affection_lowest_priority.setChecked(self.config.get('cafe_reward_lowest_affection_first'))
-        self.lay_for_invitation_ticket_affection_lowest_priority.addWidget(self.label_for_invitation_ticket_affection_lowest_priority, 20, Qt.AlignLeft)
-        self.lay_for_invitation_ticket_affection_lowest_priority.addWidget(self.invitation_ticket_affection_lowest_priority, 0, Qt.AlignRight)
+        self.invitation_ticket_affection_lowest_priority.setChecked(
+            self.config.get('cafe_reward_lowest_affection_first'))
+        self.lay_for_invitation_ticket_affection_lowest_priority.addWidget(
+            self.label_for_invitation_ticket_affection_lowest_priority, 20, Qt.AlignLeft)
+        self.lay_for_invitation_ticket_affection_lowest_priority.addWidget(
+            self.invitation_ticket_affection_lowest_priority, 0, Qt.AlignRight)
 
         self.label_1 = QLabel('是否要领取奖励:', self)
         self.income_switch = CheckBox(self)
         self.income_switch.setChecked(self.config.get('cafe_reward_collect_hour_reward'))
 
-        self.lay4.addWidget(self.label_1, 20, Qt.AlignLeft)
+        self.lay4.addWidget(self.label_1, 1, Qt.AlignLeft)
         self.lay4.addWidget(self.income_switch, 0, Qt.AlignRight)
 
         self.label_2 = QLabel('是否使用邀请券:', self)
         self.invite_switch = CheckBox(self)
         self.invite_switch.setChecked(self.config.get('cafe_reward_use_invitation_ticket'))
 
-        self.lay5.addWidget(self.label_2, 20, Qt.AlignLeft)
+        self.lay5.addWidget(self.label_2, 1, Qt.AlignLeft)
         self.lay5.addWidget(self.invite_switch, 0, Qt.AlignRight)
 
         if self.config.server_mode == 'JP':
@@ -44,7 +47,7 @@ class Layout(QWidget):
             self.second_switch = CheckBox(self)
             self.second_switch.setChecked(self.config.get('cafe_reward_has_no2_cafe'))
 
-            self.lay6.addWidget(self.label_3, 20, Qt.AlignLeft)
+            self.lay6.addWidget(self.label_3, 1, Qt.AlignLeft)
             self.lay6.addWidget(self.second_switch, 0, Qt.AlignRight)
 
         self.pat_styles = ['拖动礼物']
@@ -62,11 +65,9 @@ class Layout(QWidget):
 
         self.favor_student1 = self.config.get('favorStudent1')
         self.input1.addItems(self.student_name)
-        # self.input1.setText(','.join(self.favor_student))
         self.favor_student1 = self.check_valid_student_names()
         self.config.set('favorStudent1', self.favor_student1)
         self.input.setText(','.join(self.favor_student1))
-
 
         self.label2 = QLabel('选择摸头方式：', self)
         self.input2 = ComboBox(self)
@@ -75,45 +76,16 @@ class Layout(QWidget):
         self.input2.setText(self.pat_style)
         self.input2.setCurrentIndex(self.pat_styles.index(self.pat_style))
 
-        self.lay1.setContentsMargins(10, 0, 0, 0)
-        self.lay1.addWidget(self.label1, 20, Qt.AlignLeft)
+        self.lay1.addWidget(self.label1, 1, Qt.AlignLeft)
         self.lay1.addWidget(self.input1, 0, Qt.AlignRight)
-        self.lay1.addSpacing(16)
-        self.lay1.addStretch(1)
-        self.lay1.setAlignment(Qt.AlignCenter)
 
-        self.lay2.setContentsMargins(10, 0, 0, 0)
-        self.lay2.addWidget(self.label2, 20, Qt.AlignLeft)
+        self.lay2.addWidget(self.label2, 1, Qt.AlignLeft)
         self.lay2.addWidget(self.input2, 0, Qt.AlignRight)
-        self.lay2.addSpacing(16)
-        self.lay2.addStretch(1)
-        self.lay2.setAlignment(Qt.AlignCenter)
 
-        self.lay3.setContentsMargins(10, 0, 0, 0)
-        self.lay3.addWidget(self.input, 0, Qt.AlignLeft)
-        self.lay3.addWidget(self.ac_btn, 20, Qt.AlignRight)
-        self.lay3.addSpacing(16)
-        self.lay3.addStretch(1)
-        self.lay3.setAlignment(Qt.AlignCenter)
+        self.lay3.addWidget(self.input, 1, Qt.AlignLeft)
+        self.lay3.addWidget(self.ac_btn, 0, Qt.AlignRight)
 
-        self.lay4.setContentsMargins(10, 0, 0, 0)
-        self.lay4.addSpacing(16)
-        self.lay4.addStretch(1)
-        self.lay4.setAlignment(Qt.AlignCenter)
-
-        self.lay5.setContentsMargins(10, 0, 0, 0)
-        self.lay5.addSpacing(16)
-        self.lay5.addStretch(1)
-        self.lay5.setAlignment(Qt.AlignCenter)
-
-        if self.config.server_mode == 'JP':
-            self.lay6.setContentsMargins(10, 0, 0, 0)
-            self.lay6.addSpacing(16)
-            self.lay6.addStretch(1)
-            self.lay6.setAlignment(Qt.AlignCenter)
-
-        self.hBoxLayout.addSpacing(16)
-        self.hBoxLayout.setAlignment(Qt.AlignCenter)
+        self.hBoxLayout.addSpacing(10)
 
         self.hBoxLayout.addLayout(self.lay4)
         self.hBoxLayout.addLayout(self.lay5)
@@ -121,6 +93,7 @@ class Layout(QWidget):
         self.hBoxLayout.addLayout(self.lay1)
         self.hBoxLayout.addLayout(self.lay3)
         self.hBoxLayout.addLayout(self.lay2)
+        self.hBoxLayout.setContentsMargins(20, 0, 20, 10)
         if self.config.server_mode == 'JP':
             self.hBoxLayout.addLayout(self.lay6)
             if self.config.get('cafe_reward_has_no2_cafe'):
@@ -162,7 +135,8 @@ class Layout(QWidget):
                                                                         self.income_switch.isChecked()))
         self.invite_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_use_invitation_ticket',
                                                                         self.invite_switch.isChecked()))
-        self.invitation_ticket_affection_lowest_priority.stateChanged.connect(self.Slot_for_invitation_ticket_affection_lowest_priority)
+        self.invitation_ticket_affection_lowest_priority.stateChanged.connect(
+            self.Slot_for_invitation_ticket_affection_lowest_priority)
         if self.config.server_mode == 'JP':
             self.second_switch.stateChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
 
@@ -219,19 +193,12 @@ class Layout(QWidget):
         self.favor_student2 = self.check_valid_student_names_()
         self.config.set('favorStudent2', self.favor_student2)
         self.input_.setText(','.join(self.favor_student2))
-        self.lay2_.setContentsMargins(10, 0, 0, 0)
-        self.lay2_.addWidget(self.label4, 20, Qt.AlignLeft)
+        self.lay2_.addWidget(self.label4, 1, Qt.AlignLeft)
         self.lay2_.addWidget(self.input4, 0, Qt.AlignRight)
-        self.lay2_.addSpacing(16)
-        self.lay2_.addStretch(1)
-        self.lay2_.setAlignment(Qt.AlignCenter)
 
-        self.lay3_.setContentsMargins(10, 0, 0, 0)
-        self.lay3_.addWidget(self.input_, 0, Qt.AlignLeft)
-        self.lay3_.addWidget(self.ac_btn_, 20, Qt.AlignRight)
-        self.lay3_.addSpacing(16)
-        self.lay3_.addStretch(1)
-        self.lay3_.setAlignment(Qt.AlignCenter)
+        self.lay3_.addWidget(self.input_, 1, Qt.AlignLeft)
+        self.lay3_.addWidget(self.ac_btn_, 0, Qt.AlignRight)
+
         self.hBoxLayout.addLayout(self.lay2_)
         self.hBoxLayout.addLayout(self.lay3_)
 
