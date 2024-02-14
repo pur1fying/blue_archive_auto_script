@@ -153,7 +153,7 @@ def invite_lowest_affection(self):
     self.logger.info("Invite lowest affection student")
     relationship_order_button_location = {
         'CN': (749, 263),
-        'Global': (749, 263),
+        'Global': (535, 323),
         'JP': (535, 323),
     }
     if to_invitation_ticket(self, True) == 'cafe_invitation-ticket-invalid':
