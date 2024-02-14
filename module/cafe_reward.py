@@ -134,8 +134,11 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_cafe-reward-status': (905, 159),
         'cafe_menu': (838, 647),
     }
-    img_end = 'cafe_invitation-ticket'
-    picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
+    img_end = {
+        'cafe_invitation-ticket',
+        'cafe_invitation-ticket-invalid',
+    }
+    return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
 
 
 def get_student_name(self):
@@ -146,7 +149,34 @@ def get_student_name(self):
     return operate_name(current_server_student_name_list, self.server)
 
 
+def invite_lowest_affection(self):
+    self.logger.info("Invite lowest affection student")
+    relationship_order_button_location = {
+        'CN': (749, 263),
+        'Global': (749, 263),
+        'JP': (535, 323),
+    }
+    if to_invitation_ticket(self, True) == 'cafe_invitation-ticket-invalid':
+        self.logger.info("invitation ticket NOT available")
+        return
+    if not image.compare_image(self, 'cafe_invitation-ticket-order-affection', threshold=0.9):
+        self.logger.info("Switch to affection order")
+        self.click(704, 152, wait_over=True, duration=0.5)
+        self.click(relationship_order_button_location[self.server], wait_over=True, duration=0.5)
+        self.click(627, 390, wait_over=True, duration=0.5)
+    self.latest_img_array = self.get_screenshot_array()
+    if not image.compare_image(self, 'cafe_invitation-ticket-order-up', threshold=0.9):
+        self.logger.info("Switch to lowest affection order")
+        self.click(812, 153, wait_over=True, duration=0.5)
+    self.click(785, 226, wait_over=True, duration=0.5)
+    self.click(767, 514, wait_over=True)
+    to_cafe(self, True)
+
+
 def invite_girl(self, no=1):
+    if self.config['cafe_reward_lowest_affection_first']:
+        invite_lowest_affection(self)
+        return
     student_name = get_student_name(self)
     if no == 1:
         target_name_list = self.config['favorStudent1']

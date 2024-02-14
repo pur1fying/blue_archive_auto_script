@@ -6,5 +6,8 @@ x_y_range = {
     'students-arrived': (550, 240, 730, 269),
     'cafe-reward-status': (490, 132, 800, 174),
     'invitation-ticket': (421, 78, 451, 111),
-    'quick-home': (1215, 5, 1255, 42)
+    'quick-home': (1215, 5, 1255, 42),
+    'invitation-ticket-invalid': (397, 299, 880, 365),
+    'invitation-ticket-order-affection': (662, 138, 748, 165),
+    'invitation-ticket-order-up': (827, 138, 841, 164),
 }
