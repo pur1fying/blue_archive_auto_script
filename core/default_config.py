@@ -361,13 +361,6 @@ SWITCH_DEFAULT_CONFIG = '''
         "type": "StageSettingCard"
     },
     {
-        "config": "specialDaily",
-        "name": "悬赏通缉",
-        "sort": 10,
-        "tip": "帮助你打每日悬赏通缉",
-        "type": "SpecStageSettingCard"
-    },
-    {
         "config": "arenaPriority",
         "name": "竞技场",
         "sort": 11,

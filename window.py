@@ -6,16 +6,16 @@ import shutil
 import sys
 from functools import partial
 
-from PyQt5.QtCore import Qt, QSize, QPoint
+from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF, SplashScreen, MSFluentWindow, TabBar, \
-    MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition
+    MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition, TransparentToolButton, FluentWindow
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
-from gui.components.dialog_panel import SaveSettingMessageBox
-
 from core import default_config
+from gui.components.dialog_panel import SaveSettingMessageBox
+from gui.fragments.readme import ReadMeWindow
 from gui.util.config_set import ConfigSet
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
@@ -161,6 +161,7 @@ class Widget(MSFluentWindow):
 
 class BAASTitleBar(MSFluentTitleBar):
     """ Title bar with icon and title """
+    onHelpButtonClicked = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -177,10 +178,14 @@ class BAASTitleBar(MSFluentTitleBar):
         self.tabBar.setScrollable(True)
         self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
 
+        self.searchButton = TransparentToolButton(FIF.HELP.icon(), self)
+        self.searchButton.setToolTip('帮助')
+        self.searchButton.clicked.connect(self.onHelpButtonClicked)
         # self.tabBar.tabCloseRequested.connect(self.tabRemoveRequest)
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
         self.hBoxLayout.setStretch(6, 0)
+        self.hBoxLayout.insertWidget(7, self.searchButton, 0, alignment=Qt.AlignRight)
 
         # self.hBoxLayout.insertSpacing(8, 20)
 
@@ -262,6 +267,7 @@ class Window(MSFluentWindow):
         self.tabBar.currentChanged.connect(self.onTabChanged)
         self.tabBar.tabAddRequested.connect(self.onTabAddRequested)
         self.tabBar.tabCloseRequested.connect(self.onTabCloseRequested)
+        self.titleBar.onHelpButtonClicked.connect(self.showHelpModal)
 
     def initWindow(self):
         self.resize(900, 700)
@@ -271,6 +277,15 @@ class Window(MSFluentWindow):
 
     def closeEvent(self, event):
         super().closeEvent(event)
+
+    @staticmethod
+    def showHelpModal():
+        helpModal = ReadMeWindow()
+        helpModal.setWindowTitle('帮助')
+        helpModal.setWindowIcon(QIcon(ICON_DIR))
+        helpModal.resize(800, 600)
+        helpModal.setFocus()
+        helpModal.show()
 
     def onNavigationChanged(self, index: int):
         for ind, btn in enumerate(self.navi_btn_list):

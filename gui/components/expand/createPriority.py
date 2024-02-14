@@ -1,8 +1,8 @@
 import random
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QScrollBar, QCheckBox
-from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition, TabBar
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
+from qfluentwidgets import LineEdit, TabBar, CheckBox
 
 
 class Layout(QWidget):
@@ -21,7 +21,7 @@ class Layout(QWidget):
         self.input2 = LineEdit(self)
         self.accept = QPushButton('确定', self)
         self.label_for_use_acc_ticket_check_box = QLabel('是否使用加速券', self)
-        self.use_acc_ticket_checkbox = QCheckBox(self)
+        self.use_acc_ticket_checkbox = CheckBox(self)
         self.use_acc_ticket_checkbox.setChecked(self.config.get('use_acceleration_ticket'))
         self.use_acc_ticket_checkbox.stateChanged.connect(self.Slot_for_use_acc_ticket_check_box)
         self.layout_for_acc_ticket.addWidget(self.label_for_use_acc_ticket_check_box)
@@ -48,10 +48,6 @@ class Layout(QWidget):
         for item in self.create_priority:
             self.tabBar.addTab(f'{random.Random().randint(0, 1000)}_{item}', item)
 
-        self.lay1.setContentsMargins(10, 0, 0, 10)
-        self.lay2.setContentsMargins(10, 0, 0, 10)
-        self.lay3.setContentsMargins(10, 0, 0, 10)
-
         self.accept.clicked.connect(self.__accept_main)
 
         self.lay1.addWidget(self.label, 0, Qt.AlignLeft)
@@ -65,12 +61,12 @@ class Layout(QWidget):
         self.lay1.setAlignment(Qt.AlignCenter)
         self.lay2.setAlignment(Qt.AlignCenter)
 
-        self.hBoxLayout.addSpacing(16)
         self.hBoxLayout.setAlignment(Qt.AlignCenter)
 
         self.hBoxLayout.addLayout(self.lay1)
         self.hBoxLayout.addLayout(self.lay2)
         self.hBoxLayout.addLayout(self.lay3)
+        self.hBoxLayout.setContentsMargins(20, 10, 20, 10)
 
     def __accept_main(self):
         # input1_content = self.input1.text()
