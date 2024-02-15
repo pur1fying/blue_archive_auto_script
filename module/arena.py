@@ -76,8 +76,7 @@ def collect_tactical_challenge_reward(self):
     for i in range(0, 3):
         if color.judge_rgb_range(self, 353, 404, 235, 255, 222, 242, 52, 92):
             self.logger.info("COLLECT TIME REWARD")
-            self.click(353, 404, wait_over=True)
-            time.sleep(1.5)
+            self.click(353, 404, wait_over=True, duration=1)
             self.click(670, 96, wait_over=True)
             self.click(670, 96, wait_over=True)
             to_tactical_challenge(self)
@@ -88,8 +87,7 @@ def collect_tactical_challenge_reward(self):
     for i in range(0, 3):
         if color.judge_rgb_range(self, 353, 487, 235, 255, 222, 242, 52, 92):
             self.logger.info("COLLECT DAILY REWARD")
-            self.click(353, 487, wait_over=True)
-            time.sleep(1.5)
+            self.click(353, 487, wait_over=True, duration=1)
             self.click(670, 96, wait_over=True)
             self.click(670, 96, wait_over=True)
             to_tactical_challenge(self)

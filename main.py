@@ -7,19 +7,41 @@ from gui.util.config_set import ConfigSet
 
 class Main:
     def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+        self.ocr = None
         self.static_config = None
-        self.ocr = ocr.Baas_ocr(logger=Logger(logger_signal), ocr_needed=['NUM', 'CN', 'Global', 'JP'])
         self.logger = Logger(logger_signal)
+        self.init_all_data()
         self.threads = {}
 
-    def start_thread(self,  config, index="1", logger_signal=None, button_signal=None, update_signal=None):
+    def init_all_data(self):
+        self.init_ocr()
+        self.init_static_config()
+
+    def init_ocr(self):
+        try:
+            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=['NUM', 'CN', 'Global', 'JP'])
+            return True
+        except Exception as e:
+            self.logger.error("OCR initialization failed")
+            self.logger.error(e)
+            return False
+
+    def start_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None):
         t = Baas_thread(logger_signal, button_signal, update_signal, config)
         t.static_config = self.static_config
         t.init_all_data()
         t.ocr = self.ocr
-        self.threads.setdefault(index, t)
-        threading.Thread(target=t.thread_starter, args=index).start()
+        self.threads.setdefault(name, t)
+        threading.Thread(target=t.thread_starter, args=name).start()
         return True
+
+    def stop_thread(self, name):
+        if name in self.threads:
+            self.threads[name].flag_run = False
+            del self.threads[name]
+            return True
+        else:
+            return False
 
     def init_static_config(self):
         try:
@@ -75,10 +97,11 @@ class Main:
 
 if __name__ == '__main__':
     from core.Baas_thread import Baas_thread
+
     t = Main()
     t.init_static_config()
     config = ConfigSet(config_dir="default_config")
-    tt = Baas_thread(config,None,None,None)
+    tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
