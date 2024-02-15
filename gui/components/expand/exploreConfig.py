@@ -81,22 +81,6 @@ class Layout(TemplateLayout):
                     'type': 'combo'
                 }
             ])
-        configItems.extend([
-            {
-                'label': '各图需要队伍 16[贯穿,神秘] 15[神秘,神秘] 14[爆发,神秘] 13[贯穿,贯穿] 12[神秘,爆发] 11[贯穿,神秘] 10[爆发,神秘] 9[爆发,贯穿] ',
-                'type': 'label'
-            },
-            {
-                'label': '                      8[贯穿,贯穿]   7[爆发,爆发]    6[贯穿,贯穿]    5[爆发]4[贯穿]',
-                'type': 'label'
-            },
-            {
-                'label': '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                         '<b>如果有多个队伍一定要设置主队编号小于副队(如15图神秘1队必须小于神秘2队编号)</b>',
-                'type': 'label'
-            }
-        ])
 
         super().__init__(parent=parent, configItems=configItems, config=config)
 

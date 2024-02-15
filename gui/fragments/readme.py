@@ -3,20 +3,20 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFrame, QVBoxLayout
 from qfluentwidgets import FluentIcon as FIF, FluentWindow, TextEdit
-
+import os
 # TODO: 在下方docs中编写文档
 # content里写说明，注意，需要使用HTML的形式给到样式，不给样式就是纯文字
 # 使用Markdown请先转换成HTML
 docs = [
-    {
-        'title': '主线任务配置说明',
-        'content': '主线任务配置说明'
-    },
-    {
-        'title': '困难任务配置说明',
-        'content': '困难任务配置说明'
-    }
+
 ]
+path = 'src/descriptions/'
+for file in os.listdir(path):
+    filepath = os.path.join(path, file)
+    filename = file.split('.')[0]
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+        docs.append({'title': filename, 'content': content})
 
 
 class ReadMeInterface(QFrame):
@@ -25,18 +25,17 @@ class ReadMeInterface(QFrame):
         self.setObjectName('ReadMeInterface' + random.randint(0, 100000).__str__())
         self.setStyleSheet('QFrame#ReadMeInterface{background: white}')
         self.content = content
-        self.textField = TextEdit()
-        self.textField.setReadOnly(True)
-        self.textField.setPlainText(content)
+        self.textEdit = TextEdit()
+        self.textEdit.setReadOnly(True)
+        self.textEdit.setHtml(content)
         vBox = QVBoxLayout(self)
-        vBox.addWidget(self.textField)
+        vBox.addWidget(self.textEdit)
         self.setLayout(vBox)
 
 
 class ReadMeWindow(FluentWindow):
     def __init__(self):
         super().__init__()
-        self.titles = ['主线任务配置说明', '困难任务配置说明']
         for doc in docs:
             self.addSubInterface(interface=ReadMeInterface(doc['content']), icon=FIF.TAG, text=doc['title'])
         self.show()
