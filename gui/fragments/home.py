@@ -110,7 +110,7 @@ class HomeFragment(QFrame):
 
     def call_update(self, parent=None):
         try:
-            with open('./config/display.json', 'r', encoding='utf-8') as f:
+            with open('./config/'+ self.config.config_dir +'/display.json', 'r', encoding='utf-8') as f:
                 config = json.load(f)
             if config['running'] is None or config['running'] == 'Empty':
                 self.info.setText('无任务')
