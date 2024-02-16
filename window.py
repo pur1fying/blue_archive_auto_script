@@ -216,18 +216,16 @@ class Window(MSFluentWindow):
 
         if not os.path.exists('./config'):
             os.mkdir('./config')
-
         for _dir_ in os.listdir('./config'):
             if os.path.isdir(f'./config/{_dir_}'):
                 files = os.listdir(f'./config/{_dir_}')
                 if 'config.json' in files:
+                    check_config(_dir_)
                     self.config_dir_list.append(ConfigSet(config_dir=_dir_))
 
         if len(self.config_dir_list) == 0:
+            check_config('default_config')
             self.config_dir_list.append(ConfigSet('default_config'))
-
-        for config in self.config_dir_list:
-            check_config(config.config_dir)
         # create sub interface
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
