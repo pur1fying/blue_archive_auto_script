@@ -17,7 +17,7 @@ def implement(self):
     status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
     y_position = {
         'CN': [312, 452, 594],
-        'Global': [312, 452, 594],
+        'Global': [288, 407, 534],
         'JP': [288, 407, 534]
     }
     y_position = y_position[self.server]
@@ -53,84 +53,7 @@ def implement(self):
 
 
 def common_create_judge(self):
-    pri = ["花",
-                "MomoFriends咖啡厅",
-                "果冻游戏中心",
-                "情人节",
-                "夏日",
-                "万圣节",
-                "温泉浴场",
-                "新年",
-                "色彩",
-                "灿烂",
-                "武器部件",
-                "铜",
-                "光芒",
-                "玲珑",
-                "白金",
-                "黄金",
-                "白银",
-                "金属",
-                "隐然"]
-    # pri = [
-    #     "Flower",
-    #     "Momo Friends Cafe Set",
-    #     "Jellies Arcade Set",
-    #     "Valentine's Set",
-    #     "Summer Pool Party Set",
-    #     "Jack-O-Lantern Cafe Set",
-    #     "Hot Springs Resort Set",
-    #     "New Year's House Set",
-    #     "Military Campground Set",
-    #     "Beachside Set",
-    #     "Field Day Set",
-    #     "Abydos Classroom Set",
-    #     "Game Development Department Set",
-    #     "Sunshine Resort Set",
-    #     "Department Store Set",
-    #     "Gehenna Party Set",
-    #     "Colorful",
-    #     "Radiant",
-    #     "Platinum",
-    #     "Weapon Parts",
-    #     "Gold",
-    #     "Silver",
-    #     "Metal",
-    #     "Copper",
-    #     "Shiny",
-    #     "Brilliant",
-    #     "Subtle"
-    # ],
-    # pri = [
-    #     "花弁",
-    #     "モモフレンズのカフェシリーズ",
-    #     "ゼリーズゲーセンシリーズ",
-    #     "バレンタインシリーズ",
-    #     "サマーリゾートシリーズ",
-    #     "ハロウィーンカフェシリーズ",
-    #     "伝統的な温泉郷シリーズ",
-    #     "お正月シリーズ",
-    #     "ミリタリーアウトドア",
-    #     "ビーチサイドシリーズ",
-    #     "大運動会シリーズ",
-    #     "アビドス教室シリーズ",
-    #     "ゲーム開発部シリーズ",
-    #     "サンシャインリゾートシリーズ",
-    #     "デパートシリーズ",
-    #     "ゲヘナパーティーシリーズ",
-    #     "色彩",
-    #     "煌めき",
-    #     "パーツ",
-    #     "輝き",
-    #     "铜",
-    #     "金属",
-    #     "銀",
-    #     "金",
-    #     "プラチナ",
-    #     "明かり",
-    #     "瞬き"
-    # ]
-    # pri = self.config['createPriority']
+    pri = self.config['createPriority']
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
     node_x = [839, 508, 416, 302, 174]
@@ -190,7 +113,7 @@ def to_manufacture_store(self, skip_first_screenshot=False):
 def check_crafting_list_status(self):
     y_position = {
         'CN': [312, 452, 594],
-        'Global': [312, 452, 594],
+        'Global': [288, 407, 534],
         'JP': [288, 407, 534]
     }
     y_position = y_position[self.server]
@@ -217,7 +140,7 @@ def receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket
 
 
 def collect(self, status, use_acceleration_ticket):
-    if self.server == 'JP':
+    if self.server == 'JP' or self.server == 'Global':
         if "finished" in status:
             self.click(1126, 617,  wait_over=True, duration=1.5)
             self.click(640, 100,  wait_over=True, count=2)
@@ -232,7 +155,6 @@ def collect(self, status, use_acceleration_ticket):
         return
     y_position = {
         'CN': [312, 452, 594],
-        'Global': [312, 452, 594],
     }
     y_position = y_position[self.server]
     for i in range(0, 3):
@@ -287,7 +209,7 @@ def check_order_of_materials(self):
         img_possibles = {"create_unlock-no1-grey": (1109, 106)}
         img_ends = "create_sort"
         picture.co_detect(self, None, None, img_ends, img_possibles, True)
-        if self.server == 'JP':
+        if self.server == 'JP' or self.server == 'Global':
             self.click(138, 217,  wait_over=True, duration=0.3)
             self.click(299, 186,  wait_over=True, duration=0.3)
         else:
