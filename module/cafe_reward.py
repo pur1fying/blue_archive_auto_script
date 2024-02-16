@@ -163,7 +163,7 @@ def invite_lowest_affection(self):
     if not image.compare_image(self, 'cafe_invitation-ticket-order-affection', threshold=0.9):
         self.logger.info("Switch to affection order")
         self.click(704, 152, wait_over=True, duration=0.5)
-        self.click(relationship_order_button_location[self.server], wait_over=True, duration=0.5)
+        self.click(relationship_order_button_location[self.server][0], relationship_order_button_location[self.server][1], wait_over=True, duration=0.5)
         self.click(627, 390, wait_over=True, duration=0.5)
     self.latest_img_array = self.get_screenshot_array()
     if not image.compare_image(self, 'cafe_invitation-ticket-order-up', threshold=0.9):
