@@ -1756,7 +1756,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_name": "白子(泳装)",
         "CN_implementation": false,
         "Global_name": "Shiroko(Swimsuit)",
-        "Global_implementation": false,
+        "Global_implementation": true,
         "JP_name": "シロコ(水着)",
         "JP_implementation": true
       },
@@ -1764,7 +1764,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_name": "忧(泳装)",
         "CN_implementation": false,
         "Global_name": "Ui(Swimsuit)",
-        "Global_implementation": false,
+        "Global_implementation": true,
         "JP_name": "ウイ(水着)",
         "JP_implementation": true
       },
@@ -1772,7 +1772,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_name": "日向(泳装)",
         "CN_implementation": false,
         "Global_name": "Hinata(Swimsuit)",
-        "Global_implementation": false,
+        "Global_implementation": true,
         "JP_name": "ヒナタ(水着)",
         "JP_implementation": true
       },
@@ -1780,7 +1780,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_name": "花子(泳装)",
         "CN_implementation": false,
         "Global_name": "Hanako(Swimsuit)",
-        "Global_implementation": false,
+        "Global_implementation": true,
         "JP_name": "ハナコ(水着)",
         "JP_implementation": true
       },
@@ -1788,7 +1788,7 @@ STATIC_DEFAULT_CONFIG = '''
         "CN_name": "小春(泳装)",
         "CN_implementation": false,
         "Global_name": "Koharu(Swimsuit)",
-        "Global_implementation": false,
+        "Global_implementation": true,
         "JP_name": "コハル(水着)",
         "JP_implementation": true
       },
