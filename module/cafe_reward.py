@@ -130,13 +130,13 @@ def interaction_for_cafe_solve_method3(self):
 
 
 def to_invitation_ticket(self, skip_first_screenshot=False):
+    img_end = [
+        'cafe_invitation-ticket',
+        'cafe_invitation-ticket-invalid',
+    ]
     img_possible = {
         'cafe_cafe-reward-status': (905, 159),
         'cafe_menu': (838, 647),
-    }
-    img_end = {
-        'cafe_invitation-ticket',
-        'cafe_invitation-ticket-invalid',
     }
     return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
 
