@@ -1,6 +1,8 @@
 import json
 import threading
 import time
+from hashlib import md5
+from random import random
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
@@ -31,7 +33,8 @@ class ProcessFragment(ScrollArea):
         t_daemon.start()
 
         self.__initLayout()
-        self.setObjectName("0x00000005")
+        self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
+        self.setObjectName(self.object_name)
 
     def refresh_status(self):
         while True:

@@ -1,5 +1,8 @@
 import json
+import time
+from hashlib import md5
 from json import JSONDecodeError
+from random import random
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
@@ -13,9 +16,7 @@ from qfluentwidgets import (
 )
 
 from core.notification import notify
-from gui.components.logger_box import LoggerBox
 from gui.util import log
-from gui.util.config_set import ConfigSet
 from window import Window
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
@@ -34,12 +35,12 @@ class MyQLabel(QLabel):
         self.button_clicked_signal.connect(func)
 
 
-class HomeFragment(QFrame, ConfigSet):
+class HomeFragment(QFrame):
     updateButtonState = pyqtSignal(bool)  # 创建用于更新按钮状态的信号
 
-    def __init__(self, parent: Window = None):
+    def __init__(self, parent: Window = None, config=None):
         super().__init__(parent=parent)
-        # self._main_thread = None
+        self.config = config
         self.once = True
         self.expandLayout = ExpandLayout(self)
         self.vBoxLayout = QVBoxLayout(self)
@@ -48,8 +49,8 @@ class HomeFragment(QFrame, ConfigSet):
         self.info_box.setFixedHeight(45)
         self.infoLayout = QHBoxLayout(self.info_box)
 
-        title = '蔚蓝档案自动脚本'
-        self.banner_visible = self.get('bannerVisibility')
+        title = f'蔚蓝档案自动脚本 {self.config.get("name")}'
+        self.banner_visible = self.config.get('bannerVisibility')
         self.label = SubtitleLabel(title, self)
         self.info = SubtitleLabel('无任务', self)
         setFont(self.label, 24)
@@ -82,12 +83,16 @@ class HomeFragment(QFrame, ConfigSet):
         self.__initLayout()
 
         self._main_thread_attach = MainThread()
+        self._main_thread_attach.config = self.config
         self._main_thread_attach.button_signal.connect(self.set_button_state)
         self._main_thread_attach.logger_signal.connect(self.logger_box.append)
         self._main_thread_attach.update_signal.connect(self.call_update)
-        self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
+        config.add_signal('update_signal', self._main_thread_attach.update_signal)
+        # self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
         self.startup_card.clicked.connect(self._start_clicked)
-        self.setObjectName("0x00000003")
+        # set a hash object name for this widget
+        self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
+        self.setObjectName(self.object_name)
 
     def resizeEvent(self, event):
         # 自动调整banner尺寸（保持比例）
@@ -164,6 +169,8 @@ class MainThread(QThread):
 
     def __init__(self):
         super(MainThread, self).__init__()
+        self.config = None
+        self.hash_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self._main_thread = None
         self.Main = None
         self.running = False
@@ -184,15 +191,12 @@ class MainThread(QThread):
         self.exit(0)
 
     def _init_script(self):
-        if self.Main is None:
-            from main import Main
-            self.Main = Main
-            self._main_thread = self.Main(logger_signal=self.logger_signal, button_signal=self.button_signal,
-                                          update_signal=self.update_signal)
+        while self.Main is None:
+            time.sleep(0.01)
+        if self._main_thread is None:
+            self._main_thread = self.Main.get_thread(self.config, name=self.hash_name, logger_signal=self.logger_signal,
+                                                     button_signal=self.button_signal, update_signal=self.update_signal)
         self._main_thread.init_all_data()
-        self._main_thread.flag_run = True
-        self._main_thread.screenshot_updated = False
-
     def display(self, text):
         self.button_signal.emit(text)
 
@@ -204,27 +208,31 @@ class MainThread(QThread):
     def start_hard_task(self):
         self._init_script()
         self.display('停止')
-        # 这里可能有Bug，若用户还未登入，则会报错。
-        if self._main_thread.solve('explore_hard_task'):
+        if self._main_thread.send('solve', 'explore_hard_task'):
             notify(title='BAAS', body='困难图推图已完成')
 
     def start_normal_task(self):
         self._init_script()
         self.display('停止')
-        # 这里可能有Bug，若用户还未登入，则会报错。
-        server = self._main_thread.server
-        current_activity = self._main_thread.static_config['current_game_activity'][server]
-        if self._main_thread.config['explore_activity'] and current_activity != None:
-            if self._main_thread.solve(current_activity):
-                notify(title='BAAS', body='活动推图已完成')
-        else:
-            if self._main_thread.solve('explore_normal_task'):
-                notify(title='BAAS', body='普通图推图已完成')
-
+        if self._main_thread.send('solve', 'explore_normal_task'):
+            notify(title='BAAS', body='普通图推图已完成')
 
     def start_fhx(self):
         self._init_script()
-        if self._main_thread.solve('de_clothes'):
+        if self._main_thread.send('solve', 'de_clothes'):
             notify(title='BAAS', body='反和谐成功，请重启BA下载资源')
-        else:
-            notify(title='BAAS', body='反和谐失败')
+
+    def start_main_story(self):
+        self._init_script()
+        if self._main_thread.send('solve', 'main_story'):
+            notify(title='BAAS', body='主线剧情已完成')
+
+    def start_group_story(self):
+        self._init_script()
+        if self._main_thread.send('solve', 'group_story'):
+            notify(title='BAAS', body='团队剧情已完成')
+
+    def start_mini_story(self):
+        self._init_script()
+        if self._main_thread.send('solve', 'mini_story'):
+            notify(title='BAAS', body='支线剧情已完成')

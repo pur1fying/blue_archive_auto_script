@@ -6,7 +6,8 @@ from .expandTemplate import TemplateLayout
 
 
 class Layout(TemplateLayout):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config=None):
+        self.config = config
         configItems = [
             {
                 'label': '开启此按钮点击推图进行活动任务关推图(当前活动:69号新春狂想曲)',
@@ -16,6 +17,16 @@ class Layout(TemplateLayout):
             {
                 'label': '是否手动boss战（进入关卡后暂停等待手操）',
                 'key': 'manual_boss',
+                'type': 'switch'
+            },
+            {
+                'label': '是否不强制打到sss（启用后跳过已通过但未sss的关卡）',
+                'key': 'explore_normal_task_force_sss',
+                'type': 'switch'
+            },
+            {
+                'label': '开启后强制打每一个指定的关卡（不管是否sss）',
+                'key': 'explore_normal_task_force_each_fight',
                 'type': 'switch'
             },
             {
@@ -54,32 +65,34 @@ class Layout(TemplateLayout):
                 'selection': ['1', '2', '3', '4'],
                 'type': 'combo'
             },
-            {
-                'label': '各图需要队伍17[爆发,贯穿] 16[贯穿,神秘] 15[神秘,神秘] 14[爆发,神秘] 13[贯穿,贯穿] 12[神秘,爆发] 11[贯穿,神秘] 10[爆发,神秘] 9[爆发,贯穿] ',
-                'type': 'label'
-            },
-            {
-                'label': '                      8[贯穿,贯穿]   7[爆发,爆发]    6[贯穿,贯穿]    5[爆发]4[贯穿]',
-                'type': 'label'
-            },
-            {
-                'label': '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                         '<b>如果有多个队伍一定要设置主队编号小于副队(如15图神秘1队必须小于神秘2队编号)</b>',
-                'type': 'label'
-            }
-        ]
+            ]
+        if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
+            configItems.extend([
+                {
+                    'label': '振动一队',
+                    'key': 'shock1',
+                    'selection': ['1', '2', '3', '4'],
+                    'type': 'combo'
+                },
+                {
+                    'label': '振动二队',
+                    'key': 'shock2',
+                    'selection': ['1', '2', '3', '4'],
+                    'type': 'combo'
+                }
+            ])
 
-        super().__init__(parent=parent, configItems=configItems)
+        super().__init__(parent=parent, configItems=configItems, config=config)
 
         self.push_card = QHBoxLayout(self)
         self.push_card_label = QHBoxLayout(self)
         self.label_tip_push = QLabel(
-            '<b>推图选项</b>&nbsp;请在下面填写要推的图的章节数，如“15,16,14”为依次推15图,16图,14图：', self)
+            '<b>推图选项</b>&nbsp;请在下面填写要推的图,填写方式见-普通图自动推图说明-', self)
         self.input_push = LineEdit(self)
         self.accept_push = PushButton('开始推图', self)
 
-        self.input_push.setText(self.get('explore_normal_task_regions').__str__().replace('[', '').replace(']', ''))
+        self.input_push.setText(
+            self.config.get('explore_normal_task_regions').__str__().replace('[', '').replace(']', ''))
         self.input_push.setFixedWidth(700)
         self.accept_push.clicked.connect(self._accept_push)
 
@@ -99,9 +112,7 @@ class Layout(TemplateLayout):
         self.hBoxLayout.addLayout(self.push_card)
 
     def _accept_push(self):
-        if self.input_push.text() != '':
-            push_list = [int(x) for x in self.input_push.text().split(',')]
-            self.set('explore_normal_task_regions', push_list)
+        self.config.set('explore_normal_task_regions', self.input_push.text())
         value = self.input_push.text()
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
@@ -120,7 +131,7 @@ class Layout(TemplateLayout):
         if parent is None:
             parent = self.parent()
         for component in parent.children():
-            if type(component).__name__ == 'HomeFragment':
+            if type(component).__name__ == 'HomeFragment' and self.config['name'] == component.config.get('name'):
                 return component.get_main_thread()
         return self.get_thread(parent.parent())
 

@@ -1,18 +1,17 @@
 import json
 import threading
-
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-
-from core import EVENT_CONFIG_PATH, DISPLAY_CONFIG_PATH
+from core import DISPLAY_CONFIG_PATH
 
 lock = threading.Lock()
 
 
 class Scheduler:
-    def __init__(self, update_signal):
+    def __init__(self, update_signal, path):
         super().__init__()
+        self.event_config_path = "./config/" + path + "/event.json"
         self.update_signal = update_signal
         self._event_config = []
         self._display_config = {
@@ -23,12 +22,12 @@ class Scheduler:
 
     def _read_config(self):
         with lock:
-            with open(EVENT_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            with open(self.event_config_path, 'r', encoding='utf-8') as f:
                 self._event_config = json.load(f)
 
     def _commit_change(self):
         """event_config只能被switch修改,调度时在内存中操作"""
-        with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
+        with open(self.event_config_path, 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
         with open(DISPLAY_CONFIG_PATH, 'w', encoding='utf-8') as f:
             json.dump(self._display_config, f, ensure_ascii=False, indent=2)
@@ -73,11 +72,11 @@ class Scheduler:
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])
         if len(_valid_event) != 0:
             self._display_config['running'] = _valid_event[0]['event_name']
-            self._commit_change()
+            self.change_display(_valid_event[0]['event_name'])
             return _valid_event[0]['func_name']
         else:
             self._display_config['running'] = "Waiting"
-            self._commit_change()
+            self.change_display('Waiting')
             return None
 
     def get_next_execute_time(self):

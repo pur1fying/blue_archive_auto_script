@@ -2,19 +2,21 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel
 from qfluentwidgets import InfoBar, InfoBarIcon, InfoBarPosition, ComboBox
 
-from gui.util.config_set import ConfigSet
 
-
-class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None):
+class Layout(QWidget):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
+        self.config = config
         self.info_widget = self.parent()
         self.hBoxLayout = QHBoxLayout(self)
         # self.label = QLabel('输入最高难度', self)
         self.label = QLabel('最高难度', self)
         self.input = ComboBox(self)
-
-        self.input.addItems(['NORMAL', 'HARD', 'VERYHARD', 'HARDCORE', 'EXTREME'])
+        self.difficulties = self.config.static_config['total_assault_difficulties'][self.config.server_mode]
+        self.input.addItems(self.difficulties)
+        if self.config.get('totalForceFightDifficulty') not in self.difficulties:
+            self.config.set('totalForceFightDifficulty', self.difficulties[0])
+        self.input.setText(self.config.get('totalForceFightDifficulty'))
         self.input.currentIndexChanged.connect(self.__accept)
 
         self.setFixedHeight(53)
@@ -28,7 +30,7 @@ class Layout(QWidget, ConfigSet):
         self.hBoxLayout.setAlignment(Qt.AlignCenter)
 
     def __accept(self):
-        self.set('totalForceFightDifficulty', self.input.text())
+        self.config.set('totalForceFightDifficulty', self.input.text())
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',

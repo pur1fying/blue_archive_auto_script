@@ -7,10 +7,10 @@ x_y_range = {
     'prize-confirm': (712, 643, 836, 675),
     'task-info': (548, 124, 732, 153),
     'help': (597, 111, 675, 150),
-    'mission-wait-to-begin-feature': (103, 6, 213, 42),
     'mission-operating-feature': (10, 10, 121, 40),
     'end-turn': (595, 372, 669, 402),
-    'move-force-confirm': (542, 317, 625, 351),
+    "fail-confirm": (560, 637, 700, 676),
+    'teleport-notice': (542, 317, 625, 351),
     'task-begin-without-further-editing-notice': (730, 284, 846, 314),
     'mission-pause': (536, 142, 740, 182),
     'mission-conclude-confirm': (959, 641, 1102, 687),
@@ -24,6 +24,8 @@ x_y_range = {
     'task-wait-to-begin-feature': (99, 6, 220, 42),
     'unlock-notice': (587, 144, 696, 176),
     "start-sweep-notice": (437, 477, 844, 525),
-    "sweep-complete":(550,561,730,604),
-    'teleport-notice': (542, 317, 625, 351)
+    "sweep-complete": (550, 561, 730, 604),
+    "task-finish": (950, 648, 1100, 678),
+    'skip-sweep-complete': (597, 488, 684, 531),  # 跳过扫荡完成
+
 }

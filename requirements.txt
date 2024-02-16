@@ -1,10 +1,14 @@
-numpy~=1.26.0
-uiautomator2==2.16.23
-opencv-python==4.8.0.74
-PyQt5==5.15.7
-PyQt-Fluent-Widgets==1.2.0
+lmdb
+PyQt5
+numpy
+flask
+cnocr
+imgaug
+win11toast
 onnxruntime
-flask~=3.0.0
-cnocr>=2.2.4.1
-win11toast~=0.34
+uiautomator2
+opencv-python
+PyQt-Fluent-Widgets
 # gevent
+
+paddlepaddle

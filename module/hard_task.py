@@ -1,15 +1,13 @@
 import time
-
-from core import color, image, picture
+from core import picture
 from core.color import check_sweep_availability
-
 
 def read_task(self, task_string):
     try:
         region = 0
         mainline_available_missions = [1, 2, 3]
         mainline_available_regions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
-                                      23, ]
+                                      23, 24]
         for i in range(0, len(task_string)):
             if task_string[i].isdigit():
                 region = region * 10 + int(task_string[i])
@@ -74,18 +72,18 @@ def implement(self):
                 self.logger.info("INADEQUATE AP for task")
                 return True
             choose_region(self, tar_region)
-            if to_task_info(self, all_task_x_coordinate, hard_task_y_coordinates[tar_mission - 1], True) == "unlock_notice":
+            if to_task_info(self, all_task_x_coordinate, hard_task_y_coordinates[tar_mission - 1], True) == "normal_task_unlock-notice":
                 self.logger.info("task unlocked")
                 continue
-            t = check_sweep_availability(self.latest_img_array, server=self.server)
+            t = check_sweep_availability(self)
             if t == "sss":
                 if tar_times == "max":
-                    self.click(1085, 300, rate=1, wait=False, wait_over=True)
+                    self.click(1085, 300, rate=1,  wait_over=True)
                 else:
                     duration = 0
                     if tar_times > 4:
                         duration = 1
-                    self.click(1014, 300, count=tar_times - 1, wait=False, duration=duration, wait_over=True)
+                    self.click(1014, 300, count=tar_times - 1,  duration=duration, wait_over=True)
                 res = start_sweep(self, True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("hard task " + str(self.hard_task_count[i]) + " finished")
@@ -128,7 +126,6 @@ def to_hard_event(self, skip_first_screenshot=False):
         "normal_task_task-info": (task_info_x[self.server], 140),
         'normal_task_skip-sweep-complete': (643, 506),
         "buy_ap_notice": (919, 165),
-        'normal_task_auto-over': (1082, 599),
         'normal_task_task-finish': (1038, 662),
         'normal_task_prize-confirm': (776, 655),
         'normal_task_fight-confirm': (1168, 659),
@@ -141,19 +138,12 @@ def to_hard_event(self, skip_first_screenshot=False):
 
 
 def to_task_info(self, x, y, skip_first_screenshot=False):
-    rgb_ends = [
-        "mission_info",
-        "unlock_notice"
-    ]
     rgb_possibles = {"event_hard": (x, y)}
     img_ends = [
         "normal_task_unlock-notice",
         "normal_task_task-info"
     ]
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, None, skip_first_screenshot)
-    if res == "normal_task_unlock-notice" or res == 'unlock_notice':
-        return "unlock_notice"
-    return True
+    return picture.co_detect(self, None, rgb_possibles, img_ends, None, skip_first_screenshot)
 
 
 def start_sweep(self, skip_first_screenshot=False):
@@ -162,25 +152,18 @@ def start_sweep(self, skip_first_screenshot=False):
         "start_sweep_notice",
         "charge_challenge_counts"
     ]
-    rgb_possibles = {
-        "mission_info": (941, 411),
-    }
     img_ends = [
         "purchase_ap_notice",
         "normal_task_start-sweep-notice",
         "normal_task_charge-challenge-counts",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice":
         return "inadequate_ap"
     if res == "charge_challenge_counts" or res == "normal_task_charge-challenge-counts":
         return "charge_challenge_counts"
-    rgb_ends = [
-        "skip_sweep_complete",
-        "sweep_complete"
-    ]
-    rgb_possibles = {"start_sweep_notice": (765, 501)}
+    rgb_possibles = {"level_up": (640, 200)}
     img_ends = [
         "normal_task_skip-sweep-complete",
         "normal_task_sweep-complete",
@@ -196,12 +179,12 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
+    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
     while cu_region != region and self.flag_run:
         if cu_region > region:
-            self.click(40, 360, wait=False, count=cu_region - region, rate=0.1, wait_over=True)
+            self.click(40, 360,  count=cu_region - region, rate=0.1, wait_over=True)
         else:
-            self.click(1245, 360, wait=False, count=region - cu_region, rate=0.1, wait_over=True)
+            self.click(1245, 360,  count=region - cu_region, rate=0.1, wait_over=True)
         time.sleep(0.5)
-        self.latest_img_array = self.get_screenshot_array()
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server])
+        to_hard_event(self)
+        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)

@@ -86,12 +86,12 @@ def get_x_y(target_array, template_path: str):
 
 
 def check_sweep_availability(img):
-    if color.judge_rgb_range(img, 211, 369, 192, 212, 192, 212, 192, 212) or color.judge_rgb_range(img, 211, 402, 192,
+    if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) or color.judge_rgb_range(self, 211, 402, 192,
                                                                                                    212, 192, 212, 192,
                                                                                                    212) or color.judge_rgb_range(
         img, 211, 436, 192, 212, 192, 212, 192, 212):
         return "UNAVAILABLE"
-    if color.judge_rgb_range(img, 211, 368, 225, 255, 200, 255, 20, 60) and color.judge_rgb_range(img, 211, 404, 225,
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and color.judge_rgb_range(self, 211, 404, 225,
                                                                                                   255, 200, 255, 20,
                                                                                                   60) and color.judge_rgb_range(
         img, 211, 434, 225, 255, 200, 255, 20, 60):
@@ -119,13 +119,19 @@ class Logger:
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(handler1)
 
-    def __out__(self, message: str, level: int = 4) -> None:
+    def __out__(self, message: str, level: int = 1, raw_print=False) -> None:
         """
         Output log
         :param message: log message
         :param level: log level
         :return: None
         """
+        # If raw_print is True, output log to logger box
+        if raw_print:
+            self.logs += message
+            self.logger_signal.emit(message)
+            return
+
         while len(logging.root.handlers) > 0:
             logging.root.handlers.pop()
         # Status Text: INFO, WARNING, ERROR, CRITICAL
@@ -185,8 +191,10 @@ class Logger:
         """
         Output line
         """
+        # While the line print do not need wrapping, we
+        # use raw_print=True to output log to logger box
         self.__out__(
             '<div style="font-family: Consolas, monospace;color:#2d8cf0;">--------------'
             '-------------------------------------------------------------'
-            '-------------------</div>')
+            '-------------------</div>', raw_print=True)
 

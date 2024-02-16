@@ -2,7 +2,7 @@ from .expandTemplate import TemplateLayout
 
 
 class Layout(TemplateLayout):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config=None):
         configItems = [
             {
                 'label': '一键反和谐',
@@ -17,13 +17,13 @@ class Layout(TemplateLayout):
             }
         ]
 
-        super().__init__(parent=parent, configItems=configItems)
+        super().__init__(parent=parent, configItems=configItems, config=config)
 
     def get_thread(self, parent=None):
         if parent is None:
             parent = self.parent()
         for component in parent.children():
-            if type(component).__name__ == 'HomeFragment':
+            if type(component).__name__ == 'HomeFragment' and self.config['name'] == component.config.get('name'):
                 return component.get_main_thread()
         return self.get_thread(parent.parent())
 

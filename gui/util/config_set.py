@@ -1,19 +1,29 @@
 import json
-
 from core.notification import notify
 
 
 class ConfigSet:
-    def __init__(self):
+    def __init__(self, config_dir):
+        print(config_dir)
         self.config = None
+        # Config Server Mode 0: CN, 1: EN, 2: JP
+        self.server_mode = 'CN'
         self.static_config = None
+        self.config_dir = config_dir
+        self.signals = {}
         self._init_config()
 
     def _init_config(self):
-        with open('./config/config.json', 'r', encoding='utf-8') as f:
+        with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
             self.config = json.load(f)
-        with open('./config/static.json', 'r', encoding='utf-8') as f:
+        with open("config/static.json", 'r', encoding='utf-8') as f:
             self.static_config = json.load(f)
+        if self.config['server'] == '国服' or self.config['server'] == 'B服':
+            self.server_mode = 'CN'
+        elif self.config['server'] == '国际服':
+            self.server_mode = 'Global'
+        elif self.config['server'] == '日服':
+            self.server_mode = 'JP'
 
     def get(self, key):
         self._init_config()
@@ -22,14 +32,22 @@ class ConfigSet:
     def set(self, key, value):
         self._init_config()
         self.config[key] = value
-        with open('./config/config.json', 'w', encoding='utf-8') as f:
+        with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
         if not self.check(key, value):
             notify('', '修改配置失败,请重新设置')
             print(f'failed to set config {key}')
 
-    @staticmethod
-    def check(key, value):
-        with open('./config/config.json', 'r', encoding='utf-8') as f:
+    def __getitem__(self, item: str):
+        return self.config[item]
+
+    def check(self, key, value):
+        with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
             new_config = json.load(f)
         return new_config.get(key) == value
+
+    def add_signal(self, key, signal):
+        self.signals[key] = signal
+
+    def get_signal(self, key):
+        return self.signals.get(key)

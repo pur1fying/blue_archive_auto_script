@@ -81,7 +81,7 @@ stage_data = {
             'mystic1': (1114, 591),
         },
         'action': [
-            {'t': 'click_and_teleport', 'ec': True, 'p': (719, 351), "desc": "2 upper left"},
+            {'t': ['exchange', 'click_and_teleport'], 'ec': True, 'p': (719, 351), "desc": "2 upper left"},
             {'t': 'click', 'p': (613, 371), "desc": "1 right", "wait-over": True},
 
             {'t': 'click', 'p': (729, 377), "ec": True, "desc": "1 right"},

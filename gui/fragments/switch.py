@@ -1,6 +1,9 @@
 import json
 import threading
+import time
 from datetime import datetime
+from hashlib import md5
+from random import random
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
@@ -15,14 +18,15 @@ lock = threading.Lock()
 
 
 class SwitchFragment(ScrollArea):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
+        self.config = config
         # 创建一个QWidget实例作为滚动区域的内容部件
         self.scrollWidget = QWidget()
         # 创建一个ExpandLayout实例作为滚动区域的布局管理器
         self.expandLayout = ExpandLayout(self.scrollWidget)
         # 创建一个标题为“调度设置”的TitleLabel实例
-        self.settingLabel = TitleLabel(self.tr("调度设置"), self.scrollWidget)
+        self.settingLabel = TitleLabel(self.tr(f"配置设置 {self.config['name']}"), self.scrollWidget)
         # 初始化basicGroup变量,_setting_cards列表
         self.basicGroup = None
         self._setting_cards = []
@@ -45,7 +49,8 @@ class SwitchFragment(ScrollArea):
 
         self.__initLayout()  # 调用__initLayout()方法初始化布局
         self.__initWidget()  # 调用__initWidget()方法初始化部件
-        self.setObjectName("0x00000002")  # 设置对象名称为"0x00000002"
+        self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
+        self.setObjectName(self.object_name)
 
     # def _change_status(self, event_name: str, event_enabled: str) -> None:
     #     self._read_config()  # 读取配置文件并更新_event_config列表
@@ -94,7 +99,8 @@ class SwitchFragment(ScrollArea):
             title=name,
             content=tip,
             parent=self.basicGroup,
-            sub_view=expand.__dict__[setting_name] if setting_name else None
+            sub_view=expand.__dict__[setting_name] if setting_name else None,
+            config=self.config
         )  # 创建TemplateSettingCard实例
         # _switch_card.status_switch.setChecked(enabled)  # 设置状态开关的选中状态
         # _switch_card.statusChanged.connect(lambda x: self._change_status(name, x))  # 连接状态开关的状态更改信号和_change_status()方法
@@ -105,14 +111,14 @@ class SwitchFragment(ScrollArea):
 
     def _commit_change(self):
         with lock:
-            with open(EVENT_CONFIG_PATH, 'w', encoding='utf-8') as f:
+            with open('./config/'+self.config.config_dir+'/event.json', 'w', encoding='utf-8') as f:
                 json.dump(self._event_config, f, ensure_ascii=False, indent=2)  # 将_event_config列表写入配置文件
 
     def _read_config(self):
         with lock:
-            with open(EVENT_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            with open('./config/'+self.config.config_dir+'/event.json', 'r', encoding='utf-8') as f:
                 self._event_config = json.load(f)  # 从配置文件中读取数据并更新_event_config列表
-            with open(SWITCH_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            with open('./config/'+self.config.config_dir+'/switch.json', 'r', encoding='utf-8') as f:
                 self._switch_config = json.load(f)  # 从配置文件中读取数据并更新_switch_config列表
 
     def update_settings(self):

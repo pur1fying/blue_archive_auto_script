@@ -4,7 +4,6 @@ from .createPriority import Layout
 from .mainlinePriority import Layout
 from .schedulePriority import Layout
 from .shopPriority import Layout
-from .specialDaily import Layout
 from .serverConfig import Layout
 from .arenaShopPriority import Layout
 from .scriptConfig import Layout
@@ -13,3 +12,5 @@ from .exploreConfig import Layout
 from .otherConfig import Layout
 from .hardTaskConfig import Layout
 from .featureSwitch import Layout
+from .sweepCountConfig import Layout
+from .proceedPlot import Layout

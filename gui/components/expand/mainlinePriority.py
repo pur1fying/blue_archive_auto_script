@@ -2,12 +2,11 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
-from gui.util.config_set import ConfigSet
 
-
-class Layout(QWidget, ConfigSet):
-    def __init__(self, parent=None):
+class Layout(QWidget):
+    def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
+        self.config = config
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
         self.lay1 = QHBoxLayout(self)
@@ -18,14 +17,14 @@ class Layout(QWidget, ConfigSet):
         self.label = QLabel('普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：', self)
         self.input = LineEdit(self)
         self.accept = QPushButton('确定', self)
-        self.label_hard = QLabel('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号：', self)
+        self.label_hard = QLabel('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：', self)
         self.input_hard = LineEdit(self)
         self.accept_hard = QPushButton('确定', self)
 
-        _set_main = self.get('mainlinePriority')
+        _set_main = self.config.get('mainlinePriority')
         self.main_priority = [tuple(x.split('-')) for x in _set_main.split(',')]
 
-        _set_hard = self.get('hardPriority')
+        _set_hard = self.config.get('hardPriority')
         self.hard_priority = [tuple(x.split('-')) for x in _set_hard.split(',')]
 
         self.setFixedHeight(200)
@@ -69,7 +68,7 @@ class Layout(QWidget, ConfigSet):
 
     def __accept_main(self):
         input_content = self.input.text()
-        self.set('mainlinePriority', input_content)
+        self.config.set('mainlinePriority', input_content)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
@@ -83,7 +82,7 @@ class Layout(QWidget, ConfigSet):
 
     def __accept_hard(self):
         input_content = self.input_hard.text()
-        self.set('hardPriority', input_content)
+        self.config.set('hardPriority', input_content)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title='设置成功',
