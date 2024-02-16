@@ -1,4 +1,5 @@
 import json
+import threading
 import time
 from hashlib import md5
 from json import JSONDecodeError
@@ -41,7 +42,6 @@ class HomeFragment(QFrame):
     def __init__(self, parent: Window = None, config=None):
         super().__init__(parent=parent)
         self.config = config
-        # self._main_thread = None
         self.once = True
         self.expandLayout = ExpandLayout(self)
         self.vBoxLayout = QVBoxLayout(self)
@@ -84,6 +84,7 @@ class HomeFragment(QFrame):
         self.__initLayout()
 
         self._main_thread_attach = MainThread()
+        self._main_thread_attach.config = self.config
         self._main_thread_attach.button_signal.connect(self.set_button_state)
         self._main_thread_attach.logger_signal.connect(self.logger_box.append)
         self._main_thread_attach.update_signal.connect(self.call_update)
@@ -168,6 +169,8 @@ class MainThread(QThread):
 
     def __init__(self):
         super(MainThread, self).__init__()
+        self.config = None
+        self.hash_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self._main_thread = None
         self.Main = None
         self.running = False
@@ -188,14 +191,11 @@ class MainThread(QThread):
         self.exit(0)
 
     def _init_script(self):
-        if self.Main is None:
-            from main import Main
-            self.Main = Main
-            self._main_thread = self.Main(logger_signal=self.logger_signal, button_signal=self.button_signal,
-                                          update_signal=self.update_signal)
-        self._main_thread.init_all_data()
-        self._main_thread.flag_run = True
-        self._main_thread.screenshot_updated = False
+        while self.Main is None:
+            time.sleep(0.01)
+        if self._main_thread is None:
+            self._main_thread = self.Main.get_thread(self.config, name=self.hash_name, logger_signal=self.logger_signal,
+                                                     button_signal=self.button_signal, update_signal=self.update_signal)
 
     def display(self, text):
         self.button_signal.emit(text)
@@ -215,7 +215,6 @@ class MainThread(QThread):
     def start_normal_task(self):
         self._init_script()
         self.display('停止')
-        # 这里可能有Bug，若用户还未登入，则会报错。
         server = self._main_thread.server
         current_activity = self._main_thread.static_config['current_game_activity'][server]
         if self._main_thread.config['explore_activity'] and current_activity is not None:
@@ -229,5 +228,18 @@ class MainThread(QThread):
         self._init_script()
         if self._main_thread.solve('de_clothes'):
             notify(title='BAAS', body='反和谐成功，请重启BA下载资源')
-        else:
-            notify(title='BAAS', body='反和谐失败')
+
+    def start_main_story(self):
+        self._init_script()
+        if self._main_thread.solve('main_story'):
+            notify(title='BAAS', body='主线剧情已完成')
+
+    def start_group_story(self):
+        self._init_script()
+        if self._main_thread.solve('group'):
+            notify(title='BAAS', body='团队剧情已完成')
+
+    def start_mini_story(self):
+        self._init_script()
+        if self._main_thread.solve('mini_story'):
+            notify(title='BAAS', body='支线剧情已完成')

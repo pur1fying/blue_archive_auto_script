@@ -32,13 +32,18 @@ class Layout(TemplateLayout):
         super().__init__(parent=parent, configItems=configItems, config=config)
 
     def proceed_main_plot(self):
-        # TODO: 主线剧情推图
-        pass
+        self.config.get_thread().start_main_story()
 
     def proceed_group_plot(self):
-        # TODO: 小组剧情推图
-        pass
+        self.config.get_thread().start_group_story()
 
     def proceed_branch_plot(self):
-        # TODO: 支线剧情推图
-        pass
+        self.config.get_thread().start_mini_story()
+
+    def get_thread(self, parent=None):
+        if parent is None:
+            parent = self.parent()
+        for component in parent.children():
+            if type(component).__name__ == 'HomeFragment':
+                return component.get_main_thread()
+        return self.config.get_thread(parent.parent())

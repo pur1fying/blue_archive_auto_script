@@ -18,6 +18,8 @@ from gui.components.dialog_panel import SaveSettingMessageBox
 from gui.fragments.readme import ReadMeWindow
 from gui.util.config_set import ConfigSet
 
+import threading
+
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
 # sys.stdout = open('output.log', 'w+', encoding='utf-8')
 sys.path.append('./')
@@ -200,6 +202,7 @@ class Window(MSFluentWindow):
 
     def __init__(self):
         super().__init__()
+        self.main_class = None
         self.initWindow()
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
@@ -240,6 +243,16 @@ class Window(MSFluentWindow):
         self.initNavigation()
         self.dispatchWindow()
         self.splashScreen.finish()
+        self.init_main_class()
+
+    def init_main_class(self):
+        threading.Thread(target=self.init_main_class_thread).start()
+
+    def init_main_class_thread(self):
+        from main import Main
+        self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal)
+        for i in range(0, len(self._sub_list[0])):
+            self._sub_list[0][i]._main_thread_attach.Main = self.main_class
 
     def call_update(self):
         self.schedulerInterface.update_settings()
@@ -382,6 +395,7 @@ if __name__ == '__main__':
     # pa=Main()
     # pa._init_emulator()
     # pa.solve("arena")
+
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)

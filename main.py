@@ -3,10 +3,11 @@ import threading
 from core.utils import Logger
 from core.ocr import ocr
 from gui.util.config_set import ConfigSet
+from core.Baas_thread import Baas_thread
 
 
 class Main:
-    def __init__(self, logger_signal=None, button_signal=None, update_signal=None):
+    def __init__(self, logger_signal=None):
         self.ocr = None
         self.static_config = None
         self.logger = Logger(logger_signal)
@@ -16,6 +17,7 @@ class Main:
     def init_all_data(self):
         self.init_ocr()
         self.init_static_config()
+        self.logger.info("-- All Data Initialization Complete Script ready--")
 
     def init_ocr(self):
         try:
@@ -26,16 +28,15 @@ class Main:
             self.logger.error(e)
             return False
 
-    def start_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None):
-        t = Baas_thread(logger_signal, button_signal, update_signal, config)
+    def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None):
+        t = Baas_thread(config, logger_signal, button_signal, update_signal)
         t.static_config = self.static_config
         t.init_all_data()
         t.ocr = self.ocr
         self.threads.setdefault(name, t)
-        threading.Thread(target=t.thread_starter, args=name).start()
-        return True
+        return t
 
-    def stop_thread(self, name):
+    def stop_script(self, name):
         if name in self.threads:
             self.threads[name].flag_run = False
             del self.threads[name]
@@ -96,7 +97,6 @@ class Main:
 
 
 if __name__ == '__main__':
-    from core.Baas_thread import Baas_thread
 
     t = Main()
     t.init_static_config()

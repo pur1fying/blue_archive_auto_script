@@ -174,9 +174,9 @@ class Baas_thread:
                 return event['enabled']
         return False
 
-    def thread_starter(self, index):
+    def thread_starter(self):
         try:
-            self.logger.info("-------------- Start Scheduler" + str(index) + " ----------------")
+            self.logger.info("-------------- Start Scheduler ----------------")
             while self.flag_run:
                 if self.first_start:
                     self.solve('restart')
@@ -300,13 +300,10 @@ class Baas_thread:
 
     def init_rgb(self):
         try:
-            self.logger.info("Start initializing rgb_feature")
             temp = 'src/rgb_feature/rgb_feature_' + self.server + '.json'
             self.rgb_feature = json.load(open(temp, 'r', encoding='utf-8'))['rgb_feature']
-            self.logger.info("Successfully initialized rgb_feature")
             return True
         except Exception as e:
-            self.logger.error("rgb_feature initialization failed")
             self.logger.error(e)
             return False
 

@@ -21,7 +21,7 @@ def compare_image(self, name, need_log=True, threshold=0.8):
         return False
     ss_img = cv2.resize(ss_img, (res_img.shape[1], res_img.shape[0]), interpolation=cv2.INTER_AREA)
     similarity = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)[0][0]
-    self.logger.info(name + " : " + str(similarity))
+    # self.logger.info(name + " : " + str(similarity))
     if need_log:
         self.logger.info(name + " : " + str(similarity))
     return similarity > threshold
