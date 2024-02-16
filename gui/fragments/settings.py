@@ -56,6 +56,14 @@ class SettingsFragment(ScrollArea):
             config=self.config
         )
 
+        self.proceedPlot = SimpleSettingCard(
+            title='推剧情',
+            content='主线剧情，小组剧情，支线剧情',
+            sub_view=expand.__dict__['proceedPlot'],
+            parent=self.exploreGroup,
+            config=self.config
+        )
+
         self.otherOption = SimpleSettingCard(
             title='其他设置',
             content='其他的一些小功能与设置',
@@ -84,6 +92,7 @@ class SettingsFragment(ScrollArea):
         self.basicGroup.addSettingCard(self.scriptOption)
         self.exploreGroup.addSettingCard(self.exploreOption)
         self.exploreGroup.addSettingCard(self.hardOption)
+        self.exploreGroup.addSettingCard(self.proceedPlot)
         self.exploreGroup.addSettingCard(self.otherOption)
         self.expandLayout.addWidget(self.settingLabel)
         self.expandLayout.addWidget(self.basicGroup)

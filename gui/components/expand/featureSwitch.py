@@ -15,30 +15,10 @@ class Layout(QWidget):
         self._event_config = None
         self._read_config()
         assert self._event_config is not None
-        self.enable_list = [item['enabled'] for item in self._event_config]
-        self.labels = [item['event_name'] for item in self._event_config]
-        self.next_ticks = [item['next_tick'] for item in self._event_config]
 
         self.setFixedHeight(250)
         self.boxes, self.qLabels, self.times, self.check_boxes = [], [], [], []
-        for i in range(len(self.enable_list)):
-            t_cbx = CheckBox(self)
-            t_cbx.setChecked(self.enable_list[i])
-            cbx_wrapper = QWidget()
-            cbx_layout = QHBoxLayout(cbx_wrapper)
-            cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
-            cbx_layout.setContentsMargins(30, 0, 0, 0)
-            cbx_wrapper.setLayout(cbx_layout)
-            t_ccs = QLabel(self.labels[i])
-            t_ncs = LineEdit(self)
-            t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])))
-
-            t_ncs.textChanged.connect(self._update_config)
-            t_cbx.stateChanged.connect(self._update_config)
-            self.times.append(t_ncs)
-            self.qLabels.append(t_ccs)
-            self.boxes.append(cbx_wrapper)
-            self.check_boxes.append(t_cbx)
+        self._init_components(self._event_config)
 
         self.vBox = QVBoxLayout(self)
         self.option_layout = QHBoxLayout(self)
@@ -77,6 +57,27 @@ class Layout(QWidget):
         self.vBox.addLayout(self.option_layout)
         self.vBox.addWidget(self.tableView)
 
+    def _init_components(self, config_list):
+        self.enable_list = [item['enabled'] for item in config_list]
+        self.labels = [item['event_name'] for item in config_list]
+        self.next_ticks = [item['next_tick'] for item in config_list]
+        for i in range(len(self.enable_list)):
+            t_cbx = CheckBox(self)
+            t_cbx.setChecked(self.enable_list[i])
+            cbx_wrapper = QWidget()
+            cbx_layout = QHBoxLayout(cbx_wrapper)
+            cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
+            cbx_layout.setContentsMargins(30, 0, 0, 0)
+            cbx_wrapper.setLayout(cbx_layout)
+            t_ccs = QLabel(self.labels[i])
+            t_ncs = LineEdit(self)
+            t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])))
+            t_ncs.textChanged.connect(self._update_config)
+            t_cbx.stateChanged.connect(self._update_config)
+            self.times.append(t_ncs)
+            self.qLabels.append(t_ccs)
+            self.boxes.append(cbx_wrapper)
+            self.check_boxes.append(t_cbx)
 
     def _read_config(self):
         with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
@@ -86,51 +87,52 @@ class Layout(QWidget):
         with open('./config/' + self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
 
-    def __accept(self, input_content=None):
-        self.config.set('ShopRefreshTime', self.input.text())
-
     def _sort(self):
         temp = deepcopy(self._event_config)
+        # clear original components
+        self.qLabels, self.times, self.check_boxes = [], [], []
         self.tableView.clearContents()
-        temp.sort(key=lambda x: x['priority'])
+        self.vBox.removeWidget(self.tableView)
+        self.tableView.deleteLater()
+        # recreate table
+        self.tableView = TableWidget(self)
         self.tableView.setWordWrap(False)
-        self.tableView.setRowCount(len(self.qLabels))
+        self.tableView.setRowCount(len(temp))
         self.tableView.setColumnCount(3)
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableView.setHorizontalHeaderLabels(['事件', '下次刷新时间', '启用'])
-        self.tableView.setColumnWidth(0, 200)
-        self.tableView.setColumnWidth(1, 200)
-        self.tableView.setColumnWidth(2, 50)
+
+        # mode 0: default, mode 1: by next_tick
         if self.op_3.currentIndex() == 0:
-            for i in range(0, len(self._event_config)):
-                for j in range(0, len(self._event_config)):
-                    if self.qLabels[j].text() == temp[i]['event_name']:
-                        self.tableView.setCellWidget(i, 0, self.qLabels[j])
-                        self.tableView.setCellWidget(i, 1, self.times[j])
-                        self.tableView.setCellWidget(i, 2, self.boxes[j])
-                        break
+            temp.sort(key=lambda x: x['priority'])
         elif self.op_3.currentIndex() == 1:
-            cnt = 0
-            temp.sort(key=lambda x: x['next_tick'])
-            end_indexes = []
-            for i in range(len(self._event_config)):
-                for j in range(len(self._event_config)):
-                    if self.qLabels[j].text() == temp[i]['event_name']: # 未启用的事件记录位置
-                        if not self.check_boxes[j].isChecked():
-                            end_indexes.append(j)
-                        else:
-                            self.tableView.setCellWidget(cnt, 0, self.qLabels[j])
-                            self.tableView.setCellWidget(cnt, 1, self.times[j])
-                            self.tableView.setCellWidget(cnt, 2, self.boxes[j])
-                            cnt += 1
-                        break
-            for i in end_indexes:
-                self.tableView.setCellWidget(cnt, 0, self.qLabels[i])
-                self.tableView.setCellWidget(cnt, 1, self.times[i])
-                self.tableView.setCellWidget(cnt, 2, self.boxes[i])
-                cnt += 1
-        self.tableView = self.tableView
-        self.tableView.update()
+            temp.sort(key=lambda x: (not x['enabled'], x['next_tick']))
+
+        # Add components to table
+        for ind, unit in enumerate(temp):
+            t_ccs = QLabel(unit['event_name'])
+            self.tableView.setCellWidget(ind, 0, t_ccs)
+            self.qLabels.append(t_ccs)
+
+            t_ncs = LineEdit(self)
+            t_ncs.setText(str(datetime.fromtimestamp(unit['next_tick'])))
+            t_ncs.textChanged.connect(self._update_config)
+            self.tableView.setCellWidget(ind, 1, t_ncs)
+            self.times.append(t_ncs)
+
+            t_cbx = CheckBox(self)
+            t_cbx.setChecked(unit['enabled'])
+            t_cbx.stateChanged.connect(self._update_config)
+            cbx_wrapper = QWidget()
+            cbx_layout = QHBoxLayout(cbx_wrapper)
+            cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
+            cbx_layout.setContentsMargins(30, 0, 0, 0)
+            cbx_wrapper.setLayout(cbx_layout)
+            self.tableView.setCellWidget(ind, 2, cbx_wrapper)
+            self.check_boxes.append(t_cbx)
+
+        # Add table to layout
+        self.vBox.addWidget(self.tableView)
 
     def _update_config(self):
         for i in range(len(self.enable_list)):

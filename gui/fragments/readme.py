@@ -1,22 +1,8 @@
 import random
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFrame, QVBoxLayout
 from qfluentwidgets import FluentIcon as FIF, FluentWindow, TextEdit
 import os
-# TODO: 在下方docs中编写文档
-# content里写说明，注意，需要使用HTML的形式给到样式，不给样式就是纯文字
-# 使用Markdown请先转换成HTML
-docs = [
-
-]
-path = 'src/descriptions/'
-for file in os.listdir(path):
-    filepath = os.path.join(path, file)
-    filename = file.split('.')[0]
-    with open(filepath, 'r', encoding='utf-8') as f:
-        content = f.read()
-        docs.append({'title': filename, 'content': content})
 
 
 class ReadMeInterface(QFrame):
@@ -36,6 +22,16 @@ class ReadMeInterface(QFrame):
 class ReadMeWindow(FluentWindow):
     def __init__(self):
         super().__init__()
+        docs = []
+
+        path = './src/descriptions/'
+        for file in os.listdir(path):
+            filepath = os.path.join(path, file)
+            filename = file.split('.')[0]
+            with open(filepath, 'r', encoding='utf-8') as f:
+                content = f.read()
+                docs.append({'title': filename, 'content': content})
+
         for doc in docs:
             self.addSubInterface(interface=ReadMeInterface(doc['content']), icon=FIF.TAG, text=doc['title'])
         self.show()
