@@ -15,7 +15,7 @@ def implement(self):
     self.latest_img_array = self.get_screenshot_array()
     if color.judge_rgb_range(self, 1142, 646, 206, 226, 207, 227, 208, 228):
         self.logger.info("mail reward HAS BEEN COLLECTED, quit")
-        self.click(1236, 39, wait=False)
+        self.click(1236, 39)
     elif color.judge_rgb_range(self, 1142, 646, 235, 255, 233, 243, 65, 85):
         self.logger.info("COLLECT mail reward")
         time.sleep(0.5)
