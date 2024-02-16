@@ -8,6 +8,7 @@ class Layout(QWidget):
         super().__init__(parent=parent)
         self.config = config
         self.default_goods = self.config.static_config['common_shop_price_list'][self.config.server_mode]
+        print(len(self.default_goods))
         self.__check_server()
         self.goods = self.config.get(key='CommonShopList')
 
@@ -57,12 +58,12 @@ class Layout(QWidget):
 
     def alter_status(self, index):
         self.boxes[index].setChecked(self.boxes[index].isChecked())
-        self.config.set(key='CommonShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(16)])
+        self.config.set(key='CommonShopList', value=[1 if self.boxes[i].isChecked() else 0 for i in range(len(self.boxes))])
 
     def __accept(self, input_content=None):
         self.config.set('CommonShopRefreshTime', self.input.text())
 
     def __check_server(self):
         if len(self.config.get('CommonShopList')) != len(self.default_goods):
-            self.config.set('CommonShopList', len(self.default_goods) * [1])
+            self.config.set('CommonShopList', len(self.default_goods) * [0])
 

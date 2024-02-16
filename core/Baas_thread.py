@@ -157,7 +157,7 @@ class Baas_thread:
             self.logger.error("Emulator initialization failed")
             return False
 
-    def send(self, msg):
+    def send(self, msg, task=None):
         if msg == "start":
             if self.button_signal is not None:
                 self.button_signal.emit("停止")
@@ -166,6 +166,8 @@ class Baas_thread:
             if self.button_signal is not None:
                 self.button_signal.emit("启动")
             self.flag_run = False
+        elif msg == "solve":
+            return self.solve(task)
 
     def get_enable(self, activity):
         events = json.load(open('config/event.json', 'r', encoding='utf-8'))

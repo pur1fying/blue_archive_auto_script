@@ -108,11 +108,11 @@ class Scheduler:
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])
         if len(_valid_event) != 0:
             self._display_config['running'] = _valid_event[0]['event_name']
-            self._commit_change()
+            self.change_display(_valid_event[0]['event_name'])
             return _valid_event[0]['func_name']
         else:
             self._display_config['running'] = "Waiting"
-            self._commit_change()
+            self.change_display('Waiting')
             return None
 
     def get_next_execute_time(self):

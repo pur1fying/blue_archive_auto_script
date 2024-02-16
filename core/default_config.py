@@ -294,24 +294,6 @@ DEFAULT_CONFIG = """
         0,
         0,
         0
-    ],
-    "activity_list": [
-        "arena",
-        "cafe_reward",
-        "lesson",
-        "group",
-        "mail",
-        "collect_daily_power",
-        "common_shop",
-        "rewarded_task",
-        "normal_task",
-        "hard_task",
-        "scrimmage",
-        "clear_special_task_power",
-        "collect_reward",
-        "momo_talk",
-        "create",
-        "total_assault"
     ]
 }
 """
@@ -397,8 +379,8 @@ STATIC_DEFAULT_CONFIG = '''
         "CN": [
             ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],
             ["学院交流会[崔尼蒂]券",30,"pyroxene"],["学院交流会[歌赫娜]券",30,"pyroxene"],["学院交流会[千禧年]券",30,"pyroxene"],["初级经验珠", 10000, "creditpoints"],
-            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 20000, "creditpoints"],
-            ["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],
+            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 10000, "creditpoints"],
+            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ],
         "Global": [

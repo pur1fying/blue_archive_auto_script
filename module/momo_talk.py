@@ -17,8 +17,8 @@ def implement(self, need_check_mode=True):
         dy = 18
         unread_location = []
         while y <= 630:
-            if color.judge_rgb_range(self, 637, y, 25, 25, 71, 71, 251, 251):
-                unread_location.append([637, y + dy / 2])
+            if color.judge_rgb_range(self, 637, y, 250, 252, 70, 72, 24, 26):
+                unread_location.append([637, int(y + dy / 2)])
                 y += 60
             else:
                 y += 1
@@ -43,21 +43,21 @@ def implement(self, need_check_mode=True):
 
 
 def check_mode(self):
-    if image.compare_image(self, "momo_talk_newest"):
+    if image.compare_image(self, "momo_talk_newest", need_log=False):
         self.logger.info("change NEWEST to UNREAD mode")
         self.click(514, 177, duration=0.3, wait_over=True)
         self.click(562, 297, duration=0.3, wait_over=True)
         self.click(461, 426, duration=0.3, wait_over=True)
-    elif image.compare_image(self, "momo_talk_unread"):
+    elif image.compare_image(self, "momo_talk_unread", need_log=False):
         self.logger.info("UNREAD mode")
     else:
         self.logger.info("can't detect mode button")
         return False
     self.latest_img_array = self.get_screenshot_array()
-    if image.compare_image(self, "momo_talk_up"):
+    if image.compare_image(self, "momo_talk_up", need_log=False):
         self.logger.info("change UP to DOWN")
         self.click(634, 169, duration=0.2, wait_over=True)
-    elif image.compare_image(self, "momo_talk_down"):
+    elif image.compare_image(self, "momo_talk_down", need_log=False):
         self.logger.info("DOWN mode")
     else:
         self.logger.info("can't detect up/down button")
@@ -80,23 +80,23 @@ def common_solve_affection_story_method(self):
     res = get_reply_position(self)
     if res[0] == 'end':
         self.swipe(924, 330, 924, 230, duration=0.1)
-        self.click(924, 330, wait=False)
+        self.click(924, 330)
     start_time = time.time()
     while time.time() <= start_time + 10:
-        img = self.get_screenshot_array()
-        res = get_reply_position(img)
+        self.latest_img_array = self.get_screenshot_array()
+        res = get_reply_position(self)
         if res[0] == 'reply':
             if res[1] >= 625:
                 self.logger.info("swipe upward")
                 self.connection.swipe(924, 330, 924, 230, duration=0.1)
-                self.click(924, 330, wait=False)
+                self.click(924, 330)
             else:
                 self.logger.info("reply")
-                self.click(826, res[1], wait=False)
+                self.click(826, res[1])
             start_time = time.time()
         elif res[0] == 'affection':
             self.logger.info("ENTER affection story")
-            self.click(826, res[1], wait=False)
+            self.click(826, res[1])
             time.sleep(0.5)
             common_skip_plot_method(self)
             rgb_end = "reward_acquired"

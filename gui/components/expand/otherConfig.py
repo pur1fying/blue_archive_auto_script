@@ -23,9 +23,9 @@ class Layout(TemplateLayout):
         if parent is None:
             parent = self.parent()
         for component in parent.children():
-            if type(component).__name__ == 'HomeFragment':
+            if type(component).__name__ == 'HomeFragment' and self.config['name'] == component.config.get('name'):
                 return component.get_main_thread()
-        return self.config.get_thread(parent.parent())
+        return self.get_thread(parent.parent())
 
     def fhx(self):
-        self.config.get_thread().start_fhx()
+        self.get_thread().start_fhx()

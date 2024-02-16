@@ -196,7 +196,7 @@ class MainThread(QThread):
         if self._main_thread is None:
             self._main_thread = self.Main.get_thread(self.config, name=self.hash_name, logger_signal=self.logger_signal,
                                                      button_signal=self.button_signal, update_signal=self.update_signal)
-
+        self._main_thread.init_all_data()
     def display(self, text):
         self.button_signal.emit(text)
 
@@ -208,38 +208,31 @@ class MainThread(QThread):
     def start_hard_task(self):
         self._init_script()
         self.display('停止')
-        # 这里可能有Bug，若用户还未登入，则会报错。
-        if self._main_thread.solve('explore_hard_task'):
+        if self._main_thread.send('solve', 'explore_hard_task'):
             notify(title='BAAS', body='困难图推图已完成')
 
     def start_normal_task(self):
         self._init_script()
         self.display('停止')
-        server = self._main_thread.server
-        current_activity = self._main_thread.static_config['current_game_activity'][server]
-        if self._main_thread.config['explore_activity'] and current_activity is not None:
-            if self._main_thread.solve(current_activity):
-                notify(title='BAAS', body='活动推图已完成')
-        else:
-            if self._main_thread.solve('explore_normal_task'):
-                notify(title='BAAS', body='普通图推图已完成')
+        if self._main_thread.send('solve', 'explore_normal_task'):
+            notify(title='BAAS', body='普通图推图已完成')
 
     def start_fhx(self):
         self._init_script()
-        if self._main_thread.solve('de_clothes'):
+        if self._main_thread.send('solve', 'de_clothes'):
             notify(title='BAAS', body='反和谐成功，请重启BA下载资源')
 
     def start_main_story(self):
         self._init_script()
-        if self._main_thread.solve('main_story'):
+        if self._main_thread.send('solve', 'main_story'):
             notify(title='BAAS', body='主线剧情已完成')
 
     def start_group_story(self):
         self._init_script()
-        if self._main_thread.solve('group'):
+        if self._main_thread.send('solve', 'group_story'):
             notify(title='BAAS', body='团队剧情已完成')
 
     def start_mini_story(self):
         self._init_script()
-        if self._main_thread.solve('mini_story'):
+        if self._main_thread.send('solve', 'mini_story'):
             notify(title='BAAS', body='支线剧情已完成')

@@ -87,7 +87,7 @@ class Layout(TemplateLayout):
         self.push_card = QHBoxLayout(self)
         self.push_card_label = QHBoxLayout(self)
         self.label_tip_push = QLabel(
-            '<b>推图选项</b>&nbsp;请在下面填写要推的图的章节数，如“15,16,14”为依次推15图,16图,14图：', self)
+            '<b>推图选项</b>&nbsp;请在下面填写要推的图,填写方式见-普通图自动推图说明-', self)
         self.input_push = LineEdit(self)
         self.accept_push = PushButton('开始推图', self)
 
@@ -112,9 +112,7 @@ class Layout(TemplateLayout):
         self.hBoxLayout.addLayout(self.push_card)
 
     def _accept_push(self):
-        if self.input_push.text() != '':
-            push_list = [int(x) for x in self.input_push.text().split(',')]
-            self.config.set('explore_normal_task_regions', push_list)
+        self.config.set('explore_normal_task_regions', self.input_push.text())
         value = self.input_push.text()
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
@@ -133,9 +131,9 @@ class Layout(TemplateLayout):
         if parent is None:
             parent = self.parent()
         for component in parent.children():
-            if type(component).__name__ == 'HomeFragment':
+            if type(component).__name__ == 'HomeFragment' and self.config['name'] == component.config.get('name'):
                 return component.get_main_thread()
-        return self.config.get_thread(parent.parent())
+        return self.get_thread(parent.parent())
 
     def action(self):
-        self.config.get_thread().start_normal_task()
+        self.get_thread().start_normal_task()

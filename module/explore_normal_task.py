@@ -8,9 +8,9 @@ def implement(self):
     # self.scheduler.change_display("普通关推图")
     self.quick_method_to_main_page()
     if self.config['explore_normal_task_force_each_fight']:
-        normal_task.to_normal_event(self)
-        tasks = get_explore_normal_task_missions(self.config['explore_normal_task_missions'])
+        tasks = get_explore_normal_task_missions(self, self.config['explore_normal_task_regions'])
         self.logger.info("VALID TASKS : " + str(tasks))
+        normal_task.to_normal_event(self)
         for i in range(0, len(tasks)):
             region = tasks[i][0]
             mission = tasks[i][1]
@@ -21,14 +21,14 @@ def implement(self):
             normal_task_y_coordinates = [242, 341, 439, 537, 611]
             to_mission_info(self, normal_task_y_coordinates[mission - 1], True)
             self.stage_data = get_stage_data(region)
-            mission = str(region) + "-" + str(i)
+            mission = str(region) + "-" + str(mission)
             current_task_stage_data = self.stage_data[mission]
             img_possibles = {
                 'normal_task_help': (1017, 131),
                 'normal_task_task-info': (946, 540)
             }
             img_ends = "normal_task_task-wait-to-begin-feature"
-            picture.co_detect(self, None, img_possibles, img_ends, None, True)
+            picture.co_detect(self, None, None, img_ends, img_possibles, True)
             choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
             check_skip_fight_and_auto_over(self)
             start_action(self, current_task_stage_data['action'])
@@ -39,11 +39,18 @@ def implement(self):
             normal_task.to_normal_event(self, True)
     else:
         need_change_acc = True
-        self.logger.info("VALID REGIONS : " + str(self.config['explore_normal_task_regions']))
+        temp = []
+        if type(self.config['explore_normal_task_regions']) is int:
+            temp.append(self.config['explore_normal_task_regions'])
+        elif type(self.config['explore_normal_task_regions']) is str:
+            t = self.config['explore_normal_task_regions'].split(',')
+            for i in range(0, len(t)):
+                temp.append(int(t[i]))
+        self.logger.info("VALID REGIONS : " + str(temp))
         self.quick_method_to_main_page()
         normal_task.to_normal_event(self, True)
-        for i in range(0, len(self.config['explore_normal_task_regions'])):
-            region = self.config['explore_normal_task_regions'][i]
+        for i in range(0, len(temp)):
+            region = temp[i]
             self.logger.info("-- Start Pushing Region " + str(region) + " --")
             if not 4 <= region <= 24:
                 self.logger.warning("Region not support")

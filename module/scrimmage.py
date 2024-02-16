@@ -48,7 +48,7 @@ def start_sweep(self):
     if res == "scrimmage_purchase-scrimmage-ticket":
         self.logger.warning("INADEQUATE TICKET")
         return "inadequate_ticket"
-    if res == "purchase_ap-notice":
+    if res == "purchase_ap_notice":
         self.logger.warning("INADEQUATE AP")
         return "inadequate_ap"
     rgb_possibles = {"level_up": (640, 200)}

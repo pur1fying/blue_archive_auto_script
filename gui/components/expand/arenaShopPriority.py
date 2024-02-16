@@ -59,4 +59,4 @@ class Layout(QWidget):
 
     def __check_server(self):
         if len(self.config.get('TacticalChallengeShopList')) != len(self.default_goods):
-            self.config.set('TacticalChallengeShopList', len(self.default_goods) * [1])
+            self.config.set('TacticalChallengeShopList', len(self.default_goods) * [0])
