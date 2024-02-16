@@ -1,5 +1,4 @@
 import json
-import threading
 import time
 from hashlib import md5
 from json import JSONDecodeError
@@ -88,6 +87,7 @@ class HomeFragment(QFrame):
         self._main_thread_attach.button_signal.connect(self.set_button_state)
         self._main_thread_attach.logger_signal.connect(self.logger_box.append)
         self._main_thread_attach.update_signal.connect(self.call_update)
+        config.add_signal('update_signal', self._main_thread_attach.update_signal)
         # self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
         self.startup_card.clicked.connect(self._start_clicked)
         # set a hash object name for this widget

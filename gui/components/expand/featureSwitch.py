@@ -15,6 +15,7 @@ class Layout(QWidget):
         self._event_config = None
         self._read_config()
         assert self._event_config is not None
+        self.config.get_signal('update_signal').connect(self._refresh_time)
 
         self.setFixedHeight(250)
         self.boxes, self.qLabels, self.times, self.check_boxes = [], [], [], []
@@ -165,6 +166,21 @@ class Layout(QWidget):
             except Exception as e:
                 print(e)
                 return 0
+
+    def _refresh_time(self):
+        # abstract from self._event_config
+        # get name and next_tick
+        self._read_config()
+        changed_map = [(item['event_name'], item['next_tick']) for item in self._event_config]
+
+        for item in changed_map:
+            for i in range(len(self.qLabels)):
+                if self.qLabels[i].text() == item[0]:
+                    self.times[i].blockSignals(True)
+                    self.times[i].setText(str(datetime.fromtimestamp(item[1])))
+                    self.times[i].blockSignals(False)
+                    break
+        self.tableView.update()
 
     def all_check(self):
         flag = True

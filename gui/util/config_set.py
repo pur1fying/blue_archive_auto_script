@@ -10,6 +10,7 @@ class ConfigSet:
         self.server_mode = 'CN'
         self.static_config = None
         self.config_dir = config_dir
+        self.signals = {}
         self._init_config()
 
     def _init_config(self):
@@ -44,3 +45,9 @@ class ConfigSet:
         with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
             new_config = json.load(f)
         return new_config.get(key) == value
+
+    def add_signal(self, key, signal):
+        self.signals[key] = signal
+
+    def get_signal(self, key):
+        return self.signals.get(key)
