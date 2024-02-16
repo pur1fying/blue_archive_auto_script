@@ -27,4 +27,5 @@ x_y_range = {
     "sweep-complete": (550, 561, 730, 604),
     "task-finish": (950, 648, 1100, 678),
     'skip-sweep-complete': (597, 488, 684, 531),  # 跳过扫荡完成
+
 }

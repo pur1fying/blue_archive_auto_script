@@ -141,6 +141,7 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
     return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
 
 
+
 def get_student_name(self):
     current_server_student_name_list = []
     target = self.server + "_name"
