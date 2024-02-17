@@ -26,7 +26,7 @@ def implement(self):
         tickets = 0
     else:
         tickets -= 1
-        while res == "WIN" and pri_total_assault != len(self.total_assault_difficulty_name) - 2 and tickets > 0 and self.flag_run:
+        while res == "WIN" and pri_total_assault != len(self.total_assault_difficulty_names) - 2 and tickets > 0 and self.flag_run:
             if pri_total_assault == maxx:
                 break
             max_sweepable = pri_total_assault
@@ -221,6 +221,8 @@ def to_total_assault(self, skip_first_screenshot):
         "total_assault_room-info": (1123, 168),
         'total_assault_inadequate-ticket': (886, 162),
         'total_assault_edit-force': (62, 38),
+        'total_assault_total-assault-result': (640, 568),
+        'total_assault_win-reward-confirm': (772, 659),
         "normal_task_sweep-complete": (643, 585),
         'normal_task_skip-sweep-complete': (643, 506),
     }

@@ -10,5 +10,7 @@ x_y_range = {
     'battle-lost-confirm': (577, 636, 691, 683),
     'battle-win-confirm': (1144, 649, 1194, 674),
     'inadequate-ticket': (508, 311,754, 351),
-    'give-up-notice': (574, 315, 706, 347)
+    'give-up-notice': (574, 315, 706, 347),
+    'win-reward-confirm': (713, 637, 832, 680),
+    'total_assault_result': (539, 109, 728, 145),
 }
