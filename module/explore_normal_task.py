@@ -353,7 +353,7 @@ def wait_over(self, will_fight=False):
                 for position, click in img_possibles.items():
                     if image.compare_image(self, position, need_log=False):
                         self.logger.info("find " + position)
-                        self.click(click[0], click[1], False)
+                        self.click(click[0], click[1])
                         self.latest_screenshot_time = time.time()
                         break
 
