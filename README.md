@@ -10,7 +10,8 @@ GUI support, thanks **[@キラメイ Kiramei](https://github.com/Kiramei)**
 
 GUI预览图：
 ![gui](https://github.com/pur1fying/blue_archive_auto_script/blob/master/ui.png)
-
+![gui](https://github.com/pur1fying/blue_archive_auto_script/blob/master/ui2.png)
+![gui](https://github.com/pur1fying/blue_archive_auto_script/blob/master/ui3.png)
 ## 功能 Features
 - **主线** 自动推图(普通4-23，困难1-23)其他图会陆续加入
 - **咖啡厅** 邀请券可选择指定学生 咖啡厅摸头 咖啡厅奖励
