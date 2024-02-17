@@ -13,6 +13,8 @@ def implement(self):
     self.quick_method_to_main_page()
     to_main_story(self, True)
     push_episode_list = self.config['main_story_regions']
+    if type(push_episode_list) is not list:
+        push_episode_list = [push_episode_list]
     if not push_episode_list:
         default_list = {
             'CN': [1, 2, 3],

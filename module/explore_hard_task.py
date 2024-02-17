@@ -329,6 +329,8 @@ def to_mission_info(self, y):
 
 
 def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=True):
+    if type(st) is not str:
+        st = str(st)
     st = st.split(',')
     tasks = []
     for i in range(0, len(st)):
