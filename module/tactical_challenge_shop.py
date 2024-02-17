@@ -11,10 +11,11 @@ def implement(self):
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))
     buy_list = np.array(self.config["TacticalChallengeShopList"])
     price = self.static_config["tactical_challenge_shop_price_list"][self.server]
+    temp = []
     for i in range(0, len(price)):
-        price[i] = price[i][1]
-    price = np.array(price)
-    asset_required = (buy_list * price).sum()
+        temp.append(price[i][1])
+    temp = np.array(temp)
+    asset_required = (buy_list * temp).sum()
     refresh_time = min(self.config['TacticalChallengeShopRefreshTime'], 3)
     refresh_price = [10, 10, 10]
     for i in range(0, refresh_time + 1):
@@ -26,10 +27,8 @@ def implement(self):
         self.latest_img_array = self.get_screenshot_array()
         if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
             self.logger.info("Purchase available")
-            self.click(1160, 662, wait_over=True)
-            time.sleep(0.5)
-            self.click(767, 488, wait_over=True)
-            time.sleep(2)
+            self.click(1160, 662, wait_over=True, duration=0.5)
+            self.click(767, 488, wait_over=True, duration=2)
             self.click(640, 80, wait_over=True)
             self.click(640, 80, wait_over=True)
 
@@ -109,8 +108,7 @@ def buy(self, buy_list):
     while i < length:
         if buy_list[i]:
             self.click(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1],
-                       wait_over=True)
-            time.sleep(0.1)
+                       wait_over=True, duration=0.1)
         if i % 8 == 7:
             if not buy_list[i + 1:].any():
                 break
@@ -118,10 +116,10 @@ def buy(self, buy_list):
                 if length - i > 5:
                     self.logger.info("SWIPE DOWNWARDS")
                     self.swipe(932, 550, 932, 0, duration=0.5)
-                    time.sleep(0.5)
+                    time.sleep(0.3)
                 else:
                     buy_list_for_common_items = buy_list_for_common_items[4:]
                     self.logger.info("SWIPE DOWNWARDS")
                     self.swipe(932, 275, 932, 0, duration=0.5)
-                    time.sleep(0.5)
+                    time.sleep(0.3)
         i = i + 1

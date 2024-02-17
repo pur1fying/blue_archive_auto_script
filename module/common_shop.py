@@ -13,12 +13,13 @@ def implement(self):
     }
     buy_list = np.array(self.config["CommonShopList"])
     price = self.static_config["common_shop_price_list"][self.server]
+    temp_price = []
     tp = []
     for i in range(0, len(price)):
+        temp_price.append(price[i][1])
         tp.append(price[i][2])
-        price[i] = price[i][1]
-    price = np.array(price)
-    asset_required = calculate_one_time_assets(self, buy_list, price, tp)
+    temp_price = np.array(temp_price)
+    asset_required = calculate_one_time_assets(self, buy_list, temp_price, tp)
     refresh_time = min(self.config['CommonShopRefreshTime'], 3)
     refresh_price = [40, 60, 80]
     for i in range(0, refresh_time + 1):
@@ -31,10 +32,8 @@ def implement(self):
 
         if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
             self.logger.info("Purchase available")
-            self.click(1160, 662, wait_over=True)
-            time.sleep(0.5)
-            self.click(767, 488, wait_over=True)
-            time.sleep(2)
+            self.click(1160, 662, wait_over=True, duration=0.5)
+            self.click(767, 488, wait_over=True, duration=2)
             self.click(640, 80, wait_over=True)
             self.click(640, 80, wait_over=True)
             assets = calculate_left_assets(self, assets, asset_required)

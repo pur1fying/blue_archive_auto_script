@@ -110,7 +110,7 @@ class HomeFragment(QFrame):
 
     def call_update(self, parent=None):
         try:
-            with open('./config/'+ self.config.config_dir +'/display.json', 'r', encoding='utf-8') as f:
+            with open('./config/' + self.config.config_dir + '/display.json', 'r', encoding='utf-8') as f:
                 config = json.load(f)
             if config['running'] is None or config['running'] == 'Empty':
                 self.info.setText('无任务')
@@ -197,6 +197,7 @@ class MainThread(QThread):
             self._main_thread = self.Main.get_thread(self.config, name=self.hash_name, logger_signal=self.logger_signal,
                                                      button_signal=self.button_signal, update_signal=self.update_signal)
         self._main_thread.init_all_data()
+
     def display(self, text):
         self.button_signal.emit(text)
 

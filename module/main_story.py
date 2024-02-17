@@ -114,18 +114,14 @@ def to_episode(self, num):
     episode_position = origin_position[self.server]
     if num in [1, 2, 3, 4]:
         self.swipe(14, 364, 654, 364, 0.1)
-        time.sleep(0.7)
     if num == 4:
         self.swipe(654, 364, 14, 364, 0.1)
-        time.sleep(0.7)
     img_possibles = {
         "main_story_menu": episode_position[num],
         "main_story_select-episode": (60, 36)
     }
     img_ends = "main_story_episode" + str(num)
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    time.sleep(0.3)
-    self.latest_img_array = self.get_screenshot_array()
     return True
 
 
