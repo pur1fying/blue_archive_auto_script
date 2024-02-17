@@ -35,10 +35,12 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                 img_ends = [img_ends]
             for i in range(0, len(img_ends)):
                 threshold = 0.8
-                if len(img_ends[i]) == 2:
+                img_name = img_ends[i]
+                if type(img_ends[i]) is tuple:
+                    img_name = img_ends[i][0]
                     threshold = img_ends[i][1]
-                if image.compare_image(self, img_ends[i],  False, threshold):
-                    self.logger.info('end : ' + img_ends[i])
+                if image.compare_image(self, img_name,  False, threshold):
+                    self.logger.info('end : ' + img_name)
                     return img_ends[i]
         f = 0
         if rgb_possibles is not None:
