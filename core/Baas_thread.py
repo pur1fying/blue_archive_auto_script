@@ -142,9 +142,11 @@ class Baas_thread:
                 self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
             if 'com.github.uiautomator' not in self.connection.app_list():
                 self.connection.app_install('ATX.apk')
+            self.connection.uiautomator.start()
+            time.sleep(2)
+            self.latest_img_array = self.get_screenshot_array()
             self.first_start_u2 = False
             self.last_start_u2_time = time.time()
-            self.latest_img_array = self.get_screenshot_array()
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
             width = max(temp[0], temp[1])
