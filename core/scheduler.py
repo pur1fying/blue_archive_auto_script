@@ -39,7 +39,7 @@ class Scheduler:
 
     def systole(self, task_name: str, next_time=0, server=None):
         res = None
-        daily_reset = 20 - int(server == "Global")
+        daily_reset = 20 - int(server == "Global" or server == "JP")
         for event in self._event_config:
             if event['func_name'] == task_name:
                 if next_time != 0:
@@ -47,10 +47,10 @@ class Scheduler:
                 else:
                     if event['interval'] == 0:
                         hour = {
-                            "arena": 6 - int(server == "Global"),
-                            "collect_daily_power": 10,
+                            "arena": 6 - int(server == "Global" or server == "JP"),
+                            "collect_daily_power": 10 - int(server == "Global" or server == "JP"),
                         }.get(task_name, daily_reset)
-                        if hour < datetime.now(timezone.utc).hour and daily_reset > datetime.now(timezone.utc).hour:
+                        if hour < datetime.now(timezone.utc).hour < daily_reset:
                             hour = daily_reset
                         event['next_tick'] = self.get_next_hour(hour)
                     else:

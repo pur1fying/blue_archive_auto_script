@@ -19,6 +19,7 @@ class Layout(QWidget):
         self.vBoxLayout = QVBoxLayout(self)
         self.relationship_check_box_description = QLabel('优先做好感等级多的日程', self)
         self.relationship_check_box = CheckBox('', self)
+        self.relationship_check_box.setChecked(self.config.get('lesson_relationship_first'))
         self.hBoxLayout = QHBoxLayout(self)
         self.check_box_for_lesson_levels = []
         self.lesson_time_input = []
