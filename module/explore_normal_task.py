@@ -64,10 +64,12 @@ def implement(self):
                     normal_task.to_normal_event(self, True)
                     break
                 if mission == 'SUB':
-                    self.click(645, 511, wait_over=True)
                     start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
-                    time.sleep(1)
-                    self.click(1171, 670, wait_over=True)
+                    rgb_possibles = {
+                        "formation_edit" + str(self.config[self.stage_data[str(region)]['SUB']]): (1171, 670),
+                    }
+                    rgb_ends = "fighting_feature"
+                    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
                 else:
                     current_task_stage_data = self.stage_data[mission]
                     img_possibles = {
@@ -75,7 +77,7 @@ def implement(self):
                         'normal_task_task-info': (946, 540)
                     }
                     img_ends = "normal_task_task-wait-to-begin-feature"
-                    picture.co_detect(self, None, img_possibles, img_ends, None, True)
+                    picture.co_detect(self, None,None, img_ends, img_possibles, True)
                     choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
                     start_mission(self)
                     check_skip_fight_and_auto_over(self)
@@ -242,6 +244,9 @@ def start_choose_side_team(self, index):
     self.logger.info("According to the config. Choose formation " + str(index))
     loy = [195, 275, 354, 423]
     y = loy[index - 1]
+    img_possibles = {
+        'normal_task_task-info': (946, 540)
+    }
     rgb_possibles = {
         "formation_edit1": (74, y),
         "formation_edit2": (74, y),
@@ -250,7 +255,7 @@ def start_choose_side_team(self, index):
     }
     rgb_ends = "formation_edit" + str(index)
     rgb_possibles.pop("formation_edit" + str(index))
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
 
 
 def choose_region(self, region):

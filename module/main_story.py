@@ -90,8 +90,9 @@ def enter_fight(self):
 
 def auto_fight(self, need_change_acc=True):
     enter_fight(self)
-    time.sleep(1)
     if need_change_acc:
+        time.sleep(2)
+        self.latest_img_array = self.get_screenshot_array()
         change_acc_auto(self)
 
 
