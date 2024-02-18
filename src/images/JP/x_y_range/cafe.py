@@ -11,4 +11,5 @@ x_y_range = {
     'invitation-ticket-order-up': (827, 138, 841, 164),
     'confirm-invite': (400, 230, 888, 400),
     'duplicate-invite': (400, 220, 888, 270),
+    'switch-clothes-notice': (500, 150, 780, 189)
 }
