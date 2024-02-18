@@ -180,6 +180,7 @@ class Baas_thread:
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
             while self.flag_run:
+                print(1)
                 if self.first_start:
                     self.solve('restart')
                 next_func_name = self.scheduler.heartbeat()
@@ -311,9 +312,7 @@ class Baas_thread:
 
     def init_config(self):
         try:
-            self.logger.info("Start Reading Config")
             self.config = self.operate_dict(self.config_set.config)
-            self.logger.info("SUCCESS")
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")
@@ -321,7 +320,6 @@ class Baas_thread:
             return False
 
     def init_server(self):
-        self.logger.info("Start Detecting Server")
         server = self.config['server']
         if server == '官服' or server == 'B服':
             self.server = 'CN'

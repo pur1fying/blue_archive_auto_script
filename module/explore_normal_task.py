@@ -174,6 +174,8 @@ def start_action(self, actions, will_fight=False):
     self.set_screenshot_interval(1)
     self.logger.info("Start Actions total : " + str(len(actions)))
     for i, act in enumerate(actions):
+        if not self.flag_run:
+            return
         desc = "start " + str(i + 1) + " operation : "
         if 'desc' in act:
             desc += act['desc']

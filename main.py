@@ -106,8 +106,8 @@ if __name__ == '__main__':
     tt.init_all_data()
     tt.ocr = t.ocr
     # tt.thread_starter()
-    tt.solve("common_shop")
-    tt.solve("total_assault")
+    # tt.solve("common_shop")
+    # tt.solve("total_assault")
     tt.solve("cafe_reward")
     tt.solve("momo_talk")
     tt.solve("explore_normal_task")

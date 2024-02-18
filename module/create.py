@@ -38,7 +38,7 @@ def implement(self):
                     break
                 need_acc_collect = True
                 self.config['alreadyCreateTime'] += 1
-                # self.config_set.set("alreadyCreateTime", self.config['alreadyCreateTime'])
+                self.config_set.set("alreadyCreateTime", self.config['alreadyCreateTime'])
                 self.logger.info("today total create times: " + str(self.config['alreadyCreateTime']))
                 if self.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
@@ -54,6 +54,7 @@ def implement(self):
 
 def common_create_judge(self):
     pri = self.config['createPriority']
+    self.logger.info("create priority: " + str(pri))
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
     node_x = [839, 508, 416, 302, 174]
