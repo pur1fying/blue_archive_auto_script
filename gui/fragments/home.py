@@ -16,7 +16,6 @@ from qfluentwidgets import (
 )
 
 from core.notification import notify
-from gui.util import log
 from window import Window
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
@@ -178,8 +177,8 @@ class MainThread(QThread):
     def run(self):
         self.running = True
         self.display('停止')
-        log.d("Starting Blue Archive Auto Script...", level=1, logger_box=self.logger_signal)
         self._init_script()
+        self._main_thread.logger.info("Starting Blue Archive Auto Script...")
         self._main_thread.send('start')
 
     def stop_play(self):
@@ -204,7 +203,7 @@ class MainThread(QThread):
     def get_screen(self):
         self._init_script()
         self._main_thread.init_emulator()
-        return self._main_thread.log_screenshot()
+        return self._main_thread.get_screenshot_array()
 
     def start_hard_task(self):
         self._init_script()

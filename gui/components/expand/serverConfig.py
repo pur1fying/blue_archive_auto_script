@@ -1,14 +1,9 @@
 import cv2
+from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem
+from qfluentwidgets import TableWidget
 
 from .expandTemplate import TemplateLayout
-
-
-def screenshot():
-    from main import Main
-    main = Main()
-    test_img = main.get_screenshot_array()
-    cv2.imshow('Test Screenshot', test_img)
-    cv2.waitKey(-1)
+from ...util.common_methods import get_context_thread
 
 
 class Layout(TemplateLayout):
@@ -33,14 +28,39 @@ class Layout(TemplateLayout):
                 'type': 'label'
             },
             {
+                'label': '截图测试',
+                'type': 'button',
+                'selection': self.screenshot
+            },
+            {
                 'label': '请填写您的adb端口号',
                 'type': 'text',
                 'key': 'adbPort'
             },
             {
-                'label': '截图测试',
+                'label': '检测adb地址',
                 'type': 'button',
-                'selection': screenshot
+                'selection': self.detect_adb_addr,
             }
         ]
         super().__init__(parent=parent, configItems=configItems, config=config)
+
+        self.tableView = TableWidget(self)
+        self.tableView.setFixedHeight(100)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.vBoxLayout.addWidget(self.tableView)
+        self.tableView.setWordWrap(False)
+        self.tableView.setColumnCount(1)
+        self.tableView.setHorizontalHeaderLabels([self.tr('ADB地址')])
+
+    def detect_adb_addr(self):
+        import device_operation
+        results = device_operation.autosearch()
+        self.tableView.setRowCount(len(results))
+        for i in range(len(results)):
+            self.tableView.setItem(i, 0, QTableWidgetItem(results[i]))
+
+    def screenshot(self):
+        test_img = get_context_thread(self).get_screen()
+        cv2.imshow('Test Screenshot', test_img)
+        cv2.waitKey(-1)

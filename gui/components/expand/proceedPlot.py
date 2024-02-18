@@ -1,4 +1,5 @@
 from .expandTemplate import TemplateLayout
+from ...util.common_methods import get_context_thread
 
 
 class Layout(TemplateLayout):
@@ -33,20 +34,12 @@ class Layout(TemplateLayout):
 
     def proceed_main_plot(self):
         import threading
-        threading.Thread(target=self.get_thread().start_main_story).start()
+        threading.Thread(target=get_context_thread().start_main_story).start()
 
     def proceed_group_plot(self):
         import threading
-        threading.Thread(target=self.get_thread().start_group_story).start()
+        threading.Thread(target=get_context_thread().start_group_story).start()
 
     def proceed_branch_plot(self):
         import threading
-        threading.Thread(target=self.get_thread().start_branch_story).start()
-
-    def get_thread(self, parent=None):
-        if parent is None:
-            parent = self.parent()
-        for component in parent.children():
-            if type(component).__name__ == 'HomeFragment' and self.config['name'] == component.config.get('name'):
-                return component.get_main_thread()
-        return self.get_thread(parent.parent())
+        threading.Thread(target=get_context_thread().start_branch_story).start()

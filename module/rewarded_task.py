@@ -1,7 +1,6 @@
 import time
 
 from core import color, image, picture
-from gui.util import log
 
 
 def implement(self):
@@ -15,8 +14,8 @@ def implement(self):
                 continue
             count[i] = int(count[i])
     except Exception as e:
-        log.logger.error("rewarded task config error")
-        log.logger.error(e)
+        self.logger.error("rewarded task config error")
+        self.logger.error(e)
         return True
 
     if self.server == 'Global' or self.server == 'JP':

@@ -1,7 +1,6 @@
 import time
 
-from core import color, image, picture
-from gui.util import log
+from core import color, picture
 
 
 def implement(self):
@@ -13,8 +12,8 @@ def implement(self):
                 continue
             count[i] = int(count[i])
     except Exception as e:
-        log.logger.error("special_task_times config error")
-        log.logger.error(e)
+        self.logger.error("special_task_times config error")
+        self.logger.error(e)
         return True
 
     commissions_name = ["BASE DEFENSE", "ITEM RETRIEVAL"]
