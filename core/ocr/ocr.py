@@ -78,8 +78,8 @@ class Baas_ocr:
         t1 = time.time()
         res = self.ocrNUM.ocr_for_single_line(img)['text']
         ocr_time = round(time.time() - t1, 3)
-        res.replace('<unused3>', '')
-        res.replace('<unused2>', '')
+        res = res.replace('<unused3>', '')
+        res = res.replace('<unused2>', '')
         self.logger.info("ocr res : " + res + " time: " + str(ocr_time))
         temp = ''
         for i in range(0, len(res)):
@@ -97,8 +97,8 @@ class Baas_ocr:
         t1 = time.time()
         res = self.ocrEN.ocr_for_single_line(img)['text']
         ocr_time = round(time.time() - t1, 3)
-        res.replace('<unused3>', '')
-        res.replace('<unused2>', '')
+        res = res.replace('<unused3>', '')
+        res = res.replace('<unused2>', '')
         self.logger.info("ocr res : " + res + " time: " + str(ocr_time))
         temp = ''
         for i in range(0, len(res)):
@@ -111,8 +111,8 @@ class Baas_ocr:
         t1 = time.time()
         res = self.ocrCN.ocr_for_single_line(img)['text']
         ocr_time = round(time.time() - t1, 3)
-        res.replace('<unused3>', '')
-        res.replace('<unused2>', '')
+        res = res.replace('<unused3>', '')
+        res = res.replace('<unused2>', '')
         self.logger.info("ocr res : " + res + " time: " + str(ocr_time))
         temp = ''
         for i in range(0, len(res)):
@@ -149,8 +149,8 @@ class Baas_ocr:
         elif model == 'JP':
             res = self.ocrJP.ocr_for_single_line(img)['text']
         ocr_time = round(time.time() - t1, 3)
-        res.replace('<unused3>', '')
-        res.replace('<unused2>', '')
+        res = res.replace('<unused3>', '')
+        res = res.replace('<unused2>', '')
         self.logger.info("ocr res : " + res + " time: " + str(ocr_time))
         return res
 
