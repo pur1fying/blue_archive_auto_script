@@ -1,7 +1,9 @@
 import os
 import re
 import winreg
+
 from device_operation.simulator_native import process_native_api
+
 
 def read_registry_key(region):
     if region != "":
@@ -28,7 +30,8 @@ def find_display_name(multi_instance, path):
         if os.path.exists(conf_file):
             with open(conf_file, 'r') as file:
                 for line in file:
-                    match = re.match(r'^bst\.instance\.(.+?)\.display_name="{}"'.format(re.escape(multi_instance)), line)
+                    match = re.match(r'^bst\.instance\.(.+?)\.display_name="{}"'.format(re.escape(multi_instance)),
+                                     line)
                     if match:
                         return match.group(1)
         return "NOT_INSTALLED"
@@ -53,6 +56,7 @@ def get_bluestacks_nxt_adb_port(multi_instance, region=""):
             return "FILE_NOT_FOUND"
     return None
 
+
 def get_bluestacks_nxt_adb_port_id(id, region=""):
     registry_path = read_registry_key(region)
     conf_file = os.path.abspath(os.path.join(registry_path, "BlueStacks.conf"))
@@ -62,10 +66,11 @@ def get_bluestacks_nxt_adb_port_id(id, region=""):
                 if f'bst.instance.{id}.status.adb_port' in line:
                     extracted_port = re.search(r'\"(.+?)\"', line)
                     if extracted_port:
-                       return extracted_port.group(1)
+                        return extracted_port.group(1)
     except:
         return "FILE_NOT_FOUND"
     return None
+
 
 ### End BlueStacks Module ###
 
@@ -81,6 +86,7 @@ def return_bluestacks_type(pid):
                 return value + 'HD-Player.exe'
         except FileNotFoundError:
             return None
+
     bst_cn_path = bst_read_registry_key('cn')
     bst_path = bst_read_registry_key('')
     try:

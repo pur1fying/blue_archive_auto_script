@@ -1,4 +1,4 @@
-def preprocess_name(simulator_type,multi_instance):
+def preprocess_name(simulator_type, multi_instance):
     if simulator_type == "bluestacks_nxt":
         if multi_instance == None:
             multi_instance = "BlueStacks App Player"

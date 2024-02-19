@@ -8,6 +8,6 @@ def wsa_try_start(host, port):
         s.connect((host, port))
         return f"{host}:{port}:"
     except socket.error as e:
-       return None
+        return None
     finally:
         s.close()

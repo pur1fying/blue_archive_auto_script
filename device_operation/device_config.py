@@ -1,22 +1,23 @@
-import os
 import json
-import uuid
+import os
 import re
-from .preprocessing_name import preprocess_name
-from .get_adb_address import get_simulator_port
+import uuid
+
 from . import DEVICE_CONFIG_PATH
+from .get_adb_address import get_simulator_port
+from .preprocessing_name import preprocess_name
 
 # 定义一个字典来存储UUID和对应的输入
 data = {}
 
 
-def device_config(simulator_type, multi_instance, latest_adb_address = None,latest_command_line = None):
+def device_config(simulator_type, multi_instance, latest_adb_address=None, latest_command_line=None):
     # 从json文件中读取字典
     multi_instance = preprocess_name(simulator_type, multi_instance)
 
     global data
-    if os.path.exists(DEVICE_CONFIG_PATH+'device.json'):
-        with open(DEVICE_CONFIG_PATH+'device.json', 'r') as f:
+    if os.path.exists(DEVICE_CONFIG_PATH + 'device.json'):
+        with open(DEVICE_CONFIG_PATH + 'device.json', 'r') as f:
             try:
                 data = json.load(f)
             except json.decoder.JSONDecodeError:
@@ -49,15 +50,16 @@ def device_config(simulator_type, multi_instance, latest_adb_address = None,late
     os.makedirs('./config', exist_ok=True)
 
     # 将字典存储到json文件中
-    with open(DEVICE_CONFIG_PATH+'device.json', 'w') as f:
+    with open(DEVICE_CONFIG_PATH + 'device.json', 'w') as f:
         json.dump(data, f)
 
     return id
 
+
 def load_data(id):
     # 从json文件中读取字典
     try:
-        with open(DEVICE_CONFIG_PATH+'device.json', 'r') as f:
+        with open(DEVICE_CONFIG_PATH + 'device.json', 'r') as f:
             data = json.load(f)
     except json.decoder.JSONDecodeError:
         data = {}
@@ -79,7 +81,7 @@ def load_data(id):
                 device_info['latest_adb_address'] = latest_adb_address
 
                 # 将字典存储到json文件中
-                with open(DEVICE_CONFIG_PATH+'device.json', 'w') as f:
+                with open(DEVICE_CONFIG_PATH + 'device.json', 'w') as f:
                     json.dump(data, f)
 
         # 返回整个字典

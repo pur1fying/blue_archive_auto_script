@@ -1,14 +1,16 @@
-import psutil
 import re
 import winreg
+
+import psutil
+
+from .bluestacks_module import get_bluestacks_nxt_adb_port_id, return_bluestacks_type
 from .get_adb_address import get_simulator_port
 from .simulator_native import process_native_api
-from .bluestacks_module import get_bluestacks_nxt_adb_port_id, return_bluestacks_type
 from .wsa_support import wsa_try_start
 
 # 模拟器列表定义为全局变量
 SIMULATOR_LISTS = {
-    'bluestacks_nxt': ['hd-player.exe'], 
+    'bluestacks_nxt': ['hd-player.exe'],
     'yeshen': ['nox.exe'],
     'mumu': ['mumuplayer.exe'],
     'leidian': ['dnplayer.exe'],
@@ -16,19 +18,22 @@ SIMULATOR_LISTS = {
     # 添加其他模拟器的名称和对应进程名
 }
 
+
 def get_running_processes():
     process_list = []
-    
+
     for process in psutil.process_iter(['pid', 'name']):
         process_list.append(process.info)
 
     return process_list
+
 
 def check_simulator(process_name, simulator_lists):
     for simulator, names in simulator_lists.items():
         if process_name.lower() in names:
             return simulator
     return None
+
 
 def auto_scan_simulators():
     simulator_list = []
@@ -45,10 +50,11 @@ def auto_scan_simulators():
                     simulator_list.append(bluestacks_type)
             else:
                 simulator_list.append(simulator)
-    if wsa_try_start("127.0.0.1",58526)!=None:
+    if wsa_try_start("127.0.0.1", 58526) != None:
         simulator_list.append('wsa')
 
     return simulator_list
+
 
 def auto_search_adb_address():
     # 正则表达式匹配模板
@@ -60,10 +66,11 @@ def auto_search_adb_address():
     }
 
     adb_addresses = []
-    if wsa_try_start("127.0.0.1","58526") != None:
+    if wsa_try_start("127.0.0.1", "58526") != None:
         adb_addresses.append('127.0.0.1:58526')
 
     process_list = auto_scan_simulators()
+
     def bst_read_install_key(region):
         key_path = f"SOFTWARE\\BlueStacks_nxt{region}"
         value_name = "InstallDir"
@@ -73,20 +80,20 @@ def auto_search_adb_address():
                 return value + 'HD-Player.exe'
         except FileNotFoundError:
             return None
-                                        
+
     for process in process_list:
         for process_name in SIMULATOR_LISTS[process]:
             cmdlines = process_native_api("get_command_line_name", process_name)
             for cmdline in cmdlines:
-                cmdline_no_quotes = cmdline.replace('"','')
+                cmdline_no_quotes = cmdline.replace('"', '')
                 if isinstance(cmdline, str) and ' ' in cmdline_no_quotes:
                     matched_count = 0
                     for simulator, pattern in regex_patterns.items():
-                        cmdline = cmdline.replace('"','')
+                        cmdline = cmdline.replace('"', '')
                         match = re.search(pattern, cmdline)
                         if match:
                             multi_instance = match.group(1)
-                            if process =='bluestacks_nxt':
+                            if process == 'bluestacks_nxt':
                                 bst_cn_path = bst_read_install_key('cn')
                                 bst_path = bst_read_install_key('')
                                 player_path = process_native_api("get_exe_path_name", "HD-Player.exe")
@@ -97,18 +104,17 @@ def auto_search_adb_address():
                                 elif bst_path == player_path:
                                     adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance)}"""
                                     adb_addresses.append(adb_address)
-                                matched_count = matched_count+1
+                                matched_count = matched_count + 1
                                 break
                             else:
                                 adb_address = get_simulator_port(process, multi_instance)
                             adb_addresses.append(adb_address)
-                        matched_count = matched_count+1
-                        
-            if matched_count >= 4:
-                    adb_address = get_simulator_port(process, None)
-                    adb_addresses.append(adb_address)
-                    matched_count = 0
+                        matched_count = matched_count + 1
 
+            if matched_count >= 4:
+                adb_address = get_simulator_port(process, None)
+                adb_addresses.append(adb_address)
+                matched_count = 0
 
     def remove_duplicates(lst):
         # 定义一个正则表达式，匹配数字、方括号和冒号
@@ -117,7 +123,7 @@ def auto_search_adb_address():
         # 使用列表推导式，只保留符合正则表达式的元素
         lst = [item for item in lst if pattern.match(item)]
 
-        #去除重复的元素
+        # 去除重复的元素
         return list(dict.fromkeys(lst))
-    
+
     return remove_duplicates(adb_addresses)

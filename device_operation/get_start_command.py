@@ -1,6 +1,8 @@
-import psutil
 import subprocess
 import sys
+
+import psutil
+
 
 def get_start_cmd(executable_name):
     result = []
@@ -12,8 +14,10 @@ def get_start_cmd(executable_name):
             except Exception:
                 # Use wmic if psutil fails to get cmdline
                 try:
-                    output = subprocess.check_output(['wmic', 'process', 'where', f'ProcessId={proc.pid}', 'get', 'Commandline', '/value'])
-                    output = output.decode(sys.getdefaultencoding())  # decode the output using system's default encoding
+                    output = subprocess.check_output(
+                        ['wmic', 'process', 'where', f'ProcessId={proc.pid}', 'get', 'Commandline', '/value'])
+                    output = output.decode(
+                        sys.getdefaultencoding())  # decode the output using system's default encoding
                     args = output.strip().split('=')[1:]
                     args = [arg.strip() for arg in args if arg.strip() != '']
                 except Exception as e:
@@ -23,6 +27,7 @@ def get_start_cmd(executable_name):
                 if args not in result:
                     result.append(args)
     return result
+
 
 def get_executable_path_and_args(executable_name):
     result = []
@@ -34,8 +39,10 @@ def get_executable_path_and_args(executable_name):
             except Exception:
                 # Use wmic if psutil fails to get cmdline
                 try:
-                    output = subprocess.check_output(['wmic', 'process', 'where', f'ProcessId={proc.pid}', 'get', 'Commandline', '/value'])
-                    output = {output.decode(sys.getdefaultencoding())}  # decode the output using system's default encoding
+                    output = subprocess.check_output(
+                        ['wmic', 'process', 'where', f'ProcessId={proc.pid}', 'get', 'Commandline', '/value'])
+                    output = {
+                        output.decode(sys.getdefaultencoding())}  # decode the output using system's default encoding
                     args = output.strip().split('=')[1:]
                     args = [arg.strip() for arg in args if arg.strip() != '']
                 except Exception as e:
