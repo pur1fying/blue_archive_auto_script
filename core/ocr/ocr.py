@@ -20,17 +20,14 @@ class Baas_ocr:
 
     def init(self, ocr_needed):
         try:
-            for i in range(0, len(ocr_needed)):
-                if not self.initialized[ocr_needed[i]]:
-                    self.initialized[ocr_needed[i]] = True
-                    if ocr_needed[i] == 'CN':
-                        self.init_CNocr()
-                    elif ocr_needed[i] == 'Global':
-                        self.init_ENocr()
-                    elif ocr_needed[i] == 'NUM':
-                        self.init_NUMocr()
-                    elif ocr_needed[i] == 'JP':
-                        self.init_JPocr()
+            if 'NUM' in ocr_needed:
+                self.init_NUMocr()
+            if 'CN' in ocr_needed:
+                self.init_CNocr()
+            if 'Global' in ocr_needed:
+                self.init_ENocr()
+            if 'JP' in ocr_needed:
+                self.init_JPocr()
         except Exception as e:
             self.logger.error("OCR init error: " + str(e))
             raise e

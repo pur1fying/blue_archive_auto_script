@@ -226,6 +226,10 @@ class Window(MSFluentWindow):
         if len(self.config_dir_list) == 0:
             check_config('default_config')
             self.config_dir_list.append(ConfigSet('default_config'))
+        self.ocr_needed = ['NUM']
+        for config in self.config_dir_list:
+            if config.server_mode not in self.ocr_needed:
+                self.ocr_needed.append(config.server_mode)
         # create sub interface
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
@@ -244,12 +248,12 @@ class Window(MSFluentWindow):
         self.splashScreen.finish()
         self.init_main_class()
 
-    def init_main_class(self):
+    def init_main_class(self, ):
         threading.Thread(target=self.init_main_class_thread).start()
 
     def init_main_class_thread(self):
         from main import Main
-        self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal)
+        self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal, self.ocr_needed)
         for i in range(0, len(self._sub_list[0])):
             self._sub_list[0][i]._main_thread_attach.Main = self.main_class
 

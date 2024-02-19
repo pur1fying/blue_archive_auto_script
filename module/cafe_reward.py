@@ -11,7 +11,7 @@ def implement(self):
     if self.config['cafe_reward_collect_hour_reward'] and get_cafe_earning_status(self):
         self.logger.info("Collect Cafe Earnings")
         collect(self)
-        to_cafe(self)
+        to_cafe(self, False)
     if self.config['cafe_reward_use_invitation_ticket'] and get_invitation_ticket_status(self):
         invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
@@ -266,7 +266,7 @@ def invite_girl(self, no=1):
 
 def collect(self):
     self.click(1150, 643, duration=1, wait_over=True)
-    self.click(640, 522, wait_over=True)
+    self.click(640, 522, wait_over=True, duration=1)
 
 
 def get_invitation_ticket_status(self):
