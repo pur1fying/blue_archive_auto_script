@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel
 from qfluentwidgets import LineEdit, PushButton, InfoBar, InfoBarIcon, InfoBarPosition
 
 from .expandTemplate import TemplateLayout
+from ...util.common_methods import get_context_thread
 
 
 class Layout(TemplateLayout):
@@ -65,7 +66,7 @@ class Layout(TemplateLayout):
                 'selection': ['1', '2', '3', '4'],
                 'type': 'combo'
             },
-            ]
+        ]
         if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
             configItems.extend([
                 {
@@ -108,8 +109,8 @@ class Layout(TemplateLayout):
         self.push_card_label.setAlignment(Qt.AlignCenter)
         self.push_card_label.setContentsMargins(10, 0, 0, 10)
 
-        self.hBoxLayout.addLayout(self.push_card_label)
-        self.hBoxLayout.addLayout(self.push_card)
+        self.vBoxLayout.addLayout(self.push_card_label)
+        self.vBoxLayout.addLayout(self.push_card)
 
     def _accept_push(self):
         self.config.set('explore_normal_task_regions', self.input_push.text())
@@ -127,13 +128,5 @@ class Layout(TemplateLayout):
         import threading
         threading.Thread(target=self.action).start()
 
-    def get_thread(self, parent=None):
-        if parent is None:
-            parent = self.parent()
-        for component in parent.children():
-            if type(component).__name__ == 'HomeFragment' and self.config['name'] == component.config.get('name'):
-                return component.get_main_thread()
-        return self.get_thread(parent.parent())
-
     def action(self):
-        self.get_thread().start_normal_task()
+        get_context_thread(self).start_normal_task()

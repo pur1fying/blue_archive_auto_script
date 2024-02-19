@@ -1,4 +1,5 @@
 from .expandTemplate import TemplateLayout
+from ...util.common_methods import get_context_thread
 
 
 class Layout(TemplateLayout):
@@ -19,13 +20,5 @@ class Layout(TemplateLayout):
 
         super().__init__(parent=parent, configItems=configItems, config=config)
 
-    def get_thread(self, parent=None):
-        if parent is None:
-            parent = self.parent()
-        for component in parent.children():
-            if type(component).__name__ == 'HomeFragment' and self.config['name'] == component.config.get('name'):
-                return component.get_main_thread()
-        return self.get_thread(parent.parent())
-
     def fhx(self):
-        self.get_thread().start_fhx()
+        get_context_thread(self).start_fhx()

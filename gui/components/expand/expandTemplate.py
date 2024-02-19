@@ -31,9 +31,9 @@ class TemplateLayout(QWidget):
                 _configItems.append(ConfigItem(**item))
             configItems = _configItems
 
-        self.hBoxLayout = QVBoxLayout(self)
-        self.hBoxLayout.addSpacing(16)
-        self.hBoxLayout.setAlignment(Qt.AlignCenter)
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.addSpacing(16)
+        self.vBoxLayout.setAlignment(Qt.AlignCenter)
 
         for ind, cfg in enumerate(configItems):
             confirmButton = None
@@ -41,7 +41,6 @@ class TemplateLayout(QWidget):
             labelComponent = QLabel(cfg.label, self)
             optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
             optionPanel.addStretch(1)
-            optionPanel.setContentsMargins(10, 0, 0, 10)
             if cfg.type == 'switch':
                 currentKey = cfg.key
                 inputComponent = SwitchButton(self)
@@ -70,7 +69,8 @@ class TemplateLayout(QWidget):
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
             if confirmButton is not None:
                 optionPanel.addWidget(confirmButton, 0, Qt.AlignRight)
-            self.hBoxLayout.addLayout(optionPanel)
+            self.vBoxLayout.addLayout(optionPanel)
+            self.vBoxLayout.setContentsMargins(20, 0, 20, 20)
 
     def _commit(self, key, target, labelTarget):
         value = None

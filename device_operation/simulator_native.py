@@ -1,10 +1,11 @@
-import psutil
 import subprocess
+
+import psutil
 
 
 ### start simulator native api ###
 
-def simulator_native_api(input_type, process_input):
+def process_native_api(input_type, process_input):
     if input_type == "terminate_name":
         for process in psutil.process_iter(['pid', 'name']):
             if process.info['name'].lower() == process_input.lower():  # 不区分大小写匹配进程名
@@ -26,14 +27,24 @@ def simulator_native_api(input_type, process_input):
         cmd = 'wmic process get caption,commandline /value'
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output = []
+        current_caption = None
         for line in proc.stdout:
+            if not line.strip():  # skip empty lines
+                continue
             try:
                 line_decoded = line.decode('utf-8')
             except UnicodeDecodeError:
                 line_decoded = line.decode('gbk', errors='ignore')
-            if process_input.lower() in line_decoded.lower():
-                output.append(line_decoded.split('=')[1].strip())
+            if '=' in line_decoded:
+                key, value = line_decoded.split('=', 1)
+                if key.strip() == 'Caption':
+                    current_caption = value.strip()
+                elif key.strip() == 'CommandLine':
+                    if current_caption and current_caption.lower() == process_input.lower():
+                        output.append(value.strip())
+                    current_caption = None  # reset current_caption
         return output if output else "NO_SUCH_PROCESS"
+
     if input_type == "get_command_line_pid":  # 以pid获取命令行参数
         cmd = 'wmic process where "ProcessId={}" get Commandline /value'.format(process_input)
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
