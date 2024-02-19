@@ -35,6 +35,7 @@ def implement(self):
         if lesson_tickets == 0:
             self.logger.info("no tickets")
             return True
+
     self.swipe(940, 213, 940, 560, duration=0.1)
     time.sleep(0.5)
     left_change_page_x = 32
@@ -157,21 +158,24 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
 
 
 def get_lesson_tickets(self):
-    region = {
-        "CN": (280, 85, 340, 114),
-        "Global": (220, 88, 282, 112),
-        "JP": (188, 88, 252, 112),
-    }
-    ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
-    if ocr_res[0] == 'Z':
-        return [7, 7]
-    if ocr_res[1] == '1':
-        return [int(ocr_res[0]), int(ocr_res[2])]
-    for j in range(0, len(ocr_res)):
-        if ocr_res[j] == '/':
-            return [int(ocr_res[:j]), int(ocr_res[j + 1:])]
-    self.logger.info("tickets: UNKNOWN")
-    return "UNKNOWN"
+    try:
+        region = {
+            "CN": (280, 85, 340, 114),
+            "Global": (220, 88, 282, 112),
+            "JP": (188, 88, 252, 112),
+        }
+        ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
+        if ocr_res[0] == 'Z':
+            return [7, 7]
+        if ocr_res[1] == '1':
+            return [int(ocr_res[0]), int(ocr_res[2])]
+        for j in range(0, len(ocr_res)):
+            if ocr_res[j] == '/':
+                return [int(ocr_res[:j]), int(ocr_res[j + 1:])]
+        return "UNKNOWN"
+    except Exception as e:
+        print(e)
+        return "UNKNOWN"
 
 
 def purchase_lesson_ticket(self, times):

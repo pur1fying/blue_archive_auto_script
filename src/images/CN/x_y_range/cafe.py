@@ -10,5 +10,6 @@ x_y_range = {
     'invitation-ticket-order-affection': (662, 138, 748, 165),
     'invitation-ticket-order-up': (827, 138, 841, 164),
     'confirm-invite': (543, 139, 735, 177),
-    'switch-clothes-notice': (572, 150, 710, 189)
+    'switch-clothes-notice': (572, 150, 710, 189),
+    'cafe-earning-status': (494, 135, 797, 174),
 }

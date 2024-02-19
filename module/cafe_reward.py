@@ -180,6 +180,7 @@ def to_confirm_invite(self, lo):
     img_ends = [
         "cafe_confirm-invite",
         "cafe_switch-clothes-notice",
+        "cafe_duplicate-invite-notice",
     ]
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
@@ -190,6 +191,7 @@ def confirm_invite(self):
         "cafe_duplicate-invite": (767, 514),
         'cafe_invitation-ticket': (835, 97),
         'cafe_switch-clothes-notice': (764, 501),
+        "cafe_duplicate-invite-notice": (764, 514),
     }
     img_ends = "cafe_menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -264,9 +266,19 @@ def invite_girl(self, no=1):
         to_cafe(self)
 
 
+def to_cafe_earning_status(self):
+    rgb_possibles = {
+        'cafe': (1142, 639)
+    }
+    img_ends = "cafe_cafe-reward-status"
+    picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
+
+
 def collect(self):
-    self.click(1150, 643, duration=1, wait_over=True)
-    self.click(640, 522, wait_over=True, duration=1)
+    to_cafe_earning_status(self)
+    if color.judge_rgb_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
+        self.logger.info("Collect Cafe Earnings")
+        self.click(643, 521, wait_over=True)
 
 
 def get_invitation_ticket_status(self):
