@@ -20,6 +20,7 @@ class Baas_ocr:
 
     def init(self, ocr_needed):
         try:
+            self.logger.info("ocr needed: " + str(ocr_needed))
             if 'NUM' in ocr_needed:
                 self.init_NUMocr()
             if 'CN' in ocr_needed:
