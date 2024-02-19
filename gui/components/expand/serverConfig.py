@@ -1,14 +1,4 @@
-import cv2
-
 from .expandTemplate import TemplateLayout
-
-
-def screenshot():
-    from main import Main
-    main = Main()
-    test_img = main.get_screenshot_array()
-    cv2.imshow('Test Screenshot', test_img)
-    cv2.waitKey(-1)
 
 
 class Layout(TemplateLayout):
@@ -36,11 +26,6 @@ class Layout(TemplateLayout):
                 'label': '请填写您的adb端口号',
                 'type': 'text',
                 'key': 'adbPort'
-            },
-            {
-                'label': '截图测试',
-                'type': 'button',
-                'selection': screenshot
             }
         ]
         super().__init__(parent=parent, configItems=configItems, config=config)
