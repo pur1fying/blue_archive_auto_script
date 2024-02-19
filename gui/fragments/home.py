@@ -200,10 +200,6 @@ class MainThread(QThread):
     def display(self, text):
         self.button_signal.emit(text)
 
-    def get_screen(self):
-        self._init_script()
-        self._main_thread.init_emulator()
-        return self._main_thread.get_screenshot_array()
 
     def start_hard_task(self):
         self._init_script()

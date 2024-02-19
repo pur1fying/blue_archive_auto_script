@@ -6,7 +6,6 @@ class ConfigSet:
     def __init__(self, config_dir):
         print(config_dir)
         self.config = None
-        # Config Server Mode 0: CN, 1: EN, 2: JP
         self.server_mode = 'CN'
         self.static_config = None
         self.config_dir = config_dir

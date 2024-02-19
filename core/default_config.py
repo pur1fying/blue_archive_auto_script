@@ -559,6 +559,22 @@ STATIC_DEFAULT_CONFIG = '''
   "student_names":
     [
       {
+        "CN_name": "爱丽丝",
+        "CN_implementation": true,
+        "Global_name": "Aris",
+        "Global_implementation": true,
+        "JP_name": "アリス",
+        "JP_implementation": true
+      },
+      {
+        "CN_name": "爱丽丝(女仆)",
+        "CN_implementation": false,
+        "Global_name": "Aris (Maid)",
+        "Global_implementation": true,
+        "JP_name": "アリス(メイド)",
+        "JP_implementation": true
+      },
+      {
         "CN_name": "优香",
         "CN_implementation": true,
         "Global_name": "Yuuka",
@@ -1177,7 +1193,7 @@ STATIC_DEFAULT_CONFIG = '''
       },
       {
         "CN_name": "芹香(正月)",
-        "CN_implementation": false,
+        "CN_implementation": true,
         "Global_name": "Serika(New Year)",
         "Global_implementation": true,
         "JP_name": "セリカ(正月)",
@@ -1233,7 +1249,7 @@ STATIC_DEFAULT_CONFIG = '''
       },
       {
         "CN_name": "吹雪",
-        "CN_implementation": false,
+        "CN_implementation": true,
         "Global_name": "Fubuki",
         "Global_implementation": true,
         "JP_name": "フブキ",
@@ -1241,7 +1257,7 @@ STATIC_DEFAULT_CONFIG = '''
       },
       {
         "CN_name": "濑名",
-        "CN_implementation": false,
+        "CN_implementation": true,
         "Global_name": "Sena",
         "Global_implementation": true,
         "JP_name": "セナ",
@@ -1249,7 +1265,7 @@ STATIC_DEFAULT_CONFIG = '''
       },
       {
         "CN_name": "千寻",
-        "CN_implementation": false,
+        "CN_implementation": true,
         "Global_name": "Chihiro",
         "Global_implementation": true,
         "JP_name": "チヒロ",
@@ -1664,14 +1680,6 @@ STATIC_DEFAULT_CONFIG = '''
         "JP_implementation": true
       },
       {
-        "CN_name": "爱丽丝(女仆)",
-        "CN_implementation": false,
-        "Global_name": "Aris (Maid)",
-        "Global_implementation": true,
-        "JP_name": "アリス(メイド)",
-        "JP_implementation": true
-      },
-      {
         "CN_name": "柚子(女仆)",
         "CN_implementation": false,
         "Global_name": "Yuzu (Maid)",
@@ -1886,14 +1894,6 @@ STATIC_DEFAULT_CONFIG = '''
         "Global_name": "レンゲ",
         "Global_implementation": false,
         "JP_name": "レンゲ",
-        "JP_implementation": true
-      },
-      {
-        "CN_name": "爱丽丝",
-        "CN_implementation": true,
-        "Global_name": "Aris",
-        "Global_implementation": true,
-        "JP_name": "アリス",
         "JP_implementation": true
       }
     ]

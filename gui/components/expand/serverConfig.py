@@ -5,6 +5,7 @@ import cv2
 from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem
 from qfluentwidgets import TableWidget
 
+
 from .expandTemplate import TemplateLayout
 from ...util.common_methods import get_context_thread
 

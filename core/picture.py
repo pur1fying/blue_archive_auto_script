@@ -111,4 +111,5 @@ def deal_with_pop_ups(self):
             self.click(click[0], click[1])
             self.latest_screenshot_time = time.time()
             return True, position
+
     return False

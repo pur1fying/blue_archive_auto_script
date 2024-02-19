@@ -7,7 +7,8 @@ from core.Baas_thread import Baas_thread
 
 
 class Main:
-    def __init__(self, logger_signal=None):
+    def __init__(self, logger_signal=None, ocr_needed=None):
+        self.ocr_needed = ocr_needed
         self.ocr = None
         self.static_config = None
         self.logger = Logger(logger_signal)
@@ -21,7 +22,8 @@ class Main:
 
     def init_ocr(self):
         try:
-            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=['NUM', 'CN', 'Global', 'JP'])
+            print("self.ocr_needed", self.ocr_needed)
+            self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=self.ocr_needed)
             return True
         except Exception as e:
             self.logger.error("OCR initialization failed")
@@ -106,8 +108,8 @@ if __name__ == '__main__':
     tt.init_all_data()
     tt.ocr = t.ocr
     # tt.thread_starter()
-    tt.solve("common_shop")
-    tt.solve("total_assault")
+    # tt.solve("common_shop")
+    # tt.solve("total_assault")
     tt.solve("cafe_reward")
     tt.solve("momo_talk")
     tt.solve("explore_normal_task")

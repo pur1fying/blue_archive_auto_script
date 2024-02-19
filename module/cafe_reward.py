@@ -11,7 +11,7 @@ def implement(self):
     if self.config['cafe_reward_collect_hour_reward'] and get_cafe_earning_status(self):
         self.logger.info("Collect Cafe Earnings")
         collect(self)
-        to_cafe(self)
+        to_cafe(self, False)
     if self.config['cafe_reward_use_invitation_ticket'] and get_invitation_ticket_status(self):
         invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
@@ -118,7 +118,7 @@ def interaction_for_cafe_solve_method3(self):
                     continue
             self.logger.info("totally find " + str(len(res)) + " interactions")
             for j in range(0, len(res)):
-                self.click(res[j][0], min(res[j][1], 591),  wait_over=True)
+                self.click(res[j][0], min(res[j][1], 591), wait_over=True)
 
         if i != max_times - 1:
             time.sleep(2)
@@ -139,7 +139,6 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_menu': (838, 647),
     }
     return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
-
 
 
 def get_student_name(self):
@@ -163,15 +162,39 @@ def invite_lowest_affection(self):
     if not image.compare_image(self, 'cafe_invitation-ticket-order-affection', threshold=0.9):
         self.logger.info("Switch to affection order")
         self.click(704, 152, wait_over=True, duration=0.5)
-        self.click(relationship_order_button_location[self.server][0], relationship_order_button_location[self.server][1], wait_over=True, duration=0.5)
+        self.click(relationship_order_button_location[self.server][0],
+                   relationship_order_button_location[self.server][1], wait_over=True, duration=0.5)
         self.click(627, 390, wait_over=True, duration=0.5)
     self.latest_img_array = self.get_screenshot_array()
     if not image.compare_image(self, 'cafe_invitation-ticket-order-up', threshold=0.9):
         self.logger.info("Switch to lowest affection order")
         self.click(812, 153, wait_over=True, duration=0.5)
-    self.click(785, 226, wait_over=True, duration=0.5)
-    self.click(767, 514, wait_over=True)
-    to_cafe(self, True)
+    to_confirm_invite(self, (785, 226))
+    confirm_invite(self)
+
+
+def to_confirm_invite(self, lo):
+    img_possibles = {
+        'cafe_invitation-ticket': lo,
+    }
+    img_ends = [
+        "cafe_confirm-invite",
+        "cafe_switch-clothes-notice",
+        "cafe_duplicate-invite-notice",
+    ]
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def confirm_invite(self):
+    img_possibles = {
+        "cafe_confirm-invite": (767, 514),
+        "cafe_duplicate-invite": (767, 514),
+        'cafe_invitation-ticket': (835, 97),
+        'cafe_switch-clothes-notice': (764, 501),
+        "cafe_duplicate-invite-notice": (764, 514),
+    }
+    img_ends = "cafe_menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def invite_girl(self, no=1):
@@ -185,7 +208,6 @@ def invite_girl(self, no=1):
         target_name_list = self.config['favorStudent2']
     student_name.sort(key=len, reverse=True)
     self.logger.info("INVITING : " + str(target_name_list))
-    f = True
     for i in range(0, len(target_name_list)):
         to_invitation_ticket(self, skip_first_screenshot=True)
         target_name = target_name_list[i]
@@ -193,7 +215,7 @@ def invite_girl(self, no=1):
         target_name = operate_name(target_name, self.server)
         stop_flag = False
         last_student_name = None
-        while not stop_flag:
+        while not stop_flag and self.flag_run:
             region = {
                 'CN': (489, 185, 709, 604),
                 'Global': (489, 185, 709, 604),
@@ -212,7 +234,7 @@ def invite_girl(self, no=1):
                             detected_name.append("千世")
                         else:
                             detected_name.append(student_name[j])
-                        location.append((out[k]['position'][0][1]/self.ratio) + 210)
+                        location.append((out[k]['position'][0][1] / self.ratio) + 210)
                         if len(detected_name) == 5:
                             break
 
@@ -233,24 +255,30 @@ def invite_girl(self, no=1):
                 for s in range(0, len(detected_name)):
                     if detected_name[s] == target_name:
                         self.logger.info("find student " + target_name + " at " + str(location[s]))
-                        stop_flag = True
-                        f = False
-                        self.click(784, location[s],  duration=0.7, wait_over=True)
-                        self.click(770, 500,  wait_over=True)
-                        break
+                        to_confirm_invite(self, (785, location[s]))
+                        confirm_invite(self)
+                        return True
                 if not stop_flag:
                     self.logger.info("didn't find target student swipe to next page")
                     self.swipe(412, 580, 412, 150, duration=0.3)
-                    self.click(412, 500,  wait_over=True)
+                    self.click(412, 500, wait_over=True)
                     self.latest_img_array = self.get_screenshot_array()
         to_cafe(self)
-        if not f:
-            break
+
+
+def to_cafe_earning_status(self):
+    rgb_possibles = {
+        'cafe': (1142, 639)
+    }
+    img_ends = "cafe_cafe-reward-status"
+    picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
 
 
 def collect(self):
-    self.click(1150, 643, duration=1, wait_over=True)
-    self.click(640, 522, wait_over=True)
+    to_cafe_earning_status(self)
+    if color.judge_rgb_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
+        self.logger.info("Collect Cafe Earnings")
+        self.click(643, 521, wait_over=True)
 
 
 def get_invitation_ticket_status(self):
