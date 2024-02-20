@@ -54,7 +54,6 @@ def implement(self):
 
 def common_create_judge(self):
     pri = self.config['createPriority']
-    self.logger.info("create priority: " + str(pri))
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
     node_x = [839, 508, 416, 302, 174]
