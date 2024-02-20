@@ -105,7 +105,7 @@ def auto_search_adb_address():
                             adb_addresses.append(adb_address)
                         matched_count = matched_count + 1
 
-            if matched_count >= 4:
+            if matched_count >= 5:
                 adb_address = get_simulator_port(process, None)
                 adb_addresses.append(adb_address)
                 matched_count = 0

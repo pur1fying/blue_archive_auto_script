@@ -55,9 +55,11 @@ class Layout(TemplateLayout):
 
     def detect_adb_addr_thread(self):
         try:
-            command = ["adb", "devices"]
-            target_directory = "env/Lib/site-packages/adbutils/binaries"
-            results = get_address_from_str(subprocess.run(command, cwd=target_directory, check=True, capture_output=True, text=True).stdout)
+            # command = ["adb", "devices"]
+            # target_directory = "env/Lib/site-packages/adbutils/binaries"
+            # results = get_address_from_str(subprocess.run(command, cwd=target_directory, check=True, capture_output=True, text=True).stdout)
+            import device_operation
+            results = device_operation.autosearch()
             if len(results) == 0:
                 results = ["未发现adb设备"]
             self.tableView.setRowCount(len(results))
