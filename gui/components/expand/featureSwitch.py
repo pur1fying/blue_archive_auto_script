@@ -7,7 +7,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QHeaderView, QVBoxLayout, QPushButton
 from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox
 import threading
-lock = threading.Lock()
 
 
 class Layout(QWidget):
@@ -83,16 +82,15 @@ class Layout(QWidget):
             self.check_boxes.append(t_cbx)
 
     def _read_config(self):
-        with lock:
-            with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
-                print(f)
-                self._event_config = json.load(f)
-                print(self._event_config)
+        with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
+            s = f.read()
+            if s == '':
+                return
+            self._event_config = json.loads(s)
 
     def _save_config(self):
-        with lock:
-            with open('./config/' + self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
-                json.dump(self._event_config, f, ensure_ascii=False, indent=2)
+        with open('./config/' + self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
+            json.dump(self._event_config, f, ensure_ascii=False, indent=2)
 
     def _sort(self):
         temp = deepcopy(self._event_config)
