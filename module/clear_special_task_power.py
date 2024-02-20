@@ -82,7 +82,7 @@ def to_commissions(self, num, skip_first_screenshot=False):
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
 
-def one_detect(self, a, b):
+def get_los(self):
     i = 675
     los = []
     while i > 196:
@@ -93,6 +93,15 @@ def one_detect(self, a, b):
             continue
         else:
             i -= 1
+    return los
+
+
+def one_detect(self, a, b):
+    los = get_los(self)
+    if len(los) == 0:
+        time.sleep(1)
+        self.latest_img_array = self.get_screenshot_array()
+        los = get_los(self)
     for i in range(0, len(los)):
         img_possibles = {"special_task_level-list": (1118, los[i])}
         img_ends = "special_task_task-info"

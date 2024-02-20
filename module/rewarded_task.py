@@ -84,7 +84,7 @@ def start_sweep(self):
     return "sweep_complete"
 
 
-def one_detect(self, a, b):
+def get_los(self):
     i = 675
     los = []
     while i > 196:
@@ -95,6 +95,15 @@ def one_detect(self, a, b):
             continue
         else:
             i -= 1
+    return los
+
+
+def one_detect(self, a, b):
+    los = get_los(self)
+    if len(los) == 0:
+        time.sleep(1)
+        self.latest_img_array = self.get_screenshot_array()
+        los = get_los(self)
     for i in range(0, len(los)):
         rgb_ends = ["mission_info"]
         rgb_possibles = {"bounty": (1118, los[i])}

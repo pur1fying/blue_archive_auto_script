@@ -1,3 +1,5 @@
+import time
+
 from core import color, picture
 
 
@@ -60,9 +62,7 @@ def start_sweep(self):
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     return "sweep_complete"
 
-
-def scrimmage_common_operation(self, a, b):
-    self.latest_img_array = self.get_screenshot_array()
+def get_los(self):
     i = 675
     los = []
     while i > 196:
@@ -73,6 +73,15 @@ def scrimmage_common_operation(self, a, b):
             continue
         else:
             i -= 1
+    return los
+
+
+def scrimmage_common_operation(self, a, b):
+    los = get_los(self)
+    if len(los) == 0:
+        time.sleep(1)
+        self.latest_img_array = self.get_screenshot_array()
+        los = get_los(self)
     for i in range(0, len(los)):
         rgb_possibles = {'scrimmage': (1118, los[i])}
         rgb_ends = 'mission_info'
