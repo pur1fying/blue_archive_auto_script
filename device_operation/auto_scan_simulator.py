@@ -6,7 +6,6 @@ import psutil
 from .bluestacks_module import get_bluestacks_nxt_adb_port_id, return_bluestacks_type
 from .get_adb_address import get_simulator_port
 from .simulator_native import process_native_api
-from .wsa_support import wsa_try_start
 
 # 模拟器列表定义为全局变量
 SIMULATOR_LISTS = {
@@ -50,8 +49,6 @@ def auto_scan_simulators():
                     simulator_list.append(bluestacks_type)
             else:
                 simulator_list.append(simulator)
-    if wsa_try_start("127.0.0.1", 58526) != None:
-        simulator_list.append('wsa')
 
     return simulator_list
 
@@ -66,9 +63,6 @@ def auto_search_adb_address():
     }
 
     adb_addresses = []
-    if wsa_try_start("127.0.0.1", "58526") != None:
-        adb_addresses.append('127.0.0.1:58526')
-
     process_list = auto_scan_simulators()
 
     def bst_read_install_key(region):
