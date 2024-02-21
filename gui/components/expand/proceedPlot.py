@@ -34,12 +34,12 @@ class Layout(TemplateLayout):
 
     def proceed_main_plot(self):
         import threading
-        threading.Thread(target=get_context_thread().start_main_story).start()
+        threading.Thread(target=get_context_thread(self).start_main_story).start()
 
     def proceed_group_plot(self):
         import threading
-        threading.Thread(target=get_context_thread().start_group_story).start()
+        threading.Thread(target=get_context_thread(self).start_group_story).start()
 
     def proceed_branch_plot(self):
         import threading
-        threading.Thread(target=get_context_thread().start_branch_story).start()
+        threading.Thread(target=get_context_thread(self).start_branch_story).start()

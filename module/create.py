@@ -195,8 +195,8 @@ def check_refresh_daily_create_times(self):
     if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and ((hour < 4 and last_refresh_hour < 4) or (hour >= 4 and last_refresh_hour >= 4)):
         return
     else:
-        self.config['alreadyCreateTimes'] = 0
-        self.config_set.set("alreadyCreateTimes", 0)
+        self.config['alreadyCreateTime'] = 0
+        self.config_set.set("alreadyCreateTime", 0)
         self.config['createTimeLastRefreshTime'] = time.time()
         self.config_set.set("createTimeLastRefreshTime", self.config['createTimeLastRefreshTime'])
         self.logger.info("refresh daily create times")

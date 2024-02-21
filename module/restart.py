@@ -27,6 +27,7 @@ def start(self):
     if self.server == 'CN':
         activity_name = None
     self.connection.app_start(self.package_name, activity_name)
+    time.sleep(1)
 
 
 def check_need_restart(self):
