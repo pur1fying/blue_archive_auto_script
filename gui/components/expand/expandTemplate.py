@@ -1,6 +1,6 @@
 from typing import Union
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
@@ -21,6 +21,8 @@ class ConfigItem:
 
 
 class TemplateLayout(QWidget):
+    patch_signal = pyqtSignal(str)
+
     def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config
@@ -60,6 +62,7 @@ class TemplateLayout(QWidget):
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 inputComponent.setText(str(self.config.get(currentKey)))
+                self.patch_signal.connect(inputComponent.setText)
                 confirmButton = PushButton('确定', self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':

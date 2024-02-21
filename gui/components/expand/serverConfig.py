@@ -1,13 +1,7 @@
-import subprocess
-import time
-
-import cv2
 from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem
 from qfluentwidgets import TableWidget
 
-
 from .expandTemplate import TemplateLayout
-from ...util.common_methods import get_context_thread
 
 
 def get_address_from_str(st):
@@ -65,9 +59,17 @@ class Layout(TemplateLayout):
             self.tableView.setRowCount(len(results))
             for i in range(len(results)):
                 self.tableView.setItem(i, 0, QTableWidgetItem(results[i]))
+            self.tableView.itemClicked.connect(self._commit_port_change)
         except Exception as e:
             print(e)
             self.tableView.setRowCount(1)
             self.tableView.setItem(0, 0, QTableWidgetItem("adb地址获取失败"))
         # import device_operation
         # results = device_operation.autosearch()
+
+    def _commit_port_change(self, x):
+        addr = x.text()
+        if addr.find(':') != -1:
+            port = x.text().split(':')[1]
+            self.patch_signal.emit(port)
+            self.config.set('adbPort', port)
