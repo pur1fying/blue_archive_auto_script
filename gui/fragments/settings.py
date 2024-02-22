@@ -21,56 +21,67 @@ class SettingsFragment(ScrollArea):
         self.basicGroup = SettingCardGroup(
             self.tr("基本"), self.scrollWidget)
 
-        self.serverOption = SimpleSettingCard(
-            title='应用相关设置',
-            content='选择你的服务器平台，设置你的端口（不知道端口请设置为0）',
-            sub_view=expand.__dict__['serverConfig'],
-            parent=self.basicGroup,
-            config=self.config
-        )
+        self.basicGroupItems = [
+            SimpleSettingCard(
+                title='应用相关设置',
+                content='选择你的服务器平台，设置你的端口（不知道端口请设置为0）',
+                sub_view=expand.__dict__['serverConfig'],
+                parent=self.basicGroup,
+                config=self.config
+            ),
 
-        self.scriptOption = SimpleSettingCard(
-            title='脚本相关设置',
-            content='根据你的电脑配置，调整相应的参数。',
-            sub_view=expand.__dict__['scriptConfig'],
-            parent=self.basicGroup,
-            config=self.config
-        )
+            SimpleSettingCard(
+                title='脚本相关设置',
+                content='根据你的电脑配置，调整相应的参数。',
+                sub_view=expand.__dict__['scriptConfig'],
+                parent=self.basicGroup,
+                config=self.config
+            )
+        ]
 
         self.exploreGroup = SettingCardGroup(
             self.tr("相关设置"), self.scrollWidget)
 
-        self.exploreOption = SimpleSettingCard(
-            title='普通图推图设置',
-            content='根据你的推图需求，调整相应的参数。',
-            sub_view=expand.__dict__['exploreConfig'],
-            parent=self.exploreGroup,
-            config=self.config
-        )
+        self.exploreGroupItems = [
+            SimpleSettingCard(
+                title='普通图推图设置',
+                content='根据你的推图需求，调整相应的参数。',
+                sub_view=expand.__dict__['exploreConfig'],
+                parent=self.exploreGroup,
+                config=self.config
+            ),
 
-        self.hardOption = SimpleSettingCard(
-            title='困难图推图设置',
-            content='根据你所需困难图刷关，设置参数。',
-            sub_view=expand.__dict__['hardTaskConfig'],
-            parent=self.exploreGroup,
-            config=self.config
-        )
+            SimpleSettingCard(
+                title='困难图推图设置',
+                content='根据你所需困难图刷关，设置参数。',
+                sub_view=expand.__dict__['hardTaskConfig'],
+                parent=self.exploreGroup,
+                config=self.config
+            ),
 
-        self.proceedPlot = SimpleSettingCard(
-            title='推剧情',
-            content='主线剧情，小组剧情，支线剧情',
-            sub_view=expand.__dict__['proceedPlot'],
-            parent=self.exploreGroup,
-            config=self.config
-        )
+            SimpleSettingCard(
+                title='推剧情',
+                content='主线剧情，小组剧情，支线剧情',
+                sub_view=expand.__dict__['proceedPlot'],
+                parent=self.exploreGroup,
+                config=self.config
+            ),
 
-        self.otherOption = SimpleSettingCard(
-            title='其他设置',
-            content='其他的一些小功能与设置',
-            sub_view=expand.__dict__['otherConfig'],
-            parent=self.exploreGroup,
-            config=self.config
-        )
+            SimpleSettingCard(
+                title='活动图设置',
+                content='推故事，推任务，推挑战',
+                sub_view=expand.__dict__['eventMapConfig'],
+                parent=self.exploreGroup,
+                config=self.config
+            ),
+
+            SimpleSettingCard(
+                title='其他设置',
+                content='其他的一些小功能与设置',
+                sub_view=expand.__dict__['otherConfig'],
+                parent=self.exploreGroup,
+                config=self.config
+            )]
 
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
@@ -88,12 +99,8 @@ class SettingsFragment(ScrollArea):
             }
         ''')
         self.viewport().setStyleSheet("background-color: transparent;")
-        self.basicGroup.addSettingCard(self.serverOption)
-        self.basicGroup.addSettingCard(self.scriptOption)
-        self.exploreGroup.addSettingCard(self.exploreOption)
-        self.exploreGroup.addSettingCard(self.hardOption)
-        self.exploreGroup.addSettingCard(self.proceedPlot)
-        self.exploreGroup.addSettingCard(self.otherOption)
+        self.basicGroup.addSettingCards(self.basicGroupItems)
+        self.exploreGroup.addSettingCards(self.exploreGroupItems)
         self.expandLayout.addWidget(self.settingLabel)
         self.expandLayout.addWidget(self.basicGroup)
         self.expandLayout.addWidget(self.exploreGroup)
