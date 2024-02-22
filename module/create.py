@@ -40,12 +40,13 @@ def implement(self):
                 self.config['alreadyCreateTime'] += 1
                 self.config_set.set("alreadyCreateTime", self.config['alreadyCreateTime'])
                 self.logger.info("today total create times: " + str(self.config['alreadyCreateTime']))
-                if self.config['alreadyCreateTime'] >= self.config['createTime']:
-                    create_flag = False
-                    need_acc_collect = False
                 self.click(1066, 664,  wait_over=True, duration=4)
                 common_create_judge(self)
                 to_manufacture_store(self)
+                if self.config['alreadyCreateTime'] >= self.config['createTime']:
+                    create_flag = False
+                    need_acc_collect = False
+                    break
         if need_acc_collect:
             status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
     get_next_execute_time(self, status)

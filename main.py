@@ -1,5 +1,4 @@
 import json
-import threading
 from core.utils import Logger
 from core.ocr import ocr
 from gui.util.config_set import ConfigSet
@@ -100,30 +99,32 @@ class Main:
 
 if __name__ == '__main__':
 
-    t = Main()
+    t = Main(ocr_needed=["NUM","CN","Global"])
     t.init_static_config()
     config = ConfigSet(config_dir="default_config")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
-    # tt.thread_starter()
+    tt.solve("activity_sweep")
+    tt.solve("explore_activity_mission")
+    tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     # tt.solve("total_assault")
-    tt.solve("cafe_reward")
-    tt.solve("momo_talk")
-    tt.solve("explore_normal_task")
-    tt.solve("explore_hard_task")
-    tt.solve("normal_task")
-    tt.solve("hard_task")
-    tt.solve("arena")
-    tt.solve("lesson")
-    tt.solve("group")
-    tt.solve("mail")
-    tt.solve("collect_reward")
-    tt.solve("main_story")
-    tt.solve("group_story")
-    tt.solve("clear_special_task_power")
-    tt.solve("scrimmage")
-    tt.solve("rewarded_task")
-    tt.solve("create")
+    # tt.solve("cafe_reward")
+    # tt.solve("momo_talk")
+    # tt.solve("explore_normal_task")
+    # tt.solve("explore_hard_task")
+    # tt.solve("normal_task")
+    # tt.solve("hard_task")
+    # tt.solve("arena")
+    # tt.solve("lesson")
+    # tt.solve("group")
+    # tt.solve("mail")
+    # tt.solve("collect_reward")
+    # tt.solve("main_story")
+    # tt.solve("group_story")
+    # tt.solve("clear_special_task_power")
+    # tt.solve("scrimmage")
+    # tt.solve("rewarded_task")
+    # tt.solve("create")

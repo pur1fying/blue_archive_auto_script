@@ -11,11 +11,6 @@ class Layout(TemplateLayout):
         self.config = config
         configItems = [
             {
-                'label': '开启此按钮点击推图进行活动任务关推图(当前活动:69号新春狂想曲)',
-                'key': 'explore_activity',
-                'type': 'switch'
-            },
-            {
                 'label': '是否手动boss战（进入关卡后暂停等待手操）',
                 'key': 'manual_boss',
                 'type': 'switch'

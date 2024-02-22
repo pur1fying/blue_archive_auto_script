@@ -122,9 +122,10 @@ def get_force(self):
     if ocr_res == "UNKNOWN":
         return get_force(self)
     if ocr_res == 7:
-        return 1
+        ocr_res = 1
     if ocr_res not in [1, 2, 3, 4]:
         return get_force(self)
+    self.logger.info("Current force : " + str(ocr_res))
     return ocr_res
 
 

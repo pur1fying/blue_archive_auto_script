@@ -22,4 +22,7 @@ from module import rewarded_task
 from module import scrimmage
 from module import tactical_challenge_shop
 from module import total_assault
-from module import activity
+from module import explore_activity_story
+from module import explore_activity_challenge
+from module import explore_activity_mission
+from module import sweep_activity

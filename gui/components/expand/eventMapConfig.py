@@ -1,6 +1,6 @@
 from .expandTemplate import TemplateLayout
-# TODO: Prepare to support the following import
-# from ...util.common_methods import get_context_thread
+from ...util.common_methods import get_context_thread
+
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
@@ -8,20 +8,29 @@ class Layout(TemplateLayout):
             {
                 'label': '推故事',
                 'type': 'button',
-                # TODO: Plot push function
-                'selection': lambda: print('推故事')
+                'selection': self.activity_story
             },
             {
                 'label': '推任务',
                 'type': 'button',
-                # TODO: Task push function
-                'selection': lambda: print('推任务')
+                'selection': self.activity_mission
             },
             {
                 'label': '推挑战',
                 'type': 'button',
-                # TODO: Challenge push function
-                'selection': lambda: print('推挑战')
+                'selection': self.activity_challenge
             },
         ]
         super().__init__(parent=parent, configItems=configItems, config=config)
+
+    def activity_story(self):
+        import threading
+        threading.Thread(target=get_context_thread(self).start_explore_activity_story).start()
+
+    def activity_mission(self):
+        import threading
+        threading.Thread(target=get_context_thread(self).start_explore_activity_mission).start()
+
+    def activity_challenge(self):
+        import threading
+        threading.Thread(target=get_context_thread(self).start_explore_activity_challenge).start()

@@ -38,7 +38,10 @@ func_dict = {
     'total_assault': module.total_assault.implement,
     'restart': module.restart.implement,
     'refresh_uiautomator2': module.refresh_uiautomator2.implement,
-    'activity': module.activity.implement,
+    'activity_sweep': module.sweep_activity.implement,
+    'explore_activity_story': module.explore_activity_story.implement,
+    'explore_activity_challenge': module.explore_activity_challenge.implement,
+    'explore_activity_mission': module.explore_activity_mission.implement,
 }
 
 
@@ -354,6 +357,7 @@ class Baas_thread:
             if _ocr_res[j].isdigit():
                 ap = ap * 10 + int(_ocr_res[j])
             elif _ocr_res[j] == '/':
+                self.logger.info("AP: " + str(ap))
                 return ap
         return "UNKNOWN"
 
@@ -369,6 +373,7 @@ class Baas_thread:
             if not _ocr_res[j].isdigit():
                 continue
             temp = temp * 10 + int(_ocr_res[j])
+        self.logger.info("Pyroxene: " + str(temp))
         return temp
 
     def get_creditpoints(self):
@@ -383,6 +388,7 @@ class Baas_thread:
             if not _ocr_res[j].isdigit():
                 continue
             temp = temp * 10 + int(_ocr_res[j])
+        self.logger.info("Credit Points: " + str(temp))
         return temp
 
     def operate_dict(self, dic):

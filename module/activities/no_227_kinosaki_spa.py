@@ -8,9 +8,7 @@ from module import main_story
 def implement(self):
     self.stage_data = get_stage_data()
     self.quick_method_to_main_page()
-    # explore_story(self)
-    explore_mission(self)
-    explore_challenge(self)
+    sweep(self)
     return True
 
 

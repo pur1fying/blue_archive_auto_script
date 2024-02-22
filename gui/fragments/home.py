@@ -200,7 +200,6 @@ class MainThread(QThread):
     def display(self, text):
         self.button_signal.emit(text)
 
-
     def start_hard_task(self):
         self._init_script()
         self.display('停止')
@@ -221,14 +220,36 @@ class MainThread(QThread):
     def start_main_story(self):
         self._init_script()
         if self._main_thread.send('solve', 'main_story'):
-            notify(title='BAAS', body='主线剧情已完成')
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body='主线剧情已完成')
 
     def start_group_story(self):
         self._init_script()
         if self._main_thread.send('solve', 'group_story'):
-            notify(title='BAAS', body='团队剧情已完成')
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body='小组剧情已完成')
 
     def start_mini_story(self):
         self._init_script()
         if self._main_thread.send('solve', 'mini_story'):
-            notify(title='BAAS', body='支线剧情已完成')
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body='支线剧情已完成')
+
+    def start_explore_activity_story(self):
+        self._init_script()
+        if self._main_thread.send('solve', 'explore_activity_story'):
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body='活动剧情已完成')
+
+    def start_explore_activity_mission(self):
+        self._init_script()
+        if self._main_thread.send('solve', 'explore_activity_mission'):
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body='活动任务已完成')
+
+    def start_explore_activity_challenge(self):
+        self._init_script()
+        if self._main_thread.send('solve', 'explore_activity_challenge'):
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body='活动挑战推图已完成')
+

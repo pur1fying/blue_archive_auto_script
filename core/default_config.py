@@ -99,7 +99,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 14,
+    "priority": 12,
     "interval": 0,
     "next_tick": 0,
     "event_name": "自动制造",
@@ -107,7 +107,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": false,
-    "priority": 15,
+    "priority": 13,
     "interval": 0,
     "next_tick": 0,
     "event_name": "总力战",
@@ -115,7 +115,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 13,
+    "priority": 16,
     "interval": 10800,
     "next_tick": 0,
     "event_name": "自动MomoTalk",
@@ -123,7 +123,7 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": 12,
+    "priority": 15,
     "interval": 0,
     "next_tick": 0,
     "event_name": "收集奖励",
@@ -152,6 +152,14 @@ EVENT_DEFAULT_CONFIG = """
     "next_tick": 0,
     "event_name": "定时刷新U2",
     "func_name": "refresh_uiautomator2"
+  },
+  {
+    "enabled": true,
+    "priority": 14,
+    "interval": 0,
+    "next_tick": 0,
+    "event_name": "活动扫荡",
+    "func_name": "activity_sweep"
   }
 ]
 """
@@ -244,7 +252,6 @@ DEFAULT_CONFIG = """
     "explore_hard_task_list": "此处填写需要推图的关卡",
     "manual_boss": false,
     "explore_normal_task_force_sss": true,
-    "explore_activity": false,
     "burst1": "1",
     "burst2": "2",
     "pierce1": "1",
@@ -253,7 +260,6 @@ DEFAULT_CONFIG = """
     "mystic2": "2",
     "shock1": "2",
     "shock2": "3",
-    "activity_sweep": false,
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
     "activity_exchange_reward": false,
@@ -535,7 +541,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "pleasant_Valentines_Day_in_schale",
+        "CN": "sakura_flowing_chaos_in_the_gala",
         "Global": null,
         "JP": null
     },
