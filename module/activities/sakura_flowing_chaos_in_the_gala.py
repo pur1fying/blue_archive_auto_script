@@ -101,7 +101,7 @@ def explore_mission(self):
         'pierce1',
         'mystic1',
         'mystic1',
-        'mystic1',
+        'pierce1',
         'mystic1',
     ]
     while last_target_mission <= total_missions:
