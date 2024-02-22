@@ -15,7 +15,7 @@ def to_group(self):
     group_x = {
         'CN': 578,
         'Global': 578,
-        'JP': 503,
+        'JP': 565,
     }
     rgb_possible = {'main_page': (group_x[self.server], 648)}
     img_possible = {'group_enter-button': (297, 380)}
