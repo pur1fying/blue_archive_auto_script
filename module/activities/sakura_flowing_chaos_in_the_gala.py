@@ -26,7 +26,7 @@ def sweep(self, number, times):
         return True
     self.logger.info("Start sweep task " + str(number) + " :" + str(sweep_times) + " times")
     to_mission_task_info(self, number)
-    res = check_sweep_availability(self.latest_img_array)
+    res = check_sweep_availability(self)
     if res == "sss":
         self.click(1032, 299, count=click_times, duration=duration,  wait_over=True)
         res = start_sweep(self, True)

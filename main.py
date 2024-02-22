@@ -32,7 +32,6 @@ class Main:
     def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None):
         t = Baas_thread(config, logger_signal, button_signal, update_signal)
         t.static_config = self.static_config
-        t.init_all_data()
         t.ocr = self.ocr
         self.threads.setdefault(name, t)
         return t
