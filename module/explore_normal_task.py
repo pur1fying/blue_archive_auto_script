@@ -72,16 +72,7 @@ def implement(self):
                     picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
                 else:
                     current_task_stage_data = self.stage_data[mission]
-                    img_possibles = {
-                        'normal_task_help': (1017, 131),
-                        'normal_task_task-info': (946, 540)
-                    }
-                    img_ends = "normal_task_task-wait-to-begin-feature"
-                    picture.co_detect(self, None,None, img_ends, img_possibles, True)
-                    choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
-                    start_mission(self)
-                    check_skip_fight_and_auto_over(self)
-                    start_action(self, current_task_stage_data['action'])
+                    common_gird_method(self, current_task_stage_data)
                 main_story.auto_fight(self, need_change_acc)
                 need_change_acc = False
                 if self.config['manual_boss']:
@@ -183,6 +174,8 @@ def start_action(self, actions, will_fight=False):
         self.logger.info(desc)
         force_index = get_force(self)
         op = act['t']
+        if 'pre-wait' in act:
+            time.sleep(act['pre-wait'])
         if type(op) is str:
             op = [op]
         if 'p' in act:
@@ -238,6 +231,8 @@ def start_action(self, actions, will_fight=False):
             wait_over(self, will_fight)
             skip_first_screenshot = True
             time.sleep(2)
+        if 'post-wait' in act:
+            time.sleep(act['post-wait'])
         if i != len(actions) - 1:
             to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
     self.set_screenshot_interval(self.config['screenshot_interval'])
@@ -507,3 +502,16 @@ def choose_team_according_to_stage_data_and_config(self, current_task_stage_data
         else:
             choose_team(self, res[j], los[j], True)
     start_mission(self)
+
+
+def common_gird_method(self, current_task_stage_data):
+    img_possibles = {
+        'normal_task_help': (1017, 131),
+        'normal_task_task-info': (946, 540)
+    }
+    img_ends = "normal_task_task-wait-to-begin-feature"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
+    start_mission(self)
+    check_skip_fight_and_auto_over(self)
+    start_action(self, current_task_stage_data['action'])

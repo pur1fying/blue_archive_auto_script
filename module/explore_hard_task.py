@@ -164,6 +164,8 @@ def start_action(self, actions):
         self.logger.info(desc)
         force_index = get_force(self)
         op = act['t']
+        if 'pre-wait' in act:
+            time.sleep(act['pre-wait'])
         if type(op) is str:
             op = [op]
         if 'p' in act:
@@ -221,6 +223,8 @@ def start_action(self, actions):
             wait_over(self)
             skip_first_screenshot = True
             time.sleep(2)
+        if 'post-wait' in act:
+            time.sleep(act['post-wait'])
         if i != len(actions) - 1:
             to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
     self.set_screenshot_interval(self.config['screenshot_interval'])

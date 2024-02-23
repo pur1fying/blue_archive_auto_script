@@ -1,11 +1,22 @@
+import importlib
 import time
 from core import image, color, picture
 from module import main_story
+from module.explore_normal_task import common_gird_method
 
 
 def implement(self):
-    sweep(self, self.config["activity_sweep_task_number"], self.config["activity_sweep_times"])
+    times = self.config["activity_sweep_times"]
+    if times > 0:
+        return sweep(self, self.config["activity_sweep_task_number"], times)
+    else:
+        return True
 
+def get_stage_data():
+    module_path = 'src.explore_task_data.activities.sakura_flowing_chaos_in_the_gala'
+    stage_module = importlib.import_module(module_path)
+    stage_data = getattr(stage_module, 'stage_data', None)
+    return stage_data
 
 def sweep(self, number, times):
     self.quick_method_to_main_page()
@@ -93,6 +104,7 @@ def start_fight(self, i):
 
 
 def explore_mission(self):
+    self.quick_method_to_main_page()
     to_activity(self, "mission", True)
     last_target_mission = 1
     total_missions = 6
@@ -129,7 +141,35 @@ def explore_mission(self):
 
 
 def explore_challenge(self):
+    self.quick_method_to_main_page()
     to_activity(self, "challenge")
+    tasks = [
+        "challenge2_sss",
+        "challenge2_task"
+    ]
+    stage_data = get_stage_data()
+    for i in range(0, len(tasks)):
+        current_task_stage_data = stage_data[tasks[i]]
+        data = tasks[i].split("_")
+        task_number = int(data[0].replace("challenge", ""))
+        to_challenge_task_info(self, task_number)
+        need_fight = False
+        if "task" in data:
+            need_fight = True
+        elif "sss" in data:
+            res = check_sweep_availability(self)
+            if res == "sss":
+                self.logger.info("Challenge " + str(task_number) + " sss no need to fight")
+                continue
+            elif res == "no-pass" or res == "pass":
+                need_fight = True
+        if need_fight:
+            common_gird_method(self, current_task_stage_data)
+            main_story.auto_fight(self)
+            if self.config['manual_boss']:
+                self.click(1235, 41)
+            to_activity(self, "mission", True)
+            to_activity(self, "challenge", True)
 
 
 def to_activity(self, region, skip_first_screenshot=False):
@@ -187,9 +227,9 @@ def to_story_task_info(self, number):
     if number in [6, 7, 8, 9, 10]:
         self.swipe(943, 593, 943, 0, duration=0.1)
         time.sleep(0.7)
-    possibles = {'activity_menu': (1124, lo[index[number]])}
-    ends = "normal_task_task-info"
-    image.detect(self, ends, possibles)
+    img_possibles = {'activity_menu': (1124, lo[index[number]])}
+    img_ends = "normal_task_task-info"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def to_mission_task_info(self, number):
@@ -198,9 +238,16 @@ def to_mission_task_info(self, number):
     if number in [5, 6]:
         self.swipe(943, 593, 943, 0, duration=0.1)
         time.sleep(0.7)
-    possibles = {'activity_menu': (1124, lo[index[number]])}
-    ends = "normal_task_task-info"
-    image.detect(self, ends, possibles)
+    img_possibles = {'activity_menu': (1124, lo[index[number]])}
+    img_ends = "normal_task_task-info"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def to_challenge_task_info(self, number):
+    lo = [0, 178, 279, 377]
+    img_possibles = {'activity_menu': (1124, lo[number])}
+    img_ends = "normal_task_task-info"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def check_sweep_availability(self):
