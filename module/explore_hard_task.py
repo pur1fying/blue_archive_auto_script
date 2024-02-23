@@ -3,6 +3,7 @@ import time
 
 from core import color, image, picture
 from module import main_story, normal_task, hard_task
+from module.explore_normal_task import common_gird_method
 
 
 def implement(self):
@@ -56,23 +57,7 @@ def implement(self):
                 self.logger.warning("according to the mission info current mission no need fight")
                 hard_task.to_hard_event(self, True)
             elif status == 'need-fight':
-                img_possibles = {
-                    'normal_task_help': (1017, 131),
-                    'normal_task_task-info': (946, 540)
-                }
-                img_ends = "normal_task_task-wait-to-begin-feature"
-                picture.co_detect(self, None, None, img_ends, img_possibles, True)
-                res, los = calc_team_number(self, current_task_stage_data)
-                for j in range(0, len(res)):
-                    if res[j] == "swipe":
-                        time.sleep(1)
-                        self.swipe(los[j][0], los[j][1], los[j][2], los[j][3], duration=los[j][4])
-                        time.sleep(1)
-                    else:
-                        choose_team(self, res[j], los[j], True)
-                start_mission(self)
-                check_skip_fight_and_auto_over(self)
-                start_action(self, current_task_stage_data['action'])
+                common_gird_method(self, current_task_stage_data)
                 main_story.auto_fight(self)
                 if self.config['manual_boss']:
                     self.click(1235, 41)
@@ -111,134 +96,6 @@ def judge_need_fight(self, current_task):
     return 'no-need-fight'
 
 
-def get_force(self):
-    region = {
-        'CN': (116, 542, 131, 570),
-        'Global': (116, 542, 131, 570),
-        'JP': (116, 542, 131, 570)
-    }
-    to_normal_task_mission_operating_page(self)
-    ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
-    if ocr_res == "UNKNOWN":
-        return get_force(self)
-    if ocr_res == 7:
-        ocr_res = 1
-    if ocr_res not in [1, 2, 3, 4]:
-        return get_force(self)
-    self.logger.info("Current force : " + str(ocr_res))
-    return ocr_res
-
-
-def end_turn(self):
-    self.logger.info("-- End Turn --")
-    img_end = 'normal_task_end-turn'
-    img_possibles = {
-        'normal_task_task-operating-feature': (1170, 670),
-        'normal_task_present': (640, 519),
-    }
-    picture.co_detect(self, None, None, img_end, img_possibles)
-    self.logger.info("Confirm End Turn")
-    img_end = 'normal_task_task-operating-feature'
-    img_possibles = {'normal_task_end-turn': (767, 501)}
-    picture.co_detect(self, None, None, img_end, img_possibles, True)
-
-
-def confirm_teleport(self):
-    self.logger.info("Wait Teleport Notice")
-    picture.co_detect(self, None, None, "normal_task_teleport-notice", None)
-    self.logger.info("Confirm Teleport")
-    img_end = 'normal_task_task-operating-feature'
-    img_possibles = {'normal_task_teleport-notice': (767, 501), }
-    picture.co_detect(self, None, None, img_end, img_possibles, True)
-
-
-def start_action(self, actions):
-    self.set_screenshot_interval(1)
-    self.logger.info("Start Actions total : " + str(len(actions)))
-    for i, act in enumerate(actions):
-        if not self.flag_run:
-            return
-        desc = "start " + str(i + 1) + " operation : "
-        if 'desc' in act:
-            desc += act['desc']
-        self.logger.info(desc)
-        force_index = get_force(self)
-        op = act['t']
-        if 'pre-wait' in act:
-            time.sleep(act['pre-wait'])
-        if type(op) is str:
-            op = [op]
-        if 'p' in act:
-            if type(act['p']) is tuple:
-                act['p'] = [act['p']]
-        skip_first_screenshot = False
-        for j in range(0, len(op)):
-            time.sleep(1)
-            if op[j] == 'click':
-                pos = act['p'][0]
-                self.click(pos[0], pos[1], wait_over=True)
-            elif op[j] == 'teleport':
-                confirm_teleport(self)
-            elif op[j] == 'exchange':
-                self.click(83, 557, wait_over=True)
-                force_index = wait_formation_change(self, force_index)
-            elif op[j] == 'exchange_twice':
-                self.click(83, 557, wait_over=True)
-                force_index = wait_formation_change(self, force_index)
-                self.click(83, 557, wait_over=True)
-                force_index = wait_formation_change(self, force_index)
-            elif op[j] == 'end-turn':
-                end_turn(self)
-                if i != len(actions) - 1:
-                    wait_over(self)
-                    skip_first_screenshot = True
-            elif op[j] == 'click_and_teleport':
-                pos = act['p'][0]
-                self.click(pos[0], pos[1], wait_over=True)
-                confirm_teleport(self)
-            elif op[j] == 'choose_and_change':
-                pos = act['p'][0]
-                self.click(pos[0], pos[1], wait_over=True, duration=0.3)
-                self.click(pos[0] - 100, pos[1], wait_over=True)
-            elif op[j] == 'exchange_and_click':
-                self.click(83, 557, wait_over=True)
-                force_index = wait_formation_change(self, force_index)
-                time.sleep(0.5)
-                pos = act['p'][0]
-                self.click(pos[0], pos[1], wait_over=True)
-            elif op[j] == 'exchange_twice_and_click':
-                self.click(83, 557, wait_over=True)
-                force_index = wait_formation_change(self, force_index)
-                self.click(83, 557, wait_over=True)
-                force_index = wait_formation_change(self, force_index)
-                time.sleep(0.5)
-                pos = act['p'][0]
-                self.click(pos[0], pos[1], wait_over=True)
-            elif op[j] == 'ensure-ui':
-                to_normal_task_mission_operating_page(self)
-
-        if 'ec' in act:
-            wait_formation_change(self, force_index)
-        if 'wait-over' in act:
-            wait_over(self)
-            skip_first_screenshot = True
-            time.sleep(2)
-        if 'post-wait' in act:
-            time.sleep(act['post-wait'])
-        if i != len(actions) - 1:
-            to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
-    self.set_screenshot_interval(self.config['screenshot_interval'])
-
-
-def wait_formation_change(self, force_index):
-    self.logger.info("Wait formation change")
-    origin = force_index
-    while force_index == origin and self.flag_run:
-        force_index = get_force(self)
-        time.sleep(self.screenshot_interval)
-    return force_index
-
-
 def choose_region(self, region):
     square = {
         'CN': [122, 178, 163, 208],
@@ -246,6 +103,7 @@ def choose_region(self, region):
         'JP': [122, 178, 163, 208]
     }
     cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+    self.logger.info("Current Region : " + str(cu_region))
     while cu_region != region and self.flag_run:
         if cu_region > region:
             self.click(40, 360, count=cu_region - region, rate=0.1, wait_over=True)
@@ -254,78 +112,7 @@ def choose_region(self, region):
         time.sleep(0.5)
         hard_task.to_hard_event(self)
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
-
-
-def choose_team(self, number, position, skip_first_screenshot=True):
-    self.logger.info("According to the config. Choose formation " + str(number))
-    to_formation_edit_i(self, number, position, skip_first_screenshot)
-    to_normal_task_wait_to_begin_page(self, skip_first_screenshot)
-
-
-def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
-    img_possibles = {
-        "normal_task_present": (794, 207),
-        "normal_task_mission-operating-task-info-notice": (995, 101),
-        "normal_task_end-turn": (890, 162),
-        "normal_task_teleport-notice": (886, 162),
-    }
-    img_ends = "normal_task_task-operating-feature"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-
-
-def to_normal_task_wait_to_begin_page(self, skip_first_screenshot=False):
-    rgb_possibles = {
-        "formation_edit1": (1154, 625),
-        "formation_edit2": (1154, 625),
-        "formation_edit3": (1154, 625),
-        "formation_edit4": (1154, 625),
-    }
-    img_ends = [
-        'normal_task_task-wait-to-begin-feature',
-        'normal_task_task-operating-feature'
-    ]
-    img_possibles = {
-        'task-begin-without-further-editing-notice': (888, 164)
-    }
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
-
-
-def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
-    loy = [195, 275, 354, 423]
-    y = loy[i - 1]
-    rgb_ends = "formation_edit" + str(i)
-    rgb_possibles = {
-        "formation_edit1": (74, y),
-        "formation_edit2": (74, y),
-        "formation_edit3": (74, y),
-        "formation_edit4": (74, y),
-    }
-    rgb_possibles.pop("formation_edit" + str(i))
-    img_possibles = {"normal_task_task-wait-to-begin-feature": (lo[0], lo[1])}
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
-
-
-def wait_over(self):
-    self.logger.info("Wait until move available")
-    img_ends = "normal_task_mission-operating-task-info-notice"
-    img_possibles = {
-        'normal_task_task-operating-feature': (997, 670),
-        'normal_task_present': (794, 207),
-        'normal_task_teleport-notice': (885, 164),
-    }
-    picture.co_detect(self, None, None, img_ends, img_possibles)
-
-
-def start_mission(self):
-    img_ends = "normal_task_task-operating-feature"
-    img_possibles = {
-        'normal_task_fight-task': (1171, 670),
-        'normal_task_task-begin-without-further-editing-notice': (768, 498),
-        'normal_task_task-operating-round-over-notice': (888, 163),
-        'normal_task_task-wait-to-begin-feature': (1171, 670),
-        'normal_task_end-turn': (888, 163),
-    }
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        self.logger.info("Current Region : " + str(cu_region))
 
 
 def to_mission_info(self, y):
@@ -387,13 +174,6 @@ def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=T
             for j in range(1, 4):
                 tasks.append(st[i] + '-' + str(j) + tt)
     return tasks
-
-
-def check_skip_fight_and_auto_over(self):
-    if not image.compare_image(self, 'normal_task_fight-skip'):
-        self.click(1194, 547)
-    if not image.compare_image(self, 'normal_task_auto-over'):
-        self.click(1194, 600)
 
 
 def calc_team_number(self, current_task_stage_data):

@@ -92,6 +92,29 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
 
 
 def deal_with_pop_ups(self):
+    rgb_possibles = {
+        "reward_acquired": (640, 100),
+        "relationship_rank_up": (640, 100),
+    }
+    for position, click in rgb_possibles.items():
+        if position not in self.rgb_feature:
+            continue
+        for j in range(0, len(self.rgb_feature[position][0])):
+            if not color.judge_rgb_range(self,
+                                         self.rgb_feature[position][0][j][0],
+                                         self.rgb_feature[position][0][j][1],
+                                         self.rgb_feature[position][1][j][0],
+                                         self.rgb_feature[position][1][j][1],
+                                         self.rgb_feature[position][1][j][2],
+                                         self.rgb_feature[position][1][j][3],
+                                         self.rgb_feature[position][1][j][4],
+                                         self.rgb_feature[position][1][j][5]):
+                break
+        else:
+            self.logger.info("find : " + position)
+            self.click(click[0], click[1])
+            self.latest_screenshot_time = time.time()
+            return True, position
     img_possibles = {
         'CN': {
             'main_page_news': (1142, 104),
@@ -111,5 +134,4 @@ def deal_with_pop_ups(self):
             self.click(click[0], click[1])
             self.latest_screenshot_time = time.time()
             return True, position
-
     return False
