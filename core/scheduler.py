@@ -43,7 +43,7 @@ class Scheduler:
         for event in self._event_config:
             if event['func_name'] == task_name:
                 if next_time != 0:
-                    event['next_tick'] = time.time() + next_time
+                    event['next_tick'] = int(time.time() + next_time)
                 else:
                     if event['interval'] == 0:
                         hour = {
@@ -55,10 +55,10 @@ class Scheduler:
                         event['next_tick'] = self.get_next_hour(hour)
                     else:
                         if event['func_name'] == 'cafe_reward':
-                            fixed_refresh_hour = [20 - int(server == "Global" or server == "JP"), 4 - int(server == "Global" or server == "JP")]
+                            fixed_refresh_hour = [20 - int(server == "Global" or server == "JP"), 6 - int(server == "Global" or server == "JP")]
                             current_hour = datetime.now(timezone.utc).hour
                             for i in range(0, len(fixed_refresh_hour)):
-                                if current_hour < fixed_refresh_hour[i] <= current_hour + event['interval']:
+                                if current_hour < fixed_refresh_hour[i] <= current_hour + (event['interval'] / 3600):
                                     event['next_tick'] = self.get_next_hour(fixed_refresh_hour[i])
                                     break
                             else:
