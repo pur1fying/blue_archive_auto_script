@@ -146,12 +146,11 @@ class Baas_thread:
             if 'com.github.uiautomator' not in self.connection.app_list():
                 self.connection.app_install('ATX.apk')
             self.connection.uiautomator.start()
-            time.sleep(2)
+            self.wait_uiautomator_start()
             self.first_start_u2 = False
             self.last_start_u2_time = time.time()
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
-            self.latest_img_array = self.get_screenshot_array()
             width = max(temp[0], temp[1])
             self.ratio = width / 1280
             self.logger.info("Screen Size Ratio: " + str(self.ratio))
@@ -185,7 +184,6 @@ class Baas_thread:
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
             while self.flag_run:
-                print(1)
                 if self.first_start:
                     self.solve('restart')
                 next_func_name = self.scheduler.heartbeat()
@@ -195,7 +193,6 @@ class Baas_thread:
                     self.task_finish_to_main_page = True
                     if self.solve(next_func_name) and self.flag_run:
                         next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
-                        next_tick.replace(microsecond=0)
                         self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                     else:
                         self.logger.error("error occurred, stop all activities")
@@ -457,3 +454,13 @@ class Baas_thread:
             interval = 0.3
         self.logger.info("screenshot_interval set to " + str(interval))
         self.screenshot_interval = interval
+
+    def wait_uiautomator_start(self):
+        try:
+            while not self.connection.uiautomator.running():
+                time.sleep(0.1)
+            self.latest_img_array = self.get_screenshot_array()
+        except Exception as e:
+            print(e)
+            self.connection.uiautomator.start()
+            self.wait_uiautomator_start()
