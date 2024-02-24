@@ -147,11 +147,11 @@ class Baas_thread:
                 self.connection.app_install('ATX.apk')
             self.connection.uiautomator.start()
             time.sleep(2)
-            self.latest_img_array = self.get_screenshot_array()
             self.first_start_u2 = False
             self.last_start_u2_time = time.time()
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
+            self.latest_img_array = self.get_screenshot_array()
             width = max(temp[0], temp[1])
             self.ratio = width / 1280
             self.logger.info("Screen Size Ratio: " + str(self.ratio))

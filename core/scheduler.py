@@ -54,7 +54,17 @@ class Scheduler:
                             hour = daily_reset
                         event['next_tick'] = self.get_next_hour(hour)
                     else:
-                        event['next_tick'] = time.time() + event['interval']
+                        if event['func_name'] == 'cafe_reward':
+                            fixed_refresh_hour = [20 - int(server == "Global" or server == "JP"), 4 - int(server == "Global" or server == "JP")]
+                            current_hour = datetime.now(timezone.utc).hour
+                            for i in range(0, len(fixed_refresh_hour)):
+                                if current_hour < fixed_refresh_hour[i] <= current_hour + event['interval']:
+                                    event['next_tick'] = self.get_next_hour(fixed_refresh_hour[i])
+                                    break
+                            else:
+                                event['next_tick'] = int(time.time() + event['interval'])
+                        else:
+                            event['next_tick'] = int(time.time() + event['interval'])
                 res = datetime.fromtimestamp(event['next_tick'])
                 break
         self._commit_change()
@@ -62,10 +72,8 @@ class Scheduler:
         return res
 
     def heartbeat(self) -> Optional[str]:
-        # self._read_config()
         self._read_config()
         self.update_signal.emit()
-        # self._event_config = sorted(self._event_config, key=lambda x: x['next_tick'])
         _valid_event = [x for x in self._event_config if x['enabled']]
         _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time.time()]
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])
@@ -77,11 +85,6 @@ class Scheduler:
             self._display_config['running'] = "Waiting"
             self.change_display('Waiting')
             return None
-
-    def get_next_execute_time(self):
-        _valid_event = [x for x in self._event_config if x['enabled']]
-        _valid_event.sort(key=lambda x: x['next_tick'])
-        return _valid_event[0]['next_tick'] - time.time()
 
     def change_display(self, task_name):
         self._display_config['running'] = task_name
