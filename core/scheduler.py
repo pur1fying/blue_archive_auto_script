@@ -43,7 +43,7 @@ class Scheduler:
         for event in self._event_config:
             if event['func_name'] == task_name:
                 if next_time != 0:
-                    event['next_tick'] = int(time.time() + next_time)
+                    event['next_tick'] = time.time() + next_time
                 else:
                     if event['interval'] == 0:
                         hour = {
@@ -62,9 +62,10 @@ class Scheduler:
                                     event['next_tick'] = self.get_next_hour(fixed_refresh_hour[i])
                                     break
                             else:
-                                event['next_tick'] = int(time.time() + event['interval'])
+                                event['next_tick'] = time.time() + event['interval']
                         else:
-                            event['next_tick'] = int(time.time() + event['interval'])
+                            event['next_tick'] = time.time() + event['interval']
+                event['next_tick'] = int(event['next_tick'])
                 res = datetime.fromtimestamp(event['next_tick'])
                 break
         self._commit_change()
