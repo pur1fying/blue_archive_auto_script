@@ -1,5 +1,4 @@
 import time
-import numpy as np
 from core import color, image, picture
 
 
@@ -34,8 +33,7 @@ def implement(self, need_check_mode=True):
                 return implement(self, need_check_mode=False)
         else:
             for i in range(0, len(unread_location)):
-                self.click(unread_location[i][0], unread_location[i][1], wait_over=True)
-                time.sleep(0.5)
+                self.click(unread_location[i][0], unread_location[i][1], wait_over=True, duration=0.5)
                 common_solve_affection_story_method(self)
         main_to_momotalk = False
         self.click(170, 197, duration=0.2, wait_over=True)
@@ -108,16 +106,16 @@ def common_solve_affection_story_method(self):
 
 
 def get_reply_position(self):
-    i = 156
-    while i < 657:
-        if color.judge_rgb_range(self, 786, i, 29, 49, 143, 163, 219, 239) and \
-            color.judge_rgb_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239):
+    i = 657
+    while i > 156:
+        if color.judge_rgb_range(self, 786, i, 29, 104, 143, 176, 219, 239) and \
+            color.judge_rgb_range(self, 786, i + 10, 29, 104, 143, 176, 219, 239):
             return 'reply', i + 65
         elif color.judge_rgb_range(self, 862, i, 245, 255, 227, 247, 230, 250) and \
             color.judge_rgb_range(self, 862, i + 10, 245, 255, 125, 155, 145, 175):
             return 'affection', min(625, i + 30)
         else:
-            i += 1
+            i -= 1
     return 'end', 0
 
 
