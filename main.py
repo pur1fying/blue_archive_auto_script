@@ -97,14 +97,14 @@ class Main:
 
 
 if __name__ == '__main__':
-
-    t = Main(ocr_needed=["NUM","CN","Global"])
+    t = Main(ocr_needed=["NUM", "CN", "Global"])
     t.init_static_config()
     config = ConfigSet(config_dir="default_config")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
+    tt.solve("refresh_uiautomator2")
     tt.solve("explore_activity_challenge")
     tt.solve("activity_sweep")
     tt.solve("explore_activity_mission")

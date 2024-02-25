@@ -68,7 +68,7 @@ class Baas_thread:
         self.ocr = None
         self.logger = Logger(logger_signal)
         self.first_start_u2 = True
-        self.last_start_u2_time = 0
+        self.last_refresh_u2_time = 0
         self.latest_img_array = None
         self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
         self.button_signal = button_signal
@@ -148,7 +148,7 @@ class Baas_thread:
             self.connection.uiautomator.start()
             self.wait_uiautomator_start()
             self.first_start_u2 = False
-            self.last_start_u2_time = time.time()
+            self.last_refresh_u2_time = time.time()
             temp = self.connection.window_size()
             self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
             width = max(temp[0], temp[1])
@@ -189,6 +189,8 @@ class Baas_thread:
                 next_func_name = self.scheduler.heartbeat()
                 self.next_time = 0
                 if next_func_name:
+                    if time.time() - self.last_refresh_u2_time > 10800:
+                        self.solve('refresh_uiautomator2')
                     self.logger.info(f"current activity: {next_func_name}")
                     self.task_finish_to_main_page = True
                     if self.solve(next_func_name) and self.flag_run:

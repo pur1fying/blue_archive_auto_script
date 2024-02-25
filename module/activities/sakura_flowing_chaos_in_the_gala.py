@@ -173,7 +173,7 @@ def explore_challenge(self):
 
 
 def to_activity(self, region, skip_first_screenshot=False):
-    possibles = {
+    img_possibles = {
         "activity_enter1": (1196, 195),
         "activity_enter2": (100, 149),
         "activity_enter3": (218, 530),
@@ -198,8 +198,8 @@ def to_activity(self, region, skip_first_screenshot=False):
         'normal_task_mission-conclude-confirm': (1042, 671),
         "activity_exchange-confirm": (673, 603),
     }
-    ends = "activity_menu"
-    image.detect(self, ends, possibles, skip_first_screenshot=skip_first_screenshot)
+    img_ends = "activity_menu"
+    picture.co_detect(self, None,None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
     if region is None:
         return True
     rgb_lo = {
