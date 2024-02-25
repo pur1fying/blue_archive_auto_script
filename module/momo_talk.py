@@ -108,8 +108,8 @@ def common_solve_affection_story_method(self):
 def get_reply_position(self):
     i = 657
     while i > 156:
-        if color.judge_rgb_range(self, 786, i, 29, 104, 143, 176, 219, 239) and \
-            color.judge_rgb_range(self, 786, i + 10, 29, 104, 143, 176, 219, 239):
+        if color.judge_rgb_range(self, 786, i, 29, 49, 143, 163, 219, 239, True, 1) and \
+            color.judge_rgb_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):
             return 'reply', i + 65
         elif color.judge_rgb_range(self, 862, i, 245, 255, 227, 247, 230, 250) and \
             color.judge_rgb_range(self, 862, i + 10, 245, 255, 125, 155, 145, 175):

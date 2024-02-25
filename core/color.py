@@ -37,11 +37,18 @@ def wait_loading(self):
         return True
 
 
-def judge_rgb_range(self, x, y, r_min, r_max, g_min, g_max, b_min, b_max):
+def judge_rgb_range(self, x, y, r_min, r_max, g_min, g_max, b_min, b_max, check_nearby=False, nearby_range=1):
     if r_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][2] <= r_max and \
         g_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][1] <= g_max and \
         b_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][0] <= b_max:
         return True
+    if check_nearby:
+        for i in range(nearby_range * -1, nearby_range + 1):
+            for j in range(nearby_range * -1, nearby_range + 1):
+                if r_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][2] <= r_max and \
+                    g_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][1] <= g_max and \
+                    b_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][0] <= b_max:
+                    return True
     return False
 
 
