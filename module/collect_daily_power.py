@@ -7,6 +7,7 @@ def implement(self):
     self.quick_method_to_main_page()
     to_tasks(self, True)
     time.sleep(0.5)
+    self.latest_img_array = self.get_screenshot_array()
     while 1:
         if color.judge_rgb_range(self, 1148, 691, 239, 255, 228, 248, 64, 84) and \
             color.judge_rgb_range(self, 1142, 649, 239, 255, 228, 248, 64, 84):

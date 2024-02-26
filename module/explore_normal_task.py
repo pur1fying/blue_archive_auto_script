@@ -456,6 +456,7 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
         "normal_task_mission-operating-task-info-notice": (995, 101),
         "normal_task_end-turn": (890, 162),
         "normal_task_teleport-notice": (886, 162),
+        'normal_task_present': (640, 519),
         "normal_task_fight-confirm": (1171, 670),
     }
     img_ends = "normal_task_task-operating-feature"

@@ -4,21 +4,21 @@ stage_data = {
     },
     '24-1': {
         'start': {
-            'shock1': (670, 470),
-            'burst1': (370, 215),
+            'shock1': (641, 385),
+            'burst1': (351, 147),
         },
         'action': [
-            {'t': 'click', 'p': (468, 397), 'ec': True, "desc": "1 lower left"},
-            {'t': 'click', 'p': (637, 461), "wait-over": True, 'ec': True, "desc": "2 left"},
+            {'t': 'click', 'p': (622, 473), 'ec': True, "desc": "1 left"},
+            {'t': 'click_and_teleport', 'p': (598, 386), "wait-over": True, 'ec': True, "desc": "2 lower right and tp"},
 
-            {'t': 'click', 'p': (433, 463), 'ec': True, "desc": "1 lower left"},
-            {'t': 'click', 'p': (630, 443), "wait-over": True,'ec': True, "desc": "2 left"},
+            {'t': 'click', 'p': (380, 362), 'ec': True, "desc": "1 left"},
+            {'t': 'end-turn'},
 
-            {'t': 'click', 'p': (453, 525), 'ec': True, "desc": "1 lower left"},
-            {'t': 'click', 'p': (596, 390), "wait-over": True, 'ec': True,"desc": "2 left"},
+            {'t': 'click', 'p': (436, 464), 'ec': True, "desc": "1 lower left"},
+            {'t': 'click', 'p': (868, 314), "wait-over": True, 'ec': True,"desc": "2 right"},
 
-            {'t': 'click', 'p': (421, 480), 'ec': True, "desc": "1 left"},
-            {'t': 'click', 'p': (776, 214),  "desc": "2 upper right"},
+            {'t': 'exchange_and_click', 'p': (704, 407), 'ec': True, "desc": "2 lower left"},
+            {'t': 'click', 'p': (576, 534),  "desc": "1 lower right"},
         ]
     },
     '24-2': {
@@ -27,17 +27,17 @@ stage_data = {
             'burst1': (370, 215),
         },
         'action': [
-            {'t': 'click', 'p': (752, 492), 'ec': True, "desc": "1 right"},
-            {'t': 'click', 'p': (637, 318), 'ec': True, "wait-over": True, "desc": "2 right"},
+            {'t': 'click', 'p': (752, 492), 'ec': True, "desc": "1 upper right"},
+            {'t': 'click_and_teleport', 'p': (637, 318), 'ec': True, "wait-over": True, "desc": "2 upper left and tp"},
 
-            {'t': 'click', 'p': (560, 338), 'ec': True, "desc": "1 upper right"},
-            {'t': 'click', 'p': (637, 330), 'ec': True, "wait-over": True, "desc": "2 right"},
+            {'t': 'click', 'p': (560, 338), 'ec': True, "desc": "1 right"},
+            {'t': 'click', 'p': (637, 330), 'ec': True, "wait-over": True, "desc": "2 left"},
 
             {'t': 'click', 'p': (775, 361), 'ec': True, "desc": "1 right"},
-            {'t': 'click', 'p': (657, 357), 'ec': True, "wait-over": True, "desc": "2 lower right"},
+            {'t': 'click', 'p': (657, 357), 'ec': True, "wait-over": True, "desc": "2 left"},
 
-            {'t': 'exchange_and_click', 'p': (439, 505), 'ec': True, "desc": "2 lower left"},
-            {'t': 'click', 'p': (890, 348), "desc": "1 right"},
+            {'t': 'exchange_and_click', 'p': (439, 505), 'ec': True, "desc": "2 left"},
+            {'t': 'click', 'p': (890, 348), "desc": "1 lower left"},
         ]
     },
     '24-3': {
