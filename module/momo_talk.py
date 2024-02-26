@@ -109,9 +109,9 @@ def get_reply_position(self):
         if color.judge_rgb_range(self, 786, i, 29, 49, 143, 163, 219, 239, True, 1) and \
             color.judge_rgb_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):
             return 'reply', i + 65
-        elif color.judge_rgb_range(self, 862, i, 245, 255, 227, 247, 230, 250) and \
-            color.judge_rgb_range(self, 862, i + 10, 245, 255, 125, 155, 145, 175):
-            return 'affection', min(625, i + 30)
+        elif color.judge_rgb_range(self, 862, 813 - i, 245, 255, 227, 247, 230, 250) and \
+            color.judge_rgb_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):
+            return 'affection', min(625, 843 - i)
         else:
             i -= 1
     return 'end', 0

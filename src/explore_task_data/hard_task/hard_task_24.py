@@ -1,8 +1,8 @@
 stage_data = {
     '24-1-sss-present-task': {
         'start': {
-            'pierce1': (670, 470),
-            'mystic1': (370, 215),
+            'shock1': (670, 470),
+            'burst1': (370, 215),
         },
         'action': [
             {'t': 'click', 'p': (605, 475), 'ec': True, 'desc': "1 left"},
@@ -23,8 +23,8 @@ stage_data = {
     },
     '24-2-sss-present-task': {
         'start': {
-            'pierce1': (550, 385),
-            'mystic1': (520, 560),
+            'shock1': (670, 470),
+            'burst1': (370, 215),
         },
         'action': [
             {'t': 'click', 'p': (565, 325), 'ec': True, 'desc': "1 left"},

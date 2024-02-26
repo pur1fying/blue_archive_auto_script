@@ -1,11 +1,11 @@
 stage_data = {
     '24': {
-        'SUB': "pierce1"
+        'SUB': "shock1"
     },
     '24-1': {
         'start': {
-            'pierce1': (728, 303),
-            'mystic1': (882, 562),
+            'shock1': (670, 470),
+            'burst1': (370, 215),
         },
         'action': [
             {'t': 'click', 'p': (468, 397), 'ec': True, "desc": "1 lower left"},
@@ -23,8 +23,8 @@ stage_data = {
     },
     '24-2': {
         'start': {
-            'pierce1': (428, 472),
-            'mystic1': (409, 269),
+            'shock1': (670, 470),
+            'burst1': (370, 215),
         },
         'action': [
             {'t': 'click', 'p': (752, 492), 'ec': True, "desc": "1 right"},
@@ -42,8 +42,8 @@ stage_data = {
     },
     '24-3': {
         'start': {
-            'pierce1': (370, 388),
-            'mystic1': (1102, 562),
+            'shock1': (670, 470),
+            'burst1': (370, 215),
         },
         'action': [
             {'t': 'click', 'p': (619, 357), 'ec': True, "desc": "1 right"},
@@ -65,8 +65,8 @@ stage_data = {
     },
     '24-4': {
         'start': {
-            'pierce1': (343, 473),
-            'mystic1': (812, 510),
+            'shock1': (670, 470),
+            'burst1': (370, 215),
         },
         'action': [
             {'t': 'click', 'p': (553, 300), 'ec': True, "desc": "1 upper right"},
@@ -83,8 +83,8 @@ stage_data = {
     },
     '24-5': {
         'start': {
-            'pierce1': (307, 403),
-            'mystic1': (854, 238),
+            'shock1': (670, 470),
+            'burst1': (370, 215),
         },
         'action': [
             {'t': 'click', 'p': (566, 530), 'ec': True, "desc": "1 lower right"},

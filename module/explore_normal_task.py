@@ -472,7 +472,7 @@ def get_explore_normal_task_missions(self, st):
             if '-' in st[i]:
                 temp = st[i].split('-')
                 region = int(temp[0])
-                if region < 4 or region > 24:
+                if region < 4 or region > 25:
                     self.logger.error("region" + temp[0] + "not support")
                     continue
                 if len(temp) != 2:
@@ -480,7 +480,7 @@ def get_explore_normal_task_missions(self, st):
                 tasks.append([int(temp[0]), int(temp[1])])
             else:
                 region = int(st[i])
-                if region < 4 or region > 24:
+                if region < 4 or region > 25:
                     self.logger.error("region" + st[i] + "not support")
                     continue
                 for j in range(1, 6):
