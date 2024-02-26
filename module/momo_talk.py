@@ -50,7 +50,6 @@ def check_mode(self):
         self.logger.info("UNREAD mode")
     else:
         self.logger.info("can't detect mode button")
-        return False
     self.latest_img_array = self.get_screenshot_array()
     if image.compare_image(self, "momo_talk_up", need_log=False):
         self.logger.info("change UP to DOWN")
@@ -59,7 +58,6 @@ def check_mode(self):
         self.logger.info("DOWN mode")
     else:
         self.logger.info("can't detect up/down button")
-        return False
     return True
 
 
