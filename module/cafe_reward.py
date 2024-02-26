@@ -271,7 +271,10 @@ def to_cafe_earning_status(self):
         'cafe': (1142, 639)
     }
     img_ends = "cafe_cafe-reward-status"
-    picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
+    img_possibles = {
+        'cafe_students-arrived': (922, 189),
+    }
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
 def collect(self):
