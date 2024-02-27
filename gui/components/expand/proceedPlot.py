@@ -42,4 +42,4 @@ class Layout(TemplateLayout):
 
     def proceed_branch_plot(self):
         import threading
-        threading.Thread(target=get_context_thread(self).start_branch_story).start()
+        threading.Thread(target=get_context_thread(self).start_mini_story).start()

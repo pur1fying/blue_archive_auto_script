@@ -3,6 +3,9 @@ from core import color, picture, image
 
 
 def implement(self):
+    if self.server == 'CN':
+        self.logger.warning("mini story not open")
+        return True
     self.quick_method_to_main_page()
     to_mini_story(self, True)
     time.sleep(1)
