@@ -50,7 +50,7 @@ class Scheduler:
                             "arena": 6 - int(server == "Global" or server == "JP"),
                             "collect_daily_power": 10 - int(server == "Global" or server == "JP"),
                         }.get(task_name, daily_reset)
-                        if hour < datetime.now(timezone.utc).hour < daily_reset:
+                        if hour <= datetime.now(timezone.utc).hour < daily_reset:
                             hour = daily_reset
                         event['next_tick'] = self.get_next_hour(hour)
                     else:
