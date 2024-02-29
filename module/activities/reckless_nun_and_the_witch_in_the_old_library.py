@@ -28,7 +28,7 @@ def sweep(self, number, times):
     self.swipe(919, 136, 943, 720, duration=0.05)
     time.sleep(0.5)
     ap = self.get_ap()
-    sweep_one_time_ap = [0, 10, 10, 15, 15, 15, 15]
+    sweep_one_time_ap = [0, 10, 10,10,10, 15, 15, 15, 15,20,20,20,20]
     sweep_times = times
     click_times = sweep_times
     duration = 1
