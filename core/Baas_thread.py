@@ -11,7 +11,6 @@ import module
 import threading
 import json
 
-
 func_dict = {
     'group': module.group.implement,
     'momo_talk': module.momo_talk.implement,
@@ -107,8 +106,8 @@ class Baas_thread:
             click_y = y + noisey
             click_x = max(0, click_x)
             click_y = max(0, click_y)
-            click_x = int(min(1280, click_x)*self.ratio)
-            click_y = int(min(720, click_y)*self.ratio)
+            click_x = int(min(1280, click_x) * self.ratio)
+            click_y = int(min(720, click_y) * self.ratio)
             self.connection.click(click_x, click_y)
             if duration > 0:
                 time.sleep(duration)
@@ -191,7 +190,7 @@ class Baas_thread:
                 if next_func_name:
                     if time.time() - self.last_refresh_u2_time > 10800:
                         self.solve('refresh_uiautomator2')
-                    self.logger.info(f"Scheduler :<< {next_func_name} >>")
+                    self.logger.info(f"Scheduler :  -- {next_func_name} --")
                     self.task_finish_to_main_page = True
                     if self.solve(next_func_name) and self.flag_run:
                         next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
@@ -264,6 +263,7 @@ class Baas_thread:
             'plot_skip-plot-button': (1208, 116),
             'plot_skip-plot-notice': (770, 519),
             'activity_fight-success-confirm': (640, 663),
+            "total_assault_reach-season-highest-record": (640, 528),
         }
         update = {
             'CN': {
@@ -298,7 +298,8 @@ class Baas_thread:
             'level_up': (640, 200),
             'reward_acquired': (640, 100),
         }
-        picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot, tentitive_click=True)
+        picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot,
+                          tentitive_click=True)
 
     def wait_screenshot_updated(self):
         while (not self.screenshot_updated) and self.flag_run:
@@ -340,7 +341,7 @@ class Baas_thread:
         if not self.flag_run:
             return False
         self.logger.info(f"swipe {fx} {fy} {tx} {ty}")
-        self.connection.swipe(fx*self.ratio, fy*self.ratio, tx*self.ratio, ty*self.ratio, duration)
+        self.connection.swipe(fx * self.ratio, fy * self.ratio, tx * self.ratio, ty * self.ratio, duration)
 
     def get_ap(self):
         region = {

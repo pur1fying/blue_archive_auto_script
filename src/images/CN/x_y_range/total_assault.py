@@ -13,4 +13,5 @@ x_y_range = {
     'give-up-notice': (574, 315, 706, 347),
     'win-reward-confirm': (713, 637, 832, 680),
     'total_assault_result': (539, 109, 728, 145),
+    'reach-season-highest-record': (489, 146, 812, 183)
 }

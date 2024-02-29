@@ -31,7 +31,7 @@ def implement(self):
                 break
             max_sweepable = pri_total_assault
             pri_total_assault += 1
-            res = fight_difficulty_x(self, pri_total_assault + 1)
+            res = fight_difficulty_x(self, pri_total_assault)
             if res == "WIN":
                 max_sweepable = pri_total_assault
 
@@ -223,6 +223,7 @@ def to_total_assault(self, skip_first_screenshot):
         'total_assault_edit-force': (62, 38),
         'total_assault_total-assault-result': (640, 568),
         'total_assault_win-reward-confirm': (772, 659),
+        "total_assault_reach-season-highest-record":(640, 528),
         "normal_task_sweep-complete": (643, 585),
         'normal_task_skip-sweep-complete': (643, 506),
     }
@@ -309,6 +310,7 @@ def calc_acc(dict1, dict2):
 def one_detect(self, button_detected, maxx, character_dict):
     name = ["BRIGHT", "GREY"]
     region = (661, 161, 833, 608)
+    y = np.zeros(len(self.total_assault_difficulty_names), dtype=int)
     ocr_res = self.ocr.get_region_raw_res(self.latest_img_array, region, "Global", self.ratio)
     for i in range(0, len(button_detected)):
         if button_detected[i].any():
@@ -325,19 +327,17 @@ def one_detect(self, button_detected, maxx, character_dict):
             maximum_acc_index = acc.index(max(acc))
             if acc[maximum_acc_index] > 0.8 and (not button_detected[maximum_acc_index].any()):
                 temp = 1
-                y = int(ocr_res[j]["position"][3][1]/self.ratio) + region[1]
-                if color.judge_rgb_range(self, 1163, y, 235, 255, 223, 243, 65, 85):
+                y[maximum_acc_index] = int(ocr_res[j]["position"][3][1]/self.ratio) + region[1]
+                if color.judge_rgb_range(self, 1163, y[maximum_acc_index], 235, 255, 223, 243, 65, 85):
                     temp = 0
                 self.logger.info("find " + self.total_assault_difficulty_names[maximum_acc_index].upper() + " " + name[
                     temp] + " button")
                 if maximum_acc_index >= maxx and temp == 0:
-                    if maximum_acc_index != maxx:
-                        y = 0
-                    return (maxx, y), button_detected
+                    return (maxx, y[maximum_acc_index]), button_detected
                 button_detected[maximum_acc_index][temp] = True
                 t = total_assault_highest_difficulty_button_judgement(button_detected)
                 if isinstance(t, int):
-                    return (t, y), button_detected
+                    return (t, y[t]), button_detected
     return "NOT_FOUND", button_detected
 
 
