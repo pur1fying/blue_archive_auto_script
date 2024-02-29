@@ -191,7 +191,7 @@ class Baas_thread:
                 if next_func_name:
                     if time.time() - self.last_refresh_u2_time > 10800:
                         self.solve('refresh_uiautomator2')
-                    self.logger.info(f"current activity: {next_func_name}")
+                    self.logger.info(f"Scheduler :<< {next_func_name} >>")
                     self.task_finish_to_main_page = True
                     if self.solve(next_func_name) and self.flag_run:
                         next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)

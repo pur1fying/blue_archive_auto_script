@@ -147,14 +147,6 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
-    "priority": -3,
-    "interval": 10700,
-    "next_tick": 0,
-    "event_name": "定时刷新U2",
-    "func_name": "refresh_uiautomator2"
-  },
-  {
-    "enabled": true,
     "priority": 14,
     "interval": 0,
     "next_tick": 0,
@@ -541,7 +533,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "sakura_flowing_chaos_in_the_gala",
+        "CN": "reckless_nun_and_the_witch_in_the_old_library",
         "Global": null,
         "JP": null
     },

@@ -319,6 +319,7 @@ def wait_over(self, will_fight=False):
         'normal_task_task-operating-feature': (997, 670),
         'normal_task_teleport-notice': (885, 164),
         "normal_task_fight-confirm": (1171, 670),
+        'normal_task_present': (640, 519),
     }
     while True:
         if not self.flag_run:

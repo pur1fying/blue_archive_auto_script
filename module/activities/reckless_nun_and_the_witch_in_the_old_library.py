@@ -25,6 +25,8 @@ def sweep(self, number, times):
     to_activity(self, "mission", True)
     self.swipe(919, 136, 943, 720, duration=0.05)
     time.sleep(0.5)
+    self.swipe(919, 136, 943, 720, duration=0.05)
+    time.sleep(0.5)
     ap = self.get_ap()
     sweep_one_time_ap = [0, 10, 10, 15, 15, 15, 15]
     sweep_times = times
@@ -58,7 +60,7 @@ def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True)
     last_target_task = 1
-    total_stories = 10
+    total_stories = 8
     while self.flag_run:
         self.swipe(919, 136, 943, 720, duration=0.05)
         time.sleep(0.5)
@@ -109,37 +111,44 @@ def explore_mission(self):
     self.quick_method_to_main_page()
     to_activity(self, "mission", True)
     last_target_mission = 1
-    total_missions = 6
+    total_missions = 12
     characteristic = [
-        'mystic1',
+        'pierce1',
         'pierce1',
         'mystic1',
-        'mystic1',
+        'burst1',
         'pierce1',
         'mystic1',
+        'pierce1',
+        'pierce1',
+        'pierce1',
+        'pierce1',
+        'pierce1',
+        'pierce1',
     ]
-    while last_target_mission <= total_missions:
+    while last_target_mission <= total_missions and self.flag_run:
+        self.swipe(919, 136, 943, 720, duration=0.05)
+        time.sleep(0.5)
         self.swipe(919, 136, 943, 720, duration=0.05)
         time.sleep(0.5)
         to_mission_task_info(self, last_target_mission)
         res = check_sweep_availability(self)
-        while res == "sss" and last_target_mission <= total_missions - 1:
+        while res == "sss" and last_target_mission <= total_missions - 1 and self.flag_run:
             self.logger.info("Current task sss check next task")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_mission += 1
             image.detect(self, "normal_task_task-info")
             res = check_sweep_availability(self)
-        if res == "no-pass" or res == "pass":
-            number = self.config[characteristic[last_target_mission - 1]]
-            self.logger.info("according to config, choose formation " + str(number))
-            to_formation_edit_i(self, number, (940, 538), True)
-            start_fight(self, number)
-            main_story.auto_fight(self)
-            to_activity(self, "story")
-            to_activity(self, "mission", True)
-        if last_target_mission == total_missions:
+        if last_target_mission == total_missions and res == "sss":
             self.logger.info("All MISSION SSS")
             return True
+        number = self.config[characteristic[last_target_mission - 1]]
+        self.logger.info("according to config, choose formation " + str(number))
+        to_formation_edit_i(self, number, (940, 538), True)
+        start_fight(self, number)
+        main_story.auto_fight(self)
+        to_activity(self, "story")
+        to_activity(self, "mission", True)
 
 
 def explore_challenge(self):
@@ -225,7 +234,7 @@ def to_activity(self, region, skip_first_screenshot=False):
 
 def to_story_task_info(self, number):
     lo = [0, 184, 277, 375, 480, 574]
-    index = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
+    index = [0, 1, 2, 3, 4, 5, 1, 2, 3]
     if number in [6, 7, 8, 9, 10]:
         self.swipe(943, 593, 943, 0, duration=0.1)
         time.sleep(0.7)
@@ -236,9 +245,12 @@ def to_story_task_info(self, number):
 
 def to_mission_task_info(self, number):
     lo = [0, 184, 300, 416, 527]
-    index = [0, 1, 2, 3, 4, 3, 4]
-    if number in [5, 6]:
-        self.swipe(943, 593, 943, 0, duration=0.1)
+    index = [0, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
+    if number >= 5:
+        self.swipe(943, 593, 943, 102, duration=0.5)
+        time.sleep(0.7)
+    if number >= 9:
+        self.swipe(943, 593, 943, 102, duration=0.5)
         time.sleep(0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
     img_ends = "normal_task_task-info"

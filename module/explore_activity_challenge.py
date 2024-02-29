@@ -2,6 +2,7 @@ import module.activities as activity
 
 func_names = {
     "sakura_flowing_chaos_in_the_gala": activity.sakura_flowing_chaos_in_the_gala.explore_challenge,
+    # "reckless_nun_and_the_witch_in_the_old_library": activity.reckless_nun_and_the_witch_in_the_old_library.explore_challenge,
 }
 
 
