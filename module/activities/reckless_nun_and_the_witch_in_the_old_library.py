@@ -72,13 +72,13 @@ def explore_story(self):
             last_target_task += 1
             picture.co_detect(self, img_ends="normal_task_task-info")
             res = check_sweep_availability(self)
-        if res == "no-pass" or res == "pass":
-            start_story(self)
-            to_activity(self, "mission", True)
-            to_activity(self, "story", True)
-        if last_target_task == total_stories:
+        if last_target_task == total_stories and res == "sss":
             self.logger.info("All STORY SSS")
             return True
+        start_story(self)
+        to_activity(self, "mission", True)
+        to_activity(self, "story", True)
+
 
 
 def start_story(self):
@@ -118,13 +118,13 @@ def explore_mission(self):
         'mystic1',
         'burst1',
         'pierce1',
+        'pierce1',
         'mystic1',
+        'burst1',
         'pierce1',
         'pierce1',
-        'pierce1',
-        'pierce1',
-        'pierce1',
-        'pierce1',
+        'mystic1',
+        'burst1',
     ]
     while last_target_mission <= total_missions and self.flag_run:
         self.swipe(919, 136, 943, 720, duration=0.05)
@@ -234,7 +234,7 @@ def to_activity(self, region, skip_first_screenshot=False):
 
 def to_story_task_info(self, number):
     lo = [0, 184, 277, 375, 480, 574]
-    index = [0, 1, 2, 3, 4, 5, 1, 2, 3]
+    index = [0, 1, 2, 3, 4, 5, 3, 4, 5]
     if number in [6, 7, 8, 9, 10]:
         self.swipe(943, 593, 943, 0, duration=0.1)
         time.sleep(0.7)
