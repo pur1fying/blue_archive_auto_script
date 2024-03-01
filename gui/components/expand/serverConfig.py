@@ -40,7 +40,7 @@ class Layout(TemplateLayout):
         self.vBoxLayout.addWidget(self.tableView)
         self.tableView.setWordWrap(False)
         self.tableView.setColumnCount(1)
-        self.tableView.setHorizontalHeaderLabels([self.tr('ADB地址')])
+        self.tableView.setHorizontalHeaderLabels([self.tr('ADB地址(点击选择)')])
 
     def detect_adb_addr(self):
         import threading
