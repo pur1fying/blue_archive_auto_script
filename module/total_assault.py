@@ -27,9 +27,9 @@ def implement(self):
     else:
         tickets -= 1
         while res == "WIN" and pri_total_assault != len(self.total_assault_difficulty_names) - 2 and tickets > 0 and self.flag_run:
+            max_sweepable = pri_total_assault
             if pri_total_assault == maxx:
                 break
-            max_sweepable = pri_total_assault
             pri_total_assault += 1
             res = fight_difficulty_x(self, pri_total_assault)
             if res == "WIN":
