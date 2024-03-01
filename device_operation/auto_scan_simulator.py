@@ -13,7 +13,7 @@ SIMULATOR_LISTS = {
     'yeshen': ['nox.exe'],
     'mumu': ['mumuplayer.exe'],
     'leidian': ['dnplayer.exe'],
-    'xiaoyao_nat': ['MEmu.exe']
+    'xiaoyao_nat': ['memu.exe']
     # 添加其他模拟器的名称和对应进程名
 }
 
@@ -77,11 +77,11 @@ def auto_search_adb_address():
 
     for process in process_list:
         for process_name in SIMULATOR_LISTS[process]:
+            match = None
             cmdlines = process_native_api("get_command_line_name", process_name)
             for cmdline in cmdlines:
                 cmdline_no_quotes = cmdline.replace('"', '')
                 if isinstance(cmdline, str) and ' ' in cmdline_no_quotes:
-                    matched_count = 0
                     for simulator, pattern in regex_patterns.items():
                         cmdline = cmdline.replace('"', '')
                         match = re.search(pattern, cmdline)
@@ -95,20 +95,18 @@ def auto_search_adb_address():
                                 if bst_cn_path == player_path:
                                     adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance, "cn")}"""
                                     adb_addresses.append(adb_address)
+                                    break
                                 elif bst_path == player_path:
                                     adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance)}"""
                                     adb_addresses.append(adb_address)
-                                matched_count = matched_count + 1
-                                break
+                                    break
                             else:
                                 adb_address = get_simulator_port(process, multi_instance)
                             adb_addresses.append(adb_address)
-                        matched_count = matched_count + 1
-
-            if matched_count >= 5:
-                adb_address = get_simulator_port(process, None)
-                adb_addresses.append(adb_address)
-                matched_count = 0
+                            match = None
+                if match == None:
+                    adb_address = get_simulator_port(process, None)
+                    adb_addresses.append(adb_address)
 
     def remove_duplicates(lst):
         # 定义一个正则表达式，匹配数字、方括号和冒号
