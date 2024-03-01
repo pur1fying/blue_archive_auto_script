@@ -1,9 +1,9 @@
 stage_data = {
     '18-1-sss-present-task': {
-        'start': {
-            'mystic1': (523, 60),
-            'burst1': (358, 434),
-        },
+        'start': [
+            ['mystic1', (523, 60)],
+            ['burst1', (358, 434)],
+        ],
         'action': [
             {'t': 'click', 'p': (655, 362), 'ec': True, 'desc': "1 lower left"},
             {'t': 'click', 'p': (569, 519), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
@@ -22,10 +22,10 @@ stage_data = {
         ]
     },
     '18-2-sss-present-task': {
-        'start': {
-            'mystic1': (904, 264),
-            'burst1': (187, 188),
-        },
+        'start': [
+            ['mystic1', (904, 264)],
+            ['burst1', (187, 188)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'p': (662, 416), 'ec': True, 'desc': "1 left and tp"},
             {'t': 'click', 'p': (592, 394), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
@@ -45,11 +45,11 @@ stage_data = {
         ]
     },
     '18-3-sss-present-task': {
-        'start': {
-            'mystic1': (493, 141),
-            'burst1': (1219, 357),
-            'mystic2': (20, 463),
-        },
+        'start': [
+            ['mystic1', (493, 141)],
+            ['burst1', (1219, 357)],
+            ['mystic2', (20, 463)],
+        ],
         'action': [
             {'t': 'click', 'p': (680, 354), 'ec': True, 'desc': "1 lower right"},
             {'t': 'click', 'p': (671, 381), 'ec': True, 'desc': "2 left"},

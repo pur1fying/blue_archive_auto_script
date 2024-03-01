@@ -1,9 +1,9 @@
 stage_data = {
     '8-1-sss-present': {
-        'start': {
-            'pierce1': (613, 180),
-            'pierce2': (563, 684),
-        },
+        'start': [
+            ['pierce1', (613, 180)],
+            ['pierce2', (563, 684)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'p': (712, 351), 'ec': True, "desc": "1 lower right and tp"},
             {'t': 'click_and_teleport', 'p': (649, 410), 'ec': True, 'wait-over': True, 'desc': "2 upper left and tp"},
@@ -17,10 +17,10 @@ stage_data = {
         ]
     },
     '8-1-task': {
-        'start': {
-            'pierce1': (613, 180),
-            'pierce2': (563, 684),
-        },
+        'start': [
+            ['pierce1', (613, 180)],
+            ['pierce2', (563, 684)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (712, 351), "desc": "1 lower right and tp"},
             {'t': 'click_and_teleport', 'ec': True, 'wait-over': True, 'p': (649, 410), 'desc': "2 upper left and tp"},
@@ -34,10 +34,10 @@ stage_data = {
         ]
     },
     '8-2-sss-present': {
-        'start': {
-            'pierce1': (1000, 342),
-            'pierce2': (71, 373),
-        },
+        'start': [
+            ['pierce1', (1000, 342)],
+            ['pierce2', (71, 373)],
+        ],
         'action': [
             {'t': 'click', 'p': (728, 474), 'ec': True, "desc": "1 lower left"},
             {'t': 'click', 'p': (553, 477), 'wait-over': True, 'ec': True, "desc": "2 lower right"},
@@ -54,10 +54,10 @@ stage_data = {
         ]
     },
     '8-2-sss-task': {
-        'start': {
-            'pierce1': (1000, 342),
-            'pierce2': (71, 373),
-        },
+        'start': [
+            ['pierce1', (1000, 342)],
+            ['pierce2', (71, 373)],
+        ],
         'action': [
             {'t': 'click', 'p': (728, 474), 'ec': True, "desc": "1 lower left"},
             {'t': 'click', 'p': (553, 477), 'wait-over': True, 'ec': True, "desc": "2 lower right"},
@@ -71,10 +71,10 @@ stage_data = {
         ]
     },
     '8-3-present': {
-        'start': {
-            'pierce1': (793, 471),
-            'pierce2': (325, 359),
-        },
+        'start': [
+            ['pierce1', (793, 471)],
+            ['pierce2', (325, 359)],
+        ],
         'action': [
             {'t': ['exchange_and_click', 'teleport'], 'p': (557, 449),'ec':True, "desc": "2 lower right and tp"},
             {'t': 'choose_and_change', 'p': (713, 336), "desc": "swap 1 2"},
@@ -92,10 +92,10 @@ stage_data = {
         ]
     },
     '8-3-sss-task': {
-        'start': {
-            'pierce1': (793, 471),
-            'pierce2': (325, 359),
-        },
+        'start': [
+            ['pierce1', (793, 471)],
+            ['pierce2', (325, 359)],
+        ],
         'action': [
             {'t': ['exchange_and_click', 'teleport'], 'ec': True, 'p': (557, 449), "desc": "2 lower right and tp"},
             {'t': 'choose_and_change', 'p': (713, 336), "desc": "swap 1 2"},

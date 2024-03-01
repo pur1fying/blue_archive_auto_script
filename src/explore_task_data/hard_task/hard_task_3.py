@@ -1,8 +1,8 @@
 stage_data = {
     '3-1-sss-present': {
-        'start': {
-            'pierce1': (370, 426),
-        },
+        'start': [
+            ['pierce1', (370, 426)],
+        ],
         'action': [
             {'t': 'click', 'p': (629, 405), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (705, 410), 'wait-over': True, 'desc': "right"},
@@ -12,9 +12,9 @@ stage_data = {
         ]
     },
     '3-1-task': {
-        'start': {
-            'pierce1': (370, 426),
-        },
+        'start': [
+            ['pierce1', (370, 426)],
+        ],
         'action': [
             {'t': 'click', 'p': (629, 405), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (705, 410), 'wait-over': True, 'desc': "right"},
@@ -23,9 +23,9 @@ stage_data = {
         ]
     },
     '3-2-sss-present-task': {
-        'start': {
-            'pierce1': (425, 575),
-        },
+        'start': [
+            ['pierce1', (425, 575)],
+        ],
         'action': [
             {'t': 'click', 'p': (613, 382), 'wait-over': True, 'desc': "upper right"},
             {'t': 'click', 'p': (745, 330), 'wait-over': True, 'desc': "upper right"},
@@ -34,9 +34,9 @@ stage_data = {
         ]
     },
     '3-3-sss-present-task': {
-        'start': {
-            'pierce1': (346, 261),
-        },
+        'start': [
+            ['pierce1', (346, 261)],
+        ],
         'action': [
             {'t': 'click', 'p': (626, 336), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (761, 363), 'wait-over': True, 'desc': "lower right"},

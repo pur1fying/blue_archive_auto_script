@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "pierce1"
     },
     '19-1': {
-        'start': {
-            'pierce1': (377, 391),
-            'mystic1': (741, 561),
-        },
+        'start': [
+            ['pierce1', (377, 391)],
+            ['mystic1', (741, 561)],
+        ],
         'action': [
             {'t': 'click', 'p': (628, 338), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (841, 484), "wait-over": True, "desc": "2 right"},
@@ -19,10 +19,10 @@ stage_data = {
         ]
     },
     '19-2': {
-        'start': {
-            'pierce1': (547, 555),
-            'mystic1': (537, 391),
-        },
+        'start': [
+            ['pierce1', (547, 555)],
+            ['mystic1', (537, 391)],
+        ],
         'action': [
             {'t': 'click', 'p': (753, 383), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (582, 311), 'ec': True, "wait-over": True, "desc": "2 upper left"},
@@ -38,10 +38,10 @@ stage_data = {
         ]
     },
     '19-3': {
-        'start': {
-            'pierce1': (461, 556),
-            'mystic1': (445, 141),
-        },
+        'start': [
+            ['pierce1', (461, 556)],
+            ['mystic1', (445, 141)],
+        ],
         'action': [
             {'t': 'click', 'p': (717, 416), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (707, 275), 'ec': True, "desc": "2 right"},
@@ -60,10 +60,10 @@ stage_data = {
         ]
     },
     '19-4': {
-        'start': {
-            'pierce1': (376, 342),
-            'mystic1': (800, 453),
-        },
+        'start': [
+            ['pierce1', (376, 342)],
+            ['mystic1', (800, 453)],
+        ],
         'action': [
             {'t': 'click', 'p': (619, 360), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (652, 439), 'wait-over': True, 'ec':True,"desc": "2 left"},
@@ -85,10 +85,10 @@ stage_data = {
         ]
     },
     '19-5': {
-        'start': {
-            'pierce1': (319, 384),
-            'mystic1': (862, 561),
-        },
+        'start': [
+            ['pierce1', (319, 384)],
+            ['mystic1', (862, 561)],
+        ],
         'action': [
             {'t': 'click', 'p': (623, 342), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (700, 375), 'wait-over': True, "desc": "2 upper left"},

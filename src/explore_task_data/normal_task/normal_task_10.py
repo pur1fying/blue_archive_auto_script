@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "burst1"
     },
     '10-1': {
-        'start': {
-            'burst1': (640, 261),
-            'mystic1': (403, 560),
-        },
+        'start': [
+            ['burst1', (640, 261)],
+            ['mystic1', (403, 560)],
+        ],
         'action': [
             {'t': 'click', 'p': (811, 398), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (586, 546), "wait-over": True, 'ec': True, "desc": "2 lower right"},
@@ -19,10 +19,10 @@ stage_data = {
         ]
     },
     '10-2': {
-        'start': {
-            'burst1': (704, 558),
-            'mystic1': (554, 480),
-        },
+        'start': [
+            ['burst1', (704, 558)],
+            ['mystic1', (554, 480)],
+        ],
         'action': [
             {'t': 'click', 'p': (620, 381), 'ec': True, "desc": "1 upper left"},
             {'t': 'choose_and_change', 'p': (620, 381), "desc": "swap 1 2"},
@@ -35,10 +35,10 @@ stage_data = {
         ]
     },
     '10-3': {
-        'start': {
-            'burst1': (821, 344),
-            'mystic1': (656, 351),
-        },
+        'start': [
+            ['burst1', (821, 344)],
+            ['mystic1', (656, 351)],
+        ],
         'action': [
             {'t': 'click', 'p': (701, 477), 'ec': True, "desc": "1 lower left"},
             {'t': 'choose_and_change', 'p': (701, 477), "desc": "swap 1 2"},
@@ -51,10 +51,10 @@ stage_data = {
         ]
     },
     '10-4': {
-        'start': {
-            'burst1': (374, 263),
-            'mystic1': (560, 582),
-        },
+        'start': [
+            ['burst1', (374, 263)],
+            ['mystic1', (560, 582)],
+        ],
         'action': [
 
             {'t': 'exchange_and_click', 'p': (688, 418), 'ec': True, "desc": "change to 2 and upper left"},
@@ -71,10 +71,10 @@ stage_data = {
         ]
     },
     '10-5': {
-        'start': {
-            'burst1': (374, 387),
-            'mystic1': (562, 473),
-        },
+        'start': [
+            ['burst1', (374, 387)],
+            ['mystic1', (562, 473)],
+        ],
         'action': [
             {'t': 'click', 'p': (617, 381), "ec": True, "desc": "1 right"},
             {'t': 'choose_and_change', 'p': (617, 381), "desc": "swap 1 2"},

@@ -14,7 +14,7 @@ def implement(self):
 
 
 def get_stage_data():
-    module_path = 'src.explore_task_data.activities.sakura_flowing_chaos_in_the_gala'
+    module_path = 'src.explore_task_data.activities.reckless_nun_and_the_witch_in_the_old_library'
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -156,7 +156,9 @@ def explore_challenge(self):
     to_activity(self, "challenge")
     tasks = [
         "challenge2_sss",
-        "challenge2_task"
+        "challenge2_task",
+        "challenge4_sss",
+        "challenge4_task",
     ]
     stage_data = get_stage_data()
     for i in range(0, len(tasks)):
@@ -258,7 +260,7 @@ def to_mission_task_info(self, number):
 
 
 def to_challenge_task_info(self, number):
-    lo = [0, 178, 279, 377]
+    lo = [0, 178, 279, 377, 477, 564]
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)

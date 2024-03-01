@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "pierce1"
     },
     '13-1': {
-        'start': {
-            'pierce1': (493, 305),
-            'pierce2': (701, 570),
-        },
+        'start': [
+            ['pierce1', (493, 305)],
+            ['pierce2', (701, 570)],
+        ],
         'action': [
             {'t': 'click', 'p': (606, 374), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (574, 495), "wait-over": True, 'ec': True, "desc": "2 left"},
@@ -20,10 +20,10 @@ stage_data = {
         ]
     },
     '13-2': {
-        'start': {
-            'pierce1': (728, 394),
-            'pierce2': (409, 226),
-        },
+        'start': [
+            ['pierce1', (728, 394)],
+            ['pierce2', (409, 226)],
+        ],
         'action': [
             {'t': 'click', 'p': (630, 463), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (591, 400), 'ec': True, "wait-over": True, "desc": "2 lower right"},
@@ -37,10 +37,10 @@ stage_data = {
         ]
     },
     '13-3': {
-        'start': {
-            'pierce1': (427, 513),
-            'pierce2': (779, 451),
-        },
+        'start': [
+            ['pierce1', (427, 513)],
+            ['pierce2', (779, 451)],
+        ],
         'action': [
             {'t': 'click', 'p': (579, 361), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (702, 354), "wait-over": True, 'ec': True, "desc": "2 upper left"},
@@ -56,10 +56,10 @@ stage_data = {
         ]
     },
     '13-4': {
-        'start': {
-            'pierce1': (580, 263),
-            'pierce2': (875, 389),
-        },
+        'start': [
+            ['pierce1', (580, 263)],
+            ['pierce2', (875, 389)],
+        ],
         'action': [
             {'t': 'click', 'p': (604, 473), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (731, 473), 'ec': True, "wait-over": True, "desc": "2 lower left"},
@@ -74,10 +74,10 @@ stage_data = {
         ]
     },
     '13-5': {
-        'start': {
-            'pierce1': (669, 223),
-            'pierce2': (904, 419),
-        },
+        'start': [
+            ['pierce1', (669, 223)],
+            ['pierce2', (904, 419)],
+        ],
         'action': [
             {'t': 'click', 'p': (625, 355), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (651, 440), 'ec': True, "wait-over": True, "desc": "2 left"},

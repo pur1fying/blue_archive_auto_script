@@ -1,8 +1,8 @@
 stage_data = {
     '5-1-sss-present-task': {
-        'start': {
-            'burst1': (428, 425),
-        },
+        'start': [
+            ['burst1', (428, 425)],
+        ],
         'action': [
             {'t': 'click', 'p': (632, 418), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (691, 500), 'wait-over': True, 'desc': "lower right"},
@@ -11,9 +11,9 @@ stage_data = {
         ]
     },
     '5-2-sss-present-task': {
-        'start': {
-            'burst1': (400, 387),
-        },
+        'start': [
+            ['burst1', (400, 387)],
+        ],
         'action': [
             {'t': 'click', 'p': (619, 384), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (682, 470), 'wait-over': True, 'desc': "lower right"},
@@ -22,9 +22,9 @@ stage_data = {
         ]
     },
     '5-3-sss-present': {
-        'start': {
-            'burst1': (464, 219),
-        },
+        'start': [
+            ['burst1', (464, 219)],
+        ],
         'action': [
             {'t': 'click', 'p': (596, 380), 'wait-over': True, 'desc': "lower right"},
             {'t': 'click', 'p': (619, 414), 'wait-over': True, 'desc': "right"},
@@ -34,9 +34,9 @@ stage_data = {
         ]
     },
     '5-3-task': {
-        'start': {
-            'burst1': (464, 219),
-        },
+        'start': [
+            ['burst1', (464, 219)],
+        ],
         'action': [
             {'t': 'click', 'p': (596, 380), 'wait-over': True, 'desc': "lower right"},
             {'t': 'click', 'p': (619, 414), 'wait-over': True, 'desc': "right"},

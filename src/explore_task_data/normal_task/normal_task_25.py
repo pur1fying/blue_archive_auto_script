@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "shock1"
     },
     '25-1': {
-        'start': {
-            'shock1': (482, 605),
-            'pierce1': (811, 147),
-        },
+        'start': [
+            ['shock1', (482, 605)],
+            ['pierce1', (811, 147)],
+        ],
         'action': [
             {'t': 'click', 'p': (510, 408), 'ec': True, "desc": "1 upper left"},
             {'t': 'click', 'p': (653, 367), "wait-over": True, 'ec': True, "desc": "2 lower left"},
@@ -21,10 +21,10 @@ stage_data = {
         ]
     },
     '25-2': {
-        'start': {
-            'shock1': (642, 470),
-            'pierce1': (343, 379),
-        },
+        'start': [
+            ['shock1', (642, 470)],
+            ['pierce1', (343, 379)],
+        ],
         'action': [
             {'t': 'click', 'p': (632, 451), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (614, 362), 'ec': True, "wait-over": True, "desc": "2 right"},
@@ -41,10 +41,10 @@ stage_data = {
         ]
     },
     '25-3': {
-        'start': {
-            'shock1': (400, 426),
-            'pierce1': (625, 582),
-        },
+        'start': [
+            ['shock1', (400, 426)],
+            ['pierce1', (625, 582)],
+        ],
         'action': [
             {'t': 'click', 'p': (632, 328), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (690, 412), "wait-over": True, 'ec': True, "desc": "2 upper right"},
@@ -65,10 +65,10 @@ stage_data = {
         ]
     },
     '25-4': {
-        'start': {
-            'shock1': (788, 263),
-            'pierce1': (391, 464),
-        },
+        'start': [
+            ['shock1', (788, 263)],
+            ['pierce1', (391, 464)],
+        ],
         'action': [
             {'t': 'click', 'p': (702, 401), 'ec': True, "desc": "1 lower left"},
             {'t': 'click', 'p': (632, 446), 'ec': True, "wait-over": True, "desc": "2 right"},
@@ -89,10 +89,10 @@ stage_data = {
         ]
     },
     '25-5': {
-        'start': {
-            'shock1': (697, 345),
-            'pierce1': (276, 561),
-        },
+        'start': [
+            ['shock1', (697, 345)],
+            ['pierce1', (276, 561)],
+        ],
         'action': [
             {'t': 'click', 'p': (705, 416), 'ec': True, "desc": "1 lower left"},
             {'t': 'click', 'p': (633, 451), "wait-over": True, 'ec': True, "desc": "2 right"},

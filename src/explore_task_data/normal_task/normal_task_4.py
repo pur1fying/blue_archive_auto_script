@@ -3,9 +3,9 @@ stage_data = {
         'SUB': 'pierce1'
     },
     '4-1': {
-        'start': {
-            'pierce1': (370, 470),
-        },
+        'start': [
+            ['pierce1', (370, 470)],
+        ],
         'action': [
             {'t': 'click_and_teleport', "wait-over": True, 'p': (632, 432), "desc": "right and tp"},
             {'t': 'click', 'p': (831, 414), "wait-over": True, "desc": "right"},
@@ -14,9 +14,9 @@ stage_data = {
         ]
     },
     '4-2': {
-        'start': {
-            'pierce1': (434, 387),
-        },
+        'start': [
+            ['pierce1', (434, 387)],
+        ],
         'action': [
             {'t': 'click_and_teleport', "wait-over": True, 'p': (565, 305), "desc": "upper right and tp"},
             {'t': 'click', 'p': (794, 330), "wait-over": True, "desc": "upper right"},
@@ -25,9 +25,9 @@ stage_data = {
         ]
     },
     '4-3': {
-        'start': {
-            'pierce1': (400, 468),
-        },
+        'start': [
+            ['pierce1', (400, 468)],
+        ],
         'action': [
             {'t': 'click_and_teleport', "wait-over": True, 'p': (581, 345), "desc": "upper right and tp"},
             {'t': 'click_and_teleport', 'p': (656, 338), 'wait-over':True,"desc": "tp"},
@@ -35,9 +35,9 @@ stage_data = {
         ]
     },
     '4-4': {
-        'start': {
-            'pierce1': (460, 470),
-        },
+        'start': [
+            ['pierce1', (460, 470)],
+        ],
         'action': [
             {'t': 'click', 'p': (652, 440), "wait-over": True, "desc": "right"},
             {'t': 'click', 'p': (773, 441), "desc": "right"},
@@ -46,9 +46,9 @@ stage_data = {
         ]
     },
     '4-5': {
-        'start': {
-            'pierce1': (580, 511),
-        },
+        'start': [
+            ['pierce1', (580, 511)],
+        ],
         'action': [
             {'t': 'click', 'p': (719, 474), "wait-over": True, 'desc': "right"},
             {'t': 'click_and_teleport', 'p': (634, 452),'wait-over':True, "desc": "tp"},

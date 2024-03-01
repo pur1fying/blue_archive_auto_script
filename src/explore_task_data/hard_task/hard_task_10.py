@@ -1,9 +1,9 @@
 stage_data = {
     '10-1-task-present': {
-        'start': {
-            'burst1': (757, 260),
-            'mystic1': (501, 284),
-        },
+        'start': [
+            ['burst1', (757, 260)],
+            ['mystic1', (501, 284)],
+        ],
         'action': [
             {'t': 'click', 'p': (701, 386), 'ec': True, "desc": "1 lower left"},
             {'t': 'click', 'p': (463, 384), 'wait-over': True, "desc": "2 lower left"},
@@ -18,10 +18,10 @@ stage_data = {
         ]
     },
     '10-1-sss': {
-        'start': {
-            'burst1': (757, 260),
-            'mystic1': (501, 284),
-        },
+        'start': [
+            ['burst1', (757, 260)],
+            ['mystic1', (501, 284)],
+        ],
         'action': [
             {'t': 'click', 'p': (642, 296), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (460, 386), 'ec': True, "desc": "2 lower left"},
@@ -40,10 +40,10 @@ stage_data = {
     },
 
     '10-2-sss-present': {
-        'start': {
-            'burst1': (463, 260),
-            'mystic1': (637, 305),
-        },
+        'start': [
+            ['burst1', (463, 260)],
+            ['mystic1', (637, 305)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (577, 472), 'ec': True, "desc": "2 lower left"},
             {'t': 'choose_and_change', 'p': (583, 468), "desc": "swap 1 2"},
@@ -65,10 +65,10 @@ stage_data = {
         ]
     },
     '10-2-task': {
-        'start': {
-            'burst1': (463, 260),
-            'mystic1': (637, 305),
-        },
+        'start': [
+            ['burst1', (463, 260)],
+            ['mystic1', (637, 305)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (577, 472), 'ec': True, "desc": "2 lower left"},
             {'t': 'choose_and_change', 'p': (583, 468), "desc": "swap 1 2"},
@@ -85,10 +85,10 @@ stage_data = {
     },
 
     '10-3-sss-present': {
-        'start': {
-            'burst1': (697, 473),
-            'mystic1': (328, 460),
-        },
+        'start': [
+            ['burst1', (697, 473)],
+            ['mystic1', (328, 460)],
+        ],
         'action': [
             {'t': 'click', 'p': (663, 406), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (558, 317), 'wait-over': True, "desc": "2 upper right"},
@@ -109,10 +109,10 @@ stage_data = {
         ]
     },
     '10-3-task': {
-        'start': {
-            'burst1': (697, 473),
-            'mystic1': (328, 460),
-        },
+        'start': [
+            ['burst1', (697, 473)],
+            ['mystic1', (328, 460)],
+        ],
         'action': [
             {'t': 'click', 'p': (663, 406), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (558, 317), 'wait-over': True, "desc": "2 upper right"},

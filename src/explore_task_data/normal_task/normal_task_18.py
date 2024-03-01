@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "mystic1"
     },
     '18-1': {
-        'start': {
-            'mystic1': (464, 261),
-            'burst1': (463, 558),
-        },
+        'start': [
+            ['mystic1', (464, 261)],
+            ['burst1', (463, 558)],
+        ],
         'action': [
             {'t': 'click', 'p': (738, 273), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (701, 492), "wait-over": True, 'ec': True, "desc": "2 right"},
@@ -20,10 +20,10 @@ stage_data = {
         ]
     },
     '18-2': {
-        'start': {
-            'mystic1': (368, 472),
-            'burst1': (639, 260),
-        },
+        'start': [
+            ['mystic1', (368, 472)],
+            ['burst1', (639, 260)],
+        ],
         'action': [
             {'t': 'click', 'p': (687, 498), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (568, 333), 'ec': True, "wait-over": True, "desc": "2 left"},
@@ -36,11 +36,11 @@ stage_data = {
         ]
     },
     '18-3': {
-        'start': {
-            'mystic1': (365, 603),
-            'swipe': (300, 100, 300, 510, 0.1),
-            'burst1': (549, 175),
-        },
+        'start': [
+            ['mystic1', (365, 603)],
+            ['swipe', (300, 100, 300, 510, 0.1)],
+            ['burst1', (549, 175)],
+        ],
         'action': [
             {'t': 'click', 'p': (663, 416), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (692, 353), "wait-over": True, 'ec': True, "desc": "2 lower right"},
@@ -59,10 +59,10 @@ stage_data = {
         ]
     },
     '18-4': {
-        'start': {
-            'mystic1': (1146, 386),
-            'burst1': (186, 562),
-        },
+        'start': [
+            ['mystic1', (1146, 386)],
+            ['burst1', (186, 562)],
+        ],
         'action': [
             {'t': 'click', 'p': (660, 357), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (622, 428), 'ec': True, "wait-over": True, "desc": "2 right"},
@@ -81,10 +81,10 @@ stage_data = {
         ]
     },
     '18-5': {
-        'start': {
-            'mystic1': (400, 513),
-            'burst1': (415, 284),
-        },
+        'start': [
+            ['mystic1', (400, 513)],
+            ['burst1', (415, 284)],
+        ],
         'action': [
             {'t': 'click', 'p': (753, 496), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (640, 320), "wait-over": True, 'ec': True, "desc": "2 right"},

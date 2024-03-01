@@ -9,12 +9,9 @@ stage_data = {
         'attr': 'pierce1'
     },
     "04": {
-        'start': {
-            '1': (789, 432),
-        },
-        'attr': {
-            '1': 'burst1'
-        },
+        'start': [
+            ['burst1', (789, 432)],
+        ],
         'action': [
             {'t': 'click', 'p': (814, 377), "wait-over": True, 'desc': "upper right"},
             {'t': 'click', 'p': (725, 313), "wait-over": True, 'desc': "upper left"},
@@ -34,14 +31,10 @@ stage_data = {
         'attr': 'pierce1'
     },
     "08": {
-        'start': {
-            '1': (876, 224),
-            '2': (280, 482)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1'
-        },
+        'start': [
+            ['burst1', (876, 224)],
+            ['pierce1', (280, 482)]
+        ],
         'action': [
             {'t': 'click', 'p': (659, 333), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (626, 439), 'ec': True, 'wait-over': True, "desc": "2 right"},
@@ -64,14 +57,10 @@ stage_data = {
         'attr': 'pierce1'
     },
     "12": {
-        'start': {
-            '1': (583, 429),
-            '2': (584, 148)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1'
-        },
+        'start': [
+            ['burst1', (583, 429)],
+            ['pierce1', (584, 148)]
+        ],
         'action': [
             {'t': 'click', 'p': (728, 427), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (674, 358), 'ec': True, 'wait-over': True, "desc": "2 lower right"},
@@ -91,14 +80,10 @@ stage_data = {
         'attr': 'burst1'
     },
     "challenge_02": {
-        'start': {
-            '1': (583, 429),
-            '2': (584, 148)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1'
-        },
+        'start': [
+            ['burst1', (583, 429)],
+            ['pierce1', (584, 148)]
+        ],
         'action': [
             {'t': 'click', 'p': (728, 427), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (674, 358), 'ec': True, 'wait-over': True, "desc": "2 lower right"},
@@ -115,16 +100,11 @@ stage_data = {
         'attr': 'burst1'
     },
     "challenge_04": {
-        'start': {
-            '1': (583, 429),
-            '2': (584, 148),
-            '3': (584, 148)
-        },
-        'attr': {
-            '1': 'burst1',
-            '2': 'pierce1',
-            '3': 'pierce2'
-        },
+        'start': [
+            ['burst1', (583, 429)],
+            ['pierce1', (584, 148)],
+            ['pierce2', (584, 148)]
+        ],
         'action': [
             {'t': 'click', 'p': (728, 427), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (674, 358), 'ec': True, 'wait-over': True, "desc": "2 lower right"},

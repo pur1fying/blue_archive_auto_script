@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "mystic1"
     },
     '15-1': {
-        'start': {
-            'mystic1': (376, 344),
-            'mystic2': (1044, 609),
-        },
+        'start': [
+            ['mystic1', (376, 344)],
+            ['mystic2', (1044, 609)],
+        ],
         'action': [
 
             {'t': 'click', 'p': (629, 329), 'ec': True},
@@ -21,10 +21,10 @@ stage_data = {
         ]
     },
     '15-2': {
-        'start': {
-            'mystic1': (407, 259),
-            'mystic2': (751, 487),
-        },
+        'start': [
+            ['mystic1', (407, 259)],
+            ['mystic2', (751, 487)],
+        ],
         'action': [
 
             {'t': 'click', 'p': (636, 317), 'ec': True},
@@ -39,10 +39,10 @@ stage_data = {
         ]
     },
     '15-3': {
-        'start': {
-            'mystic1': (757, 144),
-            'mystic2': (407, 188),
-        },
+        'start': [
+            ['mystic1', (757, 144)],
+            ['mystic2', (407, 188)],
+        ],
         'action': [
 
             {'t': 'click', 'p': (728, 461), 'ec': True},
@@ -59,10 +59,10 @@ stage_data = {
         ]
     },
     '15-4': {
-        'start': {
-            'mystic1': (824, 554),
-            'mystic2': (665, 66),
-        },
+        'start': [
+            ['mystic1', (824, 554)],
+            ['mystic2', (665, 66)],
+        ],
         'action': [
 
             {'t': 'click', 'p': (546, 498), 'ec': True},
@@ -80,10 +80,10 @@ stage_data = {
         ]
     },
     '15-5': {
-        'start': {
-            'mystic1': (314, 300),
-            'mystic2': (490, 526),
-        },
+        'start': [
+            ['mystic1', (314, 300)],
+            ['mystic2', (490, 526)],
+        ],
         'action': [
 
             {'t': 'exchange_and_click', 'p': (608, 384), 'ec': True},

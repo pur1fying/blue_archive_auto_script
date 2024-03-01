@@ -1,9 +1,9 @@
 stage_data = {
     '25-1-sss-present-task': {
-        'start': {
-            'shock1': (784, 217),
-            'pierce1': (479, 621),
-        },
+        'start': [
+            ['shock1', (784, 217)],
+            ['pierce1', (479, 621)],
+        ],
         'action': [
             {'t': 'click', 'p': (656, 368), 'ec': True, 'desc': "1 lower left"},
             {'t': 'click', 'p': (625, 409), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
@@ -23,11 +23,11 @@ stage_data = {
         ]
     },
     '25-2-sss-present-task': {
-        'start': {
-            'swipe': (883, 347, 883, 189, 1),
-            'shock1': (403, 675),
-            'pierce1': (502, 235),
-        },
+        'start': [
+            ['swipe', (883, 347, 883, 189, 1)],
+            ['shock1', (403, 675)],
+            ['pierce1', (502, 235)],
+        ],
         'action': [
             {'t': 'click', 'p': (677, 427), 'ec': True, 'desc': "1 upper right"},
             {'t': 'click', 'p': (693, 285), 'ec': True, 'wait-over': True, 'desc': "2 right"},
@@ -48,11 +48,11 @@ stage_data = {
         ]
     },
     '25-3-sss-present-task': {
-        'start': {
-            'shock1': (278, 382),
-            'pierce1': (900, 648),
-            'shock2': (963, 148),
-        },
+        'start': [
+            ['shock1', (278, 382)],
+            ['pierce1', (900, 648)],
+            ['shock2', (963, 148)],
+        ],
         'action': [
             {'t': 'click', 'p': (553, 305), 'ec': True, 'desc': "1 upper right"},
             {'t': 'click', 'p': (793, 401), 'ec': True, 'desc': "2 upper right"},

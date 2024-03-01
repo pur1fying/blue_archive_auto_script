@@ -1,9 +1,9 @@
 stage_data = {
     '16-1-sss-present-task': {
-        'start': {
-            'pierce1': (670, 470),
-            'mystic1': (370, 215),
-        },
+        'start': [
+            ['pierce1', (670, 470)],
+            ['mystic1', (370, 215)],
+        ],
         'action': [
             {'t': 'click', 'p': (605, 475), 'ec': True, 'desc': "1 left"},
             {'t': 'click', 'p': (590, 385), 'ec': True, 'wait-over': True, 'desc': "2 lower right"},
@@ -22,10 +22,10 @@ stage_data = {
         ]
     },
     '16-2-sss-present-task': {
-        'start': {
-            'pierce1': (550, 385),
-            'mystic1': (520, 560),
-        },
+        'start': [
+            ['pierce1', (550, 385)],
+            ['mystic1', (520, 560)],
+        ],
         'action': [
             {'t': 'click', 'p': (565, 325), 'ec': True, 'desc': "1 left"},
             {'t': 'click', 'p': (505, 410), 'ec': True, 'wait-over': True, 'desc': "2 upper right"},
@@ -42,11 +42,11 @@ stage_data = {
         ]
     },
     '16-3-sss-present-task': {
-        'start': {
-            'pierce1': (940, 470),
-            'mystic1': (170, 425),
-            'pierce2': (380, 240),
-        },
+        'start': [
+            ['pierce1', (940, 470)],
+            ['mystic1', (170, 425)],
+            ['pierce2', (380, 240)],
+        ],
         'action': [
             {'t': 'click', 'p': (665, 415), 'ec': True, 'desc': "1 left"},
             {'t': 'click', 'p': (550, 315), 'ec': True, 'desc': "2 upper right"},

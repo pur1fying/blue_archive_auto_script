@@ -1,9 +1,9 @@
 stage_data = {
     "challenge2_sss": {
-        'start': {
-            'burst1': (850, 472),
-            'mystic1': (339, 350)
-        },
+        'start': [
+            ['burst1', (850, 472)],
+            ['mystic1', (339, 350)]
+        ],
         'action': [
             {'t': 'click', 'p': (839, 510), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (562, 273), 'ec': True, 'wait-over': True, "desc": "2 upper right"},
@@ -27,10 +27,10 @@ stage_data = {
         ]
     },
     "challenge2_task": {
-        'start': {
-            'burst1': (429, 381),
-            'mystic1': (922, 472)
-        },
+        'start': [
+            ['burst1', (429, 381)],
+            ['mystic1', (922, 472)]
+        ],
         'action': [
             {'t': 'click', 'p': (554, 283), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (780, 358), 'ec': True, 'wait-over': True, "desc": "2 upper right"},

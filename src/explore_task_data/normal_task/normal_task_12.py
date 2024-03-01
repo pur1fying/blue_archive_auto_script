@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "burst1"
     },
     '12-1': {
-        'start': {
-            'mystic1': (370, 428),
-            'burst1': (566, 328),
-        },
+        'start': [
+            ['mystic1', (370, 428)],
+            ['burst1', (566, 328)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (640, 560), "desc": "1 lower right"},
             {'t': 'click', 'p': (704, 320), "wait-over": True, 'ec': True, "desc": "2 right"},
@@ -20,10 +20,10 @@ stage_data = {
         ]
     },
     '12-2': {
-        'start': {
-            'mystic1': (733, 387),
-            'burst1': (574, 474),
-        },
+        'start': [
+            ['mystic1', (733, 387)],
+            ['burst1', (574, 474)],
+        ],
         'action': [
             {'t': 'click', 'p': (581, 309), 'ec': True, "desc": "1 left"},
             {'t': 'choose_and_change', 'p': (581, 309), "desc": "swap 1 2"},
@@ -37,10 +37,10 @@ stage_data = {
         ]
     },
     '12-3': {
-        'start': {
-            'mystic1': (763, 558),
-            'burst1': (586, 147),
-        },
+        'start': [
+            ['mystic1', (763, 558)],
+            ['burst1', (586, 147)],
+        ],
         'action': [
             {'t': 'click', 'p': (615, 413), 'ec': True},
             {'t': 'click', 'p': (724, 273), 'wait-over': True},
@@ -55,10 +55,10 @@ stage_data = {
         ]
     },
     '12-4': {
-        'start': {
-            'mystic1': (342, 386),
-            'burst1': (619, 223),
-        },
+        'start': [
+            ['mystic1', (342, 386)],
+            ['burst1', (619, 223)],
+        ],
         'action': [
             {'t': 'click', 'p': (622, 424), 'ec': True, "desc": "1 right"},
             {'t': 'click_and_teleport', 'ec': True, "wait-over": True, 'p': (746, 264), "desc": "2 right"},
@@ -77,10 +77,10 @@ stage_data = {
         ]
     },
     '12-5': {
-        'start': {
-            'mystic1': (549, 556),
-            'burst1': (835, 478),
-        },
+        'start': [
+            ['mystic1', (549, 556)],
+            ['burst1', (835, 478)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (582, 359), "desc": "1 upper right"},
             {'t': 'choose_and_change', 'p': (781, 353), "desc": "swap 1 2"},

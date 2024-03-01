@@ -3,10 +3,10 @@ stage_data = {
         'SUB': 'burst1',
     },
     '7-1': {
-        'start': {
-            'burst1': (306, 470),
-            'burst2': (511, 258),
-        },
+        'start': [
+            ['burst1', (306, 470)],
+            ['burst2', (511, 258)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (663, 461), "desc": "1 right and tp"},
             {'t': 'click_and_teleport', "wait-over": True, 'ec': True, 'p': (622, 342), "desc": "2 right and tp"},
@@ -19,10 +19,10 @@ stage_data = {
         ]
     },
     '7-2': {
-        'start': {
-            'burst1': (373, 386),
-            'burst2': (563, 306),
-        },
+        'start': [
+            ['burst1', (373, 386)],
+            ['burst2', (563, 306)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (700, 475), 'ec': True, "desc": "2 lower left"},
             {'t': 'choose_and_change', 'p': (700, 475), "desc": "swap 1 2"},
@@ -34,10 +34,10 @@ stage_data = {
         ]
     },
     '7-3': {
-        'start': {
-            'burst1': (579, 385),
-            'burst2': (938, 476),
-        },
+        'start': [
+            ['burst1', (579, 385)],
+            ['burst2', (938, 476)],
+        ],
         'action': [
             {'t': ['exchange', 'click_and_teleport'], 'p': (718, 345), 'ec': True, "desc": "2 upper left and tp"},
             {'t': 'choose_and_change', 'p': (564, 438), "desc": "swap 1 2"},
@@ -48,10 +48,10 @@ stage_data = {
         ]
     },
     '7-4': {
-        'start': {
-            'burst1': (395, 559),
-            'burst2': (466, 365),
-        },
+        'start': [
+            ['burst1', (395, 559)],
+            ['burst2', (466, 365)],
+        ],
         'action': [
             {'t': 'click', 'p': (679, 463), 'ec': True, "desc": "1 right"},
             {'t': 'click_and_teleport', 'p': (619, 379), "wait-over": True, 'ec': True, "desc": "2 right and tp"},
@@ -67,10 +67,10 @@ stage_data = {
         ]
     },
     '7-5': {
-        'start': {
-            'burst1': (523, 385),
-            'burst2': (813, 309),
-        },
+        'start': [
+            ['burst1', (523, 385)],
+            ['burst2', (813, 309)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (706, 418), "ec": True, "desc": "2 lower left"},
             {'t': 'choose_and_change', 'p': (706, 418), "desc": "swap 1 2"},

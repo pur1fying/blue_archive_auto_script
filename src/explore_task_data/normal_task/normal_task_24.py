@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "shock1"
     },
     '24-1': {
-        'start': {
-            'shock1': (641, 385),
-            'burst1': (351, 147),
-        },
+        'start': [
+            ['shock1', (641, 385)],
+            ['burst1', (351, 147)],
+        ],
         'action': [
             {'t': 'click', 'p': (622, 473), 'ec': True, "desc": "1 left"},
             {'t': 'click_and_teleport', 'p': (598, 386), "wait-over": True, 'ec': True, "desc": "2 lower right and tp"},
@@ -22,10 +22,10 @@ stage_data = {
         ]
     },
     '24-2': {
-        'start': {
-            'shock1': (368, 511),
-            'burst1': (1003, 442),
-        },
+        'start': [
+            ['shock1', (368, 511)],
+            ['burst1', (1003, 442)],
+        ],
         'action': [
             {'t': 'click', 'p': (555, 318), 'ec': True, "desc": "1 upper right"},
             {'t': 'click_and_teleport', 'p': (725, 311), 'ec': True, "wait-over": True, "desc": "2 upper left and tp"},
@@ -41,10 +41,10 @@ stage_data = {
         ]
     },
     '24-3': {
-        'start': {
-            'shock1': (365, 514),
-            'burst1': (467, 195),
-        },
+        'start': [
+            ['shock1', (365, 514)],
+            ['burst1', (467, 195)],
+        ],
         'action': [
             {'t': 'click', 'p': (737, 502), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (695, 281), "wait-over": True, 'ec': True, "desc": "2 right"},
@@ -66,10 +66,10 @@ stage_data = {
         ]
     },
     '24-4': {
-        'start': {
-            'shock1': (246, 473),
-            'burst1': (448, 172),
-        },
+        'start': [
+            ['shock1', (246, 473)],
+            ['burst1', (448, 172)],
+        ],
         'action': [
             {'t': 'click', 'p': (738, 502), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (697, 281), 'ec': True, "wait-over": True, "desc": "2 right"},
@@ -92,10 +92,10 @@ stage_data = {
         ]
     },
     '24-5': {
-        'start': {
-            'shock1': (491, 303),
-            'burst1': (633, 484),
-        },
+        'start': [
+            ['shock1', (491, 303)],
+            ['burst1', (633, 484)],
+        ],
         'action': [
             {'t': 'click', 'p': (633, 305), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (755, 478), "wait-over": True, 'ec': True, "desc": "2 right"},

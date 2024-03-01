@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "pierce1"
     },
     '11-1': {
-        'start': {
-            'pierce1': (496, 525),
-            'mystic1': (794, 130),
-        },
+        'start': [
+            ['pierce1', (496, 525)],
+            ['mystic1', (794, 130)],
+        ],
         'action': [
             {'t': 'click', 'p': (499, 412), 'ec': True, "desc": "1 upper left"},
             {'t': 'click_and_teleport', 'p': (775, 368), "wait-over": True, 'ec': True, "desc": "2 lower right"},
@@ -18,10 +18,10 @@ stage_data = {
         ]
     },
     '11-2': {
-        'start': {
-            'pierce1': (281, 347),
-            'mystic1': (791, 287),
-        },
+        'start': [
+            ['pierce1', (281, 347)],
+            ['mystic1', (791, 287)],
+        ],
         'action': [
             {'t': 'click', 'p': (553, 478), 'ec': True, "desc": "1 lower right"},
             {'t': 'click_and_teleport', "wait-over": True, 'ec': True, 'p': (823, 406), "desc": "2 lower right"},
@@ -37,10 +37,10 @@ stage_data = {
         ]
     },
     '11-3': {
-        'start': {
-            'pierce1': (315, 466),
-            'mystic1': (919, 178),
-        },
+        'start': [
+            ['pierce1', (315, 466)],
+            ['mystic1', (919, 178)],
+        ],
         'action': [
             {'t': 'click', 'p': (635, 461), 'ec': True, "desc": "1 right"},
             {'t': 'click_and_teleport', 'ec': True, "wait-over": True, 'p': (693, 397), "desc": "2 lower left"},
@@ -53,10 +53,10 @@ stage_data = {
         ]
     },
     '11-4': {
-        'start': {
-            'pierce1': (940, 350),
-            'mystic1': (841, 285),
-        },
+        'start': [
+            ['pierce1', (940, 350)],
+            ['mystic1', (841, 285)],
+        ],
         'action': [
 
             {'t': 'click', 'p': (647, 323), 'ec': True, "desc": "1 upper left"},
@@ -76,10 +76,10 @@ stage_data = {
         ]
     },
     '11-5': {
-        'start': {
-            'pierce1': (374, 429),
-            'mystic1': (1114, 591),
-        },
+        'start': [
+            ['pierce1', (374, 429)],
+            ['mystic1', (1114, 591)],
+        ],
         'action': [
             {'t': ['exchange', 'click_and_teleport'], 'ec': True, 'p': (719, 351), "desc": "2 upper left"},
             {'t': 'click', 'p': (613, 371), "desc": "1 right", "wait-over": True},

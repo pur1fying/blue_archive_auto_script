@@ -1,9 +1,9 @@
 stage_data = {
     '7-1-sss-present': {
-        'start': {
-            'burst1': (820, 387),
-            'burst2': (780, 563),
-        },
+        'start': [
+            ['burst1', (820, 387)],
+            ['burst2', (780, 563)],
+        ],
         'action': [
             {'t': 'click', 'p': (653, 227), 'ec': True, "desc": "1 upper left"},
             {'t': 'click', 'p': (572, 494), 'wait-over': True, 'ec': True, "desc": "2 left"},
@@ -20,9 +20,9 @@ stage_data = {
         ]
     },
     '7-1-task': {
-        'start': {
-            'burst1': (820, 387),
-        },
+        'start': [
+            ['burst1', (820, 387)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'wait-over': True, 'p': (658, 387), "desc": "1 left and tp"},
             {'t': 'click', 'p': (553, 335), 'wait-over': True, "desc": "upper left"},
@@ -30,10 +30,10 @@ stage_data = {
         ]
     },
     '7-2-sss-present': {
-        'start': {
-            'burst1': (469, 229),
-            'burst2': (650, 296),
-        },
+        'start': [
+            ['burst1', (469, 229)],
+            ['burst2', (650, 296)],
+        ],
         'action': [
             {'t': 'click', 'p': (583, 474), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (760, 394), 'ec': True, 'wait-over': True, "desc": "2 right"},
@@ -44,10 +44,10 @@ stage_data = {
         ]
     },
     '7-2-task': {
-        'start': {
-            'burst1': (469, 229),
-            'burst2': (650, 296),
-        },
+        'start': [
+            ['burst1', (469, 229)],
+            ['burst2', (650, 296)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (578, 473), 'ec': True, "desc": "2 lower left"},
             {'t': 'choose_and_change', 'p': (578, 473), "desc": "swap 1 2"},
@@ -57,10 +57,10 @@ stage_data = {
         ]
     },
     '7-3-sss-present-task': {
-        'start': {
-            'burst1': (943, 471),
-            'burst2': (182, 260),
-        },
+        'start': [
+            ['burst1', (943, 471)],
+            ['burst2', (182, 260)],
+        ],
         'action': [
             {'t': 'click', 'p': (659, 433), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (626, 350), 'wait-over': True, 'ec': True, "desc": "2 right"},

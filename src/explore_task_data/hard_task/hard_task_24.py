@@ -1,9 +1,9 @@
 stage_data = {
     '24-1-sss-present-task': {
-        'start': {
-            'shock1': (403, 428),
-            'burst1': (1044, 323),
-        },
+        'start': [
+            ['shock1', (403, 428)],
+            ['burst1', (1044, 323)],
+        ],
         'action': [
             {'t': 'click', 'p': (445, 327), 'ec': True, 'desc': "1 upper left"},
             {'t': 'click', 'p': (665, 374), 'ec': True, 'wait-over': True, 'desc': "2 left"},
@@ -22,10 +22,10 @@ stage_data = {
         ]
     },
     '24-2-sss-present-task': {
-        'start': {
-            'shock1': (401, 342),
-            'burst1': (853, 198),
-        },
+        'start': [
+            ['shock1', (401, 342)],
+            ['burst1', (853, 198)],
+        ],
         'action': [
             {'t': 'click', 'p': (565, 513), 'ec': True, 'desc': "1 lower right"},
             {'t': 'click', 'p': (637, 317), 'ec': True, 'wait-over': True, 'desc': "2 left"},
@@ -49,11 +49,11 @@ stage_data = {
         ]
     },
     '24-sss-present-task': {
-        'start': {
-            'shock1': (963, 261),
-            'burst1': (476, 419),
-            'shock2': (208, 192),
-        },
+        'start': [
+            ['shock1', (963, 261)],
+            ['burst1', (476, 419)],
+            ['shock2', (208, 192)],
+        ],
         'action': [
             {'t': 'click', 'p': (719, 313), 'ec': True, 'desc': "1 upper left"},
             {'t': 'click', 'p': (598, 379), 'ec': True, 'desc': "2 upper right"},

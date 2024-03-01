@@ -1,8 +1,8 @@
 stage_data = {
     '4-1-sss-present': {
-        'start': {
-            'pierce1': (434, 464),
-        },
+        'start': [
+            ['pierce1', (434, 464)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'p': (642, 431), 'wait-over': True, 'desc': "right and tp"},
             {'t': 'click_and_teleport', 'p': (743, 288), 'wait-over': True, 'desc': "choose self and tp"},
@@ -11,9 +11,9 @@ stage_data = {
         ]
     },
     '4-1-task': {
-        'start': {
-            'pierce1': (434, 464),
-        },
+        'start': [
+            ['pierce1', (434, 464)],
+        ],
         'action': [
             {'t': 'click', 'p': (642, 431), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (764, 439), 'wait-over': True, 'desc': "right"},
@@ -21,9 +21,9 @@ stage_data = {
         ]
     },
     '4-2-sss-present': {
-        'start': {
-            'pierce1': (431,427),
-        },
+        'start': [
+            ['pierce1', (431,427)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'p': (573, 498), 'wait-over': True, 'desc': "lower right and tp"},
             {'t': 'click', 'p': (820, 311), 'wait-over': True, 'desc': "right"},
@@ -32,9 +32,9 @@ stage_data = {
         ]
     },
     '4-2-task': {
-        'start': {
-            'pierce1': (431,427),
-        },
+        'start': [
+            ['pierce1', (431,427)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'p': (573, 498), 'wait-over': True, 'desc': "lower right and tp"},
             {'t': 'click', 'p': (820, 311), 'wait-over': True, 'desc': "right"},
@@ -42,9 +42,9 @@ stage_data = {
         ]
     },
     '4-3-sss-present': {
-        'start': {
-            'pierce1': (487, 383),
-        },
+        'start': [
+            ['pierce1', (487, 383)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'p': (571, 467), 'wait-over': True, 'desc': "lower right and tp"},
             {'t': 'click_and_teleport', 'p': (752, 357), 'wait-over': True, 'desc': "choose self and tp"},
@@ -54,9 +54,9 @@ stage_data = {
         ]
     },
     '4-3-task': {
-        'start': {
-            'pierce1': (487, 383),
-        },
+        'start': [
+            ['pierce1', (487, 383)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'p': (571, 467), 'wait-over': True, 'desc': "lower right and tp"},
             {'t': 'click', 'p': (695, 276), 'desc': "upper left"},

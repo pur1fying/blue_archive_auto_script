@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "burst1"
     },
     '14-1': {
-        'start': {
-            'burst1': (460, 383),
-            'mystic1': (572, 303),
-        },
+        'start': [
+            ['burst1', (460, 383)],
+            ['mystic1', (572, 303)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (756, 388), 'ec': True, "desc": "2 right"},
             {'t': 'click', 'p': (636, 555), 'wait-over': True, "desc": "1 lower right"},
@@ -19,10 +19,10 @@ stage_data = {
         ]
     },
     '14-2': {
-        'start': {
-            'burst1': (611, 299),
-            'mystic1': (880, 559),
-        },
+        'start': [
+            ['burst1', (611, 299)],
+            ['mystic1', (880, 559)],
+        ],
         'action': [
             {'t': 'click', 'p': (590, 396), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (685, 390), 'ec': True, "wait-over": True, "desc": "2 upper left"},
@@ -38,10 +38,10 @@ stage_data = {
         ]
     },
     '14-3': {
-        'start': {
-            'burst1': (583, 306),
-            'mystic1': (520, 560),
-        },
+        'start': [
+            ['burst1', (583, 306)],
+            ['mystic1', (520, 560)],
+        ],
         'action': [
             {'t': 'click', 'p': (745, 410), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (686, 491), "wait-over": True, 'ec': True, "desc": "2 right"},
@@ -57,10 +57,10 @@ stage_data = {
         ]
     },
     '14-4': {
-        'start': {
-            'burst1': (818, 302),
-            'mystic1': (535, 498),
-        },
+        'start': [
+            ['burst1', (818, 302)],
+            ['mystic1', (535, 498)],
+        ],
         'action': [
             {'t': 'click', 'p': (647, 317), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (610, 381), 'ec': True, "wait-over": True, "desc": "2 upper right"},
@@ -78,10 +78,10 @@ stage_data = {
         ]
     },
     '14-5': {
-        'start': {
-            'burst1': (880, 388),
-            'mystic1': (246, 302),
-        },
+        'start': [
+            ['burst1', (880, 388)],
+            ['mystic1', (246, 302)],
+        ],
         'action': [
             {'t': 'click', 'p': (724, 330), 'ec': True, "desc": "1 upper left"},
             {'t': 'click', 'p': (559, 283), 'ec': True, "wait-over": True, "desc": "2 upper right"},

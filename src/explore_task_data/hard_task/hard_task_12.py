@@ -1,9 +1,9 @@
 stage_data = {
     '12-1-sss-present-task': {
-        'start': {
-            'mystic1': (335, 555),
-            'burst1': (1130, 455),
-        },
+        'start': [
+            ['mystic1', (335, 555)],
+            ['burst1', (1130, 455)],
+        ],
         'action': [
             {'t': 'click', 'p': (610, 395), 'wait-over': True, 'desc': "1 right"},
             {'t': 'click', 'p': (665, 390), 'wait-over': True, 'desc': "2 left"},
@@ -19,10 +19,10 @@ stage_data = {
         ]
     },
     '12-2-sss-present-task': {
-        'start': {
-            'mystic1': (365, 385),
-            'burst1': (620, 390),
-        },
+        'start': [
+            ['mystic1', (365, 385)],
+            ['burst1', (620, 390)],
+        ],
         'action': [
             {'t': 'click', 'p': (578, 475), 'wait-over': True, 'desc': "1 lower right"},
             {'t': 'choose_and_change', 'p': (585, 480), 'desc': "swap 1 2"},
@@ -39,10 +39,10 @@ stage_data = {
         ]
     },
     '12-3-sss-present': {
-        'start': {
-            'mystic1': (610, 385),
-            'burst1': (580, 305),
-        },
+        'start': [
+            ['mystic1', (610, 385)],
+            ['burst1', (580, 305)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (760, 390), 'ec': True, 'desc': "2 right"},
             {'t': 'choose_and_change', 'p': (760, 390), 'desc': "swap 1 2"},
@@ -64,10 +64,10 @@ stage_data = {
         ]
     },
     '12-3-task': {
-        'start': {
-            'mystic1': (610, 385),
-            'burst1': (580, 305),
-        },
+        'start': [
+            ['mystic1', (610, 385)],
+            ['burst1', (580, 305)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (760, 390), 'ec': True, 'desc': "2 right"},
             {'t': 'choose_and_change', 'p': (760, 390), 'desc': "swap 1 2"},

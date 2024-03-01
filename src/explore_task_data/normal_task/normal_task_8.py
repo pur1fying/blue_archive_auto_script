@@ -3,10 +3,10 @@ stage_data = {
         'SUB': 'pierce1',
     },
     '8-1': {
-        'start': {
-            'pierce1': (640, 303),
-            'pierce2': (518, 390),
-        },
+        'start': [
+            ['pierce1', (640, 303)],
+            ['pierce2', (518, 390)],
+        ],
         'action': [
             {'t': 'click', 'p': (877, 392), 'ec': True, "desc": "1 right"},
             {'t': 'click', 'p': (431, 390), "wait-over": True, "desc": "2 left"},
@@ -23,10 +23,10 @@ stage_data = {
         ]
     },
     '8-2': {
-        'start': {
-            'pierce1': (730, 558),
-            'pierce2': (567, 482),
-        },
+        'start': [
+            ['pierce1', (730, 558)],
+            ['pierce2', (567, 482)],
+        ],
         'action': [
             {'t': 'click', 'p': (634, 390), 'ec': True, "desc": "1 upper left"},
             {'t': 'click_and_teleport', 'wait-over': True, 'ec': True, 'p': (513, 390), "desc": "2 upper left and tp"},
@@ -42,10 +42,10 @@ stage_data = {
         ]
     },
     '8-3': {
-        'start': {
-            'pierce1': (404, 343),
-            'pierce2': (618, 364),
-        },
+        'start': [
+            ['pierce1', (404, 343)],
+            ['pierce2', (618, 364)],
+        ],
         'action': [
             {'t': 'click', 'p': (582, 474), 'ec': True, "desc": "1 lower right"},
             {'t': 'choose_and_change', 'p': (582, 474), "desc": "swap 1 2"},
@@ -59,10 +59,10 @@ stage_data = {
         ]
     },
     '8-4': {
-        'start': {
-            'pierce1': (335, 561),
-            'pierce2': (650, 451),
-        },
+        'start': [
+            ['pierce1', (335, 561)],
+            ['pierce2', (650, 451)],
+        ],
         'action': [
             {'t': 'click_and_teleport', 'ec': True, 'p': (580, 308), "desc": "1 upper right and tp"},
             {'t': 'click_and_teleport', "wait-over": True, 'ec': True, 'p': (670, 395), "desc": "2 upper right and tp"},
@@ -79,10 +79,10 @@ stage_data = {
         ]
     },
     '8-5': {
-        'start': {
-            'pierce1': (396, 469),
-            'pierce2': (577, 351),
-        },
+        'start': [
+            ['pierce1', (396, 469)],
+            ['pierce2', (577, 351)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (698, 482), "ec": True, "desc": "2 lower right"},
             {'t': 'choose_and_change', 'p': (698, 482), "desc": "swap 1 2"},

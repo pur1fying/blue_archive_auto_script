@@ -407,7 +407,6 @@ def calc_team_number(self, current_task_stage_data):
         'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ],
         'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ]
     }
-    length = len(current_task_stage_data['start'])
     used = {
         'pierce1': False,
         'pierce2': False,
@@ -419,37 +418,59 @@ def calc_team_number(self, current_task_stage_data):
         'shock2': False,
     }
     keys = used.keys()
+    total_teams = 0
+    for i in range(0, len(current_task_stage_data['start'])):
+        if current_task_stage_data['start'][i][0] in keys:
+            total_teams += 1
     last_chosen = 0
-    res = []
+    team_res = []
+    team_attr = []
     los = []
-    for attr, position in current_task_stage_data['start'].items():
-        if attr not in keys:
-            res.append(attr)
-            los.append(position)
-            continue
+    for i in range(0, len(current_task_stage_data['start'])):
+        attr, position = current_task_stage_data['start'][i][0], current_task_stage_data['start'][i][1]
         los.append(position)
-        for i in range(0, len(pri[attr])):
-            possible_attr = pri[attr][i]
+        if attr not in keys:
+            continue
+        for j in range(0, len(pri[attr])):
+            possible_attr = pri[attr][j]
             if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
                 continue
             possible_index = self.config[possible_attr]
-            if not used[possible_attr] and 4 - possible_index >= length - len(res) - 1 and last_chosen < possible_index:
-                res.append(possible_index)
+            if not used[possible_attr] and 4 - possible_index >= total_teams - len(team_res) - 1 and last_chosen < possible_index:
+                team_res.append(possible_index)
+                team_attr.append(possible_attr)
                 used[possible_attr] = True
                 last_chosen = self.config[possible_attr]
                 break
-    if len(res) != length:
+    if len(team_res) != total_teams:
         self.logger.warning("Insufficient forces are chosen")
-        if length - len(res) <= 4 - last_chosen:
-            for i in range(0, length - len(res)):
-                res.append(last_chosen + i + 1)
+        if total_teams - len(team_res) <= 4 - last_chosen:
+            for i in range(0, total_teams - len(team_res)):
+                team_res.append(last_chosen + i + 1)
+                team_attr.append("auto-choose")
         else:
             self.logger.warning("USE formations as the number increase")
-            res.clear()
-            for i in range(0, length):
-                res.append(i + 1)
-    self.logger.info("Choose formations : " + str(res))
-    return res, los
+            team_res.clear()
+            team_attr = ["auto-choose"]
+            cnt = 1
+            for i in range(0, len(current_task_stage_data['start'])):
+                if current_task_stage_data['start'][i][0] in keys:
+                    team_res.append(cnt)
+                    los.append(current_task_stage_data['start'][i][1])
+                    cnt += 1
+    self.logger.info("Choose formations : " + str(team_res))
+    self.logger.info("attr : " + str(team_attr))
+    action_res = []
+    temp = 0
+    for i in range(0, len(current_task_stage_data['start'])):
+        if current_task_stage_data['start'][i][0] not in keys:
+            action_res.append(current_task_stage_data['start'][i][0])
+        else:
+            action_res.append(team_res[temp])
+            temp += 1
+    self.logger.info("actions : " + str(action_res))
+    self.logger.info("position : " + str(los))
+    return action_res, los
 
 
 def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):

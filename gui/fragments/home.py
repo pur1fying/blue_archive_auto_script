@@ -205,12 +205,14 @@ class MainThread(QThread):
         self.display('停止')
         if self._main_thread.send('solve', 'explore_hard_task'):
             notify(title='BAAS', body='困难图推图已完成')
+        self.display('启动')
 
     def start_normal_task(self):
         self._init_script()
         self.display('停止')
         if self._main_thread.send('solve', 'explore_normal_task'):
             notify(title='BAAS', body='普通图推图已完成')
+        self.display('启动')
 
     def start_fhx(self):
         self._init_script()
@@ -219,37 +221,49 @@ class MainThread(QThread):
 
     def start_main_story(self):
         self._init_script()
+        self.display('停止')
         if self._main_thread.send('solve', 'main_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='主线剧情已完成')
+        self.display('启动')
 
     def start_group_story(self):
         self._init_script()
+        self.display('停止')
         if self._main_thread.send('solve', 'group_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='小组剧情已完成')
+        self.display('启动')
 
     def start_mini_story(self):
         self._init_script()
+        self.display('停止')
         if self._main_thread.send('solve', 'mini_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='支线剧情已完成')
+        self.display('启动')
 
     def start_explore_activity_story(self):
         self._init_script()
+        self.display('停止')
         if self._main_thread.send('solve', 'explore_activity_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='活动剧情已完成')
+        self.display('启动')
 
     def start_explore_activity_mission(self):
         self._init_script()
+        self.display('停止')
         if self._main_thread.send('solve', 'explore_activity_mission'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='活动任务已完成')
+        self.display('启动')
 
     def start_explore_activity_challenge(self):
         self._init_script()
+        self.display('停止')
         if self._main_thread.send('solve', 'explore_activity_challenge'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='活动挑战推图已完成')
+        self.display('启动')
 

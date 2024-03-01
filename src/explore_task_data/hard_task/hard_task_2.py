@@ -1,8 +1,8 @@
 stage_data = {
     '2-1-sss-present': {
-        'start': {
-            'burst1': (338, 472),
-        },
+        'start': [
+            ['burst1', (338, 472)],
+        ],
         'action': [
             {'t': 'click', 'p': (633, 427), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (693, 341), 'wait-over': True, 'desc': "upper right"},
@@ -11,9 +11,9 @@ stage_data = {
         ]
     },
     '2-1-task': {
-        'start': {
-            'burst1': (338, 472),
-        },
+        'start': [
+            ['burst1', (338, 472)],
+        ],
         'action': [
             {'t': 'click', 'p': (633, 427), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (693, 341), 'wait-over': True, 'desc': "upper right"},
@@ -21,9 +21,9 @@ stage_data = {
         ]
     },
     '2-2-sss-present': {
-        'start': {
-            'burst1': (493, 302),
-        },
+        'start': [
+            ['burst1', (493, 302)],
+        ],
         'action': [
             {'t': 'click', 'p': (573, 403), 'wait-over': True, 'desc': "lower right"},
             {'t': 'click', 'p': (628, 513), 'wait-over': True, 'desc': "lower right"},
@@ -32,9 +32,9 @@ stage_data = {
         ]
     },
     '2-2-task': {
-        'start': {
-            'burst1': (493, 302),
-        },
+        'start': [
+            ['burst1', (493, 302)],
+        ],
         'action': [
             {'t': 'click', 'p': (573, 403), 'wait-over': True, 'desc': "lower right"},
             {'t': 'click', 'p': (628, 513), 'wait-over': True, 'desc': "lower right"},
@@ -42,9 +42,9 @@ stage_data = {
         ]
     },
     '2-3-sss-present': {
-        'start': {
-            'burst1': (436, 388),
-        },
+        'start': [
+            ['burst1', (436, 388)],
+        ],
         'action': [
             {'t': 'click', 'p': (619, 389), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (734, 454), 'wait-over': True, 'desc': "right"},
@@ -55,9 +55,9 @@ stage_data = {
         ]
     },
     '2-3-task': {
-        'start': {
-            'burst1': (436, 388),
-        },
+        'start': [
+            ['burst1', (436, 388)],
+        ],
         'action': [
             {'t': 'click', 'p': (619, 389), 'wait-over': True, 'desc': "right"},
             {'t': 'click', 'p': (734, 454), 'wait-over': True, 'desc': "right"},

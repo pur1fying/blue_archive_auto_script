@@ -3,10 +3,10 @@ stage_data = {
         'SUB': "burst1"
     },
     '17-1': {
-        'start': {
-            'burst1': (550, 511),
-            'pierce1': (344, 297),
-        },
+        'start': [
+            ['burst1', (550, 511)],
+            ['pierce1', (344, 297)],
+        ],
         'action': [
             {'t': 'exchange_and_click', 'p': (631, 338), 'ec': True, "desc": "2 right"},
             {'t': 'click', 'p': (788, 392), "wait-over": True, "desc": "1 upper right"},
@@ -18,10 +18,10 @@ stage_data = {
         ]
     },
     '17-2': {
-        'start': {
-            'burst1': (675, 433),
-            'pierce1': (580, 475),
-        },
+        'start': [
+            ['burst1', (675, 433)],
+            ['pierce1', (580, 475)],
+        ],
         'action': [
             {'t': 'click', 'p': (637, 225), 'ec': True, "desc": "1 upper left"},
             {'t': 'click', 'p': (576, 356), 'ec': True, "wait-over": True, "desc": "2 upper left"},
@@ -34,10 +34,10 @@ stage_data = {
         ]
     },
     '17-3': {
-        'start': {
-            'burst1': (279, 428),
-            'pierce1': (1040, 490),
-        },
+        'start': [
+            ['burst1', (279, 428)],
+            ['pierce1', (1040, 490)],
+        ],
         'action': [
             {'t': 'click', 'p': (555, 458), 'ec': True, "desc": "1 lower right"},
             {'t': 'click', 'p': (723, 330), "wait-over": True, 'ec': True, "desc": "2 upper left"},
@@ -56,10 +56,10 @@ stage_data = {
         ]
     },
     '17-4': {
-        'start': {
-            'burst1': (580, 559),
-            'pierce1': (374, 314),
-        },
+        'start': [
+            ['burst1', (580, 559)],
+            ['pierce1', (374, 314)],
+        ],
         'action': [
             {'t': 'click', 'p': (773, 401), 'ec': True, "desc": "1 upper right"},
             {'t': 'click', 'p': (627, 332), 'ec': True, "wait-over": True, "desc": "2 right"},
@@ -74,10 +74,10 @@ stage_data = {
         ]
     },
     '17-5': {
-        'start': {
-            'burst1': (940, 388),
-            'pierce1': (604, 145),
-        },
+        'start': [
+            ['burst1', (940, 388)],
+            ['pierce1', (604, 145)],
+        ],
         'action': [
             {'t': 'click', 'p': (622, 472), 'ec': True, "desc": "1 left"},
             {'t': 'click', 'p': (469, 278), 'ec': True, "desc": "2 left"},
