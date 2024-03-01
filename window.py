@@ -109,6 +109,8 @@ def check_event_config(dir_path='./default_config'):
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
+            with open("error.log", 'w+', encoding='utf-8') as f:
+                f.write("path not exist" + '\n' + dir_path + '\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
             f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
         return
     try:
@@ -125,8 +127,8 @@ def check_event_config(dir_path='./default_config'):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
     except Exception as e:
-        print(e)
-        # os.remove(path)
+        with open("error.log", 'w+', encoding='utf-8') as f:
+            f.write(str(e) + '\n' + dir_path + '\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
         return
