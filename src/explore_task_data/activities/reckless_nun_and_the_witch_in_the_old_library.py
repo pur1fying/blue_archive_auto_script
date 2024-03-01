@@ -69,7 +69,7 @@ stage_data = {
         'start': [
             ['mystic1', (82, 709)],
             ['swipe', (1034, 444, 500, 444, 0.5)],
-            ['burst1', (1253, 239)],
+            ['burst1', (1253, 269)],
         ],
         'action': [
             {'t': 'click_and_teleport', 'p': (613, 410), 'ec': True, "desc": "1 right and tp"},
