@@ -173,6 +173,7 @@ def explore_challenge(self):
             res = check_sweep_availability(self)
             if res == "sss":
                 self.logger.info("Challenge " + str(task_number) + " sss no need to fight")
+                to_activity(self, "challenge", True)
                 continue
             elif res == "no-pass" or res == "pass":
                 need_fight = True
