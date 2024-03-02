@@ -55,7 +55,7 @@ class Layout(TemplateLayout):
             import device_operation
             results = device_operation.autosearch()
             if len(results) == 0:
-                results = ["未发现adb设备"]
+                results = ["自动查询模拟器失败！请尝试手动输入端口"]
             self.tableView.setRowCount(len(results))
             for i in range(len(results)):
                 self.tableView.setItem(i, 0, QTableWidgetItem(results[i]))
