@@ -180,7 +180,7 @@ def judge_unfinished_fight(self):
 
 def collect_accumulated_point_reward(self):
     self.logger.info("collect accumulated point reward")
-    to_total_assault_info(self, True)
+    to_total_assault_info(self, False)
     rgb_possibles = {
         'total_assault_rank_info': (928, 162),
         'total_assault_accumulated_point_reward': (241, 238),
@@ -398,7 +398,8 @@ def start_sweep(self, pri_total_assault, tickets):
     self.logger.info("SWEEP :" + str(pri_total_assault) + " " + str(tickets) + " times")
     y = find_button_y(self, pri_total_assault)
     to_room_info(self, (1157, y), True)
-    self.click(1069, 297, wait_over=True,  duration=0.1, count=tickets)
+    if tickets >= 2:
+        self.click(1069, 297, wait_over=True,  duration=0.1, count=tickets-1)
     img_ends = [
         "total_assault_inadequate-ticket",
         "normal_task_start-sweep-notice",
@@ -411,5 +412,5 @@ def start_sweep(self, pri_total_assault, tickets):
             "normal_task_sweep-complete",
         ]
         img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
-        picture.co_detect(self, None, img_ends, img_possibles, True)
+        picture.co_detect(self, None,None, img_ends, img_possibles, True)
     to_total_assault(self, True)
