@@ -11,7 +11,7 @@ def implement(self):
     self.logger.info("TICKETS: " + str(tickets))
     if tickets == 0:
         self.logger.warning("NO TICKETS")
-        return False
+        return True
     maxx_name = self.config['totalForceFightDifficulty']
     self.logger.info("begin auto total assault highest difficulty: " + maxx_name)
     total_assault_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3, "EXTREME": 4,
@@ -333,7 +333,7 @@ def one_detect(self, button_detected, maxx, character_dict):
                 self.logger.info("find " + self.total_assault_difficulty_names[maximum_acc_index].upper() + " " + name[
                     temp] + " button")
                 if maximum_acc_index >= maxx and temp == 0:
-                    return (maxx, y[maximum_acc_index]), button_detected
+                    return (maxx, y[maxx]), button_detected
                 button_detected[maximum_acc_index][temp] = True
                 t = total_assault_highest_difficulty_button_judgement(button_detected)
                 if isinstance(t, int):

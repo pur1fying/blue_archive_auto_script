@@ -10,5 +10,8 @@ x_y_range = {
     'battle-lost-confirm': (577, 636, 691, 683),
     'battle-win-confirm': (1120, 646, 1222, 681),
     'inadequate-ticket': (458, 311, 784, 351),
-    "give-up-notice": (382, 277, 883, 399)
+    "give-up-notice": (382, 277, 883, 399),
+    'win-reward-confirm': (713, 637, 832, 680),
+    'total-assault-result': (539, 109, 728, 145),
+    'reach-season-highest-record': (489, 146, 812, 183)
 }
