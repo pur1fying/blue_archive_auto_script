@@ -96,10 +96,12 @@ def sweep(self, number, times):
                 return True
             elif res == "sweep_complete":
                 self.logger.info("Current sweep task " + str(number[i]) + " :" + str(sweep_times) + " times complete")
-                to_activity(self, "mission", True, True)
+                if i != len(number) - 1:
+                    to_activity(self, "mission", True, True)
         elif res == "pass" or res == "no-pass":
             self.logger.warning("task not sss, sweep unavailable")
             continue
+    return True
 
 
 def explore_story(self):
