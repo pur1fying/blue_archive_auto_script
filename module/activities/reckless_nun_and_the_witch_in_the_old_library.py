@@ -6,11 +6,58 @@ from module.explore_normal_task import common_gird_method
 
 
 def implement(self):
-    times = self.config["activity_sweep_times"]
-    if times > 0:
-        return sweep(self, self.config["activity_sweep_task_number"], times)
+    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
+    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    self.logger.info("activity sweep task number : " + str(region))
+    self.logger.info("activity sweep times : " + str(times))
+    if len(times) > 0:
+        return sweep(self, region, times)
     else:
         return True
+
+
+def preprocess_activity_region(region):
+    if type(region) is int:
+        return [region]
+    if type(region) is str:
+        region = region.split(",")
+        for i in range(0, len(region)):
+            region[i] = int(region[i])
+        return region
+    if type(region) is list:
+        for i in range(0, len(region)):
+            if type(region[i]) is int:
+                continue
+            region[i] = int(region[i])
+        return region
+
+
+def preprocess_activity_sweep_times(times):
+    if type(times) is int:
+        return [times]
+    if type(times) is float:
+        return [times]
+    if type(times) is str:
+        times = times.split(",")
+        for i in range(0, len(times)):
+            if '.' in times[i]:
+                times[i] = min(float(times[i]), 1.0)
+            elif '/' in times[i]:
+                temp = times[i].split("/")
+                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
+            else:
+                times[i] = int(times[i])
+        return times
+    if type(times) is list:
+        for i in range(0, len(times)):
+            if type(times[i]) is int:
+                continue
+            if '.' in times[i]:
+                times[i] = min(float(times[i]), 1.0)
+            elif '/' in times[i]:
+                temp = times[i].split("/")
+                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
+        return times
 
 
 def get_stage_data():
@@ -22,38 +69,37 @@ def get_stage_data():
 
 def sweep(self, number, times):
     self.quick_method_to_main_page()
-    to_activity(self, "mission", True)
-    self.swipe(919, 136, 943, 720, duration=0.05)
-    time.sleep(0.5)
-    self.swipe(919, 136, 943, 720, duration=0.05)
-    time.sleep(0.5)
+    to_activity(self, "mission", True, True)
     ap = self.get_ap()
-    sweep_one_time_ap = [0, 10, 10,10,10, 15, 15, 15, 15,20,20,20,20]
-    sweep_times = times
-    click_times = sweep_times
-    duration = 1
-    if sweep_times > 50:
-        sweep_times = int(ap / sweep_one_time_ap[number])
-        click_times = int(sweep_times / 2) + 1
-        duration = 0.3
-    if sweep_times <= 0:
-        self.logger.warning("inadequate ap")
-        return True
-    self.logger.info("Start sweep task " + str(number) + " :" + str(sweep_times) + " times")
-    to_mission_task_info(self, number)
-    res = check_sweep_availability(self)
-    if res == "sss":
-        self.click(1032, 299, count=click_times, duration=duration, wait_over=True)
-        res = start_sweep(self, True)
-        if res == "inadequate_ap":
+    sweep_one_time_ap = [0, 10, 10, 10, 10, 15, 15, 15, 15, 20, 20, 20, 20]
+    for i in range(0, min(len(number), len(times))):
+        sweep_times = times[i]
+        if type(sweep_times) is float:
+            sweep_times = int(ap * sweep_times / sweep_one_time_ap[number[i]])
+        click_times = sweep_times
+        duration = 1
+        if sweep_times > 50:
+            sweep_times = int(ap / sweep_one_time_ap[number[i]])
+            click_times = int(sweep_times / 2) + 1
+            duration = 0.3
+        if sweep_times <= 0:
             self.logger.warning("inadequate ap")
-            return True
-        elif res == "sweep_complete":
-            self.logger.info("sweep task" + str(number) + " finished")
-            return True
-    elif res == "pass" or res == "no-pass":
-        self.logger.warning("task not sss, sweep unavailable")
-        return True
+            continue
+        self.logger.info("Start sweep task " + str(number[i]) + " :" + str(sweep_times) + " times")
+        to_mission_task_info(self, number[i])
+        res = check_sweep_availability(self)
+        if res == "sss":
+            self.click(1032, 299, count=click_times, duration=duration, wait_over=True)
+            res = start_sweep(self, True)
+            if res == "inadequate_ap":
+                self.logger.warning("inadequate ap")
+                return True
+            elif res == "sweep_complete":
+                self.logger.info("Current sweep task " + str(number[i]) + " :" + str(sweep_times) + " times complete")
+                to_activity(self, "mission", True, True)
+        elif res == "pass" or res == "no-pass":
+            self.logger.warning("task not sss, sweep unavailable")
+            continue
 
 
 def explore_story(self):
@@ -78,7 +124,6 @@ def explore_story(self):
         start_story(self)
         to_activity(self, "mission", True)
         to_activity(self, "story", True)
-
 
 
 def start_story(self):
@@ -109,7 +154,7 @@ def start_fight(self, i):
 
 def explore_mission(self):
     self.quick_method_to_main_page()
-    to_activity(self, "mission", True)
+    to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
     characteristic = [
@@ -127,10 +172,6 @@ def explore_mission(self):
         'burst1',
     ]
     while last_target_mission <= total_missions and self.flag_run:
-        self.swipe(919, 136, 943, 720, duration=0.05)
-        time.sleep(0.5)
-        self.swipe(919, 136, 943, 720, duration=0.05)
-        time.sleep(0.5)
         to_mission_task_info(self, last_target_mission)
         res = check_sweep_availability(self)
         while res == "sss" and last_target_mission <= total_missions - 1 and self.flag_run:
@@ -148,7 +189,7 @@ def explore_mission(self):
         start_fight(self, number)
         main_story.auto_fight(self)
         to_activity(self, "story")
-        to_activity(self, "mission", True)
+        to_activity(self, "mission", True, True)
 
 
 def explore_challenge(self):
@@ -186,7 +227,7 @@ def explore_challenge(self):
             to_activity(self, "challenge", True)
 
 
-def to_activity(self, region, skip_first_screenshot=False):
+def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
     img_possibles = {
         "activity_enter1": (1196, 195),
         "activity_enter2": (100, 149),
@@ -232,6 +273,11 @@ def to_activity(self, region, skip_first_screenshot=False):
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
         else:
+            if region == "mission" and need_swipe:
+                self.swipe(919, 136, 943, 720, duration=0.05)
+                time.sleep(0.5)
+                self.swipe(919, 136, 943, 720, duration=0.05)
+                time.sleep(0.5)
             return True
 
 

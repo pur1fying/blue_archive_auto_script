@@ -6,9 +6,11 @@ from module.explore_normal_task import common_gird_method
 
 
 def implement(self):
+    self.quick_method_to_main_page()
+    region = self.config["activity_sweep_task_number"]
     times = self.config["activity_sweep_times"]
     if times > 0:
-        return sweep(self, self.config["activity_sweep_task_number"], times)
+        return sweep(self, region, times)
     else:
         return True
 
@@ -21,12 +23,12 @@ def get_stage_data():
 
 
 def sweep(self, number, times):
-    self.quick_method_to_main_page()
     to_activity(self, "mission", True)
     self.swipe(919, 136, 943, 720, duration=0.05)
     time.sleep(0.5)
     ap = self.get_ap()
     sweep_one_time_ap = [0, 10, 10, 15, 15, 15, 15]
+
     sweep_times = times
     click_times = sweep_times
     duration = 1
