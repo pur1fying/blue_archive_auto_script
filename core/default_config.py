@@ -535,7 +535,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "reckless_nun_and_the_witch_in_the_old_library",
         "Global": null,
-        "JP": null
+        "JP": "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory"
     },
     "package_name": {
         "官服": "com.RoamingStar.BlueArchive",

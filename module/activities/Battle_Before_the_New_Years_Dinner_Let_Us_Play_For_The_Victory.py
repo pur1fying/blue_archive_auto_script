@@ -106,12 +106,10 @@ def sweep(self, number, times):
 
 def explore_story(self):
     self.quick_method_to_main_page()
-    to_activity(self, "story", True)
+    to_activity(self, "story", True, True)
     last_target_task = 1
-    total_stories = 8
+    total_stories = 10
     while self.flag_run:
-        self.swipe(919, 136, 943, 720, duration=0.05)
-        time.sleep(0.5)
         to_story_task_info(self, last_target_task)
         res = color.check_sweep_availability(self)
         while res == "sss" and last_target_task <= total_stories - 1:
@@ -125,7 +123,7 @@ def explore_story(self):
             return True
         start_story(self)
         to_activity(self, "mission", True)
-        to_activity(self, "story", True)
+        to_activity(self, "story", True, True)
 
 
 def start_story(self):
@@ -162,15 +160,15 @@ def explore_mission(self):
     characteristic = [
         'pierce1',
         'pierce1',
-        'mystic1',
+        'burst1',
         'burst1',
         'pierce1',
         'pierce1',
-        'mystic1',
+        'burst1',
         'burst1',
         'pierce1',
         'pierce1',
-        'mystic1',
+        'burst1',
         'burst1',
     ]
     while last_target_mission <= total_missions and self.flag_run:
@@ -270,24 +268,27 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
-            self.click(click_lo[region], 76)
+        if not color.judge_rgb_range(self, rgb_lo[region], 134, 20, 60, 40, 70, 70, 100):
+            self.click(click_lo[region], 87)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
         else:
             if region == "mission" and need_swipe:
-                self.swipe(919, 136, 943, 720, duration=0.05)
+                self.swipe(919, 155, 943, 720, duration=0.05)
                 time.sleep(0.5)
-                self.swipe(919, 136, 943, 720, duration=0.05)
+                self.swipe(919, 155, 943, 720, duration=0.05)
+                time.sleep(0.5)
+            if region == "story" and need_swipe:
+                self.swipe(919, 155, 943, 720, duration=0.05)
                 time.sleep(0.5)
             return True
 
 
 def to_story_task_info(self, number):
-    lo = [0, 184, 277, 375, 480, 574]
-    index = [0, 1, 2, 3, 4, 5, 3, 4, 5]
+    lo = [0, 192, 291, 390, 490, 570]
+    index = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
     if number in [6, 7, 8, 9, 10]:
-        self.swipe(943, 593, 943, 0, duration=0.1)
+        self.swipe(943, 535, 943, 0, duration=0.5)
         time.sleep(0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
     img_ends = "normal_task_task-info"
@@ -313,7 +314,6 @@ def to_challenge_task_info(self, number):
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
 
 
 

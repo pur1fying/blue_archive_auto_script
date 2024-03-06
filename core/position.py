@@ -54,7 +54,7 @@ def init_image_data(self):
                 path = getattr(data, 'path', None)
                 image_x_y_range[self.server]['activity'].update(**x_y_range)
                 for key in x_y_range:
-                    img_path = 'src/images/CN/' + path + '/' + key + '.png'
+                    img_path = 'src/images/' + self.server + '/' + path + '/' + key + '.png'
                     if os.path.exists(img_path):
                         img = cv2.imread(img_path)
                         image_dic[self.server]['activity_' + key] = img

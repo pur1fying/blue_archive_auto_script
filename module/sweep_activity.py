@@ -6,6 +6,7 @@ func_names = {
     "pleasant_Valentines_Day_in_schale": activity.pleasant_Valentines_Day_in_schale.implement,
     "sakura_flowing_chaos_in_the_gala": activity.sakura_flowing_chaos_in_the_gala.implement,
     "reckless_nun_and_the_witch_in_the_old_library": activity.reckless_nun_and_the_witch_in_the_old_library.implement,
+    "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory": activity.Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory.implement,
 }
 
 

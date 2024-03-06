@@ -1,7 +1,7 @@
 import importlib
 import time
 
-from core import color, image, picture
+from core import color, picture
 from module import main_story, normal_task, hard_task
 from module.explore_normal_task import common_gird_method
 

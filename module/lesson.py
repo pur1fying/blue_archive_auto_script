@@ -353,9 +353,11 @@ def choose_lesson(self, res, region):
             for i in range(8, -1, -1):
                 if res[0][i] == "available":
                     return i
+            return -1
         else:
             for i in range(0, len(tier)):
                 if tier[i] in pri:
                     for j in range(2 * (3 - i), 2 * (4 - i)):
                         if res[0][j] == "available":
                             return j
+            return -1
