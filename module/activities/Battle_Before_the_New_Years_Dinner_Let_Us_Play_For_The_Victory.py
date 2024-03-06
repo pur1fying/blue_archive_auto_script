@@ -110,14 +110,26 @@ def explore_story(self):
     last_target_task = 1
     total_stories = 10
     while self.flag_run:
-        to_story_task_info(self, last_target_task)
-        res = color.check_sweep_availability(self)
+        plot = to_story_task_info(self, last_target_task)
+        if plot == "normal_task_task-info":
+            res = color.check_sweep_availability(self)
+        elif plot == "main_story_episode-info":
+            if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+                res = "sss"
+            else:
+                res = "no-pass"
         while res == "sss" and last_target_task <= total_stories - 1:
             self.logger.info("Current story sss check next story")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_task += 1
-            picture.co_detect(self, img_ends="normal_task_task-info")
-            res = color.check_sweep_availability(self)
+            plot = picture.co_detect(self, img_ends=["normal_task_task-info", "main_story_episode-info"])
+            if plot == "normal_task_task-info":
+                res = color.check_sweep_availability(self)
+            elif plot == "main_story_episode-info":
+                if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+                    res = "sss"
+                else:
+                    res = "no-pass"
         if last_target_task == total_stories and res == "sss":
             self.logger.info("All STORY SSS")
             return True
@@ -127,22 +139,23 @@ def explore_story(self):
 
 
 def start_story(self):
+    self.set_screenshot_interval(1)
     img_possibles = {
         "normal_task_task-info": (940, 538),
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
         "plot_skip-plot-notice": (766, 520),
+        "main_story_episode-info": (629, 518),
     }
-    rgb_ends = [
-        "formation_edit1",
-        "activity_menu",
-    ]
-    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
+    rgb_ends = "formation_edit1",
+    img_ends = "activity_menu"
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
     if res == "formation_edit1":
         start_fight(self, 1)
         main_story.auto_fight(self)
     elif res == "activity_menu":
         pass
+    self.set_screenshot_interval(self.config["screenshot_interval"])
     return
 
 
@@ -241,6 +254,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "normal_task_task-info": (1087, 141),
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
+        "main_story_episode-info": (917, 161),
         'normal_task_prize-confirm': (776, 655),
         'normal_task_fail-confirm': (643, 658),
         'normal_task_task-finish': (1038, 662),
@@ -288,11 +302,14 @@ def to_story_task_info(self, number):
     lo = [0, 192, 291, 390, 490, 570]
     index = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
     if number in [6, 7, 8, 9, 10]:
-        self.swipe(943, 535, 943, 0, duration=0.5)
+        self.swipe(943, 535, 943, 0, duration=1)
         time.sleep(0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
-    img_ends = "normal_task_task-info"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    img_ends = [
+                "normal_task_task-info",
+                "main_story_episode-info"
+            ]
+    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def to_mission_task_info(self, number):
