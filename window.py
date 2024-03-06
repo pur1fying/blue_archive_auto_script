@@ -4,21 +4,20 @@ import json
 import os
 import shutil
 import sys
+import threading
 from functools import partial
 
 from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF, SplashScreen, MSFluentWindow, TabBar, \
-    MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition, TransparentToolButton, FluentWindow
+    MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition, TransparentToolButton
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from core import default_config
 from gui.components.dialog_panel import SaveSettingMessageBox
 from gui.fragments.readme import ReadMeWindow
 from gui.util.config_set import ConfigSet
-
-import threading
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
 # sys.stdout = open('output.log', 'w+', encoding='utf-8')
