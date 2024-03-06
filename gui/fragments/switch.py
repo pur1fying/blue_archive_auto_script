@@ -5,12 +5,11 @@ from datetime import datetime
 from hashlib import md5
 from random import random
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel)
 from qfluentwidgets import SettingCardGroup
 
-from core import EVENT_CONFIG_PATH, SWITCH_CONFIG_PATH
 from gui.components import expand
 from gui.components.template_card import TemplateSettingCard
 
@@ -32,23 +31,8 @@ class SwitchFragment(ScrollArea):
         self._setting_cards = []
         self._event_config, self._switch_config = [], []  # 初始化_event_config和_switch_config列表
         self._read_config()  # 调用_read_config()方法读取配置文件并更新_event_config和_switch_config列表
-
-        # 根据_switch_config和_event_config列表的元素创建SettingCard对象，并将其添加到_setting_cards列表中
-        self._setting_cards = [
-            self._create_card(
-                name=item_event['name'],
-                tip=item_event['tip'],
-                # enabled=item_event['enabled'],
-                # next_tick=item_event['next_tick'],
-                setting_name=item_event['config']
-            )
-            for item_event in self._switch_config
-            # for item_event in self._event_config
-            # if item_event['event_name'] == item_switch['name']
-        ]
-
-        self.__initLayout()  # 调用__initLayout()方法初始化布局
-        self.__initWidget()  # 调用__initWidget()方法初始化部件
+        # 创建一个定时器，500毫秒后调用_lazy_load()方法，延迟加载设置，避免卡顿
+        QTimer.singleShot(500, self._lazy_load)
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(self.object_name)
 
@@ -79,6 +63,24 @@ class SwitchFragment(ScrollArea):
     #     ]
     #     # 将_setting_cards列表中的SettingCard对象添加到basicGroup中
     #     self.basicGroup.addSettingCards(self._setting_cards)
+
+    def _lazy_load(self):
+        # 根据_switch_config和_event_config列表的元素创建SettingCard对象，并将其添加到_setting_cards列表中
+        self._setting_cards = [
+            self._create_card(
+                name=item_event['name'],
+                tip=item_event['tip'],
+                # enabled=item_event['enabled'],
+                # next_tick=item_event['next_tick'],
+                setting_name=item_event['config']
+            )
+            for item_event in self._switch_config
+            # for item_event in self._event_config
+            # if item_event['event_name'] == item_switch['name']
+        ]
+
+        self.__initLayout()  # 调用__initLayout()方法初始化布局
+        self.__initWidget()  # 调用__initWidget()方法初始化部件
 
     def _change_time(self, event_name: str, event_time: str) -> None:
         try:
@@ -111,14 +113,14 @@ class SwitchFragment(ScrollArea):
 
     def _commit_change(self):
         with lock:
-            with open('./config/'+self.config.config_dir+'/event.json', 'w', encoding='utf-8') as f:
+            with open('./config/' + self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
                 json.dump(self._event_config, f, ensure_ascii=False, indent=2)  # 将_event_config列表写入配置文件
 
     def _read_config(self):
         with lock:
-            with open('./config/'+self.config.config_dir+'/event.json', 'r', encoding='utf-8') as f:
+            with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
                 self._event_config = json.load(f)  # 从配置文件中读取数据并更新_event_config列表
-            with open('./config/'+self.config.config_dir+'/switch.json', 'r', encoding='utf-8') as f:
+            with open('./config/' + self.config.config_dir + '/switch.json', 'r', encoding='utf-8') as f:
                 self._switch_config = json.load(f)  # 从配置文件中读取数据并更新_switch_config列表
 
     def update_settings(self):
