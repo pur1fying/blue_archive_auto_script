@@ -137,13 +137,13 @@ def start_story(self):
     }
     rgb_ends = [
         "formation_edit1",
-        "activity_menu",
+        "reward_acquired",
     ]
     res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
     if res == "formation_edit1":
         start_fight(self, 1)
         main_story.auto_fight(self)
-    elif res == "activity_menu":
+    elif res == "reward_acquired":
         pass
     return
 

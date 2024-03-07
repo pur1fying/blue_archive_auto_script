@@ -61,7 +61,7 @@ def preprocess_activity_sweep_times(times):
 
 
 def get_stage_data():
-    module_path = 'src.explore_task_data.activities.reckless_nun_and_the_witch_in_the_old_library'
+    module_path = 'src.explore_task_data.activities.Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory'
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -139,7 +139,6 @@ def explore_story(self):
 
 
 def start_story(self):
-    self.set_screenshot_interval(1)
     img_possibles = {
         "normal_task_task-info": (940, 538),
         "plot_menu": (1205, 34),
@@ -147,15 +146,16 @@ def start_story(self):
         "plot_skip-plot-notice": (766, 520),
         "main_story_episode-info": (629, 518),
     }
-    rgb_ends = "formation_edit1",
-    img_ends = "activity_menu"
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
+    rgb_ends = [
+        "formation_edit1",
+        "reward_acquired"
+    ]
+    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
     if res == "formation_edit1":
         start_fight(self, 1)
         main_story.auto_fight(self)
-    elif res == "activity_menu":
+    elif res == "reward_acquired":
         pass
-    self.set_screenshot_interval(self.config["screenshot_interval"])
     return
 
 
@@ -207,7 +207,7 @@ def explore_mission(self):
 
 def explore_challenge(self):
     self.quick_method_to_main_page()
-    to_activity(self, "challenge")
+    to_activity(self, "challenge", True, True)
     tasks = [
         "challenge2_sss",
         "challenge2_task",
@@ -237,10 +237,15 @@ def explore_challenge(self):
             if self.config['manual_boss']:
                 self.click(1235, 41)
             to_activity(self, "mission", True)
-            to_activity(self, "challenge", True)
+            to_activity(self, "challenge", True, True)
 
 
 def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
+    task_info_x = {
+        'CN': 1087,
+        'Global': 1128,
+        'JP': 1128
+    }
     img_possibles = {
         "activity_enter1": (1196, 195),
         "activity_enter2": (100, 149),
@@ -251,7 +256,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'purchase_ap_notice': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
-        "normal_task_task-info": (1087, 141),
+        "normal_task_task-info": (task_info_x[self.server], 141),
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
         "main_story_episode-info": (917, 161),
@@ -287,14 +292,18 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
         else:
-            if region == "mission" and need_swipe:
-                self.swipe(919, 155, 943, 720, duration=0.05)
-                time.sleep(0.5)
-                self.swipe(919, 155, 943, 720, duration=0.05)
-                time.sleep(0.5)
-            if region == "story" and need_swipe:
-                self.swipe(919, 155, 943, 720, duration=0.05)
-                time.sleep(0.5)
+            if need_swipe:
+                if region == "mission":
+                    self.swipe(919, 155, 943, 720, duration=0.05)
+                    time.sleep(0.5)
+                    self.swipe(919, 155, 943, 720, duration=0.05)
+                    time.sleep(0.5)
+                elif region == "story":
+                    self.swipe(919, 155, 943, 720, duration=0.05)
+                    time.sleep(0.5)
+                elif region == "challenge":
+                    self.swipe(919, 155, 943, 720, duration=0.05)
+                    time.sleep(0.5)
             return True
 
 
@@ -306,9 +315,9 @@ def to_story_task_info(self, number):
         time.sleep(0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
     img_ends = [
-                "normal_task_task-info",
-                "main_story_episode-info"
-            ]
+        "normal_task_task-info",
+        "main_story_episode-info"
+    ]
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
@@ -327,12 +336,10 @@ def to_mission_task_info(self, number):
 
 
 def to_challenge_task_info(self, number):
-    lo = [0, 178, 279, 377, 477, 564]
+    lo = [0, 194, 293, 390, 492, 574]
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
-
 
 
 def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):

@@ -377,7 +377,7 @@ def to_mission_info(self, y, skip_first_screenshot=False):
     rgb_possibles = {"event_normal": (1114, y),}
     img_end = "normal_task_task-info"
     img_possible = {'normal_task_select-area': (1114, y)}
-    picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_end, img_possible, skip_first_screenshot)
 
 
 def wait_formation_change(self, force_index):
