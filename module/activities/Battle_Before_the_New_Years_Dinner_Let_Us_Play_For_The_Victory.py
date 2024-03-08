@@ -294,16 +294,12 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         else:
             if need_swipe:
                 if region == "mission":
-                    self.swipe(919, 155, 943, 720, duration=0.05)
-                    time.sleep(0.5)
-                    self.swipe(919, 155, 943, 720, duration=0.05)
-                    time.sleep(0.5)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=0.5)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=0.5)
                 elif region == "story":
-                    self.swipe(919, 155, 943, 720, duration=0.05)
-                    time.sleep(0.5)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=0.5)
                 elif region == "challenge":
-                    self.swipe(919, 155, 943, 720, duration=0.05)
-                    time.sleep(0.5)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=0.5)
             return True
 
 
@@ -311,8 +307,7 @@ def to_story_task_info(self, number):
     lo = [0, 192, 291, 390, 490, 570]
     index = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
     if number in [6, 7, 8, 9, 10]:
-        self.swipe(943, 535, 943, 0, duration=1)
-        time.sleep(0.7)
+        self.swipe(943, 535, 943, 0, duration=1, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
     img_ends = [
         "normal_task_task-info",
@@ -325,11 +320,9 @@ def to_mission_task_info(self, number):
     lo = [0, 184, 300, 416, 527]
     index = [0, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
     if number >= 5:
-        self.swipe(943, 593, 943, 102, duration=0.5)
-        time.sleep(0.7)
+        self.swipe(943, 593, 943, 102, duration=0.5, post_sleep_time=0.7)
     if number >= 9:
-        self.swipe(943, 593, 943, 102, duration=0.5)
-        time.sleep(0.7)
+        self.swipe(943, 593, 943, 102, duration=0.5, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)

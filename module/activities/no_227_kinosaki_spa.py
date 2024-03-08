@@ -90,8 +90,7 @@ def calc_task_state(self):
 def explore_mission(self):
     while True:
         to_no_227_kinosaki_spa(self, 'mission')
-        self.swipe(914, 151, 921, 584, 0.1)
-        time.sleep(1)
+        self.swipe(914, 151, 921, 584, duration=0.1, post_sleep_time=1)
         possibles = {
             "activity_menu": (1123, 203)
         }
@@ -163,8 +162,7 @@ def calc_challenge_state(self):
 def explore_challenge(self):
     while True:
         to_no_227_kinosaki_spa(self, 'challenge')
-        self.swipe(914, 151, 921, 584, 0.1)
-        time.sleep(1)
+        self.swipe(914, 151, 921, 584, duration=0.1, post_sleep_time=1)
         possibles = {"activity_menu": (1123, 203)}
         ends = [
             "normal_task_task-info",

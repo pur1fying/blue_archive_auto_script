@@ -16,10 +16,8 @@ def implement(self):
 
 def sweep(self, number, times):
     to_no_69_spring_wild_dream(self, "mission", True)
-    self.swipe(919, 136, 943, 720, duration=0.05)
-    time.sleep(0.5)
-    self.swipe(919, 136, 943, 720, duration=0.05)
-    time.sleep(0.7)
+    self.swipe(919, 136, 943, 720, duration=0.05, post_sleep_time=0.5)
+    self.swipe(919, 136, 943, 720, duration=0.05, post_sleep_time=0.7)
     ap = self.get_ap()
     sweep_one_time_ap = [0, 10, 10, 10, 10, 12, 12, 12, 12, 15, 15, 15, 15]
     sweep_times = times
@@ -77,10 +75,8 @@ def explore_mission(self):
         'pierce1',
     ]
     while last_target_task <= 12:
-        self.swipe(919, 136, 943, 720, duration=0.05)
-        time.sleep(0.5)
-        self.swipe(919, 136, 943, 720, duration=0.05)
-        time.sleep(0.7)
+        self.swipe(919, 136, 943, 720, duration=0.05, post_sleep_time=0.5)
+        self.swipe(919, 136, 943, 720, duration=0.05, post_sleep_time=0.7)
         to_task_info(self, last_target_task)
         res = check_sweep_availability(self.latest_img_array)
         while res == "sss" and last_target_task <= 11:
@@ -163,11 +159,9 @@ def to_task_info(self, number):
     lo = [0, 184, 308, 422, 537, 645]
     index = [1, 2, 3, 4, 5, 4, 5, 1, 2, 3, 4, 5]
     if number in [6, 7]:
-        self.swipe(916, 483, 916, 219, duration=0.5)
-        time.sleep(0.7)
+        self.swipe(916, 483, 916, 219, duration=0.5, post_sleep_time=0.7)
     if number in [8, 9, 10, 11, 12]:
-        self.swipe(943, 698, 943, 0, duration=0.1)
-        time.sleep(0.7)
+        self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
     possibles = {'activity_menu': (1124, lo[index[number - 1]])}
     ends = "normal_task_task-info"
     image.detect(self, ends, possibles)

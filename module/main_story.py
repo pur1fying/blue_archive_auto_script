@@ -116,11 +116,9 @@ def to_episode(self, num):
     }
     episode_position = origin_position[self.server]
     if num in [1, 2, 3, 4]:
-        self.swipe(14, 364, 654, 364, 0.1)
-        time.sleep(0.5)
+        self.swipe(14, 364, 654, 364, duration=0.1, post_sleep_time=0.5)
     if num == 4:
-        self.swipe(654, 364, 14, 364, 0.1)
-        time.sleep(0.5)
+        self.swipe(654, 364, 14, 364, duration=0.1, post_sleep_time=0.5)
     img_possibles = {
         "main_story_menu": episode_position[num],
         "main_story_select-episode": (60, 36)

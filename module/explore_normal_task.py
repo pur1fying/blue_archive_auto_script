@@ -16,8 +16,7 @@ def implement(self):
             mission = tasks[i][1]
             self.logger.info("-- Start Pushing " + str(region) + "-" + str(mission) + " --")
             choose_region(self, region)
-            self.swipe(917, 220, 917, 552, duration=0.1)
-            time.sleep(1)
+            self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
             normal_task_y_coordinates = [242, 341, 439, 537, 611]
             to_mission_info(self, normal_task_y_coordinates[mission - 1], True)
             self.stage_data = get_stage_data(region)
@@ -96,8 +95,7 @@ def check_task_state(self):
 
 
 def calc_need_fight_stage(self, region, force_sss):
-    self.swipe(917, 220, 917, 552, duration=0.1)
-    time.sleep(1)
+    self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
     to_mission_info(self, 238, True)
     for i in range(1, 6):
         task_state = check_task_state(self)
@@ -116,8 +114,7 @@ def calc_need_fight_stage(self, region, force_sss):
         if i == 5:
             return "ALL MISSION SWEEP AVAILABLE"
         self.logger.info("Check next mission")
-        self.click(1172, 358, wait_over=True)
-        time.sleep(1)
+        self.click(1172, 358, wait_over=True, duration=1)
         self.latest_img_array = self.get_screenshot_array()
 
 

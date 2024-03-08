@@ -130,8 +130,7 @@ def bounty_common_operation(self, a, b):
     res = one_detect(self, a, b)
     if res != "0SWEEPABLE":
         return res
-    self.swipe(926, 190, 926, 650, duration=1)
-    time.sleep(1)
+    self.swipe(926, 190, 926, 650, duration=1, post_sleep_time=1)
     self.latest_img_array = self.get_screenshot_array()
     return one_detect(self, a, b)
 

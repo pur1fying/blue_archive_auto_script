@@ -36,8 +36,7 @@ def implement(self):
             self.logger.info("no tickets")
             return True
 
-    self.swipe(940, 213, 940, 560, duration=0.1)
-    time.sleep(0.5)
+    self.swipe(940, 213, 940, 560, duration=0.1, post_sleep_time=0.5)
     left_change_page_x = 32
     right_change_page_x = 1247
     change_page_y = 360

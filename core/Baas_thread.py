@@ -98,6 +98,8 @@ class Baas_thread:
         else:
             self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ") " + str(count) + " times")
         for i in range(count):
+            if not self.flag_run:
+                break
             if rate > 0:
                 time.sleep(rate)
             noisex = np.random.uniform(-5, 5)
@@ -339,11 +341,13 @@ class Baas_thread:
         self.current_game_activity = self.static_config['current_game_activity'][self.server]
         self.logger.info("Current Server: " + self.server)
 
-    def swipe(self, fx, fy, tx, ty, duration=None):
+    def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):
         if not self.flag_run:
             return False
-        self.logger.info(f"swipe {fx} {fy} {tx} {ty}")
+        self.logger.info(f"swipe from ( " + str(fx) + str(fy) + " ) --> ( " + str(tx) + str(ty) + " )")
         self.connection.swipe(fx * self.ratio, fy * self.ratio, tx * self.ratio, ty * self.ratio, duration)
+        if post_sleep_time > 0:
+            time.sleep(post_sleep_time)
 
     def get_ap(self):
         region = {

@@ -115,11 +115,9 @@ def buy(self, buy_list):
             if length - i > 0:
                 if length - i > 5:
                     self.logger.info("SWIPE DOWNWARDS")
-                    self.swipe(932, 550, 932, 0, duration=0.5)
-                    time.sleep(0.3)
+                    self.swipe(932, 550, 932, 0, duration=0.5, post_sleep_time=0.3)
                 else:
                     buy_list_for_common_items = buy_list_for_common_items[4:]
                     self.logger.info("SWIPE DOWNWARDS")
-                    self.swipe(932, 275, 932, 0, duration=0.5)
-                    time.sleep(0.3)
+                    self.swipe(932, 275, 932, 0, duration=0.5, post_sleep_time=0.3)
         i = i + 1

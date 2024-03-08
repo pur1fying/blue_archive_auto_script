@@ -73,8 +73,7 @@ def implement(self):
                 self.logger.warning("INADEQUATE AP for task")
                 return True
             choose_region(self, tar_region)
-            self.swipe(917, 220, 917, 552, duration=0.1)
-            time.sleep(1)
+            self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
             if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
                 self.logger.warning("task unlocked")
                 continue

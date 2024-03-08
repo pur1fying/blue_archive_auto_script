@@ -110,8 +110,7 @@ def explore_story(self):
     last_target_task = 1
     total_stories = 8
     while self.flag_run:
-        self.swipe(919, 136, 943, 720, duration=0.05)
-        time.sleep(0.5)
+        self.swipe(919, 136, 943, 720, duration=0.05, post_sleep_time=0.5)
         to_story_task_info(self, last_target_task)
         res = color.check_sweep_availability(self)
         while res == "sss" and last_target_task <= total_stories - 1:
@@ -276,10 +275,8 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
             self.latest_img_array = self.get_screenshot_array()
         else:
             if region == "mission" and need_swipe:
-                self.swipe(919, 136, 943, 720, duration=0.05)
-                time.sleep(0.5)
-                self.swipe(919, 136, 943, 720, duration=0.05)
-                time.sleep(0.5)
+                self.swipe(919, 136, 943, 720, duration=0.05, post_sleep_time=0.5)
+                self.swipe(919, 136, 943, 720, duration=0.05, post_sleep_time=0.5)
             return True
 
 
@@ -287,8 +284,7 @@ def to_story_task_info(self, number):
     lo = [0, 184, 277, 375, 480, 574]
     index = [0, 1, 2, 3, 4, 5, 3, 4, 5]
     if number in [6, 7, 8, 9, 10]:
-        self.swipe(943, 593, 943, 0, duration=0.1)
-        time.sleep(0.7)
+        self.swipe(943, 593, 943, 0, duration=0.1, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -298,11 +294,9 @@ def to_mission_task_info(self, number):
     lo = [0, 184, 300, 416, 527]
     index = [0, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
     if number >= 5:
-        self.swipe(943, 593, 943, 102, duration=0.5)
-        time.sleep(0.7)
+        self.swipe(943, 593, 943, 102, duration=0.5, post_sleep_time=0.7)
     if number >= 9:
-        self.swipe(943, 593, 943, 102, duration=0.5)
-        time.sleep(0.7)
+        self.swipe(943, 593, 943, 102, duration=0.5, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)

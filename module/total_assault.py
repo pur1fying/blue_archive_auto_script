@@ -67,15 +67,13 @@ def find_button_y(self, y):
         if res != "NOT_FOUND":
             return res
         self.logger.info("SWIPE DOWNWARDS")
-        self.swipe(950, 590, 950, 0, duration=0.1)
-        time.sleep(1)
+        self.swipe(950, 590, 950, 0, duration=0.1, post_sleep_time=1)
         self.latest_img_array = self.get_screenshot_array()
         res = detect_level_y(self, target_dict)
         if res != "NOT_FOUND":
             return res
         self.logger.info("SWIPE UPWARDS")
-        self.swipe(950, 168, 950, 720, duration=0.1)
-        time.sleep(1)
+        self.swipe(950, 168, 950, 720, duration=0.1, post_sleep_time=1)
         self.latest_img_array = self.get_screenshot_array()
 
 
@@ -157,16 +155,14 @@ def total_assault_highest_difficulty_button_detection(self, maxx):
         if res != "NOT_FOUND":
             return res
         self.logger.info("SWIPE DOWNWARDS")
-        self.swipe(950, 590, 950, 0, duration=0.1)
-        time.sleep(1)
+        self.swipe(950, 590, 950, 0, duration=0.1, post_sleep_time=1)
         self.latest_img_array = self.get_screenshot_array()
         res, button_detected = one_detect(self, button_detected, maxx, character_dict)
         if res != "NOT_FOUND":
             return res
         if try_cnt != 3:
             self.logger.info("SWIPE UPWARDS")
-            self.swipe(950, 168, 950, 720, duration=0.1)
-            time.sleep(1)
+            self.swipe(950, 168, 950, 720, duration=0.1, post_sleep_time=1)
             self.latest_img_array = self.get_screenshot_array()
 
 
