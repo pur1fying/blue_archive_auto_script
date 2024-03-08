@@ -344,7 +344,7 @@ class Baas_thread:
     def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):
         if not self.flag_run:
             return False
-        self.logger.info(f"swipe from ( " + str(fx) + str(fy) + " ) --> ( " + str(tx) + str(ty) + " )")
+        self.logger.info(f"swipe from ( " + str(fx) + " , " + str(fy) + " ) --> ( " + str(tx) + " , " + str(ty) + " )")
         self.connection.swipe(fx * self.ratio, fy * self.ratio, tx * self.ratio, ty * self.ratio, duration)
         if post_sleep_time > 0:
             time.sleep(post_sleep_time)
