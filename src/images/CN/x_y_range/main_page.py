@@ -11,5 +11,7 @@ x_y_range = {
     'relationship-rank-up': (754, 595, 776, 647),
     'full-notice': (563, 277, 613, 312),
     'back-arrow': (37, 20, 80, 57),
-    "news2": (122, 85, 224, 117)
+    "news2": (122, 85, 224, 117),
+    'daily-attendance': (540, 90, 1100, 174),
+    'skip-notice': (569, 309, 701, 353),
 }

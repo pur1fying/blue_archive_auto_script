@@ -5,6 +5,8 @@ from core import color, image
 def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possibles=None, skip_first_screenshot=False,
               tentitive_click=False, tentitivex=1238, tentitivey=45, max_fail_cnt=10):
     fail_cnt = 0
+    last_click_time = 0
+    last_click_position = (0, 0)
     while self.flag_run:
         if skip_first_screenshot:
             skip_first_screenshot = False
@@ -39,7 +41,7 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                 if type(img_ends[i]) is tuple:
                     img_name = img_ends[i][0]
                     threshold = img_ends[i][1]
-                if image.compare_image(self, img_name,  False, threshold):
+                if image.compare_image(self, img_name, False, threshold):
                     self.logger.info('end : ' + img_name)
                     return img_ends[i]
         f = 0
@@ -60,10 +62,15 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                         break
                 else:
                     fail_cnt = 0
-                    self.logger.info("find : " + position)
-                    self.click(click[0], click[1])
                     self.latest_screenshot_time = time.time()
                     f = 1
+                    if time.time() - last_click_time <= 2 and last_click_position[0] == click[0] and \
+                        last_click_position[1] == click[1]:
+                        break
+                    self.logger.info("find : " + position)
+                    self.click(click[0], click[1])
+                    last_click_time = time.time()
+                    last_click_position = (click[0], click[1])
                     break
         if f == 1:
             continue
@@ -73,11 +80,16 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                 if len(click) == 3:
                     threshold = click[2]
                 if image.compare_image(self, position, False, threshold):
+                    fail_cnt = 0
+                    self.latest_screenshot_time = time.time()
+                    f = 1
+                    if time.time() - last_click_time <= 2 and last_click_position[0] == click[0] and \
+                        last_click_position[1] == click[1]:
+                        break
                     self.logger.info("find " + position)
                     self.click(click[0], click[1])
-                    self.latest_screenshot_time = time.time()
-                    fail_cnt = 0
-                    f = 1
+                    last_click_time = time.time()
+                    last_click_position = (click[0], click[1])
                     break
         if f == 1:
             continue
