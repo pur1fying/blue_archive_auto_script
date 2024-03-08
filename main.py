@@ -96,7 +96,7 @@ class Main:
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
     t.init_static_config()
-    config = ConfigSet(config_dir="1708185944")
+    config = ConfigSet(config_dir="1708232489")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # tt.solve("explore_activity_challenge")
     # tt.solve("activity_sweep")
     # tt.solve("explore_activity_mission")
-    tt.solve("explore_activity_story")
+    # tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     tt.solve("total_assault")
     # tt.solve("cafe_reward")

@@ -1,5 +1,4 @@
-import time
-from core import color, image, picture
+from core import color, picture
 
 
 def implement(self):
@@ -44,7 +43,7 @@ def choose_enemy(self):
     self.logger.info("max refresh times: " + str(max_refresh))
     self_level_region = {
         'CN': (165, 215, 208, 250),
-        'Global': (165, 215, 208, 250),
+        'Global': (196, 192, 224, 213),
         'JP': (196, 192, 224, 213),
     }
     opponent_level_region = {

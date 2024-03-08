@@ -232,7 +232,7 @@ def choose_materials(self):
     if res == "bright":
         return True
     self.logger.info("material 1 inadequate check material 2")
-    self.click(772, 304,  wait_over=True, count=10, duration=0.1)
+    self.click(772, 204,  wait_over=True, count=10, duration=0.1)
     self.latest_img_array = self.get_screenshot_array()
     res = check_create_availability(self)
     if res == "bright":

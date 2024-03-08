@@ -7,6 +7,8 @@ from module import main_story
 def implement(self):
     self.quick_method_to_main_page()
     to_total_assault(self, True)
+    collect_season_reward(self)
+    collect_accumulated_point_reward(self)
     tickets = get_total_assault_tickets(self)
     self.logger.info("TICKETS: " + str(tickets))
     if tickets == 0:
