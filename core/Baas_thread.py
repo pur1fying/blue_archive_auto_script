@@ -184,6 +184,7 @@ class Baas_thread:
     def thread_starter(self):
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
+            self.scheduler.update_valid_task_queue()
             while self.flag_run:
                 if self.first_start:
                     self.solve('restart')
@@ -195,21 +196,20 @@ class Baas_thread:
                     self.logger.info(f"Scheduler :  -- {next_func_name} --")
                     self.task_finish_to_main_page = True
                     if self.solve(next_func_name) and self.flag_run:
-                        next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
-                        self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
-                    else:
-                        self.logger.error("error occurred, stop all activities")
-                        self.signal_stop()
+                        next_tick = self.scheduler.systole(next_func_name, self.next_time)
+                        if next_tick is not None:
+                            self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
+                    self.scheduler.update_valid_task_queue()
                     time.sleep(1)
         except Exception as e:
             notify(title='', body='任务已停止')
-            self.logger.info("error occurred, stop all activities")
             self.logger.error(e)
+            self.logger.error("error occurred, stop all activities")
             self.signal_stop()
 
     def solve(self, activity) -> bool:
@@ -268,6 +268,7 @@ class Baas_thread:
             'plot_skip-plot-notice': (770, 519),
             'activity_fight-success-confirm': (640, 663),
             "total_assault_reach-season-highest-record": (640, 528),
+            "total_assault_total-assault-info": (1165, 107),
         }
         update = {
             'CN': {

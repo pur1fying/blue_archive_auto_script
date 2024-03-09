@@ -29,10 +29,6 @@ ICON_DIR = 'gui/assets/logo.png'
 
 def update_config_reserve_old(config_old, config_new):  # 保留旧配置原有的键，添加新配置中没有的，删除新配置中没有的键
     for key in config_new:
-        if key == 'TacticalChallengeShopList':
-            if len(config_old[key]) == 13:
-                config_old[key] = config_new[key]
-            continue
         if key not in config_old:
             config_old[key] = config_new[key]
     dels = []
@@ -94,31 +90,44 @@ def check_user_config(dir_path='./default_config'):
         data = update_config_reserve_old(data, json.loads(default_config.DEFAULT_CONFIG))
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
-        return
+        return data['server']
     except Exception as e:
         print(e)
         os.remove(path)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
-        return
+        return 'CN'
 
 
-def check_event_config(dir_path='./default_config'):
+def check_single_event(new_event, old_event):
+    for key in new_event:
+        if key not in old_event:
+            old_event[key] = new_event[key]
+    return old_event
+
+
+def check_event_config(dir_path='./default_config', server="CN"):
     path = './config/' + dir_path + '/event.json'
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
+    if server != "CN":
+        for i in range(0, len(default_event_config)):
+            for j in range(0, len(default_event_config[i]['daily_reset'])):
+                default_event_config[i]['daily_reset'][j] = default_event_config[i]['daily_reset'][j] - 1
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             with open("error.log", 'w+', encoding='utf-8') as errorfile:
-                errorfile.write("path not exist" + '\n' + dir_path + '\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
+                errorfile.write("path not exist" + '\n' + dir_path + '\n' + datetime.datetime.now().strftime(
+                    '%Y-%m-%d %H:%M:%S') + '\n')
             f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
         return
     try:
-        with open(path, 'r', encoding='utf-8') as f:  # 如果存在则检查是否有新的配置项
+        with open(path, 'r', encoding='utf-8') as f:  # 检查是否有新的配置项
             data = json.load(f)
         for i in range(0, len(default_event_config)):
             exist = False
             for j in range(0, len(data)):
                 if data[j]['func_name'] == default_event_config[i]['func_name']:
+                    data[j] = check_single_event(default_event_config[i], data[j])
                     exist = True
                     break
             if not exist:
@@ -142,8 +151,14 @@ def check_config(dir_path):
     for path in dir_path:
         if not os.path.exists('./config/' + path):
             os.mkdir('./config/' + path)
-        check_user_config(path)
-        check_event_config(path)
+        server = check_user_config(path)
+        if server == "官服" or server == "B服":
+            server = "CN"
+        elif server == "国际服":
+            server = "Global"
+        elif server == "日服":
+            server = "JP"
+        check_event_config(path, server)
         check_display_config(path)
         check_switch_config(path)
 
