@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import cv2
 from core.exception import ScriptError
 from core.notification import notify
@@ -195,6 +197,7 @@ class Baas_thread:
                         self.solve('refresh_uiautomator2')
                     self.logger.info(f"Scheduler :  -- {next_func_name} --")
                     self.task_finish_to_main_page = True
+                    self.daily_config_refresh()
                     if self.solve(next_func_name) and self.flag_run:
                         next_tick = self.scheduler.systole(next_func_name, self.next_time)
                         if next_tick is not None:
@@ -439,7 +442,7 @@ class Baas_thread:
             return temp
 
     def init_all_data(self):
-        self.logger.info("--------Initialing All Data----------")
+        self.logger.info("--------Initializing All Data----------")
         self.flag_run = True
         self.init_config()
         self.init_server()
@@ -474,3 +477,48 @@ class Baas_thread:
             print(e)
             self.connection.uiautomator.start()
             self.wait_uiautomator_start()
+
+    def daily_config_refresh(self):
+        now = datetime.now()
+        hour = now.hour
+        last_refresh = datetime.fromtimestamp(self.config['last_refresh_config_time'])
+        last_refresh_hour = last_refresh.hour
+        daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
+        if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
+                ((hour < daily_reset and last_refresh_hour < daily_reset) or (hour >= daily_reset and last_refresh_hour >=daily_reset)):
+            return
+        else:
+            self.config['last_refresh_config_time'] = time.time()
+            self.config_set.set("last_refresh_config_time", time.time())
+            self.refresh_create_time()
+            self.refresh_common_tasks()
+            self.refresh_hard_tasks()
+            self.logger.info("daily config refreshed")
+
+    def refresh_create_time(self):
+        self.config['alreadyCreateTime'] = 0
+        self.config_set.set("alreadyCreateTime", 0)
+
+    def refresh_common_tasks(self):
+        from module.normal_task import read_task
+        temp = self.config['mainlinePriority']
+        self.config['unfinished_normal_tasks'] = []
+        if type(temp) is str:
+            temp = temp.split(',')
+        for i in range(0, len(temp)):
+            res = read_task(self, temp[i])
+            if res:
+                self.config['unfinished_normal_tasks'].append(res)
+        self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
+
+    def refresh_hard_tasks(self):
+        from module.hard_task import read_task
+        self.config['unfinished_hard_tasks'] = []
+        temp = self.config['hardPriority']
+        if type(temp) is str:
+            temp = temp.split(',')
+        for i in range(0, len(temp)):
+            res = read_task(self, temp[i])
+            if res:
+                self.config['unfinished_hard_tasks'].append(res)
+        self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

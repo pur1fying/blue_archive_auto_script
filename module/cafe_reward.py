@@ -121,6 +121,7 @@ def interaction_for_cafe_solve_method3(self):
                 self.click(res[j][0], min(res[j][1], 591), wait_over=True)
 
         if i != max_times - 1:
+            time.sleep(2)
             to_cafe(self)
             self.click(68, 636, wait_over=True, duration=1)
             self.click(1169, 90, wait_over=True, duration=1)

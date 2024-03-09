@@ -1,14 +1,74 @@
 import time
-
 from core import picture
 from core.color import check_sweep_availability
+from copy import deepcopy
+
+
+def implement(self):
+    if len(self.config['unfinished_normal_tasks']) != 0:
+        temp = deepcopy(self.config['unfinished_normal_tasks'])
+        self.logger.info("unfinished normal task list: " + str(temp))
+        self.quick_method_to_main_page()
+        all_task_x_coordinate = 1118
+        normal_task_y_coordinates = [242, 341, 439, 537, 611]
+        for i in range(0, len(temp)):
+            to_normal_event(self, True)
+            ap = self.get_ap()
+            if ap == "UNKNOWN":
+                self.logger.info("UNKNOWN AP")
+                ap = 999
+            self.logger.info("normal task " + str(temp[i]) + " begin")
+            tar_region = temp[i][0]
+            tar_mission = temp[i][1]
+            tar_times = temp[i][2]
+            if tar_times == "max":
+                ap_needed = int(ap / 10) * 10
+            else:
+                ap_needed = tar_times * 10
+            self.logger.info("ap_needed : " + str(ap_needed))
+            if ap_needed > ap:
+                self.logger.warning("INADEQUATE AP for task")
+                return True
+            choose_region(self, tar_region)
+            self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
+            if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
+                self.logger.warning("task unlocked")
+                continue
+            t = check_sweep_availability(self)
+            if t == "sss":
+                if tar_times == "max":
+                    self.click(1085, 300, rate=1,  wait_over=True)
+                else:
+                    if tar_times > 1:
+                        duration = 0
+                        if tar_times > 4:
+                            duration = 1
+                        self.click(1014, 300, count=tar_times - 1,  duration=duration, wait_over=True)
+                res = start_sweep(self, skip_first_screenshot=True)
+                if res == "sweep_complete" or res == "skip_sweep_complete":
+                    self.logger.info("common task " + str(temp[i]) + " finished")
+                    if tar_times == "max":
+                        return True
+                elif res == "purchase_ap_notice":
+                    self.logger.info("INADEQUATE AP")
+                    return True
+            elif t == "pass" or t == "no-pass":
+                self.logger.info("AUTO SWEEP UNAVAILABLE")
+
+            self.config['unfinished_normal_tasks'].pop(0)
+            self.config_set.set('unfinished_normal_tasks', self.config['unfinished_normal_tasks'])
+
+            to_normal_event(self, True)
+        self.logger.info("common task finished")
+
+    return True
 
 
 def read_task(self, task_string):
     try:
         region = 0
         mainline_available_missions = [1, 2, 3, 4, 5]
-        mainline_available_regions = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+        mainline_available_regions = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
         for i in range(0, len(task_string)):
             if task_string[i].isdigit():
                 region = region * 10 + int(task_string[i])
@@ -39,70 +99,6 @@ def read_task(self, task_string):
     except Exception as e:
         self.logger.info("task string format error")
         return False
-
-
-def implement(self):
-    self.quick_method_to_main_page()
-    self.normal_task_count = []
-    temp = self.config['mainlinePriority']
-    if type(temp) is str:
-        temp = temp.split(',')
-    for i in range(0, len(temp)):
-        if read_task(self, temp[i]):
-            self.normal_task_count.append(read_task(self, temp[i]))
-    self.logger.info("detected normal task list: " + str(self.normal_task_count))
-    all_task_x_coordinate = 1118
-    if len(self.normal_task_count) != 0:
-        normal_task_y_coordinates = [242, 341, 439, 537, 611]
-        for i in range(0, len(self.normal_task_count)):
-            to_normal_event(self, True)
-            ap = self.get_ap()
-            if ap == "UNKNOWN":
-                self.logger.info("UNKNOWN AP")
-                ap = 999
-            self.logger.info("normal task " + str(self.normal_task_count[i]) + " begin")
-            tar_region = self.normal_task_count[i][0]
-            tar_mission = self.normal_task_count[i][1]
-            tar_times = self.normal_task_count[i][2]
-            if tar_times == "max":
-                ap_needed = int(ap / 10) * 10
-            else:
-                ap_needed = tar_times * 10
-            self.logger.info("ap_needed : " + str(ap_needed))
-            if ap_needed > ap:
-                self.logger.warning("INADEQUATE AP for task")
-                return True
-            choose_region(self, tar_region)
-            self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
-            if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
-                self.logger.warning("task unlocked")
-                continue
-            t = check_sweep_availability(self)
-            if t == "sss":
-                if tar_times == "max":
-                    self.click(1085, 300, rate=1,  wait_over=True)
-                else:
-                    if tar_times > 1:
-                        duration = 0
-                        if tar_times > 4:
-                            duration = 1
-                        self.click(1014, 300, count=tar_times - 1,  duration=duration, wait_over=True)
-                res = start_sweep(self, skip_first_screenshot=True)
-                if res == "sweep_complete" or res == "skip_sweep_complete":
-                    self.logger.info("common task " + str(self.normal_task_count[i]) + " finished")
-                    if tar_times == "max":
-                        return True
-                elif res == "purchase_ap_notice":
-                    self.logger.info("INADEQUATE AP")
-                    return True
-            elif t == "pass" or t == "no-pass":
-                self.logger.info("AUTO SWEEP UNAVAILABLE")
-
-            to_normal_event(self, True)
-        self.logger.info("common task finished")
-
-    return True
-
 
 def to_normal_event(self, skip_first_screenshot=False):
     task_info_x = {
