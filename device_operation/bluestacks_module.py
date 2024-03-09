@@ -24,7 +24,7 @@ def read_registry_key(region):
 
 def find_display_name(multi_instance, path):
     if multi_instance == None:
-        return "MULTI_INSTANCE_IS_NONE"
+        raise ValueError("MULTI_INSTANCE_IS_NONE")
     try:
         conf_file = os.path.abspath(os.path.join(path, "BlueStacks.conf"))
         if os.path.exists(conf_file):
@@ -34,7 +34,7 @@ def find_display_name(multi_instance, path):
                                      line)
                     if match:
                         return match.group(1)
-        return "NOT_INSTALLED"
+        raise "NOT_INSTALLED"
     except Exception as e:
         print(f"Caught an exception: {e}")
         return None
@@ -53,7 +53,7 @@ def get_bluestacks_nxt_adb_port(multi_instance, region=""):
                         if extracted_port:
                             return extracted_port.group(1)
         except:
-            return "FILE_NOT_FOUND"
+            raise FileNotFoundError
     return None
 
 
@@ -68,7 +68,7 @@ def get_bluestacks_nxt_adb_port_id(id, region=""):
                     if extracted_port:
                         return extracted_port.group(1)
     except:
-        return "FILE_NOT_FOUND"
+        raise FileNotFoundError
     return None
 
 
@@ -92,7 +92,7 @@ def return_bluestacks_type(pid):
     try:
         pid = int(pid)
     except:
-        return "ERROR_INPUT"
+        raise ValueError("ERROR_INPUT")
     if bst_cn_path == process_native_api("get_exe_path_pid", pid):
         return "bluestacks_nxt_cn"
     elif bst_path == process_native_api("get_exe_path_pid", pid):

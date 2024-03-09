@@ -10,7 +10,7 @@ def get_simulator_port(simulator_type, multi_instance):
         if bluestacks_adb_port_return:
             return f"127.0.0.1:{bluestacks_adb_port_return}"
         else:
-            return "NOT_INSTALLED"
+            raise FileNotFoundError('simulators not founded')
 
     elif simulator_type == "bluestacks_nxt_cn":
         if multi_instance == None or multi_instance == "":
@@ -19,7 +19,7 @@ def get_simulator_port(simulator_type, multi_instance):
         if bluestacks_adb_port_return:
             return f"127.0.0.1:{bluestacks_adb_port_return}"
         else:
-            return "NOT_INSTALLED"
+            raise FileNotFoundError('simulators not founded')
 
     elif simulator_type == "mumu":
         if multi_instance == None:
@@ -27,7 +27,7 @@ def get_simulator_port(simulator_type, multi_instance):
         if int(multi_instance) <= 1536:
             return f"127.0.0.1:{int(multi_instance) * 32 + 16384}"
         else:
-            return "INVALID_INPUT"
+            raise ValueError('INVALID_INPUT')
 
     elif simulator_type == "yeshen":
         multi_instance = int(multi_instance)
@@ -39,7 +39,7 @@ def get_simulator_port(simulator_type, multi_instance):
         if ys_port <= 65535 and ys_port >= 0:
             return f"127.0.0.1:{ys_port}"
         else:
-            return "INVALID_INPUT"
+            raise ValueError('INVALID_INPUT')
 
     elif simulator_type == "mumu_classic":
         return f"127.0.0.1:7555"
@@ -49,7 +49,7 @@ def get_simulator_port(simulator_type, multi_instance):
             if int(multi_instance) <= 4404 and int(multi_instance) >= 0:
                 return f"127.0.0.1:{int(multi_instance) * 10 + 21503}"
             else:
-                return "INVALID_INPUT"
+                raise ValueError('INVALID_INPUT')
         return f"127.0.0.1:21503"
 
     elif simulator_type == "leidian":
@@ -64,6 +64,6 @@ def get_simulator_port(simulator_type, multi_instance):
             return f"{multi_instance}:58526"
         else:
             return f"127.0.0.1:58526"
-    return "MISSING_INPUT_PARAMETER"
+    raise ValueError('not supported operation or missing parameter')
 
 ### end adb_port_scanner ###

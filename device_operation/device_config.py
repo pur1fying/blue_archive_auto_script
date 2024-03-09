@@ -87,4 +87,4 @@ def load_data(id):
         # 返回整个字典
         return data
     except:
-        return "ERROR_ON_READING_JSON"
+        raise FileNotFoundError("ERROR_ON_READING_JSON")

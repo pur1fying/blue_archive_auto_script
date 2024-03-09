@@ -8,10 +8,7 @@ from .device_config import load_data
 
 
 def start_simulator_uuid(uuid):
-    try:
-        return subprocess.Popen(load_data(uuid)['latest_command_line'])
-    except:
-        return "UNKNOWN_ERROR"
+    return subprocess.Popen(load_data(uuid)['latest_command_line'])
 
 
 def start_simulator_classic(simulator_type, multi_instance=None):

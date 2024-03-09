@@ -30,7 +30,7 @@ def get_display_name(uuid):
         return simulator_type, multi_instance
 
     # 如果没有找到对应的设备配置，返回None
-    return "DEVICE_NOT_FOUND"
+    raise FileNotFoundError("DEVICE_NOT_FOUND")
 
 
 def convert_display_name(simulator_type, multi_instance=None):

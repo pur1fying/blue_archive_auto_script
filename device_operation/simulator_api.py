@@ -8,7 +8,7 @@ def get_adb_address(simulator_type, multi_instance=None):
     if simulator_type is not None:
         return get_simulator_port(simulator_type, multi_instance)
     else:
-        return "MISSING_INPUT_PARAMETER"
+        raise ValueError("MISSING_INPUT_PARAMETER")
 
 
 def get_adb_address_by_uuid(uuid):
@@ -25,6 +25,6 @@ def get_simulator_commandline_uuid(uuid):
     try:
         return load_data(uuid)[3]
     except:
-        return "UNKNOWN_ERROR"
+        raise FileNotFoundError('simulators not founded')
 
 ### End simulator apis ###

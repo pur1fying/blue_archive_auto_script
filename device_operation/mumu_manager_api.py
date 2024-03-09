@@ -18,4 +18,4 @@ def mumu12_control_api_backend(multi_instance_number=0, operation="start"):
     elif operation == "stop":
         command = f""" "{exe_path}" api -v {multi_instance_number} shutdown_player"""
     else:
-        return "NOT_SUPPORTED_OPERATION"
+        raise ValueError("NOT_SUPPORTED_OPERATION")
