@@ -49,17 +49,14 @@ def auto_scan_simulators():
                     simulator_list.append(bluestacks_type)
             else:
                 simulator_list.append(simulator)
-
     return simulator_list
-
-
 def auto_search_adb_address():
     # 正则表达式匹配模板
     regex_patterns = {
-        'MEmu.exe': r'MEmu.exe MEmu_(\w+)',
-        'HD-Player.exe': r'HD-Player.exe --instance (\w+)',
-        'dnplayer.exe': r'dnplayer.exe index=(\w+)',
-        'MuMuPlayer.exe': r'MuMuPlayer.exe -v (\w+)'
+        'MEmu.exe': r'.*MEmu.exe MEmu_(\w+)',
+        'HD-Player.exe': r'.*HD-Player.exe --instance (\w+)',
+        'dnplayer.exe': r'.*dnplayer.exe index=(\w+)',
+        'MuMuPlayer.exe': r'.*MuMuPlayer.exe -v (\w+)'
     }
 
     adb_addresses = []
@@ -81,33 +78,31 @@ def auto_search_adb_address():
             cmdlines = process_native_api("get_command_line_name", process_name)
             for cmdline in cmdlines:
                 cmdline_no_quotes = cmdline.replace('"', '')
-                if isinstance(cmdline, str) and ' ' in cmdline_no_quotes:
-                    for simulator, pattern in regex_patterns.items():
-                        cmdline = cmdline.replace('"', '')
-                        match = re.search(pattern, cmdline)
-                        if match:
-                            multi_instance = match.group(1)
-                            if process == 'bluestacks_nxt':
-                                bst_cn_path = bst_read_install_key('cn')
-                                bst_path = bst_read_install_key('')
-                                player_path = process_native_api("get_exe_path_name", "HD-Player.exe")
+                for simulator, pattern in regex_patterns.items():
+                    cmdline = cmdline.replace('"', '')
+                    match = re.search(pattern, cmdline)
+                    if match:
+                        multi_instance = match.group(1)
+                        if process == 'bluestacks_nxt':
+                            bst_cn_path = bst_read_install_key('cn')
+                            bst_path = bst_read_install_key('')
+                            player_path = process_native_api("get_exe_path_name", "HD-Player.exe")
 
-                                if bst_cn_path == player_path:
-                                    adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance, "cn")}"""
-                                    adb_addresses.append(adb_address)
-                                    break
-                                elif bst_path == player_path:
-                                    adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance)}"""
-                                    adb_addresses.append(adb_address)
-                                    break
-                            else:
-                                adb_address = get_simulator_port(process, multi_instance)
-                            adb_addresses.append(adb_address)
-                            match = None
+                            if bst_cn_path == player_path:
+                                adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance, "cn")}"""
+                                adb_addresses.append(adb_address)
+                                break
+                            elif bst_path == player_path:
+                                adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance)}"""
+                                adb_addresses.append(adb_address)
+                                break
+                        else:
+                            adb_address = get_simulator_port(process, multi_instance)
+                        adb_addresses.append(adb_address)
                 if match == None:
                     adb_address = get_simulator_port(process, None)
                     adb_addresses.append(adb_address)
-
+            match = None
     def remove_duplicates(lst):
         # 定义一个正则表达式，匹配数字、方括号和冒号
         pattern = re.compile(r'^[\d\[\]:.]+$')
