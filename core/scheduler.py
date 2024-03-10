@@ -86,7 +86,8 @@ class Scheduler:
         _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time.time()]    # filter out event not ready
 
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])                                    # sort by priority
-        current_time = datetime.now(timezone.utc).timestamp()
+        dt = datetime.now()
+        current_time = dt.hour * 3600 + dt.minute * 60 + dt.second
         self._valid_task_queue = []
         for i in range(0, len(_valid_event)):
             f = True
