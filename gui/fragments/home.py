@@ -41,6 +41,7 @@ class HomeFragment(QFrame):
         super().__init__(parent=parent)
         self.config = config
         self.once = True
+        self.event_map = {}
         self.expandLayout = ExpandLayout(self)
         self.vBoxLayout = QVBoxLayout(self)
 
@@ -107,16 +108,29 @@ class HomeFragment(QFrame):
         else:
             self.logger_box.setFixedHeight(int(self.parent().height() * 0.7))
 
-    def call_update(self, parent=None):
+    def call_update(self, data=None, parent=None):
         try:
-            with open('./config/' + self.config.config_dir + '/display.json', 'r', encoding='utf-8') as f:
-                config = json.load(f)
-            if config['running'] is None or config['running'] == 'Empty':
-                self.info.setText('无任务')
-            else:
-                self.info.setText('正在运行：' + config['running'])
-            if parent:
-                parent.call_update()
+            if self.event_map == {}:
+                with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
+                    event_original = json.load(f)
+                    for item in event_original:
+                        self.event_map[item['func_name']] = item['event_name']
+            if data:
+                if type(data[0]) is dict:
+                    self.info.setText(f'正在运行：{self.event_map[data[0]["func_name"]]}')
+                else:
+                    self.info.setText(f'正在运行：{data[0]}')
+
+            # with open('./config/' + self.config.config_dir + '/display.json', 'r', encoding='utf-8') as f:
+            #     config = json.load(f)
+            # if config['running'] is None or config['running'] == 'Empty':
+            #     self.info.setText('无任务')
+            # else:
+            #     self.info.setText('正在运行：' + config['running'])
+            # print('call_update:', parent, args, kwargs)
+
+            # if data:
+            #     (self.parent().parent().parent()).call_update()
         except JSONDecodeError:
             # 有时json会是空值报错, 原因未知
             print("Empty JSON data")
@@ -164,7 +178,7 @@ class HomeFragment(QFrame):
 class MainThread(QThread):
     button_signal = pyqtSignal(str)
     logger_signal = pyqtSignal(str)
-    update_signal = pyqtSignal()
+    update_signal = pyqtSignal(list)
 
     def __init__(self):
         super(MainThread, self).__init__()
@@ -193,8 +207,10 @@ class MainThread(QThread):
         while self.Main is None:
             time.sleep(0.01)
         if self._main_thread is None:
+            assert self.Main is not None
             self._main_thread = self.Main.get_thread(self.config, name=self.hash_name, logger_signal=self.logger_signal,
                                                      button_signal=self.button_signal, update_signal=self.update_signal)
+            self.config.add_signal('update_signal', self.update_signal)
         self._main_thread.init_all_data()
 
     def display(self, text):
@@ -202,16 +218,20 @@ class MainThread(QThread):
 
     def start_hard_task(self):
         self._init_script()
+        self.update_signal.emit(['困难关推图', ''])
         self.display('停止')
         if self._main_thread.send('solve', 'explore_hard_task'):
             notify(title='BAAS', body='困难图推图已完成')
+        self.update_signal.emit(['无任务', ''])
         self.display('启动')
 
     def start_normal_task(self):
         self._init_script()
+        self.update_signal.emit(['普通关推图', ''])
         self.display('停止')
         if self._main_thread.send('solve', 'explore_normal_task'):
             notify(title='BAAS', body='普通图推图已完成')
+        self.update_signal.emit(['无任务', ''])
         self.display('启动')
 
     def start_fhx(self):
@@ -221,49 +241,60 @@ class MainThread(QThread):
 
     def start_main_story(self):
         self._init_script()
+        self.update_signal.emit(['自动主线剧情', ''])
         self.display('停止')
         if self._main_thread.send('solve', 'main_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='主线剧情已完成')
+        self.update_signal.emit(['无任务', ''])
         self.display('启动')
 
     def start_group_story(self):
         self._init_script()
+        self.update_signal.emit(['自动小组剧情', ''])
         self.display('停止')
         if self._main_thread.send('solve', 'group_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='小组剧情已完成')
         self.display('启动')
+        self.update_signal.emit(['无任务', ''])
 
     def start_mini_story(self):
         self._init_script()
         self.display('停止')
+        self.update_signal.emit(['自动支线剧情', ''])
         if self._main_thread.send('solve', 'mini_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='支线剧情已完成')
         self.display('启动')
+        self.update_signal.emit(['无任务', ''])
 
     def start_explore_activity_story(self):
         self._init_script()
         self.display('停止')
+        self.update_signal.emit(['自动活动剧情', ''])
         if self._main_thread.send('solve', 'explore_activity_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='活动剧情已完成')
         self.display('启动')
+        self.update_signal.emit(['无任务', ''])
 
     def start_explore_activity_mission(self):
         self._init_script()
         self.display('停止')
+        self.update_signal.emit(['自动活动任务', ''])
         if self._main_thread.send('solve', 'explore_activity_mission'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='活动任务已完成')
         self.display('启动')
+        self.update_signal.emit(['无任务', ''])
 
     def start_explore_activity_challenge(self):
         self._init_script()
+        self.update_signal.emit(['自动活动挑战', ''])
         self.display('停止')
         if self._main_thread.send('solve', 'explore_activity_challenge'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body='活动挑战推图已完成')
         self.display('启动')
-
+        self.update_signal.emit(['无任务', ''])

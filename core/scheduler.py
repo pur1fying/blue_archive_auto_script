@@ -7,6 +7,7 @@ lock = threading.Lock()
 
 
 class Scheduler:
+
     def __init__(self, update_signal, path):
         super().__init__()
         self.first_waiting = None
@@ -20,7 +21,7 @@ class Scheduler:
         self._current_task = None
         self._valid_task_queue = []
         self._read_config()
-        self._display_config_path = "./config/" + path + "/display.json"
+        # self._display_config_path = "./config/" + path + "/display.json"
 
     def _read_config(self):
         with lock:
@@ -31,8 +32,8 @@ class Scheduler:
         """event_config只能被switch修改,调度时在内存中操作"""
         with open(self.event_config_path, 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
-        with open(self._display_config_path, 'w', encoding='utf-8') as f:
-            json.dump(self._display_config, f, ensure_ascii=False, indent=2)
+        # with open(self._display_config_path, 'w', encoding='utf-8') as f:
+        #     json.dump(self._display_config, f, ensure_ascii=False, indent=2)
 
     @classmethod
     def get_next_hour(cls, hour):
@@ -62,7 +63,6 @@ class Scheduler:
                             event['next_tick'] = time.time() + event['interval']
                     event['next_tick'] = int(event['next_tick'])
                     self._commit_change()
-                    self.update_signal.emit()
                     return datetime.fromtimestamp(event['next_tick'])
 
     def heartbeat(self):
@@ -72,27 +72,29 @@ class Scheduler:
             self.first_waiting = True
             self._current_task = self._valid_task_queue[0]
             self._valid_task_queue.pop(0)
+            self.update_signal.emit([self._current_task, *self._valid_task_queue])
             return self._current_task['func_name']
         else:
             if self.first_waiting:
                 self.first_waiting = False
-                self._display_config['running'] = "Waiting"
-                self.change_display('Waiting')
+                self.update_signal.emit(["Waiting"])
+
             return None
 
     def update_valid_task_queue(self):
         self._read_config()
-        _valid_event = [x for x in self._event_config if x['enabled']]                                      # filter out disabled event
-        _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time.time()]    # filter out event not ready
+        _valid_event = [x for x in self._event_config if x['enabled']]  # filter out disabled event
+        _valid_event = [x for x in self._event_config if
+                        x['enabled'] and x['next_tick'] <= time.time()]  # filter out event not ready
 
-        _valid_event = sorted(_valid_event, key=lambda x: x['priority'])                                    # sort by priority
-        dt = datetime.now()
-        current_time = dt.hour * 3600 + dt.minute * 60 + dt.second
+        _valid_event = sorted(_valid_event, key=lambda x: x['priority'])  # sort by priority
+        current_time = datetime.now(timezone.utc).timestamp()
         self._valid_task_queue = []
         for i in range(0, len(_valid_event)):
             f = True
-            for j in range(0, len(_valid_event[i]["disabled_time_range"])):                                  # current task not in disable time range
-                if _valid_event[i]["disabled_time_range"][j][0] <= current_time <= _valid_event[i]["disabled_time_range"][j][0]:
+            for j in range(0, len(_valid_event[i]["disabled_time_range"])):  # current task not in disable time range
+                if _valid_event[i]["disabled_time_range"][j][0] <= current_time <= \
+                    _valid_event[i]["disabled_time_range"][j][0]:
                     f = False
                     break
             if not f:
@@ -116,6 +118,4 @@ class Scheduler:
                 self._valid_task_queue.append(dic)
 
     def change_display(self, task_name):
-        self._display_config['running'] = task_name
-        self._commit_change()
-        self.update_signal.emit()
+        self.update_signal.emit([task_name, *self._valid_task_queue])

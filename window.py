@@ -16,6 +16,7 @@ from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from core import default_config
 from gui.components.dialog_panel import SaveSettingMessageBox
+from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util.config_set import ConfigSet
 
@@ -252,11 +253,13 @@ class Window(MSFluentWindow):
         from gui.fragments.settings import SettingsFragment
         self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SwitchFragment(parent=self, config=x) for x in self.config_dir_list],
+                          [ProcessFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SettingsFragment(parent=self, config=x) for x in self.config_dir_list]]
         # _sc_list = [SwitchFragment(parent=self, config_dir=x) for x in config_dir_list]
         self.homeInterface = self._sub_list[0][0]
         self.schedulerInterface = self._sub_list[1][0]
-        self.settingInterface = self._sub_list[2][0]
+        self.processInterface = self._sub_list[2][0]
+        self.settingInterface = self._sub_list[3][0]
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
         self.initNavigation()
@@ -280,6 +283,7 @@ class Window(MSFluentWindow):
         self.navi_btn_list = [
             self.addSubInterface(self.homeInterface, FIF.HOME, '主页'),
             self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '配置'),
+            self.addSubInterface(self.processInterface, FIF.CALENDAR, '调度'),
             self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
         ]
 
@@ -323,7 +327,6 @@ class Window(MSFluentWindow):
         for ind, btn in enumerate(self.navi_btn_list):
             btn.setSelected(True if ind == index else False)
         objectName = self.tabBar.currentTab().routeKey()
-        # new_interface = list(filter(lambda x: x.object_name == objectName, self._home_list))[0]
         col = [x.object_name for x in self._sub_list[0]].index(objectName)
         self.dispatchSubView(index, col)
 
@@ -376,6 +379,7 @@ class Window(MSFluentWindow):
             _sub_list_ = [
                 HomeFragment(parent=self, config=_config),
                 SwitchFragment(parent=self, config=_config),
+                ProcessFragment(parent=self, config=_config),
                 SettingsFragment(parent=self, config=_config)
             ]
             for i in range(0, len(_sub_list_)):
