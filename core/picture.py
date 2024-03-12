@@ -69,10 +69,11 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                         self.last_click_position[1] == click[1] and self.last_click_name == position:
                         break
                     self.logger.info("find : " + position)
-                    self.click(click[0], click[1])
-                    self.last_click_time = time.time()
-                    self.last_click_position = (click[0], click[1])
-                    self.last_click_name = position
+                    if click[0] >= 0 and click[1] >= 0:
+                        self.click(click[0], click[1])
+                        self.last_click_time = time.time()
+                        self.last_click_position = (click[0], click[1])
+                        self.last_click_name = position
                     break
         if f == 1:
             continue
@@ -89,10 +90,11 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                         self.last_click_position[1] == click[1] and self.last_click_name == position:
                         break
                     self.logger.info("find " + position)
-                    self.click(click[0], click[1])
-                    self.last_click_time = time.time()
-                    self.last_click_position = (click[0], click[1])
-                    self.last_click_name = position
+                    if click[0] >= 0 and click[1] >= 0:
+                        self.click(click[0], click[1])
+                        self.last_click_time = time.time()
+                        self.last_click_position = (click[0], click[1])
+                        self.last_click_name = position
                     break
         if f == 1:
             continue

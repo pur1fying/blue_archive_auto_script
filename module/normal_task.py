@@ -1,5 +1,4 @@
 import time
-
 from core import picture
 from core.color import check_sweep_availability
 
@@ -8,7 +7,15 @@ def read_task(self, task_string):
     try:
         region = 0
         mainline_available_missions = [1, 2, 3, 4, 5]
-        mainline_available_regions = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+        mainline_available_regions = [1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+        if "tutorial" in task_string:
+            temp = task_string.split('-')
+            number = temp[1]
+            count = temp[2]
+            if not number.isdigit() or not count.isdigit():
+                self.logger.info("tutorial task string format error")
+                return False
+            return "tutorial", int(number), int(count)
         for i in range(0, len(task_string)):
             if task_string[i].isdigit():
                 region = region * 10 + int(task_string[i])
@@ -67,11 +74,22 @@ def implement(self):
             if tar_times == "max":
                 ap_needed = int(ap / 10) * 10
             else:
-                ap_needed = tar_times * 10
+                one_time_ap = 10
+                if tar_region == "tutorial":
+                    one_time_ap = 1
+                ap_needed = tar_times * one_time_ap
             self.logger.info("ap_needed : " + str(ap_needed))
             if ap_needed > ap:
                 self.logger.warning("INADEQUATE AP for task")
                 return True
+            if tar_region == "tutorial":
+                tutorial_region = [0, 1, 1, 1, 2, 3, 3]
+                choose_region(self, tutorial_region[tar_mission])
+                import importlib
+                module_name = "module.mainline.tutorial" + str(tar_mission)
+                module = importlib.import_module(module_name)
+                module.sweep(self, tar_times)
+                continue
             choose_region(self, tar_region)
             self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
             if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
