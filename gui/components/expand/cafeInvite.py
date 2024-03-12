@@ -59,6 +59,7 @@ class Layout(QWidget):
                 self.student_name.append(
                     self.config.static_config['student_names'][i][self.config.server_mode + '_name'])
         self.input1 = ComboBox(self)
+        self.input1.addItem("添加学生")
         self.input = LineEdit(self)
         self.input.setFixedWidth(650)
         self.ac_btn = QPushButton('确定', self)
@@ -71,6 +72,7 @@ class Layout(QWidget):
 
         self.label2 = QLabel('选择摸头方式：', self)
         self.input2 = ComboBox(self)
+
         self.pat_style = self.config.get('patStyle') or '普通'
         self.input2.addItems(self.pat_styles)
         self.input2.setText(self.pat_style)
@@ -102,12 +104,16 @@ class Layout(QWidget):
         self.__init_Signals_and_Slots()
 
     def __add_student_name_in_the_last(self):
+        if self.input1.currentText() == '添加学生':
+            return
         self.favor_student1.append(self.input1.currentText())
         self.favor_student1 = self.check_valid_student_names()
         self.config.set('favorStudent1', self.favor_student1)
         self.input.setText(','.join(self.favor_student1))
 
     def __add_student_name_in_the_last_second(self):
+        if self.input4.currentText() == '添加学生':
+            return
         self.favor_student2.append(self.input4.currentText())
         self.favor_student2 = self.check_valid_student_names_()
         self.config.set('favorStudent2', self.favor_student2)
@@ -185,6 +191,7 @@ class Layout(QWidget):
     def set_buttons_for_no2_cafe(self):
         self.label4 = QLabel('选择第二咖啡厅邀请的学生', self)
         self.input4 = ComboBox(self)
+        self.input4.addItem("添加学生")
         self.input_ = LineEdit(self)
         self.input_.setFixedWidth(650)
         self.ac_btn_ = QPushButton('确定', self)

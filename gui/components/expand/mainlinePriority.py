@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
-from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
+from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition, ComboBox
 
 
 class Layout(QWidget):
@@ -21,6 +21,18 @@ class Layout(QWidget):
         self.input_hard = LineEdit(self)
         self.accept_hard = QPushButton('确定', self)
 
+        self.hard_task_combobox = ComboBox(self)
+        self.each_student_task_number_dict = {
+            "根据学生添加关卡":[],
+            "爱丽丝宝贝": [],
+        }
+        for i in range(0, len(self.config.static_config["hard_task_student_material"])):
+            self.each_student_task_number_dict.setdefault(self.config.static_config["hard_task_student_material"][i][1], [])
+            temp = self.config.static_config["hard_task_student_material"][i][0] + "-3"
+            (self.each_student_task_number_dict[self.config.static_config["hard_task_student_material"][i][1]].append(temp))
+        for key in self.each_student_task_number_dict.keys():
+            self.hard_task_combobox.addItem(key)
+        self.hard_task_combobox.currentIndexChanged.connect(self.__hard_task_combobox_change)
         _set_main = self.config.get('mainlinePriority')
         self.main_priority = [tuple(x.split('-')) for x in _set_main.split(',')]
 
@@ -55,6 +67,8 @@ class Layout(QWidget):
         self.lay2.setAlignment(Qt.AlignCenter)
         self.lay1_hard.addStretch(1)
         self.lay1_hard.setAlignment(Qt.AlignCenter)
+        self.lay1_hard.addWidget(self.hard_task_combobox, 0, Qt.AlignRight)
+
         self.lay2_hard.setAlignment(Qt.AlignCenter)
 
         self.hBoxLayout.addSpacing(16)
@@ -93,3 +107,12 @@ class Layout(QWidget):
             parent=self.info_widget
         )
         w.show()
+
+    def __hard_task_combobox_change(self):
+        if self.hard_task_combobox.currentText() == "根据学生添加关卡":
+            return
+        st = ""
+        if self.input_hard.text() != "":
+            st = self.input_hard.text() + ","
+        self.input_hard.setText(st + ','.join(self.each_student_task_number_dict[self.hard_task_combobox.currentText()]))
+        self.__accept_hard()
