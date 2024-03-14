@@ -4,6 +4,7 @@ func_names = {
     "sakura_flowing_chaos_in_the_gala": activity.sakura_flowing_chaos_in_the_gala.explore_mission,
     "reckless_nun_and_the_witch_in_the_old_library": activity.reckless_nun_and_the_witch_in_the_old_library.explore_mission,
     "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory": activity.Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory.explore_mission,
+    "revolutionKupalaNight": activity.revolutionKupalaNight.explore_mission,
 }
 
 

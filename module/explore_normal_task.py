@@ -240,6 +240,7 @@ def start_choose_side_team(self, index):
     loy = [195, 275, 354, 423]
     y = loy[index - 1]
     img_possibles = {
+        'normal_task_SUB': (637, 508),
         'normal_task_task-info': (946, 540)
     }
     rgb_possibles = {
@@ -527,7 +528,10 @@ def choose_team_according_to_stage_data_and_config(self, current_task_stage_data
 def common_gird_method(self, current_task_stage_data):
     img_possibles = {
         'normal_task_help': (1017, 131),
-        'normal_task_task-info': (946, 540)
+        'normal_task_task-info': (946, 540),
+        "plot_menu": (1205, 34),
+        "plot_skip-plot-button": (1213, 116),
+        "plot_skip-plot-notice": (766, 520),
     }
     img_ends = "normal_task_task-wait-to-begin-feature"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
