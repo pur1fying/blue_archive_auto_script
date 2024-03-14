@@ -8,10 +8,8 @@ from module import main_story
 def implement(self):
     self.quick_method_to_main_page()
     explore_mission(self)
-    if self.config["activity_sweep"]:
-        sweep(self, self.config["activity_sweep_task_number"], self.config["activity_sweep_times"])
-    if self.config["activity_exchange_reward"]:
-        exchange_reward(self)
+    sweep(self, self.config["activity_sweep_task_number"], self.config["activity_sweep_times"])
+    exchange_reward(self)
 
 
 def sweep(self, number, times):
@@ -288,3 +286,5 @@ def refresh_exchange_times(self):
     img_possibles = {"activity_refresh-exchange-times-notice": (768, 500)}
     img_ends = "activity_exchange-menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+

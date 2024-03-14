@@ -9,7 +9,7 @@ def screenshot_cut(self, area):
     return self.latest_img_array[int(area[1]*self.ratio):int(area[3]*self.ratio), int(area[0]*self.ratio):int(area[2]*self.ratio), :]
 
 
-def compare_image(self, name, need_log=True, threshold=0.8):
+def compare_image(self, name, need_log=True, threshold=0.8, rgb_diff=20):
     if name not in position.image_dic[self.server]:
         return False
     area = get_area(self.server, name)
@@ -17,7 +17,7 @@ def compare_image(self, name, need_log=True, threshold=0.8):
     ss_img = screenshot_cut(self, area)
     res_img_average_rgb = np.mean(res_img, axis=(0, 1))
     ss_img_average_rgb = np.mean(ss_img, axis=(0, 1))
-    if abs(res_img_average_rgb[0] - ss_img_average_rgb[0]) > 20 or abs(res_img_average_rgb[1] - ss_img_average_rgb[1]) > 20 or abs(res_img_average_rgb[2] - ss_img_average_rgb[2]) > 20:
+    if abs(res_img_average_rgb[0] - ss_img_average_rgb[0]) > rgb_diff or abs(res_img_average_rgb[1] - ss_img_average_rgb[1]) > rgb_diff or abs(res_img_average_rgb[2] - ss_img_average_rgb[2]) > rgb_diff:
         return False
     ss_img = cv2.resize(ss_img, (res_img.shape[1], res_img.shape[0]), interpolation=cv2.INTER_AREA)
     similarity = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)[0][0]

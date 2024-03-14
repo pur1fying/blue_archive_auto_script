@@ -1,4 +1,5 @@
 import importlib
+import json
 import time
 from core import image, color, picture
 from module import main_story
@@ -11,9 +12,9 @@ def implement(self):
     self.logger.info("activity sweep task number : " + str(region))
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
-        return sweep(self, region, times)
-    else:
-        return True
+        sweep(self, region, times)
+    exchange_reward(self)
+    return True
 
 
 def preprocess_activity_region(region):
@@ -71,7 +72,7 @@ def sweep(self, number, times):
     self.quick_method_to_main_page()
     to_activity(self, "mission", True, True)
     ap = self.get_ap()
-    sweep_one_time_ap = [0, 10, 10, 10, 10, 15, 15, 15, 15, 20, 20, 20, 20]
+    sweep_one_time_ap = [0, 10, 10, 10, 15, 15, 15, 15]
     for i in range(0, min(len(number), len(times))):
         sweep_times = times[i]
         if type(sweep_times) is float:
@@ -85,7 +86,7 @@ def sweep(self, number, times):
         if sweep_times <= 0:
             self.logger.warning("inadequate ap")
             continue
-        self.logger.info("Start sweep task " + str(number[i]) + " :" + str(sweep_times) + " times")
+        self.logger.info("Start sweep task " + str(number[i]) + " : " + str(sweep_times) + " times")
         to_mission_task_info(self, number[i])
         res = color.check_sweep_availability(self)
         if res == "sss":
@@ -290,7 +291,7 @@ def to_story_task_info(self):
 
 
 def to_mission_task_info(self, number):
-    lo = [0, 184, 300, 416, 527]
+    lo = [0, 184, 300, 416, 527, 639]
     index = [0, 1, 2, 3, 4, 5, 4, 5]
     if number >= 5:
         self.swipe(943, 593, 943, 102, duration=0.1, post_sleep_time=0.7)
@@ -304,9 +305,6 @@ def to_challenge_task_info(self, number):
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
-
-
 
 
 def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
@@ -399,3 +397,66 @@ def start_choose_side_team(self, index):
     rgb_ends = "formation_edit" + str(index)
     rgb_possibles.pop("formation_edit" + str(index))
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+
+
+def exchange_reward(self):
+    to_activity(self, "story", True)
+    to_exchange(self, True)
+    if not self.config["activity_exchange_50_times_at_once"]:
+        to_set_exchange_times_menu(self, True)
+        self.config["activity_exchange_50_times_at_once"] = True
+        with open('./config/config.json', 'w', encoding='utf-8') as f:
+            json.dump(self.config, f, ensure_ascii=False, indent=2)
+        if not image.compare_image(self, "activity_exchange-50-times-at-once"):
+            self.logger.info("set exchange times to 50 times at once")
+            self.click(778, 320, wait_over=True)
+        img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
+        img_ends = "activity_exchange-menu"
+        picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    while 1:
+        while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
+            self.click(453, 651, wait_over=True)
+            time.sleep(0.5)
+            continue_exchange(self)
+            to_exchange(self, True)
+        while color.judge_rgb_range(self, 479, 681, 109, 129, 211, 231, 235, 255):
+            self.click(453, 651, wait_over=True)
+            time.sleep(0.5)
+            continue_exchange(self)
+            to_exchange(self, True)
+        if image.compare_image(self, "activity_refresh-exchange-times-grey", rgb_diff=5):
+            self.logger.info("exchange complete")
+            return True
+        if image.compare_image(self, "activity_refresh-exchange-times-bright", rgb_diff=5):
+            refresh_exchange_times(self)
+
+
+def refresh_exchange_times(self):
+    img_possibles = {"activity_exchange-menu": (1155, 114)}
+    img_ends = "activity_refresh-exchange-times-notice"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    img_possibles = {"activity_refresh-exchange-times-notice": (768, 500)}
+    img_ends = "activity_exchange-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def to_exchange(self, skip_first_screenshot=False):
+    img_possibles = {
+        "activity_menu": (230, 639),
+        "activity_set-exchange-times-menu": (935, 195),
+        "activity_exchange-confirm": (673, 603),
+    }
+    img_ends = "activity_exchange-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+
+
+def to_set_exchange_times_menu(self, skip_first_screenshot=False):
+    img_possibles = {"activity_exchange-menu": (122, 105)}
+    img_ends = "activity_set-exchange-times-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+
+
+def continue_exchange(self):
+    img_possibles = {"activity_continue-exchange": (931, 600)}
+    img_ends = "activity_continue-exchange-grey"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True, tentitive_click=True, max_fail_cnt=5)
