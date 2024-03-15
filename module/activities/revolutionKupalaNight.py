@@ -110,7 +110,7 @@ def explore_story(self):
     to_activity(self, "story", True, True)
     need_change_acc = True
     stage_data = get_stage_data()
-    for i in range(0, 5):
+    for i in range(0, 15):
         to_story_task_info(self)
         mission = calc_need_fight_stage(self)
         if mission == "ALL MISSION SWEEP AVAILABLE":
