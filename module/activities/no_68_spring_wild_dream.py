@@ -165,21 +165,6 @@ def to_task_info(self, number):
     image.detect(self, ends, possibles)
 
 
-def check_sweep_availability(img):
-    if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
-        return "no-pass"
-    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
-        return "sss"
-    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
-        return "pass"
-
-
 def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
     loy = [195, 275, 354, 423]
     y = loy[i - 1]
@@ -247,6 +232,14 @@ def continue_exchange(self):
     picture.co_detect(self, None, None, img_ends, img_possibles, True, tentitive_click=True, max_fail_cnt=5)
 
 
+def get_exchange_asset(self):
+    region = {
+        "CN": (719, 979, 808, 127),
+        "JP": (719, 979, 808, 127),
+        "Global": (719, 979, 808, 127),
+    }
+    return self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
+
 def exchange_reward(self):
     to_no_69_spring_wild_dream(self, None, True)
     to_exchange(self, True)
@@ -267,16 +260,9 @@ def exchange_reward(self):
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        while color.judge_rgb_range(self, 479, 681, 109, 129, 211, 231, 235, 255):
-            self.click(453, 651,  wait_over=True)
-            time.sleep(0.5)
-            continue_exchange(self)
-            to_exchange(self, True)
-        if image.compare_image(self, "activity_refresh-exchange-times-grey"):
+        if color.judge_rgb_range(self, 386, 687, 195, 215, 195, 215, 195, 215) and get_exchange_asset(self) > 6:
             self.logger.info("exchange complete")
             return True
-        if image.compare_image(self, "activity_refresh-exchange-times-bright"):
-            refresh_exchange_times(self)
 
 
 def refresh_exchange_times(self):

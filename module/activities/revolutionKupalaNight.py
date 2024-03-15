@@ -199,10 +199,8 @@ def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge")
     tasks = [
-        "challenge2_sss",
-        "challenge2_task",
-        "challenge4_sss",
-        "challenge4_task",
+        "challenge1_sss",
+        "challenge1_task",
     ]
     stage_data = get_stage_data()
     for i in range(0, len(tasks)):
@@ -399,34 +397,39 @@ def start_choose_side_team(self, index):
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
 
 
+def get_exchange_assets(self):
+    region = {
+        "CN": (710, 98, 805, 130),
+        "JP": (710, 98, 805, 130),
+        "Global": (710, 98, 805, 130),
+    }
+    return self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
+
+
 def exchange_reward(self):
     to_activity(self, "story", True)
     to_exchange(self, True)
-    if not self.config["activity_exchange_50_times_at_once"]:
-        to_set_exchange_times_menu(self, True)
-        self.config["activity_exchange_50_times_at_once"] = True
-        with open('./config/config.json', 'w', encoding='utf-8') as f:
-            json.dump(self.config, f, ensure_ascii=False, indent=2)
-        if not image.compare_image(self, "activity_exchange-50-times-at-once"):
-            self.logger.info("set exchange times to 50 times at once")
-            self.click(778, 320, wait_over=True)
-        img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
-        img_ends = "activity_exchange-menu"
-        picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    to_set_exchange_times_menu(self, True)
+    if not image.compare_image(self, "activity_exchange-50-times-at-once"):
+        self.logger.info("set exchange times to 50 times at once")
+        self.click(778, 320, wait_over=True)
+    img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
+    img_ends = "activity_exchange-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
     while 1:
         while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
             self.click(453, 651, wait_over=True)
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        while color.judge_rgb_range(self, 479, 681, 109, 129, 211, 231, 235, 255):
-            self.click(453, 651, wait_over=True)
-            time.sleep(0.5)
-            continue_exchange(self)
-            to_exchange(self, True)
-        if image.compare_image(self, "activity_refresh-exchange-times-grey", rgb_diff=5):
-            self.logger.info("exchange complete")
-            return True
+        if color.judge_rgb_range(self, 371, 678, 195, 205, 195, 205, 195, 205):
+            if get_exchange_assets(self) >= 6:
+                self.logger.info("refresh exchange times")
+                refresh_exchange_times(self)
+                continue
+            else:
+                self.logger.info("exchange complete")
+                return True
         if image.compare_image(self, "activity_refresh-exchange-times-bright", rgb_diff=5):
             refresh_exchange_times(self)
 

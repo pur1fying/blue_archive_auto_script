@@ -48,87 +48,59 @@ stage_data = {
             {'t': 'click', 'p': (739, 232), "desc": "1 upper right"},
         ]
     },
-    "challenge2_sss": {
+    "challenge1_sss": {
         'start': [
-            ['mystic1', (817, 182)],
-            ['pierce1', (484, 620)]
+            ['pierce1', (823, 517)],
+            ['burst1', (437, 374)]
         ],
         'action': [
-            {'t': 'click', 'p': (773, 371), 'ec': True, "desc": "1 lower right"},
-            {'t': 'click', 'p': (686, 494), 'ec': True, 'wait-over': True, "desc": "2 right"},
+            {'t': 'click', 'p': (884, 440), 'ec': True, "desc": "1 right"},
+            {'t': 'click', 'p': (559, 443), 'ec': True, 'wait-over': True, "desc": "2 lower right"},
 
-            {'t': 'click', 'p': (631, 362), 'ec': True, "desc": "1 lower left"},
-            {'t': 'click', 'p': (611, 401), 'ec': True, 'wait-over': True, "desc": "2 upper right"},
+            {'t': 'click', 'p': (503, 409), 'ec': True, "desc": "1 upper left"},
+            {'t': 'click', 'p': (381, 424), 'ec': True, 'wait-over': True, "desc": "2 left"},
 
-            {'t': 'choose_and_change', 'p': (611, 401), "desc": "swap 1 2"},
-            {'t': 'click_and_teleport', 'p': (611, 401), 'wait-over': True, "desc": "1 choose self and tp"},
-            {'t': 'click', 'p': (443, 386), 'ec': True, "desc": "1 lower left"},
-            {'t': 'click', 'p': (667, 396), 'ec': True, 'wait-over': True, "desc": "2 left"},
+            {'t': ['exchange', 'click_and_teleport'], 'p': (503, 425), "desc": "2 choose self and tp"},
+            {'t': 'click', 'p': (850, 267), 'ec': True, "desc": "2 upper right"},
+            {'t': 'choose_and_change', 'p': (725, 311), "desc": "swap 1 2"},
+            {'t': 'click_and_teleport', 'p': (787, 229), 'wait-over': True, "desc": "1 upper right and tp"},
+
+            {'t': 'click', 'p': (494, 275), 'ec': True, "desc": "1 left"},
+            {'t': 'click', 'p': (634, 589), 'ec': True, 'wait-over': True, "desc": "2 lower left"},
+
+            {'t': 'click', 'p': (451, 294), 'ec': True, "desc": "1 left"},
+            {'t': 'click_and_teleport', 'p': (832, 493), 'ec': True, 'wait-over': True, "desc": "2 right and tp"},
+
+            {'t': 'exchange_and_click', 'p': (531, 365), 'ec': True, "desc": "2 upper left"},
+            {'t': 'choose_and_change', 'p': (531, 365), "desc": "swap 1 2"},
+            {'t': 'click', 'p': (412, 364), "desc": "1 left"},
         ]
     },
-    "challenge2_task": {
+    "challenge1_task": {
         'start': [
-            ['mystic1', (580, 513)]
+            ['pierce1', (523, 430)],
+            ['burst1', (841, 513)]
         ],
         'action': [
-            {'t': 'click', 'p': (718, 477), 'wait-over': True, "desc": "1 right"},
+            {'t': 'click', 'p': (556, 460), 'ec': True, "desc": "1 lower right"},
+            {'t': 'click', 'p': (814, 368), 'ec': True, 'wait-over': True, "desc": "2 upper right"},
 
-            {'t': 'click_and_teleport', 'p': (701, 354), 'wait-over': True, "desc": "1 upper right and tp"},
+            {'t': 'click_and_teleport', 'p':(391, 448), 'ec': True, "desc": "1 left and tp"},
+            {'t': 'click', 'p': (722, 279), 'ec': True, 'wait-over': True, "desc": "2 upper left"},
 
-            {'t': 'click', 'p': (482, 380), "desc": "1 lower left"},
+            {'t': 'click', 'p': (650, 534), 'ec': True, "desc": "1 lower right"},
+            {'t': 'click_and_teleport', 'p': (708, 258), 'ec': True, 'wait-over': True, "desc": "2 upper right and tp"},
+
+            {'t': 'click', 'p': (637, 591), 'ec': True, "desc": "1 lower left"},
+            {'t': 'click', 'p': (637, 323), 'ec': True, 'wait-over': True, "desc": "2 left"},
+
+            {'t': 'click_and_teleport', 'p': (815, 504), 'ec': True, "desc": "1 right and tp"},
+            {'t': 'click', 'p': (525, 276), 'ec': True, 'wait-over': True, "desc": "2 left"},
+
+            {'t': 'exchange_and_click', 'p': (500, 382), 'ec': True, "desc": "2 upper left"},
+            {'t': 'choose_and_change', 'p': (500, 382), "desc": "swap 1 2"},
+            {'t': 'click', 'p': (385, 383), "desc": "1 left"},
 
         ]
     },
-    "challenge4_sss": {
-        'start': [
-            ['swipe', (778, 263, 778, 600, 0.5)],
-            ['mystic1', (464, 71)],
-            ['swipe', (962, 561, 400, 100, 0.5)],
-            ['burst1', (937, 599)],
-            ['swipe', (368, 464, 910, 464, 0.5)],
-            ['burst2', (2, 635)]
-        ],
-        'action': [
-            {'t': 'click_and_teleport', 'p': (610, 359), 'ec': True, "desc": "1 lower right and tp"},
-            {'t': 'click', 'p': (722, 323), 'ec': True, "desc": "2 upper left"},
-            {'t': 'click_and_teleport', 'p': (614, 416), 'ec': True, 'wait-over': True, "desc": "3 right and tp"},
-
-            {'t': 'click', 'p': (506, 441), 'ec': True, "desc": "1 left"},
-            {'t': 'click_and_teleport', 'p': (785, 374), 'wait-over': True, "desc": "2 choose self and tp"},
-            {'t': 'click', 'p': (557, 416), 'ec': True, "desc": "2 lower right"},
-            {'t': 'click', 'p': (793, 383), 'ec': True, 'wait-over': True, "desc": "3 lower right"},
-
-            {'t': 'exchange_and_click', 'p': (557, 501), 'ec': True, "desc": "2 lower right"},
-            {'t': 'choose_and_change', 'p': (557, 501), "desc": "swap 1 2"},
-            {'t': 'click', 'p': (496, 578), 'ec': True, "desc": "1 lower left"},
-            {'t': 'click', 'p': (799, 386), 'wait-over': True, "desc": "3 lower right"},
-
-            {'t': 'click', 'p': (655, 471), 'ec': True, "desc": "1 right"},
-            {'t': 'click_and_teleport', 'p': (896, 359), 'ec': True, "desc": "2 right and tp"},
-            {'t': 'click', 'p': (694, 380), 'ec': True, 'wait-over': True, "desc": "3 upper left"},
-
-            {'t': 'exchange_and_click', 'p': (587, 356), 'ec': True, "desc": "2 lower left"},
-            {'t': 'exchange_twice_and_click', 'p': (658, 435), 'ec': True, "desc": "3 left"},
-            {'t': 'click_and_teleport', 'p': (554, 487), 'wait-over': True, "desc": "1 choose self and tp"},
-            {'t': 'choose_and_change', 'p': (685, 335), "desc": "swap 1 3"},
-            {'t': 'click', 'p': (590, 452), "desc": "1 lower left"},
-        ]
-    },
-    "challenge4_task": {
-        'start': [
-            ['mystic1', (82, 709)],
-            ['swipe', (1034, 444, 500, 444, 0.5)],
-            ['burst1', (1253, 269)],
-        ],
-        'action': [
-            {'t': 'click_and_teleport', 'p': (613, 410), 'ec': True, "desc": "1 right and tp"},
-            {'t': 'click_and_teleport', 'p': (715, 353), 'ec': True, 'wait-over': True, "desc": "2 upper left and tp"},
-
-            {'t': 'exchange_and_click', 'p': (565, 524), 'ec': True, "desc": "2 lower left"},
-            {'t': 'end-turn'},
-
-            {'t': 'exchange_and_click', 'p': (607, 569), 'ec': True, "desc": "2 lower left"},
-            {'t': 'click', 'p': (673, 380), "desc": "1 lower left"},
-        ]
-    }
 }

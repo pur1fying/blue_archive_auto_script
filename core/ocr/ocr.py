@@ -73,7 +73,6 @@ class Baas_ocr:
 
     def get_region_num(self, img, region, category=int, ratio=1.0):
         img = self.get_region_img(img, region, ratio)
-        t1 = time.time()
         res = self.ocrNUM.ocr_for_single_line(img)['text']
         res = res.replace('<unused3>', '')
         res = res.replace('<unused2>', '')
