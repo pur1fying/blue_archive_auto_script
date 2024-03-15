@@ -19,7 +19,7 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: '文档',
+        text: '用户文档',
         items: [
           { text: '特性', link: '/features' },
           { text: '安装', link: '/install' },
@@ -28,6 +28,12 @@ export default defineConfig({
           { text: '上报问题', link: '/report' },
           { text: '编写文档', link: '/docs' },
           { text: '关于', link: '/about' }
+        ]
+      },
+      {
+        text: '开发文档',
+        items: [
+          { text: '模拟器api', link: '/device_operation' },
         ]
       },
       {
