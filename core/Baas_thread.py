@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import cv2
 from core.exception import ScriptError
 from core.notification import notify
@@ -184,6 +186,7 @@ class Baas_thread:
     def thread_starter(self):
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
+            self.scheduler.update_valid_task_queue()
             while self.flag_run:
                 if self.first_start:
                     self.solve('restart')
@@ -194,22 +197,22 @@ class Baas_thread:
                         self.solve('refresh_uiautomator2')
                     self.logger.info(f"Scheduler :  -- {next_func_name} --")
                     self.task_finish_to_main_page = True
+                    self.daily_config_refresh()
                     if self.solve(next_func_name) and self.flag_run:
-                        next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
-                        self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
-                    else:
-                        self.logger.error("error occurred, stop all activities")
-                        self.signal_stop()
+                        next_tick = self.scheduler.systole(next_func_name, self.next_time)
+                        if next_tick is not None:
+                            self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
+                    self.scheduler.update_valid_task_queue()
                     time.sleep(1)
         except Exception as e:
             notify(title='', body='任务已停止')
-            self.logger.info("error occurred, stop all activities")
             self.logger.error(e)
+            self.logger.error("error occurred, stop all activities")
             self.signal_stop()
 
     def solve(self, activity) -> bool:
@@ -268,6 +271,7 @@ class Baas_thread:
             'plot_skip-plot-notice': (770, 519),
             'activity_fight-success-confirm': (640, 663),
             "total_assault_reach-season-highest-record": (640, 528),
+            "total_assault_total-assault-info": (1165, 107),
         }
         update = {
             'CN': {
@@ -438,7 +442,7 @@ class Baas_thread:
             return temp
 
     def init_all_data(self):
-        self.logger.info("--------Initialing All Data----------")
+        self.logger.info("--------Initializing All Data----------")
         self.flag_run = True
         self.init_config()
         self.init_server()
@@ -473,3 +477,48 @@ class Baas_thread:
             print(e)
             self.connection.uiautomator.start()
             self.wait_uiautomator_start()
+
+    def daily_config_refresh(self):
+        now = datetime.now()
+        hour = now.hour
+        last_refresh = datetime.fromtimestamp(self.config['last_refresh_config_time'])
+        last_refresh_hour = last_refresh.hour
+        daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
+        if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
+                ((hour < daily_reset and last_refresh_hour < daily_reset) or (hour >= daily_reset and last_refresh_hour >=daily_reset)):
+            return
+        else:
+            self.config['last_refresh_config_time'] = time.time()
+            self.config_set.set("last_refresh_config_time", time.time())
+            self.refresh_create_time()
+            self.refresh_common_tasks()
+            self.refresh_hard_tasks()
+            self.logger.info("daily config refreshed")
+
+    def refresh_create_time(self):
+        self.config['alreadyCreateTime'] = 0
+        self.config_set.set("alreadyCreateTime", 0)
+
+    def refresh_common_tasks(self):
+        from module.normal_task import read_task
+        temp = self.config['mainlinePriority']
+        self.config['unfinished_normal_tasks'] = []
+        if type(temp) is str:
+            temp = temp.split(',')
+        for i in range(0, len(temp)):
+            res = read_task(self, temp[i])
+            if res:
+                self.config['unfinished_normal_tasks'].append(res)
+        self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
+
+    def refresh_hard_tasks(self):
+        from module.hard_task import read_task
+        self.config['unfinished_hard_tasks'] = []
+        temp = self.config['hardPriority']
+        if type(temp) is str:
+            temp = temp.split(',')
+        for i in range(0, len(temp)):
+            res = read_task(self, temp[i])
+            if res:
+                self.config['unfinished_hard_tasks'].append(res)
+        self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

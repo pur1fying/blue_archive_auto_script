@@ -14,7 +14,7 @@ DISPLAY_CONFIG_PATH = './config/display.json'
 
 
 class ProcessFragment(ScrollArea):
-    def __init__(self, parent=None):
+    def __init__(self, parent, config):
         super().__init__(parent=parent)
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)

@@ -19,7 +19,6 @@ def init_image_data(self):
     try:
         global image_x_y_range
         global image_dic
-        self.logger.info("Start initializing image data")
         if not initialized_image[self.server]:
             image_dic.setdefault(self.server,{})
             image_x_y_range.setdefault(self.server,{})
@@ -58,7 +57,6 @@ def init_image_data(self):
                     if os.path.exists(img_path):
                         img = cv2.imread(img_path)
                         image_dic[self.server]['activity_' + key] = img
-            self.logger.info("Image data successfully initialized total assets : " + str(len(image_dic[self.server])))
             return True
     except Exception as e:
         self.logger.error(e)

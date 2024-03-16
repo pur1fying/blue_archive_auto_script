@@ -123,10 +123,8 @@ def interaction_for_cafe_solve_method3(self):
         if i != max_times - 1:
             time.sleep(2)
             to_cafe(self)
-            self.click(68, 636, wait_over=True)
-            time.sleep(1)
-            self.click(1169, 90, wait_over=True)
-            time.sleep(1)
+            self.click(68, 636, wait_over=True, duration=1)
+            self.click(1169, 90, wait_over=True, duration=1)
 
 
 def to_invitation_ticket(self, skip_first_screenshot=False):
