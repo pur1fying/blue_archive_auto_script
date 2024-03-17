@@ -73,7 +73,7 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
     }
     img_possibles = {
         'main_page_full-notice': (887, 165),
-        "main_page_insufficient_inventory_space": (910, 138),
+        "main_page_insufficient-inventory-space": (910, 138),
     }
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 

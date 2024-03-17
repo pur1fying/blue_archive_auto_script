@@ -747,7 +747,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "琴里(应援团)",
       "CN_implementation": false,
       "Global_name": "Kotori (Cheer Squad)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "コトリ(応援団)",
       "JP_implementation": true
     },
