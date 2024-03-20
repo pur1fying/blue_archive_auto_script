@@ -121,7 +121,7 @@ class Layout(TemplateLayout):
         )
         w.show()
         sig = self.config.get_signal('update_signal')
-        sig.emit(['普通关推图', ''])
+        sig.emit(['普通关推图'])
         import threading
         threading.Thread(target=self.action).start()
 

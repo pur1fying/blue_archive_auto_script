@@ -10,14 +10,11 @@ class Scheduler:
 
     def __init__(self, update_signal, path):
         super().__init__()
+        self.event_map = {}
         self.first_waiting = None
         self.event_config_path = "./config/" + path + "/event.json"
         self.update_signal = update_signal
         self._event_config = []
-        self._display_config = {
-            'running': "Empty",
-            'queue': []
-        }
         self._current_task = None
         self._valid_task_queue = []
         self._read_config()
@@ -27,6 +24,9 @@ class Scheduler:
         with lock:
             with open(self.event_config_path, 'r', encoding='utf-8') as f:
                 self._event_config = json.load(f)
+                if self.event_map == {}:
+                    for item in self._event_config:
+                        self.event_map[item['func_name']] = item['event_name']
 
     def _commit_change(self):
         """event_config只能被switch修改,调度时在内存中操作"""
@@ -77,7 +77,7 @@ class Scheduler:
         else:
             if self.first_waiting:
                 self.first_waiting = False
-                self.update_signal.emit(["Waiting"])
+                self.update_signal.emit(["暂无任务"])
 
             return None
 
@@ -119,3 +119,17 @@ class Scheduler:
 
     def change_display(self, task_name):
         self.update_signal.emit([task_name, *self._valid_task_queue])
+
+    def get_current_task_list(self):
+        return [self.event_map[x['func_name']] for x in self._valid_task_queue]
+
+    def get_current_task(self):
+        if type(self._current_task) is dict:
+            return self.event_map[self._current_task['func_name']]
+        elif type(self._current_task) is str:
+            return self._current_task
+        else:
+            return None
+
+    def set_current_task(self, task):
+        self._current_task = task

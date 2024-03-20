@@ -4,9 +4,8 @@ from copy import deepcopy
 from datetime import datetime
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QHeaderView, QVBoxLayout, QPushButton
-from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox
-import threading
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QHeaderView, QVBoxLayout
+from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox, CaptionLabel
 
 
 class Layout(QWidget):
@@ -18,13 +17,12 @@ class Layout(QWidget):
         assert self._event_config is not None
         self.config.get_signal('update_signal').connect(self._refresh_time)
 
-        self.setFixedHeight(250)
         self.boxes, self.qLabels, self.times, self.check_boxes = [], [], [], []
         self._init_components(self._event_config)
 
         self.vBox = QVBoxLayout(self)
         self.option_layout = QHBoxLayout(self)
-        self.all_check_box = QPushButton('全部(不)启用', self)
+        self.all_check_box = PushButton('全部(不)启用', self)
 
         self.all_check_box.clicked.connect(self.all_check)
         self.option_layout.addWidget(self.all_check_box)
@@ -35,7 +33,7 @@ class Layout(QWidget):
         self.op_2.clicked.connect(self._refresh)
 
         self.option_layout.addStretch(1)
-        self.label_3 = QLabel('排序方式：', self)
+        self.label_3 = CaptionLabel('排序方式：', self)
         self.op_3 = ComboBox(self)
         self.op_3.addItems(['默认排序', '按下次执行时间排序'])
 
@@ -71,9 +69,9 @@ class Layout(QWidget):
             cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
-            t_ccs = QLabel(self.labels[i])
+            t_ccs = CaptionLabel(self.labels[i])
             t_ncs = LineEdit(self)
-            t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])))
+            t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])).split('.')[0])
             t_ncs.textChanged.connect(self._update_config)
             t_cbx.stateChanged.connect(self._update_config)
             self.times.append(t_ncs)
@@ -115,12 +113,12 @@ class Layout(QWidget):
 
         # Add components to table
         for ind, unit in enumerate(temp):
-            t_ccs = QLabel(unit['event_name'])
+            t_ccs = CaptionLabel(unit['event_name'])
             self.tableView.setCellWidget(ind, 0, t_ccs)
             self.qLabels.append(t_ccs)
 
             t_ncs = LineEdit(self)
-            t_ncs.setText(str(datetime.fromtimestamp(unit['next_tick'])))
+            t_ncs.setText(str(datetime.fromtimestamp(unit['next_tick'])).split('.')[0])
             t_ncs.textChanged.connect(self._update_config)
             self.tableView.setCellWidget(ind, 1, t_ncs)
             self.times.append(t_ncs)
@@ -155,7 +153,7 @@ class Layout(QWidget):
         t = time.time()
         for i in range(len(self.enable_list)):
             self.times[i].blockSignals(True)
-            self.times[i].setText(str(datetime.fromtimestamp(t)))
+            self.times[i].setText(str(datetime.fromtimestamp(t)).split('.')[0])
             self.times[i].blockSignals(False)
             self._event_config[i]['next_tick'] = t
         self._update_config()

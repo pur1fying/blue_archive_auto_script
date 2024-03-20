@@ -378,13 +378,6 @@ DEFAULT_CONFIG = """
 SWITCH_DEFAULT_CONFIG = '''
 [
     {
-        "config": "featureSwitch",
-        "name": "功能开关",
-        "sort": 0,
-        "tip": "重要，此处为功能开关，控制各功能是否开启，启动前请检查是否开启。",
-        "type": "SwitchSettingCard"
-    },
-    {
         "config": "cafeInvite",
         "name": "咖啡厅",
         "sort": 1,
