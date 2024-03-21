@@ -534,7 +534,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "revolutionKupalaNight",
+        "CN": "bunnyChaserOnTheShip",
         "Global": null,
         "JP": "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory"
     },

@@ -85,7 +85,8 @@ def enter_fight(self):
         'normal_task_teleport-notice': (767, 501)
     }
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, None,None,  img_possibles, True)
+    img_pop_ups = {"activity_choose-buff": (644, 570)}
+    picture.co_detect(self, rgb_ends, None,None,  img_possibles, True, img_pop_ups=img_pop_ups)
 
 
 def auto_fight(self, need_change_acc=True):

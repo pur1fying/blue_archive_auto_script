@@ -14,4 +14,5 @@ x_y_range = {
     "news2": (122, 85, 224, 117),
     'daily-attendance': (540, 90, 1100, 174),
     'skip-notice': (569, 309, 701, 353),
+    'item-expire': (428, 100, 836, 283)
 }

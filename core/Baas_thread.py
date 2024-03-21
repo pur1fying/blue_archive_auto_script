@@ -227,6 +227,7 @@ class Baas_thread:
         img_possibles = {
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
+            'main_page_item-expire': (925, 119),
             'main_page_skip-notice': (762, 507),
             'normal_task_fight-end-back-to-main-page': (511, 662),
             "main_page_enter-existing-fight": (514, 501),
