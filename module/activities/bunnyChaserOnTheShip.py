@@ -198,7 +198,7 @@ def explore_mission(self):
             res = color.check_sweep_availability(self)
             if res == "sss":
                 self.logger.info("mission " + str(task_number) + " sss no need to fight")
-                to_activity(self, "mission", True)
+                to_activity(self, "mission", True, True)
                 continue
             elif res == "no-pass" or res == "pass":
                 need_fight = True
