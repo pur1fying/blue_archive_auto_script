@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel
 from qfluentwidgets import LineEdit, PushButton, InfoBar, InfoBarIcon, InfoBarPosition
 
 from .expandTemplate import TemplateLayout
-from ...util.common_methods import get_context_thread
 
 
 class Layout(TemplateLayout):
@@ -126,4 +125,4 @@ class Layout(TemplateLayout):
         threading.Thread(target=self.action).start()
 
     def action(self):
-        get_context_thread(self).start_normal_task()
+        self.config.get_main_thread().start_normal_task()

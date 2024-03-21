@@ -1,5 +1,4 @@
 from .expandTemplate import TemplateLayout
-from ...util.common_methods import get_context_thread
 
 
 class Layout(TemplateLayout):
@@ -29,17 +28,17 @@ class Layout(TemplateLayout):
                 'key': None
             }
         ]
-
+        self.main_thread = config.get_main_thread()
         super().__init__(parent=parent, configItems=configItems, config=config)
 
     def proceed_main_plot(self):
         import threading
-        threading.Thread(target=get_context_thread(self).start_main_story).start()
+        threading.Thread(target=self.main_thread.start_main_story).start()
 
     def proceed_group_plot(self):
         import threading
-        threading.Thread(target=get_context_thread(self).start_group_story).start()
+        threading.Thread(target=self.main_thread.start_group_story).start()
 
     def proceed_branch_plot(self):
         import threading
-        threading.Thread(target=get_context_thread(self).start_mini_story).start()
+        threading.Thread(target=self.main_thread.start_mini_story).start()

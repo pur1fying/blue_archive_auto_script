@@ -1,5 +1,4 @@
 from .expandTemplate import TemplateLayout
-from ...util.common_methods import get_context_thread
 
 
 class Layout(TemplateLayout):
@@ -21,4 +20,4 @@ class Layout(TemplateLayout):
         super().__init__(parent=parent, configItems=configItems, config=config)
 
     def fhx(self):
-        get_context_thread(self).start_fhx()
+        self.config.get_main_thread().start_fhx()
