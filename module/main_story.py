@@ -177,8 +177,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
             to_normal_task_wait_to_begin_page(self, True)
         start_mission(self)
         check_skip_fight_and_auto_over(self)
-        start_action(self, stage_data['actions'], stage_data['will-fight'])
-
+        start_action(self, stage_data['actions'])
     rgb_ends = "fighting_feature"
     img_possibles = {"plot_formation": (1157, 651)}
     if res == "plot_self-formation":

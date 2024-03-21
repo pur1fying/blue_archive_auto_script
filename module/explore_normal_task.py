@@ -21,15 +21,7 @@ def implement(self):
             self.stage_data = get_stage_data(region)
             mission = str(region) + "-" + str(mission)
             current_task_stage_data = self.stage_data[mission]
-            img_possibles = {
-                'normal_task_help': (1017, 131),
-                'normal_task_task-info': (946, 540)
-            }
-            img_ends = "normal_task_task-wait-to-begin-feature"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
-            check_skip_fight_and_auto_over(self)
-            start_action(self, current_task_stage_data['action'])
+            common_gird_method(self, current_task_stage_data)
             main_story.auto_fight(self)
             if self.config['manual_boss']:
                 self.click(1235, 41)
@@ -70,7 +62,7 @@ def implement(self):
                     picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
                 else:
                     current_task_stage_data = self.stage_data[mission]
-                    common_gird_method(self, current_task_stage_data, False, False)
+                    common_gird_method(self, current_task_stage_data)
                 main_story.auto_fight(self, need_change_acc)
                 need_change_acc = False
                 if self.config['manual_boss']:
@@ -172,6 +164,8 @@ def start_action(self, actions):
         op = act['t']
         if 'pre-wait' in act:
             time.sleep(act['pre-wait'])
+        if 'retreat' in act:
+            turn_off_skip_fight(self)
         if type(op) is str:
             op = [op]
         if 'p' in act:
@@ -220,7 +214,15 @@ def start_action(self, actions):
                 time.sleep(0.5)
                 pos = act['p'][0]
                 self.click(pos[0], pos[1], wait_over=True)
-
+        if 'retreat' in act:
+            for fight in range(1, act['retreat'][0] + 1):
+                main_story.auto_fight(self)
+                for retreatNum in range(1, len(act['retreat'])):
+                    if retreatNum == fight:
+                        self.logger.info("retreat team " + str(retreatNum))
+                        retreat(self)
+                to_normal_task_mission_operating_page(self, True)
+            check_skip_fight_and_auto_over(self)
         if 'ec' in act:
             wait_formation_change(self, force_index)
         if 'wait-over' in act:
@@ -317,7 +319,8 @@ def wait_over(self):
         "normal_task_fight-confirm": (1171, 670),
         'normal_task_present': (640, 519),
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles, True, rgb_pop_ups={"fighting_feature": (-1, -1)}, img_pop_ups={"activity_choose-buff":( 644,570)})
+    picture.co_detect(self, None, None, img_ends, img_possibles, True, rgb_pop_ups={"fighting_feature": (-1, -1)},
+                      img_pop_ups={"activity_choose-buff": (644, 570)})
 
 
 def start_mission(self):
@@ -348,10 +351,26 @@ def wait_formation_change(self, force_index):
 
 
 def check_skip_fight_and_auto_over(self):
-    if not image.compare_image(self, 'normal_task_fight-skip'):
-        self.click(1194, 547)
-    if not image.compare_image(self, 'normal_task_auto-over'):
-        self.click(1194, 600)
+    while self.flag_run:
+        f = 1
+        if not image.compare_image(self, 'normal_task_fight-skip'):
+            f = 0
+            self.click(1194, 547, wait_over=True, duration=0.5)
+        if not image.compare_image(self, 'normal_task_auto-over'):
+            f = 0
+            self.click(1194, 600, wait_over=True, duration=0.5)
+        if f:
+            return
+        to_normal_task_mission_operating_page(self, False)
+
+
+def turn_off_skip_fight(self):
+    while self.flag_run:
+        to_normal_task_mission_operating_page(self, False)
+        if image.compare_image(self, 'normal_task_fight-skip'):
+            self.click(1194, 547, wait_over=True, duration=0.5)
+        else:
+            return
 
 
 def calc_team_number(self, current_task_stage_data):
@@ -439,6 +458,7 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
         "normal_task_teleport-notice": (886, 162),
         'normal_task_present': (640, 519),
         "normal_task_fight-confirm": (1171, 670),
+        'normal_task_fail-confirm': (640, 670)
     }
     img_ends = "normal_task_task-operating-feature"
     img_pop_ups = {"activity_choose-buff": (644, 570)}
@@ -484,10 +504,9 @@ def choose_team_according_to_stage_data_and_config(self, current_task_stage_data
             time.sleep(1)
         else:
             choose_team(self, res[j], los[j], True)
-    start_mission(self)
 
 
-def common_gird_method(self, current_task_stage_data, will_fight=False, activity_will_choose_buff=False):
+def common_gird_method(self, current_task_stage_data):
     img_possibles = {
         'normal_task_help': (1017, 131),
         'normal_task_task-info': (946, 540),
@@ -501,3 +520,13 @@ def common_gird_method(self, current_task_stage_data, will_fight=False, activity
     start_mission(self)
     check_skip_fight_and_auto_over(self)
     start_action(self, current_task_stage_data['action'])
+
+
+def retreat(self):
+    rgb_possibles = {"fighting_feature": (1226, 51)}
+    img_possible = {
+        'normal_task_fight-pause': (908, 508),
+        'normal_task_retreat-notice': (768, 507)
+    }
+    img_ends = 'normal_task_fail-confirm'
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possible, True)

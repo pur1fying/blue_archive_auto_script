@@ -1,6 +1,6 @@
 import importlib
 import time
-from core import image, color, picture
+from core import  color, picture
 from module import main_story
 from module.explore_normal_task import common_gird_method
 
@@ -71,7 +71,7 @@ def sweep(self, number, times):
     self.quick_method_to_main_page()
     to_activity(self, "mission", True, True)
     ap = self.get_ap()
-    sweep_one_time_ap = [0, 10, 10, 10, 10, 15, 15, 15, 15, 20, 20, 20, 20]
+    sweep_one_time_ap = [0, 10, 10, 10, 12, 12, 12, 15, 15, 15]
     for i in range(0, min(len(number), len(times))):
         sweep_times = times[i]
         if type(sweep_times) is float:
@@ -173,17 +173,17 @@ def explore_mission(self):
         "mission2_sss",
         "mission3_sss",
         "mission4_sss",
-        # "mission4_task",
         "mission5_sss",
-        # "mission5_task",
         "mission6_sss",
-        # "mission6_task",
         "mission7_sss",
-        # "mission7_task",
         "mission8_sss",
-        # "mission8_task",
         "mission9_sss",
-        # "mission9_task",
+        "mission4_task",
+        "mission5_task",
+        "mission6_task",
+        "mission7_task",
+        "mission8_task",
+        "mission9_task",
     ]
     stage_data = get_stage_data()
     for i in range(0, len(tasks)):
@@ -204,7 +204,7 @@ def explore_mission(self):
                 need_fight = True
         if need_fight:
             self.logger.info("Start mission " + str(task_number) + " fight")
-            common_gird_method(self, current_task_stage_data, False, True)
+            common_gird_method(self, current_task_stage_data)
             main_story.auto_fight(self)
             if self.config['manual_boss']:
                 self.click(1235, 41)
