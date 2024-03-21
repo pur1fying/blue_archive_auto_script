@@ -1416,24 +1416,24 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "明日奈(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "明日奈(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Asuna (Bunny)",
       "Global_implementation": true,
       "JP_name": "アスナ(バニーガール)",
       "JP_implementation": true
     },
     {
-      "CN_name": "花凛(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "花凛(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Karin (Bunny)",
       "Global_implementation": true,
       "JP_name": "カリン(バニーガール)",
       "JP_implementation": true
     },
     {
-      "CN_name": "妮露(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "妮露(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Neru (Bunny)",
       "Global_implementation": true,
       "JP_name": "ネル(バニーガール)",
