@@ -1,11 +1,10 @@
 import time
 from core import color, image
-from module import main_story
-from module.explore_normal_task import to_normal_task_mission_operating_page
 
 
 def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possibles=None, skip_first_screenshot=False,
-              tentitive_click=False, tentitivex=1238, tentitivey=45, max_fail_cnt=10, rgb_pop_ups=None, img_pop_ups=None):
+              tentitive_click=False, tentitivex=1238, tentitivey=45, max_fail_cnt=10, rgb_pop_ups=None,
+              img_pop_ups=None):
     fail_cnt = 0
     self.last_click_time = 0
     self.last_click_position = (0, 0)
