@@ -56,7 +56,7 @@ stage_data = {
             {'t': 'click', 'p': (610, 369), "wait-over": True, 'desc': "right"},
             {'t': 'click', 'p': (705, 363), "wait-over": True, 'desc': "right"},
             {'t': 'click', 'p': (647, 445), "wait-over": True, 'desc': "lower left"},
-            {'t': 'click', 'p': (587, 336), 'desc': "lower left"},
+            {'t': 'click', 'p': (592, 531), 'desc': "lower left"},
         ]
     },
     "mission5_sss": {
