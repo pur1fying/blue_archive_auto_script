@@ -1,6 +1,6 @@
 import importlib
 import time
-from core import  color, picture
+from core import color, picture
 from module import main_story
 from module.explore_normal_task import common_gird_method
 
@@ -11,9 +11,8 @@ def implement(self):
     self.logger.info("activity sweep task number : " + str(region))
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
-        return sweep(self, region, times)
-    else:
-        return True
+        sweep(self, region, times)
+    drawCard(self)
 
 
 def preprocess_activity_region(region):
@@ -381,5 +380,65 @@ def start_sweep(self, skip_first_screenshot=False):
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
 
+
 def drawCard(self):
-    pass
+    to_activity(self, "mission", True)
+    toCardStore(self)
+    region = {
+        'CN': (708, 168, 781, 201)
+    }
+    coin = self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
+    drawCnt = int(coin / 200)
+    for i in range(0, drawCnt):
+        reshuffleCard(self)
+        chooseCardFourOfFour(self)
+        res = drawCardFourOfFour(self)
+        if res == "activity_draw-card-grey":
+            self.logger.warning("inadequate coin")
+            return
+    return
+
+
+def toCardStore(self):
+    img_possibles = {
+        "activity_menu": (517, 647),
+    }
+    img_ends = "activity_card-store"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def chooseCardFourOfFour(self):
+    img_possibles = {
+        "activity_card-one-of-four-chosen": (1166, 412, 0.9, 5),
+        "activity_card-two-of-four-chosen": (1166, 412, 0.9, 5),
+        "activity_card-three-of-four-chosen": (1166, 412, 0.9, 5),
+    }
+    img_ends = ("activity_card-four-of-four-chosen", 0.9, 5)
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def reshuffleCard(self):
+    img_possibles = {
+        "activity_reshuffle-card-bright": (811, 579),
+    }
+    img_ends = [
+        "activity_card-four-of-four-not-drew",
+        "activity_reshuffle-card-grey",
+    ]
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def drawCardFourOfFour(self):
+    img_possibles = {
+        "activity_draw-card-bright": (1042, 593),
+    }
+    rgb_ends = "reward_acquired"
+    img_ends = "activity_draw-card-grey"
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
+    if res == "activity_draw-card-grey":
+        return "activity_draw-card-grey"
+    rgb_possibles = {
+        "reward_acquired": (1042, 593),
+    }
+    img_ends = "activity_card-store",
+    return picture.co_detect(self, None, rgb_possibles, img_ends, None, True)

@@ -38,12 +38,18 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
             if type(img_ends) is str or type(img_ends) is tuple:
                 img_ends = [img_ends]
             for i in range(0, len(img_ends)):
-                threshold = 0.8
                 img_name = img_ends[i]
+                threshold = 0.8
+                rgb_diff = 20
                 if type(img_ends[i]) is tuple:
-                    img_name = img_ends[i][0]
-                    threshold = img_ends[i][1]
-                if image.compare_image(self, img_name, False, threshold):
+                    if len(img_ends[i]) == 2:
+                        img_name = img_ends[i][0]
+                        threshold = img_ends[i][1]
+                    elif len(img_ends[i]) == 3:
+                        img_name = img_ends[i][0]
+                        threshold = img_ends[i][1]
+                        rgb_diff = img_ends[i][2]
+                if image.compare_image(self, img_name, False, threshold, rgb_diff):
                     self.logger.info('end : ' + img_name)
                     return img_ends[i]
         f = 0
@@ -81,9 +87,13 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
         if img_possibles is not None:
             for position, click in img_possibles.items():
                 threshold = 0.8
+                rgb_diff = 20
                 if len(click) == 3:
                     threshold = click[2]
-                if image.compare_image(self, position, False, threshold):
+                elif len(click) == 4:
+                    threshold = click[2]
+                    rgb_diff = click[3]
+                if image.compare_image(self, position, False, threshold, rgb_diff):
                     fail_cnt = 0
                     self.latest_screenshot_time = time.time()
                     f = 1
