@@ -300,11 +300,11 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         else:
             if need_swipe:
                 if region == "mission":
-                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=0.5)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
                 elif region == "story":
-                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=0.5)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
                 elif region == "challenge":
-                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=0.5)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
             return True
 
 
@@ -323,7 +323,7 @@ def to_mission_task_info(self, number):
     lo = [0, 184, 300, 416, 527, 644]
     index = [0, 1, 2, 3, 4, 5, 2, 3, 4, 5]
     if number >= 6:
-        self.swipe(943, 593, 943, 102, duration=0.05, post_sleep_time=0.7)
+        self.swipe(943, 593, 943, 0, duration=0.05, post_sleep_time=1)
     img_possibles = {'activity_menu': (1124, lo[index[number]])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
