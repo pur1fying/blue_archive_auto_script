@@ -94,6 +94,12 @@ def interaction_for_cafe_solve_method3(self):
         img = cv2.resize(self.latest_img_array, (1280, 720), interpolation=cv2.INTER_AREA)
         res = match(img)
         gift_to_cafe(self)
+        index = 0
+        while index < len(res):
+            if res[index][0] > 1174 and res[index][1] < 134:
+                res.pop(index)
+            else:
+                index += 1
         if res:
             res.sort(key=lambda x: x[0])
             temp = 0
@@ -116,6 +122,7 @@ def interaction_for_cafe_solve_method3(self):
                     temp += 1
                 else:
                     continue
+
             self.logger.info("totally find " + str(len(res)) + " interactions")
             for j in range(0, len(res)):
                 self.click(res[j][0], min(res[j][1], 591), wait_over=True)

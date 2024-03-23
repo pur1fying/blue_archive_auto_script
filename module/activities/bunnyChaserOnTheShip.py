@@ -13,6 +13,7 @@ def implement(self):
     if len(times) > 0:
         sweep(self, region, times)
     drawCard(self)
+    return True
 
 
 def preprocess_activity_region(region):
