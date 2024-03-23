@@ -438,7 +438,7 @@ def drawCardFourOfFour(self):
     if res == "activity_draw-card-grey":
         return "activity_draw-card-grey"
     rgb_possibles = {
-        "reward_acquired": (1042, 593),
+        "reward_acquired": (640, 100),
     }
-    img_ends = "activity_card-store",
+    img_ends = "activity_card-store"
     return picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
