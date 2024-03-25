@@ -84,7 +84,11 @@ def to_refresh(self):
         "shop_refresh-unavailable-notice"
     ]
     rgb_possibles = {"tactical_challenge_shop": (1160, 664)}
-    res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
+    img_pop_ups = {
+        'main_page_full-notice': (887, 165),
+        "main_page_insufficient-inventory-space": (910, 138),
+    }
+    res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True, img_pop_ups=img_pop_ups)
     if res == "shop_refresh_guide" or res == "shop_refresh-notice":
         return True
     return False
