@@ -103,8 +103,13 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
         'main_page': (1195, 576),
     }
     img_ends = 'arena_menu'
+    arena_location = {
+        'CN': (1093, 524),
+        'Global': (1093, 524),
+        'JP': (877, 599),
+    }
     img_possibles = {
-        'main_page_bus': (1093, 524),
+        'main_page_bus': arena_location[self.server],
         'arena_battle-win': (640, 530),
         'arena_battle-lost': (640, 468),
         'arena_season-record': (640, 538),

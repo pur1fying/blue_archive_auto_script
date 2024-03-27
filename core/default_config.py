@@ -536,7 +536,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "bunnyChaserOnTheShip",
         "Global": null,
-        "JP": "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory"
+        "JP": "livelyAndJoyfulWalkingTour"
     },
     "package_name": {
         "官服": "com.RoamingStar.BlueArchive",

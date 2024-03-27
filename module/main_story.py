@@ -32,24 +32,23 @@ def implement(self):
 
 
 def judge_acc(self):
-    if color.judge_rgb_range(self, 1170, 621, 200, 255, 200, 255, 200, 255) and \
+    if color.judge_rgb_range(self, 1180, 621, 200, 255, 200, 255, 200, 255) and \
         color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
         return 1
     elif color.judge_rgb_range(self, 1250, 621, 100, 150, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1170, 621, 100, 155, 200, 255, 200, 255):
+        color.judge_rgb_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
         return 2
     elif color.judge_rgb_range(self, 1250, 621, 210, 255, 180, 240, 0, 80) and \
-        color.judge_rgb_range(self, 1170, 621, 200, 255, 180, 240, 0, 80):
+        color.judge_rgb_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
         return 3
-    return 'UNKNOWN'
 
 
 def judge_auto(self):
-    if color.judge_rgb_range(self, 1250, 677, 200, 255, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1170, 677, 200, 255, 200, 255, 200, 255):
+    if color.judge_rgb_range(self, 1250, 677, 180, 255, 180, 255, 200, 255) and \
+        color.judge_rgb_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
         return 'off'
-    elif color.judge_rgb_range(self, 1250, 677, 200, 255, 180, 240, 0, 80) and \
-        color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 240, 0, 80):
+    elif color.judge_rgb_range(self, 1250, 677, 200, 255, 180, 255, 0, 80) and \
+        color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
         return 'on'
 
 
@@ -59,10 +58,10 @@ def change_acc_auto(self):
     acc_phase = judge_acc(self)
     if acc_phase == 1:
         self.logger.info("CHANGE acceleration phase from 1 to 3")
-        self.click(1215, y,  wait_over=True, count=2)
+        self.click(1215, y, wait_over=True, count=2)
     elif acc_phase == 2:
         self.logger.info("CHANGE acceleration phase from 2 to 3")
-        self.click(1215, y,  wait_over=True)
+        self.click(1215, y, wait_over=True)
     elif acc_phase == 3:
         self.logger.info("ACCELERATION phase 3")
     else:
@@ -86,7 +85,7 @@ def enter_fight(self):
     }
     rgb_ends = "fighting_feature"
     img_pop_ups = {"activity_choose-buff": (644, 570)}
-    picture.co_detect(self, rgb_ends, None,None,  img_possibles, True, img_pop_ups=img_pop_ups)
+    picture.co_detect(self, rgb_ends, None, None, img_possibles, True, img_pop_ups=img_pop_ups)
 
 
 def auto_fight(self, need_change_acc=True):
@@ -164,7 +163,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
     ]
     res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     if res == "main_story_continue-plot":
-        self.click(772, 516,  wait_over=True)
+        self.click(772, 516, wait_over=True)
         return clear_current_plot(self)
     if res == "main_story_episode-cleared-feature" or res == "main_story_plot-index":
         return res

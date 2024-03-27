@@ -6,6 +6,7 @@ func_names = {
     "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory": activity.Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory.explore_challenge,
     "revolutionKupalaNight": activity.revolutionKupalaNight.explore_challenge,
     # "bunnyChaserOnTheShip": activity.bunnyChaserOnTheShip.explore_challenge,
+    "livelyAndJoyfulWalkingTour": activity.livelyAndJoyfulWalkingTour.explore_challenge,
 }
 
 

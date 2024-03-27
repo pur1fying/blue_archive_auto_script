@@ -168,6 +168,7 @@ def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
         },
         'JP': {
             'main_page_news': (1142, 104),
+            'main_page_download-additional-resources': (769, 535),
         },
         'Global': {
             'main_page_news': (1227, 56),

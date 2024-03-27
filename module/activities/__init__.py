@@ -6,3 +6,4 @@ from module.activities import reckless_nun_and_the_witch_in_the_old_library
 from module.activities import Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory
 from module.activities import revolutionKupalaNight
 from module.activities import bunnyChaserOnTheShip
+from module.activities import livelyAndJoyfulWalkingTour

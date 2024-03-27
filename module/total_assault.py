@@ -210,8 +210,13 @@ def judge_and_collect_reward(self):
 
 def to_total_assault(self, skip_first_screenshot):
     rgb_possibles = {"main_page": (1193, 572)}
+    totalAssaultIconLocation = {
+        'CN': (922, 447),
+        'Global': (922, 447),
+        'JP': (879, 441),
+    }
     img_possibles = {
-        "main_page_bus": (922, 447),
+        "main_page_bus": totalAssaultIconLocation[self.server],
         "total_assault_battle-lost-confirm": (640, 636),
         "total_assault_battle-win-confirm": (1144, 649),
         "total_assault_room-info": (1123, 168),

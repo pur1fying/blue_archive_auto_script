@@ -9,6 +9,7 @@ func_names = {
     "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory": activity.Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory.implement,
     "revolutionKupalaNight": activity.revolutionKupalaNight.implement,
     "bunnyChaserOnTheShip": activity.bunnyChaserOnTheShip.implement,
+    "livelyAndJoyfulWalkingTour": activity.livelyAndJoyfulWalkingTour.implement,
 }
 
 
