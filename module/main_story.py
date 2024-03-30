@@ -81,7 +81,7 @@ def change_acc_auto(self):
 def enter_fight(self):
     img_possibles = {
         'normal_task_present': (640, 519),
-        'normal_task_teleport-notice': (767, 501)
+        'normal_task_teleport-notice': (886, 165)
     }
     rgb_ends = "fighting_feature"
     img_pop_ups = {"activity_choose-buff": (644, 570)}

@@ -1,6 +1,6 @@
 import importlib
 import time
-from core import color, picture
+from core import color, picture, image
 from module import main_story
 from module.explore_normal_task import common_gird_method
 
@@ -215,36 +215,63 @@ def explore_mission(self):
 def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
+    tp = [
+        "fight",
+        "grid",
+        "grid",
+        "fight",
+    ]
     tasks = [
+        "challenge1_burst1",
         "challenge2_sss",
         "challenge2_task",
-        "challenge4_sss",
-        "challenge4_task",
+        "challenge3_burst1",
     ]
     stage_data = get_stage_data()
-    for i in range(0, len(tasks)):
-        current_task_stage_data = stage_data[tasks[i]]
+    i = 0
+    while self.flag_run and i < len(tasks):
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))
-        to_challenge_task_info(self, task_number)
-        need_fight = False
-        if "task" in data:
-            need_fight = True
-        elif "sss" in data:
-            res = color.check_sweep_availability(self)
-            if res == "sss":
-                self.logger.info("Challenge " + str(task_number) + " sss no need to fight")
-                to_activity(self, "challenge", True)
-                continue
-            elif res == "no-pass" or res == "pass":
-                need_fight = True
-        if need_fight:
-            common_gird_method(self, current_task_stage_data)
+        res = to_challenge_task_info(self, task_number)
+        if res == "normal_task_SUB":
+            self.logger.info("-- Start SUB fight --")
+            to_formation_edit_i(self, 1, [1087, 141], True)
+            start_fight(self, 1)
             main_story.auto_fight(self)
-            if self.config['manual_boss']:
-                self.click(1235, 41)
-            to_activity(self, "mission", True)
-            to_activity(self, "challenge", True, True)
+        elif res == "normal_task_task-info":
+            if tp[i] == "grid":
+                current_task_stage_data = stage_data[tasks[i]]
+                need_fight = False
+                if "task" in data:
+                    need_fight = True
+                elif "sss" in data:
+                    res = color.check_sweep_availability(self)
+                    if res == "sss":
+                        self.logger.info("Challenge " + str(task_number) + " sss no need to fight")
+                        to_activity(self, "challenge", True)
+                        i += 1
+                        continue
+                    elif res == "no-pass" or res == "pass":
+                        need_fight = True
+                if need_fight:
+                    common_gird_method(self, current_task_stage_data)
+                    i += 1
+                main_story.auto_fight(self)
+                if self.config['manual_boss']:
+                    self.click(1235, 41)
+            elif tp[i] == "fight":
+                res = color.check_sweep_availability(self)
+                if res == "sss":
+                    self.logger.info("Challenge " + str(task_number) + " sss no need to fight")
+                    to_activity(self, "challenge", True)
+                    i += 1
+                    continue
+                formationID = self.config[data[1]]
+                to_formation_edit_i(self, formationID, (949, 540), True)
+                start_fight(self, formationID)
+                main_story.auto_fight(self)
+        to_activity(self, "mission", True)
+        to_activity(self, "challenge", True, True)
 
 
 def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
@@ -331,13 +358,16 @@ def to_mission_task_info(self, number):
 
 
 def to_challenge_task_info(self, number):
-    lo = [0, 194, 293, 390, 492, 574]
+    lo = [0, 178, 279, 377, 477, 564]
     img_possibles = {'activity_menu': (1124, lo[number])}
-    img_ends = "normal_task_task-info"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    img_ends = [
+        "normal_task_task-info",
+        "normal_task_SUB"
+    ]
+    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
+def to_formation_edit_i(self, i, lo=(0, 0), skip_first_screenshot=False):
     loy = [195, 275, 354, 423]
     y = loy[i - 1]
     rgb_ends = "formation_edit" + str(i)
@@ -348,7 +378,10 @@ def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
         "formation_edit4": (74, y),
     }
     rgb_possibles.pop("formation_edit" + str(i))
-    img_possibles = {"normal_task_task-info": (lo[0], lo[1])}
+    img_possibles = {
+        "normal_task_task-info": (lo[0], lo[1]),
+        "normal_task_SUB": (647, 517)
+    }
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
