@@ -23,7 +23,7 @@ class Layout(TemplateLayout):
         ]
 
         super().__init__(parent=parent, configItems=configItems, config=config)
- 
+
     def _choose_file(self, line_edit):
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.ExistingFile)
@@ -34,4 +34,4 @@ class Layout(TemplateLayout):
             if file_names:
                 file_path = file_names[0]
                 line_edit.setText(file_path)
-                self.config.set('program_address', file_path) 
+                self.config.set('program_address', file_path)

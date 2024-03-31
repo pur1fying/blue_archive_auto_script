@@ -39,6 +39,7 @@ class TemplateLayout(QWidget):
 
         for ind, cfg in enumerate(configItems):
             confirmButton = None
+            selectButton = None
             optionPanel = QHBoxLayout(self)
             labelComponent = QLabel(cfg.label, self)
             optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
@@ -84,15 +85,12 @@ class TemplateLayout(QWidget):
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 inputComponent.setFixedWidth(500)  # 设置文本框的固定宽度
-                inputComponent.move(20, 10)  # 设置文本框的位置
                 inputComponent.setText(str(self.config.get(currentKey)))
                 confirmButton = PushButton('确定', self)
                 confirmButton.setFixedWidth(80)  # 设置确定按钮的固定宽度
-                confirmButton.move(330, 10)  # 设置确定按钮的位置
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
                 selectButton = PushButton('选择', self)
                 selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
-                selectButton.move(620, 17)  # 设置选择按钮的位置
                 selectButton.clicked.connect(partial(self._choose_file, inputComponent))
                 h_layout = QHBoxLayout()
                 self.setLayout(h_layout)
@@ -103,6 +101,8 @@ class TemplateLayout(QWidget):
             else:
                 raise ValueError(f'Unknown config type: {cfg.type}')
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
+            if selectButton is not None:
+                optionPanel.addWidget(selectButton, 0, Qt.AlignRight)
             if confirmButton is not None:
                 optionPanel.addWidget(confirmButton, 0, Qt.AlignRight)
             self.vBoxLayout.addLayout(optionPanel)
