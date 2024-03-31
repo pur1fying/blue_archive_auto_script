@@ -92,12 +92,6 @@ class TemplateLayout(QWidget):
                 selectButton = PushButton('选择', self)
                 selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
                 selectButton.clicked.connect(partial(self._choose_file, inputComponent))
-                h_layout = QHBoxLayout()
-                self.setLayout(h_layout)
-                h_layout.addWidget(inputComponent)
-                h_layout.addWidget(confirmButton)
-                # 将选择按钮插入到确定按钮之前
-                h_layout.insertWidget(3, selectButton)
             else:
                 raise ValueError(f'Unknown config type: {cfg.type}')
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
