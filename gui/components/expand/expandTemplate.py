@@ -1,7 +1,7 @@
 from typing import Union
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QGridLayout
 from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
 from functools import partial
@@ -67,6 +67,39 @@ class TemplateLayout(QWidget):
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':
                 inputComponent = QLabel(cfg.selection, self)
+            elif cfg.type == 'text_and_file_button':  # 新添加的配置类型
+                # currentKey = cfg.key
+                # inputComponentLayout = QHBoxLayout()
+                # inputComponent = LineEdit(self)
+                # inputComponent.setText(str(self.config[currentKey]))
+                # inputComponentLayout.addWidget(inputComponent)
+                # self.patch_signal.connect(inputComponent.setText)
+                # fileButton = PushButton('选择', self)
+                # fileButton.clicked.connect(partial(self._choose_file, inputComponent))
+                # inputComponentLayout.addWidget(fileButton)
+                # confirmButton = PushButton('确定', self)
+                # confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
+                # inputComponentLayout.addWidget(confirmButton)
+                # self.vBoxLayout.addLayout(inputComponentLayout)
+                currentKey = cfg.key
+                inputComponent = LineEdit(self)
+                inputComponent.setFixedWidth(500)  # 设置文本框的固定宽度
+                inputComponent.move(20, 10)  # 设置文本框的位置
+                inputComponent.setText(str(self.config.get(currentKey)))
+                confirmButton = PushButton('确定', self)
+                confirmButton.setFixedWidth(80)  # 设置确定按钮的固定宽度
+                confirmButton.move(330, 10)  # 设置确定按钮的位置
+                confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
+                selectButton = PushButton('选择', self)
+                selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
+                selectButton.move(620, 17)  # 设置选择按钮的位置
+                selectButton.clicked.connect(partial(self._choose_file, inputComponent))
+                h_layout = QHBoxLayout()
+                self.setLayout(h_layout)
+                h_layout.addWidget(inputComponent)
+                h_layout.addWidget(confirmButton)
+                # 将选择按钮插入到确定按钮之前
+                h_layout.insertWidget(3, selectButton)
             else:
                 raise ValueError(f'Unknown config type: {cfg.type}')
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
