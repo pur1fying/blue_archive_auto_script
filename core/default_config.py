@@ -534,7 +534,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "null",
+        "CN": null,
         "Global": null,
         "JP": "livelyAndJoyfulWalkingTour"
     },
