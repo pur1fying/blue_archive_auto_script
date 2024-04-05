@@ -10,6 +10,12 @@ import uiautomator2 as u2
 import module
 import threading
 import json
+from multiprocessing import process
+import subprocess
+import psutil
+import os
+import win32com.client
+import time
 
 func_dict = {
     'group': module.group.implement,
@@ -133,9 +139,68 @@ class Baas_thread:
     def init_emulator(self):
         self._init_emulator()
 
+    def convert_lnk_to_exe(self,lnk_path):
+        """判断program_addrsss是否为lnk文件，如果是则转换为exe文件地址存入config文件"""
+        if lnk_path.endswith(".lnk"):
+            shell = win32com.client.Dispatch("WScript.Shell")
+            shortcut = shell.CreateShortCut(lnk_path)
+            self.config.set("program_address", shortcut.Targetpath)
+
+    def extract_filename_and_extension(self,file_path):
+        """从文件路径中提取文件名和后缀"""
+        file_name_with_extension = os.path.basename(file_path)
+        return file_name_with_extension
+
+    def check_process_running(self,process_name):
+        """检测指定名称的进程是否正在运行"""
+        # return any(proc.info['name'] == process_name for proc in psutil.process_iter(['pid', 'name']))
+        for proc in psutil.process_iter(['pid', 'name']):
+            if proc.info['name'] == process_name:
+                return True
+            return False
+
+
+
+    def start_check_emulator_stat(self,emulator_strat_stat,wait_time):
+        if emulator_strat_stat == True:
+            lnk_path = self.config.get("program_address")
+            self.convert_lnk_to_exe(lnk_path)
+            file_path = self.config.get("program_address")
+            self.process_name = self.extract_filename_and_extension(file_path)
+            # self.check_process_running(self.process_name
+            if self.check_process_running(self.process_name):
+                self.logger.info(f"模拟器进程 {self.process_name} 正在运行.")
+                return True
+            else:
+                self.logger.info(f"模拟器进程 {self.process_name} 未运行，开始启动模拟器")
+                subprocess.Popen(file_path)
+                # 等待程序启动一段时间，并检测模拟器是否启动
+                self.logger.info(f"等待模拟器启动时间 {wait_time} 秒")
+                # time.sleep(wait_time)
+                if self.check_process_running(self.process_name):
+                    self.logger.info(f"模拟器进程 {self.process_name} 启动成功.")
+                    return True
+                else:
+                    self.logger.info(f"模拟器进程 {self.process_name} 启动失败.")
+                return False
+        else:
+            self.logger.info("无需启动模拟器进程.")
+            return False
+
+    def start_emulator(self):
+        self.emulator_strat_stat = self.config.get("open_emulator_stat")
+        self.wait_time = self.config.get("emulator_wait_time")
+        self.start_check_emulator_stat(self.emulator_strat_stat,self.wait_time)
+        
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
         self.logger.info("--------------Init Emulator----------------")
+        try:
+            self.start_emulator()
+        except Exception as e:
+            self.logger.error(e)
+            self.logger.error("Emulator start failed")
+            return False
         try:
             self.adb_port = self.config.get('adbPort')
             self.logger.info("adb port: " + str(self.adb_port))
