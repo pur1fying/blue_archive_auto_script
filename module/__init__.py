@@ -26,4 +26,3 @@ from module import explore_activity_story
 from module import explore_activity_challenge
 from module import explore_activity_mission
 from module import sweep_activity
-from module import start_emulator
