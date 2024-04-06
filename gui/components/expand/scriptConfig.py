@@ -11,7 +11,7 @@ class Layout(QWidget):
         super().__init__(parent=parent)
         self.config = config
         self.info_widget = self.parent().parent().parent()
-        self.serverLabel = QLabel('请填写您的截图间隔：', self)
+        self.serverLabel = QLabel(self.tr('请填写您的截图间隔：'), self)
         self.screenshot_box = LineEdit(self)
         validator = QDoubleValidator(0.0, 65535.0, 2, self)
         self.screenshot_box.setValidator(validator)
@@ -33,8 +33,8 @@ class Layout(QWidget):
         self.config.set('screenshot_interval', changed_text)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你的截屏间隔已经被设置为：{changed_text}',
+            title=self.tr('设置成功'),
+            content=self.tr('你的截屏间隔已经被设置为：') + f'{changed_text}',
             orient=Qt.Vertical,  # vertical layout
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,

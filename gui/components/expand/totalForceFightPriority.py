@@ -9,8 +9,7 @@ class Layout(QWidget):
         self.config = config
         self.info_widget = self.parent()
         self.hBoxLayout = QHBoxLayout(self)
-        # self.label = QLabel('输入最高难度', self)
-        self.label = QLabel('最高难度', self)
+        self.label = QLabel(self.tr('最高难度'), self)
         self.input = ComboBox(self)
         self.difficulties = self.config.static_config['total_assault_difficulties'][self.config.server_mode]
         self.input.addItems(self.difficulties)
@@ -33,8 +32,8 @@ class Layout(QWidget):
         self.config.set('totalForceFightDifficulty', self.input.text())
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你的总力战最高难度已经被设置为：{self.input.text()}',
+            title=self.tr('设置成功'),
+            content=self.tr(f'你的总力战最高难度已经被设置为：') + f'{self.input.text()}',
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,

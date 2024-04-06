@@ -16,7 +16,9 @@ from qfluentwidgets import (
 )
 
 from core.notification import notify
+from gui.i18n.language import baasTranslator as bt
 from window import Window
+
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
 
@@ -48,10 +50,10 @@ class HomeFragment(QFrame):
         self.info_box.setFixedHeight(45)
         self.infoLayout = QHBoxLayout(self.info_box)
 
-        title = f'蔚蓝档案自动脚本 {self.config.get("name")}'
+        title = self.tr("蔚蓝档案自动脚本") + f' {self.config.get("name")}'
         self.banner_visible = self.config.get('bannerVisibility')
         self.label = SubtitleLabel(title, self)
-        self.info = SubtitleLabel('无任务', self)
+        self.info = SubtitleLabel(self.tr('无任务'), self)
         setFont(self.label, 24)
         setFont(self.info, 24)
 
@@ -72,7 +74,7 @@ class HomeFragment(QFrame):
             self.tr('启动'),
             FIF.CARE_RIGHT_SOLID,
             self.tr('档案，启动'),
-            '开始你的档案之旅',
+            self.tr('开始你的档案之旅'),
             self
         )
 
@@ -112,9 +114,9 @@ class HomeFragment(QFrame):
             with open('./config/' + self.config.config_dir + '/display.json', 'r', encoding='utf-8') as f:
                 config = json.load(f)
             if config['running'] is None or config['running'] == 'Empty':
-                self.info.setText('无任务')
+                self.info.setText(self.tr('无任务'))
             else:
-                self.info.setText('正在运行：' + config['running'])
+                self.info.setText(self.tr('正在运行：') + f" {bt.tr('ConfigTranslation', config['running'])}")
             if parent:
                 parent.call_update()
         except JSONDecodeError:
@@ -122,8 +124,9 @@ class HomeFragment(QFrame):
             print("Empty JSON data")
 
     def set_button_state(self, state):
+        state = bt.tr('MainThread', state)
         self.startup_card.button.setText(state)
-        self._main_thread_attach.running = True if state == "停止" else False
+        self._main_thread_attach.running = True if state == bt.tr("MainThread", "停止") else False
 
     def __initLayout(self):
         self.expandLayout.setSpacing(28)
@@ -176,7 +179,7 @@ class MainThread(QThread):
 
     def run(self):
         self.running = True
-        self.display('停止')
+        self.display(self.tr("停止"))
         self._init_script()
         self._main_thread.logger.info("Starting Blue Archive Auto Script...")
         self._main_thread.send('start')
@@ -185,7 +188,7 @@ class MainThread(QThread):
         self.running = False
         if self._main_thread is None:
             return
-        self.display('启动')
+        self.display(self.tr("启动"))
         self._main_thread.send('stop')
         self.exit(0)
 
@@ -202,68 +205,67 @@ class MainThread(QThread):
 
     def start_hard_task(self):
         self._init_script()
-        self.display('停止')
+        self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'explore_hard_task'):
-            notify(title='BAAS', body='困难图推图已完成')
-        self.display('启动')
+            notify(title='BAAS', body=self.tr('困难图推图已完成'))
+        self.display(self.tr("启动"))
 
     def start_normal_task(self):
         self._init_script()
-        self.display('停止')
+        self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'explore_normal_task'):
-            notify(title='BAAS', body='普通图推图已完成')
-        self.display('启动')
+            notify(title='BAAS', body=self.tr('普通图推图已完成'))
+        self.display(self.tr("启动"))
 
     def start_fhx(self):
         self._init_script()
         if self._main_thread.send('solve', 'de_clothes'):
-            notify(title='BAAS', body='反和谐成功，请重启BA下载资源')
+            notify(title='BAAS', body=self.tr('反和谐成功，请重启BA下载资源'))
 
     def start_main_story(self):
         self._init_script()
-        self.display('停止')
+        self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'main_story'):
             if self._main_thread.flag_run:
-                notify(title='BAAS', body='主线剧情已完成')
-        self.display('启动')
+                notify(title='BAAS', body=self.tr('主线剧情已完成'))
+        self.display(self.tr("启动"))
 
     def start_group_story(self):
         self._init_script()
-        self.display('停止')
+        self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'group_story'):
             if self._main_thread.flag_run:
-                notify(title='BAAS', body='小组剧情已完成')
-        self.display('启动')
+                notify(title='BAAS', body=self.tr('小组剧情已完成'))
+        self.display(self.tr("启动"))
 
     def start_mini_story(self):
         self._init_script()
-        self.display('停止')
+        self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'mini_story'):
             if self._main_thread.flag_run:
-                notify(title='BAAS', body='支线剧情已完成')
-        self.display('启动')
+                notify(title='BAAS', body=self.tr('支线剧情已完成'))
+        self.display(self.tr("启动"))
 
     def start_explore_activity_story(self):
         self._init_script()
-        self.display('停止')
+        self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'explore_activity_story'):
             if self._main_thread.flag_run:
-                notify(title='BAAS', body='活动剧情已完成')
-        self.display('启动')
+                notify(title='BAAS', body=self.tr('活动剧情已完成'))
+        self.display(self.tr("启动"))
 
     def start_explore_activity_mission(self):
         self._init_script()
-        self.display('停止')
+        self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'explore_activity_mission'):
             if self._main_thread.flag_run:
-                notify(title='BAAS', body='活动任务已完成')
-        self.display('启动')
+                notify(title='BAAS', body=self.tr('活动任务已完成'))
+        self.display(self.tr("启动"))
 
     def start_explore_activity_challenge(self):
         self._init_script()
-        self.display('停止')
+        self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'explore_activity_challenge'):
             if self._main_thread.flag_run:
-                notify(title='BAAS', body='活动挑战推图已完成')
-        self.display('启动')
-
+                notify(title='BAAS', body=self.tr('活动挑战推图已完成'))
+        self.display(self.tr("启动"))

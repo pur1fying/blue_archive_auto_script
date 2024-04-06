@@ -7,16 +7,17 @@ import sys
 import threading
 from functools import partial
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal
+from PyQt5.QtCore import Qt, QLocale, QSize, QTranslator, QPoint, pyqtSignal
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout
-from qfluentwidgets import FluentIcon as FIF, SplashScreen, MSFluentWindow, TabBar, \
+from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
     MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition, TransparentToolButton
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from core import default_config
 from gui.components.dialog_panel import SaveSettingMessageBox
 from gui.fragments.readme import ReadMeWindow
+from gui.i18n.language import cfg, baasTranslator as bt
 from gui.util.config_set import ConfigSet
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
@@ -182,7 +183,7 @@ class BAASTitleBar(MSFluentTitleBar):
         self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
 
         self.searchButton = TransparentToolButton(FIF.HELP.icon(), self)
-        self.searchButton.setToolTip('帮助')
+        self.searchButton.setToolTip(self.tr('帮助'))
         self.searchButton.clicked.connect(self.onHelpButtonClicked)
         # self.tabBar.tabCloseRequested.connect(self.tabRemoveRequest)
 
@@ -263,9 +264,9 @@ class Window(MSFluentWindow):
 
     def initNavigation(self):
         self.navi_btn_list = [
-            self.addSubInterface(self.homeInterface, FIF.HOME, '主页'),
-            self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '配置'),
-            self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
+            self.addSubInterface(self.homeInterface, FIF.HOME, self.tr('主页')),
+            self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, self.tr('配置')),
+            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置'))
         ]
 
         for ind, btn in enumerate(self.navi_btn_list):
@@ -298,7 +299,7 @@ class Window(MSFluentWindow):
     @staticmethod
     def showHelpModal():
         helpModal = ReadMeWindow()
-        helpModal.setWindowTitle('帮助')
+        helpModal.setWindowTitle(helpModal.tr('帮助'))
         helpModal.setWindowIcon(QIcon(ICON_DIR))
         helpModal.resize(800, 600)
         helpModal.setFocus()
@@ -336,7 +337,7 @@ class Window(MSFluentWindow):
             if text in list(map(lambda x: x.config['name'], self.config_dir_list)):
                 ib = InfoBar(
                     icon=InfoBarIcon.ERROR,
-                    title='设置成功',
+                    title=self.tr('设置成功'),
                     content=f'名为“{text}”的配置已经存在！',
                     orient=Qt.Vertical,  # vertical layout
                     position=InfoBarPosition.TOP_RIGHT,
@@ -370,8 +371,8 @@ class Window(MSFluentWindow):
 
     def onTabCloseRequested(self, i0):
         config_name = self._sub_list[0][i0].config["name"]
-        title = f'是否要删除配置：{config_name}？'
-        content = """你需要在确认后重启BAAS以完成更改。"""
+        title = self.tr('是否要删除配置：') +  f' {config_name}？'
+        content = self.tr("""你需要在确认后重启BAAS以完成更改。""")
         closeRequestBox = MessageBox(title, content, self)
         if closeRequestBox.exec():
             shutil.rmtree(f'./config/{self._sub_list[0][i0].config.config_dir}')
@@ -405,6 +406,15 @@ if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
     app = QApplication(sys.argv)
+
+    # internationalization
+    locale = cfg.get(cfg.language).value
+    translator = FluentTranslator(locale)
+    bt.load("gui/i18n/" + locale.name())
+
+    app.installTranslator(translator)
+    app.installTranslator(bt)
+    
     w = Window()
     # 聚焦窗口
     w.setFocus(True)

@@ -23,6 +23,8 @@
 !ui.png
 !window.py
 !window.spec
+!i18n.pro
+!auto_translate.py
 src/explore_task_data/__pycache__/normal_task_11.cpython-39.pyc
 *.pyc
 *.xml

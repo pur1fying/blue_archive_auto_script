@@ -9,6 +9,9 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel)
 
+from gui.i18n.language import baasTranslator as bt
+
+
 lock = threading.Lock()
 DISPLAY_CONFIG_PATH = './config/display.json'
 
@@ -42,15 +45,15 @@ class ProcessFragment(ScrollArea):
                 with open(DISPLAY_CONFIG_PATH, 'r', encoding='utf-8') as f:
                     _event_display = json.load(f)
                     if _event_display['running'] is not None:
-                        self.on_status.setText(_event_display['running'])
+                        self.on_status.setText(bt.tr('ConfigTranslation', _event_display['running']))
                     else:
-                        self.on_status.setText("暂无正在执行的任务")
+                        self.on_status.setText(self.tr("暂无正在执行的任务"))
                     if _event_display['queue'] is not None:
                         self.listWidget.clear()
-                        self.listWidget.addItems(_event_display['queue'])
+                        self.listWidget.addItems(bt.tr('ConfigTranslation', _event_display['queue']))
                     else:
                         self.listWidget.clear()
-                        self.listWidget.addItems(["暂无队列中的任务"])
+                        self.listWidget.addItems([self.tr("暂无队列中的任务")])
             time.sleep(2)
 
     def __initLayout(self):

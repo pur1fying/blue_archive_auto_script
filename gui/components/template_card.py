@@ -5,6 +5,8 @@ from qfluentwidgets import ExpandSettingCard, SwitchButton, \
     IndicatorPosition, LineEdit
 from qfluentwidgets import FluentIcon as FIF
 
+from gui.i18n.language import baasTranslator as bt
+
 
 class TemplateSettingCard(ExpandSettingCard):
     """ Folder list setting card """
@@ -12,7 +14,9 @@ class TemplateSettingCard(ExpandSettingCard):
     # statusChanged = pyqtSignal(bool)
     # timeChanged = pyqtSignal(str)
 
-    def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None, config=None):
+    def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None, config=None, context=None):
+        if context is not None:
+            title, content = bt.tr(context, title), bt.tr(context, content)
         super().__init__(FIF.CHECKBOX, title, content, parent)
         # Card Top Widgets
         # self.status_switch = SwitchButton(self.tr('Off'), self, IndicatorPosition.RIGHT)
@@ -56,7 +60,9 @@ class TemplateSettingCard(ExpandSettingCard):
 class SimpleSettingCard(ExpandSettingCard):
     """ Folder list setting card """
 
-    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None):
+    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None, context=None):
+        if context is not None:
+            title, content = bt.tr(context, title), bt.tr(context, content)
         super().__init__(FIF.CHECKBOX, title, content, parent)
         self.expand_view = sub_view.Layout(self, config)
         self._adjustViewSize()

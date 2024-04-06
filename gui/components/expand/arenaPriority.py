@@ -13,12 +13,12 @@ class Layout(QWidget):
         self.hBoxLayout = QVBoxLayout(self)
         self.lay_1 = QHBoxLayout(self)
         self.lay_2 = QHBoxLayout(self)
-        self.label_1 = QLabel('输入你需要对手比你低几级，高几级则填负数：', self)
-        self.label_2 = QLabel('输入你最多需要刷新几次：', self)
+        self.label_1 = QLabel(self.tr('输入你需要对手比你低几级，高几级则填负数：'), self)
+        self.label_2 = QLabel(self.tr('输入你最多需要刷新几次：'), self)
         self.input_1 = LineEdit(self)
         self.input_2 = LineEdit(self)
-        self.accept_1 = QPushButton('确定', self)
-        self.accept_2 = QPushButton('确定', self)
+        self.accept_1 = QPushButton(self.tr('确定'), self)
+        self.accept_2 = QPushButton(self.tr('确定'), self)
 
         self.level_diff = self.config.get('ArenaLevelDiff')
         validator_1 = QIntValidator(-50, 50)
@@ -54,8 +54,8 @@ class Layout(QWidget):
         self.config.set('ArenaLevelDiff', self.level_diff)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你需要对手比你低{self.level_diff}级',
+            title=self.tr('设置成功'),
+            content=self.tr('你需要对手比你低') + f'{self.level_diff}' + self.tr('级'),
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,
@@ -68,8 +68,8 @@ class Layout(QWidget):
         self.config.set('maxArenaRefreshTimes', self.refresh_times)
         w = InfoBar(
             icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你最大刷新次数设置为：{self.refresh_times}',
+            title=self.tr('设置成功'),
+            content=self.tr('你最大刷新次数设置为：') + f'{self.refresh_times}',
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,

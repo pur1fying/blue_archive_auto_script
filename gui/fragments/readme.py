@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QFrame, QVBoxLayout
 from qfluentwidgets import FluentIcon as FIF, FluentWindow, TextEdit
 import os
 
+from gui.i18n.language import cfg
+
 
 class ReadMeInterface(QFrame):
     def __init__(self, content: str):
@@ -24,7 +26,7 @@ class ReadMeWindow(FluentWindow):
         super().__init__()
         docs = []
 
-        path = './src/descriptions/'
+        path = self.getPath()
         for file in os.listdir(path):
             filepath = os.path.join(path, file)
             filename = file.split('.')[0]
@@ -35,6 +37,14 @@ class ReadMeWindow(FluentWindow):
         for doc in docs:
             self.addSubInterface(interface=ReadMeInterface(doc['content']), icon=FIF.TAG, text=doc['title'])
         self.show()
+
+    def getPath(self):
+        locale = cfg.get(cfg.language).value
+        suffix = locale.name()
+        directory = f'./src/descriptions_{suffix}'
+        if os.path.isdir(directory):
+            return directory
+        return './src/descriptions/'
 
 
 if __name__ == '__main__':

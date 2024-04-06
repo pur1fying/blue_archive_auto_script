@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
 from functools import partial
+from gui.i18n.language import baasTranslator as bt
 
 
 class ConfigItem:
@@ -23,7 +24,7 @@ class ConfigItem:
 class TemplateLayout(QWidget):
     patch_signal = pyqtSignal(str)
 
-    def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config=None):
+    def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config=None, context=None):
         super().__init__(parent=parent)
         self.config = config
         if isinstance(configItems[0], dict):
@@ -40,7 +41,7 @@ class TemplateLayout(QWidget):
         for ind, cfg in enumerate(configItems):
             confirmButton = None
             optionPanel = QHBoxLayout(self)
-            labelComponent = QLabel(cfg.label, self)
+            labelComponent = QLabel(bt.tr(context, cfg.label), self)
             optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
             optionPanel.addStretch(1)
             if cfg.type == 'switch':
@@ -51,19 +52,22 @@ class TemplateLayout(QWidget):
             elif cfg.type == 'combo':
                 currentKey = cfg.key
                 inputComponent = ComboBox(self)
+                cfg.selection = [bt.tr(context, x) for x in cfg.selection] if context else cfg.selection
                 inputComponent.addItems(cfg.selection)
                 inputComponent.setCurrentIndex(cfg.selection.index(self.config.get(currentKey)))
                 inputComponent.currentIndexChanged.connect(
                     partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'button':
-                inputComponent = PushButton('执行', self)
+                # impossible to translate without specifying TemplateLayout context
+                text = bt.tr('TemplateLayout', self.tr('执行'))
+                inputComponent = PushButton(text, self)
                 inputComponent.clicked.connect(cfg.selection)
             elif cfg.type == 'text':
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 inputComponent.setText(str(self.config.get(currentKey)))
                 self.patch_signal.connect(inputComponent.setText)
-                confirmButton = PushButton('确定', self)
+                confirmButton = PushButton(self.tr('确定'), self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':
                 inputComponent = QLabel(cfg.selection, self)
@@ -87,8 +91,8 @@ class TemplateLayout(QWidget):
         self.config.set(key, value)
         infoChanged = InfoBar(
             icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'{labelTarget.text()}已经被设置为：{value}',
+            title=self.tr('设置成功'),
+            content=f'{labelTarget.text()}{bt.tr("TemplateLayout", "已经被设置为：")}{value}',
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,
