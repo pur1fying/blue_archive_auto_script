@@ -92,6 +92,9 @@ class Main:
                     temp.append(self.operate_item(item[i]))
             return temp
 
+    
+        
+
 
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
