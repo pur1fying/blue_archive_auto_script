@@ -171,6 +171,9 @@ class Baas_thread:
         return False
 
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
+        if wait_time < 20:
+            self.logger.warning("Wait time is too short, auto set to 20 seconds.")
+            wait_time = 20
         if emulator_strat_stat:
             self.lnk_path = self.config.get("program_address")
             self.convert_lnk_to_exe(self.lnk_path)
@@ -183,7 +186,13 @@ class Baas_thread:
                 self.logger.info(f"模拟器进程 {self.process_name} 未运行，开始启动模拟器")
                 subprocess.Popen(self.file_path)
                 self.logger.info(f"等待模拟器启动时间 {wait_time} 秒")
-                time.sleep(wait_time)
+                while self.flag_run:
+                    time.sleep(0.01)
+                    wait_time -= 0.01
+                    if wait_time <= 0:
+                        break
+                else:
+                    return False
                 if self.check_process_running(self.process_name):
                     self.logger.info(f"模拟器进程 {self.process_name} 启动成功.")
                     return True
@@ -192,13 +201,14 @@ class Baas_thread:
                 return False
         else:
             self.logger.info("无需启动模拟器进程.")
-            return False
+            return True
 
     def start_emulator(self):
         self.emulator_strat_stat = self.config.get("open_emulator_stat")
         self.wait_time = self.config.get("emulator_wait_time")
-        self.start_check_emulator_stat(self.emulator_strat_stat,self.wait_time)
-        
+        if not self.start_check_emulator_stat(self.emulator_strat_stat,self.wait_time):
+            raise Exception("Emulator start failed")
+
     def _init_emulator(self) -> bool:
         # noinspection PyBroadException
         self.logger.info("--------------Init Emulator----------------")
