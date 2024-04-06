@@ -36,6 +36,14 @@ class SettingsFragment(ScrollArea):
                 sub_view=expand.__dict__['scriptConfig'],
                 parent=self.basicGroup,
                 config=self.config
+            ),
+
+            SimpleSettingCard(
+                title="模拟器启动设置",
+                content="设置启动模拟器的路径",
+                sub_view=expand.__dict__['emulatorConfig'],
+                parent=self.basicGroup,
+                config=self.config
             )
         ]
 
