@@ -522,7 +522,8 @@ STATIC_DEFAULT_CONFIG = '''
             "Trinity Plaza Area",
             "Red Winter Federal Academy",
             "Hyakkiyako Central Area",
-            "D.U. Shiratori City"
+            "D.U. Shiratori City",
+            "Shanhaijing Main Special Zone"
         ],
         "JP": [
             "シャーレオフィス",
