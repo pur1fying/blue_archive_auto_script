@@ -2,201 +2,196 @@
 <TS version="2.1">
 <context>
     <name>BAASTitleBar</name>
-    <message>
-        <location filename="../../window.py" line="186"/>
-        <source>帮助</source>
-        <translation type="unfinished">Help</translation>
-    </message>
 </context>
 <context>
     <name>ConfigTranslation</name>
     <message>
-        <location filename="config_translation.py" line="32"/>
+        <location filename="config_translation.py" line="34"/>
         <source>每日特别委托</source>
         <translation type="unfinished">Special daily commission</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="33"/>
+        <location filename="config_translation.py" line="35"/>
         <source>悬赏通缉</source>
         <translation type="unfinished">Wanted for reward.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="51"/>
+        <location filename="config_translation.py" line="53"/>
         <source>竞技场</source>
         <translation type="unfinished">The arena.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="26"/>
+        <location filename="config_translation.py" line="28"/>
         <source>收集每日体力</source>
         <translation type="unfinished">Collect daily strength</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="27"/>
+        <location filename="config_translation.py" line="29"/>
         <source>收集小组体力</source>
         <translation type="unfinished">Collect team strength.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="48"/>
+        <location filename="config_translation.py" line="50"/>
         <source>商店购买</source>
         <translation type="unfinished">Shop purchase</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="47"/>
+        <location filename="config_translation.py" line="49"/>
         <source>日程</source>
         <translation type="unfinished">Schedule</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="50"/>
+        <location filename="config_translation.py" line="52"/>
         <source>主线清除体力</source>
         <translation type="unfinished">Main line removes strength</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="37"/>
+        <location filename="config_translation.py" line="39"/>
         <source>自动MomoTalk</source>
         <translation type="unfinished">AutoMomoTalk</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="46"/>
+        <location filename="config_translation.py" line="48"/>
         <source>咖啡厅</source>
         <translation type="unfinished">Café</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="28"/>
+        <location filename="config_translation.py" line="30"/>
         <source>查收邮箱</source>
         <translation type="unfinished">Check Mailbox</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="52"/>
+        <location filename="config_translation.py" line="54"/>
         <source>自动制造</source>
         <translation type="unfinished">Auto-manufacturing</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="38"/>
+        <location filename="config_translation.py" line="40"/>
         <source>收集奖励</source>
         <translation type="unfinished">Collection of awards</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="30"/>
+        <location filename="config_translation.py" line="32"/>
         <source>普通关清体力</source>
         <translation type="unfinished">It's normal.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="31"/>
+        <location filename="config_translation.py" line="33"/>
         <source>困难关清体力</source>
         <translation type="unfinished">It's hard to clean up.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="53"/>
+        <location filename="config_translation.py" line="55"/>
         <source>总力战</source>
         <translation type="unfinished">General</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="39"/>
+        <location filename="config_translation.py" line="41"/>
         <source>学院交流会</source>
         <translation type="unfinished">College Exchange</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="40"/>
+        <location filename="config_translation.py" line="42"/>
         <source>凌晨四点重启</source>
         <translation type="unfinished">Restarted at 4:00 a.m.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="41"/>
+        <location filename="config_translation.py" line="43"/>
         <source>活动扫荡</source>
         <translation type="unfinished">Activity sweep</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="44"/>
+        <location filename="config_translation.py" line="46"/>
         <source>新的配置</source>
         <translation type="unfinished">New Configuration</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="45"/>
+        <location filename="config_translation.py" line="47"/>
         <source>功能开关</source>
         <translation type="unfinished">Function Switches</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="49"/>
+        <location filename="config_translation.py" line="51"/>
         <source>竞技场商店购买</source>
         <translation type="unfinished">The arena store.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="54"/>
+        <location filename="config_translation.py" line="56"/>
         <source>扫荡及购买券设置</source>
         <translation type="unfinished">Sweeping and voucher settings</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="57"/>
+        <location filename="config_translation.py" line="59"/>
         <source>重要，此处为功能开关，控制各功能是否开启，启动前请检查是否开启。</source>
         <translation type="unfinished">Important, this is a functional switch, controls whether the functions are on, and check before starting.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="58"/>
+        <location filename="config_translation.py" line="60"/>
         <source>帮助你收集咖啡厅体力和信用点</source>
         <translation type="unfinished">Helps you collect the Café's strength and credit points.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="59"/>
+        <location filename="config_translation.py" line="61"/>
         <source>自动每日日程</source>
         <translation type="unfinished">Automatic Daily Calendar</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="60"/>
+        <location filename="config_translation.py" line="62"/>
         <source>商店里买东西</source>
         <translation type="unfinished">Buying things in the store.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="61"/>
+        <location filename="config_translation.py" line="63"/>
         <source>竞技场商店里买东西</source>
         <translation type="unfinished">Buying things in the arena store.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="62"/>
+        <location filename="config_translation.py" line="64"/>
         <source>主线关卡自动清除体力与每日困难</source>
         <translation type="unfinished">Main level automatically removes physical strength and daily difficulties</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="63"/>
+        <location filename="config_translation.py" line="65"/>
         <source>帮助你自动打竞技场</source>
         <translation type="unfinished">Helps you play the arena.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="64"/>
+        <location filename="config_translation.py" line="66"/>
         <source>帮助你自动制造</source>
         <translation type="unfinished">Helps you make it.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="65"/>
+        <location filename="config_translation.py" line="67"/>
         <source>总力战期间自动打总力战</source>
         <translation type="unfinished">It's a force battle.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="66"/>
+        <location filename="config_translation.py" line="68"/>
         <source>各种扫荡及购买券次数设置</source>
         <translation type="unfinished">Various sweeps and number of coupons settings</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="69"/>
+        <location filename="config_translation.py" line="71"/>
         <source>官服</source>
         <translation type="unfinished">The uniform.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="70"/>
+        <location filename="config_translation.py" line="72"/>
         <source>B服</source>
         <translation type="unfinished">B suit.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="71"/>
+        <location filename="config_translation.py" line="73"/>
         <source>国际服</source>
         <translation type="unfinished">International uniform</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="72"/>
+        <location filename="config_translation.py" line="74"/>
         <source>日服</source>
         <translation type="unfinished">Daysuit.</translation>
     </message>
     <message>
-        <location filename="config_translation.py" line="75"/>
+        <location filename="config_translation.py" line="77"/>
         <source>拖动礼物</source>
         <translation type="unfinished">Drag the present.</translation>
     </message>
@@ -204,17 +199,17 @@
 <context>
     <name>EventMapConfig</name>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="11"/>
+        <location filename="../components/expand/eventMapConfig.py" line="12"/>
         <source>推故事</source>
         <translation type="unfinished">Push the story.</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="16"/>
+        <location filename="../components/expand/eventMapConfig.py" line="17"/>
         <source>推任务</source>
         <translation type="unfinished">Push the job.</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="21"/>
+        <location filename="../components/expand/eventMapConfig.py" line="22"/>
         <source>推挑战</source>
         <translation type="unfinished">Push the challenge.</translation>
     </message>
@@ -396,7 +391,7 @@
         <translation type="unfinished">list selects the student you want to invite, and click to make sure:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="200"/>
+        <location filename="../components/expand/cafeInvite.py" line="197"/>
         <source>添加学生</source>
         <translation type="unfinished">Add Student</translation>
     </message>
@@ -406,7 +401,7 @@
         <translation type="unfinished">Select how to touch the head:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="198"/>
+        <location filename="../components/expand/cafeInvite.py" line="195"/>
         <source>选择第二咖啡厅邀请的学生</source>
         <translation type="unfinished">Select the students invited to the second cafe.</translation>
     </message>
@@ -842,59 +837,69 @@
         <translation type="unfinished">Adjust the parameters according to your computer configuration.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="52"/>
+        <location filename="../fragments/settings.py" line="60"/>
         <source>相关设置</source>
         <translation type="unfinished">Related Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="56"/>
+        <location filename="../fragments/settings.py" line="64"/>
         <source>普通图推图设置</source>
         <translation type="unfinished">Normal Thumbnail Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="56"/>
+        <location filename="../fragments/settings.py" line="64"/>
         <source>根据你的推图需求，调整相应的参数。</source>
         <translation type="unfinished">Adjust the parameters according to the needs of your slide.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="64"/>
+        <location filename="../fragments/settings.py" line="72"/>
         <source>困难图推图设置</source>
         <translation type="unfinished">Hard Chart Pushchart Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="64"/>
+        <location filename="../fragments/settings.py" line="72"/>
         <source>根据你所需困难图刷关，设置参数。</source>
         <translation type="unfinished">Set parameters according to your difficult chart brush off.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="72"/>
+        <location filename="../fragments/settings.py" line="80"/>
         <source>推剧情</source>
         <translation type="unfinished">A story.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="72"/>
+        <location filename="../fragments/settings.py" line="80"/>
         <source>主线剧情，小组剧情，支线剧情</source>
         <translation type="unfinished">Main, team, branch.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="80"/>
+        <location filename="../fragments/settings.py" line="88"/>
         <source>活动图设置</source>
         <translation type="unfinished">Activity Chart Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="80"/>
+        <location filename="../fragments/settings.py" line="88"/>
         <source>推故事，推任务，推挑战</source>
         <translation type="unfinished">Story, mission, challenge.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="88"/>
+        <location filename="../fragments/settings.py" line="96"/>
         <source>其他设置</source>
         <translation type="unfinished">Other Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="88"/>
+        <location filename="../fragments/settings.py" line="96"/>
         <source>其他的一些小功能与设置</source>
         <translation type="unfinished">Other small functions and settings</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="51"/>
+        <source>模拟器启动设置</source>
+        <translation type="unfinished">Simulator Startup Settings</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="51"/>
+        <source>设置启动模拟器的路径</source>
+        <translation type="unfinished">Set the path to start the emulator</translation>
     </message>
 </context>
 <context>
@@ -976,19 +981,24 @@
 <context>
     <name>TemplateLayout</name>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="61"/>
+        <location filename="../components/expand/expandTemplate.py" line="63"/>
         <source>执行</source>
         <translation type="unfinished">Implementation</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="69"/>
+        <location filename="../components/expand/expandTemplate.py" line="93"/>
         <source>确定</source>
         <translation type="unfinished">Sure.</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="91"/>
+        <location filename="../components/expand/expandTemplate.py" line="119"/>
         <source>设置成功</source>
         <translation type="unfinished">Setup Success</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/expandTemplate.py" line="96"/>
+        <source>选择</source>
+        <translation type="unfinished">Selection</translation>
     </message>
 </context>
 <context>
@@ -1039,7 +1049,7 @@
         <translation type="unfinished">ConfigTranslation</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="61"/>
+        <location filename="../components/expand/expandTemplate.py" line="63"/>
         <source>TemplateLayout</source>
         <translation type="unfinished">TemplateLayout</translation>
     </message>

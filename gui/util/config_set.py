@@ -1,7 +1,6 @@
 import json
 from core.notification import notify
-from gui.i18n.language import baasTranslator as bt
-from gui.i18n.config_translation import ConfigTranslation
+from gui.util.translator import baasTranslator as bt
 
 
 class ConfigSet:
@@ -12,7 +11,6 @@ class ConfigSet:
         self.static_config = None
         self.config_dir = config_dir
         self.signals = {}
-        self.translation = ConfigTranslation()
         self._init_config()
 
     def _init_config(self):
@@ -26,28 +24,15 @@ class ConfigSet:
             self.server_mode = 'Global'
         elif self.config['server'] == '日服':
             self.server_mode = 'JP'
-
-    def serialize(self, value):
-        # i18n to Chinese
-        if isinstance(value, str):
-            if self.translation.get(value):
-                value = self.translation.get(value)
-        return value
-
-    def deserialize(self, value):
-        # Chinese to i18n
-        if isinstance(value, str):
-            value = bt.tr('ConfigTranslation', value)
-        return value
         
     def get(self, key):
         self._init_config()
         value = self.config.get(key)
-        return self.deserialize(value)
+        return bt.tr('ConfigTranslation', value)
 
     def set(self, key, value):
         self._init_config()
-        value = self.serialize(value)
+        value = bt.undo(value)
         self.config[key] = value
         with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)

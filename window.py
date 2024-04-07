@@ -17,7 +17,7 @@ from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 from core import default_config
 from gui.components.dialog_panel import SaveSettingMessageBox
 from gui.fragments.readme import ReadMeWindow
-from gui.i18n.language import cfg, baasTranslator as bt
+from gui.util.translator import baasTranslator as bt
 from gui.util.config_set import ConfigSet
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
@@ -408,9 +408,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     # internationalization
-    locale = cfg.get(cfg.language).value
-    translator = FluentTranslator(locale)
-    bt.load("gui/i18n/" + locale.name())
+    translator = FluentTranslator(bt.locale)
+    bt.load("gui/i18n/" + bt.stringLang)
 
     app.installTranslator(translator)
     app.installTranslator(bt)

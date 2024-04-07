@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
 from qfluentwidgets import ComboBox, LineEdit, CheckBox
 
-from gui.i18n.language import baasTranslator as bt
+from gui.util.translator import baasTranslator as bt
 
 
 class Layout(QWidget):

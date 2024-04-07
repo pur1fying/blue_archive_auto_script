@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QGridLayo
 from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
 
 from functools import partial
-from gui.i18n.language import baasTranslator as bt
+from gui.util.translator import baasTranslator as bt
 
 
 class ConfigItem:
@@ -90,10 +90,10 @@ class TemplateLayout(QWidget):
                 inputComponent = LineEdit(self)
                 inputComponent.setFixedWidth(500)  # 设置文本框的固定宽度
                 inputComponent.setText(str(self.config.get(currentKey)))
-                confirmButton = PushButton('确定', self)
+                confirmButton = PushButton(bt.tr('TemplateLayout', self.tr('确定')), self)
                 confirmButton.setFixedWidth(80)  # 设置确定按钮的固定宽度
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
-                selectButton = PushButton('选择', self)
+                selectButton = PushButton(bt.tr('TemplateLayout', self.tr('确定')), self)
                 selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
                 selectButton.clicked.connect(partial(self._choose_file, inputComponent))
             else:
@@ -119,7 +119,7 @@ class TemplateLayout(QWidget):
         infoChanged = InfoBar(
             icon=InfoBarIcon.SUCCESS,
             title=self.tr('设置成功'),
-            content=f'{labelTarget.text()}{bt.tr("TemplateLayout", "已经被设置为：")}{value}',
+            content=f'{labelTarget.text()}{bt.tr("TemplateLayout", "已经被设置为：")}{bt.tr("ConfigTranslation", value)}',
             orient=Qt.Vertical,
             position=InfoBarPosition.TOP_RIGHT,
             duration=800,

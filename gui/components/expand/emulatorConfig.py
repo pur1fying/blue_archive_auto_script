@@ -1,28 +1,30 @@
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog
 
 from .expandTemplate import TemplateLayout
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
+        EmulatorConfig = QObject()
         configItems = [
             {
-                'label': '在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)',
+                'label': EmulatorConfig.tr('在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)'),
                 'key': 'open_emulator_stat',
                 'type': 'switch'
             },
             {
-                'label': '等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)',
+                'label': EmulatorConfig.tr('等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)'),
                 'type': 'text',
                 'key': 'emulator_wait_time'
             },
             {
-                'label': '选择模拟器地址',
+                'label': EmulatorConfig.tr('选择模拟器地址'),
                 'type': 'text_and_file_button',
                 'key': 'program_address'
             }
         ]
 
-        super().__init__(parent=parent, configItems=configItems, config=config)
+        super().__init__(parent=parent, configItems=configItems, config=config, context='EmulatorConfig')
 
     def _choose_file(self, line_edit):
         file_dialog = QFileDialog()

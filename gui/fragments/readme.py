@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QFrame, QVBoxLayout
 from qfluentwidgets import FluentIcon as FIF, FluentWindow, TextEdit
 import os
 
-from gui.i18n.language import cfg
+from gui.util.translator import baasTranslator as bt
 
 
 class ReadMeInterface(QFrame):
@@ -39,9 +39,7 @@ class ReadMeWindow(FluentWindow):
         self.show()
 
     def getPath(self):
-        locale = cfg.get(cfg.language).value
-        suffix = locale.name()
-        directory = f'./src/descriptions_{suffix}'
+        directory = f'./src/descriptions_{bt.stringLang}'
         if os.path.isdir(directory):
             return directory
         return './src/descriptions/'

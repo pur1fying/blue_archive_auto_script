@@ -16,7 +16,7 @@ from qfluentwidgets import (
 )
 
 from core.notification import notify
-from gui.i18n.language import baasTranslator as bt
+from gui.util.translator import baasTranslator as bt
 from window import Window
 
 

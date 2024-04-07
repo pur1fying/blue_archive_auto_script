@@ -9,7 +9,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel)
 
-from gui.i18n.language import baasTranslator as bt
+from gui.util.translator import baasTranslator as bt
 
 
 lock = threading.Lock()

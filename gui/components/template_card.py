@@ -5,7 +5,7 @@ from qfluentwidgets import ExpandSettingCard, SwitchButton, \
     IndicatorPosition, LineEdit
 from qfluentwidgets import FluentIcon as FIF
 
-from gui.i18n.language import baasTranslator as bt
+from gui.util.translator import baasTranslator as bt
 
 
 class TemplateSettingCard(ExpandSettingCard):

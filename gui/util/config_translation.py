@@ -73,11 +73,7 @@ class ConfigTranslation(QObject):
             self.tr('国际服'): '国际服',
             self.tr('日服'): '日服',
 
-            # patstyles
+            # patstyles combobox
             self.tr('拖动礼物'): '拖动礼物'
             }
-
-
-    def get(self, key):
-        return self.entries.get(key)
 

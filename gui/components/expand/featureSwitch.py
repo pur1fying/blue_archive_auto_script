@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QHeaderView, QVBoxLayo
 from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox
 import threading
 
-from gui.i18n.language import baasTranslator as bt
+from gui.util.translator import baasTranslator as bt
 
 
 class Layout(QWidget):
@@ -73,7 +73,7 @@ class Layout(QWidget):
             cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
-            t_ccs = QLabel(self.config.deserialize(self.labels[i]))
+            t_ccs = QLabel(bt.tr('ConfigTranslation', self.labels[i]))
             t_ncs = LineEdit(self)
             t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])))
             t_ncs.textChanged.connect(self._update_config)
@@ -144,7 +144,7 @@ class Layout(QWidget):
     def _update_config(self):
         for i in range(len(self.enable_list)):
             dic = {
-                'event_name': self.config.serialize(self.qLabels[i].text()),
+                'event_name': bt.undo(self.qLabels[i].text()),
                 'next_tick': self.get_next_tick(self.times[i].text()),
                 'enabled': self.check_boxes[i].isChecked()
             }
@@ -181,7 +181,7 @@ class Layout(QWidget):
 
         for item in changed_map:
             for i in range(len(self.qLabels)):
-                if self.config.serialize(self.qLabels[i].text()) == item[0]:
+                if bt.undo(self.qLabels[i].text()) == item[0]:
                     self.times[i].blockSignals(True)
                     self.times[i].setText(str(datetime.fromtimestamp(item[1])))
                     self.times[i].blockSignals(False)

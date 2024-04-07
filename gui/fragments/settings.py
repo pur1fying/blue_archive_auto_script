@@ -8,7 +8,7 @@ from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF
 
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
-from gui.i18n.language import cfg
+from gui.util.translator import baasTranslator as bt
 
 
 class SettingsFragment(ScrollArea):
@@ -24,7 +24,7 @@ class SettingsFragment(ScrollArea):
 
         self.basicGroupItems = [
             ComboBoxSettingCard(
-            cfg.language,
+            bt.cfg.language,
             FIF.LANGUAGE,
             self.tr('语言'),
             self.tr('设置界面的首选语言'),
@@ -49,8 +49,8 @@ class SettingsFragment(ScrollArea):
             ),
 
             SimpleSettingCard(
-                title="模拟器启动设置",
-                content="设置启动模拟器的路径",
+                title=self.tr("模拟器启动设置"),
+                content=self.tr("设置启动模拟器的路径"),
                 sub_view=expand.__dict__['emulatorConfig'],
                 parent=self.basicGroup,
                 config=self.config
