@@ -1,0 +1,4 @@
+argostranslate
+bs4
+lxml
+translatehtml

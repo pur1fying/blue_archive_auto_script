@@ -25,6 +25,7 @@
 !window.spec
 !i18n.pro
 !auto_translate.py
+!requirements-i18n.txt
 src/explore_task_data/__pycache__/normal_task_11.cpython-39.pyc
 *.pyc
 *.xml
