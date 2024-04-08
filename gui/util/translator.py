@@ -36,10 +36,8 @@ class Translator(QTranslator):
         self.stringLang = self.locale.name()
         self.__config_translation = None
         
-    def load(self, fileName: str) -> bool:
-        isLoaded = super().load(fileName)
+    def loadCfgTranslation(self):
         self.__config_translation = ConfigTranslation()
-        return isLoaded
 
     def isString(self, value):
         return isinstance(value, str)

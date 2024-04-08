@@ -3,6 +3,7 @@ SOURCES += \
     gui/components/expand/arenaShopPriority.py \
     gui/components/expand/cafeInvite.py \
     gui/components/expand/createPriority.py \
+    gui/components/expand/emulatorConfig.py \
     gui/components/expand/eventMapConfig.py \
     gui/components/expand/expandTemplate.py \
     gui/components/expand/exploreConfig.py \
@@ -24,7 +25,7 @@ SOURCES += \
     gui/fragments/readme.py \
     gui/fragments/settings.py \
     gui/fragments/switch.py \
-    gui/i18n/config_translation.py \
+    gui/util/config_translation.py \
     window.py \
 
 TRANSLATIONS += gui/i18n/en_US.ts
