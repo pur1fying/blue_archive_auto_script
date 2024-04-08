@@ -8,4 +8,9 @@ class Language(Enum):
     CHINESE_SIMPLIFIED = QLocale(QLocale.Chinese, QLocale.China)
     ENGLISH = QLocale(QLocale.English, QLocale.UnitedStates)
 
+    def combobox():
+        return ['简体中文', 'English', '日本語']
 
+if __name__ == "__main__":
+    for language in Language:
+        print(language.value.name())

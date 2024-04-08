@@ -8,6 +8,7 @@ from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF
 
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
+from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
 
 
@@ -28,7 +29,7 @@ class SettingsFragment(ScrollArea):
             FIF.LANGUAGE,
             self.tr('语言'),
             self.tr('设置界面的首选语言'),
-            texts=['简体中文', 'English', self.tr('使用系统设置')],
+            texts=Language.combobox(),
             parent=self.basicGroup
             ),
 

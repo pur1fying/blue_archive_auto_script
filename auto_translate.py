@@ -20,8 +20,19 @@ class Handler:
 
 class Request:
     from_code = "zh"
-
     def __init__(self, handlers: list[Handler], language: Language, argos_model: str):
+        """
+        Parameters
+        ----------
+        handlers: list[Handler]
+            a list of handlers that represent the the files to translate. 
+
+        language: Language
+            the memeber of the enum Language to translate
+
+        argos_model: str 
+            The argos model to load for translation
+        """
         self.language = language
         self.strLang = language.value.name()
         self.handlers = handlers
@@ -38,6 +49,7 @@ class Request:
 
 
 class ModelHandler(Handler):
+    """Load argos model. It must always be the first element in the list of handlers"""
     def handle(self, request):
         # Load Argos Translate model
         to_code = request.to_code
@@ -61,6 +73,7 @@ class ModelHandler(Handler):
 
 
 class XmlHandler(Handler):
+    """Translate ts files"""
     def handle(self, request):
         # Load the XML from a file
         input_file = os.path.join('gui/i18n/', f'{request.strLang}.ts')
@@ -95,6 +108,7 @@ class XmlHandler(Handler):
 
 
 class HtmlHandler(Handler):
+    """Generate descriptions"""
     def translate_mission_types(self, request, input_dir, output_dir):
         input_path = os.path.join(input_dir, '各区域所需队伍属性.html')
         output_path = os.path.join(output_dir, request.translate('各区域所需队伍属性') + '.html')
@@ -143,7 +157,10 @@ class HtmlHandler(Handler):
         
 
 if __name__ == "__main__":
-    handlers_en = [ModelHandler(), XmlHandler()]
-    request_en = Request(handlers_en, Language.ENGLISH, 'en')
+    model = ModelHandler()
+    ts = XmlHandler()
+    descriptions = HtmlHandler()
+
+    request_en = Request([model, ts, descriptions], Language.ENGLISH, 'en')
     request_en.process()
 
