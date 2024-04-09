@@ -61,6 +61,13 @@ class Layout(QWidget):
             if self.config.static_config['student_names'][i][self.config.server_mode + '_implementation']:
                 self.student_name.append(
                     self.config.static_config['student_names'][i][self.config.server_mode + '_name'])
+                
+                # Store student name for hard_task_combobox in mainlinePriority
+                if not bt.isChinese():
+                    cn_name = self.config.static_config['student_names'][i]['CN_name']
+                    tranlasted_name = self.student_name[-1]
+                    bt.addStudent(cn_name, tranlasted_name)
+
         self.input1 = ComboBox(self)
         self.input1.addItem(self.tr("添加学生"))
         self.input = LineEdit(self)

@@ -35,6 +35,8 @@ class Translator(QTranslator):
         self.locale = self.cfg.get(self.cfg.language).value
         self.stringLang = self.locale.name()
         self.__config_translation = None
+        # separate dictionary for students to not caouse conflicts with existing translations
+        self.__students = dict()
         
     def loadCfgTranslation(self):
         self.__config_translation = ConfigTranslation()
@@ -99,5 +101,17 @@ class Translator(QTranslator):
             text = self.__get(text)
         return text
 
+    def addStudent(self, chineseName, translatedName):
+        """
+        Add student's translated name to be displayed in
+        hard_task_combobox in mainlinePriority
+        """
+        self.__students[chineseName] = translatedName
 
+    def getStudent(self, chineseName):
+        if self.__students.get(chineseName):
+            return self.__students[chineseName]
+        return chineseName
+        
+        
 baasTranslator = Translator()
