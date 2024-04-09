@@ -45,10 +45,10 @@ class Translator(QTranslator):
     def isBytes(self, value):
         return isinstance(value, bytes)
     
-    def toString(self, tranlation: str | bytes) -> str:
-        if self.isBytes(tranlation):
-            tranlation = self.decode(tranlation)
-        return tranlation
+    def toString(self, translation: str | bytes) -> str:
+        if self.isBytes(translation):
+            translation = self.decode(translation)
+        return translation
     
     def encode(self, *args):
         return [arg.encode('utf-8') if self.isString(arg) else arg for arg in args]
