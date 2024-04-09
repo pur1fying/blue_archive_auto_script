@@ -81,7 +81,9 @@ request_jp = Request([model, ts, descriptions], Language.JAPANESE, 'ja')
 request_jp.process()
 ```
 
-This means that `.ts` and description files will be generated. You can adjust the list of handlers as needed, but `model` must always be the first element.
+This means that `.ts` and description files will be generated. You can adjust the list of handlers as needed, but `model` must always be the first element. 
+
+Also, in case no model exists for your language, you could create a new subclass of Request, override its translate method to use another Python library, and omit ModelHandler from the list of handlers.
 
 Open `Qt Linguist`, load the `.ts` file, and manually translate. This step will require some time.
 
