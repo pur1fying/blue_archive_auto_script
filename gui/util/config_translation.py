@@ -67,6 +67,32 @@ class ConfigTranslation(QObject):
             self.tr("总力战期间自动打总力战"): "总力战期间自动打总力战",
             self.tr("各种扫荡及购买券次数设置"): "各种扫荡及购买券次数设置",
 
+            # normal shop
+            self.tr('初级经验书'): '初级经验书',
+            self.tr('中级经验书'): '中级经验书',
+            self.tr('高级经验书'): '高级经验书',
+            self.tr('特级经验书'): '特级经验书',
+            self.tr('初级经验珠'): '初级经验珠',
+            self.tr('中级经验珠'): '中级经验珠',
+            self.tr('高级经验珠'): '高级经验珠',
+            self.tr('特级经验珠'): '特级经验珠',
+            self.tr('随机初级神秘古物'): '随机初级神秘古物',
+            self.tr('随机中级神秘古物'): '随机中级神秘古物',
+
+            # tactical challenge shop
+            self.tr('静子神明文字x5'): '静子神明文字x5',
+            self.tr('真白神明文字x5'): '真白神明文字x5',
+            self.tr('纱绫神明文字x5'): '纱绫神明文字x5',
+            self.tr('风香神明文字x5'): '风香神明文字x5',
+            self.tr('歌原神明文字x5'): '歌原神明文字x5',
+            self.tr('初级经验书x5'): '初级经验书x5',
+            self.tr('中级经验书x10'): '中级经验书x10',
+            self.tr('高级经验书x3'): '高级经验书x3',
+            self.tr('特级经验书x1'): '特级经验书x1',
+            self.tr('信用点x5k'): '信用点x5k',
+            self.tr('信用点x75k'): '信用点x75k',
+            self.tr('信用点x125k'): '信用点x125k',
+
             # server combobox
             self.tr('官服'): '官服', 
             self.tr('B服'): 'B服', 

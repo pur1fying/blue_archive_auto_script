@@ -9,6 +9,7 @@ from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
 from gui.util.language import Language
+from gui.util import notification
 from gui.util.translator import baasTranslator as bt
 
 
@@ -105,6 +106,7 @@ class SettingsFragment(ScrollArea):
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(self.object_name)
+        self.__connectSignalToSlot()
 
     def __initLayout(self):
         self.expandLayout.setSpacing(28)
@@ -125,3 +127,15 @@ class SettingsFragment(ScrollArea):
         self.expandLayout.addWidget(self.exploreGroup)
 
         self.setWidget(self.scrollWidget)
+
+    def __showRestartTooltip(self):
+        """ show restart tooltip """
+        notification.success(
+            'Language updated successfully',
+            'It will take effect after restart',
+            info_widget=self,
+        )
+
+    def __connectSignalToSlot(self):
+        """ connect signal to slot """
+        bt.cfg.appRestartSig.connect(self.__showRestartTooltip)

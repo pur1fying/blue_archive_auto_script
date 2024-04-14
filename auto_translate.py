@@ -161,6 +161,6 @@ if __name__ == "__main__":
     ts = XmlHandler()
     descriptions = HtmlHandler()
 
-    request_en = Request([model, ts, descriptions], Language.ENGLISH, 'en')
-    request_en.process()
+    # request_en = Request([model, ts], Language.ENGLISH, 'en')
+    # request_en.process()
 

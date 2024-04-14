@@ -29,12 +29,12 @@
     <message>
         <location filename="../util/config_translation.py" line="28"/>
         <source>收集每日体力</source>
-        <translation>Collect daily AP</translation>
+        <translation>Collect Daily AP</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="29"/>
         <source>收集小组体力</source>
-        <translation>Collect club AP</translation>
+        <translation>Collect Club AP</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="50"/>
@@ -74,7 +74,7 @@
     <message>
         <location filename="../util/config_translation.py" line="40"/>
         <source>收集奖励</source>
-        <translation>Claim Rewards</translation>
+        <translation>Tasks</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="32"/>
@@ -177,29 +177,139 @@
         <translation>Various sweep and tickets purchase settings</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="71"/>
+        <location filename="../util/config_translation.py" line="97"/>
         <source>官服</source>
         <translation>CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="72"/>
+        <location filename="../util/config_translation.py" line="98"/>
         <source>B服</source>
         <translation>Bilibili</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="73"/>
+        <location filename="../util/config_translation.py" line="99"/>
         <source>国际服</source>
         <translation>Global</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="74"/>
+        <location filename="../util/config_translation.py" line="100"/>
         <source>日服</source>
         <translation>JP</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="77"/>
+        <location filename="../util/config_translation.py" line="103"/>
         <source>拖动礼物</source>
         <translation>Drag the gift</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="71"/>
+        <source>初级经验书</source>
+        <translation>Novice Report</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="72"/>
+        <source>中级经验书</source>
+        <translation>Normal Report</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="73"/>
+        <source>高级经验书</source>
+        <translation>Advanced Report</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="74"/>
+        <source>特级经验书</source>
+        <translation>Superior Report</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="75"/>
+        <source>初级经验珠</source>
+        <translation>Lesser Stone</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="76"/>
+        <source>中级经验珠</source>
+        <translation>Normal Stone</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="77"/>
+        <source>高级经验珠</source>
+        <translation>Advanced Stone</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="78"/>
+        <source>特级经验珠</source>
+        <translation>Superior Stone</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="79"/>
+        <source>随机初级神秘古物</source>
+        <translation type="unfinished">Basic Relic</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="80"/>
+        <source>随机中级神秘古物</source>
+        <translation type="unfinished">Intermediate Relic</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="83"/>
+        <source>静子神明文字x5</source>
+        <translation>Shizuko&apos;s Eleph</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="84"/>
+        <source>真白神明文字x5</source>
+        <translation>Mashiro&apos;s Eleph</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="85"/>
+        <source>纱绫神明文字x5</source>
+        <translation>Saya&apos;s Eleph</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="86"/>
+        <source>风香神明文字x5</source>
+        <translation>Fuuka&apos;s Eleph</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="87"/>
+        <source>歌原神明文字x5</source>
+        <translation>Utaha&apos;s Eleph</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="88"/>
+        <source>初级经验书x5</source>
+        <translation>Normal Report x5</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="89"/>
+        <source>中级经验书x10</source>
+        <translation>Novice Report x10</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="90"/>
+        <source>高级经验书x3</source>
+        <translation>Advanced Report x3</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="91"/>
+        <source>特级经验书x1</source>
+        <translation>Superior Report x1</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="92"/>
+        <source>信用点x5k</source>
+        <translation>Credits x5k</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="93"/>
+        <source>信用点x75k</source>
+        <translation>Credits x75k</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="94"/>
+        <source>信用点x125k</source>
+        <translation>Credits x125k</translation>
     </message>
 </context>
 <context>
@@ -361,7 +471,7 @@ Use positive number for below and negative for above.</translation>
         <translation>Enter how many times you need to refresh:</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="29"/>
+        <location filename="../components/expand/shopPriority.py" line="31"/>
         <source>确定</source>
         <translation>Save</translation>
     </message>
@@ -386,7 +496,7 @@ Use positive number for below and negative for above.</translation>
         <translation>Your maximum refresh count is set to:</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="23"/>
+        <location filename="../components/expand/shopPriority.py" line="25"/>
         <source>刷新次数</source>
         <translation>Number of Refreshes</translation>
     </message>
@@ -448,8 +558,8 @@ Use positive number for below and negative for above.</translation>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="85"/>
         <source>请在下面填写要推的图,填写方式见-普通图自动推图说明-</source>
-        <translation type="unfinished">Please enter the stages to be cleared
-See Difficult-Chart Configuration Description in Help.</translation>
+        <translation>Please enter the stages to be cleared
+See Clear Hard and Normal Stages in Help.</translation>
     </message>
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="37"/>
@@ -494,7 +604,7 @@ See Difficult-Chart Configuration Description in Help.</translation>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="110"/>
         <source>事件</source>
-        <translation>Task</translation>
+        <translation>Chore</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="110"/>
@@ -509,7 +619,8 @@ See Difficult-Chart Configuration Description in Help.</translation>
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="33"/>
         <source>&lt;b&gt;困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Hard stages follow the same team requirements of Normal stages(see Difficult Chart Configuration Description)&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Hard stages follow the same unit requirements of Normal stages
+(see Clear Hard and Normal Stages in Help)&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="61"/>
@@ -613,12 +724,12 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
         <translation>adb address fetch failed</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="38"/>
+        <location filename="../components/expand/shopPriority.py" line="40"/>
         <source>信用点</source>
         <translation>Credits</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="40"/>
+        <location filename="../components/expand/shopPriority.py" line="42"/>
         <source>青辉石</source>
         <translation>Pyroxene</translation>
     </message>
@@ -819,112 +930,112 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
 <context>
     <name>SettingsFragment</name>
     <message>
-        <location filename="../fragments/settings.py" line="20"/>
+        <location filename="../fragments/settings.py" line="21"/>
         <source>普通设置</source>
         <translation>General Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="22"/>
+        <location filename="../fragments/settings.py" line="23"/>
         <source>基本</source>
         <translation>Basic</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="26"/>
+        <location filename="../fragments/settings.py" line="27"/>
         <source>语言</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="26"/>
+        <location filename="../fragments/settings.py" line="27"/>
         <source>设置界面的首选语言</source>
         <translation>Set your preferred language for the GUI</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="26"/>
         <source>使用系统设置</source>
-        <translation>Use WordPress settings</translation>
+        <translation type="obsolete">Use WordPress settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="35"/>
+        <location filename="../fragments/settings.py" line="36"/>
         <source>应用相关设置</source>
         <translation>Server &amp; Emulator Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="35"/>
+        <location filename="../fragments/settings.py" line="36"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
         <translation>Select your server platform and set your port (set to 0 if you don&apos;t know the port)</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="43"/>
+        <location filename="../fragments/settings.py" line="44"/>
         <source>脚本相关设置</source>
         <translation>Script Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="43"/>
+        <location filename="../fragments/settings.py" line="44"/>
         <source>根据你的电脑配置，调整相应的参数。</source>
         <translation>Adjust the parameters according to your computer specs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="51"/>
+        <location filename="../fragments/settings.py" line="52"/>
         <source>模拟器启动设置</source>
         <translation>Emulator Startup Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="51"/>
+        <location filename="../fragments/settings.py" line="52"/>
         <source>设置启动模拟器的路径</source>
         <translation>Set the path to start the emulator</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="60"/>
+        <location filename="../fragments/settings.py" line="61"/>
         <source>相关设置</source>
         <translation>Features</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="64"/>
+        <location filename="../fragments/settings.py" line="65"/>
         <source>普通图推图设置</source>
         <translation>Clear Normal Mission Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="64"/>
+        <location filename="../fragments/settings.py" line="65"/>
         <source>根据你的推图需求，调整相应的参数。</source>
         <translation>Adjust the parameters according to your normal clear needs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="72"/>
+        <location filename="../fragments/settings.py" line="73"/>
         <source>困难图推图设置</source>
         <translation>Clear Hard Mission Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="72"/>
+        <location filename="../fragments/settings.py" line="73"/>
         <source>根据你所需困难图刷关，设置参数。</source>
         <translation>Adjust the parameters according to your hard clear needs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="80"/>
+        <location filename="../fragments/settings.py" line="81"/>
         <source>推剧情</source>
         <translation>Push the Story Forward</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="80"/>
+        <location filename="../fragments/settings.py" line="81"/>
         <source>主线剧情，小组剧情，支线剧情</source>
         <translation>Main Story, Group Story, Mini Story</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="88"/>
+        <location filename="../fragments/settings.py" line="89"/>
         <source>活动图设置</source>
         <translation>Clear Event Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="88"/>
+        <location filename="../fragments/settings.py" line="89"/>
         <source>推故事，推任务，推挑战</source>
         <translation>Clear Story, Clear Quest, Clear Challenge</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="96"/>
+        <location filename="../fragments/settings.py" line="97"/>
         <source>其他设置</source>
         <translation>Miscellaneous</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="96"/>
+        <location filename="../fragments/settings.py" line="97"/>
         <source>其他的一些小功能与设置</source>
         <translation>Some other small features and settings</translation>
     </message>
@@ -1002,7 +1113,7 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
     <message>
         <location filename="../fragments/switch.py" line="130"/>
         <source>功能开关</source>
-        <translation>Tasks</translation>
+        <translation>Chores</translation>
     </message>
 </context>
 <context>

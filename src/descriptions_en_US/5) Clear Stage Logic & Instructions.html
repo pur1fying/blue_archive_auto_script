@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .important {
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        .highlight {
+            background-color: #f1c40f;
+            color: #fff;
+            padding: 2px 5px;
+        }
+        .highlight-white {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <p><strong>5) Clear Stage Logic & Instructions:</strong></p>
+    
+    <p><strong>1. Usage Instructions:</strong></p>
+    <p>
+        (1) <span class="highlight"><strong>Unlock</strong></span> auto end-turn and
+        <strong><span class="highlight">auto battle</span></strong> (automatically detected and activated).
+    </p>
+    <p>(2) Supports campaign mainline levels <span class="highlight"><strong>4 - 25</strong></span>.</p>
+    <p>
+        (3) When BAAS clear stages, units movement coordinates and routes are fixed. All movements are single-clicks
+        because in Blue Archive, if there are multiple units, they are arranged based on the units's
+        internal numbering coordinates and order of movements.
+    </p>
+    <p>
+        (4) Due to (3), during automatic clear, it is
+        <strong><span class="highlight">essential to ensure that unit numbers are in ascending order
+            <span class="highlight-white">.</span></span></strong>
+    </p>
+    <p><span class="highlight">(5) BAAS will select units based on <strong>&lt;Clear Normal Mission Settings&gt;</strong></span>
+        and <strong>Unit Selection Logic</strong> to find suitable configurations for the stage.</p>
+    
+    <p>Note down the first type of each area corresponding to [1] and the second type corresponding to [2].</p>
+    
+    <p><strong>Unit Selection Logic:</strong></p>
+    <ol>
+        <li>Prioritize unit selection based on <strong>[1]</strong> restraint relationships, gradually decreasing
+            the restraint relationships of remaining unit numbers.</li>
+        <li>When selecting a unit, if (4 - unit number) &gt;= remaining required number of units.</li>
+        <li>If unable to ensure (1) and (2), gradually decrease the restraint relationships of <strong>[1]</strong>
+            corresponding units.</li>
+        <li>If certain units have been selected and the maximum number of (4 - these units) &gt;=
+            remaining required number of units, the remaining units will be filled in by optional numbers in sequence.</li>
+        <li>If none of the above conditions are met, units will be selected in order of 1, 2, 3...</li>
+    </ol>
+    
+    <p><strong>Example:</strong></p>
+    <p>
+        For "Area 23 [Burst, Penetrate]," unit selection sequence:<br>
+        Explosive Unit 1, Piercing Unit 1 -&gt; Explosive Unit 1, Piercing Unit 2 -&gt; Explosive Unit 1, Explosive Unit 2 -&gt; ...
+    </p>
+    <p>If Explosive Unit 1 is number 3 and not selected in the above sequence, then select Unit 4 as the second unit.</p>
+    <p>If still not selected, then Unit 1 and 2 will be the final units.</p>
+    
+    <p><strong>Explanation for Clear Normal Mission Options:</strong></p>
+    <p>
+        If <strong><span class="highlight">forced to play each specified stage</span></strong> is disabled, each number
+        entered represents the area to be cleared. The program will determine whether each stage in this area needs to
+        be cleared based on the current stage.
+    </p>
+    <p>Example:</p>
+    <p><span class="highlight-white">15,16,14</span></p>
+    <p>Represents playing stages 15, 16, and 14 sequentially.</p>
+    
+    <p>
+        If <strong><span class="highlight">forced to play each stage</span></strong> is enabled, enter a number
+        to clear all stages in that area once, or enter a number-range to specify stages.
+    </p>
+    <p>Example:</p>
+    <p><span class="highlight-white">15,16-3</span></p>
+    <p>Represents playing levels 15-1, 15-2, 15-3, 15-4, 15-5, and 16-3 sequentially.</p>
+</body>
+</html>

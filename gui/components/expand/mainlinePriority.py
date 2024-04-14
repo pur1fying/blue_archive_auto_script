@@ -2,6 +2,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition, ComboBox
 
+from gui.util.translator import baasTranslator as bt
+
 
 class Layout(QWidget):
     def __init__(self, parent=None, config=None):
@@ -27,9 +29,10 @@ class Layout(QWidget):
             self.tr("爱丽丝宝贝"): [],
         }
         for i in range(0, len(self.config.static_config["hard_task_student_material"])):
-            self.each_student_task_number_dict.setdefault(self.config.static_config["hard_task_student_material"][i][1], [])
+            translated_name = bt.getStudent(self.config.static_config["hard_task_student_material"][i][1])
+            self.each_student_task_number_dict.setdefault(translated_name, [])
             temp = self.config.static_config["hard_task_student_material"][i][0] + "-3"
-            (self.each_student_task_number_dict[self.config.static_config["hard_task_student_material"][i][1]].append(temp))
+            (self.each_student_task_number_dict[translated_name].append(temp))
         for key in self.each_student_task_number_dict.keys():
             self.hard_task_combobox.addItem(key)
         self.hard_task_combobox.currentIndexChanged.connect(self.__hard_task_combobox_change)
