@@ -63,7 +63,6 @@ class ProcessFragment(ScrollArea):
 
         feature_panel = expand.__dict__['featureSwitch'].Layout(config=config)
         self.VBoxWrapperLayout.addWidget(self.displayWidget)
-        # self.VBoxWrapperLayout.addStretch(1)
         self.VBoxWrapperLayout.addWidget(feature_panel)
 
         self.processWidget.setLayout(self.VBoxWrapperLayout)
@@ -110,4 +109,3 @@ class ProcessFragment(ScrollArea):
         ''')
         self.viewport().setStyleSheet("background-color: transparent;")
         self.setWidget(self.processWidget)
-        # self.setWidget(self.scrollWidget)

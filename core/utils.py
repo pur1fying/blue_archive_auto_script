@@ -87,13 +87,13 @@ def get_x_y(target_array, template_path: str):
 
 def check_sweep_availability(img):
     if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) or color.judge_rgb_range(self, 211, 402, 192,
-                                                                                                   212, 192, 212, 192,
-                                                                                                   212) or color.judge_rgb_range(
+                                                                                                    212, 192, 212, 192,
+                                                                                                    212) or color.judge_rgb_range(
         img, 211, 436, 192, 212, 192, 212, 192, 212):
         return "UNAVAILABLE"
     if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and color.judge_rgb_range(self, 211, 404, 225,
-                                                                                                  255, 200, 255, 20,
-                                                                                                  60) and color.judge_rgb_range(
+                                                                                                   255, 200, 255, 20,
+                                                                                                   60) and color.judge_rgb_range(
         img, 211, 434, 225, 255, 200, 255, 20, 60):
         return "AVAILABLE"
     return "UNKNOWN"
@@ -147,13 +147,13 @@ class Logger:
         if self.logger_signal is not None:
             adding = (f'''
                     <div style="font-family: Consolas, monospace;color:{statusColor[level - 1]};">
-                        {statusHtml[level - 1]} | {datetime.now()} | {message}
+                        {statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}
                     </div>
                         ''')
             self.logs += adding
             self.logger_signal.emit(adding)
         else:
-            print(f'{statusHtml[level - 1]} | {datetime.now()} | {message}')
+            print(f'{statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
 
     def info(self, message: str) -> None:
         """
@@ -197,4 +197,3 @@ class Logger:
             '<div style="font-family: Consolas, monospace;color:#2d8cf0;">--------------'
             '-------------------------------------------------------------'
             '-------------------</div>', raw_print=True)
-
