@@ -25,7 +25,8 @@ import device_operation
 - `simulator_cmd()`获取启动模拟器的命令行
 - `process_native_api(input_type,process_input)`
 - `start_simulator_uuid(uuid)`以uuid启动对应模拟器（暂不可用）
-- `start_simulator_classic(simulator_type, multi_instance)`给定参数启动模拟器
+- `start_simulator_classic(simulator_type, multi_instance)`给定参数启动模拟器，该函数会直接返回对应的adb端口号。
+- `stop_simulator_classic(simulator_type, multi_instance)`给定参数关闭模拟器
 - `config_write(simulator_type, multi_instance, latest_adb_address = None,latest_command_line = None)`（给定模拟器类型并写入配置文件）
 - `load_dict(uuid)`读取整个uuid对应的数据
 - `return_bluestacks_type(pid)`读取pid对应的蓝叠模拟器类型

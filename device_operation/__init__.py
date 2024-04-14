@@ -13,3 +13,4 @@ from .preprocessing_name import preprocess_name
 from .simulator_api import get_adb_address, get_adb_address_by_uuid, get_simulator_commandline_uuid, get_simulator_uuid
 from .simulator_native import process_native_api
 from .start_simulator import start_simulator_uuid, start_simulator_classic
+from .stop_simulator import stop_simulator_uuid, stop_simulator_classic
