@@ -39,11 +39,9 @@ class ReadMeWindow(FluentWindow):
         self.show()
 
     def getPath(self):
-        directory = f'./src/descriptions_{bt.stringLang}'
+        directory = f'./src/descriptions/{bt.stringLang}'
         if os.path.isdir(directory):
             return directory
-        return './src/descriptions/'
-
 
 if __name__ == '__main__':
     import sys

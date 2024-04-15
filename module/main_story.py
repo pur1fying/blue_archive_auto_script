@@ -2,8 +2,7 @@ import importlib
 import os
 import time
 from core import color, picture, image
-from module.explore_normal_task import start_action, to_formation_edit_i, start_mission, \
-    to_normal_task_wait_to_begin_page, check_skip_fight_and_auto_over
+from module.explore_normal_task import common_gird_method
 
 
 def implement(self):
@@ -169,14 +168,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
         return res
     if res == "normal_task_task-wait-to-begin-feature":
         stage_data = check_state_and_get_stage_data(self)
-        for i in range(0, len(stage_data['start'])):
-            to_formation_edit_i(self, i + 1, stage_data['start'][i])
-            auto_choose_formation(self, True, {"formation_edit" + str(i + 1): (1183, 183)},
-                                  "formation_edit" + str(i + 1))
-            to_normal_task_wait_to_begin_page(self, True)
-        start_mission(self)
-        check_skip_fight_and_auto_over(self)
-        start_action(self, stage_data['actions'])
+        common_gird_method(self, stage_data)
     rgb_ends = "fighting_feature"
     img_possibles = {"plot_formation": (1157, 651)}
     if res == "plot_self-formation":
