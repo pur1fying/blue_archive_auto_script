@@ -93,6 +93,9 @@ class Main:
             return temp
 
 
+
+
+
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
     t.init_static_config()
@@ -102,9 +105,9 @@ if __name__ == '__main__':
     tt.init_all_data()
     tt.ocr = t.ocr
     # tt.solve("refresh_uiautomator2")
-    # tt.solve("explore_activity_challenge")
+    tt.solve("explore_activity_challenge")
     # tt.solve("activity_sweep")
-    # tt.solve("explore_activity_mission")
+    tt.solve("explore_activity_mission")
     tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     # tt.solve("total_assault")
@@ -112,8 +115,9 @@ if __name__ == '__main__':
     # tt.solve("momo_talk")
     # tt.solve("explore_normal_task")
     # tt.solve("explore_hard_task")
-    tt.solve("normal_task")
-    tt.solve("hard_task")
+
+    # tt.solve("normal_task")
+    # tt.solve("hard_task")
     # tt.solve("arena")
     # tt.solve("lesson")
     # tt.solve("group")
@@ -124,4 +128,4 @@ if __name__ == '__main__':
     # tt.solve("clear_special_task_power")
     # tt.solve("scrimmage")
     # tt.solve("rewarded_task")
-    # tt.solve("create")
+    tt.solve("create")

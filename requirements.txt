@@ -6,6 +6,7 @@ cnocr
 imgaug
 win11toast
 onnxruntime
+adbutils <= 2.2.1
 uiautomator2
 opencv-python
 PyQt-Fluent-Widgets

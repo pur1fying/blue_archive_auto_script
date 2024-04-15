@@ -23,6 +23,7 @@ def implement(self):
     create_flag = True
     while self.flag_run and left_create_times > 0 and create_flag:
         if status == ["unfinished", "unfinished", "unfinished"] and (not use_acceleration_ticket):
+            self.logger.info("-- Stop Crafting --")
             break
         need_acc_collect = False
         for i in range(0, len(status)):
@@ -248,8 +249,9 @@ def get_next_execute_time(self, status):
                 continue
             res = res.split(":")
             for j in range(0, len(res)):
-                if res[i][0] == "0":
-                    res[i] = res[i][1:]
+                if res[j][0] == "0":
+                    res[j] = res[j][1:]
+            self.logger.info("ITEM " + str(i + 1) + " Crafting time: " + res[0] + "\tHOUR " + res[1] + "\tMINUTES " + res[2] + "\tSECONDS")
             time_deltas.append(int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2]))
     if time_deltas:
         self.next_time = min(time_deltas)

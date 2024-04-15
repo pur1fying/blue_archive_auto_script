@@ -257,6 +257,9 @@ DEFAULT_CONFIG = """
     "name": "新的配置",
     "purchase_arena_ticket_times": "0",
     "screenshot_interval": "0.3",
+    "program_address": "None",
+    "open_emulator_stat": false,
+    "emulator_wait_time": "180",
     "ArenaLevelDiff": 0,
     "maxArenaRefreshTimes": 10,
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
@@ -448,7 +451,8 @@ STATIC_DEFAULT_CONFIG = '''
     "common_shop_price_list": {
         "CN": [
             ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],
-            ["学院交流会[崔尼蒂]券",30,"pyroxene"],["学院交流会[歌赫娜]券",30,"pyroxene"],["学院交流会[千禧年]券",30,"pyroxene"],["初级经验珠", 10000, "creditpoints"],
+            ["学院交流会[崔尼蒂]券",30,"pyroxene"],["学院交流会[歌赫娜]券",30,"pyroxene"],["学院交流会[千禧年]券",30,"pyroxene"],["初级经验书", 12500, "creditpoints"],
+            ["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书",500000,"creditpoints"],["初级经验珠", 10000, "creditpoints"],
             ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 10000, "creditpoints"],
             ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
@@ -588,7 +592,8 @@ STATIC_DEFAULT_CONFIG = '''
             "Trinity Plaza Area",
             "Red Winter Federal Academy",
             "Hyakkiyako Central Area",
-            "D.U. Shiratori City"
+            "D.U. Shiratori City",
+            "Shanhaijing Main Special Zone"
         ],
         "JP": [
             "シャーレオフィス",
@@ -604,9 +609,9 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "revolutionKupalaNight",
+        "CN": null,
         "Global": null,
-        "JP": "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory"
+        "JP": "livelyAndJoyfulWalkingTour"
     },
     "package_name": {
         "官服": "com.RoamingStar.BlueArchive",
@@ -817,7 +822,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "琴里(应援团)",
       "CN_implementation": false,
       "Global_name": "Kotori (Cheer Squad)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "コトリ(応援団)",
       "JP_implementation": true
     },
@@ -1183,7 +1188,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "萌绘",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Moe",
       "Global_implementation": true,
       "JP_name": "モエ",
@@ -1311,15 +1316,15 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "美游",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Miyu",
       "Global_implementation": true,
       "JP_name": "ミユ",
       "JP_implementation": true
     },
     {
-      "CN_name": "咲",
-      "CN_implementation": false,
+      "CN_name": "咲希",
+      "CN_implementation": true,
       "Global_name": "Saki",
       "Global_implementation": true,
       "JP_name": "サキ",
@@ -1327,7 +1332,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "宫子",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Miyako",
       "Global_implementation": true,
       "JP_name": "ミヤコ",
@@ -1486,24 +1491,24 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "明日奈(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "明日奈(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Asuna (Bunny)",
       "Global_implementation": true,
       "JP_name": "アスナ(バニーガール)",
       "JP_implementation": true
     },
     {
-      "CN_name": "花凛(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "花凛(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Karin (Bunny)",
       "Global_implementation": true,
       "JP_name": "カリン(バニーガール)",
       "JP_implementation": true
     },
     {
-      "CN_name": "妮露(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "妮露(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Neru (Bunny)",
       "Global_implementation": true,
       "JP_name": "ネル(バニーガール)",

@@ -73,7 +73,7 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
     }
     img_possibles = {
         'main_page_full-notice': (887, 165),
-        "main_page_insufficient_inventory_space": (910, 138),
+        "main_page_insufficient-inventory-space": (910, 138),
     }
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
@@ -84,7 +84,11 @@ def to_refresh(self):
         "shop_refresh-unavailable-notice"
     ]
     rgb_possibles = {"tactical_challenge_shop": (1160, 664)}
-    res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
+    img_pop_ups = {
+        'main_page_full-notice': (887, 165),
+        "main_page_insufficient-inventory-space": (910, 138),
+    }
+    res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True, img_pop_ups=img_pop_ups)
     if res == "shop_refresh_guide" or res == "shop_refresh-notice":
         return True
     return False
@@ -93,7 +97,7 @@ def to_refresh(self):
 def get_tactical_challenge_assets(self):
     tactical_challenge_assets_region = {
         'CN': [1109, 63, 1240, 102],
-        'Global': [1109, 63, 1240, 102],
+        'Global': [907, 68, 1045, 98],
         'JP': [907, 68, 1045, 98]
     }
     return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server], int,

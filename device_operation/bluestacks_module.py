@@ -2,7 +2,7 @@ import os
 import re
 import winreg
 
-from device_operation.simulator_native import process_native_api
+from .simulator_native import process_native_api
 
 
 def read_registry_key(region):

@@ -104,7 +104,7 @@ def to_episode_info(self, pos, skip_first_screenshot=False):
 
 
 def check_current_episode_cleared(self):
-    if image.compare_image(self, "group_story_episode-cleared-feature", need_log=False):
+    if image.compare_image(self, "group_story_episode-cleared-feature", need_log=False) or image.compare_image(self, "group_story_plot-not-open", need_log=False):
         self.logger.info("Current episode cleared")
         return True
     self.logger.info("Current episode not cleared")

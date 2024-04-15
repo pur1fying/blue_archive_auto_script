@@ -1,7 +1,7 @@
 prefix = "normal_task"
 path = "normal_task"
 x_y_range = {
-    "fight-end-back-to-main-page":(419,642,600,678),
+    "fight-end-back-to-main-page": (419, 642, 600, 678),
     'fight-confirm': (1144, 649, 1194, 674),  # 战斗结果
     'charge-challenge-counts': (495, 348, 599, 381),  # 购买挑战次数
     'unlock-notice': (607, 144, 676, 176),  # 解锁提示
@@ -27,6 +27,8 @@ x_y_range = {
     'task-operating-feature': (13, 7, 67, 40),  # 任务执行过程中的特征（左上）
     'help': (597, 111, 675, 150),
     'task-wait-to-begin-feature': (99, 6, 163, 42),
-    'present': (572,185,704,225),
-    "teleport-notice":(526,309,740,351)
+    'present': (572, 185, 704, 225),
+    "teleport-notice": (526, 309, 740, 351),
+    'fight-pause': (594, 139, 681, 174),
+    'retreat-notice': (469, 308, 796, 351),
 }

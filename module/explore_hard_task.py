@@ -7,7 +7,6 @@ from module.explore_normal_task import common_gird_method
 
 
 def implement(self):
-    # self.scheduler.change_display("困难关推图")
     t = self.config['explore_hard_task_list']
     if type(t) is int:
         t = str(t)
@@ -45,7 +44,6 @@ def implement(self):
                                 current_task.append(unfinished_tasks.pop(temp))
                             else:
                                 temp += 1
-
                         break
             if current_task_stage_data == "":
                 self.logger.warning("Task not support")

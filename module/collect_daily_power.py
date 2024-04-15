@@ -45,14 +45,13 @@ def to_tasks(self, skip_first_screenshot=False):
     rgb_ends = "tasks"
     rgb_possibles = {
         "main_page": (70, 232),
-        "insufficient_inventory_space": (910, 138),
         "reward_acquired": (254, 72),
-        "full_ap_notice": (889, 162),
     }
     img_ends = "work_task_menu"
     img_possibles = {
-        "main_page_home-feature": (70, 232),
         'main_page_full-notice': (887, 165),
+        'main_page_insufficient-inventory-space': (910, 138),
+        "main_page_home-feature": (70, 232),
         'plot_menu': (1202, 37),
         'plot_skip-plot-button': (1208, 116),
         'plot_skip-plot-notice': (770, 519),
