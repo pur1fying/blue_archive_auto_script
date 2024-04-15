@@ -1,10 +1,29 @@
+import logging
+import sys
+import threading
+from datetime import datetime
 from typing import Union
 
-import cv2
-from core import color
-import logging
-from datetime import datetime
-import sys
+
+def delay(wait):
+    def decorator(func):
+        timer = None  # type: Union[threading.Timer, None]
+
+        def debounced(*args, **kwargs):
+            nonlocal timer
+
+            def call_it():
+                func(*args, **kwargs)
+
+            if timer and timer.is_alive():
+                timer.cancel()
+
+            timer = threading.Timer(wait, call_it)
+            timer.start()
+
+        return debounced
+
+    return decorator
 
 
 class Logger:

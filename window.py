@@ -18,6 +18,7 @@ from core import default_config
 from gui.components.dialog_panel import SaveSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
+from gui.util import notification
 from gui.util.config_set import ConfigSet
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
@@ -222,6 +223,7 @@ class BAASTitleBar(MSFluentTitleBar):
 
 
 class Window(MSFluentWindow):
+    notify_signal = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -244,8 +246,10 @@ class Window(MSFluentWindow):
                 files = os.listdir(f'./config/{_dir_}')
                 if 'config.json' in files:
                     check_config(_dir_)
-                    self.config_dir_list.append(ConfigSet(config_dir=_dir_))
-
+                    conf = ConfigSet(config_dir=_dir_)
+                    conf.add_signal("notify_signal", self.notify_signal)
+                    self.config_dir_list.append(conf)
+        self.notify_signal.connect(self.notify)
         if len(self.config_dir_list) == 0:
             check_config('default_config')
             self.config_dir_list.append(ConfigSet('default_config'))
@@ -275,6 +279,10 @@ class Window(MSFluentWindow):
 
     def init_main_class(self, ):
         threading.Thread(target=self.init_main_class_thread).start()
+
+    def notify(self, raw_msg):
+        json_msg = json.loads(raw_msg)
+        notification.__dict__['_' + json_msg['type']](json_msg['label'], json_msg['msg'], self)
 
     def init_main_class_thread(self):
         from main import Main

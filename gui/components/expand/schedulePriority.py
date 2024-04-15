@@ -3,6 +3,7 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import LineEdit, CheckBox
 
+from core.utils import delay
 from gui.util import notification
 
 
@@ -63,14 +64,14 @@ class Layout(QWidget):
         self.needed_levels = res
         self.config.set('lesson_each_region_object_priority', self.needed_levels)
 
-    def Slot_for_lesson_time_change(self):
+    @delay(1)
+    def Slot_for_lesson_time_change(self, _):
         res = []
         for i in range(0, len(self.lesson_names)):
             res.append(int(self.lesson_time_input[i].text()))
         self.priority_list = res
         self.config.set('lesson_times', self.priority_list)
-        info_widget = self.parent().parent().parent().parent().parent().parent().parent()
-        return notification.success('日程次数', f'日程次数设置成功为:{self.priority_list}', info_widget)
+        return notification.success('日程次数', f'日程次数设置成功为:{self.priority_list}', self.config)
 
     def __init_Signals_and_Slots(self):
         self.relationship_check_box.stateChanged.connect(self.Slot_for_relationship_check_box)
@@ -119,4 +120,3 @@ class Layout(QWidget):
 
     def Slot_for_relationship_check_box(self, state):
         self.config.set('lesson_relationship_first', state == Qt.Checked)
-

@@ -3,9 +3,8 @@ import subprocess
 import threading
 from datetime import datetime
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QVBoxLayout, QAbstractItemView, QTableWidgetItem
-from qfluentwidgets import FluentWindow, TableWidget, FluentIcon as FIF, InfoBar, InfoBarIcon, InfoBarPosition
+from PyQt5.QtWidgets import QAbstractItemView, QTableWidgetItem
+from qfluentwidgets import FluentWindow, TableWidget, FluentIcon as FIF
 
 
 class HistoryWindow(FluentWindow):
