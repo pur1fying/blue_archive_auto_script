@@ -67,18 +67,3 @@ class HistoryWindow(FluentWindow):
             self.table_view.setItem(i, 1, QTableWidgetItem(entry['author']))
             self.table_view.setItem(i, 2, QTableWidgetItem(entry['date']))
             self.table_view.setItem(i, 3, QTableWidgetItem(entry['message']))
-            self.table_view.itemClicked.connect(self.table_view_item_clicked)
-
-    def table_view_item_clicked(self, item):
-        if item.row() == self.crt_line_index:
-            return
-        self.crt_line_index = item.row()
-        InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'该版本更新内容为\n' + self.log_entries[item.row()]['message'],
-            orient=Qt.Vertical,  # vertical layout
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=2000,
-            parent=self.parent()
-        ).show()
