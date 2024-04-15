@@ -1,24 +1,21 @@
 from datetime import datetime
-
 import cv2
 from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
 from core import position, picture
 from core.utils import Logger
-import time
 import numpy as np
 import uiautomator2 as u2
 import module
 import threading
 import json
-from multiprocessing import process
 import subprocess
 import psutil
 import os
 import win32com.client
 import time
-
+import device_operation
 func_dict = {
     'group': module.group.implement,
     'momo_talk': module.momo_talk.implement,
@@ -177,17 +174,15 @@ class Baas_thread:
             self.logger.warning("Wait time is too short, auto set to 20 seconds.")
             wait_time = 20
         if emulator_strat_stat:
-            self.lnk_path = self.config.get("program_address")
-            self.convert_lnk_to_exe(self.lnk_path)
-            self.file_path = self.config.get("program_address")
-            self.process_name = self.extract_filename_and_extension(self.file_path)
-            if self.check_process_running(self.process_name):
-                self.logger.info(f"模拟器进程 {self.process_name} 正在运行.")
-                return True
-            else:
-                self.logger.info(f"模拟器进程 {self.process_name} 未运行，开始启动模拟器")
-                subprocess.Popen(self.file_path)
-                self.logger.info(f"等待模拟器启动时间 {wait_time} 秒")
+            self.logger.info(f"-- BAAS Check Emulator Start --")
+            if self.config['emulatorIsMultiInstance']:
+                name = self.config.get("multiEmulatorName")
+                num = self.config.get("emulatorMultiInstanceNumber")
+                self.logger.info(f"-- Start Multi Emulator --")
+                self.logger.info(f"EmulatorName: {name}")
+                self.logger.info(f"MultiInstanceNumber: {num}")
+                device_operation.start_simulator_classic(name, num)
+                self.logger.info(f" Start wait {wait_time} seconds for emulator to start. ")
                 while self.flag_run:
                     time.sleep(0.01)
                     wait_time -= 0.01
@@ -195,15 +190,33 @@ class Baas_thread:
                         break
                 else:
                     return False
+                return True
+            else:
+                self.lnk_path = self.config.get("program_address")
+                self.convert_lnk_to_exe(self.lnk_path)
+                self.file_path = self.config.get("program_address")
+                self.process_name = self.extract_filename_and_extension(self.file_path)
                 if self.check_process_running(self.process_name):
-                    self.logger.info(f"模拟器进程 {self.process_name} 启动成功.")
+                    self.logger.info(f"-- Emulator Process {self.process_name} is running --")
                     return True
                 else:
-                    self.logger.info(f"模拟器进程 {self.process_name} 启动失败.")
-                return False
-        else:
-            self.logger.info("无需启动模拟器进程.")
-            return True
+                    self.logger.warning(f"-- Emulator Process {self.process_name} is not running, start Emulator --")
+                    subprocess.Popen(self.file_path)
+                    self.logger.info(f" Start wait {wait_time} seconds for emulator to start. ")
+                    while self.flag_run:
+                        time.sleep(0.01)
+                        wait_time -= 0.01
+                        if wait_time <= 0:
+                            break
+                    else:
+                        return False
+                    if self.check_process_running(self.process_name):
+                        self.logger.info(f"Emulator Process {self.process_name} started SUCCESSFULLY")
+                        return True
+                    else:
+                        self.logger.warning(f"Emulator Process {self.process_name} start FAIL")
+                    return False
+        return True
 
     def start_emulator(self):
         self.emulator_strat_stat = self.config.get("open_emulator_stat")

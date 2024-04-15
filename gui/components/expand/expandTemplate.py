@@ -68,30 +68,7 @@ class TemplateLayout(QWidget):
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':
                 inputComponent = QLabel(cfg.selection, self)
-            elif cfg.type == 'text_and_file_button':  # 新添加的配置类型
-                # currentKey = cfg.key
-                # inputComponentLayout = QHBoxLayout()
-                # inputComponent = LineEdit(self)
-                # inputComponent.setText(str(self.config[currentKey]))
-                # inputComponentLayout.addWidget(inputComponent)
-                # self.patch_signal.connect(inputComponent.setText)
-                # fileButton = PushButton('选择', self)
-                # fileButton.clicked.connect(partial(self._choose_file, inputComponent))
-                # inputComponentLayout.addWidget(fileButton)
-                # confirmButton = PushButton('确定', self)
-                # confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
-                # inputComponentLayout.addWidget(confirmButton)
-                # self.vBoxLayout.addLayout(inputComponentLayout)
-                currentKey = cfg.key
-                inputComponent = LineEdit(self)
-                inputComponent.setFixedWidth(500)  # 设置文本框的固定宽度
-                inputComponent.setText(str(self.config.get(currentKey)))
-                confirmButton = PushButton('确定', self)
-                confirmButton.setFixedWidth(80)  # 设置确定按钮的固定宽度
-                confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
-                selectButton = PushButton('选择', self)
-                selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
-                selectButton.clicked.connect(partial(self._choose_file, inputComponent))
+
             else:
                 raise ValueError(f'Unknown config type: {cfg.type}')
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)

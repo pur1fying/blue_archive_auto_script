@@ -322,6 +322,9 @@ DEFAULT_CONFIG = """
 
     ],
     "explore_hard_task_list": "此处填写需要推图的关卡",
+    "emulatorIsMultiInstance": false,
+    "emulatorMultiInstanceNumber": 0,
+    "multiEmulatorName": "mumu",
     "manual_boss": false,
     "explore_normal_task_force_sss": true,
     "burst1": "1",
