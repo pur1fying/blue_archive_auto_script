@@ -1,22 +1,17 @@
 import json
-import subprocess
-import threading
 import time
-from datetime import datetime
 from hashlib import md5
 from json import JSONDecodeError
 from random import random
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel, QHBoxLayout, QAbstractItemView, QTableWidgetItem
-from qfluentwidgets import FluentIcon as FIF, TextEdit, IndeterminateProgressBar, InfoBar, InfoBarIcon, InfoBarPosition
+from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel, QHBoxLayout
+from qfluentwidgets import FluentIcon as FIF, TextEdit
 from qfluentwidgets import (
     PrimaryPushSettingCard,
     SubtitleLabel,
-    setFont,
-    ExpandLayout,
-    TableWidget
+    setFont
 )
 
 from core.notification import notify
@@ -43,19 +38,17 @@ class HomeFragment(QFrame):
 
     def __init__(self, parent: Window = None, config=None):
         super().__init__(parent=parent)
-        self.log_entries = None
-        self.config = config
         self.once = True
         self.event_map = {}
+        self.config = config
+        self.log_entries = None
+        self.crt_line_index = -1
         self.expandLayout = QVBoxLayout(self)
         self.vBoxLayout = QVBoxLayout(self)
 
         self.info_box = QFrame(self)
         self.info_box.setFixedHeight(45)
         self.infoLayout = QHBoxLayout(self.info_box)
-
-        self.crt_line_index = -1
-
 
         title = f'蔚蓝档案自动脚本 {self.config.get("name")}'
         self.banner_visible = self.config.get('bannerVisibility')
@@ -86,43 +79,13 @@ class HomeFragment(QFrame):
         )
 
         self.bottomLayout = QHBoxLayout()
-
         self.label_update = QLabel(self)
-
-        self.column_1 = QVBoxLayout(self)
         self.column_2 = QVBoxLayout(self)
-
-        self.table_view = TableWidget(self)
-        self.table_view.setColumnCount(3)
-        self.table_view.setFixedWidth(360)
-        self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.table_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.table_view.horizontalHeader().setSectionResizeMode(2, 1)
-        # hide index column
-        self.table_view.verticalHeader().setVisible(False)
-
-        self.table_view.setHorizontalHeaderLabels(['内容', '贡献者', '提交时间'])
-        # self.table_view.setCellWidget(0,0, self.label_update)
-        threading.Thread(target=self.fetch_update_info, daemon=True).start()
-
         self.label_logger = QLabel(self)
         self.logger_box = TextEdit(self)
         self.logger_box.setReadOnly(True)
-        # self.table_view.setStyleSheet('QTableWidget{background: #fff;corner-radius: 10px;}')
-
-        self.label_c_1 = QLabel('更新历史', self)
-        self.label_c_2 = QLabel('运行日志', self)
-
-        self.label_c_1.setStyleSheet('font-size: 20px;font-weight: 400;font-family: "Microsoft YaHei"')
-        self.label_c_2.setStyleSheet('font-size: 20px;font-weight: 400;font-family: "Microsoft YaHei"')
-
-        self.column_1.addWidget(self.label_c_1)
-        self.column_2.addWidget(self.label_c_2)
-
-        self.column_1.addWidget(self.table_view)
         self.column_2.addWidget(self.logger_box)
 
-        self.bottomLayout.addLayout(self.column_1)
         self.bottomLayout.addLayout(self.column_2)
         self.bottomLayout.setSpacing(10)
 
@@ -130,8 +93,6 @@ class HomeFragment(QFrame):
 
         self._main_thread_attach = MainThread(self.config)
         self.config.set_main_thread(self._main_thread_attach)
-        # self.scheduler = self.config.get_main_thread().get_baas_thread().scheduler
-
         self._main_thread_attach.button_signal.connect(self.set_button_state)
         self._main_thread_attach.logger_signal.connect(self.logger_box.append)
         self._main_thread_attach.update_signal.connect(self.call_update)
@@ -143,58 +104,6 @@ class HomeFragment(QFrame):
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(self.object_name)
 
-    def fetch_update_info(self):
-        GIT_HOME = './toolkit/Git/bin/git.exe'
-        # 获取提交日志
-        result = subprocess.run([GIT_HOME, 'log'], capture_output=True, text=True, encoding='utf-8')
-        output = result.stdout
-        # print(output)
-        # 解析提交日志
-        self.log_entries = []
-        current_entry = {}
-        for line in output.split('\n'):
-            if line.startswith('commit'):
-                if current_entry:
-                    self.log_entries.append(current_entry)
-                current_entry = {'id': line.split()[1][0:6]}
-            elif line.startswith('Author:'):
-                _author = line.split(':')[1].strip()
-                _author = _author.split('<')[0].strip()
-                current_entry['author'] = _author
-            elif line.startswith('Date:'):
-                _date = line.split(': ')[1].strip()
-                _date = datetime.strptime(_date, "%a %b %d %H:%M:%S %Y %z").strftime("%Y-%m-%d %H:%M:%S")
-                current_entry['date'] = _date
-            elif line.startswith('    '):
-                if 'message' in current_entry:
-                    current_entry['message'] += line.strip()
-                else:
-                    current_entry['message'] = line.strip()
-
-        if current_entry:
-            self.log_entries.append(current_entry)
-
-        self.table_view.setRowCount(len(self.log_entries))
-        for i, entry in enumerate(self.log_entries):
-            self.table_view.setItem(i, 0, QTableWidgetItem(entry['id']))
-            self.table_view.setItem(i, 1, QTableWidgetItem(entry['author']))
-            self.table_view.setItem(i, 2, QTableWidgetItem(entry['date']))
-            self.table_view.itemClicked.connect(self.table_view_item_clicked)
-
-    def table_view_item_clicked(self, item):
-        if item.row() == self.crt_line_index:
-            return
-        self.crt_line_index = item.row()
-        InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'该版本更新内容为\n'+self.log_entries[item.row()]['message'],
-            orient=Qt.Vertical,  # vertical layout
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=2000,
-            parent=self.parent()
-        ).show()
-
     def resizeEvent(self, event):
         # 自动调整banner尺寸（保持比例）
         _s = self.banner.size().width() / 1920.0
@@ -204,10 +113,6 @@ class HomeFragment(QFrame):
             self.banner.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
         self.banner.setPixmap(pixmap)
         self.banner.setScaledContents(True)
-        # if self.banner_visible:
-        #     self.logger_box.setFixedHeight(int(self.parent().height() * 0.35))
-        # else:
-        #     self.logger_box.setFixedHeight(int(self.parent().height() * 0.7))
 
     def call_update(self, data=None, parent=None):
         try:

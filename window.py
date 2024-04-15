@@ -181,6 +181,7 @@ class Widget(MSFluentWindow):
 class BAASTitleBar(MSFluentTitleBar):
     """ Title bar with icon and title """
     onHelpButtonClicked = pyqtSignal()
+    onHistoryButtonClicked = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -197,6 +198,10 @@ class BAASTitleBar(MSFluentTitleBar):
         self.tabBar.setScrollable(True)
         self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
 
+        self.historyButton = TransparentToolButton(FIF.HISTORY.icon(), self)
+        self.historyButton.setToolTip('更新日志')
+        self.historyButton.clicked.connect(self.onHistoryButtonClicked)
+
         self.searchButton = TransparentToolButton(FIF.HELP.icon(), self)
         self.searchButton.setToolTip('帮助')
         self.searchButton.clicked.connect(self.onHelpButtonClicked)
@@ -204,6 +209,7 @@ class BAASTitleBar(MSFluentTitleBar):
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
         self.hBoxLayout.setStretch(6, 0)
+        self.hBoxLayout.insertWidget(6, self.historyButton, 0, alignment=Qt.AlignRight)
         self.hBoxLayout.insertWidget(7, self.searchButton, 0, alignment=Qt.AlignRight)
 
         # self.hBoxLayout.insertSpacing(8, 20)
@@ -304,6 +310,7 @@ class Window(MSFluentWindow):
         self.tabBar.tabAddRequested.connect(self.onTabAddRequested)
         self.tabBar.tabCloseRequested.connect(self.onTabCloseRequested)
         self.titleBar.onHelpButtonClicked.connect(self.showHelpModal)
+        self.titleBar.onHistoryButtonClicked.connect(self.showHistoryModel)
 
     def initWindow(self):
         self.resize(900, 700)
@@ -322,6 +329,16 @@ class Window(MSFluentWindow):
         helpModal.resize(800, 600)
         helpModal.setFocus()
         helpModal.show()
+
+    @staticmethod
+    def showHistoryModel():
+        from gui.fragments.history import HistoryWindow
+        historyModal = HistoryWindow()
+        historyModal.setWindowTitle('更新日志')
+        historyModal.setWindowIcon(QIcon(ICON_DIR))
+        historyModal.resize(800, 600)
+        historyModal.setFocus()
+        historyModal.show()
 
     def onNavigationChanged(self, index: int):
         for ind, btn in enumerate(self.navi_btn_list):
