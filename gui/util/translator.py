@@ -35,6 +35,7 @@ class Translator(QTranslator):
         self.locale = self.cfg.get(self.cfg.language).value
         self.stringLang = self.locale.name()
         self.__config_translation = None
+        # separate dictionary for students to not caouse conflicts with existing translations
 
     def loadCfgTranslation(self):
         self.__config_translation = ConfigTranslation()
@@ -98,6 +99,12 @@ class Translator(QTranslator):
         if not self.isChinese() and self.isString(text) and self.__get(text):
             text = self.__get(text)
         return text
+
+
+    def getStudent(self, chineseName):
+        if self.__students.get(chineseName):
+            return self.__students[chineseName]
+        return chineseName
 
 
 baasTranslator = Translator()
