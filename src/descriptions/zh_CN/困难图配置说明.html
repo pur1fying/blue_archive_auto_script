@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<div>
+<pre><span style="font-family: arial, helvetica, sans-serif;">困难图使用说明与选队逻辑和普通图相同,一些困难图需要三支队伍，第三支队伍的属性均与该区域所需属性的第一个属性相同</span><br /><br /><span style="font-family: arial, helvetica, sans-serif;">推图关卡填写说明:</span><br /><br /><strong><span style="background-color: #f1c40f; font-family: arial, helvetica, sans-serif;">推图关卡中填写的字符串不应该超出这些字符或单词 "-" , "sss", "present", "task", "," , 和数字</span></strong><br /><span style="font-family: arial, helvetica, sans-serif;">按逗号拆分后转化为若干字符串</span><br /><span style="font-family: arial, helvetica, sans-serif;">1.字符串没有关键字"sss","present","task"</span><br /><span style="font-family: arial, helvetica, sans-serif;">例子:15,12-2</span><br /><span style="font-family: arial, helvetica, sans-serif;">根据困难图推图设置中三个的开关 将(15-1,15-2,15-3,12-2)打到sss/拿礼物/完成挑战任务</span><br /><br /><span style="font-family: arial, helvetica, sans-serif;">2.一个数字并跟字符串，且用"-"分隔</span><br /><span style="font-family: arial, helvetica, sans-serif;">例子: 15-sss-present</span><br /><span style="font-family: arial, helvetica, sans-serif;">会将(15-1,15-2,15-3)打到sss并拿礼物</span><br /><br /><span style="font-family: arial, helvetica, sans-serif;">3.两个数字（指定到对应关卡）</span><br /><span style="font-family: arial, helvetica, sans-serif;">例子:15-3-sss-task</span><br /><span style="font-family: arial, helvetica, sans-serif;">会将15-3打到sss并且完成挑战任务</span><br /><br /><span style="font-family: arial, helvetica, sans-serif;">4.例子</span><br /><span style="font-family: arial, helvetica, sans-serif;">开关都开启，填写: 7,8-sss,9-3-task</span><br /><span style="font-family: arial, helvetica, sans-serif;">表示依次执行(7-1,7-2,7-3)打到sss,拿礼物并完成挑战任务,(8-1,8-2,8-3)打到sss，9-3完成挑战任务</span><br /><strong><span style="font-family: arial, helvetica, sans-serif; background-color: #f1c40f;">注:Baas会自动判断关卡是否已经打到sss，是否拿了礼物，如果已经打到sss或拿了礼物，则跳过该关卡。</span></strong></pre>
+</div>
+</body>
+</html>
