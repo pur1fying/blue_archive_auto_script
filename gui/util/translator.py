@@ -1,4 +1,4 @@
-import typing
+from typing import Union
 
 from PyQt5.QtCore import QLocale, QTranslator
 from qfluentwidgets import ConfigSerializer, OptionsConfigItem, OptionsValidator, QConfig, qconfig
@@ -37,7 +37,6 @@ class Translator(QTranslator):
         self.__config_translation = None
         # separate dictionary for students to not caouse conflicts with existing translations
         self.__students = dict()
-        
 
     def loadCfgTranslation(self):
         self.__config_translation = ConfigTranslation()
@@ -48,7 +47,7 @@ class Translator(QTranslator):
     def isBytes(self, value):
         return isinstance(value, bytes)
 
-    def toString(self, translation: str | bytes) -> str:
+    def toString(self, translation: Union[str, bytes]) -> str:
         if self.isBytes(translation):
             translation = self.decode(translation)
         return translation
@@ -68,7 +67,7 @@ class Translator(QTranslator):
     def tr(self,
            context: str,
            sourceText: str,
-           disambiguation: str = '',
+           disambiguation: Union[str, None] = None,
            n: int = -1) -> str:
         """
         Translate sourceText by looking in the qm file.
