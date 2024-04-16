@@ -61,7 +61,7 @@ class Layout(QWidget):
             if self.config.static_config['student_names'][i][self.config.server_mode + '_implementation']:
                 self.student_name.append(
                     self.config.static_config['student_names'][i][self.config.server_mode + '_name'])
-
+                
                 # Store student name for hard_task_combobox in mainlinePriority
                 if not bt.isChinese():
                     cn_name = self.config.static_config['student_names'][i]['CN_name']
