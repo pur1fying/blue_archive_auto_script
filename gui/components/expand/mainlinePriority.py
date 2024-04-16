@@ -1,6 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
-from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition, ComboBox
+from qfluentwidgets import LineEdit, ComboBox
+
+from gui.util import notification
 
 
 class Layout(QWidget):
@@ -23,13 +25,15 @@ class Layout(QWidget):
 
         self.hard_task_combobox = ComboBox(self)
         self.each_student_task_number_dict = {
-            "根据学生添加关卡":[],
+            "根据学生添加关卡": [],
             "爱丽丝宝贝": [],
         }
         for i in range(0, len(self.config.static_config["hard_task_student_material"])):
-            self.each_student_task_number_dict.setdefault(self.config.static_config["hard_task_student_material"][i][1], [])
+            self.each_student_task_number_dict.setdefault(self.config.static_config["hard_task_student_material"][i][1],
+                                                          [])
             temp = self.config.static_config["hard_task_student_material"][i][0] + "-3"
-            (self.each_student_task_number_dict[self.config.static_config["hard_task_student_material"][i][1]].append(temp))
+            (self.each_student_task_number_dict[self.config.static_config["hard_task_student_material"][i][1]].append(
+                temp))
         for key in self.each_student_task_number_dict.keys():
             self.hard_task_combobox.addItem(key)
         self.hard_task_combobox.currentIndexChanged.connect(self.__hard_task_combobox_change)
@@ -83,30 +87,12 @@ class Layout(QWidget):
     def __accept_main(self):
         input_content = self.input.text()
         self.config.set('mainlinePriority', input_content)
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你的普通关卡已经被设置为：{input_content}',
-            orient=Qt.Vertical,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.info_widget
-        )
-        w.show()
+        notification.success('设置成功', f'你的普通关卡已经被设置为：{input_content}', self.config)
 
     def __accept_hard(self):
         input_content = self.input_hard.text()
         self.config.set('hardPriority', input_content)
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你的困难关卡已经被设置为：{input_content}',
-            orient=Qt.Vertical,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.info_widget
-        )
-        w.show()
+        notification.success('设置成功', f'你的困难关卡已经被设置为：{input_content}', self.config)
 
     def __hard_task_combobox_change(self):
         if self.hard_task_combobox.currentText() == "根据学生添加关卡":
@@ -114,5 +100,6 @@ class Layout(QWidget):
         st = ""
         if self.input_hard.text() != "":
             st = self.input_hard.text() + ","
-        self.input_hard.setText(st + ','.join(self.each_student_task_number_dict[self.hard_task_combobox.currentText()]))
+        self.input_hard.setText(
+            st + ','.join(self.each_student_task_number_dict[self.hard_task_combobox.currentText()]))
         self.__accept_hard()

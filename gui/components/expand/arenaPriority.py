@@ -1,7 +1,9 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QIntValidator
-from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
+from qfluentwidgets import LineEdit
+
+from gui.util import notification
 
 
 class Layout(QWidget):
@@ -52,27 +54,9 @@ class Layout(QWidget):
     def __accept_1(self):
         self.level_diff = int(self.input_1.text())
         self.config.set('ArenaLevelDiff', self.level_diff)
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你需要对手比你低{self.level_diff}级',
-            orient=Qt.Vertical,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.info_widget
-        )
-        w.show()
+        notification.success('设置成功', f'你需要对手比你低{self.level_diff}级', self.config)
 
     def __accept_2(self, _=None):
         self.refresh_times = int(self.input_2.text())
         self.config.set('maxArenaRefreshTimes', self.refresh_times)
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你最大刷新次数设置为：{self.refresh_times}',
-            orient=Qt.Vertical,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.info_widget
-        )
-        w.show()
+        notification.success('设置成功', f'你最大刷新次数设置为：{self.refresh_times}', self.config)

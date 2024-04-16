@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF, SplashScreen, MSFluentWindow, TabBar, \
-    MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition, TransparentToolButton
+    MSFluentTitleBar, MessageBox, TransparentToolButton
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from core import default_config
@@ -377,16 +377,7 @@ class Window(MSFluentWindow):
         if addDialog.exec_():
             text = addDialog.pathLineEdit.text()
             if text in list(map(lambda x: x.config['name'], self.config_dir_list)):
-                ib = InfoBar(
-                    icon=InfoBarIcon.ERROR,
-                    title='设置成功',
-                    content=f'名为“{text}”的配置已经存在！',
-                    orient=Qt.Vertical,  # vertical layout
-                    position=InfoBarPosition.TOP_RIGHT,
-                    duration=2000,
-                    parent=self
-                )
-                ib.show()
+                notification.error('设置失败', f'名为“{text}”的配置已经存在！', self)
                 return
             serial_name = str(int(datetime.datetime.now().timestamp()))
             os.mkdir(f'./config/{serial_name}')

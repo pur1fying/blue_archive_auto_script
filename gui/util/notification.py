@@ -4,8 +4,10 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import InfoBar, InfoBarIcon, InfoBarPosition
 
+from gui.util.config_set import ConfigSet
 
-def success(label: str, msg: str, config, duration: int = 800) -> None:
+
+def success(label: str, msg: str, config: ConfigSet, duration: int = 800) -> None:
     config.get_signal('notify_signal').emit(json.dumps({
         'type': 'success',
         'label': label,
@@ -14,7 +16,7 @@ def success(label: str, msg: str, config, duration: int = 800) -> None:
     }))
 
 
-def error(label: str, msg: str, config, duration: int = 800) -> None:
+def error(label: str, msg: str, config: ConfigSet, duration: int = 800) -> None:
     config.get_signal('notify_signal').emit(json.dumps({
         'type': 'error',
         'label': label,
@@ -23,7 +25,7 @@ def error(label: str, msg: str, config, duration: int = 800) -> None:
     }))
 
 
-def warning(label: str, msg: str, config, duration: int = 800) -> None:
+def warning(label: str, msg: str, config: ConfigSet, duration: int = 800) -> None:
     config.get_signal('notify_signal').emit(json.dumps({
         'type': 'warning',
         'label': label,

@@ -1,8 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel
-from qfluentwidgets import LineEdit, PushButton, InfoBar, InfoBarIcon, InfoBarPosition
+from qfluentwidgets import LineEdit, PushButton
 
 from .expandTemplate import TemplateLayout
+from ...util import notification
 
 
 class Layout(TemplateLayout):
@@ -57,16 +58,7 @@ class Layout(TemplateLayout):
     def _accept_push(self):
         value = self.input_push.text()
         self.config.set('explore_hard_task_list', value)
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你的困难关配置已经被设置为：{value}，正在推困难关。',
-            orient=Qt.Vertical,  # vertical layout
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.parent().parent().parent().parent().parent().parent().parent()
-        )
-        w.show()
+        notification.success('困难关推图', f'你的困难关配置已经被设置为：{value}，正在推困难关。', self.config)
         import threading
         threading.Thread(target=self.action).start()
 
