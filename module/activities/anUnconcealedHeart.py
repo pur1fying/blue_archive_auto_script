@@ -172,18 +172,17 @@ def explore_mission(self):
     total_missions = 12
     characteristic = [
         'burst1',
-        'pierce1',
-        'pierce1',
+        'mystic1',
         'burst1',
+        'mystic1',
         'burst1',
-        'pierce1',
-        'pierce1',
+        'mystic1',
         'burst1',
-        'pierce1',
+        'mystic1',
         'burst1',
-        'pierce1',
+        'mystic1',
         'burst1',
-        'pierce1',
+        'mystic1',
     ]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
