@@ -7,6 +7,7 @@ func_names = {
     "revolutionKupalaNight": activity.revolutionKupalaNight.explore_mission,
     "bunnyChaserOnTheShip": activity.bunnyChaserOnTheShip.explore_mission,
     "livelyAndJoyfulWalkingTour": activity.livelyAndJoyfulWalkingTour.explore_mission,
+    "anUnconcealedHeart": activity.anUnconcealedHeart.explore_mission,
 }
 
 

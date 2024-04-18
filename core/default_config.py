@@ -540,7 +540,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "anUnconcealedHeart",
         "Global": null,
         "JP": "livelyAndJoyfulWalkingTour"
     },

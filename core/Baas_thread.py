@@ -171,10 +171,10 @@ class Baas_thread:
         return False
 
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
-        if wait_time < 20:
-            self.logger.warning("Wait time is too short, auto set to 20 seconds.")
-            wait_time = 20
         if emulator_strat_stat:
+            if wait_time < 20:
+                self.logger.warning("Wait time is too short, auto set to 20 seconds.")
+                wait_time = 20
             self.lnk_path = self.config.get("program_address")
             self.convert_lnk_to_exe(self.lnk_path)
             self.file_path = self.config.get("program_address")
@@ -307,8 +307,8 @@ class Baas_thread:
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
         img_possibles = {
-            'normal_task_fight-pause': (908, 508),
-            'normal_task_retreat-notice': (768, 507),
+            # 'normal_task_fight-pause': (908, 508),
+            # 'normal_task_retreat-notice': (768, 507),
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
             'main_page_item-expire': (925, 119),
@@ -387,7 +387,7 @@ class Baas_thread:
             'area_rank_up': (640, 100),
             'level_up': (640, 200),
             'reward_acquired': (640, 100),
-            "fighting_feature": (1226, 51)
+            # "fighting_feature": (1226, 51)
         }
         picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot,
                           tentitive_click=True)
