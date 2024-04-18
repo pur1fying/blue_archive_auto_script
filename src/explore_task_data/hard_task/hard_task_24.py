@@ -48,7 +48,7 @@ stage_data = {
             {'t': 'end-turn'}
         ]
     },
-    '24-sss-present-task': {
+    '24-3-sss-present-task': {
         'start': [
             ['shock1', (963, 261)],
             ['burst1', (476, 419)],
