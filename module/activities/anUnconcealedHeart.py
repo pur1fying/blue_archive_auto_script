@@ -61,7 +61,7 @@ def preprocess_activity_sweep_times(times):
 
 
 def get_stage_data():
-    module_path = 'src.explore_task_data.activities.bunnyChaserOnTheShip'
+    module_path = 'src.explore_task_data.activities.anUnconcealedHeart'
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -208,63 +208,38 @@ def explore_mission(self):
 def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
-    tp = [
-        "fight",
-        "grid",
-        "grid",
-        "fight",
-    ]
     tasks = [
-        "challenge1_burst1",
         "challenge2_sss",
+        "challenge4_sss",
         "challenge2_task",
-        "challenge3_burst1",
+        "challenge4_task",
     ]
     stage_data = get_stage_data()
-    i = 0
-    while self.flag_run and i < len(tasks):
+    for i in range(0, len(tasks)):
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))
-        res = to_challenge_task_info(self, task_number)
-        if res == "normal_task_SUB":
-            self.logger.info("-- Start SUB fight --")
-            to_formation_edit_i(self, 1, [1087, 141], True)
-            start_fight(self, 1)
-            main_story.auto_fight(self)
-        elif res == "normal_task_task-info":
-            if tp[i] == "grid":
-                current_task_stage_data = stage_data[tasks[i]]
-                need_fight = False
-                if "task" in data:
-                    need_fight = True
-                elif "sss" in data:
-                    res = color.check_sweep_availability(self)
-                    if res == "sss":
-                        self.logger.info("Challenge " + str(task_number) + " sss no need to fight")
-                        to_activity(self, "challenge", True)
-                        i += 1
-                        continue
-                    elif res == "no-pass" or res == "pass":
-                        need_fight = True
-                if need_fight:
-                    common_gird_method(self, current_task_stage_data)
-                    i += 1
-                main_story.auto_fight(self)
-                if self.config['manual_boss']:
-                    self.click(1235, 41)
-            elif tp[i] == "fight":
-                res = color.check_sweep_availability(self)
-                if res == "sss":
-                    self.logger.info("Challenge " + str(task_number) + " sss no need to fight")
-                    to_activity(self, "challenge", True)
-                    i += 1
-                    continue
-                formationID = self.config[data[1]]
-                to_formation_edit_i(self, formationID, (949, 540), True)
-                start_fight(self, formationID)
-                main_story.auto_fight(self)
+        to_challenge_task_info(self, task_number)
+        current_task_stage_data = stage_data[tasks[i]]
+        need_fight = False
+        if "task" in data:
+            need_fight = True
+        elif "sss" in data:
+            res = color.check_sweep_availability(self)
+            if res == "sss":
+                self.logger.info("Challenge " + str(task_number) + " sss no need to fight")
+                to_activity(self, "challenge", True)
+                i += 1
+                continue
+            elif res == "no-pass" or res == "pass":
+                need_fight = True
+        if need_fight:
+            common_gird_method(self, current_task_stage_data)
+            i += 1
+        main_story.auto_fight(self)
+        if self.config['manual_boss']:
+            self.click(1235, 41)
         to_activity(self, "mission", True)
-        to_activity(self, "challenge", True, True)
+        to_activity(self, "challenge", True)
 
 
 def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
@@ -324,8 +299,6 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
                     self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
                     self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
                 elif region == "story":
-                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
-                elif region == "challenge":
                     self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
             return True
 
