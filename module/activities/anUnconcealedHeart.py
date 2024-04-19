@@ -71,7 +71,7 @@ def sweep(self, number, times):
     self.quick_method_to_main_page()
     to_activity(self, "mission", True, True)
     ap = self.get_ap()
-    sweep_one_time_ap = [0, 10, 10, 10, 10, 12, 12, 12, 12, 15, 15, 15, 15]
+    sweep_one_time_ap = [0, 10, 10, 10, 10, 15, 15, 15, 15, 20, 20, 20, 20]
     for i in range(0, min(len(number), len(times))):
         sweep_times = times[i]
         if type(sweep_times) is float:
