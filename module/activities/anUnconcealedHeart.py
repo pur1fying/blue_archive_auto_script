@@ -413,11 +413,11 @@ def toCardStore(self):
 
 def chooseCardFourOfFour(self):
     img_possibles = {
-        "activity_card-one-of-four-chosen": (1166, 412, 0.9, 5),
-        "activity_card-two-of-four-chosen": (1166, 412, 0.9, 5),
-        "activity_card-three-of-four-chosen": (1166, 412, 0.9, 5),
+        "activity_card-one-of-four-chosen": (1166, 412, 0.85, 5),
+        "activity_card-two-of-four-chosen": (1166, 412, 0.85, 5),
+        "activity_card-three-of-four-chosen": (1166, 412, 0.85, 5),
     }
-    img_ends = ("activity_card-four-of-four-chosen", 0.9, 5)
+    img_ends = ("activity_card-four-of-four-chosen", 0.85, 5)
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
