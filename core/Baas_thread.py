@@ -363,6 +363,7 @@ class Baas_thread:
                 'normal_task_task-info': (1084, 139),
                 "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
+                "main_page_net-work-unstable": (753, 500),
             },
             'JP': {
                 'main_page_news': (1142, 104),
