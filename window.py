@@ -114,7 +114,7 @@ def check_event_config(dir_path='./default_config', server="CN"):
     if server != "CN":
         for i in range(0, len(default_event_config)):
             for j in range(0, len(default_event_config[i]['daily_reset'])):
-                default_event_config[i]['daily_reset'][j] = default_event_config[i]['daily_reset'][j] - 1
+                default_event_config[i]['daily_reset'][j][0] = default_event_config[i]['daily_reset'][j][0] - 1
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             with open("error.log", 'w+', encoding='utf-8') as errorfile:
@@ -129,11 +129,15 @@ def check_event_config(dir_path='./default_config', server="CN"):
             exist = False
             for j in range(0, len(data)):
                 if data[j]['func_name'] == default_event_config[i]['func_name']:
+                    for k in range(0, len(default_event_config[i]['daily_reset'])):
+                        if len(data[j]['daily_reset'][k]) != 3:
+                            data[j]['daily_reset'][k] = [0, 0, 0]
                     data[j] = check_single_event(default_event_config[i], data[j])
                     exist = True
                     break
             if not exist:
                 data.insert(i, default_event_config[i])
+
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
     except Exception as e:

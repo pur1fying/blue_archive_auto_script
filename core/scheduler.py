@@ -17,6 +17,7 @@ class Scheduler:
         self._event_config = []
         self._current_task = None
         self._valid_task_queue = []
+        self.funcs = []
         self._read_config()
         # self._display_config_path = "./config/" + path + "/display.json"
 
@@ -26,6 +27,7 @@ class Scheduler:
                 self._event_config = json.load(f)
                 if self.event_map == {}:
                     for item in self._event_config:
+                        self.funcs.append(item['func_name'])
                         self.event_map[item['func_name']] = item['event_name']
 
     def _commit_change(self):
@@ -53,11 +55,13 @@ class Scheduler:
                         interval = event['interval']
                         if event['interval'] == 0:
                             interval = 86400
-                        daily_reset = event['daily_reset']
-                        current_hour = datetime.now(timezone.utc).hour
+                        daily_reset = event['daily_reset']  # daily_reset is a list of [hour, minute, second]
+                        sorted(daily_reset, key=lambda x: x[0] * 3600 + x[1] * 60 + x[2])
+                        current = datetime.now(timezone.utc).timestamp() % 86400
                         for i in range(0, len(daily_reset)):
-                            if current_hour < daily_reset[i] <= current_hour + (interval / 3600):
-                                event['next_tick'] = self.get_next_hour(daily_reset[i])
+                            if current < daily_reset[i][0] * 3600 + daily_reset[i][1] * 60 + daily_reset[i][2] < current + interval:
+                                event['next_tick'] = time.time() + daily_reset[i][0] * 3600 + daily_reset[i][1] * 60 + \
+                                                     daily_reset[i][2] - current
                                 break
                         else:
                             event['next_tick'] = time.time() + event['interval']
@@ -84,22 +88,24 @@ class Scheduler:
     def update_valid_task_queue(self):
         self._read_config()
         _valid_event = [x for x in self._event_config if x['enabled']]  # filter out disabled event
-        _valid_event = [x for x in self._event_config if
-                        x['enabled'] and x['next_tick'] <= time.time()]  # filter out event not ready
+        _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time.time()]  # filter out event not ready
 
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])  # sort by priority
-        current_time = datetime.now(timezone.utc).timestamp()
+        current_time = datetime.now(timezone.utc).timestamp() % 86400
         self._valid_task_queue = []
         for i in range(0, len(_valid_event)):
             f = True
             for j in range(0, len(_valid_event[i]["disabled_time_range"])):  # current task not in disable time range
-                if _valid_event[i]["disabled_time_range"][j][0] <= current_time <= \
-                    _valid_event[i]["disabled_time_range"][j][0]:
+                start = _valid_event[i]["disabled_time_range"][j][0][0] * 3600 + _valid_event[i]["disabled_time_range"][j][0][1] * 60 + _valid_event[i]["disabled_time_range"][j][0][2]
+                end = _valid_event[i]["disabled_time_range"][j][1][0] * 3600 + _valid_event[i]["disabled_time_range"][j][1][1] * 60 + _valid_event[i]["disabled_time_range"][j][1][2]
+                if start <= current_time <= end:
                     f = False
                     break
             if not f:
                 continue
             for j in range(0, len(_valid_event[i]["pre_task"])):
+                if self.event_map[_valid_event[i]['pre_task'][j]] not in self.funcs:
+                    continue
                 dic = {
                     "func_name": _valid_event[i]['pre_task'][j],
                     "need_systole": False,
@@ -111,6 +117,8 @@ class Scheduler:
             }
             self._valid_task_queue.append(dic)
             for j in range(0, len(_valid_event[i]["post_task"])):
+                if self.event_map[_valid_event[i]["post_task"][j]] not in self.funcs:
+                    continue
                 dic = {
                     "func_name": _valid_event[i]["post_task"][j],
                     "need_systole": False,
