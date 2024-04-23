@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Union
 
 
-def delay(wait):
+def delay(wait=1):
     def decorator(func):
         timer = None  # type: Union[threading.Timer, None]
 

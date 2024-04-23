@@ -6,6 +6,8 @@ from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, InfoBar
 
 from functools import partial
 
+from gui.util import notification
+
 
 class ConfigItem:
     label: str
@@ -88,15 +90,61 @@ class TemplateLayout(QWidget):
         elif isinstance(target, LineEdit):
             value = target.text()
         assert value is not None
-        self.config.set(key, value)
-        infoChanged = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'{labelTarget.text()}已经被设置为：{value}',
-            orient=Qt.Vertical,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.parent().parent().parent().parent().parent()
-            .parent().parent().parent().parent().parent()
-        )
-        infoChanged.show()
+        self.config.update(key, value)
+        notification.success('设置成功', f'{labelTarget.text()}已经被设置为：{value}', self.config)
+
+
+class ConfigItemV2(ConfigItem):
+    label: str
+    key: str
+    dataType: str
+
+    def __init__(self, **kwargs):
+        self.label = kwargs.get('label')
+        self.key = kwargs.get('key')
+        self.dataType = kwargs.get('dataType', 'str')
+
+
+class TemplateLayoutV2(QWidget):
+    def __init__(self, configItems: list[dict], parent=None, config=None):
+        super().__init__(parent=parent)
+        self.config = config
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.addSpacing(16)
+        self.vBoxLayout.setAlignment(Qt.AlignCenter)
+        self.setMinimumWidth(400)
+        self.setStyleSheet('''
+            QLabel {
+                font-size: 16px;
+                font-family: "Microsoft YaHei";
+            }
+        ''')
+
+        self.cfs = []
+
+        for ind, cfg in enumerate(configItems):
+            optionPanel = QHBoxLayout(self)
+            cfg = ConfigItemV2(**cfg)
+            self.cfs.append(cfg)
+            labelComponent = QLabel(cfg.label, self)
+            optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
+            optionPanel.addStretch(1)
+            currentKey = cfg.key
+            inputComponent = LineEdit(self)
+            inputComponent.setMinimumWidth(200)
+            inputComponent.setText(str(self.config.get(currentKey)))
+            inputComponent.textChanged.connect(partial(self._commit, currentKey, inputComponent))
+            optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
+            self.vBoxLayout.addLayout(optionPanel)
+            self.vBoxLayout.addSpacing(8)
+            self.vBoxLayout.setContentsMargins(20, 0, 20, 20)
+
+    def _commit(self, key, target):
+        value = target.text()
+        for cf in self.cfs:
+            if cf.key == key:
+                if cf.dataType == 'int' or cf.dataType == 'list':
+                    value = eval(value)
+                else:
+                    value = value
+        self.config[key] = value

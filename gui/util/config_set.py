@@ -38,6 +38,9 @@ class ConfigSet:
             notify('', '修改配置失败,请重新设置')
             print(f'failed to set config {key}')
 
+    def update(self, key, value):
+        self.set(key, value)
+
     def __getitem__(self, item: str):
         return self.config[item]
 

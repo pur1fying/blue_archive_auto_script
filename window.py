@@ -262,13 +262,13 @@ class Window(MSFluentWindow):
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
         self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
-                          [SwitchFragment(parent=self, config=x) for x in self.config_dir_list],
                           [ProcessFragment(parent=self, config=x) for x in self.config_dir_list],
+                          [SwitchFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SettingsFragment(parent=self, config=x) for x in self.config_dir_list]]
         # _sc_list = [SwitchFragment(parent=self, config_dir=x) for x in config_dir_list]
         self.homeInterface = self._sub_list[0][0]
-        self.schedulerInterface = self._sub_list[1][0]
-        self.processInterface = self._sub_list[2][0]
+        self.processInterface = self._sub_list[1][0]
+        self.schedulerInterface = self._sub_list[2][0]
         self.settingInterface = self._sub_list[3][0]
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
@@ -296,8 +296,8 @@ class Window(MSFluentWindow):
     def initNavigation(self):
         self.navi_btn_list = [
             self.addSubInterface(self.homeInterface, FIF.HOME, '主页'),
-            self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '配置'),
             self.addSubInterface(self.processInterface, FIF.CALENDAR, '调度'),
+            self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '配置'),
             self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
         ]
 
