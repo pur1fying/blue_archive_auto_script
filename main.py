@@ -92,8 +92,8 @@ class Main:
                     temp.append(self.operate_item(item[i]))
             return temp
 
-    
-        
+
+
 
 
 if __name__ == '__main__':
@@ -107,8 +107,8 @@ if __name__ == '__main__':
     # tt.solve("refresh_uiautomator2")
     tt.solve("explore_activity_challenge")
     # tt.solve("activity_sweep")
-    tt.solve("explore_activity_mission")
-    tt.solve("explore_activity_story")
+    # tt.solve("explore_activity_mission")
+    # tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     # tt.solve("total_assault")
     # tt.solve("cafe_reward")
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     # tt.solve("normal_task")
     # tt.solve("hard_task")
     # tt.solve("arena")
-    # tt.solve("lesson")
+    tt.solve("lesson")
     # tt.solve("group")
     # tt.solve("mail")
     # tt.solve("collect_reward")

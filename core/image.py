@@ -72,16 +72,3 @@ def get_area(server, name):
         return False
     return position.image_x_y_range[server][module][name]
 
-
-def process_image(self, img, name, threshold=10, step=5):
-    area = get_area(name)
-    width, height = area.shape[1], area.shape[0]
-    ss_img = screenshot_cut(self, area=area, image=img)
-    total_cnt = 0
-    correct_cnt = 0
-    for x in range(0, width, step):
-        for y in range(0, height, step):
-            total_cnt += 1
-            random_x = random.randint(x, min(x + step - 1, width - 1))
-            random_y = random.randint(y, min(y + step - 1, height - 1))
-            r_max = img

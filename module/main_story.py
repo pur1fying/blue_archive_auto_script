@@ -15,7 +15,7 @@ def implement(self):
     push_episode_list = self.config['main_story_regions']
     if not push_episode_list:
         default_list = {
-            'CN': [1, 2, 3],
+            'CN': [1, 2, 3, 4],
             'Global': [1, 2, 3, 4, 5, 4],
             'JP': [1, 2, 3, 4, 5, 4, 6]
         }
@@ -110,7 +110,7 @@ def check_episode(self):
 
 def to_episode(self, num):
     origin_position = {
-        'CN': [0, [305, 255], [526, 449], [892, 255]],
+        'CN': [0, [305, 255], [526, 449], [892, 255], [597, 449]],
         'Global': [0, [305, 255], [526, 449], [892, 255], [597, 449], [850, 630]],
         'JP': [0, [305, 255], [526, 449], [892, 255], [278, 463], [850, 630], [729, 249]]
     }

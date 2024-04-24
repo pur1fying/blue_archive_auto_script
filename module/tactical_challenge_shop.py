@@ -97,7 +97,7 @@ def to_refresh(self):
 def get_tactical_challenge_assets(self):
     tactical_challenge_assets_region = {
         'CN': [1109, 63, 1240, 102],
-        'Global': [1109, 63, 1240, 102],
+        'Global': [907, 68, 1045, 98],
         'JP': [907, 68, 1045, 98]
     }
     return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server], int,
