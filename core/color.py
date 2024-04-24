@@ -52,7 +52,7 @@ def judge_rgb_range(self, x, y, r_min, r_max, g_min, g_max, b_min, b_max, check_
     return False
 
 
-def check_sweep_availability(self):
+def check_sweep_availability(self, is_mainline=False):
     if self.server == "CN":
         if judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
             judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
@@ -67,7 +67,7 @@ def check_sweep_availability(self):
             judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
             return "pass"
         return "UNKNOWN"
-    elif self.server == "Global":
+    elif self.server == "Global" or (self.server == "JP" and not is_mainline):
         if judge_rgb_range(self, 169, 369, 192, 212, 192, 212, 192, 212) and \
             judge_rgb_range(self, 169, 405, 192, 212, 192, 212, 192, 212) and \
             judge_rgb_range(self, 169, 439, 192, 212, 192, 212, 192, 212):
@@ -80,7 +80,7 @@ def check_sweep_availability(self):
             judge_rgb_range(self, 169, 405, 225, 255, 200, 255, 20, 60) or \
             judge_rgb_range(self, 169, 439, 225, 255, 200, 255, 20, 60):
             return "pass"
-    elif self.server == "JP":
+    elif self.server == "JP" and is_mainline:
         if judge_rgb_range(self, 169, 469, 192, 212, 192, 212, 192, 212) and \
             judge_rgb_range(self, 169, 401, 192, 212, 192, 212, 192, 212) and \
             judge_rgb_range(self, 169, 436, 192, 212, 192, 212, 192, 212):

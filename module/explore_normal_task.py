@@ -82,7 +82,7 @@ def get_stage_data(region):
 def check_task_state(self):
     if image.compare_image(self, 'normal_task_SUB'):
         return 'SUB'
-    return color.check_sweep_availability(self)
+    return color.check_sweep_availability(self, True)
 
 
 def calc_need_fight_stage(self, region, force_sss):

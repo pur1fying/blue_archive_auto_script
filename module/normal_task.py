@@ -95,7 +95,7 @@ def implement(self):
             if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
                 self.logger.warning("task unlocked")
                 continue
-            t = check_sweep_availability(self)
+            t = check_sweep_availability(self, True)
             if t == "sss":
                 if tar_times == "max":
                     self.click(1085, 300, rate=1,  wait_over=True)
