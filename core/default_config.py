@@ -542,7 +542,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "anUnconcealedHeart",
         "Global": null,
-        "JP": "livelyAndJoyfulWalkingTour"
+        "JP": null
     },
     "package_name": {
         "官服": "com.RoamingStar.BlueArchive",
