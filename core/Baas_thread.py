@@ -368,7 +368,7 @@ class Baas_thread:
             'JP': {
                 'main_page_news': (1142, 104),
                 "cafe_cafe-reward-status": (985, 147),
-                'normal_task_task-info': (1126, 141),
+                'normal_task_task-info': (1126, 115),
                 "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
                 "special_task_task-info": (1126, 141),
                 'main_page_attendance-reward': (642, 489),

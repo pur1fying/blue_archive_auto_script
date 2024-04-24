@@ -85,7 +85,10 @@ def implement(self):
                     duration = 0
                     if tar_times > 4:
                         duration = 1
-                    self.click(1014, 300, count=tar_times - 1, duration=duration, wait_over=True)
+                    y = 300
+                    if self.server == "JP":
+                        y = 330
+                    self.click(1014, y, count=tar_times - 1, duration=duration, wait_over=True)
                 res = start_sweep(self, True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("hard task " + str(self.hard_task_count[i]) + " finished")
@@ -104,10 +107,10 @@ def implement(self):
 
 
 def to_hard_event(self, skip_first_screenshot=False):
-    task_info_x = {
-        'CN': 1087,
-        'Global': 1128,
-        'JP': 1128
+    task_info = {
+        'CN': (1087, 140),
+        'Global': (1128,140),
+        'JP': (1128,115)
     }
     rgb_ends = 'event_hard'
     rgb_possibles = {
@@ -125,7 +128,7 @@ def to_hard_event(self, skip_first_screenshot=False):
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
         "normal_task_unlock-notice": (887, 164),
-        "normal_task_task-info": (task_info_x[self.server], 140),
+        "normal_task_task-info": task_info[self.server],
         'normal_task_skip-sweep-complete': (643, 506),
         "buy_ap_notice": (919, 165),
         'normal_task_task-finish': (1038, 662),

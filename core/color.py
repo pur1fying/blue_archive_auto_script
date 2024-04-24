@@ -67,7 +67,7 @@ def check_sweep_availability(self):
             judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
             return "pass"
         return "UNKNOWN"
-    elif self.server == "Global" or self.server == "JP":
+    elif self.server == "Global":
         if judge_rgb_range(self, 169, 369, 192, 212, 192, 212, 192, 212) and \
             judge_rgb_range(self, 169, 405, 192, 212, 192, 212, 192, 212) and \
             judge_rgb_range(self, 169, 439, 192, 212, 192, 212, 192, 212):
@@ -79,5 +79,18 @@ def check_sweep_availability(self):
         if judge_rgb_range(self, 169, 369, 225, 255, 200, 255, 20, 60) or \
             judge_rgb_range(self, 169, 405, 225, 255, 200, 255, 20, 60) or \
             judge_rgb_range(self, 169, 439, 225, 255, 200, 255, 20, 60):
+            return "pass"
+    elif self.server == "JP":
+        if judge_rgb_range(self, 169, 469, 192, 212, 192, 212, 192, 212) and \
+            judge_rgb_range(self, 169, 401, 192, 212, 192, 212, 192, 212) and \
+            judge_rgb_range(self, 169, 436, 192, 212, 192, 212, 192, 212):
+            return "no-pass"
+        if judge_rgb_range(self, 169, 469, 225, 255, 200, 255, 20, 60) and \
+            judge_rgb_range(self, 169, 401, 225, 255, 200, 255, 20, 60) and \
+            judge_rgb_range(self, 169, 436, 225, 255, 200, 255, 20, 60):
+            return "sss"
+        if judge_rgb_range(self, 169, 469, 225, 255, 200, 255, 20, 60) or \
+            judge_rgb_range(self, 169, 401, 225, 255, 200, 255, 20, 60) or \
+            judge_rgb_range(self, 169, 436, 225, 255, 200, 255, 20, 60):
             return "pass"
         return "UNKNOWN"
