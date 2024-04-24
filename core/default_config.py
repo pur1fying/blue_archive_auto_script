@@ -588,7 +588,47 @@ STATIC_DEFAULT_CONFIG = '''
         ["24-1", "芹娜"] , ["24-2", "玛丽"] , ["24-3", "日奈"] ,
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"]
     ],
-    "student_names": [
+  "student_names": [
+    {
+      "CN_name": "アイリ(バンド)",
+      "CN_implementation": false,
+      "Global_name": "Airi (Band)",
+      "Global_implementation": false,
+      "JP_name": "アイリ(バンド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "ヨシミ(バンド)",
+      "CN_implementation": false,
+      "Global_name": "Yoshimi (Band)",
+      "Global_implementation": false,
+      "JP_name": "ヨシミ(バンド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "カズサ(バンド)",
+      "CN_implementation": false,
+      "Global_name": "Kazusa (Band)",
+      "Global_implementation": false,
+      "JP_name": "カズサ(バンド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "椿(导游)",
+      "CN_implementation": false,
+      "Global_name": "Tsubaki (Guide)",
+      "Global_implementation": false,
+      "JP_name": "ツバキ(ガイド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "海香",
+      "CN_implementation": false,
+      "Global_name": "Umika",
+      "Global_implementation": false,
+      "JP_name": "ウミカ",
+      "JP_implementation": true
+    },
     {
       "CN_name": "明里(正月)",
       "CN_implementation": false,
@@ -721,7 +761,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "时雨(温泉)",
       "CN_implementation": false,
       "Global_name": "Shigure (Hot Spring)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "シグレ(温泉)",
       "JP_implementation": true
     },
@@ -729,7 +769,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "霞",
       "CN_implementation": false,
       "Global_name": "Kasumi",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "カスミ",
       "JP_implementation": true
     },
@@ -737,7 +777,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "一花",
       "CN_implementation": false,
       "Global_name": "Ichika",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "イチカ",
       "JP_implementation": true
     },
@@ -745,7 +785,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "晴奈(运动服)",
       "CN_implementation": false,
       "Global_name": "Haruna (Track)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "ハルナ(体操服)",
       "JP_implementation": true
     },
@@ -1215,7 +1255,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "月咏",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Tsukuyo",
       "Global_implementation": true,
       "JP_name": "ツクヨ",
@@ -1223,7 +1263,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "满",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Michiru",
       "Global_implementation": true,
       "JP_name": "ミチル",
@@ -1231,7 +1271,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "伊吕波",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Iroha",
       "Global_implementation": true,
       "JP_name": "イロハ",
@@ -1239,7 +1279,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "枫",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Kaede",
       "Global_implementation": true,
       "JP_name": "カエデ",
@@ -1254,7 +1294,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "咲希",
+      "CN_name": "咲",
       "CN_implementation": true,
       "Global_name": "Saki",
       "Global_implementation": true,
@@ -1271,7 +1311,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "真里奈",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Marina",
       "Global_implementation": true,
       "JP_name": "マリナ",
