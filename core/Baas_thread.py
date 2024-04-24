@@ -309,6 +309,7 @@ class Baas_thread:
         img_possibles = {
             # 'normal_task_fight-pause': (908, 508),
             # 'normal_task_retreat-notice': (768, 507),
+            "main_page_privacy-policy": (772, 501),
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
             'main_page_item-expire': (925, 119),
