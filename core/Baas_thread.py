@@ -309,6 +309,7 @@ class Baas_thread:
         img_possibles = {
             # 'normal_task_fight-pause': (908, 508),
             # 'normal_task_retreat-notice': (768, 507),
+            "main_page_privacy-policy": (772, 501),
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
             'main_page_item-expire': (925, 119),
@@ -363,11 +364,12 @@ class Baas_thread:
                 'normal_task_task-info': (1084, 139),
                 "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
+                "main_page_net-work-unstable": (753, 500),
             },
             'JP': {
                 'main_page_news': (1142, 104),
                 "cafe_cafe-reward-status": (985, 147),
-                'normal_task_task-info': (1126, 141),
+                'normal_task_task-info': (1126, 115),
                 "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
                 "special_task_task-info": (1126, 141),
                 'main_page_attendance-reward': (642, 489),

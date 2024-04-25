@@ -95,7 +95,7 @@ def implement(self):
             if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
                 self.logger.warning("task unlocked")
                 continue
-            t = check_sweep_availability(self)
+            t = check_sweep_availability(self, True)
             if t == "sss":
                 if tar_times == "max":
                     self.click(1085, 300, rate=1,  wait_over=True)
@@ -104,7 +104,10 @@ def implement(self):
                         duration = 0
                         if tar_times > 4:
                             duration = 1
-                        self.click(1014, 300, count=tar_times - 1,  duration=duration, wait_over=True)
+                        y = 300
+                        if self.server == "JP":
+                            y = 330
+                        self.click(1014, y, count=tar_times - 1,  duration=duration, wait_over=True)
                 res = start_sweep(self, skip_first_screenshot=True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("common task " + str(self.normal_task_count[i]) + " finished")

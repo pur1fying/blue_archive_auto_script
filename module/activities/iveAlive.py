@@ -12,7 +12,6 @@ def implement(self):
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
         sweep(self, region, times)
-    drawCard(self)
     return True
 
 
@@ -61,7 +60,7 @@ def preprocess_activity_sweep_times(times):
 
 
 def get_stage_data():
-    module_path = 'src.explore_task_data.activities.anUnconcealedHeart'
+    module_path = 'src.explore_task_data.activities.iveAlive'
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -111,7 +110,7 @@ def explore_story(self):
     total_stories = 10
     while self.flag_run:
         plot = to_story_task_info(self, last_target_task)
-        if plot == "normal_task_task-info":
+        if plot == "normal_task_task-info" or plot == "activity_task-info":
             res = color.check_sweep_availability(self)
         elif plot == "main_story_episode-info":
             if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
@@ -122,8 +121,8 @@ def explore_story(self):
             self.logger.info("Current story sss check next story")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_task += 1
-            plot = picture.co_detect(self, img_ends=["normal_task_task-info", "main_story_episode-info"])
-            if plot == "normal_task_task-info":
+            plot = picture.co_detect(self, img_ends=["normal_task_task-info","activity_task-info", "main_story_episode-info"])
+            if plot == "normal_task_task-info" or plot == "activity_task-info":
                 res = color.check_sweep_availability(self)
             elif plot == "main_story_episode-info":
                 if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
@@ -140,6 +139,7 @@ def explore_story(self):
 
 def start_story(self):
     img_possibles = {
+        "activity_task-info": (940, 538),
         "normal_task_task-info": (940, 538),
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
@@ -191,7 +191,7 @@ def explore_mission(self):
             self.logger.info("Current task sss check next task")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_mission += 1
-            image.detect(self, "normal_task_task-info")
+            picture.co_detect(self, img_ends=["normal_task_task-info", "activity_task-info"])
             res = color.check_sweep_availability(self)
         if last_target_mission == total_missions and res == "sss":
             self.logger.info("All MISSION SSS")
@@ -248,6 +248,11 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'Global': (1128, 141),
         'JP': (1126, 115)
     }
+    task_info_x = {
+        'CN': 1087,
+        'Global': 1128,
+        'JP': 1126
+    }
     img_possibles = {
         "activity_enter1": (1196, 195),
         "activity_enter2": (100, 149),
@@ -258,6 +263,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'purchase_ap_notice': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
+        "activity_task-info": (task_info_x[self.server],141),
         "normal_task_task-info": task_info[self.server],
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
@@ -309,6 +315,7 @@ def to_story_task_info(self, number):
         self.swipe(916, 667, 916, 0, duration=0.05, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = [
+        "activity_task-info",
         "normal_task_task-info",
         "main_story_episode-info"
     ]
@@ -323,14 +330,15 @@ def to_mission_task_info(self, number):
     if number in [8, 9, 10, 11, 12]:
         self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
     possibles = {'activity_menu': (1124, lo[index[number - 1]])}
-    ends = "normal_task_task-info"
-    image.detect(self, ends, possibles)
+    ends = ["normal_task_task-info", "activity_task-info"]
+    return picture.co_detect(self, None, None, ends, possibles, True)
 
 
 def to_challenge_task_info(self, number):
     lo = [0, 178, 279, 377, 477, 564]
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = [
+        "activity_task-info",
         "normal_task_task-info",
         "normal_task_SUB"
     ]
@@ -349,6 +357,7 @@ def to_formation_edit_i(self, i, lo=(0, 0), skip_first_screenshot=False):
     }
     rgb_possibles.pop("formation_edit" + str(i))
     img_possibles = {
+        "activity_task-info": (lo[0], lo[1]),
         "normal_task_task-info": (lo[0], lo[1]),
         "normal_task_SUB": (647, 517)
     }
@@ -367,7 +376,10 @@ def start_sweep(self, skip_first_screenshot=False):
         "purchase_ap_notice",
         "normal_task_start-sweep-notice",
     ]
-    img_possibles = {"normal_task_task-info": (941, 411)}
+    img_possibles = {
+        "normal_task_task-info": (941, 411),
+        "activity_task-info": (941, 411),
+    }
     res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice" or res == "buy_ap_notice":
         return "inadequate_ap"
@@ -385,64 +397,3 @@ def start_sweep(self, skip_first_screenshot=False):
     return "sweep_complete"
 
 
-def drawCard(self):
-    to_activity(self, "mission", True)
-    toCardStore(self)
-    region = {
-        'CN': (708, 168, 781, 201)
-    }
-    coin = self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
-    drawCnt = int(coin / 200)
-    for i in range(0, drawCnt):
-        reshuffleCard(self)
-        chooseCardFourOfFour(self)
-        res = drawCardFourOfFour(self)
-        if res == "activity_draw-card-grey":
-            self.logger.warning("inadequate coin")
-            return
-    return
-
-
-def toCardStore(self):
-    img_possibles = {
-        "activity_menu": (517, 647),
-    }
-    img_ends = "activity_card-store"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
-
-def chooseCardFourOfFour(self):
-    img_possibles = {
-        "activity_card-one-of-four-chosen": (1166, 412, 0.85, 5),
-        "activity_card-two-of-four-chosen": (1166, 412, 0.85, 5),
-        "activity_card-three-of-four-chosen": (1166, 412, 0.85, 5),
-    }
-    img_ends = ("activity_card-four-of-four-chosen", 0.85, 5)
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
-
-def reshuffleCard(self):
-    img_possibles = {
-        "activity_reshuffle-card-bright": (811, 579),
-    }
-    img_ends = [
-        "activity_card-four-of-four-not-drew",
-        "activity_reshuffle-card-grey",
-    ]
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
-
-def drawCardFourOfFour(self):
-    img_possibles = {
-        "activity_draw-card-bright": (1042, 593),
-    }
-    rgb_ends = "reward_acquired"
-    img_ends = "activity_draw-card-grey"
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
-    if res == "activity_draw-card-grey":
-        return "activity_draw-card-grey"
-    rgb_possibles = {
-        "reward_acquired": (640, 100),
-    }
-    img_ends = "activity_card-store"
-    return picture.co_detect(self, None, rgb_possibles, img_ends, None, True)

@@ -31,6 +31,7 @@ def to_cafe(self, skip_first_screenshot=False):
         'Global': 904,
     }
     img_possibles = {
+        "cafe_gift": (1240, 577),
         'cafe_cafe-reward-status': (reward_status_cross_x[self.server], 159),
         'cafe_invitation-ticket': (835, 97),
         'cafe_students-arrived': (922, 189),
@@ -65,9 +66,10 @@ def match(img):
 
 
 def cafe_to_gift(self):
+    img_ends = "cafe_gift"
     rgb_possibles = {"cafe": (163, 639)}
     rgb_ends = "gift"
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, None, True)
 
 
 def shot(self):
@@ -76,9 +78,12 @@ def shot(self):
 
 
 def gift_to_cafe(self):
+    img_possibles = {
+        'cafe_gift': (1240, 574),
+    }
     rgb_possibles = {"gift": (1240, 574)}
     rgb_ends = "cafe"
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
 
 
 def interaction_for_cafe_solve_method3(self):
