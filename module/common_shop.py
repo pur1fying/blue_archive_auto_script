@@ -31,13 +31,28 @@ def implement(self):
         self.latest_img_array = self.get_screenshot_array()
 
         if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
-            self.logger.info("Purchase available")
-            self.click(1160, 662, wait_over=True, duration=0.5)
-            self.click(767, 488, wait_over=True, duration=2)
-            self.click(640, 80, wait_over=True)
-            self.click(640, 80, wait_over=True)
+            self.logger.info("-- Purchase available --")
+            img_possibles = {
+                "shop_menu": (1163, 659),
+            }
+            img_ends = [
+                "shop_purchase-notice1",
+                "shop_purchase-notice2",
+            ]
+            picture.co_detect(self, None, None, img_ends, img_possibles, True)
+            purchase_location = {
+                'CN': (777, 491),
+                'Global': (777, 491),
+                'JP': (754, 581)
+            }
+            img_possibles = {
+                "shop_purchase-notice1": purchase_location[self.server],
+                "shop_purchase-notice2": (767, 524),
+            }
+            rgb_ends = "reward_acquired"
+            img_ends = "main_page_full-notice"
+            picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
             assets = calculate_left_assets(self, assets, asset_required)
-
             to_common_shop(self)
         elif color.judge_rgb_range(self, 1126, 665, 206, 226, 206, 226, 206, 226):
             self.logger.info("Purchase Unavailable")

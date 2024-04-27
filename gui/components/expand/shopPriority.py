@@ -18,7 +18,7 @@ class Layout(QWidget):
         layout.setVerticalSpacing(0)
         # layout.setHorizontalSpacing(10)
 
-        self.setFixedHeight(500)
+        self.setFixedHeight(700)
         self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
         self.label = QLabel('刷新次数', self)
         self.label.setFixedWidth(160)
