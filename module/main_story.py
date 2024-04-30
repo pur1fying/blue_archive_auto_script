@@ -17,7 +17,7 @@ def implement(self):
         default_list = {
             'CN': [1, 2, 3, 4],
             'Global': [1, 2, 3, 4, 5, 4],
-            'JP': [1, 2, 3, 4, 5, 4, 6]
+            'JP': [ 5, 4, 6]
         }
         push_episode_list = default_list[self.server]
     if type(push_episode_list) is not list:
