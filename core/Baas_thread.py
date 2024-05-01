@@ -180,7 +180,7 @@ class Baas_thread:
         file_name_with_extension = os.path.basename(actual_path)
 
         return file_name_with_extension
-    
+
     def check_process_running(self, process_name):
         """
         检测指定名称的进程是否正在运行
@@ -214,7 +214,7 @@ class Baas_thread:
         else:
         # 同步阻塞执行
             return subprocess.run(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
-    
+
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
         if emulator_strat_stat:
             if wait_time < 20:
@@ -441,7 +441,7 @@ class Baas_thread:
             'Global': {
                 'main_page_news': (1227, 56),
                 "special_task_task-info": (1126, 141),
-                'cafe_cafe-reward-status': (905, 159),
+                'cafe_cafe-reward-status': (985, 147),
                 'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),
