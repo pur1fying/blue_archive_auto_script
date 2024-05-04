@@ -13,6 +13,11 @@ class Layout(TemplateLayout):
                 'type': 'switch'
             },
             {
+                'label': EmulatorConfig.tr('是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)'),
+                'key': 'multi_emulator_check',
+                'type': 'switch'
+            },
+            {
                 'label': EmulatorConfig.tr('等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)'),
                 'type': 'text',
                 'key': 'emulator_wait_time'

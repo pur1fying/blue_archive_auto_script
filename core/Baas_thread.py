@@ -16,6 +16,7 @@ import psutil
 import os
 import win32com.client
 import time
+from typing import Tuple
 
 func_dict = {
     'group': module.group.implement,
@@ -155,9 +156,29 @@ class Baas_thread:
 
     def extract_filename_and_extension(self, file_path):
         """
-        从文件路径中提取文件名和后缀
+        从可能包含启动参数的路径中提取文件名和扩展名
         """
-        file_name_with_extension = os.path.basename(file_path)
+        # 预定义特定的文件扩展名列表
+        specific_extensions = [".exe", ".lnk"]
+
+        # 找到最后一个文件扩展名的位置
+        last_extension_pos = -1
+        for ext in specific_extensions:
+            pos = self.file_path.lower().rfind(ext)
+            if pos > last_extension_pos:
+                last_extension_pos = pos
+
+        if last_extension_pos == -1:
+            # 如果没有找到文件扩展名，返回整个输入
+            return self.file_path.strip()
+
+        # 从文件扩展名的位置往前找到完整路径
+        end_of_path = last_extension_pos + len(specific_extensions[0])  # 加上扩展名的长度
+        actual_path = self.file_path[:end_of_path]
+
+        # 获取文件名和扩展名
+        file_name_with_extension = os.path.basename(actual_path)
+
         return file_name_with_extension
 
     def check_process_running(self, process_name):
@@ -170,6 +191,30 @@ class Baas_thread:
                 return True
         return False
 
+    def check_process_running_from_pid(self, pid):
+        # 代码来源于BAAH
+        try:
+            tasks = self.subprocess_run(["tasklist"], encoding="gbk").stdout
+            tasklist = tasks.split("\n")
+            for task in tasklist:
+                wordlist = task.strip().split()
+                if len(wordlist) > 1 and wordlist[1] == str(pid):
+                    self.logger.info(" | ".join(wordlist))
+                    return True
+            return False
+        except Exception as e:
+            self.logger.error(e)
+            return False
+
+    def subprocess_run(self, cmd: Tuple[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding = "utf-8"):
+        # 代码来源BAAH
+        if isasync:
+        # 异步非阻塞执行
+            return subprocess.Popen(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
+        else:
+        # 同步阻塞执行
+            return subprocess.run(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
+
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
         if emulator_strat_stat:
             if wait_time < 20:
@@ -179,26 +224,45 @@ class Baas_thread:
             self.convert_lnk_to_exe(self.lnk_path)
             self.file_path = self.config.get("program_address")
             self.process_name = self.extract_filename_and_extension(self.file_path)
-            if self.check_process_running(self.process_name):
-                self.logger.info(f"模拟器进程 {self.process_name} 正在运行.")
-                return True
-            else:
-                self.logger.info(f"模拟器进程 {self.process_name} 未运行，开始启动模拟器")
-                subprocess.Popen(self.file_path)
-                self.logger.info(f"等待模拟器启动时间 {wait_time} 秒")
-                while self.flag_run:
-                    time.sleep(0.01)
-                    wait_time -= 0.01
-                    if wait_time <= 0:
-                        break
-                else:
-                    return False
+            if not self.config.get("multi_emulator_check"):
                 if self.check_process_running(self.process_name):
-                    self.logger.info(f"模拟器进程 {self.process_name} 启动成功.")
+                    self.logger.info(f"模拟器进程 {self.process_name} 正在运行.")
                     return True
                 else:
-                    self.logger.info(f"模拟器进程 {self.process_name} 启动失败.")
-                return False
+                    self.logger.info(f"模拟器进程 {self.process_name} 未运行，开始启动模拟器")
+                    subprocess.Popen(self.file_path)
+                    self.logger.info(f"等待模拟器启动时间 {wait_time} 秒")
+                    while self.flag_run:
+                        time.sleep(0.01)
+                        wait_time -= 0.01
+                        if wait_time <= 0:
+                            break
+                    else:
+                        return False
+                    if self.check_process_running(self.process_name):
+                        self.logger.info(f"模拟器进程 {self.process_name} 启动成功.")
+                        return True
+                    else:
+                        self.logger.info(f"模拟器进程 {self.process_name} 启动失败.")
+                    return False
+            else:
+                self.logger.info("多开模拟器进程.")
+                emulator_process = self.subprocess_run(self.config.get("program_address").split(" "), isasync=True)
+                self.logger.info("模拟器pid: "+str(emulator_process.pid))
+                time.sleep(10)
+                # 检查pid是否存在
+                if not self.check_process_running_from_pid(emulator_process.pid):
+                    self.logger.error("模拟器启动失败")
+                    return False
+                else:
+                    self.logger.critical("模拟器启动成功")
+                    self.logger.info(f"等待模拟器启动时间 {wait_time} 秒")
+                    while self.flag_run:
+                        time.sleep(0.01)
+                        wait_time -= 0.01
+                        if wait_time <= 0:
+                            break
+                    return True
         else:
             self.logger.info("无需启动模拟器进程.")
             return True
@@ -377,7 +441,7 @@ class Baas_thread:
             'Global': {
                 'main_page_news': (1227, 56),
                 "special_task_task-info": (1126, 141),
-                'cafe_cafe-reward-status': (905, 159),
+                'cafe_cafe-reward-status': (985, 147),
                 'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),

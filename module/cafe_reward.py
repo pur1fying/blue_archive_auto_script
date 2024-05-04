@@ -15,7 +15,7 @@ def implement(self):
     if self.config['cafe_reward_use_invitation_ticket'] and get_invitation_ticket_status(self):
         invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
-    if self.server == 'JP' and self.config['cafe_reward_has_no2_cafe']:
+    if self.server == 'JP' or self.server == 'Global' and self.config['cafe_reward_has_no2_cafe']:
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
         if get_invitation_ticket_status(self) and self.config['cafe_reward_use_invitation_ticket']:
@@ -28,7 +28,7 @@ def to_cafe(self, skip_first_screenshot=False):
     reward_status_cross_x = {
         'CN': 904,
         'JP': 985,
-        'Global': 904,
+        'Global': 985,
     }
     img_possibles = {
         "cafe_gift": (1240, 577),
@@ -48,6 +48,7 @@ def to_cafe(self, skip_first_screenshot=False):
 
 
 def to_no2_cafe(self):
+    to_cafe(self)
     self.click(112, 97, wait_over=True, duration=0.5)
     self.click(245, 159, wait_over=True, duration=0.5)
     to_cafe(self)
@@ -135,10 +136,8 @@ def interaction_for_cafe_solve_method3(self):
         if i != max_times - 1:
             time.sleep(2)
             to_cafe(self)
-            self.click(68, 636, wait_over=True)
-            time.sleep(1)
-            self.click(1169, 90, wait_over=True)
-            time.sleep(1)
+            self.click(68, 636, wait_over=True, duration=1)
+            self.click(1169, 90, wait_over=True, duration=1)
 
 
 def to_invitation_ticket(self, skip_first_screenshot=False):

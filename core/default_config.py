@@ -185,6 +185,7 @@ DEFAULT_CONFIG = """
     "program_address": "None",
     "open_emulator_stat": false,
     "emulator_wait_time": "180",
+    "multi_emulator_check": false,
     "ArenaLevelDiff": 0,
     "maxArenaRefreshTimes": 10,
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
@@ -398,9 +399,10 @@ STATIC_DEFAULT_CONFIG = '''
         "JP": [
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
-            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
             ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
-            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+            ["一包强化珠α", 110000, "creditpoints"],["一包强化珠β", 240000, "creditpoints"],["一包强化珠γ", 384000, "creditpoints"],["一包强化珠δ", 496000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],
+             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ]
     },
     "tactical_challenge_shop_price_list": {

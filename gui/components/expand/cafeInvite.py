@@ -44,8 +44,9 @@ class Layout(QWidget):
         self.lay5.addWidget(self.label_2, 1, Qt.AlignLeft)
         self.lay5.addWidget(self.invite_switch, 0, Qt.AlignRight)
 
-        if self.config.server_mode == 'JP':
+        if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
             self.label_3 = QLabel(self.tr('是否有二号咖啡厅:'), self)
+
             self.second_switch = CheckBox(self)
             self.second_switch.setChecked(self.config.get('cafe_reward_has_no2_cafe'))
 
@@ -106,7 +107,7 @@ class Layout(QWidget):
         self.hBoxLayout.addLayout(self.lay3)
         self.hBoxLayout.addLayout(self.lay2)
         self.hBoxLayout.setContentsMargins(20, 0, 20, 10)
-        if self.config.server_mode == 'JP':
+        if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
             self.hBoxLayout.addLayout(self.lay6)
             if self.config.get('cafe_reward_has_no2_cafe'):
                 self.set_buttons_for_no2_cafe()
@@ -153,7 +154,7 @@ class Layout(QWidget):
                                                                         self.invite_switch.isChecked()))
         self.invitation_ticket_affection_lowest_priority.stateChanged.connect(
             self.Slot_for_invitation_ticket_affection_lowest_priority)
-        if self.config.server_mode == 'JP':
+        if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
             self.second_switch.stateChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
 
     def check_valid_student_names(self):
