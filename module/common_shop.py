@@ -9,7 +9,7 @@ def implement(self):
     time.sleep(0.5)
     assets = {
         "creditpoints": self.get_creditpoints(),
-        "pyroxenes": self.get_pyroxene(),
+        "pyroxene": self.get_pyroxene(),
     }
     buy_list = np.array(self.config["CommonShopList"])
     price = self.static_config["common_shop_price_list"][self.server]
@@ -23,8 +23,8 @@ def implement(self):
     refresh_time = min(self.config['CommonShopRefreshTime'], 3)
     refresh_price = [40, 60, 80]
     for i in range(0, refresh_time + 1):
-        if asset_required["creditpoints"] > assets['creditpoints'] != -1 or asset_required["pyroxenes"] > assets[
-            'pyroxenes'] != -1:
+        if asset_required["creditpoints"] > assets['creditpoints'] != -1 or asset_required["pyroxene"] > assets[
+            'pyroxene'] != -1:
             self.logger.info("INADEQUATE assets for BUYING")
             return True
         buy(self, buy_list)
@@ -59,12 +59,12 @@ def implement(self):
             self.click(1240, 39, wait=False)
             return True
         if i != refresh_time:
-            if assets['pyroxenes'] != -1 and assets['pyroxenes'] > refresh_price[i]:
+            if assets['pyroxene'] != -1 and assets['pyroxene'] > refresh_price[i]:
                 self.logger.info("Refresh assets adequate")
                 if not to_refresh(self):
                     self.logger.info("refresh Times inadequate")
                     return True
-                assets = calculate_left_assets(self, assets, {"creditpoints": 0, "pyroxenes": refresh_price[i]})
+                assets = calculate_left_assets(self, assets, {"creditpoints": 0, "pyroxene": refresh_price[i]})
                 self.click(767, 468, wait_over=True, duration=0.5)
                 to_common_shop(self)
 
@@ -113,9 +113,9 @@ def calculate_left_assets(self, assets, asset_required):
     if assets['creditpoints'] != -1 and asset_required["creditpoints"] > 0:
         assets['creditpoints'] = assets['creditpoints'] - asset_required["creditpoints"]
         self.logger.info("left creditpoints : " + str(assets['creditpoints']))
-    if assets['pyroxenes'] != -1 and asset_required["pyroxenes"] > 0:
-        assets['pyroxenes'] = assets['pyroxenes'] - asset_required["pyroxenes"]
-        self.logger.info("left pyroxenes : " + str(assets['pyroxenes']))
+    if assets['pyroxene'] != -1 and asset_required["pyroxene"] > 0:
+        assets['pyroxene'] = assets['pyroxene'] - asset_required["pyroxene"]
+        self.logger.info("left pyroxene : " + str(assets['pyroxene']))
     return assets
 
 
@@ -133,13 +133,13 @@ def to_refresh(self):
 def calculate_one_time_assets(self, buy_list, price, tp):
     res = {
         "creditpoints": 0,
-        "pyroxenes": 0,
+        "pyroxene": 0,
     }
     for i in range(0, len(price)):
         if buy_list[i]:
             res[tp[i]] = res[tp[i]] + price[i]
     if res["creditpoints"] > 0:
         self.logger.info("one time needed creditpoints : " + str(res["creditpoints"]))
-    if res["pyroxenes"] > 0:
-        self.logger.info("one time needed pyroxenes : " + str(res["pyroxenes"]))
+    if res["pyroxene"] > 0:
+        self.logger.info("one time needed pyroxene : " + str(res["pyroxene"]))
     return res
