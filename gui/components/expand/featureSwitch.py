@@ -248,6 +248,7 @@ class Layout(QWidget):
         for j in range(0, len(self._event_config)):
             if self._event_config[j]['event_name'] == dic['event_name']:
                 self._event_config[j].update(config)
+                break
         self._save_config()
 
     def _refresh(self):

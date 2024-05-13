@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit
 
+from core.utils import delay
 from gui.util import notification
 
 
@@ -105,20 +106,34 @@ class ConfigItemV2(ConfigItem):
 
 
 class ComboBoxCustom(ComboBox):
-    def __init__(self, parent=None, inputComponent: LineEdit = None, key: str = None, config=None):
+    def __init__(self, parent=None, inputComponent: LineEdit = None, key: str = None, config=None, mapping=None):
         super().__init__(parent=parent)
+        self.itemsLabels = []
         self.inputComponent = inputComponent
         self.config = config
         self.key = key
+        self.mapping = mapping
         self.items = []
 
     def _onItemClicked(self, index):
-        print(self.items[index].text)
+        self.setCurrentIndex(index)
         if self.inputComponent:
             value = eval(self.inputComponent.text())
-            value.append(self.items[index].text)
+            if self.itemsLabels[index][0] in value:
+                return
+            value.append(self.itemsLabels[index][0])
+            self.inputComponent.blockSignals(True)
             self.inputComponent.setText(str(value))
-            self.config[self.key] = value
+            self.inputComponent.blockSignals(False)
+            _value = []
+            for item in value:
+                _value.append(self.mapping[item])
+            self.config[self.key] = _value
+
+    def addItems(self, texts: list[list[str]]):
+        self.itemsLabels = texts
+        for text in texts:
+            self.addItem(text[0])
 
 
 class TemplateLayoutV2(QWidget):
@@ -126,10 +141,16 @@ class TemplateLayoutV2(QWidget):
         super().__init__(parent=parent)
 
         _all_label_list = []
+        # event => func
+        self.mapping = {}
+        # func => event
+        self.mapping_v2 = {}
         for label in all_label_list:
             if config['event_name'] == label[0]:
                 continue
             _all_label_list.append(label)
+            self.mapping[label[1]] = label[0]
+            self.mapping_v2[label[0]] = label[1]
         all_label_list = _all_label_list
         del _all_label_list
 
@@ -157,18 +178,28 @@ class TemplateLayoutV2(QWidget):
             currentKey = cfg.key
             inputComponent = LineEdit(self)
             inputComponent.setMinimumWidth(200)
-            inputComponent.setText(str(self.config.get(currentKey)))
+            if currentKey == 'pre_task' or currentKey == 'post_task':
+                inputComponent.setText(self.parseToDisplay(self.config.get(currentKey)))
+            else:
+                inputComponent.setText(str(self.config.get(currentKey)))
             inputComponent.textChanged.connect(partial(self._commit, currentKey, inputComponent))
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
             if currentKey == 'pre_task' or currentKey == 'post_task':
-                comboTip = ComboBoxCustom(self, inputComponent, currentKey, self.config)
-                comboTip.addItems([x[0] for x in all_label_list])
+                comboTip = ComboBoxCustom(self, inputComponent, currentKey, self.config, self.mapping_v2)
+                comboTip.addItems([x for x in all_label_list])
                 optionPanel.addWidget(comboTip, 0, Qt.AlignRight)
             self.vBoxLayout.addLayout(optionPanel)
             self.vBoxLayout.addSpacing(8)
             self.vBoxLayout.setContentsMargins(20, 0, 20, 20)
 
-    def _commit(self, key, target):
+    def parseToDisplay(self, list_data):
+        _res = []
+        for item in list_data:
+            _res.append(self.mapping[item])
+        return str(_res)
+
+    @delay(0.5)
+    def _commit(self, key, target, *args):
         value = target.text()
         for cf in self.cfs:
             if cf.key == key:
