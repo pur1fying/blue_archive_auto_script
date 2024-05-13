@@ -1,10 +1,9 @@
+from functools import partial
 from typing import Union
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QGridLayout
-from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
-
-from functools import partial
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit
 
 from gui.util import notification
 
@@ -105,9 +104,35 @@ class ConfigItemV2(ConfigItem):
         self.dataType = kwargs.get('dataType', 'str')
 
 
-class TemplateLayoutV2(QWidget):
-    def __init__(self, configItems: list[dict], parent=None, config=None):
+class ComboBoxCustom(ComboBox):
+    def __init__(self, parent=None, inputComponent: LineEdit = None, key: str = None, config=None):
         super().__init__(parent=parent)
+        self.inputComponent = inputComponent
+        self.config = config
+        self.key = key
+        self.items = []
+
+    def _onItemClicked(self, index):
+        print(self.items[index].text)
+        if self.inputComponent:
+            value = eval(self.inputComponent.text())
+            value.append(self.items[index].text)
+            self.inputComponent.setText(str(value))
+            self.config[self.key] = value
+
+
+class TemplateLayoutV2(QWidget):
+    def __init__(self, configItems: list[dict], parent=None, config=None, all_label_list: list = None):
+        super().__init__(parent=parent)
+
+        _all_label_list = []
+        for label in all_label_list:
+            if config['event_name'] == label[0]:
+                continue
+            _all_label_list.append(label)
+        all_label_list = _all_label_list
+        del _all_label_list
+
         self.config = config
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.addSpacing(16)
@@ -135,6 +160,10 @@ class TemplateLayoutV2(QWidget):
             inputComponent.setText(str(self.config.get(currentKey)))
             inputComponent.textChanged.connect(partial(self._commit, currentKey, inputComponent))
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
+            if currentKey == 'pre_task' or currentKey == 'post_task':
+                comboTip = ComboBoxCustom(self, inputComponent, currentKey, self.config)
+                comboTip.addItems([x[0] for x in all_label_list])
+                optionPanel.addWidget(comboTip, 0, Qt.AlignRight)
             self.vBoxLayout.addLayout(optionPanel)
             self.vBoxLayout.addSpacing(8)
             self.vBoxLayout.setContentsMargins(20, 0, 20, 20)

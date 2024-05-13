@@ -13,11 +13,15 @@ from gui.components.expand.expandTemplate import TemplateLayoutV2
 
 
 class DetailSettingMessageBox(MessageBoxBase):
-    def __init__(self, detail_config: dict, parent=None):
+    def __init__(self, detail_config: dict, all_label_list: list, parent=None):
         super().__init__(parent)
         self.titleLabel = SubtitleLabel('配置详情', self)
-        self.pathLineEdit = LineEdit(self)
         configItems = [
+            {
+                'label': '优先级',
+                'dataType': 'int',
+                'key': 'priority'
+            },
             {
                 'label': '执行间隔',
                 'dataType': 'int',
@@ -37,22 +41,23 @@ class DetailSettingMessageBox(MessageBoxBase):
                 'label': '前置任务',
                 'dataType': 'list',
                 'key': 'pre_task',
+                'presets': []
             },
             {
                 'label': '后置任务',
                 'dataType': 'list',
                 'key': 'post_task',
+                'presets': []
             }
         ]
 
-        self.configWidget = TemplateLayoutV2(configItems, self, detail_config)
+        self.configWidget = TemplateLayoutV2(configItems, self, detail_config,  all_label_list=all_label_list)
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.configWidget)
 
         self.yesButton.setText('确定')
         self.cancelButton.setText('取消')
         self.widget.setMinimumWidth(350)
-
 
 
 class Layout(QWidget):
@@ -230,7 +235,13 @@ class Layout(QWidget):
             'pre_task': self._crt_order_config[index]['pre_task'],
             'post_task': self._crt_order_config[index]['post_task'],
         }
-        detailMessageBox = DetailSettingMessageBox(detail_config=dic, parent=top_window)
+
+        all_label_list = [
+            [x['event_name'], x['func_name']]
+            for x in self._event_config
+        ]
+
+        detailMessageBox = DetailSettingMessageBox(detail_config=dic, parent=top_window, all_label_list=all_label_list)
         if not detailMessageBox.exec_():
             return
         config = detailMessageBox.configWidget.config
