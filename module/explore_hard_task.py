@@ -84,7 +84,7 @@ def judge_need_fight(self, current_task):
     if 'task' in current_task:
         return 'need-fight'
     if 'sss' in current_task:
-        res = color.check_sweep_availability(self)
+        res = color.check_sweep_availability(self, True)
         if res == 'no-pass' or res == 'pass':
             return 'need-fight'
     if 'present' in current_task:

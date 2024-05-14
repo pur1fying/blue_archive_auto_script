@@ -9,7 +9,7 @@ def implement(self):
     time.sleep(0.5)
     assets = {
         "creditpoints": self.get_creditpoints(),
-        "pyroxenes": self.get_pyroxene(),
+        "pyroxene": self.get_pyroxene(),
     }
     buy_list = np.array(self.config["CommonShopList"])
     price = self.static_config["common_shop_price_list"][self.server]
@@ -23,33 +23,48 @@ def implement(self):
     refresh_time = min(self.config['CommonShopRefreshTime'], 3)
     refresh_price = [40, 60, 80]
     for i in range(0, refresh_time + 1):
-        if asset_required["creditpoints"] > assets['creditpoints'] != -1 or asset_required["pyroxenes"] > assets[
-            'pyroxenes'] != -1:
+        if asset_required["creditpoints"] > assets['creditpoints'] != -1 or asset_required["pyroxene"] > assets[
+            'pyroxene'] != -1:
             self.logger.info("INADEQUATE assets for BUYING")
             return True
         buy(self, buy_list)
         self.latest_img_array = self.get_screenshot_array()
 
         if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
-            self.logger.info("Purchase available")
-            self.click(1160, 662, wait_over=True, duration=0.5)
-            self.click(767, 488, wait_over=True, duration=2)
-            self.click(640, 80, wait_over=True)
-            self.click(640, 80, wait_over=True)
+            self.logger.info("-- Purchase available --")
+            img_possibles = {
+                "shop_menu": (1163, 659),
+            }
+            img_ends = [
+                "shop_purchase-notice1",
+                "shop_purchase-notice2",
+            ]
+            picture.co_detect(self, None, None, img_ends, img_possibles, True)
+            purchase_location = {
+                'CN': (777, 491),
+                'Global': (777, 491),
+                'JP': (754, 581)
+            }
+            img_possibles = {
+                "shop_purchase-notice1": purchase_location[self.server],
+                "shop_purchase-notice2": (767, 524),
+            }
+            rgb_ends = "reward_acquired"
+            img_ends = "main_page_full-notice"
+            picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
             assets = calculate_left_assets(self, assets, asset_required)
-
             to_common_shop(self)
         elif color.judge_rgb_range(self, 1126, 665, 206, 226, 206, 226, 206, 226):
             self.logger.info("Purchase Unavailable")
             self.click(1240, 39, wait=False)
             return True
         if i != refresh_time:
-            if assets['pyroxenes'] != -1 and assets['pyroxenes'] > refresh_price[i]:
+            if assets['pyroxene'] != -1 and assets['pyroxene'] > refresh_price[i]:
                 self.logger.info("Refresh assets adequate")
                 if not to_refresh(self):
                     self.logger.info("refresh Times inadequate")
                     return True
-                assets = calculate_left_assets(self, assets, {"creditpoints": 0, "pyroxenes": refresh_price[i]})
+                assets = calculate_left_assets(self, assets, {"creditpoints": 0, "pyroxene": refresh_price[i]})
                 self.click(767, 468, wait_over=True, duration=0.5)
                 to_common_shop(self)
 
@@ -98,9 +113,9 @@ def calculate_left_assets(self, assets, asset_required):
     if assets['creditpoints'] != -1 and asset_required["creditpoints"] > 0:
         assets['creditpoints'] = assets['creditpoints'] - asset_required["creditpoints"]
         self.logger.info("left creditpoints : " + str(assets['creditpoints']))
-    if assets['pyroxenes'] != -1 and asset_required["pyroxenes"] > 0:
-        assets['pyroxenes'] = assets['pyroxenes'] - asset_required["pyroxenes"]
-        self.logger.info("left pyroxenes : " + str(assets['pyroxenes']))
+    if assets['pyroxene'] != -1 and asset_required["pyroxene"] > 0:
+        assets['pyroxene'] = assets['pyroxene'] - asset_required["pyroxene"]
+        self.logger.info("left pyroxene : " + str(assets['pyroxene']))
     return assets
 
 
@@ -118,13 +133,13 @@ def to_refresh(self):
 def calculate_one_time_assets(self, buy_list, price, tp):
     res = {
         "creditpoints": 0,
-        "pyroxenes": 0,
+        "pyroxene": 0,
     }
     for i in range(0, len(price)):
         if buy_list[i]:
             res[tp[i]] = res[tp[i]] + price[i]
     if res["creditpoints"] > 0:
         self.logger.info("one time needed creditpoints : " + str(res["creditpoints"]))
-    if res["pyroxenes"] > 0:
-        self.logger.info("one time needed pyroxenes : " + str(res["pyroxenes"]))
+    if res["pyroxene"] > 0:
+        self.logger.info("one time needed pyroxene : " + str(res["pyroxene"]))
     return res

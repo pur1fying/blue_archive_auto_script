@@ -14,5 +14,4 @@ x_y_range = {
     "continue-exchange-grey": (866, 576, 1000, 621),
     "refresh-exchange-times-bright": (1110, 99, 1190, 133),
     "refresh-exchange-times-notice": (507, 311, 763, 354)
-
 }
