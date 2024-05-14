@@ -646,25 +646,27 @@ class Baas_thread:
         self.config_set.set("alreadyCreateTime", 0)
 
     def refresh_common_tasks(self):
-        from module.normal_task import read_task
+        from module.normal_task import readOneNormalTask
         temp = self.config['mainlinePriority']
         self.config['unfinished_normal_tasks'] = []
         if type(temp) is str:
             temp = temp.split(',')
         for i in range(0, len(temp)):
-            res = read_task(self, temp[i])
-            if res:
-                self.config['unfinished_normal_tasks'].append(res)
+            try:
+                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i]))
+            except Exception as e:
+                self.logger.error(e)
         self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
 
     def refresh_hard_tasks(self):
-        from module.hard_task import read_task
+        from module.hard_task import readOneHardTask
         self.config['unfinished_hard_tasks'] = []
         temp = self.config['hardPriority']
         if type(temp) is str:
             temp = temp.split(',')
         for i in range(0, len(temp)):
-            res = read_task(self, temp[i])
-            if res:
-                self.config['unfinished_hard_tasks'].append(res)
+            try:
+                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i]))
+            except Exception as e:
+                self.logger.error(e)
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

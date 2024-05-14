@@ -35,7 +35,7 @@ class Layout(TemplateLayout):
             self._createNotMultiComponent()
         else:
             self._createMultiComponent()
-        self.vBoxLayout.children()[2].itemAt(2).widget().checkedChanged.connect(self._soltForEmulatorIsMultiInstanced)
+        self.vBoxLayout.children()[3].itemAt(2).widget().checkedChanged.connect(self._soltForEmulatorIsMultiInstanced)
 
 
     def _choose_file(self, line_edit):
@@ -100,7 +100,7 @@ class Layout(TemplateLayout):
 
 
     def _soltForEmulatorIsMultiInstanced(self, state):
-        sub_layout = self.vBoxLayout.children()[3]
+        sub_layout = self.vBoxLayout.children()[4]
         while sub_layout.count():
             item = sub_layout.takeAt(0)
             widget = item.widget()
@@ -113,5 +113,6 @@ class Layout(TemplateLayout):
             self._createMultiComponent()
         else:
             self._createNotMultiComponent()
+
     def _slotForMultiInstanceComboBoxIndexChanged(self):
         self.config.set('multiEmulatorName', list(self.multiMap.keys())[self.sender().currentIndex()])
