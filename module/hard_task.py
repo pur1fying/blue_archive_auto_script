@@ -187,9 +187,10 @@ def choose_region(self, region):
     cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
     while cu_region != region and self.flag_run:
         if cu_region > region:
-            self.click(40, 360, count=cu_region - region, rate=0.1, wait_over=True)
+            self.click(40, 360, count=cu_region - region - 1, rate=0.1, wait_over=True)
+            self.click(40, 360, duration=0.5, wait_over=True)
         else:
-            self.click(1245, 360, count=region - cu_region, rate=0.1, wait_over=True)
-        time.sleep(0.5)
+            self.click(1245, 360, count=region - cu_region - 1, rate=0.1, wait_over=True)
+            self.click(1245, 360, duration=0.5, wait_over=True)
         to_hard_event(self)
         cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
