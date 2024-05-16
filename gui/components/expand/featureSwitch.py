@@ -13,7 +13,7 @@ from gui.components.expand.expandTemplate import TemplateLayoutV2
 
 
 class DetailSettingMessageBox(MessageBoxBase):
-    def __init__(self, detail_config: dict, all_label_list: list, parent=None):
+    def __init__(self, detail_config: dict, all_label_list: list, parent=None, cs=None):
         super().__init__(parent)
         self.titleLabel = SubtitleLabel('配置详情', self)
         configItems = [
@@ -51,7 +51,7 @@ class DetailSettingMessageBox(MessageBoxBase):
             }
         ]
 
-        self.configWidget = TemplateLayoutV2(configItems, self, detail_config,  all_label_list=all_label_list)
+        self.configWidget = TemplateLayoutV2(configItems, self, detail_config,  all_label_list=all_label_list,cs=cs)
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.configWidget)
 
@@ -241,7 +241,7 @@ class Layout(QWidget):
             for x in self._event_config
         ]
 
-        detailMessageBox = DetailSettingMessageBox(detail_config=dic, parent=top_window, all_label_list=all_label_list)
+        detailMessageBox = DetailSettingMessageBox(detail_config=dic, parent=top_window, all_label_list=all_label_list, cs=self.config)
         if not detailMessageBox.exec_():
             return
         config = detailMessageBox.configWidget.config

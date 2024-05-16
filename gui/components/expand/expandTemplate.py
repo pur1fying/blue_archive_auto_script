@@ -7,6 +7,7 @@ from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit
 
 from core.utils import delay
 from gui.util import notification
+from gui.util.config_set import ConfigSet
 
 
 class ConfigItem:
@@ -137,7 +138,7 @@ class ComboBoxCustom(ComboBox):
 
 
 class TemplateLayoutV2(QWidget):
-    def __init__(self, configItems: list[dict], parent=None, config=None, all_label_list: list = None):
+    def __init__(self, configItems: list[dict], parent=None, config=None, all_label_list: list = None, cs: ConfigSet=None):
         super().__init__(parent=parent)
 
         _all_label_list = []
@@ -155,6 +156,7 @@ class TemplateLayoutV2(QWidget):
         del _all_label_list
 
         self.config = config
+        self.cs = cs
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.addSpacing(16)
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
@@ -198,13 +200,21 @@ class TemplateLayoutV2(QWidget):
             _res.append(self.mapping[item])
         return str(_res)
 
-    @delay(0.5)
+    @delay(0.8)
     def _commit(self, key, target, *args):
         value = target.text()
-        for cf in self.cfs:
-            if cf.key == key:
-                if cf.dataType == 'int' or cf.dataType == 'list':
-                    value = eval(value)
-                else:
-                    value = value
+        try:
+            for cf in self.cfs:
+                if cf.key == key:
+                    if key == 'pre_task' or key == 'post_task':
+                        value = eval(value)
+                        value = list(map(lambda x: self.mapping_v2[x], value))
+                    elif cf.dataType == 'int' or cf.dataType == 'list':
+                        value = eval(value)
+                    else:
+                        value = value
+        except:
+            notification.error('设置失败', '请检查输入的数据是否正确', self.cs)
+            return
         self.config[key] = value
+        notification.success('表单修改成功', f'{cf.label}已经被设置为：{value}', self.cs)
