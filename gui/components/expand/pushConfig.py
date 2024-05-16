@@ -1,5 +1,4 @@
 from .expandTemplate import TemplateLayout
-from ...util.common_methods import get_context_thread
 
 
 class Layout(TemplateLayout):
