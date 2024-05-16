@@ -1,10 +1,8 @@
 import time
-from datetime import datetime
 from core import color, image, picture
 
 
 def implement(self):
-    check_refresh_daily_create_times(self)
     use_acceleration_ticket = self.config['use_acceleration_ticket']
     left_create_times = self.config['createTime'] - self.config['alreadyCreateTime']
     self.logger.info("left create times: " + str(left_create_times) + " times")
@@ -187,22 +185,6 @@ def to_node1(self, y, skip_first_screenshot=False):
     img_possibles = {"create_crafting-list": (1153, y)}
     img_ends = "create_unlock-no1-grey"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-
-
-def check_refresh_daily_create_times(self):
-    now = datetime.now()
-    hour = now.hour
-    last_refresh = datetime.fromtimestamp(self.config['createTimeLastRefreshTime'])
-    last_refresh_hour = last_refresh.hour
-    if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and ((hour < 4 and last_refresh_hour < 4) or (hour >= 4 and last_refresh_hour >= 4)):
-        return
-    else:
-        self.config['alreadyCreateTime'] = 0
-        self.config_set.set("alreadyCreateTime", 0)
-        self.config['createTimeLastRefreshTime'] = time.time()
-        self.config_set.set("createTimeLastRefreshTime", self.config['createTimeLastRefreshTime'])
-        self.logger.info("refresh daily create times")
-
 
 
 def check_order_of_materials(self):

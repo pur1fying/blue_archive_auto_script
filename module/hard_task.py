@@ -1,69 +1,27 @@
 import time
+from copy import deepcopy
 from core import picture
 from core.color import check_sweep_availability
-
-
-def read_task(self, task_string):
-    try:
-        region = 0
-        mainline_available_missions = [1, 2, 3]
-        mainline_available_regions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
-                                      23, 24, 25]
-        for i in range(0, len(task_string)):
-            if task_string[i].isdigit():
-                region = region * 10 + int(task_string[i])
-            else:
-                if region not in mainline_available_regions:
-                    self.logger.info("detected region " + str(region) + " unavailable")
-                    return False
-                mission = 0
-                for j in range(i, len(task_string)):
-                    if task_string[j].isdigit():
-                        mission = int(task_string[j])
-                        if mission not in mainline_available_missions:
-                            self.logger.info("detected mission " + str(mission) + " unavailable")
-                            return False
-                        else:
-                            counts = task_string[j + 2:]
-                            if counts == "max":
-                                return region, mission, "max"
-                            else:
-                                if int(counts) <= 0:
-                                    self.logger.info("detected counts " + str(counts) + " unavailable")
-                                    return False
-                                return region, mission, min(3, int(counts))
-
-                if mission == 0:
-                    self.logger.info("no mission detected")
-                    return False
-    except Exception as e:
-        self.logger.info("task string format error " + str(e))
-        return False
+from core.staticUtils import isInt
 
 
 def implement(self):
-    self.quick_method_to_main_page()
-    self.hard_task_count = []
-    temp = self.config['hardPriority']
-    if type(temp) is str:
-        temp = temp.split(',')
-    for i in range(0, len(temp)):
-        if read_task(self, temp[i]):
-            self.hard_task_count.append(read_task(self, temp[i]))
-    self.logger.info("detected hard task list: " + str(self.hard_task_count))
-    all_task_x_coordinate = 1118
-    if len(self.hard_task_count) != 0:
+    if len(self.config['unfinished_hard_tasks']) != 0:
+        temp = deepcopy(self.config['unfinished_hard_tasks'])
+        self.logger.info("unfinished hard task list: " + str(temp))
+        self.quick_method_to_main_page()
+        all_task_x_coordinate = 1118
         hard_task_y_coordinates = [253, 364, 478]
-        for i in range(0, len(self.hard_task_count)):
+        for i in range(0, len(temp)):
             to_hard_event(self, True)
             ap = self.get_ap()
             if ap == "UNKNOWN":
                 self.logger.info("UNKNOWN AP")
                 ap = 999
-            self.logger.info("hard task " + str(self.hard_task_count[i]) + " begin")
-            tar_region = self.hard_task_count[i][0]
-            tar_mission = self.hard_task_count[i][1]
-            tar_times = self.hard_task_count[i][2]
+            self.logger.info("hard task " + str(temp[i]) + " begin")
+            tar_region = temp[i][0]
+            tar_mission = temp[i][1]
+            tar_times = temp[i][2]
             if tar_times == "max":
                 ap_needed = 60
             else:
@@ -77,7 +35,7 @@ def implement(self):
                             True) == "normal_task_unlock-notice":
                 self.logger.info("task unlocked")
                 continue
-            t = check_sweep_availability(self, True)
+            t = check_sweep_availability(self)
             if t == "sss":
                 if tar_times == "max":
                     self.click(1085, 300, rate=1, wait_over=True)
@@ -85,13 +43,10 @@ def implement(self):
                     duration = 0
                     if tar_times > 4:
                         duration = 1
-                    y = 300
-                    if self.server == "JP":
-                        y = 330
-                    self.click(1014, y, count=tar_times - 1, duration=duration, wait_over=True)
+                    self.click(1014, 300, count=tar_times - 1, duration=duration, wait_over=True)
                 res = start_sweep(self, True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
-                    self.logger.info("hard task " + str(self.hard_task_count[i]) + " finished")
+                    self.logger.info("hard task " + str(temp) + " finished")
                 elif res == "inadequate_ap":
                     self.logger.warning("INADEQUATE AP")
                     return True
@@ -99,18 +54,17 @@ def implement(self):
                     self.logger.warning("Current Task Challenge Counts INSUFFICIENT")
             elif t == "pass" or t == "no-pass":
                 self.logger.warning("AUTO SWEEP UNAVAILABLE")
-
+            self.config['unfinished_hard_tasks'].pop(0)
+            self.config_set.set('unfinished_hard_tasks', self.config['unfinished_hard_tasks'])
             to_hard_event(self, True)
         self.logger.info("hard task finished")
-
     return True
 
-
 def to_hard_event(self, skip_first_screenshot=False):
-    task_info = {
-        'CN': (1087, 140),
-        'Global': (1128,140),
-        'JP': (1128,115)
+    task_info_x = {
+        'CN': 1087,
+        'Global': 1128,
+        'JP': 1128
     }
     rgb_ends = 'event_hard'
     rgb_possibles = {
@@ -128,7 +82,7 @@ def to_hard_event(self, skip_first_screenshot=False):
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
         "normal_task_unlock-notice": (887, 164),
-        "normal_task_task-info": task_info[self.server],
+        "normal_task_task-info": (task_info_x[self.server], 140),
         'normal_task_skip-sweep-complete': (643, 506),
         "buy_ap_notice": (919, 165),
         'normal_task_task-finish': (1038, 662),
@@ -149,6 +103,32 @@ def to_task_info(self, x, y, skip_first_screenshot=False):
         "normal_task_task-info"
     ]
     return picture.co_detect(self, None, rgb_possibles, img_ends, None, skip_first_screenshot)
+
+def readOneHardTask(task_string):
+    if task_string.count('-') != 2:
+        raise ValueError("[ " + task_string + " ] format error.")
+    mainline_available_missions = list(range(1, 4))
+    mainline_available_regions = list(range(1, 26))
+    temp = task_string.split('-')
+    region = temp[0]
+    mission = temp[1]
+    counts = temp[2]
+    if not isInt(region):
+        raise ValueError("[ " + task_string + " ] region : " + str(region) + " unavailable")
+    region = int(region)
+    if region not in mainline_available_regions:
+        raise ValueError("[ " + task_string + " ] region : " + str(region) + " not support")
+    if not isInt(mission):
+        raise ValueError("[ " + task_string + " ] mission : " + str(mission) + " unavailable")
+    mission = int(mission)
+    if mission not in mainline_available_missions:
+        raise ValueError("[ " + task_string + " ] mission : " + str(mission) + " not support")
+    if not isInt(counts):
+        if counts != "max":
+            raise ValueError("[ " + task_string + " ] count : " + str(counts) + " unavailable")
+    else:
+        counts = int(counts)
+    return region, mission, counts
 
 
 def start_sweep(self, skip_first_screenshot=False):

@@ -2,11 +2,62 @@ import json
 import time
 from copy import deepcopy
 from datetime import datetime
+from functools import partial
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QHeaderView, QVBoxLayout, QPushButton
-from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox
-import threading
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QHeaderView, QVBoxLayout
+from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox, CaptionLabel, MessageBoxBase, \
+    SubtitleLabel
+
+from gui.components.expand.expandTemplate import TemplateLayoutV2
+
+
+class DetailSettingMessageBox(MessageBoxBase):
+    def __init__(self, detail_config: dict, all_label_list: list, parent=None, cs=None):
+        super().__init__(parent)
+        self.titleLabel = SubtitleLabel('配置详情', self)
+        configItems = [
+            {
+                'label': '优先级',
+                'dataType': 'int',
+                'key': 'priority'
+            },
+            {
+                'label': '执行间隔',
+                'dataType': 'int',
+                'key': 'interval',
+            },
+            {
+                'label': '每日重置',
+                'dataType': 'list',
+                'key': 'daily_reset',
+            },
+            {
+                'label': '禁用时间段',
+                'dataType': 'list',
+                'key': 'disabled_time_range',
+            },
+            {
+                'label': '前置任务',
+                'dataType': 'list',
+                'key': 'pre_task',
+                'presets': []
+            },
+            {
+                'label': '后置任务',
+                'dataType': 'list',
+                'key': 'post_task',
+                'presets': []
+            }
+        ]
+
+        self.configWidget = TemplateLayoutV2(configItems, self, detail_config,  all_label_list=all_label_list,cs=cs)
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.configWidget)
+
+        self.yesButton.setText('确定')
+        self.cancelButton.setText('取消')
+        self.widget.setMinimumWidth(350)
 
 
 class Layout(QWidget):
@@ -16,15 +67,15 @@ class Layout(QWidget):
         self._event_config = None
         self._read_config()
         assert self._event_config is not None
+        self._crt_order_config = self._event_config
         self.config.get_signal('update_signal').connect(self._refresh_time)
 
-        self.setFixedHeight(250)
-        self.boxes, self.qLabels, self.times, self.check_boxes = [], [], [], []
+        self.boxes, self.qLabels, self.times, self.check_boxes, self.config_buttons = [], [], [], [], []
         self._init_components(self._event_config)
 
         self.vBox = QVBoxLayout(self)
         self.option_layout = QHBoxLayout(self)
-        self.all_check_box = QPushButton('全部(不)启用', self)
+        self.all_check_box = PushButton('全部(不)启用', self)
 
         self.all_check_box.clicked.connect(self.all_check)
         self.option_layout.addWidget(self.all_check_box)
@@ -35,7 +86,7 @@ class Layout(QWidget):
         self.op_2.clicked.connect(self._refresh)
 
         self.option_layout.addStretch(1)
-        self.label_3 = QLabel('排序方式：', self)
+        self.label_3 = CaptionLabel('排序方式：', self)
         self.op_3 = ComboBox(self)
         self.op_3.addItems(['默认排序', '按下次执行时间排序'])
 
@@ -46,16 +97,18 @@ class Layout(QWidget):
         self.tableView = TableWidget(self)
         self.tableView.setWordWrap(False)
         self.tableView.setRowCount(len(self.qLabels))
-        self.tableView.setColumnCount(3)
+        self.tableView.setColumnCount(4)
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.setHorizontalHeaderLabels(['事件', '下次刷新时间', '启用'])
-        self.tableView.setColumnWidth(0, 200)
-        self.tableView.setColumnWidth(1, 200)
+        self.tableView.setHorizontalHeaderLabels(['事件', '下次刷新时间', '启用', '更多配置'])
+        self.tableView.setColumnWidth(0, 175)
+        self.tableView.setColumnWidth(1, 175)
         self.tableView.setColumnWidth(2, 50)
+        self.tableView.setColumnWidth(3, 50)
         for i in range(len(self.enable_list)):
             self.tableView.setCellWidget(i, 0, self.qLabels[i])
             self.tableView.setCellWidget(i, 1, self.times[i])
             self.tableView.setCellWidget(i, 2, self.boxes[i])
+            self.tableView.setCellWidget(i, 3, self.config_buttons[i])
         self.vBox.addLayout(self.option_layout)
         self.vBox.addWidget(self.tableView)
 
@@ -71,15 +124,25 @@ class Layout(QWidget):
             cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
-            t_ccs = QLabel(self.labels[i])
+
+            t_ccs = CaptionLabel(self.labels[i])
             t_ncs = LineEdit(self)
-            t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])))
+            t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])).split('.')[0])
             t_ncs.textChanged.connect(self._update_config)
             t_cbx.stateChanged.connect(self._update_config)
             self.times.append(t_ncs)
             self.qLabels.append(t_ccs)
             self.boxes.append(cbx_wrapper)
             self.check_boxes.append(t_cbx)
+
+            t_cfbs = PushButton('详细配置', self)
+            t_cfbs.clicked.connect(partial(self._update_detail, i))
+            cfbs_wrapper = QWidget()
+            cfbs_layout = QHBoxLayout()
+            cfbs_layout.setContentsMargins(0, 0, 0, 0)
+            cfbs_layout.addWidget(t_cfbs, 1, Qt.AlignCenter)
+            cfbs_wrapper.setLayout(cfbs_layout)
+            self.config_buttons.append(cfbs_wrapper)
 
     def _read_config(self):
         with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
@@ -103,24 +166,24 @@ class Layout(QWidget):
         self.tableView = TableWidget(self)
         self.tableView.setWordWrap(False)
         self.tableView.setRowCount(len(temp))
-        self.tableView.setColumnCount(3)
+        self.tableView.setColumnCount(4)
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.setHorizontalHeaderLabels(['事件', '下次刷新时间', '启用'])
+        self.tableView.setHorizontalHeaderLabels(['事件', '下次刷新时间', '启用', '更多配置'])
 
         # mode 0: default, mode 1: by next_tick
         if self.op_3.currentIndex() == 0:
             temp.sort(key=lambda x: x['priority'])
         elif self.op_3.currentIndex() == 1:
             temp.sort(key=lambda x: (not x['enabled'], x['next_tick']))
-
+        self._crt_order_config = temp
         # Add components to table
         for ind, unit in enumerate(temp):
-            t_ccs = QLabel(unit['event_name'])
+            t_ccs = CaptionLabel(unit['event_name'])
             self.tableView.setCellWidget(ind, 0, t_ccs)
             self.qLabels.append(t_ccs)
 
             t_ncs = LineEdit(self)
-            t_ncs.setText(str(datetime.fromtimestamp(unit['next_tick'])))
+            t_ncs.setText(str(datetime.fromtimestamp(unit['next_tick'])).split('.')[0])
             t_ncs.textChanged.connect(self._update_config)
             self.tableView.setCellWidget(ind, 1, t_ncs)
             self.times.append(t_ncs)
@@ -135,6 +198,16 @@ class Layout(QWidget):
             cbx_wrapper.setLayout(cbx_layout)
             self.tableView.setCellWidget(ind, 2, cbx_wrapper)
             self.check_boxes.append(t_cbx)
+
+            t_cfbs = PushButton('详细配置', self)
+            t_cfbs.clicked.connect(partial(self._update_detail, ind))
+            cfbs_wrapper = QWidget()
+            cfbs_layout = QHBoxLayout()
+            cfbs_layout.setContentsMargins(0, 0, 0, 0)
+            cfbs_layout.addWidget(t_cfbs, 1, Qt.AlignCenter)
+            cfbs_wrapper.setLayout(cfbs_layout)
+            self.config_buttons.append(cfbs_wrapper)
+            self.tableView.setCellWidget(ind, 3, cfbs_wrapper)
 
         # Add table to layout
         self.vBox.addWidget(self.tableView)
@@ -151,11 +224,38 @@ class Layout(QWidget):
                     self._event_config[j].update(dic)
         self._save_config()
 
+    def _update_detail(self, index):
+        top_window = self.parent().parent().parent().parent().parent().parent()
+        dic = {
+            'event_name': self._crt_order_config[index]['event_name'],
+            'priority': self._crt_order_config[index]['priority'],
+            'interval': self._crt_order_config[index]['interval'],
+            'daily_reset': self._crt_order_config[index]['daily_reset'],
+            'disabled_time_range': self._crt_order_config[index]['disabled_time_range'],
+            'pre_task': self._crt_order_config[index]['pre_task'],
+            'post_task': self._crt_order_config[index]['post_task'],
+        }
+
+        all_label_list = [
+            [x['event_name'], x['func_name']]
+            for x in self._event_config
+        ]
+
+        detailMessageBox = DetailSettingMessageBox(detail_config=dic, parent=top_window, all_label_list=all_label_list, cs=self.config)
+        if not detailMessageBox.exec_():
+            return
+        config = detailMessageBox.configWidget.config
+        for j in range(0, len(self._event_config)):
+            if self._event_config[j]['event_name'] == dic['event_name']:
+                self._event_config[j].update(config)
+                break
+        self._save_config()
+
     def _refresh(self):
         t = time.time()
         for i in range(len(self.enable_list)):
             self.times[i].blockSignals(True)
-            self.times[i].setText(str(datetime.fromtimestamp(t)))
+            self.times[i].setText(str(datetime.fromtimestamp(t)).split('.')[0])
             self.times[i].blockSignals(False)
             self._event_config[i]['next_tick'] = t
         self._update_config()

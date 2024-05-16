@@ -1,21 +1,21 @@
+from datetime import datetime
 import cv2
 from core.exception import ScriptError
 from core.notification import notify
 from core.scheduler import Scheduler
 from core import position, picture
 from core.utils import Logger
-import time
 import numpy as np
 import uiautomator2 as u2
 import module
 import threading
 import json
-from multiprocessing import process
 import subprocess
 import psutil
 import os
 import win32com.client
 import time
+import device_operation
 from typing import Tuple
 
 func_dict = {
@@ -217,21 +217,35 @@ class Baas_thread:
 
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
         if emulator_strat_stat:
-            if wait_time < 20:
-                self.logger.warning("Wait time is too short, auto set to 20 seconds.")
-                wait_time = 20
-            self.lnk_path = self.config.get("program_address")
-            self.convert_lnk_to_exe(self.lnk_path)
-            self.file_path = self.config.get("program_address")
-            self.process_name = self.extract_filename_and_extension(self.file_path)
-            if not self.config.get("multi_emulator_check"):
+            self.logger.info(f"-- BAAS Check Emulator Start --")
+            if self.config['emulatorIsMultiInstance']:
+                name = self.config.get("multiEmulatorName")
+                num = self.config.get("emulatorMultiInstanceNumber")
+                self.logger.info(f"-- Start Multi Emulator --")
+                self.logger.info(f"EmulatorName: {name}")
+                self.logger.info(f"MultiInstanceNumber: {num}")
+                device_operation.start_simulator_classic(name, num)
+                self.logger.info(f" Start wait {wait_time} seconds for emulator to start. ")
+                while self.flag_run:
+                    time.sleep(0.01)
+                    wait_time -= 0.01
+                    if wait_time <= 0:
+                        break
+                else:
+                    return False
+                return True
+            else:
+                self.lnk_path = self.config.get("program_address")
+                self.convert_lnk_to_exe(self.lnk_path)
+                self.file_path = self.config.get("program_address")
+                self.process_name = self.extract_filename_and_extension(self.file_path)
                 if self.check_process_running(self.process_name):
-                    self.logger.info(f"模拟器进程 {self.process_name} 正在运行.")
+                    self.logger.info(f"-- Emulator Process {self.process_name} is running --")
                     return True
                 else:
-                    self.logger.info(f"模拟器进程 {self.process_name} 未运行，开始启动模拟器")
+                    self.logger.warning(f"-- Emulator Process {self.process_name} is not running, start Emulator --")
                     subprocess.Popen(self.file_path)
-                    self.logger.info(f"等待模拟器启动时间 {wait_time} 秒")
+                    self.logger.info(f" Start wait {wait_time} seconds for emulator to start. ")
                     while self.flag_run:
                         time.sleep(0.01)
                         wait_time -= 0.01
@@ -240,32 +254,13 @@ class Baas_thread:
                     else:
                         return False
                     if self.check_process_running(self.process_name):
-                        self.logger.info(f"模拟器进程 {self.process_name} 启动成功.")
+                        self.logger.info(f"Emulator Process {self.process_name} started SUCCESSFULLY")
                         return True
                     else:
-                        self.logger.info(f"模拟器进程 {self.process_name} 启动失败.")
+                        self.logger.warning(f"Emulator Process {self.process_name} start FAIL")
                     return False
-            else:
-                self.logger.info("多开模拟器进程.")
-                emulator_process = self.subprocess_run(self.config.get("program_address").split(" "), isasync=True)
-                self.logger.info("模拟器pid: "+str(emulator_process.pid))
-                time.sleep(10)
-                # 检查pid是否存在
-                if not self.check_process_running_from_pid(emulator_process.pid):
-                    self.logger.error("模拟器启动失败")
-                    return False
-                else:
-                    self.logger.critical("模拟器启动成功")
-                    self.logger.info(f"等待模拟器启动时间 {wait_time} 秒")
-                    while self.flag_run:
-                        time.sleep(0.01)
-                        wait_time -= 0.01
-                        if wait_time <= 0:
-                            break
-                    return True
-        else:
-            self.logger.info("无需启动模拟器进程.")
-            return True
+        return True
+
 
     def start_emulator(self):
         self.emulator_strat_stat = self.config.get("open_emulator_stat")
@@ -330,6 +325,7 @@ class Baas_thread:
     def thread_starter(self):
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
+            self.scheduler.update_valid_task_queue()
             while self.flag_run:
                 if self.first_start:
                     self.solve('restart')
@@ -340,22 +336,22 @@ class Baas_thread:
                         self.solve('refresh_uiautomator2')
                     self.logger.info(f"Scheduler :  -- {next_func_name} --")
                     self.task_finish_to_main_page = True
+                    self.daily_config_refresh()
                     if self.solve(next_func_name) and self.flag_run:
-                        next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
-                        self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
-                    else:
-                        self.logger.error("error occurred, stop all activities")
-                        self.signal_stop()
+                        next_tick = self.scheduler.systole(next_func_name, self.next_time)
+                        if next_tick is not None:
+                            self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
+                    self.scheduler.update_valid_task_queue()
                     time.sleep(1)
         except Exception as e:
             notify(title='', body='任务已停止')
-            self.logger.info("error occurred, stop all activities")
             self.logger.error(e)
+            self.logger.error("error occurred, stop all activities")
             self.signal_stop()
 
     def solve(self, activity) -> bool:
@@ -419,6 +415,7 @@ class Baas_thread:
             'plot_skip-plot-notice': (770, 519),
             'activity_fight-success-confirm': (640, 663),
             "total_assault_reach-season-highest-record": (640, 528),
+            "total_assault_total-assault-info": (1165, 107),
         }
         update = {
             'CN': {
@@ -591,7 +588,7 @@ class Baas_thread:
             return temp
 
     def init_all_data(self):
-        self.logger.info("--------Initialing All Data----------")
+        self.logger.info("--------Initializing All Data----------")
         self.flag_run = True
         self.init_config()
         self.init_server()
@@ -626,3 +623,50 @@ class Baas_thread:
             print(e)
             self.connection.uiautomator.start()
             self.wait_uiautomator_start()
+
+    def daily_config_refresh(self):
+        now = datetime.now()
+        hour = now.hour
+        last_refresh = datetime.fromtimestamp(self.config['last_refresh_config_time'])
+        last_refresh_hour = last_refresh.hour
+        daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
+        if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
+                ((hour < daily_reset and last_refresh_hour < daily_reset) or (hour >= daily_reset and last_refresh_hour >=daily_reset)):
+            return
+        else:
+            self.config['last_refresh_config_time'] = time.time()
+            self.config_set.set("last_refresh_config_time", time.time())
+            self.refresh_create_time()
+            self.refresh_common_tasks()
+            self.refresh_hard_tasks()
+            self.logger.info("daily config refreshed")
+
+    def refresh_create_time(self):
+        self.config['alreadyCreateTime'] = 0
+        self.config_set.set("alreadyCreateTime", 0)
+
+    def refresh_common_tasks(self):
+        from module.normal_task import readOneNormalTask
+        temp = self.config['mainlinePriority']
+        self.config['unfinished_normal_tasks'] = []
+        if type(temp) is str:
+            temp = temp.split(',')
+        for i in range(0, len(temp)):
+            try:
+                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i]))
+            except Exception as e:
+                self.logger.error(e)
+        self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
+
+    def refresh_hard_tasks(self):
+        from module.hard_task import readOneHardTask
+        self.config['unfinished_hard_tasks'] = []
+        temp = self.config['hardPriority']
+        if type(temp) is str:
+            temp = temp.split(',')
+        for i in range(0, len(temp)):
+            try:
+                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i]))
+            except Exception as e:
+                self.logger.error(e)
+        self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

@@ -1,101 +1,42 @@
 import time
 from core import picture
 from core.color import check_sweep_availability
+from copy import deepcopy
 
-
-def read_task(self, task_string):
-    try:
-        region = 0
-        mainline_available_missions = [1, 2, 3, 4, 5]
-        mainline_available_regions = [1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-        if "tutorial" in task_string:
-            temp = task_string.split('-')
-            number = temp[1]
-            count = temp[2]
-            if not number.isdigit() or not count.isdigit():
-                self.logger.info("tutorial task string format error")
-                return False
-            return "tutorial", int(number), int(count)
-        for i in range(0, len(task_string)):
-            if task_string[i].isdigit():
-                region = region * 10 + int(task_string[i])
-            else:
-                if region not in mainline_available_regions:
-                    self.logger.info("detected region " + str(region) + " unavailable")
-                    return False
-                mission = 0
-                for j in range(i, len(task_string)):
-                    if task_string[j].isdigit():
-                        mission = int(task_string[j])
-                        if mission not in mainline_available_missions:
-                            self.logger.info("detected mission " + str(mission) + " unavailable")
-                            return False
-                        else:
-                            counts = task_string[j + 2:]
-                            if counts == "max":
-                                return region, mission, "max"
-                            else:
-                                if int(counts) <= 0:
-                                    self.logger.info("detected counts " + str(counts) + " unavailable")
-                                    return False
-                                return region, mission, int(counts)
-
-                if mission == 0:
-                    self.logger.info("no mission detected")
-                    return False
-    except Exception as e:
-        self.logger.info("task string format error")
-        return False
+from core.staticUtils import isInt
 
 
 def implement(self):
-    self.quick_method_to_main_page()
-    self.normal_task_count = []
-    temp = self.config['mainlinePriority']
-    if type(temp) is str:
-        temp = temp.split(',')
-    for i in range(0, len(temp)):
-        if read_task(self, temp[i]):
-            self.normal_task_count.append(read_task(self, temp[i]))
-    self.logger.info("detected normal task list: " + str(self.normal_task_count))
-    all_task_x_coordinate = 1118
-    if len(self.normal_task_count) != 0:
+    if len(self.config['unfinished_normal_tasks']) != 0:
+        temp = deepcopy(self.config['unfinished_normal_tasks'])
+        self.logger.info("unfinished normal task list: " + str(temp))
+        self.quick_method_to_main_page()
+        all_task_x_coordinate = 1118
         normal_task_y_coordinates = [242, 341, 439, 537, 611]
-        for i in range(0, len(self.normal_task_count)):
+        for i in range(0, len(temp)):
             to_normal_event(self, True)
             ap = self.get_ap()
             if ap == "UNKNOWN":
                 self.logger.info("UNKNOWN AP")
                 ap = 999
-            self.logger.info("normal task " + str(self.normal_task_count[i]) + " begin")
-            tar_region = self.normal_task_count[i][0]
-            tar_mission = self.normal_task_count[i][1]
-            tar_times = self.normal_task_count[i][2]
+            self.logger.info("normal task " + str(temp[i]) + " begin")
+            tar_region = temp[i][0]
+            tar_mission = temp[i][1]
+            tar_times = temp[i][2]
             if tar_times == "max":
                 ap_needed = int(ap / 10) * 10
             else:
-                one_time_ap = 10
-                if tar_region == "tutorial":
-                    one_time_ap = 1
-                ap_needed = tar_times * one_time_ap
+                ap_needed = tar_times * 10
             self.logger.info("ap_needed : " + str(ap_needed))
             if ap_needed > ap:
                 self.logger.warning("INADEQUATE AP for task")
                 return True
-            if tar_region == "tutorial":
-                tutorial_region = [0, 1, 1, 1, 2, 3, 3]
-                choose_region(self, tutorial_region[tar_mission])
-                import importlib
-                module_name = "module.mainline.tutorial" + str(tar_mission)
-                module = importlib.import_module(module_name)
-                module.sweep(self, tar_times)
-                continue
             choose_region(self, tar_region)
             self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
             if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
                 self.logger.warning("task unlocked")
                 continue
-            t = check_sweep_availability(self, True)
+            t = check_sweep_availability(self)
             if t == "sss":
                 if tar_times == "max":
                     self.click(1085, 300, rate=1,  wait_over=True)
@@ -104,13 +45,10 @@ def implement(self):
                         duration = 0
                         if tar_times > 4:
                             duration = 1
-                        y = 300
-                        if self.server == "JP":
-                            y = 330
-                        self.click(1014, y, count=tar_times - 1,  duration=duration, wait_over=True)
+                        self.click(1014, 300, count=tar_times - 1,  duration=duration, wait_over=True)
                 res = start_sweep(self, skip_first_screenshot=True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
-                    self.logger.info("common task " + str(self.normal_task_count[i]) + " finished")
+                    self.logger.info("common task " + str(temp[i]) + " finished")
                     if tar_times == "max":
                         return True
                 elif res == "purchase_ap_notice":
@@ -119,10 +57,43 @@ def implement(self):
             elif t == "pass" or t == "no-pass":
                 self.logger.info("AUTO SWEEP UNAVAILABLE")
 
+            self.config['unfinished_normal_tasks'].pop(0)
+            self.config_set.set('unfinished_normal_tasks', self.config['unfinished_normal_tasks'])
+
             to_normal_event(self, True)
         self.logger.info("common task finished")
 
     return True
+
+
+def readOneNormalTask(task_string):
+    if task_string.count('-') != 2:
+        raise ValueError("[ " + task_string + " ] format error.")
+    mainline_available_missions = list(range(1, 6))
+    mainline_available_regions = list(range(5, 26))
+    mainline_available_regions.append("tutorial")
+    temp = task_string.split('-')
+    region = temp[0]
+    mission = temp[1]
+    counts = temp[2]
+    if not isInt(region):
+        if region != "tutorial":
+            raise ValueError("[ " + task_string + " ] region : " + str(region) + " unavailable")
+    else:
+        region = int(region)
+    if region not in mainline_available_regions:
+        raise ValueError("[ " + task_string + " ] region : " + str(region) + " not support")
+    if not isInt(mission):
+        raise ValueError("[ " + task_string + " ] mission : " + str(mission) + " unavailable")
+    mission = int(mission)
+    if mission not in mainline_available_missions:
+        raise ValueError("[ " + task_string + " ] mission : " + str(mission) + " not support")
+    if not isInt(counts):
+        if counts != "max":
+            raise ValueError("[ " + task_string + " ] count : " + str(counts) + " unavailable")
+    else:
+        counts = int(counts)
+    return region, mission, counts
 
 
 def to_normal_event(self, skip_first_screenshot=False):

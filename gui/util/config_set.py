@@ -7,6 +7,7 @@ class ConfigSet:
         print(config_dir)
         self.config = None
         self.server_mode = 'CN'
+        self.main_thread = None
         self.static_config = None
         self.config_dir = config_dir
         self.signals = {}
@@ -37,6 +38,9 @@ class ConfigSet:
             notify('', '修改配置失败,请重新设置')
             print(f'failed to set config {key}')
 
+    def update(self, key, value):
+        self.set(key, value)
+
     def __getitem__(self, item: str):
         return self.config[item]
 
@@ -50,3 +54,9 @@ class ConfigSet:
 
     def get_signal(self, key):
         return self.signals.get(key)
+
+    def set_main_thread(self, thread):
+        self.main_thread = thread
+
+    def get_main_thread(self):
+        return self.main_thread

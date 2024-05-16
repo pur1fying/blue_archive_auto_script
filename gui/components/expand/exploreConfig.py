@@ -1,9 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel
-from qfluentwidgets import LineEdit, PushButton, InfoBar, InfoBarIcon, InfoBarPosition
+from qfluentwidgets import LineEdit, PushButton
 
 from .expandTemplate import TemplateLayout
-from ...util.common_methods import get_context_thread
+from ...util import notification
 
 
 class Layout(TemplateLayout):
@@ -110,18 +110,11 @@ class Layout(TemplateLayout):
     def _accept_push(self):
         self.config.set('explore_normal_task_regions', self.input_push.text())
         value = self.input_push.text()
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title='设置成功',
-            content=f'你的普通关配置已经被设置为：{value}，正在推普通关。',
-            orient=Qt.Vertical,  # vertical layout
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.parent().parent().parent().parent().parent().parent().parent()
-        )
-        w.show()
+        notification.success('普通关推图', f'你的普通关配置已经被设置为：{value}，正在推普通关。', self.config)
+        sig = self.config.get_signal('update_signal')
+        sig.emit(['普通关推图'])
         import threading
         threading.Thread(target=self.action).start()
 
     def action(self):
-        get_context_thread(self).start_normal_task()
+        self.config.get_main_thread().start_normal_task()
