@@ -15,7 +15,7 @@ def implement(self):
     if self.config['cafe_reward_use_invitation_ticket'] and get_invitation_ticket_status(self):
         invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
-    if self.server == 'JP' and self.config['cafe_reward_has_no2_cafe']:
+    if self.server == 'JP' or self.server == 'Global' and self.config['cafe_reward_has_no2_cafe']:
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
         if get_invitation_ticket_status(self) and self.config['cafe_reward_use_invitation_ticket']:
@@ -28,9 +28,10 @@ def to_cafe(self, skip_first_screenshot=False):
     reward_status_cross_x = {
         'CN': 904,
         'JP': 985,
-        'Global': 904,
+        'Global': 985,
     }
     img_possibles = {
+        "cafe_gift": (1240, 577),
         'cafe_cafe-reward-status': (reward_status_cross_x[self.server], 159),
         'cafe_invitation-ticket': (835, 97),
         'cafe_students-arrived': (922, 189),
@@ -47,6 +48,7 @@ def to_cafe(self, skip_first_screenshot=False):
 
 
 def to_no2_cafe(self):
+    to_cafe(self)
     self.click(112, 97, wait_over=True, duration=0.5)
     self.click(245, 159, wait_over=True, duration=0.5)
     to_cafe(self)
@@ -65,9 +67,10 @@ def match(img):
 
 
 def cafe_to_gift(self):
+    img_ends = "cafe_gift"
     rgb_possibles = {"cafe": (163, 639)}
     rgb_ends = "gift"
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, None, True)
 
 
 def shot(self):
@@ -76,9 +79,12 @@ def shot(self):
 
 
 def gift_to_cafe(self):
+    img_possibles = {
+        'cafe_gift': (1240, 574),
+    }
     rgb_possibles = {"gift": (1240, 574)}
     rgb_ends = "cafe"
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
 
 
 def interaction_for_cafe_solve_method3(self):

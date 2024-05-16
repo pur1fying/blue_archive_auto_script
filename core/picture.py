@@ -123,6 +123,7 @@ def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
     rgb_possibles = {
         "reward_acquired": (640, 100),
         "relationship_rank_up": (640, 100),
+        "level_up": (640, 200)
     }
     if rgb_pop_ups is not None:
         rgb_possibles.update(rgb_pop_ups)

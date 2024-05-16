@@ -26,18 +26,29 @@ def implement(self):
         buy(self, buy_list)
         self.latest_img_array = self.get_screenshot_array()
         if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
-            self.logger.info("Purchase available")
-            self.click(1160, 662, wait_over=True, duration=0.5)
-            self.click(767, 488, wait_over=True, duration=2)
-            self.click(640, 80, wait_over=True)
-            self.click(640, 80, wait_over=True)
-
+            self.logger.info("-- Purchase available --")
+            img_possibles = {
+                "shop_menu": (1163, 659),
+            }
+            img_ends = "shop_purchase-notice1"
+            picture.co_detect(self, None, None, img_ends, img_possibles, True)
+            purchase_location = {
+                'CN': (777, 491),
+                'Global': (777, 491),
+                'JP': (754, 581)
+            }
+            img_possibles = {
+                "shop_purchase-notice1": purchase_location[self.server],
+            }
+            rgb_ends = "reward_acquired"
+            img_ends = "main_page_full-notice"
+            picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
             tactical_challenge_assets = tactical_challenge_assets - asset_required
             self.logger.info("left assets : " + str(tactical_challenge_assets))
             to_tactical_challenge_shop(self)
 
         elif color.judge_rgb_range(self, 1126, 662, 206, 226, 206, 226, 206, 226):
-            self.logger.info("Purchase Unavailable")
+            self.logger.info("-- Purchase Unavailable --")
             self.click(1240, 39, wait_over=True)
             return True
         self.latest_img_array = self.get_screenshot_array()

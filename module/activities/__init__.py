@@ -7,3 +7,5 @@ from module.activities import Battle_Before_the_New_Years_Dinner_Let_Us_Play_For
 from module.activities import revolutionKupalaNight
 from module.activities import bunnyChaserOnTheShip
 from module.activities import livelyAndJoyfulWalkingTour
+from module.activities import anUnconcealedHeart
+from module.activities import iveAlive

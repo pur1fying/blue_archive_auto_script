@@ -260,6 +260,7 @@ DEFAULT_CONFIG = """
     "program_address": "None",
     "open_emulator_stat": false,
     "emulator_wait_time": "180",
+    "multi_emulator_check": false,
     "ArenaLevelDiff": 0,
     "maxArenaRefreshTimes": 10,
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
@@ -465,14 +466,16 @@ STATIC_DEFAULT_CONFIG = '''
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
             ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ],
         "JP": [
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
-            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
             ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
-            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+            ["一包强化珠α", 110000, "creditpoints"],["一包强化珠β", 240000, "creditpoints"],["一包强化珠γ", 384000, "creditpoints"],["一包强化珠δ", 496000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],
+             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ]
     },
     "tactical_challenge_shop_price_list": {
@@ -614,7 +617,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": null,
         "Global": null,
-        "JP": "livelyAndJoyfulWalkingTour"
+        "JP": "iveAlive"
     },
     "package_name": {
         "官服": "com.RoamingStar.BlueArchive",
@@ -660,7 +663,47 @@ STATIC_DEFAULT_CONFIG = '''
         ["24-1", "芹娜"] , ["24-2", "玛丽"] , ["24-3", "日奈"] ,
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"]
     ],
-    "student_names": [
+  "student_names": [
+    {
+      "CN_name": "アイリ(バンド)",
+      "CN_implementation": false,
+      "Global_name": "Airi (Band)",
+      "Global_implementation": false,
+      "JP_name": "アイリ(バンド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "ヨシミ(バンド)",
+      "CN_implementation": false,
+      "Global_name": "Yoshimi (Band)",
+      "Global_implementation": false,
+      "JP_name": "ヨシミ(バンド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "カズサ(バンド)",
+      "CN_implementation": false,
+      "Global_name": "Kazusa (Band)",
+      "Global_implementation": false,
+      "JP_name": "カズサ(バンド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "椿(导游)",
+      "CN_implementation": false,
+      "Global_name": "Tsubaki (Guide)",
+      "Global_implementation": false,
+      "JP_name": "ツバキ(ガイド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "海香",
+      "CN_implementation": false,
+      "Global_name": "Umika",
+      "Global_implementation": false,
+      "JP_name": "ウミカ",
+      "JP_implementation": true
+    },
     {
       "CN_name": "明里(正月)",
       "CN_implementation": false,
@@ -793,7 +836,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "时雨(温泉)",
       "CN_implementation": false,
       "Global_name": "Shigure (Hot Spring)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "シグレ(温泉)",
       "JP_implementation": true
     },
@@ -801,7 +844,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "霞",
       "CN_implementation": false,
       "Global_name": "Kasumi",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "カスミ",
       "JP_implementation": true
     },
@@ -809,7 +852,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "一花",
       "CN_implementation": false,
       "Global_name": "Ichika",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "イチカ",
       "JP_implementation": true
     },
@@ -817,7 +860,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "晴奈(运动服)",
       "CN_implementation": false,
       "Global_name": "Haruna (Track)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "ハルナ(体操服)",
       "JP_implementation": true
     },
@@ -1287,7 +1330,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "月咏",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Tsukuyo",
       "Global_implementation": true,
       "JP_name": "ツクヨ",
@@ -1295,7 +1338,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "满",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Michiru",
       "Global_implementation": true,
       "JP_name": "ミチル",
@@ -1303,7 +1346,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "伊吕波",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Iroha",
       "Global_implementation": true,
       "JP_name": "イロハ",
@@ -1311,7 +1354,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "枫",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Kaede",
       "Global_implementation": true,
       "JP_name": "カエデ",
@@ -1326,7 +1369,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "咲希",
+      "CN_name": "咲",
       "CN_implementation": true,
       "Global_name": "Saki",
       "Global_implementation": true,
@@ -1343,7 +1386,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "真里奈",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Marina",
       "Global_implementation": true,
       "JP_name": "マリナ",

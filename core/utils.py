@@ -124,3 +124,4 @@ class Logger:
             '<div style="font-family: Consolas, monospace;color:#2d8cf0;">--------------'
             '-------------------------------------------------------------'
             '-------------------</div>', raw_print=True)
+

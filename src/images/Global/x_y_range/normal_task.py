@@ -1,6 +1,7 @@
 prefix = "normal_task"
 path = "normal_task"
 x_y_range = {
+    'charge-challenge-counts': (427, 348, 601, 381),
     'SUB': (543, 141, 736, 176),
     'select-area': (97, 9, 255, 37),
     'fight-confirm': (1120, 646, 1222, 681),

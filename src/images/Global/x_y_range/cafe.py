@@ -9,7 +9,10 @@ x_y_range = {
     'quick-home': (1215, 5, 1255, 42),
     'invitation-ticket-invalid': (397, 299, 880, 365),
     'invitation-ticket-order-affection': (642, 138, 768, 165),
+    'duplicate-invite-notice': (400, 230, 888, 400),
     'invitation-ticket-order-up': (827, 138, 841, 164),
     'confirm-invite': (543, 139, 735, 177),
     'switch-clothes-notice': (500, 150, 780, 189),
+    'duplicate-invite': (400, 160, 888, 270),
+
 }
