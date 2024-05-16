@@ -89,6 +89,14 @@ class SettingsFragment(ScrollArea):
                 sub_view=expand.__dict__['otherConfig'],
                 parent=self.exploreGroup,
                 config=self.config
+            ),
+
+            SimpleSettingCard(
+                title='推送设置',
+                content='推送信息',
+                sub_view=expand.__dict__['pushConfig'],
+                parent=self.exploreGroup,
+                config=self.config
             )]
 
         self.__initLayout()

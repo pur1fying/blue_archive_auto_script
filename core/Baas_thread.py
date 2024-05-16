@@ -5,6 +5,9 @@ from core.notification import notify
 from core.scheduler import Scheduler
 from core import position, picture
 from core.utils import Logger
+
+from core.pushkit import push
+import time
 import numpy as np
 import uiautomator2 as u2
 import module
@@ -338,12 +341,18 @@ class Baas_thread:
                     self.task_finish_to_main_page = True
                     self.daily_config_refresh()
                     if self.solve(next_func_name) and self.flag_run:
-                        next_tick = self.scheduler.systole(next_func_name, self.next_time)
-                        if next_tick is not None:
-                            self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
+                        next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
+                        self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
+                    elif not self.flag_run:
+                        self.logger.info("BAAS Exited, Reason : Human Take Over")
+                        self.signal_stop()
+                    else:
+                        self.logger.error("error occurred, stop all activities")
+                        self.signal_stop()
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
+                        push(self.logger,self.config)
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
@@ -358,11 +367,13 @@ class Baas_thread:
         try:
             return func_dict[activity](self)
         except Exception as e:
-            self.logger.error(e)
-            threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
+            if  self.flag_run:
+                self.logger.error(e)
+                threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
 
     def simple_error(self, info: str):
+        push(self.logger,self.config,info)
         raise ScriptError(message=info, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
