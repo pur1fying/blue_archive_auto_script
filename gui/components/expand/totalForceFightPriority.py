@@ -32,4 +32,4 @@ class Layout(QWidget):
 
     def __accept(self):
         self.config.set('totalForceFightDifficulty', self.input.text())
-        notification.success(self.tr('设置成功'), f'{self.tr("你的总力战最高难度已经被设置为："}{self.input.text()}', self.config)
+        notification.success(self.tr('设置成功'), f'{self.tr("你的总力战最高难度已经被设置为：")}{self.input.text()}', self.config)

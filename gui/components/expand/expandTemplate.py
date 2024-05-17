@@ -95,7 +95,7 @@ class TemplateLayout(QWidget):
             value = target.text()
         assert value is not None
         self.config.update(key, value)
-        notification.success(self.tr('设置成功'), f'{labelTarget.text()}{self.tr("已经被设置为："}{value}', self.config)
+        notification.success(self.tr('设置成功'), f'{labelTarget.text()}{self.tr("已经被设置为：")}{value}', self.config)
 
 
 class ConfigItemV2(ConfigItem):
