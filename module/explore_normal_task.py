@@ -467,9 +467,11 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
 
 def get_explore_normal_task_missions(self, st):
     try:
-        if type(st) is not str:
-            st = str(st)
-        st = st.split(',')
+        if type(st) is list:
+            for i in range(0, len(st)):
+                st[i] = str(st[i])
+        elif type(st) is not str:
+            st = str(st).split(',')
         tasks = []
         for i in range(0, len(st)):
             if '-' in st[i]:

@@ -76,3 +76,22 @@ class SimpleSettingCard(ExpandSettingCard):
         self.viewLayout.addWidget(self.expand_view)
         self.expand_view.show()
         self._adjustViewSize()
+
+
+class ScheduleSettingDropCard(ExpandSettingCard):
+    """ Folder list setting card """
+
+    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None):
+        super().__init__(FIF.CHECKBOX, title, content, parent)
+        self.expand_view = sub_view.Layout(self, config)
+        self._adjustViewSize()
+        self.__initWidget()
+
+    def __initWidget(self):
+        self.viewLayout.setSpacing(0)
+        self.viewLayout.setAlignment(Qt.AlignTop)
+        self.viewLayout.setContentsMargins(0, 0, 0, 0)
+        # Initialize layout
+        self.viewLayout.addWidget(self.expand_view)
+        self.expand_view.show()
+        self._adjustViewSize()

@@ -1,7 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout
-from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition
+from qfluentwidgets import LineEdit
+
+from gui.util import notification
 
 
 class Layout(QWidget):
@@ -31,13 +33,4 @@ class Layout(QWidget):
 
     def _save_port(self, changed_text=None):
         self.config.set('screenshot_interval', changed_text)
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title=self.tr('设置成功'),
-            content=self.tr('你的截屏间隔已经被设置为：') + f'{changed_text}',
-            orient=Qt.Vertical,  # vertical layout
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.info_widget
-        )
-        w.show()
+        notification.success(self.tr('截图间隔'), f'{self.tr("你的截图间隔已经被设置为：")}{changed_text}', self.config)

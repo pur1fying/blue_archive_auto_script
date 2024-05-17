@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
-from qfluentwidgets import LineEdit, InfoBar, InfoBarIcon, InfoBarPosition, ComboBox
+from qfluentwidgets import LineEdit, ComboBox
+from gui.util import notification
 
 from gui.util.translator import baasTranslator as bt
 
@@ -33,14 +34,12 @@ class Layout(QWidget):
             self.each_student_task_number_dict.setdefault(translated_name, [])
             temp = self.config.static_config["hard_task_student_material"][i][0] + "-3"
             (self.each_student_task_number_dict[translated_name].append(temp))
+            
         for key in self.each_student_task_number_dict.keys():
             self.hard_task_combobox.addItem(key)
         self.hard_task_combobox.currentIndexChanged.connect(self.__hard_task_combobox_change)
         _set_main = self.config.get('mainlinePriority')
-        self.main_priority = [tuple(x.split('-')) for x in _set_main.split(',')]
-
         _set_hard = self.config.get('hardPriority')
-        self.hard_priority = [tuple(x.split('-')) for x in _set_hard.split(',')]
 
         self.setFixedHeight(200)
 
@@ -84,32 +83,32 @@ class Layout(QWidget):
         self.hBoxLayout.addLayout(self.lay2_hard)
 
     def __accept_main(self):
-        input_content = self.input.text()
-        self.config.set('mainlinePriority', input_content)
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title=self.tr('设置成功'),
-            content=self.tr('你的普通关卡已经被设置为：') + f'{input_content}',
-            orient=Qt.Vertical,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.info_widget
-        )
-        w.show()
+        try:
+            from module.normal_task import readOneNormalTask
+            input_content = self.input.text()
+            self.config.set('mainlinePriority', input_content)
+            input_content = input_content.split(',')
+            temp = []
+            for i in range(0, len(input_content)):
+                temp.append(readOneNormalTask(input_content[i]))
+            self.config.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])  # refresh the config unfinished_normal_tasks
+            notification.success(self.tr('设置成功'), f'{self.tr("你的普通关卡已经被设置为：")}{input_content}', self.config)
+        except Exception as e:
+            notification.error(self.tr('设置失败'), f'{self.tr("请检查输入格式是否正确，错误信息：")}{e}', self.config)
 
     def __accept_hard(self):
-        input_content = self.input_hard.text()
-        self.config.set('hardPriority', input_content)
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title=self.tr('设置成功'),
-            content=self.tr('你的困难关卡已经被设置为：') + f'{input_content}',
-            orient=Qt.Vertical,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.info_widget
-        )
-        w.show()
+        try:
+            from module.hard_task import readOneHardTask
+            input_content = self.input_hard.text()
+            self.config.set('hardPriority', input_content)
+            input_content = input_content.split(',')
+            temp = []
+            for i in range(0, len(input_content)):
+                temp.append(readOneHardTask(input_content[i]))
+            self.config.set("unfinished_hard_tasks", temp)                                         # refresh the config unfinished_hard_tasks
+            notification.success(self.tr('设置成功'), f'{self.tr("你的困难关卡已经被设置为：")}{input_content}', self.config)
+        except Exception as e:
+            notification.error(self.tr('设置失败'), f'{self.tr("请检查输入格式是否正确，错误信息：")}{e}', self.config)
 
     def __hard_task_combobox_change(self):
         if self.hard_task_combobox.currentText() == self.tr("根据学生添加关卡"):
@@ -117,5 +116,7 @@ class Layout(QWidget):
         st = ""
         if self.input_hard.text() != "":
             st = self.input_hard.text() + ","
-        self.input_hard.setText(st + ','.join(self.each_student_task_number_dict[self.hard_task_combobox.currentText()]))
+        self.input_hard.setText(
+            st + ','.join(self.each_student_task_number_dict[self.hard_task_combobox.currentText()]))
         self.__accept_hard()
+

@@ -128,6 +128,8 @@ class SwitchFragment(ScrollArea):
         if self.basicGroup is not None:
             self.basicGroup.deleteLater()  # 如果basicGroup已经存在，则删除它
         self.basicGroup = SettingCardGroup(self.tr("功能开关"), self.scrollWidget)  # 创建一个标题为"功能开关"的SettingCardGroup实例
+        self.basicGroup.vBoxLayout.insertSpacing(1, -10)  # 设置basicGroup的垂直布局的间距为20
+        self.basicGroup.titleLabel.deleteLater()
         self.basicGroup.addSettingCards(self._setting_cards)  # 将_setting_cards列表中的SettingCard对象添加到basicGroup中
         self.expandLayout.addWidget(self.basicGroup)  # 将basicGroup添加到expandLayout布局中
 

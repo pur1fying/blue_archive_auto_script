@@ -5,7 +5,7 @@ from .get_adb_address import get_simulator_port
 ### simulator apis ###
 
 def get_adb_address(simulator_type, multi_instance=None):
-    if simulator_type is not None:
+    if simulator_type:
         return get_simulator_port(simulator_type, multi_instance)
     else:
         raise ValueError("MISSING_INPUT_PARAMETER")

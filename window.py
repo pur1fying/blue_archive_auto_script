@@ -16,9 +16,12 @@ from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from core import default_config
 from gui.components.dialog_panel import SaveSettingMessageBox
+from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
-from gui.util.translator import baasTranslator as bt
+
+from gui.util import notification
 from gui.util.config_set import ConfigSet
+from gui.util.translator import baasTranslator as bt
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
 # sys.stdout = open('output.log', 'w+', encoding='utf-8')
@@ -30,10 +33,6 @@ ICON_DIR = 'gui/assets/logo.png'
 
 def update_config_reserve_old(config_old, config_new):  # 保留旧配置原有的键，添加新配置中没有的，删除新配置中没有的键
     for key in config_new:
-        if key == 'TacticalChallengeShopList':
-            if len(config_old[key]) == 13:
-                config_old[key] = config_new[key]
-            continue
         if key not in config_old:
             config_old[key] = config_new[key]
     dels = []
@@ -95,35 +94,52 @@ def check_user_config(dir_path='./default_config'):
         data = update_config_reserve_old(data, json.loads(default_config.DEFAULT_CONFIG))
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
-        return
+        return data['server']
     except Exception as e:
         print(e)
         os.remove(path)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
-        return
+        return 'CN'
 
 
-def check_event_config(dir_path='./default_config'):
+def check_single_event(new_event, old_event):
+    for key in new_event:
+        if key not in old_event:
+            old_event[key] = new_event[key]
+    return old_event
+
+
+def check_event_config(dir_path='./default_config', server="CN"):
     path = './config/' + dir_path + '/event.json'
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
+    if server != "CN":
+        for i in range(0, len(default_event_config)):
+            for j in range(0, len(default_event_config[i]['daily_reset'])):
+                default_event_config[i]['daily_reset'][j][0] = default_event_config[i]['daily_reset'][j][0] - 1
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             with open("error.log", 'w+', encoding='utf-8') as errorfile:
-                errorfile.write("path not exist" + '\n' + dir_path + '\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
+                errorfile.write("path not exist" + '\n' + dir_path + '\n' + datetime.datetime.now().strftime(
+                    '%Y-%m-%d %H:%M:%S') + '\n')
             f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
         return
     try:
-        with open(path, 'r', encoding='utf-8') as f:  # 如果存在则检查是否有新的配置项
+        with open(path, 'r', encoding='utf-8') as f:  # 检查是否有新的配置项
             data = json.load(f)
         for i in range(0, len(default_event_config)):
             exist = False
             for j in range(0, len(data)):
                 if data[j]['func_name'] == default_event_config[i]['func_name']:
+                    for k in range(0, len(default_event_config[i]['daily_reset'])):
+                        if len(data[j]['daily_reset'][k]) != 3:
+                            data[j]['daily_reset'][k] = [0, 0, 0]
+                    data[j] = check_single_event(default_event_config[i], data[j])
                     exist = True
                     break
             if not exist:
                 data.insert(i, default_event_config[i])
+
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
     except Exception as e:
@@ -143,8 +159,14 @@ def check_config(dir_path):
     for path in dir_path:
         if not os.path.exists('./config/' + path):
             os.mkdir('./config/' + path)
-        check_user_config(path)
-        check_event_config(path)
+        server = check_user_config(path)
+        if server == "官服" or server == "B服":
+            server = "CN"
+        elif server == "国际服":
+            server = "Global"
+        elif server == "日服":
+            server = "JP"
+        check_event_config(path, server)
         check_display_config(path)
         check_switch_config(path)
 
@@ -166,6 +188,7 @@ class Widget(MSFluentWindow):
 class BAASTitleBar(MSFluentTitleBar):
     """ Title bar with icon and title """
     onHelpButtonClicked = pyqtSignal()
+    onHistoryButtonClicked = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -182,6 +205,10 @@ class BAASTitleBar(MSFluentTitleBar):
         self.tabBar.setScrollable(True)
         self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
 
+        self.historyButton = TransparentToolButton(FIF.HISTORY.icon(), self)
+        self.historyButton.setToolTip('更新日志')
+        self.historyButton.clicked.connect(self.onHistoryButtonClicked)
+
         self.searchButton = TransparentToolButton(FIF.HELP.icon(), self)
         self.searchButton.setToolTip(self.tr('帮助'))
         self.searchButton.clicked.connect(self.onHelpButtonClicked)
@@ -189,6 +216,7 @@ class BAASTitleBar(MSFluentTitleBar):
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
         self.hBoxLayout.setStretch(6, 0)
+        self.hBoxLayout.insertWidget(6, self.historyButton, 0, alignment=Qt.AlignRight)
         self.hBoxLayout.insertWidget(7, self.searchButton, 0, alignment=Qt.AlignRight)
 
         # self.hBoxLayout.insertSpacing(8, 20)
@@ -201,6 +229,7 @@ class BAASTitleBar(MSFluentTitleBar):
 
 
 class Window(MSFluentWindow):
+    notify_signal = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -223,8 +252,10 @@ class Window(MSFluentWindow):
                 files = os.listdir(f'./config/{_dir_}')
                 if 'config.json' in files:
                     check_config(_dir_)
-                    self.config_dir_list.append(ConfigSet(config_dir=_dir_))
-
+                    conf = ConfigSet(config_dir=_dir_)
+                    conf.add_signal("notify_signal", self.notify_signal)
+                    self.config_dir_list.append(conf)
+        self.notify_signal.connect(self.notify)
         if len(self.config_dir_list) == 0:
             check_config('default_config')
             self.config_dir_list.append(ConfigSet('default_config'))
@@ -237,12 +268,14 @@ class Window(MSFluentWindow):
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
         self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
+                          [ProcessFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SwitchFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SettingsFragment(parent=self, config=x) for x in self.config_dir_list]]
         # _sc_list = [SwitchFragment(parent=self, config_dir=x) for x in config_dir_list]
         self.homeInterface = self._sub_list[0][0]
-        self.schedulerInterface = self._sub_list[1][0]
-        self.settingInterface = self._sub_list[2][0]
+        self.processInterface = self._sub_list[1][0]
+        self.schedulerInterface = self._sub_list[2][0]
+        self.settingInterface = self._sub_list[3][0]
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
         self.initNavigation()
@@ -252,6 +285,10 @@ class Window(MSFluentWindow):
 
     def init_main_class(self, ):
         threading.Thread(target=self.init_main_class_thread).start()
+
+    def notify(self, raw_msg):
+        json_msg = json.loads(raw_msg)
+        notification.__dict__['_' + json_msg['type']](json_msg['label'], json_msg['msg'], self)
 
     def init_main_class_thread(self):
         from main import Main
@@ -265,6 +302,7 @@ class Window(MSFluentWindow):
     def initNavigation(self):
         self.navi_btn_list = [
             self.addSubInterface(self.homeInterface, FIF.HOME, self.tr('主页')),
+            self.addSubInterface(self.processInterface, FIF.CALENDAR, self.tr('调度')),
             self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, self.tr('配置')),
             self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置'))
         ]
@@ -286,6 +324,7 @@ class Window(MSFluentWindow):
         self.tabBar.tabAddRequested.connect(self.onTabAddRequested)
         self.tabBar.tabCloseRequested.connect(self.onTabCloseRequested)
         self.titleBar.onHelpButtonClicked.connect(self.showHelpModal)
+        self.titleBar.onHistoryButtonClicked.connect(self.showHistoryModel)
 
     def initWindow(self):
         self.resize(900, 700)
@@ -305,11 +344,20 @@ class Window(MSFluentWindow):
         helpModal.setFocus()
         helpModal.show()
 
+    @staticmethod
+    def showHistoryModel():
+        from gui.fragments.history import HistoryWindow
+        historyModal = HistoryWindow()
+        historyModal.setWindowTitle('更新日志')
+        historyModal.setWindowIcon(QIcon(ICON_DIR))
+        historyModal.resize(800, 600)
+        historyModal.setFocus()
+        historyModal.show()
+
     def onNavigationChanged(self, index: int):
         for ind, btn in enumerate(self.navi_btn_list):
             btn.setSelected(True if ind == index else False)
         objectName = self.tabBar.currentTab().routeKey()
-        # new_interface = list(filter(lambda x: x.object_name == objectName, self._home_list))[0]
         col = [x.object_name for x in self._sub_list[0]].index(objectName)
         self.dispatchSubView(index, col)
 
@@ -335,16 +383,7 @@ class Window(MSFluentWindow):
         if addDialog.exec_():
             text = addDialog.pathLineEdit.text()
             if text in list(map(lambda x: x.config['name'], self.config_dir_list)):
-                ib = InfoBar(
-                    icon=InfoBarIcon.ERROR,
-                    title=self.tr('设置成功'),
-                    content=f'名为“{text}”的配置已经存在！',
-                    orient=Qt.Vertical,  # vertical layout
-                    position=InfoBarPosition.TOP_RIGHT,
-                    duration=2000,
-                    parent=self
-                )
-                ib.show()
+                notification.error(self.tr('设置失败'), f'{self.tr("名为")}“{text}”{self.tr("的配置已经存在！")}', self)
                 return
             serial_name = str(int(datetime.datetime.now().timestamp()))
             os.mkdir(f'./config/{serial_name}')
@@ -362,6 +401,7 @@ class Window(MSFluentWindow):
             _sub_list_ = [
                 HomeFragment(parent=self, config=_config),
                 SwitchFragment(parent=self, config=_config),
+                ProcessFragment(parent=self, config=_config),
                 SettingsFragment(parent=self, config=_config)
             ]
             for i in range(0, len(_sub_list_)):

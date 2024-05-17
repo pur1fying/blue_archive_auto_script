@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<p><span style="background-color: #f1c40f;"><strong>调度配置填写帮助：</strong></span></p>
+<p>1.优先级：当有多于两个任务在队列中时，会优先做优先级小的任务</p>
+<p>2.执行间隔：整数 0 表示间隔一天，&nbsp;</p>
+<p>3.每日重置 ：</p>
+<p>每天固定在这些时间做对应任务 （可以有多个时间戳，逗号隔开）。</p>
+<p>填写格式 [ [ h, m ,s] ] <span style="color: #e03e2d;"><strong>（UTC时间）</strong></span></p>
+<p><span style="color: #000000;"><strong>例</strong>：[ [ 0 , 0 , 0 ] , [ 20 , 0 , 0 ] ]</span></p>
+<p><span style="color: #000000;"> 表示 ： 北京时间 (UTC + 8) 8 点 ， 4 点固定执行&nbsp;</span></p>
+<p>4.禁用时间段：</p>
+<p>在所有禁用时间段不做该任务 （可以有多个时间段，逗号隔开）</p>
+<p>填写格式&nbsp; [ [ [ h1, m1, s1 ] , [ h2 , m2 , s1 ] ] ]&nbsp; <span style="color: #e03e2d;"><strong>（UTC时间）</strong></span></p>
+<p><span style="color: #000000;"><strong>例</strong>：[ [ 0 , 0 , 0 ] , [ 24, 0 , 0 ] ]</span></p>
+<p><span style="color: #000000;"> 表示全天不做</span></p>
+<p>5.前置任务， 后置任务：在执行该任务前(后)依次执行前置任务里所有任务</p>
+</body>
+</html>

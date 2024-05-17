@@ -1,6 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel
-from qfluentwidgets import InfoBar, InfoBarIcon, InfoBarPosition, ComboBox
+from qfluentwidgets import ComboBox
+
+from gui.util import notification
 
 
 class Layout(QWidget):
@@ -30,13 +32,4 @@ class Layout(QWidget):
 
     def __accept(self):
         self.config.set('totalForceFightDifficulty', self.input.text())
-        w = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title=self.tr('设置成功'),
-            content=self.tr(f'你的总力战最高难度已经被设置为：') + f'{self.input.text()}',
-            orient=Qt.Vertical,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=800,
-            parent=self.info_widget
-        )
-        w.show()
+        notification.success(self.tr('设置成功'), f'{self.tr("你的总力战最高难度已经被设置为："}{self.input.text()}', self.config)

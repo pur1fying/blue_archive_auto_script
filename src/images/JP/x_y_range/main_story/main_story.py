@@ -2,6 +2,7 @@ prefix = 'main_story'
 path = 'main_story'
 x_y_range = {
     "episode-cleared-feature": (700, 143, 1050, 177),
+    "plot-not-open": (698, 143, 1080, 173),
     "enter-main-story": (240, 510, 558, 562),
     "select-episode": (100, 9, 350, 41),
     "episode5": (59, 91,248,111),
