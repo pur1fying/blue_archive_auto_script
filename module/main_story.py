@@ -12,7 +12,7 @@ def implement(self):
     self.main_story_stage_data = getattr(stage_module, "stage_data")
     self.quick_method_to_main_page()
     to_main_story(self, True)
-    push_episode_list = self.config['main_story_regions']
+    push_episode_list = process_regions(self, self.config['main_story_regions'])
     if not push_episode_list:
         default_list = {
             'CN': [1, 2, 3, 4],
@@ -20,8 +20,6 @@ def implement(self):
             'JP': [1, 2, 3, 4, 5, 4, 6]
         }
         push_episode_list = default_list[self.server]
-    if type(push_episode_list) is not list:
-        push_episode_list = [push_episode_list]
     for i in range(0, len(push_episode_list)):
         current_episode = push_episode_list[i]
         is_final = False
@@ -276,3 +274,16 @@ def check_state_and_get_stage_data(self):
                     img_ends = "normal_task_task-wait-to-begin-feature"
                     picture.co_detect(self, None, None, img_ends, img_possibles, True)
                     return self.main_story_stage_data[filename[:-4]]
+
+
+def process_regions(self, value):
+    if type(value) is list:
+        return value
+    value = value.split(',')
+    res = []
+    for i in range(0, len(value)):
+        try:
+            res.append(int(value[i]))
+        except ValueError:
+            self.logger.error("Invalid region value : " + value[i])
+    return res
