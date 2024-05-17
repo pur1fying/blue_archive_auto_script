@@ -341,7 +341,7 @@ class Baas_thread:
                     self.task_finish_to_main_page = True
                     self.daily_config_refresh()
                     if self.solve(next_func_name) and self.flag_run:
-                        next_tick = self.scheduler.systole(next_func_name, self.next_time, self.server)
+                        next_tick = self.scheduler.systole(next_func_name, self.next_time)
                         self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
                     elif not self.flag_run:
                         self.logger.info("BAAS Exited, Reason : Human Take Over")
