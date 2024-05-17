@@ -7,6 +7,6 @@ x_y_range = {
     'battle-win': (520, 124, 750, 162),
     'battle-lost': (520, 191, 750, 228),
     'purchase-tactical-challenge-ticket': (411, 240, 877, 275),
-    # 'season-record': (682, 137, 746, 172),
+    'season-record': (400, 137, 900, 172),
     # 'best-record': (653, 139, 715, 172)
 }
