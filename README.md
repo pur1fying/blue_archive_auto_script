@@ -9,8 +9,6 @@ baas，一个带GUI的蔚蓝档案（全服支持），为屏幕分辨率为 16�
 
 baas 是一款免费开源软件，地址：https://github.com/pur1fying/blue_archive_auto_script
 
-GUI support, thanks **[@キラメイ Kiramei](https://github.com/Kiramei)** 
-感谢其他contributors
 
 GUI预览图：
 
@@ -60,7 +58,7 @@ GUI预览图：
 在提问题之前至少花费 5 分钟来思考和准备，才会有人花费他的 5 分钟来帮助你。
 
 在提问题前，请先。
-检查 BAAS 的更新，确认使用的是最新版。
+检查 BAAS 的更新，确认使用的是最新版(重启程序自动更新至最)。
 如果是非预期的行为，请提供非预期行为发生时UI界面的日志,模拟器截图或视频。
 
 ## 已知问题 Known Issues
@@ -71,8 +69,47 @@ GUI预览图：
 ## 联系我们 Contact Us
 
 - QQ群：658302636 （有开发意向请加作者 Email pur1fying at 2274916027@qq.com）
-
+- 
 ## 未来目标 Future Goals
 - **学生党，痛苦喵，大家一起来开源喵**
-- **完善异常检测机制**
-- **训练一个高精度ocr模型**
+- **使用C++重构一部分功能(正在进行中)**
+- **使用yolo目标检测训练所有学生追踪模型，完成自动总力战功能**
+
+## 致谢
+1.GUI 支持, 感谢 
+
+**[@キラメイ Kiramei](https://github.com/Kiramei)**
+
+**[@Scxppp](https://github.com/Scxppp)** 
+
+2.模拟器启动支持, 感谢 
+
+**[@Daodanfd5](https://github.com/Daodanfd5)**
+
+**[@Drstargaze](https://github.com/Drstargaze)**
+
+3.英文GUI支持, 感谢 
+
+**[@RedDeadDepresso](https://github.com/RedDeadDepresso)**
+
+4.一些bug的修复, 感谢 
+
+**[@2meito](https://github.com/2meito)** 
+
+**[@walkonbothsides](https://github.com/walkonbothsides)** 
+
+**[@misaka10843](https://github.com/misaka10843)**
+
+**[@kibokiboki](https://github.com/kibokiboki)**
+
+**[@Poke Chen](https://github.com/Popopopoke)**
+
+5.推送信息支持, 感谢
+
+**[@wyeeeee](https://github.com/wyeeeee)**
+
+6.帮助文档网站支持, 感谢
+
+**[@lzw-723](https://github.com/lzw-723)**
+
+
