@@ -34,9 +34,6 @@ class ConfigSet:
         self.config[key] = value
         with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
-        if not self.check(key, value):
-            notify('', '修改配置失败,请重新设置')
-            print(f'failed to set config {key}')
 
     def update(self, key, value):
         self.set(key, value)
