@@ -471,7 +471,10 @@ def get_explore_normal_task_missions(self, st):
             for i in range(0, len(st)):
                 st[i] = str(st[i])
         elif type(st) is not str:
-            st = str(st).split(',')
+            st = str(st)
+        if type(st) is str:
+            st = st.split(',')
+        print(type(st))
         tasks = []
         for i in range(0, len(st)):
             if '-' in st[i]:
