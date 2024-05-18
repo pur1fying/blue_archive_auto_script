@@ -97,7 +97,7 @@ def calc_need_fight_stage(self, region, force_sss):
         if task_state == 'no-pass':
             self.logger.info("Current task not pass. Start main line fight")
             return str(region) + "-" + str(i)
-        if task_state == 'pass' and force_sss:
+        if task_state == 'pass' and not force_sss:
             self.logger.info("Current task not sss. Start main line fight")
             return str(region) + "-" + str(i)
         if task_state == 'sss':
