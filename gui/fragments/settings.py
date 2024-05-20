@@ -104,8 +104,8 @@ class SettingsFragment(ScrollArea):
             ),
 
             SimpleSettingCard(
-                title='推送设置',
-                content='推送信息',
+                title=self.tr('推送设置'),
+                content=self.tr('推送信息'),
                 sub_view=expand.__dict__['pushConfig'],
                 parent=self.exploreGroup,
                 config=self.config

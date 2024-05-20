@@ -12,6 +12,7 @@ SOURCES += \
     gui/components/expand/mainlinePriority.py \
     gui/components/expand/otherConfig.py \
     gui/components/expand/proceedPlot.py \
+    gui/components/expand/pushConfig.py \
     gui/components/expand/schedulePriority.py \
     gui/components/expand/scriptConfig.py \
     gui/components/expand/serverConfig.py \
@@ -20,6 +21,7 @@ SOURCES += \
     gui/components/expand/totalForceFightPriority.py \
     gui/components/dialog_panel.py \
     gui/components/template_card.py \
+    gui/fragments/history.py \
     gui/fragments/home.py \
     gui/fragments/process.py \
     gui/fragments/readme.py \

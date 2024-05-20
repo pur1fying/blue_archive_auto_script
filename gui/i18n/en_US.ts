@@ -4,7 +4,7 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="186"/>
+        <location filename="../../window.py" line="213"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>
@@ -244,12 +244,12 @@
     <message>
         <location filename="../util/config_translation.py" line="79"/>
         <source>随机初级神秘古物</source>
-        <translation type="unfinished">Basic Relic</translation>
+        <translation type="unfinished">A random primary mystical antiquities.</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="80"/>
         <source>随机中级神秘古物</source>
-        <translation type="unfinished">Intermediate Relic</translation>
+        <translation type="unfinished">Random middle-class mythology.</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="83"/>
@@ -313,37 +313,90 @@
     </message>
 </context>
 <context>
+    <name>DetailSettingMessageBox</name>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="19"/>
+        <source>配置详情</source>
+        <translation>Detailed Configuration</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="22"/>
+        <source>优先级</source>
+        <translation>Priority</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="27"/>
+        <source>执行间隔</source>
+        <translation>Interval</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="32"/>
+        <source>每日重置</source>
+        <translation>Reset daily</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="37"/>
+        <source>禁用时间段</source>
+        <translation>Disable period</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="42"/>
+        <source>前置任务</source>
+        <translation>Pre task</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="48"/>
+        <source>后置任务</source>
+        <translation>Post-task</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="59"/>
+        <source>确定</source>
+        <translation>Confirm</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="60"/>
+        <source>取消</source>
+        <translation>Cancel</translation>
+    </message>
+</context>
+<context>
     <name>EmulatorConfig</name>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="11"/>
+        <location filename="../components/expand/emulatorConfig.py" line="14"/>
         <source>在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)</source>
         <translation>Turn on the emulator when Baas is running</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="16"/>
+        <location filename="../components/expand/emulatorConfig.py" line="24"/>
         <source>等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)</source>
         <translation>Seconds to wait for the emulator to start</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="21"/>
-        <source>选择模拟器地址</source>
-        <translation>Enter emulator path</translation>
+        <location filename="../components/expand/emulatorConfig.py" line="19"/>
+        <source>是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)</source>
+        <translation>Whether to open multiple emulators (after opening, ignore the already started emulator process and start another emulator)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/emulatorConfig.py" line="29"/>
+        <source>模拟器是否多开</source>
+        <translation type="unfinished">Can multiple instances run simultaneously?</translation>
     </message>
 </context>
 <context>
     <name>EventMapConfig</name>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="12"/>
+        <location filename="../components/expand/eventMapConfig.py" line="11"/>
         <source>推故事</source>
         <translation>Clear Story</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="17"/>
+        <location filename="../components/expand/eventMapConfig.py" line="16"/>
         <source>推任务</source>
         <translation>Clear Quest</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="22"/>
+        <location filename="../components/expand/eventMapConfig.py" line="21"/>
         <source>推挑战</source>
         <translation>Clear Challenge</translation>
     </message>
@@ -358,7 +411,7 @@
     <message>
         <location filename="../components/expand/exploreConfig.py" line="20"/>
         <source>是否不强制打到sss（启用后跳过已通过但未sss的关卡）</source>
-        <translation type="unfinished">Whether to not force hitting sss (skip passed but not sss levels when enabled)</translation>
+        <translation type="unfinished">Whether to call to sss (jump pass but not sss after active)</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="25"/>
@@ -425,48 +478,76 @@
     </message>
 </context>
 <context>
+    <name>HistoryWindow</name>
+    <message>
+        <location filename="../fragments/history.py" line="24"/>
+        <source>内容</source>
+        <translation type="unfinished">Contents</translation>
+    </message>
+    <message>
+        <location filename="../fragments/history.py" line="24"/>
+        <source>贡献者</source>
+        <translation type="unfinished">Contributor</translation>
+    </message>
+    <message>
+        <location filename="../fragments/history.py" line="24"/>
+        <source>提交时间</source>
+        <translation type="unfinished">Date of submission</translation>
+    </message>
+    <message>
+        <location filename="../fragments/history.py" line="24"/>
+        <source>提交信息</source>
+        <translation type="unfinished">Submission of information</translation>
+    </message>
+    <message>
+        <location filename="../fragments/history.py" line="28"/>
+        <source>更新日志</source>
+        <translation type="unfinished">Update Log</translation>
+    </message>
+</context>
+<context>
     <name>HomeFragment</name>
     <message>
-        <location filename="../fragments/home.py" line="53"/>
+        <location filename="../fragments/home.py" line="55"/>
         <source>蔚蓝档案自动脚本</source>
         <translation>Blue Archive Auto Script</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="117"/>
+        <location filename="../fragments/home.py" line="58"/>
         <source>无任务</source>
         <translation>No task</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="73"/>
+        <location filename="../fragments/home.py" line="75"/>
         <source>启动</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="73"/>
+        <location filename="../fragments/home.py" line="75"/>
         <source>档案，启动</source>
         <translation>Launch</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="73"/>
+        <location filename="../fragments/home.py" line="75"/>
         <source>开始你的档案之旅</source>
         <translation>Start Script</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="119"/>
+        <location filename="../fragments/home.py" line="131"/>
         <source>正在运行：</source>
-        <translation>Running:</translation>
+        <translation>Running: </translation>
     </message>
 </context>
 <context>
     <name>Layout</name>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="16"/>
+        <location filename="../components/expand/arenaPriority.py" line="18"/>
         <source>输入你需要对手比你低几级，高几级则填负数：</source>
         <translation>Enter how many ranks below or above you need the opponent to be.
 Use positive number for below and negative for above.</translation>
     </message>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="17"/>
+        <location filename="../components/expand/arenaPriority.py" line="19"/>
         <source>输入你最多需要刷新几次：</source>
         <translation>Enter how many times you need to refresh:</translation>
     </message>
@@ -476,24 +557,9 @@ Use positive number for below and negative for above.</translation>
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="../components/expand/totalForceFightPriority.py" line="33"/>
+        <location filename="../components/expand/totalForceFightPriority.py" line="35"/>
         <source>设置成功</source>
         <translation>successfully set</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/arenaPriority.py" line="55"/>
-        <source>你需要对手比你低</source>
-        <translation type="unfinished">You need a lower opponent than you</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/arenaPriority.py" line="55"/>
-        <source>级</source>
-        <translation type="unfinished">Grade</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/arenaPriority.py" line="69"/>
-        <source>你最大刷新次数设置为：</source>
-        <translation>Your maximum refresh count is set to:</translation>
     </message>
     <message>
         <location filename="../components/expand/shopPriority.py" line="25"/>
@@ -521,22 +587,22 @@ Use positive number for below and negative for above.</translation>
         <translation>Is there a second cafe:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="59"/>
+        <location filename="../components/expand/cafeInvite.py" line="60"/>
         <source>列表选择你要添加邀请的学生，修改后请点击确定：</source>
         <translation>The list selects the students you want to invite. Click Save to make changes:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="197"/>
+        <location filename="../components/expand/cafeInvite.py" line="205"/>
         <source>添加学生</source>
         <translation>Add students</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="76"/>
+        <location filename="../components/expand/cafeInvite.py" line="84"/>
         <source>选择摸头方式：</source>
         <translation>Select the touch method:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="195"/>
+        <location filename="../components/expand/cafeInvite.py" line="203"/>
         <source>选择第二咖啡厅邀请的学生</source>
         <translation>Select the students to be invited in the second cafe</translation>
     </message>
@@ -553,7 +619,7 @@ Use positive number for below and negative for above.</translation>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="85"/>
         <source>推图选项</source>
-        <translation type="unfinished">Stages</translation>
+        <translation type="unfinished">Slide Options</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="85"/>
@@ -567,52 +633,42 @@ See Clear Hard and Normal Stages in Help.</translation>
         <translation>Run</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="113"/>
-        <source>你的普通关配置已经被设置为：</source>
-        <translation>Your normal stage configuration has been set to:</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="113"/>
-        <source>，正在推普通关。</source>
-        <translation type="unfinished">, pushing normal pass.</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/featureSwitch.py" line="29"/>
+        <location filename="../components/expand/featureSwitch.py" line="79"/>
         <source>全部(不)启用</source>
         <translation>All (not) enabled</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="35"/>
+        <location filename="../components/expand/featureSwitch.py" line="85"/>
         <source>刷新执行时间</source>
         <translation>Refresh Execution Time</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="40"/>
+        <location filename="../components/expand/featureSwitch.py" line="90"/>
         <source>排序方式：</source>
-        <translation type="unfinished">Sort by</translation>
+        <translation type="unfinished">Sort by:</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="42"/>
+        <location filename="../components/expand/featureSwitch.py" line="92"/>
         <source>默认排序</source>
         <translation>Default order</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="42"/>
+        <location filename="../components/expand/featureSwitch.py" line="92"/>
         <source>按下次执行时间排序</source>
         <translation>Soonest</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="110"/>
+        <location filename="../components/expand/featureSwitch.py" line="171"/>
         <source>事件</source>
         <translation>Chore</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="110"/>
+        <location filename="../components/expand/featureSwitch.py" line="171"/>
         <source>下次刷新时间</source>
         <translation>Execution Time</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="110"/>
+        <location filename="../components/expand/featureSwitch.py" line="171"/>
         <source>启用</source>
         <translation>Enable</translation>
     </message>
@@ -623,90 +679,65 @@ See Clear Hard and Normal Stages in Help.</translation>
 (see Clear Hard and Normal Stages in Help)&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../components/expand/hardTaskConfig.py" line="61"/>
-        <source>你的困难关配置已经被设置为：</source>
-        <translation type="unfinished">Your difficulty level configuration has been set to:</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/hardTaskConfig.py" line="61"/>
-        <source>，正在推困难关。</source>
-        <translation type="unfinished">, pushing hard pass.</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/mainlinePriority.py" line="17"/>
+        <location filename="../components/expand/mainlinePriority.py" line="20"/>
         <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>Normal stage and number of sweeps(e.g. &quot;1-1-1,1-2-3&quot; means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="20"/>
+        <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>Set hard stages as above, with a maximum of 3 sweeps. Use commas for separation.
 For JP or Global server, you can use &apos;max&apos;.</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="112"/>
+        <location filename="../components/expand/mainlinePriority.py" line="114"/>
         <source>根据学生添加关卡</source>
         <translation>Add based on students</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="27"/>
+        <location filename="../components/expand/mainlinePriority.py" line="30"/>
         <source>爱丽丝宝贝</source>
         <translation>爱丽丝宝贝</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="86"/>
-        <source>你的普通关卡已经被设置为：</source>
-        <translation>Normal stages has been set to:</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/mainlinePriority.py" line="100"/>
-        <source>你的困难关卡已经被设置为：</source>
-        <translation type="unfinished">Your difficulty level has been set to:</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/schedulePriority.py" line="20"/>
+        <location filename="../components/expand/schedulePriority.py" line="21"/>
         <source>优先做好感等级多的日程</source>
-        <translation type="unfinished">Prioritize a well-liked lesson</translation>
+        <translation type="unfinished">It&apos;s a high-profile agenda.</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="115"/>
+        <location filename="../components/expand/schedulePriority.py" line="116"/>
         <source>日程次数</source>
         <translation>Number of tickets</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="97"/>
+        <location filename="../components/expand/schedulePriority.py" line="98"/>
         <source>区域名称</source>
         <translation>Location</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="103"/>
+        <location filename="../components/expand/schedulePriority.py" line="104"/>
         <source>初级</source>
         <translation>Novice</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="103"/>
+        <location filename="../components/expand/schedulePriority.py" line="104"/>
         <source>普通</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="103"/>
+        <location filename="../components/expand/schedulePriority.py" line="104"/>
         <source>高级</source>
         <translation>Advanced</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="103"/>
+        <location filename="../components/expand/schedulePriority.py" line="104"/>
         <source>特级</source>
         <translation>Superior</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="14"/>
+        <location filename="../components/expand/scriptConfig.py" line="16"/>
         <source>请填写您的截图间隔：</source>
         <translation>Please fill in your screenshot interval:</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/scriptConfig.py" line="34"/>
-        <source>你的截屏间隔已经被设置为：</source>
-        <translation>Your screenshot interval has been set to:</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="45"/>
@@ -734,83 +765,148 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
         <translation>Pyroxene</translation>
     </message>
     <message>
-        <location filename="../components/expand/totalForceFightPriority.py" line="12"/>
+        <location filename="../components/expand/totalForceFightPriority.py" line="14"/>
         <source>最高难度</source>
         <translation>Highest Difficulty</translation>
     </message>
     <message>
-        <location filename="../components/expand/totalForceFightPriority.py" line="33"/>
-        <source>你的总力战最高难度已经被设置为：</source>
-        <translation>Your Total Assault Max Difficulty has been set to:</translation>
+        <location filename="../components/expand/exploreConfig.py" line="113"/>
+        <source>普通关推图</source>
+        <translation type="unfinished">Normal Level Push Map</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <source>更多配置</source>
+        <translation type="unfinished">More Configuration</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/hardTaskConfig.py" line="61"/>
+        <source>困难关推图</source>
+        <translation type="unfinished">Hard to push map</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/mainlinePriority.py" line="111"/>
+        <source>设置失败</source>
+        <translation type="unfinished">Setup failed</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="36"/>
+        <source>截图间隔</source>
+        <translation type="unfinished">Intercept</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/featureSwitch.py" line="202"/>
+        <source>详细配置</source>
+        <translation type="unfinished">Detailed Configuration</translation>
     </message>
 </context>
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="267"/>
+        <location filename="../fragments/home.py" line="318"/>
         <source>停止</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="271"/>
+        <location filename="../fragments/home.py" line="322"/>
         <source>启动</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="210"/>
+        <location filename="../fragments/home.py" line="247"/>
         <source>困难图推图已完成</source>
         <translation>Clear Hard Mission completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="217"/>
+        <location filename="../fragments/home.py" line="256"/>
         <source>普通图推图已完成</source>
         <translation>Clear Normal Mission completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="223"/>
+        <location filename="../fragments/home.py" line="263"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>Anti-harmony success, please restart BA download resources</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="230"/>
+        <location filename="../fragments/home.py" line="271"/>
         <source>主线剧情已完成</source>
         <translation>Main Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="238"/>
+        <location filename="../fragments/home.py" line="281"/>
         <source>小组剧情已完成</source>
         <translation>Group Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="246"/>
+        <location filename="../fragments/home.py" line="291"/>
         <source>支线剧情已完成</source>
         <translation>Mini story completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="254"/>
+        <location filename="../fragments/home.py" line="301"/>
         <source>活动剧情已完成</source>
         <translation>Event Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="262"/>
+        <location filename="../fragments/home.py" line="311"/>
         <source>活动任务已完成</source>
         <translation>Event Quest Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="270"/>
+        <location filename="../fragments/home.py" line="321"/>
         <source>活动挑战推图已完成</source>
         <translation>Event Challenge Completed</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="323"/>
+        <source>无任务</source>
+        <translation>No task</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="253"/>
+        <source>普通关推图</source>
+        <translation>Clear Normal Mission</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="267"/>
+        <source>自动主线剧情</source>
+        <translation>Main Story</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="277"/>
+        <source>自动小组剧情</source>
+        <translation>Group Story</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="288"/>
+        <source>自动支线剧情</source>
+        <translation>Mini Story</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="298"/>
+        <source>自动活动剧情</source>
+        <translation>Clear Event Story</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="308"/>
+        <source>自动活动任务</source>
+        <translation>Clear Event Quest</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="317"/>
+        <source>自动活动挑战</source>
+        <translation>Clear Event Challenge</translation>
     </message>
 </context>
 <context>
     <name>OtherConfig</name>
     <message>
-        <location filename="../components/expand/otherConfig.py" line="11"/>
+        <location filename="../components/expand/otherConfig.py" line="10"/>
         <source>一键反和谐</source>
         <translation>One-click anti-harmony</translation>
     </message>
     <message>
-        <location filename="../components/expand/otherConfig.py" line="17"/>
+        <location filename="../components/expand/otherConfig.py" line="16"/>
         <source>显示首页头图（下次启动时生效）</source>
         <translation>Show homepage header image (effective on next startup)</translation>
     </message>
@@ -818,22 +914,22 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
 <context>
     <name>ProceedPlot</name>
     <message>
-        <location filename="../components/expand/proceedPlot.py" line="11"/>
+        <location filename="../components/expand/proceedPlot.py" line="10"/>
         <source>主线剧情需要推的章节数</source>
         <translation>The number of chapters to be pushed in the Main Story</translation>
     </message>
     <message>
-        <location filename="../components/expand/proceedPlot.py" line="16"/>
+        <location filename="../components/expand/proceedPlot.py" line="15"/>
         <source>开始推主线剧情</source>
         <translation>Start pushing the Main Story</translation>
     </message>
     <message>
-        <location filename="../components/expand/proceedPlot.py" line="22"/>
+        <location filename="../components/expand/proceedPlot.py" line="21"/>
         <source>开始推小组剧情</source>
         <translation>Start pushing the Group Story</translation>
     </message>
     <message>
-        <location filename="../components/expand/proceedPlot.py" line="28"/>
+        <location filename="../components/expand/proceedPlot.py" line="27"/>
         <source>开始推支线剧情</source>
         <translation>Start pushing the Mini Story</translation>
     </message>
@@ -841,29 +937,52 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="25"/>
+        <location filename="../fragments/process.py" line="24"/>
         <source>调度状态</source>
         <translation>Scheduling Status</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="27"/>
+        <location filename="../fragments/process.py" line="31"/>
         <source>执行中</source>
         <translation>Executing</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="50"/>
+        <location filename="../fragments/process.py" line="93"/>
         <source>暂无正在执行的任务</source>
         <translation>No active tasks</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="32"/>
-        <source>队列中</source>
-        <translation>Queued</translation>
-    </message>
-    <message>
-        <location filename="../fragments/process.py" line="56"/>
+        <location filename="../fragments/process.py" line="95"/>
         <source>暂无队列中的任务</source>
         <translation>There are no tasks in the queue</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="54"/>
+        <source>任务队列</source>
+        <translation>Task Queue</translation>
+    </message>
+</context>
+<context>
+    <name>PushConfig</name>
+    <message>
+        <location filename="../components/expand/pushConfig.py" line="9"/>
+        <source>在运行出错时推送</source>
+        <translation>Send when running error</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/pushConfig.py" line="14"/>
+        <source>在全部任务完成时推送</source>
+        <translation>Send on all tasks</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/pushConfig.py" line="19"/>
+        <source>json 推送</source>
+        <translation>JSON push</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/pushConfig.py" line="24"/>
+        <source>ServerChan推送</source>
+        <translation>Server Chan push.</translation>
     </message>
 </context>
 <context>
@@ -930,114 +1049,119 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
 <context>
     <name>SettingsFragment</name>
     <message>
-        <location filename="../fragments/settings.py" line="21"/>
+        <location filename="../fragments/settings.py" line="22"/>
         <source>普通设置</source>
         <translation>General Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="23"/>
+        <location filename="../fragments/settings.py" line="24"/>
         <source>基本</source>
         <translation>Basic</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="27"/>
+        <location filename="../fragments/settings.py" line="28"/>
         <source>语言</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="27"/>
+        <location filename="../fragments/settings.py" line="28"/>
         <source>设置界面的首选语言</source>
         <translation>Set your preferred language for the GUI</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="26"/>
-        <source>使用系统设置</source>
-        <translation type="obsolete">Use WordPress settings</translation>
-    </message>
-    <message>
-        <location filename="../fragments/settings.py" line="36"/>
+        <location filename="../fragments/settings.py" line="37"/>
         <source>应用相关设置</source>
         <translation>Server &amp; Emulator Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="36"/>
+        <location filename="../fragments/settings.py" line="37"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
         <translation>Select your server platform and set your port (set to 0 if you don&apos;t know the port)</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="44"/>
+        <location filename="../fragments/settings.py" line="45"/>
         <source>脚本相关设置</source>
         <translation>Script Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="44"/>
+        <location filename="../fragments/settings.py" line="45"/>
         <source>根据你的电脑配置，调整相应的参数。</source>
         <translation>Adjust the parameters according to your computer specs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="52"/>
+        <location filename="../fragments/settings.py" line="53"/>
         <source>模拟器启动设置</source>
         <translation>Emulator Startup Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="52"/>
+        <location filename="../fragments/settings.py" line="53"/>
         <source>设置启动模拟器的路径</source>
         <translation>Set the path to start the emulator</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="61"/>
+        <location filename="../fragments/settings.py" line="62"/>
         <source>相关设置</source>
         <translation>Features</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="65"/>
+        <location filename="../fragments/settings.py" line="66"/>
         <source>普通图推图设置</source>
         <translation>Clear Normal Mission Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="65"/>
+        <location filename="../fragments/settings.py" line="66"/>
         <source>根据你的推图需求，调整相应的参数。</source>
         <translation>Adjust the parameters according to your normal clear needs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="73"/>
+        <location filename="../fragments/settings.py" line="74"/>
         <source>困难图推图设置</source>
         <translation>Clear Hard Mission Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="73"/>
+        <location filename="../fragments/settings.py" line="74"/>
         <source>根据你所需困难图刷关，设置参数。</source>
         <translation>Adjust the parameters according to your hard clear needs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="81"/>
+        <location filename="../fragments/settings.py" line="82"/>
         <source>推剧情</source>
         <translation>Push the Story Forward</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="81"/>
+        <location filename="../fragments/settings.py" line="82"/>
         <source>主线剧情，小组剧情，支线剧情</source>
         <translation>Main Story, Group Story, Mini Story</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="89"/>
+        <location filename="../fragments/settings.py" line="90"/>
         <source>活动图设置</source>
         <translation>Clear Event Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="89"/>
+        <location filename="../fragments/settings.py" line="90"/>
         <source>推故事，推任务，推挑战</source>
         <translation>Clear Story, Clear Quest, Clear Challenge</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="97"/>
+        <location filename="../fragments/settings.py" line="98"/>
         <source>其他设置</source>
         <translation>Miscellaneous</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="97"/>
+        <location filename="../fragments/settings.py" line="98"/>
         <source>其他的一些小功能与设置</source>
         <translation>Some other small features and settings</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="106"/>
+        <source>推送设置</source>
+        <translation>Notifications Settings</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="106"/>
+        <source>推送信息</source>
+        <translation>send notifications</translation>
     </message>
 </context>
 <context>
@@ -1119,17 +1243,17 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
 <context>
     <name>TemplateLayout</name>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="63"/>
+        <location filename="../components/expand/expandTemplate.py" line="66"/>
         <source>执行</source>
         <translation>Run</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="96"/>
+        <location filename="../components/expand/expandTemplate.py" line="74"/>
         <source>确定</source>
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="119"/>
+        <location filename="../components/expand/expandTemplate.py" line="98"/>
         <source>设置成功</source>
         <translation>successfully set</translation>
     </message>
@@ -1137,67 +1261,72 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="267"/>
+        <location filename="../../window.py" line="304"/>
         <source>主页</source>
         <translation>Home</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="268"/>
+        <location filename="../../window.py" line="306"/>
         <source>配置</source>
         <translation>Dailies</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="269"/>
+        <location filename="../../window.py" line="307"/>
         <source>设置</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="338"/>
-        <source>设置成功</source>
-        <translation>successfully set</translation>
-    </message>
-    <message>
-        <location filename="../../window.py" line="374"/>
+        <location filename="../../window.py" line="414"/>
         <source>是否要删除配置：</source>
         <translation>Do you want to delete the configuration:</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="375"/>
+        <location filename="../../window.py" line="415"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>You will need to restart Baas after confirmation to complete the changes.</translation>
+    </message>
+    <message>
+        <location filename="../../window.py" line="305"/>
+        <source>调度</source>
+        <translation>Schedule</translation>
+    </message>
+    <message>
+        <location filename="../../window.py" line="386"/>
+        <source>设置失败</source>
+        <translation type="unfinished">Setup failed</translation>
     </message>
 </context>
 <context>
     <name>bt</name>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="56"/>
+        <location filename="../components/expand/cafeInvite.py" line="57"/>
         <source>ConfigTranslation</source>
         <comment>拖动礼物</comment>
         <translation>ConfigTranslation</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="79"/>
+        <location filename="../components/expand/cafeInvite.py" line="87"/>
         <source>ConfigTranslation</source>
         <comment>普通</comment>
         <translation>ConfigTranslation</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="96"/>
+        <location filename="../components/expand/expandTemplate.py" line="66"/>
         <source>TemplateLayout</source>
         <translation>TemplateLayout</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="53"/>
+        <location filename="../fragments/process.py" line="89"/>
         <source>ConfigTranslation</source>
         <translation>ConfigTranslation</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="127"/>
+        <location filename="../fragments/home.py" line="157"/>
         <source>MainThread</source>
         <translation>MainThread</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="129"/>
+        <location filename="../fragments/home.py" line="159"/>
         <source>MainThread</source>
         <comment>停止</comment>
         <translation>MainThread</translation>
@@ -1206,7 +1335,7 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="302"/>
+        <location filename="../../window.py" line="341"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>

@@ -126,9 +126,9 @@ class HomeFragment(QFrame):
 
             if data:
                 if type(data[0]) is dict:
-                    self.info.setText(f'{self.tr("正在运行：")}{self.event_map[data[0]["func_name"]]}')
+                    self.info.setText(self.tr("正在运行：") + bt.tr('ConfigTranslation', self.event_map[data[0]["func_name"]]))
                 else:
-                    self.info.setText(f'{self.tr("正在运行：")}{data[0]}')
+                    self.info.setText(self.tr("正在运行：") + f'{data[0]}')
                     _main_thread_ = self.config.get_main_thread()
                     _baas_thread_ = _main_thread_.get_baas_thread()
                     if _baas_thread_ is not None:

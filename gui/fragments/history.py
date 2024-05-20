@@ -21,11 +21,11 @@ class HistoryWindow(FluentWindow):
         # hide index column
         self.table_view.verticalHeader().setVisible(False)
 
-        self.table_view.setHorizontalHeaderLabels(['内容', '贡献者', '提交时间', '提交信息'])
+        self.table_view.setHorizontalHeaderLabels([self.tr('内容'), self.tr('贡献者'), self.tr('提交时间'), self.tr('提交信息')])
 
         self.table_view.setObjectName('HistoryTable' + random.randint(0, 100000).__str__())
         threading.Thread(target=self.fetch_update_info, daemon=True).start()
-        self.addSubInterface(icon=FIF.CARE_RIGHT_SOLID, interface=self.table_view, text='更新日志')
+        self.addSubInterface(icon=FIF.CARE_RIGHT_SOLID, interface=self.table_view, text=self.tr('更新日志'))
 
         self.show()
 

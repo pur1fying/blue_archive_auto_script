@@ -10,41 +10,42 @@ from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox
     SubtitleLabel
 
 from gui.components.expand.expandTemplate import TemplateLayoutV2
+from gui.util.translator import baasTranslator as bt
 
 
 class DetailSettingMessageBox(MessageBoxBase):
     def __init__(self, detail_config: dict, all_label_list: list, parent=None, cs=None):
         super().__init__(parent)
-        self.titleLabel = SubtitleLabel('配置详情', self)
+        self.titleLabel = SubtitleLabel(self.tr('配置详情'), self)
         configItems = [
             {
-                'label': '优先级',
+                'label': self.tr('优先级'),
                 'dataType': 'int',
                 'key': 'priority'
             },
             {
-                'label': '执行间隔',
+                'label': self.tr('执行间隔'),
                 'dataType': 'int',
                 'key': 'interval',
             },
             {
-                'label': '每日重置',
+                'label': self.tr('每日重置'),
                 'dataType': 'list',
                 'key': 'daily_reset',
             },
             {
-                'label': '禁用时间段',
+                'label': self.tr('禁用时间段'),
                 'dataType': 'list',
                 'key': 'disabled_time_range',
             },
             {
-                'label': '前置任务',
+                'label': self.tr('前置任务'),
                 'dataType': 'list',
                 'key': 'pre_task',
                 'presets': []
             },
             {
-                'label': '后置任务',
+                'label': self.tr('后置任务'),
                 'dataType': 'list',
                 'key': 'post_task',
                 'presets': []
@@ -55,11 +56,9 @@ class DetailSettingMessageBox(MessageBoxBase):
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.configWidget)
 
-        self.yesButton.setText('确定')
-        self.cancelButton.setText('取消')
+        self.yesButton.setText(self.tr('确定'))
+        self.cancelButton.setText(self.tr('取消'))
         self.widget.setMinimumWidth(350)
-
-from gui.util.translator import baasTranslator as bt
 
 
 class Layout(QWidget):
@@ -136,7 +135,7 @@ class Layout(QWidget):
             self.boxes.append(cbx_wrapper)
             self.check_boxes.append(t_cbx)
 
-            t_cfbs = PushButton('详细配置', self)
+            t_cfbs = PushButton(self.tr('详细配置'), self)
             t_cfbs.clicked.connect(partial(self._update_detail, i))
             cfbs_wrapper = QWidget()
             cfbs_layout = QHBoxLayout()
@@ -200,7 +199,7 @@ class Layout(QWidget):
             self.tableView.setCellWidget(ind, 2, cbx_wrapper)
             self.check_boxes.append(t_cbx)
 
-            t_cfbs = PushButton('详细配置', self)
+            t_cfbs = PushButton(self.tr('详细配置'), self)
             t_cfbs.clicked.connect(partial(self._update_detail, ind))
             cfbs_wrapper = QWidget()
             cfbs_layout = QHBoxLayout()
@@ -238,7 +237,7 @@ class Layout(QWidget):
         }
 
         all_label_list = [
-            [x['event_name'], x['func_name']]
+            [bt.tr('ConfigTranslation', x['event_name']), x['func_name']]
             for x in self._event_config
         ]
 
