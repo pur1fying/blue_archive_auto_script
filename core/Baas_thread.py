@@ -318,31 +318,32 @@ class Baas_thread:
         elif msg == "solve":
             return self.solve(task)
 
-    def get_enable(self, activity):
-        events = json.load(open('config/event.json', 'r', encoding='utf-8'))
-        for event in events:
-            if event['func_name'] == activity:
-                return event['enabled']
-        return False
-
     def thread_starter(self):
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
-            self.scheduler.update_valid_task_queue()
             while self.flag_run:
                 if self.first_start:
                     self.solve('restart')
-                next_func_name = self.scheduler.heartbeat()
-                self.next_time = 0
-                if next_func_name:
-                    if time.time() - self.last_refresh_u2_time > 10800:
-                        self.solve('refresh_uiautomator2')
-                    self.logger.info(f"Scheduler :  -- {next_func_name} --")
+                nextTask = self.scheduler.heartbeat()
+                if nextTask:
                     self.task_finish_to_main_page = True
                     self.daily_config_refresh()
-                    if self.solve(next_func_name) and self.flag_run:
-                        next_tick = self.scheduler.systole(next_func_name, self.next_time)
-                        self.logger.info(str(next_func_name) + " next_time : " + str(next_tick))
+                    if time.time() - self.last_refresh_u2_time > 10800:
+                        self.solve('refresh_uiautomator2')
+                    self.genScheduleLog(nextTask)
+                    for task in nextTask['pre_task']:
+                        self.logger.info("pre_task: [ " + task + " ] start")
+                        self.solve(task)
+                    self.logger.info("current_task: [ " + nextTask['current_task'] + " ] start")
+                    self.next_time = 0
+                    self.solve(nextTask['current_task'])
+                    currentTaskNextTime = self.next_time
+                    for task in nextTask['post_task']:
+                        self.logger.info("post_task: [ " + task + " ] start")
+                        self.solve(task)
+                    if self.flag_run:
+                        next_tick = self.scheduler.systole(nextTask['current_task'], currentTaskNextTime)
+                        self.logger.info(nextTask['current_task'] + " next_time : " + str(next_tick))
                     elif not self.flag_run:
                         self.logger.info("BAAS Exited, Reason : Human Take Over")
                         self.signal_stop()
@@ -362,6 +363,13 @@ class Baas_thread:
             self.logger.error(e)
             self.logger.error("error occurred, stop all activities")
             self.signal_stop()
+
+    def genScheduleLog(self, task):
+        self.logger.info("Scheduler : {")
+        self.logger.info("            pre_task         : " + str(task["pre_task"]))
+        self.logger.info("            current_task     : " + str(task["current_task"]))
+        self.logger.info("            post_task        : " + str(task["post_task"]))
+        self.logger.info("            }")
 
     def solve(self, activity) -> bool:
         try:

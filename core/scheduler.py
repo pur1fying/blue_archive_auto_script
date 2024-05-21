@@ -17,6 +17,8 @@ class Scheduler:
         self._event_config = []
         self._current_task = None
         self._valid_task_queue = []
+        self._currentTaskDisplay = None
+        self._waitingTaskDisplayQueue = []
         self.funcs = []
         self._read_config()
         # self._display_config_path = "./config/" + path + "/display.json"
@@ -44,9 +46,7 @@ class Scheduler:
         return (t.replace(hour=hour, minute=0, second=0, microsecond=0) + td).timestamp()
 
     def systole(self, task_name: str, next_time=0):
-        if task_name == self._current_task['func_name']:
-            if not self._current_task['need_systole']:
-                return None
+        if task_name == self._current_task['current_task']:
             for event in self._event_config:
                 if event['func_name'] == task_name:
                     if next_time != 0:
@@ -55,7 +55,7 @@ class Scheduler:
                         interval = event['interval']
                         if event['interval'] == 0:
                             interval = 86400
-                        daily_reset = event['daily_reset']  # daily_reset is a list with items like : [hour, minute, second]
+                        daily_reset = event['daily_reset']                          # daily_reset is a list with items like : [hour, minute, second]
                         sorted(daily_reset, key=lambda x: x[0] * 3600 + x[1] * 60 + x[2])
                         current = datetime.now(timezone.utc).timestamp() % 86400
                         for i in range(0, len(daily_reset)):
@@ -70,27 +70,25 @@ class Scheduler:
                     return datetime.fromtimestamp(event['next_tick'])
 
     def heartbeat(self):
-        for task in self._valid_task_queue:
-            print(task)
+        self.update_valid_task_queue()
         if len(self._valid_task_queue) != 0:
             self.first_waiting = True
             self._current_task = self._valid_task_queue[0]
+            self._currentTaskDisplay = self.event_map[self._current_task['current_task']]
             self._valid_task_queue.pop(0)
-            self.update_signal.emit([self._current_task, *self._valid_task_queue])
-            return self._current_task['func_name']
+            # self.update_signal.emit([self._currentTaskDisplay, *self._waitingTaskDisplayQueue])
+            return self._current_task
         else:
             if self.first_waiting:
                 self.first_waiting = False
                 self.update_signal.emit(["暂无任务"])
-
             return None
 
     def update_valid_task_queue(self):
         self._read_config()
-        _valid_event = [x for x in self._event_config if x['enabled']]  # filter out disabled event
-        _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time.time()]  # filter out event not ready
-
-        _valid_event = sorted(_valid_event, key=lambda x: x['priority'])  # sort by priority
+        _valid_event = [x for x in self._event_config if x['enabled']]                                      # filter out disabled event
+        _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time.time()]    # filter out event not ready
+        _valid_event = sorted(_valid_event, key=lambda x: x['priority'])                                    # sort by priority
         current_time = datetime.now(timezone.utc).timestamp() % 86400
         self._valid_task_queue = []
         for i in range(0, len(_valid_event)):
@@ -103,41 +101,34 @@ class Scheduler:
                     break
             if not f:
                 continue
+            self._waitingTaskDisplayQueue.append(_valid_event[i]['event_name'])
+            thisTask = {
+                "pre_task": [],
+                "current_task": _valid_event[i]["func_name"],
+                "post_task": [],
+            }
+            temp = []
             for j in range(0, len(_valid_event[i]["pre_task"])):
                 if self.event_map[_valid_event[i]['pre_task'][j]] not in self.funcs:
                     continue
-                dic = {
-                    "func_name": _valid_event[i]['pre_task'][j],
-                    "need_systole": False,
-                }
-                self._valid_task_queue.append(dic)
-            dic = {
-                "func_name": _valid_event[i]['func_name'],
-                "need_systole": True,
-            }
-            self._valid_task_queue.append(dic)
+                temp.append(_valid_event[i]['pre_task'][j])
+            thisTask["pre_task"] = temp
+            temp = []
             for j in range(0, len(_valid_event[i]["post_task"])):
                 if self.event_map[_valid_event[i]["post_task"][j]] not in self.funcs:
                     continue
-                dic = {
-                    "func_name": _valid_event[i]["post_task"][j],
-                    "need_systole": False,
-                }
-                self._valid_task_queue.append(dic)
+                temp.append(_valid_event[i]["post_task"][j])
+            thisTask["post_task"] = temp
+            self._valid_task_queue.append(thisTask)
 
     def change_display(self, task_name):
         self.update_signal.emit([task_name, *self._valid_task_queue])
 
-    def get_current_task_list(self):
-        return [self.event_map[x['func_name']] for x in self._valid_task_queue]
+    def getWaitingTaskList(self):
+        return self._waitingTaskDisplayQueue
 
-    def get_current_task(self):
-        if type(self._current_task) is dict:
-            return self.event_map[self._current_task['func_name']]
-        elif type(self._current_task) is str:
-            return self._current_task
-        else:
-            return None
+    def getCurrentTaskName(self):
+        return self._currentTaskDisplay
 
     def set_current_task(self, task):
         self._current_task = task

@@ -78,8 +78,8 @@ class ProcessFragment(ScrollArea):
     def refresh_status(self):
         while True:
             if self.baas_thread is not None:
-                crt_task = self.baas_thread.scheduler.get_current_task()
-                task_list = self.baas_thread.scheduler.get_current_task_list()
+                crt_task = self.baas_thread.scheduler.getCurrentTaskName()
+                task_list = self.baas_thread.scheduler.getWaitingTaskList()
                 print(crt_task, task_list)
 
                 crt_task = crt_task if crt_task else "暂无正在执行的任务"
