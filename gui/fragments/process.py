@@ -81,7 +81,6 @@ class ProcessFragment(ScrollArea):
                 crt_task = self.baas_thread.scheduler.getCurrentTaskName()
                 task_list = self.baas_thread.scheduler.getWaitingTaskList()
                 print(crt_task, task_list)
-
                 crt_task = crt_task if crt_task else "暂无正在执行的任务"
                 task_list = [task for task in task_list] if task_list else ["暂无队列中的任务"]
                 self.on_status.setText(crt_task)
@@ -93,7 +92,6 @@ class ProcessFragment(ScrollArea):
                 self.listWidget.addItems(["暂无队列中的任务"])
                 main_thread = self.config.get_main_thread()
                 self.baas_thread = main_thread.get_baas_thread() if main_thread else None
-
             time.sleep(2)
 
     def __initLayout(self):

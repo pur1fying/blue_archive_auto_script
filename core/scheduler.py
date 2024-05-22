@@ -21,7 +21,6 @@ class Scheduler:
         self._waitingTaskDisplayQueue = []
         self.funcs = []
         self._read_config()
-        # self._display_config_path = "./config/" + path + "/display.json"
 
     def _read_config(self):
         with lock:
@@ -76,7 +75,7 @@ class Scheduler:
             self._current_task = self._valid_task_queue[0]
             self._currentTaskDisplay = self.event_map[self._current_task['current_task']]
             self._valid_task_queue.pop(0)
-            # self.update_signal.emit([self._currentTaskDisplay, *self._waitingTaskDisplayQueue])
+            self.update_signal.emit([self._currentTaskDisplay, *self._waitingTaskDisplayQueue])
             return self._current_task
         else:
             if self.first_waiting:
@@ -121,14 +120,9 @@ class Scheduler:
             thisTask["post_task"] = temp
             self._valid_task_queue.append(thisTask)
 
-    def change_display(self, task_name):
-        self.update_signal.emit([task_name, *self._valid_task_queue])
-
     def getWaitingTaskList(self):
         return self._waitingTaskDisplayQueue
 
     def getCurrentTaskName(self):
         return self._currentTaskDisplay
 
-    def set_current_task(self, task):
-        self._current_task = task
