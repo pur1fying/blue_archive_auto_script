@@ -132,12 +132,11 @@ class HomeFragment(QFrame):
                     _main_thread_ = self.config.get_main_thread()
                     _baas_thread_ = _main_thread_.get_baas_thread()
                     if _baas_thread_ is not None:
-                        _baas_thread_.scheduler.set_current_task(data[0])
+                        pass
                     else:
                         print('BAAS Thread is None')
                         _main_thread_._init_script()
                         _baas_thread_ = _main_thread_.get_baas_thread()
-                        _baas_thread_.scheduler.set_current_task(data[0])
 
             # with open('./config/' + self.config.config_dir + '/display.json', 'r', encoding='utf-8') as f:
             #     config = json.load(f)

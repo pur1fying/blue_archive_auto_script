@@ -80,13 +80,14 @@ class ProcessFragment(ScrollArea):
     def refresh_status(self):
         while True:
             if self.baas_thread is not None:
-                crt_task = self.baas_thread.scheduler.get_current_task()
-                task_list = self.baas_thread.scheduler.get_current_task_list()
+                crt_task = self.baas_thread.scheduler.getCurrentTaskName()
+                task_list = self.baas_thread.scheduler.getWaitingTaskList()
                 print(crt_task, task_list)
 
                 crt_task = crt_task if crt_task else self.tr("暂无正在执行的任务")
                 task_list = [bt.tr('ConfigTranslation', task) for task in task_list] if task_list else [self.tr("暂无队列中的任务")]
                 self.on_status.setText(bt.tr('ConfigTranslation', crt_task))
+
                 self.listWidget.clear()
                 self.listWidget.addItems(task_list)
             else:
