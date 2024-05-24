@@ -51,11 +51,13 @@ func_dict = {
     'explore_activity_story': module.explore_activity_story.implement,
     'explore_activity_challenge': module.explore_activity_challenge.implement,
     'explore_activity_mission': module.explore_activity_mission.implement,
+    'dailyGameActivity': module.dailyGameActivity.implement,
 }
 
 
 class Baas_thread:
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None):
+        self.dailyGameActivity = None
         self.activity_name = None
         self.config_set = config
         self.process_name = None
@@ -508,6 +510,7 @@ class Baas_thread:
         self.package_name = self.static_config['package_name'][server]
         self.activity_name = self.static_config['activity_name'][server]
         self.current_game_activity = self.static_config['current_game_activity'][self.server]
+        self.dailyGameActivity = self.static_config['dailyGameActivity'][self.server]
         self.logger.info("Current Server: " + self.server)
 
     def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):

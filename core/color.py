@@ -1,6 +1,8 @@
 import threading
 import time
 
+import numpy as np
+
 
 def wait_loading(self):
     t_start = time.time()
@@ -94,3 +96,26 @@ def check_sweep_availability(self, is_mainline=False):
             judge_rgb_range(self, 169, 436, 225, 255, 200, 255, 20, 60):
             return "pass"
         return "UNKNOWN"
+
+
+def getRegionMeanRGB(image, x1, y1, x2, y2):
+    return image[y1:y2, x1:x2].mean(axis=0).mean(axis=0)
+
+
+def compareTotalRGBDiff(rgb1, rgb2, threshold):
+    return calcTotalRGBDiff(rgb1, rgb2) < threshold
+
+
+def compareEachRGBDiff(rgb1, rgb2, threshold):
+    if type(threshold) is int:
+        threshold = [threshold, threshold, threshold]
+    return abs(rgb1[0] - rgb2[0]) < threshold[0] and abs(rgb1[1] - rgb2[1]) < threshold[1] and abs(rgb1[2] - rgb2[2]) < threshold[2]
+
+
+def calcTotalRGBDiff(rgb1, rgb2):
+    return abs(rgb1[0] - rgb2[0]) + abs(rgb1[1] - rgb2[1]) + abs(rgb1[2] - rgb2[2])
+
+
+def calcTotalRGBMeanABSDiff(img1, img2):
+    return np.abs(img1 - img2).mean()
+

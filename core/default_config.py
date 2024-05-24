@@ -227,6 +227,18 @@ EVENT_DEFAULT_CONFIG = """
     "disabled_time_range": [],
     "pre_task": [],
     "post_task": []
+  },
+  {
+    "enabled": true,
+    "priority": 17,
+    "interval": 0,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "日常小游戏",
+    "func_name": "dailyGameActivity",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
   }
 ]
 """
@@ -621,7 +633,12 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": null,
         "Global": null,
-        "JP": "iveAlive"
+        "JP": null
+    },
+    "dailyGameActivity": {
+        "CN": "serikaSummerRamenStall",
+        "Global": null,
+        "JP": null
     },
     "package_name": {
         "官服": "com.RoamingStar.BlueArchive",
@@ -669,7 +686,31 @@ STATIC_DEFAULT_CONFIG = '''
     ],
   "student_names": [
     {
-      "CN_name": "アイリ(バンド)",
+      "CN_name": "绿(女仆)",
+      "CN_implementation": false,
+      "Global_name": "Midori (Maid)",
+      "Global_implementation": false,
+      "JP_name": "ミドリ(メイド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "桃井(女仆)",
+      "CN_implementation": false,
+      "Global_name": "Momoi (Maid)",
+      "Global_implementation": false,
+      "JP_name": "モモイ(メイド)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "绮罗罗",
+      "CN_implementation": false,
+      "Global_name": "Kirara",
+      "Global_implementation": false,
+      "JP_name": "キララ",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "爱莉(乐队)",
       "CN_implementation": false,
       "Global_name": "Airi (Band)",
       "Global_implementation": false,
@@ -677,7 +718,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "ヨシミ(バンド)",
+      "CN_name": "好美(乐队)",
       "CN_implementation": false,
       "Global_name": "Yoshimi (Band)",
       "Global_implementation": false,
@@ -685,7 +726,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "カズサ(バンド)",
+      "CN_name": "和纱(乐队)",
       "CN_implementation": false,
       "Global_name": "Kazusa (Band)",
       "Global_implementation": false,
@@ -767,7 +808,7 @@ STATIC_DEFAULT_CONFIG = '''
     {
       "CN_name": "晴(露营)",
       "CN_implementation": false,
-      "Global_name": "Hare (Camping)",
+      "Global_name": "Hare (Camp)",
       "Global_implementation": false,
       "JP_name": "ハレ(キャンプ)",
       "JP_implementation": true
@@ -775,7 +816,7 @@ STATIC_DEFAULT_CONFIG = '''
     {
       "CN_name": "小玉(露营)",
       "CN_implementation": false,
-      "Global_name": "Kotama (Camping)",
+      "Global_name": "Kotama (Camp)",
       "Global_implementation": false,
       "JP_name": "コタマ(キャンプ)",
       "JP_implementation": true
@@ -808,7 +849,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "紫草",
       "CN_implementation": false,
       "Global_name": "Yukari",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "ユカリ",
       "JP_implementation": true
     },
@@ -816,7 +857,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "佐天泪子",
       "CN_implementation": false,
       "Global_name": "Saten Ruiko",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "佐天涙子",
       "JP_implementation": true
     },
@@ -824,7 +865,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "食蜂操祈",
       "CN_implementation": false,
       "Global_name": "Shokuhou Misaki",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "食蜂操祈",
       "JP_implementation": true
     },
@@ -832,7 +873,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "御坂美琴",
       "CN_implementation": false,
       "Global_name": "Misaka Mikoto",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "御坂美琴",
       "JP_implementation": true
     },
@@ -1246,7 +1287,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "纱织",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Saori",
       "Global_implementation": true,
       "JP_name": "サオリ",
@@ -1310,7 +1351,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "亚津子",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Atsuko",
       "Global_implementation": true,
       "JP_name": "アツコ",
@@ -1318,7 +1359,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "日和",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Hiyori",
       "Global_implementation": true,
       "JP_name": "ヒヨリ",
@@ -1326,7 +1367,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "美咲",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Misaki",
       "Global_implementation": true,
       "JP_name": "ミサキ",
@@ -1518,7 +1559,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "初音未来",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Hatsune Miku",
       "Global_implementation": true,
       "JP_name": "初音ミク",

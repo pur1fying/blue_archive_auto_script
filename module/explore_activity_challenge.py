@@ -13,8 +13,7 @@ func_names = {
 
 
 def implement(self):
-    current_game_activity = self.static_config['current_game_activity'][self.server]
-    if current_game_activity is None or current_game_activity not in func_names:
+    if self.current_game_activity is None or self.current_game_activity not in func_names:
         self.logger.warning("Current activity is not supported")
         return True
-    return func_names[self.static_config['current_game_activity'][self.server]](self)
+    return func_names[self.current_game_activity](self)
