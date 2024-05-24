@@ -9,4 +9,5 @@ x_y_range = {
     'collect-reward-bright': (547, 459, 733, 509),
     'collect-reward-grey': (547, 459, 733, 509),
     'daily-task': (580, 200, 709, 240),
+    'daily-task-grey': (580, 462, 697, 500),
 }

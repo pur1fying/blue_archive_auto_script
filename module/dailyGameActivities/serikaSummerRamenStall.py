@@ -13,6 +13,8 @@ def implement(self):
     collectDailyReward(self)
     returnToMainPage(self)
     return True
+
+
 def startGame(self):
     img_possibles = {
         "dailyGameActivity_enter1": (1190, 119),
@@ -102,7 +104,7 @@ def collectDailyReward(self):
         "dailyGameActivity_final-result": (634, 479),
         "dailyGameActivity_collect-reward-bright": (637, 480)
     }
-    img_ends = "dailyGameActivity_collect-reward-grey"
+    img_ends = ["dailyGameActivity_collect-reward-grey", "dailyGameActivity_daily-task-grey"]
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
