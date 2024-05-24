@@ -59,9 +59,8 @@ class Scheduler:
                             interval = 86400
                         daily_reset = event['daily_reset']                          # daily_reset is a list with items like : [hour, minute, second]
                         sorted(daily_reset, key=lambda x: x[0] * 3600 + x[1] * 60 + x[2])
-                        current = datetime.now(timezone.utc).timestamp() % 86400
                         for i in range(0, len(daily_reset)):
-                            if current < daily_reset[i][0] * 3600 + daily_reset[i][1] * 60 + daily_reset[i][2] < current + interval:
+                            if 0 < daily_reset[i][0] * 3600 + daily_reset[i][1] * 60 + daily_reset[i][2] <= interval:
                                 event['next_tick'] = self.get_next_time(daily_reset[i][0], daily_reset[i][1], daily_reset[i][2])
                                 break
                         else:
