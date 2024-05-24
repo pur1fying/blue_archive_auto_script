@@ -110,10 +110,11 @@ def collectDailyReward(self):
 
 def returnToMainPage(self):
     img_possibles = {
-        "dailyGameActivity_daily-task": (922, 255),
+        "dailyGameActivity_daily-task": (922, 222),
         "dailyGameActivity_final-result": (815, 471),
         "dailyGameActivity_exit": (1190, 119),
-        "dailyGameActivity_start-game": (1228, 132)
+        "dailyGameActivity_start-game": (1228, 132),
+        "main_page_quick-home": (1225, 31)
     }
     rgb_ends = "main_page"
     picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
