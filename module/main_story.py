@@ -279,6 +279,8 @@ def check_state_and_get_stage_data(self):
 def process_regions(self, value):
     if type(value) is list:
         return value
+    if type(value) is int:
+        return [value]
     value = value.split(',')
     res = []
     for i in range(0, len(value)):
