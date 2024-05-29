@@ -117,29 +117,6 @@ def get_reply_position(self):
     return 'end', 0
 
 
-def pd_menu_bright(self):
-    if color.judge_rgb_range(self, 1165, 45, 230, 255, 230, 255, 230, 255) and \
-        color.judge_rgb_range(self, 1252, 45, 230, 255, 230, 255, 230, 255):
-        return True
-    return False
-
-
-def pd_skip_plot_button(self):
-    if color.judge_rgb_range(self, 1189, 120, 34, 54, 59, 79, 90, 110) and \
-        color.judge_rgb_range(self, 1128, 104, 34, 54, 59, 79, 90, 110) and \
-        color.judge_rgb_range(self, 1125, 120, 245, 255, 245, 255, 245, 255) and \
-        color.judge_rgb_range(self, 1207, 120, 245, 255, 245, 255, 245, 255):
-        return True
-    return False
-
-
-def pd_confirm_button(self):
-    if color.judge_rgb_range(self, 691, 552, 110, 130, 210, 230, 245, 255) and \
-        color.judge_rgb_range(self, 848, 525, 110, 130, 210, 230, 245, 255):
-        return True
-    return False
-
-
 def pd_enter_button(self):
     if color.judge_rgb_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
         color.judge_rgb_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
@@ -154,14 +131,14 @@ def common_skip_plot_method(self):
         if pd_enter_button(self):
             self.logger.info("Begin Relationship Story")
             self.click(920, 556, duration=4, wait_over=True)
-        elif pd_confirm_button(self):
-            self.logger.info("find CONFIRM button")
-            self.click(766, 520, wait_over=True)
+        elif image.compare_image(self, "plot_menu", need_log=False):
+            self.logger.info("find MENU button")
+            img_possibles = {
+                'plot_menu': (1202, 37),
+                'plot_skip-plot-button': (1208, 116),
+                'plot_skip-plot-notice': (770, 519),
+            }
+            rgb_ends = "reward_acquired"
+            picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
             return True
-        else:
-            if pd_menu_bright(self):
-                self.logger.info("find MENU button")
-                self.click(1205, 34, duration=0.1, wait_over=True)
-            elif pd_skip_plot_button(self):
-                self.logger.info("find SKIP PLOT button")
-                self.click(1213, 116, duration=0.1, wait_over=True)
+

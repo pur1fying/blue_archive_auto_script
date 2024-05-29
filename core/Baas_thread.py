@@ -211,13 +211,14 @@ class Baas_thread:
             self.logger.error(e)
             return False
 
-    def subprocess_run(self, cmd: Tuple[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding = "utf-8"):
+    def subprocess_run(self, cmd: Tuple[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       encoding="utf-8"):
         # 代码来源BAAH
         if isasync:
-        # 异步非阻塞执行
+            # 异步非阻塞执行
             return subprocess.Popen(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
         else:
-        # 同步阻塞执行
+            # 同步阻塞执行
             return subprocess.run(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
 
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
@@ -266,11 +267,10 @@ class Baas_thread:
                     return False
         return True
 
-
     def start_emulator(self):
         self.emulator_strat_stat = self.config.get("open_emulator_stat")
         self.wait_time = self.config.get("emulator_wait_time")
-        if not self.start_check_emulator_stat(self.emulator_strat_stat,self.wait_time):
+        if not self.start_check_emulator_stat(self.emulator_strat_stat, self.wait_time):
             raise Exception("Emulator start failed")
 
     def _init_emulator(self) -> bool:
@@ -355,7 +355,7 @@ class Baas_thread:
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
-                        push(self.logger,self.config)
+                        push(self.logger, self.config)
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
@@ -377,13 +377,13 @@ class Baas_thread:
         try:
             return func_dict[activity](self)
         except Exception as e:
-            if  self.flag_run:
+            if self.flag_run:
                 self.logger.error(e)
                 threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
 
     def simple_error(self, info: str):
-        push(self.logger,self.config,info)
+        push(self.logger, self.config, info)
         raise ScriptError(message=info, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
@@ -653,7 +653,8 @@ class Baas_thread:
         last_refresh_hour = last_refresh.hour
         daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
         if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
-                ((hour < daily_reset and last_refresh_hour < daily_reset) or (hour >= daily_reset and last_refresh_hour >=daily_reset)):
+            ((hour < daily_reset and last_refresh_hour < daily_reset) or (
+                hour >= daily_reset and last_refresh_hour >= daily_reset)):
             return
         else:
             self.config['last_refresh_config_time'] = time.time()
