@@ -404,7 +404,7 @@ def exchange_reward(self):
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        if color.judge_rgb_range(self, 371, 678, 195, 205, 195, 205, 195, 205):
+        if color.judge_rgb_range(self, 45, 684, 185, 205, 185, 205, 185, 205):
             if get_exchange_assets(self) >= 6:
                 self.logger.info("refresh exchange times")
                 refresh_exchange_times(self)
@@ -412,8 +412,6 @@ def exchange_reward(self):
             else:
                 self.logger.info("exchange complete")
                 return True
-        if image.compare_image(self, "activity_refresh-exchange-times-bright", rgb_diff=5):
-            refresh_exchange_times(self)
 
 
 def refresh_exchange_times(self):
