@@ -107,7 +107,7 @@ if __name__ == '__main__':
     # tt.solve("refresh_uiautomator2")
     # tt.solve("explore_activity_challenge")
     tt.solve("activity_sweep")
-    tt.solve("explore_activity_mission")
+    # tt.solve("explore_activity_mission")
     tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     # tt.solve("total_assault")
