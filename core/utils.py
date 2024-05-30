@@ -72,6 +72,7 @@ class Logger:
         # If logger box is not None, output log to logger box
         # else output log to console
         if self.logger_signal is not None:
+            message = message.replace('\n', '<br>').replace(' ', '&nbsp;')
             adding = (f'''
                     <div style="font-family: Consolas, monospace;color:{statusColor[level - 1]};">
                         {statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}
