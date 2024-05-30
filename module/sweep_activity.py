@@ -12,6 +12,7 @@ func_names = {
     "livelyAndJoyfulWalkingTour": activity.livelyAndJoyfulWalkingTour.implement,
     "anUnconcealedHeart": activity.anUnconcealedHeart.implement,
     "iveAlive": activity.iveAlive.implement,
+    "AbydosResortRestorationCommittee": activity.AbydosResortRestorationCommittee.implement,
 }
 
 

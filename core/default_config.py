@@ -631,7 +631,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "AbydosResortRestorationCommittee",
         "Global": null,
         "JP": null
     },
@@ -833,7 +833,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "桔梗",
       "CN_implementation": false,
       "Global_name": "Kikyou",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "キキョウ",
       "JP_implementation": true
     },
@@ -841,7 +841,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "莲华",
       "CN_implementation": false,
       "Global_name": "Renge",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "レンゲ",
       "JP_implementation": true
     },
