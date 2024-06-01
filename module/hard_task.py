@@ -35,15 +35,18 @@ def implement(self):
                             True) == "normal_task_unlock-notice":
                 self.logger.info("task unlocked")
                 continue
-            t = check_sweep_availability(self)
+            t = check_sweep_availability(self, True)
             if t == "sss":
+                y = 300
+                if self.server == "JP":
+                    y = 328
                 if tar_times == "max":
-                    self.click(1085, 300, rate=1, wait_over=True)
+                    self.click(1085, y, rate=1, wait_over=True)
                 else:
                     duration = 0
                     if tar_times > 4:
                         duration = 1
-                    self.click(1014, 300, count=tar_times - 1, duration=duration, wait_over=True)
+                    self.click(1014, y, count=tar_times - 1, duration=duration, wait_over=True)
                 res = start_sweep(self, True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
                     self.logger.info("hard task " + str(temp) + " finished")
