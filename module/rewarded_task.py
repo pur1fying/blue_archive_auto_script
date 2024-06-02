@@ -50,7 +50,7 @@ def implement(self):
             elif res == "0SWEEPABLE":
                 self.logger.warning("0 SWEEPABLE")
 
-    self.logger.info(self.rewarded_task_status)
+    self.logger.info("Rewarded task status : " + self.rewarded_task_status.__str__())
     return True
 
 

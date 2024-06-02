@@ -304,7 +304,7 @@ class Baas_thread:
             self.logger.info("--------Emulator Init Finished----------")
             return True
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             self.logger.error("Emulator initialization failed")
             return False
 
