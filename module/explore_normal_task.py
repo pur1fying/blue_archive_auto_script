@@ -495,7 +495,7 @@ def get_explore_normal_task_missions(self, st):
                     tasks.append([int(st[i]), j])
         return tasks
     except Exception as e:
-        self.logger.error(e)
+        self.logger.error(e.__str__())
         self.logger.error("explore_normal_task_missions config error")
         return False
 

@@ -208,7 +208,7 @@ class Baas_thread:
                     return True
             return False
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def subprocess_run(self, cmd: Tuple[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -279,7 +279,7 @@ class Baas_thread:
         try:
             self.start_emulator()
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             self.logger.error("Emulator start failed")
             return False
         try:
@@ -362,7 +362,7 @@ class Baas_thread:
                     time.sleep(1)
         except Exception as e:
             notify(title='', body='任务已停止')
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             self.logger.error("error occurred, stop all activities")
             self.signal_stop()
 
@@ -378,7 +378,7 @@ class Baas_thread:
             return func_dict[activity](self)
         except Exception as e:
             if self.flag_run:
-                self.logger.error(e)
+                self.logger.error(e.__str__())
                 threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
 
@@ -487,7 +487,7 @@ class Baas_thread:
             self.rgb_feature = json.load(open(temp, 'r', encoding='utf-8'))['rgb_feature']
             return True
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def init_config(self):
@@ -496,7 +496,7 @@ class Baas_thread:
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def init_server(self):
@@ -678,7 +678,7 @@ class Baas_thread:
             try:
                 self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i]))
             except Exception as e:
-                self.logger.error(e)
+                self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
 
     def refresh_hard_tasks(self):
@@ -691,5 +691,5 @@ class Baas_thread:
             try:
                 self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i]))
             except Exception as e:
-                self.logger.error(e)
+                self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

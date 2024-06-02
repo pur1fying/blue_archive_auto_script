@@ -33,9 +33,9 @@ def implement(self):
             elif res == "inadequate_ap" or res == "inadequate_ticket":
                 if res == "inadequate_ticket" and self.server == 'CN':
                     continue
-                self.logger.info(str(self.scrimmage_task_status))
+                self.logger.info("Scrimmage task status : " + str(self.scrimmage_task_status))
                 return True
-    self.logger.info(str(self.scrimmage_task_status))
+    self.logger.info("Scrimmage task status : " + str(self.scrimmage_task_status))
     return True
 
 
