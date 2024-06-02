@@ -175,6 +175,7 @@ def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
             'main_page_news': (1227, 56),
             'main_page_login-store': (883, 162),
             'main_page_net-work-unstable': (767, 501),
+            'main_page_store-service-unavailable': (640, 500),
         }
     }
     img_possibles = img_possibles[self.server]

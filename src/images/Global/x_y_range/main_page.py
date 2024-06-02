@@ -16,4 +16,5 @@ x_y_range = {
     "notice": (580, 145, 699, 177),
     "return-to-title-1": (464, 291, 810, 383),
     "return-to-title-2": (464, 291, 810, 383),
+    'store-service-unavailable': (400, 300, 900, 370),
 }
