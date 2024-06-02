@@ -5,7 +5,7 @@ from cnocr import CnOcr
 
 class Baas_ocr:
     def __init__(self, logger, ocr_needed=None):
-        self.loggrer = logger
+        self.logger = logger
         self.ocrEN = None
         self.ocrCN = None
         self.ocrJP = None
