@@ -10,3 +10,4 @@ from module.activities import livelyAndJoyfulWalkingTour
 from module.activities import anUnconcealedHeart
 from module.activities import iveAlive
 from module.activities import AbydosResortRestorationCommittee
+

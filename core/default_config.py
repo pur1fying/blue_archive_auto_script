@@ -37,6 +37,18 @@ EVENT_DEFAULT_CONFIG = """
     "post_task": []
   },
   {
+    "enabled": false,
+    "priority": 0,
+    "interval": 0,
+    "daily_reset": [[20, 0, 0], [8, 0, 0]],
+    "next_tick": 0,
+    "event_name": "咖啡厅邀请",
+    "func_name": "cafe_invite",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
+  },
+  {
     "enabled": true,
     "priority": 1,
     "interval": 0,

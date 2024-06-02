@@ -25,7 +25,7 @@ class Main:
             return True
         except Exception as e:
             self.logger.error("OCR initialization failed")
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None):
@@ -49,7 +49,7 @@ class Main:
             return True
         except Exception as e:
             self.logger.error("Static Config initialization failed")
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def operate_dict(self, dic):
@@ -99,16 +99,16 @@ class Main:
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
     t.init_static_config()
-    config = ConfigSet(config_dir="1708148000")
+    config = ConfigSet(config_dir="default_config")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
     # tt.solve("refresh_uiautomator2")
     # tt.solve("explore_activity_challenge")
-    tt.solve("activity_sweep")
+    # tt.solve("activity_sweep")
     # tt.solve("explore_activity_mission")
-    tt.solve("explore_activity_story")
+    # tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     # tt.solve("total_assault")
     # tt.solve("cafe_reward")

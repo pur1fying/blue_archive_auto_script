@@ -7,7 +7,6 @@ from core import position, picture
 from core.utils import Logger
 
 from core.pushkit import push
-import time
 import numpy as np
 import uiautomator2 as u2
 import module
@@ -26,6 +25,7 @@ func_dict = {
     'momo_talk': module.momo_talk.implement,
     'common_shop': module.common_shop.implement,
     'cafe_reward': module.cafe_reward.implement,
+    'cafe_invite': module.cafe_invite.implement,
     'lesson': module.lesson.implement,
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
