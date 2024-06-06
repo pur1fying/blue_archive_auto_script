@@ -84,7 +84,7 @@ def common_solve_affection_story_method(self):
         if res[0] == 'reply':
             if res[1] >= 625:
                 self.logger.info("swipe upward")
-                self.connection.swipe(924, 330, 924, 230, duration=0.1)
+                self.swipe(924, 330, 924, 230, duration=0.1)
                 self.click(924, 330)
             else:
                 self.logger.info("reply")
