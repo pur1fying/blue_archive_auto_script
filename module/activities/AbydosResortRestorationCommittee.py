@@ -61,7 +61,7 @@ def preprocess_activity_sweep_times(times):
 
 
 def get_stage_data():
-    module_path = 'src.explore_task_data.activities.anUnconcealedHeart'
+    module_path = 'src.explore_task_data.activities.AbydosResortRestorationCommittee'
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
