@@ -13,6 +13,7 @@ def implement(self):
     if len(times) > 0:
         sweep(self, region, times)
     exchange_reward(self)
+    jointTask(self)
     return True
 
 
@@ -274,6 +275,9 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'normal_task_reward-acquired-confirm': (800, 660),
         'normal_task_mission-conclude-confirm': (1042, 671),
         "activity_exchange-confirm": (673, 603),
+        "activity_joint-task-boss-info": (916, 120),
+        "activity_joint-task-menu-task-info": (1157, 115),
+        "activity_joint-task-menu": (63, 40),
     }
     img_ends = "activity_menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
@@ -386,8 +390,6 @@ def start_sweep(self, skip_first_screenshot=False):
     return "sweep_complete"
 
 
-
-
 def exchange_reward(self):
     to_activity(self, "story", True)
     to_exchange(self, True)
@@ -453,3 +455,86 @@ def get_exchange_assets(self):
     }
     return self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
 
+
+def jointTask(self):
+    to_activity(self, "story", True, False)
+    toJointTask(self, True)
+    tickets = getJointTaskTickets(self)
+    if tickets == "UNKNOWN":
+        self.logger.warning("joint task tickets: [ UNKNOWN ], assume [ 5, 5 ]")
+        tickets = [5, 5]
+    self.logger.info("joint task tickets: " + str(tickets))
+    for i in range(0, tickets[0]):
+        toJointTaskBossInfo(self)
+        toJointTaskTaskInfo(self, boss=1)
+        self.swipe(378, 403, 375, 493, duration=0.3, post_sleep_time=0.5)
+        self.click(375, 490, wait_over=True, duration=0.3)
+        startJointFight(self)
+        main_story.change_acc_auto(self)
+        toJointTask(self)
+
+
+def toJointTask(self, skip_first_screenshot=False):
+    img_possibles = {
+        "activity_menu": (103, 229),
+        'normal_task_prize-confirm': (776, 655),
+        'normal_task_fail-confirm': (643, 658),
+        'normal_task_task-finish': (1038, 662),
+        'normal_task_fight-confirm': (1168, 659),
+        "normal_task_sweep-complete": (643, 585),
+        "normal_task_start-sweep-notice": (887, 164),
+        'normal_task_skip-sweep-complete': (643, 506),
+        'normal_task_fight-complete-confirm': (1160, 666),
+        'normal_task_reward-acquired-confirm': (800, 660),
+        'normal_task_mission-conclude-confirm': (1042, 671),
+    }
+    img_ends = "activity_joint-task-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+
+
+def toJointTaskBossInfo(self):
+    img_possibles = {
+        "activity_joint-task-menu": (853, 623),
+    }
+    img_ends = "activity_joint-task-boss-info"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def getJointTaskTickets(self):
+    region = {
+        "CN": (177, 85, 216,116),
+        "JP": (177, 85, 216,116),
+        "Global": (177, 85, 216,116),
+    }
+    try:
+        ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
+        if ocr_res[1] == '1':
+            return [int(ocr_res[0]), int(ocr_res[2])]
+        for j in range(0, len(ocr_res)):
+            if ocr_res[j] == '/':
+                return [int(ocr_res[:j]), int(ocr_res[j + 1:])]
+        return "UNKNOWN"
+    except Exception as e:
+        self.logger.error("getJointTaskTickets error: " + str(e))
+        return "UNKNOWN"
+
+
+def toJointTaskTaskInfo(self, boss=1):
+    y = 260
+    if boss == 0:
+        y = 388
+    img_possibles = {
+        "activity_joint-task-boss-info": (851, y),
+    }
+    img_ends = "activity_joint-task-task-info"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def startJointFight(self):
+    img_possibles = {
+        "activity_joint-task-task-info": (1021, 568),
+        "activity_joint-task-use-ticket-notice": (759, 500),
+    }
+    rgb_possibles = {"formation_edit1": (1156, 659)}
+    rgb_ends = "fighting_feature"
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
