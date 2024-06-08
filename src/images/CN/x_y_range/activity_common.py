@@ -3,7 +3,7 @@ path = 'activity/common'
 x_y_range = {
     'story-fight-success-confirm': (602, 644, 677, 689),
     'play-guide': (535, 132, 656, 171),
-    'menu': (103, 7, 167, 38),
+    'menu': (103, 7, 300, 38),
     "fight-success-confirm": (600, 650, 681, 684),
     'exchange-confirm': (623, 576, 711, 621),
     'exchange-menu': (100, 9, 299, 40),
