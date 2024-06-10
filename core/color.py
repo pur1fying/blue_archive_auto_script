@@ -1,6 +1,5 @@
 import threading
 import time
-
 import numpy as np
 
 
@@ -12,21 +11,7 @@ def wait_loading(self):
             time.sleep(self.screenshot_interval - screenshot_interval)
         threading.Thread(target=self.screenshot_worker_thread).start()
         self.wait_screenshot_updated()
-        not_white_position = [[937, 648], [919, 636]]
-        white_position = [[929, 664], [941, 660], [979, 662], [1077, 665], [1199, 665]]
-        if self.server == "CN":
-            not_white_position = [[1048, 638], [950, 660]]
-            white_position = [[1040, 654], [970, 651], [1102, 659], [1077, 665], [1201, 665]]
-        for i in range(0, len(not_white_position)):
-            if judge_rgb_range(self, not_white_position[i][0], not_white_position[i][1],
-                               200, 255, 200, 255, 200, 255):
-                break
-        else:
-            for i in range(0, len(white_position)):
-                if not judge_rgb_range(self, white_position[i][0], white_position[i][1],
-                                       200, 255, 200, 255, 200, 255):
-                    break
-            else:
+        if judgeRGBFeature(self, "loadingNotWhite") and judgeRGBFeature(self, "loadingWhite"):
                 t_load = time.time() - t_start
                 t_load = round(t_load, 3)
                 self.logger.info("loading, t load : " + str(t_load))
@@ -54,48 +39,56 @@ def judge_rgb_range(self, x, y, r_min, r_max, g_min, g_max, b_min, b_max, check_
     return False
 
 
+def judgeRGBFeature(self, featureName):                                         # all rgb in range return True
+    if featureName not in self.rgb_feature:
+        return False
+    if featureName in self.rgb_feature:
+        for i in range(0, len(self.rgb_feature[featureName][0])):
+            if not judge_rgb_range(self,
+                                   self.rgb_feature[featureName][0][i][0],
+                                   self.rgb_feature[featureName][0][i][1],
+                                   self.rgb_feature[featureName][1][i][0],
+                                   self.rgb_feature[featureName][1][i][1],
+                                   self.rgb_feature[featureName][1][i][2],
+                                   self.rgb_feature[featureName][1][i][3],
+                                   self.rgb_feature[featureName][1][i][4],
+                                   self.rgb_feature[featureName][1][i][5]):
+                return False
+    return True
+
+
+def judgeRGBFeatureOr(self, featureName):                                   # any rgb in range return True
+    if featureName in self.rgb_feature:
+        for i in range(0, len(self.rgb_feature[featureName][0])):
+            if judge_rgb_range(self,
+                               self.rgb_feature[featureName][0][i][0],
+                               self.rgb_feature[featureName][0][i][1],
+                               self.rgb_feature[featureName][1][i][0],
+                               self.rgb_feature[featureName][1][i][1],
+                               self.rgb_feature[featureName][1][i][2],
+                               self.rgb_feature[featureName][1][i][3],
+                               self.rgb_feature[featureName][1][i][4],
+                               self.rgb_feature[featureName][1][i][5]):
+                return True
+    return False
+
+
 def check_sweep_availability(self, is_mainline=False):
-    if self.server == "CN":
-        if judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
+    if self.server == "CN" or self.server == "Global" or (self.server == "JP" and is_mainline):
+        if judgeRGBFeature(self, "mainLineTaskNoPass"):
             return "no-pass"
-        if judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
+        if judgeRGBFeature(self, "mainLineTaskSSS"):
             return "sss"
-        if judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
+        if judgeRGBFeatureOr(self, "mainLineTaskSSS"):
             return "pass"
-        return "UNKNOWN"
-    elif self.server == "Global" or (self.server == "JP" and not is_mainline):
-        if judge_rgb_range(self, 169, 369, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(self, 169, 405, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(self, 169, 439, 192, 212, 192, 212, 192, 212):
+    if self.server == "JP" and not is_mainline:
+        if judgeRGBFeature(self, "sideTaskNoPass"):
             return "no-pass"
-        if judge_rgb_range(self, 169, 369, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(self, 169, 405, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(self, 169, 439, 225, 255, 200, 255, 20, 60):
+        if judgeRGBFeature(self, "sideTaskSSS"):
             return "sss"
-        if judge_rgb_range(self, 169, 369, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(self, 169, 405, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(self, 169, 439, 225, 255, 200, 255, 20, 60):
+        if judgeRGBFeatureOr(self, "sideTaskSSS"):
             return "pass"
-    elif self.server == "JP" and is_mainline:
-        if judge_rgb_range(self, 169, 469, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(self, 169, 401, 192, 212, 192, 212, 192, 212) and \
-            judge_rgb_range(self, 169, 436, 192, 212, 192, 212, 192, 212):
-            return "no-pass"
-        if judge_rgb_range(self, 169, 469, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(self, 169, 401, 225, 255, 200, 255, 20, 60) and \
-            judge_rgb_range(self, 169, 436, 225, 255, 200, 255, 20, 60):
-            return "sss"
-        if judge_rgb_range(self, 169, 469, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(self, 169, 401, 225, 255, 200, 255, 20, 60) or \
-            judge_rgb_range(self, 169, 436, 225, 255, 200, 255, 20, 60):
-            return "pass"
-        return "UNKNOWN"
+    return "UNKNOWN"
 
 
 def getRegionMeanRGB(image, x1, y1, x2, y2):
@@ -109,7 +102,8 @@ def compareTotalRGBDiff(rgb1, rgb2, threshold):
 def compareEachRGBDiff(rgb1, rgb2, threshold):
     if type(threshold) is int:
         threshold = [threshold, threshold, threshold]
-    return abs(rgb1[0] - rgb2[0]) < threshold[0] and abs(rgb1[1] - rgb2[1]) < threshold[1] and abs(rgb1[2] - rgb2[2]) < threshold[2]
+    return abs(rgb1[0] - rgb2[0]) < threshold[0] and abs(rgb1[1] - rgb2[1]) < threshold[1] and abs(rgb1[2] - rgb2[2]) < \
+        threshold[2]
 
 
 def calcTotalRGBDiff(rgb1, rgb2):
@@ -118,4 +112,3 @@ def calcTotalRGBDiff(rgb1, rgb2):
 
 def calcTotalRGBMeanABSDiff(img1, img2):
     return np.abs(img1 - img2).mean()
-

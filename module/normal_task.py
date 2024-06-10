@@ -135,10 +135,6 @@ def to_normal_event(self, skip_first_screenshot=False):
 
 
 def to_task_info(self, x, y):
-    rgb_ends = [
-        "mission_info",
-        "unlock_notice"
-    ]
     rgb_possibles = {"event_normal": (x, y)}
     img_possibles = {
         "normal_task_select-area": (x, y),
@@ -147,23 +143,19 @@ def to_task_info(self, x, y):
         "normal_task_unlock-notice",
         "normal_task_task-info"
     ]
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles)
+    res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles)
     if res == "normal_task_unlock-notice" or res == 'unlock_notice':
         return "unlock_notice"
     return True
 
 
 def start_sweep(self, skip_first_screenshot=False):
-    rgb_ends = [
-        "purchase_ap_notice",
-        "start_sweep_notice",
-    ]
     img_ends = [
         "purchase_ap_notice",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot)
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice" or res == "buy_ap_notice":
         return "inadequate_ap"
     rgb_ends = [

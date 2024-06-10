@@ -18,20 +18,7 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
             if type(rgb_ends) is str:
                 rgb_ends = [rgb_ends]
             for i in range(0, len(rgb_ends)):
-                if rgb_ends[i] not in self.rgb_feature:
-                    continue
-                for j in range(0, len(self.rgb_feature[rgb_ends[i]][0])):
-                    if not color.judge_rgb_range(self,
-                                                 self.rgb_feature[rgb_ends[i]][0][j][0],
-                                                 self.rgb_feature[rgb_ends[i]][0][j][1],
-                                                 self.rgb_feature[rgb_ends[i]][1][j][0],
-                                                 self.rgb_feature[rgb_ends[i]][1][j][1],
-                                                 self.rgb_feature[rgb_ends[i]][1][j][2],
-                                                 self.rgb_feature[rgb_ends[i]][1][j][3],
-                                                 self.rgb_feature[rgb_ends[i]][1][j][4],
-                                                 self.rgb_feature[rgb_ends[i]][1][j][5]):
-                        break
-                else:
+                if color.judgeRGBFeature(self, rgb_ends[i]):
                     self.logger.info("end : " + rgb_ends[i])
                     return rgb_ends[i]
         if img_ends is not None:
@@ -128,20 +115,7 @@ def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
     if rgb_pop_ups is not None:
         rgb_possibles.update(rgb_pop_ups)
     for position, click in rgb_possibles.items():
-        if position not in self.rgb_feature:
-            continue
-        for j in range(0, len(self.rgb_feature[position][0])):
-            if not color.judge_rgb_range(self,
-                                         self.rgb_feature[position][0][j][0],
-                                         self.rgb_feature[position][0][j][1],
-                                         self.rgb_feature[position][1][j][0],
-                                         self.rgb_feature[position][1][j][1],
-                                         self.rgb_feature[position][1][j][2],
-                                         self.rgb_feature[position][1][j][3],
-                                         self.rgb_feature[position][1][j][4],
-                                         self.rgb_feature[position][1][j][5]):
-                break
-        else:
+        if color.judgeRGBFeature(self, position):
             self.logger.info("find : " + position)
             if position == "fighting_feature":
                 img_possibles = {

@@ -71,12 +71,8 @@ def to_hard_event(self, skip_first_screenshot=False):
     }
     rgb_ends = 'event_hard'
     rgb_possibles = {
-        "sweep_complete": (1077, 98),
         "event_normal": (1064, 165),
         "main_page": (1198, 580),
-        "start_sweep_notice": (887, 164),
-        "charge_challenge_counts": (887, 161),
-        "unlock_notice": (887, 161),
         "level_up": (640, 200),
     }
     img_possibles = {
@@ -135,18 +131,13 @@ def readOneHardTask(task_string):
 
 
 def start_sweep(self, skip_first_screenshot=False):
-    rgb_ends = [
-        "purchase_ap_notice",
-        "start_sweep_notice",
-        "charge_challenge_counts"
-    ]
     img_ends = [
         "purchase_ap_notice",
         "normal_task_start-sweep-notice",
         "normal_task_charge-challenge-counts",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot)
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice":
         return "inadequate_ap"
     if res == "normal_task_charge-challenge-counts":
@@ -157,7 +148,7 @@ def start_sweep(self, skip_first_screenshot=False):
         "normal_task_sweep-complete",
     ]
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
 
 

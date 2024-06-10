@@ -33,7 +33,7 @@ def implement(self, need_check_mode=True):
                 return implement(self, need_check_mode=False)
         else:
             for i in range(0, len(unread_location)):
-                self.click(unread_location[i][0], unread_location[i][1], wait_over=True, duration=0.5)
+                self.click(unread_location[i][0], unread_location[i][1], wait_over=True)
                 common_solve_affection_story_method(self)
         main_to_momotalk = False
         self.click(170, 197, duration=0.2, wait_over=True)
@@ -72,67 +72,32 @@ def to_momotalk2(self, skip_first_screenshot=False):
 
 
 def common_solve_affection_story_method(self):
-    self.latest_img_array = self.get_screenshot_array()
-    res = get_reply_position(self)
+    res = getConversationState(self)
     if res[0] == 'end':
         self.swipe(924, 330, 924, 230, duration=0.1)
-        self.click(924, 330)
+        self.click(924, 330, wait_over=True)
     start_time = time.time()
-    while time.time() <= start_time + 10:
-        self.latest_img_array = self.get_screenshot_array()
-        res = get_reply_position(self)
+    timeOut = 10
+    while time.time() <= start_time + timeOut:       # when 10s no reply , conclude this conversation
+        res = getConversationState(self)
         if res[0] == 'reply':
             if res[1] >= 625:
-                self.logger.info("swipe upward")
+                self.logger.warning("Replay can‘t be clicked, swipe upward")
                 self.swipe(924, 330, 924, 230, duration=0.1)
-                self.click(924, 330)
+                self.click(924, 330, wait_over=True)
             else:
-                self.logger.info("reply")
+                self.logger.info("Reply")
                 self.click(826, res[1])
             start_time = time.time()
         elif res[0] == 'affection':
-            self.logger.info("ENTER affection story")
-            self.click(826, res[1])
-            time.sleep(0.5)
-            common_skip_plot_method(self)
-            rgb_end = "reward_acquired"
-            picture.co_detect(self, rgb_end)
-            to_momotalk2(self, True)
-            return
-        time.sleep(self.screenshot_interval)
-    self.logger.info("current conversation over")
-
-
-def get_reply_position(self):
-    i = 657
-    while i > 156:
-        if color.judge_rgb_range(self, 786, i, 29, 49, 143, 163, 219, 239, True, 1) and \
-            color.judge_rgb_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):
-            return 'reply', i + 65
-        elif color.judge_rgb_range(self, 862, 813 - i, 245, 255, 227, 247, 230, 250) and \
-            color.judge_rgb_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):
-            return 'affection', min(625, 843 - i)
-        else:
-            i -= 1
-    return 'end', 0
-
-
-def pd_enter_button(self):
-    if color.judge_rgb_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
-        color.judge_rgb_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
-        color.judge_rgb_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):
-        return True
-    return False
-
-
-def common_skip_plot_method(self):
-    while self.flag_run:
-        color.wait_loading(self)
-        if pd_enter_button(self):
+            timeOut = 20
+            self.logger.info("To Relationship Story")
+            self.click(826, res[1], wait_over=True)
+        elif res[0] == 'enter':
             self.logger.info("Begin Relationship Story")
-            self.click(920, 556, duration=4, wait_over=True)
-        elif image.compare_image(self, "plot_menu", need_log=False):
-            self.logger.info("find MENU button")
+            self.click(920, 556, wait_over=True)
+        elif res[0] == 'plot_menu':
+            self.logger.info("Find Menu Button")
             img_possibles = {
                 'plot_menu': (1202, 37),
                 'plot_skip-plot-button': (1208, 116),
@@ -140,5 +105,33 @@ def common_skip_plot_method(self):
             }
             rgb_ends = "reward_acquired"
             picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
+            self.logger.info("Relationship Story Over")
+            to_momotalk2(self, True)
             return True
+        time.sleep(self.screenshot_interval)
+    self.logger.info(str(timeOut) + "s Time Out Reached And Assume Current Conversation Over")
+
+
+def getConversationState(self):
+    self.latest_img_array = self.get_screenshot_array()
+    if image.compare_image(self, "plot_menu", need_log=False):      # menu --> skip plot --> skip notice --> reward acquired
+        return ['plot_menu']
+    if color.judge_rgb_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
+            color.judge_rgb_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
+                color.judge_rgb_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):    # blue enter
+        return ['enter']
+    i = 657
+    while i > 156:
+        if color.judge_rgb_range(self, 786, i, 29, 49, 143, 163, 219, 239, True, 1) and \
+            color.judge_rgb_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):  # reply
+            return ['reply', i + 65]
+        elif color.judge_rgb_range(self, 862, 813 - i, 245, 255, 227, 247, 230, 250) and \
+            color.judge_rgb_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):        # pink enter
+            return ['affection', min(625, 843 - i)]
+        else:
+            i -= 1
+    return ['end'] # nothing found
+
+
+
 

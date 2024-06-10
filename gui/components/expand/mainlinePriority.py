@@ -89,7 +89,7 @@ class Layout(QWidget):
             temp = []
             for i in range(0, len(input_content)):
                 temp.append(readOneNormalTask(input_content[i]))
-            self.config.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])  # refresh the config unfinished_normal_tasks
+            self.config.set("unfinished_normal_tasks", temp)  # refresh the config unfinished_normal_tasks
             notification.success('设置成功', f'你的普通关卡已经被设置为：{input_content}', self.config)
         except Exception as e:
             notification.error('设置失败', f'请检查输入格式是否正确，错误信息：{e}', self.config)
