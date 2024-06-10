@@ -278,6 +278,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "activity_joint-task-boss-info": (916, 120),
         "activity_joint-task-menu-task-info": (1157, 115),
         "activity_joint-task-menu": (63, 40),
+        "activity_exchange-menu": (63, 40),
     }
     img_ends = "activity_menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
