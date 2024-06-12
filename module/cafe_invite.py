@@ -7,9 +7,9 @@ def implement(self):
     self.logger.info("Start Cafe Invite")
     if get_invitation_ticket_status(self):
         invite_girl(self, 1)
-    if self.server == 'JP' or self.server == 'Global' and self.config['cafe_reward_has_no2_cafe']:
+    if (self.server == 'JP' or self.server == 'Global') and self.config['cafe_reward_has_no2_cafe']:
         self.logger.info("Start No.2 Cafe Invite")
         to_no2_cafe(self)
-        if self.config['cafe_reward_use_invitation_ticket']:
+        if get_invitation_ticket_status(self):
             invite_girl(self, 2)
     return True
