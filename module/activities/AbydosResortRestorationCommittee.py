@@ -13,7 +13,7 @@ def implement(self):
     if len(times) > 0:
         sweep(self, region, times)
     exchange_reward(self)
-    jointTask(self)
+    # jointTask(self)
     return True
 
 
