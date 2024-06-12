@@ -328,6 +328,7 @@ def to_mission_task_info(self, number):
         self.swipe(916, 483, 916, 219, duration=0.5, post_sleep_time=0.7)
     if number in [8, 9, 10, 11, 12]:
         self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
+        self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
     possibles = {'activity_menu': (1124, lo[index[number - 1]])}
     ends = "normal_task_task-info"
     image.detect(self, ends, possibles)
