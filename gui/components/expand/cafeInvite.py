@@ -6,49 +6,31 @@ from qfluentwidgets import ComboBox, LineEdit, CheckBox
 class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        self.setFixedHeight(325)
+        self.setFixedHeight(425)
         self.config = config
         self.hBoxLayout = QVBoxLayout(self)
-        self.lay_for_invitation_ticket_affection_lowest_priority = QHBoxLayout(self)# 邀请券的好感等级低
         self.lay1 = QHBoxLayout(self)       # ComboBox 选择第一咖啡厅学生名字
         self.lay2 = QHBoxLayout(self)       # 摸头方式
         self.lay2_ = QHBoxLayout(self)      # ComboBox 选择第二咖啡厅学生名字
         self.lay3 = QHBoxLayout(self)       # 第一咖啡厅邀请学生名字
         self.lay3_ = QHBoxLayout(self)      # 第二咖啡厅邀请学生名字
-        self.lay4 = QHBoxLayout(self)       # 是否领取奖励
-        self.lay5 = QHBoxLayout(self)       # 是否使用邀请券
         self.lay6 = QHBoxLayout(self)       # 是否有二号咖啡厅
 
-        self.label_for_invitation_ticket_affection_lowest_priority = QLabel('优先邀请好感等级低学生:', self)
-        self.invitation_ticket_affection_lowest_priority = CheckBox(self)
-        self.invitation_ticket_affection_lowest_priority.setChecked(
-            self.config.get('cafe_reward_lowest_affection_first'))
-        self.lay_for_invitation_ticket_affection_lowest_priority.addWidget(
-            self.label_for_invitation_ticket_affection_lowest_priority, 20, Qt.AlignLeft)
-        self.lay_for_invitation_ticket_affection_lowest_priority.addWidget(
-            self.invitation_ticket_affection_lowest_priority, 0, Qt.AlignRight)
+        self.layCollectReward = self.labeledCheckBoxTemplate('是否领取奖励:', 'cafe_reward_collect_hour_reward')
+        self.layUseInvitationTicket = self.labeledCheckBoxTemplate('是否使用邀请券:', 'cafe_reward_use_invitation_ticket')
+        self.layInviteLowestAffection = self.labeledCheckBoxTemplate('优先邀请券好感等级低的学生:', 'cafe_reward_lowest_affection_first')
+        self.layEnableExchangeStudent = self.labeledCheckBoxTemplate('是否允许学生更换服饰:', 'cafe_reward_allow_exchange_student')
 
-        self.label_1 = QLabel('是否要领取奖励:', self)
-        self.income_switch = CheckBox(self)
-        self.income_switch.setChecked(self.config.get('cafe_reward_collect_hour_reward'))
-
-        self.lay4.addWidget(self.label_1, 1, Qt.AlignLeft)
-        self.lay4.addWidget(self.income_switch, 0, Qt.AlignRight)
-
-        self.label_2 = QLabel('是否使用邀请券:', self)
-        self.invite_switch = CheckBox(self)
-        self.invite_switch.setChecked(self.config.get('cafe_reward_use_invitation_ticket'))
-
-        self.lay5.addWidget(self.label_2, 1, Qt.AlignLeft)
-        self.lay5.addWidget(self.invite_switch, 0, Qt.AlignRight)
 
         if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
+
             self.label_3 = QLabel('是否有二号咖啡厅:', self)
             self.second_switch = CheckBox(self)
             self.second_switch.setChecked(self.config.get('cafe_reward_has_no2_cafe'))
 
             self.lay6.addWidget(self.label_3, 1, Qt.AlignLeft)
             self.lay6.addWidget(self.second_switch, 0, Qt.AlignRight)
+            self.layEnableDuplicateInvite = self.labeledCheckBoxTemplate('是否允许重复邀请:', 'cafe_reward_allow_duplicate_invite')
 
         self.pat_styles = ['拖动礼物']
         self.student_name = []
@@ -88,10 +70,12 @@ class Layout(QWidget):
         self.lay3.addWidget(self.ac_btn, 0, Qt.AlignRight)
 
         self.hBoxLayout.addSpacing(10)
-
-        self.hBoxLayout.addLayout(self.lay4)
-        self.hBoxLayout.addLayout(self.lay5)
-        self.hBoxLayout.addLayout(self.lay_for_invitation_ticket_affection_lowest_priority)
+        self.hBoxLayout.addLayout(self.layCollectReward)
+        self.hBoxLayout.addLayout(self.layUseInvitationTicket)
+        self.hBoxLayout.addLayout(self.layInviteLowestAffection)
+        self.hBoxLayout.addLayout(self.layEnableExchangeStudent)
+        if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
+            self.hBoxLayout.addLayout(self.layEnableDuplicateInvite)
         self.hBoxLayout.addLayout(self.lay1)
         self.hBoxLayout.addLayout(self.lay3)
         self.hBoxLayout.addLayout(self.lay2)
@@ -137,12 +121,6 @@ class Layout(QWidget):
         self.input2.currentTextChanged.connect(self.__accept_pat_style)
         self.input1.currentTextChanged.connect(self.__add_student_name_in_the_last)
         self.ac_btn.clicked.connect(self.__student_name_change_by_keyboard_input)
-        self.income_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_collect_hour_reward',
-                                                                        self.income_switch.isChecked()))
-        self.invite_switch.stateChanged.connect(lambda: self.config.set('cafe_reward_use_invitation_ticket',
-                                                                        self.invite_switch.isChecked()))
-        self.invitation_ticket_affection_lowest_priority.stateChanged.connect(
-            self.Slot_for_invitation_ticket_affection_lowest_priority)
         if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
             self.second_switch.stateChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
 
@@ -169,7 +147,7 @@ class Layout(QWidget):
         if state == Qt.Checked:
             self.set_buttons_for_no2_cafe()
         else:
-            sub_layout = self.hBoxLayout.itemAt(8)
+            sub_layout = self.hBoxLayout.itemAt(10)
             self.hBoxLayout.removeItem(sub_layout)
             while sub_layout.count():
                 item = sub_layout.takeAt(0)
@@ -178,7 +156,7 @@ class Layout(QWidget):
                     widget.deleteLater()
                 else:
                     sub_layout.removeItem(item)
-            sub_layout = self.hBoxLayout.itemAt(8)
+            sub_layout = self.hBoxLayout.itemAt(10)
             self.hBoxLayout.removeItem(sub_layout)
             while sub_layout.count():
                 item = sub_layout.takeAt(0)
@@ -212,7 +190,12 @@ class Layout(QWidget):
         self.input4.currentTextChanged.connect(self.__add_student_name_in_the_last_second)
         self.ac_btn_.clicked.connect(self.__student_name_change_by_keyboard_input_)
 
-    def Slot_for_invitation_ticket_affection_lowest_priority(self, state):
-        self.config.set('cafe_reward_lowest_affection_first', state == Qt.Checked)
-        self.invitation_ticket_affection_lowest_priority.setChecked(state == Qt.Checked)
-        self.config.set('cafe_reward_lowest_affection_first', state == Qt.Checked)
+    def labeledCheckBoxTemplate(self, label, config_name):
+        lay = QHBoxLayout(self)
+        label = QLabel(label, self)
+        checkBox = CheckBox(self)
+        checkBox.setChecked(self.config.get(config_name))
+        lay.addWidget(label, 20, Qt.AlignLeft)
+        lay.addWidget(checkBox, 0, Qt.AlignRight)
+        checkBox.stateChanged.connect(lambda: self.config.set(config_name, checkBox.isChecked()))
+        return lay
