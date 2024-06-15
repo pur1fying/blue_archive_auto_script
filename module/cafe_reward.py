@@ -36,7 +36,9 @@ def to_cafe(self, skip_first_screenshot=False):
         'cafe_invitation-ticket': (835, 97),
         'cafe_students-arrived': (922, 189),
         'main_page_full-notice': (887, 165),
-        'main_page_insufficient-inventory-space': (908, 138)
+        'main_page_insufficient-inventory-space': (908, 138),
+        'cafe_duplicate-invite-notice': (534, 497),
+        'cafe_switch-clothes-notice': (534, 497),
     }
     rgb_possibles = {
         "main_page": (95, 699),
@@ -149,6 +151,8 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
     img_possible = {
         'cafe_cafe-reward-status': (905, 159),
         'cafe_menu': (838, 647),
+        'cafe_duplicate-invite-notice': (534, 497),
+        'cafe_switch-clothes-notice': (534, 497),
     }
     return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
 
@@ -159,6 +163,22 @@ def get_student_name(self):
     for i in range(0, len(self.static_config['student_names'])):
         current_server_student_name_list.append(self.static_config['student_names'][i][target])
     return operate_name(current_server_student_name_list, self.server)
+
+
+def checkConfirmInvite(self, y):
+    res = to_confirm_invite(self, (785, y))
+    f = False
+    if res == 'cafe_switch-clothes-notice' and not self.config['cafe_reward_allow_exchange_student']:
+        self.logger.warning("Not Allow Student Switch Clothes")
+        f = True
+    elif res == 'cafe_duplicate-invite-notice' and not self.config['cafe_reward_allow_duplicate_invite']:
+        self.logger.warning("Not Allow Duplicate Invite")
+        f = True
+    if f:
+        to_invitation_ticket(self, skip_first_screenshot=True)
+        return False
+    confirm_invite(self)
+    return True
 
 
 def invite_lowest_affection(self):
@@ -181,8 +201,13 @@ def invite_lowest_affection(self):
     if not image.compare_image(self, 'cafe_invitation-ticket-order-up', threshold=0.9):
         self.logger.info("Switch order to [ lowest -> highest ]")
         self.click(812, 153, wait_over=True, duration=0.5)
-    to_confirm_invite(self, (785, 226))
-    confirm_invite(self)
+    i = 0
+    lo = [226, 309, 378, 456, 536]
+    while i < 5:
+        if not checkConfirmInvite(self, lo[i]):
+            i += 1
+        else:
+            return
 
 
 def to_confirm_invite(self, lo):
@@ -194,7 +219,7 @@ def to_confirm_invite(self, lo):
         "cafe_switch-clothes-notice",
         "cafe_duplicate-invite-notice",
     ]
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def confirm_invite(self):
@@ -213,13 +238,13 @@ def invite_girl(self, no=1):
     if self.config['cafe_reward_lowest_affection_first']:
         invite_lowest_affection(self)
         return
-    student_name = get_student_name(self)
+    student_name = get_student_name(self)  # all student name in current server
     if no == 1:
         target_name_list = self.config['favorStudent1']
     elif no == 2:
         target_name_list = self.config['favorStudent2']
     student_name.sort(key=len, reverse=True)
-    self.logger.info("Iviting : " + str(target_name_list))
+    self.logger.info("Inviting : " + str(target_name_list))
     for i in range(0, len(target_name_list)):
         to_invitation_ticket(self, skip_first_screenshot=True)
         target_name = target_name_list[i]
@@ -266,9 +291,10 @@ def invite_girl(self, no=1):
                 last_student_name = detected_name[len(detected_name) - 1]
                 for s in range(0, len(detected_name)):
                     if detected_name[s] == target_name:
-                        self.logger.info("find student " + target_name + " at " + str(location[s]))
-                        to_confirm_invite(self, (785, location[s]))
-                        confirm_invite(self)
+                        self.logger.info("Find Student " + target_name + " At " + str(location[s]))
+                        if not checkConfirmInvite(self, location[s]):
+                            stop_flag = True
+                            break
                         return True
                 if not stop_flag:
                     self.logger.info("Didn't Find Target Student Swipe to Next Page")
