@@ -286,6 +286,7 @@ def invite_girl(self, no=1):
             self.logger.info("Detected name : [ " + st + " ]")
             if detected_name[len(detected_name) - 1] == last_student_name:
                 self.logger.warning("Already swipe to the end of the list")
+                self.logger.warning("Can't Detect Target Student : [ " + target_name + " ].")
                 stop_flag = True
             else:
                 last_student_name = detected_name[len(detected_name) - 1]
@@ -301,7 +302,6 @@ def invite_girl(self, no=1):
                     self.swipe(412, 580, 412, 150, duration=0.3)
                     self.click(412, 500, wait_over=True)
                     self.latest_img_array = self.get_screenshot_array()
-        self.logger.warning("Can't Detect Target Student : [ " + target_name + " ].")
         to_cafe(self)
 
 
