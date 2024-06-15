@@ -67,10 +67,11 @@ def match(img):
 
 
 def cafe_to_gift(self):
-    img_ends = "cafe_gift"
     rgb_possibles = {"cafe": (163, 639)}
     rgb_ends = "gift"
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, None, True)
+    img_ends = "cafe_gift"
+    img_possibles = {'cafe_students-arrived': (922, 189)}
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
 
 
 def shot(self):
@@ -168,17 +169,17 @@ def invite_lowest_affection(self):
         'JP': (535, 323),
     }
     if to_invitation_ticket(self, True) == 'cafe_invitation-ticket-invalid':
-        self.logger.info("invitation ticket NOT available")
+        self.logger.info("Invitation Ticket Not Available")
         return
     if not image.compare_image(self, 'cafe_invitation-ticket-order-affection', threshold=0.9):
-        self.logger.info("Switch to affection order")
+        self.logger.info("Switch invitation ticket order to [ Affection Order ]")
         self.click(704, 152, wait_over=True, duration=0.5)
         self.click(relationship_order_button_location[self.server][0],
                    relationship_order_button_location[self.server][1], wait_over=True, duration=0.5)
         self.click(627, 390, wait_over=True, duration=0.5)
     self.latest_img_array = self.get_screenshot_array()
     if not image.compare_image(self, 'cafe_invitation-ticket-order-up', threshold=0.9):
-        self.logger.info("Switch to lowest affection order")
+        self.logger.info("Switch order to [ lowest -> highest ]")
         self.click(812, 153, wait_over=True, duration=0.5)
     to_confirm_invite(self, (785, 226))
     confirm_invite(self)
@@ -218,7 +219,7 @@ def invite_girl(self, no=1):
     elif no == 2:
         target_name_list = self.config['favorStudent2']
     student_name.sort(key=len, reverse=True)
-    self.logger.info("INVITING : " + str(target_name_list))
+    self.logger.info("Iviting : " + str(target_name_list))
     for i in range(0, len(target_name_list)):
         to_invitation_ticket(self, skip_first_screenshot=True)
         target_name = target_name_list[i]
@@ -257,9 +258,9 @@ def invite_girl(self, no=1):
                 st = st + detected_name[x]
                 if x != len(detected_name) - 1:
                     st = st + ","
-            self.logger.info("detected name : [ " + st + " ]")
+            self.logger.info("Detected name : [ " + st + " ]")
             if detected_name[len(detected_name) - 1] == last_student_name:
-                self.logger.warning("Can't detect target student")
+                self.logger.warning("Already swipe to the end of the list")
                 stop_flag = True
             else:
                 last_student_name = detected_name[len(detected_name) - 1]
@@ -270,10 +271,11 @@ def invite_girl(self, no=1):
                         confirm_invite(self)
                         return True
                 if not stop_flag:
-                    self.logger.info("didn't find target student swipe to next page")
+                    self.logger.info("Didn't Find Target Student Swipe to Next Page")
                     self.swipe(412, 580, 412, 150, duration=0.3)
                     self.click(412, 500, wait_over=True)
                     self.latest_img_array = self.get_screenshot_array()
+        self.logger.warning("Can't Detect Target Student : [ " + target_name + " ].")
         to_cafe(self)
 
 
