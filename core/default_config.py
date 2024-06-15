@@ -847,7 +847,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "艾米(泳装)",
       "CN_implementation": false,
       "Global_name": "Eimi (Swimsuit)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "エイミ(水着)",
       "JP_implementation": true
     },
@@ -1333,7 +1333,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "静子(泳装)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Shizuko (Swimsuit)",
       "Global_implementation": true,
       "JP_name": "シズコ(水着)",
@@ -1341,7 +1341,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "星野(泳装)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Hoshino (Swimsuit)",
       "Global_implementation": true,
       "JP_name": "ホシノ(水着)",
