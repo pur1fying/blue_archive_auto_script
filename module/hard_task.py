@@ -49,18 +49,18 @@ def implement(self):
                     self.click(1014, y, count=tar_times - 1, duration=duration, wait_over=True)
                 res = start_sweep(self, True)
                 if res == "sweep_complete" or res == "skip_sweep_complete":
-                    self.logger.info("hard task " + str(temp) + " finished")
+                    self.logger.info("Hard task " + str(temp) + " finished")
                 elif res == "inadequate_ap":
-                    self.logger.warning("INADEQUATE AP")
+                    self.logger.warning("Inadequate AP, Quit Sweep Hard Task")
                     return True
                 elif res == "charge_challenge_counts":
-                    self.logger.warning("Current Task Challenge Counts INSUFFICIENT")
+                    self.logger.warning("Current Task Challenge Counts Insufficient")
             elif t == "pass" or t == "no-pass":
-                self.logger.warning("AUTO SWEEP UNAVAILABLE")
+                self.logger.warning("Current Task [ " + str(tar_region) + str(tar_mission) + " ] Sweep Unavailable")
             self.config['unfinished_hard_tasks'].pop(0)
             self.config_set.set('unfinished_hard_tasks', self.config['unfinished_hard_tasks'])
             to_hard_event(self, True)
-        self.logger.info("hard task finished")
+        self.logger.info("Hard task All Finished")
     return True
 
 def to_hard_event(self, skip_first_screenshot=False):
@@ -83,7 +83,7 @@ def to_hard_event(self, skip_first_screenshot=False):
         "normal_task_unlock-notice": (887, 164),
         "normal_task_task-info": (task_info_x[self.server], 140),
         'normal_task_skip-sweep-complete': (643, 506),
-        "buy_ap_notice": (919, 165),
+        "purchase_ap_notice": (919, 165),
         'normal_task_task-finish': (1038, 662),
         'normal_task_prize-confirm': (776, 655),
         'normal_task_fight-confirm': (1168, 659),
