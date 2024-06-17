@@ -16,7 +16,7 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": true,
     "priority": -1,
     "interval": 0,
-    "daily_reset": [[20, 0, 0]],
+    "daily_reset": [[6, 0, 0], [20, 0, 0]],
     "next_tick": 0,
     "event_name": "竞技场",
     "func_name": "arena",
