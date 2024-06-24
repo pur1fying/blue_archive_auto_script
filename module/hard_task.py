@@ -64,10 +64,10 @@ def implement(self):
     return True
 
 def to_hard_event(self, skip_first_screenshot=False):
-    task_info_x = {
-        'CN': 1087,
-        'Global': 1128,
-        'JP': 1128
+    task_info_lo = {
+        'CN': (1087, 140),
+        'Global': (1128,140),
+        'JP': (1128, 130)
     }
     rgb_ends = 'event_hard'
     rgb_possibles = {
@@ -81,7 +81,7 @@ def to_hard_event(self, skip_first_screenshot=False):
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
         "normal_task_unlock-notice": (887, 164),
-        "normal_task_task-info": (task_info_x[self.server], 140),
+        "normal_task_task-info": task_info_lo[self.server],
         'normal_task_skip-sweep-complete': (643, 506),
         "purchase_ap_notice": (919, 165),
         'normal_task_task-finish': (1038, 662),
