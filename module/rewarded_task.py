@@ -15,7 +15,7 @@ def implement(self):
             count[i] = int(count[i])
     except Exception as e:
         self.logger.error("rewarded task config error")
-        self.logger.error(e)
+        self.logger.error(e.__str__())
         return True
 
     if self.server == 'Global' or self.server == 'JP':
@@ -45,12 +45,12 @@ def implement(self):
             elif res == "inadequate_ticket":
                 self.logger.warning("INADEQUATE TICKET")
                 if self.server == 'Global' or self.server == 'JP':
-                    self.logger.info(self.rewarded_task_status)
+                    self.logger.info("Rewarded task status : " + self.rewarded_task_status.__str__())
                     return True
             elif res == "0SWEEPABLE":
                 self.logger.warning("0 SWEEPABLE")
 
-    self.logger.info(self.rewarded_task_status)
+    self.logger.info("Rewarded task status : " + self.rewarded_task_status.__str__())
     return True
 
 

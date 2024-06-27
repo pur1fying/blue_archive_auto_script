@@ -53,9 +53,9 @@ def check_6_region_status(self):
                 else:
                     res.append(False)
     self.logger.info("6 region status : ")
-    self.logger.info(res[0:2])
-    self.logger.info(res[2:4])
-    self.logger.info(res[4:6])
+    self.logger.info(res[0:2].__str__())
+    self.logger.info(res[2:4].__str__())
+    self.logger.info(res[4:6].__str__())
     return res
 
 

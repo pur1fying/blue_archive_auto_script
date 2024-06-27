@@ -72,3 +72,6 @@ def get_area(server, name):
         return False
     return position.image_x_y_range[server][module][name]
 
+
+def getImageByName(self, name):
+    return position.image_dic[self.server][name]

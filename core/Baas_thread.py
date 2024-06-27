@@ -7,7 +7,6 @@ from core import position, picture
 from core.utils import Logger
 
 from core.pushkit import push
-import time
 import numpy as np
 import uiautomator2 as u2
 import module
@@ -26,6 +25,7 @@ func_dict = {
     'momo_talk': module.momo_talk.implement,
     'common_shop': module.common_shop.implement,
     'cafe_reward': module.cafe_reward.implement,
+    'cafe_invite': module.cafe_invite.implement,
     'lesson': module.lesson.implement,
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
@@ -51,11 +51,13 @@ func_dict = {
     'explore_activity_story': module.explore_activity_story.implement,
     'explore_activity_challenge': module.explore_activity_challenge.implement,
     'explore_activity_mission': module.explore_activity_mission.implement,
+    'dailyGameActivity': module.dailyGameActivity.implement,
 }
 
 
 class Baas_thread:
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None):
+        self.dailyGameActivity = None
         self.activity_name = None
         self.config_set = config
         self.process_name = None
@@ -206,16 +208,17 @@ class Baas_thread:
                     return True
             return False
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
-    def subprocess_run(self, cmd: Tuple[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding = "utf-8"):
+    def subprocess_run(self, cmd: Tuple[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       encoding="utf-8"):
         # 代码来源BAAH
         if isasync:
-        # 异步非阻塞执行
+            # 异步非阻塞执行
             return subprocess.Popen(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
         else:
-        # 同步阻塞执行
+            # 同步阻塞执行
             return subprocess.run(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
 
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
@@ -264,11 +267,10 @@ class Baas_thread:
                     return False
         return True
 
-
     def start_emulator(self):
         self.emulator_strat_stat = self.config.get("open_emulator_stat")
         self.wait_time = self.config.get("emulator_wait_time")
-        if not self.start_check_emulator_stat(self.emulator_strat_stat,self.wait_time):
+        if not self.start_check_emulator_stat(self.emulator_strat_stat, self.wait_time):
             raise Exception("Emulator start failed")
 
     def _init_emulator(self) -> bool:
@@ -277,7 +279,7 @@ class Baas_thread:
         try:
             self.start_emulator()
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             self.logger.error("Emulator start failed")
             return False
         try:
@@ -302,7 +304,7 @@ class Baas_thread:
             self.logger.info("--------Emulator Init Finished----------")
             return True
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             self.logger.error("Emulator initialization failed")
             return False
 
@@ -353,14 +355,14 @@ class Baas_thread:
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
-                        push(self.logger,self.config)
+                        push(self.logger, self.config)
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
                     time.sleep(1)
         except Exception as e:
             notify(title='', body='任务已停止')
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             self.logger.error("error occurred, stop all activities")
             self.signal_stop()
 
@@ -375,13 +377,13 @@ class Baas_thread:
         try:
             return func_dict[activity](self)
         except Exception as e:
-            if  self.flag_run:
-                self.logger.error(e)
+            if self.flag_run:
+                self.logger.error(e.__str__())
                 threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
             return False
 
     def simple_error(self, info: str):
-        push(self.logger,self.config,info)
+        push(self.logger, self.config, info)
         raise ScriptError(message=info, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
@@ -485,7 +487,7 @@ class Baas_thread:
             self.rgb_feature = json.load(open(temp, 'r', encoding='utf-8'))['rgb_feature']
             return True
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def init_config(self):
@@ -494,7 +496,7 @@ class Baas_thread:
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def init_server(self):
@@ -508,6 +510,7 @@ class Baas_thread:
         self.package_name = self.static_config['package_name'][server]
         self.activity_name = self.static_config['activity_name'][server]
         self.current_game_activity = self.static_config['current_game_activity'][self.server]
+        self.dailyGameActivity = self.static_config['dailyGameActivity'][self.server]
         self.logger.info("Current Server: " + self.server)
 
     def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):
@@ -650,7 +653,8 @@ class Baas_thread:
         last_refresh_hour = last_refresh.hour
         daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
         if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
-                ((hour < daily_reset and last_refresh_hour < daily_reset) or (hour >= daily_reset and last_refresh_hour >=daily_reset)):
+            ((hour < daily_reset and last_refresh_hour < daily_reset) or (
+                hour >= daily_reset and last_refresh_hour >= daily_reset)):
             return
         else:
             self.config['last_refresh_config_time'] = time.time()
@@ -674,7 +678,7 @@ class Baas_thread:
             try:
                 self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i]))
             except Exception as e:
-                self.logger.error(e)
+                self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
 
     def refresh_hard_tasks(self):
@@ -687,5 +691,5 @@ class Baas_thread:
             try:
                 self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i]))
             except Exception as e:
-                self.logger.error(e)
+                self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

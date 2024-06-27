@@ -50,11 +50,10 @@ def implement(self):
                 continue
             choose_region(self, region)
             to_mission_info(self, mission_los[mission - 1])
-            status = judge_need_fight(self, current_task)
-            if status == "no-need-fight":
-                self.logger.warning("according to the mission info current mission no need fight")
+            if not judge_need_fight(self, current_task):
+                self.logger.warning("According to the mission info current mission no need fight")
                 hard_task.to_hard_event(self, True)
-            elif status == 'need-fight':
+            else:
                 common_gird_method(self, current_task_stage_data)
                 main_story.auto_fight(self)
                 if self.config['manual_boss']:
@@ -71,27 +70,19 @@ def get_stage_data(region):
     return stage_data
 
 
-def check_present(self):
-    if color.judge_rgb_range(self, 226, 511, 103, 123, 227, 247, 245, 255) \
-        and color.judge_rgb_range(self, 190, 526, 103, 123, 227, 247, 245, 255) \
-        and color.judge_rgb_range(self, 216, 540, 245, 255, 180, 210, 220, 255):
-        return 'find-present'
-    else:
-        return 'no-present'
 
 
 def judge_need_fight(self, current_task):
     if 'task' in current_task:
-        return 'need-fight'
+        return True
     if 'sss' in current_task:
         res = color.check_sweep_availability(self, True)
         if res == 'no-pass' or res == 'pass':
-            return 'need-fight'
+            return True
     if 'present' in current_task:
-        res = check_present(self)
-        if res == 'find-present':
-            return 'need-fight'
-    return 'no-need-fight'
+        if color.judgeRGBFeature(self, 'hardTaskHasPresent'):
+            return True
+    return False
 
 
 def choose_region(self, region):
@@ -132,7 +123,7 @@ def get_explore_hard_task_data(st, need_sss=True, need_task=True, need_present=T
                 continue
             if temp.count('sss') > 1 or temp.count('present') > 1 or temp.count('task') > 1 or not temp[0].isdigit():
                 continue
-            if int(temp[0]) < 0 or int(temp[0]) > 25:
+            if int(temp[0]) < 0 or int(temp[0]) > 26:
                 continue
             if temp[0].isdigit() and temp[1].isdigit():  # 指定关卡
                 tt = ''

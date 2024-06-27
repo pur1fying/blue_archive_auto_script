@@ -1,8 +1,6 @@
-import time
 from core import picture
 from core.color import check_sweep_availability
 from copy import deepcopy
-
 from core.staticUtils import isInt
 
 
@@ -23,14 +21,25 @@ def implement(self):
             tar_region = temp[i][0]
             tar_mission = temp[i][1]
             tar_times = temp[i][2]
+            one_time_ap = 10
+            if tar_region == "tutorial":
+                one_time_ap = 1
             if tar_times == "max":
-                ap_needed = int(ap / 10) * 10
+                ap_needed = int(ap / one_time_ap) * one_time_ap
             else:
-                ap_needed = tar_times * 10
+                ap_needed = tar_times * one_time_ap
             self.logger.info("ap_needed : " + str(ap_needed))
             if ap_needed > ap:
                 self.logger.warning("INADEQUATE AP for task")
                 return True
+            if tar_region == "tutorial":
+                tutorial_region = [0, 1, 1, 1, 2, 3, 3]
+                choose_region(self, tutorial_region[tar_mission])
+                import importlib
+                module_name = "module.mainline.tutorial" + str(tar_mission)
+                module = importlib.import_module(module_name)
+                module.sweep(self, tar_times)
+                continue
             choose_region(self, tar_region)
             self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
             if to_task_info(self, all_task_x_coordinate, normal_task_y_coordinates[tar_mission - 1]) == "unlock_notice":
@@ -47,12 +56,12 @@ def implement(self):
                             duration = 1
                         self.click(1014, 300, count=tar_times - 1,  duration=duration, wait_over=True)
                 res = start_sweep(self, skip_first_screenshot=True)
-                if res == "sweep_complete" or res == "skip_sweep_complete":
+                if res:
                     self.logger.info("common task " + str(temp[i]) + " finished")
                     if tar_times == "max":
                         return True
-                elif res == "purchase_ap_notice":
-                    self.logger.info("INADEQUATE AP")
+                else:
+                    self.logger.info("Inadequate AP, Quit Sweep Normal Task")
                     return True
             elif t == "pass" or t == "no-pass":
                 self.logger.info("AUTO SWEEP UNAVAILABLE")
@@ -97,22 +106,15 @@ def readOneNormalTask(task_string):
 
 
 def to_normal_event(self, skip_first_screenshot=False):
-    task_info_x = {
-        'CN': 1087,
-        'Global': 1128,
-        'JP': 1128
+    task_info_lo = {
+        'CN': (1087, 140),
+        'Global': (1128,140),
+        'JP': (1128, 130)
     }
     rgb_ends = 'event_normal'
     rgb_possibles = {
-        "sweep_complete":(1077, 98),
         "event_hard": (805, 165),
         "main_page": (1198, 580),
-        "campaign": (823, 261),
-        "mission_info": (task_info_x[self.server], 142),
-        "purchase_ap_notice": (919, 168),
-        "start_sweep_notice": (887, 164),
-        "charge_challenge_counts": (887, 161),
-        "unlock_notice": (887, 161),
         "level_up": (640, 200),
     }
     img_possibles = {
@@ -121,9 +123,9 @@ def to_normal_event(self, skip_first_screenshot=False):
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
         "normal_task_unlock-notice": (887, 164),
-        "normal_task_task-info": (task_info_x[self.server], 140),
+        "normal_task_task-info": task_info_lo[self.server],
         'normal_task_skip-sweep-complete': (643, 506),
-        "buy_ap_notice": (919, 165),
+        "purchase_ap_notice": (919, 165),
         'normal_task_task-finish': (1038, 662),
         'normal_task_prize-confirm': (776, 655),
         'normal_task_fight-confirm': (1168, 659),
@@ -135,10 +137,6 @@ def to_normal_event(self, skip_first_screenshot=False):
 
 
 def to_task_info(self, x, y):
-    rgb_ends = [
-        "mission_info",
-        "unlock_notice"
-    ]
     rgb_possibles = {"event_normal": (x, y)}
     img_possibles = {
         "normal_task_select-area": (x, y),
@@ -147,25 +145,21 @@ def to_task_info(self, x, y):
         "normal_task_unlock-notice",
         "normal_task_task-info"
     ]
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles)
+    res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles)
     if res == "normal_task_unlock-notice" or res == 'unlock_notice':
         return "unlock_notice"
     return True
 
 
 def start_sweep(self, skip_first_screenshot=False):
-    rgb_ends = [
-        "purchase_ap_notice",
-        "start_sweep_notice",
-    ]
     img_ends = [
         "purchase_ap_notice",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice" or res == "buy_ap_notice":
-        return "inadequate_ap"
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+    if res == "purchase_ap_notice":
+        return False
     rgb_ends = [
         "skip_sweep_complete",
         "sweep_complete"
@@ -177,7 +171,7 @@ def start_sweep(self, skip_first_screenshot=False):
     ]
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
-    return "sweep_complete"
+    return True
 
 
 def choose_region(self, region):

@@ -57,8 +57,20 @@ def init_image_data(self):
                     if os.path.exists(img_path):
                         img = cv2.imread(img_path)
                         image_dic[self.server]['activity_' + key] = img
+            if self.dailyGameActivity is not None:
+                current_activity_img_data_path = 'src.images.' + self.server + '.x_y_range.dailyGameActivity.' \
+                                                 + self.dailyGameActivity
+                data = importlib.import_module(current_activity_img_data_path)
+                x_y_range = getattr(data, 'x_y_range', None)
+                path = getattr(data, 'path', None)
+                image_x_y_range[self.server]['dailyGameActivity'].update(**x_y_range)
+                for key in x_y_range:
+                    img_path = 'src/images/' + self.server + '/' + path + '/' + key + '.png'
+                    if os.path.exists(img_path):
+                        img = cv2.imread(img_path)
+                        image_dic[self.server]['dailyGameActivity_' + key] = img
             return True
     except Exception as e:
-        self.logger.error(e)
+        self.logger.error(e.__str__())
         self.logger.error("Failed to initialize image data")
         return False

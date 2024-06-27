@@ -13,7 +13,7 @@ def implement(self):
             count[i] = int(count[i])
     except Exception as e:
         self.logger.error("special_task_times config error")
-        self.logger.error(e)
+        self.logger.error(e.__str__())
         return True
 
     commissions_name = ["BASE DEFENSE", "ITEM RETRIEVAL"]

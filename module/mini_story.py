@@ -56,9 +56,9 @@ def check_6_region_status(self):
                 else:
                     res.append(False)
     self.logger.info("6 region status : ")
-    self.logger.info(res[0:2])
-    self.logger.info(res[2:4])
-    self.logger.info(res[4:6])
+    self.logger.info(res[0:2].__str__())
+    self.logger.info(res[2:4].__str__())
+    self.logger.info(res[4:6].__str__())
     return res
 
 
@@ -75,9 +75,8 @@ def to_mini_story(self, skip_first_screenshot=False):
 
 
 def judge_need_check_next_page(self):
-    line = self.latest_img_array[357:358, 1231:1280]
-    for i in range(0, line.shape[1]):
-        if color.judge_rgb_range(line, i, 0, 60, 80, 89, 109, 142, 162):
+    for i in range(1231, 1280):
+        if color.judge_rgb_range(self, i, 357, 60, 80, 89, 109, 142, 162):
             self.logger.info("Need check next page")
             return True
     self.logger.info("Last page")
@@ -108,7 +107,7 @@ def to_episode_info(self, pos, skip_first_screenshot=False):
 
 
 def check_current_episode_cleared(self):
-    if image.compare_image(self.latest_img_array, "mini_story_episode-cleared-feature", need_log=False):
+    if image.compare_image(self, "mini_story_episode-cleared-feature", need_log=False):
         self.logger.info("Current episode not cleared")
         return True
     self.logger.info("Current episode cleared")

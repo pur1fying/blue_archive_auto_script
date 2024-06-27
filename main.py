@@ -25,7 +25,7 @@ class Main:
             return True
         except Exception as e:
             self.logger.error("OCR initialization failed")
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None):
@@ -49,7 +49,7 @@ class Main:
             return True
         except Exception as e:
             self.logger.error("Static Config initialization failed")
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             return False
 
     def operate_dict(self, dic):
@@ -99,7 +99,7 @@ class Main:
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
     t.init_static_config()
-    config = ConfigSet(config_dir="1708185944")
+    config = ConfigSet(config_dir="1708232489")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
@@ -114,18 +114,18 @@ if __name__ == '__main__':
     # tt.solve("cafe_reward")
     # tt.solve("momo_talk")
     # tt.solve("explore_normal_task")
-    # tt.solve("explore_hard_task")
-
-    # tt.solve("normal_task")
-    # tt.solve("hard_task")
+    tt.solve("explore_hard_task")
+    tt.solve("normal_task")
+    tt.solve("hard_task")
     # tt.solve("arena")
     # tt.solve("lesson")
     # tt.solve("group")
     # tt.solve("mail")
     # tt.solve("collect_reward")
-    tt.solve("main_story")
+    # tt.solve("main_story")
     # tt.solve("group_story")
     # tt.solve("clear_special_task_power")
     # tt.solve("scrimmage")
     # tt.solve("rewarded_task")
-    tt.solve("create")
+    # tt.solve("create")
+    # tt.solve("dailyGameActivity")

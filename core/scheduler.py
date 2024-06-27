@@ -39,31 +39,38 @@ class Scheduler:
         #     json.dump(self._display_config, f, ensure_ascii=False, indent=2)
 
     @classmethod
-    def get_next_hour(cls, hour):
+    def get_next_time(cls, hour, minute, second):
         t = datetime.now(timezone.utc)
-        td = timedelta(int(t.hour >= hour))
-        return (t.replace(hour=hour, minute=0, second=0, microsecond=0) + td).timestamp()
+        deltaDay = 0
+        if t.hour > hour or (t.hour == hour and t.minute > minute) or (t.hour == hour and t.minute == minute and t.second > second):
+            deltaDay = 1
+        td = timedelta(days=deltaDay)
+        return (t.replace(hour=hour, minute=minute, second=second, microsecond=0) + td).timestamp()
 
     def systole(self, task_name: str, next_time=0):
         if task_name == self._current_task['current_task']:
             for event in self._event_config:
                 if event['func_name'] == task_name:
-                    if next_time != 0:
+                    if next_time > 0:
                         event['next_tick'] = time.time() + next_time
                     else:
                         interval = event['interval']
-                        if event['interval'] == 0:
+                        if event['interval'] <= 0:
                             interval = 86400
                         daily_reset = event['daily_reset']                          # daily_reset is a list with items like : [hour, minute, second]
                         sorted(daily_reset, key=lambda x: x[0] * 3600 + x[1] * 60 + x[2])
-                        current = datetime.now(timezone.utc).timestamp() % 86400
+                        current = datetime.now(timezone.utc).timestamp()
+                        temp = None
                         for i in range(0, len(daily_reset)):
-                            if current < daily_reset[i][0] * 3600 + daily_reset[i][1] * 60 + daily_reset[i][2] < current + interval:
-                                event['next_tick'] = time.time() + daily_reset[i][0] * 3600 + daily_reset[i][1] * 60 + \
-                                                     daily_reset[i][2] - current
+                            temp = self.get_next_time(daily_reset[i][0], daily_reset[i][1], daily_reset[i][2])
+                            if current + interval >= temp:
+                                event['next_tick'] = temp
                                 break
                         else:
-                            event['next_tick'] = time.time() + event['interval']
+                            if event['interval'] > 0:
+                                event['next_tick'] = time.time() + event['interval']
+                            else:
+                                event['next_tick'] = time.time() + 86400
                     event['next_tick'] = int(event['next_tick'])
                     self._commit_change()
                     return datetime.fromtimestamp(event['next_tick'])
