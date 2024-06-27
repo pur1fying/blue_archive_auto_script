@@ -10,41 +10,42 @@ from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox
     SubtitleLabel
 
 from gui.components.expand.expandTemplate import TemplateLayoutV2
+from gui.util.translator import baasTranslator as bt
 
 
 class DetailSettingMessageBox(MessageBoxBase):
     def __init__(self, detail_config: dict, all_label_list: list, parent=None, cs=None):
         super().__init__(parent)
-        self.titleLabel = SubtitleLabel('配置详情', self)
+        self.titleLabel = SubtitleLabel(self.tr('配置详情'), self)
         configItems = [
             {
-                'label': '优先级',
+                'label': self.tr('优先级'),
                 'dataType': 'int',
                 'key': 'priority'
             },
             {
-                'label': '执行间隔',
+                'label': self.tr('执行间隔'),
                 'dataType': 'int',
                 'key': 'interval',
             },
             {
-                'label': '每日重置',
+                'label': self.tr('每日重置'),
                 'dataType': 'list',
                 'key': 'daily_reset',
             },
             {
-                'label': '禁用时间段',
+                'label': self.tr('禁用时间段'),
                 'dataType': 'list',
                 'key': 'disabled_time_range',
             },
             {
-                'label': '前置任务',
+                'label': self.tr('前置任务'),
                 'dataType': 'list',
                 'key': 'pre_task',
                 'presets': []
             },
             {
-                'label': '后置任务',
+                'label': self.tr('后置任务'),
                 'dataType': 'list',
                 'key': 'post_task',
                 'presets': []
@@ -55,8 +56,8 @@ class DetailSettingMessageBox(MessageBoxBase):
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.configWidget)
 
-        self.yesButton.setText('确定')
-        self.cancelButton.setText('取消')
+        self.yesButton.setText(self.tr('确定'))
+        self.cancelButton.setText(self.tr('取消'))
         self.widget.setMinimumWidth(350)
 
 
@@ -75,20 +76,20 @@ class Layout(QWidget):
 
         self.vBox = QVBoxLayout(self)
         self.option_layout = QHBoxLayout(self)
-        self.all_check_box = PushButton('全部(不)启用', self)
+        self.all_check_box = PushButton(self.tr('全部(不)启用'), self)
 
         self.all_check_box.clicked.connect(self.all_check)
         self.option_layout.addWidget(self.all_check_box)
         self.option_layout.addStretch(1)
 
-        self.op_2 = PushButton('刷新执行时间', self)
+        self.op_2 = PushButton(self.tr('刷新执行时间'), self)
         self.option_layout.addWidget(self.op_2)
         self.op_2.clicked.connect(self._refresh)
 
         self.option_layout.addStretch(1)
-        self.label_3 = CaptionLabel('排序方式：', self)
+        self.label_3 = CaptionLabel(self.tr('排序方式：'), self)
         self.op_3 = ComboBox(self)
-        self.op_3.addItems(['默认排序', '按下次执行时间排序'])
+        self.op_3.addItems([self.tr('默认排序'), self.tr('按下次执行时间排序')])
 
         self.op_3.currentIndexChanged.connect(self._sort)
         self.option_layout.addWidget(self.label_3)
@@ -99,7 +100,7 @@ class Layout(QWidget):
         self.tableView.setRowCount(len(self.qLabels))
         self.tableView.setColumnCount(4)
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.setHorizontalHeaderLabels(['事件', '下次刷新时间', '启用', '更多配置'])
+        self.tableView.setHorizontalHeaderLabels([self.tr('事件'), self.tr('下次刷新时间'), self.tr('启用'), self.tr('更多配置')])
         self.tableView.setColumnWidth(0, 175)
         self.tableView.setColumnWidth(1, 175)
         self.tableView.setColumnWidth(2, 50)
@@ -124,8 +125,7 @@ class Layout(QWidget):
             cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
-
-            t_ccs = CaptionLabel(self.labels[i])
+            t_ccs = CaptionLabel(bt.tr('ConfigTranslation', self.labels[i]))
             t_ncs = LineEdit(self)
             t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])).split('.')[0])
             t_ncs.textChanged.connect(self._update_config)
@@ -135,7 +135,7 @@ class Layout(QWidget):
             self.boxes.append(cbx_wrapper)
             self.check_boxes.append(t_cbx)
 
-            t_cfbs = PushButton('详细配置', self)
+            t_cfbs = PushButton(self.tr('详细配置'), self)
             t_cfbs.clicked.connect(partial(self._update_detail, i))
             cfbs_wrapper = QWidget()
             cfbs_layout = QHBoxLayout()
@@ -168,7 +168,7 @@ class Layout(QWidget):
         self.tableView.setRowCount(len(temp))
         self.tableView.setColumnCount(4)
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.setHorizontalHeaderLabels(['事件', '下次刷新时间', '启用', '更多配置'])
+        self.tableView.setHorizontalHeaderLabels([self.tr('事件'), self.tr('下次刷新时间'), self.tr('启用'), self.tr('更多配置')])
 
         # mode 0: default, mode 1: by next_tick
         if self.op_3.currentIndex() == 0:
@@ -178,7 +178,7 @@ class Layout(QWidget):
         self._crt_order_config = temp
         # Add components to table
         for ind, unit in enumerate(temp):
-            t_ccs = CaptionLabel(unit['event_name'])
+            t_ccs = CaptionLabel(bt.tr('ConfigTranslation', unit['event_name']))
             self.tableView.setCellWidget(ind, 0, t_ccs)
             self.qLabels.append(t_ccs)
 
@@ -199,7 +199,7 @@ class Layout(QWidget):
             self.tableView.setCellWidget(ind, 2, cbx_wrapper)
             self.check_boxes.append(t_cbx)
 
-            t_cfbs = PushButton('详细配置', self)
+            t_cfbs = PushButton(self.tr('详细配置'), self)
             t_cfbs.clicked.connect(partial(self._update_detail, ind))
             cfbs_wrapper = QWidget()
             cfbs_layout = QHBoxLayout()
@@ -215,7 +215,7 @@ class Layout(QWidget):
     def _update_config(self):
         for i in range(len(self.enable_list)):
             dic = {
-                'event_name': self.qLabels[i].text(),
+                'event_name': bt.undo(self.qLabels[i].text()),
                 'next_tick': self.get_next_tick(self.times[i].text()),
                 'enabled': self.check_boxes[i].isChecked()
             }
@@ -237,7 +237,7 @@ class Layout(QWidget):
         }
 
         all_label_list = [
-            [x['event_name'], x['func_name']]
+            [bt.tr('ConfigTranslation', x['event_name']), x['func_name']]
             for x in self._event_config
         ]
 
@@ -279,7 +279,7 @@ class Layout(QWidget):
 
         for item in changed_map:
             for i in range(len(self.qLabels)):
-                if self.qLabels[i].text() == item[0]:
+                if bt.undo(self.qLabels[i].text()) == item[0]:
                     self.times[i].blockSignals(True)
                     self.times[i].setText(str(datetime.fromtimestamp(item[1])))
                     self.times[i].blockSignals(False)

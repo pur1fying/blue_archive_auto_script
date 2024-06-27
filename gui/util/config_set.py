@@ -1,5 +1,6 @@
 import json
 from core.notification import notify
+from gui.util.translator import baasTranslator as bt
 
 
 class ConfigSet:
@@ -24,13 +25,15 @@ class ConfigSet:
             self.server_mode = 'Global'
         elif self.config['server'] == '日服':
             self.server_mode = 'JP'
-
+        
     def get(self, key):
         self._init_config()
-        return self.config.get(key)
+        value = self.config.get(key)
+        return bt.tr('ConfigTranslation', value)
 
     def set(self, key, value):
         self._init_config()
+        value = bt.undo(value)
         self.config[key] = value
         with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)

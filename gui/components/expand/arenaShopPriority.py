@@ -2,6 +2,8 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from qfluentwidgets import FlowLayout, CheckBox, LineEdit
 
+from gui.util.translator import baasTranslator as bt
+
 
 class Layout(QWidget):
     def __init__(self, parent=None, config=None):
@@ -18,17 +20,17 @@ class Layout(QWidget):
 
         self.setFixedHeight(400)
         self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
-        self.label = QLabel('刷新次数', self)
+        self.label = QLabel(self.tr('刷新次数'), self)
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 3))
         self.input.setText(self.config.get('TacticalChallengeShopRefreshTime'))
 
-        self.accept = QPushButton('确定', self)
+        self.accept = QPushButton(self.tr('确定'), self)
         self.boxes = []
         for i in range(0, goods_count):
             t_cbx = CheckBox(self)
             t_cbx.setChecked(self.goods[i] == 1)
-            ccs = QLabel(self.default_goods[i][0], self)
+            ccs = QLabel(bt.tr('ConfigTranslation', self.default_goods[i][0]), self)
             ccs.setFixedWidth(110)
             price_text = str(self.default_goods[i][1])
             price_label = QLabel(price_text, self)

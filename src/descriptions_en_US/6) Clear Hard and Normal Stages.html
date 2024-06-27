@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .instruction-box {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .important-note {
+            background-color: #f1c40f;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instruction-box">
+        <h2>Instructions for Hard and Normal Stages</h2>
+        <p>Hard stages use the same unit types as Normal stages. Some Hard stages require 3 units, and the 3rd unit's type should match the 1st unit type required for that area.</p>
+    </div>
+
+    <div class="instruction-box">
+        <h2>Instructions for Filling in Normal Stages:</h2>
+        <ul>
+            <li>Strings filled in Normal stages should not exceed the following characters or words: "-", "sss", "present", "task", ",", and numbers.</li>
+            <li>After splitting by commas, convert into multiple strings based on specific rules.</li>
+        </ul>
+        
+        <p><strong>1. Strings without the keywords "sss", "present", "task":</strong><br>
+        Example: 15,12-2<br>
+        Clear (15-1, 15-2, 15-3, 12-2) based on Hard stage settings.</p>
+
+        <p><strong>2. A number followed by strings, separated by "-":</strong><br>
+        Example: 15-sss-present<br>
+        Clear (15-1, 15-2, 15-3) while aiming "sss"(3 stars) and getting gifts.</p>
+
+        <p><strong>3. Two numbers (specified for corresponding stages):</strong><br>
+        Example: 15-3-sss-task<br>
+        Clear 15-3 to reach "sss" and complete challenge tasks.</p>
+
+        <p><strong>4. Example:</strong><br>
+        All switches are on, fill in: 7,8-sss,9-3-task<br>
+        Clear (7-1, 7-2, 7-3) while aiming "sss" and completing tasks. Clear (8-1, 8-2, 8-3) while aiming "sss" and completing the 9-3 challenge task.</p>
+    </div>
+
+    <div class="instruction-box important-note">
+        <p><strong>Note:</strong> Baas will automatically check if a stage has reached "sss" or if gifts have been obtained. If these conditions are met, the stage will be skipped.</p>
+    </div>
+</body>
+</html>

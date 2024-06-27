@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTranslator, QLocale
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import LineEdit, CheckBox
@@ -18,7 +18,7 @@ class Layout(QWidget):
         self.needed_levels = self.config.get('lesson_each_region_object_priority')
         self.check_config_validation()
         self.vBoxLayout = QVBoxLayout(self)
-        self.relationship_check_box_description = QLabel('优先做好感等级多的日程', self)
+        self.relationship_check_box_description = QLabel(self.tr('优先做好感等级多的日程'), self)
         self.relationship_check_box = CheckBox('', self)
         self.relationship_check_box.setChecked(self.config.get('lesson_relationship_first'))
         self.hBoxLayout = QHBoxLayout(self)
@@ -71,7 +71,7 @@ class Layout(QWidget):
             res.append(int(self.lesson_time_input[i].text()))
         self.priority_list = res
         self.config.set('lesson_times', self.priority_list)
-        return notification.success('日程次数', f'日程次数设置成功为:{self.priority_list}', self.config)
+        return notification.success(self.tr('日程次数'), f'{self.tr("日程次数设置成功为:")}{self.priority_list}', self.config)
 
     def __init_Signals_and_Slots(self):
         self.relationship_check_box.stateChanged.connect(self.Slot_for_relationship_check_box)
@@ -95,13 +95,13 @@ class Layout(QWidget):
 
     def __init_region_name_layout(self):
         temp = QVBoxLayout(self)
-        temp.addWidget(QLabel("区域名称", self), 0, Qt.AlignLeft)
+        temp.addWidget(QLabel(self.tr("区域名称"), self), 0, Qt.AlignLeft)
         for i in range(0, len(self.lesson_names)):
             temp.addWidget(QLabel(self.lesson_names[i], self), 0, Qt.AlignLeft)
         self.hBoxLayout.addLayout(temp)
 
     def __init_lesson_level_layout(self):
-        name = ["初级", "普通", "高级", "特级"]
+        name = [self.tr("初级"), self.tr("普通"), self.tr("高级"), self.tr("特级")]
         for i in range(0, 4):
             temp = QVBoxLayout(self)
             temp.setContentsMargins(0, 5, 0, 5)
@@ -113,7 +113,7 @@ class Layout(QWidget):
 
     def __init_lesson_times_layout(self):
         temp = QVBoxLayout(self)
-        temp.addWidget(QLabel("日程次数", self), 0, Qt.AlignLeft)
+        temp.addWidget(QLabel(self.tr("日程次数"), self), 0, Qt.AlignLeft)
         for i in range(0, len(self.lesson_names)):
             temp.addWidget(self.lesson_time_input[i], 0, Qt.AlignLeft)
         self.hBoxLayout.addLayout(temp)

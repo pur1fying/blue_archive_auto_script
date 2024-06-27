@@ -2,6 +2,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
 from qfluentwidgets import ComboBox, LineEdit, CheckBox
 
+from gui.util.translator import baasTranslator as bt
+
 
 class Layout(QWidget):
     def __init__(self, parent=None, config=None):
@@ -16,15 +18,13 @@ class Layout(QWidget):
         self.lay3_ = QHBoxLayout(self)      # 第二咖啡厅邀请学生名字
         self.lay6 = QHBoxLayout(self)       # 是否有二号咖啡厅
 
-        self.layCollectReward = self.labeledCheckBoxTemplate('是否领取奖励:', 'cafe_reward_collect_hour_reward')
-        self.layUseInvitationTicket = self.labeledCheckBoxTemplate('是否使用邀请券:', 'cafe_reward_use_invitation_ticket')
-        self.layInviteLowestAffection = self.labeledCheckBoxTemplate('优先邀请券好感等级低的学生:', 'cafe_reward_lowest_affection_first')
-        self.layEnableExchangeStudent = self.labeledCheckBoxTemplate('是否允许学生更换服饰:', 'cafe_reward_allow_exchange_student')
-
+        self.layCollectReward = self.labeledCheckBoxTemplate(self.tr('是否领取奖励:'), 'cafe_reward_collect_hour_reward')
+        self.layUseInvitationTicket = self.labeledCheckBoxTemplate(self.tr('是否使用邀请券:'), 'cafe_reward_use_invitation_ticket')
+        self.layInviteLowestAffection = self.labeledCheckBoxTemplate(self.tr('优先邀请券好感等级低的学生:'), 'cafe_reward_lowest_affection_first')
+        self.layEnableExchangeStudent = self.labeledCheckBoxTemplate(self.tr('是否允许学生更换服饰:'), 'cafe_reward_allow_exchange_student')
 
         if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
-
-            self.label_3 = QLabel('是否有二号咖啡厅:', self)
+            self.label_3 = QLabel(self.tr('是否有二号咖啡厅:'), self)
             self.second_switch = CheckBox(self)
             self.second_switch.setChecked(self.config.get('cafe_reward_has_no2_cafe'))
 
@@ -32,19 +32,27 @@ class Layout(QWidget):
             self.lay6.addWidget(self.second_switch, 0, Qt.AlignRight)
             self.layEnableDuplicateInvite = self.labeledCheckBoxTemplate('是否允许重复邀请:', 'cafe_reward_allow_duplicate_invite')
 
-        self.pat_styles = ['拖动礼物']
+        # self.pat_styles = [self.tr('拖动礼物')]
+        self.pat_styles = [bt.tr('ConfigTranslation', '拖动礼物')]
         self.student_name = []
 
-        self.label1 = QLabel('列表选择你要添加邀请的学生，修改后请点击确定：', self)
+        self.label1 = QLabel(self.tr('列表选择你要添加邀请的学生，修改后请点击确定：'), self)
         for i in range(0, len(self.config.static_config['student_names'])):
             if self.config.static_config['student_names'][i][self.config.server_mode + '_implementation']:
                 self.student_name.append(
                     self.config.static_config['student_names'][i][self.config.server_mode + '_name'])
+
+                # Store student name for hard_task_combobox in mainlinePriority
+                if not bt.isChinese():
+                    cn_name = self.config.static_config['student_names'][i]['CN_name']
+                    tranlasted_name = self.student_name[-1]
+                    bt.addStudent(cn_name, tranlasted_name)
+
         self.input1 = ComboBox(self)
-        self.input1.addItem("添加学生")
+        self.input1.addItem(self.tr("添加学生"))
         self.input = LineEdit(self)
         self.input.setFixedWidth(650)
-        self.ac_btn = QPushButton('确定', self)
+        self.ac_btn = QPushButton(self.tr('确定'), self)
 
         self.favor_student1 = self.config.get('favorStudent1')
         self.input1.addItems(self.student_name)
@@ -52,10 +60,10 @@ class Layout(QWidget):
         self.config.set('favorStudent1', self.favor_student1)
         self.input.setText(','.join(self.favor_student1))
 
-        self.label2 = QLabel('选择摸头方式：', self)
+        self.label2 = QLabel(self.tr('选择摸头方式：'), self)
         self.input2 = ComboBox(self)
 
-        self.pat_style = self.config.get('patStyle') or '普通'
+        self.pat_style = self.config.get('patStyle') or bt.tr('ConfigTranslation', '普通')
         self.input2.addItems(self.pat_styles)
         self.input2.setText(self.pat_style)
         self.input2.setCurrentIndex(self.pat_styles.index(self.pat_style))
@@ -88,7 +96,7 @@ class Layout(QWidget):
         self.__init_Signals_and_Slots()
 
     def __add_student_name_in_the_last(self):
-        if self.input1.currentText() == '添加学生':
+        if self.input1.currentText() == self.tr('添加学生'):
             return
         self.favor_student1.append(self.input1.currentText())
         self.favor_student1 = self.check_valid_student_names()
@@ -96,7 +104,7 @@ class Layout(QWidget):
         self.input.setText(','.join(self.favor_student1))
 
     def __add_student_name_in_the_last_second(self):
-        if self.input4.currentText() == '添加学生':
+        if self.input4.currentText() == self.tr('添加学生'):
             return
         self.favor_student2.append(self.input4.currentText())
         self.favor_student2 = self.check_valid_student_names_()
@@ -167,12 +175,12 @@ class Layout(QWidget):
                     sub_layout.removeItem(item)
 
     def set_buttons_for_no2_cafe(self):
-        self.label4 = QLabel('选择第二咖啡厅邀请的学生', self)
+        self.label4 = QLabel(self.tr('选择第二咖啡厅邀请的学生'), self)
         self.input4 = ComboBox(self)
-        self.input4.addItem("添加学生")
+        self.input4.addItem(self.tr("添加学生"))
         self.input_ = LineEdit(self)
         self.input_.setFixedWidth(650)
-        self.ac_btn_ = QPushButton('确定', self)
+        self.ac_btn_ = QPushButton(self.tr('确定'), self)
         self.favor_student2 = self.config.get('favorStudent2')
         self.input4.addItems(self.student_name)
         self.favor_student2 = self.check_valid_student_names_()

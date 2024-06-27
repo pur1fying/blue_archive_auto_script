@@ -7,10 +7,10 @@ class SaveSettingMessageBox(MessageBoxBase):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.titleLabel = SubtitleLabel('新建配置', self)
+        self.titleLabel = SubtitleLabel(self.tr('新建配置'), self)
         self.pathLineEdit = LineEdit(self)
 
-        self.pathLineEdit.setPlaceholderText('输入新建的配置名：')
+        self.pathLineEdit.setPlaceholderText(self.tr('输入新建的配置名：'))
         self.pathLineEdit.setClearButtonEnabled(True)
 
         # add widget to view layout
@@ -18,8 +18,8 @@ class SaveSettingMessageBox(MessageBoxBase):
         self.viewLayout.addWidget(self.pathLineEdit)
 
         # change the text of button
-        self.yesButton.setText('确定')
-        self.cancelButton.setText('取消')
+        self.yesButton.setText(self.tr('确定'))
+        self.cancelButton.setText(self.tr('取消'))
 
         self.widget.setMinimumWidth(350)
         self.yesButton.setDisabled(True)

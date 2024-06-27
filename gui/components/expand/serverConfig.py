@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem
 from qfluentwidgets import TableWidget
 
@@ -14,25 +15,26 @@ def get_address_from_str(st):
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
+        ServerConfig = QObject()
         configItems = [
             {
-                'label': '请选择您的服务器，请慎重切换服务器，切换服务器后请重新启动脚本',
+                'label': ServerConfig.tr('请选择您的服务器，请慎重切换服务器，切换服务器后请重新启动脚本'),
                 'type': 'combo',
                 'key': 'server',
-                'selection': ['官服', 'B服', '国际服', '日服']
+                'selection': [ServerConfig.tr('官服'), ServerConfig.tr('B服'), ServerConfig.tr('国际服'), ServerConfig.tr('日服')]
             },
             {
-                'label': '请填写您的adb端口号',
+                'label': ServerConfig.tr('请填写您的adb端口号'),
                 'type': 'text',
                 'key': 'adbPort'
             },
             {
-                'label': '检测adb地址(检测目前开启的模拟器adb地址)',
+                'label': ServerConfig.tr('检测adb地址(检测目前开启的模拟器adb地址)'),
                 'type': 'button',
                 'selection': self.detect_adb_addr,
             }
         ]
-        super().__init__(parent=parent, configItems=configItems, config=config)
+        super().__init__(parent=parent, configItems=configItems, config=config, context='ServerConfig')
 
         self.tableView = TableWidget(self)
         self.tableView.setFixedHeight(100)
@@ -55,7 +57,7 @@ class Layout(TemplateLayout):
             import device_operation
             results = device_operation.autosearch()
             if len(results) == 0:
-                results = ["自动查询模拟器失败！请尝试手动输入端口"]
+                results = [self.tr("自动查询模拟器失败！请尝试手动输入端口")]
             self.tableView.setRowCount(len(results))
             for i in range(len(results)):
                 self.tableView.setItem(i, 0, QTableWidgetItem(results[i]))
@@ -63,7 +65,7 @@ class Layout(TemplateLayout):
         except Exception as e:
             print(e)
             self.tableView.setRowCount(1)
-            self.tableView.setItem(0, 0, QTableWidgetItem("adb地址获取失败"))
+            self.tableView.setItem(0, 0, QTableWidgetItem(self.tr("adb地址获取失败")))
         # import device_operation
         # results = device_operation.autosearch()
 

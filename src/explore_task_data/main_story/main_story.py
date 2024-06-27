@@ -2,7 +2,7 @@ stage_data = {
     "Operation-Recapture-Schale-2": {
         "will-fight": False,
         "start": [],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (571, 370), 'wait-over': True, 'desc': "upper right"},
             {'t': 'click', 'p': (687, 373), 'wait-over': True, 'desc': "right"},
 
@@ -20,7 +20,7 @@ stage_data = {
             (693, 305),
             (645, 564)
         ],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (378, 422), 'wait-over': True, 'desc': "1 left"},
             {'t': 'click', 'p': (698, 308), 'wait-over': True, 'desc': "2 upper right"},
             {'t': 'click', 'p': (701, 472), 'wait-over': True, 'desc': "3 lower right"},
@@ -35,7 +35,7 @@ stage_data = {
     "The-First-Sanctum-Abydos-Desert-District": {
         "will-fight": True,
         "start": [],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (576, 368), 'wait-over': True, 'desc': "1 upper right"},
             {'t': 'click', 'p': (698, 473), 'wait-over': True, 'desc': "2 lower right"},
             {'t': 'click', 'p': (758, 391), 'ec': True, 'desc': "1 right"},
@@ -45,7 +45,7 @@ stage_data = {
     "The-Second-Sanctum-Millennium-Ruins-District": {
         "will-fight": True,
         "start": [],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (574, 365), 'wait-over': True, 'desc': "1 upper right"},
             {'t': 'click', 'p': (759, 388), 'wait-over': True, 'desc': "2 right"},
 
@@ -59,7 +59,7 @@ stage_data = {
     "The-Third-Sanctum-Abandoned-Amusement-Park": {
         "will-fight": True,
         "start": [],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (562, 534), 'ec': True, 'desc': "1 lower right"},
             {'t': 'click', 'p': (845, 499), 'wait-over': True, 'desc': "2 lower right"},
 
@@ -73,7 +73,7 @@ stage_data = {
     "The-Forth-Sanctum-Basilica-in-the-Catacomb": {
         "will-fight": True,
         "start": [],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (570, 541), 'ec': True, 'desc': "1 lower right"},
             {'t': 'click', 'p': (680, 302), 'wait-over': True, 'desc': "2 right"},
 
@@ -84,7 +84,7 @@ stage_data = {
     "The-Fifth-Sanctum-Outskirts-of-the-City-of-Eridu": {
         "will-fight": True,
         "start": [],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (410, 483), 'wait-over': True, 'desc': "1 right"},
             {'t': 'end-turn'},
 
@@ -95,7 +95,7 @@ stage_data = {
     "The-Final-Defense-Operation-Schale": {
         "will-fight": True,
         "start": [],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (641, 467), 'wait-over': True, 'desc': "1 right"},
             {'t': 'end-turn'},
 
@@ -106,7 +106,7 @@ stage_data = {
     "Rush": {
         "will-fight": True,
         "start": [],
-        "actions": [
+        "action": [
             {'t': 'click', 'p': (637, 425), "ec": True, 'desc': "1 upper right"},
             {'t': 'click', 'p': (458, 341), 'wait-over': True, 'desc': "2 upper left"},
             {'t': 'click', 'p': (761, 391), 'wait-over': True, 'desc': "3 right"},
@@ -116,7 +116,7 @@ stage_data = {
             {'t': 'click', 'p': (615, 332), 'wait-over': True, 'desc': "1 upper right"},
 
             {'t': 'click', 'p': (662, 361), 'wait-over': True, 'desc': "1 upper right"},
-            {'end-turn'},
+            {'t': 'end-turn'},
         ]
     }
 }

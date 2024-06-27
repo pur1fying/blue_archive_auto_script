@@ -25,7 +25,7 @@ class SwitchFragment(ScrollArea):
         # 创建一个ExpandLayout实例作为滚动区域的布局管理器
         self.expandLayout = ExpandLayout(self.scrollWidget)
         # 创建一个标题为“调度设置”的TitleLabel实例
-        self.settingLabel = TitleLabel(self.tr(f"配置设置 {self.config['name']}"), self.scrollWidget)
+        self.settingLabel = TitleLabel(self.tr(f"配置设置") + f" {self.config['name']}", self.scrollWidget)
         # 初始化basicGroup变量,_setting_cards列表
         self.basicGroup = None
         self._setting_cards = []
@@ -102,7 +102,8 @@ class SwitchFragment(ScrollArea):
             content=tip,
             parent=self.basicGroup,
             sub_view=expand.__dict__[setting_name] if setting_name else None,
-            config=self.config
+            config=self.config,
+            context='ConfigTranslation'
         )  # 创建TemplateSettingCard实例
         # _switch_card.status_switch.setChecked(enabled)  # 设置状态开关的选中状态
         # _switch_card.statusChanged.connect(lambda x: self._change_status(name, x))  # 连接状态开关的状态更改信号和_change_status()方法
