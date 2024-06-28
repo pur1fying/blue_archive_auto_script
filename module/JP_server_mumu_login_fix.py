@@ -27,6 +27,6 @@ def implement(self):
         self.flag_run = False
         return False
     self.logger.info("[ su rm -rf /system/xbin/{su,mu_bak} /system/bin/su ] response : ")
-    self.logger.info(str(self.connection.shell('su rm -rf /system/xbin/{su,mu_bak} /system/bin/su')))
+    self.logger.info(str(self.connection.shell('rm -rf /system/xbin/{su,mu_bak} /system/bin/su')))
     self.flag_run = False
     return True
