@@ -253,6 +253,10 @@ class MainThread(QThread):
         self.update_signal.emit(['无任务'])
         self.display('启动')
 
+    def start_mumu_JP_login_fixer(self):
+        self._init_script()
+        self._main_thread.send('solve', 'JP_server_mumu_login_fix')
+
     def start_fhx(self):
         self._init_script()
         if self._main_thread.send('solve', 'de_clothes'):
