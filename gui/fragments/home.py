@@ -255,7 +255,10 @@ class MainThread(QThread):
 
     def start_mumu_JP_login_fixer(self):
         self._init_script()
-        self._main_thread.send('solve', 'JP_server_mumu_login_fix')
+        if self._main_thread.send('solve', 'JP_server_mumu_login_fix'):
+            notify(title='BAAS', body='成功修复')
+        else:
+            notify(title='BAAS', body='修复失败, 请阅读首页日志')
 
     def start_fhx(self):
         self._init_script()
