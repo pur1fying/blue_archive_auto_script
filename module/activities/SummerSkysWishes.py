@@ -12,7 +12,7 @@ def implement(self):
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
         sweep(self, region, times)
-    exchange_reward(self)
+    # exchange_reward(self)
     # jointTask(self)
     return True
 
@@ -215,10 +215,8 @@ def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
     tasks = [
-        "challenge2_sss",
-        "challenge4_sss",
-        "challenge2_task",
-        "challenge4_task",
+        "challenge3_sss",
+        "challenge3_task",
     ]
     stage_data = get_stage_data()
     for i in range(0, len(tasks)):
@@ -259,7 +257,8 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "activity_enter1": (1196, 195),
         "activity_enter2": (100, 149),
         "activity_enter3": (218, 530),
-        "activity_get-collectable-item": (508, 505),
+        "activity_get-collectable-item1": (508, 505),
+        "activity_get-collectable-item2": (505, 537),
         'activity_fight-success-confirm': (640, 663),
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
