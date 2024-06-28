@@ -34,7 +34,7 @@ def implement(self):
         self.flag_run = False
         return False
     self.logger.info("[ su -c '{rm -rf /system/xbin/{su,mu_bak} /system/bin/su}' ] response : ")
-    res = self.connection.shell('su -c \'rm -rf /system/xbin/{mu_bak}\'')
+    res = self.connection.shell('su -c \'rm -rf /system/xbin/mu_bak\'')
     self.logger.info(str(res))
     if not res.exit_code == 0:
         self.logger.error("Failed to delete file [ mu_bak ] and [ su ]")
