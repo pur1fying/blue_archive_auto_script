@@ -33,7 +33,7 @@ def implement(self):
         self.logger.error("Please Turn on the disk read and write permission and enable root permission, then try again")
         self.flag_run = False
         return False
-    self.logger.info("[ su -c '{rm -rf /system/xbin/{su,mu_bak} /system/bin/su}' ] response : ")
+    self.logger.info("[ su -c '{rm -rf /system/xbin/mu_bak' ] response : ")
     res = self.connection.shell('su -c \'rm -rf /system/xbin/mu_bak\'')
     self.logger.info(str(res))
     if not res.exit_code == 0:
