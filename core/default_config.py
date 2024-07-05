@@ -645,7 +645,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "SummerSkysWishes",
         "Global": null,
         "JP": null
     },
@@ -699,6 +699,30 @@ STATIC_DEFAULT_CONFIG = '''
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"]
     ],
   "student_names": [
+    {
+      "CN_name": "桐乃(泳装)",
+      "CN_implementation": false,
+      "Global_name": "Kirino (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "キリノ(水着)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "吹雪(泳装)",
+      "CN_implementation": false,
+      "Global_name": "Fubuki (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "フブキ(水着)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "叶渚(泳装)",
+      "CN_implementation": false,
+      "Global_name": "Kanna (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "カンナ(水着)",
+      "JP_implementation": true
+    },
     {
       "CN_name": "芹香(泳装)",
       "CN_implementation": false,
@@ -831,7 +855,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "晴(露营)",
       "CN_implementation": false,
       "Global_name": "Hare (Camp)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "ハレ(キャンプ)",
       "JP_implementation": true
     },
@@ -839,7 +863,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "小玉(露营)",
       "CN_implementation": false,
       "Global_name": "Kotama (Camp)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "コタマ(キャンプ)",
       "JP_implementation": true
     },
@@ -1317,7 +1341,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "千世(泳装)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Chise (Swimsuit)",
       "Global_implementation": true,
       "JP_name": "チセ(水着)",
@@ -1325,7 +1349,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "泉奈(泳装)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Izuna (Swimsuit)",
       "Global_implementation": true,
       "JP_name": "イズナ(水着)",
