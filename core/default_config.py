@@ -645,7 +645,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "SummerSkysWishes",
+        "CN": "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets",
         "Global": null,
         "JP": null
     },
