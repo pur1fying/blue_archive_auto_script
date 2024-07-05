@@ -1,5 +1,6 @@
 from functools import partial
 
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QLabel, QHBoxLayout
 from qfluentwidgets import LineEdit, PushButton, ComboBox
 
@@ -7,36 +8,36 @@ from .expandTemplate import TemplateLayout
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
+        EmulatorConfig = QObject()
         configItems = [
             {
-                'label': '在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)',
+                'label': EmulatorConfig.tr('在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)'),
                 'key': 'open_emulator_stat',
                 'type': 'switch'
             },
             {
-                'label': '是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)',
+                'label': EmulatorConfig.tr('是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)'),
                 'key': 'multi_emulator_check',
                 'type': 'switch'
             },
             {
-                'label': '等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)',
+                'label': EmulatorConfig.tr('等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)'),
                 'type': 'text',
                 'key': 'emulator_wait_time'
             },
             {
-                'label': '模拟器是否多开',
+                'label': EmulatorConfig.tr('模拟器是否多开'),
                 'type': 'switch',
                 'key': 'emulatorIsMultiInstance'
             }
         ]
 
-        super().__init__(parent=parent, configItems=configItems, config=config)
+        super().__init__(parent=parent, configItems=configItems, config=config, context='EmulatorConfig')
         if not self.config.get('emulatorIsMultiInstance'):
             self._createNotMultiComponent()
         else:
             self._createMultiComponent()
         self.vBoxLayout.children()[3].itemAt(2).widget().checkedChanged.connect(self._soltForEmulatorIsMultiInstanced)
-
 
     def _choose_file(self, line_edit):
         file_dialog = QFileDialog()

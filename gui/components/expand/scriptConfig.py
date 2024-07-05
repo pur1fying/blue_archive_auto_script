@@ -13,7 +13,7 @@ class Layout(QWidget):
         super().__init__(parent=parent)
         self.config = config
         self.info_widget = self.parent().parent().parent()
-        self.serverLabel = QLabel('请填写您的截图间隔：', self)
+        self.serverLabel = QLabel(self.tr('请填写您的截图间隔：'), self)
         self.screenshot_box = LineEdit(self)
         validator = QDoubleValidator(0.0, 65535.0, 2, self)
         self.screenshot_box.setValidator(validator)
@@ -33,4 +33,4 @@ class Layout(QWidget):
 
     def _save_port(self, changed_text=None):
         self.config.set('screenshot_interval', changed_text)
-        notification.success('截图间隔', f'你的截图间隔已经被设置为：{changed_text}', self.config)
+        notification.success(self.tr('截图间隔'), f'{self.tr("你的截图间隔已经被设置为：")}{changed_text}', self.config)

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .instruction-box {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .important-note {
+            background-color: #f1c40f;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instruction-box">
+        <h2>Explanation of Sweep Configurations</h2>
+        <p>Each sweeping configuration is in the form of '<strong>area</strong> - <strong>stage number</strong> - <strong>sweep times</strong>'.</p>
+        <p>This represents <strong>area</strong> 'area', <strong>stage</strong> 'stage number', and <strong>sweep times</strong> 'sweep times'.</p>
+        <p>Each configuration is separated by ','.</p>
+    </div>
+
+    <div class="instruction-box">
+        <h2>Available Sweepable Stages:</h2>
+        <p>After Tutorial-1 and 5-5, all maps are available for sweeping.</p>
+    </div>
+
+    <div class="instruction-box">
+        <h2>Special Instructions:</h2>
+        <p>For Global and Japanese servers, 'sweep times' can be specified as 'max'.</p>
+        <p>Tutorial requires '<strong>area</strong>' to be the fixed string 'tutorial'.</p>
+        <p>BAAS will calculate whether the current stage can be swept based on current AP and stage AP. Insufficient AP or 'max' sweep times will result in skipping.</p>
+    </div>
+
+    <div class="instruction-box">
+        <h2>Example:</h2>
+        <p>Assuming sufficient AP on the Global server:</p>
+        <p>tutorial-1-20,15-3-3,20-3-max</p>
+        <p>This means first sweep Tutorial-1 20 times, then sweep 15-3 for 3 times, and finally sweep all available stamina on 20-3.</p>
+    </div>
+</body>
+</html>

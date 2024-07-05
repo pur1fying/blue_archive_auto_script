@@ -7,19 +7,21 @@ import sys
 import threading
 from functools import partial
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal
+from PyQt5.QtCore import Qt, QLocale, QSize, QTranslator, QPoint, pyqtSignal
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout
-from qfluentwidgets import FluentIcon as FIF, SplashScreen, MSFluentWindow, TabBar, \
-    MSFluentTitleBar, MessageBox, TransparentToolButton
+from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
+    MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition, TransparentToolButton
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from core import default_config
 from gui.components.dialog_panel import SaveSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
+
 from gui.util import notification
 from gui.util.config_set import ConfigSet
+from gui.util.translator import baasTranslator as bt
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
 # sys.stdout = open('output.log', 'w+', encoding='utf-8')
@@ -208,7 +210,7 @@ class BAASTitleBar(MSFluentTitleBar):
         self.historyButton.clicked.connect(self.onHistoryButtonClicked)
 
         self.searchButton = TransparentToolButton(FIF.HELP.icon(), self)
-        self.searchButton.setToolTip('帮助')
+        self.searchButton.setToolTip(self.tr('帮助'))
         self.searchButton.clicked.connect(self.onHelpButtonClicked)
         # self.tabBar.tabCloseRequested.connect(self.tabRemoveRequest)
 
@@ -299,10 +301,10 @@ class Window(MSFluentWindow):
 
     def initNavigation(self):
         self.navi_btn_list = [
-            self.addSubInterface(self.homeInterface, FIF.HOME, '主页'),
-            self.addSubInterface(self.processInterface, FIF.CALENDAR, '调度'),
-            self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, '配置'),
-            self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
+            self.addSubInterface(self.homeInterface, FIF.HOME, self.tr('主页')),
+            self.addSubInterface(self.processInterface, FIF.CALENDAR, self.tr('调度')),
+            self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, self.tr('配置')),
+            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置'))
         ]
 
         for ind, btn in enumerate(self.navi_btn_list):
@@ -336,7 +338,7 @@ class Window(MSFluentWindow):
     @staticmethod
     def showHelpModal():
         helpModal = ReadMeWindow()
-        helpModal.setWindowTitle('帮助')
+        helpModal.setWindowTitle(helpModal.tr('帮助'))
         helpModal.setWindowIcon(QIcon(ICON_DIR))
         helpModal.resize(800, 600)
         helpModal.setFocus()
@@ -381,7 +383,7 @@ class Window(MSFluentWindow):
         if addDialog.exec_():
             text = addDialog.pathLineEdit.text()
             if text in list(map(lambda x: x.config['name'], self.config_dir_list)):
-                notification.error('设置失败', f'名为“{text}”的配置已经存在！', self)
+                notification.error(self.tr('设置失败'), f'{self.tr("名为")}“{text}”{self.tr("的配置已经存在！")}', self)
                 return
             serial_name = str(int(datetime.datetime.now().timestamp()))
             os.mkdir(f'./config/{serial_name}')
@@ -409,8 +411,8 @@ class Window(MSFluentWindow):
 
     def onTabCloseRequested(self, i0):
         config_name = self._sub_list[0][i0].config["name"]
-        title = f'是否要删除配置：{config_name}？'
-        content = """你需要在确认后重启BAAS以完成更改。"""
+        title = self.tr('是否要删除配置：') +  f' {config_name}？'
+        content = self.tr("""你需要在确认后重启BAAS以完成更改。""")
         closeRequestBox = MessageBox(title, content, self)
         if closeRequestBox.exec():
             shutil.rmtree(f'./config/{self._sub_list[0][i0].config.config_dir}')
@@ -444,6 +446,16 @@ if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
     app = QApplication(sys.argv)
+
+    # internationalization
+    translator = FluentTranslator(bt.locale)
+    bt.load("gui/i18n/" + bt.stringLang)
+
+    app.installTranslator(translator)
+    app.installTranslator(bt)
+
+    bt.loadCfgTranslation()
+    
     w = Window()
     # 聚焦窗口
     w.setFocus(True)
