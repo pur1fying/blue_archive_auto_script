@@ -6,12 +6,13 @@ from module.explore_normal_task import common_gird_method
 
 
 def implement(self):
-    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
-    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
-    self.logger.info("activity sweep task number : " + str(region))
-    self.logger.info("activity sweep times : " + str(times))
-    if len(times) > 0:
-        sweep(self, region, times)
+    # times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
+    # region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    # self.logger.info("activity sweep task number : " + str(region))
+    # self.logger.info("activity sweep times : " + str(times))
+    # if len(times) > 0:
+    #     sweep(self, region, times)
+    exchange_reward(self)
     return True
 
 
@@ -60,7 +61,7 @@ def preprocess_activity_sweep_times(times):
 
 
 def get_stage_data():
-    module_path = 'src.explore_task_data.activities.SummerSkysWishes'
+    module_path = 'src.explore_task_data.activities.SweetSecretsAndGunfightsATaleOfAfterSchoolSweets'
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -213,11 +214,14 @@ def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
     tasks = [
-        "challenge3_sss",
-        "challenge3_task",
+        "challenge2_sss",
+        "challenge2_task",
+        "challenge4_sss",
+        "challenge4_task",
     ]
     stage_data = get_stage_data()
     for i in range(0, len(tasks)):
+        self.logger.info("Start challenge task [ " + tasks[i] + " ]")
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))
         to_challenge_task_info(self, task_number)
@@ -407,11 +411,11 @@ def exchange_reward(self):
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
     while 1:
         while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
-            self.click(453, 651, wait_over=True)
+            self.click(453, 651, wait_over=True, duration = 0.5)
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        if color.judge_rgb_range(self, 45, 684, 185, 205, 185, 205, 185, 205):
+        if color.judge_rgb_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
             if get_exchange_assets(self) >= 6:
                 self.logger.info("refresh exchange times")
                 refresh_exchange_times(self)
@@ -432,7 +436,7 @@ def refresh_exchange_times(self):
 
 def to_exchange(self, skip_first_screenshot=False):
     img_possibles = {
-        "activity_menu": (336, 639),
+        "activity_menu": (279, 639),
         "activity_set-exchange-times-menu": (935, 195),
         "activity_exchange-confirm": (673, 603),
     }
