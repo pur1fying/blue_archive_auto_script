@@ -6,12 +6,12 @@ from module.explore_normal_task import common_gird_method
 
 
 def implement(self):
-    # times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
-    # region = preprocess_activity_region(self.config["activity_sweep_task_number"])
-    # self.logger.info("activity sweep task number : " + str(region))
-    # self.logger.info("activity sweep times : " + str(times))
-    # if len(times) > 0:
-    #     sweep(self, region, times)
+    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
+    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    self.logger.info("activity sweep task number : " + str(region))
+    self.logger.info("activity sweep times : " + str(times))
+    if len(times) > 0:
+         sweep(self, region, times)
     exchange_reward(self)
     return True
 
