@@ -353,9 +353,16 @@ def choose_lesson(self, res, region):
                     return i
             return -1
         else:
+            choice = -1
+            max_relationship = -1
             for i in range(0, len(tier)):
                 if tier[i] in pri:
                     for j in range(2 * (3 - i), 2 * (4 - i)):
-                        if res[0][j] == "available":
-                            return j
-            return -1
+                        if res[0][j] == "available" and res[1][j] > max_relationship:
+                            if max_relationship != -1:
+                                self.logger.info("Due to relationship priority, current choice forward from [ " + str(choice + 1) + " ] to [ " + str(j + 1) + " ]")
+                            max_relationship = res[1][j]
+                            choice = j
+                        if choice != -1:
+                            break
+            return choice
