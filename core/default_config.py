@@ -647,7 +647,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets",
         "Global": null,
-        "JP": null
+        "JP": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp"
     },
     "dailyGameActivity": {
         "CN": null,

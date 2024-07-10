@@ -12,6 +12,7 @@ func_names = {
     "AbydosResortRestorationCommittee": activity.AbydosResortRestorationCommittee.explore_challenge,
     "SummerSkysWishes": activity.SummerSkysWishes.explore_challenge,
     "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets": activity.SweetSecretsAndGunfightsATaleOfAfterSchoolSweets.explore_challenge,
+    "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp": activity.SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp.explore_challenge,
 }
 
 
