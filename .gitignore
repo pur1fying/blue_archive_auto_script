@@ -8,6 +8,7 @@
 !core
 !device_operation
 !.github
+!develop_tools
 
 !.editorconfig
 !.gitignore
