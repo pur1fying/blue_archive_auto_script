@@ -169,7 +169,7 @@ def start_action(self, actions):
         if type(op) is str:
             op = [op]
         if 'p' in act:
-            if type(act['p']) is tuple:
+            if type(act['p']) is tuple or (len(act['p']) == 2 and type(act['p'][0]) is int):
                 act['p'] = [act['p']]
         skip_first_screenshot = False
         for j in range(0, len(op)):
@@ -517,6 +517,7 @@ def common_gird_method(self, current_task_stage_data):
     img_possibles = {
         'normal_task_help': (1017, 131),
         'normal_task_task-info': (946, 540),
+        'activity_task-info': (946, 540),
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
         "plot_skip-plot-notice": (766, 520),
