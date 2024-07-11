@@ -65,7 +65,7 @@ def get_team_info():
                 pos = get_one_position()
                 teams.append([temp, pos])
                 cnt -= 1
-                valid_team_attr[char] = False
+                valid_team_attr[temp] = False
             else:
                 temp = char2attr[char] + "2"
                 if valid_team_attr[temp]:
@@ -73,7 +73,7 @@ def get_team_info():
                     pos = tuple(map(int, get_input().split()))
                     teams.append([temp, pos])
                     cnt -= 1
-                    valid_team_attr[char] = False
+                    valid_team_attr[temp] = False
                 else:
                     print("Invalid team attribute")
                     continue
@@ -162,14 +162,15 @@ def get_actions(team_cnt):
             for i in range(p_cnt):
                 one_action["p"].append(get_one_position())
 
-        if team_cnt > 1:
+        if team_cnt > 1 and one_action['t'] != 'choose_and_change':
             print("Will formation number change after this action ? [y/n]")
             if get_y_n():
                 one_action["ec"] = True
+        if one_action['t'] != 'choose_and_change':
+            print("Need wait-over after this action ? [y/n]")
+            if get_y_n():
+                one_action["wait-over"] = True
 
-        print("Need wait-over after this action ? [y/n]")
-        if get_y_n():
-            one_action["wait-over"] = True
         print("please enter the desc : ")
         one_action["desc"] = get_input()
         print("current action : \n", one_action)

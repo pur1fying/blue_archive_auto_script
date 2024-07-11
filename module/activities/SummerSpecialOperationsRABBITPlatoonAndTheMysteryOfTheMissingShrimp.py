@@ -59,8 +59,8 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data():
-    module_path = 'src.explore_task_data.activities.iveAlive'
+def get_stage_data(self):
+    module_path = 'src.explore_task_data.activities.' + self.current_game_activity
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -217,12 +217,10 @@ def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
     tasks = [
-        "challenge2_sss",
-        "challenge4_sss",
-        "challenge2_task",
-        "challenge4_task",
+        "challenge2_sss_task",
+        "challenge4_sss_task",
     ]
-    stage_data = get_stage_data()
+    stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))
