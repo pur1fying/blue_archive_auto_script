@@ -1,23 +1,22 @@
-import module.activities as activity
-
-func_names = {
-    "sakura_flowing_chaos_in_the_gala": activity.sakura_flowing_chaos_in_the_gala.explore_challenge,
-    "reckless_nun_and_the_witch_in_the_old_library": activity.reckless_nun_and_the_witch_in_the_old_library.explore_challenge,
-    "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory": activity.Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory.explore_challenge,
-    "revolutionKupalaNight": activity.revolutionKupalaNight.explore_challenge,
-    "bunnyChaserOnTheShip": activity.bunnyChaserOnTheShip.explore_challenge,
-    "livelyAndJoyfulWalkingTour": activity.livelyAndJoyfulWalkingTour.explore_challenge,
-    "anUnconcealedHeart": activity.anUnconcealedHeart.explore_challenge,
-    "iveAlive": activity.iveAlive.explore_challenge,
-    "AbydosResortRestorationCommittee": activity.AbydosResortRestorationCommittee.explore_challenge,
-    "SummerSkysWishes": activity.SummerSkysWishes.explore_challenge,
-    "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets": activity.SweetSecretsAndGunfightsATaleOfAfterSchoolSweets.explore_challenge,
-    "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp": activity.SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp.explore_challenge,
-}
+import importlib
 
 
 def implement(self):
-    if self.current_game_activity is None or self.current_game_activity not in func_names:
+    if self.current_game_activity is None:
         self.logger.warning("Current activity is not supported")
         return True
-    return func_names[self.current_game_activity](self)
+    self.logger.info("Current activity: " + self.current_game_activity)
+    module_name = "module.activities." + self.current_game_activity
+    try:
+        mod = importlib.import_module(module_name)
+    except ImportError:
+        self.logger.warning("Module [ " + module_name + " ] not found")
+        return True
+    try:
+        func = getattr(mod, "explore_challenge")
+    except AttributeError:
+        self.logger.warning("Function [ explore_challenge ] not found in module , possible reason : ")
+        self.logger.warning("1. Challenge Task is not open or exist in this activity")
+        self.logger.warning("2. The function is not implemented, please contact the developer")
+        return True
+    return func(self)

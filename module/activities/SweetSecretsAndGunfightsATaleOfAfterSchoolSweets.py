@@ -336,9 +336,9 @@ def to_mission_task_info(self, number):
     if number in [8, 9, 10, 11, 12]:
         self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
         self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
-    possibles = {'activity_menu': (1124, lo[index[number - 1]])}
-    ends = "normal_task_task-info"
-    image.detect(self, ends, possibles)
+    img_possibles = {'activity_menu': (1124, lo[index[number - 1]])}
+    img_ends = "normal_task_task-info"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def to_challenge_task_info(self, number):

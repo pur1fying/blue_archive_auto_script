@@ -1,28 +1,22 @@
-import module.activities as activity
-
-func_names = {
-    "no_227_kinosaki_spa": activity.no_227_kinosaki_spa.implement,
-    "no_68_spring_wild_dream": activity.no_68_spring_wild_dream.implement,
-    "pleasant_Valentines_Day_in_schale": activity.pleasant_Valentines_Day_in_schale.implement,
-    "sakura_flowing_chaos_in_the_gala": activity.sakura_flowing_chaos_in_the_gala.implement,
-    "reckless_nun_and_the_witch_in_the_old_library": activity.reckless_nun_and_the_witch_in_the_old_library.implement,
-    "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory": activity.Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory.implement,
-    "revolutionKupalaNight": activity.revolutionKupalaNight.implement,
-    "bunnyChaserOnTheShip": activity.bunnyChaserOnTheShip.implement,
-    "livelyAndJoyfulWalkingTour": activity.livelyAndJoyfulWalkingTour.implement,
-    "anUnconcealedHeart": activity.anUnconcealedHeart.implement,
-    "iveAlive": activity.iveAlive.implement,
-    "AbydosResortRestorationCommittee": activity.AbydosResortRestorationCommittee.implement,
-    "SummerSkysWishes": activity.SummerSkysWishes.implement,
-    "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets": activity.SweetSecretsAndGunfightsATaleOfAfterSchoolSweets.implement,
-    "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp": activity.SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp.implement,
-
-}
+import importlib
 
 
 def implement(self):
-    current_game_activity = self.static_config['current_game_activity'][self.server]
-    if current_game_activity is None or current_game_activity not in func_names:
+    if self.current_game_activity is None:
         self.logger.warning("Current activity is not supported")
         return True
-    return func_names[current_game_activity](self)
+    self.logger.info("Current activity: " + self.current_game_activity)
+    module_name = "module.activities." + self.current_game_activity
+    try:
+        mod = importlib.import_module(module_name)
+    except ImportError:
+        self.logger.warning("Module [ " + module_name + " ] not found")
+        return True
+    try:
+        func = getattr(mod, "implement")
+    except AttributeError:
+        self.logger.warning("Function [ implement ] not found in module , possible reason : ")
+        self.logger.warning("1. Challenge Task is not open or exist in this activity")
+        self.logger.warning("2. The function is not implemented, please contact the developer")
+        return True
+    return func(self)
