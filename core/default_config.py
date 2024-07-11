@@ -700,6 +700,14 @@ STATIC_DEFAULT_CONFIG = '''
     ],
   "student_names": [
     {
+      "CN_name": "モエ(水着)",
+      "CN_implementation": false,
+      "Global_name": "Moe (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "モエ(水着)",
+      "JP_implementation": true
+    },
+    {
       "CN_name": "桐乃(泳装)",
       "CN_implementation": false,
       "Global_name": "Kirino (Swimsuit)",
@@ -1317,7 +1325,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "和纱",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Kazusa",
       "Global_implementation": true,
       "JP_name": "カズサ",
