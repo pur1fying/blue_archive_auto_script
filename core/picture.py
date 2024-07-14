@@ -139,7 +139,8 @@ def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
         'CN': {
             'main_page_news': (1142, 104),
             'main_page_news2': (1142, 104),
-            'main_page_item-expire': (925, 119)
+            'main_page_item-expire': (925, 119),
+            'main_page_renewal-month-card': (927, 109),
         },
         'JP': {
             'main_page_news': (1142, 104),

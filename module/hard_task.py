@@ -63,10 +63,11 @@ def implement(self):
         self.logger.info("Hard task All Finished")
     return True
 
+
 def to_hard_event(self, skip_first_screenshot=False):
     task_info_lo = {
         'CN': (1087, 140),
-        'Global': (1128,140),
+        'Global': (1128, 140),
         'JP': (1128, 130)
     }
     rgb_ends = 'event_hard'
@@ -84,6 +85,7 @@ def to_hard_event(self, skip_first_screenshot=False):
         "normal_task_task-info": task_info_lo[self.server],
         'normal_task_skip-sweep-complete': (643, 506),
         "purchase_ap_notice": (919, 165),
+        "purchase_ap_notice-localized": (919, 165),
         'normal_task_task-finish': (1038, 662),
         'normal_task_prize-confirm': (776, 655),
         'normal_task_fight-confirm': (1168, 659),
@@ -102,6 +104,7 @@ def to_task_info(self, x, y, skip_first_screenshot=False):
         "normal_task_task-info"
     ]
     return picture.co_detect(self, None, rgb_possibles, img_ends, None, skip_first_screenshot)
+
 
 def readOneHardTask(task_string):
     if task_string.count('-') != 2:
@@ -133,12 +136,13 @@ def readOneHardTask(task_string):
 def start_sweep(self, skip_first_screenshot=False):
     img_ends = [
         "purchase_ap_notice",
+        "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
         "normal_task_charge-challenge-counts",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice":
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return "inadequate_ap"
     if res == "normal_task_charge-challenge-counts":
         return "charge_challenge_counts"

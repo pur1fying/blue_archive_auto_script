@@ -262,6 +262,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
         'purchase_ap_notice': (919, 168),
+        'purchase_ap_notice-localized': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
         "activity_task-info": (task_info_x[self.server],141),
@@ -362,22 +363,16 @@ def to_formation_edit_i(self, i, lo=(0, 0), skip_first_screenshot=False):
 
 
 def start_sweep(self, skip_first_screenshot=False):
-    rgb_ends = [
-        "purchase_ap_notice",
-        "start_sweep_notice",
-    ]
-    rgb_possibles = {
-        "mission_info": (941, 411),
-    }
     img_ends = [
-        "purchase_ap_notice",
+        'purchase_ap_notice',
+        "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {
         "activity_task-info": (941, 411),
     }
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice" or res == "buy_ap_notice":
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return "inadequate_ap"
     rgb_ends = [
         "skip_sweep_complete",

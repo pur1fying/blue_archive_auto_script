@@ -43,6 +43,7 @@ def start_sweep(self):
     img_ends = [
         "scrimmage_purchase-scrimmage-ticket",
         "purchase_ap_notice",
+        "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"scrimmage_task-info": (932, 408)}
@@ -50,7 +51,7 @@ def start_sweep(self):
     if res == "scrimmage_purchase-scrimmage-ticket":
         self.logger.warning("INADEQUATE TICKET")
         return "inadequate_ticket"
-    if res == "purchase_ap_notice":
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         self.logger.warning("INADEQUATE AP")
         return "inadequate_ap"
     rgb_possibles = {"level_up": (640, 200)}

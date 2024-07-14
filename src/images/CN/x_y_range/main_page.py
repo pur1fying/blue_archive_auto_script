@@ -16,6 +16,7 @@ x_y_range = {
     'skip-notice': (569, 309, 701, 353),
     'item-expire': (428, 100, 836, 283),
     'net-work-unstable': (400, 280, 880, 390),
-    'privacy-policy':(260, 200, 980, 550),
-    'get-character':(800, 183, 1094, 219)
+    'privacy-policy': (260, 200, 980, 550),
+    'get-character': (800, 183, 1094, 219),
+    'renewal-month-card': (400, 420, 900, 600),
 }
