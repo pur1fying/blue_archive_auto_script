@@ -30,7 +30,7 @@ class Layout(QWidget):
 
             self.lay6.addWidget(self.label_3, 1, Qt.AlignLeft)
             self.lay6.addWidget(self.second_switch, 0, Qt.AlignRight)
-            self.layEnableDuplicateInvite = self.labeledCheckBoxTemplate('是否允许重复邀请:', 'cafe_reward_allow_duplicate_invite')
+            self.layEnableDuplicateInvite = self.labeledCheckBoxTemplate(self.tr('是否允许重复邀请:'), 'cafe_reward_allow_duplicate_invite')
 
         # self.pat_styles = [self.tr('拖动礼物')]
         self.pat_styles = [bt.tr('ConfigTranslation', '拖动礼物')]

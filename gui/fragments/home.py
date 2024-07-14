@@ -128,7 +128,7 @@ class HomeFragment(QFrame):
                 if type(data[0]) is dict:
                     self.info.setText(self.tr("正在运行：") + bt.tr('ConfigTranslation', self.event_map[data[0]["func_name"]]))
                 else:
-                    self.info.setText(self.tr("正在运行：") + f'{data[0]}')
+                    self.info.setText(self.tr("正在运行：") + bt.tr('ConfigTranslation', data[0]))
                     _main_thread_ = self.config.get_main_thread()
                     _baas_thread_ = _main_thread_.get_baas_thread()
                     if _baas_thread_ is not None:
@@ -271,7 +271,7 @@ class MainThread(QThread):
     def start_main_story(self):
         self._init_script()
         self.update_signal.emit([self.tr('自动主线剧情')])
-        self.display('停止')
+        self.display(self.tr('停止'))
         if self._main_thread.send('solve', 'main_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('主线剧情已完成'))

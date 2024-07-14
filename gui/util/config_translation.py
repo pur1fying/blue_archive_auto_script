@@ -41,6 +41,9 @@ class ConfigTranslation(QObject):
             self.tr("学院交流会"): "学院交流会",
             self.tr("凌晨四点重启"): "凌晨四点重启",
             self.tr("活动扫荡"): "活动扫荡",
+            self.tr("暂无任务"): "暂无任务",
+            self.tr("日常小游戏"): "日常小游戏",
+            self.tr("咖啡厅邀请"): "咖啡厅邀请",
 
             # switch
             self.tr("新的配置"): "新的配置",
@@ -100,6 +103,11 @@ class ConfigTranslation(QObject):
             self.tr('日服'): '日服',
 
             # patstyles combobox
-            self.tr('拖动礼物'): '拖动礼物'
-            }
+            self.tr('拖动礼物'): '拖动礼物',
+        
+            # emulator combobox
+            self.tr('MuMu模拟器'): 'MuMu模拟器',
+            self.tr('蓝叠模拟器'): '蓝叠模拟器',
+            self.tr('蓝叠国际版'): '蓝叠国际版'
+        }
 

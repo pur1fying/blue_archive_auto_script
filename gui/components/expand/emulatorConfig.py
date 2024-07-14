@@ -5,6 +5,9 @@ from PyQt5.QtWidgets import QFileDialog, QLabel, QHBoxLayout
 from qfluentwidgets import LineEdit, PushButton, ComboBox
 
 from .expandTemplate import TemplateLayout
+from gui.util import notification
+from gui.util.translator import baasTranslator as bt
+
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
@@ -52,15 +55,15 @@ class Layout(TemplateLayout):
                 self.config.set('program_address', file_path)
 
     def _createNotMultiComponent(self):
-        labelComponent = QLabel('选择模拟器地址', self)
+        labelComponent = QLabel(self.tr('选择模拟器地址'), self)
         addressKey = 'program_address'
         inputComponent = LineEdit(self)
         inputComponent.setFixedWidth(500)  # 设置文本框的固定宽度
         inputComponent.setText(str(self.config.get(addressKey)))
-        confirmButton = PushButton('确定', self)
+        confirmButton = PushButton(self.tr('确定'), self)
         confirmButton.setFixedWidth(80)  # 设置确定按钮的固定宽度
         confirmButton.clicked.connect(partial(self._commit, addressKey, inputComponent, labelComponent))
-        selectButton = PushButton('选择', self)
+        selectButton = PushButton(self.tr('选择'), self)
         selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
         selectButton.clicked.connect(partial(self._choose_file, inputComponent))
         self.emulatorNotMultiAddressHLayout = QHBoxLayout(self)
@@ -76,8 +79,8 @@ class Layout(TemplateLayout):
             'bluestacks_nxt_cn': '蓝叠模拟器',
             'bluestacks_nxt': '蓝叠国际版'
         }
-        emulatorLabelComponent = QLabel('选择多开模拟器', self)
-        multiInstanceNumber = QLabel('多开号', self)
+        emulatorLabelComponent = QLabel(self.tr('选择多开模拟器'), self)
+        multiInstanceNumber = QLabel(self.tr('多开号'), self)
         currentInstanceNumber = self.config.get('emulatorMultiInstanceNumber')
         multiInstanceNumberInputComponent = LineEdit(self)
         multiInstanceNumberInputComponent.setText(str(currentInstanceNumber))
@@ -85,7 +88,7 @@ class Layout(TemplateLayout):
         currentMultiEmulatorName = self.config.get('multiEmulatorName')
         chooseMultiEmulatorCombobox = ComboBox(self)
         values = self.multiMap.keys()
-        chooseMultiEmulatorCombobox.addItems([self.multiMap[key] for key in values])
+        chooseMultiEmulatorCombobox.addItems([bt.tr('ConfigTranslation', self.multiMap[key]) for key in values])
         chooseMultiEmulatorCombobox.setCurrentIndex(list(values).index(currentMultiEmulatorName))
         chooseMultiEmulatorCombobox.currentIndexChanged.connect(self._slotForMultiInstanceComboBoxIndexChanged)
         multiInstanceNumberInputComponent.setFixedWidth(80)
