@@ -24,7 +24,7 @@ class Layout(TemplateLayout):
                 'key': 'emulator_wait_time'
             },
             {
-                'label': '模拟器是否多开',
+                'label': '是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）',
                 'type': 'switch',
                 'key': 'emulatorIsMultiInstance'
             }
@@ -75,7 +75,7 @@ class Layout(TemplateLayout):
             'bluestacks_nxt_cn': '蓝叠模拟器',
             'bluestacks_nxt': '蓝叠国际版'
         }
-        emulatorLabelComponent = QLabel('选择多开模拟器', self)
+        emulatorLabelComponent = QLabel('选择模拟器类型', self)
         multiInstanceNumber = QLabel('多开号', self)
         currentInstanceNumber = self.config.get('emulatorMultiInstanceNumber')
         multiInstanceNumberInputComponent = LineEdit(self)
@@ -96,7 +96,7 @@ class Layout(TemplateLayout):
         self.vBoxLayout.addLayout(self.emulatorMultiHLayout)
 
     def _slotForMultiInstanceNumberChanged(self):
-        self.config.set('emulatorMultiInstanceNumber', int(self.sender().text()))
+        self.config.set('emulatorMultiInstanceNumber', self.sender().text())
 
 
     def _soltForEmulatorIsMultiInstanced(self, state):
