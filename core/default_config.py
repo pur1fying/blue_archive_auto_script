@@ -319,6 +319,7 @@ DEFAULT_CONFIG = """
     "cafe_reward_use_invitation_ticket": true,
     "cafe_reward_allow_duplicate_invite": false,
     "cafe_reward_allow_exchange_student": false,
+    "cafe_reward_interaction_shot_delay": 1.0,
     "favorStudent1": [
         "爱丽丝"
     ],
