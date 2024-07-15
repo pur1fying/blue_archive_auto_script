@@ -84,8 +84,6 @@ class XmlHandler(Handler):
 
         # Find all 'source' tags and translate their text
         for source in root.iter('source'):
-            source_text = source.text
-            translated_text = request.translate(source_text)
 
             # Find the 'translation' tag within the parent 'message' tag
             translation = source.getparent().find('translation')
@@ -95,9 +93,9 @@ class XmlHandler(Handler):
                 if translation.attrib['type'] == 'obsolete':
                     # Delete the parent 'message' tag if 'type' is 'obsolete'
                     source.getparent().getparent().remove(source.getparent())
-                else:
+                elif translation.attrib['type'] == 'unfinished' and not translation.text:
                     # Update the 'translation' tag if 'type' is not 'obsolete'
-                    translation.text = translated_text
+                    translation.text = request.translate(source.text)
             else:
                 # Don't update the 'translation' tag if 'type' attribute doesn't exist
                 continue
