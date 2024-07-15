@@ -1,10 +1,8 @@
 import os
-import codecs
-import translatehtml
+import translators as ts
 
+from bs4 import BeautifulSoup
 from lxml import etree
-from argostranslate import package, translate
-
 from gui.util.language import Language
 
 
@@ -19,57 +17,46 @@ class Handler:
 
 
 class Request:
-    from_code = "zh"
-    def __init__(self, handlers: list[Handler], language: Language, argos_model: str):
+    def __init__(self, handlers: list[Handler], 
+                 qt_language: Language, 
+                 translator: str = 'bing', 
+                 from_lang: str = 'auto', 
+                 to_lang: str = 'en'):
         """
         Parameters
         ----------
         handlers: list[Handler]
-            a list of handlers that represent the the files to translate. 
+            a list of handlers that represent the files to translate. 
 
-        language: Language
+        qt_language: Language
             the memeber of the enum Language to translate
 
-        argos_model: str 
-            The argos model to load for translation
-        """
-        self.language = language
-        self.strLang = language.value.name()
-        self.handlers = handlers
-        self.to_code = argos_model
-        self.model = None
+        translator: str
+            see https://github.com/uliontse/translators
 
-    def translate(self, text):
-        translation = self.model.translate(text)
-        print(translation)
-        return translation
+        from_lang: str
+            see https://github.com/uliontse/translators
+
+        to_lang: str
+            see https://github.com/uliontse/translators
+        """
+        self.qt_language = qt_language
+        self.strLang = qt_language.value.name()
+        self.handlers = handlers
+        self.translator = translator 
+        self.from_lang = from_lang
+        self.to_lang = to_lang
+
+    def translate_text(self, text):
+        text = ts.translate_text(text, self.translator, self.from_lang, self.to_lang)
+        print(text)
+        return text
+    
+    def translate_html(self, html_text):
+        return ts.translate_html(html_text, self.translator, self.from_lang, self.to_lang)
     
     def process(self):
         self.handlers[0].handle(self)
-
-
-class ModelHandler(Handler):
-    """Load argos model. It must always be the first element in the list of handlers"""
-    def handle(self, request):
-        # Load Argos Translate model
-        to_code = request.to_code
-
-        available_packages = package.get_available_packages()
-        available_package = list(
-            filter(
-                lambda x: x.from_code == request.from_code and x.to_code == to_code, available_packages
-            )
-        )[0]
-        download_path = available_package.download()
-        package.install_from_path(download_path)
-
-        # Translate
-        installed_languages = translate.get_installed_languages()
-        from_lang = list(filter(lambda x: x.code == request.from_code, installed_languages))[0]
-        to_lang = list(filter(lambda x: x.code == to_code, installed_languages))[0]
-
-        request.model = from_lang.get_translation(to_lang)
-        self.set_next(request)
 
 
 class XmlHandler(Handler):
@@ -95,7 +82,7 @@ class XmlHandler(Handler):
                     source.getparent().getparent().remove(source.getparent())
                 elif translation.attrib['type'] == 'unfinished' and not translation.text:
                     # Update the 'translation' tag if 'type' is not 'obsolete'
-                    translation.text = request.translate(source.text)
+                    translation.text = request.translate_text(source.text)
             else:
                 # Don't update the 'translation' tag if 'type' attribute doesn't exist
                 continue
@@ -109,7 +96,7 @@ class HtmlHandler(Handler):
     """Generate descriptions"""
     def translate_mission_types(self, request, input_dir, output_dir):
         input_path = os.path.join(input_dir, '各区域所需队伍属性.html')
-        output_path = os.path.join(output_dir, request.translate('各区域所需队伍属性') + '.html')
+        output_path = os.path.join(output_dir, request.translate_text('各区域所需队伍属性') + '.html')
 
         translations = {
             '爆发': 'Explosive',
@@ -129,7 +116,7 @@ class HtmlHandler(Handler):
 
     def handle(self, request):
         input_dir = 'src/descriptions/'
-        output_dir = f'src/descriptions_{request.strLang}'
+        output_dir = f'src/descriptions/{request.strLang}'
         # Ensure the output directory exists
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -142,23 +129,26 @@ class HtmlHandler(Handler):
 
             if filename.endswith('.html'):
                 # Parse the HTML file with BeautifulSoup
-                with codecs.open(os.path.join(input_dir, filename), 'r', 'utf-8') as f_in:
-
-                    # Translate all text in the HTML file
-                    soup = translatehtml.translate_html(request.model, f_in)
-
-                    # Write the translated HTML to the output directory
-                    name, extension = os.path.splitext(filename)
-                    output_name = f'{request.translate(name)}.html'
-                    with codecs.open(os.path.join(output_dir, output_name), 'w', 'utf-8') as f_out:
-                        f_out.write(str(soup.prettify()))
+                with open(os.path.join(input_dir, filename), 'r') as f:
+                    html = f.read()
+                translated_html = request.translate_html(html)
+                soup = BeautifulSoup(translated_html, 'lxml')
+                prettyHTML = soup.prettify()
+                    
+                # Write the translated HTML to the output directory
+                name, extension = os.path.splitext(filename)
+                output_name = f'{request.translate_text(name)}.html'
+                with open(os.path.join(output_dir, output_name), 'w') as f:
+                    f.write(prettyHTML)
         
 
 if __name__ == "__main__":
-    model = ModelHandler()
-    ts = XmlHandler()
+    gui = XmlHandler()
     descriptions = HtmlHandler()
 
-    request_en = Request([model, ts], Language.ENGLISH, 'en')
-    request_en.process()
+    # request_en = Request([gui, descriptions], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
+    # # request_en.process()
+
+    request_jp = Request([descriptions], Language.JAPANESE, 'bing', 'zh-Hans', 'ja')
+    request_jp.process()
 
