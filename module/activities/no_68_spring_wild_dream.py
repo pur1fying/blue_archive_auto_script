@@ -110,7 +110,8 @@ def to_no_69_spring_wild_dream(self, region, skip_first_screenshot=False):
         'activity_fight-success-confirm': (640, 663),
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
-        'purchase_ap_notice': (919, 168),
+        "purchase_ap_notice": (919, 168),
+        'purchase_ap_notice-localized': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
         "normal_task_task-info": (1087, 141),
@@ -181,20 +182,14 @@ def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
 
 
 def start_sweep(self, skip_first_screenshot=False):
-    rgb_ends = [
-        "purchase_ap_notice",
-        "start_sweep_notice",
-    ]
-    rgb_possibles = {
-        "mission_info": (941, 411),
-    }
     img_ends = [
         "purchase_ap_notice",
+        "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice" or res == "buy_ap_notice":
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+    if res == "purchase_ap_notice-localized" or res == "buy_ap_notice":
         return "inadequate_ap"
     rgb_ends = [
         "skip_sweep_complete",
@@ -208,6 +203,7 @@ def start_sweep(self, skip_first_screenshot=False):
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
+
 
 
 def to_exchange(self, skip_first_screenshot=False):

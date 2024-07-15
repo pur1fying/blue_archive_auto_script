@@ -1,21 +1,22 @@
-import module.activities as activity
-
-func_names = {
-    "sakura_flowing_chaos_in_the_gala": activity.sakura_flowing_chaos_in_the_gala.explore_mission,
-    "reckless_nun_and_the_witch_in_the_old_library": activity.reckless_nun_and_the_witch_in_the_old_library.explore_mission,
-    "Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory": activity.Battle_Before_the_New_Years_Dinner_Let_Us_Play_For_The_Victory.explore_mission,
-    "revolutionKupalaNight": activity.revolutionKupalaNight.explore_mission,
-    "bunnyChaserOnTheShip": activity.bunnyChaserOnTheShip.explore_mission,
-    "livelyAndJoyfulWalkingTour": activity.livelyAndJoyfulWalkingTour.explore_mission,
-    "anUnconcealedHeart": activity.anUnconcealedHeart.explore_mission,
-    "iveAlive": activity.iveAlive.explore_mission,
-    "AbydosResortRestorationCommittee": activity.AbydosResortRestorationCommittee.explore_mission,
-    "SummerSkysWishes": activity.SummerSkysWishes.explore_mission,
-}
+import importlib
 
 
 def implement(self):
-    if self.current_game_activity is None or self.current_game_activity not in func_names:
+    if self.current_game_activity is None:
         self.logger.warning("Current activity is not supported")
         return True
-    return func_names[self.current_game_activity](self)
+    self.logger.info("Current activity: " + self.current_game_activity)
+    module_name = "module.activities." + self.current_game_activity
+    try:
+        mod = importlib.import_module(module_name)
+    except ImportError:
+        self.logger.warning("Module [ " + module_name + " ] not found")
+        return True
+    try:
+        func = getattr(mod, "explore_mission")
+    except AttributeError:
+        self.logger.warning("Function [ explore_story ] not found in module , possible reason : ")
+        self.logger.warning("1. Mission Task is not open or exist in this activity")
+        self.logger.warning("2. The function is not implemented, please contact the developer")
+        return True
+    return func(self)

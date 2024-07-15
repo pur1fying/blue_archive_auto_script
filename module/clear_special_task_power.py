@@ -45,11 +45,12 @@ def implement(self):
 def start_sweep(self, skip_first_screenshot=False):
     img_ends = [
         "purchase_ap_notice",
+        "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"special_task_task-info": (941, 411)}
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice" or res == "buy_ap_notice":
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return "inadequate_ap"
     img_ends = [
         "normal_task_skip-sweep-complete",

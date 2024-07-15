@@ -319,6 +319,7 @@ DEFAULT_CONFIG = """
     "cafe_reward_use_invitation_ticket": true,
     "cafe_reward_allow_duplicate_invite": false,
     "cafe_reward_allow_exchange_student": false,
+    "cafe_reward_interaction_shot_delay": 1.0,
     "favorStudent1": [
         "爱丽丝"
     ],
@@ -645,9 +646,9 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "SummerSkysWishes",
+        "CN": "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets",
         "Global": null,
-        "JP": null
+        "JP": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp"
     },
     "dailyGameActivity": {
         "CN": null,
@@ -699,6 +700,14 @@ STATIC_DEFAULT_CONFIG = '''
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"]
     ],
   "student_names": [
+    {
+      "CN_name": "モエ(水着)",
+      "CN_implementation": false,
+      "Global_name": "Moe (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "モエ(水着)",
+      "JP_implementation": true
+    },
     {
       "CN_name": "桐乃(泳装)",
       "CN_implementation": false,
@@ -1317,7 +1326,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "和纱",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Kazusa",
       "Global_implementation": true,
       "JP_name": "カズサ",

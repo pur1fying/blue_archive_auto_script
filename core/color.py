@@ -2,6 +2,8 @@ import threading
 import time
 import numpy as np
 
+from core import image
+
 
 def wait_loading(self):
     t_start = time.time()

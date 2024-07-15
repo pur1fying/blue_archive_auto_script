@@ -76,8 +76,8 @@ def cafe_to_gift(self):
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
 
 
-def shot(self):
-    time.sleep(1)
+def shot(self, delay):
+    time.sleep(delay)
     self.latest_img_array = self.get_screenshot_array()
 
 
@@ -96,12 +96,24 @@ def interaction_for_cafe_solve_method3(self):
     max_times = 4
     for i in range(0, max_times):
         cafe_to_gift(self)
-        t1 = threading.Thread(target=shot, args=(self,))
+        shotDelay = self.config["cafe_reward_interaction_shot_delay"]
+        t1 = threading.Thread(target=shot, args=(self, shotDelay))
         t1.start()
+        startT = time.time()
         self.swipe(131, 660, 1280, 660, duration=0.5)
+        swipeT = time.time() - startT
         t1.join()
         img = cv2.resize(self.latest_img_array, (1280, 720), interpolation=cv2.INTER_AREA)
         res = match(img)
+        if not res:
+            self.logger.info("No interaction found")
+            if swipeT < self.config["cafe_reward_interaction_shot_delay"] + 0.3:
+                self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : "
+                                                                          "[ " + str(shotDelay) + " ]")
+                self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
+                self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
+                self.config.set("cafe_reward_interaction_shot_delay", swipeT - 0.3)
+            break
         gift_to_cafe(self)
         index = 0
         while index < len(res):

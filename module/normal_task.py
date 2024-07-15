@@ -125,6 +125,7 @@ def to_normal_event(self, skip_first_screenshot=False):
         "normal_task_unlock-notice": (887, 164),
         "normal_task_task-info": task_info_lo[self.server],
         'normal_task_skip-sweep-complete': (643, 506),
+        "purchase_ap_notice-localized": (919, 165),
         "purchase_ap_notice": (919, 165),
         'normal_task_task-finish': (1038, 662),
         'normal_task_prize-confirm': (776, 655),
@@ -154,11 +155,12 @@ def to_task_info(self, x, y):
 def start_sweep(self, skip_first_screenshot=False):
     img_ends = [
         "purchase_ap_notice",
+        "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice":
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return False
     rgb_ends = [
         "skip_sweep_complete",
