@@ -141,7 +141,7 @@ class SettingsFragment(ScrollArea):
         notification.success(
             'Language updated successfully',
             'It will take effect after restart',
-            info_widget=self,
+            self.config
         )
 
     def __connectSignalToSlot(self):
