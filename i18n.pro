@@ -30,4 +30,6 @@ SOURCES += \
     gui/util/config_translation.py \
     window.py \
 
-TRANSLATIONS += gui/i18n/en_US.ts
+TRANSLATIONS += gui/i18n/en_US.ts \
+        gui/i18n/ja_JP.ts \
+
