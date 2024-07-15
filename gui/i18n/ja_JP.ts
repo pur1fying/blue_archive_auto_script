@@ -408,8 +408,8 @@
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="32"/>
-        <source>模拟器是否多开</source>
-        <translation type="unfinished">シミュレーターがよりオープンであるかどうか</translation>
+        <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
+        <translation type="unfinished">内蔵の自動スキャンシミュレータ機能を有効にするかどうか(有効にすると、インストールされているシミュレータがシステム内で自動的に認識されます)</translation>
     </message>
 </context>
 <context>
@@ -665,11 +665,6 @@
         <translation type="unfinished">選ぶ</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="82"/>
-        <source>选择多开模拟器</source>
-        <translation type="unfinished">マルチオープンエミュレータを選択します</translation>
-    </message>
-    <message>
         <location filename="../components/expand/emulatorConfig.py" line="83"/>
         <source>多开号</source>
         <translation type="unfinished">マルチオープニングナンバー</translation>
@@ -853,6 +848,11 @@
         <location filename="../components/expand/totalForceFightPriority.py" line="14"/>
         <source>最高难度</source>
         <translation type="unfinished">最高難易度</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/emulatorConfig.py" line="82"/>
+        <source>选择模拟器类型</source>
+        <translation type="unfinished">シミュレーターの種類を選択する</translation>
     </message>
 </context>
 <context>

@@ -147,8 +147,9 @@ if __name__ == "__main__":
     descriptions = HtmlHandler()
 
     # request_en = Request([gui, descriptions], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
-    # # request_en.process()
+    request_en = Request([gui], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
+    request_en.process()
 
-    request_jp = Request([descriptions], Language.JAPANESE, 'bing', 'zh-Hans', 'ja')
+    request_jp = Request([gui], Language.JAPANESE, 'bing', 'zh-Hans', 'ja')
     request_jp.process()
 

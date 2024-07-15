@@ -409,8 +409,8 @@
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="32"/>
-        <source>模拟器是否多开</source>
-        <translation type="unfinished">Enable multi-instance for the emulator</translation>
+        <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
+        <translation type="unfinished">Enable auto emulator scanning function (will automatically detect installed emulators on the system when enabled)</translation>
     </message>
 </context>
 <context>
@@ -563,7 +563,7 @@
         <translation>Start Script</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="132"/>
+        <location filename="../fragments/home.py" line="131"/>
         <source>正在运行：</source>
         <translation>Running: </translation>
     </message>
@@ -850,110 +850,110 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
         <translation type="unfinished">Select</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="82"/>
-        <source>选择多开模拟器</source>
-        <translation type="unfinished">Select multi-instance emulator</translation>
-    </message>
-    <message>
         <location filename="../components/expand/emulatorConfig.py" line="83"/>
         <source>多开号</source>
         <translation type="unfinished">Port</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/emulatorConfig.py" line="82"/>
+        <source>选择模拟器类型</source>
+        <translation type="unfinished">Select the emulator type</translation>
     </message>
 </context>
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="325"/>
+        <location filename="../fragments/home.py" line="324"/>
         <source>停止</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="329"/>
+        <location filename="../fragments/home.py" line="328"/>
         <source>启动</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="247"/>
+        <location filename="../fragments/home.py" line="246"/>
         <source>困难图推图已完成</source>
         <translation>Clear Hard Mission completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="256"/>
+        <location filename="../fragments/home.py" line="255"/>
         <source>普通图推图已完成</source>
         <translation>Clear Normal Mission completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="270"/>
+        <location filename="../fragments/home.py" line="269"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>Anti-harmony success, please restart BA download resources</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="278"/>
+        <location filename="../fragments/home.py" line="277"/>
         <source>主线剧情已完成</source>
         <translation>Main Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="288"/>
+        <location filename="../fragments/home.py" line="287"/>
         <source>小组剧情已完成</source>
         <translation>Group Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="298"/>
+        <location filename="../fragments/home.py" line="297"/>
         <source>支线剧情已完成</source>
         <translation>Mini story completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="308"/>
+        <location filename="../fragments/home.py" line="307"/>
         <source>活动剧情已完成</source>
         <translation>Event Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="318"/>
+        <location filename="../fragments/home.py" line="317"/>
         <source>活动任务已完成</source>
         <translation>Event Quest Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="328"/>
+        <location filename="../fragments/home.py" line="327"/>
         <source>活动挑战推图已完成</source>
         <translation>Event Challenge Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="330"/>
+        <location filename="../fragments/home.py" line="329"/>
         <source>无任务</source>
         <translation>No task</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="253"/>
+        <location filename="../fragments/home.py" line="252"/>
         <source>普通关推图</source>
         <translation>Clear Normal Mission</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="274"/>
+        <location filename="../fragments/home.py" line="273"/>
         <source>自动主线剧情</source>
         <translation>Main Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="284"/>
+        <location filename="../fragments/home.py" line="283"/>
         <source>自动小组剧情</source>
         <translation>Group Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="295"/>
+        <location filename="../fragments/home.py" line="294"/>
         <source>自动支线剧情</source>
         <translation>Mini Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="305"/>
+        <location filename="../fragments/home.py" line="304"/>
         <source>自动活动剧情</source>
         <translation>Clear Event Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="315"/>
+        <location filename="../fragments/home.py" line="314"/>
         <source>自动活动任务</source>
         <translation>Clear Event Quest</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="324"/>
+        <location filename="../fragments/home.py" line="323"/>
         <source>自动活动挑战</source>
         <translation>Clear Event Challenge</translation>
     </message>
@@ -1386,12 +1386,12 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
         <translation>ConfigTranslation</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="157"/>
+        <location filename="../fragments/home.py" line="156"/>
         <source>MainThread</source>
         <translation>MainThread</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="159"/>
+        <location filename="../fragments/home.py" line="158"/>
         <source>MainThread</source>
         <comment>停止</comment>
         <translation>MainThread</translation>
