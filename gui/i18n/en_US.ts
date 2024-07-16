@@ -129,7 +129,8 @@
     <message>
         <location filename="../util/config_translation.py" line="62"/>
         <source>重要，此处为功能开关，控制各功能是否开启，启动前请检查是否开启。</source>
-        <translation>Control whether each task is turned on, make sure to do it before starting the script.</translation>
+        <translation>Control whether each task is turned on, 
+make sure to do it before starting the script.</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="63"/>
@@ -244,12 +245,12 @@
     <message>
         <location filename="../util/config_translation.py" line="82"/>
         <source>随机初级神秘古物</source>
-        <translation type="unfinished">A random primary mystical antiquities.</translation>
+        <translation>Random Beginner Material</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="83"/>
         <source>随机中级神秘古物</source>
-        <translation type="unfinished">Random middle-class mythology.</translation>
+        <translation>Random Intermediate Material</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="86"/>
@@ -334,7 +335,7 @@
     <message>
         <location filename="../util/config_translation.py" line="45"/>
         <source>日常小游戏</source>
-        <translation type="unfinished">Daily Game Activity</translation>
+        <translation>Daily Game Activity</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="46"/>
@@ -395,22 +396,26 @@
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="17"/>
         <source>在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)</source>
-        <translation type="unfinished">Open the emulator when running Baas</translation>
+        <translation>&lt;b&gt;Open the emulator on running Baas&lt;/b&gt; &lt;br/&gt;(The switch for start emulator. Emulator won&apos;t be started if closed)</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="27"/>
         <source>等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)</source>
-        <translation type="unfinished">Seconds to wait for the emulator to start</translation>
+        <translation>&lt;b&gt;The time waiting for emulator startup&lt;/b&gt; &lt;br/&gt;
+(The time(metered in seconds) from the start&lt;br/&gt;
+ to the desktop loaded status, regularly set unchanged)</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="22"/>
         <source>是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)</source>
-        <translation type="unfinished">Enable emulator multi-instance (ignore existing emulator processes and start a new emulator when enabled)</translation>
+        <translation>&lt;b&gt;Enable emulator multi-instance?&lt;/b&gt; (ignore existing &lt;br/&gt;
+emulator processes and start a new emulator if enabled)</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="32"/>
         <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
-        <translation type="unfinished">Enable auto emulator scanning function (will automatically detect installed emulators on the system when enabled)</translation>
+        <translation>&lt;b&gt;Enable auto emulator scanning function?&lt;/b&gt; (will automatically &lt;br/&gt;
+detect installed emulators on the system when enabled)</translation>
     </message>
 </context>
 <context>
@@ -436,17 +441,20 @@
     <message>
         <location filename="../components/expand/exploreConfig.py" line="15"/>
         <source>是否手动boss战（进入关卡后暂停等待手操）</source>
-        <translation type="unfinished">Manual boss battle (pause and wait for manual control after entering the level)</translation>
+        <translation>Manual boss battle? (Pause and Wait for
+ manual control after entering the battle)</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="20"/>
         <source>是否不强制打到sss（启用后跳过已通过但未sss的关卡）</source>
-        <translation type="unfinished">Skip achieving SSS rank (skip levels that have been completed but not reached SSS after enabling)</translation>
+        <translation>Skip getting SSS rank (If enabled, The script
+will skip completed but unSSSed levels)</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="25"/>
         <source>开启后强制打每一个指定的关卡（不管是否sss）</source>
-        <translation type="unfinished">Force play each specified level after enabling (regardless of SSS rank)</translation>
+        <translation>Force play each specified level if
+ enabled (regardless of SSSed rank)</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="30"/>
@@ -555,7 +563,7 @@
     <message>
         <location filename="../fragments/home.py" line="75"/>
         <source>档案，启动</source>
-        <translation>Launch</translation>
+        <translation>BlueArchive, Launch</translation>
     </message>
     <message>
         <location filename="../fragments/home.py" line="75"/>
@@ -565,7 +573,7 @@
     <message>
         <location filename="../fragments/home.py" line="131"/>
         <source>正在运行：</source>
-        <translation>Running: </translation>
+        <translation>Running:</translation>
     </message>
 </context>
 <context>
@@ -574,7 +582,7 @@
         <location filename="../components/expand/arenaPriority.py" line="18"/>
         <source>输入你需要对手比你低几级，高几级则填负数：</source>
         <translation>Enter how many ranks below or above you need the opponent to be.
-Use positive number for below and negative for above.</translation>
+Use positive number for below and negative for above:</translation>
     </message>
     <message>
         <location filename="../components/expand/arenaPriority.py" line="19"/>
@@ -639,13 +647,13 @@ Use positive number for below and negative for above.</translation>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="85"/>
         <source>推图选项</source>
-        <translation type="unfinished">Slide Options</translation>
+        <translation>Map-clear Options</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="85"/>
         <source>请在下面填写要推的图,填写方式见-普通图自动推图说明-</source>
-        <translation type="unfinished">Please enter the stages to be cleared.
-See Clear Hard and Normal Stages in Help.</translation>
+        <translation>Please enter the stages to be cleared.
+See Clear Hard and Normal Stages in Help</translation>
     </message>
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="37"/>
@@ -665,7 +673,7 @@ See Clear Hard and Normal Stages in Help.</translation>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="90"/>
         <source>排序方式：</source>
-        <translation type="unfinished">Sort by:</translation>
+        <translation>Sort by:</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="92"/>
@@ -707,7 +715,7 @@ See Clear Hard and Normal Stages in Help.</translation>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>Set hard stages as above, with a maximum of 3 sweeps. Use commas for separation.
-For JP or Global server, you can use &apos;max&apos;.</translation>
+For JP or Global server, you can use &apos;max&apos;:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -722,7 +730,7 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
     <message>
         <location filename="../components/expand/schedulePriority.py" line="21"/>
         <source>优先做好感等级多的日程</source>
-        <translation type="unfinished">Prioritize lessons with higher affection levels</translation>
+        <translation>Prioritize lessons with higher affection levels</translation>
     </message>
     <message>
         <location filename="../components/expand/schedulePriority.py" line="116"/>
@@ -792,72 +800,72 @@ For JP or Global server, you can use &apos;max&apos;.</translation>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="113"/>
         <source>普通关推图</source>
-        <translation type="unfinished">Normal Level Push Map</translation>
+        <translation>Normal Level Mainline Map Clear</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="171"/>
         <source>更多配置</source>
-        <translation type="unfinished">More Configuration</translation>
+        <translation>More Configuration</translation>
     </message>
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="61"/>
         <source>困难关推图</source>
-        <translation type="unfinished">Hard to push map</translation>
+        <translation>Hard Mainline Map Clear</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="111"/>
         <source>设置失败</source>
-        <translation type="unfinished">Setup failed</translation>
+        <translation>Setup failed</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="36"/>
         <source>截图间隔</source>
-        <translation type="unfinished">Intercept</translation>
+        <translation>Screenshot Interval</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="202"/>
         <source>详细配置</source>
-        <translation type="unfinished">Detailed Configuration</translation>
+        <translation>Detailed Configuration</translation>
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="21"/>
         <source>是否领取奖励:</source>
-        <translation type="unfinished">Claim rewards:</translation>
+        <translation>Claim rewards? :</translation>
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="23"/>
         <source>优先邀请券好感等级低的学生:</source>
-        <translation type="unfinished">Priority is given to students with low levels of affection:</translation>
+        <translation>Is Priority given to low-affection-level students? :</translation>
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="24"/>
         <source>是否允许学生更换服饰:</source>
-        <translation type="unfinished">Are students allowed to change clothes:</translation>
+        <translation>Allow students to change clothes? :</translation>
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="33"/>
         <source>是否允许重复邀请:</source>
-        <translation type="unfinished">Whether to repeat invitations:</translation>
+        <translation>Repeat invitations? :</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="58"/>
         <source>选择模拟器地址</source>
-        <translation type="unfinished">Emulator Path</translation>
+        <translation>Choose Emulator Path</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="66"/>
         <source>选择</source>
-        <translation type="unfinished">Select</translation>
+        <translation>Select</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="83"/>
         <source>多开号</source>
-        <translation type="unfinished">Port</translation>
+        <translation>Multi-account</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="82"/>
         <source>选择模拟器类型</source>
-        <translation type="unfinished">Select the emulator type</translation>
+        <translation>Select the emulator type</translation>
     </message>
 </context>
 <context>
