@@ -1,4 +1,5 @@
 import os
+import subprocess
 import translators as ts
 
 from bs4 import BeautifulSoup
@@ -58,6 +59,13 @@ class Request:
     def process(self):
         self.handlers[0].handle(self)
 
+
+class Pylupdate5Handler(Handler):
+    def handle(self, request):
+        result = subprocess.run(['pylupdate5', 'i18n.pro'], capture_output=True, text=True)
+        print(result.stdout)
+        self.set_next(request)
+        
 
 class XmlHandler(Handler):
     """Translate ts files"""
@@ -140,14 +148,26 @@ class HtmlHandler(Handler):
                 output_name = f'{request.translate_text(name)}.html'
                 with open(os.path.join(output_dir, output_name), 'w') as f:
                     f.write(prettyHTML)
-        
+
+
+class LreleaseHandler(Handler):
+    def handle(self, request):
+        directory = os.path.join(os.getcwd(), 'gui', 'i18n')
+        result = subprocess.run(['lrelease', f'{request.strLang}.ts'], cwd=directory, capture_output=True, text=True)
+        print(result.stdout)
+        self.set_next(request)
+
 
 if __name__ == "__main__":
+    pylupdate = Pylupdate5Handler()
     gui = XmlHandler()
     descriptions = HtmlHandler()
+    lrelease = LreleaseHandler()
 
-    # request_en = Request([gui, descriptions], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
-    request_en = Request([gui], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
+    # request_en = Request([pylupdate, gui, descriptions, lrelease], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
+    # request_en.process()
+
+    request_en = Request([pylupdate, gui, lrelease], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
     request_en.process()
 
     request_jp = Request([gui], Language.JAPANESE, 'bing', 'zh-Hans', 'ja')
