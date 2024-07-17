@@ -29,7 +29,7 @@ sys.path.append('./')
 
 # Offer the error to the error.log
 ICON_DIR = 'gui/assets/logo.png'
-
+LAST_NOTICE_TIME = 0
 
 def update_config_reserve_old(config_old, config_new):  # 保留旧配置原有的键，添加新配置中没有的，删除新配置中没有的键
     for key in config_new:
@@ -455,7 +455,7 @@ if __name__ == '__main__':
     app.installTranslator(bt)
 
     bt.loadCfgTranslation()
-    
+
     w = Window()
     # 聚焦窗口
     w.setFocus(True)

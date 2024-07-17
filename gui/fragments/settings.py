@@ -6,12 +6,12 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF, ScrollArea, TitleLabel, SettingCardGroup)
 
+import window
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
 from gui.util.language import Language
 from gui.util import notification
 from gui.util.translator import baasTranslator as bt
-
 
 class SettingsFragment(ScrollArea):
     def __init__(self, parent=None, config=None):
@@ -138,11 +138,14 @@ class SettingsFragment(ScrollArea):
 
     def __showRestartTooltip(self):
         """ show restart tooltip """
+        if time.time() - window.LAST_NOTICE_TIME < 0.1:
+            return
         notification.success(
             'Language updated successfully',
             'It will take effect after restart',
             self.config
         )
+        window.LAST_NOTICE_TIME = time.time()
 
     def __connectSignalToSlot(self):
         """ connect signal to slot """
