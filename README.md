@@ -113,4 +113,8 @@ GUI预览图：
 
 **[@lzw-723](https://github.com/lzw-723)**
 
+7.日文GUI支持,同样感谢
+
+**[@キラメイ Kiramei](https://github.com/Kiramei)**
+
 
