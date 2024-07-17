@@ -1,6 +1,6 @@
 import time
 from core import color, image
-
+from module.main_story import change_acc_auto
 
 def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possibles=None, skip_first_screenshot=False,
               tentitive_click=False, tentitivex=1238, tentitivey=45, max_fail_cnt=10, rgb_pop_ups=None,
@@ -118,6 +118,8 @@ def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
         if color.judgeRGBFeature(self, position):
             self.logger.info("find : " + position)
             if position == "fighting_feature":
+                self.logger.info("Enter fight, wait fight auto end")
+                change_acc_auto(self)
                 img_possibles = {
                     "normal_task_mission-operating-task-info-notice": (995, 101),
                     "normal_task_end-turn": (890, 162),

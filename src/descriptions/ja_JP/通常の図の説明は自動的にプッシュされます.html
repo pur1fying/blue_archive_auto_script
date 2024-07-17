@@ -1,0 +1,197 @@
+<html>
+ <body>
+  <p>
+  </p>
+  <p>
+   通常の図の自動プッシュの説明:
+  </p>
+  <p>
+   1.使用説明書:
+  </p>
+  <p>
+   (1):必須
+   <span style="background-color: #f1c40f;">
+    <strong>
+     アンロック
+    </strong>
+   </span>
+   自動的にラウンドを終了し、
+   <strong>
+    <span style="background-color: #f1c40f;">
+     オートバトル
+    </span>
+   </strong>
+   (自動検出してオン)
+  </p>
+  <p>
+   (2):対応レベルのメインストーリーは正常
+   <span style="background-color: #f1c40f;">
+    <strong>
+     4 - 25
+    </strong>
+   </span>
+  </p>
+  <p>
+   (3):BAASがマップを押すと、チームはクリック座標とルートを移動し、ブルーファイルゲームに複数のチームがある場合、ゲーム内のチームの数、サイズ座標、移動順序によって異なるため、すべての動きは1回しかクリックされません。
+  </p>
+  <p>
+   (4):(3)により、画像が自動的にプッシュされた場合
+   <strong>
+    <span style="background-color: #f1c40f;">
+     選択したチームの数が最小から最大であることを確認する必要があります
+     <span style="background-color: #ffffff;">
+      。
+     </span>
+    </span>
+   </strong>
+  </p>
+  <p>
+   <span style="background-color: #f1c40f;">
+    <span style="background-color: #ffffff;">
+     (5):BAASはに従って選択します
+     <span style="background-color: #f1c40f;">
+      <strong>
+       通常の画像プッシュ画像設定&lt;&gt;
+      </strong>
+     </span>
+    </span>
+    <strong>
+     選択したチーム属性
+    </strong>
+   </span>
+   <span style="background-color: #ffffff;">
+    そして
+    <span style="background-color: #f1c40f;">
+     <strong>
+      &lt;チーム選択ロジック&gt;
+     </strong>
+    </span>
+    マップをプッシュするための適切な構成を見つける
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    (6):プッシュ
+    <strong>
+     <span style="background-color: #f1c40f;">
+      拍車
+     </span>
+    </strong>
+    レベルは保証される必要があります&lt;
+    <span style="background-color: #ffffff;">
+     <span style="background-color: #f1c40f;">
+      <strong>
+       指定されたすべてのレベルを適用
+      </strong>
+     </span>
+    </span>
+    &gt;オプション
+    <span style="color: #000000; background-color: #f1c40f;">
+     <strong>
+      シャットダウン
+     </strong>
+    </span>
+   </span>
+  </p>
+  <p>
+   最初の属性は [1] で、2 番目の属性は [2] であることに注意してください。
+  </p>
+  <p>
+   チーム選択ロジック:
+  </p>
+  <p>
+   1 優先保証[1] 拘束関係に基づいて残りのチーム番号を選択し、残りの対応するチーム属性の拘束関係を徐々に減らします。
+  </p>
+  <p>
+   2 チームを選択する場合 (4 - チーム番号) &gt; = 必要な残りのチーム数。
+  </p>
+  <p>
+   3 1と2が保証できない場合は、対応するチームの拘束関係を徐々に減らす[1]
+  </p>
+  <p>
+   4 一部のチームが選択され、4 - これらのチームの最大数 &gt;= 残りの必須チーム数の場合、残りのチームはオプションの番号の順に入力されます。
+  </p>
+  <p>
+   5 上記の条件のいずれも満たされない場合、1、2、3... 選択したチームに番号を付ける
+  </p>
+  <p>
+   <strong>
+    例：
+   </strong>
+  </p>
+  <p>
+   「23フィギュア[バースト、スルー]」のチームを選択する際の順番を試してみてください。
+  </p>
+  <p>
+   最初のチームから抜け出す、最初のチームを通して-&gt;最初のチームから抜け出す、2番目のチームを通して-&gt;最初のチームから抜け出す、2番目のチームを抜ける-&gt;...
+  </p>
+  <p>
+   ファーストチーム番号が3で、上記の順番で選ばれなかった場合は、4がセカンドチームとして選ばれる
+  </p>
+  <p>
+   まだ選ばれていない場合は、1 2が最終チームとして選ばれます
+  </p>
+  <p>
+   <span style="background-color: #f1c40f;">
+    <strong>
+     通常のマッププッシュのレベルを埋めるための手順:
+    </strong>
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    1. もし
+    <span style="background-color: #f1c40f;">
+     <strong>
+      特定のレベルごとに強制プレイが有効になっていません
+     </strong>
+    </span>
+    記入する各数字は押すエリアを示し、現在のレベルがSSSであるかどうかに応じて、エリア内の各レベルをプレイするかどうかをプログラムが判断します
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    例：
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    15,16,14
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    15、16、14を順番に押すということです。
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    2.
+    <span style="background-color: #f1c40f;">
+     <span style="background-color: #ffffff;">
+      もし
+     </span>
+     <strong>
+      特定の各レベルを強制的にプレイできます
+     </strong>
+    </span>
+    で、領域内のすべてのレベルを一度プッシュする数値を入力し、指定したレベルを示す数値 - 数値を入力します
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    例：
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    15,16-3
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    これは、15-1、15-2、15-3、15-4、15-5、16-3を順番にプレイすることを意味します
+   </span>
+  </p>
+ </body>
+</html>

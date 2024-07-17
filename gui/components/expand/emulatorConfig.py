@@ -1,42 +1,46 @@
 from functools import partial
 
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QLabel, QHBoxLayout
 from qfluentwidgets import LineEdit, PushButton, ComboBox
 
 from .expandTemplate import TemplateLayout
+from gui.util import notification
+from gui.util.translator import baasTranslator as bt
+
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
+        EmulatorConfig = QObject()
         configItems = [
             {
-                'label': '在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)',
+                'label': EmulatorConfig.tr('在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)'),
                 'key': 'open_emulator_stat',
                 'type': 'switch'
             },
             {
-                'label': '是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)',
+                'label': EmulatorConfig.tr('是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)'),
                 'key': 'multi_emulator_check',
                 'type': 'switch'
             },
             {
-                'label': '等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)',
+                'label': EmulatorConfig.tr('等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)'),
                 'type': 'text',
                 'key': 'emulator_wait_time'
             },
             {
-                'label': '是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）',
+                'label': EmulatorConfig.tr('是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）'),
                 'type': 'switch',
                 'key': 'emulatorIsMultiInstance'
             }
         ]
 
-        super().__init__(parent=parent, configItems=configItems, config=config)
+        super().__init__(parent=parent, configItems=configItems, config=config, context='EmulatorConfig')
         if not self.config.get('emulatorIsMultiInstance'):
             self._createNotMultiComponent()
         else:
             self._createMultiComponent()
         self.vBoxLayout.children()[3].itemAt(2).widget().checkedChanged.connect(self._soltForEmulatorIsMultiInstanced)
-
 
     def _choose_file(self, line_edit):
         file_dialog = QFileDialog()
@@ -51,15 +55,15 @@ class Layout(TemplateLayout):
                 self.config.set('program_address', file_path)
 
     def _createNotMultiComponent(self):
-        labelComponent = QLabel('选择模拟器地址', self)
+        labelComponent = QLabel(self.tr('选择模拟器地址'), self)
         addressKey = 'program_address'
         inputComponent = LineEdit(self)
         inputComponent.setFixedWidth(500)  # 设置文本框的固定宽度
         inputComponent.setText(str(self.config.get(addressKey)))
-        confirmButton = PushButton('确定', self)
+        confirmButton = PushButton(self.tr('确定'), self)
         confirmButton.setFixedWidth(80)  # 设置确定按钮的固定宽度
         confirmButton.clicked.connect(partial(self._commit, addressKey, inputComponent, labelComponent))
-        selectButton = PushButton('选择', self)
+        selectButton = PushButton(self.tr('选择'), self)
         selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
         selectButton.clicked.connect(partial(self._choose_file, inputComponent))
         self.emulatorNotMultiAddressHLayout = QHBoxLayout(self)
@@ -75,8 +79,8 @@ class Layout(TemplateLayout):
             'bluestacks_nxt_cn': '蓝叠模拟器',
             'bluestacks_nxt': '蓝叠国际版'
         }
-        emulatorLabelComponent = QLabel('选择模拟器类型', self)
-        multiInstanceNumber = QLabel('多开号', self)
+        emulatorLabelComponent = QLabel(self.tr('选择模拟器类型'), self)
+        multiInstanceNumber = QLabel(self.tr('多开号'), self)
         currentInstanceNumber = self.config.get('emulatorMultiInstanceNumber')
         multiInstanceNumberInputComponent = LineEdit(self)
         multiInstanceNumberInputComponent.setText(str(currentInstanceNumber))
@@ -84,7 +88,7 @@ class Layout(TemplateLayout):
         currentMultiEmulatorName = self.config.get('multiEmulatorName')
         chooseMultiEmulatorCombobox = ComboBox(self)
         values = self.multiMap.keys()
-        chooseMultiEmulatorCombobox.addItems([self.multiMap[key] for key in values])
+        chooseMultiEmulatorCombobox.addItems([bt.tr('ConfigTranslation', self.multiMap[key]) for key in values])
         chooseMultiEmulatorCombobox.setCurrentIndex(list(values).index(currentMultiEmulatorName))
         chooseMultiEmulatorCombobox.currentIndexChanged.connect(self._slotForMultiInstanceComboBoxIndexChanged)
         multiInstanceNumberInputComponent.setFixedWidth(80)

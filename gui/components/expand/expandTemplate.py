@@ -8,6 +8,7 @@ from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit
 from core.utils import delay
 from gui.util import notification
 from gui.util.config_set import ConfigSet
+from gui.util.translator import baasTranslator as bt
 
 
 class ConfigItem:
@@ -26,7 +27,7 @@ class ConfigItem:
 class TemplateLayout(QWidget):
     patch_signal = pyqtSignal(str)
 
-    def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config=None):
+    def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config=None, context=None):
         super().__init__(parent=parent)
         self.config = config
         if isinstance(configItems[0], dict):
@@ -44,7 +45,7 @@ class TemplateLayout(QWidget):
             confirmButton = None
             selectButton = None
             optionPanel = QHBoxLayout(self)
-            labelComponent = QLabel(cfg.label, self)
+            labelComponent = QLabel(bt.tr(context, cfg.label), self)
             optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
             optionPanel.addStretch(1)
             if cfg.type == 'switch':
@@ -55,23 +56,25 @@ class TemplateLayout(QWidget):
             elif cfg.type == 'combo':
                 currentKey = cfg.key
                 inputComponent = ComboBox(self)
+                cfg.selection = [bt.tr(context, x) for x in cfg.selection] if context else cfg.selection
                 inputComponent.addItems(cfg.selection)
                 inputComponent.setCurrentIndex(cfg.selection.index(self.config.get(currentKey)))
                 inputComponent.currentIndexChanged.connect(
                     partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'button':
-                inputComponent = PushButton('执行', self)
+                # impossible to translate without specifying TemplateLayout context
+                text = bt.tr('TemplateLayout', self.tr('执行'))
+                inputComponent = PushButton(text, self)
                 inputComponent.clicked.connect(cfg.selection)
             elif cfg.type == 'text':
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 inputComponent.setText(str(self.config.get(currentKey)))
                 self.patch_signal.connect(inputComponent.setText)
-                confirmButton = PushButton('确定', self)
+                confirmButton = PushButton(self.tr('确定'), self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':
                 inputComponent = QLabel(cfg.selection, self)
-
             else:
                 raise ValueError(f'Unknown config type: {cfg.type}')
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
@@ -92,7 +95,7 @@ class TemplateLayout(QWidget):
             value = target.text()
         assert value is not None
         self.config.update(key, value)
-        notification.success('设置成功', f'{labelTarget.text()}已经被设置为：{value}', self.config)
+        notification.success(self.tr('设置成功'), f'{labelTarget.text()}{self.tr("已经被设置为：")}{value}', self.config)
 
 
 class ConfigItemV2(ConfigItem):
