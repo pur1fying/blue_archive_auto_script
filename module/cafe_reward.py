@@ -112,8 +112,9 @@ def interaction_for_cafe_solve_method3(self):
                                                                           "[ " + str(shotDelay) + " ]")
                 self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
                 self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
-                self.config.set("cafe_reward_interaction_shot_delay", swipeT - 0.3)
-            break
+                self.config["cafe_reward_interaction_shot_delay"] = swipeT - 0.3
+                self.config_set.set("cafe_reward_interaction_shot_delay", self.config["cafe_reward_interaction_shot_delay"] )
+            continue
         gift_to_cafe(self)
         index = 0
         while index < len(res):
