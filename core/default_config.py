@@ -644,7 +644,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets",
+        "CN": "OnYourMarkAtMillenniumKivotosHaloFestival",
         "Global": null,
         "JP": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp"
     },
@@ -699,7 +699,7 @@ STATIC_DEFAULT_CONFIG = '''
     ],
   "student_names": [
     {
-      "CN_name": "モエ(水着)",
+      "CN_name": "萌绘(泳装)",
       "CN_implementation": false,
       "Global_name": "Moe (Swimsuit)",
       "Global_implementation": false,

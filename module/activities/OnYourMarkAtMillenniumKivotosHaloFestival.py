@@ -12,7 +12,7 @@ def implement(self):
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
          sweep(self, region, times)
-    exchange_reward(self)
+    # exchange_reward(self)
     return True
 
 
@@ -60,8 +60,8 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data(self):
-    module_path = 'src.explore_task_data.activities.' + self.current_game_activity
+def get_stage_data():
+    module_path = 'src.explore_task_data.activities.SweetSecretsAndGunfightsATaleOfAfterSchoolSweets'
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -108,8 +108,8 @@ def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True, True)
     last_target_task = 1
-    total_stories = 8
-    self.stage_data = get_stage_data(self)
+    total_stories = 7
+    self.stage_data = get_stage_data()
     while self.flag_run:
         plot = to_story_task_info(self, last_target_task)
         if plot == "normal_task_task-info":
@@ -176,7 +176,7 @@ def explore_mission(self):
     last_target_mission = 1
     total_missions = 12
     characteristic = [
-        'pierce1',
+        'burst1',
         'burst1',
         'pierce1',
         'pierce1',
@@ -318,9 +318,9 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
 
 
 def to_story_task_info(self, number):
-    lo = [0, 180, 280, 380, 480, 580, 680, 580, 680]
-    if number >= 7:
-        self.swipe(916, 667, 916, 0, duration=0.05, post_sleep_time=0.7)
+    lo = [0, 180, 280, 380, 480, 580, 480, 580]
+    if number >= 6:
+        self.swipe(916, 585, 916, 0, duration=0.05, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = [
         "normal_task_task-info",
@@ -331,12 +331,12 @@ def to_story_task_info(self, number):
 
 def to_mission_task_info(self, number):
     lo = [0, 184, 308, 422, 537, 645]
-    index = [1, 2, 3, 4, 5, 4, 5, 1, 2, 3, 4, 5]
-    if number in [6, 7]:
-        self.swipe(916, 483, 916, 219, duration=0.5, post_sleep_time=0.7)
-    if number in [8, 9, 10, 11, 12]:
-        self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
-        self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
+    index = [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
+    if number in [5, 6, 7, 8]:
+        self.swipe(916, 585, 916, 105, duration=1, post_sleep_time=0.7)
+    if number in [9, 10, 11, 12]:
+        self.swipe(943, 585, 943, 0, duration=0.1, post_sleep_time=0.7)
+        self.swipe(943, 585, 943, 0, duration=0.1, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[index[number - 1]])}
     img_ends = "normal_task_task-info"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
