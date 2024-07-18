@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
@@ -318,29 +317,34 @@
         <translation>글로벌</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="103"/>
+        <location filename="../util/config_translation.py" line="104"/>
         <source>日服</source>
         <translation>일섭</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="106"/>
+        <location filename="../util/config_translation.py" line="107"/>
         <source>拖动礼物</source>
         <translation>선물주기</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="109"/>
+        <location filename="../util/config_translation.py" line="110"/>
         <source>MuMu模拟器</source>
         <translation>뮤뮤 앱플레이어</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="110"/>
+        <location filename="../util/config_translation.py" line="111"/>
         <source>蓝叠模拟器</source>
         <translation>블루스택</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="111"/>
+        <location filename="../util/config_translation.py" line="112"/>
         <source>蓝叠国际版</source>
         <translation>블루스택 CN</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="103"/>
+        <source>国际服青少年</source>
+        <translation type="unfinished">국제 봉사 청소년</translation>
     </message>
 </context>
 <context>
@@ -762,8 +766,8 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
-        <translation>보통 레벨과 횟수 (예 : &quot;1-1-1, 1-2-3&quot;과 같은 레벨 1-1을 나타낸 다음 레벨 1-2를 확인) : 세 번) :</translation>
+        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <translation>보통 레벨과 횟수 (예 : "1-1-1, 1-2-3"과 같은 레벨 1-1을 나타낸 다음 레벨 1-2를 확인) : 세 번) :</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
@@ -1110,6 +1114,11 @@
         <location filename="../components/expand/serverConfig.py" line="32"/>
         <source>检测adb地址(检测目前开启的模拟器adb地址)</source>
         <translation>ADB 포트 감지 (현재 실행중인 앱플레이어 ADB 포트 감지)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <source>国际服青少年</source>
+        <translation type="unfinished">국제 봉사 청소년</translation>
     </message>
 </context>
 <context>

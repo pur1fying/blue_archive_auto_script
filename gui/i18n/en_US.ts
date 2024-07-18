@@ -193,12 +193,12 @@ make sure to do it before starting the script.</translation>
         <translation>Global</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="103"/>
+        <location filename="../util/config_translation.py" line="104"/>
         <source>日服</source>
         <translation>JP</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="106"/>
+        <location filename="../util/config_translation.py" line="107"/>
         <source>拖动礼物</source>
         <translation>Drag the gift</translation>
     </message>
@@ -318,17 +318,17 @@ make sure to do it before starting the script.</translation>
         <translation>No Task</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="109"/>
+        <location filename="../util/config_translation.py" line="110"/>
         <source>MuMu模拟器</source>
         <translation>MuMu Player</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="110"/>
+        <location filename="../util/config_translation.py" line="111"/>
         <source>蓝叠模拟器</source>
         <translation>BlueStacks CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="111"/>
+        <location filename="../util/config_translation.py" line="112"/>
         <source>蓝叠国际版</source>
         <translation>BlueStacks</translation>
     </message>
@@ -341,6 +341,11 @@ make sure to do it before starting the script.</translation>
         <location filename="../util/config_translation.py" line="46"/>
         <source>咖啡厅邀请</source>
         <translation>Cafe Invitation</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="103"/>
+        <source>国际服青少年</source>
+        <translation>Global Teen</translation>
     </message>
 </context>
 <context>
@@ -1117,6 +1122,11 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <location filename="../components/expand/serverConfig.py" line="32"/>
         <source>检测adb地址(检测目前开启的模拟器adb地址)</source>
         <translation>Detect the adb address of the currently opened emulator</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <source>国际服青少年</source>
+        <translation>Global Teen</translation>
     </message>
 </context>
 <context>
