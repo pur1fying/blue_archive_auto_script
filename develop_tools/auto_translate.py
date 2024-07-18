@@ -164,8 +164,8 @@ if __name__ == "__main__":
     descriptions = HtmlHandler()
     lrelease = LreleaseHandler()
 
-    # request_en = Request([pylupdate, gui, descriptions, lrelease], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
-    # request_en.process()
+    request_ko = Request([pylupdate, gui, lrelease], Language.KOREAN, 'papago', 'zh-Hans', 'ko')
+    request_ko.process()
 
     request_en = Request([pylupdate, gui, lrelease], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
     request_en.process()
