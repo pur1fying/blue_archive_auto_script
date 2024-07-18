@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ </head>
+ <body>
+  <p>
+   일반 맵 자동 푸시 맵 설명 :
+  </p>
+  <p>
+   1. 사용 지침 :
+  </p>
+  <p>
+   (1) : 필수
+   <span style="background-color: #f1c40f;">
+    <strong>
+     터놓다
+    </strong>
+   </span>
+   자동으로 라운드를 종료하고
+   <strong>
+    <span style="background-color: #f1c40f;">
+     자동 전투
+    </span>
+   </strong>
+   (자동으로 감지 및 켜기)
+  </p>
+  <p>
+   (2) : 지원 수준의 주요 레벨은 평범합니다.
+   <span style="background-color: #f1c40f;">
+    <strong>
+     4-15
+    </strong>
+   </span>
+  </p>
+  <p>
+   (3) : BAA가지도를 푸시하면 팀이 움직이고 좌표와 경로가 고정되며 모든 움직임은 블루 파일 게임이 푸시되면 한 번만 클릭하면 좌표 수와 크기 좌표가 있습니다. 게임의 크기 좌표는 팀을 기반으로합니다.
+  </p>
+  <p>
+   (4) : (3), 그림이 자동으로 푸시 될 때
+   <strong>
+    <span style="background-color: #f1c40f;">
+     필요합니다
+     <span style="background-color: #ffffff;">
+      본질
+     </span>
+    </span>
+   </strong>
+  </p>
+  <p>
+   <span style="background-color: #f1c40f;">
+    <span style="background-color: #ffffff;">
+     (5) : BAA가 선택합니다
+     <span style="background-color: #f1c40f;">
+      <strong>
+       &amp; lt; 일반지도 푸시 맵 설정 &amp; gt;
+      </strong>
+     </span>
+    </span>
+    <strong>
+     선택된 팀 속성
+    </strong>
+   </span>
+   <span style="background-color: #ffffff;">
+    그리고
+    <span style="background-color: #f1c40f;">
+     <strong>
+      &amp; lt; 선거 팀 논리 &amp; gt;
+     </strong>
+    </span>
+    푸시 도면에 적합한 구성을 찾으십시오
+   </span>
+  </p>
+  <p>
+   다음 그림의 해당 속성에서 첫 번째 속성은 [1]이고 두 번째 속성은 [2]입니다.
+  </p>
+  <p>
+   선거 팀 논리 :
+  </p>
+  <p>
+   1 우선 순위 보증 [1] 구속 관계에 기초하여 나머지 팀 번호를 선택하여 나머지 해당 팀 속성의 구속 관계를 점차적으로 줄입니다.
+  </p>
+  <p>
+   2 팀을 선택할 때 (4- 팀 번호) &amp; gt;
+  </p>
+  <p>
+   3 1과 2를 보장 할 수없는 경우 점차적으로 감소합니다 [1] 해당 팀 구속 관계
+  </p>
+  <p>
+   4 일부 팀이 선정되었고 4 개가 가장 많은 팀이 필요합니다.
+  </p>
+  <p>
+   5 위의 조건이 충족되지 않은 다음 팀 번호 1, 2, 3 ...
+  </p>
+  <p>
+   <strong>
+    예:
+   </strong>
+  </p>
+  <p>
+   "그림 23 [폭발, 침투]의 경우"팀을 선택할 때 주문을 시도하십시오.
+  </p>
+  <p>
+   첫 번째 팀의 발발 -두 번째 팀을 통해 팀의 발병;
+  </p>
+  <p>
+   팀 번호가 3이고 위의 순서로 선택되지 않은 경우 두 번째 팀으로 4를 선택하십시오.
+  </p>
+  <p>
+   선택하지 않은 경우 최종 팀으로 1 2를 선택하십시오.
+  </p>
+  <p>
+   <span style="background-color: #f1c40f;">
+    <strong>
+     일반 맵 푸시 맵 레벨을 작성하십시오.
+    </strong>
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    1. if
+    <span style="background-color: #f1c40f;">
+     <strong>
+      언어가 지정된 모든 수준을 플레이해야합니다
+     </strong>
+    </span>
+    ,지도를 푸시하기 위해 영역을 채우는 각 번호, 프로그램은 현재 레벨이 SSS인지 여부에 따라 영역의 각 레벨을 재생 해야하는지 여부를 결정합니다.
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    예:
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    15,16,14
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    그것은 15, 16 및 14를 푸시한다는 것을 의미합니다.
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    2.
+    <span style="background-color: #f1c40f;">
+     <span style="background-color: #ffffff;">
+      만약에
+     </span>
+     <strong>
+      지정된 모든 수준으로 의무적으로 설정하십시오
+     </strong>
+    </span>
+    그런 다음 숫자를 입력하여 영역의 모든 레벨을 한 번 표시하고 숫자 수를 입력하면 지정된 레벨을 나타냅니다.
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    예:
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    15,16-3
+   </span>
+  </p>
+  <p>
+   <span style="background-color: #ffffff;">
+    15-1, 15-2, 15-3, 15-4, 15-5, 16-3을 나타냅니다.
+   </span>
+  </p>
+ </body>
+</html>

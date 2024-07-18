@@ -32,5 +32,5 @@ SOURCES += \
 
 TRANSLATIONS += gui/i18n/en_US.ts \
         gui/i18n/ja_JP.ts \
-        gui/i18n/ko_KO.ts \	
+		    gui/i18n/ko_KR.ts \		
 
