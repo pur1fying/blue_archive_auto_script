@@ -1,3 +1,4 @@
+import shutil
 from datetime import datetime
 import cv2
 from core.exception import ScriptError
@@ -286,15 +287,12 @@ class Baas_thread:
         try:
             self.adb_port = self.config.get('adbPort')
             self.logger.info("adb port: " + str(self.adb_port))
-
             if not self.adb_port or self.adb_port == '0':
                 self.connection = u2.connect()
             else:
                 self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
-            if 'com.github.uiautomator' not in self.connection.app_list():
-                self.connection.app_install('ATX.apk')
-            self.connection.uiautomator.start()
-            self.wait_uiautomator_start()
+            # self.check_atx_agent_cache()
+            self.check_atx()
             self.first_start_u2 = False
             self.last_refresh_u2_time = time.time()
             temp = self.connection.window_size()
@@ -308,6 +306,19 @@ class Baas_thread:
             self.logger.error(e.__str__())
             self.logger.error("Emulator initialization failed")
             return False
+
+    def check_atx_agent_cache(self):
+        init = u2.Initer(self.connection._adb_device)
+        path = u2.init.gen_cachepath(init.atx_agent_url)
+
+
+    def check_atx(self):
+        self.logger.info("--------------Check ATX install ----------------")
+        if 'com.github.uiautomator' not in self.connection.app_list():
+            self.logger.info("ATX not found on stimulator, install")
+            self.connection.app_install("src/atx_app/ATX.apk")
+        self.connection.uiautomator.start()
+        self.wait_uiautomator_start()
 
     def send(self, msg, task=None):
         if msg == "start":
