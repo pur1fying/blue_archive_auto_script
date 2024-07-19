@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
@@ -323,22 +322,22 @@
         <translation>일섭</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="107"/>
+        <location filename="../util/config_translation.py" line="108"/>
         <source>拖动礼物</source>
         <translation>선물 드래그</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="110"/>
+        <location filename="../util/config_translation.py" line="111"/>
         <source>MuMu模拟器</source>
         <translation>뮤뮤 앱플레이어</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="111"/>
+        <location filename="../util/config_translation.py" line="112"/>
         <source>蓝叠模拟器</source>
         <translation>블루스택</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="112"/>
+        <location filename="../util/config_translation.py" line="113"/>
         <source>蓝叠国际版</source>
         <translation>블루스택 CN</translation>
     </message>
@@ -349,7 +348,7 @@
     </message>
     <message>
         <location filename="../util/config_translation.py" line="104"/>
-    <source>韩国ONE</source>
+        <source>韩国ONE</source>
         <translation>원스토어</translation>
     </message>
 </context>
@@ -772,13 +771,13 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
-        <translation>보통 레벨과 횟수 (예 : &quot;1-1-1, 1-2-3&quot;과 같은 레벨 1-1을 나타낸 다음 레벨 1-2를 확인) : 세 번) :</translation>
+        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <translation>보통 레벨과 횟수 (예 : "1-1-1, 1-2-3"과 같은 레벨 1-1을 나타낸 다음 레벨 1-2를 확인) : 세 번) :</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
-        <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회), 구분은 쉼표로, 일본 서버와 해외 서버는 &apos;max&apos;로 입력할 수 있습니다:</translation>
+        <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회), 구분은 쉼표로, 일본 서버와 해외 서버는 'max'로 입력할 수 있습니다:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -1125,6 +1124,11 @@
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>国际服青少年</source>
         <translation>글로벌 서버 틴버전</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <source>韩国ONE</source>
+        <translation type="unfinished">원스토어</translation>
     </message>
 </context>
 <context>
