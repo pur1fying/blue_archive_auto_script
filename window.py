@@ -162,7 +162,7 @@ def check_config(dir_path):
         server = check_user_config(path)
         if server == "官服" or server == "B服":
             server = "CN"
-        elif server == "国际服" or "国际服青少年":
+        elif server == "国际服" or "国际服青少年" or "韩国ONE":
             server = "Global"
         elif server == "日服":
             server = "JP"
