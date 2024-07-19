@@ -317,7 +317,7 @@
         <translation>国際サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="104"/>
+        <location filename="../util/config_translation.py" line="105"/>
         <source>日服</source>
         <translation>日本サーバー</translation>
     </message>
@@ -1115,6 +1115,11 @@
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>国际服青少年</source>
         <translation type="unfinished">国際奉仕の十代の若者たち</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="104"/>
+    <source>韩国ONE</source>
+        <translation>KR Onestore</translation>
     </message>
 </context>
 <context>
