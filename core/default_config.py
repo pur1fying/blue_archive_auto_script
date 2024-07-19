@@ -658,7 +658,7 @@ STATIC_DEFAULT_CONFIG = '''
         "B服": "com.RoamingStar.BlueArchive.bilibili",
         "国际服": "com.nexon.bluearchive",
          "国际服青少年": "com.nexon.bluearchiveteen",
-         "韩国ONE": "com.nexon.bluearchive.one",
+         "韩国ONE": "com.nexon.bluearchiveone",
 
         "日服": "com.YostarJP.BlueArchive"
     },
