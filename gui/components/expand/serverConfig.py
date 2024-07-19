@@ -21,7 +21,7 @@ class Layout(TemplateLayout):
                 'label': ServerConfig.tr('请选择您的服务器，请慎重切换服务器，切换服务器后请重新启动脚本'),
                 'type': 'combo',
                 'key': 'server',
-                'selection': [ServerConfig.tr('官服'), ServerConfig.tr('B服'), ServerConfig.tr('国际服'), ServerConfig.tr('国际服青少年'), ServerConfig.tr('日服')]
+                'selection': [ServerConfig.tr('官服'), ServerConfig.tr('B服'), ServerConfig.tr('国际服'), ServerConfig.tr('国际服青少年'), ServerConfig.tr('韩国ONE'), ServerConfig.tr('日服')]
             },
             {
                 'label': ServerConfig.tr('请填写您的adb端口号'),

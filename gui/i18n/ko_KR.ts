@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
@@ -78,12 +79,12 @@
     <message>
         <location filename="../util/config_translation.py" line="32"/>
         <source>普通关清体力</source>
-        <translation>일반 임무 소탕</translation>
+        <translation>일반 스테이지 소탕</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="33"/>
         <source>困难关清体力</source>
-        <translation>하드 임무 소탕</translation>
+        <translation>하드 스테이지 소탕</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="58"/>
@@ -314,17 +315,17 @@
     <message>
         <location filename="../util/config_translation.py" line="102"/>
         <source>国际服</source>
-        <translation>글로벌</translation>
+        <translation>글로벌 서버</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="104"/>
+        <location filename="../util/config_translation.py" line="105"/>
         <source>日服</source>
         <translation>일섭</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="107"/>
         <source>拖动礼物</source>
-        <translation>선물주기</translation>
+        <translation>선물 드래그</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="110"/>
@@ -344,7 +345,12 @@
     <message>
         <location filename="../util/config_translation.py" line="103"/>
         <source>国际服青少年</source>
-        <translation type="unfinished">국제 봉사 청소년</translation>
+        <translation>글로벌 서버 틴버전</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="104"/>
+    <source>韩国ONE</source>
+        <translation>원스토어</translation>
     </message>
 </context>
 <context>
@@ -357,7 +363,7 @@
     <message>
         <location filename="../components/expand/featureSwitch.py" line="22"/>
         <source>优先级</source>
-        <translation>우선 사항</translation>
+        <translation>우선 순위</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="27"/>
@@ -372,7 +378,7 @@
     <message>
         <location filename="../components/expand/featureSwitch.py" line="37"/>
         <source>禁用时间段</source>
-        <translation>기간을 비활성화합니다</translation>
+        <translation>비활성화 할 기간</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="42"/>
@@ -400,22 +406,22 @@
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="17"/>
         <source>在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)</source>
-        <translation>BAA를 실행할 때 시뮬레이터 열기 (시뮬레이터의 기능 스위치를 시작하면 시뮬레이터가 닫힌 후 시뮬레이터가 시작되지 않습니다)</translation>
+        <translation>BAA를 실행할 때 앱플레이어 실행</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="22"/>
         <source>是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)</source>
-        <translation>이미 실행중인 앱플레이어 여부 (열린 후 시작된 앱플레이어 프로세스를 무시하고 다른 앱플레이어가 시작됩니다))))</translation>
+        <translation>이미 실행중인 앱플레이어 무시</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="27"/>
         <source>等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)</source>
-        <translation>앱플레이어의 시작 시간을 기다리는 중</translation>
+        <translation>앱플레이어 실행 대기시간</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="32"/>
         <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
-        <translation>앱플레이어 자동서치 기능이 활성화되어 있는지 여부 (시스템에 설치된 앱플레이어는 개방 후 시스템에서 자동으로 인식됩니다)</translation>
+        <translation>앱플레이어 자동설치 검색 활성화</translation>
     </message>
 </context>
 <context>
@@ -547,7 +553,7 @@
     <message>
         <location filename="../fragments/home.py" line="55"/>
         <source>蔚蓝档案自动脚本</source>
-        <translation>파란기록물 자동 운전 스크립트</translation>
+        <translation>파란기록물 자동 운전 프로그람 현재 프로파일</translation>
     </message>
     <message>
         <location filename="../fragments/home.py" line="58"/>
@@ -562,7 +568,7 @@
     <message>
         <location filename="../fragments/home.py" line="75"/>
         <source>档案，启动</source>
-        <translation>파란 기록물 시작</translation>
+        <translation>파란 기록물 자동운전 시작</translation>
     </message>
     <message>
         <location filename="../fragments/home.py" line="75"/>
@@ -766,13 +772,13 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
-        <translation>보통 레벨과 횟수 (예 : "1-1-1, 1-2-3"과 같은 레벨 1-1을 나타낸 다음 레벨 1-2를 확인) : 세 번) :</translation>
+        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <translation>보통 레벨과 횟수 (예 : &quot;1-1-1, 1-2-3&quot;과 같은 레벨 1-1을 나타낸 다음 레벨 1-2를 확인) : 세 번) :</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
-        <translation>난이도 설정은 위와 동일합니다. 참고 : 대부분은 3), 쉼표는 영어 쉼표이며, 일일 서비스 및 국제 서비스는 최대로 채울 수 있습니다 :</translation>
+        <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회), 구분은 쉼표로, 일본 서버와 해외 서버는 &apos;max&apos;로 입력할 수 있습니다:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -862,7 +868,7 @@
     <message>
         <location filename="../components/expand/totalForceFightPriority.py" line="14"/>
         <source>最高难度</source>
-        <translation>최고 난이도</translation>
+        <translation>설정 난이도</translation>
     </message>
 </context>
 <context>
@@ -1019,7 +1025,7 @@
     <message>
         <location filename="../fragments/process.py" line="94"/>
         <source>暂无正在执行的任务</source>
-        <translation>실행중인 로동이 없습니다</translation>
+        <translation>작업중인 로동이 없습니다</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="54"/>
@@ -1029,7 +1035,7 @@
     <message>
         <location filename="../fragments/process.py" line="96"/>
         <source>暂无队列中的任务</source>
-        <translation>로동계획에 일 없습네다</translation>
+        <translation>실행중인 로동계획이 없습니다</translation>
     </message>
 </context>
 <context>
@@ -1118,7 +1124,7 @@
     <message>
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>国际服青少年</source>
-        <translation type="unfinished">국제 봉사 청소년</translation>
+        <translation>글로벌 서버 틴버전</translation>
     </message>
 </context>
 <context>
@@ -1264,7 +1270,7 @@
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="29"/>
         <source>活动关卡扫荡关卡</source>
-        <translation>소탕할 이벤트 스테이지 이름</translation>
+        <translation>소탕 할 이벤트 스테이지 이름</translation>
     </message>
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="34"/>
