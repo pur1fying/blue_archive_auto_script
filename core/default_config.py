@@ -657,12 +657,17 @@ STATIC_DEFAULT_CONFIG = '''
         "官服": "com.RoamingStar.BlueArchive",
         "B服": "com.RoamingStar.BlueArchive.bilibili",
         "国际服": "com.nexon.bluearchive",
+         "国际服青少年": "com.nexon.bluearchiveteen",
+         "韩国ONE": "com.nexon.bluearchiveone",
+
         "日服": "com.YostarJP.BlueArchive"
     },
     "activity_name": {
         "官服": "com.yostar.sdk.bridge.YoStarUnityPlayerActivity",
         "B服": "com.yostar.sdk.bridge.YoStarUnityPlayerActivity",
         "国际服": ".MxUnityPlayerActivity",
+        "国际服青少年": ".MxUnityPlayerActivity",
+        "韩国ONE": ".MxUnityPlayerActivity",
         "日服": "com.yostarjp.bluearchive.MxUnityPlayerActivity"
     },
     "total_assault_difficulties": {

@@ -516,7 +516,7 @@ class Baas_thread:
         server = self.config['server']
         if server == '官服' or server == 'B服':
             self.server = 'CN'
-        elif server == '国际服':
+        elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
             self.server = 'Global'
         elif server == '日服':
             self.server = 'JP'

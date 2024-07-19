@@ -21,7 +21,7 @@ class ConfigSet:
             self.static_config = json.load(f)
         if self.config['server'] == '国服' or self.config['server'] == 'B服':
             self.server_mode = 'CN'
-        elif self.config['server'] == '国际服':
+        elif self.config['server'] in ['国际服', '国际服青少年', '韩国ONE']:
             self.server_mode = 'Global'
         elif self.config['server'] == '日服':
             self.server_mode = 'JP'

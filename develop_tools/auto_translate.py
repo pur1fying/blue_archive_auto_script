@@ -18,16 +18,16 @@ class Handler:
 
 
 class Request:
-    def __init__(self, handlers: list[Handler],
-                 qt_language: Language,
-                 translator: str = 'bing',
-                 from_lang: str = 'auto',
+    def __init__(self, handlers: list[Handler], 
+                 qt_language: Language, 
+                 translator: str = 'bing', 
+                 from_lang: str = 'auto', 
                  to_lang: str = 'en'):
         """
         Parameters
         ----------
         handlers: list[Handler]
-            a list of handlers that represent the files to translate.
+            a list of handlers that represent the files to translate. 
 
         qt_language: Language
             the memeber of the enum Language to translate
@@ -44,7 +44,7 @@ class Request:
         self.qt_language = qt_language
         self.strLang = qt_language.value.name()
         self.handlers = handlers
-        self.translator = translator
+        self.translator = translator 
         self.from_lang = from_lang
         self.to_lang = to_lang
 
@@ -52,10 +52,10 @@ class Request:
         text = ts.translate_text(text, self.translator, self.from_lang, self.to_lang)
         print(text)
         return text
-
+    
     def translate_html(self, html_text):
         return ts.translate_html(html_text, self.translator, self.from_lang, self.to_lang)
-
+    
     def process(self):
         self.handlers[0].handle(self)
 
@@ -65,14 +65,14 @@ class Pylupdate5Handler(Handler):
         result = subprocess.run(['pylupdate5', 'i18n.pro'], capture_output=True, text=True)
         print(result.stdout)
         self.set_next(request)
-
+        
 
 class XmlHandler(Handler):
     """Translate ts files"""
     def handle(self, request):
         # Load the XML from a file
-        input_file = os.path.join('../gui/i18n/', f'{request.strLang}.ts')
-        output_file = os.path.join('../gui/i18n/', f'{request.strLang}.ts')
+        input_file = os.path.join('gui/i18n/', f'{request.strLang}.ts')
+        output_file = os.path.join('gui/i18n/', f'{request.strLang}.ts')
 
         tree = etree.parse(input_file)
         root = tree.getroot()
@@ -123,7 +123,7 @@ class HtmlHandler(Handler):
             f.write(text)
 
     def handle(self, request):
-        input_dir = '../src/descriptions/'
+        input_dir = 'src/descriptions/zh_CN/'
         output_dir = f'src/descriptions/{request.strLang}'
         # Ensure the output directory exists
         if not os.path.exists(output_dir):
@@ -142,7 +142,7 @@ class HtmlHandler(Handler):
                 translated_html = request.translate_html(html)
                 soup = BeautifulSoup(translated_html, 'lxml')
                 prettyHTML = soup.prettify()
-
+                    
                 # Write the translated HTML to the output directory
                 name, extension = os.path.splitext(filename)
                 output_name = f'{request.translate_text(name)}.html'
@@ -152,7 +152,7 @@ class HtmlHandler(Handler):
 
 class LreleaseHandler(Handler):
     def handle(self, request):
-        directory = os.path.join(os.getcwd(), '../gui', 'i18n')
+        directory = os.path.join(os.getcwd(), 'gui', 'i18n')
         result = subprocess.run(['lrelease', f'{request.strLang}.ts'], cwd=directory, capture_output=True, text=True)
         print(result.stdout)
         self.set_next(request)
@@ -164,12 +164,14 @@ if __name__ == "__main__":
     descriptions = HtmlHandler()
     lrelease = LreleaseHandler()
 
-    # request_en = Request([pylupdate, gui, descriptions, lrelease], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
-    # request_en.process()
-
+    # request_ko = Request([pylupdate, gui, descriptions, lrelease], Language.KOREAN, 'google', 'zh-Hans', 'ko')
+    # request_ko.process()
     request_en = Request([pylupdate, gui, lrelease], Language.ENGLISH, 'bing', 'zh-Hans', 'en')
     request_en.process()
 
-    request_jp = Request([gui], Language.JAPANESE, 'bing', 'zh-Hans', 'ja')
-    request_jp.process()
+    request_ja = Request([pylupdate, gui, lrelease], Language.JAPANESE, 'bing', 'zh-Hans', 'ja')
+    request_ja.process()
+
+    request_ko = Request([pylupdate, gui, lrelease], Language.KOREAN, 'bing', 'zh-Hans', 'ko')
+    request_ko.process()
 

@@ -317,29 +317,39 @@
         <translation>国際サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="103"/>
+        <location filename="../util/config_translation.py" line="105"/>
         <source>日服</source>
         <translation>日本サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="106"/>
+        <location filename="../util/config_translation.py" line="108"/>
         <source>拖动礼物</source>
         <translation>ギフトドラッグ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="109"/>
+        <location filename="../util/config_translation.py" line="111"/>
         <source>MuMu模拟器</source>
         <translation>MuMuエミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="110"/>
+        <location filename="../util/config_translation.py" line="112"/>
         <source>蓝叠模拟器</source>
         <translation>Blue Stack「中国」シミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="111"/>
+        <location filename="../util/config_translation.py" line="113"/>
         <source>蓝叠国际版</source>
         <translation>Blue Stack「国際」シミュレータ</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="103"/>
+        <source>国际服青少年</source>
+        <translation type="unfinished">国際奉仕の十代の若者たち</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="104"/>
+        <source>韩国ONE</source>
+        <translation type="unfinished">KR Onestore</translation>
     </message>
 </context>
 <context>
@@ -1105,6 +1115,16 @@
         <location filename="../components/expand/serverConfig.py" line="32"/>
         <source>检测adb地址(检测目前开启的模拟器adb地址)</source>
         <translation>ADB アドレスの検出 (現在有効なエミュレータの ADB アドレスを確認してください)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <source>国际服青少年</source>
+        <translation type="unfinished">国際奉仕の十代の若者たち</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <source>韩国ONE</source>
+        <translation>KR Onestore</translation>
     </message>
 </context>
 <context>
