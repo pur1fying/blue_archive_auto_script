@@ -2,7 +2,6 @@ import time
 
 from core import color, picture
 
-
 def implement(self):
     self.quick_method_to_main_page()
     self.lesson_times = self.config["lesson_times"]
@@ -364,5 +363,5 @@ def choose_lesson(self, res, region):
                             max_relationship = res[1][j]
                             choice = j
                         if choice != -1:
-                            break
+                            return choice
             return choice

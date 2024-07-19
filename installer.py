@@ -152,7 +152,7 @@ def check_python():
 
 def check_atx():
     logger.info("Checking atx-agent...")
-    if not os.path.exists('./ATX.apk'):
+    if not os.path.exists('src/atx_app/ATX.apk'):
         logger.info("Downloading atx-agent...")
         download_file(GET_ATX_URL)
 
