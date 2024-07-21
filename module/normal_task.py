@@ -79,7 +79,7 @@ def readOneNormalTask(task_string):
     if task_string.count('-') != 2:
         raise ValueError("[ " + task_string + " ] format error.")
     mainline_available_missions = list(range(1, 6))
-    mainline_available_regions = list(range(5, 26))
+    mainline_available_regions = list(range(5, 27))
     mainline_available_regions.append("tutorial")
     temp = task_string.split('-')
     region = temp[0]
