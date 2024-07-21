@@ -87,7 +87,7 @@ def return_bluestacks_type(pid):
         except FileNotFoundError:
             return None
 
-    bst_cn_path = bst_read_registry_key('cn')
+    bst_cn_path = bst_read_registry_key('_cn')
     bst_path = bst_read_registry_key('')
     try:
         pid = int(pid)

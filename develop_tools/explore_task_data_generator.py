@@ -9,7 +9,6 @@ stage_data = {}
 
 input_record = ""
 
-
 def get_input():
     global input_record
     temp = input()
@@ -161,12 +160,15 @@ def get_actions(team_cnt):
             one_action["p"] = []
             for i in range(p_cnt):
                 one_action["p"].append(get_one_position())
-
+        if one_action['t'] == 'end-turn':
+            print("current action : \n", one_action)
+            action.append(one_action)
+            continue
         if team_cnt > 1 and one_action['t'] != 'choose_and_change':
             print("Will formation number change after this action ? [y/n]")
             if get_y_n():
                 one_action["ec"] = True
-        if one_action['t'] != 'choose_and_change':
+        if one_action['t'] != 'choose_and_change' :
             print("Need wait-over after this action ? [y/n]")
             if get_y_n():
                 one_action["wait-over"] = True

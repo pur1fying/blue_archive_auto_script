@@ -53,11 +53,12 @@ def auto_scan_simulators():
 def auto_search_adb_address():
     # 正则表达式匹配模板
     regex_patterns = {
-        'MEmu.exe': r'.*MEmu.exe MEmu_(\w+)',
-        'HD-Player.exe': r'.*HD-Player.exe --instance (\w+)',
-        'dnplayer.exe': r'.*dnplayer.exe index=(\w+)',
-        'MuMuPlayer.exe': r'.*MuMuPlayer.exe -v (\w+)'
+    'MEmu.exe': r'.*MEmu.exe\s+MEmu_(\w+)',
+    'HD-Player.exe': r'.*HD-Player.exe\s+--instance\s+(\w+)',
+    'dnplayer.exe': r'.*dnplayer.exe\s+index=(\w+)',
+    'MuMuPlayer.exe': r'.*MuMuPlayer.exe\s+-v\s+(\w+)'
     }
+
 
     adb_addresses = []
     process_list = auto_scan_simulators()
@@ -80,16 +81,16 @@ def auto_search_adb_address():
                 cmdline_no_quotes = cmdline.replace('"', '')
                 for simulator, pattern in regex_patterns.items():
                     cmdline = cmdline.replace('"', '')
-                    match = re.search(pattern, cmdline)
+                    match = re.search(pattern, cmdline_no_quotes)
                     if match:
                         multi_instance = match.group(1)
                         if process == 'bluestacks_nxt':
-                            bst_cn_path = bst_read_install_key('cn')
+                            bst_cn_path = bst_read_install_key('_cn')
                             bst_path = bst_read_install_key('')
                             player_path = process_native_api("get_exe_path_name", "HD-Player.exe")
 
                             if bst_cn_path == player_path:
-                                adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance, "cn")}"""
+                                adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance, "_cn")}"""
                                 adb_addresses.append(adb_address)
                                 break
                             elif bst_path == player_path:
