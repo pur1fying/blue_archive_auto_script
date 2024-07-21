@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
@@ -164,7 +165,7 @@
     <message>
         <location filename="../util/config_translation.py" line="66"/>
         <source>竞技场商店里买东西</source>
-        <translation>정공전 상점에서 구매</translation>
+        <translation>정공전 상점 구매</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="67"/>
@@ -362,7 +363,7 @@
     <message>
         <location filename="../components/expand/featureSwitch.py" line="22"/>
         <source>优先级</source>
-        <translation>우선 순위</translation>
+        <translation>작업 순위</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="27"/>
@@ -382,12 +383,12 @@
     <message>
         <location filename="../components/expand/featureSwitch.py" line="42"/>
         <source>前置任务</source>
-        <translation>전면 작업</translation>
+        <translation>사전 실행 로동</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="48"/>
         <source>后置任务</source>
-        <translation>후면 작업</translation>
+        <translation>후속 실행 로동</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="59"/>
@@ -420,7 +421,7 @@
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="32"/>
         <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
-        <translation>앱플레이어 자동설치 검색 활성화</translation>
+        <translation>앱플레이어 설치 자동 검색 활성화</translation>
     </message>
 </context>
 <context>
@@ -446,19 +447,17 @@
     <message>
         <location filename="../components/expand/exploreConfig.py" line="15"/>
         <source>是否手动boss战（进入关卡后暂停等待手操）</source>
-        <translation>수동보스전 (전투 시작 후 일시 정지 및 대기
- 전투에 참가한 후 수동 제어))</translation>
+        <translation>수동보스전</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="20"/>
         <source>是否不强制打到sss（启用后跳过已通过但未sss的关卡）</source>
-        <translation>SSS등급 무시 (활성화 된 경우 스크립트는 SSS가 아닌 등급을 생략합니다 )</translation>
+        <translation>3별 스테이지 무시</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="25"/>
         <source>开启后强制打每一个指定的关卡（不管是否sss）</source>
-        <translation>다음의 경우 지정된 각 레벨을 강제로 재생합니다
-활성화됨(SSSed 순위에 관계없이)</translation>
+        <translation>활성화하면 3별과 관계없이 강제로 플레이 합니다</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="30"/>
@@ -506,7 +505,7 @@
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="13"/>
         <source>打到SSS</source>
-        <translation>3 별 목표로</translation>
+        <translation>3 별을 목표로 합니다</translation>
     </message>
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="18"/>
@@ -552,7 +551,7 @@
     <message>
         <location filename="../fragments/home.py" line="55"/>
         <source>蔚蓝档案自动脚本</source>
-        <translation>파란기록물 자동 운전 프로그람 현재 프로파일</translation>
+        <translation>파란기록물 자동 운전 프로그람 --</translation>
     </message>
     <message>
         <location filename="../fragments/home.py" line="58"/>
@@ -572,7 +571,7 @@
     <message>
         <location filename="../fragments/home.py" line="75"/>
         <source>开始你的档案之旅</source>
-        <translation>스크립트 시작</translation>
+        <translation>로동 시작</translation>
     </message>
     <message>
         <location filename="../fragments/home.py" line="131"/>
@@ -591,7 +590,7 @@
     <message>
         <location filename="../components/expand/arenaPriority.py" line="19"/>
         <source>输入你最多需要刷新几次：</source>
-        <translation>새로 고침해야 하는 횟수를 입력합니다:</translation>
+        <translation>최대 새로 고침 횟수:</translation>
     </message>
     <message>
         <location filename="../components/expand/shopPriority.py" line="31"/>
@@ -621,7 +620,7 @@
     <message>
         <location filename="../components/expand/cafeInvite.py" line="23"/>
         <source>优先邀请券好感等级低的学生:</source>
-        <translation>애정도가 낮은 학생 우선 :</translation>
+        <translation>인연도가 낮은 학생 우선 :</translation>
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="24"/>
@@ -651,7 +650,7 @@
     <message>
         <location filename="../components/expand/cafeInvite.py" line="63"/>
         <source>选择摸头方式：</source>
-        <translation>쓰담  방법을 선택하세요:</translation>
+        <translation>쓰담 방법 선택:</translation>
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="178"/>
@@ -696,7 +695,8 @@
     <message>
         <location filename="../components/expand/exploreConfig.py" line="85"/>
         <source>请在下面填写要推的图,填写方式见-普通图自动推图说明-</source>
-        <translation>아래에 누르는 스테이지를 입력, 입력 방법은 일반 스테이지와 같으므로 설명 참고</translation>
+        <translation>클리어할 스테이지를 입력하세요.
+(도움말에서 하드 및 일반 스테이지 클리어를 참조하세요)</translation>
     </message>
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="37"/>
@@ -711,12 +711,12 @@
     <message>
         <location filename="../components/expand/featureSwitch.py" line="79"/>
         <source>全部(不)启用</source>
-        <translation>모두(비활성화)</translation>
+        <translation>모두선택 On/Off</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="85"/>
         <source>刷新执行时间</source>
-        <translation>업데이트 실행 시간</translation>
+        <translation>현재 시각으로 업데이트</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="90"/>
@@ -731,12 +731,12 @@
     <message>
         <location filename="../components/expand/featureSwitch.py" line="92"/>
         <source>按下次执行时间排序</source>
-        <translation>최종 실행 시간으로 정렬</translation>
+        <translation>최근 실행순으로 정렬</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="171"/>
         <source>事件</source>
-        <translation>액티비티</translation>
+        <translation>로동</translation>
     </message>
     <message>
         <location filename="../components/expand/featureSwitch.py" line="171"/>
@@ -761,8 +761,8 @@
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="33"/>
         <source>&lt;b&gt;困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍&lt;/b&gt;</source>
-        <translation>하드 스테이지는 일반 스테이지의 동일한 단위 요건을 따릅니다
-(도움말에서 하드 및 일반 단계 지우기 참조)</translation>
+        <translation>클리어할 스테이지를 입력하세요
+(도움말에서 하드 및 일반 스테이지 클리어를 참조하세요)</translation>
     </message>
     <message>
         <location filename="../components/expand/hardTaskConfig.py" line="61"/>
@@ -771,13 +771,15 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
-        <translation>보통 레벨과 횟수 (예 : "1-1-1, 1-2-3"과 같은 레벨 1-1을 나타낸 다음 레벨 1-2를 확인) : 세 번) :</translation>
+        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <translation>일반 스테이지 소탕 횟수
+(예: &quot;1-1-1,1-2-3&quot;은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
-        <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회), 구분은 쉼표로, 일본 서버와 해외 서버는 'max'로 입력할 수 있습니다:</translation>
+        <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회),
+구분은 쉼표로, 일본 서버와 해외 서버는 &apos;max&apos;로 입력할 수 있습니다:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -797,7 +799,7 @@
     <message>
         <location filename="../components/expand/schedulePriority.py" line="21"/>
         <source>优先做好感等级多的日程</source>
-        <translation>애정도가 높은 스케쥴 우선</translation>
+        <translation>인연도가 높은 스케쥴을 우선합니다</translation>
     </message>
     <message>
         <location filename="../components/expand/schedulePriority.py" line="116"/>
@@ -812,7 +814,7 @@
     <message>
         <location filename="../components/expand/schedulePriority.py" line="104"/>
         <source>初级</source>
-        <translation>초급</translation>
+        <translation>기초</translation>
     </message>
     <message>
         <location filename="../components/expand/schedulePriority.py" line="104"/>
@@ -822,7 +824,7 @@
     <message>
         <location filename="../components/expand/schedulePriority.py" line="104"/>
         <source>高级</source>
-        <translation>고급</translation>
+        <translation>상급</translation>
     </message>
     <message>
         <location filename="../components/expand/schedulePriority.py" line="104"/>
@@ -991,7 +993,7 @@
     <message>
         <location filename="../components/expand/proceedPlot.py" line="10"/>
         <source>主线剧情需要推的章节数</source>
-        <translation>클리어하고 싶은 메인 스토리 챕터 수</translation>
+        <translation>클리어하고 싶은 메인 스토리 챕터 번호</translation>
     </message>
     <message>
         <location filename="../components/expand/proceedPlot.py" line="15"/>
@@ -1088,7 +1090,7 @@
     <message>
         <location filename="../components/expand/serverConfig.py" line="21"/>
         <source>请选择您的服务器，请慎重切换服务器，切换服务器后请重新启动脚本</source>
-        <translation>서버 전환후 스크립트를 재시작하세요</translation>
+        <translation>서버 전환 후 프로그램 재시작</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="24"/>
@@ -1128,7 +1130,7 @@
     <message>
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>韩国ONE</source>
-        <translation type="unfinished">원스토어</translation>
+        <translation>원스토어</translation>
     </message>
 </context>
 <context>
@@ -1151,7 +1153,7 @@
     <message>
         <location filename="../fragments/settings.py" line="28"/>
         <source>设置界面的首选语言</source>
-        <translation>GUI에 사용할 언어 설정</translation>
+        <translation>사용 할 언어 설정</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="37"/>
@@ -1161,7 +1163,7 @@
     <message>
         <location filename="../fragments/settings.py" line="37"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
-        <translation>서버 플랫폼을 선택하고 포트를 입력합니다 (포트를 모를경우 0으로 설정하세요)</translation>
+        <translation>게임서버를 선택하고 ADB 시리얼 포트를 입력합니다 (포트를 모를경우 0으로 설정하세요)</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="45"/>
@@ -1181,7 +1183,7 @@
     <message>
         <location filename="../fragments/settings.py" line="53"/>
         <source>设置启动模拟器的路径</source>
-        <translation>사용할 앱플레이어의 설치 경로를 설정하십시오</translation>
+        <translation>사용 할 앱플레이어의 설치 경로지정</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="62"/>
@@ -1259,7 +1261,7 @@
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="11"/>
         <source>&lt;b&gt;各区域扫荡次数以英文逗号分隔，扫荡次数可以为max&lt;/b&gt;</source>
-        <translation>&lt;b&gt; 각 지역의 소탕 횟수는 영어와 쉼표로 구분되며, 최대 소탕 횟수는 .&lt;/b&gt;입니다</translation>
+        <translation>&lt;b&gt; 각 지역의 소탕 횟수는 숫자와 쉼표로 구분되며, 최대 소탕 횟수는 MAX .&lt;/b&gt;입니다</translation>
     </message>
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="19"/>
@@ -1274,7 +1276,7 @@
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="29"/>
         <source>活动关卡扫荡关卡</source>
-        <translation>소탕 할 이벤트 스테이지 이름</translation>
+        <translation>소탕 할 이벤트 스테이지</translation>
     </message>
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="34"/>
@@ -1289,17 +1291,17 @@
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="46"/>
         <source>国服购买邀请券可在&lt;b&gt;商店购买&lt;/b&gt;中实现</source>
-        <translation>CN서버구매초대권은 &lt;b&gt; 매장 구매 &lt;/b&gt;로 달성 할 수 있습니다</translation>
+        <translation>CN서버구매초대권은 &lt;b&gt; 스토어 구매로 &lt;/b&gt;로 구입 가능합니다</translation>
     </message>
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="53"/>
         <source>&lt;b&gt;用券数目设置，下拉框选择&lt;/b&gt;</source>
-        <translation>&lt;b&gt; 사용할 쿠폰 수를 설정하고 목록에서 선택합니다. &lt;/b&gt;</translation>
+        <translation>&lt;b&gt; 사용 할 티켓 수를 목록에서 선택. &lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="57"/>
         <source>悬赏委托扫荡券购买次数</source>
-        <translation>현상수배 소탕 티켓 횟수</translation>
+        <translation>현상수배 티켓 구매횟수</translation>
     </message>
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="63"/>
@@ -1309,7 +1311,7 @@
     <message>
         <location filename="../components/expand/sweepCountConfig.py" line="69"/>
         <source>学园交流会扫荡券购买次数</source>
-        <translation>학원 교류회 소탕 티켓 구매횟수</translation>
+        <translation>학원 교류회 티켓 구매횟수</translation>
     </message>
 </context>
 <context>
@@ -1373,12 +1375,12 @@
     <message>
         <location filename="../../window.py" line="414"/>
         <source>是否要删除配置：</source>
-        <translation>구성 삭제 여부 :</translation>
+        <translation>프로파일을 삭제하시겠습네까? :</translation>
     </message>
     <message>
         <location filename="../../window.py" line="415"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
-        <translation>확인 후 변경을 완료하려면 BAA를 다시 시작해야합니다.</translation>
+        <translation>확인 후 설정을 적용하려면 BAA를 다시 시작해야합니다.</translation>
     </message>
 </context>
 <context>
