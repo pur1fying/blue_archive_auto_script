@@ -110,7 +110,7 @@ def readOneHardTask(task_string):
     if task_string.count('-') != 2:
         raise ValueError("[ " + task_string + " ] format error.")
     mainline_available_missions = list(range(1, 4))
-    mainline_available_regions = list(range(1, 26))
+    mainline_available_regions = list(range(1, 27))
     temp = task_string.split('-')
     region = temp[0]
     mission = temp[1]

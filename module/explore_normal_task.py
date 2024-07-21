@@ -17,7 +17,7 @@ def implement(self):
             choose_region(self, region)
             self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
             normal_task_y_coordinates = [242, 341, 439, 537, 611]
-            to_mission_info(self, normal_task_y_coordinates[mission - 1], True)
+            res = to_mission_info(self, normal_task_y_coordinates[mission - 1], True)
             self.stage_data = get_stage_data(region)
             mission = str(region) + "-" + str(mission)
             current_task_stage_data = self.stage_data[mission]
@@ -47,7 +47,7 @@ def implement(self):
                 continue
             choose_region(self, region)
             self.stage_data = get_stage_data(region)
-            for k in range(0, 13):
+            for k in range(0, 13):              # 5 grid to walk and 8 sub task
                 mission = calc_need_fight_stage(self, region, self.config['explore_normal_task_force_sss'])
                 if mission == "ALL MISSION SWEEP AVAILABLE":
                     self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
@@ -336,9 +336,12 @@ def start_mission(self):
 
 def to_mission_info(self, y, skip_first_screenshot=False):
     rgb_possibles = {"event_normal": (1114, y), }
-    img_end = "normal_task_task-info"
     img_possible = {'normal_task_select-area': (1114, y)}
-    picture.co_detect(self, None, rgb_possibles, img_end, img_possible, skip_first_screenshot)
+    img_end = [
+        "normal_task_task-info",
+        "normal_task_SUB",
+    ]
+    return picture.co_detect(self, None, rgb_possibles, img_end, img_possible, skip_first_screenshot)
 
 
 def wait_formation_change(self, force_index):
