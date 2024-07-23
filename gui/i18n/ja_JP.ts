@@ -351,6 +351,31 @@
         <source>韩国ONE</source>
         <translation type="unfinished">KR Onestore</translation>
     </message>
+    <message>
+        <location filename="../util/config_translation.py" line="116"/>
+        <source>无动作</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="117"/>
+        <source>退出 Baas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="118"/>
+        <source>退出 模拟器</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="119"/>
+        <source>退出 Baas 和 模拟器</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="120"/>
+        <source>关机</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DetailSettingMessageBox</name>
@@ -548,34 +573,39 @@
 <context>
     <name>HomeFragment</name>
     <message>
-        <location filename="../fragments/home.py" line="55"/>
+        <location filename="../fragments/home.py" line="58"/>
         <source>蔚蓝档案自动脚本</source>
         <translation>ブルアカ 自動スクリプト</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="58"/>
+        <location filename="../fragments/home.py" line="61"/>
         <source>无任务</source>
         <translation>タスクなし</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="75"/>
+        <location filename="../fragments/home.py" line="78"/>
         <source>启动</source>
         <translation>起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="75"/>
+        <location filename="../fragments/home.py" line="78"/>
         <source>档案，启动</source>
         <translation>ブルアカ、起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="75"/>
+        <location filename="../fragments/home.py" line="196"/>
         <source>开始你的档案之旅</source>
         <translation>アーカイブの旅を始めましょう</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="131"/>
+        <location filename="../fragments/home.py" line="138"/>
         <source>正在运行：</source>
         <translation>実行中：</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="196"/>
+        <source>完成后</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -826,7 +856,7 @@
         <translation>スクリーンショットの間隔を入力してください：</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="36"/>
+        <location filename="../components/expand/scriptConfig.py" line="69"/>
         <source>截图间隔</source>
         <translation>スクリーンショットの間隔</translation>
     </message>
@@ -865,101 +895,141 @@
         <source>选择模拟器类型</source>
         <translation>シミュレーターの種類を選択する</translation>
     </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="18"/>
+        <source>警告：在运行多个实例时，这些功能可能无法按预期工作。</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="19"/>
+        <source>启动Baas后直接运行</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="21"/>
+        <source>完成后</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>无动作</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>退出 Baas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>退出 模拟器</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>退出 Baas 和 模拟器</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>关机</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="324"/>
+        <location filename="../fragments/home.py" line="341"/>
         <source>停止</source>
         <translation>止める</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="328"/>
+        <location filename="../fragments/home.py" line="345"/>
         <source>启动</source>
         <translation>起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="246"/>
+        <location filename="../fragments/home.py" line="263"/>
         <source>困难图推图已完成</source>
         <translation>ハードステージがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="329"/>
+        <location filename="../fragments/home.py" line="346"/>
         <source>无任务</source>
         <translation>タスクなし</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="252"/>
+        <location filename="../fragments/home.py" line="269"/>
         <source>普通关推图</source>
         <translation>普通ステージをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="255"/>
+        <location filename="../fragments/home.py" line="272"/>
         <source>普通图推图已完成</source>
         <translation>普通ステージがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="269"/>
+        <location filename="../fragments/home.py" line="286"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>アンチハーモニーが成功しました。BAを再起動してリソースをダウンロードしてください</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="273"/>
+        <location filename="../fragments/home.py" line="290"/>
         <source>自动主线剧情</source>
         <translation>本編プロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="277"/>
+        <location filename="../fragments/home.py" line="294"/>
         <source>主线剧情已完成</source>
         <translation>本編プロットがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="283"/>
+        <location filename="../fragments/home.py" line="300"/>
         <source>自动小组剧情</source>
         <translation>グループプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="287"/>
+        <location filename="../fragments/home.py" line="304"/>
         <source>小组剧情已完成</source>
         <translation>グループストーリーがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="294"/>
+        <location filename="../fragments/home.py" line="311"/>
         <source>自动支线剧情</source>
         <translation>サブプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="297"/>
+        <location filename="../fragments/home.py" line="314"/>
         <source>支线剧情已完成</source>
         <translation>サブストーリーがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="304"/>
+        <location filename="../fragments/home.py" line="321"/>
         <source>自动活动剧情</source>
         <translation>イベントプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="307"/>
+        <location filename="../fragments/home.py" line="324"/>
         <source>活动剧情已完成</source>
         <translation>イベントプロットがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="314"/>
+        <location filename="../fragments/home.py" line="331"/>
         <source>自动活动任务</source>
         <translation>イベントタスクをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="317"/>
+        <location filename="../fragments/home.py" line="334"/>
         <source>活动任务已完成</source>
         <translation>イベントタスクがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="323"/>
+        <location filename="../fragments/home.py" line="340"/>
         <source>自动活动挑战</source>
         <translation>イベント挑戦をクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="327"/>
+        <location filename="../fragments/home.py" line="344"/>
         <source>活动挑战推图已完成</source>
         <translation>イベントチャレンジがクリアしました</translation>
     </message>
@@ -1402,12 +1472,12 @@
         <translation>実行</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="156"/>
+        <location filename="../fragments/home.py" line="163"/>
         <source>MainThread</source>
         <translation>メイン・トレッド</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="158"/>
+        <location filename="../fragments/home.py" line="165"/>
         <source>MainThread</source>
         <comment>停止</comment>
         <translation>メイン・トレッド</translation>

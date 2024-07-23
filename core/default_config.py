@@ -281,6 +281,8 @@ DEFAULT_CONFIG = """
     "name": "新的配置",
     "purchase_arena_ticket_times": "0",
     "screenshot_interval": "0.3",
+    "autostart": false,
+    "then": "无动作",
     "program_address": "None",
     "open_emulator_stat": false,
     "emulator_wait_time": "180",

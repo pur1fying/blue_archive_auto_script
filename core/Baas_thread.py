@@ -2,7 +2,7 @@ import shutil
 from datetime import datetime
 import cv2
 from core.exception import ScriptError
-from core.notification import notify
+from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
 from core.utils import Logger
@@ -58,7 +58,7 @@ func_dict = {
 
 
 class Baas_thread:
-    def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None):
+    def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
         self.dailyGameActivity = None
         self.activity_name = None
         self.config_set = config
@@ -91,6 +91,7 @@ class Baas_thread:
         self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
         self.button_signal = button_signal
         self.update_signal = update_signal
+        self.exit_signal = exit_signal
         self.stage_data = {}
         self.activity_name = None
 
@@ -195,6 +196,16 @@ class Baas_thread:
         for proc in psutil.process_iter(['pid', 'name']):
             # self.logger.debug(f"Checking if process {process_name} is running...")
             if proc.info['name'] == process_name:
+                return True
+        return False
+    
+    def terminate_process(self, process_name):
+        """
+        终止指定名称的进程
+        """
+        for proc in psutil.process_iter(['pid', 'name']):
+            if proc.info['name'] == process_name:
+                proc.terminate()
                 return True
         return False
 
@@ -371,6 +382,8 @@ class Baas_thread:
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
+                    if self.scheduler.is_wait_long():
+                        self.handle_then()
                     time.sleep(1)
         except Exception as e:
             notify(title='', body='任务已停止')
@@ -706,3 +719,64 @@ class Baas_thread:
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])
+        
+    def handle_then(self):
+        # avoid rerunning then action in case of error
+        action = self.config.get('then')
+        if action == '无动作': # Do Nothing 
+            return 
+        elif action == '退出 Baas': # Exit Baas
+            self.exit_baas()
+        elif action == '退出 模拟器': # Exit Emulator
+            self.exit_emulator()
+        elif action == '退出 Baas 和 模拟器':  # Exit Baas and Emulator
+            self.exit_emulator()
+            self.exit_baas()
+        elif action == '关机': # Shutdown
+            self.shutdown()
+        self.signal_stop()
+    
+    def exit_emulator(self):
+        self.logger.info(f"-- BAAS Exit Emulator --")
+        if self.config['emulatorIsMultiInstance']:
+            name = self.config.get("multiEmulatorName")
+            num = self.config.get("emulatorMultiInstanceNumber")
+            self.logger.info(f"-- Exit Multi Emulator --")
+            self.logger.info(f"EmulatorName: {name}")
+            self.logger.info(f"MultiInstanceNumber: {num}")
+            device_operation.stop_simulator_classic(name, num)
+        else:
+            self.lnk_path = self.config.get("program_address")
+            self.convert_lnk_to_exe(self.lnk_path)
+            self.file_path = self.config.get("program_address")
+            self.process_name = self.extract_filename_and_extension(self.file_path)
+            if not self.terminate_process(self.process_name):
+                self.logger.error("Emulator exit failed")
+                return False
+        return True
+
+    def exit_baas(self):
+        if self.exit_signal is not None:
+            self.exit_signal.emit(0)        
+
+    def shutdown(self):
+        try:
+            self.start_shutdown()
+            answer = toast(title='BAAS: Cancel Shutdown?',
+                            body='All tasks have been completed: shutting down. Do you want to cancel?',
+                            button='Cancel',
+                            duration='long'
+            )
+            # cancel button pressed
+            if answer == {'arguments': 'http:Cancel', 'user_input': {}}:
+                self.cancel_shutdown()
+        except:
+            self.logger.error("Failed to shutdown. It may be due to a lack of administrator privileges.")
+
+    def start_shutdown(self):
+        self.logger.info("Running Shutting down")
+        subprocess.run(["shutdown", "-s", "-t", "60"])
+
+    def cancel_shutdown(self):
+        self.logger.info("shut down cancelled")
+        subprocess.run(["shutdown", "-a"])

@@ -19,6 +19,7 @@ class Scheduler:
         self._valid_task_queue = []
         self._currentTaskDisplay = None
         self._waitingTaskDisplayQueue = []
+        self._waiting_task_start = 0 # epoch 
         self.funcs = []
         self._read_config()
 
@@ -109,6 +110,8 @@ class Scheduler:
                     break
             if not f:
                 continue
+            if self._waiting_task_start == 0:
+                self._waiting_task_start = _valid_event[i]['next_tick']
             self._waitingTaskDisplayQueue.append(_valid_event[i]['event_name'])
             thisTask = {
                 "pre_task": [],
@@ -134,4 +137,16 @@ class Scheduler:
 
     def getCurrentTaskName(self):
         return self._currentTaskDisplay
+    
+    def is_wait_long(self) -> bool:
+        """
+        determines whether the wait for the next task is less than 2 minutes, 
 
+        allows tactical challenge to be fully completed and triggers then action
+        """
+        if self._waiting_task_start == 0: # if epoch time for task means task completed
+            return True
+        else:
+            current_time = time.time()
+            difference = self._waiting_task_start - current_time
+            return difference > 120
