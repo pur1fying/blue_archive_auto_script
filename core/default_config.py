@@ -646,7 +646,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "OnYourMarkAtMillenniumKivotosHaloFestival",
         "Global": null,
-        "JP": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp"
+        "JP": "ShesideOutside"
     },
     "dailyGameActivity": {
         "CN": null,
