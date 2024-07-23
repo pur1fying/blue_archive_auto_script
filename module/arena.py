@@ -133,7 +133,7 @@ def get_tickets(self):
 def check_skip_button(self):
     skip_x = {
         'CN': 1121,
-        'Global': 1108,
+        'Global': 1113,
         'JP': 1108,
     }
     if color.judge_rgb_range(self, skip_x[self.server], 608, 74, 94, 222, 242, 235, 255):
