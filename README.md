@@ -119,4 +119,11 @@ GUI预览图：
 
 **[@キラメイ Kiramei](https://github.com/Kiramei)**
 
+8.韩文GUI支持,感谢
+**[@VoltIcaRus](https://github.com/VoltIcaRus) && [@RedDeadDepresso](https://github.com/RedDeadDepresso)**
+
+9.日服活动维护,感谢
+**[@shenxianjiejie](https://github.com/shenxian66ya)**
+
+
 
