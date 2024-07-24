@@ -645,7 +645,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "OnYourMarkAtMillenniumKivotosHaloFestival",
-        "Global": null,
+        "Global": "BaskingInTheBrillianceOfTheirSerenade",
         "JP": "ShesideOutside"
     },
     "dailyGameActivity": {
