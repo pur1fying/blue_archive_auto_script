@@ -382,8 +382,9 @@ class Baas_thread:
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
-                    self.handle_then()
                     time.sleep(1)
+                    if self.flag_run: # allow user to stop script before then action
+                        self.handle_then()
         except Exception as e:
             notify(title='', body='任务已停止')
             self.logger.error(e.__str__())
