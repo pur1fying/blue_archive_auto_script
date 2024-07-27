@@ -773,9 +773,9 @@ class Baas_thread:
             self.logger.error("Failed to shutdown. It may be due to a lack of administrator privileges.")
 
     def start_shutdown(self):
-        self.logger.info("Running Shutting down")
+        self.logger.info("Running shutdown")
         subprocess.run(["shutdown", "-s", "-t", "60"])
 
     def cancel_shutdown(self):
-        self.logger.info("shut down cancelled")
+        self.logger.info("Shutdown cancelled")
         subprocess.run(["shutdown", "-a"])
