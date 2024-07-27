@@ -19,7 +19,6 @@ class Scheduler:
         self._valid_task_queue = []
         self._currentTaskDisplay = None
         self._waitingTaskDisplayQueue = []
-        self._waiting_task_start = 0 # epoch 
         self.funcs = []
         self._read_config()
 
@@ -95,23 +94,16 @@ class Scheduler:
 
     def update_valid_task_queue(self):
         self._read_config()
-        _valid_event = [x for x in self._event_config if x['enabled']]                                      # filter out disabled event
-        _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time.time()]    # filter out event not ready
+        time_since_epoch = time.time()
+        now = datetime.now()
+        time_since_midnight = self.convert_to_seconds(now.hour, now.minute, now.second)
+        
+        _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time_since_epoch and \
+                        not self.is_disable_period(x, time_since_midnight)]    # filter out event not ready
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])                                    # sort by priority
-        current_time = datetime.now(timezone.utc).timestamp() % 86400
+
         self._valid_task_queue = []
         for i in range(0, len(_valid_event)):
-            f = True
-            for j in range(0, len(_valid_event[i]["disabled_time_range"])):  # current task not in disable time range
-                start = _valid_event[i]["disabled_time_range"][j][0][0] * 3600 + _valid_event[i]["disabled_time_range"][j][0][1] * 60 + _valid_event[i]["disabled_time_range"][j][0][2]
-                end = _valid_event[i]["disabled_time_range"][j][1][0] * 3600 + _valid_event[i]["disabled_time_range"][j][1][1] * 60 + _valid_event[i]["disabled_time_range"][j][1][2]
-                if start <= current_time <= end:
-                    f = False
-                    break
-            if not f:
-                continue
-            if self._waiting_task_start == 0:
-                self._waiting_task_start = _valid_event[i]['next_tick']
             self._waitingTaskDisplayQueue.append(_valid_event[i]['event_name'])
             thisTask = {
                 "pre_task": [],
@@ -132,21 +124,40 @@ class Scheduler:
             thisTask["post_task"] = temp
             self._valid_task_queue.append(thisTask)
 
+    def convert_to_seconds(self, hour, minute, second) -> float:
+        return hour * 3600 + minute * 60 + second
+
+    def is_disable_period(self, event_list, time_since_midnight) -> bool:
+        disabled = event_list["disabled_time_range"]
+        for period in disabled:
+            start = self.convert_to_seconds(*period[0])
+            end = self.convert_to_seconds(*period[1])
+            if start <= time_since_midnight <= end:
+                return True
+        return False
+    
+    def is_wait_long(self) -> bool:
+        """
+        allows tactical challenge to be fully completed and triggers then action
+        by determing whether the wait is less than 2 minutes
+        """
+        time_since_epoch = time.time()
+        now = datetime.now()
+        time_since_midnight = self.convert_to_seconds(now.hour, now.minute, now.second)
+        
+        _valid_event = [x for x in self._event_config if x['enabled'] and \
+                         x['next_tick'] > time_since_epoch and \
+                            not self.is_disable_period(x, time_since_midnight)]
+        if _valid_event:
+            event_list = min(_valid_event, key=lambda x: x['next_tick'])
+            next_tick = event_list['next_tick']
+            difference = next_tick - time_since_epoch
+            return difference > 120
+        
+        return True
+
     def getWaitingTaskList(self):
         return self._waitingTaskDisplayQueue
 
     def getCurrentTaskName(self):
         return self._currentTaskDisplay
-    
-    def is_wait_long(self) -> bool:
-        """
-        determines whether the wait for the next task is less than 2 minutes, 
-
-        allows tactical challenge to be fully completed and triggers then action
-        """
-        if self._waiting_task_start == 0: # if epoch time for task means task completed
-            return True
-        else:
-            current_time = time.time()
-            difference = self._waiting_task_start - current_time
-            return difference > 120

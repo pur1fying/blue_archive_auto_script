@@ -382,8 +382,7 @@ class Baas_thread:
                         self.quick_method_to_main_page()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
-                    if self.scheduler.is_wait_long():
-                        self.handle_then()
+                    self.handle_then()
                     time.sleep(1)
         except Exception as e:
             notify(title='', body='任务已停止')
@@ -719,11 +718,10 @@ class Baas_thread:
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])
-        
+
     def handle_then(self):
-        # avoid rerunning then action in case of error
-        action = self.config.get('then')
-        if action == '无动作': # Do Nothing 
+        action = self.config_set["then"]
+        if action == '无动作' or not self.scheduler.is_wait_long(): # Do Nothing 
             return 
         elif action == '退出 Baas': # Exit Baas
             self.exit_baas()
@@ -734,7 +732,7 @@ class Baas_thread:
             self.exit_baas()
         elif action == '关机': # Shutdown
             self.shutdown()
-        self.signal_stop()
+        self.signal_stop() # avoid rerunning then action in case of error
     
     def exit_emulator(self):
         self.logger.info(f"-- BAAS Exit Emulator --")
