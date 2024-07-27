@@ -705,6 +705,38 @@ STATIC_DEFAULT_CONFIG = '''
     ],
   "student_names": [
     {
+      "CN_name": "亚津子(泳装)",
+      "CN_implementation": false,
+      "Global_name": "Atsuko (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "アツコ(水着)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "白子＊恐怖",
+      "CN_implementation": false,
+      "Global_name": "Shiroko Terror",
+      "Global_implementation": false,
+      "JP_name": "シロコ＊テラー",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "星野(临战)",
+      "CN_implementation": false,
+      "Global_name": "Hoshino (Battle)",
+      "Global_implementation": false,
+      "JP_name": "ホシノ(臨戦)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "星野(临战)",
+      "CN_implementation": false,
+      "Global_name": "Hoshino (Battle)",
+      "Global_implementation": false,
+      "JP_name": "ホシノ(臨戦)",
+      "JP_implementation": true
+    },
+    {
       "CN_name": "萌绘(泳装)",
       "CN_implementation": false,
       "Global_name": "Moe (Swimsuit)",
@@ -844,7 +876,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "真琴",
       "CN_implementation": false,
       "Global_name": "Makoto",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "マコト",
       "JP_implementation": true
     },
@@ -852,7 +884,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "伊吹",
       "CN_implementation": false,
       "Global_name": "Ibuki",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "イブキ",
       "JP_implementation": true
     },
@@ -860,7 +892,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "亚子(礼服)",
       "CN_implementation": false,
       "Global_name": "Ako (Dress)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "アコ(ドレス)",
       "JP_implementation": true
     },
@@ -1298,7 +1330,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "响(应援团)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Hibiki (Cheer Squad)",
       "Global_implementation": true,
       "JP_name": "ヒビキ(応援団)",
@@ -1306,7 +1338,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "诺亚",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Noa",
       "Global_implementation": true,
       "JP_name": "ノア",
@@ -1314,7 +1346,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "歌原(应援团)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Utaha (Cheer Squad)",
       "Global_implementation": true,
       "JP_name": "ウタハ(応援団)",
