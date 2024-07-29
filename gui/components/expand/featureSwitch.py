@@ -1,16 +1,37 @@
 import json
 import time
+import traceback
 from copy import deepcopy
 from datetime import datetime
 from functools import partial
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QHeaderView, QVBoxLayout
 from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox, CaptionLabel, MessageBoxBase, \
     SubtitleLabel
 
 from gui.components.expand.expandTemplate import TemplateLayoutV2
 from gui.util.translator import baasTranslator as bt
+
+
+class ClickFocusLineEdit(LineEdit):
+    """
+    Custom LineEdit that does not focus unless clicked
+    This is to prevent the LineEdit from stealing focus
+    from the parent widget when the user strike a hover
+    on the LineEdit. This is useful when the LineEdit is
+    used in a TableWidget, and the user wants to click on
+    the parent widget to select a row.
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.installEventFilter(self)
+
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.MouseButtonPress:
+            self.setFocus()
+        return super().eventFilter(a0, a1)
 
 
 class DetailSettingMessageBox(MessageBoxBase):
@@ -126,7 +147,8 @@ class Layout(QWidget):
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
             t_ccs = CaptionLabel(bt.tr('ConfigTranslation', self.labels[i]))
-            t_ncs = LineEdit(self)
+            t_ncs = ClickFocusLineEdit(self)
+            t_ncs.setClearButtonEnabled(True)
             t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])).split('.')[0])
             t_ncs.textChanged.connect(self._update_config)
             t_cbx.stateChanged.connect(self._update_config)
@@ -182,7 +204,7 @@ class Layout(QWidget):
             self.tableView.setCellWidget(ind, 0, t_ccs)
             self.qLabels.append(t_ccs)
 
-            t_ncs = LineEdit(self)
+            t_ncs = ClickFocusLineEdit(self)
             t_ncs.setText(str(datetime.fromtimestamp(unit['next_tick'])).split('.')[0])
             t_ncs.textChanged.connect(self._update_config)
             self.tableView.setCellWidget(ind, 1, t_ncs)
@@ -268,7 +290,7 @@ class Layout(QWidget):
             try:
                 return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S').timestamp()
             except Exception as e:
-                print(e)
+                traceback.print_exc()
                 return 0
 
     def _refresh_time(self):
