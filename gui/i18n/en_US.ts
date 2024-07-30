@@ -178,27 +178,27 @@ make sure to do it before starting the script.</translation>
         <translation>Various sweep and tickets purchase settings</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="100"/>
+        <location filename="../util/config_translation.py" line="101"/>
         <source>官服</source>
         <translation>CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="101"/>
+        <location filename="../util/config_translation.py" line="102"/>
         <source>B服</source>
         <translation>Bilibili</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="102"/>
+        <location filename="../util/config_translation.py" line="103"/>
         <source>国际服</source>
         <translation>Global</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="105"/>
+        <location filename="../util/config_translation.py" line="106"/>
         <source>日服</source>
         <translation>JP</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="108"/>
+        <location filename="../util/config_translation.py" line="109"/>
         <source>拖动礼物</source>
         <translation>Drag the gift</translation>
     </message>
@@ -253,62 +253,62 @@ make sure to do it before starting the script.</translation>
         <translation>Random Intermediate Material</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="86"/>
-        <source>静子神明文字x5</source>
-        <translation>Shizuko's Eleph</translation>
-    </message>
-    <message>
         <location filename="../util/config_translation.py" line="87"/>
-        <source>真白神明文字x5</source>
-        <translation>Mashiro's Eleph</translation>
+        <source>静子神明文字x5</source>
+        <translation>Shizuko&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="88"/>
-        <source>纱绫神明文字x5</source>
-        <translation>Saya's Eleph</translation>
+        <source>真白神明文字x5</source>
+        <translation>Mashiro&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="89"/>
-        <source>风香神明文字x5</source>
-        <translation>Fuuka's Eleph</translation>
+        <source>纱绫神明文字x5</source>
+        <translation>Saya&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="90"/>
-        <source>歌原神明文字x5</source>
-        <translation>Utaha's Eleph</translation>
+        <source>风香神明文字x5</source>
+        <translation>Fuuka&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="91"/>
+        <source>歌原神明文字x5</source>
+        <translation>Utaha&apos;s Eleph</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="92"/>
         <source>初级经验书x5</source>
         <translation>Normal Report x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="92"/>
+        <location filename="../util/config_translation.py" line="93"/>
         <source>中级经验书x10</source>
         <translation>Novice Report x10</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="93"/>
+        <location filename="../util/config_translation.py" line="94"/>
         <source>高级经验书x3</source>
         <translation>Advanced Report x3</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="94"/>
+        <location filename="../util/config_translation.py" line="95"/>
         <source>特级经验书x1</source>
         <translation>Superior Report x1</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="95"/>
+        <location filename="../util/config_translation.py" line="96"/>
         <source>信用点x5k</source>
         <translation>Credits x5k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="96"/>
+        <location filename="../util/config_translation.py" line="97"/>
         <source>信用点x75k</source>
         <translation>Credits x75k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="97"/>
+        <location filename="../util/config_translation.py" line="98"/>
         <source>信用点x125k</source>
         <translation>Credits x125k</translation>
     </message>
@@ -318,17 +318,17 @@ make sure to do it before starting the script.</translation>
         <translation>No Task</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="111"/>
+        <location filename="../util/config_translation.py" line="112"/>
         <source>MuMu模拟器</source>
         <translation>MuMu Player</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="112"/>
+        <location filename="../util/config_translation.py" line="113"/>
         <source>蓝叠模拟器</source>
         <translation>BlueStacks CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>蓝叠国际版</source>
         <translation>BlueStacks</translation>
     </message>
@@ -343,14 +343,19 @@ make sure to do it before starting the script.</translation>
         <translation>Cafe Invitation</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="103"/>
+        <location filename="../util/config_translation.py" line="104"/>
         <source>国际服青少年</source>
         <translation>Global Teen</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="104"/>
+        <location filename="../util/config_translation.py" line="105"/>
         <source>韩国ONE</source>
         <translation>KR Onestore</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="86"/>
+        <source>宫子神明文字x5</source>
+        <translation>Miyako&apos;s Eleph</translation>
     </message>
 </context>
 <context>
@@ -406,7 +411,7 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="17"/>
         <source>在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)</source>
-        <translation>&lt;b&gt;Open the emulator on running Baas&lt;/b&gt; &lt;br/&gt;(The switch for start emulator. Emulator won't be started if closed)</translation>
+        <translation>&lt;b&gt;Open the emulator on running Baas&lt;/b&gt; &lt;br/&gt;(The switch for start emulator. Emulator won&apos;t be started if closed)</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="27"/>
@@ -725,7 +730,7 @@ See Clear Hard and Normal Stages in Help</translation>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>Set hard stages as above, with a maximum of 3 sweeps. Use commas for separation.
-For JP or Global server, you can use 'max':</translation>
+For JP or Global server, you can use &apos;max&apos;:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -1136,7 +1141,7 @@ For JP or Global server, you can use 'max':</translation>
     <message>
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>韩国ONE</source>
-        <translation type="unfinished">KR Onestore</translation>
+        <translation>KR One Server</translation>
     </message>
 </context>
 <context>
@@ -1169,7 +1174,7 @@ For JP or Global server, you can use 'max':</translation>
     <message>
         <location filename="../fragments/settings.py" line="37"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
-        <translation>Select your server platform and set your port (set to 0 if you don't know the port)</translation>
+        <translation>Select your server platform and set your port (set to 0 if you don&apos;t know the port)</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="45"/>
