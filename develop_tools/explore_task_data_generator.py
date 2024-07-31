@@ -168,7 +168,7 @@ def get_actions(team_cnt):
             print("Will formation number change after this action ? [y/n]")
             if get_y_n():
                 one_action["ec"] = True
-        if one_action['t'] != 'choose_and_change' :
+        if one_action['t'] != 'choose_and_change':
             print("Need wait-over after this action ? [y/n]")
             if get_y_n():
                 one_action["wait-over"] = True
