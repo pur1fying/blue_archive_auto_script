@@ -703,6 +703,22 @@ STATIC_DEFAULT_CONFIG = '''
     ],
   "student_names": [
     {
+      "CN_name": "日和(泳装)",
+      "CN_implementation": false,
+      "Global_name": "Hiyori (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "ヒヨリ(水着)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "纱织(泳装)",
+      "CN_implementation": false,
+      "Global_name": "Saori (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "サオリ(水着)",
+      "JP_implementation": true
+    },
+    {
       "CN_name": "亚津子(泳装)",
       "CN_implementation": false,
       "Global_name": "Atsuko (Swimsuit)",
@@ -866,7 +882,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "日奈(礼服)",
       "CN_implementation": false,
       "Global_name": "Hina (Dress)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "ヒナ(ドレス)",
       "JP_implementation": true
     },
