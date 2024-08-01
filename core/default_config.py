@@ -644,7 +644,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "OnYourMarkAtMillenniumKivotosHaloFestival",
+        "CN": "GetSetGoKivotosHaloGames",
         "Global": "BaskingInTheBrillianceOfTheirSerenade",
         "JP": "ShesideOutside"
     },
