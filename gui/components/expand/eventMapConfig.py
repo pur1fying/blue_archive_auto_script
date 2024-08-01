@@ -1,4 +1,8 @@
-from PyQt5.QtCore import QObject
+import numpy as np
+from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QHeaderView, QTableWidgetItem
+from qfluentwidgets import TableWidget
+
 from .expandTemplate import TemplateLayout
 
 
@@ -23,8 +27,64 @@ class Layout(TemplateLayout):
                 'selection': self.activity_challenge
             },
         ]
+
         self.main_thread = config.get_main_thread()
         super().__init__(parent=parent, configItems=configItems, config=config, context='EventMapConfig')
+        activity_formation = self.gen_event_formation_attr()
+        activity_name = activity_formation['activity_name'] if activity_formation else '无'
+        name_label = QLabel(f'当期活动：{activity_name}', self)
+        optionPanel = QHBoxLayout(self)
+        optionPanel.addWidget(name_label, 0, Qt.AlignLeft)
+        self.vBoxLayout.addLayout(optionPanel)
+        if activity_formation:
+            total_list = []
+            challenge = activity_formation.get('mission', None)
+            if challenge:
+                challenge_list = np.array(
+                    [(k, v) for k, v in zip(list(challenge.keys()), list(challenge.values()))]).flatten().tolist()
+                total_list.extend(challenge_list)
+            story = activity_formation.get('story', None)
+            if story:
+                story_list = np.array(
+                    [(k, v) for k, v in zip(list(story.keys()), list(story.values()))]).flatten().tolist()
+                total_list.extend(story_list)
+            mission = activity_formation.get('challenge', None)
+            if mission:
+                mission_list = np.array(
+                    [(k, v) for k, v in zip(list(mission.keys()), list(mission.values()))]).flatten().tolist()
+                total_list.extend(mission_list)
+
+            if len(total_list) > 0:
+                labelComponent = QLabel('任务属性对应表', self)
+                optionPanel = QHBoxLayout(self)
+                optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
+                self.vBoxLayout.addLayout(optionPanel)
+
+                optionPanel = QHBoxLayout(self)
+                tableView = TableWidget(self)
+                tableView.setWordWrap(False)
+                tableView.setRowCount(len(total_list) // 4)
+                tableView.setColumnCount(4)
+                tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+                tableView.setHorizontalHeaderLabels(
+                    [self.tr('关卡'), self.tr('属性'), self.tr('关卡'), self.tr('属性')])
+                tableView.setColumnWidth(0, 50)
+                tableView.setColumnWidth(1, 175)
+                tableView.setColumnWidth(2, 50)
+                tableView.setColumnWidth(3, 175)
+                for i in range(len(total_list)):
+                    tableView.setItem(i // 4, i % 4, QTableWidgetItem(total_list[i]))
+                tableView.setEditTriggers(tableView.NoEditTriggers)
+                tableView.setSelectionBehavior(tableView.SelectRows)
+                tableView.setSelectionMode(tableView.SingleSelection)
+                tableView.setSortingEnabled(True)
+                tableView.setAlternatingRowColors(True)
+                tableView.setShowGrid(True)
+                tableView.setGridStyle(Qt.SolidLine)
+                tableView.setCornerButtonEnabled(True)
+                tableView.setFixedHeight(200)
+                self.vBoxLayout.addWidget(tableView)
+                self.vBoxLayout.setContentsMargins(20, 0, 20, 20)
 
     def activity_story(self):
         import threading
@@ -37,3 +97,58 @@ class Layout(TemplateLayout):
     def activity_challenge(self):
         import threading
         threading.Thread(target=self.main_thread.start_explore_activity_challenge).start()
+
+    def gen_event_formation_attr(self):
+        current_event = self.config.static_config['current_game_activity'][self.config.server_mode]
+        print(current_event)
+        if current_event is None:
+            return None
+        import importlib
+        try:
+            module = importlib.import_module('src.explore_task_data.activities.' + current_event)
+            stage_data = getattr(module, 'stage_data')
+        except ModuleNotFoundError:
+            return None
+        ret = dict(activity_name=current_event, story=dict(), mission=dict(), challenge=dict())
+        print(stage_data)
+        en2cn = {
+            "story": "故事",
+            "mission": "任务",
+            "challenge": "挑战",
+        }
+        from module.explore_normal_task import formation_attr_to_cn
+        for key, value in stage_data.items():
+            print(key)
+            if key == "story" or key == "mission" or key == "challenge":
+                for i in range(len(value)):
+                    print(value[i])
+                    ret[key][en2cn[key] + str(i + 1)] = formation_attr_to_cn(value[i])
+                continue
+            tp = None
+            if key.startswith("story"):
+                tp = "story"
+            elif key.startswith("mission"):
+                tp = "mission"
+            elif key.startswith("challenge"):
+                tp = "challenge"
+            if tp is None:
+                continue
+            pos = key.find("_")
+            if pos == -1:
+                continue
+            number = key[len(tp):pos]
+            name = en2cn[tp] + number
+            if "sss" in key:
+                name += "三星"
+            elif "task" in key:
+                name += "成就任务"
+            team = ""
+            for s in value['start']:
+                temp = formation_attr_to_cn(s[0])
+                if temp is not None:
+                    team += temp + " "
+            if team.endswith(" "):
+                team = team[:-1]
+            ret[tp][name] = team
+        print(ret)
+        return ret

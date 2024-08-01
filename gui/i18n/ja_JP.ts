@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS version="2.1" language="ja_JP" sourcelanguage="zh_CN">
 <context>
     <name>BAASTitleBar</name>
     <message>
@@ -242,114 +242,119 @@
         <translation>ランダム中級神秘古物</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="86"/>
+        <location filename="../util/config_translation.py" line="87"/>
         <source>静子神明文字x5</source>
         <translation>静子 神名文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="87"/>
+        <location filename="../util/config_translation.py" line="88"/>
         <source>真白神明文字x5</source>
         <translation>真白神名文字×5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="88"/>
+        <location filename="../util/config_translation.py" line="89"/>
         <source>纱绫神明文字x5</source>
         <translation>紗綾 神名文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="89"/>
+        <location filename="../util/config_translation.py" line="90"/>
         <source>风香神明文字x5</source>
         <translation>風香神名文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="90"/>
+        <location filename="../util/config_translation.py" line="91"/>
         <source>歌原神明文字x5</source>
         <translation>歌原 神名文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="91"/>
+        <location filename="../util/config_translation.py" line="92"/>
         <source>初级经验书x5</source>
         <translation>初级レポート x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="92"/>
+        <location filename="../util/config_translation.py" line="93"/>
         <source>中级经验书x10</source>
         <translation>中級レポート x10</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="93"/>
+        <location filename="../util/config_translation.py" line="94"/>
         <source>高级经验书x3</source>
         <translation>高級レポート x3</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="94"/>
+        <location filename="../util/config_translation.py" line="95"/>
         <source>特级经验书x1</source>
         <translation>特級レポート x1</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="95"/>
+        <location filename="../util/config_translation.py" line="96"/>
         <source>信用点x5k</source>
         <translation>クレジット x5k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="96"/>
+        <location filename="../util/config_translation.py" line="97"/>
         <source>信用点x75k</source>
         <translation>クレジットx75k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="97"/>
+        <location filename="../util/config_translation.py" line="98"/>
         <source>信用点x125k</source>
         <translation>クレジット x125k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="100"/>
+        <location filename="../util/config_translation.py" line="101"/>
         <source>官服</source>
         <translation>中国代理サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="101"/>
+        <location filename="../util/config_translation.py" line="102"/>
         <source>B服</source>
         <translation>ビリビリサーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="102"/>
+        <location filename="../util/config_translation.py" line="103"/>
         <source>国际服</source>
         <translation>国際サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="105"/>
+        <location filename="../util/config_translation.py" line="106"/>
         <source>日服</source>
         <translation>日本サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="108"/>
+        <location filename="../util/config_translation.py" line="109"/>
         <source>拖动礼物</source>
         <translation>ギフトドラッグ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="111"/>
+        <location filename="../util/config_translation.py" line="112"/>
         <source>MuMu模拟器</source>
         <translation>MuMuエミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="112"/>
+        <location filename="../util/config_translation.py" line="113"/>
         <source>蓝叠模拟器</source>
         <translation>Blue Stack「中国」シミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>蓝叠国际版</source>
         <translation>Blue Stack「国際」シミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="103"/>
+        <location filename="../util/config_translation.py" line="104"/>
         <source>国际服青少年</source>
-        <translation type="unfinished">国際奉仕の十代の若者たち</translation>
+        <translation>国際少年サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="104"/>
+        <location filename="../util/config_translation.py" line="105"/>
         <source>韩国ONE</source>
-        <translation type="unfinished">KR Onestore</translation>
+        <translation>韓国「One」サーバー</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="86"/>
+        <source>宫子神明文字x5</source>
+        <translation>宫子神明文字 x5</translation>
     </message>
 </context>
 <context>
@@ -1119,7 +1124,7 @@
     <message>
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>国际服青少年</source>
-        <translation type="unfinished">国際奉仕の十代の若者たち</translation>
+        <translation>国際少年サーバー</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="24"/>

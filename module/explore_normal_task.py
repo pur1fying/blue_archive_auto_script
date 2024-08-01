@@ -541,3 +541,15 @@ def retreat(self):
     }
     img_ends = 'normal_task_fail-confirm'
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possible, True)
+
+
+def formation_attr_to_cn(attr):
+    if attr.startswith('pierce'):
+        return '贯穿'
+    elif attr.startswith('burst'):
+        return '爆发'
+    elif attr.startswith('mystic'):
+        return '神秘'
+    elif attr.startswith('shock'):
+        return '振动'
+    return None
