@@ -1312,7 +1312,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "莲见(运动服)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Hasumi (Track)",
       "Global_implementation": true,
       "JP_name": "ハスミ(体操服)",
@@ -1320,7 +1320,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "玛丽(运动服)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Mari (Track)",
       "Global_implementation": true,
       "JP_name": "マリー(体操服)",
@@ -1328,7 +1328,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "优香(运动服)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Yuuka (Track)",
       "Global_implementation": true,
       "JP_name": "ユウカ(体操服)",
