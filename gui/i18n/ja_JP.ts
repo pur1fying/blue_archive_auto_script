@@ -1124,7 +1124,7 @@
     <message>
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>国际服青少年</source>
-        <translation type="unfinished">国際少年サーバー</translation>
+        <translation>国際少年サーバー</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="24"/>
