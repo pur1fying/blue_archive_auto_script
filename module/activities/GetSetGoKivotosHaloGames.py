@@ -12,7 +12,7 @@ def implement(self):
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
          sweep(self, region, times)
-    # exchange_reward(self)
+    dice_track(self)
     return True
 
 
@@ -529,3 +529,31 @@ def startJointFight(self):
     rgb_possibles = {"formation_edit1": (1156, 659)}
     rgb_ends = "fighting_feature"
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+
+
+def to_dice_track(self):
+    to_activity(self, "mission", True, False)
+    img_possibles = {
+        "activity_menu": (517, 641),
+        "activity_resource-inadequate": (887, 165)
+    }
+    rgb_possibles = {
+        "reward_acquired": (640, 100),
+    }
+    img_ends = "activity_dice-track-menu"
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
+
+
+def dice_track(self):
+    to_dice_track(self)
+    img_possibles = {
+        "activity_dice-track-menu": (1186, 669),
+        "activity_get-collectable-item1": (508, 505),
+    }
+    rgb_possibles = {
+        "reward_acquired": (640, 100),
+    }
+    img_ends = "activity_resource-inadequate"
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
+    self.logger.info("Resource inadequate, Stop dice track")
+    to_dice_track(self)

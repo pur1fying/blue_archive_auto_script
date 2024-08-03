@@ -47,7 +47,7 @@ def implement(self):
                 continue
             choose_region(self, region)
             self.stage_data = get_stage_data(region)
-            for k in range(0, 13):              # 5 grid to walk and 8 sub task
+            for k in range(0, 13):  # 5 grid to walk and 8 sub task
                 mission = calc_need_fight_stage(self, region, self.config['explore_normal_task_force_sss'])
                 if mission == "ALL MISSION SWEEP AVAILABLE":
                     self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
@@ -138,7 +138,8 @@ def end_turn(self):
     self.logger.info("Confirm End Turn")
     img_end = 'normal_task_task-operating-feature'
     img_possibles = {'normal_task_end-turn': (767, 501)}
-    picture.co_detect(self, None, None, img_end, img_possibles, True)
+    rgb_end = "fighting_feature"
+    picture.co_detect(self, rgb_end, None, img_end, img_possibles, True)
 
 
 def confirm_teleport(self):
@@ -190,8 +191,11 @@ def start_action(self, actions):
             elif op[j] == 'end-turn':
                 end_turn(self)
                 if i != len(actions) - 1:
-                    wait_over(self)
-                    skip_first_screenshot = True
+                    if 'end-turn-wait-over' in act and act['end-turn-wait-over'] is False:  # not every end turn need to wait
+                        self.logger.info("End Turn without wait over")
+                    else:
+                        wait_over(self)
+                        skip_first_screenshot = True
             elif op[j] == 'click_and_teleport':
                 pos = act['p'][0]
                 self.click(pos[0], pos[1], wait_over=True)

@@ -149,7 +149,8 @@ def get_actions(team_cnt):
                 if i == "8":
                     print("please enter total fights and which fight to retreat : format [ total_fights fight_to_retreat ]")
                     one_action["retreat"] = get_one_position()
-                t.append(action_name[i])
+                if i != "8":
+                    t.append(action_name[i])
             one_action["t"] = t
         for i in temp:
             p_cnt += has_position(i)
