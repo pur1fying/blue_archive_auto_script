@@ -1,3 +1,5 @@
+from math import ceil
+
 import numpy as np
 from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtWidgets import QLabel, QHBoxLayout, QHeaderView, QTableWidgetItem
@@ -63,7 +65,7 @@ class Layout(TemplateLayout):
                 optionPanel = QHBoxLayout(self)
                 tableView = TableWidget(self)
                 tableView.setWordWrap(False)
-                tableView.setRowCount(len(total_list) // 4)
+                tableView.setRowCount(ceil(len(total_list)/4))
                 tableView.setColumnCount(4)
                 tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
                 tableView.setHorizontalHeaderLabels(
@@ -150,5 +152,4 @@ class Layout(TemplateLayout):
             if team.endswith(" "):
                 team = team[:-1]
             ret[tp][name] = team
-        print(ret)
         return ret
