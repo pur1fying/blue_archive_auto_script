@@ -14,3 +14,4 @@ from module.activities import SummerSkysWishes
 from module.activities import SweetSecretsAndGunfightsATaleOfAfterSchoolSweets
 from module.activities import SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp
 from module.activities import BaskingInTheBrillianceOfTheirSerenade
+from module.activities import TheCathedralsMerryChristmas

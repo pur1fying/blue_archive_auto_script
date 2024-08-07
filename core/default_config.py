@@ -645,7 +645,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "GetSetGoKivotosHaloGames",
-        "Global": "BaskingInTheBrillianceOfTheirSerenade",
+        "Global": "TheCathedralsMerryChristmas",
         "JP": "ShesideOutside"
     },
     "dailyGameActivity": {
