@@ -125,5 +125,6 @@ GUI预览图：
 9.日服活动维护,感谢
 **[@shenxianjiejie](https://github.com/shenxian66ya)**
 
-
+10. 国际服活动维护,感谢
+**[@beihaihaihai](https://github.com/beihaihaihai)**
 
