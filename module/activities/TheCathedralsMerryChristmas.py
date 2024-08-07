@@ -58,7 +58,6 @@ def preprocess_activity_sweep_times(times):
                 times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
         return times
 
-#走格子的json还没写
 def get_stage_data():
     module_path = 'src.explore_task_data.activities.TheCathedralsMerryChristmas'
     stage_module = importlib.import_module(module_path)
@@ -209,9 +208,9 @@ def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
     tasks = [
-        # "challenge2_sss",
-        # "challenge2_task",
-        # "challenge4_sss",
+        "challenge2_sss",
+        "challenge2_task",
+        "challenge4_sss",
         "challenge4_task"
     ]
     stage_data = get_stage_data()
