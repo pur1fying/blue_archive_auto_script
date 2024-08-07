@@ -5,11 +5,11 @@ stage_data = {
       ["burst1", (822,308)]
     ],
     "action": [
-      {"t": "click","p": [647,328],"ec": True,"wait-over": True,"desc": "1 upper right"},
+      {"t": "click","p": [647,328],"ec": True,"desc": "1 upper right"},
       {"t": "click","p": [710,477],"ec": True,"wait-over": True,"desc": "2 lower right"},
 
       {"t": "click","p": [444,444],"ec": True,"desc": "1 lower left"},
-      {"t": "click","p": [690,522],"ec": True,"desc": "2 lower left"},
+      {"t": "click","p": [690,522],"ec": True,"wait-over": True,"desc": "2 lower left"},
 
       {"t": "click","p": [555,499],"ec": True,"desc": "1 lower right"},
       {"t": "choose_and_change","p": [555,499],"desc": "swap 1 2"},
@@ -45,21 +45,18 @@ stage_data = {
       {"t": "click","p": (841,332),"ec": True,"wait-over": True,"desc": "3 upper right"},
 
       {"t": "click","p": [492,401], "ec": True,"desc": "1 upper left"},
-      {"t": "click_and_teleport","p": [602,192],"ec": True,"wait-over": True,"desc": "2 upper left teleport"},
+      {"t": "click_and_teleport","p": [602,192],"ec": True,"desc": "2 upper left teleport"},
       {"t": "click_and_teleport","p": [598,192],"ec": True,"wait-over": True,"desc": "3 upper left teleport"},
 
-      # {"t": "exchange","p": [],"ec": True,"desc": "1"},
       {"t": "click_and_teleport","p": [555,489],"wait-over": True,"desc": "1 teleport"},
       {"t": "click","p": [705, 237],"ec": True,"desc": "1 right"},
-      {"t": "click","p": [847,487],"ec": True,"wait-over": True,"desc": "2 lower right"},
+      {"t": "click","p": [847,487],"ec": True,"desc": "2 lower right"},
       {"t": "choose_and_change","p": [882,444],"desc": "swap 2 3"},
       {"t": "click","p": [903,417],"ec": True,"wait-over": True,"desc": "3 right"},
 
-      {"t": "exchange","p": [],"desc": "2"},
-        #没法传送
-      {"t": "click_and_teleport","p": [755,457],"wait-over": True,"desc": "2 teleport"},
+      {"t": ["exchange", "click_and_teleport"],"p": [755,457],"wait-over": True,"desc": "2 teleport"},
       {"t": "click","p": [582,149],"ec": True,"desc": "2 upper left"},
-      {"t": "click","p": [615,418],"ec": True,"wait-over": True,"desc": "1 right"},
+      {"t": "click","p": [615,418],"ec": True,"desc": "1 right"},
       {"t": "click_and_teleport","p": [767,444],"wait-over": True,"desc": "3 teleport"},
       {"t": "click","p": [587,503],"ec": True,"wait-over": True,"desc": "3 lower right"},
 
