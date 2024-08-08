@@ -556,4 +556,9 @@ def dice_track(self):
     img_ends = "activity_resource-inadequate"
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
     self.logger.info("Resource inadequate, Stop dice track")
-    to_dice_track(self)
+    img_possibles = {
+        "activity_resource-inadequate": (887, 165)
+    }
+    img_ends = "activity_dice-track-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
