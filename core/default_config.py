@@ -644,9 +644,9 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "GetSetGoKivotosHaloGames",
+        "CN": "PlayHideAndSeekAtImaginationLand",
         "Global": "TheCathedralsMerryChristmas",
-        "JP": "ShesideOutside"
+        "JP": null
     },
     "dailyGameActivity": {
         "CN": null,
