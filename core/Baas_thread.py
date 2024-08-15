@@ -54,6 +54,7 @@ func_dict = {
     'explore_activity_mission': module.explore_activity_mission.implement,
     'dailyGameActivity': module.dailyGameActivity.implement,
     'JP_server_mumu_login_fix': module.JP_server_mumu_login_fix.implement,
+    'friend': module.friend.implement,
 }
 
 

@@ -251,6 +251,18 @@ EVENT_DEFAULT_CONFIG = """
     "disabled_time_range": [],
     "pre_task": [],
     "post_task": []
+  },
+  {
+    "enabled": false,
+    "priority": 18,
+    "interval": 3600,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "清理好友",
+    "func_name": "friend",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
   }
 ]
 """
@@ -407,7 +419,8 @@ DEFAULT_CONFIG = """
         0,
         0,
         0
-    ]
+    ],
+    "clear_friend_white_list": []
 }
 """
 
