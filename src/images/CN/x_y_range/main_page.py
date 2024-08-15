@@ -2,7 +2,6 @@ prefix = "main_page"
 path = "main_page"
 x_y_range = {
     'student': (328, 654, 346, 663),
-    'menu': (611, 248, 670, 278),
     'bus': (107, 9, 162, 36),
     'home-feature': (1203, 24, 1240, 60),
     'quick-home': (1215, 5, 1255, 42),
@@ -19,4 +18,7 @@ x_y_range = {
     'privacy-policy': (260, 200, 980, 550),
     'get-character': (800, 183, 1094, 219),
     'renewal-month-card': (400, 420, 900, 600),
+    'menu': (592, 198, 680, 243),
+    'friend-menu': (100, 8, 220, 37),
+    'friend-management-menu': (100, 8, 261, 37),
 }
