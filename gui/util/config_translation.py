@@ -3,7 +3,7 @@ from PyQt5.QtCore import QObject
 
 class ConfigTranslation(QObject):
     """ Contains translations of config strings"""
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.entries = {
@@ -83,6 +83,7 @@ class ConfigTranslation(QObject):
             self.tr('随机中级神秘古物'): '随机中级神秘古物',
 
             # tactical challenge shop
+            self.tr('宫子神明文字x5'): '宫子神明文字x5',
             self.tr('静子神明文字x5'): '静子神明文字x5',
             self.tr('真白神明文字x5'): '真白神明文字x5',
             self.tr('纱绫神明文字x5'): '纱绫神明文字x5',
@@ -97,8 +98,8 @@ class ConfigTranslation(QObject):
             self.tr('信用点x125k'): '信用点x125k',
 
             # server combobox
-            self.tr('官服'): '官服', 
-            self.tr('B服'): 'B服', 
+            self.tr('官服'): '官服',
+            self.tr('B服'): 'B服',
             self.tr('国际服'): '国际服',
             self.tr('国际服青少年'): '国际服青少年',
             self.tr('韩国ONE'): '韩国ONE',
@@ -106,7 +107,7 @@ class ConfigTranslation(QObject):
 
             # patstyles combobox
             self.tr('拖动礼物'): '拖动礼物',
-        
+
             # emulator combobox
             self.tr('MuMu模拟器'): 'MuMu模拟器',
             self.tr('蓝叠模拟器'): '蓝叠模拟器',

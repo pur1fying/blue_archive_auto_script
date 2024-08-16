@@ -523,10 +523,10 @@ STATIC_DEFAULT_CONFIG = '''
              ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
         "JP": [
-             ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
-             ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
-             ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
-             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 100]
+             ["宫子神明文字x5", 50],  ["静子神明文字x5",50],    ["真白神明文字x5",50],    ["纱绫神明文字x5",50],
+             ["风香神明文字x5",50],   ["歌原神明文字x5",50],    ["30AP", 15],           ["60AP", 30],
+             ["初级经验书x5", 5],     ["中级经验书x10", 25],    ["高级经验书x3", 60],    ["特级经验书x1", 100],
+             ["信用点x5k", 4],       ["信用点x5k", 20],       ["信用点x75k", 60],      ["信用点x125k", 100]
         ]
     },
     "create_default_priority": {
@@ -646,9 +646,9 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "OnYourMarkAtMillenniumKivotosHaloFestival",
-        "Global": "BaskingInTheBrillianceOfTheirSerenade",
-        "JP": "ShesideOutside"
+        "CN": "PlayHideAndSeekAtImaginationLand",
+        "Global": "TheCathedralsMerryChristmas",
+        "JP": null
     },
     "dailyGameActivity": {
         "CN": null,
@@ -704,6 +704,22 @@ STATIC_DEFAULT_CONFIG = '''
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"]
     ],
   "student_names": [
+    {
+      "CN_name": "日和(泳装)",
+      "CN_implementation": false,
+      "Global_name": "Hiyori (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "ヒヨリ(水着)",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "纱织(泳装)",
+      "CN_implementation": false,
+      "Global_name": "Saori (Swimsuit)",
+      "Global_implementation": false,
+      "JP_name": "サオリ(水着)",
+      "JP_implementation": true
+    },
     {
       "CN_name": "亚津子(泳装)",
       "CN_implementation": false,
@@ -868,7 +884,7 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "日奈(礼服)",
       "CN_implementation": false,
       "Global_name": "Hina (Dress)",
-      "Global_implementation": false,
+      "Global_implementation": true,
       "JP_name": "ヒナ(ドレス)",
       "JP_implementation": true
     },
@@ -993,7 +1009,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "晴奈(运动服)",
+      "CN_name": "晴奈(体操服)",
       "CN_implementation": false,
       "Global_name": "Haruna (Track)",
       "Global_implementation": true,
@@ -1297,24 +1313,24 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "莲见(运动服)",
-      "CN_implementation": false,
+      "CN_name": "莲见(体操服)",
+      "CN_implementation": true,
       "Global_name": "Hasumi (Track)",
       "Global_implementation": true,
       "JP_name": "ハスミ(体操服)",
       "JP_implementation": true
     },
     {
-      "CN_name": "玛丽(运动服)",
-      "CN_implementation": false,
+      "CN_name": "玛丽(体操服)",
+      "CN_implementation": true,
       "Global_name": "Mari (Track)",
       "Global_implementation": true,
       "JP_name": "マリー(体操服)",
       "JP_implementation": true
     },
     {
-      "CN_name": "优香(运动服)",
-      "CN_implementation": false,
+      "CN_name": "优香(体操服)",
+      "CN_implementation": true,
       "Global_name": "Yuuka (Track)",
       "Global_implementation": true,
       "JP_name": "ユウカ(体操服)",

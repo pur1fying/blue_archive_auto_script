@@ -149,7 +149,8 @@ def get_actions(team_cnt):
                 if i == "8":
                     print("please enter total fights and which fight to retreat : format [ total_fights fight_to_retreat ]")
                     one_action["retreat"] = get_one_position()
-                t.append(action_name[i])
+                if i != "8":
+                    t.append(action_name[i])
             one_action["t"] = t
         for i in temp:
             p_cnt += has_position(i)
@@ -168,7 +169,7 @@ def get_actions(team_cnt):
             print("Will formation number change after this action ? [y/n]")
             if get_y_n():
                 one_action["ec"] = True
-        if one_action['t'] != 'choose_and_change' :
+        if one_action['t'] != 'choose_and_change':
             print("Need wait-over after this action ? [y/n]")
             if get_y_n():
                 one_action["wait-over"] = True

@@ -60,12 +60,12 @@ class Scheduler:
                         daily_reset = event['daily_reset']                          # daily_reset is a list with items like : [hour, minute, second]
                         sorted(daily_reset, key=lambda x: x[0] * 3600 + x[1] * 60 + x[2])
                         current = datetime.now(timezone.utc).timestamp()
-                        temp = None
+                        temp = 2**63
+
                         for i in range(0, len(daily_reset)):
-                            temp = self.get_next_time(daily_reset[i][0], daily_reset[i][1], daily_reset[i][2])
-                            if current + interval >= temp:
-                                event['next_tick'] = temp
-                                break
+                            temp = min(self.get_next_time(daily_reset[i][0], daily_reset[i][1], daily_reset[i][2]), temp)
+                        if current + interval >= temp:
+                            event['next_tick'] = temp
                         else:
                             if event['interval'] > 0:
                                 event['next_tick'] = time.time() + event['interval']

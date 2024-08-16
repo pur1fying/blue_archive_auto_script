@@ -1,6 +1,6 @@
 import time
-
 from core import color, picture
+
 
 def implement(self):
     self.quick_method_to_main_page()
@@ -54,14 +54,14 @@ def implement(self):
                                duration=1.5, wait_over=True)
                 else:
                     self.click(right_change_page_x, change_page_y, count=len(region_name) - cur_num + tar_num,
-                                duration=1.5, wait_over=True)
+                               duration=1.5, wait_over=True)
             else:
                 if (tar_num - cur_num) * 2 < len(region_name):
                     self.click(right_change_page_x, change_page_y, count=tar_num - cur_num, duration=1.5,
                                wait_over=True)
                 else:
                     self.click(left_change_page_x, change_page_y, count=len(region_name) - tar_num + cur_num,
-                                duration=1.5, wait_over=True)
+                               duration=1.5, wait_over=True)
             to_select_location(self)
             res = get_lesson_region_num(self, letter_dict, region_name_len)
             if res != 'NOT FOUND':
@@ -176,7 +176,7 @@ def get_lesson_tickets(self):
 
 
 def purchase_lesson_ticket(self, times):
-    self.click(148, 101,  rate=1.5)
+    self.click(148, 101, rate=1.5)
     if times == 4:  # max
         self.click(879, 346, wait=False)
     else:
@@ -312,7 +312,7 @@ def get_lesson_each_region_status(self):
         elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230,
                                    249):
             res.append("done")
-        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31,160):
+        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
             res.append("lock")
         elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
                                    215):
@@ -359,7 +359,8 @@ def choose_lesson(self, res, region):
                     for j in range(2 * (3 - i), 2 * (4 - i)):
                         if res[0][j] == "available" and res[1][j] > max_relationship:
                             if max_relationship != -1:
-                                self.logger.info("Due to relationship priority, current choice forward from [ " + str(choice + 1) + " ] to [ " + str(j + 1) + " ]")
+                                self.logger.info("Due to relationship priority, current choice forward from [ " + str(
+                                    choice + 1) + " ] to [ " + str(j + 1) + " ]")
                             max_relationship = res[1][j]
                             choice = j
                         if choice != -1:
