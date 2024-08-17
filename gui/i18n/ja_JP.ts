@@ -192,215 +192,225 @@
         <translation>各種スイープ・クーポン購入時間設定</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="74"/>
+        <location filename="../util/config_translation.py" line="76"/>
         <source>初级经验书</source>
         <translation>初級レポート</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="75"/>
+        <location filename="../util/config_translation.py" line="77"/>
         <source>中级经验书</source>
         <translation>中級レポート</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="76"/>
+        <location filename="../util/config_translation.py" line="78"/>
         <source>高级经验书</source>
         <translation>高級レポート</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="77"/>
+        <location filename="../util/config_translation.py" line="79"/>
         <source>特级经验书</source>
         <translation>特級レポート</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="78"/>
+        <location filename="../util/config_translation.py" line="80"/>
         <source>初级经验珠</source>
         <translation>初級強化珠</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="79"/>
+        <location filename="../util/config_translation.py" line="81"/>
         <source>中级经验珠</source>
         <translation>中級強化珠</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="80"/>
+        <location filename="../util/config_translation.py" line="82"/>
         <source>高级经验珠</source>
         <translation>高級強化珠</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="81"/>
+        <location filename="../util/config_translation.py" line="83"/>
         <source>特级经验珠</source>
         <translation>特級強化珠</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="82"/>
+        <location filename="../util/config_translation.py" line="84"/>
         <source>随机初级神秘古物</source>
         <translation>ランダム初級神秘古物</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="83"/>
+        <location filename="../util/config_translation.py" line="85"/>
         <source>随机中级神秘古物</source>
         <translation>ランダム中級神秘古物</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="87"/>
+        <location filename="../util/config_translation.py" line="89"/>
         <source>静子神明文字x5</source>
         <translation>静子 神名文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="88"/>
+        <location filename="../util/config_translation.py" line="90"/>
         <source>真白神明文字x5</source>
         <translation>真白神名文字×5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="89"/>
+        <location filename="../util/config_translation.py" line="91"/>
         <source>纱绫神明文字x5</source>
         <translation>紗綾 神名文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="90"/>
+        <location filename="../util/config_translation.py" line="92"/>
         <source>风香神明文字x5</source>
         <translation>風香神名文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="91"/>
+        <location filename="../util/config_translation.py" line="93"/>
         <source>歌原神明文字x5</source>
         <translation>歌原 神名文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="92"/>
+        <location filename="../util/config_translation.py" line="94"/>
         <source>初级经验书x5</source>
         <translation>初级レポート x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="93"/>
+        <location filename="../util/config_translation.py" line="95"/>
         <source>中级经验书x10</source>
         <translation>中級レポート x10</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="94"/>
+        <location filename="../util/config_translation.py" line="96"/>
         <source>高级经验书x3</source>
         <translation>高級レポート x3</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="95"/>
+        <location filename="../util/config_translation.py" line="97"/>
         <source>特级经验书x1</source>
         <translation>特級レポート x1</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="96"/>
+        <location filename="../util/config_translation.py" line="98"/>
         <source>信用点x5k</source>
         <translation>クレジット x5k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="97"/>
+        <location filename="../util/config_translation.py" line="99"/>
         <source>信用点x75k</source>
         <translation>クレジットx75k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="98"/>
+        <location filename="../util/config_translation.py" line="100"/>
         <source>信用点x125k</source>
         <translation>クレジット x125k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="101"/>
+        <location filename="../util/config_translation.py" line="103"/>
         <source>官服</source>
         <translation>中国代理サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="102"/>
+        <location filename="../util/config_translation.py" line="104"/>
         <source>B服</source>
         <translation>ビリビリサーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="103"/>
+        <location filename="../util/config_translation.py" line="105"/>
         <source>国际服</source>
         <translation>国際サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="106"/>
+        <location filename="../util/config_translation.py" line="108"/>
         <source>日服</source>
         <translation>日本サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="109"/>
+        <location filename="../util/config_translation.py" line="111"/>
         <source>拖动礼物</source>
         <translation>ギフトドラッグ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="112"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>MuMu模拟器</source>
         <translation>MuMuエミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="115"/>
         <source>蓝叠模拟器</source>
         <translation>Blue Stack「中国」シミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="114"/>
+        <location filename="../util/config_translation.py" line="116"/>
         <source>蓝叠国际版</source>
         <translation>Blue Stack「国際」シミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="104"/>
+        <location filename="../util/config_translation.py" line="106"/>
         <source>国际服青少年</source>
         <translation>国際少年サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="105"/>
+        <location filename="../util/config_translation.py" line="107"/>
         <source>韩国ONE</source>
         <translation>韓国「One」サーバー</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="86"/>
+        <location filename="../util/config_translation.py" line="88"/>
         <source>宫子神明文字x5</source>
         <translation>宫子神明文字 x5</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="72"/>
+        <source>自动清好友白名单(仅国服)</source>
+        <translation>友だちの自動削除ホワイトリスツ (中国語サーバーのみ)</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="73"/>
+        <source>设置在定期好友清理中需要保留的好友码</source>
+        <translation>定期的な友達削除で保持する必要があるフレンドコードを設定します</translation>
     </message>
 </context>
 <context>
     <name>DetailSettingMessageBox</name>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="19"/>
+        <location filename="../components/expand/featureSwitch.py" line="40"/>
         <source>配置详情</source>
         <translation>構成の詳細</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="22"/>
+        <location filename="../components/expand/featureSwitch.py" line="43"/>
         <source>优先级</source>
         <translation>優先権</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="27"/>
+        <location filename="../components/expand/featureSwitch.py" line="48"/>
         <source>执行间隔</source>
         <translation>実行間隔</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="32"/>
+        <location filename="../components/expand/featureSwitch.py" line="53"/>
         <source>每日重置</source>
         <translation>毎日のリセット</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="37"/>
+        <location filename="../components/expand/featureSwitch.py" line="58"/>
         <source>禁用时间段</source>
         <translation>無効期間</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="42"/>
+        <location filename="../components/expand/featureSwitch.py" line="63"/>
         <source>前置任务</source>
         <translation>前提のタスク</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="48"/>
+        <location filename="../components/expand/featureSwitch.py" line="69"/>
         <source>后置任务</source>
         <translation>ポストタスク</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="59"/>
+        <location filename="../components/expand/featureSwitch.py" line="80"/>
         <source>确定</source>
         <translation>決定</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="60"/>
+        <location filename="../components/expand/featureSwitch.py" line="81"/>
         <source>取消</source>
         <translation>キャンセル</translation>
     </message>
@@ -431,17 +441,17 @@
 <context>
     <name>EventMapConfig</name>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="11"/>
+        <location filename="../components/expand/eventMapConfig.py" line="17"/>
         <source>推故事</source>
         <translation>ストーリーをクリアする</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="16"/>
+        <location filename="../components/expand/eventMapConfig.py" line="22"/>
         <source>推任务</source>
         <translation>タスクをクリアする</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="21"/>
+        <location filename="../components/expand/eventMapConfig.py" line="27"/>
         <source>推挑战</source>
         <translation>挑戦をクリアする</translation>
     </message>
@@ -706,52 +716,52 @@
         <translation>通常のステージのクリア</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="79"/>
+        <location filename="../components/expand/featureSwitch.py" line="100"/>
         <source>全部(不)启用</source>
         <translation>すべて有効(無効)</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="85"/>
+        <location filename="../components/expand/featureSwitch.py" line="106"/>
         <source>刷新执行时间</source>
         <translation>更新実行時間</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="90"/>
+        <location filename="../components/expand/featureSwitch.py" line="111"/>
         <source>排序方式：</source>
         <translation>並び替え:</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="92"/>
+        <location filename="../components/expand/featureSwitch.py" line="113"/>
         <source>默认排序</source>
         <translation>デフォルトの並べ替え</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="92"/>
+        <location filename="../components/expand/featureSwitch.py" line="113"/>
         <source>按下次执行时间排序</source>
         <translation>最終実行時刻で並べ替え</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>事件</source>
         <translation>アクティビティ</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>下次刷新时间</source>
         <translation>次回の更新時刻</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>启用</source>
         <translation>エネーブル</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>更多配置</source>
         <translation>その他の構成</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="202"/>
+        <location filename="../components/expand/featureSwitch.py" line="224"/>
         <source>详细配置</source>
         <translation>詳細な設定</translation>
     </message>
@@ -869,6 +879,61 @@
         <location filename="../components/expand/emulatorConfig.py" line="82"/>
         <source>选择模拟器类型</source>
         <translation>シミュレーターの種類を選択する</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="71"/>
+        <source>关卡</source>
+        <translation>レベル</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="71"/>
+        <source>属性</source>
+        <translation>属性</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="16"/>
+        <source>输入你需要添加进白名单的好友码(长度为7, 由小写字母和数字组成):</source>
+        <translation>ホワイトリストに追加するフレンドコードを入力します(長さ7、小文字と数字で構成)：</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="54"/>
+        <source>添加失败</source>
+        <translation>追加に失敗しました</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="46"/>
+        <source>用户码长度不符合要求</source>
+        <translation>ユーザーコードの長さが要件を満たしていません</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="50"/>
+        <source>用户码格式不符合要求</source>
+        <translation>ユーザー コード形式が要件を満たしていません</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="54"/>
+        <source>用户码已在白名单中</source>
+        <translation>ユーザー・コードはすでにホワイトリストに登録されています</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="59"/>
+        <source>添加成功</source>
+        <translation>追加は成功しました</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="71"/>
+        <source>用户码</source>
+        <translation>ユーザーコード</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="71"/>
+        <source>操作</source>
+        <translation>操作</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="76"/>
+        <source>删除</source>
+        <translation>削除</translation>
     </message>
 </context>
 <context>

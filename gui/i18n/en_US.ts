@@ -178,137 +178,137 @@ make sure to do it before starting the script.</translation>
         <translation>Various sweep and tickets purchase settings</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="101"/>
+        <location filename="../util/config_translation.py" line="103"/>
         <source>官服</source>
         <translation>CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="102"/>
+        <location filename="../util/config_translation.py" line="104"/>
         <source>B服</source>
         <translation>Bilibili</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="103"/>
+        <location filename="../util/config_translation.py" line="105"/>
         <source>国际服</source>
         <translation>Global</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="106"/>
+        <location filename="../util/config_translation.py" line="108"/>
         <source>日服</source>
         <translation>JP</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="109"/>
+        <location filename="../util/config_translation.py" line="111"/>
         <source>拖动礼物</source>
         <translation>Drag the gift</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="74"/>
+        <location filename="../util/config_translation.py" line="76"/>
         <source>初级经验书</source>
         <translation>Novice Report</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="75"/>
+        <location filename="../util/config_translation.py" line="77"/>
         <source>中级经验书</source>
         <translation>Normal Report</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="76"/>
+        <location filename="../util/config_translation.py" line="78"/>
         <source>高级经验书</source>
         <translation>Advanced Report</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="77"/>
+        <location filename="../util/config_translation.py" line="79"/>
         <source>特级经验书</source>
         <translation>Superior Report</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="78"/>
+        <location filename="../util/config_translation.py" line="80"/>
         <source>初级经验珠</source>
         <translation>Lesser Stone</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="79"/>
+        <location filename="../util/config_translation.py" line="81"/>
         <source>中级经验珠</source>
         <translation>Normal Stone</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="80"/>
+        <location filename="../util/config_translation.py" line="82"/>
         <source>高级经验珠</source>
         <translation>Advanced Stone</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="81"/>
+        <location filename="../util/config_translation.py" line="83"/>
         <source>特级经验珠</source>
         <translation>Superior Stone</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="82"/>
+        <location filename="../util/config_translation.py" line="84"/>
         <source>随机初级神秘古物</source>
         <translation>Random Beginner Material</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="83"/>
+        <location filename="../util/config_translation.py" line="85"/>
         <source>随机中级神秘古物</source>
         <translation>Random Intermediate Material</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="87"/>
+        <location filename="../util/config_translation.py" line="89"/>
         <source>静子神明文字x5</source>
         <translation>Shizuko's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="88"/>
+        <location filename="../util/config_translation.py" line="90"/>
         <source>真白神明文字x5</source>
         <translation>Mashiro's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="89"/>
+        <location filename="../util/config_translation.py" line="91"/>
         <source>纱绫神明文字x5</source>
         <translation>Saya's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="90"/>
+        <location filename="../util/config_translation.py" line="92"/>
         <source>风香神明文字x5</source>
         <translation>Fuuka's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="91"/>
+        <location filename="../util/config_translation.py" line="93"/>
         <source>歌原神明文字x5</source>
         <translation>Utaha's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="92"/>
+        <location filename="../util/config_translation.py" line="94"/>
         <source>初级经验书x5</source>
         <translation>Normal Report x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="93"/>
+        <location filename="../util/config_translation.py" line="95"/>
         <source>中级经验书x10</source>
         <translation>Novice Report x10</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="94"/>
+        <location filename="../util/config_translation.py" line="96"/>
         <source>高级经验书x3</source>
         <translation>Advanced Report x3</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="95"/>
+        <location filename="../util/config_translation.py" line="97"/>
         <source>特级经验书x1</source>
         <translation>Superior Report x1</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="96"/>
+        <location filename="../util/config_translation.py" line="98"/>
         <source>信用点x5k</source>
         <translation>Credits x5k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="97"/>
+        <location filename="../util/config_translation.py" line="99"/>
         <source>信用点x75k</source>
         <translation>Credits x75k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="98"/>
+        <location filename="../util/config_translation.py" line="100"/>
         <source>信用点x125k</source>
         <translation>Credits x125k</translation>
     </message>
@@ -318,17 +318,17 @@ make sure to do it before starting the script.</translation>
         <translation>No Task</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="112"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>MuMu模拟器</source>
         <translation>MuMu Player</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="115"/>
         <source>蓝叠模拟器</source>
         <translation>BlueStacks CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="114"/>
+        <location filename="../util/config_translation.py" line="116"/>
         <source>蓝叠国际版</source>
         <translation>BlueStacks</translation>
     </message>
@@ -343,65 +343,75 @@ make sure to do it before starting the script.</translation>
         <translation>Cafe Invitation</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="104"/>
+        <location filename="../util/config_translation.py" line="106"/>
         <source>国际服青少年</source>
         <translation>Global Teen</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="105"/>
+        <location filename="../util/config_translation.py" line="107"/>
         <source>韩国ONE</source>
         <translation>KR Onestore</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="86"/>
+        <location filename="../util/config_translation.py" line="88"/>
         <source>宫子神明文字x5</source>
         <translation>Miyako's Eleph</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="72"/>
+        <source>自动清好友白名单(仅国服)</source>
+        <translation>Automatic friends clear whitelists (Chinese server only)</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="73"/>
+        <source>设置在定期好友清理中需要保留的好友码</source>
+        <translation>Set the friend code that you need to keep in the regular friend cleanup</translation>
     </message>
 </context>
 <context>
     <name>DetailSettingMessageBox</name>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="19"/>
+        <location filename="../components/expand/featureSwitch.py" line="40"/>
         <source>配置详情</source>
         <translation>Detailed Configuration</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="22"/>
+        <location filename="../components/expand/featureSwitch.py" line="43"/>
         <source>优先级</source>
         <translation>Priority</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="27"/>
+        <location filename="../components/expand/featureSwitch.py" line="48"/>
         <source>执行间隔</source>
         <translation>Interval</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="32"/>
+        <location filename="../components/expand/featureSwitch.py" line="53"/>
         <source>每日重置</source>
         <translation>Reset daily</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="37"/>
+        <location filename="../components/expand/featureSwitch.py" line="58"/>
         <source>禁用时间段</source>
         <translation>Disable period</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="42"/>
+        <location filename="../components/expand/featureSwitch.py" line="63"/>
         <source>前置任务</source>
         <translation>Pre task</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="48"/>
+        <location filename="../components/expand/featureSwitch.py" line="69"/>
         <source>后置任务</source>
         <translation>Post-task</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="59"/>
+        <location filename="../components/expand/featureSwitch.py" line="80"/>
         <source>确定</source>
         <translation>Confirm</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="60"/>
+        <location filename="../components/expand/featureSwitch.py" line="81"/>
         <source>取消</source>
         <translation>Cancel</translation>
     </message>
@@ -436,17 +446,17 @@ detect installed emulators on the system when enabled)</translation>
 <context>
     <name>EventMapConfig</name>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="11"/>
+        <location filename="../components/expand/eventMapConfig.py" line="17"/>
         <source>推故事</source>
         <translation>Clear Story</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="16"/>
+        <location filename="../components/expand/eventMapConfig.py" line="22"/>
         <source>推任务</source>
         <translation>Clear Quest</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="21"/>
+        <location filename="../components/expand/eventMapConfig.py" line="27"/>
         <source>推挑战</source>
         <translation>Clear Challenge</translation>
     </message>
@@ -676,42 +686,42 @@ See Clear Hard and Normal Stages in Help</translation>
         <translation>Run</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="79"/>
+        <location filename="../components/expand/featureSwitch.py" line="100"/>
         <source>全部(不)启用</source>
         <translation>All (not) enabled</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="85"/>
+        <location filename="../components/expand/featureSwitch.py" line="106"/>
         <source>刷新执行时间</source>
         <translation>Refresh Execution Time</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="90"/>
+        <location filename="../components/expand/featureSwitch.py" line="111"/>
         <source>排序方式：</source>
         <translation>Sort by:</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="92"/>
+        <location filename="../components/expand/featureSwitch.py" line="113"/>
         <source>默认排序</source>
         <translation>Default order</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="92"/>
+        <location filename="../components/expand/featureSwitch.py" line="113"/>
         <source>按下次执行时间排序</source>
         <translation>Soonest</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>事件</source>
         <translation>Chore</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>下次刷新时间</source>
         <translation>Execution Time</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>启用</source>
         <translation>Enable</translation>
     </message>
@@ -818,7 +828,7 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Normal Level Mainline Map Clear</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>更多配置</source>
         <translation>More Configuration</translation>
     </message>
@@ -838,7 +848,7 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Screenshot Interval</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="202"/>
+        <location filename="../components/expand/featureSwitch.py" line="224"/>
         <source>详细配置</source>
         <translation>Detailed Configuration</translation>
     </message>
@@ -881,6 +891,61 @@ For JP or Global server, you can use 'max':</translation>
         <location filename="../components/expand/emulatorConfig.py" line="82"/>
         <source>选择模拟器类型</source>
         <translation>Select the emulator type</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="71"/>
+        <source>关卡</source>
+        <translation>level</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="71"/>
+        <source>属性</source>
+        <translation>attribute</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="16"/>
+        <source>输入你需要添加进白名单的好友码(长度为7, 由小写字母和数字组成):</source>
+        <translation>Enter the friend code you want to add to the whitelist (length 7, consisting of lowercase letters and numbers):</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="54"/>
+        <source>添加失败</source>
+        <translation>Failed to add</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="46"/>
+        <source>用户码长度不符合要求</source>
+        <translation>The length of the user code does not meet the requirements</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="50"/>
+        <source>用户码格式不符合要求</source>
+        <translation>The user code format does not meet the requirements</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="54"/>
+        <source>用户码已在白名单中</source>
+        <translation>The user code is already in the whitelist</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="59"/>
+        <source>添加成功</source>
+        <translation>The addition was successful</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="71"/>
+        <source>用户码</source>
+        <translation>User code</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="71"/>
+        <source>操作</source>
+        <translation>operate</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="76"/>
+        <source>删除</source>
+        <translation>Delete</translation>
     </message>
 </context>
 <context>
