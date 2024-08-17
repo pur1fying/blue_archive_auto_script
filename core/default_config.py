@@ -488,6 +488,13 @@ SWITCH_DEFAULT_CONFIG = '''
         "sort": 14,
         "tip": "各种扫荡及购买券次数设置",
         "type": "BasicSettingCard"
+    },
+    {
+        "config": "friendWhiteList",
+        "name": "自动清好友白名单(仅国服)",
+        "sort": 15,
+        "tip": "设置在定期好友清理中需要保留的好友码",
+        "type": "BasicSettingCard"
     }
 ]
 
