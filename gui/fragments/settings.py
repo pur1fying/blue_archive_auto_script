@@ -96,6 +96,14 @@ class SettingsFragment(ScrollArea):
             ),
 
             SimpleSettingCard(
+                title=self.tr('好友白名单设置'),
+                content=self.tr('设置在定期好友清理中需要保留的用户码'),
+                sub_view=expand.__dict__['friendWhiteList'],
+                parent=self.exploreGroup,
+                config=self.config
+            ),
+
+            SimpleSettingCard(
                 title=self.tr('其他设置'),
                 content=self.tr('其他的一些小功能与设置'),
                 sub_view=expand.__dict__['otherConfig'],
