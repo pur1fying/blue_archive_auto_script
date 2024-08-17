@@ -326,6 +326,7 @@ DEFAULT_CONFIG = """
         "爱丽丝(女仆)"
     ],
     "server": "官服",
+    "adbIP": "127.0.0.1",
     "adbPort": "5555",
     "lesson_times": [
         1,
