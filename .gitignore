@@ -25,6 +25,7 @@
 !window.spec
 !i18n.pro
 !requirements-i18n.txt
+!requirements-linux.txt
 !dockerfile
 !entrypoint.sh
 src/explore_task_data/__pycache__/normal_task_11.cpython-39.pyc

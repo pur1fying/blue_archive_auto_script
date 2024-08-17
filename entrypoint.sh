@@ -79,7 +79,7 @@ fi
 
 # Install the env
 echo "[INFO] Check and Update the runtime environment..."
-pip3.9 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip3.9 install -r requirements-linux.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Start the app
 echo "[INFO] Starting the app..."

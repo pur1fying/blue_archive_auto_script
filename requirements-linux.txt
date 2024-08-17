@@ -1,0 +1,13 @@
+lmdb
+PyQt5
+numpy
+flask
+cnocr
+imgaug
+onnxruntime
+adbutils <= 2.2.1
+uiautomator2
+opencv-python
+PyQt-Fluent-Widgets
+
+paddlepaddle
