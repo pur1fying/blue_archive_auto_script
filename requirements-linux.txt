@@ -7,7 +7,7 @@ imgaug
 onnxruntime
 adbutils <= 2.2.1
 uiautomator2
-opencv-python
+opencv-python-headless
 PyQt-Fluent-Widgets
 
 paddlepaddle
