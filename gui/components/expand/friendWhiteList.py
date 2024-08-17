@@ -13,7 +13,7 @@ class Layout(QWidget):
         self.config = config
         self.vBoxLayout = QVBoxLayout(self)
         self.to_add_lay = QHBoxLayout(self)
-        self.to_add_label = QLabel(self.tr('输入你需要添加进白名单的用户码：'), self)
+        self.to_add_label = QLabel(self.tr('输入你需要添加进白名单的好友码(长度为7, 由小写字母和数字组成):'), self)
         self.to_add_input = LineEdit(self)
         self.add_accept = QPushButton(self.tr('确定'), self)
         self.table_view = None
