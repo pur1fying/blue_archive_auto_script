@@ -7,7 +7,7 @@ imgaug
 win11toast
 onnxruntime
 adbutils <= 2.2.1
-uiautomator2
+uiautomator2 == 2.16.23
 opencv-python
 PyQt-Fluent-Widgets
 # gevent
