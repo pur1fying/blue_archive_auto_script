@@ -27,6 +27,7 @@
 !requirements-i18n.txt
 !requirements-linux.txt
 !dockerfile
+!docker-compose.yaml
 !entrypoint.sh
 src/explore_task_data/__pycache__/normal_task_11.cpython-39.pyc
 *.pyc
