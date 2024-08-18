@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# For Debug
+# export QT_DEBUG_PLUGINS=1
+
 # Check the version
 GIT_HOME="/usr/bin/git"  # 修改为你的 git 可执行文件路径
 REPO_URL_HTTP="https://gitee.com/pur1fy/blue_archive_auto_script.git"  # 修改为你的仓库地址
@@ -33,6 +36,7 @@ else
     echo "[ERROR] Failed to activate the virtual environment."
     exit 1
 fi
+
 
 echo "+--------------------------------+"
 echo "|          UPDATE BAAS           |"
@@ -83,4 +87,34 @@ pip3.9 install -r requirements-linux.txt -i https://pypi.tuna.tsinghua.edu.cn/si
 
 # Start the app
 echo "[INFO] Starting the app..."
-python3.9 window.py
+
+# If you have display, it's ok to comment the first block
+# and uncomment the second block.
+
+#########################################################
+apt-get install -y xvfb x11vnc procps
+xvfb-run python3.9 window.py &
+
+# Wait until the xvfb is started
+sleep 5
+
+xvfb_info=$(ps -aux | grep '[X]vfb')
+# Get Xvfb Info From proc
+
+
+# Abstract ":99" and "-auth xxxxx"
+display=$(echo "$xvfb_info" | grep -o ' :[0-9][0-9]')
+auth=$(echo "$xvfb_info" | grep -oP '(?<=-auth )[^ ]+')
+
+# Check the abstract status
+if [ -n "$display" ] && [ -n "$auth" ]; then
+    # build and run x11vnc command
+    x11vnc_cmd="x11vnc -display $display -auth $auth"
+    echo "Running command: $x11vnc_cmd"
+    $x11vnc_cmd
+else
+    echo "Failed to extract display or auth information."
+fi
+#########################################################
+# xvfb-run python3.9 window.py                          #
+#########################################################

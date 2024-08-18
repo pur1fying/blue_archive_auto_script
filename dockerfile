@@ -2,13 +2,19 @@
 FROM hub.atomgit.com/amd64/debian:latest
 
 # Remove the original mirror
-RUN rm -rf /etc/apt/sources.list.d
+RUN rm -rf /etc/apt/sources.list.d && apt-get clean && apt-get update --fix-missing
 
 # Alter the source to tsinghua mirror
 RUN echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main contrib non-free non-free-firmware\ndeb http://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware\ndeb http://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware\ndeb https://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware" > /etc/apt/sources.list
 
 # Install Git Env
 RUN apt-get update && apt-get install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libglib2.0-dev git
+
+# Install GL Runtime
+RUN apt-get install -y libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libsm6 libxkbcommon-x11-0 libdbus-1-3
+
+# Hard to Install due to the network. if you can't pass, please comment it.
+# RUN apt-get install -y libqt5pdf5 libtiff5-dev --fix-missing
 
 # Install Python Environment
 RUN wget https://mirrors.aliyun.com/python-release/source/Python-3.9.18.tar.xz
