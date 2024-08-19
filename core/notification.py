@@ -1,6 +1,9 @@
 import os
-from win11toast import notify as _notify
-
+# Check if the current OS is Windows
+try:
+    from win10toast import ToastNotifier as _notify
+except ImportError:
+    _notify = None
 app_id = 'BlueArchiveAutoScript.exe'
 icon_path = '/gui/assets/logo.png'
 
@@ -15,6 +18,10 @@ def get_root_path():
 
 def notify(title=None, body=None):
     root_path = get_root_path()
+    if _notify is None:
+        print(f"{title}: {body}")
+        return
+
     _notify(
         title=title,
         body=body,
