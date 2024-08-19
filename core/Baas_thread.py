@@ -6,6 +6,7 @@ from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
 from core.utils import Logger
+from device_operation import process_api
 
 from core.pushkit import push
 import numpy as np
@@ -253,16 +254,14 @@ class Baas_thread:
                     return False
                 return True
             else:
-                self.lnk_path = self.config.get("program_address")
-                self.convert_lnk_to_exe(self.lnk_path)
                 self.file_path = self.config.get("program_address")
                 self.process_name = self.extract_filename_and_extension(self.file_path)
-                if self.check_process_running(self.process_name):
+                if process_api.is_running(self.file_path) is not None:
                     self.logger.info(f"-- Emulator Process {self.process_name} is running --")
                     return True
                 else:
                     self.logger.warning(f"-- Emulator Process {self.process_name} is not running, start Emulator --")
-                    subprocess.Popen(self.file_path)
+                    process_api.start(self.file_path)
                     self.logger.info(f" Start wait {wait_time} seconds for emulator to start. ")
                     while self.flag_run:
                         time.sleep(0.01)
@@ -271,7 +270,7 @@ class Baas_thread:
                             break
                     else:
                         return False
-                    if self.check_process_running(self.process_name):
+                    if process_api.is_running(self.file_path) is not None:
                         self.logger.info(f"Emulator Process {self.process_name} started SUCCESSFULLY")
                         return True
                     else:
@@ -745,11 +744,8 @@ class Baas_thread:
             self.logger.info(f"MultiInstanceNumber: {num}")
             device_operation.stop_simulator_classic(name, num)
         else:
-            self.lnk_path = self.config.get("program_address")
-            self.convert_lnk_to_exe(self.lnk_path)
             self.file_path = self.config.get("program_address")
-            self.process_name = self.extract_filename_and_extension(self.file_path)
-            if not self.terminate_process(self.process_name):
+            if not process_api.terminate(self.file_path):
                 self.logger.error("Emulator exit failed")
                 return False
         return True
