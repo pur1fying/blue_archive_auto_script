@@ -110,6 +110,7 @@ class ConfigTranslation(QObject):
 
             # emulator combobox
             self.tr('MuMu模拟器'): 'MuMu模拟器',
+            self.tr('MuMu模拟器全球版'): 'MuMu模拟器全球版',
             self.tr('蓝叠模拟器'): '蓝叠模拟器',
             self.tr('蓝叠国际版'): '蓝叠国际版',
 

@@ -76,6 +76,7 @@ class Layout(TemplateLayout):
     def _createMultiComponent(self):
         self.multiMap = {
             'mumu': 'MuMu模拟器',
+            'mumu_global': 'MuMu模拟器全球版',
             'bluestacks_nxt_cn': '蓝叠模拟器',
             'bluestacks_nxt': '蓝叠国际版'
         }
