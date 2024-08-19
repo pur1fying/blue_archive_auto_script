@@ -320,15 +320,15 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="112"/>
         <source>MuMu模拟器</source>
-        <translation>MuMu Player</translation>
+        <translation>MuMu Player CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>蓝叠模拟器</source>
         <translation>BlueStacks CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="114"/>
+        <location filename="../util/config_translation.py" line="115"/>
         <source>蓝叠国际版</source>
         <translation>BlueStacks</translation>
     </message>
@@ -353,27 +353,27 @@ make sure to do it before starting the script.</translation>
         <translation>KR Onestore</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="117"/>
+        <location filename="../util/config_translation.py" line="118"/>
         <source>无动作</source>
         <translation>Do Nothing</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="118"/>
+        <location filename="../util/config_translation.py" line="119"/>
         <source>退出 Baas</source>
         <translation>Exit Baas</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="119"/>
+        <location filename="../util/config_translation.py" line="120"/>
         <source>退出 模拟器</source>
         <translation>Exit Emulator</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="120"/>
+        <location filename="../util/config_translation.py" line="121"/>
         <source>退出 Baas 和 模拟器</source>
         <translation>Exit Baas and Emulator</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="121"/>
+        <location filename="../util/config_translation.py" line="122"/>
         <source>关机</source>
         <translation>Shutdown</translation>
     </message>
@@ -381,6 +381,31 @@ make sure to do it before starting the script.</translation>
         <location filename="../util/config_translation.py" line="86"/>
         <source>宫子神明文字x5</source>
         <translation>Miyako's Eleph</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="113"/>
+        <source>MuMu模拟器全球版</source>
+        <translation>Mumu Player Global</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="125"/>
+        <source>贯穿</source>
+        <translation>Piercing</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="126"/>
+        <source>爆发</source>
+        <translation>Explosive</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="127"/>
+        <source>神秘</source>
+        <translation>Mystic</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="128"/>
+        <source>振动</source>
+        <translation>Sonic</translation>
     </message>
 </context>
 <context>
@@ -461,17 +486,17 @@ detect installed emulators on the system when enabled)</translation>
 <context>
     <name>EventMapConfig</name>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="17"/>
+        <location filename="../components/expand/eventMapConfig.py" line="18"/>
         <source>推故事</source>
         <translation>Clear Story</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="22"/>
+        <location filename="../components/expand/eventMapConfig.py" line="23"/>
         <source>推任务</source>
         <translation>Clear Quest</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="27"/>
+        <location filename="../components/expand/eventMapConfig.py" line="28"/>
         <source>推挑战</source>
         <translation>Clear Challenge</translation>
     </message>
@@ -813,17 +838,17 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Please fill in your screenshot interval:</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="45"/>
+        <location filename="../components/expand/serverConfig.py" line="50"/>
         <source>ADB地址(点击选择)</source>
         <translation>ADB address (click to select)</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="60"/>
+        <location filename="../components/expand/serverConfig.py" line="65"/>
         <source>自动查询模拟器失败！请尝试手动输入端口</source>
         <translation>Automatic query emulator failed! Please try entering the port manually</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="68"/>
+        <location filename="../components/expand/serverConfig.py" line="73"/>
         <source>adb地址获取失败</source>
         <translation>adb address fetch failed</translation>
     </message>
@@ -903,19 +928,14 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Select</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="83"/>
+        <location filename="../components/expand/emulatorConfig.py" line="84"/>
         <source>多开号</source>
         <translation>Multi-account</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="82"/>
+        <location filename="../components/expand/emulatorConfig.py" line="83"/>
         <source>选择模拟器类型</source>
         <translation>Select the emulator type</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/scriptConfig.py" line="18"/>
-        <source>警告：在运行多个实例时，这些功能可能无法按预期工作。</source>
-        <translation>Warning: These features may not work as expected when running multiple instances.</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="19"/>
@@ -953,14 +973,60 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Shutdown</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="71"/>
+        <location filename="../components/expand/eventMapConfig.py" line="72"/>
         <source>关卡</source>
-        <translation type="unfinished"></translation>
+        <translation>Stage</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="71"/>
+        <location filename="../components/expand/eventMapConfig.py" line="72"/>
         <source>属性</source>
-        <translation type="unfinished"></translation>
+        <translation>Attribute</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="37"/>
+        <source>无</source>
+        <translation>None</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="38"/>
+        <source>当期活动：</source>
+        <translation>Current Events: </translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="61"/>
+        <source>任务属性对应表</source>
+        <translation>The table matches stages to attributes</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="118"/>
+        <source>故事</source>
+        <translation>Story</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="119"/>
+        <source>任务</source>
+        <translation>Quest</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="120"/>
+        <source>挑战</source>
+        <translation>Challenge</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="145"/>
+        <source>三星</source>
+        <translation>sss</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="147"/>
+        <source>成就任务</source>
+        <translation>tasks</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="18"/>
+        <source>这些功能在运行多个实例时可能无法按预期工作。涉及模拟器的操作将遵循“模拟器启动设置”中的设置。</source>
+        <translation type="unfinished">These features may not work as expected when running multiple instances.
+Operations involving the emulator will follow the settings in &quot;Emulator Startup Settings.&quot;</translation>
     </message>
 </context>
 <context>
@@ -1204,12 +1270,12 @@ For JP or Global server, you can use 'max':</translation>
         <translation>JP</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="27"/>
+        <location filename="../components/expand/serverConfig.py" line="32"/>
         <source>请填写您的adb端口号</source>
         <translation>Please fill in your adb port number</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="32"/>
+        <location filename="../components/expand/serverConfig.py" line="37"/>
         <source>检测adb地址(检测目前开启的模拟器adb地址)</source>
         <translation>Detect the adb address of the currently opened emulator</translation>
     </message>
@@ -1222,6 +1288,11 @@ For JP or Global server, you can use 'max':</translation>
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>韩国ONE</source>
         <translation>KR One Server</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/serverConfig.py" line="27"/>
+        <source>请填写您adb的IP地址</source>
+        <translation>Please fill in your adb IP</translation>
     </message>
 </context>
 <context>

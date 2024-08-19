@@ -15,7 +15,7 @@ class Layout(QWidget):
         self.info_widget = self.parent().parent().parent()
         self.serverLabel = QLabel(self.tr('请填写您的截图间隔：'), self)
         self.screenshot_box = LineEdit(self)
-        self.warningLabel = QLabel(self.tr('警告：在运行多个实例时，这些功能可能无法按预期工作。'))
+        self.warningLabel = QLabel(self.tr('这些功能在运行多个实例时可能无法按预期工作。涉及模拟器的操作将遵循“模拟器启动设置”中的设置。'))
         self.autostartLabel = QLabel(self.tr('启动Baas后直接运行'), self) # Auto Run task after launched
         self.autostartSwitch = SwitchButton(self)
         self.thenLabel = QLabel(self.tr('完成后'), self) # Then
@@ -79,6 +79,6 @@ class Layout(QWidget):
         
         notification.success(
             self.tr('完成后'), 
-            f'{self.tr("你的截图间隔已经被设置为：")}{option}. If the script is running, restart it for the effects to take place.',
+            f'{self.tr("你的截图间隔已经被设置为：")}{option}',
             self.config
         )
