@@ -24,6 +24,11 @@ class Layout(TemplateLayout):
                 'selection': [ServerConfig.tr('官服'), ServerConfig.tr('B服'), ServerConfig.tr('国际服'), ServerConfig.tr('国际服青少年'), ServerConfig.tr('韩国ONE'), ServerConfig.tr('日服')]
             },
             {
+                'label': ServerConfig.tr('请填写您adb的IP地址'),
+                'type': 'text',
+                'key': 'adbIP'
+            },
+            {
                 'label': ServerConfig.tr('请填写您的adb端口号'),
                 'type': 'text',
                 'key': 'adbPort'

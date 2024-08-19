@@ -295,12 +295,13 @@ class Baas_thread:
             self.logger.error("Emulator start failed")
             return False
         try:
+            self.adb_ip = self.config.get('adbIP')
             self.adb_port = self.config.get('adbPort')
-            self.logger.info("adb port: " + str(self.adb_port))
+            self.logger.info(f"adb Address: {self.adb_ip}:{str(self.adb_port)}")
             if not self.adb_port or self.adb_port == '0':
                 self.connection = u2.connect()
             else:
-                self.connection = u2.connect(f'127.0.0.1:{self.adb_port}')
+                self.connection = u2.connect(f'{self.adb_ip}:{self.adb_port}')
             # self.check_atx_agent_cache()
             self.check_atx()
             self.first_start_u2 = False
