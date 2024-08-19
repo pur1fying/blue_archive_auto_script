@@ -2,7 +2,7 @@ import os
 
 # Check if the current OS is Windows
 try:
-    from win10toast import ToastNotifier as _notify
+    from win11toast import notify as _notify
     from win11toast import toast as _toast
 except ImportError:
     _notify = None
