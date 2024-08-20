@@ -459,23 +459,18 @@
     <name>EmulatorConfig</name>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="17"/>
-        <source>在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)</source>
-        <translation>&lt;b&gt;Baas の実行中にエミュレータを起動するのか&lt;/b&gt; (エミュレータの機&lt;br/&gt;能スイッチを起動し、オフにしてもエミュレータは起動しません)</translation>
+        <source>在启动Baas时打开模拟器</source>
+        <translation type="unfinished">Baasの起動時にエミュレータを開きます</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="22"/>
-        <source>是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)</source>
-        <translation>&lt;b&gt;エミュレータがマルチオープンかとうか&lt;/b&gt;(すでに起動しているエミュレータプロセ&lt;br/&gt;スを無視して、エミュレータを開いた後、別のエミュレータが起動します))</translation>
+        <source>等待模拟器启动时间(秒)</source>
+        <translation type="unfinished">シミュレーターが起動するのを待つ (秒)</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="27"/>
-        <source>等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)</source>
-        <translation>&lt;b&gt;エミュレータの起動を待てる時間&lt;/b&gt;(エミュレータの起動からデスクトッ&lt;br/&gt;プの読み込みが完了するまでの時間(秒単位、通常はデフォルト)です)</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/emulatorConfig.py" line="32"/>
-        <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
-        <translation>&lt;b&gt;内蔵の自動スキャンシミュレータ機能を有効にするかどうか&lt;/b&gt;(有効にすると、&lt;br/&gt;インストールされているシミュレータがシステム内で自動的に認識されます)</translation>
+        <source>是否多开</source>
+        <translation type="unfinished">さらに開くかどうか</translation>
     </message>
 </context>
 <context>
@@ -726,17 +721,17 @@
         <translation>アクセラレータクーポンを使用するのか</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="58"/>
+        <location filename="../components/expand/emulatorConfig.py" line="53"/>
         <source>选择模拟器地址</source>
         <translation>シミュレータのアドレスを選択します</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="66"/>
+        <location filename="../components/expand/emulatorConfig.py" line="61"/>
         <source>选择</source>
         <translation>選ぶ</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="84"/>
+        <location filename="../components/expand/emulatorConfig.py" line="79"/>
         <source>多开号</source>
         <translation>マルチアカウント</translation>
     </message>
@@ -921,7 +916,7 @@
         <translation>最高難易度</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="83"/>
+        <location filename="../components/expand/emulatorConfig.py" line="78"/>
         <source>选择模拟器类型</source>
         <translation>シミュレーターの種類を選択する</translation>
     </message>

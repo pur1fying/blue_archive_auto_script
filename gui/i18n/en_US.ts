@@ -460,27 +460,18 @@ make sure to do it before starting the script.</translation>
     <name>EmulatorConfig</name>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="17"/>
-        <source>在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)</source>
-        <translation>&lt;b&gt;Open the emulator on running Baas&lt;/b&gt; &lt;br/&gt;(The switch for start emulator. Emulator won't be started if closed)</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/emulatorConfig.py" line="27"/>
-        <source>等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)</source>
-        <translation>&lt;b&gt;The time waiting for emulator startup&lt;/b&gt; &lt;br/&gt;
-(The time(metered in seconds) from the start&lt;br/&gt;
- to the desktop loaded status, regularly set unchanged)</translation>
+        <source>在启动Baas时打开模拟器</source>
+        <translation type="unfinished">Open the emulator when you start Baas</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="22"/>
-        <source>是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)</source>
-        <translation>&lt;b&gt;Enable emulator multi-instance?&lt;/b&gt; (ignore existing &lt;br/&gt;
-emulator processes and start a new emulator if enabled)</translation>
+        <source>等待模拟器启动时间(秒)</source>
+        <translation type="unfinished">Wait for the simulator to start (seconds)</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="32"/>
-        <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
-        <translation>&lt;b&gt;Enable auto emulator scanning function?&lt;/b&gt; (will automatically &lt;br/&gt;
-detect installed emulators on the system when enabled)</translation>
+        <location filename="../components/expand/emulatorConfig.py" line="27"/>
+        <source>是否多开</source>
+        <translation type="unfinished">Whether to open more</translation>
     </message>
 </context>
 <context>
@@ -918,22 +909,22 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Repeat invitations? :</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="58"/>
+        <location filename="../components/expand/emulatorConfig.py" line="53"/>
         <source>选择模拟器地址</source>
         <translation>Choose Emulator Path</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="66"/>
+        <location filename="../components/expand/emulatorConfig.py" line="61"/>
         <source>选择</source>
         <translation>Select</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="84"/>
+        <location filename="../components/expand/emulatorConfig.py" line="79"/>
         <source>多开号</source>
         <translation>Multi-account</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="83"/>
+        <location filename="../components/expand/emulatorConfig.py" line="78"/>
         <source>选择模拟器类型</source>
         <translation>Select the emulator type</translation>
     </message>

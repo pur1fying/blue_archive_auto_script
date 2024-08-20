@@ -459,23 +459,18 @@
     <name>EmulatorConfig</name>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="17"/>
-        <source>在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)</source>
-        <translation>BAA를 실행할 때 앱플레이어 실행</translation>
+        <source>在启动Baas时打开模拟器</source>
+        <translation type="unfinished">Baas를 시작할 때 에뮬레이터를 엽니다.</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="22"/>
-        <source>是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)</source>
-        <translation>이미 실행중인 앱플레이어 무시</translation>
+        <source>等待模拟器启动时间(秒)</source>
+        <translation type="unfinished">시뮬레이터가 시작될 때까지 기다립니다(초).</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="27"/>
-        <source>等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)</source>
-        <translation>앱플레이어 실행 대기시간</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/emulatorConfig.py" line="32"/>
-        <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
-        <translation>앱플레이어 설치 자동 검색 활성화</translation>
+        <source>是否多开</source>
+        <translation type="unfinished">더 열지 여부</translation>
     </message>
 </context>
 <context>
@@ -727,22 +722,22 @@
         <translation>급속 제조 티켓 사용여부</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="58"/>
+        <location filename="../components/expand/emulatorConfig.py" line="53"/>
         <source>选择模拟器地址</source>
         <translation>앱플레이어 설치 위치 입력</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="66"/>
+        <location filename="../components/expand/emulatorConfig.py" line="61"/>
         <source>选择</source>
         <translation>선택</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="83"/>
+        <location filename="../components/expand/emulatorConfig.py" line="78"/>
         <source>选择模拟器类型</source>
         <translation>앱플레이어 선택</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="84"/>
+        <location filename="../components/expand/emulatorConfig.py" line="79"/>
         <source>多开号</source>
         <translation>다계정</translation>
     </message>
