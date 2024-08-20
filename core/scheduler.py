@@ -32,11 +32,8 @@ class Scheduler:
                         self.event_map[item['func_name']] = item['event_name']
 
     def _commit_change(self):
-        """event_config只能被switch修改,调度时在内存中操作"""
         with open(self.event_config_path, 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
-        # with open(self._display_config_path, 'w', encoding='utf-8') as f:
-        #     json.dump(self._display_config, f, ensure_ascii=False, indent=2)
 
     @classmethod
     def get_next_time(cls, hour, minute, second):
@@ -97,7 +94,7 @@ class Scheduler:
         time_since_epoch = time.time()
         now = datetime.now()
         time_since_midnight = self.convert_to_seconds(now.hour, now.minute, now.second)
-        
+
         _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time_since_epoch and \
                         not self.is_disable_period(x, time_since_midnight)]    # filter out event not ready
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])                                    # sort by priority
@@ -135,16 +132,16 @@ class Scheduler:
             if start <= time_since_midnight <= end:
                 return True
         return False
-    
+
     def is_wait_long(self) -> bool:
         """
         allows tactical challenge to be fully completed and triggers then action
-        by determing whether the wait is less than 2 minutes
+        by determining whether the wait is less than 2 minutes
         """
         time_since_epoch = time.time()
         now = datetime.now()
         time_since_midnight = self.convert_to_seconds(now.hour, now.minute, now.second)
-        
+
         _valid_event = [x for x in self._event_config if x['enabled'] and \
                          x['next_tick'] > time_since_epoch and \
                             not self.is_disable_period(x, time_since_midnight)]
@@ -153,7 +150,7 @@ class Scheduler:
             next_tick = event_list['next_tick']
             difference = next_tick - time_since_epoch
             return difference > 120
-        
+
         return True
 
     def getWaitingTaskList(self):

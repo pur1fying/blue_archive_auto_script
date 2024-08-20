@@ -286,7 +286,6 @@ DEFAULT_CONFIG = """
     "program_address": "None",
     "open_emulator_stat": false,
     "emulator_wait_time": "180",
-    "multi_emulator_check": false,
     "ArenaLevelDiff": 0,
     "maxArenaRefreshTimes": 10,
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
