@@ -647,7 +647,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "PlayHideAndSeekAtImaginationLand",
-        "Global": "TheCathedralsMerryChristmas",
+        "Global": "FromOpera0068WithLove",
         "JP": null
     },
     "dailyGameActivity": {
