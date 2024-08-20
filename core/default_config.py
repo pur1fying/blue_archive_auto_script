@@ -338,6 +338,7 @@ DEFAULT_CONFIG = """
         "爱丽丝(女仆)"
     ],
     "server": "官服",
+    "adbIP": "127.0.0.1",
     "adbPort": "5555",
     "lesson_times": [
         1,
@@ -1027,7 +1028,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "晴奈(运动服)",
+      "CN_name": "晴奈(体操服)",
       "CN_implementation": false,
       "Global_name": "Haruna (Track)",
       "Global_implementation": true,
@@ -1331,7 +1332,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "莲见(运动服)",
+      "CN_name": "莲见(体操服)",
       "CN_implementation": true,
       "Global_name": "Hasumi (Track)",
       "Global_implementation": true,
@@ -1339,7 +1340,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "玛丽(运动服)",
+      "CN_name": "玛丽(体操服)",
       "CN_implementation": true,
       "Global_name": "Mari (Track)",
       "Global_implementation": true,
@@ -1347,7 +1348,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "优香(运动服)",
+      "CN_name": "优香(体操服)",
       "CN_implementation": true,
       "Global_name": "Yuuka (Track)",
       "Global_implementation": true,

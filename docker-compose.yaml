@@ -1,0 +1,13 @@
+version: '3'
+services:
+  baas_main:
+    image: baas:v1.0
+    tty: true
+    ports:
+      # You can change the first port number to any other port number.
+      # This is for VNC Viewer to access.
+      - "5900:5900"
+    restart: always
+    container_name: blue_archive_auto_script
+    volumes:
+      - ./:/app
