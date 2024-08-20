@@ -110,7 +110,20 @@ class ConfigTranslation(QObject):
 
             # emulator combobox
             self.tr('MuMu模拟器'): 'MuMu模拟器',
+            self.tr('MuMu模拟器全球版'): 'MuMu模拟器全球版',
             self.tr('蓝叠模拟器'): '蓝叠模拟器',
-            self.tr('蓝叠国际版'): '蓝叠国际版'
-        }
+            self.tr('蓝叠国际版'): '蓝叠国际版',
 
+            # then combobox
+            self.tr('无动作'): '无动作', # Do Nothing 
+            self.tr('退出 Baas'): '退出 Baas', # Exit Baas
+            self.tr('退出 模拟器'): '退出 模拟器', # Exit Emulator
+            self.tr('退出 Baas 和 模拟器'): '退出 Baas 和 模拟器', # Exit Baas and Emulator
+            self.tr('关机'): '关机', # Shutdown
+
+            # attributes
+            self.tr('贯穿'): '贯穿', # piercing
+            self.tr('爆发'): '爆发', # explosive
+            self.tr('神秘'): '神秘', # mystic
+            self.tr('振动'): '振动', # sonic
+        }

@@ -58,7 +58,7 @@ def stop_simulator_classic(simulator_type, multi_instance=None):
         if pid:
             os.system(f'taskkill /F /PID {pid[0]}')
 
-    if simulator_type == "mumu":
+    if simulator_type in ["mumu", "mumu_global"]:
         if multi_instance == None:
             multi_instance = 0
-        mumu12_control_api_backend(multi_instance, 'stop')
+        mumu12_control_api_backend(simulator_type, multi_instance, 'stop')

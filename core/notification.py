@@ -1,9 +1,12 @@
 import os
+
 # Check if the current OS is Windows
 try:
-    from win10toast import ToastNotifier as _notify
+    from win11toast import notify as _notify
+    from win11toast import toast as _toast
 except ImportError:
     _notify = None
+    _toast = None
 app_id = 'BlueArchiveAutoScript.exe'
 icon_path = '/gui/assets/logo.png'
 
@@ -28,3 +31,15 @@ def notify(title=None, body=None):
         app_id='BlueArchiveAutoScript.exe',
         icon=root_path + icon_path,
     )
+
+def toast(title=None, body=None, button=None, duration=None):
+    root_path = get_root_path()
+    return _toast(
+        title=title,
+        body=body,
+        app_id='BlueArchiveAutoScript.exe',
+        icon=root_path + icon_path,
+        button=button, 
+        duration=duration
+        )
+        

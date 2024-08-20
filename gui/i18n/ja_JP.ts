@@ -332,12 +332,12 @@
         <translation>MuMuエミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>蓝叠模拟器</source>
         <translation>Blue Stack「中国」シミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="114"/>
+        <location filename="../util/config_translation.py" line="115"/>
         <source>蓝叠国际版</source>
         <translation>Blue Stack「国際」シミュレータ</translation>
     </message>
@@ -356,51 +356,101 @@
         <source>宫子神明文字x5</source>
         <translation>宫子神明文字 x5</translation>
     </message>
+    <message>
+        <location filename="../util/config_translation.py" line="118"/>
+        <source>无动作</source>
+        <translation type="unfinished">アクションなし</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="119"/>
+        <source>退出 Baas</source>
+        <translation type="unfinished">バース出口</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="120"/>
+        <source>退出 模拟器</source>
+        <translation type="unfinished">エミュレータを終了します</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="121"/>
+        <source>退出 Baas 和 模拟器</source>
+        <translation type="unfinished">BaasとSimulatorを終了します</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="122"/>
+        <source>关机</source>
+        <translation type="unfinished">シャットダウン</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="113"/>
+        <source>MuMu模拟器全球版</source>
+        <translation type="unfinished">MuMuエミュレータグローバル版</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="125"/>
+        <source>贯穿</source>
+        <translation type="unfinished">終始</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="126"/>
+        <source>爆发</source>
+        <translation type="unfinished">噴出する</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="127"/>
+        <source>神秘</source>
+        <translation type="unfinished">不思議</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="128"/>
+        <source>振动</source>
+        <translation type="unfinished">振動</translation>
+    </message>
 </context>
 <context>
     <name>DetailSettingMessageBox</name>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="19"/>
+        <location filename="../components/expand/featureSwitch.py" line="40"/>
         <source>配置详情</source>
         <translation>構成の詳細</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="22"/>
+        <location filename="../components/expand/featureSwitch.py" line="43"/>
         <source>优先级</source>
         <translation>優先権</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="27"/>
+        <location filename="../components/expand/featureSwitch.py" line="48"/>
         <source>执行间隔</source>
         <translation>実行間隔</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="32"/>
+        <location filename="../components/expand/featureSwitch.py" line="53"/>
         <source>每日重置</source>
         <translation>毎日のリセット</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="37"/>
+        <location filename="../components/expand/featureSwitch.py" line="58"/>
         <source>禁用时间段</source>
         <translation>無効期間</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="42"/>
+        <location filename="../components/expand/featureSwitch.py" line="63"/>
         <source>前置任务</source>
         <translation>前提のタスク</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="48"/>
+        <location filename="../components/expand/featureSwitch.py" line="69"/>
         <source>后置任务</source>
         <translation>ポストタスク</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="59"/>
+        <location filename="../components/expand/featureSwitch.py" line="80"/>
         <source>确定</source>
         <translation>決定</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="60"/>
+        <location filename="../components/expand/featureSwitch.py" line="81"/>
         <source>取消</source>
         <translation>キャンセル</translation>
     </message>
@@ -409,39 +459,34 @@
     <name>EmulatorConfig</name>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="17"/>
-        <source>在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)</source>
-        <translation>&lt;b&gt;Baas の実行中にエミュレータを起動するのか&lt;/b&gt; (エミュレータの機&lt;br/&gt;能スイッチを起動し、オフにしてもエミュレータは起動しません)</translation>
+        <source>在启动Baas时打开模拟器</source>
+        <translation type="unfinished">Baasの起動時にエミュレータを開きます</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="22"/>
-        <source>是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)</source>
-        <translation>&lt;b&gt;エミュレータがマルチオープンかとうか&lt;/b&gt;(すでに起動しているエミュレータプロセ&lt;br/&gt;スを無視して、エミュレータを開いた後、別のエミュレータが起動します))</translation>
+        <source>等待模拟器启动时间(秒)</source>
+        <translation type="unfinished">シミュレーターが起動するのを待つ (秒)</translation>
     </message>
     <message>
         <location filename="../components/expand/emulatorConfig.py" line="27"/>
-        <source>等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)</source>
-        <translation>&lt;b&gt;エミュレータの起動を待てる時間&lt;/b&gt;(エミュレータの起動からデスクトッ&lt;br/&gt;プの読み込みが完了するまでの時間(秒単位、通常はデフォルト)です)</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/emulatorConfig.py" line="32"/>
-        <source>是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）</source>
-        <translation>&lt;b&gt;内蔵の自動スキャンシミュレータ機能を有効にするかどうか&lt;/b&gt;(有効にすると、&lt;br/&gt;インストールされているシミュレータがシステム内で自動的に認識されます)</translation>
+        <source>是否多开</source>
+        <translation type="unfinished">さらに開くかどうか</translation>
     </message>
 </context>
 <context>
     <name>EventMapConfig</name>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="11"/>
+        <location filename="../components/expand/eventMapConfig.py" line="18"/>
         <source>推故事</source>
         <translation>ストーリーをクリアする</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="16"/>
+        <location filename="../components/expand/eventMapConfig.py" line="23"/>
         <source>推任务</source>
         <translation>タスクをクリアする</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="21"/>
+        <location filename="../components/expand/eventMapConfig.py" line="28"/>
         <source>推挑战</source>
         <translation>挑戦をクリアする</translation>
     </message>
@@ -553,34 +598,39 @@
 <context>
     <name>HomeFragment</name>
     <message>
-        <location filename="../fragments/home.py" line="55"/>
+        <location filename="../fragments/home.py" line="58"/>
         <source>蔚蓝档案自动脚本</source>
         <translation>ブルアカ 自動スクリプト</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="58"/>
+        <location filename="../fragments/home.py" line="61"/>
         <source>无任务</source>
         <translation>タスクなし</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="75"/>
+        <location filename="../fragments/home.py" line="78"/>
         <source>启动</source>
         <translation>起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="75"/>
+        <location filename="../fragments/home.py" line="78"/>
         <source>档案，启动</source>
         <translation>ブルアカ、起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="75"/>
+        <location filename="../fragments/home.py" line="196"/>
         <source>开始你的档案之旅</source>
         <translation>アーカイブの旅を始めましょう</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="131"/>
+        <location filename="../fragments/home.py" line="138"/>
         <source>正在运行：</source>
         <translation>実行中：</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="196"/>
+        <source>完成后</source>
+        <translation type="unfinished">完了したら</translation>
     </message>
 </context>
 <context>
@@ -671,17 +721,17 @@
         <translation>アクセラレータクーポンを使用するのか</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="58"/>
+        <location filename="../components/expand/emulatorConfig.py" line="53"/>
         <source>选择模拟器地址</source>
         <translation>シミュレータのアドレスを選択します</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="66"/>
+        <location filename="../components/expand/emulatorConfig.py" line="61"/>
         <source>选择</source>
         <translation>選ぶ</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="83"/>
+        <location filename="../components/expand/emulatorConfig.py" line="79"/>
         <source>多开号</source>
         <translation>マルチアカウント</translation>
     </message>
@@ -706,52 +756,52 @@
         <translation>通常のステージのクリア</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="79"/>
+        <location filename="../components/expand/featureSwitch.py" line="100"/>
         <source>全部(不)启用</source>
         <translation>すべて有効(無効)</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="85"/>
+        <location filename="../components/expand/featureSwitch.py" line="106"/>
         <source>刷新执行时间</source>
         <translation>更新実行時間</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="90"/>
+        <location filename="../components/expand/featureSwitch.py" line="111"/>
         <source>排序方式：</source>
         <translation>並び替え:</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="92"/>
+        <location filename="../components/expand/featureSwitch.py" line="113"/>
         <source>默认排序</source>
         <translation>デフォルトの並べ替え</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="92"/>
+        <location filename="../components/expand/featureSwitch.py" line="113"/>
         <source>按下次执行时间排序</source>
         <translation>最終実行時刻で並べ替え</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>事件</source>
         <translation>アクティビティ</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>下次刷新时间</source>
         <translation>次回の更新時刻</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>启用</source>
         <translation>エネーブル</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="171"/>
+        <location filename="../components/expand/featureSwitch.py" line="193"/>
         <source>更多配置</source>
         <translation>その他の構成</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="202"/>
+        <location filename="../components/expand/featureSwitch.py" line="224"/>
         <source>详细配置</source>
         <translation>詳細な設定</translation>
     </message>
@@ -831,22 +881,22 @@
         <translation>スクリーンショットの間隔を入力してください：</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="36"/>
+        <location filename="../components/expand/scriptConfig.py" line="69"/>
         <source>截图间隔</source>
         <translation>スクリーンショットの間隔</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="45"/>
+        <location filename="../components/expand/serverConfig.py" line="50"/>
         <source>ADB地址(点击选择)</source>
         <translation>ADBアドレス(クリックして選択)</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="60"/>
+        <location filename="../components/expand/serverConfig.py" line="65"/>
         <source>自动查询模拟器失败！请尝试手动输入端口</source>
         <translation>エミュレーターは見つからない。 ポートを手動で入力してください</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="68"/>
+        <location filename="../components/expand/serverConfig.py" line="73"/>
         <source>adb地址获取失败</source>
         <translation>adbアドレスを取得できませんでした</translation>
     </message>
@@ -866,105 +916,195 @@
         <translation>最高難易度</translation>
     </message>
     <message>
-        <location filename="../components/expand/emulatorConfig.py" line="82"/>
+        <location filename="../components/expand/emulatorConfig.py" line="78"/>
         <source>选择模拟器类型</source>
         <translation>シミュレーターの種類を選択する</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="19"/>
+        <source>启动Baas后直接运行</source>
+        <translation type="unfinished">Baasの起動後すぐに実行</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="80"/>
+        <source>完成后</source>
+        <translation type="unfinished">完了したら</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>无动作</source>
+        <translation type="unfinished">アクションなし</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>退出 Baas</source>
+        <translation type="unfinished">バース出口</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>退出 模拟器</source>
+        <translation type="unfinished">エミュレータを終了します</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>退出 Baas 和 模拟器</source>
+        <translation type="unfinished">BaasとSimulatorを終了します</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <source>关机</source>
+        <translation type="unfinished">シャットダウン</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="37"/>
+        <source>无</source>
+        <translation type="unfinished">じゃない</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="38"/>
+        <source>当期活动：</source>
+        <translation type="unfinished">現在のイベント:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="61"/>
+        <source>任务属性对应表</source>
+        <translation type="unfinished">タスク属性に対応するテーブル</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="72"/>
+        <source>关卡</source>
+        <translation type="unfinished">レベル</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="72"/>
+        <source>属性</source>
+        <translation type="unfinished">属性</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="118"/>
+        <source>故事</source>
+        <translation type="unfinished">物語</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="119"/>
+        <source>任务</source>
+        <translation type="unfinished">タスク</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="120"/>
+        <source>挑战</source>
+        <translation type="unfinished">挑戦</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="145"/>
+        <source>三星</source>
+        <translation type="unfinished">サムスン</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/eventMapConfig.py" line="147"/>
+        <source>成就任务</source>
+        <translation type="unfinished">アチーブメントクエスト</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="18"/>
+        <source>这些功能在运行多个实例时可能无法按预期工作。涉及模拟器的操作将遵循“模拟器启动设置”中的设置。</source>
+        <translation type="unfinished">これらの機能は、複数のインスタンスを実行している場合、期待どおりに動作しない可能性があります。 エミュレータが関与する操作は、エミュレータの起動設定の設定に従います。</translation>
     </message>
 </context>
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="324"/>
+        <location filename="../fragments/home.py" line="341"/>
         <source>停止</source>
         <translation>止める</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="328"/>
+        <location filename="../fragments/home.py" line="345"/>
         <source>启动</source>
         <translation>起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="246"/>
+        <location filename="../fragments/home.py" line="263"/>
         <source>困难图推图已完成</source>
         <translation>ハードステージがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="329"/>
+        <location filename="../fragments/home.py" line="346"/>
         <source>无任务</source>
         <translation>タスクなし</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="252"/>
+        <location filename="../fragments/home.py" line="269"/>
         <source>普通关推图</source>
         <translation>普通ステージをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="255"/>
+        <location filename="../fragments/home.py" line="272"/>
         <source>普通图推图已完成</source>
         <translation>普通ステージがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="269"/>
+        <location filename="../fragments/home.py" line="286"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>アンチハーモニーが成功しました。BAを再起動してリソースをダウンロードしてください</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="273"/>
+        <location filename="../fragments/home.py" line="290"/>
         <source>自动主线剧情</source>
         <translation>本編プロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="277"/>
+        <location filename="../fragments/home.py" line="294"/>
         <source>主线剧情已完成</source>
         <translation>本編プロットがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="283"/>
+        <location filename="../fragments/home.py" line="300"/>
         <source>自动小组剧情</source>
         <translation>グループプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="287"/>
+        <location filename="../fragments/home.py" line="304"/>
         <source>小组剧情已完成</source>
         <translation>グループストーリーがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="294"/>
+        <location filename="../fragments/home.py" line="311"/>
         <source>自动支线剧情</source>
         <translation>サブプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="297"/>
+        <location filename="../fragments/home.py" line="314"/>
         <source>支线剧情已完成</source>
         <translation>サブストーリーがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="304"/>
+        <location filename="../fragments/home.py" line="321"/>
         <source>自动活动剧情</source>
         <translation>イベントプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="307"/>
+        <location filename="../fragments/home.py" line="324"/>
         <source>活动剧情已完成</source>
         <translation>イベントプロットがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="314"/>
+        <location filename="../fragments/home.py" line="331"/>
         <source>自动活动任务</source>
         <translation>イベントタスクをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="317"/>
+        <location filename="../fragments/home.py" line="334"/>
         <source>活动任务已完成</source>
         <translation>イベントタスクがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="323"/>
+        <location filename="../fragments/home.py" line="340"/>
         <source>自动活动挑战</source>
         <translation>イベント挑戦をクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="327"/>
+        <location filename="../fragments/home.py" line="344"/>
         <source>活动挑战推图已完成</source>
         <translation>イベントチャレンジがクリアしました</translation>
     </message>
@@ -1112,12 +1252,12 @@
         <translation>日本サーバー</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="27"/>
+        <location filename="../components/expand/serverConfig.py" line="32"/>
         <source>请填写您的adb端口号</source>
         <translation>ADBポート番号を入力してください</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="32"/>
+        <location filename="../components/expand/serverConfig.py" line="37"/>
         <source>检测adb地址(检测目前开启的模拟器adb地址)</source>
         <translation>ADB アドレスの検出 (現在有効なエミュレータの ADB アドレスを確認してください)</translation>
     </message>
@@ -1130,6 +1270,11 @@
         <location filename="../components/expand/serverConfig.py" line="24"/>
         <source>韩国ONE</source>
         <translation>KR Onestore</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/serverConfig.py" line="27"/>
+        <source>请填写您adb的IP地址</source>
+        <translation type="unfinished">adbのIPアドレスを入力してください</translation>
     </message>
 </context>
 <context>
@@ -1407,12 +1552,12 @@
         <translation>実行</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="156"/>
+        <location filename="../fragments/home.py" line="163"/>
         <source>MainThread</source>
         <translation>メイン・トレッド</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="158"/>
+        <location filename="../fragments/home.py" line="165"/>
         <source>MainThread</source>
         <comment>停止</comment>
         <translation>メイン・トレッド</translation>

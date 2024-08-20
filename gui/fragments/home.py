@@ -1,4 +1,5 @@
 import json
+import sys
 import time
 from hashlib import md5
 from json import JSONDecodeError
@@ -37,6 +38,8 @@ class MyQLabel(QLabel):
 
 class HomeFragment(QFrame):
     updateButtonState = pyqtSignal(bool)  # 创建用于更新按钮状态的信号
+    thenSignal = pyqtSignal(str)
+    exitSignal = pyqtSignal(int)
 
     def __init__(self, parent: Window = None, config=None):
         super().__init__(parent=parent)
@@ -76,7 +79,7 @@ class HomeFragment(QFrame):
             self.tr('启动'),
             FIF.CARE_RIGHT_SOLID,
             self.tr('档案，启动'),
-            self.tr('开始你的档案之旅'),
+            self.tr('开始你的档案之旅') + ' - ' + self.tr("完成后") + f' {self.config.get("then")}',
             self
         )
 
@@ -92,12 +95,14 @@ class HomeFragment(QFrame):
         self.bottomLayout.setSpacing(10)
 
         self.__initLayout()
+        self.__connectSignalToSlot()
 
         self._main_thread_attach = MainThread(self.config)
         self.config.set_main_thread(self._main_thread_attach)
         self._main_thread_attach.button_signal.connect(self.set_button_state)
         self._main_thread_attach.logger_signal.connect(self.logger_box.append)
         self._main_thread_attach.update_signal.connect(self.call_update)
+        self._main_thread_attach.exit_signal.connect(lambda x: sys.exit(x))
 
         config.add_signal('update_signal', self._main_thread_attach.update_signal)
         # self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
@@ -105,6 +110,8 @@ class HomeFragment(QFrame):
         # set a hash object name for this widget
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(self.object_name)
+        if self.config.get('autostart'):
+            self.startup_card.button.click()
 
     def resizeEvent(self, event):
         # 自动调整banner尺寸（保持比例）
@@ -170,6 +177,11 @@ class HomeFragment(QFrame):
         self.setLayout(self.expandLayout)
         # self.startupCard.clicked.connect(self.__init_starter)
 
+    def __connectSignalToSlot(self):
+        self.thenSignal.connect(self.update_content_then)
+        self.exitSignal.connect(lambda x: sys.exit(x))
+        self.config.add_signal('then', self.thenSignal)
+
     def _start_clicked(self):
         self.call_update()
         if self._main_thread_attach.running:
@@ -179,6 +191,9 @@ class HomeFragment(QFrame):
 
     def get_main_thread(self):
         return self._main_thread_attach
+    
+    def update_content_then(self, option: str):
+        self.startup_card.setContent(self.tr('开始你的档案之旅') + ' - ' + self.tr("完成后") + f' {option}')
 
     # def __init_starter(self):
     # if self._main_thread is None:
@@ -201,6 +216,7 @@ class MainThread(QThread):
     button_signal = pyqtSignal(str)
     logger_signal = pyqtSignal(str)
     update_signal = pyqtSignal(list)
+    exit_signal = pyqtSignal(int)
 
     def __init__(self, config):
         super(MainThread, self).__init__()
@@ -231,7 +247,8 @@ class MainThread(QThread):
         if self._main_thread is None:
             assert self.Main is not None
             self._main_thread = self.Main.get_thread(self.config, name=self.hash_name, logger_signal=self.logger_signal,
-                                                     button_signal=self.button_signal, update_signal=self.update_signal)
+                                                     button_signal=self.button_signal, update_signal=self.update_signal,
+                                                     exit_signal=self.exit_signal)
             self.config.add_signal('update_signal', self.update_signal)
         self._main_thread.init_all_data()
 

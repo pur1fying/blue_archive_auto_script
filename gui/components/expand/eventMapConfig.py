@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QLabel, QHBoxLayout, QHeaderView, QTableWidgetItem
 from qfluentwidgets import TableWidget
 
 from .expandTemplate import TemplateLayout
+from gui.util.translator import baasTranslator as bt
 
 
 class Layout(TemplateLayout):
@@ -33,8 +34,8 @@ class Layout(TemplateLayout):
         self.main_thread = config.get_main_thread()
         super().__init__(parent=parent, configItems=configItems, config=config, context='EventMapConfig')
         activity_formation = self.gen_event_formation_attr()
-        activity_name = activity_formation['activity_name'] if activity_formation else '无'
-        name_label = QLabel(f'当期活动：{activity_name}', self)
+        activity_name = activity_formation['activity_name'] if activity_formation else self.tr('无')
+        name_label = QLabel(self.tr('当期活动：') + activity_name, self)
         optionPanel = QHBoxLayout(self)
         optionPanel.addWidget(name_label, 0, Qt.AlignLeft)
         self.vBoxLayout.addLayout(optionPanel)
@@ -57,7 +58,7 @@ class Layout(TemplateLayout):
                 total_list.extend(mission_list)
 
             if len(total_list) > 0:
-                labelComponent = QLabel('任务属性对应表', self)
+                labelComponent = QLabel(self.tr('任务属性对应表'), self)
                 optionPanel = QHBoxLayout(self)
                 optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
                 self.vBoxLayout.addLayout(optionPanel)
@@ -114,9 +115,9 @@ class Layout(TemplateLayout):
         ret = dict(activity_name=current_event, story=dict(), mission=dict(), challenge=dict())
         print(stage_data)
         en2cn = {
-            "story": "故事",
-            "mission": "任务",
-            "challenge": "挑战",
+            "story": self.tr("故事"),
+            "mission": self.tr("任务"),
+            "challenge": self.tr("挑战"),
         }
         from module.explore_normal_task import formation_attr_to_cn
         for key, value in stage_data.items():
@@ -141,12 +142,12 @@ class Layout(TemplateLayout):
             number = key[len(tp):pos]
             name = en2cn[tp] + number
             if "sss" in key:
-                name += "三星"
+                name += self.tr("三星")
             elif "task" in key:
-                name += "成就任务"
+                name += self.tr("成就任务")
             team = ""
             for s in value['start']:
-                temp = formation_attr_to_cn(s[0])
+                temp = bt.tr('ConfigTranslation', formation_attr_to_cn(s[0]))
                 if temp is not None:
                     team += temp + " "
             if team.endswith(" "):

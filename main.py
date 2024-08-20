@@ -28,8 +28,8 @@ class Main:
             self.logger.error(e.__str__())
             return False
 
-    def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None):
-        t = Baas_thread(config, logger_signal, button_signal, update_signal)
+    def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
+        t = Baas_thread(config, logger_signal, button_signal, update_signal, exit_signal)
         t.static_config = self.static_config
         t.ocr = self.ocr
         self.threads.setdefault(name, t)

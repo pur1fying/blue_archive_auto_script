@@ -14,22 +14,17 @@ class Layout(TemplateLayout):
         EmulatorConfig = QObject()
         configItems = [
             {
-                'label': EmulatorConfig.tr('在运行Baas时打开模拟器(启动模拟器的功能开关，关闭后不会启动模拟器)'),
+                'label': EmulatorConfig.tr('在启动Baas时打开模拟器'),
                 'key': 'open_emulator_stat',
                 'type': 'switch'
             },
             {
-                'label': EmulatorConfig.tr('是否模拟器多开（打开后无视已经启动的模拟器进程，将再启动一个模拟器）)'),
-                'key': 'multi_emulator_check',
-                'type': 'switch'
-            },
-            {
-                'label': EmulatorConfig.tr('等待模拟器启动时间(模拟器从开始启动到桌面加载完成的时间(秒)，一般默认)'),
+                'label': EmulatorConfig.tr('等待模拟器启动时间(秒)'),
                 'type': 'text',
                 'key': 'emulator_wait_time'
             },
             {
-                'label': EmulatorConfig.tr('是否启用内建的自动扫描模拟器功能（开启后将自动识别系统内已安装的模拟器）'),
+                'label': EmulatorConfig.tr('是否多开'),
                 'type': 'switch',
                 'key': 'emulatorIsMultiInstance'
             }
@@ -40,7 +35,7 @@ class Layout(TemplateLayout):
             self._createNotMultiComponent()
         else:
             self._createMultiComponent()
-        self.vBoxLayout.children()[3].itemAt(2).widget().checkedChanged.connect(self._soltForEmulatorIsMultiInstanced)
+        self.vBoxLayout.children()[2].itemAt(2).widget().checkedChanged.connect(self._soltForEmulatorIsMultiInstanced)
 
     def _choose_file(self, line_edit):
         file_dialog = QFileDialog()
@@ -76,6 +71,7 @@ class Layout(TemplateLayout):
     def _createMultiComponent(self):
         self.multiMap = {
             'mumu': 'MuMu模拟器',
+            'mumu_global': 'MuMu模拟器全球版',
             'bluestacks_nxt_cn': '蓝叠模拟器',
             'bluestacks_nxt': '蓝叠国际版'
         }
@@ -104,7 +100,7 @@ class Layout(TemplateLayout):
 
 
     def _soltForEmulatorIsMultiInstanced(self, state):
-        sub_layout = self.vBoxLayout.children()[4]
+        sub_layout = self.vBoxLayout.children()[3]
         while sub_layout.count():
             item = sub_layout.takeAt(0)
             widget = item.widget()
