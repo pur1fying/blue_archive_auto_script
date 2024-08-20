@@ -142,7 +142,7 @@ def start_story(self):
     ]
     img_ends = "activity_unit-formation"
     res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
-    if res == "formation_edit1" or "activity_unit-formation":
+    if res == "formation_edit1" or res == "activity_unit-formation":
         start_fight(self, 1)
         main_story.auto_fight(self)
     elif res == "reward_acquired":
