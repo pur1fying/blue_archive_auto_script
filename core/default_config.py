@@ -648,7 +648,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "PlayHideAndSeekAtImaginationLand",
         "Global": "FromOpera0068WithLove",
-        "JP": null
+        "JP": "Moonlight Dream"
     },
     "dailyGameActivity": {
         "CN": null,
