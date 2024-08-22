@@ -191,7 +191,7 @@ class HomeFragment(QFrame):
 
     def get_main_thread(self):
         return self._main_thread_attach
-    
+
     def update_content_then(self, option: str):
         self.startup_card.setContent(self.tr('开始你的档案之旅') + ' - ' + self.tr("完成后") + f' {option}')
 
@@ -273,12 +273,6 @@ class MainThread(QThread):
         self.update_signal.emit([self.tr('无任务')])
         self.display(self.tr('启动'))
 
-    def start_mumu_JP_login_fixer(self):
-        self._init_script()
-        if self._main_thread.send('solve', 'JP_server_mumu_login_fix'):
-            notify(title='BAAS', body='成功修复')
-        else:
-            notify(title='BAAS', body='修复失败, 请阅读首页日志')
 
     def start_fhx(self):
         self._init_script()
