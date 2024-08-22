@@ -667,7 +667,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "PlayHideAndSeekAtImaginationLand",
+        "CN": null,
         "Global": "FromOpera0068WithLove",
         "JP": "Moonlight Dream"
     },
