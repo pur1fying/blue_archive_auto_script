@@ -178,137 +178,137 @@ make sure to do it before starting the script.</translation>
         <translation>Various sweep and tickets purchase settings</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="101"/>
+        <location filename="../util/config_translation.py" line="103"/>
         <source>官服</source>
         <translation>CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="102"/>
+        <location filename="../util/config_translation.py" line="104"/>
         <source>B服</source>
         <translation>Bilibili</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="103"/>
+        <location filename="../util/config_translation.py" line="105"/>
         <source>国际服</source>
         <translation>Global</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="106"/>
+        <location filename="../util/config_translation.py" line="108"/>
         <source>日服</source>
         <translation>JP</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="109"/>
+        <location filename="../util/config_translation.py" line="111"/>
         <source>拖动礼物</source>
         <translation>Drag the gift</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="74"/>
+        <location filename="../util/config_translation.py" line="76"/>
         <source>初级经验书</source>
         <translation>Novice Report</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="75"/>
+        <location filename="../util/config_translation.py" line="77"/>
         <source>中级经验书</source>
         <translation>Normal Report</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="76"/>
+        <location filename="../util/config_translation.py" line="78"/>
         <source>高级经验书</source>
         <translation>Advanced Report</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="77"/>
+        <location filename="../util/config_translation.py" line="79"/>
         <source>特级经验书</source>
         <translation>Superior Report</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="78"/>
+        <location filename="../util/config_translation.py" line="80"/>
         <source>初级经验珠</source>
         <translation>Lesser Stone</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="79"/>
+        <location filename="../util/config_translation.py" line="81"/>
         <source>中级经验珠</source>
         <translation>Normal Stone</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="80"/>
+        <location filename="../util/config_translation.py" line="82"/>
         <source>高级经验珠</source>
         <translation>Advanced Stone</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="81"/>
+        <location filename="../util/config_translation.py" line="83"/>
         <source>特级经验珠</source>
         <translation>Superior Stone</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="82"/>
+        <location filename="../util/config_translation.py" line="84"/>
         <source>随机初级神秘古物</source>
         <translation>Random Beginner Material</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="83"/>
+        <location filename="../util/config_translation.py" line="85"/>
         <source>随机中级神秘古物</source>
         <translation>Random Intermediate Material</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="87"/>
+        <location filename="../util/config_translation.py" line="89"/>
         <source>静子神明文字x5</source>
         <translation>Shizuko's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="88"/>
+        <location filename="../util/config_translation.py" line="90"/>
         <source>真白神明文字x5</source>
         <translation>Mashiro's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="89"/>
+        <location filename="../util/config_translation.py" line="91"/>
         <source>纱绫神明文字x5</source>
         <translation>Saya's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="90"/>
+        <location filename="../util/config_translation.py" line="92"/>
         <source>风香神明文字x5</source>
         <translation>Fuuka's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="91"/>
+        <location filename="../util/config_translation.py" line="93"/>
         <source>歌原神明文字x5</source>
         <translation>Utaha's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="92"/>
+        <location filename="../util/config_translation.py" line="94"/>
         <source>初级经验书x5</source>
         <translation>Normal Report x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="93"/>
+        <location filename="../util/config_translation.py" line="95"/>
         <source>中级经验书x10</source>
         <translation>Novice Report x10</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="94"/>
+        <location filename="../util/config_translation.py" line="96"/>
         <source>高级经验书x3</source>
         <translation>Advanced Report x3</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="95"/>
+        <location filename="../util/config_translation.py" line="97"/>
         <source>特级经验书x1</source>
         <translation>Superior Report x1</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="96"/>
+        <location filename="../util/config_translation.py" line="98"/>
         <source>信用点x5k</source>
         <translation>Credits x5k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="97"/>
+        <location filename="../util/config_translation.py" line="99"/>
         <source>信用点x75k</source>
         <translation>Credits x75k</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="98"/>
+        <location filename="../util/config_translation.py" line="100"/>
         <source>信用点x125k</source>
         <translation>Credits x125k</translation>
     </message>
@@ -318,17 +318,17 @@ make sure to do it before starting the script.</translation>
         <translation>No Task</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="112"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>MuMu模拟器</source>
         <translation>MuMu Player CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="114"/>
+        <location filename="../util/config_translation.py" line="116"/>
         <source>蓝叠模拟器</source>
         <translation>BlueStacks CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="115"/>
+        <location filename="../util/config_translation.py" line="117"/>
         <source>蓝叠国际版</source>
         <translation>BlueStacks</translation>
     </message>
@@ -343,69 +343,79 @@ make sure to do it before starting the script.</translation>
         <translation>Cafe Invitation</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="104"/>
+        <location filename="../util/config_translation.py" line="106"/>
         <source>国际服青少年</source>
         <translation>Global Teen</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="105"/>
+        <location filename="../util/config_translation.py" line="107"/>
         <source>韩国ONE</source>
         <translation>KR Onestore</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="118"/>
+        <location filename="../util/config_translation.py" line="120"/>
         <source>无动作</source>
         <translation>Do Nothing</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="119"/>
+        <location filename="../util/config_translation.py" line="121"/>
         <source>退出 Baas</source>
         <translation>Exit Baas</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="120"/>
+        <location filename="../util/config_translation.py" line="122"/>
         <source>退出 模拟器</source>
         <translation>Exit Emulator</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="121"/>
+        <location filename="../util/config_translation.py" line="123"/>
         <source>退出 Baas 和 模拟器</source>
         <translation>Exit Baas and Emulator</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="122"/>
+        <location filename="../util/config_translation.py" line="124"/>
         <source>关机</source>
         <translation>Shutdown</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="86"/>
+        <location filename="../util/config_translation.py" line="88"/>
         <source>宫子神明文字x5</source>
         <translation>Miyako's Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="115"/>
         <source>MuMu模拟器全球版</source>
         <translation>Mumu Player Global</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="125"/>
+        <location filename="../util/config_translation.py" line="127"/>
         <source>贯穿</source>
         <translation>Piercing</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="126"/>
+        <location filename="../util/config_translation.py" line="128"/>
         <source>爆发</source>
         <translation>Explosive</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="127"/>
+        <location filename="../util/config_translation.py" line="129"/>
         <source>神秘</source>
         <translation>Mystic</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="128"/>
+        <location filename="../util/config_translation.py" line="130"/>
         <source>振动</source>
         <translation>Sonic</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="72"/>
+        <source>自动清好友白名单(仅国服)</source>
+        <translation type="unfinished">Automatic whitelist of friends (Chinese server only)</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="73"/>
+        <source>设置在定期好友清理中需要保留的好友码</source>
+        <translation type="unfinished">Set the friend code that you need to keep in the regular friend cleanup</translation>
     </message>
 </context>
 <context>
@@ -1019,16 +1029,61 @@ For JP or Global server, you can use 'max':</translation>
         <translation type="unfinished">These features may not work as expected when running multiple instances.
 Operations involving the emulator will follow the settings in &quot;Emulator Startup Settings.&quot;</translation>
     </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="16"/>
+        <source>输入你需要添加进白名单的好友码(长度为7, 由小写字母和数字组成):</source>
+        <translation type="unfinished">Enter the friend code you want to add to the whitelist (length 7, consisting of lowercase letters and numbers):</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="54"/>
+        <source>添加失败</source>
+        <translation type="unfinished">Failed to add</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="46"/>
+        <source>用户码长度不符合要求</source>
+        <translation type="unfinished">The length of the user code does not meet the requirements</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="50"/>
+        <source>用户码格式不符合要求</source>
+        <translation type="unfinished">The user code format does not meet the requirements</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="54"/>
+        <source>用户码已在白名单中</source>
+        <translation type="unfinished">The user code is already in the whitelist</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="59"/>
+        <source>添加成功</source>
+        <translation type="unfinished">The addition was successful</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="71"/>
+        <source>用户码</source>
+        <translation type="unfinished">User code</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="71"/>
+        <source>操作</source>
+        <translation type="unfinished">operate</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/friendWhiteList.py" line="76"/>
+        <source>删除</source>
+        <translation type="unfinished">Delete</translation>
+    </message>
 </context>
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="341"/>
+        <location filename="../fragments/home.py" line="335"/>
         <source>停止</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="345"/>
+        <location filename="../fragments/home.py" line="339"/>
         <source>启动</source>
         <translation>Start</translation>
     </message>
@@ -1043,42 +1098,42 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
         <translation>Clear Normal Mission completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="286"/>
+        <location filename="../fragments/home.py" line="280"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>Anti-harmony success, please restart BA download resources</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="294"/>
+        <location filename="../fragments/home.py" line="288"/>
         <source>主线剧情已完成</source>
         <translation>Main Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="304"/>
+        <location filename="../fragments/home.py" line="298"/>
         <source>小组剧情已完成</source>
         <translation>Group Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="314"/>
+        <location filename="../fragments/home.py" line="308"/>
         <source>支线剧情已完成</source>
         <translation>Mini story completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="324"/>
+        <location filename="../fragments/home.py" line="318"/>
         <source>活动剧情已完成</source>
         <translation>Event Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="334"/>
+        <location filename="../fragments/home.py" line="328"/>
         <source>活动任务已完成</source>
         <translation>Event Quest Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="344"/>
+        <location filename="../fragments/home.py" line="338"/>
         <source>活动挑战推图已完成</source>
         <translation>Event Challenge Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="346"/>
+        <location filename="../fragments/home.py" line="340"/>
         <source>无任务</source>
         <translation>No task</translation>
     </message>
@@ -1088,32 +1143,32 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
         <translation>Clear Normal Mission</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="290"/>
+        <location filename="../fragments/home.py" line="284"/>
         <source>自动主线剧情</source>
         <translation>Main Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="300"/>
+        <location filename="../fragments/home.py" line="294"/>
         <source>自动小组剧情</source>
         <translation>Group Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="311"/>
+        <location filename="../fragments/home.py" line="305"/>
         <source>自动支线剧情</source>
         <translation>Mini Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="321"/>
+        <location filename="../fragments/home.py" line="315"/>
         <source>自动活动剧情</source>
         <translation>Clear Event Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="331"/>
+        <location filename="../fragments/home.py" line="325"/>
         <source>自动活动任务</source>
         <translation>Clear Event Quest</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="340"/>
+        <location filename="../fragments/home.py" line="334"/>
         <source>自动活动挑战</source>
         <translation>Clear Event Challenge</translation>
     </message>
@@ -1126,14 +1181,9 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
         <translation>One-click anti-harmony</translation>
     </message>
     <message>
-        <location filename="../components/expand/otherConfig.py" line="22"/>
+        <location filename="../components/expand/otherConfig.py" line="16"/>
         <source>显示首页头图（下次启动时生效）</source>
         <translation>Show homepage header image (effective on next startup)</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/otherConfig.py" line="16"/>
-        <source>修复Mumu无法登录日服</source>
-        <translation>Fix Mumu Player unable to log into the Japanese server</translation>
     </message>
 </context>
 <context>

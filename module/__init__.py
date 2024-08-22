@@ -28,3 +28,4 @@ from module import explore_activity_mission
 from module import sweep_activity
 from module import dailyGameActivity
 from module import cafe_invite
+from module import friend

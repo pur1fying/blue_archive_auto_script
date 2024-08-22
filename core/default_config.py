@@ -251,6 +251,18 @@ EVENT_DEFAULT_CONFIG = """
     "disabled_time_range": [],
     "pre_task": [],
     "post_task": []
+  },
+  {
+    "enabled": false,
+    "priority": 18,
+    "interval": 3600,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "清理好友",
+    "func_name": "friend",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
   }
 ]
 """
@@ -409,7 +421,8 @@ DEFAULT_CONFIG = """
         0,
         0,
         0
-    ]
+    ],
+    "clear_friend_white_list": []
 }
 """
 
@@ -476,6 +489,13 @@ SWITCH_DEFAULT_CONFIG = '''
         "name": "扫荡及购买券设置",
         "sort": 14,
         "tip": "各种扫荡及购买券次数设置",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": "friendWhiteList",
+        "name": "自动清好友白名单(仅国服)",
+        "sort": 15,
+        "tip": "设置在定期好友清理中需要保留的好友码",
         "type": "BasicSettingCard"
     }
 ]
