@@ -45,7 +45,7 @@ def start_simulator_classic(simulator_type, multi_instance=None):
         command = f""" "{bst_read_registry_key('cn')}" --instance {find_display_name(multi_instance, read_registry_key('cn'))}"""
         subprocess.Popen(command,shell=True)
         return get_simulator_port(simulator_type, multi_instance)
-    if simulator_type == "mumu":
+    if simulator_type in ["mumu", "mumu_global"]:
         if multi_instance == None:
             multi_instance = 0
-        return mumu12_control_api_backend(multi_instance, 'start')
+        return mumu12_control_api_backend(simulator_type, multi_instance, 'start')

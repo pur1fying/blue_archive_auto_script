@@ -15,3 +15,4 @@ from module.activities import SweetSecretsAndGunfightsATaleOfAfterSchoolSweets
 from module.activities import SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp
 from module.activities import BaskingInTheBrillianceOfTheirSerenade
 from module.activities import TheCathedralsMerryChristmas
+from module.activities import FromOpera0068WithLove

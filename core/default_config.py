@@ -293,10 +293,11 @@ DEFAULT_CONFIG = """
     "name": "新的配置",
     "purchase_arena_ticket_times": "0",
     "screenshot_interval": "0.3",
+    "autostart": false,
+    "then": "无动作",
     "program_address": "None",
     "open_emulator_stat": false,
     "emulator_wait_time": "180",
-    "multi_emulator_check": false,
     "ArenaLevelDiff": 0,
     "maxArenaRefreshTimes": 10,
     "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
@@ -661,13 +662,14 @@ STATIC_DEFAULT_CONFIG = '''
             "レッドウインター連邦学園",
             "百鬼夜行中心部",
             "D.U.シラトリ区",
-            "山海経中央特区"
+            "山海経中央特区",
+            "春葉原"
           ]
     },
     "current_game_activity": {
         "CN": "PlayHideAndSeekAtImaginationLand",
-        "Global": "TheCathedralsMerryChristmas",
-        "JP": null
+        "Global": "FromOpera0068WithLove",
+        "JP": "Moonlight Dream"
     },
     "dailyGameActivity": {
         "CN": null,

@@ -2,10 +2,11 @@ import shutil
 from datetime import datetime
 import cv2
 from core.exception import ScriptError
-from core.notification import notify
+from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
 from core.utils import Logger
+from device_operation import process_api
 
 from core.pushkit import push
 import numpy as np
@@ -53,13 +54,12 @@ func_dict = {
     'explore_activity_challenge': module.explore_activity_challenge.implement,
     'explore_activity_mission': module.explore_activity_mission.implement,
     'dailyGameActivity': module.dailyGameActivity.implement,
-    'JP_server_mumu_login_fix': module.JP_server_mumu_login_fix.implement,
     'friend': module.friend.implement,
 }
 
 
 class Baas_thread:
-    def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None):
+    def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
         self.dailyGameActivity = None
         self.activity_name = None
         self.config_set = config
@@ -92,6 +92,7 @@ class Baas_thread:
         self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
         self.button_signal = button_signal
         self.update_signal = update_signal
+        self.exit_signal = exit_signal
         self.stage_data = {}
         self.activity_name = None
 
@@ -198,6 +199,16 @@ class Baas_thread:
                 return True
         return False
 
+    def terminate_process(self, process_name):
+        """
+        终止指定名称的进程
+        """
+        for proc in psutil.process_iter(['pid', 'name']):
+            if proc.info['name'] == process_name:
+                proc.terminate()
+                return True
+        return False
+
     def check_process_running_from_pid(self, pid):
         # 代码来源于BAAH
         try:
@@ -243,16 +254,14 @@ class Baas_thread:
                     return False
                 return True
             else:
-                self.lnk_path = self.config.get("program_address")
-                self.convert_lnk_to_exe(self.lnk_path)
                 self.file_path = self.config.get("program_address")
                 self.process_name = self.extract_filename_and_extension(self.file_path)
-                if self.check_process_running(self.process_name):
+                if process_api.is_running(self.file_path) is not None:
                     self.logger.info(f"-- Emulator Process {self.process_name} is running --")
                     return True
                 else:
                     self.logger.warning(f"-- Emulator Process {self.process_name} is not running, start Emulator --")
-                    subprocess.Popen(self.file_path)
+                    process_api.start(self.file_path)
                     self.logger.info(f" Start wait {wait_time} seconds for emulator to start. ")
                     while self.flag_run:
                         time.sleep(0.01)
@@ -261,7 +270,7 @@ class Baas_thread:
                             break
                     else:
                         return False
-                    if self.check_process_running(self.process_name):
+                    if process_api.is_running(self.file_path) is not None:
                         self.logger.info(f"Emulator Process {self.process_name} started SUCCESSFULLY")
                         return True
                     else:
@@ -373,6 +382,8 @@ class Baas_thread:
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
                     time.sleep(1)
+                    if self.flag_run: # allow user to stop script before then action
+                        self.handle_then()
         except Exception as e:
             notify(title='', body='任务已停止')
             self.logger.error(e.__str__())
@@ -707,3 +718,60 @@ class Baas_thread:
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])
+
+    def handle_then(self):
+        action = self.config_set["then"]
+        if action == '无动作' or not self.scheduler.is_wait_long(): # Do Nothing
+            return
+        elif action == '退出 Baas': # Exit Baas
+            self.exit_baas()
+        elif action == '退出 模拟器': # Exit Emulator
+            self.exit_emulator()
+        elif action == '退出 Baas 和 模拟器':  # Exit Baas and Emulator
+            self.exit_emulator()
+            self.exit_baas()
+        elif action == '关机': # Shutdown
+            self.shutdown()
+        self.signal_stop() # avoid rerunning then action in case of error
+
+    def exit_emulator(self):
+        self.logger.info(f"-- BAAS Exit Emulator --")
+        if self.config['emulatorIsMultiInstance']:
+            name = self.config.get("multiEmulatorName")
+            num = self.config.get("emulatorMultiInstanceNumber")
+            self.logger.info(f"-- Exit Multi Emulator --")
+            self.logger.info(f"EmulatorName: {name}")
+            self.logger.info(f"MultiInstanceNumber: {num}")
+            device_operation.stop_simulator_classic(name, num)
+        else:
+            self.file_path = self.config.get("program_address")
+            if not process_api.terminate(self.file_path):
+                self.logger.error("Emulator exit failed")
+                return False
+        return True
+
+    def exit_baas(self):
+        if self.exit_signal is not None:
+            self.exit_signal.emit(0)
+
+    def shutdown(self):
+        try:
+            self.start_shutdown()
+            answer = toast(title='BAAS: Cancel Shutdown?',
+                            body='All tasks have been completed: shutting down. Do you want to cancel?',
+                            button='Cancel',
+                            duration='long'
+            )
+            # cancel button pressed
+            if answer == {'arguments': 'http:Cancel', 'user_input': {}}:
+                self.cancel_shutdown()
+        except:
+            self.logger.error("Failed to shutdown. It may be due to a lack of administrator privileges.")
+
+    def start_shutdown(self):
+        self.logger.info("Running shutdown")
+        subprocess.run(["shutdown", "-s", "-t", "60"])
+
+    def cancel_shutdown(self):
+        self.logger.info("Shutdown cancelled")
+        subprocess.run(["shutdown", "-a"])
