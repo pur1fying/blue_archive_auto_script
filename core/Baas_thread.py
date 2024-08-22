@@ -54,7 +54,6 @@ func_dict = {
     'explore_activity_challenge': module.explore_activity_challenge.implement,
     'explore_activity_mission': module.explore_activity_mission.implement,
     'dailyGameActivity': module.dailyGameActivity.implement,
-    'JP_server_mumu_login_fix': module.JP_server_mumu_login_fix.implement,
 }
 
 
@@ -198,7 +197,7 @@ class Baas_thread:
             if proc.info['name'] == process_name:
                 return True
         return False
-    
+
     def terminate_process(self, process_name):
         """
         终止指定名称的进程
@@ -721,8 +720,8 @@ class Baas_thread:
 
     def handle_then(self):
         action = self.config_set["then"]
-        if action == '无动作' or not self.scheduler.is_wait_long(): # Do Nothing 
-            return 
+        if action == '无动作' or not self.scheduler.is_wait_long(): # Do Nothing
+            return
         elif action == '退出 Baas': # Exit Baas
             self.exit_baas()
         elif action == '退出 模拟器': # Exit Emulator
@@ -733,7 +732,7 @@ class Baas_thread:
         elif action == '关机': # Shutdown
             self.shutdown()
         self.signal_stop() # avoid rerunning then action in case of error
-    
+
     def exit_emulator(self):
         self.logger.info(f"-- BAAS Exit Emulator --")
         if self.config['emulatorIsMultiInstance']:
@@ -752,7 +751,7 @@ class Baas_thread:
 
     def exit_baas(self):
         if self.exit_signal is not None:
-            self.exit_signal.emit(0)        
+            self.exit_signal.emit(0)
 
     def shutdown(self):
         try:
