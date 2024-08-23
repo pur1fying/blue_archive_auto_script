@@ -12,7 +12,7 @@ def implement(self):
     else:
         self.logger.info("TICKETS: " + str(tickets))
         choose_enemy(self)
-        choice = 1
+        choice = self.config['ArenaComponentNumber']
         x = 844
         y = [261, 414, 581]
         y = y[choice - 1]
