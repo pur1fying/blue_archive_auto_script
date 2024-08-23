@@ -1,3 +1,5 @@
+import json
+
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem
 from qfluentwidgets import TableWidget
@@ -78,5 +80,9 @@ class Layout(TemplateLayout):
         addr = x.text()
         if addr.find(':') != -1:
             port = x.text().split(':')[1]
-            self.patch_signal.emit(port)
+            port_sig_str = json.dumps({
+                "name": "adbPort",
+                "value": port
+            })
+            self.patch_signal.emit(port_sig_str)
             self.config.set('adbPort', port)

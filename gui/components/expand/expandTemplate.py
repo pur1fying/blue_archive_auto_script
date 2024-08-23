@@ -1,3 +1,4 @@
+import json
 from functools import partial
 from typing import Union
 
@@ -22,6 +23,19 @@ class ConfigItem:
         self.key = kwargs.get('key')
         self.selection = kwargs.get('selection')
         self.type = kwargs.get('type')
+
+
+def parsePatch(func, key: str, raw_sig: str) -> None:
+    """
+    Parse the patch signal and call the function with the value
+    :param func: The function to call
+    :param key: The key to check
+    :param raw_sig: The raw signal
+    :return: None
+    """
+    parsed_obj = json.loads(raw_sig)
+    if parsed_obj['name'] == key:
+        func(parsed_obj['value'])
 
 
 class TemplateLayout(QWidget):
@@ -70,7 +84,7 @@ class TemplateLayout(QWidget):
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 inputComponent.setText(str(self.config.get(currentKey)))
-                self.patch_signal.connect(inputComponent.setText)
+                self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 confirmButton = PushButton(self.tr('确定'), self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'label':
@@ -141,7 +155,8 @@ class ComboBoxCustom(ComboBox):
 
 
 class TemplateLayoutV2(QWidget):
-    def __init__(self, configItems: list[dict], parent=None, config=None, all_label_list: list = None, cs: ConfigSet=None):
+    def __init__(self, configItems: list[dict], parent=None, config=None, all_label_list: list = None,
+                 cs: ConfigSet = None):
         super().__init__(parent=parent)
 
         _all_label_list = []
