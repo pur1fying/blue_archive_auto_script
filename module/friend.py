@@ -29,7 +29,10 @@ def implement(self):
             if position[1] < checked_position + 10:
                 self.logger.info("Position : " + str(position[1]) + "already checked, Skip")
                 continue
-            to_player_info(self, position)
+            res = to_player_info(self, position)
+            if res == "friend_delete-friend-notice":
+                self.logger.info("UI AT delete friend notice, Skip")
+                continue
             in_white_list = check_name_in_white_list(self)
             to_friend_management(self)
             if in_white_list:
@@ -47,7 +50,7 @@ def implement(self):
                 need_swipe = False  # delete a friend, other id move, no need to swipe
                 break
         if need_swipe:
-            self.swipe(802, 635, 802, 156, 0.5, post_sleep_time=0.5)
+            self.swipe(802, 635, 802, 156, 0.5, post_sleep_time=1)
             checked_position = 0
         to_friend_management(self)
     return True
@@ -120,11 +123,14 @@ def search_jp(self):
 
 
 def to_player_info(self, position):
-    img_ends = "friend_player-info"
+    img_ends = [
+        "friend_player-info",
+        "friend_delete-friend-notice"
+    ]
     img_possibles = {
         "friend_friend-management-menu": position
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    return picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def check_name_in_white_list(self):
