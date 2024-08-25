@@ -77,5 +77,5 @@ class Layout(QWidget):
 
     def __accept_3(self, _=None):
         self.arena_component_number = int(self.input_3.currentText())
-        self.config.set('arenaComponentNumber', self.arena_component_number)
+        self.config.set('ArenaComponentNumber', self.arena_component_number)
         notification.success(self.tr('设置成功'), f'{self.tr("你的对手编号设置为：")}{self.arena_component_number}', self.config)

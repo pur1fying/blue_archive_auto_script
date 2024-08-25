@@ -32,6 +32,7 @@ def notify(title=None, body=None):
         icon=root_path + icon_path,
     )
 
+
 def toast(title=None, body=None, button=None, duration=None):
     root_path = get_root_path()
     return _toast(
@@ -39,7 +40,6 @@ def toast(title=None, body=None, button=None, duration=None):
         body=body,
         app_id='BlueArchiveAutoScript.exe',
         icon=root_path + icon_path,
-        button=button, 
+        button=button,
         duration=duration
-        )
-        
+    )
