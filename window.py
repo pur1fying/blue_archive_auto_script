@@ -131,7 +131,7 @@ def check_event_config(dir_path='./default_config', server="CN"):
             exist = False
             for j in range(0, len(data)):
                 if data[j]['func_name'] == default_event_config[i]['func_name']:
-                    for k in range(0, len(default_event_config[i]['daily_reset'])):
+                    for k in range(0, len(data[i]['daily_reset'])):
                         if len(data[j]['daily_reset'][k]) != 3:
                             data[j]['daily_reset'][k] = [0, 0, 0]
                     data[j] = check_single_event(default_event_config[i], data[j])
