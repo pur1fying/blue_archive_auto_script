@@ -75,7 +75,6 @@ class Baas_thread:
         self.current_game_activity = None
         self.package_name = None
         self.server = None
-        self.first_start = True
         self.rgb_feature = None
         self.config_path = self.config_set.config_dir
         self.config = None
@@ -345,9 +344,8 @@ class Baas_thread:
     def thread_starter(self):
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
+            self.solve('restart')
             while self.flag_run:
-                if self.first_start:
-                    self.solve('restart')
                 nextTask = self.scheduler.heartbeat()
                 if nextTask:
                     self.task_finish_to_main_page = True

@@ -4,10 +4,9 @@ from datetime import datetime
 
 def implement(self):
     cur_package = self.connection.app_current()['package']
-    if cur_package != self.package_name or self.first_start:
-        self.first_start = False
+    if cur_package != self.package_name:
         if cur_package != self.package_name:
-            self.logger.warning("APP  NOT RUNNING current package: " + cur_package)
+            self.logger.warning("APP NOT RUNNING current package: " + cur_package)
         start(self)
         return True
     self.logger.info("CHECK RESTART")
