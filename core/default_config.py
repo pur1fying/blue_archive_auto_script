@@ -725,7 +725,7 @@ STATIC_DEFAULT_CONFIG = '''
         ["24-1", "芹娜"] , ["24-2", "玛丽"] , ["24-3", "日奈"] ,
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"]
     ],
-  "student_names": [
+   "student_names": [
     {
       "CN_name": "日和(泳装)",
       "CN_implementation": false,
@@ -1031,7 +1031,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "晴奈(体操服)",
+      "CN_name": "晴奈(运动服)",
       "CN_implementation": false,
       "Global_name": "Haruna (Track)",
       "Global_implementation": true,
