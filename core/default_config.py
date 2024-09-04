@@ -670,7 +670,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": null,
         "Global": "NewYearsAperitifOneAndDoneMatch",
-        "JP": "Moonlight Dream"
+        "JP": "InSearchOfAHiddenHeritageTrinity'sExtracurricularActivities"
     },
     "dailyGameActivity": {
         "CN": null,
