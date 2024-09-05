@@ -6,6 +6,7 @@ from functools import partial
 import sys
 
 import numpy as np
+import cv2
 
 
 class NemuIpcIncompatible(Exception):
@@ -156,7 +157,9 @@ class NemuClient:
         for (k, v) in NemuClient.connections.items():
             if v.nemu_folder == nemu_folder and v.instance_id == instance_id:
                 return v
-        return NemuClient(nemu_folder, instance_id, logger, 0)
+        key = nemu_folder + str(instance_id)
+        NemuClient.connections[key] = NemuClient(nemu_folder, instance_id, logger)
+        return NemuClient.connections[key]
 
     @staticmethod
     def release_instance(nemu_folder, instance_id):
@@ -174,13 +177,11 @@ class NemuClient:
         self.display_id = display_id
 
         ipc_dll = os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll'))
-        self.logger.info(
-            f'NemuIpcImpl init, '
-            f'nemu_folder={nemu_folder}, '
-            f'ipc_dll={ipc_dll}, '
-            f'instance_id={instance_id}, '
-            f'display_id={display_id}'
-        )
+        self.logger.info('NemuIpcImpl init')
+        self.logger.info(f'nemu_folder = {nemu_folder}')
+        self.logger.info(f'ipc_dll     = {ipc_dll}')
+        self.logger.info(f'instance_id = {instance_id}')
+        self.logger.info(f'display_id  = {display_id}')
 
         try:
             self.lib = ctypes.CDLL(ipc_dll)

@@ -1,12 +1,13 @@
 from core.device.control.nemu import NemuControl
 from core.device.control.adb import AdbControl
 from core.device.control.uiautomator2 import U2Control
-from core.Baas_thread import Baas_thread
 
 
 class Control:
-    def __init__(self, Baas_instance: Baas_thread):
+    def __init__(self, Baas_instance):
         self.Baas_instance = Baas_instance
+        self.connection = Baas_instance.connection
+
         self.config = Baas_instance.get_config()
         self.logger = Baas_instance.get_logger()
         self.control_instance = None
@@ -14,12 +15,13 @@ class Control:
 
     def init_control_instance(self):
         method = self.config.get("screenshot_method")
+        self.logger.info("Control method : " + method)
         if method == "nemu":
-            self.control_instance = NemuControl(self.Baas_instance)
+            self.control_instance = NemuControl(self.connection)
         elif method == "adb":
-            self.control_instance = AdbControl(self.Baas_instance)
+            self.control_instance = AdbControl(self.connection)
         elif method == "uiautomator2":
-            self.control_instance = U2Control(self.Baas_instance)
+            self.control_instance = U2Control(self.connection)
 
     def click(self, x, y):
         self.control_instance.click(x, y)

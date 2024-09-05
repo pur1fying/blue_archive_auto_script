@@ -1,12 +1,10 @@
 from adbutils import adb
-
-from core.Baas_thread import Baas_thread
 from core.device.connection import Connection
 import time
 
 
 class AdbControl(Connection):
-    def __init__(self, Baas_instance: Baas_thread):
+    def __init__(self, Baas_instance):
         super().__init__(Baas_instance)
         self.adb = adb.device(self.serial)
 

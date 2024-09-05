@@ -1,7 +1,7 @@
 import shutil
 from datetime import datetime
 import cv2
-from core.exception import ScriptError
+from core.exception import ScriptError, RequestHumanTakeOver
 from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
@@ -9,7 +9,8 @@ from core.utils import Logger
 from device_operation import process_api
 from core.device.Screenshot import Screenshot
 from core.device.Control import Control
-
+from core.device.connection import Connection
+from core.device.uiautomator2_client import U2Client
 from core.pushkit import push
 import numpy as np
 import uiautomator2 as u2
@@ -62,6 +63,7 @@ func_dict = {
 
 class Baas_thread:
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
+        self.u2 = None
         self.dailyGameActivity = None
         self.activity_name = None
         self.config_set = config
@@ -71,6 +73,7 @@ class Baas_thread:
         self.file_path = None
         self.wait_time = None
         self.latest_screenshot_time = 0
+        self.serial = None
         self.scheduler = None
         self.screenshot_interval = None
         self.flag_run = None
@@ -82,12 +85,10 @@ class Baas_thread:
         self.config = None
         self.ratio = None
         self.next_time = None
-        self.screenshot_updated = None
         self.task_finish_to_main_page = False
         self.static_config = None
         self.ocr = None
         self.logger = Logger(logger_signal)
-        self.first_start_u2 = True
         self.last_refresh_u2_time = 0
         self.latest_img_array = None
         self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
@@ -107,7 +108,7 @@ class Baas_thread:
 
     def click(self, x, y, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
-            return False
+            raise RequestHumanTakeOver
         click_ = threading.Thread(target=self.click_thread, args=(x, y, count, rate, duration))
         click_.start()
         if wait_over:  # wait for click to be over
@@ -139,20 +140,17 @@ class Baas_thread:
             click_y = max(0, click_y)
             click_x = int(min(1280, click_x) * self.ratio)
             click_y = int(min(720, click_y) * self.ratio)
-            self.connection.click(click_x, click_y)
+            self.control.click(click_x, click_y)
             if duration > 0:
                 time.sleep(duration)
 
+    def u2_get_screenshot(self):
+        return cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+
     def get_screenshot_array(self):
         if not self.flag_run:
-            return False
-        self.latest_screenshot_time = time.time()
-        img = cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
-        return img
-
-    def screenshot_worker_thread(self):
-        self.latest_img_array = self.get_screenshot_array()
-        self.screenshot_updated = True
+            raise RequestHumanTakeOver
+        return self.screenshot.screenshot()
 
     def signal_stop(self):
         self.flag_run = False
@@ -160,7 +158,7 @@ class Baas_thread:
             self.button_signal.emit("启动")
 
     def init_emulator(self):
-        self._init_emulator()
+        return self._init_emulator()
 
     def convert_lnk_to_exe(self, lnk_path):
         """
@@ -302,22 +300,17 @@ class Baas_thread:
             self.logger.error("Emulator start failed")
             return False
         try:
-            self.adb_ip = self.config.get('adbIP')
-            self.adb_port = self.config.get('adbPort')
-            self.logger.info(f"adb Address: {self.adb_ip}:{str(self.adb_port)}")
-            if not self.adb_port or self.adb_port == '0':
-                self.connection = u2.connect()
-            else:
-                self.connection = u2.connect(f'{self.adb_ip}:{self.adb_port}')
-            # self.check_atx_agent_cache()
-            self.check_atx()
-            self.first_start_u2 = False
-            self.last_refresh_u2_time = time.time()
-            temp = self.connection.window_size()
-            self.logger.info("Screen Size  " + str(temp))  # 判断分辨率是否为1280x720
-            width = max(temp[0], temp[1])
-            self.ratio = width / 1280
-            self.logger.info("Screen Size Ratio: " + str(self.ratio))
+            self.connection = Connection(self)
+            self.serial = self.connection.get_serial()
+            self.server = self.connection.get_server()
+            self.package_name = self.connection.get_package_name()
+            self.screenshot = Screenshot(self)
+
+            self.control = Control(self)
+            self.set_screenshot_interval(self.config['screenshot_interval'])
+
+            self.check_resolution()
+
             self.logger.info("--------Emulator Init Finished----------")
             return True
         except Exception as e:
@@ -327,10 +320,9 @@ class Baas_thread:
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
-        if 'com.github.uiautomator' not in self.connection.app_list():
+        if 'com.github.uiautomator' not in self.u2.app_list():
             self.logger.info("ATX not found on stimulator, install")
-            self.connection.app_install("src/atx_app/ATX.apk")
-        self.connection.uiautomator.start()
+            self.u2.app_install("src/atx_app/ATX.apk")
         self.wait_uiautomator_start()
 
     def send(self, msg, task=None):
@@ -357,16 +349,21 @@ class Baas_thread:
                     if time.time() - self.last_refresh_u2_time > 10800:
                         self.solve('refresh_uiautomator2')
                     self.genScheduleLog(nextTask)
+
                     for task in nextTask['pre_task']:
                         self.logger.info("pre_task: [ " + task + " ] start")
-                        self.solve(task)
+                        if not self.solve(task):
+                            raise RequestHumanTakeOver
                     self.logger.info("current_task: [ " + nextTask['current_task'] + " ] start")
                     self.next_time = 0
-                    self.solve(nextTask['current_task'])
+                    if not self.solve(nextTask['current_task']):
+                        raise RequestHumanTakeOver
                     currentTaskNextTime = self.next_time
                     for task in nextTask['post_task']:
                         self.logger.info("post_task: [ " + task + " ] start")
-                        self.solve(task)
+                        if not self.solve(task):
+                            raise RequestHumanTakeOver
+
                     if self.flag_run:
                         next_tick = self.scheduler.systole(nextTask['current_task'], currentTaskNextTime)
                         self.logger.info(nextTask['current_task'] + " next_time : " + str(next_tick))
@@ -384,7 +381,7 @@ class Baas_thread:
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
                     time.sleep(1)
-                    if self.flag_run: # allow user to stop script before then action
+                    if self.flag_run:  # allow user to stop script before then action
                         self.handle_then()
         except Exception as e:
             notify(title='', body='任务已停止')
@@ -503,10 +500,8 @@ class Baas_thread:
         picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot,
                           tentitive_click=True)
 
-    def wait_screenshot_updated(self):
-        while (not self.screenshot_updated) and self.flag_run:
-            time.sleep(0.01)
-        self.screenshot_updated = False
+    def init_image_resource(self):
+        return position.init_image_data(self)
 
     def init_rgb(self):
         try:
@@ -515,6 +510,7 @@ class Baas_thread:
             return True
         except Exception as e:
             self.logger.error(e.__str__())
+            self.logger.error("Rgb_Feature initialization failed")
             return False
 
     def init_config(self):
@@ -526,25 +522,11 @@ class Baas_thread:
             self.logger.error(e.__str__())
             return False
 
-    def init_server(self):
-        server = self.config['server']
-        if server == '官服' or server == 'B服':
-            self.server = 'CN'
-        elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
-            self.server = 'Global'
-        elif server == '日服':
-            self.server = 'JP'
-        self.package_name = self.static_config['package_name'][server]
-        self.activity_name = self.static_config['activity_name'][server]
-        self.current_game_activity = self.static_config['current_game_activity'][self.server]
-        self.dailyGameActivity = self.static_config['dailyGameActivity'][self.server]
-        self.logger.info("Current Server: " + self.server)
-
     def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):
         if not self.flag_run:
-            return False
+            raise RequestHumanTakeOver
         self.logger.info(f"swipe from ( " + str(fx) + " , " + str(fy) + " ) --> ( " + str(tx) + " , " + str(ty) + " )")
-        self.connection.swipe(fx * self.ratio, fy * self.ratio, tx * self.ratio, ty * self.ratio, duration)
+        self.control.swipe(fx * self.ratio, fy * self.ratio, tx * self.ratio, ty * self.ratio, duration)
         if post_sleep_time > 0:
             time.sleep(post_sleep_time)
 
@@ -639,39 +621,35 @@ class Baas_thread:
     def init_all_data(self):
         self.logger.info("--------Initializing All Data----------")
         self.flag_run = True
+        init_funcs = [
+            self.init_config,
+            self.init_emulator,
+            self.init_image_resource,
+            self.init_rgb
+        ]
         self.init_config()
-        self.init_server()
-        self.set_screenshot_interval(self.config['screenshot_interval'])
         self.scheduler = Scheduler(self.update_signal, self.config_path)
-        init_results = []
-        init_results.append(self.init_rgb())
-        init_results.append(position.init_image_data(self))
-        init_results.append(self._init_emulator())
-        for i in range(0, len(init_results)):
-            if init_results[i] is False:
-                self.signal_stop()
+        for (func) in init_funcs:
+            if not func():
                 self.logger.critical("Initialization Failed")
+                self.flag_run = False
                 return False
-        self.latest_screenshot_time = 0
         self.logger.info("--------Initialization Finished----------")
         return True
 
     def set_screenshot_interval(self, interval):
-        if interval < 0.3:
-            self.logger.warning("screenshot_interval must be greater than 0.3")
-            interval = 0.3
-        self.logger.info("screenshot_interval set to " + str(interval))
-        self.screenshot_interval = interval
+        self.screenshot_interval = self.screenshot.set_screenshot_interval(interval)
 
     def wait_uiautomator_start(self):
-        try:
-            while not self.connection.uiautomator.running():
-                time.sleep(0.1)
-            self.latest_img_array = self.get_screenshot_array()
-        except Exception as e:
-            print(e)
-            self.connection.uiautomator.start()
-            self.wait_uiautomator_start()
+        for i in range(0, 10):
+            try:
+                while not self.u2.uiautomator.running():
+                    time.sleep(0.1)
+                self.latest_img_array = self.u2.screenshot()
+                return
+            except Exception as e:
+                print(e)
+                self.u2.uiautomator.start()
 
     def daily_config_refresh(self):
         now = datetime.now()
@@ -723,18 +701,18 @@ class Baas_thread:
 
     def handle_then(self):
         action = self.config_set["then"]
-        if action == '无动作' or not self.scheduler.is_wait_long(): # Do Nothing
+        if action == '无动作' or not self.scheduler.is_wait_long():  # Do Nothing
             return
-        elif action == '退出 Baas': # Exit Baas
+        elif action == '退出 Baas':  # Exit Baas
             self.exit_baas()
-        elif action == '退出 模拟器': # Exit Emulator
+        elif action == '退出 模拟器':  # Exit Emulator
             self.exit_emulator()
         elif action == '退出 Baas 和 模拟器':  # Exit Baas and Emulator
             self.exit_emulator()
             self.exit_baas()
-        elif action == '关机': # Shutdown
+        elif action == '关机':  # Shutdown
             self.shutdown()
-        self.signal_stop() # avoid rerunning then action in case of error
+        self.signal_stop()  # avoid rerunning then action in case of error
 
     def exit_emulator(self):
         self.logger.info(f"-- BAAS Exit Emulator --")
@@ -760,10 +738,10 @@ class Baas_thread:
         try:
             self.start_shutdown()
             answer = toast(title='BAAS: Cancel Shutdown?',
-                            body='All tasks have been completed: shutting down. Do you want to cancel?',
-                            button='Cancel',
-                            duration='long'
-            )
+                           body='All tasks have been completed: shutting down. Do you want to cancel?',
+                           button='Cancel',
+                           duration='long'
+                           )
             # cancel button pressed
             if answer == {'arguments': 'http:Cancel', 'user_input': {}}:
                 self.cancel_shutdown()
@@ -778,4 +756,27 @@ class Baas_thread:
         self.logger.info("Shutdown cancelled")
         subprocess.run(["shutdown", "-a"])
 
+    def check_resolution(self):
+        self.u2 = U2Client.get_instance(self.serial).get_connection()
+        # self.check_atx_agent_cache()
+        self.check_atx()
+        self.last_refresh_u2_time = time.time()
+        temp = self.resolution_uiautomator2()
+        self.logger.info("Screen Size  " + str(temp))
+        if temp[0] != 1280 or temp[1] != 720:
+            self.logger.warning("Screen Size is not 1280x720, we recommend you to use 1280x720.")
+        width = temp[0]
+        self.ratio = width / 1280
+        self.logger.info("Screen Size Ratio: " + str(self.ratio))
 
+    def resolution_uiautomator2(self):
+        for i in range(0, 3):
+            try:
+                info = self.u2.http.get('/info').json()
+                w, h = info['display']['width'], info['display']['height']
+                if w < h:
+                    w, h = h, w
+                return w, h
+            except Exception as e:
+                print(e)
+                time.sleep(1)

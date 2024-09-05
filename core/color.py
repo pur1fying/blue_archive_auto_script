@@ -11,8 +11,7 @@ def wait_loading(self):
         screenshot_interval = time.time() - self.latest_screenshot_time
         if screenshot_interval < self.screenshot_interval:
             time.sleep(self.screenshot_interval - screenshot_interval)
-        threading.Thread(target=self.screenshot_worker_thread).start()
-        self.wait_screenshot_updated()
+        self.latest_img_array = self.get_screenshot_array()
         if judgeRGBFeature(self, "loadingNotWhite") and judgeRGBFeature(self, "loadingWhite"):
                 t_load = time.time() - t_start
                 t_load = round(t_load, 3)

@@ -21,6 +21,7 @@ class U2Client:
         self.serial = serial
         self.connection = u2.connect(serial)
 
+
     def click(self, x, y):
         self.connection.click(x, y)
 
@@ -29,3 +30,6 @@ class U2Client:
 
     def screenshot(self):
         return cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
+
+    def get_connection(self):
+        return self.connection

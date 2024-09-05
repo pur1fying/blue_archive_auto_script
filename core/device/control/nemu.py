@@ -1,7 +1,7 @@
-from core.device.nemu_client import NemuClient
+from core.device.nemu_client import NemuClient, NemuIpcIncompatible, NemuIpcError
 import time
-
 import numpy as np
+import os.path
 
 
 def random_normal_distribution(a, b, n=5):
@@ -79,31 +79,45 @@ def insert_swipe(p0, p3, speed=15, min_distance=10):
 
 
 class NemuControl:
-    def __init__(self, Baas_instance):
-        self.Baas_instance = Baas_instance
-        self.nemu = NemuClient.get_instance()
-        self.logger = Baas_instance.get_logger()
+    def __init__(self, conn):
+        self.config = conn.config
+        self.logger = conn.logger
+        self.serial = conn.serial
+
+        self.nemu_folder = self.config.get("program_address")
+        self.nemu_folder = os.path.dirname(self.nemu_folder)
+        self.nemu_folder = os.path.dirname(self.nemu_folder)    # C:/Program Files/Netease/MuMu Player 12
+        self.instance_id = NemuClient.serial_to_id(self.serial)
+        if self.instance_id is not None:
+            try:
+                self.nemu_client = NemuClient.get_instance(self.nemu_folder, self.instance_id, self.logger)
+            except (NemuIpcIncompatible, NemuIpcError) as e:
+                self.logger.error(e)
+                self.logger.error('Emulator info incorrect')
+        else:
+            self.logger.error('Unable to use Init Nemu Screenshot.')
+            raise Exception("Unable to use Init Nemu Screenshot.")
 
     def click(self, x, y):
-        self.nemu.down(x, y)
+        self.nemu_client.down(x, y)
         time.sleep(0.015)
-        self.nemu.up()
+        self.nemu_client.up()
         time.sleep(0.035)
 
     def swipe(self, x1, y1, x2, y2, duration):
         points = insert_swipe(p0=(x1, y1), p3=(x2, y2))
 
         for point in points:
-            self.nemu.down(*point)
+            self.nemu_client.down(*point)
             time.sleep(0.010)
 
-        self.nemu.up()
+        self.nemu_client.up()
         time.sleep(0.050)
 
     def long_click(self, x, y, duration):
-        self.nemu.down(x, y)
+        self.nemu_client.down(x, y)
         time.sleep(duration)
-        self.nemu.up()
+        self.nemu_client.up()
         time.sleep(0.050)
 
 

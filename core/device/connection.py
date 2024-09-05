@@ -1,12 +1,13 @@
 import re
-from core.Baas_thread import Baas_thread
 from adbutils import adb
-from core.Exceptions import RequestHumanTakeOver
+from core.exception import RequestHumanTakeOver
 
 
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
 class Connection:
-    def __init__(self, Baas_instance: Baas_thread):
+
+    def __init__(self, Baas_instance):
+        self.package = None
         self.server = None
         self.Baas_thread = Baas_instance
         self.logger = Baas_instance.get_logger()
@@ -19,8 +20,9 @@ class Connection:
         self.serial = self.config.get('adbIP') + ":" + str(self.config.get('adbPort'))
         self.set_serial(self.serial)
         self.check_serial()
-
         self.detect_device()
+        self.adb_connect()
+
         self.detect_package()
         self.check_mumu_keep_alive()
 
@@ -178,6 +180,7 @@ class Connection:
         if len(available_packages) == 1:
             self.logger.info(f"Only find one available package [ {available_packages[0]} ], using it.")
             self.server = self.package2server(available_packages[0])
+            self.package = available_packages[0]
             return
         self.logger.error("Multiple available packages found.")
         raise RequestHumanTakeOver("Multiple packages")
@@ -207,3 +210,53 @@ class Connection:
             self.logger.error(f"Package [ {target_package} ] not found.")
             raise RequestHumanTakeOver("Package not found.")
         self.logger.info(f"Package Found.")
+        self.package = target_package
+
+    def get_package_name(self):
+        return self.package
+
+    def get_server(self):
+        return self.server
+
+    def adb_connect(self):
+        for device in self.list_devices():
+            if device.state == 'offline':
+                self.logger.warning(f'Device {device.serial} is offline, disconnect it before connecting')
+                msg = adb.disconnect(device.serial)
+                if msg:
+                    self.logger.info(msg)
+            elif device.state == 'unauthorized':
+                self.logger.error(f'Device {device.serial} is unauthorized, please accept ADB debugging on your device')
+            elif device.state == 'device':
+                pass
+            else:
+                self.logger.warning(f'Device {device.serial} is is having a unknown status: {device.status}')
+
+        # Skip for emulator-5554
+        if 'emulator-' in self.serial:
+            self.logger.info(f'"{self.serial}" is a `emulator-*` serial, skip adb connect')
+            return True
+        if re.match(r'^[a-zA-Z0-9]+$', self.serial):
+            self.logger.info(f'"{self.serial}" seems to be a Android serial, skip adb connect')
+            return True
+
+        # Try to connect
+        for _ in range(3):
+            msg = adb.connect(self.serial)
+            self.logger.info(msg)
+            # Connected to 127.0.0.1:59865
+            # Already connected to 127.0.0.1:59865
+            if 'connected' in msg:
+                return True
+            # bad port number '598265' in '127.0.0.1:598265'
+            elif 'bad port' in msg:
+                self.logger.error('Serial incorrect, might be a typo')
+                raise RequestHumanTakeOver
+
+        # Failed to connect
+        self.logger.warning(f'Failed to connect {self.serial} after 3 trial, assume connected')
+        self.detect_device()
+        return False
+
+    def get_serial(self):
+        return self.serial

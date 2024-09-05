@@ -227,9 +227,12 @@ class MainThread(QThread):
         self.running = False
 
     def run(self):
+        self.display(self.tr("停止"))
+        if not self._init_script():
+            self.display(self.tr("启动"))
+            return
         self.running = True
         self.display(self.tr("停止"))
-        self._init_script()
         self._main_thread.logger.info("Starting Blue Archive Auto Script...")
         self._main_thread.send('start')
 
@@ -250,7 +253,7 @@ class MainThread(QThread):
                                                      button_signal=self.button_signal, update_signal=self.update_signal,
                                                      exit_signal=self.exit_signal)
             self.config.add_signal('update_signal', self.update_signal)
-        self._main_thread.init_all_data()
+        return self._main_thread.init_all_data()
 
     def display(self, text):
         self.button_signal.emit(text)

@@ -3,6 +3,12 @@ import traceback
 # import numpy as np
 
 
+class RequestHumanTakeOver(Exception):
+    def __init__(self, message="Request Human Take Over"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class ScriptError(Exception):
     def __init__(self, message=None, context=None):
         traceback.print_exc()
