@@ -504,6 +504,8 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "screenshot_methods":["adb", "nemu", "uiautomator2"],
+    "control_methods": ["adb", "nemu", "uiautomator2"],
     "common_shop_price_list": {
         "CN": [
             ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],
