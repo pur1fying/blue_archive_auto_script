@@ -7,6 +7,8 @@ from core.scheduler import Scheduler
 from core import position, picture
 from core.utils import Logger
 from device_operation import process_api
+from core.device.Screenshot import Screenshot
+from core.device.Control import Control
 
 from core.pushkit import push
 import numpy as np
@@ -64,7 +66,7 @@ class Baas_thread:
         self.activity_name = None
         self.config_set = config
         self.process_name = None
-        self.emulator_strat_stat = None
+        self.emulator_start_stat = None
         self.lnk_path = None
         self.file_path = None
         self.wait_time = None
@@ -94,6 +96,14 @@ class Baas_thread:
         self.exit_signal = exit_signal
         self.stage_data = {}
         self.activity_name = None
+        self.control = None
+        self.screenshot = None
+
+    def get_logger(self):
+        return self.logger
+
+    def get_config(self):
+        return self.config_set
 
     def click(self, x, y, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
@@ -278,13 +288,12 @@ class Baas_thread:
         return True
 
     def start_emulator(self):
-        self.emulator_strat_stat = self.config.get("open_emulator_stat")
+        self.emulator_start_stat = self.config.get("open_emulator_stat")
         self.wait_time = self.config.get("emulator_wait_time")
-        if not self.start_check_emulator_stat(self.emulator_strat_stat, self.wait_time):
+        if not self.start_check_emulator_stat(self.emulator_start_stat, self.wait_time):
             raise Exception("Emulator start failed")
 
     def _init_emulator(self) -> bool:
-        # noinspection PyBroadException
         self.logger.info("--------------Init Emulator----------------")
         try:
             self.start_emulator()
@@ -315,11 +324,6 @@ class Baas_thread:
             self.logger.error(e.__str__())
             self.logger.error("Emulator initialization failed")
             return False
-
-    def check_atx_agent_cache(self):
-        init = u2.Initer(self.connection._adb_device)
-        path = u2.init.gen_cachepath(init.atx_agent_url)
-
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
@@ -773,3 +777,5 @@ class Baas_thread:
     def cancel_shutdown(self):
         self.logger.info("Shutdown cancelled")
         subprocess.run(["shutdown", "-a"])
+
+
