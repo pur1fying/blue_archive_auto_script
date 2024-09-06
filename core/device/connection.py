@@ -12,13 +12,14 @@ class Connection:
         self.server = None
         self.Baas_thread = Baas_instance
         self.logger = Baas_instance.get_logger()
-        self.config = Baas_instance.get_config()
-        self.static_config = self.config.static_config
-        self.adbIP = None
-        self.adbPort = None
+        self.config_set = Baas_instance.get_config()
+        self.config = self.config_set.config
+        self.static_config = self.config_set.static_config
+        self.adbIP = self.config['adbIP']
+        self.adbPort = self.config['adbPort']
         if isinstance(self.adbPort, int):
             self.adbPort = str(self.adbPort)
-        self.serial = self.config.get('adbIP') + ":" + str(self.config.get('adbPort'))
+        self.serial = self.adbIP + ":" + self.adbPort
         self.set_serial(self.serial)
         self.check_serial()
         self.detect_device()
@@ -124,8 +125,8 @@ class Connection:
         except IndexError:
             ip = "127.0.0.1"
             port = "0"
-        self.config.set('adbIP', ip)
-        self.config.set('adbPort', port)
+        self.config_set.set('adbIP', ip)
+        self.config_set.set('adbPort', port)
         self.adbIP = ip
         self.adbPort = port
         self.serial = ip + ':' + port
@@ -152,12 +153,12 @@ class Connection:
     # set corresponding package
     def detect_package(self):
         self.logger.info("Detect Package")
-        server = self.config.get('server')
+        server = self.config['server']
         package_exist = False
         if server == "auto":
             self.auto_detect_package()
             package_exist = True
-        server = self.config.get('server')
+        server = self.config['server']
         if server == '官服' or server == 'B服':
             self.server = 'CN'
         elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':

@@ -636,7 +636,6 @@ class Baas_thread:
             self.init_image_resource,
             self.init_rgb
         ]
-        self.init_config()
         self.scheduler = Scheduler(self.update_signal, self.config_path)
         for (func) in init_funcs:
             if not func():
