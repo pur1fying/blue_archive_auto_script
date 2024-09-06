@@ -677,7 +677,7 @@ STATIC_DEFAULT_CONFIG = '''
         "JP": "InSearchOfAHiddenHeritageTrinity'sExtracurricularActivities"
     },
     "dailyGameActivity": {
-        "CN": null,
+        "CN": "HinaSummerVacationAudioGame",
         "Global": null,
         "JP": null
     },
