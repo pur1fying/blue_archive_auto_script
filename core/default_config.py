@@ -673,8 +673,8 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": null,
-        "Global": "FromOpera0068WithLove",
-        "JP": "Moonlight Dream"
+        "Global": "NewYearsAperitifOneAndDoneMatch",
+        "JP": "InSearchOfAHiddenHeritageTrinity'sExtracurricularActivities"
     },
     "dailyGameActivity": {
         "CN": null,
