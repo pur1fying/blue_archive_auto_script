@@ -65,7 +65,6 @@ class Baas_thread:
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
         self.u2 = None
         self.dailyGameActivity = None
-        self.activity_name = None
         self.config_set = config
         self.process_name = None
         self.emulator_start_stat = None
@@ -305,6 +304,7 @@ class Baas_thread:
             self.server = self.connection.get_server()
             self.package_name = self.connection.get_package_name()
             self.current_game_activity = self.static_config['current_game_activity'][self.server]
+            self.activity_name = self.connection.get_activity_name()
             self.screenshot = Screenshot(self)
 
             self.control = Control(self)

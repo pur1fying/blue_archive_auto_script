@@ -7,6 +7,7 @@ from core.exception import RequestHumanTakeOver
 class Connection:
 
     def __init__(self, Baas_instance):
+        self.activity = None
         self.package = None
         self.server = None
         self.Baas_thread = Baas_instance
@@ -152,16 +153,20 @@ class Connection:
     def detect_package(self):
         self.logger.info("Detect Package")
         server = self.config.get('server')
+        package_exist = False
         if server == "auto":
             self.auto_detect_package()
-        else:
-            if server == '官服' or server == 'B服':
-                self.server = 'CN'
-            elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
-                self.server = 'Global'
-            elif server == '日服':
-                self.server = 'JP'
+            package_exist = True
+        server = self.config.get('server')
+        if server == '官服' or server == 'B服':
+            self.server = 'CN'
+        elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
+            self.server = 'Global'
+        elif server == '日服':
+            self.server = 'JP'
+        if not package_exist:
             self.check_package_exist(server)
+        self.activity = self.static_config['activity_name'][server]
         self.logger.info("Server : " + self.server)
 
     def auto_detect_package(self):
@@ -179,7 +184,7 @@ class Connection:
             raise RequestHumanTakeOver("No available package.")
         if len(available_packages) == 1:
             self.logger.info(f"Only find one available package [ {available_packages[0]} ], using it.")
-            self.server = self.package2server(available_packages[0])
+            self.config.set("server", self.package2server(available_packages[0]))
             self.package = available_packages[0]
             return
         self.logger.error("Multiple available packages found.")
@@ -217,6 +222,9 @@ class Connection:
 
     def get_server(self):
         return self.server
+
+    def get_activity_name(self):
+        return self.activity
 
     def adb_connect(self):
         for device in self.list_devices():
