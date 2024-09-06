@@ -304,6 +304,7 @@ class Baas_thread:
             self.serial = self.connection.get_serial()
             self.server = self.connection.get_server()
             self.package_name = self.connection.get_package_name()
+            self.current_game_activity = self.static_config['current_game_activity'][self.server]
             self.screenshot = Screenshot(self)
 
             self.control = Control(self)
@@ -530,6 +531,14 @@ class Baas_thread:
         if post_sleep_time > 0:
             time.sleep(post_sleep_time)
 
+    def u2_swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):
+        if not self.flag_run:
+            raise RequestHumanTakeOver
+        self.logger.info(f"swipe from ( " + str(fx) + " , " + str(fy) + " ) --> ( " + str(tx) + " , " + str(ty) + " )")
+        self.u2.swipe(fx * self.ratio, fy * self.ratio, tx * self.ratio, ty * self.ratio, duration)
+        if post_sleep_time > 0:
+            time.sleep(post_sleep_time)
+
     def get_ap(self):
         region = {
             'CN': [557, 10, 662, 40],
@@ -643,6 +652,7 @@ class Baas_thread:
     def wait_uiautomator_start(self):
         for i in range(0, 10):
             try:
+                self.u2.uiautomator.start()
                 while not self.u2.uiautomator.running():
                     time.sleep(0.1)
                 self.latest_img_array = self.u2.screenshot()

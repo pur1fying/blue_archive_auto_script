@@ -672,7 +672,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "PresidentHinasSummerVacation",
         "Global": "NewYearsAperitifOneAndDoneMatch",
         "JP": "InSearchOfAHiddenHeritageTrinity'sExtracurricularActivities"
     },

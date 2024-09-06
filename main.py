@@ -99,7 +99,7 @@ class Main:
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
     t.init_static_config()
-    config = ConfigSet(config_dir="1708086765")
+    config = ConfigSet(config_dir="1708148000")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
@@ -131,4 +131,4 @@ if __name__ == '__main__':
     # tt.solve("rewarded_task")
     # tt.solve("create")
     # tt.solve("dailyGameActivity")
-    tt.solve("friend")
+    # tt.solve("friend")
