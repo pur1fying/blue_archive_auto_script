@@ -28,7 +28,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
     elif operation == "stop":
         command = f""" "{exe_path}" api -v {multi_instance_number} shutdown_player"""
         subprocess.Popen(command,shell=True)
-    elif operation == "get_path"
+    elif operation == "get_path":
         return os.path.dirname(icon_path)
     else:
         raise ValueError("NOT_SUPPORTED_OPERATION")
