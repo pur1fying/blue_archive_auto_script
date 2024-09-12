@@ -12,6 +12,7 @@ def implement(self):
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
         sweep(self, region, times)
+    exchange_reward(self)
     return True
 
 
@@ -58,6 +59,7 @@ def preprocess_activity_sweep_times(times):
                 times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
         return times
 
+
 def get_stage_data():
     module_path = 'src.explore_task_data.activities.TheCathedralsMerryChristmas'
     stage_module = importlib.import_module(module_path)
@@ -74,7 +76,7 @@ def sweep(self, number, times):
         sweep_times = times[i]
         if type(sweep_times) is float:
             sweep_times = int(ap * sweep_times / sweep_one_time_ap[number[i]])
-        click_times = sweep_times
+        click_times = sweep_times - 1
         duration = 1
         if sweep_times > 50:
             sweep_times = int(ap / sweep_one_time_ap[number[i]])
@@ -101,7 +103,8 @@ def sweep(self, number, times):
             continue
     return True
 
-#推剧情的测试完没有问题
+
+# 推剧情的测试完没有问题
 def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True, True)
@@ -120,7 +123,8 @@ def explore_story(self):
             self.logger.info("Current story sss check next story")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_task += 1
-            plot = picture.co_detect(self, img_ends=["normal_task_task-info","activity_task-info", "main_story_episode-info"])
+            plot = picture.co_detect(self, img_ends=["normal_task_task-info", "activity_task-info",
+                                                     "main_story_episode-info"])
             if plot == "normal_task_task-info" or plot == "activity_task-info":
                 res = color.check_sweep_availability(self)
             elif plot == "main_story_episode-info":
@@ -169,20 +173,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = [
-        'mystic1',
-        'pierce1',
-        'burst1',
-        'mystic1',
-        'mystic1',
-        'pierce1',
-        'burst1',
-        'mystic1',
-        'mystic1',
-        'pierce1',
-        'burst1',
-        'mystic1',
-    ]
+    characteristic = get_stage_data()["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -203,7 +194,8 @@ def explore_mission(self):
         to_activity(self, "story")
         to_activity(self, "mission", True, True)
 
-#挑战这里还没改动
+
+# 挑战这里还没改动
 def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
@@ -263,7 +255,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'purchase_ap_notice-localized': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
-        "activity_task-info": (task_info_x[self.server],141),
+        "activity_task-info": (task_info_x[self.server], 141),
         "normal_task_task-info": task_info[self.server],
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
@@ -326,7 +318,7 @@ def to_mission_task_info(self, number):
     lo = [0, 200, 315, 425, 545, 665]
     index = [1, 2, 3, 4, 5, 4, 5, 1, 2, 3, 4, 5]
     if number in [6, 7]:
-        self.swipe(916, 456, 916, 180, duration=0.5, post_sleep_time=0.7)
+        self.u2_swipe(916, 456, 916, 200, duration=0.5, post_sleep_time=0.7)
     if number in [8, 9, 10, 11, 12]:
         self.swipe(943, 670, 943, 170, duration=0.1, post_sleep_time=0.7)
         self.swipe(943, 670, 943, 170, duration=0.1, post_sleep_time=0.7)
@@ -389,3 +381,67 @@ def start_sweep(self, skip_first_screenshot=False):
     return "sweep_complete"
 
 
+def exchange_reward(self):
+    to_activity(self, "story", True)
+    to_exchange(self, True)
+    to_set_exchange_times_menu(self, True)
+    if not image.compare_image(self, "activity_exchange-50-times-at-once"):
+        self.logger.info("set exchange times to 50 times at once")
+        self.click(778, 320, wait_over=True)
+    img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
+    img_ends = "activity_exchange-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    while 1:
+        while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
+            self.click(453, 651, wait_over=True, duration=0.5)
+            time.sleep(0.5)
+            continue_exchange(self)
+            to_exchange(self, True)
+        if color.judge_rgb_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
+            if get_exchange_assets(self) >= 6:
+                self.logger.info("refresh exchange times")
+                refresh_exchange_times(self)
+                continue
+            else:
+                self.logger.info("exchange complete")
+                return True
+
+
+def refresh_exchange_times(self):
+    img_possibles = {"activity_exchange-menu": (1155, 114)}
+    img_ends = "activity_refresh-exchange-times-notice"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    img_possibles = {"activity_refresh-exchange-times-notice": (768, 500)}
+    img_ends = "activity_exchange-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def to_exchange(self, skip_first_screenshot=False):
+    img_possibles = {
+        "activity_menu": (279, 639),
+        "activity_set-exchange-times-menu": (935, 195),
+        "activity_exchange-confirm": (673, 603),
+    }
+    img_ends = "activity_exchange-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+
+
+def to_set_exchange_times_menu(self, skip_first_screenshot=False):
+    img_possibles = {"activity_exchange-menu": (122, 105)}
+    img_ends = "activity_set-exchange-times-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+
+
+def continue_exchange(self):
+    img_possibles = {"activity_continue-exchange": (931, 600)}
+    img_ends = "activity_continue-exchange-grey"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True, tentitive_click=True, max_fail_cnt=5)
+
+
+def get_exchange_assets(self):
+    region = {
+        "CN": (710, 98, 805, 130),
+        "JP": (710, 98, 805, 130),
+        "Global": (710, 98, 805, 130),
+    }
+    return self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
