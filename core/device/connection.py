@@ -62,6 +62,15 @@ class Connection:
         serial = serial.replace('auto127.0.0.1', '127.0.0.1').replace('autoemulator', 'emulator')
         return str(serial)
 
+
+    @staticmethod
+    def serial_port(serial):
+        try:
+            port = int(serial.split(':')[1])
+        except IndexError:
+            return 0
+        return port
+
     def detect_device(self):
         self.logger.info("Detect Device")
         devices = self.list_devices()
@@ -99,6 +108,24 @@ class Connection:
             else:
                 self.logger.error("Multiple devices detected, please specify the device serial.")
                 raise RequestHumanTakeOver("Multiple devices detected.")
+
+
+
+        if self.is_mumu12_family():
+            matched = False
+            for device in available:
+                if device == self.serial:
+                    matched = True
+                    break
+            if not matched:
+                self.logger.error("MuMu12 Device not found. It May change to near by serial. Check nearby serials.")
+                port = self.serial_port(self.serial)
+                for device in available:
+                    if abs(self.serial_port(device) - port) <= 2:
+                        self.logger.info("MuMu12 device serial switched from [ " + self.serial + " ] to [ " + device + " ]")
+                        self.set_serial(device)
+                        break
+
 
     def set_activity(self):
         pass

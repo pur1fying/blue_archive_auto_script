@@ -1,3 +1,4 @@
+import copy
 import shutil
 from datetime import datetime
 import cv2
@@ -516,7 +517,8 @@ class Baas_thread:
 
     def init_config(self):
         try:
-            self.config = self.operate_dict(self.config_set.config)
+            self.config = copy.deepcopy(self.config_set.config)
+            self.config = self.operate_dict(self.config)
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")

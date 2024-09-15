@@ -646,13 +646,13 @@
 <context>
     <name>Layout</name>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="18"/>
+        <location filename="../components/expand/arenaPriority.py" line="19"/>
         <source>输入你需要对手比你低几级，高几级则填负数：</source>
         <translation>상대가 몇 위 아래 또는 그 위에 있어야 하는지 입력합니다.
 아래에는 양수를 사용하고 위에는 음수를 사용합니다:</translation>
     </message>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="19"/>
+        <location filename="../components/expand/arenaPriority.py" line="20"/>
         <source>输入你最多需要刷新几次：</source>
         <translation>최대 새로 고침 횟수:</translation>
     </message>
@@ -901,22 +901,22 @@
         <translation>스크린 샷 간격 설정 :</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="69"/>
+        <location filename="../components/expand/scriptConfig.py" line="94"/>
         <source>截图间隔</source>
         <translation>스크린 샷 간격</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="50"/>
+        <location filename="../components/expand/serverConfig.py" line="52"/>
         <source>ADB地址(点击选择)</source>
         <translation>ADB 주소 (클릭 선택)</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="65"/>
+        <location filename="../components/expand/serverConfig.py" line="67"/>
         <source>自动查询模拟器失败！请尝试手动输入端口</source>
         <translation>자동 앱플레이어 실행에 실패했습니다! 포트수동입력</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="73"/>
+        <location filename="../components/expand/serverConfig.py" line="75"/>
         <source>adb地址获取失败</source>
         <translation>ADB 주소 획득에 실패했습니다</translation>
     </message>
@@ -991,32 +991,32 @@
         <translation type="unfinished">Baas를 시작한 직후 실행</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="80"/>
+        <location filename="../components/expand/scriptConfig.py" line="105"/>
         <source>完成后</source>
         <translation type="unfinished">완료되면</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <location filename="../components/expand/scriptConfig.py" line="32"/>
         <source>无动作</source>
         <translation type="unfinished">조치 없음</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <location filename="../components/expand/scriptConfig.py" line="32"/>
         <source>退出 Baas</source>
         <translation type="unfinished">Baas 종료</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <location filename="../components/expand/scriptConfig.py" line="32"/>
         <source>退出 模拟器</source>
         <translation type="unfinished">에뮬레이터를 종료합니다.</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <location filename="../components/expand/scriptConfig.py" line="32"/>
         <source>退出 Baas 和 模拟器</source>
         <translation type="unfinished">BaaS 및 시뮬레이터 종료</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="28"/>
+        <location filename="../components/expand/scriptConfig.py" line="32"/>
         <source>关机</source>
         <translation type="unfinished">종료</translation>
     </message>
@@ -1070,101 +1070,116 @@
         <source>删除</source>
         <translation type="unfinished">삭제하다</translation>
     </message>
+    <message>
+        <location filename="../components/expand/arenaPriority.py" line="21"/>
+        <source>自定义对手的编号：</source>
+        <translation type="unfinished">상대방의 번호를 사용자 정의하십시오.</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="113"/>
+        <source>截图方式</source>
+        <translation type="unfinished">스크린샷 방법</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="121"/>
+        <source>控制方式</source>
+        <translation type="unfinished">제어 모드</translation>
+    </message>
 </context>
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="335"/>
+        <location filename="../fragments/home.py" line="338"/>
         <source>停止</source>
         <translation>중지</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="339"/>
+        <location filename="../fragments/home.py" line="342"/>
         <source>启动</source>
         <translation>시작</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="263"/>
+        <location filename="../fragments/home.py" line="266"/>
         <source>困难图推图已完成</source>
         <translation>하드 스테이지 임무 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="340"/>
+        <location filename="../fragments/home.py" line="343"/>
         <source>无任务</source>
         <translation>일 없습네다</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="269"/>
+        <location filename="../fragments/home.py" line="272"/>
         <source>普通关推图</source>
         <translation>일반 관습 푸시 맵</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="272"/>
+        <location filename="../fragments/home.py" line="275"/>
         <source>普通图推图已完成</source>
         <translation>일반 스테이지 임무 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="280"/>
+        <location filename="../fragments/home.py" line="283"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>안티 하모니가 성공적으로 완료되었습니다. BA를 재실행하여 리소스를 다운로드하세요</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="284"/>
+        <location filename="../fragments/home.py" line="287"/>
         <source>自动主线剧情</source>
         <translation>메인 스토리</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="288"/>
+        <location filename="../fragments/home.py" line="291"/>
         <source>主线剧情已完成</source>
         <translation>메인 스토리 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="294"/>
+        <location filename="../fragments/home.py" line="297"/>
         <source>自动小组剧情</source>
         <translation>그룹 스토리</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="298"/>
+        <location filename="../fragments/home.py" line="301"/>
         <source>小组剧情已完成</source>
         <translation>그룹 스토리 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="305"/>
+        <location filename="../fragments/home.py" line="308"/>
         <source>自动支线剧情</source>
         <translation>미니 스토리</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="308"/>
+        <location filename="../fragments/home.py" line="311"/>
         <source>支线剧情已完成</source>
         <translation>미니 스토리 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="315"/>
+        <location filename="../fragments/home.py" line="318"/>
         <source>自动活动剧情</source>
         <translation>이벤트 스토리 클리어</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="318"/>
+        <location filename="../fragments/home.py" line="321"/>
         <source>活动剧情已完成</source>
         <translation>이벤트 스토리 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="325"/>
+        <location filename="../fragments/home.py" line="328"/>
         <source>自动活动任务</source>
         <translation>이벤트 퀘스트 클리어</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="328"/>
+        <location filename="../fragments/home.py" line="331"/>
         <source>活动任务已完成</source>
         <translation>이벤트 퀘스트 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="334"/>
+        <location filename="../fragments/home.py" line="337"/>
         <source>自动活动挑战</source>
         <translation>클리어 이벤트 챌린지</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="338"/>
+        <location filename="../fragments/home.py" line="341"/>
         <source>活动挑战推图已完成</source>
         <translation>챌린지 이벤트 클리어 완료</translation>
     </message>
@@ -1282,52 +1297,52 @@
 <context>
     <name>ServerConfig</name>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="21"/>
+        <location filename="../components/expand/serverConfig.py" line="23"/>
         <source>请选择您的服务器，请慎重切换服务器，切换服务器后请重新启动脚本</source>
         <translation>서버 전환 후 프로그램 재시작</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>官服</source>
         <translation>중섭</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>B服</source>
         <translation>비리비리 중섭</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>国际服</source>
         <translation>글로벌 서버</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>日服</source>
         <translation>일섭</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="32"/>
+        <location filename="../components/expand/serverConfig.py" line="34"/>
         <source>请填写您的adb端口号</source>
         <translation>앱플레이어 ADB 포트 입력</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="37"/>
+        <location filename="../components/expand/serverConfig.py" line="39"/>
         <source>检测adb地址(检测目前开启的模拟器adb地址)</source>
         <translation>ADB 포트 감지 (현재 실행중인 앱플레이어 ADB 포트 감지)</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>国际服青少年</source>
         <translation>글로벌 서버 틴버전</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="24"/>
+        <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>韩国ONE</source>
         <translation>원스토어</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="27"/>
+        <location filename="../components/expand/serverConfig.py" line="29"/>
         <source>请填写您adb的IP地址</source>
         <translation type="unfinished">adb의 IP 주소를 입력하십시오.</translation>
     </message>
@@ -1529,17 +1544,17 @@
 <context>
     <name>TemplateLayout</name>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="66"/>
+        <location filename="../components/expand/expandTemplate.py" line="80"/>
         <source>执行</source>
         <translation>실행</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="74"/>
+        <location filename="../components/expand/expandTemplate.py" line="88"/>
         <source>确定</source>
         <translation>확인</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="98"/>
+        <location filename="../components/expand/expandTemplate.py" line="112"/>
         <source>设置成功</source>
         <translation>설정 완료</translation>
     </message>
@@ -1602,7 +1617,7 @@
         <translation>구성 변환</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="66"/>
+        <location filename="../components/expand/expandTemplate.py" line="80"/>
         <source>TemplateLayout</source>
         <translation>템플릿 레이아웃</translation>
     </message>
