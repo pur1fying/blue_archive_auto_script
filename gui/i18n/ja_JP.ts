@@ -891,7 +891,7 @@
         <translation>スクリーンショットの間隔を入力してください：</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="94"/>
+        <location filename="../components/expand/scriptConfig.py" line="99"/>
         <source>截图间隔</source>
         <translation>スクリーンショットの間隔</translation>
     </message>
@@ -936,32 +936,32 @@
         <translation type="unfinished">Baasの起動後すぐに実行</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="105"/>
+        <location filename="../components/expand/scriptConfig.py" line="110"/>
         <source>完成后</source>
         <translation type="unfinished">完了したら</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>无动作</source>
         <translation type="unfinished">アクションなし</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 Baas</source>
         <translation type="unfinished">バース出口</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 模拟器</source>
         <translation type="unfinished">エミュレータを終了します</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 Baas 和 模拟器</source>
         <translation type="unfinished">BaasとSimulatorを終了します</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>关机</source>
         <translation type="unfinished">シャットダウン</translation>
     </message>
@@ -1071,14 +1071,26 @@
         <translation type="unfinished">対戦相手の番号をカスタマイズします。</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="113"/>
+        <location filename="../components/expand/scriptConfig.py" line="118"/>
         <source>截图方式</source>
         <translation type="unfinished">スクリーンショットの方法</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="121"/>
+        <location filename="../components/expand/scriptConfig.py" line="126"/>
         <source>控制方式</source>
         <translation type="unfinished">制御モード</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="24"/>
+        <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+        <translation type="unfinished">速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
+nemu の使用が推奨され、nemu を使用している場合は、「エミュレータ アドレス」を MuMu エミュレータ パスに正確に設定してくださいMuMuPlayer.exe</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="26"/>
+        <source>仅保证使用uiautomator2不会出问题</source>
+        <translation type="unfinished">uiautomator2の使用に問題がないことが保証されているだけです</translation>
     </message>
 </context>
 <context>

@@ -889,7 +889,7 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Setup failed</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="94"/>
+        <location filename="../components/expand/scriptConfig.py" line="99"/>
         <source>截图间隔</source>
         <translation>Screenshot Interval</translation>
     </message>
@@ -944,32 +944,32 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Auto Run task after launched</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="105"/>
+        <location filename="../components/expand/scriptConfig.py" line="110"/>
         <source>完成后</source>
         <translation>Then</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>无动作</source>
         <translation>Do Nothing</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 Baas</source>
         <translation>Exit Baas</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 模拟器</source>
         <translation>Exit Emulator</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 Baas 和 模拟器</source>
         <translation>Exit Baas and Emulator</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>关机</source>
         <translation>Shutdown</translation>
     </message>
@@ -1080,14 +1080,26 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
         <translation type="unfinished">Customize your opponent's number:</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="113"/>
+        <location filename="../components/expand/scriptConfig.py" line="118"/>
         <source>截图方式</source>
         <translation type="unfinished">Screenshot method</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="121"/>
+        <location filename="../components/expand/scriptConfig.py" line="126"/>
         <source>控制方式</source>
         <translation type="unfinished">Control mode</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="24"/>
+        <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+        <translation type="unfinished">Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
+It is recommended to use nemu and if you are using nemu, please set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="26"/>
+        <source>仅保证使用uiautomator2不会出问题</source>
+        <translation type="unfinished">It is only guaranteed that there will be no problems with using uiautomator2</translation>
     </message>
 </context>
 <context>

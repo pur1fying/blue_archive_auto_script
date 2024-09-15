@@ -901,7 +901,7 @@
         <translation>스크린 샷 간격 설정 :</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="94"/>
+        <location filename="../components/expand/scriptConfig.py" line="99"/>
         <source>截图间隔</source>
         <translation>스크린 샷 간격</translation>
     </message>
@@ -991,32 +991,32 @@
         <translation type="unfinished">Baas를 시작한 직후 실행</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="105"/>
+        <location filename="../components/expand/scriptConfig.py" line="110"/>
         <source>完成后</source>
         <translation type="unfinished">완료되면</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>无动作</source>
         <translation type="unfinished">조치 없음</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 Baas</source>
         <translation type="unfinished">Baas 종료</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 模拟器</source>
         <translation type="unfinished">에뮬레이터를 종료합니다.</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>退出 Baas 和 模拟器</source>
         <translation type="unfinished">BaaS 및 시뮬레이터 종료</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="32"/>
+        <location filename="../components/expand/scriptConfig.py" line="35"/>
         <source>关机</source>
         <translation type="unfinished">종료</translation>
     </message>
@@ -1076,14 +1076,26 @@
         <translation type="unfinished">상대방의 번호를 사용자 정의하십시오.</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="113"/>
+        <location filename="../components/expand/scriptConfig.py" line="118"/>
         <source>截图方式</source>
         <translation type="unfinished">스크린샷 방법</translation>
     </message>
     <message>
-        <location filename="../components/expand/scriptConfig.py" line="121"/>
+        <location filename="../components/expand/scriptConfig.py" line="126"/>
         <source>控制方式</source>
         <translation type="unfinished">제어 모드</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="24"/>
+        <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+        <translation type="unfinished">Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
+nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이터 주소'를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/scriptConfig.py" line="26"/>
+        <source>仅保证使用uiautomator2不会出问题</source>
+        <translation type="unfinished">uiautomator2를 사용하는 데 문제가 없다는 것만 보장됩니다.</translation>
     </message>
 </context>
 <context>
