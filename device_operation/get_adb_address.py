@@ -1,3 +1,6 @@
+import json
+
+from .mumu_manager_api import mumu12_control_api_backend
 ### adb_port_scanner ###
 from .bluestacks_module import get_bluestacks_nxt_adb_port
 
@@ -21,11 +24,18 @@ def get_simulator_port(simulator_type, multi_instance):
         else:
             raise FileNotFoundError('simulators not founded')
 
-    elif simulator_type == "mumu":
+    elif simulator_type == "mumu" or simulator_type == "mumu_global":
+        def get_mumu_adb_info(multi_instance):
+            import subprocess
+            cmd = f'{mumu12_control_api_backend(simulator_type,0,"get_manager_path")} adb -v {multi_instance}'
+            proc = subprocess.Popen(cmd, shell=True, universal_newlines=True, capture_output=True)
+            output, _ = proc.communicate()
+            adb_info = json.loads(output)
+            return adb_info['adb_host'], adb_info['adb_port']
         if multi_instance == None:
             multi_instance = 0
         if int(multi_instance) <= 1536:
-            return f"127.0.0.1:{int(multi_instance) * 32 + 16384}"
+            return get_mumu_adb_info(multi_instance)
         else:
             raise ValueError('INVALID_INPUT')
 
@@ -40,9 +50,6 @@ def get_simulator_port(simulator_type, multi_instance):
             return f"127.0.0.1:{ys_port}"
         else:
             raise ValueError('INVALID_INPUT')
-
-    elif simulator_type == "mumu_classic":
-        return f"127.0.0.1:7555"
 
     elif simulator_type == "xiaoyao_nat":
         if multi_instance != None:

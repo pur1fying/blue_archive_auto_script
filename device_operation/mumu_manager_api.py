@@ -1,8 +1,8 @@
+import json
 import os
 import subprocess
 import winreg
 
-from .get_adb_address import get_simulator_port
 
 
 def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="start"):
@@ -22,13 +22,28 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
     exe_path = os.path.join(os.path.dirname(icon_path), r"""MuMuManager.exe""")
     if operation == "start":
         # 使用mumumanager控制模拟器开启与关闭
-        command = f""" "{exe_path}" api -v {multi_instance_number} launch_player"""
-        subprocess.Popen(command,shell=True)
+        from .get_adb_address import get_simulator_port
+        command = [exe_path,"api","-v",str(multi_instance_number),"launch_player"]
+        subprocess.run(command)
         return get_simulator_port("mumu", multi_instance_number)
     elif operation == "stop":
         command = f""" "{exe_path}" api -v {multi_instance_number} shutdown_player"""
-        subprocess.Popen(command,shell=True)
+        subprocess.Popen(command)
     elif operation == "get_path":
         return os.path.dirname(icon_path)
+    elif operation == "get_manager_path":
+        return exe_path
+    elif operation == "disable_app_keptlive":
+        command = f""" "{exe_path}" setting -v {multi_instance_number} -k app_keptlive -val false"""
+        subprocess.run(command, universal_newlines=True, capture_output=True)
+    elif operation == "enable_app_keptlive":
+        command = f""" "{exe_path}" setting -v {multi_instance_number} -k app_keptlive -val true"""
+        subprocess.run(command, universal_newlines=True, capture_output=True)
+    elif operation == "get_launch_status":
+        cmd = [exe_path,"info","-v",str(multi_instance_number)]
+        proc = subprocess.run(cmd, shell=True, universal_newlines=True, capture_output=True)
+        print(proc.stdout,proc.stderr)
+        info = json.loads(proc.stdout)
+        return info["player_state"]
     else:
         raise ValueError("NOT_SUPPORTED_OPERATION")
