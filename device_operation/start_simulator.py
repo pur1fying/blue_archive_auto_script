@@ -38,7 +38,7 @@ def start_simulator_classic(simulator_type, multi_instance=None, return_status=F
             if get_simulator_port(simulator_type,multi_instance) in adb_list:
                 return ["start_finished",get_simulator_port(simulator_type, multi_instance)]
             else:
-                return ["start_finished",get_simulator_port(simulator_type, multi_instance)]
+                return ["not_launched",get_simulator_port(simulator_type, multi_instance)]
         else:
             return get_simulator_port(simulator_type, multi_instance)
     if simulator_type in ["mumu", "mumu_global"]:
