@@ -27,8 +27,8 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
         subprocess.run(command)
         return get_simulator_port("mumu", multi_instance_number)
     elif operation == "stop":
-        command = f""" "{exe_path}" api -v {multi_instance_number} shutdown_player"""
-        subprocess.Popen(command)
+        command = [exe_path,"api","-v",str(multi_instance_number),"shutdown_player"]
+        subprocess.run(command)
     elif operation == "get_path":
         return os.path.dirname(icon_path)
     elif operation == "get_manager_path":
@@ -41,9 +41,11 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
         subprocess.run(command, universal_newlines=True, capture_output=True)
     elif operation == "get_launch_status":
         cmd = [exe_path,"info","-v",str(multi_instance_number)]
-        proc = subprocess.run(cmd, shell=True, universal_newlines=True, capture_output=True)
-        print(proc.stdout,proc.stderr)
+        proc = subprocess.run(cmd, universal_newlines=True, capture_output=True, encoding="utf-8")
         info = json.loads(proc.stdout)
-        return info["player_state"]
+        try:
+            return info["player_state"]
+        except:
+            return "not_launched"
     else:
         raise ValueError("NOT_SUPPORTED_OPERATION")

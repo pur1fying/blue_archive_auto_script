@@ -40,6 +40,8 @@ def start_simulator_classic(simulator_type, multi_instance=None, return_status=F
         if multi_instance == None:
             multi_instance = 0
         if return_status == True:
+            mumu12_control_api_backend(simulator_type, multi_instance, "start")
             return [mumu12_control_api_backend(simulator_type, multi_instance, 'get_launch_status'),get_simulator_port(simulator_type, multi_instance)]
         else:
-            return mumu12_control_api_backend(simulator_type, multi_instance, 'start')
+            mumu12_control_api_backend(simulator_type, multi_instance, 'start')
+            return get_simulator_port(simulator_type, multi_instance)
