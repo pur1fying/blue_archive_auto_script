@@ -13,6 +13,8 @@ def start_simulator_uuid(uuid):
 
 def start_simulator_classic(simulator_type, multi_instance=None, return_status=False):
     if simulator_type in ["bluestacks_nxt","bluestacks_nxt_cn"]:
+        from .auto_scan_simulator import get_running_processes,auto_scan_simulators
+        adb_list = auto_scan_simulators()
         if simulator_type != "bluestacks_nxt":
             region = "cn"
         if multi_instance is None and region == "cn":
@@ -33,7 +35,10 @@ def start_simulator_classic(simulator_type, multi_instance=None, return_status=F
         command = f""" "{bst_read_registry_key(region)}" --instance {find_display_name(multi_instance, read_registry_key(region))}"""
         subprocess.Popen(command,shell=True)
         if return_status == True:
-            return ["starting",get_simulator_port(simulator_type, multi_instance)]
+            if get_simulator_port(simulator_type,multi_instance) in adb_list:
+                return ["start_finished",get_simulator_port(simulator_type, multi_instance)]
+            else:
+                return ["start_finished",get_simulator_port(simulator_type, multi_instance)]
         else:
             return get_simulator_port(simulator_type, multi_instance)
     if simulator_type in ["mumu", "mumu_global"]:
