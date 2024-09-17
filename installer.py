@@ -240,6 +240,9 @@ def dynamic_update_installer():
         # print(launch_exec_args)
         subprocess.run(launch_exec_args)
     else:
+        if not os.path.exists('./installer.py'):
+            run_app()
+            sys.exit()
         os.system(f"{os.path.abspath('./env/Scripts/python.exe')} {os.path.abspath('./installer.py')} --launch")
     sys.exit()
 
