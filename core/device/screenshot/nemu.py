@@ -28,3 +28,4 @@ class NemuScreenshot:
         return self.nemu_client.screenshot()
 
 
+

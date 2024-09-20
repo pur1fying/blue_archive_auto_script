@@ -676,12 +676,12 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "PresidentHinasSummerVacation",
+        "CN": "TheCathedralsMerryChristmas",
         "Global": "NewYearsAperitifOneAndDoneMatch",
         "JP": "InSearchOfAHiddenHeritageTrinity'sExtracurricularActivities"
     },
     "dailyGameActivity": {
-        "CN": null,
+        "CN": "HinaSummerVacationAudioGame",
         "Global": null,
         "JP": null
     },
@@ -733,7 +733,7 @@ STATIC_DEFAULT_CONFIG = '''
         ["24-1", "芹娜"] , ["24-2", "玛丽"] , ["24-3", "日奈"] ,
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"]
     ],
-   "student_names": [
+  "student_names": [
     {
       "CN_name": "日和(泳装)",
       "CN_implementation": false,
@@ -1312,7 +1312,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "花江(圣诞节)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Hanae (Christmas)",
       "Global_implementation": true,
       "JP_name": "ハナエ(クリスマス)",
@@ -1320,7 +1320,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "芹娜(圣诞节)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Serina (Christmas)",
       "Global_implementation": true,
       "JP_name": "セリナ(クリスマス)",

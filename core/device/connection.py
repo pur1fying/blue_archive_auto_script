@@ -7,17 +7,19 @@ from core.exception import RequestHumanTakeOver
 class Connection:
 
     def __init__(self, Baas_instance):
+        self.activity = None
         self.package = None
         self.server = None
         self.Baas_thread = Baas_instance
         self.logger = Baas_instance.get_logger()
-        self.config = Baas_instance.get_config()
-        self.static_config = self.config.static_config
-        self.adbIP = None
-        self.adbPort = None
+        self.config_set = Baas_instance.get_config()
+        self.config = self.config_set.config
+        self.static_config = self.config_set.static_config
+        self.adbIP = self.config['adbIP']
+        self.adbPort = self.config['adbPort']
         if isinstance(self.adbPort, int):
             self.adbPort = str(self.adbPort)
-        self.serial = self.config.get('adbIP') + ":" + str(self.config.get('adbPort'))
+        self.serial = self.adbIP + ":" + self.adbPort
         self.set_serial(self.serial)
         self.check_serial()
         self.detect_device()
@@ -60,6 +62,15 @@ class Connection:
         serial = serial.replace('auto127.0.0.1', '127.0.0.1').replace('autoemulator', 'emulator')
         return str(serial)
 
+
+    @staticmethod
+    def serial_port(serial):
+        try:
+            port = int(serial.split(':')[1])
+        except IndexError:
+            return 0
+        return port
+
     def detect_device(self):
         self.logger.info("Detect Device")
         devices = self.list_devices()
@@ -98,6 +109,24 @@ class Connection:
                 self.logger.error("Multiple devices detected, please specify the device serial.")
                 raise RequestHumanTakeOver("Multiple devices detected.")
 
+
+
+        if self.is_mumu12_family():
+            matched = False
+            for device in available:
+                if device == self.serial:
+                    matched = True
+                    break
+            if not matched:
+                self.logger.error("MuMu12 Device not found. It May change to near by serial. Check nearby serials.")
+                port = self.serial_port(self.serial)
+                for device in available:
+                    if abs(self.serial_port(device) - port) <= 2:
+                        self.logger.info("MuMu12 device serial switched from [ " + self.serial + " ] to [ " + device + " ]")
+                        self.set_serial(device)
+                        break
+
+
     def set_activity(self):
         pass
 
@@ -123,8 +152,8 @@ class Connection:
         except IndexError:
             ip = "127.0.0.1"
             port = "0"
-        self.config.set('adbIP', ip)
-        self.config.set('adbPort', port)
+        self.config_set.set('adbIP', ip)
+        self.config_set.set('adbPort', port)
         self.adbIP = ip
         self.adbPort = port
         self.serial = ip + ':' + port
@@ -151,17 +180,21 @@ class Connection:
     # set corresponding package
     def detect_package(self):
         self.logger.info("Detect Package")
-        server = self.config.get('server')
+        server = self.config['server']
+        package_exist = False
         if server == "auto":
             self.auto_detect_package()
-        else:
-            if server == '官服' or server == 'B服':
-                self.server = 'CN'
-            elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
-                self.server = 'Global'
-            elif server == '日服':
-                self.server = 'JP'
+            package_exist = True
+        server = self.config['server']
+        if server == '官服' or server == 'B服':
+            self.server = 'CN'
+        elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
+            self.server = 'Global'
+        elif server == '日服':
+            self.server = 'JP'
+        if not package_exist:
             self.check_package_exist(server)
+        self.activity = self.static_config['activity_name'][server]
         self.logger.info("Server : " + self.server)
 
     def auto_detect_package(self):
@@ -179,7 +212,7 @@ class Connection:
             raise RequestHumanTakeOver("No available package.")
         if len(available_packages) == 1:
             self.logger.info(f"Only find one available package [ {available_packages[0]} ], using it.")
-            self.server = self.package2server(available_packages[0])
+            self.config.set("server", self.package2server(available_packages[0]))
             self.package = available_packages[0]
             return
         self.logger.error("Multiple available packages found.")
@@ -217,6 +250,9 @@ class Connection:
 
     def get_server(self):
         return self.server
+
+    def get_activity_name(self):
+        return self.activity
 
     def adb_connect(self):
         for device in self.list_devices():

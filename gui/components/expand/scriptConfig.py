@@ -18,9 +18,12 @@ class Layout(QWidget):
         self.warningLabel = QLabel(self.tr('这些功能在运行多个实例时可能无法按预期工作。涉及模拟器的操作将遵循“模拟器启动设置”中的设置。'))
         self.autostartLabel = QLabel(self.tr('启动Baas后直接运行'), self) # Auto Run task after launched
         self.autostartSwitch = SwitchButton(self)
-        self.thenLabel = QLabel(self.tr('完成后'), self) # Then
-        self.screenshotLabel = QLabel(self.tr('截图方式'), self) # Then
-        self.controlLabel = QLabel(self.tr('控制方式'), self) # Then
+        self.thenLabel = QLabel(self.tr('完成后'), self)
+        self.screenshotLabel = QLabel(self.tr('截图方式'), self)
+        self.controlLabel = QLabel(self.tr('控制方式'), self)
+        self.screenshotDescription = QLabel(self.tr('速度 nemu >> uiautomator2 ≈ adb, '
+                    '\n推荐使用nemu并且如果使用nemu, 请设置\'模拟器地址\'为你MuMu模拟器路径, 精确到MuMuPlayer.exe'), self)
+        self.controlDescription = QLabel(self.tr('仅保证使用uiautomator2不会出问题'), self)
         self.thenCombo = ComboBox(self)
         self.screenshotCombo = ComboBox(self)
         self.controlCombo = ComboBox(self)
@@ -87,7 +90,9 @@ class Layout(QWidget):
 
         self.vBoxLayout.addLayout(self.lay3)
         self.vBoxLayout.addLayout(self.lay4)
+        self.vBoxLayout.addWidget(self.screenshotDescription)
         self.vBoxLayout.addLayout(self.lay5)
+        self.vBoxLayout.addWidget(self.controlDescription)
 
     def _save_port(self, changed_text=None):
         self.config.set('screenshot_interval', changed_text)

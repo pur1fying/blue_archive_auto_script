@@ -1,3 +1,4 @@
+import copy
 import shutil
 from datetime import datetime
 import cv2
@@ -65,7 +66,6 @@ class Baas_thread:
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
         self.u2 = None
         self.dailyGameActivity = None
-        self.activity_name = None
         self.config_set = config
         self.process_name = None
         self.emulator_start_stat = None
@@ -305,6 +305,7 @@ class Baas_thread:
             self.server = self.connection.get_server()
             self.package_name = self.connection.get_package_name()
             self.current_game_activity = self.static_config['current_game_activity'][self.server]
+            self.activity_name = self.connection.get_activity_name()
             self.screenshot = Screenshot(self)
 
             self.control = Control(self)
@@ -516,7 +517,8 @@ class Baas_thread:
 
     def init_config(self):
         try:
-            self.config = self.operate_dict(self.config_set.config)
+            self.config = copy.deepcopy(self.config_set.config)
+            self.config = self.operate_dict(self.config)
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")
@@ -636,7 +638,6 @@ class Baas_thread:
             self.init_image_resource,
             self.init_rgb
         ]
-        self.init_config()
         self.scheduler = Scheduler(self.update_signal, self.config_path)
         for (func) in init_funcs:
             if not func():
@@ -655,7 +656,7 @@ class Baas_thread:
                 self.u2.uiautomator.start()
                 while not self.u2.uiautomator.running():
                     time.sleep(0.1)
-                self.latest_img_array = self.u2.screenshot()
+                self.latest_img_array = cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
                 return
             except Exception as e:
                 print(e)

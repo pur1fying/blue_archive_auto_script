@@ -25,11 +25,15 @@ class ConfigSet:
             self.server_mode = 'Global'
         elif self.config['server'] == '日服':
             self.server_mode = 'JP'
-        
+
     def get(self, key):
         self._init_config()
         value = self.config.get(key)
         return bt.tr('ConfigTranslation', value)
+
+    def get_origin(self, key):
+        self._init_config()
+        return self.config.get(key)
 
     def set(self, key, value):
         self._init_config()
