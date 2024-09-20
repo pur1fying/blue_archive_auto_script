@@ -108,12 +108,15 @@ def interaction_for_cafe_solve_method3(self):
         if not res:
             self.logger.info("No interaction found")
             if swipeT < self.config["cafe_reward_interaction_shot_delay"] + 0.3:
-                self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : "
-                                                                          "[ " + str(shotDelay) + " ]")
+                self.logger.warning(
+                    "Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(
+                        shotDelay) + " ]")
                 self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
-                self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
-                self.config["cafe_reward_interaction_shot_delay"] = swipeT - 0.3
-                self.config_set.set("cafe_reward_interaction_shot_delay", self.config["cafe_reward_interaction_shot_delay"] )
+                if swipeT > 0.4:
+                    self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
+                    self.config["cafe_reward_interaction_shot_delay"] = swipeT - 0.3
+                    self.config_set.set("cafe_reward_interaction_shot_delay",
+                                        self.config["cafe_reward_interaction_shot_delay"])
             time.sleep(1)
             continue
         gift_to_cafe(self)
@@ -195,26 +198,18 @@ def checkConfirmInvite(self, y):
     return True
 
 
-def invite_lowest_affection(self):
-    self.logger.info("Invite lowest affection student")
-    relationship_order_button_location = {
-        'CN': (749, 263),
-        'Global': (535, 323),
-        'JP': (535, 323),
-    }
+def invite_by_affection(self, affection_order):
     if to_invitation_ticket(self, True) == 'cafe_invitation-ticket-invalid':
         self.logger.info("Invitation Ticket Not Available")
         return
-    if not image.compare_image(self, 'cafe_invitation-ticket-order-affection', threshold=0.9):
-        self.logger.info("Switch invitation ticket order to [ Affection Order ]")
-        self.click(704, 152, wait_over=True, duration=0.5)
-        self.click(relationship_order_button_location[self.server][0],
-                   relationship_order_button_location[self.server][1], wait_over=True, duration=0.5)
-        self.click(627, 390, wait_over=True, duration=0.5)
-    self.latest_img_array = self.get_screenshot_array()
-    if not image.compare_image(self, 'cafe_invitation-ticket-order-up', threshold=0.9):
-        self.logger.info("Switch order to [ lowest -> highest ]")
-        self.click(812, 153, wait_over=True, duration=0.5)
+    order = {
+        "lowest": "up",
+        "highest": "down",
+    }
+    order = order[affection_order]
+    self.logger.info("Invite affection [ " + affection_order + " ]")
+    change_order_type(self, 'affection')
+    change_invitation_ticket_up_down_order(self, order)
     i = 0
     lo = [226, 309, 378, 456, 536]
     while i < 5:
@@ -222,6 +217,61 @@ def invite_lowest_affection(self):
             i += 1
         else:
             return
+
+
+def to_revise_order_type(self):
+    img_possibles = {
+        "cafe_invitation-ticket": (705, 151),
+    }
+    img_ends = "cafe_invitation-ticket-change-order-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def change_order_type(self, order_type):
+    target = "cafe_invitation-ticket-order-" + order_type
+    if image.compare_image(self, target, False, threshold=0.9):
+        self.logger.info("Invitation ticket order [ " + order_type + " ]")
+        return
+
+    self.logger.info("Switch order --> [ " + order_type + " ]")
+    to_revise_order_type(self)
+    order_type_location = {
+        'CN': {
+            "academy": (534, 256),
+            "affection": (746, 256),
+            "starred": (534, 317),
+        },
+        'Global': {
+            "name": (534, 256),
+            "academy": (746, 256),
+            "affection": (534, 317),
+            "starred": (746, 317),
+        },
+        'JP': {
+            "name": (534, 256),
+            "academy": (746, 256),
+            "affection": (534, 317),
+            "starred": (746, 317),
+        }
+    }
+    img_ends = "cafe_invitation-ticket-change-order-menu-" + order_type + "-chosen"
+    img_possibles = {
+        "cafe_invitation-ticket-change-order-menu": order_type_location[self.server][order_type],
+    }
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    image.click_to_disappear(self, "cafe_invitation-ticket-change-order-menu", 628, 395)
+
+
+def change_invitation_ticket_up_down_order(self, order):
+    opposite_order = {
+        "up": "down",
+        "down": "up",
+    }
+    img_ends = "cafe_invitation-ticket-order-" + order
+    img_possibles = {
+        "cafe_invitation-ticket-order-" + opposite_order[order]: (815, 151),
+    }
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def to_confirm_invite(self, lo):
@@ -248,15 +298,33 @@ def confirm_invite(self):
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
+def invite_starred(self, no):
+    self.logger.info("Invite Starred Student")
+    change_order_type(self, 'starred')
+    change_invitation_ticket_up_down_order(self, 'down')
+    lo = [0, 226, 309, 378, 456, 536]
+    to_confirm_invite(self, (785, lo[no]))
+    confirm_invite(self)
+
+
 def invite_girl(self, no=1):
-    if self.config['cafe_reward_lowest_affection_first']:
-        invite_lowest_affection(self)
+    if to_invitation_ticket(self, True) == 'cafe_invitation-ticket-invalid':
+        self.logger.info("Invitation Ticket Not Available")
         return
+    method = self.config['cafe_reward_invite' + str(no) + '_criterion']
+    if method == 'lowest_affection':
+        invite_by_affection(self, 'lowest')
+        return
+    elif method == 'highest_affection':
+        invite_by_affection(self, 'highest')
+        return
+    elif method == 'starred':
+        position = self.config["cafe_reward_invite" + str(no) + "_starred_student_position"]
+        invite_starred(self, position)
+        return
+    # name
     student_name = get_student_name(self)  # all student name in current server
-    if no == 1:
-        target_name_list = self.config['favorStudent1']
-    elif no == 2:
-        target_name_list = self.config['favorStudent2']
+    target_name_list = self.config['favorStudent' + str(no)]
     student_name.sort(key=len, reverse=True)
     self.logger.info("Inviting : " + str(target_name_list))
     for i in range(0, len(target_name_list)):

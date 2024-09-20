@@ -99,7 +99,7 @@ class Main:
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
     t.init_static_config()
-    config = ConfigSet(config_dir="1708148000")
+    config = ConfigSet(config_dir="1708185944")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     # tt.solve("hard_task")
     # tt.solve("arena")
     # tt.solve("lesson")
-    # tt.solve("group")
+    tt.solve("group")
     # tt.solve("mail")
     # tt.solve("collect_reward")
     # tt.solve("main_story")
