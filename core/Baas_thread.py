@@ -656,7 +656,7 @@ class Baas_thread:
                 self.u2.uiautomator.start()
                 while not self.u2.uiautomator.running():
                     time.sleep(0.1)
-                self.latest_img_array = self.u2.screenshot()
+                self.latest_img_array = cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
                 return
             except Exception as e:
                 print(e)
