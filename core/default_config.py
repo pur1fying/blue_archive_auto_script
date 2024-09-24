@@ -673,7 +673,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "TheCathedralsMerryChristmas",
-        "Global": "NewYearsAperitifOneAndDoneMatch",
+        "Global": "RowdyAndCherry",
         "JP": "InSearchOfAHiddenHeritageTrinity'sExtracurricularActivities"
     },
     "dailyGameActivity": {
