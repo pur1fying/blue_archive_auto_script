@@ -674,7 +674,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "TheCathedralsMerryChristmas",
         "Global": "RowdyAndCherry",
-        "JP": "InSearchOfAHiddenHeritageTrinity'sExtracurricularActivities"
+        "JP": "TheFiveSensesAreClouded"
     },
     "dailyGameActivity": {
         "CN": "HinaSummerVacationAudioGame",
