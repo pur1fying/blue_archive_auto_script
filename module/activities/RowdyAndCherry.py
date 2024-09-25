@@ -135,7 +135,7 @@ def start_story(self):
         "plot_skip-plot-button": (1213, 116),
         "plot_skip-plot-notice": (766, 520),
         "main_story_episode-info": (629, 518),
-        "story-fight-success-confirm": (1117, 639, 1219, 687)
+        "story-fight-success-confirm": (1117, 639)
     }
     rgb_ends = [
         "formation_edit1",
