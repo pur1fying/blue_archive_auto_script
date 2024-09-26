@@ -672,7 +672,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "TheCathedralsMerryChristmas",
+        "CN": "no_227_kinosaki_spa",
         "Global": "RowdyAndCherry",
         "JP": "TheFiveSensesAreClouded"
     },
