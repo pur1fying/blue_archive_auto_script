@@ -4,7 +4,7 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="213"/>
+        <location filename="../../window.py" line="214"/>
         <source>帮助</source>
         <translation>ヘルプ</translation>
     </message>
@@ -1230,27 +1230,27 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="24"/>
+        <location filename="../fragments/process.py" line="25"/>
         <source>调度状态</source>
         <translation>スケジュールステータス</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="31"/>
+        <location filename="../fragments/process.py" line="32"/>
         <source>执行中</source>
         <translation>実行中</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="94"/>
+        <location filename="../fragments/process.py" line="84"/>
         <source>暂无正在执行的任务</source>
         <translation>進行中のタスクはない</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="54"/>
+        <location filename="../fragments/process.py" line="44"/>
         <source>任务队列</source>
         <translation>タスク隊列</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="96"/>
+        <location filename="../fragments/process.py" line="86"/>
         <source>暂无队列中的任务</source>
         <translation>隊列にタスクがない</translation>
     </message>
@@ -1357,119 +1357,189 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>SettingsFragment</name>
     <message>
-        <location filename="../fragments/settings.py" line="22"/>
+        <location filename="../fragments/settings.py" line="24"/>
         <source>普通设置</source>
         <translation>通常設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="24"/>
+        <location filename="../fragments/settings.py" line="26"/>
         <source>基本</source>
         <translation>基本</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="28"/>
+        <location filename="../fragments/settings.py" line="147"/>
         <source>语言</source>
         <translation>言語</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="28"/>
+        <location filename="../fragments/settings.py" line="147"/>
         <source>设置界面的首选语言</source>
         <translation>画面の優先言語を設定する</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="37"/>
+        <location filename="../fragments/settings.py" line="30"/>
         <source>应用相关设置</source>
         <translation>アプリ関連設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="37"/>
+        <location filename="../fragments/settings.py" line="30"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
         <translation>サーバーを選択し、ポートを設定します(ポートがわからない場合は、0に設定してください)</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="45"/>
+        <location filename="../fragments/settings.py" line="38"/>
         <source>脚本相关设置</source>
         <translation>スクリプト関連設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="45"/>
+        <location filename="../fragments/settings.py" line="38"/>
         <source>根据你的电脑配置，调整相应的参数。</source>
         <translation>PCの構成に応じてパラメータを調整します。</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="53"/>
+        <location filename="../fragments/settings.py" line="46"/>
         <source>模拟器启动设置</source>
         <translation>エミュレータの起動設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="53"/>
+        <location filename="../fragments/settings.py" line="46"/>
         <source>设置启动模拟器的路径</source>
         <translation>エミュレーターを起動するパスを設定する</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="62"/>
+        <location filename="../fragments/settings.py" line="55"/>
         <source>相关设置</source>
         <translation>関連設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="66"/>
+        <location filename="../fragments/settings.py" line="59"/>
         <source>普通图推图设置</source>
         <translation>普通ステージのクリアの設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="66"/>
+        <location filename="../fragments/settings.py" line="59"/>
         <source>根据你的推图需求，调整相应的参数。</source>
         <translation>プッシュのニーズに応じて、対応するパラメータを調整します。</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="74"/>
+        <location filename="../fragments/settings.py" line="67"/>
         <source>困难图推图设置</source>
         <translation>ハードステージのクリアの設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="74"/>
+        <location filename="../fragments/settings.py" line="67"/>
         <source>根据你所需困难图刷关，设置参数。</source>
         <translation>必要な難易度に応じてパラメータを設定します。</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="82"/>
+        <location filename="../fragments/settings.py" line="75"/>
         <source>推剧情</source>
         <translation>プロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="82"/>
+        <location filename="../fragments/settings.py" line="75"/>
         <source>主线剧情，小组剧情，支线剧情</source>
         <translation>本編プロット、グループプロット、サブプロット</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="90"/>
+        <location filename="../fragments/settings.py" line="83"/>
         <source>活动图设置</source>
         <translation>イベントクリアの設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="90"/>
+        <location filename="../fragments/settings.py" line="83"/>
         <source>推故事，推任务，推挑战</source>
         <translation>ストーリークリア、タスククリア、挑戦クリア</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="98"/>
+        <location filename="../fragments/settings.py" line="91"/>
         <source>其他设置</source>
         <translation>その他の設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="98"/>
+        <location filename="../fragments/settings.py" line="91"/>
         <source>其他的一些小功能与设置</source>
         <translation>その他の機能と設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="106"/>
+        <location filename="../fragments/settings.py" line="99"/>
         <source>推送设置</source>
         <translation>配信設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="106"/>
+        <location filename="../fragments/settings.py" line="99"/>
         <source>推送信息</source>
         <translation>配信メッセージ</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="110"/>
+        <source>云母效果</source>
+        <translation type="unfinished">マイカエフェクト</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="110"/>
+        <source>将半透明应用于窗口和表面</source>
+        <translation type="unfinished">窓と表面に半透明性を適用する</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>应用主题</source>
+        <translation type="unfinished">テーマを適用する</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>更改应用的外观</source>
+        <translation type="unfinished">アプリの外観を変更する</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>浅色</source>
+        <translation type="unfinished">光</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>深色</source>
+        <translation type="unfinished">暗い</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>使用系统设置</source>
+        <translation type="unfinished">システム設定を使用する</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="129"/>
+        <source>主题颜色</source>
+        <translation type="unfinished">テーマの色</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="129"/>
+        <source>更改应用的主题颜色</source>
+        <translation type="unfinished">アプリのテーマの色を変更する</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>界面缩放</source>
+        <translation type="unfinished">インターフェースズーム</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>更改小部件和字体的大小</source>
+        <translation type="unfinished">ウィジェットとフォントのサイズを変更する</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="193"/>
+        <source>更新成功</source>
+        <translation type="unfinished">更新は成功しました</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="193"/>
+        <source>配置将在重新启动后生效</source>
+        <translation type="unfinished">この設定は、再起動後に有効になります</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="107"/>
+        <source>图形用户界面</source>
+        <translation type="unfinished">グラフィカルユーザーインターフェース</translation>
     </message>
 </context>
 <context>
@@ -1607,7 +1677,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>bt</name>
     <message>
-        <location filename="../fragments/process.py" line="89"/>
+        <location filename="../fragments/process.py" line="79"/>
         <source>ConfigTranslation</source>
         <translation>構成の翻訳</translation>
     </message>

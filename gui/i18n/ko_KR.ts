@@ -3,7 +3,7 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="213"/>
+        <location filename="../../window.py" line="214"/>
         <source>帮助</source>
         <translation>돕다</translation>
     </message>
@@ -1235,27 +1235,27 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="24"/>
+        <location filename="../fragments/process.py" line="25"/>
         <source>调度状态</source>
         <translation>예약 상태</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="31"/>
+        <location filename="../fragments/process.py" line="32"/>
         <source>执行中</source>
         <translation>실행중</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="94"/>
+        <location filename="../fragments/process.py" line="84"/>
         <source>暂无正在执行的任务</source>
         <translation>작업중인 로동이 없습니다</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="54"/>
+        <location filename="../fragments/process.py" line="44"/>
         <source>任务队列</source>
         <translation>로동계획</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="96"/>
+        <location filename="../fragments/process.py" line="86"/>
         <source>暂无队列中的任务</source>
         <translation>실행중인 로동계획이 없습니다</translation>
     </message>
@@ -1362,119 +1362,189 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
 <context>
     <name>SettingsFragment</name>
     <message>
-        <location filename="../fragments/settings.py" line="22"/>
+        <location filename="../fragments/settings.py" line="24"/>
         <source>普通设置</source>
         <translation>일반 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="24"/>
+        <location filename="../fragments/settings.py" line="26"/>
         <source>基本</source>
         <translation>기본</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="28"/>
+        <location filename="../fragments/settings.py" line="147"/>
         <source>语言</source>
         <translation>언어</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="28"/>
+        <location filename="../fragments/settings.py" line="147"/>
         <source>设置界面的首选语言</source>
         <translation>사용 할 언어 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="37"/>
+        <location filename="../fragments/settings.py" line="30"/>
         <source>应用相关设置</source>
         <translation>서버 및 앱플레이어 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="37"/>
+        <location filename="../fragments/settings.py" line="30"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
         <translation>게임서버를 선택하고 ADB 시리얼 포트를 입력합니다 (포트를 모를경우 0으로 설정하세요)</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="45"/>
+        <location filename="../fragments/settings.py" line="38"/>
         <source>脚本相关设置</source>
         <translation>스크립트 관련 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="45"/>
+        <location filename="../fragments/settings.py" line="38"/>
         <source>根据你的电脑配置，调整相应的参数。</source>
         <translation>컴퓨터 사양에 따라 해당 변수를 조정하세요。</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="53"/>
+        <location filename="../fragments/settings.py" line="46"/>
         <source>模拟器启动设置</source>
         <translation>앱플레이어 시작 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="53"/>
+        <location filename="../fragments/settings.py" line="46"/>
         <source>设置启动模拟器的路径</source>
         <translation>사용 할 앱플레이어의 설치 경로지정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="62"/>
+        <location filename="../fragments/settings.py" line="55"/>
         <source>相关设置</source>
         <translation>관련 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="66"/>
+        <location filename="../fragments/settings.py" line="59"/>
         <source>普通图推图设置</source>
         <translation>일반 미션 클리어 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="66"/>
+        <location filename="../fragments/settings.py" line="59"/>
         <source>根据你的推图需求，调整相应的参数。</source>
         <translation>일반 스테이지 클리어 요구 사항에 따라 변수를 조정하세요.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="74"/>
+        <location filename="../fragments/settings.py" line="67"/>
         <source>困难图推图设置</source>
         <translation>하드 미션 클리어 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="74"/>
+        <location filename="../fragments/settings.py" line="67"/>
         <source>根据你所需困难图刷关，设置参数。</source>
         <translation>하드 스테이지 클리어 요구 사항에 따라 변수를 조정하세요.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="82"/>
+        <location filename="../fragments/settings.py" line="75"/>
         <source>推剧情</source>
         <translation>스토리 클리어하기</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="82"/>
+        <location filename="../fragments/settings.py" line="75"/>
         <source>主线剧情，小组剧情，支线剧情</source>
         <translation>메인 스토리, 그룹 스토리, 미니 스토리</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="90"/>
+        <location filename="../fragments/settings.py" line="83"/>
         <source>活动图设置</source>
         <translation>이벤트 클리어 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="90"/>
+        <location filename="../fragments/settings.py" line="83"/>
         <source>推故事，推任务，推挑战</source>
         <translation>스토리 클리어, 퀘스트 클리어, 챌린지 클리어</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="98"/>
+        <location filename="../fragments/settings.py" line="91"/>
         <source>其他设置</source>
         <translation>기타 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="98"/>
+        <location filename="../fragments/settings.py" line="91"/>
         <source>其他的一些小功能与设置</source>
         <translation>기타 기능 및 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="106"/>
+        <location filename="../fragments/settings.py" line="99"/>
         <source>推送设置</source>
         <translation>알림 설정</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="106"/>
+        <location filename="../fragments/settings.py" line="99"/>
         <source>推送信息</source>
         <translation>알림 전송</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="110"/>
+        <source>云母效果</source>
+        <translation type="unfinished">운모 효과</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="110"/>
+        <source>将半透明应用于窗口和表面</source>
+        <translation type="unfinished">창과 표면에 반투명 적용(Apply translucency to windows and surfaces)</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>应用主题</source>
+        <translation type="unfinished">테마 적용</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>更改应用的外观</source>
+        <translation type="unfinished">앱의 모양 변경</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>浅色</source>
+        <translation type="unfinished">광</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>深色</source>
+        <translation type="unfinished">어둠</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>使用系统设置</source>
+        <translation type="unfinished">시스템 설정 사용</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="129"/>
+        <source>主题颜色</source>
+        <translation type="unfinished">테마 색상</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="129"/>
+        <source>更改应用的主题颜色</source>
+        <translation type="unfinished">앱의 테마 색 변경</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>界面缩放</source>
+        <translation type="unfinished">인터페이스 줌</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>更改小部件和字体的大小</source>
+        <translation type="unfinished">위젯 및 글꼴의 크기 변경</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="193"/>
+        <source>更新成功</source>
+        <translation type="unfinished">업데이트에 성공했습니다.</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="193"/>
+        <source>配置将在重新启动后生效</source>
+        <translation type="unfinished">컨피그레이션은 재부팅 후에 적용됩니다</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="107"/>
+        <source>图形用户界面</source>
+        <translation type="unfinished">그래픽 사용자 인터페이스</translation>
     </message>
 </context>
 <context>
@@ -1612,7 +1682,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
 <context>
     <name>bt</name>
     <message>
-        <location filename="../fragments/process.py" line="89"/>
+        <location filename="../fragments/process.py" line="79"/>
         <source>ConfigTranslation</source>
         <translation>구성 변환</translation>
     </message>

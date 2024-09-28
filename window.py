@@ -21,6 +21,7 @@ from gui.fragments.readme import ReadMeWindow
 
 from gui.util import notification
 from gui.util.config_set import ConfigSet
+from gui.util.config_gui import configGui
 from gui.util.translator import baasTranslator as bt
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
@@ -205,11 +206,11 @@ class BAASTitleBar(MSFluentTitleBar):
         self.tabBar.setScrollable(True)
         self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
 
-        self.historyButton = TransparentToolButton(FIF.HISTORY.icon(), self)
+        self.historyButton = TransparentToolButton(FIF.HISTORY, self)
         self.historyButton.setToolTip('更新日志')
         self.historyButton.clicked.connect(self.onHistoryButtonClicked)
 
-        self.searchButton = TransparentToolButton(FIF.HELP.icon(), self)
+        self.searchButton = TransparentToolButton(FIF.HELP, self)
         self.searchButton.setToolTip(self.tr('帮助'))
         self.searchButton.clicked.connect(self.onHelpButtonClicked)
         # self.tabBar.tabCloseRequested.connect(self.tabRemoveRequest)
@@ -241,7 +242,6 @@ class Window(MSFluentWindow):
         self.tabBar = self.titleBar.tabBar
         self.navi_btn_list = []
         self.show()
-        setThemeColor('#0078d4')
         self.__switchStatus = True
         self.config_dir_list = []
 
@@ -436,6 +436,12 @@ def start():
     app.exec_()
 
 
+# enable dpi scale
+if configGui.get(configGui.dpiScale) != "Auto":
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+    os.environ["QT_SCALE_FACTOR"] = str(configGui.get(configGui.dpiScale))
+
+
 if __name__ == '__main__':
     # pa=Main()
     # pa._init_emulator()
@@ -457,6 +463,8 @@ if __name__ == '__main__':
     bt.loadCfgTranslation()
 
     w = Window()
+    w.setMicaEffectEnabled(configGui.get(configGui.micaEnabled))
+    configGui.micaEnableChanged.connect(w.setMicaEffectEnabled)
     # 聚焦窗口
     w.setFocus(True)
     w.show()

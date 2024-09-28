@@ -4,7 +4,7 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="213"/>
+        <location filename="../../window.py" line="214"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>
@@ -1239,27 +1239,27 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="24"/>
+        <location filename="../fragments/process.py" line="25"/>
         <source>调度状态</source>
         <translation>Scheduling Status</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="31"/>
+        <location filename="../fragments/process.py" line="32"/>
         <source>执行中</source>
         <translation>Executing</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="94"/>
+        <location filename="../fragments/process.py" line="84"/>
         <source>暂无正在执行的任务</source>
         <translation>No active tasks</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="96"/>
+        <location filename="../fragments/process.py" line="86"/>
         <source>暂无队列中的任务</source>
         <translation>There are no tasks in the queue</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="54"/>
+        <location filename="../fragments/process.py" line="44"/>
         <source>任务队列</source>
         <translation>Task Queue</translation>
     </message>
@@ -1366,119 +1366,189 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>SettingsFragment</name>
     <message>
-        <location filename="../fragments/settings.py" line="22"/>
+        <location filename="../fragments/settings.py" line="24"/>
         <source>普通设置</source>
         <translation>General Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="24"/>
+        <location filename="../fragments/settings.py" line="26"/>
         <source>基本</source>
         <translation>Basic</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="28"/>
+        <location filename="../fragments/settings.py" line="147"/>
         <source>语言</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="28"/>
+        <location filename="../fragments/settings.py" line="147"/>
         <source>设置界面的首选语言</source>
         <translation>Set your preferred language for the GUI</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="37"/>
+        <location filename="../fragments/settings.py" line="30"/>
         <source>应用相关设置</source>
         <translation>Server &amp; Emulator Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="37"/>
+        <location filename="../fragments/settings.py" line="30"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
         <translation>Select your server platform and set your port (set to 0 if you don't know the port)</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="45"/>
+        <location filename="../fragments/settings.py" line="38"/>
         <source>脚本相关设置</source>
         <translation>Script Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="45"/>
+        <location filename="../fragments/settings.py" line="38"/>
         <source>根据你的电脑配置，调整相应的参数。</source>
         <translation>Adjust the parameters according to your computer specs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="53"/>
+        <location filename="../fragments/settings.py" line="46"/>
         <source>模拟器启动设置</source>
         <translation>Emulator Startup Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="53"/>
+        <location filename="../fragments/settings.py" line="46"/>
         <source>设置启动模拟器的路径</source>
         <translation>Set the path to start the emulator</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="62"/>
+        <location filename="../fragments/settings.py" line="55"/>
         <source>相关设置</source>
         <translation>Features</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="66"/>
+        <location filename="../fragments/settings.py" line="59"/>
         <source>普通图推图设置</source>
         <translation>Clear Normal Mission Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="66"/>
+        <location filename="../fragments/settings.py" line="59"/>
         <source>根据你的推图需求，调整相应的参数。</source>
         <translation>Adjust the parameters according to your normal clear needs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="74"/>
+        <location filename="../fragments/settings.py" line="67"/>
         <source>困难图推图设置</source>
         <translation>Clear Hard Mission Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="74"/>
+        <location filename="../fragments/settings.py" line="67"/>
         <source>根据你所需困难图刷关，设置参数。</source>
         <translation>Adjust the parameters according to your hard clear needs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="82"/>
+        <location filename="../fragments/settings.py" line="75"/>
         <source>推剧情</source>
         <translation>Push the Story Forward</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="82"/>
+        <location filename="../fragments/settings.py" line="75"/>
         <source>主线剧情，小组剧情，支线剧情</source>
         <translation>Main Story, Group Story, Mini Story</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="90"/>
+        <location filename="../fragments/settings.py" line="83"/>
         <source>活动图设置</source>
         <translation>Clear Event Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="90"/>
+        <location filename="../fragments/settings.py" line="83"/>
         <source>推故事，推任务，推挑战</source>
         <translation>Clear Story, Clear Quest, Clear Challenge</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="98"/>
+        <location filename="../fragments/settings.py" line="91"/>
         <source>其他设置</source>
         <translation>Miscellaneous</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="98"/>
+        <location filename="../fragments/settings.py" line="91"/>
         <source>其他的一些小功能与设置</source>
         <translation>Some other small features and settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="106"/>
+        <location filename="../fragments/settings.py" line="99"/>
         <source>推送设置</source>
         <translation>Notifications Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="106"/>
+        <location filename="../fragments/settings.py" line="99"/>
         <source>推送信息</source>
         <translation>send notifications</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="110"/>
+        <source>云母效果</source>
+        <translation>Mica effect</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="110"/>
+        <source>将半透明应用于窗口和表面</source>
+        <translation>Apply semi transparent to windows and surfaces</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>应用主题</source>
+        <translation>Application theme</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>更改应用的外观</source>
+        <translation>Change the appearance of your application</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>浅色</source>
+        <translation>Light</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="118"/>
+        <source>深色</source>
+        <translation>Dark</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>使用系统设置</source>
+        <translation>Use system setting</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="129"/>
+        <source>主题颜色</source>
+        <translation>Theme color</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="129"/>
+        <source>更改应用的主题颜色</source>
+        <translation>Change the theme color of your application</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>界面缩放</source>
+        <translation>Interface zoom</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="136"/>
+        <source>更改小部件和字体的大小</source>
+        <translation>Change the size of widgets and fonts</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="193"/>
+        <source>更新成功</source>
+        <translation>Updated successfully</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="193"/>
+        <source>配置将在重新启动后生效</source>
+        <translation>Configuration takes effect after restart</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="107"/>
+        <source>图形用户界面</source>
+        <translation>GUI</translation>
     </message>
 </context>
 <context>
@@ -1633,7 +1703,7 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
         <translation>TemplateLayout</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="89"/>
+        <location filename="../fragments/process.py" line="79"/>
         <source>ConfigTranslation</source>
         <translation>ConfigTranslation</translation>
     </message>
