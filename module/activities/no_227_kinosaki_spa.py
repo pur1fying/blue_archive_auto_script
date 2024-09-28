@@ -12,7 +12,6 @@ def implement(self):
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
         sweep(self, region, times)
-    exchange_reward(self)
     return True
 
 
