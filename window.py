@@ -328,6 +328,8 @@ class Window(MSFluentWindow):
 
     def initWindow(self):
         self.resize(900, 700)
+        self.setMinimumWidth(900)
+        self.setMinimumHeight(700)
         desktop = QApplication.desktop().availableGeometry()
         _w, _h = desktop.width(), desktop.height()
         self.move(_w // 2 - self.width() // 2, _h // 2 - self.height() // 2)
