@@ -59,11 +59,12 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data():
-    module_path = 'src.explore_task_data.activities.NewYearsAperitifOneAndDoneMatch'
+def get_stage_data(self):
+    module_path = 'src.explore_task_data.activities.' + self.current_game_activity
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
+
 
 
 def sweep(self, number, times):
