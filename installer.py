@@ -238,7 +238,12 @@ def dynamic_update_installer():
     launch_exec_args.insert(1,os.path.abspath("./installer.py"))
     if os.path.exists('./installer.py') and os.path.exists('./env/Scripts/python.exe') and len(sys.argv)>1:
         # print(launch_exec_args)
-        subprocess.run(launch_exec_args)
+        try:
+            subprocess.run(launch_exec_args)
+        except:
+            run_app()
+    elif args.internal_launch == True:
+        run_app()
     else:
         if not os.path.exists('./installer.py'):
             run_app()
@@ -268,6 +273,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Blue Archive Auto Script Launcher&Installer")
     parser.add_argument('--launch', action='store_true', help='Directly launch BAAS')
     parser.add_argument('--force-launch', action='store_true', help='ignore multi instance check')
+    parser.add_argument('--internal-launch', action='store_true', help='Use launcher inside pre-build executable files')
 
     args = parser.parse_args()
 
