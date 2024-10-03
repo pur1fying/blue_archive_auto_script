@@ -672,12 +672,12 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "no_227_kinosaki_spa",
+        "CN": "ALittleBeforetheFoodPiledUpTheBestGame",
         "Global": "RowdyAndCherry",
         "JP": "TheFiveSensesAreClouded"
     },
     "dailyGameActivity": {
-        "CN": "HinaSummerVacationAudioGame",
+        "CN": null,
         "Global": null,
         "JP": null
     },
