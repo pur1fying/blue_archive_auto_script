@@ -121,6 +121,7 @@ class ConfigItemV2(ConfigItem):
         self.label = kwargs.get('label')
         self.key = kwargs.get('key')
         self.dataType = kwargs.get('dataType', 'str')
+        self.readOnly = kwargs.get('readOnly', False)
 
 
 class ComboBoxCustom(ComboBox):
@@ -198,6 +199,7 @@ class TemplateLayoutV2(QWidget):
             currentKey = cfg.key
             inputComponent = LineEdit(self)
             inputComponent.setMinimumWidth(200)
+            inputComponent.setReadOnly(cfg.readOnly)
             if currentKey == 'pre_task' or currentKey == 'post_task':
                 inputComponent.setText(self.parseToDisplay(self.config.get(currentKey)))
             else:
