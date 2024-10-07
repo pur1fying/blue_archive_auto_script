@@ -2,7 +2,7 @@ from PyQt5.QtCore import QUrl
 from qfluentwidgets import MessageBoxBase, SubtitleLabel, LineEdit
 
 
-class SaveSettingMessageBox(MessageBoxBase):
+class CreateSettingMessageBox(MessageBoxBase):
     """ Custom message box """
 
     def __init__(self, parent=None):

@@ -23,6 +23,7 @@ class ConfigItem:
         self.key = kwargs.get('key')
         self.selection = kwargs.get('selection')
         self.type = kwargs.get('type')
+        self.readOnly = kwargs.get('readOnly', False)
 
 
 def parsePatch(func, key: str, raw_sig: str) -> None:
@@ -84,6 +85,7 @@ class TemplateLayout(QWidget):
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 inputComponent.setText(str(self.config.get(currentKey)))
+                inputComponent.setReadOnly(cfg.readOnly)
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 confirmButton = PushButton(self.tr('确定'), self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
