@@ -40,6 +40,12 @@ class DetailSettingMessageBox(MessageBoxBase):
         self.titleLabel = SubtitleLabel(self.tr('配置详情'), self)
         configItems = [
             {
+                'label': self.tr('事件名称'),
+                'dataType': 'str',
+                'key': 'event_name',
+                'readOnly': True
+            },
+            {
                 'label': self.tr('优先级'),
                 'dataType': 'int',
                 'key': 'priority'
@@ -270,6 +276,12 @@ class Layout(QWidget):
         for j in range(0, len(self._event_config)):
             if self._event_config[j]['event_name'] == dic['event_name']:
                 self._event_config[j].update(config)
+                break
+
+        # Update Current Order Config
+        for j in range(0, len(self._crt_order_config)):
+            if self._crt_order_config[j]['event_name'] == dic['event_name']:
+                self._crt_order_config[j].update(config)
                 break
         self._save_config()
 

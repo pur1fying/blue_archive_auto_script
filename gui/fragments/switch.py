@@ -25,7 +25,8 @@ class SwitchFragment(ScrollArea):
         # 创建一个ExpandLayout实例作为滚动区域的布局管理器
         self.expandLayout = ExpandLayout(self.scrollWidget)
         # 创建一个标题为“调度设置”的TitleLabel实例
-        self.settingLabel = TitleLabel(self.tr(f"配置设置") + f" {self.config['name']}", self.scrollWidget)
+        self.settingLabel = TitleLabel(self.scrollWidget)
+        config.inject(self.settingLabel, self.tr("配置设置") + " {name}")
         # 初始化basicGroup变量,_setting_cards列表
         self.basicGroup = None
         self._setting_cards = []
