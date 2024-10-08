@@ -14,7 +14,7 @@ class Control:
         self.init_control_instance()
 
     def init_control_instance(self):
-        method = self.config.get("screenshot_method")
+        method = self.config.get("control_method")
         self.logger.info("Control method : " + method)
         if method == "nemu":
             self.control_instance = NemuControl(self.connection)

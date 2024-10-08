@@ -108,7 +108,7 @@ def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True, True)
     last_target_task = 1
-    total_stories = 7
+    total_stories = 10
     while self.flag_run:
         plot = to_story_task_info(self, last_target_task)
         if plot == "normal_task_task-info" or plot == "activity_task-info":
@@ -172,7 +172,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = get_stage_data()["mission"]
+    characteristic = get_stage_data(self)["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -297,13 +297,14 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
                     self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
                 elif region == "story":
                     self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
             return True
 
 
 def to_story_task_info(self, number):
-    lo = [0, 180, 280, 380, 480, 580, 480, 580]
+    lo = [0, 180, 280, 380, 480, 580, 157, 257, 357, 457, 557]
     if number >= 6:
-        self.swipe(916, 667, 916, 0, duration=0.05, post_sleep_time=0.7)
+        self.swipe(916, 591, 916, 0, duration=0.05, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = [
         "activity_task-info",

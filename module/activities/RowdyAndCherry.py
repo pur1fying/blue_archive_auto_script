@@ -66,6 +66,7 @@ def get_stage_data(self):
     return stage_data
 
 
+
 def sweep(self, number, times):
     self.quick_method_to_main_page()
     to_activity(self, "mission", True, True)
@@ -75,7 +76,7 @@ def sweep(self, number, times):
         sweep_times = times[i]
         if type(sweep_times) is float:
             sweep_times = int(ap * sweep_times / sweep_one_time_ap[number[i]])
-        click_times = sweep_times - 1
+        click_times = sweep_times
         duration = 1
         if sweep_times > 50:
             sweep_times = int(ap / sweep_one_time_ap[number[i]])
@@ -103,34 +104,22 @@ def sweep(self, number, times):
     return True
 
 
-# 推剧情的测试完没有问题
+# 推故事测试
 def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True, True)
     last_target_task = 1
-    total_stories = 7
+    total_stories = 11
     while self.flag_run:
         plot = to_story_task_info(self, last_target_task)
-        if plot == "normal_task_task-info" or plot == "activity_task-info":
-            res = color.check_sweep_availability(self)
-        elif plot == "main_story_episode-info":
-            if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
-                res = "sss"
-            else:
-                res = "no-pass"
+        res = check_sweep_availability(self, plot)
         while res == "sss" and last_target_task <= total_stories - 1:
             self.logger.info("Current story sss check next story")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_task += 1
-            plot = picture.co_detect(self, img_ends=["normal_task_task-info", "activity_task-info",
+            plot = picture.co_detect(self, img_ends=["activity_task-info", "normal_task_task-info",
                                                      "main_story_episode-info"])
-            if plot == "normal_task_task-info" or plot == "activity_task-info":
-                res = color.check_sweep_availability(self)
-            elif plot == "main_story_episode-info":
-                if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
-                    res = "sss"
-                else:
-                    res = "no-pass"
+            res = check_sweep_availability(self, plot)
         if last_target_task == total_stories and res == "sss":
             self.logger.info("All STORY SSS")
             return True
@@ -147,13 +136,18 @@ def start_story(self):
         "plot_skip-plot-button": (1213, 116),
         "plot_skip-plot-notice": (766, 520),
         "main_story_episode-info": (629, 518),
+        "story-fight-success-confirm": (1117, 639)
     }
     rgb_ends = [
         "formation_edit1",
         "reward_acquired"
     ]
-    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
-    if res == "formation_edit1":
+    img_ends = [
+        "activity_unit-formation",
+        "activity_formation",
+    ]
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
+    if res == "formation_edit1" or res == "activity_unit-formation" or res == "activity_formation":
         start_fight(self, 1)
         main_story.auto_fight(self)
     elif res == "reward_acquired":
@@ -164,7 +158,11 @@ def start_story(self):
 def start_fight(self, i):
     rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
+    img_possibles = {
+        "activity_unit-formation": (1156, 659),
+        "activity_formation": (1156, 659),
+    }
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot=True)
 
 
 def explore_mission(self):
@@ -194,7 +192,7 @@ def explore_mission(self):
         to_activity(self, "mission", True, True)
 
 
-# 挑战这里还没改动
+#
 def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
@@ -204,7 +202,7 @@ def explore_challenge(self):
         "challenge4_sss",
         "challenge4_task"
     ]
-    stage_data = get_stage_data(self)
+    stage_data = get_stage_data()
     for i in range(0, len(tasks)):
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))
@@ -300,10 +298,11 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
             return True
 
 
+# 这里是10关
 def to_story_task_info(self, number):
-    lo = [0, 180, 280, 380, 480, 580, 480, 580]
-    if number >= 6:
-        self.swipe(916, 667, 916, 0, duration=0.05, post_sleep_time=0.7)
+    lo = [0, 180, 280, 380, 480, 570, 670, 243, 343, 443, 543, 643]
+    if number >= 7:
+        self.swipe(916, 583, 916, 0, duration=0.1, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = [
         "activity_task-info",
@@ -314,20 +313,20 @@ def to_story_task_info(self, number):
 
 
 def to_mission_task_info(self, number):
-    lo = [0, 184, 308, 422, 537, 645]
-    index = [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
-    if number in [5, 6, 7, 8]:
-        self.swipe(916, 585, 916, 105, duration=1, post_sleep_time=0.7)
-    if number in [9, 10, 11, 12]:
-        self.swipe(943, 585, 943, 0, duration=0.1, post_sleep_time=0.7)
-        self.swipe(943, 585, 943, 0, duration=0.1, post_sleep_time=0.7)
-    img_possibles = {'activity_menu': (1124, lo[index[number - 1]])}
-    img_ends = "normal_task_task-info"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    lo = [0, 200, 320, 425, 545, 656]
+    index = [1, 2, 3, 4, 5, 4, 5, 1, 2, 3, 4, 5]
+    if number in [6, 7]:
+        self.u2_swipe(916, 562, 916, 272, duration=0.5, post_sleep_time=0.7)
+    if number in [8, 9, 10, 11, 12]:
+        self.swipe(943, 569, 943, 0, duration=0.1, post_sleep_time=0.7)
+        self.swipe(943, 569, 943, 0, duration=0.1, post_sleep_time=0.7)
+    possibles = {'activity_menu': (1124, lo[index[number - 1]])}
+    ends = ["normal_task_task-info", "activity_task-info"]
+    return picture.co_detect(self, None, None, ends, possibles, True)
 
 
 def to_challenge_task_info(self, number):
-    lo = [0, 178, 279, 377, 477, 564]
+    lo = [0, 178, 279, 391, 483, 574]
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = [
         "activity_task-info",
@@ -380,67 +379,19 @@ def start_sweep(self, skip_first_screenshot=False):
     return "sweep_complete"
 
 
-def exchange_reward(self):
-    to_activity(self, "story", True)
-    to_exchange(self, True)
-    to_set_exchange_times_menu(self, True)
-    if not image.compare_image(self, "activity_exchange-50-times-at-once"):
-        self.logger.info("set exchange times to 50 times at once")
-        self.click(778, 320, wait_over=True)
-    img_possibles = {"activity_set-exchange-times-menu": (772, 482)}
-    img_ends = "activity_exchange-menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    while 1:
-        while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
-            self.click(453, 651, wait_over=True, duration=0.5)
-            time.sleep(0.5)
-            continue_exchange(self)
-            to_exchange(self, True)
-        if color.judge_rgb_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
-            if get_exchange_assets(self) >= 6:
-                self.logger.info("refresh exchange times")
-                refresh_exchange_times(self)
-                continue
+def check_sweep_availability(self, plot):
+    if plot == "activity_task-info":
+        if image.compare_image(self, "activity_task-no-goals", False):
+            self.logger.info("Judge Task Without Goal")
+            if not color.judgeRGBFeature(self, "no-goal-task_passed"):
+                return "sss"
             else:
-                self.logger.info("exchange complete")
-                return True
-
-
-def refresh_exchange_times(self):
-    img_possibles = {"activity_exchange-menu": (1155, 114)}
-    img_ends = "activity_refresh-exchange-times-notice"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    img_possibles = {"activity_refresh-exchange-times-notice": (768, 500)}
-    img_ends = "activity_exchange-menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
-
-def to_exchange(self, skip_first_screenshot=False):
-    img_possibles = {
-        "activity_menu": (279, 639),
-        "activity_set-exchange-times-menu": (935, 195),
-        "activity_exchange-confirm": (673, 603),
-    }
-    img_ends = "activity_exchange-menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-
-
-def to_set_exchange_times_menu(self, skip_first_screenshot=False):
-    img_possibles = {"activity_exchange-menu": (122, 105)}
-    img_ends = "activity_set-exchange-times-menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-
-
-def continue_exchange(self):
-    img_possibles = {"activity_continue-exchange": (931, 600)}
-    img_ends = "activity_continue-exchange-grey"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True, tentitive_click=True, max_fail_cnt=5)
-
-
-def get_exchange_assets(self):
-    region = {
-        "CN": (710, 98, 805, 130),
-        "JP": (710, 98, 805, 130),
-        "Global": (710, 98, 805, 130),
-    }
-    return self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
+                return "no-pass"
+        else:
+            return color.check_sweep_availability(self)
+    elif plot == "main_story_episode-info":
+        if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+            return "sss"
+        else:
+            return "no-pass"
+    return "no-pass"

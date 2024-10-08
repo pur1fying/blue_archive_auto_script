@@ -55,9 +55,10 @@ class HomeFragment(QFrame):
         self.info_box.setFixedHeight(45)
         self.infoLayout = QHBoxLayout(self.info_box)
 
-        title = self.tr("蔚蓝档案自动脚本") + f' {self.config.get("name")}'
+        title = self.tr("蔚蓝档案自动脚本") + ' {name}'
         self.banner_visible = self.config.get('bannerVisibility')
-        self.label = SubtitleLabel(title, self)
+        self.label = SubtitleLabel(self)
+        config.inject(self.label, title)
         self.info = SubtitleLabel(self.tr('无任务'), self)
         setFont(self.label, 24)
         setFont(self.info, 24)

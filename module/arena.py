@@ -105,7 +105,7 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
     img_ends = 'arena_menu'
     arena_location = {
         'CN': (1093, 524),
-        'Global': (1093, 524),
+        'Global': (877, 599),
         'JP': (877, 599),
     }
     img_possibles = {

@@ -263,7 +263,7 @@ class Baas_thread:
             else:
                 self.file_path = self.config.get("program_address")
                 self.process_name = self.extract_filename_and_extension(self.file_path)
-                if process_api.is_running(self.file_path) is not None:
+                if self.check_process_running(self.process_name):
                     self.logger.info(f"-- Emulator Process {self.process_name} is running --")
                     return True
                 else:
@@ -277,7 +277,7 @@ class Baas_thread:
                             break
                     else:
                         return False
-                    if process_api.is_running(self.file_path) is not None:
+                    if self.check_process_running(self.process_name):
                         self.logger.info(f"Emulator Process {self.process_name} started SUCCESSFULLY")
                         return True
                     else:
@@ -656,7 +656,7 @@ class Baas_thread:
                 self.u2.uiautomator.start()
                 while not self.u2.uiautomator.running():
                     time.sleep(0.1)
-                self.latest_img_array = self.u2.screenshot()
+                self.latest_img_array = cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
                 return
             except Exception as e:
                 print(e)
