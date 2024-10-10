@@ -26,14 +26,14 @@ class SettingsFragment(ScrollArea):
             self.tr("基本"), self.scrollWidget)
 
         self.basicGroupItems = [
-            ComboBoxSettingCard(
-            bt.cfg.language,
-            FIF.LANGUAGE,
-            self.tr('语言'),
-            self.tr('设置界面的首选语言'),
-            texts=Language.combobox(),
-            parent=self.basicGroup
-            ),
+            # ComboBoxSettingCard(
+            # bt.cfg.language,
+            # FIF.LANGUAGE,
+            # self.tr('语言'),
+            # self.tr('设置界面的首选语言'),
+            # texts=Language.combobox(),
+            # parent=self.basicGroup
+            # ),
 
             SimpleSettingCard(
                 title=self.tr('应用相关设置'),
