@@ -16,3 +16,5 @@ from module.activities import SummerSpecialOperationsRABBITPlatoonAndTheMysteryO
 from module.activities import BaskingInTheBrillianceOfTheirSerenade
 from module.activities import TheCathedralsMerryChristmas
 from module.activities import FromOpera0068WithLove
+from module.activities import NewYearsAperitifOneAndDoneMatch
+from module.activities import PresidentHinasSummerVacation

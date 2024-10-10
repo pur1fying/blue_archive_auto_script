@@ -19,7 +19,8 @@ class SettingsFragment(ScrollArea):
         self.config = config
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
-        self.settingLabel = TitleLabel(self.tr(f"普通设置") + f' {self.config["name"]}', self.scrollWidget)
+        self.settingLabel = TitleLabel( self.scrollWidget)
+        config.inject(self.settingLabel, self.tr(f"普通设置") + " {name}")
 
         self.basicGroup = SettingCardGroup(
             self.tr("基本"), self.scrollWidget)

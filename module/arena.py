@@ -105,7 +105,7 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
     img_ends = 'arena_menu'
     arena_location = {
         'CN': (1093, 524),
-        'Global': (1093, 524),
+        'Global': (877, 599),
         'JP': (877, 599),
     }
     img_possibles = {
@@ -115,7 +115,8 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
         'arena_season-record': (640, 538),
         'arena_best-record': (640, 538),
         'main_page_full-notice': (887, 165),
-        'main_page_insufficient-inventory-space': (910, 138)
+        'main_page_insufficient-inventory-space': (910, 138),
+        'normal_task_unlock-notice': (887, 164),
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 

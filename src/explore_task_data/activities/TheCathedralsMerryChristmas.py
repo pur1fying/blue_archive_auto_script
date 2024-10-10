@@ -1,4 +1,18 @@
 stage_data = {
+    "mission": [
+        'mystic1',
+        'pierce1',
+        'burst1',
+        'mystic1',
+        'mystic1',
+        'pierce1',
+        'burst1',
+        'mystic1',
+        'mystic1',
+        'pierce1',
+        'burst1',
+        'mystic1',
+    ],
     "challenge2_sss": {
         "start": [
             ["pierce1", (525, 298)],
@@ -6,7 +20,7 @@ stage_data = {
         ],
         "action": [
             {"t": "click", "p": [647, 328], "ec": True, "desc": "1 upper right"},
-            {"t": "click", "p": [710, 477], "ec": True, "wait-over": True, "desc": "2 lower right"},
+            {"t": "click", "p": [824, 415], "ec": True, "wait-over": True, "desc": "2 lower right"},
 
             {"t": "click", "p": [444, 444], "ec": True, "desc": "1 lower left"},
             {"t": "click", "p": [690, 522], "ec": True, "wait-over": True, "desc": "2 lower left"},

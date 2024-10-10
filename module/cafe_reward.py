@@ -78,7 +78,7 @@ def cafe_to_gift(self):
 
 def shot(self, delay):
     time.sleep(delay)
-    self.latest_img_array = self.get_screenshot_array()
+    self.latest_img_array = self.u2_get_screenshot()
 
 
 def gift_to_cafe(self):
@@ -91,7 +91,7 @@ def gift_to_cafe(self):
 
 
 def interaction_for_cafe_solve_method3(self):
-    self.connection().pinch_in(percent=50, steps=30)
+    self.u2().pinch_in(percent=50, steps=30)
     self.swipe(709, 558, 709, 309, duration=0.2)
     max_times = 4
     for i in range(0, max_times):
@@ -100,20 +100,22 @@ def interaction_for_cafe_solve_method3(self):
         t1 = threading.Thread(target=shot, args=(self, shotDelay))
         t1.start()
         startT = time.time()
-        self.swipe(131, 660, 1280, 660, duration=0.5)
+        self.u2_swipe(131, 660, 1280, 660, duration=0.5)
         swipeT = time.time() - startT
+        swipeT = round(swipeT, 3)
         t1.join()
         img = cv2.resize(self.latest_img_array, (1280, 720), interpolation=cv2.INTER_AREA)
         res = match(img)
         if not res:
             self.logger.info("No interaction found")
             if swipeT < self.config["cafe_reward_interaction_shot_delay"] + 0.3:
-                self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : "
-                                                                          "[ " + str(shotDelay) + " ]")
+                self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(shotDelay) + " ]")
                 self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
-                self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
-                self.config["cafe_reward_interaction_shot_delay"] = swipeT - 0.3
-                self.config_set.set("cafe_reward_interaction_shot_delay", self.config["cafe_reward_interaction_shot_delay"] )
+                if swipeT > 0.4:
+                    self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
+                    self.config["cafe_reward_interaction_shot_delay"] = swipeT - 0.3
+                    self.config_set.set("cafe_reward_interaction_shot_delay", self.config["cafe_reward_interaction_shot_delay"] )
+            time.sleep(1)
             continue
         gift_to_cafe(self)
         index = 0

@@ -70,6 +70,8 @@ def init_image_data(self):
                         img = cv2.imread(img_path)
                         image_dic[self.server]['dailyGameActivity_' + key] = img
             return True
+        else:
+            return True
     except Exception as e:
         self.logger.error(e.__str__())
         self.logger.error("Failed to initialize image data")

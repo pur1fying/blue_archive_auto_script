@@ -340,6 +340,8 @@ DEFAULT_CONFIG = """
         "爱丽丝(女仆)"
     ],
     "server": "官服",
+    "control_method" : "uiautomator2",
+    "screenshot_method" : "uiautomator2",
     "adbIP": "127.0.0.1",
     "adbPort": "5555",
     "lesson_times": [
@@ -504,6 +506,8 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "screenshot_methods" : ["adb", "nemu", "uiautomator2"],
+    "control_methods" : ["adb", "nemu", "uiautomator2"],
     "common_shop_price_list": {
         "CN": [
             ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],
@@ -668,9 +672,9 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": null,
-        "Global": "FromOpera0068WithLove",
-        "JP": "Moonlight Dream"
+        "CN": "ALittleBeforetheFoodPiledUpTheBestGame",
+        "Global": "RowdyAndCherry",
+        "JP": "TheFiveSensesAreClouded"
     },
     "dailyGameActivity": {
         "CN": null,
@@ -1031,7 +1035,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "晴奈(体操服)",
+      "CN_name": "晴奈(运动服)",
       "CN_implementation": false,
       "Global_name": "Haruna (Track)",
       "Global_implementation": true,
@@ -1304,7 +1308,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "花江(圣诞节)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Hanae (Christmas)",
       "Global_implementation": true,
       "JP_name": "ハナエ(クリスマス)",
@@ -1312,7 +1316,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "芹娜(圣诞节)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Serina (Christmas)",
       "Global_implementation": true,
       "JP_name": "セリナ(クリスマス)",

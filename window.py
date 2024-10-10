@@ -6,19 +6,20 @@ import shutil
 import sys
 import threading
 from functools import partial
+from typing import Union
 
-from PyQt5.QtCore import Qt, QLocale, QSize, QTranslator, QPoint, pyqtSignal
+from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject
 from PyQt5.QtGui import QIcon, QColor
-from PyQt5.QtWidgets import QApplication, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
-    MSFluentTitleBar, MessageBox, InfoBar, InfoBarIcon, InfoBarPosition, TransparentToolButton
+    MSFluentTitleBar, MessageBox, TransparentToolButton, FluentIconBase, TabItem, \
+    RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
 from core import default_config
-from gui.components.dialog_panel import SaveSettingMessageBox
+from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
-
 from gui.util import notification
 from gui.util.config_set import ConfigSet
 from gui.util.translator import baasTranslator as bt
@@ -30,6 +31,7 @@ sys.path.append('./')
 # Offer the error to the error.log
 ICON_DIR = 'gui/assets/logo.png'
 LAST_NOTICE_TIME = 0
+
 
 def update_config_reserve_old(config_old, config_new):  # 保留旧配置原有的键，添加新配置中没有的，删除新配置中没有的键
     for key in config_new:
@@ -131,7 +133,7 @@ def check_event_config(dir_path='./default_config', server="CN"):
             exist = False
             for j in range(0, len(data)):
                 if data[j]['func_name'] == default_event_config[i]['func_name']:
-                    for k in range(0, len(default_event_config[i]['daily_reset'])):
+                    for k in range(0, len(data[i]['daily_reset'])):
                         if len(data[j]['daily_reset'][k]) != 3:
                             data[j]['daily_reset'][k] = [0, 0, 0]
                     data[j] = check_single_event(default_event_config[i], data[j])
@@ -185,6 +187,114 @@ class Widget(MSFluentWindow):
         self.setObjectName(text.replace(' ', '-'))
 
 
+class RenameDialogBox(MessageBoxBase):
+    def __init__(self, parent=None, config=None):
+        super().__init__(parent)
+        RenameDialogContext = QObject()
+        self.titleLabel = SubtitleLabel(self.tr('配置详情'), self)
+        self.viewLayout.addWidget(self.titleLabel)
+
+        self.name_input = None
+
+        configItems = [
+            {
+                'label': RenameDialogContext.tr('原来的配置名称'),
+                'key': 'name',
+                'type': 'text',
+                'readOnly': True,
+            },
+            {
+                'label': RenameDialogContext.tr('修改后的配置名称'),
+                'key': 'name',
+                'type': 'text',
+                'readOnly': False,
+            }
+        ]
+
+        for ind, cfg in enumerate(configItems):
+            optionPanel = QHBoxLayout(self)
+            labelComponent = QLabel(bt.tr('ConfigTranslation', cfg['label']), self)
+            optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
+            optionPanel.addStretch(1)
+            currentKey = cfg['key']
+            inputComponent = LineEdit(self)
+            if ind == 1: self.name_input = inputComponent
+            if cfg['readOnly']: inputComponent.setReadOnly(True)
+            inputComponent.setText(config.get(currentKey))
+            optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
+            self.viewLayout.addLayout(optionPanel)
+            labelComponent.setStyleSheet("""
+                font-family: "Microsoft YaHei";
+                font-size: 15px;
+            """)
+        self.yesButton.setText(RenameDialogContext.tr('确定'))
+        self.cancelButton.setText(RenameDialogContext.tr('取消'))
+        self.widget.setMinimumWidth(350)
+
+
+class BAASTabItem(TabItem):
+    def __init__(self, *args, **kwargs):
+        if 'config' in kwargs.keys():
+            self.config = kwargs.pop('config')
+        if 'window' in kwargs.keys():
+            self.window = kwargs.pop('window')
+        super().__init__(*args, **kwargs)
+
+    def contextMenuEvent(self, a0):
+        print(self.config.get('name'))
+        menu = RoundMenu(parent=self)
+        rename_action = Action(FIF.EDIT, self.tr('重命名'), triggered=self._showRenameDialog)
+        menu.addAction(rename_action)
+        rename_action.setCheckable(True)
+        rename_action.setChecked(True)
+        menu.exec(a0.globalPos(), aniType=MenuAnimationType.DROP_DOWN)
+
+    def _showRenameDialog(self):
+        rename_dialog = RenameDialogBox(self.window, self.config)
+        if not rename_dialog.exec_(): return
+        new_name = rename_dialog.name_input.text()
+        if new_name == self.config.get('name'): return
+        self.config.set('name', new_name)
+        self.setText(new_name)
+
+
+class BAASTabBar(TabBar):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def addBAASTab(self, routeKey: str, config: ConfigSet, icon: Union[QIcon, str, FluentIconBase] = None, window=None):
+        return self.insertBAASTab(-1, routeKey, config, icon, window=window)
+
+    def insertBAASTab(self, index: int, routeKey: str, config: ConfigSet,
+                      icon: Union[QIcon, str, FluentIconBase] = None, window=None, onClick=None):
+        if routeKey in self.itemMap:
+            raise ValueError(f"The route key `{routeKey}` is duplicated.")
+        if index == -1:
+            index = len(self.items)
+        if index <= self.currentIndex() and self.currentIndex() >= 0:
+            self._currentIndex += 1
+        text = config.get_origin('name')
+        item = BAASTabItem(text, self.view, icon, config=config, window=window)
+        item.setRouteKey(routeKey)
+        _w = self.tabMaximumWidth() if self.isScrollable() else self.tabMinimumWidth()
+        item.setMinimumWidth(_w)
+        item.setMaximumWidth(self.tabMaximumWidth())
+        item.setShadowEnabled(self.isTabShadowEnabled())
+        item.setCloseButtonDisplayMode(self.closeButtonDisplayMode)
+        item.setSelectedBackgroundColor(
+            self.lightSelectedBackgroundColor, self.darkSelectedBackgroundColor)
+        item.pressed.connect(self._onItemPressed)
+        item.closed.connect(lambda: self.tabCloseRequested.emit(self.items.index(item)))
+        if onClick:
+            item.pressed.connect(onClick)
+        self.itemLayout.insertWidget(index, item, 1)
+        self.items.insert(index, item)
+        self.itemMap[routeKey] = item
+        if len(self.items) == 1:
+            self.setCurrentIndex(0)
+        return item
+
+
 class BAASTitleBar(MSFluentTitleBar):
     """ Title bar with icon and title """
     onHelpButtonClicked = pyqtSignal()
@@ -198,7 +308,7 @@ class BAASTitleBar(MSFluentTitleBar):
         self.hBoxLayout.insertLayout(4, self.toolButtonLayout)
 
         # add tab bar
-        self.tabBar = TabBar(self)
+        self.tabBar = BAASTabBar(self)
         self.tabBar.setMovable(False)
         self.tabBar.setTabMaximumWidth(120)
         self.tabBar.setTabShadowEnabled(False)
@@ -318,7 +428,7 @@ class Window(MSFluentWindow):
 
         # Add some tabs in the group
         for home_tab in self._sub_list[0]:
-            self.addTab(home_tab.object_name, home_tab.config['name'], None)
+            self.addTab(home_tab.object_name, home_tab.config, None)
         # self.stackedWidget.currentChanged.connect(self.onTabChanged)
         self.tabBar.currentChanged.connect(self.onTabChanged)
         self.tabBar.tabAddRequested.connect(self.onTabAddRequested)
@@ -378,7 +488,7 @@ class Window(MSFluentWindow):
         self.stackedWidget.setCurrentWidget(self._sub_list[i0][i1], popOut=False)
 
     def onTabAddRequested(self):
-        addDialog = SaveSettingMessageBox(self)
+        addDialog = CreateSettingMessageBox(self)
         addDialog.pathLineEdit.setFocus()
         if addDialog.exec_():
             text = addDialog.pathLineEdit.text()
@@ -407,18 +517,18 @@ class Window(MSFluentWindow):
             for i in range(0, len(_sub_list_)):
                 self._sub_list[i].append(_sub_list_[i])
                 self.stackedWidget.addWidget(_sub_list_[i])
-            self.addTab(_sub_list_[0].object_name, text, 'resource/Smiling_with_heart.png')
+            self.addTab(_sub_list_[0].object_name, _config, 'resource/Smiling_with_heart.png')
 
     def onTabCloseRequested(self, i0):
         config_name = self._sub_list[0][i0].config["name"]
-        title = self.tr('是否要删除配置：') +  f' {config_name}？'
+        title = self.tr('是否要删除配置：') + f' {config_name}？'
         content = self.tr("""你需要在确认后重启BAAS以完成更改。""")
         closeRequestBox = MessageBox(title, content, self)
         if closeRequestBox.exec():
             shutil.rmtree(f'./config/{self._sub_list[0][i0].config.config_dir}')
 
-    def addTab(self, routeKey, text, icon):
-        self.tabBar.addTab(routeKey, text, icon)
+    def addTab(self, routeKey: str, config: ConfigSet, icon: Union[QIcon, str, FluentIconBase, None]):
+        self.tabBar.addBAASTab(routeKey, config, icon, window=self)
 
     def dispatchWindow(self):
         self.setWindowIcon(QIcon(ICON_DIR))

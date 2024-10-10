@@ -3,18 +3,17 @@ from datetime import datetime
 
 
 def implement(self):
-    cur_package = self.connection.app_current()['package']
-    if cur_package != self.package_name or self.first_start:
-        self.first_start = False
+    cur_package = self.u2.app_current()['package']
+    if cur_package != self.package_name:
         if cur_package != self.package_name:
-            self.logger.warning("APP  NOT RUNNING current package: " + cur_package)
+            self.logger.warning("APP NOT RUNNING current package: " + cur_package)
         start(self)
         return True
     self.logger.info("CHECK RESTART")
     if check_need_restart(self):
         self.logger.info("current package: " + cur_package)
         self.logger.info("--STOP CURRENT BLUE ARCHIVE--")
-        self.connection.app_stop(self.package_name)
+        self.u2.app_stop(self.package_name)
         time.sleep(2)
         start(self)
         return True
@@ -26,7 +25,7 @@ def start(self):
     activity_name = self.activity_name
     if self.server == 'CN':
         activity_name = None
-    self.connection.app_start(self.package_name, activity_name)
+    self.u2.app_start(self.package_name, activity_name)
     time.sleep(1)
     if self.server == 'Global':
         self.quick_method_to_main_page()

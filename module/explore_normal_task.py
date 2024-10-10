@@ -221,10 +221,11 @@ def start_action(self, actions):
         if 'retreat' in act:
             for fight in range(1, act['retreat'][0] + 1):
                 main_story.auto_fight(self)
-                for retreatNum in range(1, len(act['retreat'])):
+                for retreatNum in act['retreat'][1:]:
                     if retreatNum == fight:
-                        self.logger.info("retreat team " + str(retreatNum))
+                        self.logger.info("retreat at fight" + str(retreatNum))
                         retreat(self)
+                        break
                 to_normal_task_mission_operating_page(self, True)
             check_skip_fight_and_auto_over(self)
         if 'ec' in act:
@@ -465,7 +466,7 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
         "normal_task_teleport-notice": (886, 162),
         'normal_task_present': (640, 519),
         "normal_task_fight-confirm": (1171, 670),
-        'normal_task_fail-confirm': (640, 670)
+        'normal_task_fail-confirm': (640, 670),
     }
     img_ends = "normal_task_task-operating-feature"
     img_pop_ups = {"activity_choose-buff": (644, 570)}
