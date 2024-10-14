@@ -1,6 +1,4 @@
 import subprocess
-import winreg
-
 from .get_adb_address import get_simulator_port
 from .mumu_manager_api import mumu12_control_api_backend
 from .bluestacks_module import find_display_name, read_registry_key
@@ -26,6 +24,7 @@ def start_simulator_classic(simulator_type, multi_instance=None, return_status=F
             key_path = f"SOFTWARE\\BlueStacks_nxt{region}"
             value_name = "InstallDir"
             try:
+                import winreg
                 with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0, winreg.KEY_READ) as key:
                     value, _ = winreg.QueryValueEx(key, value_name)
                 return value + 'HD-Player.exe'

@@ -1,11 +1,12 @@
 import json
 import os
 import subprocess
-import winreg
+
 
 
 
 def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="start"):
+    import winreg
     # 读取注册表中的键值
     if simulator_type == "mumu":
         key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
