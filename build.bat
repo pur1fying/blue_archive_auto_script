@@ -10,8 +10,9 @@ call %TEMP_FOLDER%\%VENV_NAME%\Scripts\activate
 pip install pyinstaller
 pip install requests
 pip install tqdm
-pyinstaller -i gui/assets/logo.ico --name BlueArchiveAutoScript -F installer.py
+pip install psutil
+pyinstaller -i gui/assets/logo.ico --clean --name BlueArchiveAutoScript -F installer.py
 
 rmdir /s /q %TEMP_FOLDER%
-
-
+ren .\BlueArchiveAutoScript.exe backup.exe
+copy .\dist\BlueArchiveAutoScript.exe .\

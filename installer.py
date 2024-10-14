@@ -1,11 +1,14 @@
+from ctypes import util
 import logging
 import os.path
 import shutil
 import subprocess
-import threading
+import sys
+import argparse
 import traceback
 import zipfile
 
+import psutil
 import requests
 from tqdm import tqdm
 
@@ -109,14 +112,33 @@ def check_onnxruntime():
 
 
 def start_app():
-    threading.Thread(target=subprocess.Popen, args=(['./env/Scripts/pythonw', './window.py'],)).start()
+    proc = subprocess.Popen(['./env/Scripts/pythonw', './window.py'],)
+    return proc.pid
 
 
 def run_app():
     logger.info("Start to run the app...")
     try:
-        start_app()
-        print("Start app success")
+        with open("pid","a+") as f:
+            f.seek(0)
+            try:
+                last_pid = int(f.read())
+            except:
+                last_pid =  2147483647
+            if psutil.pid_exists(last_pid) == False:
+                f.close()
+                with open("pid","w+") as f:
+                    f.write(str(start_app()))
+                    print("Start app success.")
+                    f.close()
+            else:
+                if not args.force_launch:
+                    print('app already started.')
+                else:
+                    with open("pid","w+") as f:
+                        f.write(str(start_app()))
+                    print("Start app success.")
+                    
     except Exception as e:
         raise Exception("Run app failed")
 
@@ -204,6 +226,30 @@ def clear_tmp():
     if os.path.exists(LOCAL_PATH):
         shutil.rmtree(LOCAL_PATH)
 
+def check_frozen_installer():
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        return True
+    else:
+        return False
+    
+def dynamic_update_installer():
+    launch_exec_args = sys.argv.copy()
+    launch_exec_args[0] = os.path.abspath("./env/Scripts/python.exe")
+    launch_exec_args.insert(1,os.path.abspath("./installer.py"))
+    if os.path.exists('./installer.py') and os.path.exists('./env/Scripts/python.exe') and len(sys.argv)>1:
+        # print(launch_exec_args)
+        try:
+            subprocess.run(launch_exec_args)
+        except:
+            run_app()
+    elif args.internal_launch == True:
+        run_app()
+    else:
+        if not os.path.exists('./installer.py'):
+            run_app()
+            sys.exit()
+        os.system(f"{os.path.abspath('./env/Scripts/python.exe')} {os.path.abspath('./installer.py')} --launch")
+    sys.exit()
 
 def check_install():
     try:
@@ -216,7 +262,7 @@ def check_install():
         check_atx()
         check_requirements()
         # check_onnxruntime()
-        run_app()
+        # run_app()
     except Exception as e:
         traceback.print_exc()
         clear_tmp()
@@ -224,4 +270,16 @@ def check_install():
 
 
 if __name__ == '__main__':
-    check_install()
+    parser = argparse.ArgumentParser(description="Blue Archive Auto Script Launcher&Installer")
+    parser.add_argument('--launch', action='store_true', help='Directly launch BAAS')
+    parser.add_argument('--force-launch', action='store_true', help='ignore multi instance check')
+    parser.add_argument('--internal-launch', action='store_true', help='Use launcher inside pre-build executable files')
+
+    args = parser.parse_args()
+
+    if not args.launch:
+        check_install()
+    if not check_frozen_installer():
+        run_app()
+    else:
+        dynamic_update_installer()
