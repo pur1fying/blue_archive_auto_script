@@ -12,10 +12,10 @@ class Layout(QWidget):
         self.config = config
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
-        self.lay1 = QHBoxLayout(self)
-        self.lay2 = QHBoxLayout(self)
-        self.lay1_hard = QHBoxLayout(self)
-        self.lay2_hard = QHBoxLayout(self)
+        self.lay1 = QHBoxLayout()
+        self.lay2 = QHBoxLayout()
+        self.lay1_hard = QHBoxLayout()
+        self.lay2_hard = QHBoxLayout()
 
         self.label = QLabel(self.tr('普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：'), self)
         self.input = LineEdit(self)
@@ -34,7 +34,7 @@ class Layout(QWidget):
             self.each_student_task_number_dict.setdefault(translated_name, [])
             temp = self.config.static_config["hard_task_student_material"][i][0] + "-3"
             (self.each_student_task_number_dict[translated_name].append(temp))
-            
+
         for key in self.each_student_task_number_dict.keys():
             self.hard_task_combobox.addItem(key)
         self.hard_task_combobox.currentIndexChanged.connect(self.__hard_task_combobox_change)
