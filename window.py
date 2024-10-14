@@ -8,7 +8,7 @@ import threading
 from functools import partial
 from typing import Union
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QEvent
+from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QEvent, QTimer
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
@@ -304,6 +304,7 @@ class BAASLangAltButton(TransparentToolButton):
         self.setToolTip(self.tr('语言设置'))
         self.actions = []
         self.clicked.connect(self.showLangAltDropdown)
+
     def showLangAltDropdown(self):
         self._init_actions()
         pos = self.mapToGlobal(QPoint(0, 0))
@@ -389,7 +390,6 @@ class Window(MSFluentWindow):
         self.initWindow()
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
-        self.setTitleBar(BAASTitleBar(self))
         self.tabBar = self.titleBar.tabBar
         self.navi_btn_list = []
         self.show()
@@ -419,6 +419,7 @@ class Window(MSFluentWindow):
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
+        QApplication.processEvents()
         self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
                           [ProcessFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SwitchFragment(parent=self, config=x) for x in self.config_dir_list],
@@ -431,9 +432,11 @@ class Window(MSFluentWindow):
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
         self.initNavigation()
-        self.dispatchWindow()
         self.splashScreen.finish()
-        self.init_main_class()
+
+        # SingleShot is used to speed up the initialization process
+        # self.init_main_class()
+        QTimer.singleShot(100, self.init_main_class)
 
     def init_main_class(self, ):
         threading.Thread(target=self.init_main_class_thread).start()
@@ -483,6 +486,9 @@ class Window(MSFluentWindow):
         desktop = QApplication.desktop().availableGeometry()
         _w, _h = desktop.width(), desktop.height()
         self.move(_w // 2 - self.width() // 2, _h // 2 - self.height() // 2)
+        self.setTitleBar(BAASTitleBar(self))
+        self.setWindowIcon(QIcon(ICON_DIR))
+        self.setWindowTitle('BlueArchiveAutoScript')
 
     def closeEvent(self, event):
         super().closeEvent(event)
@@ -571,10 +577,6 @@ class Window(MSFluentWindow):
 
     def addTab(self, routeKey: str, config: ConfigSet, icon: Union[QIcon, str, FluentIconBase, None]):
         self.tabBar.addBAASTab(routeKey, config, icon, window=self)
-
-    def dispatchWindow(self):
-        self.setWindowIcon(QIcon(ICON_DIR))
-        self.setWindowTitle('BlueArchiveAutoScript')
 
 
 def start():
