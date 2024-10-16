@@ -7,6 +7,7 @@ import sys
 import threading
 from functools import partial
 from typing import Union
+from core import default_config
 
 from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QEvent, QTimer
 from PyQt5.QtGui import QIcon, QColor
@@ -16,7 +17,6 @@ from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MS
     RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
-from core import default_config
 from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow

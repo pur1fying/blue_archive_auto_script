@@ -192,7 +192,7 @@ class TemplateLayoutV2(QWidget):
         self.cfs = []
 
         for ind, cfg in enumerate(configItems):
-            optionPanel = QHBoxLayout(self)
+            optionPanel = QHBoxLayout()
             cfg = ConfigItemV2(**cfg)
             self.cfs.append(cfg)
             labelComponent = QLabel(cfg.label, self)
