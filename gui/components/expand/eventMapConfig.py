@@ -143,7 +143,7 @@ class Layout(TemplateLayout):
             name = en2cn[tp] + number
             if "sss" in key:
                 name += self.tr("三星")
-            elif "task" in key:
+            if "task" in key:
                 name += self.tr("成就任务")
             team = ""
             for s in value['start']:

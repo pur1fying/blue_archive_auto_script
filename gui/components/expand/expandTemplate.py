@@ -23,6 +23,7 @@ class ConfigItem:
         self.key = kwargs.get('key')
         self.selection = kwargs.get('selection')
         self.type = kwargs.get('type')
+        self.readOnly = kwargs.get('readOnly', False)
 
 
 def parsePatch(func, key: str, raw_sig: str) -> None:
@@ -84,6 +85,7 @@ class TemplateLayout(QWidget):
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 inputComponent.setText(str(self.config.get(currentKey)))
+                inputComponent.setReadOnly(cfg.readOnly)
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 confirmButton = PushButton(self.tr('确定'), self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
@@ -121,6 +123,7 @@ class ConfigItemV2(ConfigItem):
         self.label = kwargs.get('label')
         self.key = kwargs.get('key')
         self.dataType = kwargs.get('dataType', 'str')
+        self.readOnly = kwargs.get('readOnly', False)
 
 
 class ComboBoxCustom(ComboBox):
@@ -198,6 +201,7 @@ class TemplateLayoutV2(QWidget):
             currentKey = cfg.key
             inputComponent = LineEdit(self)
             inputComponent.setMinimumWidth(200)
+            inputComponent.setReadOnly(cfg.readOnly)
             if currentKey == 'pre_task' or currentKey == 'post_task':
                 inputComponent.setText(self.parseToDisplay(self.config.get(currentKey)))
             else:
