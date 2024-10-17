@@ -672,7 +672,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "ALittleBeforetheFoodPiledUpTheBestGame",
+        "CN": "bunnyChaserOnTheShip2",
         "Global": "RowdyAndCherry",
         "JP": "TheFiveSensesAreClouded"
     },
