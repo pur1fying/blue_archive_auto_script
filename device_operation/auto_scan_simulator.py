@@ -1,6 +1,4 @@
 import re
-import winreg
-
 import psutil
 
 from .bluestacks_module import get_bluestacks_nxt_adb_port_id, return_bluestacks_type
@@ -51,6 +49,7 @@ def auto_scan_simulators():
                 simulator_list.append(simulator)
     return simulator_list
 def auto_search_adb_address():
+    
     # 正则表达式匹配模板
     regex_patterns = {
     'MEmu.exe': r'.*MEmu.exe\s+MEmu_(\w+)',
@@ -67,10 +66,11 @@ def auto_search_adb_address():
         key_path = f"SOFTWARE\\BlueStacks_nxt{region}"
         value_name = "InstallDir"
         try:
+            import winreg
             with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0, winreg.KEY_READ) as key:
                 value, _ = winreg.QueryValueEx(key, value_name)
                 return value + 'HD-Player.exe'
-        except FileNotFoundError:
+        except:
             return None
 
     for process in process_list:
@@ -94,7 +94,7 @@ def auto_search_adb_address():
                                 adb_addresses.append(adb_address)
                                 break
                             elif bst_path == player_path:
-                                adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance)}"""
+                                adb_address = f"""127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance)}""" # 获取并拼接
                                 adb_addresses.append(adb_address)
                                 break
                         else:
@@ -105,13 +105,8 @@ def auto_search_adb_address():
                     adb_addresses.append(adb_address)
             match = None
     def remove_duplicates(lst):
-        # 定义一个正则表达式，匹配数字、方括号和冒号
         pattern = re.compile(r'^[\d\[\]:.]+$')
-
-        # 使用列表推导式，只保留符合正则表达式的元素
         lst = [item for item in lst if pattern.match(item)]
-
-        # 去除重复的元素
         return list(dict.fromkeys(lst))
 
     return remove_duplicates(adb_addresses)

@@ -186,7 +186,7 @@ class NemuClient:
         try:
             self.lib = ctypes.CDLL(ipc_dll)
         except OSError as e:
-            logger.error(e)
+            logger.error(e.__str__())
             # OSError: [WinError 126] 找不到指定的模块。
             if not os.path.exists(ipc_dll):
                 raise NemuIpcIncompatible(
@@ -401,6 +401,15 @@ class NemuClient:
         if 0 <= index < 32 and offset in [-2, -1, 0, 1, 2]:
             return index
         else:
+            return None
+
+    @staticmethod
+    def get_possible_mumu12_folder():
+        from device_operation import mumu12_api_backend
+        try:
+            path = mumu12_api_backend("mumu", 0, operation="get_path")
+            return path
+        except Exception as e:
             return None
 
 
