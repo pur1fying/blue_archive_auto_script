@@ -42,7 +42,7 @@ def implement(self):
         for i in range(0, len(temp)):
             region = temp[i]
             self.logger.info("-- Start Pushing Region " + str(region) + " --")
-            if not 4 <= region <= 26:
+            if not 4 <= region <= 27:
                 self.logger.warning("Region not support")
                 continue
             choose_region(self, region)
@@ -485,7 +485,7 @@ def get_explore_normal_task_missions(self, st):
         print(type(st))
         tasks = []
         min_area = 4
-        max_area = 26
+        max_area = 27
         for i in range(0, len(st)):
             if '-' in st[i]:
                 temp = st[i].split('-')

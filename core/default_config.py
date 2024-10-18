@@ -327,18 +327,22 @@ DEFAULT_CONFIG = """
     "push_json":"",
     "push_serverchan":"",
     "cafe_reward_lowest_affection_first": true,
+    "cafe_reward_invite1_criterion" : "name",
+    "favorStudent1": [
+        "爱丽丝"
+    ],
+    "cafe_reward_invite1_starred_student_position" : 1,
     "cafe_reward_has_no2_cafe": false,
     "cafe_reward_collect_hour_reward": true,
+    "cafe_reward_invite2_criterion" : "name",
+        "favorStudent2": [
+        "爱丽丝(女仆)"
+    ],
+    "cafe_reward_invite2_starred_student_position" : 1,
     "cafe_reward_use_invitation_ticket": true,
     "cafe_reward_allow_duplicate_invite": false,
     "cafe_reward_allow_exchange_student": false,
     "cafe_reward_interaction_shot_delay": 1.0,
-    "favorStudent1": [
-        "爱丽丝"
-    ],
-    "favorStudent2": [
-        "爱丽丝(女仆)"
-    ],
     "server": "官服",
     "control_method" : "uiautomator2",
     "screenshot_method" : "uiautomator2",
@@ -672,7 +676,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "ALittleBeforetheFoodPiledUpTheBestGame",
+        "CN": "bunnyChaserOnTheShip2",
         "Global": "RowdyAndCherry",
         "JP": "TheFiveSensesAreClouded"
     },
@@ -1284,7 +1288,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "纯子(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Junko (New Year)",
       "Global_implementation": true,
       "JP_name": "ジュンコ(正月)",
@@ -1292,7 +1296,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "风香(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Fuuka (New Year)",
       "Global_implementation": true,
       "JP_name": "フウカ(正月)",
@@ -1300,7 +1304,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "晴奈(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Haruna (New Year)",
       "Global_implementation": true,
       "JP_name": "ハルナ(正月)",
@@ -1363,8 +1367,8 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "茜(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "茜(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Akane (Bunny)",
       "Global_implementation": true,
       "JP_name": "アカネ(バニーガール)",
