@@ -41,11 +41,18 @@ def implement(self, need_check_mode=True):
 
 
 def check_mode(self):
+
     if image.compare_image(self, "momo_talk_newest", need_log=False):
+        y = {
+            "CN": 426,
+            "Global": 426,
+            "JP": 475
+        }
+        y = y[self.server]
         self.logger.info("change NEWEST to UNREAD mode")
         self.click(514, 177, duration=0.3, wait_over=True)
         self.click(562, 297, duration=0.3, wait_over=True)
-        self.click(461, 426, duration=0.3, wait_over=True)
+        self.click(461, y, duration=0.3, wait_over=True)
     elif image.compare_image(self, "momo_talk_unread", need_log=False):
         self.logger.info("UNREAD mode")
     else:
