@@ -676,7 +676,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "ALittleBeforetheFoodPiledUpTheBestGame",
+        "CN": "bunnyChaserOnTheShip2",
         "Global": "RowdyAndCherry",
         "JP": "TheFiveSensesAreClouded"
     },
@@ -1288,7 +1288,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "纯子(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Junko (New Year)",
       "Global_implementation": true,
       "JP_name": "ジュンコ(正月)",
@@ -1296,7 +1296,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "风香(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Fuuka (New Year)",
       "Global_implementation": true,
       "JP_name": "フウカ(正月)",
@@ -1304,7 +1304,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "晴奈(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Haruna (New Year)",
       "Global_implementation": true,
       "JP_name": "ハルナ(正月)",
@@ -1367,8 +1367,8 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "茜(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "茜(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Akane (Bunny)",
       "Global_implementation": true,
       "JP_name": "アカネ(バニーガール)",
