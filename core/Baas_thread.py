@@ -72,7 +72,6 @@ class Baas_thread:
         self.lnk_path = None
         self.file_path = None
         self.wait_time = None
-        self.latest_screenshot_time = 0
         self.serial = None
         self.scheduler = None
         self.screenshot_interval = None
@@ -151,6 +150,9 @@ class Baas_thread:
         if not self.flag_run:
             raise RequestHumanTakeOver
         return self.screenshot.screenshot()
+
+    def update_screenshot_array(self):
+        self.latest_img_array = self.get_screenshot_array()
 
     def signal_stop(self):
         self.flag_run = False

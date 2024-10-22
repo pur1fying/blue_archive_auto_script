@@ -1,12 +1,11 @@
 import time
 import numpy as np
-from core import color, picture
+from core import color, picture, image
 
 
 def implement(self):
     self.quick_method_to_main_page()
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
-    time.sleep(0.5)
     tactical_challenge_assets = get_tactical_challenge_assets(self)
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))
     buy_list = np.array(self.config["TacticalChallengeShopList"])
@@ -34,7 +33,7 @@ def implement(self):
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
             purchase_location = {
                 'CN': (777, 491),
-                'Global': (777, 491),
+                'Global': (754, 581),
                 'JP': (754, 581)
             }
             img_possibles = {
@@ -66,27 +65,47 @@ def implement(self):
 
 
 def to_tactical_challenge_shop(self, skip_first_screenshot=False):
-    rgb_ends = "tactical_challenge_shop",
-    tactical_challenge_x = {
-        'CN': 823,
-        'Global': 823,
-        'JP': 778,
-    }
-    tactical_challenge_y = {
-        'CN': 455,
-        'Global': 531,
-        'JP': 531,
-    }
-    rgb_possibles = {
-        "main_page": (tactical_challenge_x[self.server], 653),
-        "reward_acquired": (640, 89),
-        "common_shop": (160, tactical_challenge_y[self.server]),
-    }
-    img_possibles = {
-        'main_page_full-notice': (887, 165),
-        "main_page_insufficient-inventory-space": (910, 138),
-    }
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
+    if self.server == "CN" or self.server == "JP":
+        rgb_ends = "tactical_challenge_shop",
+        tactical_challenge_x = {
+            'CN': 823,
+            'JP': 778,
+        }
+        tactical_challenge_y = {
+            'CN': 455,
+            'JP': 531,
+        }
+        rgb_possibles = {
+            "main_page": (tactical_challenge_x[self.server], 653),
+            "reward_acquired": (640, 89),
+            "common_shop": (160, tactical_challenge_y[self.server]),
+        }
+        img_possibles = {
+            'main_page_full-notice': (887, 165),
+            "main_page_insufficient-inventory-space": (910, 138),
+        }
+        picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
+    else:
+        from module.common_shop import to_common_shop
+        to_common_shop(self, skip_first_screenshot)
+        ret = False
+        while self.flag_run:
+            self.logger.info("swipe downward for tactical challenge shop ui")
+            self.swipe(104, 385, 104, 282, duration=0.05, post_sleep_time=1)
+            self.update_screenshot_array()
+            ret = image.search_in_area(self, "shop_tactical-challenge-not-chosen", area=(0, 142, 83, 517),
+                                       threshold=0.8)
+            if ret:
+                print("find" + str(ret))
+                break
+        from core.position import alter_img_position
+        alter_img_position(self, "shop_tactical-challenge-not-chosen", ret)
+        self.rgb_feature["tactical_challenge_shop"] = [[[ret[0], ret[1] + 30]], [[35, 55, 60, 80, 89, 109]]]
+        rgb_ends = "tactical_challenge_shop"
+        img_possibles = {
+            "shop_tactical-challenge-not-chosen": (157, ret[1] + 30),
+        }
+        picture.co_detect(self, rgb_ends, None, None, img_possibles, True)
 
 
 def to_refresh(self):

@@ -20,8 +20,8 @@ def init_image_data(self):
         global image_x_y_range
         global image_dic
         if not initialized_image[self.server]:
-            image_dic.setdefault(self.server,{})
-            image_x_y_range.setdefault(self.server,{})
+            image_dic.setdefault(self.server, {})
+            image_x_y_range.setdefault(self.server, {})
             initialized_image[self.server] = True
             path = 'src/images/' + self.server + '/x_y_range'
             for file_path, child_file_name, files in os.walk(path):
@@ -76,3 +76,23 @@ def init_image_data(self):
         self.logger.error(e.__str__())
         self.logger.error("Failed to initialize image data")
         return False
+
+
+def alter_img_position(self, name, point):
+    global image_x_y_range
+    global image_dic
+    if name in image_dic[self.server]:
+        shape = image_dic[self.server][name].shape
+        module, name = name.rsplit("_", 1)
+        if image_x_y_range[self.server][module][name] is not None:
+            self.logger.info("Alter position of : [ " + name + " ] --> " + str(point))
+            image_x_y_range[self.server][module][name] = (point[0], point[1], point[0] + shape[1], point[1] + shape[0])
+
+
+def get_area(server, name):
+    global image_x_y_range
+    global image_dic
+    module, name = name.rsplit("_", 1)
+    if image_x_y_range[server][module][name] is None:
+        return False
+    return image_x_y_range[server][module][name]
