@@ -674,7 +674,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "bunnyChaserOnTheShip2",
-        "Global": "RowdyAndCherry",
+        "Global": "iveAlive",
         "JP": "TheFiveSensesAreClouded"
     },
     "dailyGameActivity": {
