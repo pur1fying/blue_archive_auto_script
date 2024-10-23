@@ -254,7 +254,7 @@ def dynamic_update_installer():
             run_app()
             sys.exit()
         os.system(f"{os.path.abspath('./env/Scripts/python.exe')} {os.path.abspath('./installer.py')} --launch")
-        if platform.system() == "Windows":
+        if platform.system() == "Windows" and args.no_build == False:
             try:
                 import PyInstaller
                 def create_executable():
