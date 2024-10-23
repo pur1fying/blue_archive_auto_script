@@ -1,6 +1,6 @@
-from ctypes import util
 import logging
 import os.path
+import platform
 import shutil
 import subprocess
 import sys
@@ -118,7 +118,7 @@ def start_app():
 
 def run_app():
     logger.info("Start to run the app...")
-    try:
+    try: #记录启动时的pythonw的pid
         with open("pid","a+") as f:
             f.seek(0)
             try:
@@ -129,15 +129,20 @@ def run_app():
                 f.close()
                 with open("pid","w+") as f:
                     f.write(str(start_app()))
-                    print("Start app success.")
+                    logger.info("Start app success.")
                     f.close()
             else:
                 if not args.force_launch:
-                    print('app already started.')
+                    logger.info('App already started. Killing.') #如果上一次的BAAS已经启动，就关闭
+                    p = psutil.Process(last_pid)
+                    try:
+                        p.terminate()
+                    except:
+                        os.system(f'taskkill /f /pid {last_pid}')
                 else:
                     with open("pid","w+") as f:
                         f.write(str(start_app()))
-                    print("Start app success.")
+                    logger.info("Start app success.")
                     
     except Exception as e:
         raise Exception("Run app failed")
@@ -249,6 +254,34 @@ def dynamic_update_installer():
             run_app()
             sys.exit()
         os.system(f"{os.path.abspath('./env/Scripts/python.exe')} {os.path.abspath('./installer.py')} --launch")
+        if platform.system() == "Windows":
+            try:
+                import PyInstaller
+                def create_executable():
+                    PyInstaller.__main__.run([
+                    '--name=BlueArchiveAutoScript',
+                    '--onefile',
+                    '--icon=gui/assets/logo.ico',
+                    '--clean',
+                    '--noconfirm'
+                    'installer.py'])
+                try:
+                    create_executable()
+                except Exception as e:
+                    traceback.print_exc()
+                    logger.warning('Build new BAAS launcher failed, Please check the Python Environment')
+                    logger.info('''Now you can turn off this command line window safely or report this issue to developers.
+                                现在您可以安全地关闭此命令行窗口或向开发者上报问题。
+                                您現在可以安全地關閉此命令行窗口或向開發人員報告此問題。
+                                今、このコマンドラインウィンドウを安全に閉じるか、この問題を開発者に報告することができます。
+                                이제 이 명령줄 창을 안전하게 종료하거나 이 문제를 개발자에게 보고할 수 있습니다.''')
+                    
+                    os.system('pause')
+                else:
+                    os.rename("BlueArchiveAutoScript.exe", "backup.exe")
+                    shutil.copy("dist/BlueArchiveAutoScript.exe", ".")
+            except:
+                pass
     sys.exit()
 
 def check_install():
@@ -270,15 +303,16 @@ def check_install():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Blue Archive Auto Script Launcher&Installer")
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description="Blue Archive Auto Script Launcher & Installer\nGitHub Repo: https://github.com/pur1fying/blue_archive_auto_script\nOfficial QQ Group: 658302636")
     parser.add_argument('--launch', action='store_true', help='Directly launch BAAS')
-    parser.add_argument('--force-launch', action='store_true', help='ignore multi instance check')
+    parser.add_argument('--force-launch', action='store_true', help='ignore multi BAAS instance check')
     parser.add_argument('--internal-launch', action='store_true', help='Use launcher inside pre-build executable files')
-
+    parser.add_argument('--no-build', action='store_true', help='Disable Internal BAAS Installer builder')
     args = parser.parse_args()
 
     if not args.launch:
         check_install()
+
     if not check_frozen_installer():
         run_app()
     else:
