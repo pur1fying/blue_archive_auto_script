@@ -156,10 +156,17 @@ def run_app():
                 '--name=BlueArchiveAutoScript',
                 '--onefile',
                 '--icon=gui/assets/logo.ico',
-                '--clean',
                 '--noconfirm'
                 ])
             create_executable()
+            if os.path.exists("./backup.exe"):
+                logger.info('try to remove the backup executable file.')
+                try:
+                    os.remove('./backup.exe')
+                except:
+                    logger.info('remove backup.exe failed.')
+                else:
+                    logger.info('remove finished.')
             os.rename("BlueArchiveAutoScript.exe", "backup.exe")
             shutil.copy("dist/BlueArchiveAutoScript.exe", ".")
         except:
@@ -278,7 +285,7 @@ def dynamic_update_installer():
         if not os.path.exists('./installer.py'):
             run_app()
             sys.exit()
-        os.system(f"{os.path.abspath('./env/Scripts/python.exe')} {os.path.abspath('./installer.py')} --launch")
+        os.system("START \" \" ./env/Scripts/python.exe ./installer.py --launch")
     sys.exit()
 
 def check_install():
