@@ -20,6 +20,8 @@ GIT_HOME = './toolkit/Git/bin/git.exe'
 GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py'
 GET_ATX_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/ATX.apk'
 LOCAL_PATH = './blue_archive_auto_script'
+TOOL_KIT_PATH = './toolkit'
+GET_UPX_URL = 'https://ghp.ci/https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-win64.zip'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -125,13 +127,7 @@ def run_app():
                 last_pid = int(f.read())
             except:
                 last_pid =  2147483647
-            if psutil.pid_exists(last_pid) == False:
-                f.close()
-                with open("pid","w+") as f:
-                    f.write(str(start_app()))
-                    logger.info("Start app success.")
-                    f.close()
-            else:
+            if psutil.pid_exists(last_pid):
                 if not args.force_launch:
                     logger.info('App already started. Killing.') #如果上一次的BAAS已经启动，就关闭
                     p = psutil.Process(last_pid)
@@ -143,6 +139,11 @@ def run_app():
                     with open("pid","w+") as f:
                         f.write(str(start_app()))
                     logger.info("Start app success.")
+            f.close()
+            with open("pid","w+") as f:
+                f.write(str(start_app()))
+                logger.info("Start app success.")
+                f.close()
                     
     except Exception as e:
         raise Exception("Run app failed")
@@ -150,16 +151,19 @@ def run_app():
     if platform.system() == "Windows" and args.no_build == False:
         try:
             import PyInstaller.__main__
+            check_upx()
             def create_executable():
                 PyInstaller.__main__.run([
                 './installer.py',
                 '--name=BlueArchiveAutoScript',
                 '--onefile',
                 '--icon=gui/assets/logo.ico',
-                '--noconfirm'
+                '--noconfirm',
+                '--upx-dir',
+                './toolkit/upx-4.2.4-win64'
                 ])
-            create_executable()
-            if os.path.exists("./backup.exe"):
+            if os.path.exists("./backup.exe") and not os.path.exists("./no_build"):
+                create_executable()
                 logger.info('try to remove the backup executable file.')
                 try:
                     os.remove('./backup.exe')
@@ -167,8 +171,8 @@ def run_app():
                     logger.info('remove backup.exe failed.')
                 else:
                     logger.info('remove finished.')
-            os.rename("BlueArchiveAutoScript.exe", "backup.exe")
-            shutil.copy("dist/BlueArchiveAutoScript.exe", ".")
+                os.rename("BlueArchiveAutoScript.exe", "backup.exe")
+                shutil.copy("dist/BlueArchiveAutoScript.exe", ".")
         except:
             logger.warning('Build new BAAS launcher failed, Please check the Python Environment')
             logger.info('''
@@ -215,6 +219,12 @@ def check_atx():
         logger.info("Downloading atx-agent...")
         download_file(GET_ATX_URL)
 
+def check_upx():
+    logger.info("Checking UPX installation.")
+    if not os.path.exists('toolkit/upx-4.2.4-win64/upx.exe'):
+            filepath = download_file(GET_UPX_URL)
+            unzip_file(filepath, TOOL_KIT_PATH)
+            os.remove(filepath)
 
 def check_git():
     logger.info("Checking git installation...")
