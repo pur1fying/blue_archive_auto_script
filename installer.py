@@ -146,6 +146,31 @@ def run_app():
                     
     except Exception as e:
         raise Exception("Run app failed")
+    
+    if platform.system() == "Windows" and args.no_build == False:
+        try:
+            import PyInstaller.__main__
+            def create_executable():
+                PyInstaller.__main__.run([
+                './installer.py',
+                '--name=BlueArchiveAutoScript',
+                '--onefile',
+                '--icon=gui/assets/logo.ico',
+                '--clean',
+                '--noconfirm'
+                ])
+            create_executable()
+            os.rename("BlueArchiveAutoScript.exe", "backup.exe")
+            shutil.copy("dist/BlueArchiveAutoScript.exe", ".")
+        except:
+            logger.warning('Build new BAAS launcher failed, Please check the Python Environment')
+            logger.info('''
+                        Now you can turn off this command line window safely or report this issue to developers.
+                        现在您可以安全地关闭此命令行窗口或向开发者上报问题。
+                        您現在可以安全地關閉此命令行窗口或向開發人員報告此問題。
+                        今、このコマンドラインウィンドウを安全に閉じるか、この問題を開発者に報告することができます。
+                        이제 이 명령줄 창을 안전하게 종료하거나 이 문제를 개발자에게 보고할 수 있습니다.''')
+            os.system('pause')
 
 
 def check_requirements():
@@ -254,34 +279,6 @@ def dynamic_update_installer():
             run_app()
             sys.exit()
         os.system(f"{os.path.abspath('./env/Scripts/python.exe')} {os.path.abspath('./installer.py')} --launch")
-        if platform.system() == "Windows" and args.no_build == False:
-            try:
-                import PyInstaller
-                def create_executable():
-                    PyInstaller.__main__.run([
-                    '--name=BlueArchiveAutoScript',
-                    '--onefile',
-                    '--icon=gui/assets/logo.ico',
-                    '--clean',
-                    '--noconfirm'
-                    'installer.py'])
-                try:
-                    create_executable()
-                except Exception as e:
-                    traceback.print_exc()
-                    logger.warning('Build new BAAS launcher failed, Please check the Python Environment')
-                    logger.info('''Now you can turn off this command line window safely or report this issue to developers.
-                                现在您可以安全地关闭此命令行窗口或向开发者上报问题。
-                                您現在可以安全地關閉此命令行窗口或向開發人員報告此問題。
-                                今、このコマンドラインウィンドウを安全に閉じるか、この問題を開発者に報告することができます。
-                                이제 이 명령줄 창을 안전하게 종료하거나 이 문제를 개발자에게 보고할 수 있습니다.''')
-                    
-                    os.system('pause')
-                else:
-                    os.rename("BlueArchiveAutoScript.exe", "backup.exe")
-                    shutil.copy("dist/BlueArchiveAutoScript.exe", ".")
-            except:
-                pass
     sys.exit()
 
 def check_install():
