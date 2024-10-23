@@ -1,9 +1,6 @@
 import os
 import re
-import winreg
-
 from .simulator_native import process_native_api
-
 
 def read_registry_key(region):
     if region != "":
@@ -12,6 +9,7 @@ def read_registry_key(region):
         key_path = f"SOFTWARE\\BlueStacks_nxt"
     value_name = "UserDefinedDir"
     try:
+        import winreg
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0, winreg.KEY_READ) as key:
             value, _ = winreg.QueryValueEx(key, value_name)
             # 如果value不以反斜杠结尾，添加一个
@@ -71,16 +69,12 @@ def get_bluestacks_nxt_adb_port_id(id, region=""):
         raise FileNotFoundError
     return None
 
-
-### End BlueStacks Module ###
-
-### return simulator type(bluestacks) ###
-
 def return_bluestacks_type(pid):
     def bst_read_registry_key(region):
         key_path = f"SOFTWARE\\BlueStacks_nxt{region}"
         value_name = "InstallDir"
         try:
+            import winreg
             with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0, winreg.KEY_READ) as key:
                 value, _ = winreg.QueryValueEx(key, value_name)
                 return value + 'HD-Player.exe'
@@ -97,4 +91,3 @@ def return_bluestacks_type(pid):
         return "bluestacks_nxt_cn"
     elif bst_path == process_native_api("get_exe_path_pid", pid):
         return "bluestacks_nxt"
-### End return simulator type(bluestacks) ###

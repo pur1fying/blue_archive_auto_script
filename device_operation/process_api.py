@@ -1,8 +1,6 @@
 import os
 import psutil
-import pythoncom
 import subprocess
-import win32com.client
 
 from typing import Union
 
@@ -19,7 +17,11 @@ def match_lists(target_args: list[str], process_cmdline: list[str]):
 def extract_args(emulator_path: str) -> tuple[str, list[str]]:
     # Resolve the emulator's actual executable path from a shortcut if provided
     if emulator_path.endswith('.lnk'):
-        shell = win32com.client.Dispatch("WScript.Shell")
+        try:
+            import win32com.client
+            shell = win32com.client.Dispatch("WScript.Shell")
+        except ImportError:
+            return emulator_path, [""]
         shortcut = shell.CreateShortCut(emulator_path)
         emulator_path = os.path.abspath(shortcut.Targetpath)
 
@@ -42,7 +44,11 @@ def start(emulator_path: str):
 
 def is_running(emulator_path) -> Union[psutil.Process, None]:
     # Initialize the COM library
-    pythoncom.CoInitialize()
+    try:
+        import pythoncom
+        pythoncom.CoInitialize()
+    except ImportError:
+        return None
 
     emulator_path, target_args = extract_args(emulator_path)
 
