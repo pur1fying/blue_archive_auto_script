@@ -44,7 +44,7 @@ def implement(self):
             picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
             tactical_challenge_assets = tactical_challenge_assets - asset_required
             self.logger.info("left assets : " + str(tactical_challenge_assets))
-            to_tactical_challenge_shop(self)
+            to_shop_menu(self)
 
         elif color.judge_rgb_range(self, 1126, 662, 206, 226, 206, 226, 206, 226):
             self.logger.info("-- Purchase Unavailable --")
@@ -52,16 +52,35 @@ def implement(self):
             return True
         self.latest_img_array = self.get_screenshot_array()
         if i != refresh_time:
-            if tactical_challenge_assets > refresh_price[i]:
-                self.logger.info("Refresh assets adequate")
+            if tactical_challenge_assets >= refresh_price[i] + asset_required:
+                self.logger.info("Refresh and purchase assets adequate.")
                 if not to_refresh(self):
                     self.logger.info("refresh Times inadequate")
                     return True
                 tactical_challenge_assets = tactical_challenge_assets - refresh_price[i]
                 self.logger.info("left tactical challenge assets : " + str(tactical_challenge_assets))
-                self.click(767, 468, duration=0.5, wait_over=True)
-                to_tactical_challenge_shop(self)
+                confirm_refresh(self)
     return True
+
+
+def confirm_refresh(self):
+    img_possibles = {
+        "shop_refresh-notice": (767, 468),
+    }
+    img_ends = "shop_menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def to_shop_menu(self):
+    rgb_possibles = {
+        "reward_acquired": (640, 89),
+    }
+    img_possibles = {
+        'main_page_full-notice': (887, 165),
+        "main_page_insufficient-inventory-space": (910, 138),
+    }
+    img_ends = "shop_menu"
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
 def to_tactical_challenge_shop(self, skip_first_screenshot=False):
@@ -113,13 +132,15 @@ def to_refresh(self):
         "shop_refresh-notice",
         "shop_refresh-unavailable-notice"
     ]
-    rgb_possibles = {"tactical_challenge_shop": (1160, 664)}
+    rgb_possibles = {
+        "tactical_challenge_shop": (1160, 664)
+    }
     img_pop_ups = {
         'main_page_full-notice': (887, 165),
         "main_page_insufficient-inventory-space": (910, 138),
     }
     res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True, img_pop_ups=img_pop_ups)
-    if res == "shop_refresh_guide" or res == "shop_refresh-notice":
+    if res == "shop_refresh-notice":
         return True
     return False
 

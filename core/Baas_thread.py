@@ -471,7 +471,7 @@ class Baas_thread:
                 'main_page_news': (1142, 104),
                 'main_page_news2': (1142, 104),
                 'cafe_cafe-reward-status': (905, 159),
-                'normal_task_task-info': (1084, 139),
+                'normal_task_task-info': (1126, 115),
                 "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
                 "main_page_net-work-unstable": (753, 500),
