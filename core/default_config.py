@@ -425,7 +425,9 @@ DEFAULT_CONFIG = """
         0,
         0
     ],
-    "clear_friend_white_list": []
+    "clear_friend_white_list": [],
+    "drill_difficulty_list": [1,1,1],
+    "drill_fight_formation_list": [1,2,3]
 }
 """
 
@@ -673,7 +675,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "bunnyChaserOnTheShip2",
+        "CN": null,
         "Global": "iveAlive",
         "JP": "SerenadePromenade"
     },
