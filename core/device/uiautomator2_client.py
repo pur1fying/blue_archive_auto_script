@@ -19,8 +19,10 @@ class U2Client:
 
     def __init__(self, serial):
         self.serial = serial
-        self.connection = u2.connect(serial)
-
+        if ":" in serial:
+            self.connection = u2.connect(serial)
+        else:
+            self.connection = u2.connect_usb(serial)
 
     def click(self, x, y):
         self.connection.click(x, y)

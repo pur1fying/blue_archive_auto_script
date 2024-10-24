@@ -17,10 +17,17 @@ class Connection:
         self.static_config = self.config_set.static_config
         self.adbIP = self.config['adbIP']
         self.adbPort = self.config['adbPort']
-        if isinstance(self.adbPort, int):
-            self.adbPort = str(self.adbPort)
-        self.serial = self.adbIP + ":" + self.adbPort
-        self.set_serial(self.serial)
+        self.is_usb = (self.adbIP == "" or self.adbPort == "")
+        if self.adbIP == "" and self.adbPort != "":
+            self.serial = self.adbPort
+        elif self.adbIP != "" and self.adbPort == "":
+            self.serial = self.adbIP
+
+        if not self.is_usb:
+            if isinstance(self.adbPort, int):
+                self.adbPort = str(self.adbPort)
+            self.serial = self.adbIP + ":" + self.adbPort
+            self.set_serial(self.serial)
         self.check_serial()
         self.detect_device()
         self.adb_connect()
