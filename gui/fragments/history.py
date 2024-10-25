@@ -2,6 +2,7 @@ import random
 import subprocess
 import threading
 from datetime import datetime
+from os import name as osname
 
 from PyQt5.QtWidgets import QAbstractItemView, QTableWidgetItem
 from qfluentwidgets import FluentWindow, TableWidget, FluentIcon as FIF
@@ -30,9 +31,13 @@ class HistoryWindow(FluentWindow):
         self.show()
 
     def fetch_update_info(self):
-        GIT_HOME = './toolkit/Git/bin/git.exe'
+        if osname == 'nt':
+            GIT_HOME = './toolkit/Git/bin/git.exe'
+        elif osname == 'posix':
+            GIT_HOME = subprocess.run(['which', 'git'], capture_output=True, text=True, encoding='utf-8').stdout.split('\n')[0]
+
         # 获取提交日志
-        result = subprocess.run([GIT_HOME, 'log'], capture_output=True, text=True, encoding='utf-8')
+        result = subprocess.run([GIT_HOME, 'log', '--date', 'unix'], capture_output=True, text=True, encoding='utf-8')
         output = result.stdout
         # print(output)
         # 解析提交日志
@@ -49,7 +54,7 @@ class HistoryWindow(FluentWindow):
                 current_entry['author'] = _author
             elif line.startswith('Date:'):
                 _date = line.split(': ')[1].strip()
-                _date = datetime.strptime(_date, "%a %b %d %H:%M:%S %Y %z").strftime("%Y-%m-%d %H:%M:%S")
+                _date = datetime.fromtimestamp(int(_date)).strftime("%Y-%m-%d %H:%M:%S")
                 current_entry['date'] = _date
             elif line.startswith('    '):
                 if 'message' in current_entry:
