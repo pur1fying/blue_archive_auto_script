@@ -507,6 +507,13 @@ SWITCH_DEFAULT_CONFIG = '''
         "sort": 15,
         "tip": "设置在定期好友清理中需要保留的好友码",
         "type": "BasicSettingCard"
+    },
+    {
+        "config": "drillConfig",
+        "name": "战术综合测试",
+        "sort": 16,
+        "tip": "帮助你自动打战术综合测试",
+        "type": "BasicSettingCard"
     }
 ]
 
