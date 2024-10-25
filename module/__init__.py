@@ -29,3 +29,4 @@ from module import sweep_activity
 from module import dailyGameActivity
 from module import cafe_invite
 from module import friend
+from module import joint_firing_drill

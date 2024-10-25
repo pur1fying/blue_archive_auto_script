@@ -80,17 +80,25 @@ def enter_fight(self):
         'normal_task_present': (640, 519),
         'normal_task_teleport-notice': (886, 165)
     }
-    rgb_ends = "fighting_feature"
+    rgb_ends = [
+        "fighting_feature",
+        "normal_task_fight-confirm",
+        "normal_task_fail-confirm",
+    ]
     img_pop_ups = {"activity_choose-buff": (644, 570)}
-    picture.co_detect(self, rgb_ends, None, None, img_possibles, True, img_pop_ups=img_pop_ups)
+    ret = picture.co_detect(self, rgb_ends, None, None, img_possibles, True, img_pop_ups=img_pop_ups)
+    if ret != "fighting_feature":
+        self.logger.info("fight end.")
+    return ret
 
 
 def auto_fight(self, need_change_acc=True):
-    enter_fight(self)
-    if need_change_acc:
+    ret = enter_fight(self)
+    if need_change_acc and ret == "fighting_feature":
         time.sleep(2)
         self.latest_img_array = self.get_screenshot_array()
         change_acc_auto(self)
+
 
 
 def check_episode(self):

@@ -429,7 +429,10 @@ DEFAULT_CONFIG = """
         0,
         0
     ],
-    "clear_friend_white_list": []
+    "clear_friend_white_list": [],
+    "drill_difficulty_list": [1,1,1],
+    "drill_fight_formation_list": [1,2,3],
+    "drill_enable_sweep": true
 }
 """
 

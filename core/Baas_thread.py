@@ -59,6 +59,7 @@ func_dict = {
     'explore_activity_mission': module.explore_activity_mission.implement,
     'dailyGameActivity': module.dailyGameActivity.implement,
     'friend': module.friend.implement,
+    'joint_firing_drill': module.joint_firing_drill.implement,
 }
 
 
