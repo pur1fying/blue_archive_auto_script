@@ -103,32 +103,37 @@ def sweep(self, number, times):
     return True
 
 
+def check_sweep_availability(self, plot):
+    if plot == "activity_task-info":
+        if image.compare_image(self, "activity_task-no-goals", False):
+            if not color.judge_rgb_range(self, 146, 522, 232, 255, 219, 255, 0, 30):
+                return "sss"
+            else:
+                return "no-pass"
+        else:
+            return color.check_sweep_availability(self)
+    elif plot == "main_story_episode-info":
+        if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+            return "sss"
+        else:
+            return "no-pass"
+    return "no-pass"
+
+
 def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True, True)
     last_target_task = 1
-    total_stories = 10
+    total_stories = 8
     while self.flag_run:
         plot = to_story_task_info(self, last_target_task)
-        if plot == "normal_task_task-info" or plot == "activity_task-info":
-            res = color.check_sweep_availability(self)
-        elif plot == "main_story_episode-info":
-            if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
-                res = "sss"
-            else:
-                res = "no-pass"
+        res = check_sweep_availability(self, plot)
         while res == "sss" and last_target_task <= total_stories - 1:
             self.logger.info("Current story sss check next story")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_task += 1
-            plot = picture.co_detect(self, img_ends=["normal_task_task-info","activity_task-info", "main_story_episode-info"])
-            if plot == "normal_task_task-info" or plot == "activity_task-info":
-                res = color.check_sweep_availability(self)
-            elif plot == "main_story_episode-info":
-                if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
-                    res = "sss"
-                else:
-                    res = "no-pass"
+            plot = picture.co_detect(self, img_ends=["activity_task-info", "main_story_episode-info"])
+            res = check_sweep_availability(self, plot)
         if last_target_task == total_stories and res == "sss":
             self.logger.info("All STORY SSS")
             return True
@@ -140,7 +145,6 @@ def explore_story(self):
 def start_story(self):
     img_possibles = {
         "activity_task-info": (940, 538),
-        "normal_task_task-info": (940, 538),
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
         "plot_skip-plot-notice": (766, 520),
@@ -150,8 +154,12 @@ def start_story(self):
         "formation_edit1",
         "reward_acquired"
     ]
-    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
-    if res == "formation_edit1":
+    img_ends = [
+        "plot_formation-edit",
+        "activity_unit-formation",
+    ]
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
+    if res == "formation_edit1" or res == "plot_formation-edit" or res == "activity_unit-formation":
         start_fight(self, 1)
         main_story.auto_fight(self)
     elif res == "reward_acquired":
@@ -160,9 +168,15 @@ def start_story(self):
 
 
 def start_fight(self, i):
-    rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
+    rgb_possibles = {
+        "formation_edit" + str(i): (1156, 659)
+    }
+    img_possibles = {
+        "plot_formation-edit": (1156, 659),
+        "activity_unit-formation": (1156, 659),
+    }
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot=True)
 
 
 def explore_mission(self):
@@ -170,7 +184,20 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = get_stage_data(self)['mission']
+    characteristic = [
+        'pierce1',
+        'mystic1',
+        'burst1',
+        'mystic1',
+        'burst1',
+        'mystic1',
+        'burst1',
+        'mystic1',
+        'burst1',
+        'mystic1',
+        'burst1',
+        'mystic1',
+    ]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -178,7 +205,7 @@ def explore_mission(self):
             self.logger.info("Current task sss check next task")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_mission += 1
-            picture.co_detect(self, img_ends=["normal_task_task-info", "activity_task-info"])
+            picture.co_detect(self, img_ends="activity_task-info")
             res = color.check_sweep_availability(self)
         if last_target_mission == total_missions and res == "sss":
             self.logger.info("All MISSION SSS")
@@ -196,10 +223,8 @@ def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
     tasks = [
-        "challenge2_sss",
-        "challenge4_sss",
-        "challenge2_task",
-        "challenge4_task",
+        "challenge2_sss_task",
+        "challenge4_sss_task",
     ]
     stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
@@ -230,11 +255,6 @@ def explore_challenge(self):
 
 
 def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
-    task_info = {
-        'CN': (1087, 141),
-        'Global': (1128, 141),
-        'JP': (1126, 115)
-    }
     task_info_x = {
         'CN': 1087,
         'Global': 1128,
@@ -244,15 +264,16 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "activity_enter1": (1196, 195),
         "activity_enter2": (100, 149),
         "activity_enter3": (218, 530),
+        "activity_get-collectable-item1": (508, 505),
+        "activity_get-collectable-item2": (505, 537),
         'activity_fight-success-confirm': (640, 663),
         "plot_menu": (1205, 34),
         "plot_skip-plot-button": (1213, 116),
-        "purchase_ap_notice": (919, 168),
+        'purchase_ap_notice': (919, 168),
         'purchase_ap_notice-localized': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
-        "activity_task-info": (task_info_x[self.server],141),
-        "normal_task_task-info": task_info[self.server],
+        "activity_task-info": (task_info_x[self.server], 141),
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
         "main_story_episode-info": (917, 161),
@@ -298,28 +319,27 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
 
 
 def to_story_task_info(self, number):
-    lo = [0, 180, 280, 380, 480, 580, 680, 348, 448, 548, 648]
-    if number >= 7:
-        self.swipe(916, 667, 916, 0, duration=0.05, post_sleep_time=0.7)
+    lo = [0, 180, 280, 380, 480, 572, 443, 543]
+    if number >= 6:
+        self.swipe(916, 564, 916, 0, duration=0.05, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = [
         "activity_task-info",
-        "normal_task_task-info",
         "main_story_episode-info"
     ]
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def to_mission_task_info(self, number):
-    lo = [0, 184, 308, 422, 537, 645]
-    index = [1, 2, 3, 4, 5, 4, 5, 1, 2, 3, 4, 5]
-    if number in [6, 7]:
-        self.swipe(916, 483, 916, 219, duration=0.5, post_sleep_time=0.7)
-    if number in [8, 9, 10, 11, 12]:
-        self.swipe(943, 678, 943, 0, duration=0.1, post_sleep_time=0.7)
-        self.swipe(943, 678, 943, 0, duration=0.1, post_sleep_time=0.7)
+    lo = [0, 184, 308, 422, 537]
+    index = [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
+    if number in [5, 6, 7, 8]:
+        self.swipe(916, 585, 916, 114, duration=0.5, post_sleep_time=0.7)
+    if number in [9, 10, 11, 12]:
+        self.swipe(943, 576, 943, 0, duration=0.1, post_sleep_time=0.7)
+        self.swipe(943, 576, 943, 0, duration=0.1, post_sleep_time=0.7)
     possibles = {'activity_menu': (1124, lo[index[number - 1]])}
-    ends = ["normal_task_task-info", "activity_task-info"]
+    ends = "activity_task-info"
     return picture.co_detect(self, None, None, ends, possibles, True)
 
 
@@ -328,7 +348,6 @@ def to_challenge_task_info(self, number):
     img_possibles = {'activity_menu': (1124, lo[number])}
     img_ends = [
         "activity_task-info",
-        "normal_task_task-info",
         "normal_task_SUB"
     ]
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -347,7 +366,6 @@ def to_formation_edit_i(self, i, lo=(0, 0), skip_first_screenshot=False):
     rgb_possibles.pop("formation_edit" + str(i))
     img_possibles = {
         "activity_task-info": (lo[0], lo[1]),
-        "normal_task_task-info": (lo[0], lo[1]),
         "normal_task_SUB": (647, 517)
     }
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
@@ -355,13 +373,15 @@ def to_formation_edit_i(self, i, lo=(0, 0), skip_first_screenshot=False):
 
 def start_sweep(self, skip_first_screenshot=False):
     img_ends = [
-        "purchase_ap_notice",
+        'purchase_ap_notice',
         "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
     ]
-    img_possibles = {"normal_task_task-info": (941, 411)}
+    img_possibles = {
+        "activity_task-info": (941, 411),
+    }
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice-localized" or res == "buy_ap_notice":
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return "inadequate_ap"
     rgb_ends = [
         "skip_sweep_complete",
@@ -375,5 +395,3 @@ def start_sweep(self, skip_first_screenshot=False):
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
-
-

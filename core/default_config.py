@@ -527,8 +527,8 @@ STATIC_DEFAULT_CONFIG = '''
         "Global": [
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
-            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
             ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
+            ["一包强化珠α", 110000, "creditpoints"],["一包强化珠β", 240000, "creditpoints"],["一包强化珠γ", 384000, "creditpoints"],["一包强化珠δ", 496000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ],
@@ -650,7 +650,8 @@ STATIC_DEFAULT_CONFIG = '''
             "阿拜多斯高等学院",
             "千禧年学习区",
             "崔尼蒂广场区",
-            "红冬联邦学院"
+            "红冬联邦学院",
+            "百鬼夜行中心"
             ],
         "Global": [
             "Schale Office",
@@ -679,9 +680,9 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "ALittleBeforetheFoodPiledUpTheBestGame",
-        "Global": "RowdyAndCherry",
-        "JP": "TheFiveSensesAreClouded"
+        "CN": null,
+        "Global": "iveAlive",
+        "JP": "SerenadePromenade"
     },
     "dailyGameActivity": {
         "CN": null,
@@ -1291,7 +1292,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "纯子(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Junko (New Year)",
       "Global_implementation": true,
       "JP_name": "ジュンコ(正月)",
@@ -1299,7 +1300,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "风香(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Fuuka (New Year)",
       "Global_implementation": true,
       "JP_name": "フウカ(正月)",
@@ -1307,7 +1308,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "晴奈(正月)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Haruna (New Year)",
       "Global_implementation": true,
       "JP_name": "ハルナ(正月)",
@@ -1370,8 +1371,8 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "茜(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "茜(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Akane (Bunny)",
       "Global_implementation": true,
       "JP_name": "アカネ(バニーガール)",
