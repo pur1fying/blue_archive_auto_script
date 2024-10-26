@@ -34,6 +34,22 @@ ICON_DIR = 'gui/assets/logo.png'
 LAST_NOTICE_TIME = 0
 
 
+def delete_deprecated_config(file_name, config_name=None):
+    # delete useless config file
+    pre = 'config/'
+    if config_name is not None:
+        pre += config_name + '/'
+    if type(file_name) is str:
+        path = pre + file_name
+        if os.path.exists(path):
+            os.remove(path)
+    elif type(file_name) is list:
+        for name in file_name:
+            path = pre + name
+            if os.path.exists(path):
+                os.remove(path)
+
+
 def update_config_reserve_old(config_old, config_new):  # 保留旧配置原有的键，添加新配置中没有的，删除新配置中没有的键
     for key in config_new:
         if key not in config_old:
@@ -71,12 +87,6 @@ def check_static_config():
         with open('./config/static.json', 'w', encoding='utf-8') as f:
             f.write(default_config.STATIC_DEFAULT_CONFIG)
         return
-
-
-def check_display_config(dir_path='./default_config'):
-    path = './config/' + dir_path + '/display.json'
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write(default_config.DISPLAY_DEFAULT_CONFIG)
 
 
 def check_switch_config(dir_path='./default_config'):
@@ -154,6 +164,7 @@ def check_event_config(dir_path='./default_config', server="CN"):
 
 
 def check_config(dir_path):
+    delete_deprecated_config("display.json", dir_path)
     if not os.path.exists('./config'):
         os.mkdir('./config')
     check_static_config()
@@ -170,7 +181,6 @@ def check_config(dir_path):
         elif server == "日服":
             server = "JP"
         check_event_config(path, server)
-        check_display_config(path)
         check_switch_config(path)
 
 
@@ -500,7 +510,6 @@ class Window(MSFluentWindow):
             serial_name = str(int(datetime.datetime.now().timestamp()))
             os.mkdir(f'./config/{serial_name}')
             check_event_config(serial_name)
-            check_display_config(serial_name)
             check_switch_config(serial_name)
             data = json.loads(default_config.DEFAULT_CONFIG)
             data['name'] = text
@@ -553,12 +562,18 @@ if configGui.get(configGui.dpiScale) != "Auto":
     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
     os.environ["QT_SCALE_FACTOR"] = str(configGui.get(configGui.dpiScale))
 
-
 if __name__ == '__main__':
     # pa=Main()
     # pa._init_emulator()
     # pa.solve("arena")
-
+    deprecated_configs = [
+        "display.json",
+        "event.json",
+        "switch.json",
+        "config.json",
+        "language.json"
+    ]
+    delete_deprecated_config(deprecated_configs)
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
