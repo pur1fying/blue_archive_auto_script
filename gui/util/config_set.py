@@ -2,6 +2,8 @@ import json
 import re
 
 from PyQt5.QtCore import QObject
+from PyQt5.QtGui import QColor
+from qfluentwidgets import qconfig
 
 from gui.util.translator import baasTranslator as bt
 
@@ -19,14 +21,19 @@ class BoundComponent(QObject):
     :param config_manager: Config manager
     :param attribute: Attribute to bind (default is setText)
     """
-    def __init__(self, component,  string_rule, config_manager, attribute="setText"):
+
+    def __init__(self, component, string_rule, config_manager, attribute="setText"):
         super().__init__()
         self.component = component
         self.attribute = attribute
         self.string_rule = string_rule
         self.config_manager = config_manager
-
+        qconfig.themeChanged.connect(self._color_change)
         self.update_component()  # 初始化时更新组件
+
+    def _color_change(self):
+        self.component.setTextColor(QColor(0, 0, 0) if qconfig.theme.name == "LIGHT" else QColor(255, 255, 255)
+                                    , QColor(255, 255, 255) if qconfig.theme.name == "LIGHT" else QColor(0, 0, 0))
 
     def update_component(self):
         """ Update the component with the new value """
@@ -49,14 +56,17 @@ class ConfigSet:
         super().__init__()
         print(config_dir)
         self.config = None
+        self.gui_config = None
         self.server_mode = 'CN'
         self.inject_comp_list = []
         self.inject_config_list = []
+        self.window = None
         self.main_thread = None
         self.static_config = None
         self.config_dir = config_dir
         self.signals = {}
         self._init_config()
+        self._init_gui_config()
 
     def _init_config(self):
         with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
@@ -87,6 +97,14 @@ class ConfigSet:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
         self.dynamic_update(key)
 
+    def get_gui(self, key):
+        return self.gui_config['MainWindow'][key]
+
+    def set_gui(self, key, value):
+        self.gui_config['MainWindow'][key] = value
+        with open(f'./config/gui.json', 'w', encoding='utf-8') as f:
+            json.dump(self.gui_config, f, indent=4, ensure_ascii=False)
+
     def dynamic_update(self, key):
         if key not in self.inject_config_list: return
         for comp in self.inject_comp_list:
@@ -109,6 +127,12 @@ class ConfigSet:
     def get_signal(self, key):
         return self.signals.get(key)
 
+    def set_window(self, window):
+        self.window = window
+
+    def get_window(self):
+        return self.window
+
     def set_main_thread(self, thread):
         self.main_thread = thread
 
@@ -127,3 +151,7 @@ class ConfigSet:
         self.inject_config_list.extend(re.findall(r'{(.*?)}', string_rule))
         self.inject_comp_list.append(bounded)
         return bounded
+
+    def _init_gui_config(self):
+        with open(f'./config/gui.json', 'r', encoding='utf-8') as f:
+            self.gui_config = json.load(f)

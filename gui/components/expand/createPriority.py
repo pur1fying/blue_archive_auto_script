@@ -1,8 +1,8 @@
 import random
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
-from qfluentwidgets import LineEdit, TabBar, CheckBox
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from qfluentwidgets import LineEdit, TabBar, PushButton, CheckBox
 
 
 class Layout(QWidget):
@@ -19,7 +19,7 @@ class Layout(QWidget):
         self.label = QLabel(self.tr('目前制造物品优先级，排在前面的会优先选择'), self)
         self.input1 = QLabel(self)
         self.input2 = LineEdit(self)
-        self.accept = QPushButton(self.tr('确定'), self)
+        self.accept = PushButton(self.tr('确定'), self)
         self.label_for_use_acc_ticket_check_box = QLabel(self.tr('是否使用加速券'), self)
         self.use_acc_ticket_checkbox = CheckBox(self)
         self.use_acc_ticket_checkbox.setChecked(self.config.get('use_acceleration_ticket'))

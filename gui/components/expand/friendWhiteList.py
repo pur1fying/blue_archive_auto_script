@@ -1,8 +1,8 @@
 from functools import partial
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QHeaderView
-from qfluentwidgets import LineEdit, TableWidget
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QHeaderView
+from qfluentwidgets import LineEdit, TableWidget, PushButton
 
 from gui.util import notification
 
@@ -15,7 +15,7 @@ class Layout(QWidget):
         self.to_add_lay = QHBoxLayout()
         self.to_add_label = QLabel(self.tr('输入你需要添加进白名单的好友码(长度为7, 由小写字母和数字组成):'), self)
         self.to_add_input = LineEdit(self)
-        self.add_accept = QPushButton(self.tr('确定'), self)
+        self.add_accept = PushButton(self.tr('确定'), self)
         self.table_view = None
 
         self.to_add = ""
@@ -73,7 +73,7 @@ class Layout(QWidget):
         tableView.setEditTriggers(tableView.NoEditTriggers)
         for i in range(len(self.white_list)):
             user_code = QLabel(self.white_list[i], self)
-            del_button = QPushButton(self.tr('删除'), self)
+            del_button = PushButton(self.tr('删除'), self)
             del_button.clicked.connect(partial(self.__accept_delete, (i,)))
             tableView.setCellWidget(i, 0, user_code)
             tableView.setCellWidget(i, 1, del_button)

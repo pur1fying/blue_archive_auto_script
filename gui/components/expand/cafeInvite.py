@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
-from qfluentwidgets import ComboBox, LineEdit, CheckBox
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
+from qfluentwidgets import ComboBox, LineEdit, CheckBox, PushButton
 
 from gui.util.translator import baasTranslator as bt
 
@@ -52,7 +52,7 @@ class Layout(QWidget):
         self.input1.addItem(self.tr("添加学生"))
         self.input = LineEdit(self)
         self.input.setFixedWidth(650)
-        self.ac_btn = QPushButton(self.tr('确定'), self)
+        self.ac_btn = PushButton(self.tr('确定'), self)
 
         self.favor_student1 = self.config.get('favorStudent1')
         self.input1.addItems(self.student_name)
@@ -180,7 +180,7 @@ class Layout(QWidget):
         self.input4.addItem(self.tr("添加学生"))
         self.input_ = LineEdit(self)
         self.input_.setFixedWidth(650)
-        self.ac_btn_ = QPushButton(self.tr('确定'), self)
+        self.ac_btn_ = PushButton(self.tr('确定'), self)
         self.favor_student2 = self.config.get('favorStudent2')
         self.input4.addItems(self.student_name)
         self.favor_student2 = self.check_valid_student_names_()

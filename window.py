@@ -7,22 +7,22 @@ import sys
 import threading
 from functools import partial
 from typing import Union
-from core import default_config
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QEvent, QTimer
+from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
     MSFluentTitleBar, MessageBox, TransparentToolButton, FluentIconBase, TabItem, \
     RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
-from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
+from qfluentwidgets import (SubtitleLabel, setFont)
 
+from core import default_config
 from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
-from gui.util.config_set import ConfigSet
 from gui.util.config_gui import configGui
+from gui.util.config_set import ConfigSet
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
 
@@ -310,7 +310,7 @@ class BAASLangAltButton(TransparentToolButton):
     def __init__(self, parent):
         super().__init__(parent)
         self.setIcon(FIF.LANGUAGE.icon())
-        with open('config/language.json', 'r', encoding='utf-8') as f:
+        with open('config/gui.json', 'r', encoding='utf-8') as f:
             self.config = json.loads(f.read())
         self.setToolTip(self.tr('语言设置'))
         self.actions = []
@@ -324,7 +324,7 @@ class BAASLangAltButton(TransparentToolButton):
     def _init_actions(self):
         self.menu = RoundMenu(parent=self)
         for lang in Language.combobox():
-            status = ' ✔' if Language.get_raw(lang) == self.config['Translator']['Language'] else ''
+            status = ' ✔' if Language.get_raw(lang) == self.config['MainWindow']['Language'] else ''
             action = Action(FIF.PLAY, self.tr(lang) + status, triggered=partial(self._onLangChanged, lang))
             self.actions.append(action)
             self.menu.addAction(action)
@@ -333,8 +333,8 @@ class BAASLangAltButton(TransparentToolButton):
         for action in self.actions:
             action.setText(action.text().replace(' ✔', ''))
 
-        if lang == self.config['Translator']['Language']: return
-        self.config['Translator']['Language'] = Language.get_raw(lang)
+        if lang == self.config['MainWindow']['Language']: return
+        self.config['MainWindow']['Language'] = Language.get_raw(lang)
         with open('./config/language.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.config, ensure_ascii=False, indent=4))
 
@@ -425,6 +425,7 @@ class Window(MSFluentWindow):
         for config in self.config_dir_list:
             if config.server_mode not in self.ocr_needed:
                 self.ocr_needed.append(config.server_mode)
+            config.set_window(self)
         # create sub interface
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment

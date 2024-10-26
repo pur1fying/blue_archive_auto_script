@@ -4,14 +4,15 @@ import time
 from datetime import datetime
 from hashlib import md5
 from random import random
+from typing import Union
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QWidget
-from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel)
+from qfluentwidgets import (ExpandLayout, ScrollArea, TitleLabel, FlowLayout)
 from qfluentwidgets import SettingCardGroup
 
 from gui.components import expand
-from gui.components.template_card import TemplateSettingCard
+from gui.components.template_card import TemplateSettingCard, TemplateSettingCardForClick
 
 lock = threading.Lock()
 
@@ -19,6 +20,7 @@ lock = threading.Lock()
 class SwitchFragment(ScrollArea):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
+        self.flowLayout = None
         self.config = config
         # 创建一个QWidget实例作为滚动区域的内容部件
         self.scrollWidget = QWidget()
@@ -27,6 +29,7 @@ class SwitchFragment(ScrollArea):
         # 创建一个标题为“调度设置”的TitleLabel实例
         self.settingLabel = TitleLabel(self.scrollWidget)
         config.inject(self.settingLabel, self.tr("配置设置") + " {name}")
+        self.configLoadType = self.config.get_gui('configLoadType')
         # 初始化basicGroup变量,_setting_cards列表
         self.basicGroup = None
         self._setting_cards = []
@@ -71,13 +74,9 @@ class SwitchFragment(ScrollArea):
             self._create_card(
                 name=item_event['name'],
                 tip=item_event['tip'],
-                # enabled=item_event['enabled'],
-                # next_tick=item_event['next_tick'],
                 setting_name=item_event['config']
             )
             for item_event in self._switch_config
-            # for item_event in self._event_config
-            # if item_event['event_name'] == item_switch['name']
         ]
 
         self.__initLayout()  # 调用__initLayout()方法初始化布局
@@ -97,20 +96,18 @@ class SwitchFragment(ScrollArea):
         ]
         self._commit_change()  # 调用_commit_change()方法提交更改
 
-    def _create_card(self, name: str, tip: str, setting_name: str) -> TemplateSettingCard:
-        _switch_card = TemplateSettingCard(
+    def _create_card(self, name: str, tip: str, setting_name: str) -> Union[
+        TemplateSettingCard, TemplateSettingCardForClick]:
+        Component = TemplateSettingCardForClick if self.configLoadType == 'Card' else TemplateSettingCard
+        _switch_card = Component(
             title=name,
             content=tip,
             parent=self.basicGroup,
             sub_view=expand.__dict__[setting_name] if setting_name else None,
             config=self.config,
-            context='ConfigTranslation'
+            context='ConfigTranslation',
+            setting_name=setting_name
         )  # 创建TemplateSettingCard实例
-        # _switch_card.status_switch.setChecked(enabled)  # 设置状态开关的选中状态
-        # _switch_card.statusChanged.connect(lambda x: self._change_status(name, x))  # 连接状态开关的状态更改信号和_change_status()方法
-        # _switch_card.timeChanged.connect(lambda x: self._change_time(name, x))  # 连接时间更改信号和_change_time()方法
-        # _switch_card.timer_box.setText(
-        #     datetime.fromtimestamp(float(next_tick)).strftime("%Y-%m-%d %H:%M:%S"))  # 设置计时器文本
         return _switch_card  # 返回创建的TemplateSettingCard实例
 
     def _commit_change(self):
@@ -126,13 +123,26 @@ class SwitchFragment(ScrollArea):
                 self._switch_config = json.load(f)  # 从配置文件中读取数据并更新_switch_config列表
 
     def update_settings(self):
-        if self.basicGroup is not None:
-            self.basicGroup.deleteLater()  # 如果basicGroup已经存在，则删除它
-        self.basicGroup = SettingCardGroup(self.tr("功能开关"), self.scrollWidget)  # 创建一个标题为"功能开关"的SettingCardGroup实例
-        self.basicGroup.vBoxLayout.insertSpacing(1, -10)  # 设置basicGroup的垂直布局的间距为20
-        self.basicGroup.titleLabel.deleteLater()
-        self.basicGroup.addSettingCards(self._setting_cards)  # 将_setting_cards列表中的SettingCard对象添加到basicGroup中
-        self.expandLayout.addWidget(self.basicGroup)  # 将basicGroup添加到expandLayout布局中
+        if self.configLoadType == 'List':
+            if self.basicGroup is not None:
+                self.basicGroup.deleteLater()  # 如果basicGroup已经存在，则删除它
+
+            self.basicGroup = SettingCardGroup(self.tr("功能开关"),
+                                               self.scrollWidget)  # 创建一个标题为"功能开关"的SettingCardGroup实例
+            self.basicGroup.vBoxLayout.insertSpacing(1, -10)  # 设置basicGroup的垂直布局的间距为20
+            self.basicGroup.titleLabel.deleteLater()
+            self.basicGroup.addSettingCards(self._setting_cards)  # 将_setting_cards列表中的SettingCard对象添加到basicGroup中
+            self.expandLayout.addWidget(self.basicGroup)  # 将basicGroup添加到expandLayout布局中
+        else:
+            wrapper_widget = QWidget(self.scrollWidget)
+            self.flowLayout = FlowLayout(wrapper_widget, needAni=True)  # 创建一个FlowLayout实例作为滚动区域的布局管理器
+            self.flowLayout.setSpacing(10)
+            self.flowLayout.setAlignment(Qt.AlignTop)
+            for card in self._setting_cards:
+                self.flowLayout.addWidget(card)
+            # Attention: 150 is the height of the card, 4 is the row count
+            wrapper_widget.setFixedHeight(150 * 4 + 50)
+            self.expandLayout.addWidget(wrapper_widget)
 
     def __initLayout(self):
         self.expandLayout.setSpacing(28)  # 设置expandLayout的间距为28

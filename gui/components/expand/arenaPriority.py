@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
-from qfluentwidgets import LineEdit, ComboBox
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from qfluentwidgets import LineEdit, ComboBox, PushButton
 
 from gui.util import notification
 
@@ -22,9 +22,9 @@ class Layout(QWidget):
         self.input_1 = LineEdit(self)
         self.input_2 = LineEdit(self)
         self.input_3 = ComboBox(self)
-        self.accept_1 = QPushButton(self.tr('确定'), self)
-        self.accept_2 = QPushButton(self.tr('确定'), self)
-        self.accept_3 = QPushButton(self.tr('确定'), self)
+        self.accept_1 = PushButton(self.tr('确定'), self)
+        self.accept_2 = PushButton(self.tr('确定'), self)
+        self.accept_3 = PushButton(self.tr('确定'), self)
 
         self.level_diff = self.config.get('ArenaLevelDiff')
         validator_1 = QIntValidator(-50, 50)
