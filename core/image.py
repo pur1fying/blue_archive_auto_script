@@ -6,7 +6,8 @@ from core import position, color
 
 
 def screenshot_cut(self, area):
-    return self.latest_img_array[int(area[1]*self.ratio):int(area[3]*self.ratio), int(area[0]*self.ratio):int(area[2]*self.ratio), :]
+    return self.latest_img_array[int(area[1] * self.ratio):int(area[3] * self.ratio),
+           int(area[0] * self.ratio):int(area[2] * self.ratio), :]
 
 
 def compare_image(self, name, need_log=True, threshold=0.8, rgb_diff=20):
@@ -17,7 +18,9 @@ def compare_image(self, name, need_log=True, threshold=0.8, rgb_diff=20):
     ss_img = screenshot_cut(self, area)
     res_img_average_rgb = np.mean(res_img, axis=(0, 1))
     ss_img_average_rgb = np.mean(ss_img, axis=(0, 1))
-    if abs(res_img_average_rgb[0] - ss_img_average_rgb[0]) > rgb_diff or abs(res_img_average_rgb[1] - ss_img_average_rgb[1]) > rgb_diff or abs(res_img_average_rgb[2] - ss_img_average_rgb[2]) > rgb_diff:
+    if abs(res_img_average_rgb[0] - ss_img_average_rgb[0]) > rgb_diff or abs(
+        res_img_average_rgb[1] - ss_img_average_rgb[1]) > rgb_diff or abs(
+        res_img_average_rgb[2] - ss_img_average_rgb[2]) > rgb_diff:
         return False
     ss_img = cv2.resize(ss_img, (res_img.shape[1], res_img.shape[0]), interpolation=cv2.INTER_AREA)
     similarity = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)[0][0]
@@ -50,12 +53,12 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_fi
                     return end
             elif type(end) is list:
                 for asset in end:
-                    if compare_image(self, asset[0],  need_log=False):
+                    if compare_image(self, asset[0], need_log=False):
                         self.logger.info('end : ' + asset[0])
                         return asset[0]
         if possibles is not None:
             for asset, obj in possibles.items():
-                if compare_image(self, asset,  need_log=False):
+                if compare_image(self, asset, need_log=False):
                     if type(obj[0]) is int:
                         self.logger.info("find : " + asset)
                         self.click(obj[0], obj[1])
@@ -75,3 +78,12 @@ def get_area(server, name):
 
 def getImageByName(self, name):
     return position.image_dic[self.server][name]
+
+
+def click_to_disappear(self, img_possible, x, y):
+    msg = 'find : ' + img_possible
+    while self.flag_run and compare_image(self, img_possible, need_log=False):
+        self.logger.info(msg)
+        self.click(x, y, wait_over=True)
+        self.latest_img_array = self.get_screenshot_array()
+    return True
