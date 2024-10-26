@@ -49,7 +49,6 @@ class HomeFragment(QFrame):
         self.log_entries = None
         self.crt_line_index = -1
         self.expandLayout = QVBoxLayout(self)
-        self.vBoxLayout = QVBoxLayout(self)
 
         self.info_box = QFrame(self)
         self.info_box.setFixedHeight(45)
@@ -84,9 +83,9 @@ class HomeFragment(QFrame):
             self
         )
 
+        self.column_2 = QVBoxLayout()
         self.bottomLayout = QHBoxLayout()
         self.label_update = QLabel(self)
-        self.column_2 = QVBoxLayout(self)
         self.label_logger = QLabel(self)
         self.logger_box = TextEdit(self)
         self.logger_box.setReadOnly(True)

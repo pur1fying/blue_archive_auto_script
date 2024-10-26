@@ -59,7 +59,7 @@ class TemplateLayout(QWidget):
         for ind, cfg in enumerate(configItems):
             confirmButton = None
             selectButton = None
-            optionPanel = QHBoxLayout(self)
+            optionPanel = QHBoxLayout()
             labelComponent = QLabel(bt.tr(context, cfg.label), self)
             optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
             optionPanel.addStretch(1)
@@ -192,7 +192,7 @@ class TemplateLayoutV2(QWidget):
         self.cfs = []
 
         for ind, cfg in enumerate(configItems):
-            optionPanel = QHBoxLayout(self)
+            optionPanel = QHBoxLayout()
             cfg = ConfigItemV2(**cfg)
             self.cfs.append(cfg)
             labelComponent = QLabel(cfg.label, self)

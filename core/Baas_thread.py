@@ -21,7 +21,6 @@ import json
 import subprocess
 import psutil
 import os
-import win32com.client
 import time
 import device_operation
 from typing import Tuple
@@ -167,7 +166,13 @@ class Baas_thread:
         判断program_addrsss是否为lnk文件，如果是则转换为exe文件地址存入config文件
         """
         if lnk_path.endswith(".lnk"):
-            shell = win32com.client.Dispatch("WScript.Shell")
+            try:
+                import win32com.client
+                shell = win32com.client.Dispatch("WScript.Shell")
+            except ImportError:
+                self.logger.warning("It seems the platform is not Windows,"
+                                    " skipping the shortcut conversion.")
+                return
             shortcut = shell.CreateShortCut(lnk_path)
             self.config_set.config['program_address'] = shortcut.Targetpath
 

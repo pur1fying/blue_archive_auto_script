@@ -7,7 +7,6 @@ def screenshot_cut(self, area):
     return self.latest_img_array[int(area[1] * self.ratio):int(area[3] * self.ratio),
            int(area[0] * self.ratio):int(area[2] * self.ratio), :]
 
-
 def img_cut(img, area):
     return img[area[1]:area[3], area[0]:area[2]]
 
@@ -101,3 +100,10 @@ def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=2
 
     center = (max_loc[0] + area[0], max_loc[1] + area[1])
     return center
+def click_to_disappear(self, img_possible, x, y):
+    msg = 'find : ' + img_possible
+    while self.flag_run and compare_image(self, img_possible, need_log=False):
+        self.logger.info(msg)
+        self.click(x, y, wait_over=True)
+        self.latest_img_array = self.get_screenshot_array()
+    return True

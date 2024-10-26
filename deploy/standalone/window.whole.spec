@@ -1,5 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+# This is a PyInstaller spec file for the window.py script.
+# It is used to create a standalone executable for the Project.
+# However, it is relatively huge to include all the dependencies.
+# So we don't recommend using it in the project.
+
+# Anyway, if using the spec script for building the executable,
+# please move it to the root directory of the project.
 
 a = Analysis(
     ['window.py'],

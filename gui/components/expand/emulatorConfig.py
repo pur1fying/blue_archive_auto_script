@@ -61,7 +61,7 @@ class Layout(TemplateLayout):
         selectButton = PushButton(self.tr('选择'), self)
         selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
         selectButton.clicked.connect(partial(self._choose_file, inputComponent))
-        self.emulatorNotMultiAddressHLayout = QHBoxLayout(self)
+        self.emulatorNotMultiAddressHLayout = QHBoxLayout()
         self.emulatorNotMultiAddressHLayout.addWidget(labelComponent)
         self.emulatorNotMultiAddressHLayout.addWidget(inputComponent)
         self.emulatorNotMultiAddressHLayout.addWidget(selectButton)

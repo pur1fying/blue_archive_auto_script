@@ -7,8 +7,9 @@ import sys
 import threading
 from functools import partial
 from typing import Union
+from core import default_config
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject
+from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QEvent, QTimer
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
@@ -16,13 +17,13 @@ from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MS
     RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
 from qfluentwidgets import (SubtitleLabel, setFont, setThemeColor)
 
-from core import default_config
 from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
 from gui.util.config_set import ConfigSet
 from gui.util.config_gui import configGui
+from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
@@ -252,7 +253,6 @@ class BAASTabItem(TabItem):
         super().__init__(*args, **kwargs)
 
     def contextMenuEvent(self, a0):
-        print(self.config.get('name'))
         menu = RoundMenu(parent=self)
         rename_action = Action(FIF.EDIT, self.tr('重命名'), triggered=self._showRenameDialog)
         menu.addAction(rename_action)
@@ -306,6 +306,46 @@ class BAASTabBar(TabBar):
         return item
 
 
+class BAASLangAltButton(TransparentToolButton):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setIcon(FIF.LANGUAGE.icon())
+        with open('config/language.json', 'r', encoding='utf-8') as f:
+            self.config = json.loads(f.read())
+        self.setToolTip(self.tr('语言设置'))
+        self.actions = []
+        self.clicked.connect(self.showLangAltDropdown)
+
+    def showLangAltDropdown(self):
+        self._init_actions()
+        pos = self.mapToGlobal(QPoint(0, 0))
+        self.menu.exec(pos, aniType=MenuAnimationType.DROP_DOWN)
+
+    def _init_actions(self):
+        self.menu = RoundMenu(parent=self)
+        for lang in Language.combobox():
+            status = ' ✔' if Language.get_raw(lang) == self.config['Translator']['Language'] else ''
+            action = Action(FIF.PLAY, self.tr(lang) + status, triggered=partial(self._onLangChanged, lang))
+            self.actions.append(action)
+            self.menu.addAction(action)
+
+    def _onLangChanged(self, lang):
+        for action in self.actions:
+            action.setText(action.text().replace(' ✔', ''))
+
+        if lang == self.config['Translator']['Language']: return
+        self.config['Translator']['Language'] = Language.get_raw(lang)
+        with open('./config/language.json', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(self.config, ensure_ascii=False, indent=4))
+
+        # for action in self.actions:
+        #     if action.text().startswith(self.tr(lang)):
+        #         action.setText(action.text() + ' ✔')
+
+        self.menu.close()
+        self.menu.deleteLater()
+
+
 class BAASTitleBar(MSFluentTitleBar):
     """ Title bar with icon and title """
     onHelpButtonClicked = pyqtSignal()
@@ -326,19 +366,22 @@ class BAASTitleBar(MSFluentTitleBar):
         self.tabBar.setScrollable(True)
         self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
 
-        self.historyButton = TransparentToolButton(FIF.HISTORY, self)
-        self.historyButton.setToolTip('更新日志')
+        self.langButton = BAASLangAltButton(self)
+
+        self.historyButton = TransparentToolButton(FIF.HISTORY.icon(), self)
+        self.historyButton.setToolTip(self.tr('更新日志'))
         self.historyButton.clicked.connect(self.onHistoryButtonClicked)
 
-        self.searchButton = TransparentToolButton(FIF.HELP, self)
-        self.searchButton.setToolTip(self.tr('帮助'))
-        self.searchButton.clicked.connect(self.onHelpButtonClicked)
+        self.helpButton = TransparentToolButton(FIF.HELP.icon(), self)
+        self.helpButton.setToolTip(self.tr('帮助'))
+        self.helpButton.clicked.connect(self.onHelpButtonClicked)
         # self.tabBar.tabCloseRequested.connect(self.tabRemoveRequest)
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
         self.hBoxLayout.setStretch(6, 0)
+        self.hBoxLayout.insertWidget(6, self.langButton, 0, alignment=Qt.AlignRight)
         self.hBoxLayout.insertWidget(6, self.historyButton, 0, alignment=Qt.AlignRight)
-        self.hBoxLayout.insertWidget(7, self.searchButton, 0, alignment=Qt.AlignRight)
+        self.hBoxLayout.insertWidget(7, self.helpButton, 0, alignment=Qt.AlignRight)
 
         # self.hBoxLayout.insertSpacing(8, 20)
 
@@ -352,13 +395,12 @@ class BAASTitleBar(MSFluentTitleBar):
 class Window(MSFluentWindow):
     notify_signal = pyqtSignal(str)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.main_class = None
         self.initWindow()
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
-        self.setTitleBar(BAASTitleBar(self))
         self.tabBar = self.titleBar.tabBar
         self.navi_btn_list = []
         self.show()
@@ -387,6 +429,7 @@ class Window(MSFluentWindow):
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
+        QApplication.processEvents()
         self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
                           [ProcessFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SwitchFragment(parent=self, config=x) for x in self.config_dir_list],
@@ -399,9 +442,11 @@ class Window(MSFluentWindow):
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
         self.initNavigation()
-        self.dispatchWindow()
         self.splashScreen.finish()
-        self.init_main_class()
+
+        # SingleShot is used to speed up the initialization process
+        # self.init_main_class()
+        QTimer.singleShot(100, self.init_main_class)
 
     def init_main_class(self, ):
         threading.Thread(target=self.init_main_class_thread).start()
@@ -453,6 +498,9 @@ class Window(MSFluentWindow):
         desktop = QApplication.desktop().availableGeometry()
         _w, _h = desktop.width(), desktop.height()
         self.move(_w // 2 - self.width() // 2, _h // 2 - self.height() // 2)
+        self.setTitleBar(BAASTitleBar(self))
+        self.setWindowIcon(QIcon(ICON_DIR))
+        self.setWindowTitle('BlueArchiveAutoScript')
 
     def closeEvent(self, event):
         super().closeEvent(event)
@@ -540,10 +588,6 @@ class Window(MSFluentWindow):
 
     def addTab(self, routeKey: str, config: ConfigSet, icon: Union[QIcon, str, FluentIconBase, None]):
         self.tabBar.addBAASTab(routeKey, config, icon, window=self)
-
-    def dispatchWindow(self):
-        self.setWindowIcon(QIcon(ICON_DIR))
-        self.setWindowTitle('BlueArchiveAutoScript')
 
 
 def start():

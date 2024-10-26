@@ -21,7 +21,7 @@ class Layout(QWidget):
         self.relationship_check_box_description = QLabel(self.tr('优先做好感等级多的日程'), self)
         self.relationship_check_box = CheckBox('', self)
         self.relationship_check_box.setChecked(self.config.get('lesson_relationship_first'))
-        self.hBoxLayout = QHBoxLayout(self)
+        self.hBoxLayout = QHBoxLayout()
         self.check_box_for_lesson_levels = []
         self.lesson_time_input = []
         int_validator = QIntValidator(0, 99, self)
@@ -88,13 +88,13 @@ class Layout(QWidget):
         self.vBoxLayout.addLayout(self.hBoxLayout)
 
     def __init_relationship_check_box_layout(self):
-        temp = QHBoxLayout(self)
+        temp = QHBoxLayout()
         temp.addWidget(self.relationship_check_box_description)
         temp.addWidget(self.relationship_check_box)
         self.vBoxLayout.addLayout(temp)
 
     def __init_region_name_layout(self):
-        temp = QVBoxLayout(self)
+        temp = QVBoxLayout()
         temp.addWidget(QLabel(self.tr("区域名称"), self), 0, Qt.AlignLeft)
         for i in range(0, len(self.lesson_names)):
             temp.addWidget(QLabel(self.lesson_names[i], self), 0, Qt.AlignLeft)
@@ -103,7 +103,7 @@ class Layout(QWidget):
     def __init_lesson_level_layout(self):
         name = [self.tr("初级"), self.tr("普通"), self.tr("高级"), self.tr("特级")]
         for i in range(0, 4):
-            temp = QVBoxLayout(self)
+            temp = QVBoxLayout()
             temp.setContentsMargins(0, 5, 0, 5)
             temp.setSpacing(15)
             temp.addWidget(QLabel(name[i], self), 0, Qt.AlignLeft)
@@ -112,7 +112,7 @@ class Layout(QWidget):
             self.hBoxLayout.addLayout(temp)
 
     def __init_lesson_times_layout(self):
-        temp = QVBoxLayout(self)
+        temp = QVBoxLayout()
         temp.addWidget(QLabel(self.tr("日程次数"), self), 0, Qt.AlignLeft)
         for i in range(0, len(self.lesson_names)):
             temp.addWidget(self.lesson_time_input[i], 0, Qt.AlignLeft)

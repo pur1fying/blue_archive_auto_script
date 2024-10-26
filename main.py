@@ -121,7 +121,7 @@ if __name__ == '__main__':
     # tt.solve("hard_task")
     # tt.solve("arena")
     # tt.solve("lesson")
-    # tt.solve("group")
+    tt.solve("group")
     # tt.solve("mail")
     # tt.solve("collect_reward")
     # tt.solve("main_story")

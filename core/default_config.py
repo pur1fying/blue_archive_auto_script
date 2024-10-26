@@ -327,18 +327,22 @@ DEFAULT_CONFIG = """
     "push_json":"",
     "push_serverchan":"",
     "cafe_reward_lowest_affection_first": true,
+    "cafe_reward_invite1_criterion" : "name",
+    "favorStudent1": [
+        "爱丽丝"
+    ],
+    "cafe_reward_invite1_starred_student_position" : 1,
     "cafe_reward_has_no2_cafe": false,
     "cafe_reward_collect_hour_reward": true,
+    "cafe_reward_invite2_criterion" : "name",
+        "favorStudent2": [
+        "爱丽丝(女仆)"
+    ],
+    "cafe_reward_invite2_starred_student_position" : 1,
     "cafe_reward_use_invitation_ticket": true,
     "cafe_reward_allow_duplicate_invite": false,
     "cafe_reward_allow_exchange_student": false,
     "cafe_reward_interaction_shot_delay": 1.0,
-    "favorStudent1": [
-        "爱丽丝"
-    ],
-    "favorStudent2": [
-        "爱丽丝(女仆)"
-    ],
     "server": "官服",
     "control_method" : "uiautomator2",
     "screenshot_method" : "uiautomator2",
@@ -2288,3 +2292,28 @@ STATIC_DEFAULT_CONFIG = '''
   ]
 }
 '''
+
+# Delete QFluentWidgets Pro Alert
+
+import os
+import importlib.util as iu
+_init_path = iu.find_spec("qfluentwidgets").origin
+_init_path = os.path.dirname(_init_path)
+_init_path = os.path.join(_init_path, "common", "config.py")
+
+fr = open(_init_path, "r")
+_init_content = fr.read()
+to_remove = \
+"""try:
+    print(ALERT)
+except UnicodeEncodeError:
+    print(ALERT.replace("📢", ""))
+"""
+
+_init_content = _init_content.replace(to_remove, "")
+fr.close()
+
+fw = open(_init_path, "w")
+fw.write(_init_content)
+fw.close()
+
