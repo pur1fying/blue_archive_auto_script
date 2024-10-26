@@ -71,7 +71,6 @@ class Baas_thread:
         self.lnk_path = None
         self.file_path = None
         self.wait_time = None
-        self.latest_screenshot_time = 0
         self.serial = None
         self.scheduler = None
         self.screenshot_interval = None
@@ -150,6 +149,9 @@ class Baas_thread:
         if not self.flag_run:
             raise RequestHumanTakeOver
         return self.screenshot.screenshot()
+
+    def update_screenshot_array(self):
+        self.latest_img_array = self.get_screenshot_array()
 
     def signal_stop(self):
         self.flag_run = False
@@ -474,7 +476,7 @@ class Baas_thread:
                 'main_page_news': (1142, 104),
                 'main_page_news2': (1142, 104),
                 'cafe_cafe-reward-status': (905, 159),
-                'normal_task_task-info': (1084, 139),
+                'normal_task_task-info': (1126, 115),
                 "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
                 "main_page_net-work-unstable": (753, 500),

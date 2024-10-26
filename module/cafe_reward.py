@@ -169,6 +169,7 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_menu': (838, 647),
         'cafe_duplicate-invite-notice': (534, 497),
         'cafe_switch-clothes-notice': (534, 497),
+        'cafe_duplicate-invite': (534, 497),
     }
     return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
 
@@ -187,7 +188,7 @@ def checkConfirmInvite(self, y):
     if res == 'cafe_switch-clothes-notice' and not self.config['cafe_reward_allow_exchange_student']:
         self.logger.warning("Not Allow Student Switch Clothes")
         f = True
-    elif res == 'cafe_duplicate-invite-notice' and not self.config['cafe_reward_allow_duplicate_invite']:
+    elif res == 'cafe_duplicate-invite' and not self.config['cafe_reward_allow_duplicate_invite']:
         self.logger.warning("Not Allow Duplicate Invite")
         f = True
     if f:
@@ -280,7 +281,7 @@ def to_confirm_invite(self, lo):
     img_ends = [
         "cafe_confirm-invite",
         "cafe_switch-clothes-notice",
-        "cafe_duplicate-invite-notice",
+        "cafe_duplicate-invite",
     ]
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 

@@ -6,7 +6,7 @@ Use it instead to get a portion of default_config and paste it in ConfigTranslat
 
 Instructions:
 go to root directory of project and enter in terminal:
-python -m gui.util.config_translation_generator
+python -m develop_tools.config_translation_generator
 """
 
 

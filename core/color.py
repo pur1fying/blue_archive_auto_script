@@ -1,27 +1,21 @@
-import threading
 import time
 import numpy as np
-
-from core import image
 
 
 def wait_loading(self):
     t_start = time.time()
     while self.flag_run:
-        screenshot_interval = time.time() - self.latest_screenshot_time
-        if screenshot_interval < self.screenshot_interval:
-            time.sleep(self.screenshot_interval - screenshot_interval)
         self.latest_img_array = self.get_screenshot_array()
         if judgeRGBFeature(self, "loadingNotWhite") and judgeRGBFeature(self, "loadingWhite"):
-                t_load = time.time() - t_start
-                t_load = round(t_load, 3)
-                self.logger.info("loading, t load : " + str(t_load))
-                if t_load > 20:
-                    self.logger.warning("LOADING TOO LONG add screenshot interval to 1")
-                    t_start = time.time()
-                    self.set_screenshot_interval(1)
-                time.sleep(self.screenshot_interval)
-                continue
+            t_load = time.time() - t_start
+            t_load = round(t_load, 3)
+            self.logger.info("loading, t load : " + str(t_load))
+            if t_load > 20:
+                self.logger.warning("LOADING TOO LONG add screenshot interval to 1")
+                t_start = time.time()
+                self.set_screenshot_interval(1)
+            time.sleep(self.screenshot_interval)
+            continue
         return True
 
 
@@ -40,7 +34,7 @@ def judge_rgb_range(self, x, y, r_min, r_max, g_min, g_max, b_min, b_max, check_
     return False
 
 
-def judgeRGBFeature(self, featureName):                                         # all rgb in range return True
+def judgeRGBFeature(self, featureName):  # all rgb in range return True
     if featureName not in self.rgb_feature:
         return False
     if featureName in self.rgb_feature:
@@ -58,7 +52,7 @@ def judgeRGBFeature(self, featureName):                                         
     return True
 
 
-def judgeRGBFeatureOr(self, featureName):                                   # any rgb in range return True
+def judgeRGBFeatureOr(self, featureName):  # any rgb in range return True
     if featureName in self.rgb_feature:
         for i in range(0, len(self.rgb_feature[featureName][0])):
             if judge_rgb_range(self,
@@ -75,14 +69,14 @@ def judgeRGBFeatureOr(self, featureName):                                   # an
 
 
 def check_sweep_availability(self, is_mainline=False):
-    if self.server == "CN" or self.server == "Global" or (self.server == "JP" and is_mainline):
+    if self.server == "CN" or ((self.server == "JP" or self.server == "Global") and is_mainline):
         if judgeRGBFeature(self, "mainLineTaskNoPass"):
             return "no-pass"
         if judgeRGBFeature(self, "mainLineTaskSSS"):
             return "sss"
         if judgeRGBFeatureOr(self, "mainLineTaskSSS"):
             return "pass"
-    if self.server == "JP" and not is_mainline:
+    if (self.server == "JP" or self.server == "Global") and not is_mainline :
         if judgeRGBFeature(self, "sideTaskNoPass"):
             return "no-pass"
         if judgeRGBFeature(self, "sideTaskSSS"):

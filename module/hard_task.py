@@ -67,7 +67,7 @@ def implement(self):
 def to_hard_event(self, skip_first_screenshot=False):
     task_info_lo = {
         'CN': (1087, 140),
-        'Global': (1128, 140),
+        'Global': (1128, 130),
         'JP': (1128, 130)
     }
     rgb_ends = 'event_hard'

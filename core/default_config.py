@@ -429,7 +429,9 @@ DEFAULT_CONFIG = """
         0,
         0
     ],
-    "clear_friend_white_list": []
+    "clear_friend_white_list": [],
+    "drill_difficulty_list": [1,1,1],
+    "drill_fight_formation_list": [1,2,3]
 }
 """
 
@@ -524,8 +526,8 @@ STATIC_DEFAULT_CONFIG = '''
         "Global": [
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
-            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
             ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 256000, "creditpoints"],
+            ["一包强化珠α", 110000, "creditpoints"],["一包强化珠β", 240000, "creditpoints"],["一包强化珠γ", 384000, "creditpoints"],["一包强化珠δ", 496000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ],
@@ -647,7 +649,8 @@ STATIC_DEFAULT_CONFIG = '''
             "阿拜多斯高等学院",
             "千禧年学习区",
             "崔尼蒂广场区",
-            "红冬联邦学院"
+            "红冬联邦学院",
+            "百鬼夜行中心"
             ],
         "Global": [
             "Schale Office",
@@ -676,9 +679,9 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "bunnyChaserOnTheShip2",
-        "Global": "RowdyAndCherry",
-        "JP": "TheFiveSensesAreClouded"
+        "CN": null,
+        "Global": "iveAlive",
+        "JP": "SerenadePromenade"
     },
     "dailyGameActivity": {
         "CN": null,

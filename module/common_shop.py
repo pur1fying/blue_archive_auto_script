@@ -6,7 +6,6 @@ from core import color, picture
 def implement(self):
     self.quick_method_to_main_page()
     to_common_shop(self, True)
-    time.sleep(0.5)
     assets = {
         "creditpoints": self.get_creditpoints(),
         "pyroxene": self.get_pyroxene(),
@@ -42,7 +41,7 @@ def implement(self):
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
             purchase_location = {
                 'CN': (777, 491),
-                'Global': (777, 491),
+                'Global': (754, 581),
                 'JP': (754, 581)
             }
             img_possibles = {

@@ -22,6 +22,7 @@ from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
 from gui.util.config_set import ConfigSet
+from gui.util.config_gui import configGui
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
 
@@ -32,6 +33,22 @@ sys.path.append('./')
 # Offer the error to the error.log
 ICON_DIR = 'gui/assets/logo.png'
 LAST_NOTICE_TIME = 0
+
+
+def delete_deprecated_config(file_name, config_name=None):
+    # delete useless config file
+    pre = 'config/'
+    if config_name is not None:
+        pre += config_name + '/'
+    if type(file_name) is str:
+        path = pre + file_name
+        if os.path.exists(path):
+            os.remove(path)
+    elif type(file_name) is list:
+        for name in file_name:
+            path = pre + name
+            if os.path.exists(path):
+                os.remove(path)
 
 
 def update_config_reserve_old(config_old, config_new):  # 保留旧配置原有的键，添加新配置中没有的，删除新配置中没有的键
@@ -71,12 +88,6 @@ def check_static_config():
         with open('./config/static.json', 'w', encoding='utf-8') as f:
             f.write(default_config.STATIC_DEFAULT_CONFIG)
         return
-
-
-def check_display_config(dir_path='./default_config'):
-    path = './config/' + dir_path + '/display.json'
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write(default_config.DISPLAY_DEFAULT_CONFIG)
 
 
 def check_switch_config(dir_path='./default_config'):
@@ -154,6 +165,7 @@ def check_event_config(dir_path='./default_config', server="CN"):
 
 
 def check_config(dir_path):
+    delete_deprecated_config("display.json", dir_path)
     if not os.path.exists('./config'):
         os.mkdir('./config')
     check_static_config()
@@ -170,7 +182,6 @@ def check_config(dir_path):
         elif server == "日服":
             server = "JP"
         check_event_config(path, server)
-        check_display_config(path)
         check_switch_config(path)
 
 
@@ -393,7 +404,6 @@ class Window(MSFluentWindow):
         self.tabBar = self.titleBar.tabBar
         self.navi_btn_list = []
         self.show()
-        setThemeColor('#0078d4')
         self.__switchStatus = True
         self.config_dir_list = []
 
@@ -483,6 +493,8 @@ class Window(MSFluentWindow):
 
     def initWindow(self):
         self.resize(900, 700)
+        self.setMinimumWidth(900)
+        self.setMinimumHeight(700)
         desktop = QApplication.desktop().availableGeometry()
         _w, _h = desktop.width(), desktop.height()
         self.move(_w // 2 - self.width() // 2, _h // 2 - self.height() // 2)
@@ -546,7 +558,6 @@ class Window(MSFluentWindow):
             serial_name = str(int(datetime.datetime.now().timestamp()))
             os.mkdir(f'./config/{serial_name}')
             check_event_config(serial_name)
-            check_display_config(serial_name)
             check_switch_config(serial_name)
             data = json.loads(default_config.DEFAULT_CONFIG)
             data['name'] = text
@@ -590,11 +601,23 @@ def start():
     app.exec_()
 
 
+# enable dpi scale
+if configGui.get(configGui.dpiScale) != "Auto":
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+    os.environ["QT_SCALE_FACTOR"] = str(configGui.get(configGui.dpiScale))
+
 if __name__ == '__main__':
     # pa=Main()
     # pa._init_emulator()
     # pa.solve("arena")
-
+    deprecated_configs = [
+        "display.json",
+        "event.json",
+        "switch.json",
+        "config.json",
+        "language.json"
+    ]
+    delete_deprecated_config(deprecated_configs)
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
@@ -611,6 +634,8 @@ if __name__ == '__main__':
     bt.loadCfgTranslation()
 
     w = Window()
+    w.setMicaEffectEnabled(configGui.get(configGui.micaEnabled))
+    configGui.micaEnableChanged.connect(w.setMicaEffectEnabled)
     # 聚焦窗口
     w.setFocus(True)
     w.show()

@@ -6,7 +6,7 @@ x_y_range = {
     'select-area': (97, 9, 255, 37),
     'fight-confirm': (1120, 646, 1222, 681),
     'prize-confirm': (712, 643, 836, 675),
-    'task-info': (548, 124, 732, 153),
+    'task-info': (508, 90, 752, 153),
     'help': (597, 111, 675, 150),
     'mission-operating-feature': (10, 10, 121, 40),
     'end-turn': (595, 372, 669, 402),
