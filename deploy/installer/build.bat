@@ -5,26 +5,26 @@ set TEMP_FOLDER=temp_build
 set TEMP_BUILD=build
 set TEMP_GENERATION=dist
 
-:: Create the temp folder
+REM Create the temporary folder
 mkdir %TEMP_FOLDER%
 
-:: Create the virtual build environment
+REM Create the virtual environment
 python -m venv %TEMP_FOLDER%\%VENV_NAME%
 
-:: Activate the virtual environment
-call %TEMP_FOLDER%\%VENV_NAME%\Scripts\activate.bat
+REM Activate the virtual environment
+call %TEMP_FOLDER%\%VENV_NAME%\Scripts\activate
 
-:: Install the required packages
+REM Install required packages
 pip install -r requirements.installer.txt
 
-:: Pyinstaller build the executable file
-pyinstaller -i gui\assets\logo.ico --name BlueArchiveAutoScript -F installer.py
+REM Build the executable file using PyInstaller
+pyinstaller -i ./logo.ico --name BlueArchiveAutoScript -F installer.py
 
-:: Move the Generated file out of the temp generation dir
-move /Y .\dist\* .\
+REM Move the generated file out of the temporary directory
+move .\dist\* .\
 
-:: Remove the temporary Directory
-rmdir /S /Q %TEMP_FOLDER%
-rmdir /S /Q %TEMP_BUILD%
-rmdir /S /Q %TEMP_GENERATION%
+REM Remove the temporary directory and build files
+rmdir /s /q %TEMP_FOLDER%
+rmdir /s /q %TEMP_BUILD%
+rmdir /s /q %TEMP_GENERATION%
 del BlueArchiveAutoScript.spec

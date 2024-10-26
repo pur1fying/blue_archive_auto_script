@@ -13,13 +13,14 @@ from tqdm import tqdm
 from dulwich import porcelain
 from dulwich.repo import Repo
 
-# gitee的下载地址需要把blob改成raw
-TMP_PATH = '../../deploy/installer/tmp'
+# For Gitee download links, replace 'blob' with 'raw'
+TMP_PATH = 'tmp'
 GET_PYTHON_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip'
 REPO_URL_HTTP = 'https://gitee.com/pur1fy/blue_archive_auto_script.git'
 GET_PIP_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py'
 GET_ATX_URL = 'https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/ATX.apk'
-LOCAL_PATH = '../../deploy/installer/blue_archive_auto_script'
+GET_ENV_PATCH_URL = 'https://gitee.com/kiramei/blue_archive_auto_script_assets/raw/master/env_patch.zip'
+LOCAL_PATH = 'blue_archive_auto_script'
 
 print(
     """
@@ -68,10 +69,10 @@ def download_file(url: str):
     filename = url.split('/')[-1]
     file_path = TMP_PATH + '/' + filename
 
-    # 获取文件大小（以字节为单位）
+    # Get file size (in bytes)
     total_size = int(response.headers.get('Content-Length', 0))
 
-    # 使用tqdm创建进度条
+    # Create a progress bar using tqdm
     progress_bar = tqdm(total=total_size, unit='B',
                         bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]',
                         unit_scale=True,
@@ -84,13 +85,12 @@ def download_file(url: str):
                 progress_bar.update(len(chunk))
 
     progress_bar.close()
-
     return file_path
 
 
 def check_python_installation():
     try:
-        # 尝试运行 'python' 命令以获取版本信息
+        # Try to run the 'python' command to get version information
         result = subprocess.run(["python", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
             print(f"Python is installed: {result.stdout.strip()}")
@@ -99,7 +99,7 @@ def check_python_installation():
         pass
 
     try:
-        # 尝试运行 'python3' 命令以获取版本信息
+        # Try to run the 'python3' command to get version information
         result = subprocess.run(["python3", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
             print(f"Python 3 is installed: {result.stdout.strip()}")
@@ -107,20 +107,20 @@ def check_python_installation():
     except FileNotFoundError:
         pass
 
-    # 如果两次检测都失败，表示系统没有安装 Python
+    # If both checks fail, Python is not installed
     print("Python is not installed on this system.")
     return False
 
 
 def install_package():
     try:
-        # 检测操作系统，并选择合适的 Python 可执行文件和路径
+        # Detect the OS and select the appropriate Python executable and path
         system = platform.system()
 
         # If Linux, don't create a virtual environment
         if system == 'Linux':
             env_python_exec = './env/bin/python3'
-            subprocess.run(['./env/bin/python3', '-m', 'pip', 'install', '-r', './requirements-linux.txt', '-i',
+            subprocess.run([env_python_exec, '-m', 'pip', 'install', '-r', './requirements-linux.txt', '-i',
                             'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'], check=True)
             return
 
@@ -130,15 +130,20 @@ def install_package():
         else:
             raise Exception("Unsupported OS")
 
-        # 安装 virtualenv 包
-        subprocess.run(
-            [python_exec_file, '-m', 'pip', 'install', 'virtualenv', '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple',
-             '--no-warn-script-location'], check=True)
+        if not os.path.exists('./env/Scripts/python.exe'):
+            # Install virtualenv package
+            subprocess.run(
+                [python_exec_file, '-m', 'pip', 'install', 'virtualenv', '-i',
+                 'https://pypi.tuna.tsinghua.edu.cn/simple',
+                 '--no-warn-script-location'], check=True)
 
-        # 创建虚拟环境
-        subprocess.run([python_exec_file, '-m', 'virtualenv', 'env'], check=True)
+            # Create the virtual environment
+            subprocess.run([python_exec_file, '-m', 'virtualenv', 'env'], check=True)
 
-        # 在虚拟环境中安装 requirements.txt 中的包
+            # Remove the Build Environment -> Remaining Problem for `ModuleNotFoundError: No module named '_socket'`
+            # shutil.rmtree('./lib')
+
+        # Install packages in requirements.txt within the virtual environment
         subprocess.run([env_python_exec, '-m', 'pip', 'install', '-r', './requirements.txt', '-i',
                         'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'], check=True)
 
@@ -150,13 +155,14 @@ def install_package():
 
 def unzip_file(zip_dir, out_dir):
     with zipfile.ZipFile(zip_dir, 'r') as zip_ref:
-        # 解压缩所有文件到当前目录
+        # Unzip all files to the current directory
         zip_ref.extractall(path=out_dir)
         logger.info(f"{zip_dir} unzip success, output files in {out_dir}")
 
 
 def check_pth():
     if platform.system() == 'Linux': return
+    if os.path.exists('./env/Scripts/python.exe'): return
     logger.info("Checking pth file...")
     read_file = []
     with open('./lib/python39._pth', 'r', encoding='utf-8') as f:
@@ -187,7 +193,7 @@ def check_onnxruntime():
 
 
 def start_app():
-    _path = './lib/Scripts/pythonw.exe' if platform.system() == 'Windows' else './lib/bin/python3'
+    _path = './env/Scripts/pythonw.exe' if platform.system() == 'Windows' else './lib/bin/python3'
     threading.Thread(target=subprocess.Popen, args=([_path, './window.py'],)).start()
 
 
@@ -213,8 +219,9 @@ def check_path():
 
 
 def check_pip():
-    logger.info("Checking pip installation...")
     if platform.system() == 'Linux': return
+    if os.path.exists('./env/Scripts/python.exe'): return
+    logger.info("Checking pip installation...")
     if not os.path.exists('./lib/Scripts/pip.exe'):
         logger.info("Pip is not installed, trying to install pip...")
         filepath = download_file(GET_PIP_URL)
@@ -225,9 +232,10 @@ def check_python():
     logger.info("Checking python installation...")
     # Platform-specific Python installation check
     if platform.system() == 'Windows':
+        if os.path.exists('./env/Scripts/python.exe'): return
         _path = './lib/python.exe'
     elif platform.system() == 'Linux':
-        _path = '../../deploy/installer/env/bin/python3'
+        _path = './env/bin/python3'
     else:
         raise Exception("Unsupported OS")
 
@@ -249,9 +257,17 @@ def check_python():
 
 def check_atx():
     logger.info("Checking atx-agent...")
-    if not os.path.exists('../../src/atx_app/ATX.apk'):
+    if not os.path.exists('src/atx_app/ATX.apk'):
         logger.info("Downloading atx-agent...")
         download_file(GET_ATX_URL)
+
+
+def check_env_patch():
+    if platform.system() == 'Linux': return
+    if os.path.exists('./env/Lib/site-packages/Polygon'): return
+    logger.info("Downloading env patch...")
+    filepath = download_file(GET_ENV_PATCH_URL)
+    unzip_file(filepath, './env')
 
 
 def check_git(opt):
@@ -263,6 +279,7 @@ def check_git(opt):
         logger.info("+--------------------------------+")
         porcelain.clone(REPO_URL_HTTP, './')
         mv_repo(LOCAL_PATH)
+        shutil.rmtree(LOCAL_PATH)
         logger.info("Install success")
     elif not os.path.exists('./no_update'):
         logger.info("+--------------------------------+")
@@ -270,10 +287,10 @@ def check_git(opt):
         logger.info("+--------------------------------+")
         repo = Repo('.')
 
-        # 获取本地 SHA
+        # Get local SHA
         local_sha = repo.head().decode('ascii')
 
-        # 获取远程 SHA
+        # Get remote SHA
         remote_refs = porcelain.ls_remote(REPO_URL_HTTP)
         remote_sha = remote_refs.get(b'refs/heads/master').decode('ascii')
 
@@ -283,10 +300,12 @@ def check_git(opt):
         # Check if there are any changes
         status = porcelain.status(repo)
         has_changes = status.unstaged or status.staged
-
-        if local_sha == remote_sha and not has_changes:
+        refresh_required = opt.refresh and has_changes
+        if local_sha == remote_sha and not refresh_required:
             logger.info("No updates available")
         else:
+            if refresh_required:
+                logger.info("You've selected dropping all changes for the project file.")
             logger.info("Pulling updates from the remote repository...")
             # Reset the local repository to the state of the remote repository
             porcelain.reset(repo, mode='hard')
@@ -322,6 +341,7 @@ def check_install(opt):
         check_git(opt)
         check_pth()
         check_atx()
+        check_env_patch()
         check_requirements()
         # check_onnxruntime()
         run_app()
@@ -335,5 +355,6 @@ if __name__ == '__main__':
     # Options
     parser = argparse.ArgumentParser()
     parser.add_argument('--dev', dest='dev', action='store_true', help='Development mode')
+    parser.add_argument('--refresh', dest='refresh', action='store_true', help='Drop all changes')
     option = parser.parse_args()
     check_install(option)

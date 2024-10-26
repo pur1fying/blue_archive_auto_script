@@ -38,7 +38,9 @@ GUI预览图：
 ## 安装 Installation 
   **请确保安装路径没有中文(QT框架限制)**
   解压Release或qq交流群中的下载包，双击`BlueArchiveAutoScript.exe`安装环境，请耐心等待。
-  安装完成后，BAAS 的ui界面将自动启动。
+  安装完成后，BAAS 的ui界面将自动启动。同时，我们提供了pyinstaller可使用的打包脚本，您可以自
+  行打包，具体内容在`deploy/installer`文件夹中。此外，本项目尝试支持Docker部署，但目前仍无法
+  运行，目前在`deploy/docker`文件夹中，如有解决方案，请提交PR。
 
 ## 如何使用
 一些关键的参数
