@@ -707,54 +707,44 @@
         <translation>更新の回数</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="21"/>
+        <location filename="../components/expand/cafeInvite.py" line="52"/>
         <source>是否领取奖励:</source>
         <translation>報酬を受け取るには:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="22"/>
+        <location filename="../components/expand/cafeInvite.py" line="54"/>
         <source>是否使用邀请券:</source>
         <translation>招待券を使用するのか:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="23"/>
-        <source>优先邀请券好感等级低的学生:</source>
-        <translation>好意評価の低い学生に優先招待するのか:</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/cafeInvite.py" line="24"/>
+        <location filename="../components/expand/cafeInvite.py" line="58"/>
         <source>是否允许学生更换服饰:</source>
         <translation>生徒が服装を変えることができるのか:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="27"/>
+        <location filename="../components/expand/cafeInvite.py" line="62"/>
         <source>是否有二号咖啡厅:</source>
         <translation>二号カフェはありますか：</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="33"/>
+        <location filename="../components/expand/cafeInvite.py" line="67"/>
         <source>是否允许重复邀请:</source>
         <translation>重複する招待を許可するのか:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="39"/>
+        <location filename="../components/expand/cafeInvite.py" line="117"/>
         <source>列表选择你要添加邀请的学生，修改后请点击确定：</source>
         <translation>招待状に追加する生徒を選択し、編集後に [確認] をクリックしよう：</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="180"/>
+        <location filename="../components/expand/cafeInvite.py" line="151"/>
         <source>添加学生</source>
         <translation>追加する生徒</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="63"/>
+        <location filename="../components/expand/cafeInvite.py" line="71"/>
         <source>选择摸头方式：</source>
         <translation>頭に触れる方法を選択します：</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/cafeInvite.py" line="178"/>
-        <source>选择第二咖啡厅邀请的学生</source>
-        <translation>2号カフェで招待する生徒を選択します</translation>
     </message>
     <message>
         <location filename="../components/expand/createPriority.py" line="19"/>
@@ -1127,6 +1117,36 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <location filename="../components/expand/scriptConfig.py" line="26"/>
         <source>仅保证使用uiautomator2不会出问题</source>
         <translation type="unfinished">uiautomator2の使用に問題がないことが保証されているだけです</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="17"/>
+        <source>优先最低好感度学生</source>
+        <translation type="unfinished">評価が最も低い学生を優先します</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="18"/>
+        <source>优先最高好感度学生</source>
+        <translation type="unfinished">好感度が最も高い学生を優先します</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="19"/>
+        <source>指定序号收藏的学生</source>
+        <translation type="unfinished">コレクションのシリアル番号を指定する学生</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="20"/>
+        <source>按姓名决定角色</source>
+        <translation type="unfinished">ロールは名前で決定されます</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="99"/>
+        <source>咖啡厅 {cafe_no} 邀请券选择模式：</source>
+        <translation type="unfinished">カフェ{cafe_no}招待チケット選択モード:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="140"/>
+        <source>选择收藏学生的序号</source>
+        <translation type="unfinished">お気に入りの生徒のシリアル番号を選択します</translation>
     </message>
 </context>
 <context>
@@ -1605,7 +1625,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>確認</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="114"/>
+        <location filename="../components/expand/expandTemplate.py" line="121"/>
         <source>设置成功</source>
         <translation>セットアップ成功</translation>
     </message>
@@ -1656,13 +1676,13 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>構成の翻訳</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="36"/>
+        <location filename="../components/expand/cafeInvite.py" line="31"/>
         <source>ConfigTranslation</source>
         <comment>拖动礼物</comment>
         <translation>ギフトをドラグする</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="66"/>
+        <location filename="../components/expand/cafeInvite.py" line="73"/>
         <source>ConfigTranslation</source>
         <comment>普通</comment>
         <translation>普通</translation>

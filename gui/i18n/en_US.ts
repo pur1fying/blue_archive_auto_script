@@ -712,34 +712,29 @@ Use positive number for below and negative for above:</translation>
         <translation>Number of Refreshes</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="22"/>
+        <location filename="../components/expand/cafeInvite.py" line="54"/>
         <source>是否使用邀请券:</source>
         <translation>Use invitation ticket:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="27"/>
+        <location filename="../components/expand/cafeInvite.py" line="62"/>
         <source>是否有二号咖啡厅:</source>
         <translation>Is there a second cafe:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="39"/>
+        <location filename="../components/expand/cafeInvite.py" line="117"/>
         <source>列表选择你要添加邀请的学生，修改后请点击确定：</source>
         <translation>The list selects the students you want to invite. Click Save to make changes:</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="180"/>
+        <location filename="../components/expand/cafeInvite.py" line="151"/>
         <source>添加学生</source>
         <translation>Add students</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="63"/>
+        <location filename="../components/expand/cafeInvite.py" line="71"/>
         <source>选择摸头方式：</source>
         <translation>Select the touch method:</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/cafeInvite.py" line="178"/>
-        <source>选择第二咖啡厅邀请的学生</source>
-        <translation>Select the students to be invited in the second cafe</translation>
     </message>
     <message>
         <location filename="../components/expand/createPriority.py" line="19"/>
@@ -935,22 +930,17 @@ For JP or Global server, you can use 'max':</translation>
         <translation>Detailed Configuration</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="21"/>
+        <location filename="../components/expand/cafeInvite.py" line="52"/>
         <source>是否领取奖励:</source>
         <translation>Claim rewards? :</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="23"/>
-        <source>优先邀请券好感等级低的学生:</source>
-        <translation>Is Priority given to low-affection-level students? :</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/cafeInvite.py" line="24"/>
+        <location filename="../components/expand/cafeInvite.py" line="58"/>
         <source>是否允许学生更换服饰:</source>
         <translation>Allow students to change clothes? :</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="33"/>
+        <location filename="../components/expand/cafeInvite.py" line="67"/>
         <source>是否允许重复邀请:</source>
         <translation>Repeat invitations? :</translation>
     </message>
@@ -1136,6 +1126,36 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
         <location filename="../components/expand/scriptConfig.py" line="26"/>
         <source>仅保证使用uiautomator2不会出问题</source>
         <translation type="unfinished">It is only guaranteed that there will be no problems with using uiautomator2</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="17"/>
+        <source>优先最低好感度学生</source>
+        <translation type="unfinished">Priority will be given to students with the lowest opinion rating</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="18"/>
+        <source>优先最高好感度学生</source>
+        <translation type="unfinished">Priority will be given to students with the highest favorability</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="19"/>
+        <source>指定序号收藏的学生</source>
+        <translation type="unfinished">Students who specify a serial number for collections</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="20"/>
+        <source>按姓名决定角色</source>
+        <translation type="unfinished">Roles are determined by name</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="99"/>
+        <source>咖啡厅 {cafe_no} 邀请券选择模式：</source>
+        <translation type="unfinished">Cafe {cafe_no} Invitation Ticket Selection Mode:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="140"/>
+        <source>选择收藏学生的序号</source>
+        <translation type="unfinished">Select the serial number of the favorite student</translation>
     </message>
 </context>
 <context>
@@ -1614,7 +1634,7 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="114"/>
+        <location filename="../components/expand/expandTemplate.py" line="121"/>
         <source>设置成功</source>
         <translation>successfully set</translation>
     </message>
@@ -1660,13 +1680,13 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>bt</name>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="36"/>
+        <location filename="../components/expand/cafeInvite.py" line="31"/>
         <source>ConfigTranslation</source>
         <comment>拖动礼物</comment>
         <translation>ConfigTranslation</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="66"/>
+        <location filename="../components/expand/cafeInvite.py" line="73"/>
         <source>ConfigTranslation</source>
         <comment>普通</comment>
         <translation>ConfigTranslation</translation>

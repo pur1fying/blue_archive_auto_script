@@ -13,7 +13,7 @@ class Layout(TemplateLayout):
         # TODO: Add Descriptions
         configItems = [
             {
-                'label': DrillConfig.tr('是否扫荡'),
+                'label': DrillConfig.tr('是否在出击后扫荡所有测试挑战券'),
                 'type': 'switch',
                 'key': 'drill_enable_sweep'
             }
@@ -24,12 +24,12 @@ class Layout(TemplateLayout):
 
         drill_detail_config = [
             {
-                'label': DrillConfig.tr('出击队伍'),
+                'label': DrillConfig.tr('出击队伍编号'),
                 'key': 'drill_fight_formation_list',
                 'selection': ['1', '2', '3', '4'],
             },
             {
-                'label': DrillConfig.tr('出击关卡'),
+                'label': DrillConfig.tr('出击难度'),
                 'key': 'drill_difficulty_list',
                 'selection': ['1', '2', '3', '4']
             }
