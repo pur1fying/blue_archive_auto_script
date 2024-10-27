@@ -14,10 +14,10 @@ class Layout(QWidget):
         self.setFixedHeight(550)
 
         self.name_dict = {
-            self.tr('优先最低好感度学生'): "lowest_affection",
-            self.tr('优先最高好感度学生'): "highest_affection",
-            self.tr('指定序号收藏的学生'): "starred",
-            self.tr('按姓名决定角色'): "name"
+            self.tr('邀请最低好感度学生'): "lowest_affection",
+            self.tr('邀请最高好感度学生'): "highest_affection",
+            self.tr('邀请收藏的学生'): "starred",
+            self.tr('指定姓名邀请'): "name"
         }
         self.name_dict_rev = {v: k for k, v in self.name_dict.items()}
 

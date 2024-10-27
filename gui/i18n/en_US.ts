@@ -4,7 +4,7 @@
 <context>
     <name>BAASTabItem</name>
     <message>
-        <location filename="../../window.py" line="246"/>
+        <location filename="../../window.py" line="257"/>
         <source>重命名</source>
         <translation type="unfinished">rename</translation>
     </message>
@@ -12,7 +12,7 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="323"/>
+        <location filename="../../window.py" line="334"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>
@@ -1128,26 +1128,6 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
         <translation type="unfinished">It is only guaranteed that there will be no problems with using uiautomator2</translation>
     </message>
     <message>
-        <location filename="../components/expand/cafeInvite.py" line="17"/>
-        <source>优先最低好感度学生</source>
-        <translation type="unfinished">Priority will be given to students with the lowest opinion rating</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/cafeInvite.py" line="18"/>
-        <source>优先最高好感度学生</source>
-        <translation type="unfinished">Priority will be given to students with the highest favorability</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/cafeInvite.py" line="19"/>
-        <source>指定序号收藏的学生</source>
-        <translation type="unfinished">Students who specify a serial number for collections</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/cafeInvite.py" line="20"/>
-        <source>按姓名决定角色</source>
-        <translation type="unfinished">Roles are determined by name</translation>
-    </message>
-    <message>
         <location filename="../components/expand/cafeInvite.py" line="99"/>
         <source>咖啡厅 {cafe_no} 邀请券选择模式：</source>
         <translation type="unfinished">Cafe {cafe_no} Invitation Ticket Selection Mode:</translation>
@@ -1156,6 +1136,26 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
         <location filename="../components/expand/cafeInvite.py" line="140"/>
         <source>选择收藏学生的序号</source>
         <translation type="unfinished">Select the serial number of the favorite student</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="17"/>
+        <source>邀请最低好感度学生</source>
+        <translation type="unfinished">Invite students with the lowest opinion rating</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="18"/>
+        <source>邀请最高好感度学生</source>
+        <translation type="unfinished">Invite students with the highest opinion rating</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="19"/>
+        <source>邀请收藏的学生</source>
+        <translation type="unfinished">Invite students to favorites</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="20"/>
+        <source>指定姓名邀请</source>
+        <translation type="unfinished">Specify a name to invite</translation>
     </message>
 </context>
 <context>
@@ -1295,27 +1295,27 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="24"/>
+        <location filename="../fragments/process.py" line="25"/>
         <source>调度状态</source>
         <translation>Scheduling Status</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="31"/>
+        <location filename="../fragments/process.py" line="32"/>
         <source>执行中</source>
         <translation>Executing</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="94"/>
+        <location filename="../fragments/process.py" line="84"/>
         <source>暂无正在执行的任务</source>
         <translation>No active tasks</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="96"/>
+        <location filename="../fragments/process.py" line="86"/>
         <source>暂无队列中的任务</source>
         <translation>There are no tasks in the queue</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="54"/>
+        <location filename="../fragments/process.py" line="44"/>
         <source>任务队列</source>
         <translation>Task Queue</translation>
     </message>
@@ -1346,7 +1346,7 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>RenameDialogBox</name>
     <message>
-        <location filename="../../window.py" line="194"/>
+        <location filename="../../window.py" line="205"/>
         <source>配置详情</source>
         <translation type="unfinished">Detailed Configuration</translation>
     </message>
@@ -1354,22 +1354,22 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>RenameDialogContext</name>
     <message>
-        <location filename="../../window.py" line="201"/>
+        <location filename="../../window.py" line="212"/>
         <source>原来的配置名称</source>
         <translation type="unfinished">The name of the original configuration</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="207"/>
+        <location filename="../../window.py" line="218"/>
         <source>修改后的配置名称</source>
         <translation type="unfinished">The name of the modified configuration</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="230"/>
+        <location filename="../../window.py" line="241"/>
         <source>确定</source>
         <translation type="unfinished">Are you sure</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="231"/>
+        <location filename="../../window.py" line="242"/>
         <source>取消</source>
         <translation type="unfinished">Cancel</translation>
     </message>
@@ -1430,119 +1430,189 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>SettingsFragment</name>
     <message>
-        <location filename="../fragments/settings.py" line="23"/>
+        <location filename="../fragments/settings.py" line="25"/>
         <source>普通设置</source>
         <translation>General Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="25"/>
+        <location filename="../fragments/settings.py" line="27"/>
         <source>基本</source>
         <translation>Basic</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="29"/>
+        <location filename="../fragments/settings.py" line="148"/>
         <source>语言</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="29"/>
+        <location filename="../fragments/settings.py" line="148"/>
         <source>设置界面的首选语言</source>
         <translation>Set your preferred language for the GUI</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="38"/>
+        <location filename="../fragments/settings.py" line="31"/>
         <source>应用相关设置</source>
         <translation>Server &amp; Emulator Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="38"/>
+        <location filename="../fragments/settings.py" line="31"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
         <translation>Select your server platform and set your port (set to 0 if you don't know the port)</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="46"/>
+        <location filename="../fragments/settings.py" line="39"/>
         <source>脚本相关设置</source>
         <translation>Script Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="46"/>
+        <location filename="../fragments/settings.py" line="39"/>
         <source>根据你的电脑配置，调整相应的参数。</source>
         <translation>Adjust the parameters according to your computer specs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="54"/>
+        <location filename="../fragments/settings.py" line="47"/>
         <source>模拟器启动设置</source>
         <translation>Emulator Startup Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="54"/>
+        <location filename="../fragments/settings.py" line="47"/>
         <source>设置启动模拟器的路径</source>
         <translation>Set the path to start the emulator</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="63"/>
+        <location filename="../fragments/settings.py" line="56"/>
         <source>相关设置</source>
         <translation>Features</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="67"/>
+        <location filename="../fragments/settings.py" line="60"/>
         <source>普通图推图设置</source>
         <translation>Clear Normal Mission Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="67"/>
+        <location filename="../fragments/settings.py" line="60"/>
         <source>根据你的推图需求，调整相应的参数。</source>
         <translation>Adjust the parameters according to your normal clear needs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="75"/>
+        <location filename="../fragments/settings.py" line="68"/>
         <source>困难图推图设置</source>
         <translation>Clear Hard Mission Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="75"/>
+        <location filename="../fragments/settings.py" line="68"/>
         <source>根据你所需困难图刷关，设置参数。</source>
         <translation>Adjust the parameters according to your hard clear needs.</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="83"/>
+        <location filename="../fragments/settings.py" line="76"/>
         <source>推剧情</source>
         <translation>Push the Story Forward</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="83"/>
+        <location filename="../fragments/settings.py" line="76"/>
         <source>主线剧情，小组剧情，支线剧情</source>
         <translation>Main Story, Group Story, Mini Story</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="91"/>
+        <location filename="../fragments/settings.py" line="84"/>
         <source>活动图设置</source>
         <translation>Clear Event Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="91"/>
+        <location filename="../fragments/settings.py" line="84"/>
         <source>推故事，推任务，推挑战</source>
         <translation>Clear Story, Clear Quest, Clear Challenge</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="99"/>
+        <location filename="../fragments/settings.py" line="92"/>
         <source>其他设置</source>
         <translation>Miscellaneous</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="99"/>
+        <location filename="../fragments/settings.py" line="92"/>
         <source>其他的一些小功能与设置</source>
         <translation>Some other small features and settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="107"/>
+        <location filename="../fragments/settings.py" line="100"/>
         <source>推送设置</source>
         <translation>Notifications Settings</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="107"/>
+        <location filename="../fragments/settings.py" line="100"/>
         <source>推送信息</source>
         <translation>send notifications</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="108"/>
+        <source>图形用户界面</source>
+        <translation type="unfinished">graphical user interface</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="111"/>
+        <source>云母效果</source>
+        <translation type="unfinished">Mica effect</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="111"/>
+        <source>将半透明应用于窗口和表面</source>
+        <translation type="unfinished">Apply translucency to windows and surfaces</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="119"/>
+        <source>应用主题</source>
+        <translation type="unfinished">Apply a theme</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="119"/>
+        <source>更改应用的外观</source>
+        <translation type="unfinished">Change the appearance of the app</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="119"/>
+        <source>浅色</source>
+        <translation type="unfinished">light</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="119"/>
+        <source>深色</source>
+        <translation type="unfinished">Dark</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="137"/>
+        <source>使用系统设置</source>
+        <translation type="unfinished">Use the system settings</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="130"/>
+        <source>主题颜色</source>
+        <translation type="unfinished">Theme colors</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="130"/>
+        <source>更改应用的主题颜色</source>
+        <translation type="unfinished">Change the app's theme color</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="137"/>
+        <source>界面缩放</source>
+        <translation type="unfinished">Interface zoom</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="137"/>
+        <source>更改小部件和字体的大小</source>
+        <translation type="unfinished">Change the size of widgets and fonts</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="194"/>
+        <source>更新成功</source>
+        <translation type="unfinished">The update was successful</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="194"/>
+        <source>配置将在重新启动后生效</source>
+        <translation type="unfinished">The configuration will take effect after the reboot</translation>
     </message>
 </context>
 <context>
@@ -1642,37 +1712,37 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="414"/>
+        <location filename="../../window.py" line="424"/>
         <source>主页</source>
         <translation>Home</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="416"/>
+        <location filename="../../window.py" line="426"/>
         <source>配置</source>
         <translation>Dailies</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="417"/>
+        <location filename="../../window.py" line="427"/>
         <source>设置</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="524"/>
+        <location filename="../../window.py" line="535"/>
         <source>是否要删除配置：</source>
         <translation>Do you want to delete the configuration:</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="525"/>
+        <location filename="../../window.py" line="536"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>You will need to restart Baas after confirmation to complete the changes.</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="415"/>
+        <location filename="../../window.py" line="425"/>
         <source>调度</source>
         <translation>Schedule</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="496"/>
+        <location filename="../../window.py" line="508"/>
         <source>设置失败</source>
         <translation>Setup failed</translation>
     </message>
@@ -1697,7 +1767,7 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
         <translation>TemplateLayout</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="216"/>
+        <location filename="../../window.py" line="227"/>
         <source>ConfigTranslation</source>
         <translation>ConfigTranslation</translation>
     </message>
@@ -1716,7 +1786,7 @@ It is recommended to use nemu and if you are using nemu, please set the 'emulato
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="451"/>
+        <location filename="../../window.py" line="463"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>
