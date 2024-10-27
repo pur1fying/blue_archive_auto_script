@@ -4,14 +4,16 @@ from random import random
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
-from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF, ScrollArea, TitleLabel, SettingCardGroup)
+from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF, ScrollArea, TitleLabel, SettingCardGroup, 
+                            SwitchSettingCard, OptionsSettingCard, CustomColorSettingCard, setTheme, setThemeColor)
 
 import window
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
 from gui.util.language import Language
 from gui.util import notification
-from gui.util.translator import baasTranslator as bt
+from gui.util.config_gui import configGui, isWin11
+
 
 class SettingsFragment(ScrollArea):
     def __init__(self, parent=None, config=None):
@@ -26,15 +28,6 @@ class SettingsFragment(ScrollArea):
             self.tr("基本"), self.scrollWidget)
 
         self.basicGroupItems = [
-            ComboBoxSettingCard(
-            bt.cfg.language,
-            FIF.LANGUAGE,
-            self.tr('语言'),
-            self.tr('设置界面的首选语言'),
-            texts=Language.combobox(),
-            parent=self.basicGroup
-            ),
-
             SimpleSettingCard(
                 title=self.tr('应用相关设置'),
                 content=self.tr('选择你的服务器平台，设置你的端口（不知道端口请设置为0）'),
@@ -111,6 +104,59 @@ class SettingsFragment(ScrollArea):
                 parent=self.exploreGroup,
                 config=self.config
             )]
+        
+        self.guiGroup = SettingCardGroup(
+            self.tr('图形用户界面'), self.scrollWidget)
+        
+        self.micaCard = SwitchSettingCard(
+            FIF.TRANSPARENT,
+            self.tr('云母效果'),
+            self.tr('将半透明应用于窗口和表面'),
+            configGui.micaEnabled,
+            self.guiGroup
+        )
+        self.micaCard.setEnabled(isWin11())
+        self.themeCard = OptionsSettingCard(
+            configGui.themeMode,
+            FIF.BRUSH,
+            self.tr('应用主题'),
+            self.tr("更改应用的外观"),
+            texts=[
+                self.tr('浅色'), self.tr('深色'),
+                self.tr('使用系统设置')
+            ],
+            parent=self.guiGroup
+        )
+        self.themeColorCard = CustomColorSettingCard(
+            configGui.themeColor,
+            FIF.PALETTE,
+            self.tr('主题颜色'),
+            self.tr('更改应用的主题颜色'),
+            self.guiGroup
+        )
+        self.zoomCard = OptionsSettingCard(
+            configGui.dpiScale,
+            FIF.ZOOM,
+            self.tr("界面缩放"),
+            self.tr("更改小部件和字体的大小"),
+            texts=[
+                "100%", "125%", "150%", "175%", "200%",
+                self.tr("使用系统设置")
+            ],
+            parent=self.guiGroup
+        )
+        self.languageCard = ComboBoxSettingCard(
+            configGui.language,
+            FIF.LANGUAGE,
+            self.tr('语言'),
+            self.tr('设置界面的首选语言'),
+            texts=Language.combobox(),
+            parent=self.guiGroup
+        )
+
+        self.guiGroupItems = [
+            self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.languageCard
+        ]
 
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
@@ -129,11 +175,15 @@ class SettingsFragment(ScrollArea):
             }
         ''')
         self.viewport().setStyleSheet("background-color: transparent;")
+
         self.basicGroup.addSettingCards(self.basicGroupItems)
         self.exploreGroup.addSettingCards(self.exploreGroupItems)
+        self.guiGroup.addSettingCards(self.guiGroupItems)
+
         self.expandLayout.addWidget(self.settingLabel)
         self.expandLayout.addWidget(self.basicGroup)
         self.expandLayout.addWidget(self.exploreGroup)
+        self.expandLayout.addWidget(self.guiGroup)
 
         self.setWidget(self.scrollWidget)
 
@@ -142,12 +192,15 @@ class SettingsFragment(ScrollArea):
         if time.time() - window.LAST_NOTICE_TIME < 0.1:
             return
         notification.success(
-            'Language updated successfully',
-            'It will take effect after restart',
+            self.tr('更新成功'),
+            self.tr('配置将在重新启动后生效'),
             self.config
         )
         window.LAST_NOTICE_TIME = time.time()
 
     def __connectSignalToSlot(self):
         """ connect signal to slot """
-        bt.cfg.appRestartSig.connect(self.__showRestartTooltip)
+        configGui.appRestartSig.connect(self.__showRestartTooltip)
+        self.themeCard.optionChanged.connect(lambda ci: setTheme(configGui.get(ci)))
+        self.themeColorCard.colorChanged.connect(lambda c: setThemeColor(c))
+        self.micaCard.checkedChanged.connect(lambda x: configGui.micaEnableChanged.emit(x))

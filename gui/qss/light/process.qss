@@ -1,0 +1,13 @@
+#on_status {
+    font-size: 18px;
+    padding: 10px;
+    font-weight: bold;
+    background-color: #e0f0e0;
+    border-radius: 10px;
+}
+
+#listWidget {
+    background-color: #e0e0f0;
+    padding: 10px;
+    border-radius: 10px;
+}
