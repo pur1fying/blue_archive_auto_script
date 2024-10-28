@@ -444,7 +444,8 @@ DEFAULT_CONFIG = """
     "clear_friend_white_list": [],
     "drill_difficulty_list": [1,1,1],
     "drill_fight_formation_list": [1,2,3],
-    "drill_enable_sweep": true
+    "drill_enable_sweep": true,
+    "new_event_enable_state": "default"
 }
 """
 

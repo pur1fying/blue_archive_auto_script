@@ -81,7 +81,7 @@ def solve_drill(self, state):
         finish_existing_drill(self)
     if self.config["drill_enable_sweep"] and drill_ticket > 0:
         self.logger.info("Sweep drill.")
-        sweep_drill(self, drill_name)
+        sweep_drill(self, drill_name, drill_ticket)
 
 
 def to_drill(self, drill_name):
@@ -226,19 +226,23 @@ def wait_drill_fight_finish(self):
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-def sweep_drill(self, drill_name):
-    self.logger.info("Sweep drill.")
+def sweep_drill(self, drill_name, count):
+    self.logger.info("Sweep drill [ " + str(count) + " ] times.")
     to_drill(self, drill_name)
     img_ends = [
-        "drill_Season-Record",
+        "drill_sweep-menu",
     ]
     img_possibles = {
-        "drill_drill-finish": (644, 525),
+        "drill_Season-Record": (818, 654),
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    img_ends = "drill_drill-finish"
+
+    self.click(993, 361, count=count-1, wait_over=True)
+
+    img_ends = "drill_Season-Record"
     img_possibles = {
-        "drill_drill-finish": (644, 525),
+        "drill_sweep-menu": (880, 462),
+        "drill_start-sweep-notice": (766, 502),
+        "drill_sweep-complete": (640, 584)
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    return True
