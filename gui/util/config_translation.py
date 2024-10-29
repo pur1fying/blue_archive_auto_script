@@ -117,7 +117,7 @@ class ConfigTranslation(QObject):
             self.tr('蓝叠国际版'): '蓝叠国际版',
 
             # then combobox
-            self.tr('无动作'): '无动作', # Do Nothing 
+            self.tr('无动作'): '无动作', # Do Nothing
             self.tr('退出 Baas'): '退出 Baas', # Exit Baas
             self.tr('退出 模拟器'): '退出 模拟器', # Exit Emulator
             self.tr('退出 Baas 和 模拟器'): '退出 Baas 和 模拟器', # Exit Baas and Emulator
@@ -128,4 +128,9 @@ class ConfigTranslation(QObject):
             self.tr('爆发'): '爆发', # explosive
             self.tr('神秘'): '神秘', # mystic
             self.tr('振动'): '振动', # sonic
+
+            # scheduler_selector_combobox
+            self.tr('开'): '开',
+            self.tr('关'): '关',
+            self.tr('默认'): '默认',
         }
