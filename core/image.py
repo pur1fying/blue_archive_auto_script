@@ -101,10 +101,30 @@ def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=2
     res_average_rgb = np.mean(res_img, axis=(0, 1))
     ss_img = img_cut(ss_img, (max_loc[0], max_loc[1], max_loc[0] + res_img.shape[1], max_loc[1] + res_img.shape[0]))
     ss_average_rgb = np.mean(ss_img, axis=(0, 1))
-    if abs(res_average_rgb[0] - ss_average_rgb[0]) > rgb_diff or abs(
-        res_average_rgb[1] - ss_average_rgb[1]) > rgb_diff or abs(
-        res_average_rgb[2] - ss_average_rgb[2]) > rgb_diff:
+    if abs(res_average_rgb[0] - ss_average_rgb[0]) > rgb_diff or abs(res_average_rgb[1] - ss_average_rgb[1]) > rgb_diff or abs(res_average_rgb[2] - ss_average_rgb[2]) > rgb_diff:
         return False
 
     center = (max_loc[0] + area[0], max_loc[1] + area[1])
     return center
+
+
+def search_image_in_area(self, image, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=20):
+    # search image from screenshot in area, return upper left point of template image if found, else return False
+    res_img = image
+    ss_img = screenshot_cut(self, area)
+
+    similarity = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(similarity)
+    if max_val < threshold:
+        return False
+
+    res_average_rgb = np.mean(res_img, axis=(0, 1))
+    ss_img = img_cut(ss_img, (max_loc[0], max_loc[1], max_loc[0] + res_img.shape[1], max_loc[1] + res_img.shape[0]))
+    ss_average_rgb = np.mean(ss_img, axis=(0, 1))
+    if abs(res_average_rgb[0] - ss_average_rgb[0]) > rgb_diff or abs(res_average_rgb[1] - ss_average_rgb[1]) > rgb_diff or abs(res_average_rgb[2] - ss_average_rgb[2]) > rgb_diff:
+        return False
+
+    center = (max_loc[0] + area[0], max_loc[1] + area[1])
+    return center
+
+
