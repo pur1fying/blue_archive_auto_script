@@ -66,7 +66,6 @@ class ConfigSet:
         self.config_dir = config_dir
         self.signals = {}
         self._init_config()
-        self._init_gui_config()
 
     def _init_config(self):
         with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
@@ -96,14 +95,6 @@ class ConfigSet:
         with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
         self.dynamic_update(key)
-
-    def get_gui(self, key):
-        return self.gui_config['MainWindow'][key]
-
-    def set_gui(self, key, value):
-        self.gui_config['MainWindow'][key] = value
-        with open(f'./config/gui.json', 'w', encoding='utf-8') as f:
-            json.dump(self.gui_config, f, indent=4, ensure_ascii=False)
 
     def dynamic_update(self, key):
         if key not in self.inject_config_list: return
@@ -151,7 +142,3 @@ class ConfigSet:
         self.inject_config_list.extend(re.findall(r'{(.*?)}', string_rule))
         self.inject_comp_list.append(bounded)
         return bounded
-
-    def _init_gui_config(self):
-        with open(f'./config/gui.json', 'r', encoding='utf-8') as f:
-            self.gui_config = json.load(f)

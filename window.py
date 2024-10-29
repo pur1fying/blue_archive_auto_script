@@ -457,6 +457,7 @@ class Window(MSFluentWindow):
         notification.__dict__['_' + json_msg['type']](json_msg['label'], json_msg['msg'], self)
 
     def init_main_class_thread(self):
+        QApplication.processEvents()
         from main import Main
         self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal, self.ocr_needed)
         for i in range(0, len(self._sub_list[0])):

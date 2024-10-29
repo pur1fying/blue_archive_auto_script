@@ -10,7 +10,6 @@ from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF
 import window
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
-from gui.util.language import Language
 from gui.util import notification
 from gui.util.config_gui import configGui, isWin11
 

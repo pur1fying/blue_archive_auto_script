@@ -13,6 +13,7 @@ from qfluentwidgets import SettingCardGroup
 
 from gui.components import expand
 from gui.components.template_card import TemplateSettingCard, TemplateSettingCardForClick
+from gui.util.config_gui import configGui
 
 lock = threading.Lock()
 
@@ -29,7 +30,7 @@ class SwitchFragment(ScrollArea):
         # 创建一个标题为“调度设置”的TitleLabel实例
         self.settingLabel = TitleLabel(self.scrollWidget)
         config.inject(self.settingLabel, self.tr("配置设置") + " {name}")
-        self.configLoadType = self.config.get_gui('configLoadType')
+        self.configLoadType = configGui.configLoadType.value
         # 初始化basicGroup变量,_setting_cards列表
         self.basicGroup = None
         self._setting_cards = []
