@@ -4,7 +4,7 @@ x_y_range = {
     'episode-cleared-feature': (700, 143, 888, 177),
     "enter-main-story": (327, 510, 558, 562),
     "select-episode": (100, 9, 350, 41),
-    "episode5": (42, 96, 244, 126),
+    "episode5": (57, 88, 255, 118),
     "menu": (1129, 108, 1279, 138),
     "plot-index": (698, 143, 878, 173),
     "episode1": (983, 248, 1268, 278),
