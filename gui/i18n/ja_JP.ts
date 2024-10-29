@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ja_JP" sourcelanguage="zh_CN">
 <context>
     <name>BAASTabItem</name>
     <message>
-        <location filename="../../window.py" line="257"/>
+        <location filename="../../window.py" line="264"/>
         <source>重命名</source>
         <translation>名前の変更</translation>
     </message>
@@ -11,7 +12,7 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="334"/>
+        <location filename="../../window.py" line="341"/>
         <source>帮助</source>
         <translation>ヘルプ</translation>
     </message>
@@ -422,6 +423,21 @@
         <location filename="../util/config_translation.py" line="73"/>
         <source>设置在定期好友清理中需要保留的好友码</source>
         <translation>定期的なフレンドクリーンアップで保持する必要があるフレンドコードを設定します</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="133"/>
+        <source>开</source>
+        <translation type="unfinished">開ける</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="134"/>
+        <source>关</source>
+        <translation type="unfinished">閉める</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="135"/>
+        <source>默认</source>
+        <translation type="unfinished">デフォルト</translation>
     </message>
 </context>
 <context>
@@ -852,7 +868,7 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>普通のステージ名時間(例:「1-1-1、1-2-3」は、レベルが1-1で1回プレイされ、その後、レベルが1-2で3回プレイされることを意味します):</translation>
     </message>
     <message>
@@ -1287,29 +1303,34 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="25"/>
+        <location filename="../fragments/process.py" line="24"/>
         <source>调度状态</source>
         <translation>スケジュールステータス</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="32"/>
+        <location filename="../fragments/process.py" line="58"/>
         <source>执行中</source>
         <translation>実行中</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="84"/>
+        <location filename="../fragments/process.py" line="110"/>
         <source>暂无正在执行的任务</source>
         <translation>進行中のタスクはない</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="44"/>
+        <location filename="../fragments/process.py" line="69"/>
         <source>任务队列</source>
         <translation>タスク隊列</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="86"/>
+        <location filename="../fragments/process.py" line="112"/>
         <source>暂无队列中的任务</source>
         <translation>隊列にタスクがない</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="29"/>
+        <source>当BAAS新增调度任务时,它的启用状态为</source>
+        <translation type="unfinished">新しいスケジューリング タスクが BAAS に追加されると、次の状態で有効になります</translation>
     </message>
 </context>
 <context>
@@ -1338,7 +1359,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>RenameDialogBox</name>
     <message>
-        <location filename="../../window.py" line="205"/>
+        <location filename="../../window.py" line="212"/>
         <source>配置详情</source>
         <translation>構成の詳細</translation>
     </message>
@@ -1346,22 +1367,22 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>RenameDialogContext</name>
     <message>
-        <location filename="../../window.py" line="212"/>
+        <location filename="../../window.py" line="219"/>
         <source>原来的配置名称</source>
         <translation>元の構成の名前</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="218"/>
+        <location filename="../../window.py" line="225"/>
         <source>修改后的配置名称</source>
         <translation>変更された構成の名前</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="241"/>
+        <location filename="../../window.py" line="248"/>
         <source>确定</source>
         <translation>決定</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="242"/>
+        <location filename="../../window.py" line="249"/>
         <source>取消</source>
         <translation>キャンセル</translation>
     </message>
@@ -1704,37 +1725,37 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="424"/>
+        <location filename="../../window.py" line="431"/>
         <source>主页</source>
         <translation>ホーム</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="425"/>
+        <location filename="../../window.py" line="432"/>
         <source>调度</source>
         <translation>スケジュール</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="426"/>
+        <location filename="../../window.py" line="433"/>
         <source>配置</source>
         <translation>構成</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="427"/>
+        <location filename="../../window.py" line="434"/>
         <source>设置</source>
         <translation>設定</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="508"/>
+        <location filename="../../window.py" line="515"/>
         <source>设置失败</source>
         <translation>セットアップ失敗</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="535"/>
+        <location filename="../../window.py" line="542"/>
         <source>是否要删除配置：</source>
         <translation>設定を削除しますか：</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="536"/>
+        <location filename="../../window.py" line="543"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>変更を完了するには、確認後に BAAS を再起動する必要があります。</translation>
     </message>
@@ -1742,7 +1763,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>bt</name>
     <message>
-        <location filename="../../window.py" line="227"/>
+        <location filename="../../window.py" line="234"/>
         <source>ConfigTranslation</source>
         <translation>構成の翻訳</translation>
     </message>
@@ -1774,11 +1795,29 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <comment>停止</comment>
         <translation>メイン・トレッド</translation>
     </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>开</comment>
+        <translation type="unfinished">コンフィグアトラン</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>关</comment>
+        <translation type="unfinished">コンフィグアトラン</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>默认</comment>
+        <translation type="unfinished">コンフィグアトラン</translation>
+    </message>
 </context>
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="463"/>
+        <location filename="../../window.py" line="470"/>
         <source>帮助</source>
         <translation>ヘルプ</translation>
     </message>

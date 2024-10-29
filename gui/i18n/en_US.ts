@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US" sourcelanguage="zh_CN">
 <context>
     <name>BAASTabItem</name>
     <message>
-        <location filename="../../window.py" line="257"/>
+        <location filename="../../window.py" line="264"/>
         <source>重命名</source>
         <translation>Rename</translation>
     </message>
@@ -11,7 +12,7 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="334"/>
+        <location filename="../../window.py" line="341"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>
@@ -424,6 +425,21 @@ make sure to do it before starting the script.</translation>
         <source>设置在定期好友清理中需要保留的好友码</source>
         <translation>Set the friend code that you need to keep in the regular friend cleanup</translation>
     </message>
+    <message>
+        <location filename="../util/config_translation.py" line="133"/>
+        <source>开</source>
+        <translation type="unfinished">open</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="134"/>
+        <source>关</source>
+        <translation type="unfinished">close</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="135"/>
+        <source>默认</source>
+        <translation type="unfinished">default</translation>
+    </message>
 </context>
 <context>
     <name>CreateSettingMessageBox</name>
@@ -809,8 +825,8 @@ See Clear Hard and Normal Stages in Help</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
-        <translation>Normal stage and number of sweeps(e.g. "1-1-1,1-2-3" means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
+        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <translation>Normal stage and number of sweeps(e.g. &quot;1-1-1,1-2-3&quot; means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
@@ -1052,7 +1068,7 @@ For JP or Global server, you can use 'max':</translation>
         <location filename="../components/expand/scriptConfig.py" line="18"/>
         <source>这些功能在运行多个实例时可能无法按预期工作。涉及模拟器的操作将遵循“模拟器启动设置”中的设置。</source>
         <translation>These features may not work as expected when running multiple instances.
-Operations involving the emulator will follow the settings in "Emulator Startup Settings.</translation>
+Operations involving the emulator will follow the settings in &quot;Emulator Startup Settings.</translation>
     </message>
     <message>
         <location filename="../components/expand/friendWhiteList.py" line="16"/>
@@ -1296,29 +1312,34 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="25"/>
+        <location filename="../fragments/process.py" line="24"/>
         <source>调度状态</source>
         <translation>Scheduling Status</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="32"/>
+        <location filename="../fragments/process.py" line="58"/>
         <source>执行中</source>
         <translation>Executing</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="84"/>
+        <location filename="../fragments/process.py" line="110"/>
         <source>暂无正在执行的任务</source>
         <translation>No active tasks</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="86"/>
+        <location filename="../fragments/process.py" line="112"/>
         <source>暂无队列中的任务</source>
         <translation>There are no tasks in the queue</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="44"/>
+        <location filename="../fragments/process.py" line="69"/>
         <source>任务队列</source>
         <translation>Task Queue</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="29"/>
+        <source>当BAAS新增调度任务时,它的启用状态为</source>
+        <translation type="unfinished">When a new scheduling task is added to BAAS, it is enabled in the following state</translation>
     </message>
 </context>
 <context>
@@ -1347,7 +1368,7 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
 <context>
     <name>RenameDialogBox</name>
     <message>
-        <location filename="../../window.py" line="205"/>
+        <location filename="../../window.py" line="212"/>
         <source>配置详情</source>
         <translation>Detailed Configuration</translation>
     </message>
@@ -1355,22 +1376,22 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
 <context>
     <name>RenameDialogContext</name>
     <message>
-        <location filename="../../window.py" line="212"/>
+        <location filename="../../window.py" line="219"/>
         <source>原来的配置名称</source>
         <translation>The name of the original configuration</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="218"/>
+        <location filename="../../window.py" line="225"/>
         <source>修改后的配置名称</source>
         <translation>The name of the modified configuration</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="241"/>
+        <location filename="../../window.py" line="248"/>
         <source>确定</source>
         <translation>Are you sure</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="242"/>
+        <location filename="../../window.py" line="249"/>
         <source>取消</source>
         <translation>Cancel</translation>
     </message>
@@ -1713,37 +1734,37 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="424"/>
+        <location filename="../../window.py" line="431"/>
         <source>主页</source>
         <translation>Home</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="426"/>
+        <location filename="../../window.py" line="433"/>
         <source>配置</source>
         <translation>Dailies</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="427"/>
+        <location filename="../../window.py" line="434"/>
         <source>设置</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="535"/>
+        <location filename="../../window.py" line="542"/>
         <source>是否要删除配置：</source>
         <translation>Do you want to delete the configuration:</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="536"/>
+        <location filename="../../window.py" line="543"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>You will need to restart Baas after confirmation to complete the changes.</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="425"/>
+        <location filename="../../window.py" line="432"/>
         <source>调度</source>
         <translation>Schedule</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="508"/>
+        <location filename="../../window.py" line="515"/>
         <source>设置失败</source>
         <translation>Setup failed</translation>
     </message>
@@ -1768,7 +1789,7 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
         <translation>TemplateLayout</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="227"/>
+        <location filename="../../window.py" line="234"/>
         <source>ConfigTranslation</source>
         <translation>ConfigTranslation</translation>
     </message>
@@ -1783,11 +1804,29 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
         <comment>停止</comment>
         <translation>MainThread</translation>
     </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>开</comment>
+        <translation type="unfinished">ConfigTranslation</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>关</comment>
+        <translation type="unfinished">ConfigTranslation</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>默认</comment>
+        <translation type="unfinished">ConfigTranslation</translation>
+    </message>
 </context>
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="463"/>
+        <location filename="../../window.py" line="470"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>

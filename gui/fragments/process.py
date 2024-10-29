@@ -26,7 +26,7 @@ class ProcessFragment(ScrollArea):
         self.titleLineLayout = QHBoxLayout()
         _scheduler_selector = config.get('new_event_enable_state')
         _scheduler_selector_layout = QHBoxLayout()
-        _scheduler_selector_label = SubtitleLabel(self.tr("调度功能状态"), self)
+        _scheduler_selector_label = SubtitleLabel(self.tr("当BAAS新增调度任务时,它的启用状态为"), self)
         __dict__for_scheduler_selector = {
             '开': 'on',
             '关': 'off',

@@ -153,9 +153,9 @@ def check_event_config(dir_path='./default_config', server="CN", enable_state="d
             if not exist:
                 temp = default_event_config[i]
                 if enable_state == "on":
-                    temp['enable'] = True
+                    temp['enabled'] = True
                 elif enable_state == "off":
-                    temp['enable'] = False
+                    temp['enabled'] = False
                 data.insert(i, temp)
 
         with open(path, 'w', encoding='utf-8') as f:

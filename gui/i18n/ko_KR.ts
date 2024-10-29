@@ -3,7 +3,7 @@
 <context>
     <name>BAASTabItem</name>
     <message>
-        <location filename="../../window.py" line="257"/>
+        <location filename="../../window.py" line="264"/>
         <source>重命名</source>
         <translation>이름 바꾸기</translation>
     </message>
@@ -11,7 +11,7 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="334"/>
+        <location filename="../../window.py" line="341"/>
         <source>帮助</source>
         <translation>돕다</translation>
     </message>
@@ -423,6 +423,21 @@
         <location filename="../util/config_translation.py" line="73"/>
         <source>设置在定期好友清理中需要保留的好友码</source>
         <translation>정기적인 친구 정리에 보관해야 하는 친구 코드를 설정하세요</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="133"/>
+        <source>开</source>
+        <translation type="unfinished">열다</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="134"/>
+        <source>关</source>
+        <translation type="unfinished">닫다</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="135"/>
+        <source>默认</source>
+        <translation type="unfinished">기본값</translation>
     </message>
 </context>
 <context>
@@ -1293,29 +1308,34 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="25"/>
+        <location filename="../fragments/process.py" line="24"/>
         <source>调度状态</source>
         <translation>예약 상태</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="32"/>
+        <location filename="../fragments/process.py" line="58"/>
         <source>执行中</source>
         <translation>실행중</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="84"/>
+        <location filename="../fragments/process.py" line="110"/>
         <source>暂无正在执行的任务</source>
         <translation>작업중인 로동이 없습니다</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="44"/>
+        <location filename="../fragments/process.py" line="69"/>
         <source>任务队列</source>
         <translation>로동계획</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="86"/>
+        <location filename="../fragments/process.py" line="112"/>
         <source>暂无队列中的任务</source>
         <translation>실행중인 로동계획이 없습니다</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="29"/>
+        <source>当BAAS新增调度任务时,它的启用状态为</source>
+        <translation type="unfinished">새 스케줄링 작업이 BAAS에 추가되면 다음 상태로 활성화됩니다</translation>
     </message>
 </context>
 <context>
@@ -1344,7 +1364,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
 <context>
     <name>RenameDialogBox</name>
     <message>
-        <location filename="../../window.py" line="205"/>
+        <location filename="../../window.py" line="212"/>
         <source>配置详情</source>
         <translation>구성 세부 사항</translation>
     </message>
@@ -1352,22 +1372,22 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
 <context>
     <name>RenameDialogContext</name>
     <message>
-        <location filename="../../window.py" line="212"/>
+        <location filename="../../window.py" line="219"/>
         <source>原来的配置名称</source>
         <translation>원래 구성의 이름입니다</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="218"/>
+        <location filename="../../window.py" line="225"/>
         <source>修改后的配置名称</source>
         <translation>수정된 구성의 이름입니다</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="241"/>
+        <location filename="../../window.py" line="248"/>
         <source>确定</source>
         <translation>확실한가요</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="242"/>
+        <location filename="../../window.py" line="249"/>
         <source>取消</source>
         <translation>취소</translation>
     </message>
@@ -1710,37 +1730,37 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="424"/>
+        <location filename="../../window.py" line="431"/>
         <source>主页</source>
         <translation>홈페이지</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="425"/>
+        <location filename="../../window.py" line="432"/>
         <source>调度</source>
         <translation>일정</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="426"/>
+        <location filename="../../window.py" line="433"/>
         <source>配置</source>
         <translation>구성</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="427"/>
+        <location filename="../../window.py" line="434"/>
         <source>设置</source>
         <translation>설정</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="508"/>
+        <location filename="../../window.py" line="515"/>
         <source>设置失败</source>
         <translation>설정이 실패했습니다</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="535"/>
+        <location filename="../../window.py" line="542"/>
         <source>是否要删除配置：</source>
         <translation>프로파일을 삭제하시겠습네까? :</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="536"/>
+        <location filename="../../window.py" line="543"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>확인 후 설정을 적용하려면 BAA를 다시 시작해야합니다.</translation>
     </message>
@@ -1748,7 +1768,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
 <context>
     <name>bt</name>
     <message>
-        <location filename="../../window.py" line="227"/>
+        <location filename="../../window.py" line="234"/>
         <source>ConfigTranslation</source>
         <translation>구성 변환</translation>
     </message>
@@ -1780,11 +1800,29 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
         <comment>停止</comment>
         <translation>메인스레드</translation>
     </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>开</comment>
+        <translation type="unfinished">구성 변환</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>关</comment>
+        <translation type="unfinished">구성 변환</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="38"/>
+        <source>ConfigTranslation</source>
+        <comment>默认</comment>
+        <translation type="unfinished">구성 변환</translation>
+    </message>
 </context>
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="463"/>
+        <location filename="../../window.py" line="470"/>
         <source>帮助</source>
         <translation>돕다</translation>
     </message>
