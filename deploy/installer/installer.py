@@ -310,7 +310,7 @@ def check_git(opt):
             # Reset the local repository to the state of the remote repository
             porcelain.reset(repo, mode='hard')
             # Pull the latest changes from the remote repository
-            porcelain.pull(repo, REPO_URL_HTTP, 'master')
+            porcelain.pull(repo, REPO_URL_HTTP, 'master', protocol_version=0)
             updated_local_sha = repo.head().decode('ascii')
             if updated_local_sha == remote_sha:
                 logger.info("Update success")
