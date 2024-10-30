@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
-from qfluentwidgets import ComboBox, LineEdit, CheckBox
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
+from qfluentwidgets import ComboBox, LineEdit, CheckBox, PushButton
 
 from gui.util.translator import baasTranslator as bt
 
@@ -11,12 +11,12 @@ class Layout(QWidget):
         self.setFixedHeight(425)
         self.config = config
         self.hBoxLayout = QVBoxLayout(self)
-        self.lay1 = QHBoxLayout(self)       # ComboBox 选择第一咖啡厅学生名字
-        self.lay2 = QHBoxLayout(self)       # 摸头方式
-        self.lay2_ = QHBoxLayout(self)      # ComboBox 选择第二咖啡厅学生名字
-        self.lay3 = QHBoxLayout(self)       # 第一咖啡厅邀请学生名字
-        self.lay3_ = QHBoxLayout(self)      # 第二咖啡厅邀请学生名字
-        self.lay6 = QHBoxLayout(self)       # 是否有二号咖啡厅
+        self.lay1 = QHBoxLayout()       # ComboBox 选择第一咖啡厅学生名字
+        self.lay2 = QHBoxLayout()       # 摸头方式
+        self.lay2_ = QHBoxLayout()      # ComboBox 选择第二咖啡厅学生名字
+        self.lay3 = QHBoxLayout()       # 第一咖啡厅邀请学生名字
+        self.lay3_ = QHBoxLayout()      # 第二咖啡厅邀请学生名字
+        self.lay6 = QHBoxLayout()       # 是否有二号咖啡厅
 
         self.layCollectReward = self.labeledCheckBoxTemplate(self.tr('是否领取奖励:'), 'cafe_reward_collect_hour_reward')
         self.layUseInvitationTicket = self.labeledCheckBoxTemplate(self.tr('是否使用邀请券:'), 'cafe_reward_use_invitation_ticket')
@@ -52,7 +52,7 @@ class Layout(QWidget):
         self.input1.addItem(self.tr("添加学生"))
         self.input = LineEdit(self)
         self.input.setFixedWidth(650)
-        self.ac_btn = QPushButton(self.tr('确定'), self)
+        self.ac_btn = PushButton(self.tr('确定'), self)
 
         self.favor_student1 = self.config.get('favorStudent1')
         self.input1.addItems(self.student_name)
@@ -180,7 +180,7 @@ class Layout(QWidget):
         self.input4.addItem(self.tr("添加学生"))
         self.input_ = LineEdit(self)
         self.input_.setFixedWidth(650)
-        self.ac_btn_ = QPushButton(self.tr('确定'), self)
+        self.ac_btn_ = PushButton(self.tr('确定'), self)
         self.favor_student2 = self.config.get('favorStudent2')
         self.input4.addItems(self.student_name)
         self.favor_student2 = self.check_valid_student_names_()
@@ -199,7 +199,7 @@ class Layout(QWidget):
         self.ac_btn_.clicked.connect(self.__student_name_change_by_keyboard_input_)
 
     def labeledCheckBoxTemplate(self, label, config_name):
-        lay = QHBoxLayout(self)
+        lay = QHBoxLayout(self.hBoxLayout.widget())
         label = QLabel(label, self)
         checkBox = CheckBox(self)
         checkBox.setChecked(self.config.get(config_name))

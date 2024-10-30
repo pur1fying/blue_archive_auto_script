@@ -109,13 +109,13 @@ class Scheduler:
             }
             temp = []
             for j in range(0, len(_valid_event[i]["pre_task"])):
-                if self.event_map[_valid_event[i]['pre_task'][j]] not in self.funcs:
+                if _valid_event[i]['pre_task'][j] not in self.funcs:
                     continue
                 temp.append(_valid_event[i]['pre_task'][j])
             thisTask["pre_task"] = temp
             temp = []
             for j in range(0, len(_valid_event[i]["post_task"])):
-                if self.event_map[_valid_event[i]["post_task"][j]] not in self.funcs:
+                if _valid_event[i]["post_task"][j] not in self.funcs:
                     continue
                 temp.append(_valid_event[i]["post_task"][j])
             thisTask["post_task"] = temp

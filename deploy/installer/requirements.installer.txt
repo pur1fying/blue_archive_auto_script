@@ -1,0 +1,4 @@
+tqdm
+dulwich
+requests
+pyinstaller

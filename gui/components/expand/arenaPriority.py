@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
-from qfluentwidgets import LineEdit, ComboBox
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from qfluentwidgets import LineEdit, ComboBox, PushButton
 
 from gui.util import notification
 
@@ -13,18 +13,18 @@ class Layout(QWidget):
         self.setFixedHeight(150)
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
-        self.lay_1 = QHBoxLayout(self)
-        self.lay_2 = QHBoxLayout(self)
-        self.lay_3 = QHBoxLayout(self)
+        self.lay_1 = QHBoxLayout()
+        self.lay_2 = QHBoxLayout()
+        self.lay_3 = QHBoxLayout()
         self.label_1 = QLabel(self.tr('输入你需要对手比你低几级，高几级则填负数：'), self)
         self.label_2 = QLabel(self.tr('输入你最多需要刷新几次：'), self)
         self.label_3 = QLabel(self.tr('自定义对手的编号：'), self)
         self.input_1 = LineEdit(self)
         self.input_2 = LineEdit(self)
         self.input_3 = ComboBox(self)
-        self.accept_1 = QPushButton(self.tr('确定'), self)
-        self.accept_2 = QPushButton(self.tr('确定'), self)
-        self.accept_3 = QPushButton(self.tr('确定'), self)
+        self.accept_1 = PushButton(self.tr('确定'), self)
+        self.accept_2 = PushButton(self.tr('确定'), self)
+        self.accept_3 = PushButton(self.tr('确定'), self)
 
         self.level_diff = self.config.get('ArenaLevelDiff')
         validator_1 = QIntValidator(-50, 50)

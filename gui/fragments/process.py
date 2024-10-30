@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel)
 
 from gui.components import expand
+from gui.util.style_sheet import StyleSheet
 from gui.util.translator import baasTranslator as bt
 
 
@@ -32,12 +33,6 @@ class ProcessFragment(ScrollArea):
         self.label_running.setFixedHeight(30)
         self.on_status = StrongBodyLabel(self.tr("暂无正在执行的任务"), self)
         # self.on_status.setFont(QFont("Microsoft YaHei", 14, QFont.Bold))
-        self.on_status.setStyleSheet('''
-                        font-size:18px;
-                        padding:10px;
-                        font-weight:bold;
-                        background-color:#e0f0e0;
-                        border-radius: 10px;''')
         self.on_status.setFixedWidth(300)
         self.on_status.setAlignment(Qt.AlignCenter)
         self.vBox1.addWidget(self.label_running)
@@ -46,11 +41,6 @@ class ProcessFragment(ScrollArea):
 
         self.vBox2 = QVBoxLayout()
         self.listWidget = ListWidget(self)
-        self.listWidget.setStyleSheet('''
-                background-color: #e0e0f0;
-                padding: 10px;
-                border-radius: 10px;
-            ''')
         self.label_queuing = SubtitleLabel(self.tr("任务队列"), self)
 
         self.vBox2.addWidget(self.label_queuing)
@@ -111,3 +101,8 @@ class ProcessFragment(ScrollArea):
         ''')
         self.viewport().setStyleSheet("background-color: transparent;")
         self.setWidget(self.processWidget)
+
+        self.on_status.setObjectName('on_status')
+        self.listWidget.setObjectName('listWidget')
+        StyleSheet.PROCESS.apply(self.on_status)
+        StyleSheet.PROCESS.apply(self.listWidget)

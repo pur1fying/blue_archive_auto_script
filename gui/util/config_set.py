@@ -2,6 +2,8 @@ import json
 import re
 
 from PyQt5.QtCore import QObject
+from PyQt5.QtGui import QColor
+from qfluentwidgets import qconfig
 
 from gui.util.translator import baasTranslator as bt
 
@@ -19,14 +21,19 @@ class BoundComponent(QObject):
     :param config_manager: Config manager
     :param attribute: Attribute to bind (default is setText)
     """
-    def __init__(self, component,  string_rule, config_manager, attribute="setText"):
+
+    def __init__(self, component, string_rule, config_manager, attribute="setText"):
         super().__init__()
         self.component = component
         self.attribute = attribute
         self.string_rule = string_rule
         self.config_manager = config_manager
-
+        qconfig.themeChanged.connect(self._color_change)
         self.update_component()  # 初始化时更新组件
+
+    def _color_change(self):
+        self.component.setTextColor(QColor(0, 0, 0) if qconfig.theme.name == "LIGHT" else QColor(255, 255, 255)
+                                    , QColor(255, 255, 255) if qconfig.theme.name == "LIGHT" else QColor(0, 0, 0))
 
     def update_component(self):
         """ Update the component with the new value """
@@ -49,9 +56,11 @@ class ConfigSet:
         super().__init__()
         print(config_dir)
         self.config = None
+        self.gui_config = None
         self.server_mode = 'CN'
         self.inject_comp_list = []
         self.inject_config_list = []
+        self.window = None
         self.main_thread = None
         self.static_config = None
         self.config_dir = config_dir
@@ -108,6 +117,12 @@ class ConfigSet:
 
     def get_signal(self, key):
         return self.signals.get(key)
+
+    def set_window(self, window):
+        self.window = window
+
+    def get_window(self):
+        return self.window
 
     def set_main_thread(self, thread):
         self.main_thread = thread
