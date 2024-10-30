@@ -168,11 +168,12 @@ class Baas_thread:
         if lnk_path.endswith(".lnk"):
             try:
                 import win32com.client
-                shell = win32com.client.Dispatch("WScript.Shell")
             except ImportError:
                 self.logger.warning("It seems the platform is not Windows,"
                                     " skipping the shortcut conversion.")
                 return
+
+            shell = win32com.client.Dispatch("WScript.Shell")
             shortcut = shell.CreateShortCut(lnk_path)
             self.config_set.config['program_address'] = shortcut.Targetpath
 
