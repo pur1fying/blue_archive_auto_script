@@ -14,7 +14,7 @@ def implement(self):
     push_episode_list = process_regions(self, self.config['main_story_regions'])
     if not push_episode_list:
         default_list = {
-            'CN': [1, 2, 3, 4],
+            'CN': [1, 2, 3, 4, 5],
             'Global': [1, 2, 3, 4, 5, 4, 6],
             'JP': [1, 2, 3, 4, 5, 4, 6]
         }
@@ -115,7 +115,7 @@ def check_episode(self):
 
 def to_episode(self, num):
     origin_position = {
-        'CN': [0, [305, 255], [526, 449], [892, 255], [597, 449]],
+        'CN': [0, [305, 255], [526, 449], [892, 255], [597, 449], [850, 630]],
         'Global': [0, [305, 255], [526, 449], [892, 255], [263, 470], [850, 630]],
         'JP': [0, [305, 255], [526, 449], [892, 255], [278, 463], [850, 630], [729, 249]]
     }
@@ -260,7 +260,7 @@ def to_episode_info(self, pos, skip_first_screenshot=False):
 
 def check_state_and_get_stage_data(self):
     self.logger.info("-- CHECKING CURRENT STATE --")
-    img_possibles = {"normal_task_mission-operating-task-info": (993, 642)}
+    img_possibles = {"normal_task_task-wait-to-begin-feature": (993, 642)}
     img_ends = "normal_task_mission-operating-task-info-notice"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
     path = "src/images" + "/" + self.server + "/main_story/grid_mission_info"
