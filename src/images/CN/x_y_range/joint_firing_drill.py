@@ -3,7 +3,7 @@ path = 'joint_firing_drill'
 x_y_range = {
     "select-drill-menu": (97, 6, 312, 61),
     "Assault-open": (96, 162, 171, 181),
-    "Assault-lock": (),
+    "Assault-lock": (118, 235, 253, 282),
     "Assault-next": (),
     "Assault-fighting": (92, 126, 172, 150),
     "Defense-open": (),
