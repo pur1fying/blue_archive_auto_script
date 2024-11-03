@@ -2,7 +2,7 @@ import random
 import subprocess
 import threading
 from datetime import datetime
-from os import name as osname
+import platform
 
 from PyQt5.QtWidgets import QAbstractItemView, QTableWidgetItem
 from qfluentwidgets import FluentWindow, TableWidget, FluentIcon as FIF
@@ -31,9 +31,9 @@ class HistoryWindow(FluentWindow):
         self.show()
 
     def fetch_update_info(self):
-        if osname == 'nt':
+        if platform.system() == "Windows":
             GIT_HOME = './toolkit/Git/bin/git.exe'
-        elif osname == 'posix':
+        elif platform.system() == 'Linux':
             GIT_HOME = subprocess.run(['which', 'git'], capture_output=True, text=True, encoding='utf-8').stdout.split('\n')[0]
 
         # 获取提交日志
