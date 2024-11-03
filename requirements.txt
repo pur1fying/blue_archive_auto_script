@@ -13,3 +13,9 @@ PyQt-Fluent-Widgets
 # gevent
 
 paddlepaddle
+
+#windows installer auto build
+pyinstaller
+requests
+psutil
+tqdm
