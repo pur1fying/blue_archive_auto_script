@@ -632,8 +632,6 @@ if __name__ == '__main__':
     app.installTranslator(translator)
     app.installTranslator(bt)
 
-    bt.loadCfgTranslation()
-
     w = Window()
     w.setMicaEffectEnabled(configGui.get(configGui.micaEnabled))
     configGui.micaEnableChanged.connect(w.setMicaEffectEnabled)
