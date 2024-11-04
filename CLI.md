@@ -31,8 +31,8 @@ BAAS CLI 提供了通过命令行运行 BAAS 核心功能的能力。
 
 4. 执行 `pdm run cli.your_account.py` 运行 BAAS CLI。一次运行将依次执行 `cli.your_account.py` 中列出的所有任务。
 
-5. 可以通过 cronjob 或者 launchd 等工具定时执行 BAAS CLI。这种情况需要使用以下命令
+5. 可以通过 cron 或者 launchd 等工具定时执行 BAAS CLI。这种情况需要使用以下命令
 
   ```bash
-  conda run -n baas --live-stream pdm run cli.example.py
+  conda run -n baas --live-stream pdm run cli.your_account.py
   ```
