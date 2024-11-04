@@ -55,6 +55,10 @@ GUI预览图：
 - **推送的json格式为:**
 `{"title":"Baas Error","desp":"error..."}`
 
+### CLI 使用方法
+
+参考 [CLI.md](CLI.md)。
+
 ### Docker 使用方法
 > 本项目拟支持Docker部署，但目前Docker部署仍无法正常运行，如有解决方案，请提交PR
 1. 确保你的电脑中存在Docker, 先clone本项目到本地
