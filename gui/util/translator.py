@@ -9,6 +9,7 @@ class Translator(QTranslator):
         super().__init__(parent)
         self.locale = configGui.get(configGui.language).value
         self.stringLang = self.locale.name()
+        self.load("gui/i18n/" + self.stringLang)
         self.__config_translation = ConfigTranslation()
         # separate dictionary for students to not caouse conflicts with existing translations
         self.__students = dict()
