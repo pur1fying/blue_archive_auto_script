@@ -57,7 +57,7 @@ GUI预览图：
 
 ### CLI 使用方法
 
-参考 [CLI.md](CLI.md)。
+CLI 用法及 macOS 支持，参考 [CLI.md](CLI.md)。
 
 ### Docker 使用方法
 > 本项目拟支持Docker部署，但目前Docker部署仍无法正常运行，如有解决方案，请提交PR
