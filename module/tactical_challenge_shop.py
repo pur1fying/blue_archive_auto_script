@@ -107,7 +107,6 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
-
 def to_refresh(self):
     img_ends = [
         "shop_refresh-notice",

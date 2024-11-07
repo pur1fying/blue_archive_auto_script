@@ -16,9 +16,9 @@ stage_data = {
     "The-Guide-of-Chroma": {
         "will-fight": True,
         "start": [
-            (490, 385),
-            (693, 305),
-            (645, 564)
+            ["burst1", (490, 385)],
+            ["burst2", (693, 305)],
+            ["pierce1", (645, 564)]
         ],
         "action": [
             {'t': 'click', 'p': (378, 422), 'wait-over': True, 'desc': "1 left"},
