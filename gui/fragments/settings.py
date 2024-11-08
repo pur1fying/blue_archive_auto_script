@@ -152,7 +152,7 @@ class SettingsFragment(ScrollArea):
         #     texts=Language.combobox(),
         #     parent=self.guiGroup
         # )
-        self.languageCard = ComboBoxSettingCard(
+        self.modeCard = ComboBoxSettingCard(
             configGui.configLoadType,
             FIF.LIBRARY,
             self.tr('配置界面模式'),
@@ -162,7 +162,7 @@ class SettingsFragment(ScrollArea):
         )
 
         self.guiGroupItems = [
-            self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.languageCard
+            self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.modeCard
         ]
 
         self.__initLayout()

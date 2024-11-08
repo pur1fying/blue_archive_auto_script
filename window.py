@@ -8,12 +8,12 @@ import threading
 from functools import partial
 from typing import Union
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer
+from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer, QLocale
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
     MSFluentTitleBar, MessageBox, TransparentToolButton, FluentIconBase, TabItem, \
-    RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
+    RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit, qconfig
 from qfluentwidgets import (SubtitleLabel, setFont)
 
 from core import default_config
@@ -310,8 +310,8 @@ class BAASLangAltButton(TransparentToolButton):
     def __init__(self, parent):
         super().__init__(parent)
         self.setIcon(FIF.LANGUAGE.icon())
-        with open('config/gui.json', 'r', encoding='utf-8') as f:
-            self.config = json.loads(f.read())
+        configGui.language.valueChanged.connect(self._onLangChanged)
+
         self.setToolTip(self.tr('语言设置'))
         self.actions = []
         self.clicked.connect(self.showLangAltDropdown)
@@ -323,25 +323,17 @@ class BAASLangAltButton(TransparentToolButton):
 
     def _init_actions(self):
         self.menu = RoundMenu(parent=self)
-        for lang in Language.combobox():
-            status = ' ✔' if Language.get_raw(lang) == self.config['MainWindow']['Language'] else ''
-            action = Action(FIF.PLAY, self.tr(lang) + status, triggered=partial(self._onLangChanged, lang))
+        for ind, lang in enumerate(Language.combobox()):
+            status = ' ✔' if Language.get_raw(lang) == configGui.get(configGui.language).value.name() else ''
+            action = Action(FIF.PLAY, self.tr(lang) + status, triggered=partial(self._onLangChanged, lang, ind))
             self.actions.append(action)
             self.menu.addAction(action)
 
-    def _onLangChanged(self, lang):
+    def _onLangChanged(self, lang, ind=0):
         for action in self.actions:
             action.setText(action.text().replace(' ✔', ''))
-
-        if lang == self.config['MainWindow']['Language']: return
-        self.config['MainWindow']['Language'] = Language.get_raw(lang)
-        with open('./config/language.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.config, ensure_ascii=False, indent=4))
-
-        # for action in self.actions:
-        #     if action.text().startswith(self.tr(lang)):
-        #         action.setText(action.text() + ' ✔')
-
+        if lang == configGui.language.value: return
+        configGui.set(configGui.language, configGui.language.options[ind])
         self.menu.close()
         self.menu.deleteLater()
 
