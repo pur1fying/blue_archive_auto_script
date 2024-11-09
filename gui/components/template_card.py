@@ -9,7 +9,7 @@ from gui.util.translator import baasTranslator as bt
 
 BANNER_IMAGE_DIR = 'gui/assets/banners'
 
-from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGraphicsDropShadowEffect, QWidget
+from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGraphicsDropShadowEffect
 from PyQt5.QtGui import QPixmap, QFont, QPainter, QPainterPath
 from PyQt5.QtCore import Qt, QRectF
 
@@ -229,13 +229,21 @@ class TemplateSettingCard(ExpandSettingCard):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
         super().__init__(FIF.CHECKBOX, title, content, parent)
-        if sub_view is not None:
-            self.expand_view = sub_view.Layout(self, config)
-        else:
-            self.expand_view = None
-
+        assert sub_view is not None, 'Sub_view is required'
+        self.initiated = False
+        self.expand_view = None
+        self.sub_view = sub_view
+        self.config = config
         self._adjustViewSize()
+
+    def toggleExpand(self):
+        if self.initiated:
+            super().toggleExpand()
+            return
+        self.expand_view = self.sub_view.Layout(self, self.config)
         self.__initWidget()
+        self.initiated = True
+        super().toggleExpand()
 
     def __initWidget(self):
         # Add widgets to layout
@@ -260,9 +268,21 @@ class SimpleSettingCard(ExpandSettingCard):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
         super().__init__(FIF.CHECKBOX, title, content, parent)
-        self.expand_view = sub_view.Layout(self, config)
         self._adjustViewSize()
+        self.initiated = False
+        self.expand_view = None
+        self.sub_view = sub_view
+        self.config = config
+
+    def toggleExpand(self):
+        if self.initiated:
+            super().toggleExpand()
+            return
+        print('expand')
+        self.expand_view = self.sub_view.Layout(self, self.config)
         self.__initWidget()
+        self.initiated = True
+        super().toggleExpand()
 
     def __initWidget(self):
         self.viewLayout.setSpacing(0)
@@ -273,21 +293,3 @@ class SimpleSettingCard(ExpandSettingCard):
         self.expand_view.show()
         self._adjustViewSize()
 
-
-class ScheduleSettingDropCard(ExpandSettingCard):
-    """ Folder list setting card """
-
-    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None):
-        super().__init__(FIF.CHECKBOX, title, content, parent)
-        self.expand_view = sub_view.Layout(self, config)
-        self._adjustViewSize()
-        self.__initWidget()
-
-    def __initWidget(self):
-        self.viewLayout.setSpacing(0)
-        self.viewLayout.setAlignment(Qt.AlignTop)
-        self.viewLayout.setContentsMargins(0, 0, 0, 0)
-        # Initialize layout
-        self.viewLayout.addWidget(self.expand_view)
-        self.expand_view.show()
-        self._adjustViewSize()
