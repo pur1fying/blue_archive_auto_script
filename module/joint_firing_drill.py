@@ -3,7 +3,7 @@ from module.main_story import auto_fight
 
 
 def implement(self):
-    if self.server == "JP":
+    if self.server == "Global" or self.server == "JP":
         return True
     self.quick_method_to_main_page()
     to_joint_firing_menu(self)
@@ -16,18 +16,13 @@ def implement(self):
 
 
 def to_joint_firing_menu(self):
-    drill_position = {
-        "CN": (901, 577),
-        "Global": (1002, 439),
-        "JP": (901, 577)
-    }
     rgb_possibles = {
         "main_page": (1195, 570),
         "reward_acquired": (640, 100)
     }
     img_ends = [("drill_select-drill-menu", 0.95)]
     img_possibles = {
-        "main_page_bus": drill_position[self.server],
+        "main_page_bus": (901, 577),
         "drill_Season-Record": (119, 101),
         "drill_drill-finish": (644, 525),
     }
@@ -36,7 +31,7 @@ def to_joint_firing_menu(self):
 
 def check_drill_state(self):
     self.logger.info("Get drill state.")
-    state = ["fighting", "open", "lock", "next"]
+    state = ["open", "lock", "next", "fighting"]
     open_state = False
     state_checked = [
         ["Assault", False],
@@ -97,9 +92,9 @@ def to_drill(self, drill_name):
             "Shooting": (1113, 343),
         },
         "Global": {
-            "Assault": (1113, 343),
+            "Assault": (182, 363),
             "Defense": (716, 396),
-            "Shooting": (182, 363),
+            "Shooting": (1113, 343),
         },
         "JP": {
             "Assault": (182, 363),
@@ -126,7 +121,7 @@ def get_drill_ticket(self):
         "JP": (938, 95, 975, 117),
     }
     text = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'NUM', self.ratio)
-    if text[0] in ['0', '1', '2', '3', '4', '5']:
+    if text[0] in ['0', '1', '2', '3']:
         self.logger.info("Drill ticket left [ " + text[0] + " ]")
         return int(text[0])
     else:
