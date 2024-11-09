@@ -102,7 +102,7 @@ class Layout(QWidget):
         self._init_components(self._event_config)
 
         self.vBox = QVBoxLayout(self)
-        self.option_layout = QHBoxLayout(self)
+        self.option_layout = QHBoxLayout()
         self.all_check_box = PushButton(self.tr('全部(不)启用'), self)
 
         self.all_check_box.clicked.connect(self.all_check)

@@ -28,8 +28,8 @@ class Layout(TemplateLayout):
 
         super().__init__(parent=parent, configItems=configItems, config=config, context="HardTaskConfig")
 
-        self.push_card = QHBoxLayout(self)
-        self.push_card_label = QHBoxLayout(self)
+        self.push_card = QHBoxLayout()
+        self.push_card_label = QHBoxLayout()
         self.label_tip_push = QLabel(
             self.tr('<b>困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍</b>'),
             self)

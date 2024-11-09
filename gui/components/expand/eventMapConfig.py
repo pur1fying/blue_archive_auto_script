@@ -36,7 +36,7 @@ class Layout(TemplateLayout):
         activity_formation = self.gen_event_formation_attr()
         activity_name = activity_formation['activity_name'] if activity_formation else self.tr('无')
         name_label = QLabel(self.tr('当期活动：') + activity_name, self)
-        optionPanel = QHBoxLayout(self)
+        optionPanel = QHBoxLayout()
         optionPanel.addWidget(name_label, 0, Qt.AlignLeft)
         self.vBoxLayout.addLayout(optionPanel)
         if activity_formation:
@@ -59,11 +59,10 @@ class Layout(TemplateLayout):
 
             if len(total_list) > 0:
                 labelComponent = QLabel(self.tr('任务属性对应表'), self)
-                optionPanel = QHBoxLayout(self)
+                optionPanel = QHBoxLayout()
                 optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
                 self.vBoxLayout.addLayout(optionPanel)
 
-                optionPanel = QHBoxLayout(self)
                 tableView = TableWidget(self)
                 tableView.setWordWrap(False)
                 tableView.setRowCount(ceil(len(total_list)/4))
