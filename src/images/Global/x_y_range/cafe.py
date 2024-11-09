@@ -17,11 +17,11 @@ x_y_range = {
     'invitation-ticket-change-order-menu-academy-chosen': (692, 251, 793, 281),
     'invitation-ticket-change-order-menu-affection-chosen': (476, 308, 583, 333),
     'invitation-ticket-change-order-menu-starred-chosen': (692, 308, 793, 333),
-    'duplicate-invite-notice': (400, 230, 888, 400),
+    'duplicate-invite': (400, 230, 888, 400),
     'invitation-ticket-order-up': (827, 138, 841, 164),
     'invitation-ticket-order-down': (827, 138, 841, 164),
     'confirm-invite': (543, 139, 735, 177),
     'switch-clothes-notice': (500, 150, 780, 189),
-    'duplicate-invite': (400, 160, 888, 270),
+    'duplicate-invite-notice': (400, 160, 888, 270),
 }
 

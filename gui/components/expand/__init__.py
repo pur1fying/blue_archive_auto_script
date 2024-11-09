@@ -18,3 +18,4 @@ from .eventMapConfig import Layout
 from .emulatorConfig import Layout
 from .pushConfig import Layout
 from .friendWhiteList import Layout
+from .drillConfig import Layout

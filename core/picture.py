@@ -39,7 +39,7 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                         rgb_diff = img_ends[i][2]
                 if image.compare_image(self, img_name, False, threshold, rgb_diff):
                     self.logger.info('end : ' + img_name)
-                    return img_ends[i]
+                    return img_name
         f = 0
         if rgb_possibles is not None:
             for position, click in rgb_possibles.items():

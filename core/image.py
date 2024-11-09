@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from core import position, color
 
+
 def screenshot_cut(self, area):
     return self.latest_img_array[int(area[1] * self.ratio):int(area[3] * self.ratio),
            int(area[0] * self.ratio):int(area[2] * self.ratio), :]
@@ -69,9 +70,6 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_fi
                     break
 
 
-
-
-
 def getImageByName(self, name):
     return position.image_dic[self.server][name]
 
@@ -94,8 +92,7 @@ def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=2
     ss_img = img_cut(ss_img, (max_loc[0], max_loc[1], max_loc[0] + res_img.shape[1], max_loc[1] + res_img.shape[0]))
     ss_average_rgb = np.mean(ss_img, axis=(0, 1))
     if abs(res_average_rgb[0] - ss_average_rgb[0]) > rgb_diff or abs(
-        res_average_rgb[1] - ss_average_rgb[1]) > rgb_diff or abs(
-        res_average_rgb[2] - ss_average_rgb[2]) > rgb_diff:
+        res_average_rgb[1] - ss_average_rgb[1]) > rgb_diff or abs(res_average_rgb[2] - ss_average_rgb[2]) > rgb_diff:
         return False
 
     center = (max_loc[0] + area[0], max_loc[1] + area[1])

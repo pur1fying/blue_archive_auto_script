@@ -9,12 +9,14 @@ def start_simulator_uuid(uuid):
     return subprocess.Popen(load_data(uuid)['latest_command_line'])
 
 
-def start_simulator_classic(simulator_type, multi_instance=None, return_status=False):
+def start_simulator_classic(simulator_type : str, multi_instance=None , return_status=False):
     if simulator_type in ["bluestacks_nxt","bluestacks_nxt_cn"]:
-        from .auto_scan_simulator import get_running_processes,auto_scan_simulators
+        from .auto_scan_simulator import auto_scan_simulators
         adb_list = auto_scan_simulators()
         if simulator_type != "bluestacks_nxt":
             region = "cn"
+        else:
+            region = ""
         if multi_instance is None and region == "cn":
             multi_instance = "BlueStacks"
         elif multi_instance is None:

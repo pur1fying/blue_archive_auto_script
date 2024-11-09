@@ -198,6 +198,7 @@ def check_onnxruntime():
 
 def start_app():
     _path = './env/Scripts/pythonw.exe' if platform.system() == 'Windows' else './lib/bin/python3'
+    _path = './env/Scripts/python' if args.debug and platform.system() == 'Windows' else _path
     proc = subprocess.Popen([_path, './window.py'], )
     return proc.pid
 
@@ -460,7 +461,8 @@ if __name__ == '__main__':
     parser.add_argument('--force-launch', action='store_true', help='ignore multi BAAS instance check')
     parser.add_argument('--internal-launch', action='store_true', help='Use launcher inside pre-build executable files')
     parser.add_argument('--no-build', action='store_true', help='Disable Internal BAAS Installer builder')
-    args = parser.parse_args()
+    parser.add_argument('--debug', action='store_true', help='Enable Console Output')
+    args, unknown_args = parser.parse_known_args()
 
     if not args.launch:
         check_install()

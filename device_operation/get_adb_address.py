@@ -5,7 +5,7 @@ from .mumu_manager_api import mumu12_control_api_backend
 from .bluestacks_module import get_bluestacks_nxt_adb_port
 
 
-def get_simulator_port(simulator_type, multi_instance):
+def get_simulator_port(simulator_type : str, multi_instance : str):
     if simulator_type == "bluestacks_nxt":
         if multi_instance == None or multi_instance == "":
             multi_instance = "BlueStacks App Player"

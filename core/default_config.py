@@ -263,6 +263,18 @@ EVENT_DEFAULT_CONFIG = """
     "disabled_time_range": [],
     "pre_task": [],
     "post_task": []
+  },
+  {
+    "enabled": true,
+    "priority": 19,
+    "interval": 0,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "综合战术测试",
+    "func_name": "joint_firing_drill",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
   }
 ]
 """
@@ -431,7 +443,9 @@ DEFAULT_CONFIG = """
     ],
     "clear_friend_white_list": [],
     "drill_difficulty_list": [1,1,1],
-    "drill_fight_formation_list": [1,2,3]
+    "drill_fight_formation_list": [1,2,3],
+    "drill_enable_sweep": true,
+    "new_event_enable_state": "default"
 }
 """
 
@@ -505,6 +519,13 @@ SWITCH_DEFAULT_CONFIG = '''
         "name": "自动清好友白名单(仅国服)",
         "sort": 15,
         "tip": "设置在定期好友清理中需要保留的好友码",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": "drillConfig",
+        "name": "战术综合测试",
+        "sort": 16,
+        "tip": "帮助你自动打战术综合测试",
         "type": "BasicSettingCard"
     }
 ]
@@ -679,7 +700,7 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "pleasant_Valentines_Day_in_schale",
         "Global": "iveAlive",
         "JP": "SerenadePromenade"
     },

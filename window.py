@@ -124,7 +124,7 @@ def check_single_event(new_event, old_event):
     return old_event
 
 
-def check_event_config(dir_path='./default_config', server="CN"):
+def check_event_config(dir_path='./default_config', server="CN", enable_state="default"):
     path = './config/' + dir_path + '/event.json'
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
     if server != "CN":
@@ -152,7 +152,12 @@ def check_event_config(dir_path='./default_config', server="CN"):
                     exist = True
                     break
             if not exist:
-                data.insert(i, default_event_config[i])
+                temp = default_event_config[i]
+                if enable_state == "on":
+                    temp['enabled'] = True
+                elif enable_state == "off":
+                    temp['enabled'] = False
+                data.insert(i, temp)
 
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
@@ -181,7 +186,9 @@ def check_config(dir_path):
             server = "Global"
         elif server == "日服":
             server = "JP"
-        check_event_config(path, server)
+        config = ConfigSet(config_dir=path)
+
+        check_event_config(path, server, config.get("new_event_enable_state"))
         check_switch_config(path)
 
 

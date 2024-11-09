@@ -19,9 +19,9 @@ x_y_range = {
     'invitation-ticket-change-order-menu-starred-chosen': (662, 308, 810, 333),
     'invitation-ticket-order-up': (827, 138, 841, 164),
     'invitation-ticket-order-down': (827, 138, 841, 164),
-    'duplicate-invite-notice': (400, 230, 888, 400),
+    'duplicate-invite': (400, 230, 888, 400),
     'confirm-invite': (543, 139, 735, 177),
-    'duplicate-invite': (400, 220, 888, 270),
+    'duplicate-invite-notice': (400, 220, 888, 270),
     'switch-clothes-notice': (500, 150, 780, 189),
     'gift': (20, 557, 118, 596)
 }
