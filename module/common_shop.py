@@ -148,12 +148,11 @@ def get_item_position(self):
     x = [653, 805, 959, 1114]
     y_end = 560
     recorded_y = []  # (y, num) means line y has num items
-    state = []  # every item : ((idx of this line, y), purchasable, currency_type)
+    state = []  # every item : ((idx of this line, y), usable)
     for k in range(0, len(x)):
         possibles_x = x[k]
-        curr_y = 127
+        curr_y = 145
         while curr_y <= y_end:
-            # purchase available
             if color.judge_rgb_range(self, possibles_x, curr_y, 99, 139, 211, 231, 245, 255):
                 area = (possibles_x - 14, curr_y - 10, possibles_x + 40, curr_y + 40)
                 currency_type = None
@@ -203,6 +202,21 @@ def get_item_position(self):
     print(state)
     print(recorded_y)
     return state, recorded_y
+
+
+def judge_item_state(self, x, y):
+    # x y is upper left of the bar which records the chosen item number
+    # four points to judge
+    # 67 82 102
+    dx = 83
+    dy = 23
+    if color.judge_rgb_range(self, x, y, 57, 77, 72, 92, 92, 112) and \
+        color.judge_rgb_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
+        color.judge_rgb_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
+        color.judge_rgb_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
+        return 1
+
+    return 0  # 0: not am item, 1: usable 2 : unusable but is an item
 
 
 def calculate_left_assets(self, assets, asset_required):
