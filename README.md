@@ -59,7 +59,7 @@ GUI预览图：
 
 ### CLI 使用方法
 
-CLI 用法及 macOS 支持，参考 [CLI.md](CLI.md)。
+CLI 用法及 macOS 支持，参考 [CLI.md](docs/CLI.md)。
 
 ## 如何上报bug How to Report Bugs
 在提问题之前至少花费 5 分钟来思考和准备，才会有人花费他的 5 分钟来帮助你。
