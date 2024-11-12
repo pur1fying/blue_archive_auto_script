@@ -49,6 +49,10 @@ if not os.path.exists('config/gui.json'):
             "ThemeMode": "Light"
         }
     }
+
+    if not os.path.exists('config'):
+        os.makedirs('config')
+
     with open('config/gui.json', 'w') as f:
         f.write(json.dumps(DEFAULT_GUI_CONFIG, indent=4))
 

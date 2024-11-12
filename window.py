@@ -627,12 +627,9 @@ if __name__ == '__main__':
 
     # internationalization
     translator = FluentTranslator(bt.locale)
-    bt.load("gui/i18n/" + bt.stringLang)
 
     app.installTranslator(translator)
     app.installTranslator(bt)
-
-    bt.loadCfgTranslation()
 
     w = Window()
     w.setMicaEffectEnabled(configGui.get(configGui.micaEnabled))
