@@ -152,7 +152,7 @@ class Layout(QWidget):
             cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
-            t_ccs = CaptionLabel(bt.tr('ConfigTranslation', self.labels[i]))
+            t_ccs = CaptionLabel(bt.tr('ConfigTranslation', self.labels[i]), self)
             t_ncs = ClickFocusLineEdit(self)
             t_ncs.setClearButtonEnabled(True)
             t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])).split('.')[0])
