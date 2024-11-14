@@ -1,4 +1,7 @@
 import time
+
+import cv2
+import re
 from core import color, image, picture
 
 
@@ -11,11 +14,9 @@ def implement(self):
     res = to_manufacture_store(self, True)
 
     if res == "create_select-sub-node":
-        common_create_judge(self)
         to_manufacture_store(self, True)
     status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
 
-    need_check_order_or_materials = True
     create_flag = True
     while self.flag_run and left_create_times > 0 and create_flag:
         if status == ["unfinished", "unfinished", "unfinished"] and (not use_acceleration_ticket):
@@ -25,18 +26,11 @@ def implement(self):
         for i in range(0, len(status)):
             if status[i] == "empty":
                 to_node1(self, i, True)
-                if need_check_order_or_materials:
-                    check_order_of_materials(self)
-                    need_check_order_or_materials = False
-                if not choose_materials(self):
-                    create_flag = False
-                    break
                 need_acc_collect = True
                 self.config['alreadyCreateTime'] += 1
                 self.config_set.set("alreadyCreateTime", self.config['alreadyCreateTime'])
                 self.logger.info("today total create times: " + str(self.config['alreadyCreateTime']))
                 self.click(1066, 664, wait_over=True, duration=4)
-                common_create_judge(self)
                 to_manufacture_store(self)
                 if self.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
@@ -48,36 +42,52 @@ def implement(self):
     return True
 
 
-def create_phase1(self):
-    self.logger.info("Create Phase 1.")
-    filter_list = [1, 1, 1, 1, 1, 1, 1, 1]
-    sort_type = "basic"
-    sort_direction = "down"
-    set_display_setting_filter_list(self, filter_list)
-    set_display_setting_sort_type(self, sort_type)
-    set_display_setting_sort_arrow_direction(self, sort_direction)
-    expected_item_list = item_order_list_builder(self, 1, filter_list, sort_type, sort_direction)
+def confirm_select_node(self, tp=0):
+    p = [(854, 654), (1116, 648)]
+    p = p[tp]
+    img_possibles = {
+        "create_select-node": (1116, 648),
+        "create_start-crafting": p,
+        "create_start-crafting-notice": (769, 501)
+    }
+    img_ends = [
+        "create_material-list",
+        "create_crafting-list"
+    ]
+    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-def common_create_judge(self):
-    pri = self.config['createPriority']
+def start_phase(self, phase_num):
+    self.logger.info("Start Phase [ " + str(phase_num) + " ].")
+    node_position = [0, (841, 279), (383, 204), (769, 284)]
+    img_ends = [
+        "create_start-phase-" + str(phase_num) + "-grey",
+        "create_select-node"
+    ]
+    img_possibles = {
+        "create_start-phase-" + str(phase_num) + "-bright": (1104, 657),
+        "create_phase-" + str(phase_num) + "-wait-to-check-node": node_position[phase_num],
+    }
+    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def select_node(self, phase):
+    pri = self.config['createPriority_phase' + str(phase)]
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
-    node_x = [839, 508, 416, 302, 174]
-    node_y = [277, 388, 471, 529, 555]
+
+    node_x = [[],[573, 508, 416, 302, 174], [122, 232, 323, 378, 401], [549, 422, 312, 223, 156]]
+    node_y = [[],[277, 388, 471, 529, 555], [202, 270, 361, 472, 598], [282, 305, 362, 446, 559]]
+    node_x = node_x[phase]
+    node_y = node_y[phase]
     node = []
     lo = []
+    region = (815, 201, 1223, 275)
     for i in range(0, 5):
-        self.click(node_x[i], node_y[i], wait_over=True)
-        if i == 0:
-            node_x[0] = 571
-            node_y[0] = 278
-        time.sleep(0.7 if i == 0 else 0.1)
-        self.latest_img_array = self.get_screenshot_array()
-        region = (815, 201, 1223, 275)
+        if i != 0:
+            image.click_until_image_disappear(self, node_x[i], node_y[i], region, 0.9, 10)
         node_info = preprocess_node_info(
-            self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio),
-            self.server)
+            self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
         for k in range(0, len(pri)):
             if pri[k] == node_info:
                 if k == 0:
@@ -86,14 +96,69 @@ def common_create_judge(self):
                 else:
                     node.append(pri[k])
                     lo.append(i)
-    self.logger.info("detected nodes:" + str(node))
+    self.logger.info("Detected Nodes:" + str(node))
     for i in range(1, len(pri)):
         for j in range(0, len(node)):
             if node[j][0:len(pri[i])] == pri[i]:
-                self.logger.info("choose node : " + pri[i])
+                self.logger.info("Choose Node : " + pri[i])
                 if lo[j] != 4:
-                    self.click(node_x[lo[j]], node_y[lo[j]], wait_over=True)
+                    image.click_until_image_disappear(self, node_x[lo[j]], node_y[lo[j]], region, 0.9, 10)
                     return
+
+
+def get_display_setting(self, phase):
+    if phase == 1:
+        return [1, 1, 1, 1, 1, 1, 1, 1], "basic", "up"
+    if phase == 2:
+        return [0, 0, 0, 0, 0, 0, 1, 0], "count", "down"
+    if phase == 3:
+        return [0, 0, 0, 0, 0, 0, 1, 0], "count", "down"
+
+
+def create_phase(self, phase):
+    self.logger.info("Create Phase [ " + str(phase) + " ].")
+    filter_list, sort_type, sort_direction = get_display_setting(self, phase)
+    set_display_setting(self, filter_list, sort_type, sort_direction)
+    expected_item_list = item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
+    # select item according to the config
+    check_state = CreateItemCheckState(expected_item_list, sort_type, sort_direction, phase, self)
+    while self.flag_run:
+        check_state.clear_exist_item()
+        item_recognize(self, check_state)
+        if check_state.try_choose_item():
+            break
+        if check_state.item_all_checked():
+            break
+        check_state.list_swipe()
+    log_detect_information(self, check_state.exist_item_list, "All Detected Items : ")
+    start_phase(self, phase)
+    select_node(self, phase)
+
+
+def select_item(self, check_state, item_name, weight):
+    item_weight = self.static_config['create_material_information'][item_name]["weight"]
+    count = weight // item_weight
+    self.logger.info("Select : [ " + item_name + " ] " + "Weight : " + str(item_weight))
+    holding_quantity = check_state.item_quantity(item_name)
+    if count > holding_quantity:
+        self.logger.info("Item : [ " + item_name + " " + str(holding_quantity) + " ] not enough to craft.")
+        return False
+    p = check_state.now_exist_item_info[item_name]["detected_position"]
+    region = get_item_selected_quantity_region(p[0], p[1])
+    curr_selected = 0
+    add_click_x = p[0] + 53
+    add_click_y = p[1] - 52
+    minus_click_x = p[0] + 103
+    minus_click_y = p[1] - 84
+    while curr_selected != count:
+        diff = abs(curr_selected - count)
+        if curr_selected < count:
+            self.click(add_click_x, add_click_y, count=diff, duration=0.1, wait_over=True)
+        else:
+            self.click(minus_click_x, minus_click_y, count=diff, duration=0.1, wait_over=True)
+        self.update_screenshot_array()
+        curr_selected = get_item_selected_quantity(self, region)
+    return True
 
 
 def to_manufacture_store(self, skip_first_screenshot=False):
@@ -213,6 +278,15 @@ def confirm_filter(self):
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
+def set_display_setting(self, filter_list=None, sort_type=None, sort_direction=None):
+    if filter_list is not None:
+        set_display_setting_filter_list(self, filter_list)
+    if sort_type is not None:
+        set_display_setting_sort_type(self, sort_type)
+    if sort_direction is not None:
+        set_display_setting_sort_arrow_direction(self, sort_direction)
+
+
 def set_display_setting_filter_list(self, filter_list):
     to_filter_menu(self)
     self.logger.info("Set Filter List: ")
@@ -323,43 +397,6 @@ def set_display_setting_sort_arrow_direction(self, direction):
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-def check_order_of_materials(self):
-    if not image.compare_image(self, "create_basic", need_log=False):
-        self.logger.info("CHANGE SORT TO BASIC")
-        img_possibles = {"create_unlock-no1-grey": (1109, 106)}
-        img_ends = "create_sort"
-        picture.co_detect(self, None, None, img_ends, img_possibles, True)
-        if self.server == 'JP' or self.server == 'Global':
-            self.click(138, 217, wait_over=True, duration=0.3)
-            self.click(299, 186, wait_over=True, duration=0.3)
-        else:
-            self.click(168, 168, wait_over=True, duration=0.3)
-        img_possibles = {"create_sort": (766, 576)}
-        img_ends = "create_unlock-no1-grey"
-        picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    if image.compare_image(self, "create_point-down", need_log=False):
-        self.logger.info("CHANGE order arrow from DOWN TO UP")
-        self.click(1213, 104, wait_over=True, duration=0.3)
-    if image.compare_image(self, "create_point-up", need_log=False):
-        self.logger.info("order arrow UP")
-
-
-def choose_materials(self):
-    self.click(907, 204, wait_over=True, duration=0.3)
-    self.latest_img_array = self.get_screenshot_array()
-    res = check_create_availability(self)
-    if res == "bright":
-        return True
-    self.logger.info("material 1 inadequate check material 2")
-    self.click(772, 204, wait_over=True, count=10, duration=0.1)
-    self.latest_img_array = self.get_screenshot_array()
-    res = check_create_availability(self)
-    if res == "bright":
-        return True
-    self.logger.info("material 2 inadequate")
-    return False
-
-
 def preprocess_node_info(st, server):
     st = st.replace(" ", "")
     st = st.replace("・", "")
@@ -406,7 +443,14 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     result = []
     filter_type_list = self.static_config['create_filter_type_list']
     if filter_list[6]:  # when material is chosen key stone will be displayed at the top
-        temp = self.static_config['create_item_order'][self.server][sort_type]["Special"]
+        temp = self.static_config['create_item_order'][self.server]["basic"]["Special"]
+        if sort_type == "count":
+            t = []
+            for itm in temp:
+                t.append([itm, self.config_set.config["create_item_holding_quantity"][itm]])
+            t.sort(key=lambda x: x[1])
+            temp = [x[0] for x in t]
+
         if sort_direction == "down":
             temp = temp[::-1]
         result.extend(temp)
@@ -418,78 +462,416 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     phase_id = "phase" + str(phase)
     for i in range(0, len(filter_list)):
         if filter_list[i]:
-            for itm in self.static_config['create_item_order'][self.server][sort_type][filter_type_list[i]]:
+            for itm in self.static_config['create_item_order'][self.server]["basic"][filter_type_list[i]]:
                 if item_info[itm]["availability"][phase_id]:
                     temp.append(itm)
 
+    if sort_type == "count":
+        t = []
+        for itm in temp:
+            t.append([itm, self.config_set.config["create_item_holding_quantity"][itm]])
+        t.sort(key=lambda x: x[1])
+        temp = [x[0] for x in t]
     if sort_direction == "down":
         temp = temp[::-1]
-    result.extend(temp)
 
+    result.extend(temp)
     return result
 
 
-def item_recognizer(self, possible_item_list):
-    pass
+class CreateItemCheckState:
+    # During a full phase of item creation. This class is used for information transfer and store checked item state
+    possible_x = [710, 851, 992, 1133]
+
+    def __init__(self, check_item_order=None, sort_type="basic", sort_direction="up", phase=1, baas=None):
+        self.phase = phase
+        self.baas = baas
+        self.weight_sum = self.baas.static_config["create_each_phase_weight"][phase]
+        self.select_item_rule = self.baas.config["create_phase_" + str(phase) + "_select_item_rule"]
+        self.already_selected_item = dict()
+        self.check_item_order = check_item_order
+        self.last_check_y = 0
+        self.last_checked_idx = 0  # check item from order list
+        self.now_exist_item_info = {}
+        self.not_exist_item_list = []
+        self.exist_item_list = []
+        self.current_item_state = []
+        self.sort_type = sort_type
+        self.sort_direction = sort_direction
+        # every item :
+        # {
+        #     "detected_position": (x, y),
+        #     "holding_quantity": None,
+        #     "selected_quantity": None,
+        #     "usability": None,
+        # }
+        self.current_recorded_y_list = []  # (y, num) means line y has num items
+        self.swipe_no_change_cnt = 0
+        self.select_item_func_list = {
+            "default": [0, self.phase1_default_select_item, self.phase2_default_select_item,
+                        self.phase3_default_select_item],
+        }
+
+    def next_possible_item_name(self):
+        if len(self.check_item_order) > self.last_checked_idx:
+            name = self.check_item_order[self.last_checked_idx]
+            self.last_checked_idx += 1
+            return name
+        return None
+
+    def pop_checked_item(self, info):
+        self.exist_item_list.append(self.check_item_order[self.last_checked_idx - 1])
+        self.now_exist_item_info[self.check_item_order[self.last_checked_idx - 1]] = info.copy()
+        ret = []
+        if self.sort_type == "basic":
+            ret = self.check_item_order[0:self.last_checked_idx - 1]  # item before last checked item quantity is 0
+            self.check_item_order = self.check_item_order[self.last_checked_idx:]
+            self.not_exist_item_list.extend(ret)
+        elif self.sort_type == "count":
+            print("pop" + self.check_item_order[self.last_checked_idx - 1])
+            del self.check_item_order[self.last_checked_idx - 1]
+        self.last_checked_idx = 0
+        return ret
+
+    def sort_check_item_order(self, create_item_holding_quantity):
+        temp1 = []
+        temp2 = []
+        if "Keystone" in self.check_item_order:
+            temp2.append(["Keystone", create_item_holding_quantity["Keystone"]])
+        if "Keystone-Purple" in self.check_item_order:
+            temp2.append(["Keystone-Purple", create_item_holding_quantity["Keystone-Purple"]])
+        # Keystone is always in the head
+
+        for i in range(0, len(self.check_item_order)):
+            name = self.check_item_order[i]
+            temp1.append([name, create_item_holding_quantity[name]])
+
+        temp1.sort(key=lambda x: x[1], reverse=self.sort_direction == "down")
+        temp2.sort(key=lambda x: x[1], reverse=self.sort_direction == "down")
+
+        temp1 = [x[0] for x in temp1]
+        temp2 = [x[0] for x in temp2]
+
+        self.check_item_order = temp2
+        self.check_item_order.extend(temp1)
+
+    def clear_exist_item(self):
+        self.now_exist_item_info.clear()
+
+    def item_now_exist(self, name):
+        return name in self.now_exist_item_info
+
+    def item_not_exist(self, name):
+        return name in self.not_exist_item_list
+
+    def item_quantity(self, name):
+        if name in self.now_exist_item_info:
+            return self.now_exist_item_info[name]["holding_quantity"]
+        return 0
+
+    def item_all_checked(self):
+        for t in self.current_recorded_y_list:
+            if t[1] != 4:
+                return True
+        if self.swipe_no_change_cnt >= 3:
+            return True
+        return False
+
+    def list_swipe(self):
+        dy = swipe_item_list_get_y_diff(self.baas, self.current_recorded_y_list)
+        if dy <= 15:
+            self.swipe_no_change_cnt += 1
+        else:
+            self.swipe_no_change_cnt = 0
+        self.last_check_y -= dy
+
+    def try_choose_item(self):
+        return self.select_item_func_list[self.select_item_rule][self.phase]()
+
+    def phase1_default_select_item(self):
+        for name in self.now_exist_item_info:
+            if select_item(self.baas, self, name, self.weight_sum):
+                return True
+        return False
+
+    def phase2_default_select_item(self):
+        for name in self.now_exist_item_info:
+            if self.item_is_Artifact(name, 0):
+                if select_item(self.baas, self, name, self.weight_sum):
+                    return True
+
+    def phase3_default_select_item(self):
+        for name in self.now_exist_item_info:
+            if self.item_is_Artifact(name, 2):
+                if select_item(self.baas, self, name, self.weight_sum):
+                    return True
+
+    def item_weight_is(self, name, weight):
+        return self.baas.static_config["create_material_information"][name]["weight"] == weight
+
+    def item_is_Artifact(self, name, level):
+        wt = [1, 2, 4, 10]
+        wt = wt[level]
+        return self.item_type_is(name, "Material") and self.item_weight_is(name, wt)
+
+    def item_type_is(self, name, material_type):
+        return self.baas.static_config["create_material_information"][name]["material_type"] == material_type
+
+    @staticmethod
+    def item_type_is_Disk(name):
+        return "Tactical-Training" in name
+
+    @staticmethod
+    def item_type_is_Beginner_Disk(name):
+        return name.startswith("Beginner-Tactical-Training")
+
+    @staticmethod
+    def item_type_is_Normal_Disk(name):
+        return name.startswith("Normal-Tactical-Training")
+
+    @staticmethod
+    def item_type_is_Advanced_Disk(name):
+        return name.startswith("Advanced-Tactical-Training")
+
+    @staticmethod
+    def item_type_is_Superior_Disk(name):
+        return name.startswith("Superior-Tactical-Training")
+
+    @staticmethod
+    def item_type_is_Beginner_TechNote(name):
+        return name.startswith("Beginner-Tech-Notes")
+
+    @staticmethod
+    def item_type_is_Normal_TechNote(self, name):
+        return name.startswith("Normal-Tech-Notes")
+
+    @staticmethod
+    def item_type_is_Advanced_TechNote(self, name):
+        return name.startswith("Advanced-Tech-Notes")
+
+    @staticmethod
+    def item_type_is_Superior_TechNote(self, name):
+        return name.startswith("Superior-Tech-Notes")
+
+    @staticmethod
+    def item_type_is_TechNote(self, name):
+        return "Tech-Notes" in name
 
 
-def get_item_position(self):
-    x = [710, 851, 992, 1133]
+def swipe_item_list_get_y_diff(self, item_lines_y):
+    max_y = item_lines_y[len(item_lines_y) - 1][0]
+    y1 = max_y + 43
+    y2 = max_y + 109
+    if max_y > 534 - 109:
+        y1 = max_y - 53
+        y2 = max_y
+    area = (713, y1, 1247, y2)
+    tar_img = image.screenshot_cut(self, area)
+    self.swipe(690, 511, 690, 348, duration=0.05, post_sleep_time=1)
+    self.update_screenshot_array()
+    position = image.search_image_in_area(self, tar_img, area=(713 - 10, 122, 1247 + 10, 482), threshold=0.8)
+    return area[1] - position[1]
+
+
+def item_recognize(self, check_state):
+    get_item_position(self, check_state)
+    items = check_state.current_item_state
+    item_lines_y = check_state.current_recorded_y_list
+    last_checked_y = check_state.last_check_y
+    self.logger.info("detected item row y : " + str(item_lines_y))
+    self.logger.info("last checked y : " + str(last_checked_y))
+    temp = 0
+    log_name_list = []
+    log_quantity_list = []
+    threshold = 0.8
+    for i in range(0, len(item_lines_y)):
+        if item_lines_y[i][0] - check_state.last_check_y <= 10:
+            temp += item_lines_y[i][1]
+            continue
+        y = item_lines_y[i][0]
+        for j in range(0, item_lines_y[i][1]):
+            p = items[temp + j]["detected_position"]
+            item_image_region = get_item_image_region(p[0], y)
+            if item_image_region[1] <= 140:
+                continue
+            item_holding_quantity_region = get_item_holding_quantity_region(p[0], y)
+            usability = items[temp + j]["usability"]
+            name = check_state.next_possible_item_name()
+            compare_img_name = "create_" + name
+            if usability == 2:
+                compare_img_name += "-Used-Up"
+            max_similarity = 0
+            max_idx = 0
+            holding_quantity = 0
+            # detect name
+            while self.flag_run:
+                if name == "Broken-Crystal-Haniwa":
+                    print(1)
+                pos, max_val = image.search_in_area(self, compare_img_name, item_image_region, threshold, 10,
+                                                    ret_max_val=True)
+                if max_val < threshold:
+                    if max_val > max_similarity:
+                        max_similarity = max_val
+                        max_idx = check_state.last_checked_idx - 1
+                    name = check_state.next_possible_item_name()
+                    if name is None:
+                        break
+                    compare_img_name = "create_" + name
+                    if usability == 2:
+                        compare_img_name += "-Used-Up"
+                    continue
+                if usability == 1:
+                    holding_quantity = get_item_holding_quantity(self, item_holding_quantity_region)
+                elif usability == 2:
+                    self.logger.info("Item : [ " + name + " ] is used up.Set holding quantity to 0.")
+                break
+            if name is None:
+                if max_similarity >= 0.5:
+                    check_state.last_checked_idx = max_idx + 1
+                    name = check_state.check_item_order[max_idx]
+                    holding_quantity = get_item_holding_quantity(self, item_holding_quantity_region)
+                    self.logger.info("Predict : " + name)
+                    self.logger.info("Similarity : " + str(round(max_similarity, 3)))
+                else:
+                    self.logger.warning("Could't detect item type at " + str(p))
+                    check_state.last_checked_idx = 0
+                    log_name_list.append("UNKNOWN")
+                    continue
+            items[temp + j]["holding_quantity"] = holding_quantity
+            self.config_set.config["create_item_holding_quantity"][name] = holding_quantity
+            log_name_list.append(name)
+            log_quantity_list.append(holding_quantity)
+            item_invisible = check_state.pop_checked_item(items[temp + j])
+            self.config_set.save()
+            if len(item_invisible) > 0:  # game will hide item you don't have
+                self.logger.info("Item : [ " + str(item_invisible) + " ] invisible.")
+                self.logger.info("Set holding quantity to 0.")
+                for invisible_item_name in item_invisible:
+                    self.config["create_item_holding_quantity"][invisible_item_name] = 0
+        check_state.last_check_y = y
+        temp += item_lines_y[i][1]
+    if len(log_name_list) > 0:
+        log_detect_information(self, log_name_list, "Detected Item name : ")
+        log_detect_information(self, log_quantity_list, "Holding Quantity : ")
+
+
+def log_detect_information(self, itm_list, pre_info=None):
+    self.logger.info(pre_info)
+    t = 4
+    length = len(itm_list)
+    while t <= length:
+        self.logger.info(itm_list[t - 4:t])
+        t += 4
+    if t != length + 4:
+        self.logger.info(itm_list[t - 4:])
+    return
+
+
+def get_item_holding_quantity(self, region):
+    res = self.ocr.get_region_res(self.latest_img_array, region, "Global", self.ratio)
+    res = res.replace("g", "9")
+    res = res.replace("i", "1")
+    try:
+        if 'x' in res:
+            return int(res.split("x")[1])
+        if 'X' in res:
+            return int(res.split("X")[1])
+    except ValueError:
+        pass
+    res = re.sub(r"\D", "", res)
+    try:
+        res = int(res)
+        return res
+    except ValueError:
+        pass
+
+
+def get_item_selected_quantity(self, region):
+    res = self.ocr.get_region_res(self.latest_img_array, region, "Global", self.ratio)
+    res = res.replace("g", "9")
+    res = res.replace("i", "1")
+    res = re.sub(r"\D", "", res)
+    try:
+        res = int(res)
+        return res
+    except ValueError:
+        return 0
+
+
+def get_item_image_region(x, y):
+    dx1 = -11
+    dx2 = 122
+    dy1 = -95
+    dy2 = -23
+    return x + dx1, y + dy1, x + dx2, y + dy2
+
+
+def get_item_holding_quantity_region(x, y):
+    dy1 = -30
+    dy2 = -3
+    dx = 93
+    return x, y + dy1, x + dx, y + dy2
+
+
+def get_item_selected_quantity_region(x, y):
+    dx = 103
+    dy = 25
+    return x, y, x + dx, y + dy
+
+
+def get_item_position(self, check_state):
+    x = CreateItemCheckState.possible_x
     y_end = 533
-    recorded_y = []  # (y, num) means line y has num items
-    # 57, 77, 72, 92, 92, 112
-    state = []  # every item : ((idx of this line, y), purchasable, currency_type)
+
+    state = []
+    recorded_y = []
+    item_template = {
+        "detected_position": None,
+        "holding_quantity": None,
+        "selected_quantity": None,
+        "usability": None,
+    }
     for k in range(0, len(x)):
         possibles_x = x[k]
         curr_y = 127
         while curr_y <= y_end:
-            # purchase available
-            if color.judge_rgb_range(self, possibles_x, curr_y, 99, 139, 211, 231, 245, 255):
-                area = (possibles_x - 14, curr_y - 10, possibles_x + 40, curr_y + 40)
-                currency_type = None
-                if image.search_in_area(self, "shop_coin-type-creditpoints-bright", area=area, threshold=0.8):
-                    currency_type = "creditpoints"
-                elif image.search_in_area(self, "shop_coin-type-pyroxene-bright", area=area, threshold=0.8):
-                    currency_type = "pyroxene"
-                if currency_type is not None:
-                    y = curr_y
-                    for i in range(0, len(recorded_y)):
-                        if abs(curr_y - recorded_y[i][0]) <= 5:
-                            y = recorded_y[i][0]
-                            recorded_y[i] = (recorded_y[i][0], recorded_y[i][1] + 1)
-                            break
-                    else:
-                        recorded_y.append((curr_y, 1))
-                    curr_y += 70
-                    state.append(((k, y), True, currency_type))
-                else:
-                    curr_y += 1
-            # purchase unavailable
-            elif color.judge_rgb_range(self, possibles_x, curr_y, 68, 88, 140, 160, 164, 184):
-                area = (possibles_x - 14, curr_y - 10, possibles_x + 40, curr_y + 40)
-                currency_type = None
-                if image.search_in_area(self, "shop_coin-type-creditpoints-grey", area=area, threshold=0.8):
-                    currency_type = "creditpoints"
-                elif image.search_in_area(self, "shop_coin-type-pyroxene-grey", area=area, threshold=0.8):
-                    currency_type = "pyroxene"
-                if currency_type is not None:
-                    y = curr_y
-                    for i in range(0, len(recorded_y)):
-                        if abs(curr_y - recorded_y[i][0]) <= 5:
-                            y = recorded_y[i][0]
-                            recorded_y[i] = (recorded_y[i][0], recorded_y[i][1] + 1)
-                            break
-                    else:
-                        recorded_y.append((curr_y, 1))
-                    curr_y += 70
-                    state.append(((k, y), False, currency_type))
-                else:
-                    curr_y += 1
-            else:
+            sta = judge_item_state(self, possibles_x, curr_y)
+            if sta == 0:
                 curr_y += 1
-            # purchase unavailable
-    state = sorted(state, key=lambda t: t[0][1])
-    recorded_y = sorted(recorded_y, key=lambda t: t[0])
-    print(state)
-    print(recorded_y)
-    return state, recorded_y
+                continue
+            elif sta == 1 or sta == 2:
+                item_template["usability"] = sta
+                y = curr_y
+                for i in range(0, len(recorded_y)):
+                    if abs(curr_y - recorded_y[i][0]) <= 5:
+                        y = recorded_y[i][0]
+                        recorded_y[i] = (recorded_y[i][0], recorded_y[i][1] + 1)
+                        break
+                else:
+                    recorded_y.append((curr_y, 1))
+                item_template["detected_position"] = (possibles_x, y)
+                curr_y += 100
+                state.append(item_template.copy())
+
+    check_state.current_item_state = sorted(state, key=lambda t: t["detected_position"][1])
+    check_state.current_recorded_y_list = sorted(recorded_y, key=lambda t: t[0])
+
+
+def judge_item_state(self, x, y):
+    # x y is upper left of the bar which records the chosen item number
+    # four points to judge
+    # rgb for item available 67 82 102
+    # item unavailable 155 162 168
+    dx = 83
+    dy = 23
+    if color.judge_rgb_range(self, x, y, 57, 77, 72, 92, 92, 112) and \
+        color.judge_rgb_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
+        color.judge_rgb_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
+        color.judge_rgb_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
+        return 1
+    elif color.judge_rgb_range(self, x, y, 145, 165, 160, 180, 165, 185) and \
+        color.judge_rgb_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
+        color.judge_rgb_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
+        color.judge_rgb_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
+        return 2
+    return 0  # 0: not am item, 1: usable 2 : unusable but is an item

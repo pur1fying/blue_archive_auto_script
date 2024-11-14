@@ -95,6 +95,7 @@ def check_switch_config(dir_path='./default_config'):
         f.write(default_config.SWITCH_DEFAULT_CONFIG)
 
 
+
 def check_user_config(dir_path='./default_config'):
     path = './config/' + dir_path + '/config.json'
     if not os.path.exists(path):
@@ -186,7 +187,7 @@ def check_config(dir_path):
         elif server == "日服":
             server = "JP"
         config = ConfigSet(config_dir=path)
-
+        config.update_create_quantity_entry()
         check_event_config(path, server, config.get("new_event_enable_state"))
         check_switch_config(path)
 

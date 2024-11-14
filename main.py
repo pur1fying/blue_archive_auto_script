@@ -4,6 +4,7 @@ from core.ocr import ocr
 from gui.util.config_set import ConfigSet
 from core.Baas_thread import Baas_thread
 
+
 class Main:
     def __init__(self, logger_signal=None, ocr_needed=None):
         self.ocr_needed = ocr_needed
@@ -95,7 +96,7 @@ class Main:
 
 if __name__ == '__main__':
     # ocr_needed = ["NUM", "CN", "Global"]
-    ocr_needed = []
+    ocr_needed = ["Global", "CN"]
     t = Main(ocr_needed=ocr_needed)
     t.init_static_config()
     config = ConfigSet(config_dir="1708148000")
@@ -105,8 +106,14 @@ if __name__ == '__main__':
     tt.ocr = t.ocr
     from module.create import item_order_list_builder
     import json
-    from module.create import create_phase1
-    create_phase1(tt)
+    from module import create
+    # create.select_node(tt, 1)
+    create.create_phase(tt, 1)
+    create.confirm_select_node(tt, 0)
+    create.create_phase(tt, 2)
+    create.confirm_select_node(tt, 0)
+    create.create_phase(tt, 3)
+    create.confirm_select_node(tt, 1)
     # print(json.dumps(res, indent=4))
     # print(len(res))
     exit(0)

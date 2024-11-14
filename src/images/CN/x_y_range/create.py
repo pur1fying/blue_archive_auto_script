@@ -2,9 +2,17 @@ prefix = "create"
 path = "create"
 x_y_range = {
     'crafting-list': (865, 168, 1073, 195),
-    'unlock-no1-grey': (1000, 630, 1240, 677),
-    'unlock-no1-bright': (1000, 630, 1240, 677),
-    'select-sub-node': (403, 91, 445, 129),
+    'start-phase-1-grey': (1000, 630, 1240, 677),
+    'start-phase-1-bright': (1000, 630, 1240, 677),
+    'start-phase-2-grey': (1000, 630, 1240, 677),
+    'start-phase-2-bright': (1000, 630, 1240, 677),
+    'start-phase-3-grey': (1000, 630, 1240, 677),
+    'start-phase-3-bright': (1000, 630, 1240, 677),
+
+    'phase-1-wait-to-check-node': (403, 91, 445, 129),
+    'phase-2-wait-to-check-node': (202, 489, 237, 499),
+    'phase-3-wait-to-check-node': (106, 56, 145, 97),
+
     'select-node': (1000, 630, 1240, 677),
     'start-crafting': (1000, 630, 1240, 677),
     'start-crafting-notice': (451, 296, 854, 328),
@@ -43,7 +51,9 @@ x_y_range = {
     'Eligma': (),  # 神名文字
 
     'Keystone': (719, 168, 814, 223),  # 拱心石
+    'Keystone-Used-Up': (854, 168, 960, 22),
     'Keystone-Piece': (854, 168, 960, 223),                   # 拱心石碎片
+    'Keystone-Piece-Used-Up': (719, 168, 814, 223),
 
     'Nebra-Sky-Disk-Piece': (993, 168, 1092, 223),             # 内部拉星象盘碎片
     'Broken-Nebra-Sky-Disk': (1130, 168, 1229, 223),            # 破碎的的星象盘
@@ -70,7 +80,7 @@ x_y_range = {
     'Mandrake-Juice': (719, 168, 814, 223),                   # 曼德拉草饮料
     'Mandrake-Extract': (854, 168, 960, 223),                 # 曼德拉草浓缩液
 
-    'Rohonc-Codex-Page': (993, 168, 1092, 223),                # 罗洪特写本书页
+    'Rohonc-Codex-Page': (719, 168, 814, 223),                # 罗洪特写本书页
     'Broken-Rohonc-Codex': (1130, 168, 1229, 223),              # 破损的罗洪特写本
     'Annotated-Rohonc-Codex': (719, 168, 814, 223),           # 完稿的罗洪特写本
     'Intact-Rohonc-Codex': (854, 168, 960, 223),              # 完整的罗洪特写本
@@ -145,93 +155,93 @@ x_y_range = {
     'Damage-Winnipesaukee-Stone': (719, 168, 814, 223),       # 修好的的温尼珀索基湖神秘石
     'Intact-Winnipesaukee-Stone': (854, 168, 960, 223),       # 完整的温尼珀索基湖神秘石
 
-    'Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)': (993, 168, 1092, 223),  # 初级战术教育光盘(百鬼夜行)
-    'Normal-Tactical-Training-Blu-ray-(Hyakkiyako)': (1130, 168, 1229, 223),    # 中级战术教育光盘(百鬼夜行)
-    'Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)': (719, 168, 814, 223),  # 高级战术教育光盘(百鬼夜行)
-    'Superior-Tactical-Training-Blu-ray-(Hyakkiyako)': (854, 168, 960, 223),  # 特级战术教育光盘(百鬼夜行)
+    'Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)': (889, 172, 936, 207),  # 初级战术教育光盘(百鬼夜行)
+    'Normal-Tactical-Training-Blu-ray-(Hyakkiyako)': (1026, 172, 1071, 207),    # 中级战术教育光盘(百鬼夜行)
+    'Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)': (1169, 172, 1213, 207),  # 高级战术教育光盘(百鬼夜行)
+    'Superior-Tactical-Training-Blu-ray-(Hyakkiyako)': (747, 172, 791, 207),  # 特级战术教育光盘(百鬼夜行)
 
-    'Beginner-Tactical-Training-Blu-ray-(Red Winter)': (993, 168, 1092, 223),  # 初级战术教育光盘(红冬)
-    'Normal-Tactical-Training-Blu-ray-(Red Winter)': (1130, 168, 1229, 223),    # 中级战术教育光盘(红冬)
-    'Advanced-Tactical-Training-Blu-ray-(Red Winter)': (719, 168, 814, 223),  # 高级战术教育光盘(红冬)
-    'Superior-Tactical-Training-Blu-ray-(Red Winter)': (854, 168, 960, 223),  # 特级战术教育光盘(红冬)
+    'Beginner-Tactical-Training-Blu-ray-(Red Winter)': (889, 172, 936, 207),  # 初级战术教育光盘(红冬)
+    'Normal-Tactical-Training-Blu-ray-(Red Winter)': (1026, 172, 1071, 207),    # 中级战术教育光盘(红冬)
+    'Advanced-Tactical-Training-Blu-ray-(Red Winter)': (1169, 172, 1213, 207),  # 高级战术教育光盘(红冬)
+    'Superior-Tactical-Training-Blu-ray-(Red Winter)': (747, 172, 791, 207),  # 特级战术教育光盘(红冬)
 
-    'Beginner-Tactical-Training-Blu-ray-(Trinity)': (993, 168, 1092, 223),  # 初级战术教育光盘(崔尼蒂)
-    'Normal-Tactical-Training-Blu-ray-(Trinity)': (1130, 168, 1229, 223),    # 中级战术教育光盘(崔尼蒂)
-    'Advanced-Tactical-Training-Blu-ray-(Trinity)': (719, 168, 814, 223),  # 高级战术教育光盘(崔尼蒂)
-    'Superior-Tactical-Training-Blu-ray-(Trinity)': (854, 168, 960, 223),  # 特级战术教育光盘(崔尼蒂)
+    'Beginner-Tactical-Training-Blu-ray-(Trinity)': (889, 172, 936, 207),  # 初级战术教育光盘(崔尼蒂)
+    'Normal-Tactical-Training-Blu-ray-(Trinity)': (1026, 172, 1071, 207),    # 中级战术教育光盘(崔尼蒂)
+    'Advanced-Tactical-Training-Blu-ray-(Trinity)': (1169, 172, 1213, 207),  # 高级战术教育光盘(崔尼蒂)
+    'Superior-Tactical-Training-Blu-ray-(Trinity)': (747, 172, 791, 207),  # 特级战术教育光盘(崔尼蒂)
 
-    'Beginner-Tactical-Training-Blu-ray-(Gehenna)': (993, 168, 1092, 223),  # 初级战术教育光盘(歌赫娜)
-    'Normal-Tactical-Training-Blu-ray-(Gehenna)': (1130, 168, 1229, 223),    # 中级战术教育光盘(歌赫娜)
-    'Advanced-Tactical-Training-Blu-ray-(Gehenna)': (719, 168, 814, 223),  # 高级战术教育光盘(歌赫娜)
-    'Superior-Tactical-Training-Blu-ray-(Gehenna)': (854, 168, 960, 223),  # 特级战术教育光盘(歌赫娜)
+    'Beginner-Tactical-Training-Blu-ray-(Gehenna)': (889, 172, 936, 207),  # 初级战术教育光盘(歌赫娜)
+    'Normal-Tactical-Training-Blu-ray-(Gehenna)': (1026, 172, 1071, 207),    # 中级战术教育光盘(歌赫娜)
+    'Advanced-Tactical-Training-Blu-ray-(Gehenna)': (1169, 172, 1213, 207),  # 高级战术教育光盘(歌赫娜)
+    'Superior-Tactical-Training-Blu-ray-(Gehenna)': (747, 172, 791, 207),  # 特级战术教育光盘(歌赫娜)
 
-    'Beginner-Tactical-Training-Blu-ray-(Abydos)': (993, 168, 1092, 223),  # 初级战术教育光盘(阿拜多斯)
-    'Normal-Tactical-Training-Blu-ray-(Abydos)': (1130, 168, 1229, 223),    # 中级战术教育光盘(阿拜多斯)
-    'Advanced-Tactical-Training-Blu-ray-(Abydos)': (719, 168, 814, 223),  # 高级战术教育光盘(阿拜多斯)
-    'Superior-Tactical-Training-Blu-ray-(Abydos)': (854, 168, 960, 223),  # 特级战术教育光盘(阿拜多斯)
+    'Beginner-Tactical-Training-Blu-ray-(Abydos)': (889, 172, 936, 207),  # 初级战术教育光盘(阿拜多斯)
+    'Normal-Tactical-Training-Blu-ray-(Abydos)': (1026, 172, 1071, 207),    # 中级战术教育光盘(阿拜多斯)
+    'Advanced-Tactical-Training-Blu-ray-(Abydos)': (1169, 172, 1213, 207),  # 高级战术教育光盘(阿拜多斯)
+    'Superior-Tactical-Training-Blu-ray-(Abydos)': (747, 172, 791, 207),  # 特级战术教育光盘(阿拜多斯)
 
-    'Beginner-Tactical-Training-Blu-ray-(Millennium)': (993, 168, 1092, 223),  # 初级战术教育光盘(千禧年)
-    'Normal-Tactical-Training-Blu-ray-(Millennium)': (1130, 168, 1229, 223),    # 中级战术教育光盘(千禧年)
-    'Advanced-Tactical-Training-Blu-ray-(Millennium)': (719, 168, 814, 223),  # 高级战术教育光盘(千禧年)
-    'Superior-Tactical-Training-Blu-ray-(Millennium)': (854, 168, 960, 223),  # 特级战术教育光盘(千禧年)
+    'Beginner-Tactical-Training-Blu-ray-(Millennium)': (889, 172, 936, 207),  # 初级战术教育光盘(千禧年)
+    'Normal-Tactical-Training-Blu-ray-(Millennium)': (1026, 172, 1071, 207),    # 中级战术教育光盘(千禧年)
+    'Advanced-Tactical-Training-Blu-ray-(Millennium)': (1169, 172, 1213, 207),  # 高级战术教育光盘(千禧年)
+    'Superior-Tactical-Training-Blu-ray-(Millennium)': (747, 172, 791, 207),  # 特级战术教育光盘(千禧年)
 
-    'Beginner-Tactical-Training-Blu-ray-(Arius)': (993, 168, 1092, 223),  # 初级战术教育光盘(阿里乌斯)
-    'Normal-Tactical-Training-Blu-ray-(Arius)': (1130, 168, 1229, 223),    # 中级战术教育光盘(阿里乌斯)
-    'Advanced-Tactical-Training-Blu-ray-(Arius)': (719, 168, 814, 223),  # 高级战术教育光盘(阿里乌斯)
-    'Superior-Tactical-Training-Blu-ray-(Arius)': (854, 168, 960, 223),  # 特级战术教育光盘(阿里乌斯)
+    'Beginner-Tactical-Training-Blu-ray-(Arius)': (889, 172, 936, 207),  # 初级战术教育光盘(阿里乌斯)
+    'Normal-Tactical-Training-Blu-ray-(Arius)': (1026, 172, 1071, 207),    # 中级战术教育光盘(阿里乌斯)
+    'Advanced-Tactical-Training-Blu-ray-(Arius)': (1169, 172, 1213, 207),  # 高级战术教育光盘(阿里乌斯)
+    'Superior-Tactical-Training-Blu-ray-(Arius)': (747, 172, 791, 207),  # 特级战术教育光盘(阿里乌斯)
 
-    'Beginner-Tactical-Training-Blu-ray-(Shanhaijing)': (993, 168, 1092, 223),  # 初级战术教育光盘(山海经)
-    'Normal-Tactical-Training-Blu-ray-(Shanhaijing)': (1130, 168, 1229, 223),    # 中级战术教育光盘(山海经)
-    'Advanced-Tactical-Training-Blu-ray-(Shanhaijing)': (719, 168, 814, 223),  # 高级战术教育光盘(山海经)
-    'Superior-Tactical-Training-Blu-ray-(Shanhaijing)': (854, 168, 960, 223),  # 特级战术教育光盘(山海经)
+    'Beginner-Tactical-Training-Blu-ray-(Shanhaijing)': (889, 172, 936, 207),  # 初级战术教育光盘(山海经)
+    'Normal-Tactical-Training-Blu-ray-(Shanhaijing)': (1026, 172, 1071, 207),    # 中级战术教育光盘(山海经)
+    'Advanced-Tactical-Training-Blu-ray-(Shanhaijing)': (1169, 172, 1213, 207),  # 高级战术教育光盘(山海经)
+    'Superior-Tactical-Training-Blu-ray-(Shanhaijing)': (747, 172, 791, 207),  # 特级战术教育光盘(山海经)
 
-    'Beginner-Tactical-Training-Blu-ray-(Valkyrie)': (993, 168, 1092, 223),  # 初级战术教育光盘(瓦尔基丽)
-    'Normal-Tactical-Training-Blu-ray-(Valkyrie)': (1130, 168, 1229, 223),    # 中级战术教育光盘(瓦尔基丽)
-    'Advanced-Tactical-Training-Blu-ray-(Valkyrie)': (719, 168, 814, 223),  # 高级战术教育光盘(瓦尔基丽)
-    'Superior-Tactical-Training-Blu-ray-(Valkyrie)': (854, 168, 960, 223),  # 特级战术教育光盘(瓦尔基丽)
+    'Beginner-Tactical-Training-Blu-ray-(Valkyrie)': (889, 172, 936, 207),  # 初级战术教育光盘(瓦尔基丽)
+    'Normal-Tactical-Training-Blu-ray-(Valkyrie)': (1026, 172, 1071, 207),    # 中级战术教育光盘(瓦尔基丽)
+    'Advanced-Tactical-Training-Blu-ray-(Valkyrie)': (1169, 172, 1213, 207),  # 高级战术教育光盘(瓦尔基丽)
+    'Superior-Tactical-Training-Blu-ray-(Valkyrie)': (747, 172, 791, 207),  # 特级战术教育光盘(瓦尔基丽)
 
-    'Beginner-Tech-Notes-(Hyakkiyako)': (993, 168, 1092, 223),  # 初级技术笔记(百鬼夜行)
-    'Normal-Tech-Notes-(Hyakkiyako)': (1130, 168, 1229, 223),    # 中级技术笔记(百鬼夜行)
-    'Advanced-Tech-Notes-(Hyakkiyako)': (719, 168, 814, 223),  # 高级技术笔记(百鬼夜行)
-    'Superior-Tech-Notes-(Hyakkiyako)': (854, 168, 960, 223),  # 特级技术笔记(百鬼夜行)
+    'Beginner-Tech-Notes-(Hyakkiyako)': (881, 168, 919, 208),  # 初级技术笔记(百鬼夜行)
+    'Normal-Tech-Notes-(Hyakkiyako)': (1015, 168, 1059, 208),    # 中级技术笔记(百鬼夜行)
+    'Advanced-Tech-Notes-(Hyakkiyako)': (1156, 168, 1196, 208),  # 高级技术笔记(百鬼夜行)
+    'Superior-Tech-Notes-(Hyakkiyako)': (740, 168, 781, 208),  # 特级技术笔记(百鬼夜行)
 
-    'Beginner-Tech-Notes-(Red Winter)': (993, 168, 1092, 223),  # 初级技术笔记(红冬)
-    'Normal-Tech-Notes-(Red Winter)': (1130, 168, 1229, 223),    # 中级技术笔记(红冬)
-    'Advanced-Tech-Notes-(Red Winter)': (719, 168, 814, 223),  # 高级技术笔记(红冬)
-    'Superior-Tech-Notes-(Red Winter)': (854, 168, 960, 223),  # 特级技术笔记(红冬)
+    'Beginner-Tech-Notes-(Red Winter)': (881, 168, 919, 208),  # 初级技术笔记(红冬)
+    'Normal-Tech-Notes-(Red Winter)': (1015, 168, 1059, 208),    # 中级技术笔记(红冬)
+    'Advanced-Tech-Notes-(Red Winter)': (1156, 168, 1196, 208),  # 高级技术笔记(红冬)
+    'Superior-Tech-Notes-(Red Winter)': (740, 168, 781, 208),  # 特级技术笔记(红冬)
 
-    'Beginner-Tech-Notes-(Trinity)': (993, 168, 1092, 223),  # 初级技术笔记(崔尼蒂)
-    'Normal-Tech-Notes-(Trinity)': (1130, 168, 1229, 223),    # 中级技术笔记(崔尼蒂)
-    'Advanced-Tech-Notes-(Trinity)': (719, 168, 814, 223),  # 高级技术笔记(崔尼蒂)
-    'Superior-Tech-Notes-(Trinity)': (854, 168, 960, 223),  # 特级技术笔记(崔尼蒂)
+    'Beginner-Tech-Notes-(Trinity)': (881, 168, 919, 208),  # 初级技术笔记(崔尼蒂)
+    'Normal-Tech-Notes-(Trinity)': (1015, 168, 1059, 208),    # 中级技术笔记(崔尼蒂)
+    'Advanced-Tech-Notes-(Trinity)': (1156, 168, 1196, 208),  # 高级技术笔记(崔尼蒂)
+    'Superior-Tech-Notes-(Trinity)': (740, 168, 781, 208),  # 特级技术笔记(崔尼蒂)
 
-    'Beginner-Tech-Notes-(Gehenna)': (993, 168, 1092, 223),  # 初级技术笔记(歌赫娜)
-    'Normal-Tech-Notes-(Gehenna)': (1130, 168, 1229, 223),    # 中级技术笔记(歌赫娜)
-    'Advanced-Tech-Notes-(Gehenna)': (719, 168, 814, 223),  # 高级技术笔记(歌赫娜)
-    'Superior-Tech-Notes-(Gehenna)': (854, 168, 960, 223),  # 特级技术笔记(歌赫娜)
+    'Beginner-Tech-Notes-(Gehenna)': (881, 168, 919, 208),  # 初级技术笔记(歌赫娜)
+    'Normal-Tech-Notes-(Gehenna)': (1015, 168, 1059, 208),    # 中级技术笔记(歌赫娜)
+    'Advanced-Tech-Notes-(Gehenna)': (1156, 168, 1196, 208),  # 高级技术笔记(歌赫娜)
+    'Superior-Tech-Notes-(Gehenna)': (740, 168, 781, 208),  # 特级技术笔记(歌赫娜)
 
-    'Beginner-Tech-Notes-(Abydos)': (993, 168, 1092, 223),  # 初级技术笔记(阿拜多斯)
-    'Normal-Tech-Notes-(Abydos)': (1130, 168, 1229, 223),    # 中级技术笔记(阿拜多斯)
-    'Advanced-Tech-Notes-(Abydos)': (719, 168, 814, 223),  # 高级技术笔记(阿拜多斯)
-    'Superior-Tech-Notes-(Abydos)': (854, 168, 960, 223),  # 特级技术笔记(阿拜多斯)
+    'Beginner-Tech-Notes-(Abydos)': (881, 168, 919, 208),  # 初级技术笔记(阿拜多斯)
+    'Normal-Tech-Notes-(Abydos)': (1015, 168, 1059, 208),    # 中级技术笔记(阿拜多斯)
+    'Advanced-Tech-Notes-(Abydos)': (1156, 168, 1196, 208),  # 高级技术笔记(阿拜多斯)
+    'Superior-Tech-Notes-(Abydos)': (740, 168, 781, 208),  # 特级技术笔记(阿拜多斯)
 
-    'Beginner-Tech-Notes-(Millennium)': (993, 168, 1092, 223),  # 初级技术笔记(千禧年)
-    'Normal-Tech-Notes-(Millennium)': (1130, 168, 1229, 223),    # 中级技术笔记(千禧年)
-    'Advanced-Tech-Notes-(Millennium)': (719, 168, 814, 223),  # 高级技术笔记(千禧年)
-    'Superior-Tech-Notes-(Millennium)': (854, 168, 960, 223),  # 特级技术笔记(千禧年)
+    'Beginner-Tech-Notes-(Millennium)': (881, 168, 919, 208),  # 初级技术笔记(千禧年)
+    'Normal-Tech-Notes-(Millennium)': (1015, 168, 1059, 208),    # 中级技术笔记(千禧年)
+    'Advanced-Tech-Notes-(Millennium)': (1156, 168, 1196, 208),  # 高级技术笔记(千禧年)
+    'Superior-Tech-Notes-(Millennium)': (740, 168, 781, 208),  # 特级技术笔记(千禧年)
 
-    'Beginner-Tech-Notes-(Arius)': (993, 168, 1092, 223),  # 初级技术笔记(阿里乌斯)
-    'Normal-Tech-Notes-(Arius)': (1130, 168, 1229, 223),    # 中级技术笔记(阿里乌斯)
-    'Advanced-Tech-Notes-(Arius)': (719, 168, 814, 223),  # 高级技术笔记(阿里乌斯)
-    'Superior-Tech-Notes-(Arius)': (854, 168, 960, 223),  # 特级技术笔记(阿里乌斯)
+    'Beginner-Tech-Notes-(Arius)': (881, 168, 919, 208),  # 初级技术笔记(阿里乌斯)
+    'Normal-Tech-Notes-(Arius)': (1015, 168, 1059, 208),    # 中级技术笔记(阿里乌斯)
+    'Advanced-Tech-Notes-(Arius)': (1156, 168, 1196, 208),  # 高级技术笔记(阿里乌斯)
+    'Superior-Tech-Notes-(Arius)': (740, 168, 781, 208),  # 特级技术笔记(阿里乌斯)
 
-    'Beginner-Tech-Notes-(Shanhaijing)': (993, 168, 1092, 223),  # 初级技术笔记(山海经)
-    'Normal-Tech-Notes-(Shanhaijing)': (1130, 168, 1229, 223),    # 中级技术笔记(山海经)
-    'Advanced-Tech-Notes-(Shanhaijing)': (719, 168, 814, 223),  # 高级技术笔记(山海经)
-    'Superior-Tech-Notes-(Shanhaijing)': (854, 168, 960, 223),  # 特级技术笔记(山海经)
+    'Beginner-Tech-Notes-(Shanhaijing)': (881, 168, 919, 208),  # 初级技术笔记(山海经)
+    'Normal-Tech-Notes-(Shanhaijing)': (1015, 168, 1059, 208),    # 中级技术笔记(山海经)
+    'Advanced-Tech-Notes-(Shanhaijing)': (1156, 168, 1196, 208),  # 高级技术笔记(山海经)
+    'Superior-Tech-Notes-(Shanhaijing)': (740, 168, 781, 208),  # 特级技术笔记(山海经)
 
-    'Beginner-Tech-Notes-(Valkyrie)': (993, 168, 1092, 223),  # 初级技术笔记(瓦尔基丽)
-    'Normal-Tech-Notes-(Valkyrie)': (1130, 168, 1229, 223),    # 中级技术笔记(瓦尔基丽)
-    'Advanced-Tech-Notes-(Valkyrie)': (719, 168, 814, 223),  # 高级技术笔记(瓦尔基丽)
-    'Superior-Tech-Notes-(Valkyrie)': (854, 168, 960, 223),  # 特级技术笔记(瓦尔基丽)
+    'Beginner-Tech-Notes-(Valkyrie)': (881, 168, 919, 208),  # 初级技术笔记(瓦尔基丽)
+    'Normal-Tech-Notes-(Valkyrie)': (1015, 168, 1059, 208),    # 中级技术笔记(瓦尔基丽)
+    'Advanced-Tech-Notes-(Valkyrie)': (1156, 168, 1196, 208),  # 高级技术笔记(瓦尔基丽)
+    'Superior-Tech-Notes-(Valkyrie)': (740, 168, 781, 208),  # 特级技术笔记(瓦尔基丽)
 }
