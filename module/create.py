@@ -1,6 +1,3 @@
-import time
-
-import cv2
 import re
 from core import color, image, picture
 
@@ -8,12 +5,18 @@ from core import color, image, picture
 def implement(self):
     use_acceleration_ticket = self.config['use_acceleration_ticket']
     left_create_times = self.config['createTime'] - self.config['alreadyCreateTime']
-    self.logger.info("left create times: " + str(left_create_times) + " times")
-    self.logger.info("use acceleration ticket : " + str(use_acceleration_ticket).upper())
+    create_max_phase = self.config['create_phase']
+    self.logger.info("Left Create Times: [ " + str(left_create_times) + " ].")
+    self.logger.info("Use Acceleration Ticket : [ " + str(use_acceleration_ticket).upper() + " ].")
+    self.logger.info("Create Phase : [ " + str(create_max_phase) + " ].")
     self.quick_method_to_main_page()
     res = to_manufacture_store(self, True)
 
-    if res == "create_select-sub-node":
+    if res.startswith("create_phase"):
+        phase = int(re.findall(r"\d", res)[0])
+        start_phase(self, phase)
+        select_node(self, phase)
+        confirm_select_node(self, 1)
         to_manufacture_store(self, True)
     status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
 
@@ -26,11 +29,18 @@ def implement(self):
         for i in range(0, len(status)):
             if status[i] == "empty":
                 to_node1(self, i, True)
+                create_phase(self, 1)
+                if create_max_phase >= 2:
+                    confirm_select_node(self, 0)
+                    create_phase(self, 2)
+                    if create_max_phase >= 3:
+                        confirm_select_node(self, 0)
+                        create_phase(self, 3)
+                confirm_select_node(self, 1)
                 need_acc_collect = True
-                self.config['alreadyCreateTime'] += 1
-                self.config_set.set("alreadyCreateTime", self.config['alreadyCreateTime'])
-                self.logger.info("today total create times: " + str(self.config['alreadyCreateTime']))
-                self.click(1066, 664, wait_over=True, duration=4)
+                self.config_set.config['alreadyCreateTime'] += 1
+                self.config_set.save()
+                self.logger.info("Today Total Create Times : [ " + str(self.config['alreadyCreateTime']) + " ].")
                 to_manufacture_store(self)
                 if self.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
@@ -173,7 +183,9 @@ def to_manufacture_store(self, skip_first_screenshot=False):
     }
     img_ends = [
         "create_crafting-list",
-        "create_select-sub-node"
+        "create_phase-1-wait-to-check-node"
+        "create_phase-2-wait-to-check-node",
+        "create_phase-3-wait-to-check-node",
     ]
     img_possibles = {
         "create_start-crafting": (1115, 657),
