@@ -51,7 +51,7 @@ x_y_range = {
     'Eligma': (),  # 神名文字
 
     'Keystone': (719, 168, 814, 223),  # 拱心石
-    'Keystone-Used-Up': (854, 168, 960, 22),
+    'Keystone-Used-Up': (854, 168, 960, 223),
     'Keystone-Piece': (854, 168, 960, 223),                   # 拱心石碎片
     'Keystone-Piece-Used-Up': (719, 168, 814, 223),
 
