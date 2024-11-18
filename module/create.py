@@ -86,8 +86,8 @@ def select_node(self, phase):
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
 
-    node_x = [[],[573, 508, 416, 302, 174], [122, 232, 323, 378, 401], [549, 422, 312, 223, 156]]
-    node_y = [[],[277, 388, 471, 529, 555], [202, 270, 361, 472, 598], [282, 305, 362, 446, 559]]
+    node_x = [[], [573, 508, 416, 302, 174], [122, 232, 323, 378, 401], [549, 422, 312, 223, 156]]
+    node_y = [[], [277, 388, 471, 529, 555], [202, 270, 361, 472, 598], [282, 305, 362, 446, 559]]
     node_x = node_x[phase]
     node_y = node_y[phase]
     node = []
@@ -279,13 +279,28 @@ def to_node1(self, i, skip_first_screenshot=False):
 
 
 def to_filter_menu(self):
-    img_possibles = {"create_material-list": (946, 98)}
+    x = {
+        'CN': 946,
+        'Global': 1048,
+        'JP': 1048
+    }
+    x = x[self.server]
+    img_possibles = {
+        "create_material-list": (x, 98),
+        "create_sort-menu": (145, 160)
+    }
     img_ends = "create_filter-menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def confirm_filter(self):
-    img_possibles = {"create_filter-menu": (765, 493)}
+    y = {
+        'CN': 493,
+        'Global': 595,
+        'JP': 595
+    }
+    y = y[self.server]
+    img_possibles = {"create_filter-menu": (765, y)}
     img_ends = "create_material-list"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
@@ -304,45 +319,70 @@ def set_display_setting_filter_list(self, filter_list):
     self.logger.info("Set Filter List: ")
     self.logger.info(filter_list[0:4])
     self.logger.info(filter_list[4:8])
-    filter_type_list = self.static_config['create_filter_type_list']
     total = sum(filter_list)
-    flg = total > 4
-    set_display_setting_filter_list_select_all(self, True)
-    if flg:
-        pass  # select all
-    else:
-        set_display_setting_filter_list_select_all(self, False)  # unselect all
 
-    if total == 0 or total == 8:
-        confirm_filter(self)
-        return
+    flg = False
+    if self.server == 'CN':
+        flg = total > 4
+        set_display_setting_filter_list_select_all(self, True)
+        if flg:
+            pass  # select all
+        else:
+            set_display_setting_filter_list_select_all(self, False)  # unselect all
 
-    start_position = (263, 293)
+        if total == 0 or total == 8:
+            confirm_filter(self)
+            return
+    filter_list_ensure_choose(self, filter_list, flg)
+    confirm_filter(self)
+
+
+def filter_list_ensure_choose(self, filter_list, flg):
+    filter_type_list = self.static_config['create_filter_type_list']
+    start_position = {
+        'CN': (263, 293),
+        'Global': (291, 294),
+        'JP': (291, 294)
+    }
+    dx = {
+        'CN': 202,
+        'Global': 235,
+        'JP': 235
+    }
+    dy = {
+        'CN': 72,
+        'Global': 65,
+        'JP': 65
+    }
+    start_position = start_position[self.server]
+    dx = dx[self.server]
+    dy = dy[self.server]
     curr_position = start_position
-    dx = 202
-    dy = 72
     for i in range(0, len(filter_list)):
         pre = "create_filter-" + filter_type_list[i] + "-"
         if filter_list[i] == 1:
-            if flg:
+            if self.server == 'CN' and flg:
                 self.logger.info("[ " + filter_type_list[i] + " ] is already chosen.")
-            else:
-                img_possibles = {pre + "not-chosen": curr_position}
-                img_ends = pre + "chosen"
-                picture.co_detect(self, None, None, img_ends, img_possibles, True)
+                continue
+            img_possibles = {
+                pre + "not-chosen": curr_position,
+                pre + "reset": curr_position
+            }
+            img_ends = pre + "chosen"
+            picture.co_detect(self, None, None, img_ends, img_possibles, True)
         else:
-            if not flg:
+            if self.server == 'CN' and not flg:
                 self.logger.info("[ " + filter_type_list[i] + " ] is already not chosen.")
-            else:
-                img_possibles = {pre + "chosen": curr_position}
-                img_ends = pre + "not-chosen"
-                picture.co_detect(self, None, None, img_ends, img_possibles, True)
+                continue
+            img_possibles = {
+                pre + "chosen": curr_position,
+            }
+            img_ends = [pre + "not-chosen", pre + "reset"]
+            picture.co_detect(self, None, None, img_ends, img_possibles, True)
         if i == 3:
             curr_position = (start_position[0], start_position[1] + dy)
         else:
             curr_position = (curr_position[0] + dx, curr_position[1])
-
-    confirm_filter(self)
 
 
 def set_display_setting_filter_list_select_all(self, state):
@@ -364,7 +404,10 @@ def set_display_setting_sort_type(self, sort_type):
 
 
 def to_sort_menu(self):
-    img_possibles = {"create_material-list": (1098, 98)}
+    img_possibles = {
+        "create_material-list": (1098, 98),
+        "create_filter-menu": (145, 210)
+    }
     img_ends = "create_sort-menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
@@ -382,18 +425,19 @@ def set_sort_type(self, sort_type):
             'count': (424, 168),
         },
         'Global': {
-            'basic': (),
-            'count': (),
-            'name': ()
+            'basic': (294, 181),
+            'count': (529, 180),
+            'name': (772, 175)
         },
         'JP': {
-            'basic': (),
-            'count': (),
-            'name': ()
+            'basic': (294, 181),
+            'count': (529, 180),
+            'name': (772, 175)
         }
     }
+    p = sort_type_position[self.server][sort_type]
     img_ends = "create_sort-" + sort_type + "-chosen"
-    img_possibles = {"create_sort-" + sort_type + "-not-chosen": sort_type_position[self.server][sort_type]}
+    img_possibles = {"create_sort-" + sort_type + "-not-chosen": p}
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
@@ -454,7 +498,9 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     self.logger.info("Sort Direction : " + sort_direction)
     result = []
     filter_type_list = self.static_config['create_filter_type_list']
-    if filter_list[6]:  # when material is chosen key stone will be displayed at the top
+    if filter_list[6] and not (self.server == 'CN' and phase == 3):
+        # when material is chosen key stone will be displayed at the top
+        # CN server phase 3 key stone is not allowed to be chosen
         temp = self.static_config['create_item_order'][self.server]["basic"]["Special"]
         if sort_type == "count":
             t = []

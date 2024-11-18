@@ -99,24 +99,26 @@ if __name__ == '__main__':
     ocr_needed = ["Global", "CN"]
     t = Main(ocr_needed=ocr_needed)
     t.init_static_config()
-    config = ConfigSet(config_dir="1708148000")
+    config = ConfigSet(config_dir="1708232489")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
     from module.create import item_order_list_builder
     import json
+    from module.create import confirm_select_node, create_phase
+    create_phase(tt, 1)
+    confirm_select_node(tt, 0)
+    create_phase(tt, 2)
+    confirm_select_node(tt, 0)
+    create_phase(tt, 3)
+    confirm_select_node(tt, 1)
     from module import create
     # create.select_node(tt, 1)
-    create.create_phase(tt, 1)
-    create.confirm_select_node(tt, 0)
-    create.create_phase(tt, 2)
-    create.confirm_select_node(tt, 0)
-    create.create_phase(tt, 3)
-    create.confirm_select_node(tt, 1)
+
     # print(json.dumps(res, indent=4))
     # print(len(res))
-    exit(0)
+    # exit(0)
     # tt.thread_starter()
     # tt.solve("refresh_uiautomator2")
     # tt.solve("explore_activity_challenge")
