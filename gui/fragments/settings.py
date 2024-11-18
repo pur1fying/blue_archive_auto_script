@@ -4,13 +4,12 @@ from random import random
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
-from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF, ScrollArea, TitleLabel, SettingCardGroup, 
+from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF, ScrollArea, TitleLabel, SettingCardGroup,
                             SwitchSettingCard, OptionsSettingCard, CustomColorSettingCard, setTheme, setThemeColor)
 
 import window
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
-from gui.util.language import Language
 from gui.util import notification
 from gui.util.config_gui import configGui, isWin11
 
@@ -104,10 +103,10 @@ class SettingsFragment(ScrollArea):
                 parent=self.exploreGroup,
                 config=self.config
             )]
-        
+
         self.guiGroup = SettingCardGroup(
             self.tr('图形用户界面'), self.scrollWidget)
-        
+
         self.micaCard = SwitchSettingCard(
             FIF.TRANSPARENT,
             self.tr('云母效果'),
@@ -145,17 +144,25 @@ class SettingsFragment(ScrollArea):
             ],
             parent=self.guiGroup
         )
-        self.languageCard = ComboBoxSettingCard(
-            configGui.language,
-            FIF.LANGUAGE,
-            self.tr('语言'),
-            self.tr('设置界面的首选语言'),
-            texts=Language.combobox(),
+        # self.languageCard = ComboBoxSettingCard(
+        #     configGui.language,
+        #     FIF.LANGUAGE,
+        #     self.tr('语言'),
+        #     self.tr('设置界面的首选语言'),
+        #     texts=Language.combobox(),
+        #     parent=self.guiGroup
+        # )
+        self.modeCard = ComboBoxSettingCard(
+            configGui.configLoadType,
+            FIF.LIBRARY,
+            self.tr('配置界面模式'),
+            self.tr('设置配置界面模式'),
+            texts=["Card", "List"],
             parent=self.guiGroup
         )
 
         self.guiGroupItems = [
-            self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.languageCard
+            self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.modeCard
         ]
 
         self.__initLayout()

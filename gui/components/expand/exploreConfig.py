@@ -80,8 +80,8 @@ class Layout(TemplateLayout):
             ])
         super().__init__(parent=parent, configItems=configItems, config=config, context='ExploreConfig')
 
-        self.push_card = QHBoxLayout(self)
-        self.push_card_label = QHBoxLayout(self)
+        self.push_card = QHBoxLayout()
+        self.push_card_label = QHBoxLayout()
         self.label_tip_push = QLabel(
             '<b>' + self.tr('推图选项') + '</b>&nbsp;' + self.tr('请在下面填写要推的图,填写方式见-普通图自动推图说明-'), self)
         self.input_push = LineEdit(self)

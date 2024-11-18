@@ -1,8 +1,8 @@
 from functools import partial
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
-from qfluentwidgets import ComboBox, LineEdit, SwitchButton
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
+from qfluentwidgets import ComboBox, LineEdit,  PushButton, SwitchButton
 
 from gui.util.translator import baasTranslator as bt
 
@@ -120,7 +120,7 @@ class Layout(QWidget):
         comboStudent.addItem(self.tr("添加学生"))
         lineEditStudent = LineEdit()
         lineEditStudent.setFixedWidth(650)
-        btnConfirm = QPushButton(self.tr('确定'))
+        btnConfirm = PushButton(self.tr('确定'))
         favor_student = self.config.get(f'favorStudent{no}')
         comboStudent.addItems(self.student_name)
         favor_student = self.check_valid_student_names(favor_student)

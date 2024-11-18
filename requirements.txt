@@ -2,14 +2,20 @@ lmdb
 PyQt5
 numpy
 flask
-cnocr
+cnocr == 2.2.4.2
 imgaug
 win11toast
-onnxruntime
+onnxruntime == 1.16.0
 adbutils <= 2.2.1
 uiautomator2 == 2.16.23
-opencv-python
+opencv-python == 4.8.0.74
 PyQt-Fluent-Widgets
 # gevent
 
-paddlepaddle
+paddlepaddle == 2.6.0
+
+#windows installer auto build
+pyinstaller
+requests
+psutil
+tqdm
