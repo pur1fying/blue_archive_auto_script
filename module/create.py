@@ -113,7 +113,7 @@ def select_node(self, phase):
                 self.logger.info("Choose Node : " + pri[i])
                 if lo[j] != 4:
                     image.click_until_image_disappear(self, node_x[lo[j]], node_y[lo[j]], region, 0.9, 10)
-                    return
+                return
 
 
 def get_display_setting(self, phase):
@@ -426,13 +426,13 @@ def set_sort_type(self, sort_type):
         },
         'Global': {
             'basic': (294, 181),
-            'count': (529, 180),
-            'name': (772, 175)
+            'name': (529, 180),
+            'count': (772, 175)
         },
         'JP': {
             'basic': (294, 181),
-            'count': (529, 180),
-            'name': (772, 175)
+            'name': (529, 180),
+            'count': (772, 175)
         }
     }
     p = sort_type_position[self.server][sort_type]
@@ -763,10 +763,7 @@ def item_recognize(self, check_state):
             holding_quantity = 0
             # detect name
             while self.flag_run:
-                if name == "Broken-Crystal-Haniwa":
-                    print(1)
-                pos, max_val = image.search_in_area(self, compare_img_name, item_image_region, threshold, 10,
-                                                    ret_max_val=True)
+                pos, max_val = image.search_in_area(self, compare_img_name, item_image_region, threshold, 10, ret_max_val=True)
                 if max_val < threshold:
                     if max_val > max_similarity:
                         max_similarity = max_val

@@ -96,10 +96,10 @@ class Main:
 
 if __name__ == '__main__':
     # ocr_needed = ["NUM", "CN", "Global"]
-    ocr_needed = ["Global", "CN"]
+    ocr_needed = ["Global", "CN", "JP"]
     t = Main(ocr_needed=ocr_needed)
     t.init_static_config()
-    config = ConfigSet(config_dir="1708232489")
+    config = ConfigSet(config_dir="1708185944")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()

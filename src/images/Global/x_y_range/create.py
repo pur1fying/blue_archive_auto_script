@@ -5,7 +5,7 @@ x_y_range = {
     'select-node': (1000, 630, 1240, 677),
     'start-crafting': (1000, 630, 1240, 677),
     'start-crafting-notice': (451, 296, 854, 328),
-    'basic': (1043, 89, 1144, 114),
+
     'point-up': (1222, 90, 1246, 117),
     'point-down': (1222, 90, 1246, 117),
     'complete-instantly': (448, 261, 790, 311),
@@ -148,25 +148,25 @@ x_y_range = {
     'Repaired-Disco-Colgante': (719, 168, 814, 223),  # 修好的的圆盘吊坠
     'Intact-Disco-Colgante': (854, 168, 960, 223),  # 完整的圆盘吊坠
 
-    'Atlantis-Medal-Piece': (),
-    'Broken-Atlantis-Medal': (),
-    'Damaged-Atlantis-Medal': (),
-    'Intact-Atlantis-Medal': (),
+    'Atlantis-Medal-Piece': (993, 168, 1092, 223),
+    'Broken-Atlantis-Medal': (1130, 168, 1229, 223),
+    'Damaged-Atlantis-Medal': (719, 168, 814, 223),
+    'Intact-Atlantis-Medal': (854, 168, 960, 223),
 
-    'Roman-Dodecahedron-Piece': (),
-    'Broken-Roman-Dodecahedron': (),
-    'Repaired-Roman-Dodecahedron': (),
-    'Intact-Roman-Dodecahedron': (),
+    'Roman-Dodecahedron-Piece': (993, 168, 1092, 223),
+    'Broken-Roman-Dodecahedron': (1130, 168, 1229, 223),
+    'Repaired-Roman-Dodecahedron': (719, 168, 814, 223),
+    'Intact-Roman-Dodecahedron': (854, 168, 960, 223),
 
-    'Quimbaya-Relic-Piece': (),
-    'Broken-Quimbaya-Relic': (),
-    'Repaired-Quimbaya-Relic': (),
-    'Intact-Quimbaya-Relic': (),
+    'Quimbaya-Relic-Piece': (993, 168, 1092, 223),
+    'Broken-Quimbaya-Relic': (1130, 168, 1229, 223),
+    'Repaired-Quimbaya-Relic': (719, 168, 814, 223),
+    'Intact-Quimbaya-Relic': (854, 168, 960, 223),
 
-    'Istanbul-Rocket-Piece': (),
-    'Broken-Istanbul-Rocket': (),
-    'Repaired-Istanbul-Rocket': (),
-    'Intact-Istanbul-Rocket': (),
+    'Istanbul-Rocket-Piece': (993, 168, 1092, 223),
+    'Broken-Istanbul-Rocket': (1130, 168, 1229, 223),
+    'Repaired-Istanbul-Rocket': (719, 168, 814, 223),
+    'Intact-Istanbul-Rocket': (854, 168, 960, 223),
 
     'Winnipesaukee-Stone-Piece': (993, 168, 1092, 223),  # 温尼珀索基湖神秘石碎片
     'Broken-Winnipesaukee-Stone': (1130, 168, 1229, 223),  # 破碎的温尼珀索基湖神秘石
