@@ -159,7 +159,7 @@ def start_action(self, actions):
             return
         desc = "start " + str(i + 1) + " operation : "
         if 'desc' in act:
-            desc += act['desc']
+             desc += act['desc']
         self.logger.info(desc)
         force_index = get_force(self)
         op = act['t']

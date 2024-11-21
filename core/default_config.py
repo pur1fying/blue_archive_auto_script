@@ -700,9 +700,9 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "pleasant_Valentines_Day_in_schale",
-        "Global": "iveAlive",
-        "JP": "SerenadePromenade"
+        "CN": null,
+        "Global": null,
+        "JP": "SunlightGirlsNightSong"
     },
     "dailyGameActivity": {
         "CN": null,
