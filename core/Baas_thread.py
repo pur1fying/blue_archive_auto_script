@@ -1,5 +1,4 @@
 import copy
-import shutil
 from datetime import datetime
 import cv2
 from core.exception import ScriptError, RequestHumanTakeOver
@@ -14,8 +13,10 @@ from core.device.connection import Connection
 from core.device.uiautomator2_client import U2Client
 from core.pushkit import push
 import numpy as np
-import uiautomator2 as u2
 import module
+import requests
+
+from core.device.uiautomator2_client import BAAS_U2_Initer,__atx_agent_version__
 import threading
 import json
 import subprocess
@@ -64,6 +65,7 @@ func_dict = {
 
 class Baas_thread:
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
+        self.u2_client = None
         self.u2 = None
         self.dailyGameActivity = None
         self.config_set = config
@@ -331,10 +333,24 @@ class Baas_thread:
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
-        if 'com.github.uiautomator' not in self.u2.app_list():
-            self.logger.info("ATX not found on stimulator, install")
-            self.u2.app_install("src/atx_app/ATX.apk")
+        _d = self.u2._wait_for_device()
+        if not _d:
+            raise RuntimeError("USB device %s is offline " + self.serial)
+        self.logger.info("Device [ " + self.serial + " ] is online.")
+
+        version_url = self.u2.path2url("/version")
+        try:
+            version = requests.get(version_url, timeout=3).text
+            if version != __atx_agent_version__:
+                raise EnvironmentError("atx-agent need upgrade")
+        except (requests.RequestException, EnvironmentError):
+            self.set_up_atx_agent()
         self.wait_uiautomator_start()
+        self.logger.info("Uiautomator2 service started.")
+
+    def set_up_atx_agent(self):
+        init = BAAS_U2_Initer(self.u2._adb_device, self.logger)
+        init.install()
 
     def send(self, msg, task=None):
         if msg == "start":
@@ -777,8 +793,8 @@ class Baas_thread:
         subprocess.run(["shutdown", "-a"])
 
     def check_resolution(self):
-        self.u2 = U2Client.get_instance(self.serial).get_connection()
-        # self.check_atx_agent_cache()
+        self.u2_client = U2Client.get_instance(self.serial)
+        self.u2 = self.u2_client.get_connection()
         self.check_atx()
         self.last_refresh_u2_time = time.time()
         temp = self.resolution_uiautomator2()
@@ -800,3 +816,15 @@ class Baas_thread:
             except Exception as e:
                 print(e)
                 time.sleep(1)
+
+
+if __name__ == '__main__':
+
+    print(os.path.exists("D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.1_linux_386\\atx-agent"))
+                         # "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.0_linux_386\\atx-agent"
+    import uiautomator2
+    u2 = uiautomator2.connect("127.0.0.1:16512")
+    from core.utils import Logger
+    logger = Logger(None)
+    init = BAAS_U2_Initer(u2._adb_device, logger)
+    init.uninstall()
