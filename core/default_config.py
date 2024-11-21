@@ -675,7 +675,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "bunnyChaserOnTheShip2",
         "Global": "iveAlive",
-        "JP": "SerenadePromenade"
+        "JP": "SunlightGirlsNightSong"
     },
     "dailyGameActivity": {
         "CN": null,
