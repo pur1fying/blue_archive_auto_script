@@ -57,6 +57,10 @@ class Translator(QTranslator):
         if not self.isChinese() and self.isString(sourceText) and self.isString(context):
             bytesArgs = self.encode(context, sourceText, disambiguation)
             translation = super().translate(*bytesArgs, n)
+            self.__config_translation.entries = {
+                translation: sourceText,
+                **self.__config_translation.entries
+            }
             if translation:
                 return self.toString(translation)
         return sourceText
