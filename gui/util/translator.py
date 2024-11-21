@@ -1,45 +1,18 @@
 from typing import Union
-
-from PyQt5.QtCore import QLocale, QTranslator
-from qfluentwidgets import ConfigSerializer, OptionsConfigItem, OptionsValidator, QConfig, qconfig
-
+from PyQt5.QtCore import QTranslator
+from gui.util.config_gui import configGui
 from gui.util.config_translation import ConfigTranslation
-from gui.util.language import Language
-
-
-class LanguageSerializer(ConfigSerializer):
-    """ Language serializer """
-
-    def serialize(self, language):
-        return language.value.name()
-
-    def deserialize(self, value: str):
-        return Language(QLocale(value))
-
-
-class Config(QConfig):
-    """ Language config """
-    language = OptionsConfigItem(
-        "Translator", "Language", Language.ENGLISH, OptionsValidator(Language), LanguageSerializer(), restart=True)
-
-    def __init__(self):
-        super().__init__()
 
 
 class Translator(QTranslator):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.cfg = Config()
-        qconfig.load('config/language.json', self.cfg)
-
-        self.locale = self.cfg.get(self.cfg.language).value
+        self.locale = configGui.get(configGui.language).value
         self.stringLang = self.locale.name()
-        self.__config_translation = None
+        self.load("gui/i18n/" + self.stringLang)
+        self.__config_translation = ConfigTranslation()
         # separate dictionary for students to not caouse conflicts with existing translations
         self.__students = dict()
-
-    def loadCfgTranslation(self):
-        self.__config_translation = ConfigTranslation()
 
     def isString(self, value):
         return isinstance(value, str)

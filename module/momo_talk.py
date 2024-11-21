@@ -15,7 +15,7 @@ def implement(self, need_check_mode=True):
         y = 210
         dy = 18
         unread_location = []
-        while y <= 630:
+        while y <= 620:
             if color.judge_rgb_range(self, 637, y, 250, 252, 70, 72, 24, 26):
                 unread_location.append([637, int(y + dy / 2)])
                 y += 60

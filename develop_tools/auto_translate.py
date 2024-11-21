@@ -18,16 +18,16 @@ class Handler:
 
 
 class Request:
-    def __init__(self, handlers: list[Handler], 
-                 qt_language: Language, 
-                 translator: str = 'bing', 
-                 from_lang: str = 'auto', 
+    def __init__(self, handlers: list[Handler],
+                 qt_language: Language,
+                 translator: str = 'bing',
+                 from_lang: str = 'auto',
                  to_lang: str = 'en'):
         """
         Parameters
         ----------
         handlers: list[Handler]
-            a list of handlers that represent the files to translate. 
+            a list of handlers that represent the files to translate.
 
         qt_language: Language
             the memeber of the enum Language to translate
@@ -44,7 +44,7 @@ class Request:
         self.qt_language = qt_language
         self.strLang = qt_language.value.name()
         self.handlers = handlers
-        self.translator = translator 
+        self.translator = translator
         self.from_lang = from_lang
         self.to_lang = to_lang
 
@@ -52,20 +52,20 @@ class Request:
         text = ts.translate_text(text, self.translator, self.from_lang, self.to_lang)
         print(text)
         return text
-    
+
     def translate_html(self, html_text):
         return ts.translate_html(html_text, self.translator, self.from_lang, self.to_lang)
-    
+
     def process(self):
         self.handlers[0].handle(self)
 
 
 class Pylupdate5Handler(Handler):
     def handle(self, request):
-        result = subprocess.run(['pylupdate5', 'i18n.pro'], capture_output=True, text=True)
+        result = subprocess.run(['pylupdate5', 'gui/assets/i18n.pro'], capture_output=True, text=True)
         print(result.stdout)
         self.set_next(request)
-        
+
 
 class XmlHandler(Handler):
     """Translate ts files"""
@@ -142,7 +142,7 @@ class HtmlHandler(Handler):
                 translated_html = request.translate_html(html)
                 soup = BeautifulSoup(translated_html, 'lxml')
                 prettyHTML = soup.prettify()
-                    
+
                 # Write the translated HTML to the output directory
                 name, extension = os.path.splitext(filename)
                 output_name = f'{request.translate_text(name)}.html'

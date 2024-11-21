@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
-from qfluentwidgets import FlowLayout, CheckBox, LineEdit
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
+from qfluentwidgets import FlowLayout, CheckBox, LineEdit, PushButton
 
 from gui.util.translator import baasTranslator as bt
 
@@ -10,7 +10,7 @@ class Layout(QWidget):
         super().__init__(parent=parent)
         self.config = config
         self.default_goods = self.config.static_config['common_shop_price_list'][self.config.server_mode]
-        print(len(self.default_goods))
+        # print(len(self.default_goods))
         self.__check_server()
         self.goods = self.config.get(key='CommonShopList')
 
@@ -21,14 +21,14 @@ class Layout(QWidget):
         # layout.setHorizontalSpacing(10)
 
         self.setFixedHeight(700)
-        self.setStyleSheet('Demo{background: white} QPushButton{padding: 5px 10px; font:15px "Microsoft YaHei"}')
+        self.setStyleSheet('Demo{background: white}')
         self.label = QLabel(self.tr('刷新次数'), self)
         self.label.setFixedWidth(160)
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 5))
         print(self.config.get('CommonShopRefreshTime'))
         self.input.setText(str(self.config.get('CommonShopRefreshTime')))
-        self.accept = QPushButton(self.tr('确定'), self)
+        self.accept = PushButton(self.tr('确定'), self)
         self.boxes = []
         for i in range(len(self.goods)):
             t_cbx = CheckBox(self)
@@ -43,10 +43,10 @@ class Layout(QWidget):
             price_label = QLabel(price_text, self)
             price_label.setFixedWidth(150)
             wrapper_widget = QWidget()
-            VLayout = QVBoxLayout(self)
+            wrapper = QHBoxLayout()
+            VLayout = QVBoxLayout(wrapper.widget())
             VLayout.addWidget(ccs)
             VLayout.addWidget(price_label)
-            wrapper = QHBoxLayout()
             wrapper.addLayout(VLayout)
             wrapper.addWidget(t_cbx)
             wrapper_widget.setLayout(wrapper)

@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
-from qfluentwidgets import LineEdit, ComboBox
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from qfluentwidgets import PushButton, LineEdit, ComboBox
 from gui.util import notification
 
 from gui.util.translator import baasTranslator as bt
@@ -12,17 +12,18 @@ class Layout(QWidget):
         self.config = config
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
-        self.lay1 = QHBoxLayout(self)
-        self.lay2 = QHBoxLayout(self)
-        self.lay1_hard = QHBoxLayout(self)
-        self.lay2_hard = QHBoxLayout(self)
+        self.lay1 = QHBoxLayout()
+        self.lay2 = QHBoxLayout()
+        self.lay1_hard = QHBoxLayout()
+        self.lay2_hard = QHBoxLayout()
 
         self.label = QLabel(self.tr('普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：'), self)
         self.input = LineEdit(self)
-        self.accept = QPushButton(self.tr('确定'), self)
-        self.label_hard = QLabel(self.tr('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：'), self)
+        self.accept = PushButton(self.tr('确定'), self)
+        self.label_hard = QLabel(self.tr('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：'),
+                                 self)
         self.input_hard = LineEdit(self)
-        self.accept_hard = QPushButton(self.tr('确定'), self)
+        self.accept_hard = PushButton(self.tr('确定'), self)
 
         self.hard_task_combobox = ComboBox(self)
         self.each_student_task_number_dict = {
@@ -34,7 +35,7 @@ class Layout(QWidget):
             self.each_student_task_number_dict.setdefault(translated_name, [])
             temp = self.config.static_config["hard_task_student_material"][i][0] + "-3"
             (self.each_student_task_number_dict[translated_name].append(temp))
-            
+
         for key in self.each_student_task_number_dict.keys():
             self.hard_task_combobox.addItem(key)
         self.hard_task_combobox.currentIndexChanged.connect(self.__hard_task_combobox_change)
@@ -92,7 +93,8 @@ class Layout(QWidget):
             for i in range(0, len(input_content)):
                 temp.append(readOneNormalTask(input_content[i]))
             self.config.set("unfinished_normal_tasks", temp)  # refresh the config unfinished_normal_tasks
-            notification.success(self.tr('设置成功'), f'{self.tr("你的普通关卡已经被设置为：")}{input_content}', self.config)
+            notification.success(self.tr('设置成功'), f'{self.tr("你的普通关卡已经被设置为：")}{input_content}',
+                                 self.config)
         except Exception as e:
             notification.error(self.tr('设置失败'), f'{self.tr("请检查输入格式是否正确，错误信息：")}{e}', self.config)
 
@@ -105,8 +107,9 @@ class Layout(QWidget):
             temp = []
             for i in range(0, len(input_content)):
                 temp.append(readOneHardTask(input_content[i]))
-            self.config.set("unfinished_hard_tasks", temp)                                         # refresh the config unfinished_hard_tasks
-            notification.success(self.tr('设置成功'), f'{self.tr("你的困难关卡已经被设置为：")}{input_content}', self.config)
+            self.config.set("unfinished_hard_tasks", temp)  # refresh the config unfinished_hard_tasks
+            notification.success(self.tr('设置成功'), f'{self.tr("你的困难关卡已经被设置为：")}{input_content}',
+                                 self.config)
         except Exception as e:
             notification.error(self.tr('设置失败'), f'{self.tr("请检查输入格式是否正确，错误信息：")}{e}', self.config)
 
@@ -119,4 +122,3 @@ class Layout(QWidget):
         self.input_hard.setText(
             st + ','.join(self.each_student_task_number_dict[self.hard_task_combobox.currentText()]))
         self.__accept_hard()
-

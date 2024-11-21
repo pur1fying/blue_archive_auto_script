@@ -263,6 +263,18 @@ EVENT_DEFAULT_CONFIG = """
     "disabled_time_range": [],
     "pre_task": [],
     "post_task": []
+  },
+  {
+    "enabled": true,
+    "priority": 19,
+    "interval": 0,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "综合战术测试",
+    "func_name": "joint_firing_drill",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
   }
 ]
 """
@@ -327,18 +339,22 @@ DEFAULT_CONFIG = """
     "push_json":"",
     "push_serverchan":"",
     "cafe_reward_lowest_affection_first": true,
+    "cafe_reward_invite1_criterion" : "name",
+    "favorStudent1": [
+        "爱丽丝"
+    ],
+    "cafe_reward_invite1_starred_student_position" : 1,
     "cafe_reward_has_no2_cafe": false,
     "cafe_reward_collect_hour_reward": true,
+    "cafe_reward_invite2_criterion" : "name",
+        "favorStudent2": [
+        "爱丽丝(女仆)"
+    ],
+    "cafe_reward_invite2_starred_student_position" : 1,
     "cafe_reward_use_invitation_ticket": true,
     "cafe_reward_allow_duplicate_invite": false,
     "cafe_reward_allow_exchange_student": false,
     "cafe_reward_interaction_shot_delay": 1.0,
-    "favorStudent1": [
-        "爱丽丝"
-    ],
-    "favorStudent2": [
-        "爱丽丝(女仆)"
-    ],
     "server": "官服",
     "control_method" : "uiautomator2",
     "screenshot_method" : "uiautomator2",
@@ -425,7 +441,11 @@ DEFAULT_CONFIG = """
         0,
         0
     ],
-    "clear_friend_white_list": []
+    "clear_friend_white_list": [],
+    "drill_difficulty_list": [1,1,1],
+    "drill_fight_formation_list": [1,2,3],
+    "drill_enable_sweep": true,
+    "new_event_enable_state": "default"
 }
 """
 
@@ -499,6 +519,13 @@ SWITCH_DEFAULT_CONFIG = '''
         "name": "自动清好友白名单(仅国服)",
         "sort": 15,
         "tip": "设置在定期好友清理中需要保留的好友码",
+        "type": "BasicSettingCard"
+    },
+    {
+        "config": "drillConfig",
+        "name": "战术综合测试",
+        "sort": 16,
+        "tip": "帮助你自动打战术综合测试",
         "type": "BasicSettingCard"
     }
 ]
@@ -673,8 +700,8 @@ STATIC_DEFAULT_CONFIG = '''
           ]
     },
     "current_game_activity": {
-        "CN": "bunnyChaserOnTheShip2",
-        "Global": "iveAlive",
+        "CN": null,
+        "Global": null,
         "JP": "SunlightGirlsNightSong"
     },
     "dailyGameActivity": {
@@ -2286,3 +2313,28 @@ STATIC_DEFAULT_CONFIG = '''
   ]
 }
 '''
+
+# Delete QFluentWidgets Pro Alert
+
+#import os
+#import importlib.util as iu
+#_init_path = iu.find_spec("qfluentwidgets").origin
+#_init_path = os.path.dirname(_init_path)
+#_init_path = os.path.join(_init_path, "common", "config.py")
+
+#fr = open(_init_path, "r")
+#_init_content = fr.read()
+#to_remove = \
+#"""try:
+#    print(ALERT)
+#except UnicodeEncodeError:
+#    print(ALERT.replace("📢", ""))
+#"""
+
+#_init_content = _init_content.replace(to_remove, "")
+#fr.close()
+#
+#fw = open(_init_path, "w")
+#fw.write(_init_content)
+#fw.close()
+

@@ -184,20 +184,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = [
-         'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-        'burst1',
-    ]
+    characteristic = get_stage_data(self)["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -294,14 +281,12 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
     if region is None:
         return True
     rgb_lo = {
-        "mission": 863,
+        "mission": 957,
         "story": 688,
-        "challenge": 1046,
     }
     click_lo = {
-        "mission": 1027,
-        "story": 848,
-        "challenge": 1196,
+        "mission": 1194,
+        "story": 934,
     }
     while self.flag_run:
         if not color.judge_rgb_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):

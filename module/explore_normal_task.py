@@ -159,7 +159,7 @@ def start_action(self, actions):
             return
         desc = "start " + str(i + 1) + " operation : "
         if 'desc' in act:
-            desc += act['desc']
+             desc += act['desc']
         self.logger.info(desc)
         force_index = get_force(self)
         op = act['t']
@@ -311,7 +311,7 @@ def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
         "formation_edit4": (74, y),
     }
     rgb_possibles.pop("formation_edit" + str(i))
-    img_possibles = {"normal_task_task-wait-to-begin-feature": (lo[0], lo[1])}
+    img_possibles = {"normal_task_task-wait-to-begin-feature": lo}
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 

@@ -1,6 +1,9 @@
 import time
+
+import cv2
 import numpy as np
 from core import color, picture
+from core import image
 
 
 def implement(self):
@@ -55,7 +58,6 @@ def implement(self):
             to_common_shop(self)
         elif color.judge_rgb_range(self, 1126, 665, 206, 226, 206, 226, 206, 226):
             self.logger.info("Purchase Unavailable")
-            self.click(1240, 39, wait=False)
             return True
         if i != refresh_time:
             if assets['pyroxene'] != -1 and assets['pyroxene'] > refresh_price[i]:
@@ -84,28 +86,123 @@ def to_common_shop(self, skip_first_screenshot=False):
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
+def swipe_get_y_diff(self, item_lines_y):
+    max_y = item_lines_y[len(item_lines_y) - 1][0]
+    y1 = max_y + 81
+    y2 = max_y + 126
+    if max_y > 604 - 126:
+        y1 = max_y
+        y2 = max_y + 23
+    area = (629, y1, 1228, y2)
+    tar_img = image.screenshot_cut(self, area)
+    self.swipe(1246, 594, 1246, 447, duration=0.05, post_sleep_time=1)
+    self.update_screenshot_array()
+    position = image.search_image_in_area(self, tar_img, area=(629 - 10, 122, 1228 + 10, 482), threshold=0.8)
+    return area[1] - position[1]
+
+
 def buy(self, buy_list):
-    buy_list_for_common_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
-                                 [700, 461], [857, 461], [1000, 461], [1162, 461]]
-    i = 0
+    # get item position --> click buy --> check if chosen --> swipe --> get swipe y difference --> buy
     length = len(buy_list)
-    while i < length:
-        if buy_list[i]:
-            self.click(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1],
-                       wait_over=True)
-            time.sleep(0.1)
-        if i % 8 == 7:
-            if not buy_list[i + 1:].any():
-                break
-            if length - i > 0:
-                if length - i > 5:
-                    self.logger.info("SWIPE DOWNWARDS")
-                    self.swipe(932, 550, 932, 0, duration=0.5, post_sleep_time=0.5)
+    last_checked_idx = 0
+    last_checked_y = 0  # item with y > should_buy_y should be considered not checked
+    while last_checked_idx < length:
+        items, item_lines_y = get_item_position(self)
+        for i in range(1, len(item_lines_y)):
+            if item_lines_y[i - 1][1] < item_lines_y[i][1]:
+                self.logger.warning("Item num detected might be wrong, higher y has more items.")
+        temp = 0
+        self.logger.info("detect item row y : " + str(item_lines_y))
+        self.logger.info("last checked y : " + str(last_checked_y))
+        for i in range(0, len(item_lines_y)):
+            if item_lines_y[i][0] - last_checked_y <= 10:
+                temp += item_lines_y[i][1]
+                continue
+            for j in range(0, item_lines_y[i][1]):
+                curr_idx = last_checked_idx + items[temp + j][0][0]
+                if not buy_list[curr_idx]:
+                    continue
+                if not items[temp + j][1]:
+                    self.logger.warning("Item at [ " + str(curr_idx + 1) + " ] is not purchasable.")
                 else:
-                    buy_list_for_common_items = buy_list_for_common_items[4:]
-                    self.logger.info("SWIPE DOWNWARDS")
-                    self.swipe(932, 275, 932, 0, duration=0.5, post_sleep_time=0.5)
-        i = i + 1
+                    ensure_choose(self, items[temp + j])
+            last_checked_idx += 4
+            last_checked_y = item_lines_y[i][0]
+        if last_checked_idx >= length:
+            break
+        last_checked_y -= swipe_get_y_diff(self, item_lines_y)
+
+
+def ensure_choose(self, item):
+    if item[0][1] <= 252:
+        return
+    x = [653, 805, 959, 1114]
+    area = (x[item[0][0]] - 30, item[0][1] - 140, x[item[0][0]] + 20, item[0][1] - 71)
+    click_center = (x[item[0][0]] + 38, item[0][1] - 60)
+    while not image.search_in_area(self, "shop_item-chosen", area=area, threshold=0.8):
+        self.click(click_center[0], click_center[1], wait_over=True, duration=0.2)
+        self.update_screenshot_array()
+
+
+def get_item_position(self):
+    x = [653, 805, 959, 1114]
+    y_end = 560
+    recorded_y = []  # (y, num) means line y has num items
+    state = []  # every item : ((idx of this line, y), purchasable, currency_type)
+    for k in range(0, len(x)):
+        possibles_x = x[k]
+        curr_y = 127
+        while curr_y <= y_end:
+            # purchase available
+            if color.judge_rgb_range(self, possibles_x, curr_y, 99, 139, 211, 231, 245, 255):
+                area = (possibles_x - 14, curr_y - 10, possibles_x + 40, curr_y + 40)
+                currency_type = None
+                if image.search_in_area(self, "shop_coin-type-creditpoints-bright", area=area, threshold=0.8):
+                    currency_type = "creditpoints"
+                elif image.search_in_area(self, "shop_coin-type-pyroxene-bright", area=area, threshold=0.8):
+                    currency_type = "pyroxene"
+                if currency_type is not None:
+                    y = curr_y
+                    for i in range(0, len(recorded_y)):
+                        if abs(curr_y - recorded_y[i][0]) <= 5:
+                            y = recorded_y[i][0]
+                            recorded_y[i] = (recorded_y[i][0], recorded_y[i][1] + 1)
+                            break
+                    else:
+                        recorded_y.append((curr_y, 1))
+                    curr_y += 70
+                    state.append(((k, y), True, currency_type))
+                else:
+                    curr_y += 1
+            # purchase unavailable
+            elif color.judge_rgb_range(self, possibles_x, curr_y, 68, 88, 140, 160, 164, 184):
+                area = (possibles_x - 14, curr_y - 10, possibles_x + 40, curr_y + 40)
+                currency_type = None
+                if image.search_in_area(self, "shop_coin-type-creditpoints-grey", area=area, threshold=0.8):
+                    currency_type = "creditpoints"
+                elif image.search_in_area(self, "shop_coin-type-pyroxene-grey", area=area, threshold=0.8):
+                    currency_type = "pyroxene"
+                if currency_type is not None:
+                    y = curr_y
+                    for i in range(0, len(recorded_y)):
+                        if abs(curr_y - recorded_y[i][0]) <= 5:
+                            y = recorded_y[i][0]
+                            recorded_y[i] = (recorded_y[i][0], recorded_y[i][1] + 1)
+                            break
+                    else:
+                        recorded_y.append((curr_y, 1))
+                    curr_y += 70
+                    state.append(((k, y), False, currency_type))
+                else:
+                    curr_y += 1
+            else:
+                curr_y += 1
+            # purchase unavailable
+    state = sorted(state, key=lambda t: t[0][1])
+    recorded_y = sorted(recorded_y, key=lambda t: t[0])
+    print(state)
+    print(recorded_y)
+    return state, recorded_y
 
 
 def calculate_left_assets(self, assets, asset_required):

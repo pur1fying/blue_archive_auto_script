@@ -38,7 +38,7 @@ def implement(self):
             t = check_sweep_availability(self, True)
             if t == "sss":
                 y = 300
-                if self.server == "JP":
+                if self.server == "JP" or self.server == "Global":
                     y = 328
                 if tar_times == "max":
                     self.click(1085, y, rate=1, wait_over=True)

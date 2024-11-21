@@ -4,7 +4,6 @@ from core.ocr import ocr
 from gui.util.config_set import ConfigSet
 from core.Baas_thread import Baas_thread
 
-
 class Main:
     def __init__(self, logger_signal=None, ocr_needed=None):
         self.ocr_needed = ocr_needed
@@ -28,7 +27,8 @@ class Main:
             self.logger.error(e.__str__())
             return False
 
-    def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
+    def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None,
+                   exit_signal=None):
         t = Baas_thread(config, logger_signal, button_signal, update_signal, exit_signal)
         t.static_config = self.static_config
         t.ocr = self.ocr
@@ -93,13 +93,10 @@ class Main:
             return temp
 
 
-
-
-
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
     t.init_static_config()
-    config = ConfigSet(config_dir="1708232489")
+    config = ConfigSet(config_dir="1708148000")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
@@ -108,7 +105,7 @@ if __name__ == '__main__':
     # tt.solve("refresh_uiautomator2")
     # tt.solve("explore_activity_challenge")
     # tt.solve("activity_sweep")
-    tt.solve("tactical_challenge_shop")
+    # tt.solve("tactical_challenge_shop")
     # tt.solve("explore_activity_mission")
     # tt.solve("explore_activity_story")
     # tt.solve("common_shop")
@@ -133,3 +130,4 @@ if __name__ == '__main__':
     # tt.solve("create")
     # tt.solve("dailyGameActivity")
     # tt.solve("friend")
+    tt.solve("joint_firing_drill")

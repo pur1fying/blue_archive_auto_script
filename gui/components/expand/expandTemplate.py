@@ -4,7 +4,7 @@ from typing import Union
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
-from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit
+from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, SpinBox
 
 from core.utils import delay
 from gui.util import notification
@@ -15,7 +15,7 @@ from gui.util.translator import baasTranslator as bt
 class ConfigItem:
     label: str
     key: Union[str, None]
-    selection: Union[list[str], bool, str, list[int], callable, None]
+    selection: Union[list[str], bool, str, list[int], dict, callable, None]
     type: str
 
     def __init__(self, **kwargs):
@@ -59,7 +59,7 @@ class TemplateLayout(QWidget):
         for ind, cfg in enumerate(configItems):
             confirmButton = None
             selectButton = None
-            optionPanel = QHBoxLayout(self)
+            optionPanel = QHBoxLayout()
             labelComponent = QLabel(bt.tr(context, cfg.label), self)
             optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
             optionPanel.addStretch(1)
@@ -73,7 +73,7 @@ class TemplateLayout(QWidget):
                 inputComponent = ComboBox(self)
                 cfg.selection = [bt.tr(context, x) for x in cfg.selection] if context else cfg.selection
                 inputComponent.addItems(cfg.selection)
-                inputComponent.setCurrentIndex(cfg.selection.index(self.config.get(currentKey)))
+                inputComponent.setCurrentIndex(cfg.selection.index(str(self.config.get(currentKey))))
                 inputComponent.currentIndexChanged.connect(
                     partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'button':
@@ -89,6 +89,13 @@ class TemplateLayout(QWidget):
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 confirmButton = PushButton(self.tr('确定'), self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
+            elif cfg.type == 'spin':
+                currentKey = cfg.key
+                inputComponent = SpinBox(self)
+                inputComponent.setValue(self.config.get(currentKey))
+                inputComponent.valueChanged.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
+                inputComponent.setMinimum(cfg.selection['min'])
+                inputComponent.setMaximum(cfg.selection['max'])
             elif cfg.type == 'label':
                 inputComponent = QLabel(cfg.selection, self)
             else:
@@ -192,7 +199,7 @@ class TemplateLayoutV2(QWidget):
         self.cfs = []
 
         for ind, cfg in enumerate(configItems):
-            optionPanel = QHBoxLayout(self)
+            optionPanel = QHBoxLayout()
             cfg = ConfigItemV2(**cfg)
             self.cfs.append(cfg)
             labelComponent = QLabel(cfg.label, self)
