@@ -76,7 +76,7 @@ def check_sweep_availability(self, is_mainline=False):
             return "sss"
         if judgeRGBFeatureOr(self, "mainLineTaskSSS"):
             return "pass"
-    if (self.server == "JP" or self.server == "Global") and not is_mainline :
+    if (self.server == "JP" or self.server == "Global") and not is_mainline:
         if judgeRGBFeature(self, "sideTaskNoPass"):
             return "no-pass"
         if judgeRGBFeature(self, "sideTaskSSS"):

@@ -7,6 +7,7 @@ import numpy as np
 import requests
 from uiautomator2.version import (__apk_version__, __atx_agent_version__, __jar_version__, __version__)
 import os
+
 appdir = os.path.join(os.path.expanduser("~"), '.uiautomator2')
 
 GITHUB_BASEURL = "https://github.com/openatx"
@@ -46,7 +47,24 @@ class U2Client:
         return self.connection
 
 
-class BAAS_U2_Initer():
+class BAAS_U2_Initer:
+    """
+        Class to initialize uiautomator2 by following local files
+            src/atx_app
+            │
+            ├── app-uiautomator.apk
+            ├── app-uiautomator-test.apk
+            └── atx-agent(in different archs)
+
+        If it's your first time to use uiautomator2 (or start baas), it will initialize by downloading files from github.
+        It will cause following error if you can't connect to github (mainly by cn users):
+
+        HTTPSConnectionPool(host='github.com', port=443):
+        Max retries exceeded with url:/openatx/atx-agent/releases/download/0.10.0/atx-agent_0.10.0_linux_386_tar_gz
+        (Caused by NewconnectionError(': failed to establish a new connection:[winError 10061]由于目标计算机积极拒绝，无法连接。))
+
+    """
+
     def __init__(self, device: adbutils.AdbDevice, logger):
         d = self._device = device
         self.sdk = d.getprop('ro.build.version.sdk')
@@ -60,10 +78,6 @@ class BAAS_U2_Initer():
         # self.logger.debug("Initial device %s", device)
         self.logger.info("uiautomator2 version: [ " + __version__ + " ].")
 
-    def set_atx_agent_addr(self, addr: str):
-        assert ":" in addr
-        self.__atx_listen_addr = addr
-
     @property
     def atx_agent_path(self):
         return "/data/local/tmp/atx-agent"
@@ -72,20 +86,11 @@ class BAAS_U2_Initer():
         return self._device.shell(args, timeout=timeout)
 
     @property
-    def jar_urls(self):
+    def local_atx_agent_path(self):
         """
         Returns:
-            iter([name, url], [name, url])
+            str: local atx-agent path according to device abi
         """
-        for name in ['bundle.jar', 'uiautomator-stub.jar']:
-            yield (name, "".join([
-                GITHUB_BASEURL,
-                "/android-uiautomator-jsonrpcserver/releases/download/",
-                __jar_version__, "/", name
-            ]))
-
-    @property
-    def local_atx_agent_path(self):
         files = {
             'armeabi-v7a': 'atx-agent_{v}_linux_armv7/atx-agent',
             'arm64-v8a': 'atx-agent_{v}_linux_arm64/atx-agent',
@@ -123,7 +128,8 @@ class BAAS_U2_Initer():
             return True
         if apk_debug['version_name'] != __apk_version__:
             self.logger.info(
-                "package com.github.uiautomator version [ " + apk_debug['version_name'] + " ] latest [ " + __apk_version__ + " ].")
+                "package com.github.uiautomator version [ " + apk_debug[
+                    'version_name'] + " ] latest [ " + __apk_version__ + " ].")
             return True
 
         if apk_debug['signature'] != apk_debug_test['signature']:
@@ -224,6 +230,10 @@ class BAAS_U2_Initer():
 
 
 def app_uiautomator_apk_local_path():
+    """
+    Returns:
+        List[Tuple[str, str]]: [(filename, local_path)]
+    """
     ret = []
     for name in ["app-uiautomator.apk", "app-uiautomator-test.apk"]:
         ret.append((name, "src/atx_app/" + name))
