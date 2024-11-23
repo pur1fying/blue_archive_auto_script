@@ -42,6 +42,37 @@ GUI预览图：
   安装完成后，BAAS 的ui界面将自动启动。同时，我们提供了pyinstaller可使用的打包脚本，您可以自
   行打包，具体内容在`deploy/installer`文件夹中。此外，本项目尝试支持Docker部署，但目前仍无法
   运行，目前在`deploy/docker`文件夹中，如有解决方案，请提交PR。
+  
+  ### 安装时可能遇到的故障：
+  双击`BlueArchiveAutoScript.exe`后可能因为各种原因导致环境变量没有配置好，就会出现下图的"**软件启动失败,因为无法初始化Qt**"错误弹窗
+ 
+ ![image](https://github.com/user-attachments/assets/8dd60377-5c8f-459d-a174-6a64c8d20d61)
+
+
+修复此问题只需要将本应该在安装时添加的环境变量添加回去就好了
+
+**具体操作环节为** `windows设置→系统→关于→高级系统设置→高级→环境变量→新建→填写变量名与变量值→点两下确定关闭窗口`
+![屏幕截图 2024-11-23 210112](https://github.com/user-attachments/assets/dd0b17c6-b47c-47df-8ce6-00a51b775e73)
+
+**变量名：** `QT_QPA_PLATFORM_PLUGIN_PATH`  
+
+**变量值：** 填写已知兼容的Qt路径 ↓  
+
+Baas的Qt目录： `（Baas的安装路径）\BlueArchiveAutoSctipt\env\Lib\site-packages\PyQt5\Qt5\plugins`  
+
+MuMu模拟器的Qt目录： `（MuMu模拟器安装路径）\MuMu Player 12\shell\plugins`  
+
+自己装的Qt： 自己研究，在py的安装目录下或者在AppData\Local的py软件配置文件夹里
+
+
+- 变量值填写非MuMu模拟器的Qt目录时可能会与MuMu模拟器所需的Qt发生冲突，导致MuMu模拟器无法打开，已知MUMU模拟器与最新的Qt5.15.11不兼容，非必要不建议填写自己安装的Qt（要用到时自己改）。
+**因为MUMU模拟器的Qt与Baas兼容，所以在发生冲突无法打开MuMu模拟器时建议在变量值处填写** `MuMu模拟器的Qt目录` 删除变量也可以正常打开MuMu模拟器。
+
+ 
+
+
+  
+  
 
 ## 如何使用
 一些关键的参数
@@ -60,6 +91,8 @@ GUI预览图：
 ### CLI 使用方法
 
 CLI 用法及 macOS 支持，参考 [CLI.md](docs/CLI.md)。
+
+
 
 ## 如何上报bug How to Report Bugs
 在提问题之前至少花费 5 分钟来思考和准备，才会有人花费他的 5 分钟来帮助你。
