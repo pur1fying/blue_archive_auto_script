@@ -6,7 +6,7 @@ def to_mail(self):
     rgb_possibles = {"main_page": (1141, 43)}
     img_ends = "mail_menu"
     img_possibles = picture.GAME_ONE_TIME_POP_UPS[self.server]
-    picture.co_detect(self, None, rgb_possibles, img_ends, img, True)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
 def implement(self):
