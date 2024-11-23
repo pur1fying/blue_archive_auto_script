@@ -12,7 +12,7 @@ class Scheduler:
         super().__init__()
         self.event_map = {}
         self.first_waiting = None
-        self.event_config_path = "./config/" + path + "/event.json"
+        self.event_config_path = path + "/event.json"
         self.update_signal = update_signal
         self._event_config = []
         self._current_task = None

@@ -339,14 +339,14 @@ DEFAULT_CONFIG = """
     "push_json":"",
     "push_serverchan":"",
     "cafe_reward_lowest_affection_first": true,
-    "cafe_reward_invite1_criterion" : "name",
+    "cafe_reward_invite1_criterion" : "starred",
     "favorStudent1": [
         "爱丽丝"
     ],
     "cafe_reward_invite1_starred_student_position" : 1,
     "cafe_reward_has_no2_cafe": false,
     "cafe_reward_collect_hour_reward": true,
-    "cafe_reward_invite2_criterion" : "name",
+    "cafe_reward_invite2_criterion" : "starred",
         "favorStudent2": [
         "爱丽丝(女仆)"
     ],
@@ -533,6 +533,8 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "explore_normal_task_region_range": [4, 27],
+    "explore_hard_task_region_range": [1, 27],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2"],
     "control_methods" : ["adb", "nemu", "uiautomator2"],
     "common_shop_price_list": {

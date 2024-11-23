@@ -6,7 +6,7 @@ from PyQt5.QtGui import QColor
 from qfluentwidgets import qconfig
 
 from gui.util.translator import baasTranslator as bt
-
+import os
 
 class BoundComponent(QObject):
     """
@@ -54,7 +54,6 @@ class BoundComponent(QObject):
 class ConfigSet:
     def __init__(self, config_dir):
         super().__init__()
-        print(config_dir)
         self.config = None
         self.gui_config = None
         self.server_mode = 'CN'
@@ -63,14 +62,23 @@ class ConfigSet:
         self.window = None
         self.main_thread = None
         self.static_config = None
-        self.config_dir = config_dir
+        self.config_dir = None
+        self.static_config_path = None
+        if os.path.exists(f'config/{config_dir}/config.json'):      # relative path
+            self.config_dir = os.path.abspath(f'config/{config_dir}')
+            self.static_config_path = os.path.dirname(self.config_dir) + '/static.json'
+        elif os.path.exists(f'{config_dir}/config.json'):           # absolute path
+            self.config_dir = config_dir
+            self.static_config_path = os.path.abspath(os.path.dirname(config_dir) + '/static.json')
+        else:
+            raise FileNotFoundError(f'config/{config_dir}/config.json not found')
         self.signals = {}
         self._init_config()
 
     def _init_config(self):
-        with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
+        with open(self.config_dir + "\\config.json", 'r', encoding='utf-8') as f:
             self.config = json.load(f)
-        with open("config/static.json", 'r', encoding='utf-8') as f:
+        with open(self.static_config_path, 'r', encoding='utf-8') as f:
             self.static_config = json.load(f)
         if self.config['server'] == '国服' or self.config['server'] == 'B服':
             self.server_mode = 'CN'
@@ -92,7 +100,7 @@ class ConfigSet:
         self._init_config()
         value = bt.undo(value)
         self.config[key] = value
-        with open(f'./config/{self.config_dir}/config.json', 'w', encoding='utf-8') as f:
+        with open(self.config_dir + "\\config.json", 'w', encoding='utf-8') as f:
             json.dump(self.config, f, indent=4, ensure_ascii=False)
         self.dynamic_update(key)
 
@@ -108,7 +116,7 @@ class ConfigSet:
         return self.config[item]
 
     def check(self, key, value):
-        with open(f'./config/{self.config_dir}/config.json', 'r', encoding='utf-8') as f:
+        with open(self.config_dir + "\\config.json", 'r', encoding='utf-8') as f:
             new_config = json.load(f)
         return new_config.get(key) == value
 

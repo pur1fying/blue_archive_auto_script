@@ -126,7 +126,7 @@ class HomeFragment(QFrame):
     def call_update(self, data=None, parent=None):
         try:
             if self.event_map == {}:
-                with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
+                with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
                     event_config = json.load(f)
                     for item in event_config:
                         self.event_map[item['func_name']] = item['event_name']

@@ -1,7 +1,7 @@
 import time
 from core import color, image
 from module.main_story import change_acc_auto
-
+from core.exception import RequestHumanTakeOver
 
 def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possibles=None, skip_first_screenshot=False,
               tentitive_click=False, tentitivex=1238, tentitivey=45, max_fail_cnt=10, rgb_pop_ups=None,
@@ -103,6 +103,8 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                     self.click(tentitivex, tentitivey)
                     time.sleep(self.screenshot_interval)
                     fail_cnt = 0
+    if not self.flag_run:
+        raise RequestHumanTakeOver
 
 
 def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):

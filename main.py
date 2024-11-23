@@ -1,8 +1,10 @@
 import json
+import os
 from core.utils import Logger
 from core.ocr import ocr
 from gui.util.config_set import ConfigSet
 from core.Baas_thread import Baas_thread
+
 
 class Main:
     def __init__(self, logger_signal=None, ocr_needed=None):
@@ -10,6 +12,8 @@ class Main:
         self.ocr = None
         self.static_config = None
         self.logger = Logger(logger_signal)
+        self.project_dir = os.path.abspath(os.path.dirname(__file__))
+        self.logger.info(self.project_dir)
         self.init_all_data()
         self.threads = {}
 
@@ -30,7 +34,6 @@ class Main:
     def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None,
                    exit_signal=None):
         t = Baas_thread(config, logger_signal, button_signal, update_signal, exit_signal)
-        t.static_config = self.static_config
         t.ocr = self.ocr
         self.threads.setdefault(name, t)
         return t
@@ -45,7 +48,7 @@ class Main:
 
     def init_static_config(self):
         try:
-            self.static_config = self.operate_dict(json.load(open('config/static.json', 'r', encoding='utf-8')))
+            self.static_config = self.operate_dict(json.load(open(self.project_dir + "/config/static.json", 'r', encoding='utf-8')))
             return True
         except Exception as e:
             self.logger.error("Static Config initialization failed")
@@ -95,7 +98,6 @@ class Main:
 
 if __name__ == '__main__':
     t = Main(ocr_needed=["NUM", "CN", "Global"])
-    t.init_static_config()
     config = ConfigSet(config_dir="1708148000")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
@@ -112,7 +114,7 @@ if __name__ == '__main__':
     # tt.solve("total_assault")
     # tt.solve("cafe_reward")
     # tt.solve("momo_talk")
-    # tt.solve("explore_normal_task")
+    tt.solve("explore_normal_task")
     # tt.solve("explore_hard_task")
     # tt.solve("normal_task")
     # tt.solve("hard_task")
@@ -130,4 +132,4 @@ if __name__ == '__main__':
     # tt.solve("create")
     # tt.solve("dailyGameActivity")
     # tt.solve("friend")
-    tt.solve("joint_firing_drill")
+    # tt.solve("joint_firing_drill")

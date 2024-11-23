@@ -65,6 +65,8 @@ func_dict = {
 
 class Baas_thread:
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
+        self.project_dir = os.path.abspath(os.path.dirname(__file__))
+        self.project_dir = os.path.dirname(self.project_dir)
         self.u2_client = None
         self.u2 = None
         self.dailyGameActivity = None
@@ -87,7 +89,7 @@ class Baas_thread:
         self.ratio = None
         self.next_time = None
         self.task_finish_to_main_page = False
-        self.static_config = None
+        self.static_config = self.config_set.static_config
         self.ocr = None
         self.logger = Logger(logger_signal)
         self.last_refresh_u2_time = 0
@@ -532,7 +534,7 @@ class Baas_thread:
 
     def init_rgb(self):
         try:
-            temp = 'src/rgb_feature/rgb_feature_' + self.server + '.json'
+            temp = self.project_dir + '/src/rgb_feature/rgb_feature_' + self.server + '.json'
             self.rgb_feature = json.load(open(temp, 'r', encoding='utf-8'))['rgb_feature']
             return True
         except Exception as e:
