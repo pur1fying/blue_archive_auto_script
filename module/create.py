@@ -107,6 +107,7 @@ def to_manufacture_store(self, skip_first_screenshot=False):
         "create_start-crafting-notice": (769, 501),
         "create_select-node": (1115, 657),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     return picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 

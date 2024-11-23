@@ -16,7 +16,7 @@ import numpy as np
 import module
 import requests
 
-from core.device.uiautomator2_client import BAAS_U2_Initer,__atx_agent_version__
+from core.device.uiautomator2_client import BAAS_U2_Initer, __atx_agent_version__
 import threading
 import json
 import subprocess
@@ -64,6 +64,7 @@ func_dict = {
 
 
 class Baas_thread:
+
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.project_dir = os.path.dirname(self.project_dir)
@@ -442,6 +443,7 @@ class Baas_thread:
         img_possibles = {
             # 'normal_task_fight-pause': (908, 508),
             # 'normal_task_retreat-notice': (768, 507),
+            'main_page_game-download-resource-notice': (761, 504),
             "main_page_privacy-policy": (772, 501),
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
@@ -821,12 +823,14 @@ class Baas_thread:
 
 
 if __name__ == '__main__':
-
-    print(os.path.exists("D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.1_linux_386\\atx-agent"))
-                         # "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.0_linux_386\\atx-agent"
+    print(os.path.exists(
+        "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.1_linux_386\\atx-agent"))
+    # "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.0_linux_386\\atx-agent"
     import uiautomator2
+
     u2 = uiautomator2.connect("127.0.0.1:16512")
     from core.utils import Logger
+
     logger = Logger(None)
     init = BAAS_U2_Initer(u2._adb_device, logger)
     init.uninstall()

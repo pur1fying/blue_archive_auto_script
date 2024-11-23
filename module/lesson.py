@@ -201,6 +201,7 @@ def to_lesson_location_select(self, skip_first_screenshot=False):
         'lesson_purchase-lesson-ticket-notice': (920, 165),
         'lesson_purchase-lesson-ticket': (920, 165),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 

@@ -71,6 +71,7 @@ def to_friend_management(self, skip_first_screenshot=False):
         'JP': (562, 659)
     }
     rgb_possibles = {"main_page": main_page_click_position[self.server]}
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 

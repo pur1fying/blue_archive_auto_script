@@ -17,4 +17,9 @@ x_y_range = {
     "return-to-title-1": (464, 291, 810, 383),
     "return-to-title-2": (464, 291, 810, 383),
     'store-service-unavailable': (400, 300, 900, 370),
+    "net-work-unstable": (400, 280, 900, 400),
+    "game-download-resource-notice": (400, 340, 900, 400),
+    "item-expiring-notice": (590, 100, 700, 150),
+    "item-expired-notice": (390, 145, 900, 300),
+    "request-failed-notice": (440, 300, 850, 370),
 }

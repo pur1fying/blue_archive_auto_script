@@ -138,6 +138,7 @@ def to_normal_event(self, skip_first_screenshot=False):
         'normal_task_reward-acquired-confirm': (800, 660),
         'normal_task_mission-conclude-confirm': (1042, 671),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, rgb_ends, rgb_possibles,None, img_possibles, skip_first_screenshot)
 
 

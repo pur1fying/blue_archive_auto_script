@@ -56,5 +56,6 @@ def to_tasks(self, skip_first_screenshot=False):
         'plot_skip-plot-button': (1208, 116),
         'plot_skip-plot-notice': (770, 519),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
