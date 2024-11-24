@@ -60,8 +60,8 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data():
-    module_path = 'src.explore_task_data.activities.reckless_nun_and_the_witch_in_the_old_library'
+def get_stage_data(self):
+    module_path = 'src.explore_task_data.activities.' + self.current_game_activity
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
     return stage_data
@@ -158,20 +158,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = [
-        'pierce1',
-        'pierce1',
-        'mystic1',
-        'burst1',
-        'pierce1',
-        'pierce1',
-        'mystic1',
-        'burst1',
-        'pierce1',
-        'pierce1',
-        'mystic1',
-        'burst1',
-    ]
+    characteristic = get_stage_data(self)["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -202,7 +189,7 @@ def explore_challenge(self):
         "challenge4_sss",
         "challenge4_task",
     ]
-    stage_data = get_stage_data()
+    stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
         current_task_stage_data = stage_data[tasks[i]]
         data = tasks[i].split("_")

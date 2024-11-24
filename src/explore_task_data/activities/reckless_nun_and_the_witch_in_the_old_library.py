@@ -1,4 +1,18 @@
 stage_data = {
+    "mission": [
+        'pierce1',
+        'pierce1',
+        'mystic1',
+        'burst1',
+        'pierce1',
+        'pierce1',
+        'mystic1',
+        'burst1',
+        'pierce1',
+        'pierce1',
+        'mystic1',
+        'burst1',
+    ],
     "challenge2_sss": {
         'start': [
             ['mystic1', (817, 182)],
