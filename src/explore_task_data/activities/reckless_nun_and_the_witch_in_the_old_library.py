@@ -28,7 +28,7 @@ stage_data = {
             {'t': 'choose_and_change', 'p': (611, 401), "desc": "swap 1 2"},
             {'t': 'click_and_teleport', 'p': (611, 401), 'wait-over': True, "desc": "1 choose self and tp"},
             {'t': 'click', 'p': (443, 386), 'ec': True, "desc": "1 lower left"},
-            {'t': 'click', 'p': (667, 396), 'ec': True, 'wait-over': True, "desc": "2 left"},
+            {'t': 'click', 'p': (667, 396), "desc": "2 left"},
         ]
     },
     "challenge2_task": {
