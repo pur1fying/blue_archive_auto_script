@@ -100,9 +100,12 @@ class ConfigSet:
         self._init_config()
         value = bt.undo(value)
         self.config[key] = value
-        with open(self.config_dir + "\\config.json", 'w', encoding='utf-8') as f:
-            json.dump(self.config, f, indent=4, ensure_ascii=False)
+        self.save()
         self.dynamic_update(key)
+
+    def save(self):
+        with open(os.path.join(self.config_dir, "config.json"), 'w', encoding='utf-8') as f:
+            json.dump(self.config, f, indent=4, ensure_ascii=False)
 
     def dynamic_update(self, key):
         if key not in self.inject_config_list: return
@@ -150,3 +153,20 @@ class ConfigSet:
         self.inject_config_list.extend(re.findall(r'{(.*?)}', string_rule))
         self.inject_comp_list.append(bounded)
         return bounded
+
+    def update_create_quantity_entry(self):
+        dft = self.static_config["create_item_order"][self.server_mode]["basic"]
+        dft_list = [item for sublist in dft.values() for item in sublist]
+        pop_list = []
+        for key in self.config["create_item_holding_quantity"]:
+            if key not in dft_list:
+                pop_list.append(key)
+        for key in pop_list:
+            self.config["create_item_holding_quantity"].pop(key)
+
+        for entry in dft_list:
+            if entry not in self.config["create_item_holding_quantity"]:
+                self.config["create_item_holding_quantity"][entry] = -1
+        self.save()
+
+

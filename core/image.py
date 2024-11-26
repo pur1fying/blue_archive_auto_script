@@ -74,9 +74,20 @@ def getImageByName(self, name):
     return position.image_dic[self.server][name]
 
 
-def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=20):
+def click_to_disappear(self, img_possible, x, y):
+    msg = 'find : ' + img_possible
+    while self.flag_run and compare_image(self, img_possible, need_log=False):
+        self.logger.info(msg)
+        self.click(x, y, wait_over=True)
+        self.update_screenshot_array()
+    return True
+
+
+def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=20, ret_max_val=False):
     # search image "name" in area, return upper left point of template image if found, else return False
     if name not in position.image_dic[self.server]:
+        if ret_max_val:
+            return False, 0
         return False
     res_img = position.image_dic[self.server][name]
     ss_img = screenshot_cut(self, area)
@@ -86,17 +97,27 @@ def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=2
     similarity = cv2.matchTemplate(ss_img, res_img, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(similarity)
     if max_val < threshold:
-        return False
+        if ret_max_val:  # check rgb_diff when need ret max_val
+            pass
+        else:
+            return False
 
     res_average_rgb = np.mean(res_img, axis=(0, 1))
     ss_img = img_cut(ss_img, (max_loc[0], max_loc[1], max_loc[0] + res_img.shape[1], max_loc[1] + res_img.shape[0]))
     ss_average_rgb = np.mean(ss_img, axis=(0, 1))
     if abs(res_average_rgb[0] - ss_average_rgb[0]) > rgb_diff or abs(
         res_average_rgb[1] - ss_average_rgb[1]) > rgb_diff or abs(res_average_rgb[2] - ss_average_rgb[2]) > rgb_diff:
+        if ret_max_val:
+            return False, 0  # rgb diff not match, assume not found
         return False
 
-    center = (max_loc[0] + area[0], max_loc[1] + area[1])
-    return center
+    if max_val < threshold and ret_max_val:
+        return False, max_val
+
+    upper_left = (max_loc[0] + area[0], max_loc[1] + area[1])
+    if ret_max_val:
+        return upper_left, max_val
+    return upper_left
 
 
 def click_to_disappear(self, img_possible, x, y):
@@ -128,3 +149,13 @@ def search_image_in_area(self, image, area=(0, 0, 1280, 720), threshold=0.8, rgb
 
     upper_left = (int(max_loc[0] / self.ratio) + area[0], int(max_loc[1] / self.ratio) + area[1])
     return upper_left
+
+
+def click_until_image_disappear(self, x, y, region, threshold=0.8, rgb_diff=20, click_first=True):
+    image = screenshot_cut(self, region)
+    if click_first:
+        self.click(x, y, wait_over=True)
+        self.update_screenshot_array()
+    while self.flag_run and search_image_in_area(self, image, region, threshold, rgb_diff):
+        self.click(x, y, wait_over=True)
+        self.update_screenshot_array()

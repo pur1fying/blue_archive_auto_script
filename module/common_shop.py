@@ -106,7 +106,7 @@ def buy(self, buy_list):
     # get item position --> click buy --> check if chosen --> swipe --> get swipe y difference --> buy
     length = len(buy_list)
     last_checked_idx = 0
-    last_checked_y = 0  # item with y > should_buy_y should be considered not checked
+    last_checked_y = 0  # item with y > last_checked_y should be considered not checked
     while last_checked_idx < length:
         items, item_lines_y = get_item_position(self)
         for i in range(1, len(item_lines_y)):

@@ -93,16 +93,19 @@ class Layout(QWidget):
         self.set_priority_text()
 
     def get_create_priority(self):
-        default_priority = self.config.static_config['create_default_priority'][self.config.server_mode]
-        current_priority = self.config.get('createPriority')
         res = []
-        for i in range(0, len(current_priority)):
-            if current_priority[i] in default_priority:
-                res.append(current_priority[i])
-        for j in range(0, len(default_priority)):
-            if default_priority[j] not in res:
-                res.append(default_priority[j])
-        self.config.set('createPriority', res)
+        for k in range(1, 4):
+            cfg_key_name = 'createPriority_phase' + str(k)
+            default_priority = self.config.static_config['create_default_priority'][self.config.server_mode]["phase" + str(k)]
+            current_priority = self.config.get(cfg_key_name)
+            res = []
+            for i in range(0, len(current_priority)):
+                if current_priority[i] in default_priority:
+                    res.append(current_priority[i])
+            for j in range(0, len(default_priority)):
+                if default_priority[j] not in res:
+                    res.append(default_priority[j])
+            self.config.set(cfg_key_name, res)
         return res
 
     def set_priority_text(self):
