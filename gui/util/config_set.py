@@ -76,7 +76,7 @@ class ConfigSet:
         self._init_config()
 
     def _init_config(self):
-        with open(self.config_dir + "\\config.json", 'r', encoding='utf-8') as f:
+        with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
             self.config = json.load(f)
         with open(self.static_config_path, 'r', encoding='utf-8') as f:
             self.static_config = json.load(f)
@@ -119,7 +119,7 @@ class ConfigSet:
         return self.config[item]
 
     def check(self, key, value):
-        with open(self.config_dir + "\\config.json", 'r', encoding='utf-8') as f:
+        with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
             new_config = json.load(f)
         return new_config.get(key) == value
 

@@ -1,10 +1,11 @@
 # coding:utf-8
 
-from PyQt5.QtCore import pyqtProperty, QPropertyAnimation
+from PyQt5.QtCore import pyqtProperty, QPropertyAnimation, pyqtSignal
 from PyQt5.QtGui import QColor
 from qfluentwidgets import ExpandSettingCard, MessageBoxBase
 from qfluentwidgets import FluentIcon as FIF
 
+from core.utils import delay
 from gui.util.translator import baasTranslator as bt
 
 BANNER_IMAGE_DIR = 'gui/assets/banners'
@@ -222,7 +223,7 @@ class TemplateSettingCardForClick(QFrame):
 
 
 class TemplateSettingCard(ExpandSettingCard):
-    """ Folder list setting card """
+    onToggleChangeSignal = pyqtSignal()
 
     def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None, config=None, context=None,
                  **_):
@@ -237,6 +238,7 @@ class TemplateSettingCard(ExpandSettingCard):
         self._adjustViewSize()
 
     def toggleExpand(self):
+        self.__async_emit_toggle_change_signal()
         if self.initiated:
             super().toggleExpand()
             return
@@ -244,6 +246,10 @@ class TemplateSettingCard(ExpandSettingCard):
         self.__initWidget()
         self.initiated = True
         super().toggleExpand()
+
+    @delay(0.2)
+    def __async_emit_toggle_change_signal(self):
+        self.onToggleChangeSignal.emit()
 
     def __initWidget(self):
         # Add widgets to layout
@@ -278,7 +284,6 @@ class SimpleSettingCard(ExpandSettingCard):
         if self.initiated:
             super().toggleExpand()
             return
-        print('expand')
         self.expand_view = self.sub_view.Layout(self, self.config)
         self.__initWidget()
         self.initiated = True
