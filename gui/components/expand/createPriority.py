@@ -76,7 +76,8 @@ class Layout(QWidget):
         self.box_changed = False
 
         def __adjust_card_height(ref_widget):
-            self.__adjust_raw(ref_widget).adjustSize()
+            top_card_widget = self.__adjust_raw(ref_widget)
+            if top_card_widget: top_card_widget.adjustSize()
 
         for _phase in range(1, self.phases + 1):
             card_for_create = TemplateSettingCard(
@@ -100,6 +101,7 @@ class Layout(QWidget):
 
     def __adjust_raw(self, ref_widget):
         while not isinstance(ref_widget, TemplateSettingCard):
+            if ref_widget is None: return
             ref_widget = ref_widget.parent()
         top_card_widget = ref_widget
         global stored_height_local
