@@ -19,9 +19,10 @@ def implement(self):
         confirm_select_node(self, 1)
         to_manufacture_store(self, True)
     status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
-
     create_flag = True
-    while self.flag_run and left_create_times > 0 and create_flag:
+    if left_create_times == 0:
+        create_flag = False
+    while self.flag_run and create_flag:
         if status == ["unfinished", "unfinished", "unfinished"] and (not use_acceleration_ticket):
             self.logger.info("-- Stop Crafting --")
             break
@@ -40,9 +41,9 @@ def implement(self):
                 need_acc_collect = True
                 self.config_set.config['alreadyCreateTime'] += 1
                 self.config_set.save()
-                self.logger.info("Today Total Create Times : [ " + str(self.config['alreadyCreateTime']) + " ].")
+                self.logger.info("Today Total Create Times : [ " + str(self.config_set.config['alreadyCreateTime']) + " ].")
                 to_manufacture_store(self)
-                if self.config['alreadyCreateTime'] >= self.config['createTime']:
+                if self.config_set.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
                     need_acc_collect = False
                     break
@@ -98,6 +99,7 @@ def select_node(self, phase):
             image.click_until_image_disappear(self, node_x[i], node_y[i], region, 0.9, 10)
         node_info = preprocess_node_info(
             self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
+        self.logger.info("Ocr Node : " + str(i + 1) + node_info)
         for k in range(0, len(pri)):
             if pri[k] == node_info:
                 if k == 0:
