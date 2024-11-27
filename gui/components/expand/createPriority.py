@@ -24,7 +24,7 @@ class Layout(QWidget):
         self.viewLayout = QVBoxLayout(self)
         layout_for_line_one = QHBoxLayout()
         layout_for_acc_ticket = QHBoxLayout()
-        label_for_use_acc_ticket_check_box = QLabel("1." + self.tr('是否使用加速券'), self)
+        label_for_use_acc_ticket_check_box = QLabel(self.tr('是否使用加速券'), self)
         use_acc_ticket_switch = SwitchButton(self)
         use_acc_ticket_switch.setChecked(self.config.get('use_acceleration_ticket'))
         use_acc_ticket_switch.checkedChanged.connect(
@@ -34,7 +34,7 @@ class Layout(QWidget):
         layout_for_line_one.addLayout(layout_for_acc_ticket)
         layout_for_line_one.addSpacing(30)
         layout_for_count = QHBoxLayout()
-        label_for_count = QLabel("2." + self.tr('制造次数'), self)
+        label_for_count = QLabel(self.tr('制造次数'), self)
         input_for_count = LineEdit(self)
         input_for_count.setFixedWidth(50)
         time = self.config.get('createTime')
@@ -46,7 +46,7 @@ class Layout(QWidget):
         layout_for_line_one.addLayout(layout_for_count)
         layout_for_line_one.addSpacing(30)
         layout_for_layer_count = QHBoxLayout()
-        label_for_layer_count = QLabel("3." + self.tr('制造级数'), self)
+        label_for_layer_count = QLabel(self.tr('制造级数'), self)
         input_for_layer_count = ComboBox(self)
         input_for_layer_count.addItems(['1', '2', '3'])
         self.phases = self.config.get('create_phase')
@@ -145,7 +145,7 @@ class Layout(QWidget):
             layout_for_line_one = QHBoxLayout()
 
             layout_for_create_method = QHBoxLayout()
-            label_for_create_method = QLabel("1." + self.tr('制造方式'), self)
+            label_for_create_method = QLabel(self.tr('制造方式'), self)
             input_for_create_method = ComboBox(self)
             input_for_create_method.addItems([self.tr('默认')])
             self.create_method = self.config.get(f'create_phase_{phase}_select_item_rule')
@@ -162,7 +162,7 @@ class Layout(QWidget):
             layout_for_line_two = QHBoxLayout()
 
             layout_for_create_priority = QHBoxLayout()
-            label_for_create_priority = QLabel("2." + self.tr('制造优先级'), self)
+            label_for_create_priority = QLabel(self.tr('制造优先级'), self)
             layout_for_create_priority.addWidget(label_for_create_priority, 1, Qt.AlignLeft)
 
             layout_for_line_two.addLayout(layout_for_create_priority)
@@ -204,3 +204,4 @@ class Layout(QWidget):
                     res.append(default_priority[j])
             self.config.set(cfg_key_name, res)
             return res
+
