@@ -1,16 +1,74 @@
-import threading
-import time
 from functools import partial
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from PyQt5.QtGui import QFontMetrics
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QTextEdit
 from qfluentwidgets import LineEdit, SwitchButton, ComboBox, TextEdit
 
 from core.utils import delay
 from gui.components.template_card import TemplateSettingCard
+from gui.util import notification
 
 stored_height_local = 0
-stored_height_local_ = -1
+
+class WordWrapTextEdit(TextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.original_text = ""
+        self.setLineWrapMode(QTextEdit.NoWrap)  # 禁用内置换行
+        self.document().setDocumentMargin(0)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.font_metrics = QFontMetrics(self.font())
+
+    def setText(self, text):
+        self.original_text = text
+        self.rewrap_text()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.rewrap_text()
+
+    def rewrap_text(self):
+        available_width = self.viewport().width() - 10
+        if available_width <= 0:
+            return
+        # 将文本按照空格分割为单词列表
+        words = self.original_text.split(' ')
+        lines = []
+        current_line = ''
+        for word in words:
+            if current_line:
+                test_line = current_line + ' ' + word
+            else:
+                test_line = word
+            line_width = self.font_metrics.horizontalAdvance(test_line)
+            if line_width <= available_width:
+                current_line = test_line
+            else:
+                if current_line:
+                    lines.append(current_line)
+                current_line = word
+                # 如果单个单词超过了可用宽度，则强制换行
+                word_width = self.font_metrics.horizontalAdvance(word)
+                if word_width > available_width:
+                    lines.append(word)
+                    current_line = ''
+        if current_line:
+            lines.append(current_line)
+        # 使用换行符连接行并设置文本
+        wrapped_text = '\n'.join(lines)
+        # 防止信号递归
+        self.blockSignals(True)
+        # 保存光标位置和滚动条位置
+        cursor = self.textCursor()
+        position = cursor.position()
+        scroll_pos = self.verticalScrollBar().value()
+        self.setPlainText(wrapped_text)
+        # 恢复光标位置和滚动条位置
+        cursor.setPosition(position)
+        self.setTextCursor(cursor)
+        self.verticalScrollBar().setValue(scroll_pos)
+        self.blockSignals(False)
 
 
 class Layout(QWidget):
@@ -58,8 +116,6 @@ class Layout(QWidget):
         self.viewLayout.addLayout(layout_for_line_one)
         self.layout_for_line_two = QVBoxLayout()
         self.detailed_widgets = self._init_detailed_config()
-        global stored_height_local_
-        stored_height_local_ = self.layout_for_line_two.sizeHint().height()
         self.viewLayout.addLayout(self.layout_for_line_two)
         self.viewLayout.setAlignment(Qt.AlignCenter)
         self.viewLayout.setContentsMargins(20, 10, 20, 10)
@@ -85,7 +141,8 @@ class Layout(QWidget):
                 content=self.tr("显示并配置") + __dict_for_phase[_phase],
                 parent=self,
                 sub_view=self,
-                config=self.config
+                config=self.config,
+                phase=_phase
             )
             self.layout_for_line_two.addWidget(card_for_create)
             card_for_create.onToggleChangeSignal.connect(partial(__adjust_card_height, self))
@@ -136,6 +193,12 @@ class Layout(QWidget):
             super().__init__(parent=parent)
             self.viewLayout = QVBoxLayout(self)
             self.config = config
+            self.phase = phase
+            self.__dict_for_phase = {
+                1: self.tr('一级制造配置'),
+                2: self.tr('二级制造配置'),
+                3: self.tr('三级制造配置')
+            }
 
             __dict_for_method = {
                 'default': self.tr('默认')
@@ -173,10 +236,12 @@ class Layout(QWidget):
 
             layout_for_create_priority_list = QVBoxLayout()
             self.create_priority = self.get_create_priority(phase)
-            input_for_create_priority = TextEdit(self)
+            input_for_create_priority = WordWrapTextEdit(self)
             input_for_create_priority.setFixedHeight(125)
-            input_for_create_priority.setText(' > '.join(self.create_priority))
-            input_for_create_priority.textChanged.connect(self.__change_create_priority)
+            _content = ' > '.join(self.create_priority)
+            input_for_create_priority.setText(_content)
+            input_for_create_priority.textChanged.connect(
+                partial(self.__change_create_priority, input_for_create_priority.toPlainText))
             layout_for_create_priority_list.addWidget(input_for_create_priority)
 
             layout_for_line_three.addLayout(layout_for_create_priority_list)
@@ -185,10 +250,14 @@ class Layout(QWidget):
 
             self.setLayout(self.viewLayout)
 
+        @delay(1)
         def __change_create_priority(self, text):
-            self.create_priority = text.split('>')
+            self.create_priority = text().split('>')
             self.create_priority = [i.strip() for i in self.create_priority]
             self.config.set(f'createPriority_phase{self.phase}', self.create_priority)
+            notification.success(self.tr('制造优先级'),
+                                 self.__dict_for_phase[self.phase] + self.tr("修改成功"),
+                                 self.config)
 
         def get_create_priority(self, phase):
             cfg_key_name = 'createPriority_phase' + str(phase)
@@ -204,4 +273,3 @@ class Layout(QWidget):
                     res.append(default_priority[j])
             self.config.set(cfg_key_name, res)
             return res
-

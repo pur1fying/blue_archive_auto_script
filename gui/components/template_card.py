@@ -226,7 +226,7 @@ class TemplateSettingCard(ExpandSettingCard):
     onToggleChangeSignal = pyqtSignal()
 
     def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None, config=None, context=None,
-                 **_):
+                 **kwargs):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
         super().__init__(FIF.CHECKBOX, title, content, parent)
@@ -235,6 +235,7 @@ class TemplateSettingCard(ExpandSettingCard):
         self.expand_view = None
         self.sub_view = sub_view
         self.config = config
+        self.kwargs = kwargs
         self._adjustViewSize()
 
     def toggleExpand(self):
@@ -242,7 +243,10 @@ class TemplateSettingCard(ExpandSettingCard):
         if self.initiated:
             super().toggleExpand()
             return
-        self.expand_view = self.sub_view.Layout(self, self.config)
+        if list(self.kwargs.keys())[0] == 'phase':
+            self.expand_view = self.sub_view.Layout(self, self.config, **self.kwargs)
+        else:
+            self.expand_view = self.sub_view.Layout(self, self.config)
         self.__initWidget()
         self.initiated = True
         super().toggleExpand()
@@ -270,7 +274,7 @@ class TemplateSettingCard(ExpandSettingCard):
 class SimpleSettingCard(ExpandSettingCard):
     """ Folder list setting card """
 
-    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None, context=None, **_):
+    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None, context=None, **kwargs):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
         super().__init__(FIF.CHECKBOX, title, content, parent)
@@ -279,12 +283,16 @@ class SimpleSettingCard(ExpandSettingCard):
         self.expand_view = None
         self.sub_view = sub_view
         self.config = config
+        self.kwargs = kwargs
 
     def toggleExpand(self):
         if self.initiated:
             super().toggleExpand()
             return
-        self.expand_view = self.sub_view.Layout(self, self.config)
+        if self.kwargs and list(self.kwargs.keys())[0] == 'phase':
+            self.expand_view = self.sub_view.Layout(self, self.config, **self.kwargs)
+        else:
+            self.expand_view = self.sub_view.Layout(self, self.config)
         self.__initWidget()
         self.initiated = True
         super().toggleExpand()
