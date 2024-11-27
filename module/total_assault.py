@@ -229,6 +229,7 @@ def to_total_assault(self, skip_first_screenshot):
         'normal_task_skip-sweep-complete': (643, 506),
     }
     img_ends = "total_assault_menu"
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 

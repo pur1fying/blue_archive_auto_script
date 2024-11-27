@@ -94,6 +94,7 @@ def to_hard_event(self, skip_first_screenshot=False):
         'normal_task_mission-conclude-confirm': (1042, 671),
         'normal_task_charge-challenge-counts': (887, 161),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 

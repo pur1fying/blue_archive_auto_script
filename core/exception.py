@@ -1,9 +1,12 @@
-# import base64
 import traceback
-# import numpy as np
 
 
 class RequestHumanTakeOver(Exception):
+    """
+        Exception can't be handled by baas.
+        1. flag_run = false (click stop button)
+        2. unable to connect to emulator
+    """
     def __init__(self, message="Request Human Take Over"):
         self.message = message
         super().__init__(self.message)

@@ -173,14 +173,14 @@ class Layout(QWidget):
             self.config_buttons.append(cfbs_wrapper)
 
     def _read_config(self):
-        with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
+        with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
             s = f.read()
             if s == '':
                 return
             self._event_config = json.loads(s)
 
     def _save_config(self):
-        with open('./config/' + self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
+        with open(self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
 
     def _sort(self):

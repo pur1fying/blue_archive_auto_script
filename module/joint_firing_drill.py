@@ -31,6 +31,7 @@ def to_joint_firing_menu(self):
         "drill_Season-Record": (119, 101),
         "drill_drill-finish": (644, 525),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 

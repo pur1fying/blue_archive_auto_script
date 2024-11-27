@@ -104,6 +104,7 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
         'main_page_full-notice': (887, 165),
         "main_page_insufficient-inventory-space": (910, 138),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 

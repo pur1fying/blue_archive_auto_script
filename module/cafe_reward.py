@@ -46,6 +46,7 @@ def to_cafe(self, skip_first_screenshot=False):
         'reward_acquired': (640, 154),
         'relationship_rank_up': (640, 360)
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, 'cafe', rgb_possibles, 'cafe_menu', img_possibles, skip_first_screenshot)
 
 

@@ -149,6 +149,7 @@ def to_choose_scrimmage(self, skip_first_screenshot=False):
         "scrimmage_task-info": (task_info_cross[self.server], 142),
         "scrimmage_purchase-scrimmage-ticket": (886, 162),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 

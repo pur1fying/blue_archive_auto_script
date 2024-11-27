@@ -45,6 +45,7 @@ class TemplateLayout(QWidget):
     def __init__(self, configItems: Union[list[ConfigItem], list[dict]], parent=None, config=None, context=None):
         super().__init__(parent=parent)
         self.config = config
+        self.context = context
         if isinstance(configItems[0], dict):
             _configItems = []
             for item in configItems:
@@ -117,8 +118,10 @@ class TemplateLayout(QWidget):
         elif isinstance(target, LineEdit):
             value = target.text()
         assert value is not None
-        self.config.update(key, value)
         notification.success(self.tr('设置成功'), f'{labelTarget.text()}{self.tr("已经被设置为：")}{value}', self.config)
+        if self.context is not None:
+            value = bt.undo(value)
+        self.config.update(key, value)
 
 
 class ConfigItemV2(ConfigItem):

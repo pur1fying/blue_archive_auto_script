@@ -118,6 +118,7 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
         'main_page_insufficient-inventory-space': (910, 138),
         'normal_task_unlock-notice': (887, 164),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 

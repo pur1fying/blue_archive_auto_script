@@ -24,4 +24,5 @@ def to_group(self):
         'group_menu',
         'group_join-club'
     ]
+    img_possible.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     return picture.co_detect(self, None, rgb_possible, img_ends, img_possible, True)
