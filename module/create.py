@@ -28,7 +28,7 @@ def implement(self):
         need_acc_collect = False
         for i in range(0, len(status)):
             if status[i] == "empty":
-                to_node1(self, i, True)
+                to_phase1(self, i, True)
                 create_phase(self, 1)
                 if create_max_phase >= 2:
                     confirm_select_node(self, 0)
@@ -222,7 +222,7 @@ def receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket
             collect(self, status, use_acceleration_ticket)
         else:
             return status
-        self.latest_img_array = self.get_screenshot_array()
+        self.update_screenshot_array()
 
 
 def collect(self, status, use_acceleration_ticket):
@@ -267,7 +267,7 @@ def check_create_availability(self):
         return "unknown"
 
 
-def to_node1(self, i, skip_first_screenshot=False):
+def to_phase1(self, i, skip_first_screenshot=False):
     y_position = {
         'CN': [312, 452, 594],
         'Global': [288, 407, 534],
@@ -275,7 +275,7 @@ def to_node1(self, i, skip_first_screenshot=False):
     }
     y_position = y_position[self.server]
     img_possibles = {"create_crafting-list": (1153, y_position[i])}
-    img_ends = "create_unlock-no1-grey"
+    img_ends = "create_material-list"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
 
@@ -318,8 +318,8 @@ def set_display_setting(self, filter_list=None, sort_type=None, sort_direction=N
 def set_display_setting_filter_list(self, filter_list):
     to_filter_menu(self)
     self.logger.info("Set Filter List: ")
-    self.logger.info(filter_list[0:4])
-    self.logger.info(filter_list[4:8])
+    self.logger.info(str(filter_list[0:4]))
+    self.logger.info(str(filter_list[4:8]))
     total = sum(filter_list)
 
     flg = False
@@ -360,6 +360,11 @@ def filter_list_ensure_choose(self, filter_list, flg):
     dy = dy[self.server]
     curr_position = start_position
     for i in range(0, len(filter_list)):
+        if i == 4:
+            curr_position = (start_position[0], start_position[1] + dy)
+        else:
+            if i != 0:
+                curr_position = (curr_position[0] + dx, curr_position[1])
         pre = "create_filter-" + filter_type_list[i] + "-"
         if filter_list[i] == 1:
             if self.server == 'CN' and flg:
@@ -380,10 +385,7 @@ def filter_list_ensure_choose(self, filter_list, flg):
             }
             img_ends = [pre + "not-chosen", pre + "reset"]
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
-        if i == 3:
-            curr_position = (start_position[0], start_position[1] + dy)
-        else:
-            curr_position = (curr_position[0] + dx, curr_position[1])
+
 
 
 def set_display_setting_filter_list_select_all(self, state):
@@ -493,8 +495,8 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     self.logger.info("Build Item Order List.")
     self.logger.info("Phase : " + str(phase))
     self.logger.info("Filter List : ")
-    self.logger.info(filter_list[0:4])
-    self.logger.info(filter_list[4:8])
+    self.logger.info(str(filter_list[0:4]))
+    self.logger.info(str(filter_list[4:8]))
     self.logger.info("Sort Type : " + sort_type)
     self.logger.info("Sort Direction : " + sort_direction)
     result = []
@@ -816,10 +818,10 @@ def log_detect_information(self, itm_list, pre_info=None):
     t = 4
     length = len(itm_list)
     while t <= length:
-        self.logger.info(itm_list[t - 4:t])
+        self.logger.info(str(itm_list[t - 4:t]))
         t += 4
     if t != length + 4:
-        self.logger.info(itm_list[t - 4:])
+        self.logger.info(str(itm_list[t - 4:]))
     return
 
 
