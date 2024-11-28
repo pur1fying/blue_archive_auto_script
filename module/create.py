@@ -99,7 +99,7 @@ def select_node(self, phase):
             image.click_until_image_disappear(self, node_x[i], node_y[i], region, 0.9, 10)
         node_info = preprocess_node_info(
             self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
-        self.logger.info("Ocr Node : " + str(i + 1) + node_info)
+        self.logger.info("Ocr Node " + str(i + 1) + " : " + node_info)
         for k in range(0, len(pri)):
             if pri[k] == node_info:
                 if k == 0:
@@ -108,6 +108,7 @@ def select_node(self, phase):
                 else:
                     node.append(pri[k])
                     lo.append(i)
+                    break
     self.logger.info("Detected Nodes:" + str(node))
     for i in range(1, len(pri)):
         for j in range(0, len(node)):
@@ -486,8 +487,7 @@ def get_next_execute_time(self, status):
                 if res[j][0] == "0":
                     res[j] = res[j][1:]
             self.logger.info(
-                "ITEM " + str(i + 1) + " Crafting time: " + res[0] + "\tHOUR " + res[1] + "\tMINUTES " + res[
-                    2] + "\tSECONDS")
+                "ITEM " + str(i + 1) + " Crafting time: " + res[0] + "\tHOUR " + res[1] + "\tMINUTES " + res[2] + "\tSECONDS")
             time_deltas.append(int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2]))
     if time_deltas:
         self.next_time = min(time_deltas)
