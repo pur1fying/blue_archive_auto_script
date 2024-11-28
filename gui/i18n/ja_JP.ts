@@ -1799,19 +1799,19 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
-        <translation type="unfinished">コンフィグアトラン</translation>
+        <translation>オン</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
-        <translation type="unfinished">コンフィグアトラン</translation>
+        <translation>オフ</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
-        <translation type="unfinished">コンフィグアトラン</translation>
+        <translation>デフォルト</translation>
     </message>
 </context>
 <context>

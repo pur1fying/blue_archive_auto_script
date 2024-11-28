@@ -1808,19 +1808,19 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
-        <translation type="unfinished">ConfigTranslation</translation>
+        <translation>On</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
-        <translation type="unfinished">ConfigTranslation</translation>
+        <translation>Off</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
-        <translation type="unfinished">ConfigTranslation</translation>
+        <translation>Default</translation>
     </message>
 </context>
 <context>

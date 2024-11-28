@@ -5,7 +5,8 @@ from random import random
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
-from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox)
+from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
+                            ToolTipPosition, ToolTipFilter)
 
 from gui.components import expand
 from gui.util.style_sheet import StyleSheet
@@ -26,7 +27,10 @@ class ProcessFragment(ScrollArea):
         self.titleLineLayout = QHBoxLayout()
         _scheduler_selector = config.get('new_event_enable_state')
         _scheduler_selector_layout = QHBoxLayout()
-        _scheduler_selector_label = SubtitleLabel(self.tr("当BAAS新增调度任务时,它的启用状态为"), self)
+        _scheduler_selector_label = SubtitleLabel(self.tr("状态："), self)
+        _scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
+        _scheduler_selector_label.installEventFilter(ToolTipFilter(_scheduler_selector_label, position=ToolTipPosition.TOP))
+
         __dict__for_scheduler_selector = {
             '开': 'on',
             '关': 'off',
