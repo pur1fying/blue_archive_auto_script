@@ -126,3 +126,46 @@ class Logger:
             '-------------------------------------------------------------'
             '-------------------</div>', raw_print=True)
 
+
+def build_possible_string_dict_and_length(st_list):
+    string_letter_dict = []
+    string_len = []
+    for st in st_list:
+        string_letter_dict.append({})
+        string_len.append(len(st))
+        for j in range(0, len(st)):
+            string_letter_dict[-1].setdefault(st[j], 0)
+            string_letter_dict[-1][st[j]] += 1
+    return string_letter_dict, string_len
+
+
+def most_similar_string(s, possible_string_letter_dict, possible_string_length):
+    """
+        s : "pineapple"
+        possible_string_letter_dict : [{
+                                        "a": 1,
+                                        "e": 1,
+                                        "l": 1,
+                                        "p": 2,
+                                      }]
+        possible_string_length : [5]  apple
+        acc = 1 + (1 - |2-1|) + 1 + 2 = 4 / 5 = 0.8
+    """
+    s_letter_dict = {}
+    for letter in s:
+        s_letter_dict.setdefault(letter, 0)
+        s_letter_dict[letter] += 1
+
+    acc = []
+    for i in range(0, len(possible_string_letter_dict)):
+        cnt = 0
+        t = possible_string_letter_dict[i].keys()
+        for letter in t:
+            if letter not in s_letter_dict:
+                continue
+            possible_string_letter_appear_cnt = possible_string_letter_dict[i][letter]
+            cnt += max(0, (possible_string_letter_appear_cnt - abs(s_letter_dict[letter] - possible_string_letter_appear_cnt)))
+        acc.append(cnt / possible_string_length[i])
+
+    max_acc = max(acc)
+    return max_acc, acc.index(max_acc)

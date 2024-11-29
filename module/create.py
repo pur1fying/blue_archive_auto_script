@@ -1,6 +1,6 @@
 import re
 from core import color, image, picture
-
+from core.utils import build_possible_string_dict_and_length, most_similar_string
 
 def implement(self):
     use_acceleration_ticket = self.config['use_acceleration_ticket']
@@ -87,6 +87,8 @@ def select_node(self, phase):
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
 
+    priority_character_dict, priority_string_len = build_possible_string_dict_and_length(pri)
+
     node_x = [[], [573, 508, 416, 302, 174], [122, 232, 323, 378, 401], [549, 422, 312, 223, 156]]
     node_y = [[], [277, 388, 471, 529, 555], [202, 270, 361, 472, 598], [282, 305, 362, 446, 559]]
     node_x = node_x[phase]
@@ -97,18 +99,30 @@ def select_node(self, phase):
     for i in range(0, 5):
         if i != 0:
             image.click_until_image_disappear(self, node_x[i], node_y[i], region, 0.9, 10)
-        node_info = preprocess_node_info(
-            self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
+        node_info = preprocess_node_info(self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
         self.logger.info("Ocr Node " + str(i + 1) + " : " + node_info)
         for k in range(0, len(pri)):
-            if pri[k] == node_info:
-                if k == 0:
+            if pri[k] == node_info:  # complete match
+                if k == 0:  # node == pri[0]
                     self.logger.info("choose node : " + pri[0])
                     return
                 else:
                     node.append(pri[k])
                     lo.append(i)
                     break
+        else:
+            self.logger.info("Node is not completely matched.")
+            max_acc, idx = most_similar_string(node_info, priority_character_dict, priority_string_len)
+            self.logger.info("max acc : " + str(max_acc))
+            if max_acc >= 0.5:
+                most_possible_node_name = pri[idx]
+                self.logger.info("Assume Node is : " + most_possible_node_name)
+                node.append(most_possible_node_name)
+                lo.append(i)
+            else:
+                self.logger.warning("Node [ " + str(node_info) + " ] can't be recognized.")
+                self.logger.warning("If it's a new node, please contact the developer to update default node list.")
+
     self.logger.info("Detected Nodes:" + str(node))
     for i in range(1, len(pri)):
         for j in range(0, len(node)):
@@ -463,6 +477,7 @@ def preprocess_node_info(st, server):
     st = st.replace(" ", "")
     st = st.replace("・", "")
     st = st.replace(".", "")
+    st = st.replace("·", "")
     st = st.replace("’", "")
     if server == 'Global':
         st = st.lower()
@@ -843,7 +858,7 @@ def get_item_holding_quantity(self, region):
         res = int(res)
         return res
     except ValueError:
-        pass
+        return 0
 
 
 def get_item_selected_quantity(self, region):
