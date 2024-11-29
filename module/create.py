@@ -123,7 +123,8 @@ def select_node(self, phase):
                 self.logger.warning("Node [ " + str(node_info) + " ] can't be recognized.")
                 self.logger.warning("If it's a new node, please contact the developer to update default node list.")
 
-    self.logger.info("Detected Nodes:" + str(node))
+    self.logger.info("Detected Nodes:" )
+    self.logger.info(str(node))
     for i in range(1, len(pri)):
         for j in range(0, len(node)):
             if node[j][0:len(pri[i])] == pri[i]:

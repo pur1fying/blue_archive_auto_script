@@ -426,6 +426,21 @@ class Baas_thread:
         self.logger.info("            post_task        : " + str(task["post_task"]))
         self.logger.info("            }")
 
+    def update_create_priority(self):
+        for phase in range(1, 4):
+            cfg_key_name = 'createPriority_phase' + str(phase)
+            current_priority = self.config[cfg_key_name]
+            res = []
+            default_priority = self.static_config['create_default_priority'][self.config_set.server_mode]["phase" + str(phase)]
+            for i in range(0, len(current_priority)):
+                if current_priority[i] in default_priority:
+                    res.append(current_priority[i])
+            for j in range(0, len(default_priority)):
+                if default_priority[j] not in res:
+                    res.append(default_priority[j])
+            self.config[cfg_key_name] = res
+            self.config_set.set(cfg_key_name, res)
+
     def solve(self, activity) -> bool:
         try:
             return func_dict[activity](self)
@@ -548,6 +563,7 @@ class Baas_thread:
         try:
             self.config = copy.deepcopy(self.config_set.config)
             self.config = self.operate_dict(self.config)
+            self.update_create_priority()
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")
