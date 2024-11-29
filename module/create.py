@@ -152,8 +152,8 @@ def create_phase(self, phase):
     while self.flag_run:
         check_state.clear_exist_item()
         item_recognize(self, check_state)
-        # if check_state.try_choose_item():
-        #     break
+        if check_state.try_choose_item():
+            break
         if check_state.item_all_checked():
             break
         check_state.list_swipe()
