@@ -13,33 +13,49 @@ stored_height_local = 0
 
 
 class WordWrapTextEdit(TextEdit):
+    """
+    A QTextEdit that wraps text to fit the available width.
+
+    The text is split into words separated by spaces. The words are then joined into lines
+    until the line width exceeds the available width. The lines are then joined with '\n'.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.original_text = ""
+        self.word_split = ">"
         self.setLineWrapMode(QTextEdit.NoWrap)  # 禁用内置换行
         self.document().setDocumentMargin(0)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.font_metrics = QFontMetrics(self.font())
 
     def setText(self, text):
+        """
+        Set the text and rewrap it.
+        """
         self.original_text = text
         self.rewrap_text()
 
     def resizeEvent(self, event):
+        """
+        If the component is resized, rewrap the text as well.
+        """
         super().resizeEvent(event)
         self.rewrap_text()
 
     def rewrap_text(self):
+        """
+        Wrap the text to fit the available.
+        """
         available_width = self.viewport().width() - 10
         if available_width <= 0:
             return
-        # 将文本按照空格分割为单词列表
-        words = self.original_text.split(' ')
+        # Split the text into a list of words separated by spaces
+        words = self.original_text.split(self.word_split)
         lines = []
         current_line = ''
         for word in words:
             if current_line:
-                test_line = current_line + ' ' + word
+                test_line = current_line + self.word_split + word
             else:
                 test_line = word
             line_width = self.font_metrics.horizontalAdvance(test_line)
@@ -47,25 +63,25 @@ class WordWrapTextEdit(TextEdit):
                 current_line = test_line
             else:
                 if current_line:
-                    lines.append(current_line)
+                    lines.append(current_line+'>')
                 current_line = word
-                # 如果单个单词超过了可用宽度，则强制换行
+                # If a single word exceeds the available width, force a line break
                 word_width = self.font_metrics.horizontalAdvance(word)
                 if word_width > available_width:
                     lines.append(word)
                     current_line = ''
         if current_line:
             lines.append(current_line)
-        # 使用换行符连接行并设置文本
+        # Use '\n' to join the lines
         wrapped_text = '\n'.join(lines)
-        # 防止信号递归
+        # Prevent infinite recursion
         self.blockSignals(True)
-        # 保存光标位置和滚动条位置
+        # Keep the cursor position and scroll bar position
         cursor = self.textCursor()
         position = cursor.position()
         scroll_pos = self.verticalScrollBar().value()
         self.setPlainText(wrapped_text)
-        # 恢复光标位置和滚动条位置
+        # Restore the cursor position and scroll bar position
         cursor.setPosition(position)
         self.setTextCursor(cursor)
         self.verticalScrollBar().setValue(scroll_pos)
@@ -85,7 +101,8 @@ class Layout(QWidget):
             cfg_key_name = 'createPriority_phase' + str(phase)
             current_priority = self.config.get(cfg_key_name)
             res = []
-            default_priority = self.config.static_config['create_default_priority'][self.config.server_mode]["phase" + str(phase)]
+            default_priority = self.config.static_config['create_default_priority'][self.config.server_mode][
+                "phase" + str(phase)]
             for i in range(0, len(current_priority)):
                 if current_priority[i] in default_priority:
                     res.append(current_priority[i])
