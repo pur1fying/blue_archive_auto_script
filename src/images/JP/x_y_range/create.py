@@ -222,7 +222,7 @@ x_y_range = {
 
     'Beginner-Tech-Notes-(Hyakkiyako)': (881, 168, 919, 208),  # 初级技术笔记(百鬼夜行)
     'Normal-Tech-Notes-(Hyakkiyako)': (1015, 168, 1059, 208),  # 中级技术笔记(百鬼夜行)
-    'Advanced-Tech-Notes-(Hyakkiyako)': (1156, 168, 1196, 208),  # 高级技术笔记(百鬼夜行)
+    'Advanced-Tech-Notes-(Hyakkiyako)': (1015, 168, 1059, 208),  # 高级技术笔记(百鬼夜行)
     'Superior-Tech-Notes-(Hyakkiyako)': (740, 168, 781, 208),  # 特级技术笔记(百鬼夜行)
 
     'Beginner-Tech-Notes-(Red Winter)': (881, 168, 919, 208),  # 初级技术笔记(红冬)
