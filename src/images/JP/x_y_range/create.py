@@ -19,7 +19,7 @@ x_y_range = {
     'start-phase-3-bright': (1000, 630, 1240, 677),
 
     'phase-1-wait-to-check-node': (403, 91, 445, 129),
-    'phase-2-wait-to-check-node': (202, 489, 237, 499),
+    'phase-2-wait-to-check-node': (166, 570, 184, 591),
     'phase-3-wait-to-check-node': (106, 56, 145, 97),
 
     'sort-menu': (101, 196, 190, 226),

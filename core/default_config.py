@@ -544,8 +544,8 @@ STATIC_DEFAULT_CONFIG = '''
 {
     "explore_normal_task_region_range": [4, 27],
     "explore_hard_task_region_range": [1, 27],
-    "screenshot_methods" : ["adb", "nemu", "uiautomator2"],
-    "control_methods" : ["adb", "nemu", "uiautomator2"],
+    "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
+    "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
     "common_shop_price_list": {
         "CN": [
             ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],

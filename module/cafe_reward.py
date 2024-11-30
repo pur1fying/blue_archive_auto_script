@@ -382,7 +382,7 @@ def invite_girl(self, no=1):
                         return True
                 if not stop_flag:
                     self.logger.info("Didn't Find Target Student Swipe to Next Page")
-                    self.swipe(412, 580, 412, 150, duration=0.3)
+                    self.swipe(412, 580, 412, 150, duration=0.5)
                     self.click(412, 500, wait_over=True)
                     self.latest_img_array = self.get_screenshot_array()
         to_cafe(self)

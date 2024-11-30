@@ -6,7 +6,6 @@ from functools import partial
 import sys
 
 import numpy as np
-import cv2
 
 
 class NemuIpcIncompatible(Exception):

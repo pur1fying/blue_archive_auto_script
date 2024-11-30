@@ -1,9 +1,7 @@
-import time
-
-import cv2
 import numpy as np
 from core import color, picture
 from core import image
+from module.tactical_challenge_shop import get_purchase_state
 
 
 def implement(self):
@@ -30,9 +28,9 @@ def implement(self):
             self.logger.info("INADEQUATE assets for BUYING")
             return True
         buy(self, buy_list)
-        self.latest_img_array = self.get_screenshot_array()
 
-        if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
+        state = get_purchase_state(self)
+        if state == "shop_purchase-available":
             self.logger.info("-- Purchase available --")
             img_possibles = {
                 "shop_menu": (1163, 659),
@@ -56,7 +54,7 @@ def implement(self):
             picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
             assets = calculate_left_assets(self, assets, asset_required)
             to_common_shop(self)
-        elif color.judge_rgb_range(self, 1126, 665, 206, 226, 206, 226, 206, 226):
+        else:
             self.logger.info("Purchase Unavailable")
             return True
         if i != refresh_time:

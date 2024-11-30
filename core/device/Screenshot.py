@@ -1,4 +1,4 @@
-from core.device.connection import Connection
+from core.device.screenshot.scrcpy import ScrcpyScreenshot
 from core.device.screenshot.nemu import NemuScreenshot
 from core.device.screenshot.adb import AdbScreenshot
 from core.device.screenshot.uiautomator2 import U2Screenshot
@@ -27,6 +27,8 @@ class Screenshot:
             self.screenshot_instance = AdbScreenshot(self.connection)
         elif method == "uiautomator2":
             self.screenshot_instance = U2Screenshot(self.connection)
+        elif method == "scrcpy":
+            self.screenshot_instance = ScrcpyScreenshot(self.connection)
 
     def screenshot(self):
         self.ensure_interval()
