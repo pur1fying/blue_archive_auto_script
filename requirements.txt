@@ -19,3 +19,4 @@ pyinstaller
 requests
 psutil
 tqdm
+av == 12.0.0
