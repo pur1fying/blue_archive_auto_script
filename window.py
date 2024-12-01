@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 import threading
+from distutils.command.config import config
 from functools import partial
 from typing import Union
 
@@ -569,6 +570,7 @@ class Window(MSFluentWindow):
             from gui.fragments.switch import SwitchFragment
             from gui.fragments.settings import SettingsFragment
             _config = ConfigSet(config_dir=serial_name)
+            _config.add_signal("notify_signal", self.notify_signal)
             _sub_list_ = [
                 HomeFragment(parent=self, config=_config),
                 SwitchFragment(parent=self, config=_config),
@@ -586,7 +588,16 @@ class Window(MSFluentWindow):
         content = self.tr("""你需要在确认后重启BAAS以完成更改。""")
         closeRequestBox = MessageBox(title, content, self)
         if closeRequestBox.exec():
-            shutil.rmtree(f'./config/{self._sub_list[0][i0].config.config_dir}')
+            shutil.rmtree(self._sub_list[0][i0].config.config_dir)
+            self.tabBar.removeTab(i0)
+            _changed_table = []
+            for sub in self._sub_list:
+                _changed_row = []
+                for tab in sub:
+                    if config_name != tab.config["name"]:
+                        _changed_row.append(tab)
+                _changed_table.append(_changed_row)
+            self._sub_list = _changed_table
 
     def addTab(self, routeKey: str, config: ConfigSet, icon: Union[QIcon, str, FluentIconBase, None]):
         self.tabBar.addBAASTab(routeKey, config, icon, window=self)
