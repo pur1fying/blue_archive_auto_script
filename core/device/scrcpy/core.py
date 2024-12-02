@@ -8,8 +8,7 @@ from typing import Any, Callable, Optional, Tuple, Union
 
 import numpy as np
 from adbutils import AdbConnection, AdbDevice, AdbError, Network, adb
-from av.codec import CodecContext
-from av.error import InvalidDataError
+
 
 from .const import (
     EVENT_DISCONNECT,
@@ -240,6 +239,8 @@ class Client:
         """
         Core loop for video parsing
         """
+        from av.codec import CodecContext
+        from av.error import InvalidDataError
         codec = CodecContext.create("h264", "r")
         while self.alive:
             try:
