@@ -8,12 +8,12 @@ import threading
 from functools import partial
 from typing import Union
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer, QLocale
+from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
     MSFluentTitleBar, MessageBox, TransparentToolButton, FluentIconBase, TabItem, \
-    RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit, qconfig
+    RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
 from qfluentwidgets import (SubtitleLabel, setFont)
 
 from core import default_config
@@ -459,12 +459,12 @@ class Window(MSFluentWindow):
         QApplication.processEvents()
         try:
             from main import Main
-            self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal, self.ocr_needed)
+            self.main_class = Main(self._sub_list[0][0].main_thread_attach.logger_signal, self.ocr_needed)
             for i in range(0, len(self._sub_list[0])):
-                self._sub_list[0][i]._main_thread_attach.Main = self.main_class
+                self._sub_list[0][i].main_thread_attach.Main = self.main_class
         except Exception as e:
             from core.utils import Logger
-            Logger(self._sub_list[0][0]._main_thread_attach.logger_signal).error(e.__str__())
+            Logger(self._sub_list[0][0].main_thread_attach.logger_signal).error(e.__str__())
 
     def call_update(self):
         self.schedulerInterface.update_settings()

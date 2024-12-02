@@ -4507,26 +4507,20 @@ STATIC_DEFAULT_CONFIG = '''
 '''
 
 # Delete QFluentWidgets Pro Alert
+try:
+    import os
+    import importlib.util as iu
+    _init_path = iu.find_spec("qfluentwidgets").origin
+    _init_path = os.path.dirname(_init_path)
+    _init_path = os.path.join(_init_path, "common", "config.py")
 
-#import os
-#import importlib.util as iu
-#_init_path = iu.find_spec("qfluentwidgets").origin
-#_init_path = os.path.dirname(_init_path)
-#_init_path = os.path.join(_init_path, "common", "config.py")
+    fr = open(_init_path, "r")
+    _init_content = fr.read()
+    _init_content = _init_content.replace("print(ALERT)", "pass")
+    fr.close()
 
-#fr = open(_init_path, "r")
-#_init_content = fr.read()
-#to_remove = \
-#"""try:
-#    print(ALERT)
-#except UnicodeEncodeError:
-#    print(ALERT.replace("📢", ""))
-#"""
-
-#_init_content = _init_content.replace(to_remove, "")
-#fr.close()
-#
-#fw = open(_init_path, "w")
-#fw.write(_init_content)
-#fw.close()
-
+    fw = open(_init_path, "w")
+    fw.write(_init_content)
+    fw.close()
+except:
+    pass

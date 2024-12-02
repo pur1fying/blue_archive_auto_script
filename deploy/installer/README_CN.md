@@ -6,6 +6,7 @@
 ## 使用说明
 1. 对于 `Windows` 用户，请双击 `build.bat` 文件。
 2. 对于 `Linux` 用户，请在终端中运行以下命令：
-```bash
-$ bash ./build.sh
-```
+    ```bash
+    $ bash ./build.sh
+    ```
+    请注意，您必须在支持 `chmod +x` 命令的文件系统上运行本脚本。
