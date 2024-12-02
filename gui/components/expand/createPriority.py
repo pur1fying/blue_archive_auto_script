@@ -221,6 +221,20 @@ class Layout(QWidget):
         # self.__async_post_init_process()
         self.initiated = True
 
+    def get_phase2_recommended_name_list(self):
+        return self.config.static_config["create_phase2_recommended_priority"].keys()
+
+    def get_phase2_recommended_priority(self, name):
+        indexes = self.config.static_config["create_phase2_recommended_priority"][name]
+        origin_priority = self.config.static_config["create_default_priority"][self.config.server_mode]["phase2"]
+        res_priority = indexes.copy()
+        for i in range(0, len(res_priority)):
+            res_priority[i] = origin_priority[res_priority[i]]
+        for i in range(0, len(origin_priority)):
+            if i not in indexes:
+                res_priority.append(origin_priority[i])
+        return res_priority
+
     class Layout(QWidget):
         def __init__(self, parent=None, config=None, phase=1):
             super().__init__(parent=parent)
