@@ -459,10 +459,14 @@ class Window(MSFluentWindow):
 
     def init_main_class_thread(self):
         QApplication.processEvents()
-        from main import Main
-        self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal, self.ocr_needed)
-        for i in range(0, len(self._sub_list[0])):
-            self._sub_list[0][i]._main_thread_attach.Main = self.main_class
+        try:
+            from main import Main
+            self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal, self.ocr_needed)
+            for i in range(0, len(self._sub_list[0])):
+                self._sub_list[0][i]._main_thread_attach.Main = self.main_class
+        except Exception as e:
+            from core.utils import Logger
+            Logger(self._sub_list[0][0]._main_thread_attach.logger_signal).error(e.__str__())
 
     def call_update(self):
         self.schedulerInterface.update_settings()
