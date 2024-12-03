@@ -10,8 +10,6 @@ from core.utils import delay
 from gui.components.template_card import TemplateSettingCard
 from gui.util import notification
 
-stored_height_local = 0
-
 
 class WordWrapTextEdit(TextEdit):
     """
@@ -336,15 +334,3 @@ class Layout(QWidget):
                 if i not in indexes:
                     res_priority.append(origin_priority[i])
             return res_priority
-
-
-import threading
-
-
-def thread():
-    while True:
-        print("Stored_HEIGHT_LOCAL: ", stored_height_local)
-        time.sleep(0.5)
-
-
-threading.Thread(target=thread, daemon=True).start()
