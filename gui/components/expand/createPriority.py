@@ -1,3 +1,4 @@
+import time
 from functools import partial
 
 from PyQt5.QtCore import Qt
@@ -17,8 +18,9 @@ class WordWrapTextEdit(TextEdit):
     A QTextEdit that wraps text to fit the available width.
 
     The text is split into words separated by spaces. The words are then joined into lines
-    until the line width exceeds the available width. The lines are then joined with '\n'.
+    until the line width exceeds the available width. The lines are then joined with '\\n'.
     """
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.original_text = ""
@@ -63,7 +65,7 @@ class WordWrapTextEdit(TextEdit):
                 current_line = test_line
             else:
                 if current_line:
-                    lines.append(current_line+'>')
+                    lines.append(current_line + '>')
                 current_line = word
                 # If a single word exceeds the available width, force a line break
                 word_width = self.font_metrics.horizontalAdvance(word)
@@ -184,7 +186,7 @@ class Layout(QWidget):
         self.__test__(self)
         return detailed_widgets
 
-    @delay(0.05)
+    @delay(0.1)
     def __test__(self, ref_widget):
         if not self.initiated: return
         self.__adjust_raw(ref_widget)
@@ -201,11 +203,11 @@ class Layout(QWidget):
         top_card_widget.setFixedHeight(top_card_widget.height() + delta)
         return top_card_widget
 
-    @delay(0.3)
+    @delay(0.5)
     def __async_adjust(self, widget):
         widget.adjustSize()
 
-    @delay(0.01)
+    @delay(0.2)
     def __async_post_init_process(self):
         global stored_height_local
         stored_height_local = self.height()
@@ -220,21 +222,6 @@ class Layout(QWidget):
         self.detailed_widgets = self._init_detailed_config()
         # self.__async_post_init_process()
         self.initiated = True
-
-    def get_phase2_recommended_name_list(self):
-        return list(self.config.static_config["create_phase2_recommended_priority"].keys())
-
-    def get_phase2_recommended_priority(self, idx):
-        name = self.get_phase2_recommended_name_list()[idx]
-        indexes = self.config.static_config["create_phase2_recommended_priority"][name]
-        origin_priority = self.config.static_config["create_default_priority"][self.config.server_mode]["phase2"]
-        res_priority = indexes.copy()
-        for i in range(0, len(res_priority)):
-            res_priority[i] = origin_priority[res_priority[i]]
-        for i in range(0, len(origin_priority)):
-            if i not in indexes:
-                res_priority.append(origin_priority[i])
-        return res_priority
 
     class Layout(QWidget):
         def __init__(self, parent=None, config=None, phase=1):
@@ -270,6 +257,22 @@ class Layout(QWidget):
 
             self.viewLayout.addLayout(layout_for_line_one)
 
+            if phase == 2:
+                layout_for_line_extra = QHBoxLayout()
+
+                layout_for_rc_create_priority = QHBoxLayout()
+                label_for_rc_create_priority = QLabel(self.tr('推荐制造优先级'), self)
+                input_for_rc_create_priority = ComboBox(self)
+                _list = self.get_phase2_recommended_name_list()
+                input_for_rc_create_priority.addItems(_list)
+                input_for_rc_create_priority.currentIndexChanged.connect(self.__change_rc_create_priority)
+                layout_for_rc_create_priority.addWidget(label_for_rc_create_priority, 1, Qt.AlignLeft)
+                layout_for_rc_create_priority.addWidget(input_for_rc_create_priority, 0, Qt.AlignRight)
+
+                layout_for_line_extra.addLayout(layout_for_rc_create_priority)
+
+                self.viewLayout.addLayout(layout_for_line_extra)
+
             layout_for_line_two = QHBoxLayout()
 
             layout_for_create_priority = QHBoxLayout()
@@ -284,13 +287,13 @@ class Layout(QWidget):
 
             layout_for_create_priority_list = QVBoxLayout()
             self.create_priority = self.get_create_priority(phase)
-            input_for_create_priority = WordWrapTextEdit(self)
-            input_for_create_priority.setFixedHeight(125)
+            self.input_for_create_priority = WordWrapTextEdit(self)
+            self.input_for_create_priority.setFixedHeight(125)
             _content = ' > '.join(self.create_priority)
-            input_for_create_priority.setText(_content)
-            input_for_create_priority.textChanged.connect(
-                partial(self.__change_create_priority, input_for_create_priority.toPlainText))
-            layout_for_create_priority_list.addWidget(input_for_create_priority)
+            self.input_for_create_priority.setText(_content)
+            self.input_for_create_priority.textChanged.connect(
+                partial(self.__change_create_priority, self.input_for_create_priority.toPlainText))
+            layout_for_create_priority_list.addWidget(self.input_for_create_priority)
 
             layout_for_line_three.addLayout(layout_for_create_priority_list)
 
@@ -310,3 +313,38 @@ class Layout(QWidget):
         def get_create_priority(self, phase):
             cfg_key_name = 'createPriority_phase' + str(phase)
             return self.config.get(cfg_key_name)
+
+        def __change_rc_create_priority(self, idx):
+            _priority = self.get_phase2_recommended_priority(idx)
+            self.config.set('createPriority_phase2', _priority)
+            self.input_for_create_priority.setText(' > '.join(_priority))
+            notification.success(self.tr('推荐制造优先级'),
+                                 self.tr('修改成功'),
+                                 self.config)
+
+        def get_phase2_recommended_name_list(self):
+            return list(self.config.static_config["create_phase2_recommended_priority"].keys())
+
+        def get_phase2_recommended_priority(self, idx):
+            name = self.get_phase2_recommended_name_list()[idx]
+            indexes = self.config.static_config["create_phase2_recommended_priority"][name]
+            origin_priority = self.config.static_config["create_default_priority"][self.config.server_mode]["phase2"]
+            res_priority = indexes.copy()
+            for i in range(0, len(res_priority)):
+                res_priority[i] = origin_priority[res_priority[i]]
+            for i in range(0, len(origin_priority)):
+                if i not in indexes:
+                    res_priority.append(origin_priority[i])
+            return res_priority
+
+
+import threading
+
+
+def thread():
+    while True:
+        print("Stored_HEIGHT_LOCAL: ", stored_height_local)
+        time.sleep(0.5)
+
+
+threading.Thread(target=thread, daemon=True).start()
