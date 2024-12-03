@@ -259,9 +259,10 @@ class Layout(QWidget):
                 layout_for_line_extra = QHBoxLayout()
 
                 layout_for_rc_create_priority = QHBoxLayout()
-                label_for_rc_create_priority = QLabel(self.tr('推荐制造优先级'), self)
+                label_for_rc_create_priority = QLabel(self.tr('一键设置推荐优先级'), self)
                 input_for_rc_create_priority = ComboBox(self)
                 _list = self.get_phase2_recommended_name_list()
+                _list.insert(0, self.tr('选择学生'))
                 input_for_rc_create_priority.addItems(_list)
                 input_for_rc_create_priority.currentIndexChanged.connect(self.__change_rc_create_priority)
                 layout_for_rc_create_priority.addWidget(label_for_rc_create_priority, 1, Qt.AlignLeft)
@@ -313,7 +314,9 @@ class Layout(QWidget):
             return self.config.get(cfg_key_name)
 
         def __change_rc_create_priority(self, idx):
-            _priority = self.get_phase2_recommended_priority(idx)
+            if idx == 0:
+                return
+            _priority = self.get_phase2_recommended_priority(idx-1)
             self.config.set('createPriority_phase2', _priority)
             self.input_for_create_priority.setText(' > '.join(_priority))
             notification.success(self.tr('推荐制造优先级'),
