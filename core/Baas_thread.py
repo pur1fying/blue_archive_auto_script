@@ -1,4 +1,5 @@
 import copy
+import traceback
 from datetime import datetime
 import cv2
 from core.exception import ScriptError, RequestHumanTakeOver
@@ -413,17 +414,15 @@ class Baas_thread:
                     time.sleep(1)
                     if self.flag_run:  # allow user to stop script before then action
                         self.handle_then()
-        except Exception as e:
+        except Exception:
             notify(title='', body='任务已停止')
-            self.logger.error(e.__str__())
-            self.logger.error("error occurred, stop all activities")
             self.signal_stop()
 
     def genScheduleLog(self, task):
         self.logger.info("Scheduler : {")
-        self.logger.info("            pre_task         : " + str(task["pre_task"]))
-        self.logger.info("            current_task     : " + str(task["current_task"]))
-        self.logger.info("            post_task        : " + str(task["post_task"]))
+        self.logger.info("                pre_task         : " + str(task["pre_task"]))
+        self.logger.info("                current_task     : " + str(task["current_task"]))
+        self.logger.info("                post_task        : " + str(task["post_task"]))
         self.logger.info("            }")
 
     def update_create_priority(self):
@@ -431,7 +430,8 @@ class Baas_thread:
             cfg_key_name = 'createPriority_phase' + str(phase)
             current_priority = self.config[cfg_key_name]
             res = []
-            default_priority = self.static_config['create_default_priority'][self.config_set.server_mode]["phase" + str(phase)]
+            default_priority = self.static_config['create_default_priority'][self.config_set.server_mode][
+                "phase" + str(phase)]
             for i in range(0, len(current_priority)):
                 if current_priority[i] in default_priority:
                     res.append(current_priority[i])
@@ -446,13 +446,14 @@ class Baas_thread:
             return func_dict[activity](self)
         except Exception as e:
             if self.flag_run:
-                self.logger.error(e.__str__())
-                threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
+                error_message = traceback.format_exc()
+                title = e.__str__()
+                threading.Thread(target=self.simple_error, args=(title, error_message,)).start()
             return False
 
-    def simple_error(self, info: str):
-        push(self.logger, self.config, info)
-        raise ScriptError(message=info, context=self)
+    def simple_error(self, title: str, error_message: str):
+        push(self.logger, self.config, title)
+        raise ScriptError(title=title, message=error_message, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
         img_possibles = {
