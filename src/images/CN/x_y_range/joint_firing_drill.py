@@ -28,6 +28,7 @@ x_y_range = {
     "start-drill-notice": (441, 322, 821, 393),
     "drill-finish": (577, 109, 705, 147),
     "sweep-menu": (571, 179, 705, 215),
+    "sweep-menu2": (571, 179, 705, 215),
     "start-sweep-notice": (587, 141, 700, 179),
     "sweep-complete": (601, 561, 682, 604)
 }
