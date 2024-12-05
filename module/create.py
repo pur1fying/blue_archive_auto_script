@@ -20,7 +20,7 @@ def implement(self):
         to_manufacture_store(self, True)
     status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
     create_flag = True
-    if left_create_times == 0:
+    if left_create_times <= 0:
         create_flag = False
     while self.flag_run and create_flag:
         if status == ["unfinished", "unfinished", "unfinished"] and (not use_acceleration_ticket):
