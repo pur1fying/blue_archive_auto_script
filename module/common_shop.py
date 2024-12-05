@@ -5,13 +5,16 @@ from module.tactical_challenge_shop import get_purchase_state
 
 
 def implement(self):
+    buy_list = np.array(self.config["CommonShopList"])
+    if not buy_list.any():
+        self.logger.info("Nothing to buy in common shop.")
+        return True
     self.quick_method_to_main_page()
     to_common_shop(self, True)
     assets = {
         "creditpoints": self.get_creditpoints(),
         "pyroxene": self.get_pyroxene(),
     }
-    buy_list = np.array(self.config["CommonShopList"])
     price = self.static_config["common_shop_price_list"][self.server]
     temp_price = []
     tp = []
