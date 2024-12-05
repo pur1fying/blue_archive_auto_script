@@ -258,6 +258,7 @@ def sweep_drill(self, drill_name, count):
     to_drill(self, drill_name)
     img_ends = [
         "drill_sweep-menu",
+        "drill_sweep-menu2",
     ]
     img_possibles = {
         "drill_Season-Record": (818, 654),
@@ -269,6 +270,7 @@ def sweep_drill(self, drill_name, count):
     img_ends = "drill_sweep-complete"
     img_possibles = {
         "drill_sweep-menu": (880, 462),
+        "drill_sweep-menu2": (880, 462),
         "drill_start-sweep-notice": (766, 502),
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
