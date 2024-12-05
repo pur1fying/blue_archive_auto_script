@@ -4686,7 +4686,6 @@ STATIC_DEFAULT_CONFIG = '''
 try:
     import os
     import importlib.util as iu
-
     _init_path = iu.find_spec("qfluentwidgets").origin
     _init_path = os.path.dirname(_init_path)
     _init_path = os.path.join(_init_path, "common", "config.py")
