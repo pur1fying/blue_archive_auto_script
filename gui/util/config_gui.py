@@ -36,25 +36,6 @@ class ConfigGui(QConfig):
 
 
 configGui = ConfigGui()
-if not os.path.exists('config/gui.json'):
-    DEFAULT_GUI_CONFIG = {
-        "MainWindow": {
-            "configLoadType": "Card",
-            "DpiScale": 1,
-            "Language": "zh_CN",
-            "MicaEnabled": True
-        },
-        "QFluentWidgets": {
-            "ThemeColor": "#ff0078d4",
-            "ThemeMode": "Light"
-        }
-    }
-
-    if not os.path.exists('config'):
-        os.makedirs('config')
-
-    with open('config/gui.json', 'w') as f:
-        f.write(json.dumps(DEFAULT_GUI_CONFIG, indent=4))
 
 qconfig.load('config/gui.json', configGui)
 setThemeColor(configGui.themeColor.value)
