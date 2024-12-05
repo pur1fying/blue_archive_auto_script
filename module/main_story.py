@@ -236,6 +236,7 @@ def to_main_story(self, skip_first_screenshot=False):
         "main_story_select-episode": (60, 36),
     }
     img_ends = "main_story_menu"
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 

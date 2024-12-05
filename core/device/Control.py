@@ -1,7 +1,7 @@
 from core.device.control.nemu import NemuControl
 from core.device.control.adb import AdbControl
 from core.device.control.uiautomator2 import U2Control
-
+from core.device.control.scrcpy import ScrcpyControl
 
 class Control:
     def __init__(self, Baas_instance):
@@ -22,6 +22,8 @@ class Control:
             self.control_instance = AdbControl(self.connection)
         elif method == "uiautomator2":
             self.control_instance = U2Control(self.connection)
+        elif method == "scrcpy":
+            self.control_instance = ScrcpyControl(self.connection)
 
     def click(self, x, y):
         self.control_instance.click(x, y)

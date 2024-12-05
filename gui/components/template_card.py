@@ -1,10 +1,11 @@
 # coding:utf-8
 
-from PyQt5.QtCore import pyqtProperty, QPropertyAnimation
+from PyQt5.QtCore import pyqtProperty, QPropertyAnimation, pyqtSignal
 from PyQt5.QtGui import QColor
 from qfluentwidgets import ExpandSettingCard, MessageBoxBase
 from qfluentwidgets import FluentIcon as FIF
 
+from core.utils import delay
 from gui.util.translator import baasTranslator as bt
 
 BANNER_IMAGE_DIR = 'gui/assets/banners'
@@ -222,10 +223,10 @@ class TemplateSettingCardForClick(QFrame):
 
 
 class TemplateSettingCard(ExpandSettingCard):
-    """ Folder list setting card """
+    onToggleChangeSignal = pyqtSignal()
 
     def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None, config=None, context=None,
-                 **_):
+                 **kwargs):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
         super().__init__(FIF.CHECKBOX, title, content, parent)
@@ -234,16 +235,25 @@ class TemplateSettingCard(ExpandSettingCard):
         self.expand_view = None
         self.sub_view = sub_view
         self.config = config
+        self.kwargs = kwargs
         self._adjustViewSize()
 
     def toggleExpand(self):
+        self.__async_emit_toggle_change_signal()
         if self.initiated:
             super().toggleExpand()
             return
-        self.expand_view = self.sub_view.Layout(self, self.config)
+        if list(self.kwargs.keys())[0] == 'phase':
+            self.expand_view = self.sub_view.Layout(self, self.config, **self.kwargs)
+        else:
+            self.expand_view = self.sub_view.Layout(self, self.config)
         self.__initWidget()
         self.initiated = True
         super().toggleExpand()
+
+    @delay(0.2)
+    def __async_emit_toggle_change_signal(self):
+        self.onToggleChangeSignal.emit()
 
     def __initWidget(self):
         # Add widgets to layout
@@ -264,7 +274,7 @@ class TemplateSettingCard(ExpandSettingCard):
 class SimpleSettingCard(ExpandSettingCard):
     """ Folder list setting card """
 
-    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None, context=None, **_):
+    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None, context=None, **kwargs):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
         super().__init__(FIF.CHECKBOX, title, content, parent)
@@ -273,13 +283,16 @@ class SimpleSettingCard(ExpandSettingCard):
         self.expand_view = None
         self.sub_view = sub_view
         self.config = config
+        self.kwargs = kwargs
 
     def toggleExpand(self):
         if self.initiated:
             super().toggleExpand()
             return
-        print('expand')
-        self.expand_view = self.sub_view.Layout(self, self.config)
+        if self.kwargs and list(self.kwargs.keys())[0] == 'phase':
+            self.expand_view = self.sub_view.Layout(self, self.config, **self.kwargs)
+        else:
+            self.expand_view = self.sub_view.Layout(self, self.config)
         self.__initWidget()
         self.initiated = True
         super().toggleExpand()

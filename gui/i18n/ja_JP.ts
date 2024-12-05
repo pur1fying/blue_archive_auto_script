@@ -312,22 +312,22 @@
     <message>
         <location filename="../util/config_translation.py" line="103"/>
         <source>官服</source>
-        <translation>中国代理サーバー</translation>
+        <translation>中国</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="104"/>
         <source>B服</source>
-        <translation>ビリビリサーバー</translation>
+        <translation>ビリビリ</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="105"/>
         <source>国际服</source>
-        <translation>国際サーバー</translation>
+        <translation>国際</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="108"/>
         <source>日服</source>
-        <translation>日本サーバー</translation>
+        <translation>日本</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="111"/>
@@ -352,12 +352,12 @@
     <message>
         <location filename="../util/config_translation.py" line="106"/>
         <source>国际服青少年</source>
-        <translation>国際少年サーバー</translation>
+        <translation>国際少年</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="107"/>
         <source>韩国ONE</source>
-        <translation>韓国「One」サーバー</translation>
+        <translation>韓国One</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="88"/>
@@ -427,17 +427,17 @@
     <message>
         <location filename="../util/config_translation.py" line="133"/>
         <source>开</source>
-        <translation type="unfinished">開ける</translation>
+        <translation>開く</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="134"/>
         <source>关</source>
-        <translation type="unfinished">閉める</translation>
+        <translation>閉める</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="135"/>
         <source>默认</source>
-        <translation type="unfinished">デフォルト</translation>
+        <translation>デフォルト</translation>
     </message>
 </context>
 <context>
@@ -1125,7 +1125,7 @@
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
 nemu の使用が推奨され、nemu を使用している場合は、「エミュレータ
  アドレス」を MuMu エミュレータ パスに正確に設定してくださいMuMuPlayer.exe</translation>
@@ -1330,7 +1330,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
     <message>
         <location filename="../fragments/process.py" line="29"/>
         <source>当BAAS新增调度任务时,它的启用状态为</source>
-        <translation type="unfinished">新しいスケジューリング タスクが BAAS に追加されると、次の状態で有効になります</translation>
+        <translation>新しいスケジューリング タスクが BAAS に追加されると、次の状態で有効になります</translation>
     </message>
 </context>
 <context>
@@ -1397,22 +1397,22 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>官服</source>
-        <translation>中国代理サーバー</translation>
+        <translation>中国</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>B服</source>
-        <translation>ビリビリサーバー</translation>
+        <translation>ビリビリ</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>国际服</source>
-        <translation>国際サーバー</translation>
+        <translation>国際</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>日服</source>
-        <translation>日本サーバー</translation>
+        <translation>日本</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="34"/>
@@ -1427,12 +1427,12 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>国际服青少年</source>
-        <translation>国際少年サーバー</translation>
+        <translation>国際少年</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>韩国ONE</source>
-        <translation>KR Onestore</translation>
+        <translation>韓国One</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="29"/>
@@ -1799,19 +1799,19 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
-        <translation type="unfinished">コンフィグアトラン</translation>
+        <translation>オン</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
-        <translation type="unfinished">コンフィグアトラン</translation>
+        <translation>オフ</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
-        <translation type="unfinished">コンフィグアトラン</translation>
+        <translation>デフォルト</translation>
     </message>
 </context>
 <context>

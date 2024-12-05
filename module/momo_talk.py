@@ -16,7 +16,7 @@ def implement(self, need_check_mode=True):
         dy = 18
         unread_location = []
         while y <= 620:
-            if color.judge_rgb_range(self, 637, y, 250, 252, 70, 72, 24, 26):
+            if color.judge_rgb_range(self, 637, y, 241, 255, 61, 81, 15, 35):
                 unread_location.append([637, int(y + dy / 2)])
                 y += 60
             else:
@@ -72,7 +72,8 @@ def to_momotalk2(self, skip_first_screenshot=False):
         "reward_acquired": (640, 100),
     }
     rgb_ends = "momotalk2"
-    return picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=skip_first_screenshot)
+    img_possibles = picture.GAME_ONE_TIME_POP_UPS[self.server]
+    return picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
 def common_solve_affection_story_method(self):

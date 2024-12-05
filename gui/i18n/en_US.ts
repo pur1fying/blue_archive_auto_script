@@ -263,27 +263,27 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="89"/>
         <source>静子神明文字x5</source>
-        <translation>Shizuko's Eleph</translation>
+        <translation>Shizuko&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="90"/>
         <source>真白神明文字x5</source>
-        <translation>Mashiro's Eleph</translation>
+        <translation>Mashiro&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="91"/>
         <source>纱绫神明文字x5</source>
-        <translation>Saya's Eleph</translation>
+        <translation>Saya&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="92"/>
         <source>风香神明文字x5</source>
-        <translation>Fuuka's Eleph</translation>
+        <translation>Fuuka&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="93"/>
         <source>歌原神明文字x5</source>
-        <translation>Utaha's Eleph</translation>
+        <translation>Utaha&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="94"/>
@@ -358,7 +358,7 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="107"/>
         <source>韩国ONE</source>
-        <translation>KR Onestore</translation>
+        <translation>KR One</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="120"/>
@@ -388,7 +388,7 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="88"/>
         <source>宫子神明文字x5</source>
-        <translation>Miyako's Eleph</translation>
+        <translation>Miyako&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="115"/>
@@ -428,17 +428,17 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="133"/>
         <source>开</source>
-        <translation type="unfinished">open</translation>
+        <translation>open</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="134"/>
         <source>关</source>
-        <translation type="unfinished">close</translation>
+        <translation>close</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="135"/>
         <source>默认</source>
-        <translation type="unfinished">default</translation>
+        <translation>default</translation>
     </message>
 </context>
 <context>
@@ -832,7 +832,7 @@ See Clear Hard and Normal Stages in Help</translation>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>Set hard stages as above, with a maximum of 3 sweeps. Use commas for separation.
-For JP or Global server, you can use 'max':</translation>
+For JP or Global server, you can use &apos;max&apos;:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -1119,7 +1119,7 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
     <message>
         <location filename="../components/expand/arenaPriority.py" line="21"/>
         <source>自定义对手的编号：</source>
-        <translation>Customize your opponent's number:</translation>
+        <translation>Customize your opponent&apos;s number:</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="118"/>
@@ -1134,10 +1134,10 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
 It is recommended to use nemu and if you are using nemu, please 
-set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
+set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="26"/>
@@ -1339,7 +1339,7 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
     <message>
         <location filename="../fragments/process.py" line="29"/>
         <source>当BAAS新增调度任务时,它的启用状态为</source>
-        <translation type="unfinished">When a new scheduling task is added to BAAS, it is enabled in the following state</translation>
+        <translation>When a new scheduling task is added to BAAS, it is enabled in the following state</translation>
     </message>
 </context>
 <context>
@@ -1436,12 +1436,12 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>国际服青少年</source>
-        <translation>Global Teen Server</translation>
+        <translation>Global Teen</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>韩国ONE</source>
-        <translation>KR One Server</translation>
+        <translation>KR One</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="29"/>
@@ -1479,7 +1479,7 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
     <message>
         <location filename="../fragments/settings.py" line="31"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
-        <translation>Select your server platform and set your port (set to 0 if you don't know the port)</translation>
+        <translation>Select your server platform and set your port (set to 0 if you don&apos;t know the port)</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="39"/>
@@ -1614,7 +1614,7 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
     <message>
         <location filename="../fragments/settings.py" line="130"/>
         <source>更改应用的主题颜色</source>
-        <translation>Change the app's theme color</translation>
+        <translation>Change the app&apos;s theme color</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="137"/>
@@ -1808,19 +1808,19 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
-        <translation type="unfinished">ConfigTranslation</translation>
+        <translation>On</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
-        <translation type="unfinished">ConfigTranslation</translation>
+        <translation>Off</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
-        <translation type="unfinished">ConfigTranslation</translation>
+        <translation>Default</translation>
     </message>
 </context>
 <context>

@@ -5,14 +5,15 @@ from module import main_story, normal_task, hard_task
 
 
 def implement(self):
+    temp = get_explore_normal_task_missions(self, self.config['explore_normal_task_regions'], self.config['explore_normal_task_force_each_fight'])
     self.quick_method_to_main_page()
     if self.config['explore_normal_task_force_each_fight']:
-        tasks = get_explore_normal_task_missions(self, self.config['explore_normal_task_regions'])
-        self.logger.info("VALID TASKS : " + str(tasks))
+        temp = get_explore_normal_task_missions(self, self.config['explore_normal_task_regions'])
+        self.logger.info("VALID TASKS : " + str(temp))
         normal_task.to_normal_event(self)
-        for i in range(0, len(tasks)):
-            region = tasks[i][0]
-            mission = tasks[i][1]
+        for i in range(0, len(temp)):
+            region = temp[i][0]
+            mission = temp[i][1]
             self.logger.info("-- Start Pushing " + str(region) + "-" + str(mission) + " --")
             choose_region(self, region)
             self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
@@ -29,13 +30,6 @@ def implement(self):
             normal_task.to_normal_event(self, True)
     else:
         need_change_acc = True
-        temp = []
-        if type(self.config['explore_normal_task_regions']) is int:
-            temp.append(self.config['explore_normal_task_regions'])
-        elif type(self.config['explore_normal_task_regions']) is str:
-            t = self.config['explore_normal_task_regions'].split(',')
-            for i in range(0, len(t)):
-                temp.append(int(t[i]))
         self.logger.info("VALID REGIONS : " + str(temp))
         self.quick_method_to_main_page()
         normal_task.to_normal_event(self, True)
@@ -159,7 +153,7 @@ def start_action(self, actions):
             return
         desc = "start " + str(i + 1) + " operation : "
         if 'desc' in act:
-            desc += act['desc']
+             desc += act['desc']
         self.logger.info(desc)
         force_index = get_force(self)
         op = act['t']
@@ -473,41 +467,82 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot, img_pop_ups=img_pop_ups)
 
 
-def get_explore_normal_task_missions(self, st):
-    try:
-        if type(st) is list:
-            for i in range(0, len(st)):
-                st[i] = str(st[i])
-        elif type(st) is not str:
+def get_explore_normal_task_missions(self, st, force_each_fight=False):
+    lg = "Tasks"
+    if not force_each_fight:
+        lg = "Regions"
+    self.logger.info("Get Explore Normal Task Valid " + lg)
+    region_range = self.static_config['explore_normal_task_region_range']
+    ret = []
+    if not force_each_fight:
+        if type(st) is int:
             st = str(st)
         if type(st) is str:
+            st = st.replace(' ', '')
+            st = st.replace('，', ',')
             st = st.split(',')
-        print(type(st))
-        tasks = []
-        min_area = 4
-        max_area = 27
-        for i in range(0, len(st)):
-            if '-' in st[i]:
-                temp = st[i].split('-')
-                region = int(temp[0])
-                if region < min_area or region > max_area:
-                    self.logger.error("region" + temp[0] + "not support")
-                    continue
-                if len(temp) != 2:
-                    continue
-                tasks.append([int(temp[0]), int(temp[1])])
-            else:
-                region = int(st[i])
-                if region < min_area or region > max_area:
-                    self.logger.error("region" + st[i] + "not support")
-                    continue
-                for j in range(1, 6):
-                    tasks.append([int(st[i]), j])
-        return tasks
-    except Exception as e:
-        self.logger.error(e.__str__())
-        self.logger.error("explore_normal_task_missions config error")
-        return False
+        if type(st) is list:
+            for t in st:
+                if type(t) is str:
+                    try:
+                        t = int(t)
+                    except ValueError:
+                        self.logger.warning("[ " + t + " ] is not a number.Skip")
+                        continue
+                if type(t) is int:
+                    if t < region_range[0] or t > region_range[1]:
+                        self.logger.warning("Region [ " + str(t) + " ] not support")
+                        continue
+                    ret.append(t)
+
+    else:
+        try:
+            if type(st) is list:
+                for i in range(0, len(st)):
+                    st[i] = str(st[i])
+            elif type(st) is not str:
+                st = str(st)
+            if type(st) is str:
+                st = st.replace(' ', '')
+                st = st.replace('，', ',')
+                st = st.split(',')
+            for t in st:
+                if '-' in t:
+                    temp = t.split('-')
+                    if len(temp) != 2:
+                        self.logger.error("[ " + t + " ] format error. Expected : 'region-mission'")
+                        continue
+                    try:
+                        region = int(temp[0])
+                    except ValueError:
+                        self.logger.warning("Region [ " + t + " ] is not a number.Skip")
+                        continue
+                    try:
+                        mission = int(temp[1])
+                    except ValueError:
+                        self.logger.warning("Mission [ " + t + " ] is not a number.Skip")
+                        continue
+                    if region < region_range[0] or region > region_range[1]:
+                        self.logger.error("Region [ " + temp[0] + " ] not support")
+                        continue
+                    ret.append([region, mission])
+                else:
+                    try:
+                        region = int(t)
+                    except ValueError:
+                        self.logger.warning("Region [ " + t + " ] is not a number.Skip")
+                        continue
+                    if region < region_range[0] or region > region_range[1]:
+                        self.logger.error("Region [ " + t + " ] not support")
+                        continue
+                    for j in range(1, 6):
+                        ret.append([int(t), j])
+        except Exception as e:
+            self.logger.error(e.__str__())
+            self.logger.error("explore_normal_task_missions config error")
+            return False
+    self.logger.info("Valid " + lg + " : " + str(ret))
+    return ret
 
 
 def choose_team_according_to_stage_data_and_config(self, current_task_stage_data):

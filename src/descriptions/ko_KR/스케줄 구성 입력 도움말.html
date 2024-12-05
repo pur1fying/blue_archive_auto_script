@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<p><span style="background-color: #f1c40f;"><strong>스케줄 구성 입력 도움말:</strong></span></p>
+<p>1. 우선순위: 큐에 두 개 이상의 작업이 있을 때, 우선순위 값이 낮은 작업이 먼저 실행됩니다.</p>
+<p>2. 실행 간격: 정수 0은 하루 간격을 의미합니다.</p>
+<p>3. 매일 초기화:</p>
+<p>매일 고정된 시간에 작업을 실행합니다 (여러 타임스탬프를 입력 가능하며, 쉼표로 구분).</p>
+<p>형식: [ [ h, m, s ] ] <span style="color: #e03e2d;"><strong>(UTC 시간)</strong></span></p>
+<p><span style="color: #000000;"><strong>예</strong>: [ [ 0, 0, 0 ], [ 20, 0, 0 ] ]</span></p>
+<p><span style="color: #000000;">의미: 베이징 시간 (UTC + 8) 오전 8시와 오후 4시에 실행됩니다.</span></p>
+<p>4. 비활성 시간대:</p>
+<p>지정된 비활성 시간대에는 작업이 실행되지 않습니다 (여러 시간대를 입력 가능하며, 쉼표로 구분).</p>
+<p>형식: [ [ [ h1, m1, s1 ], [ h2, m2, s1 ] ] ] <span style="color: #e03e2d;"><strong>(UTC 시간)</strong></span></p>
+<p><span style="color: #000000;"><strong>예</strong>: [ [ [ 0, 0, 0 ], [ 24, 0, 0 ] ] ]</span></p>
+<p><span style="color: #000000;">의미: 하루 종일 작업이 실행되지 않습니다.</span></p>
+<p>5. 선행 작업, 후행 작업: 현재 작업을 실행하기 전에(또는 후에), 선행 작업(또는 후행 작업) 목록의 모든 작업을 순서대로 실행합니다.</p>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<p><span style="background-color: #f1c40f;"><strong>スケジューリング設定入力ガイド：</strong></span></p>
+<p>1. 優先順位：キュー内に2つ以上のタスクがある場合、優先度が低いタスクが先に実行されます。</p>
+<p>2. 実行間隔：整数 0 は1日間隔を意味します。</p>
+<p>3. 毎日のリセット:</p>
+<p>毎日決まった時刻にタスクを実行します（複数のタイムスタンプが可能で、カンマで区切る）。</p>
+<p>形式：[ [ h, m, s ] ] <span style="color: #e03e2d;"><strong>(UTC 時間)</strong></span></p>
+<p><span style="color: #000000;"><strong>例</strong>: [ [ 0, 0, 0 ], [ 20, 0, 0 ] ]</span></p>
+<p><span style="color: #000000;">意味: 北京時間 (UTC + 8) 午前8時と午後4時に実行。</span></p>
+<p>4. 禁止時間帯：</p>
+<p>指定された禁止時間帯にはタスクを実行しません（複数の時間帯が可能で、カンマで区切る）。</p>
+<p>形式：[ [ [ h1, m1, s1 ], [ h2, m2, s1 ] ] ] <span style="color: #e03e2d;"><strong>(UTC 時間)</strong></span></p>
+<p><span style="color: #000000;"><strong>例</strong>: [ [ [ 0, 0, 0 ], [ 24, 0, 0 ] ] ]</span></p>
+<p><span style="color: #000000;">意味: 一日中タスクを実行しません。</span></p>
+<p>5. 事前タスク、事後タスク: 現在のタスクを実行する前（または後）に、事前タスク内（または事後タスク内）のすべてのタスクを順番に実行します。</p>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<p><span style="background-color: #f1c40f;"><strong>Scheduling Configuration Filling Guide:</strong></span></p>
+<p>1. Priority: When there are more than two tasks in the queue, tasks with a lower priority value will be executed first.</p>
+<p>2. Execution Interval: Integer 0 means a one-day interval.</p>
+<p>3. Daily Reset:</p>
+<p>Tasks are executed at fixed times daily (multiple timestamps are allowed, separated by commas).</p>
+<p>Format: [ [ h, m, s ] ] <span style="color: #e03e2d;"><strong>(UTC time)</strong></span></p>
+<p><span style="color: #000000;"><strong>Example</strong>: [ [ 0, 0, 0 ], [ 20, 0, 0 ] ]</span></p>
+<p><span style="color: #000000;">Means: Executed at 8 AM and 4 PM Beijing time (UTC + 8)</span></p>
+<p>4. Disabled Time Periods:</p>
+<p>Tasks will not be executed during specified disabled time periods (multiple periods are allowed, separated by commas).</p>
+<p>Format: [ [ [ h1, m1, s1 ], [ h2, m2, s1 ] ] ] <span style="color: #e03e2d;"><strong>(UTC time)</strong></span></p>
+<p><span style="color: #000000;"><strong>Example</strong>: [ [ [ 0, 0, 0 ], [ 24, 0, 0 ] ] ]</span></p>
+<p><span style="color: #000000;">Means tasks are not executed all day.</span></p>
+<p>5. Pre-tasks, Post-tasks: Execute all tasks in pre-tasks before (and post-tasks after) the current task.</p>
+</body>
+</html>

@@ -313,7 +313,16 @@ DEFAULT_CONFIG = """
     "ArenaLevelDiff": 0,
     "ArenaComponentNumber": 1,
     "maxArenaRefreshTimes": 10,
-    "createPriority": "花>Mo>情人节>果冻>色彩>灿烂>光芒>玲珑>白金>黄金>铜>白银>金属>隐然",
+    "createPriority_phase1": "",
+    "createPriority_phase2": "",
+    "createPriority_phase3": "",
+    "create_phase_1_select_item_rule": "default",
+    "create_phase_2_select_item_rule": "default",
+    "create_phase_3_select_item_rule": "default",
+    "create_phase": 1,
+    "create_item_holding_quantity": {
+
+    },
     "use_acceleration_ticket": false,
     "createTime": "3",
     "last_refresh_config_time": "0",
@@ -339,14 +348,14 @@ DEFAULT_CONFIG = """
     "push_json":"",
     "push_serverchan":"",
     "cafe_reward_lowest_affection_first": true,
-    "cafe_reward_invite1_criterion" : "name",
+    "cafe_reward_invite1_criterion" : "starred",
     "favorStudent1": [
         "爱丽丝"
     ],
     "cafe_reward_invite1_starred_student_position" : 1,
     "cafe_reward_has_no2_cafe": false,
     "cafe_reward_collect_hour_reward": true,
-    "cafe_reward_invite2_criterion" : "name",
+    "cafe_reward_invite2_criterion" : "starred",
         "favorStudent2": [
         "爱丽丝(女仆)"
     ],
@@ -533,15 +542,18 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
-    "screenshot_methods" : ["adb", "nemu", "uiautomator2"],
-    "control_methods" : ["adb", "nemu", "uiautomator2"],
+    "explore_normal_task_region_range": [4, 27],
+    "explore_hard_task_region_range": [1, 27],
+    "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
+    "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
     "common_shop_price_list": {
         "CN": [
             ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],
             ["学院交流会[崔尼蒂]券",30,"pyroxene"],["学院交流会[歌赫娜]券",30,"pyroxene"],["学院交流会[千禧年]券",30,"pyroxene"],["初级经验书", 12500, "creditpoints"],
             ["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书",500000,"creditpoints"],["初级经验珠", 10000, "creditpoints"],
             ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 10000, "creditpoints"],
-            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],
+            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 20000, "creditpoints"],
+            ["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 258000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ],
         "Global": [
@@ -582,127 +594,2483 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "create_default_priority": {
-        "CN": [
-                "花",
-                "MomoFriends咖啡厅",
-                "果冻游戏中心",
-                "情人节",
-                "夏日",
-                "万圣节",
-                "温泉浴场",
-                "新年",
-                "色彩",
-                "灿烂",
-                "武器部件",
-                "铜",
-                "光芒",
-                "玲珑",
-                "白金",
-                "黄金",
-                "白银",
-                "金属",
-                "隐然"
-            ],
-        "Global":
-            [
-                "Flower",
-                "Momo Friends Cafe Set",
-                "Jellies Arcade Set",
-                "Valentine's Set",
-                "Summer Pool Party Set",
-                "Jack-O-Lantern Cafe Set",
-                "Hot Springs Resort Set",
-                "New Year's House Set",
-                "Military Campground Set",
-                "Beachside Set",
-                "Field Day Set",
-                "Abydos Classroom Set",
-                "Game Development Department Set",
-                "Sunshine Resort Set",
-                "Department Store Set",
-                "Gehenna Party Set",
-                "Colorful",
-                "Radiant",
-                "Weapon Parts",
-                "Copper",
-                "Platinum",
-                "Gold",
-                "Silver",
-                "Metal",
-                "Shiny",
-                "Brilliant",
-                "Subtle"
+      "CN": {
+        "phase1": [
+             "花",
+             "桃桃朋友咖啡厅",
+             "果冻游戏中心",
+             "情人节",
+             "夏日",
+             "万圣节",
+             "温泉浴场",
+             "新年",
+             "色彩",
+             "军事露营组合",
+             "海滩组合",
+             "大运动会主题",
+             "灿烂",
+             "武器部件",
+             "铜",
+             "光芒",
+             "玲珑",
+             "白金",
+             "黄金",
+             "白银",
+             "金属",
+             "隐然"
         ],
-        "JP": [
-            "花弁",
-            "モモフレンズのカフェシリーズ",
-            "ゼリーズゲーセンシリーズ",
-            "バレンタインシリーズ",
-            "サマーリゾートシリーズ",
-            "ハロウィーンカフェシリーズ",
-            "伝統的な温泉郷シリーズ",
-            "お正月シリーズ",
-            "ミリタリーアウトドア",
-            "ビーチサイドシリーズ",
-            "大運動会シリーズ",
-            "アビドス教室シリーズ",
-            "ゲーム開発部シリーズ",
-            "サンシャインリゾートシリーズ",
-            "デパートシリーズ",
-            "ゲヘナパーティーシリーズ",
-            "煌めき",
-            "パーツ",
-            "輝き",
-            "铜",
+        "phase2": [
+            "花",
+            "牡丹",
+            "牵牛花",
+            "玫瑰",
+            "郁金香",
+            "樱花",
+            "水仙花",
+            "紫薇花",
+            "蒲公英",
+            "百合花",
+            "金盏花",
+            "桔梗花",
+            "木莲花",
+            "杜鹃花",
+            "翡翠花",
+            "灿烂",
+            "光芒",
+            "色彩",
+            "桃桃朋友咖啡厅",
+            "果冻游戏中心",
+            "情人节",
+            "夏日",
+            "万圣节",
+            "温泉浴场",
+            "新年",
+            "军事露营组合",
+            "海滩组合",
+            "大运动会主题",
+            "红色",
+            "黄色",
+            "褐色",
+            "橘黄色",
+            "粉色",
+            "灰色",
+            "黑色",
+            "浅绿色",
+            "青绿色",
+            "白色",
+            "紫色",
+            "百鬼夜行",
+            "红冬",
+            "崔尼蒂",
+            "歌赫娜",
+            "阿拜多斯",
+            "千禧年",
+            "山海经",
+            "瓦尔基里",
+            "阿里乌斯",
             "金属",
+            "白银",
+            "黄金",
+            "白金",
+            "铜",
+            "武器部件",
+            "玲珑"
+        ],
+        "phase3": [
+            "钻石",
+            "神秘",
+            "花",
+            "灿烂",
+            "闪亮",
+            "颜色",
+            "富足",
+            "银",
+            "金",
+            "白金",
+            "铜",
+            "武器部件",
+            "百鬼夜行",
+            "红冬",
+            "崔尼蒂",
+            "歌赫娜",
+            "阿拜多斯",
+            "千禧年",
+            "山海经",
+            "瓦尔基里",
+            "阿里乌斯"
+        ]
+      },
+      "Global": {
+        "phase1": [
+          "Flower",
+          "Momo Friends Cafe Set",
+          "Jellies Arcade Set",
+          "Valentine's Set",
+          "Summer Pool Party Set",
+          "Jack-O-Lantern Cafe Set",
+          "Hot Springs Resort Set",
+          "New Year's House Set",
+          "Military Campground Set",
+          "Beachside Set",
+          "Field Day Set",
+          "Abydos Classroom Set",
+          "Game Development Department Set",
+          "Sunshine Resort Set",
+          "Shopping Mall Set",
+          "Gehenna Party Set",
+          "Trinity Classroom Set",
+          "Colorful",
+          "Radiant",
+          "Parts",
+          "Copper",
+          "Platinum",
+          "Gold",
+          "Silver",
+          "Metal",
+          "Shiny",
+          "Brilliant",
+          "Subtle"
+        ],
+        "phase2": [
+          "Flower",
+          "Peony",
+          "Morning Glory",
+          "Rose",
+          "Tulip",
+          "Cherry Blossom",
+          "Daffodil",
+          "Zinnia",
+          "Dandelion",
+          "Lily",
+          "Marigold",
+          "Bellflower",
+          "Magnolia",
+          "Azalea",
+          "Jade Blossom",
+          "Radiant",
+          "Shiny",
+          "Colorful",
+          "Momo Friends Cafe Set",
+          "Jellies Arcade Set",
+          "Valentine's Set",
+          "Summer Pool Party Set",
+          "Jack-O-Lantern Cafe Set",
+          "Hot Springs Resort Set",
+          "New Year's House Set",
+          "Military Campground Set",
+          "Beachside Set",
+          "Field Day Set",
+          "Abydos Classroom Set",
+          "Game Development Department Set",
+          "Sunshine Resort Set",
+          "Shopping Mall Set",
+          "Gehenna Party Set",
+          "Hyakkiyako Set",
+          "Red",
+          "Yellow",
+          "Brown",
+          "Orange",
+          "Pink",
+          "Gray",
+          "Black",
+          "Yellow-Green",
+          "Turquoise",
+          "White",
+          "Purple",
+          "Hyakkiyako",
+          "Red Winter",
+          "Trinity",
+          "Gehenna",
+          "Abydos",
+          "Millennium",
+          "Shanhaijing",
+          "Valkyrie",
+          "Arius",
+          "Metal",
+          "Silver",
+          "Gold",
+          "Platinum",
+          "Copper",
+          "Weapon Parts",
+          "Brilliant"
+        ],
+        "phase3": [
+          "Diamond",
+          "Mystic",
+          "Flower",
+          "Radiant",
+          "Shiny",
+          "Colorful",
+          "Abundance",
+          "Silver",
+          "Gold",
+          "Platinum",
+          "Copper",
+          "Weapon Parts",
+          "Hyakkiyako",
+          "Red Winter",
+          "Trinity",
+          "Gehenna",
+          "Abydos",
+          "Millennium",
+          "Shanhaijing",
+          "Valkyrie",
+          "Arius"
+        ]
+      },
+      "JP": {
+        "phase1": [
+          "花弁",
+          "モモフレンズのカフェシリーズ",
+          "ゼリーズゲーセンシリーズ",
+          "バレンタインシリーズ",
+          "サマーリゾートシリーズ",
+          "ハロウィーンカフェシリーズ",
+          "伝統的な温泉郷シリーズ",
+          "お正月シリーズ",
+          "ミリタリーアウトドア",
+          "ビーチサイドシリーズ",
+          "大運動会シリーズ",
+          "アビドス教室シリーズ",
+          "ゲーム開発部シリーズ",
+          "サンシャインリゾートシリーズ",
+          "デパートシリーズ",
+          "ゲヘナパーティーシリーズ",
+          "トリニティ教室シリーズ",
+          "DJパーティー会場シリーズ",
+          "百鬼夜行シリーズ",
+          "色彩",
+          "煌めき",
+          "パーツ",
+          "輝き",
+          "铜",
+          "金属",
+          "銀",
+          "金",
+          "プラチナ",
+          "明かり",
+          "瞬き"
+        ],
+        "phase2": [
+          "花弁",
+          "牡丹",
+          "アサガオ",
+          "薔薇",
+          "チューリップ",
+          "桜",
+          "スイセン",
+          "百日紅",
+          "タンポポ",
+          "ユリ",
+          "キンセンカ",
+          "桔梗",
+          "モクレン",
+          "ツツジ",
+          "翡翠花",
+          "煌めき",
+          "輝き",
+          "色彩",
+          "モモフレンズのカフェシリーズ",
+          "ゼリーズゲーセンシリーズ",
+          "バレンタインシリーズ",
+          "サマーリゾートシリーズ",
+          "ハロウィーンカフェシリーズ",
+          "伝統的な温泉郷シリーズ",
+          "お正月シリーズ",
+          "ミリタリーアウトドア",
+          "ビーチサイドシリーズ",
+          "大運動会シリーズ",
+          "アビドス教室シリーズ",
+          "ゲーム開発部シリーズ",
+          "サンシャインリゾートシリーズ",
+          "デパートシリーズ",
+          "ゲヘナパーティーシリーズ",
+          "トリニティ教室シリーズ",
+          "DJパーティー会場シリーズ",
+          "百鬼夜行シリーズ",
+          "レッド",
+          "イエロー",
+          "ブラウン",
+          "アンバー",
+          "ピンク",
+          "グレー",
+          "ブラック",
+          "グリーン",
+          "ブルー",
+          "ホワイト",
+          "パープル",
+          "百鬼夜行",
+          "レッドウィンター",
+          "トリニティ",
+          "ゲヘナ",
+          "アビドス",
+          "ミレニアム",
+          "山海経",
+          "ヴァルキューレ",
+          "アリウス",
+          "金属",
+          "銀",
+          "金",
+          "プラチナ",
+          "銅",
+          "パーツ",
+          "明かり"
+        ],
+        "phase3": [
+            "ダイヤモンド",
+            "神秘",
+            "花弁",
+            "煌めき",
+            "輝き",
+            "色彩",
+            "豊かさ",
             "銀",
             "金",
             "プラチナ",
-            "明かり",
-            "瞬き"
-            ]
+            "銅",
+            "パーツ",
+            "百鬼夜行",
+            "レッドウィンター",
+            "トリニティ",
+            "ゲヘナ",
+            "アビドス",
+            "ミレニアム",
+            "山海経",
+            "ヴァルキューレ",
+            "アリウス"
+        ]
+      }
+    },
+    "create_each_phase_weight" : [0, 10, 40, 40],
+    "create_filter_type_list": [
+        "Equipment",
+        "Furniture",
+        "Decoration",
+        "Interior",
+        "Eleph",
+        "Coin",
+        "Material",
+        "Gift"
+    ],
+    "create_item_order": {
+      "CN": {
+        "basic": {
+          "Special": [
+            "Keystone-Piece",
+            "Keystone"
+          ],
+          "Equipment": [],
+          "Furniture": [],
+          "Decoration": [],
+          "Interior": [],
+          "Eleph": [],
+          "Coin": [],
+          "Material": [
+            "Nebra-Sky-Disk-Piece",
+            "Broken-Nebra-Sky-Disk",
+            "Damaged-Nebra-Sky-Disk",
+            "Intact-Nebra-Sky-Disk",
+            "Phasitos-Disc-Piece",
+            "Broken-Phaistos-Disc",
+            "Damaged-Phaistos-Disc",
+            "Intact-Phaistos-Disc",
+            "Wolfsegg-Iron-ore",
+            "Wolfsegg-steel",
+            "Low-Purity-Wolfsegg-steel",
+            "High-Purity-Wolfsegg-steel",
+            "Nimrud-Lens-Piece",
+            "Broken-Nimrud-Lens",
+            "Damaged-Nimrud-Lens",
+            "Intact-Nimrud-Lens",
+            "Mandrake-Seed",
+            "Mandrake-Sprout",
+            "Mandrake-Juice",
+            "Mandrake-Extract",
+            "Rohonc-Codex-Page",
+            "Broken-Rohonc-Codex",
+            "Annotated-Rohonc-Codex",
+            "Intact-Rohonc-Codex",
+            "Aether-Dust",
+            "Aether-Piece",
+            "Aether-Shared",
+            "Aether-Essence",
+            "Antikythera-Mechanism-Piece",
+            "Broken-Antikythera-Mechanism",
+            "Damaged-Antikythera-Mechanism",
+            "Intact-Antikythera-Mechanism",
+            "Voynich-Manuscript-Page",
+            "Damaged-Voynich-Manuscript",
+            "Annotated-Voynich-Manuscript",
+            "Intact-Voynich-Manuscript",
+            "Crystal-Haniwa-Fragment",
+            "Broken-Crystal-Haniwa",
+            "Repaired-Crystal-Haniwa",
+            "Intact-Crystal-Haniwa",
+            "Totem-Pole-Piece",
+            "Broken-Totem-Pole",
+            "Repaired-Totem-Pole",
+            "Intact-Totem-Pole",
+            "Ancient-Battery-Piece",
+            "Broken-Ancient-Battery",
+            "Damaged-Ancient-Battery",
+            "Intact-Ancient-Battery",
+            "Disco-Colgante-Piece",
+            "Broken-Disco-Colgante",
+            "Repaired-Disco-Colgante",
+            "Intact-Disco-Colgante",
+            "Winnipesaukee-Stone-Piece",
+            "Broken-Winnipesaukee-Stone",
+            "Damage-Winnipesaukee-Stone",
+            "Intact-Winnipesaukee-Stone",
+            "Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Normal-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Superior-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Beginner-Tactical-Training-Blu-ray-(Red Winter)",
+            "Normal-Tactical-Training-Blu-ray-(Red Winter)",
+            "Advanced-Tactical-Training-Blu-ray-(Red Winter)",
+            "Superior-Tactical-Training-Blu-ray-(Red Winter)",
+            "Beginner-Tactical-Training-Blu-ray-(Trinity)",
+            "Normal-Tactical-Training-Blu-ray-(Trinity)",
+            "Advanced-Tactical-Training-Blu-ray-(Trinity)",
+            "Superior-Tactical-Training-Blu-ray-(Trinity)",
+            "Beginner-Tactical-Training-Blu-ray-(Gehenna)",
+            "Normal-Tactical-Training-Blu-ray-(Gehenna)",
+            "Advanced-Tactical-Training-Blu-ray-(Gehenna)",
+            "Superior-Tactical-Training-Blu-ray-(Gehenna)",
+            "Beginner-Tactical-Training-Blu-ray-(Abydos)",
+            "Normal-Tactical-Training-Blu-ray-(Abydos)",
+            "Advanced-Tactical-Training-Blu-ray-(Abydos)",
+            "Superior-Tactical-Training-Blu-ray-(Abydos)",
+            "Beginner-Tactical-Training-Blu-ray-(Millennium)",
+            "Normal-Tactical-Training-Blu-ray-(Millennium)",
+            "Advanced-Tactical-Training-Blu-ray-(Millennium)",
+            "Superior-Tactical-Training-Blu-ray-(Millennium)",
+            "Beginner-Tactical-Training-Blu-ray-(Arius)",
+            "Normal-Tactical-Training-Blu-ray-(Arius)",
+            "Advanced-Tactical-Training-Blu-ray-(Arius)",
+            "Superior-Tactical-Training-Blu-ray-(Arius)",
+            "Beginner-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Normal-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Advanced-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Superior-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Beginner-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Normal-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Advanced-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Superior-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Beginner-Tech-Notes-(Hyakkiyako)",
+            "Normal-Tech-Notes-(Hyakkiyako)",
+            "Advanced-Tech-Notes-(Hyakkiyako)",
+            "Superior-Tech-Notes-(Hyakkiyako)",
+            "Beginner-Tech-Notes-(Red Winter)",
+            "Normal-Tech-Notes-(Red Winter)",
+            "Advanced-Tech-Notes-(Red Winter)",
+            "Superior-Tech-Notes-(Red Winter)",
+            "Beginner-Tech-Notes-(Trinity)",
+            "Normal-Tech-Notes-(Trinity)",
+            "Advanced-Tech-Notes-(Trinity)",
+            "Superior-Tech-Notes-(Trinity)",
+            "Beginner-Tech-Notes-(Gehenna)",
+            "Normal-Tech-Notes-(Gehenna)",
+            "Advanced-Tech-Notes-(Gehenna)",
+            "Superior-Tech-Notes-(Gehenna)",
+            "Beginner-Tech-Notes-(Abydos)",
+            "Normal-Tech-Notes-(Abydos)",
+            "Advanced-Tech-Notes-(Abydos)",
+            "Superior-Tech-Notes-(Abydos)",
+            "Beginner-Tech-Notes-(Millennium)",
+            "Normal-Tech-Notes-(Millennium)",
+            "Advanced-Tech-Notes-(Millennium)",
+            "Superior-Tech-Notes-(Millennium)",
+            "Beginner-Tech-Notes-(Arius)",
+            "Normal-Tech-Notes-(Arius)",
+            "Advanced-Tech-Notes-(Arius)",
+            "Superior-Tech-Notes-(Arius)",
+            "Beginner-Tech-Notes-(Shanhaijing)",
+            "Normal-Tech-Notes-(Shanhaijing)",
+            "Advanced-Tech-Notes-(Shanhaijing)",
+            "Superior-Tech-Notes-(Shanhaijing)",
+            "Beginner-Tech-Notes-(Valkyrie)",
+            "Normal-Tech-Notes-(Valkyrie)",
+            "Advanced-Tech-Notes-(Valkyrie)",
+            "Superior-Tech-Notes-(Valkyrie)"
+          ],
+          "Gift": []
+        }
+      },
+      "Global": {
+        "basic": {
+          "Special": [
+            "Keystone-Piece",
+            "Keystone"
+          ],
+          "Equipment": [],
+          "Furniture": [],
+          "Decoration": [],
+          "Interior": [],
+          "Eleph": [],
+          "Coin": [],
+          "Material": [
+            "Nebra-Sky-Disk-Piece",
+            "Broken-Nebra-Sky-Disk",
+            "Damaged-Nebra-Sky-Disk",
+            "Intact-Nebra-Sky-Disk",
+            "Phasitos-Disc-Piece",
+            "Broken-Phaistos-Disc",
+            "Damaged-Phaistos-Disc",
+            "Intact-Phaistos-Disc",
+            "Wolfsegg-Iron-ore",
+            "Wolfsegg-steel",
+            "Low-Purity-Wolfsegg-steel",
+            "High-Purity-Wolfsegg-steel",
+            "Nimrud-Lens-Piece",
+            "Broken-Nimrud-Lens",
+            "Damaged-Nimrud-Lens",
+            "Intact-Nimrud-Lens",
+            "Mandrake-Seed",
+            "Mandrake-Sprout",
+            "Mandrake-Juice",
+            "Mandrake-Extract",
+            "Rohonc-Codex-Page",
+            "Broken-Rohonc-Codex",
+            "Annotated-Rohonc-Codex",
+            "Intact-Rohonc-Codex",
+            "Aether-Dust",
+            "Aether-Piece",
+            "Aether-Shared",
+            "Aether-Essence",
+            "Antikythera-Mechanism-Piece",
+            "Broken-Antikythera-Mechanism",
+            "Damaged-Antikythera-Mechanism",
+            "Intact-Antikythera-Mechanism",
+            "Voynich-Manuscript-Page",
+            "Damaged-Voynich-Manuscript",
+            "Annotated-Voynich-Manuscript",
+            "Intact-Voynich-Manuscript",
+            "Crystal-Haniwa-Fragment",
+            "Broken-Crystal-Haniwa",
+            "Repaired-Crystal-Haniwa",
+            "Intact-Crystal-Haniwa",
+            "Totem-Pole-Piece",
+            "Broken-Totem-Pole",
+            "Repaired-Totem-Pole",
+            "Intact-Totem-Pole",
+            "Ancient-Battery-Piece",
+            "Broken-Ancient-Battery",
+            "Damaged-Ancient-Battery",
+            "Intact-Ancient-Battery",
+            "Golden-Fleece",
+            "Golden-Yarn",
+            "Golden-Wool",
+            "Golden-Dress",
+            "Okiku-Doll-Piece",
+            "Broken-Okiku-Doll",
+            "Repaired-Okiku-Doll",
+            "Intact-Okiku-Doll",
+            "Disco-Colgante-Piece",
+            "Broken-Disco-Colgante",
+            "Repaired-Disco-Colgante",
+            "Intact-Disco-Colgante",
+            "Atlantis-Medal-Piece",
+            "Broken-Atlantis-Medal",
+            "Damaged-Atlantis-Medal",
+            "Intact-Atlantis-Medal",
+            "Roman-Dodecahedron-Piece",
+            "Broken-Roman-Dodecahedron",
+            "Repaired-Roman-Dodecahedron",
+            "Intact-Roman-Dodecahedron",
+            "Quimbaya-Relic-Piece",
+            "Broken-Quimbaya-Relic",
+            "Repaired-Quimbaya-Relic",
+            "Intact-Quimbaya-Relic",
+            "Istanbul-Rocket-Piece",
+            "Broken-Istanbul-Rocket",
+            "Repaired-Istanbul-Rocket",
+            "Intact-Istanbul-Rocket",
+            "Winnipesaukee-Stone-Piece",
+            "Broken-Winnipesaukee-Stone",
+            "Damage-Winnipesaukee-Stone",
+            "Intact-Winnipesaukee-Stone",
+            "Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Normal-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Superior-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Beginner-Tactical-Training-Blu-ray-(Red Winter)",
+            "Normal-Tactical-Training-Blu-ray-(Red Winter)",
+            "Advanced-Tactical-Training-Blu-ray-(Red Winter)",
+            "Superior-Tactical-Training-Blu-ray-(Red Winter)",
+            "Beginner-Tactical-Training-Blu-ray-(Trinity)",
+            "Normal-Tactical-Training-Blu-ray-(Trinity)",
+            "Advanced-Tactical-Training-Blu-ray-(Trinity)",
+            "Superior-Tactical-Training-Blu-ray-(Trinity)",
+            "Beginner-Tactical-Training-Blu-ray-(Gehenna)",
+            "Normal-Tactical-Training-Blu-ray-(Gehenna)",
+            "Advanced-Tactical-Training-Blu-ray-(Gehenna)",
+            "Superior-Tactical-Training-Blu-ray-(Gehenna)",
+            "Beginner-Tactical-Training-Blu-ray-(Abydos)",
+            "Normal-Tactical-Training-Blu-ray-(Abydos)",
+            "Advanced-Tactical-Training-Blu-ray-(Abydos)",
+            "Superior-Tactical-Training-Blu-ray-(Abydos)",
+            "Beginner-Tactical-Training-Blu-ray-(Millennium)",
+            "Normal-Tactical-Training-Blu-ray-(Millennium)",
+            "Advanced-Tactical-Training-Blu-ray-(Millennium)",
+            "Superior-Tactical-Training-Blu-ray-(Millennium)",
+            "Beginner-Tactical-Training-Blu-ray-(Arius)",
+            "Normal-Tactical-Training-Blu-ray-(Arius)",
+            "Advanced-Tactical-Training-Blu-ray-(Arius)",
+            "Superior-Tactical-Training-Blu-ray-(Arius)",
+            "Beginner-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Normal-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Advanced-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Superior-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Beginner-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Normal-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Advanced-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Superior-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Beginner-Tech-Notes-(Hyakkiyako)",
+            "Normal-Tech-Notes-(Hyakkiyako)",
+            "Advanced-Tech-Notes-(Hyakkiyako)",
+            "Superior-Tech-Notes-(Hyakkiyako)",
+            "Beginner-Tech-Notes-(Red Winter)",
+            "Normal-Tech-Notes-(Red Winter)",
+            "Advanced-Tech-Notes-(Red Winter)",
+            "Superior-Tech-Notes-(Red Winter)",
+            "Beginner-Tech-Notes-(Trinity)",
+            "Normal-Tech-Notes-(Trinity)",
+            "Advanced-Tech-Notes-(Trinity)",
+            "Superior-Tech-Notes-(Trinity)",
+            "Beginner-Tech-Notes-(Gehenna)",
+            "Normal-Tech-Notes-(Gehenna)",
+            "Advanced-Tech-Notes-(Gehenna)",
+            "Superior-Tech-Notes-(Gehenna)",
+            "Beginner-Tech-Notes-(Abydos)",
+            "Normal-Tech-Notes-(Abydos)",
+            "Advanced-Tech-Notes-(Abydos)",
+            "Superior-Tech-Notes-(Abydos)",
+            "Beginner-Tech-Notes-(Millennium)",
+            "Normal-Tech-Notes-(Millennium)",
+            "Advanced-Tech-Notes-(Millennium)",
+            "Superior-Tech-Notes-(Millennium)",
+            "Beginner-Tech-Notes-(Arius)",
+            "Normal-Tech-Notes-(Arius)",
+            "Advanced-Tech-Notes-(Arius)",
+            "Superior-Tech-Notes-(Arius)",
+            "Beginner-Tech-Notes-(Shanhaijing)",
+            "Normal-Tech-Notes-(Shanhaijing)",
+            "Advanced-Tech-Notes-(Shanhaijing)",
+            "Superior-Tech-Notes-(Shanhaijing)",
+            "Beginner-Tech-Notes-(Valkyrie)",
+            "Normal-Tech-Notes-(Valkyrie)",
+            "Advanced-Tech-Notes-(Valkyrie)",
+            "Superior-Tech-Notes-(Valkyrie)"
+          ],
+          "Gift": []
+        }
+      },
+      "JP": {
+        "basic": {
+          "Special": [
+            "Keystone-Piece",
+            "Keystone"
+          ],
+          "Equipment": [],
+          "Furniture": [],
+          "Decoration": [],
+          "Interior": [],
+          "Eleph": [],
+          "Coin": [],
+          "Material": [
+            "Nebra-Sky-Disk-Piece",
+            "Broken-Nebra-Sky-Disk",
+            "Damaged-Nebra-Sky-Disk",
+            "Intact-Nebra-Sky-Disk",
+            "Phasitos-Disc-Piece",
+            "Broken-Phaistos-Disc",
+            "Damaged-Phaistos-Disc",
+            "Intact-Phaistos-Disc",
+            "Wolfsegg-Iron-ore",
+            "Wolfsegg-steel",
+            "Low-Purity-Wolfsegg-steel",
+            "High-Purity-Wolfsegg-steel",
+            "Nimrud-Lens-Piece",
+            "Broken-Nimrud-Lens",
+            "Damaged-Nimrud-Lens",
+            "Intact-Nimrud-Lens",
+            "Mandrake-Seed",
+            "Mandrake-Sprout",
+            "Mandrake-Juice",
+            "Mandrake-Extract",
+            "Rohonc-Codex-Page",
+            "Broken-Rohonc-Codex",
+            "Annotated-Rohonc-Codex",
+            "Intact-Rohonc-Codex",
+            "Aether-Dust",
+            "Aether-Piece",
+            "Aether-Shared",
+            "Aether-Essence",
+            "Antikythera-Mechanism-Piece",
+            "Broken-Antikythera-Mechanism",
+            "Damaged-Antikythera-Mechanism",
+            "Intact-Antikythera-Mechanism",
+            "Voynich-Manuscript-Page",
+            "Damaged-Voynich-Manuscript",
+            "Annotated-Voynich-Manuscript",
+            "Intact-Voynich-Manuscript",
+            "Crystal-Haniwa-Fragment",
+            "Broken-Crystal-Haniwa",
+            "Repaired-Crystal-Haniwa",
+            "Intact-Crystal-Haniwa",
+            "Totem-Pole-Piece",
+            "Broken-Totem-Pole",
+            "Repaired-Totem-Pole",
+            "Intact-Totem-Pole",
+            "Ancient-Battery-Piece",
+            "Broken-Ancient-Battery",
+            "Damaged-Ancient-Battery",
+            "Intact-Ancient-Battery",
+            "Golden-Fleece",
+            "Golden-Yarn",
+            "Golden-Wool",
+            "Golden-Dress",
+            "Okiku-Doll-Piece",
+            "Broken-Okiku-Doll",
+            "Repaired-Okiku-Doll",
+            "Intact-Okiku-Doll",
+            "Disco-Colgante-Piece",
+            "Broken-Disco-Colgante",
+            "Repaired-Disco-Colgante",
+            "Intact-Disco-Colgante",
+            "Atlantis-Medal-Piece",
+            "Broken-Atlantis-Medal",
+            "Damaged-Atlantis-Medal",
+            "Intact-Atlantis-Medal",
+            "Roman-Dodecahedron-Piece",
+            "Broken-Roman-Dodecahedron",
+            "Repaired-Roman-Dodecahedron",
+            "Intact-Roman-Dodecahedron",
+            "Quimbaya-Relic-Piece",
+            "Broken-Quimbaya-Relic",
+            "Repaired-Quimbaya-Relic",
+            "Intact-Quimbaya-Relic",
+            "Istanbul-Rocket-Piece",
+            "Broken-Istanbul-Rocket",
+            "Repaired-Istanbul-Rocket",
+            "Intact-Istanbul-Rocket",
+            "Winnipesaukee-Stone-Piece",
+            "Broken-Winnipesaukee-Stone",
+            "Damage-Winnipesaukee-Stone",
+            "Intact-Winnipesaukee-Stone",
+            "Physical-Education-Workbook",
+            "Shooting-Workbook",
+            "Hygiene-Workbook",
+            "Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Normal-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Superior-Tactical-Training-Blu-ray-(Hyakkiyako)",
+            "Beginner-Tactical-Training-Blu-ray-(Red Winter)",
+            "Normal-Tactical-Training-Blu-ray-(Red Winter)",
+            "Advanced-Tactical-Training-Blu-ray-(Red Winter)",
+            "Superior-Tactical-Training-Blu-ray-(Red Winter)",
+            "Beginner-Tactical-Training-Blu-ray-(Trinity)",
+            "Normal-Tactical-Training-Blu-ray-(Trinity)",
+            "Advanced-Tactical-Training-Blu-ray-(Trinity)",
+            "Superior-Tactical-Training-Blu-ray-(Trinity)",
+            "Beginner-Tactical-Training-Blu-ray-(Gehenna)",
+            "Normal-Tactical-Training-Blu-ray-(Gehenna)",
+            "Advanced-Tactical-Training-Blu-ray-(Gehenna)",
+            "Superior-Tactical-Training-Blu-ray-(Gehenna)",
+            "Beginner-Tactical-Training-Blu-ray-(Abydos)",
+            "Normal-Tactical-Training-Blu-ray-(Abydos)",
+            "Advanced-Tactical-Training-Blu-ray-(Abydos)",
+            "Superior-Tactical-Training-Blu-ray-(Abydos)",
+            "Beginner-Tactical-Training-Blu-ray-(Millennium)",
+            "Normal-Tactical-Training-Blu-ray-(Millennium)",
+            "Advanced-Tactical-Training-Blu-ray-(Millennium)",
+            "Superior-Tactical-Training-Blu-ray-(Millennium)",
+            "Beginner-Tactical-Training-Blu-ray-(Arius)",
+            "Normal-Tactical-Training-Blu-ray-(Arius)",
+            "Advanced-Tactical-Training-Blu-ray-(Arius)",
+            "Superior-Tactical-Training-Blu-ray-(Arius)",
+            "Beginner-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Normal-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Advanced-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Superior-Tactical-Training-Blu-ray-(Shanhaijing)",
+            "Beginner-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Normal-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Advanced-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Superior-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Beginner-Tech-Notes-(Hyakkiyako)",
+            "Normal-Tech-Notes-(Hyakkiyako)",
+            "Advanced-Tech-Notes-(Hyakkiyako)",
+            "Superior-Tech-Notes-(Hyakkiyako)",
+            "Beginner-Tech-Notes-(Red Winter)",
+            "Normal-Tech-Notes-(Red Winter)",
+            "Advanced-Tech-Notes-(Red Winter)",
+            "Superior-Tech-Notes-(Red Winter)",
+            "Beginner-Tech-Notes-(Trinity)",
+            "Normal-Tech-Notes-(Trinity)",
+            "Advanced-Tech-Notes-(Trinity)",
+            "Superior-Tech-Notes-(Trinity)",
+            "Beginner-Tech-Notes-(Gehenna)",
+            "Normal-Tech-Notes-(Gehenna)",
+            "Advanced-Tech-Notes-(Gehenna)",
+            "Superior-Tech-Notes-(Gehenna)",
+            "Beginner-Tech-Notes-(Abydos)",
+            "Normal-Tech-Notes-(Abydos)",
+            "Advanced-Tech-Notes-(Abydos)",
+            "Superior-Tech-Notes-(Abydos)",
+            "Beginner-Tech-Notes-(Millennium)",
+            "Normal-Tech-Notes-(Millennium)",
+            "Advanced-Tech-Notes-(Millennium)",
+            "Superior-Tech-Notes-(Millennium)",
+            "Beginner-Tech-Notes-(Arius)",
+            "Normal-Tech-Notes-(Arius)",
+            "Advanced-Tech-Notes-(Arius)",
+            "Superior-Tech-Notes-(Arius)",
+            "Beginner-Tech-Notes-(Shanhaijing)",
+            "Normal-Tech-Notes-(Shanhaijing)",
+            "Advanced-Tech-Notes-(Shanhaijing)",
+            "Superior-Tech-Notes-(Shanhaijing)",
+            "Beginner-Tech-Notes-(Valkyrie)",
+            "Normal-Tech-Notes-(Valkyrie)",
+            "Advanced-Tech-Notes-(Valkyrie)",
+            "Superior-Tech-Notes-(Valkyrie)"
+          ],
+          "Gift": []
+        }
+      }
+    },
+    "create_phase2_recommended_priority": {
+      "爱丽丝宝贝":[3,4,2],
+      "女仆爱丽丝宝贝":[7,4,2],
+      "白子":[2],
+      "白子(骑行)":[2,8],
+      "白子(泳装)":[2,14],
+      "芹香":[8],
+      "芹香(新年)":[8],
+      "星野":[8],
+      "星野(泳装)":[8,14],
+      "野宫":[5],
+      "野宫(泳装)":[5,14],
+      "绫音":[4],
+      "绫音(泳装)":[4,14],
+      "真琴":[8,7],
+      "伊吕波":[4,2,3],
+      "伊吹":[7,6],
+      "日奈":[8],
+      "日奈(泳装)":[8,14],
+      "日奈(礼服)":[8,9],
+      "亚子":[8,13],
+      "亚子(礼服)":[8,13,4],
+      "伊织":[5,6],
+      "伊织(泳装)":[5,6],
+      "千夏":[4],
+      "千夏(温泉)":[4],
+      "阿露":[8],
+      "阿露(新年)":[8],
+      "阿露(礼服)":[8],
+      "睦月":[7],
+      "睦月(正月)":[7],
+      "佳代子":[3],
+      "佳代子(正月)":[3,12,8],
+      "佳代子(礼服)":[3],
+      "遥香":[8,7,11],
+      "遥香(正月)":[8,7,11],
+      "晴奈":[12],
+      "晴奈(正月)":[12,10],
+      "晴奈(泳装)":[2,6],
+      "淳子":[6],
+      "淳子(正月)":[6],
+      "泉":[6],
+      "泉(泳装)":[6,14],
+      "明里":[9,6],
+      "明里(正月)":[9,6],
+      "枫香":[10],
+      "枫香(正月)":[10,13],
+      "朱莉":[7],
+      "濑名":[1,4, 13],
+      "霞":[8,7],
+      "惠":[7,11],
+      "优香":[7],
+      "优香(体操服)":[7],
+      "诺亚":[4],
+      "小雪":[7,8],
+      "千寻":[3],
+      "真纪":[7],
+      "晴":[3,4],
+      "晴(野营)":[3,4],
+      "小玉":[7],
+      "小玉(野营)":[7],
+      "尼禄":[7],
+      "尼禄(兔女郎)":[3,2,4],
+      "花凛":[7],
+      "花凛(兔女郎)":[7],
+      "朱音":[10],
+      "朱音(兔女郎)":[10],
+      "明日奈":[5],
+      "明日奈(兔女郎)":[5,6],
+      "时":[2,4,13],
+      "时(兔女郎)":[2,4,13],
+      "响":[3],
+      "响(应援团)":[3,10,8],
+      "歌原":[7],
+      "歌原(应援团)":[7,3],
+      "琴里":[4,13],
+      "琴里(应援团)":[2,7,13,4],
+      "堇":[2],
+      "日鞠":[8],
+      "艾米":[8,3],
+      "艾米(泳装)":[3,8,14],
+      "柚子":[3,2,4,3,12],
+      "柚子(女仆)":[3,2,4],
+      "绿":[1],
+      "桃井":[4,2,3],
+      "渚":[8,6],
+      "未花":[5,6],
+      "和纱":[5,6],
+      "夏":[8,6],
+      "爱莉":[6],
+      "好美":[6],
+      "玲纱":[6,3,8],
+      "铃美":[7],
+      "鹤城":[4],
+      "鹤城(泳装)":[4,14],
+      "莲见":[6,9],
+      "莲见(体操服)":[6,9],
+      "真白":[5,6],
+      "真白(泳装)":[5,6,14],
+      "一花":[3,5,12],
+      "美祢":[5],
+      "花绘":[5],
+      "花绘(圣诞)":[2,13],
+      "芹娜":[1],
+      "芹娜(圣诞)":[1,13],
+      "日富美":[2,1],
+      "日富美(泳装)":[2,1,14],
+      "梓":[2,1,12],
+      "梓(泳装)":[7,1,14,7],
+      "小春":[4,5,2],
+      "小春(泳装)":[14,4],
+      "花子":[4,8],
+      "花子(泳装)":[5,14,12],
+      "忧":[4],
+      "忧(泳装)":[4,14,8],
+      "志美子":[4],
+      "樱子":[6],
+      "玛丽":[11,12],
+      "玛丽(体操服)":[11,12],
+      "日向":[11,12],
+      "日向(泳装)":[10,14,12],
+      "果穗":[4],
+      "千世":[4],
+      "千世(泳装)":[4,14],
+      "椿":[1],
+      "椿(导游)":[1,4],
+      "三森":[10,12],
+      "三森(泳装)":[10,4,5],
+      "莲华":[9,10,4,14],
+      "桔梗":[4,13],
+      "缘里":[6,12],
+      "枫":[3,7,11],
+      "静子":[13,8,4],
+      "静子(泳装)":[13,14],
+      "菲娜":[9],
+      "海香":[8,7,11],
+      "满":[8],
+      "泉奈":[12],
+      "泉奈(泳装)":[12,14],
+      "月咏":[7,8,11],
+      "若藻":[7],
+      "若藻(泳装)":[7,8],
+      "男":[8,7,11],
+      "瞬":[5],
+      "瞬(幼)":[7,6],
+      "心奈":[6],
+      "纱绫":[13,4],
+      "纱绫(私服)":[7,6,11],
+      "瑠美":[10,12,8],
+      "切里诺":[8,6,11],
+      "切里诺(温泉)":[8,7,11,7],
+      "巴":[4,12],
+      "玛丽娜":[8,7],
+      "实梨":[4],
+      "梅露":[7,4],
+      "红叶":[4,5],
+      "和香":[6,7],
+      "和香(温泉)":[9,6,7],
+      "时雨":[4,13],
+      "时雨(温泉)":[4,13],
+      "康娜":[4,13],
+      "桐乃":[6,12],
+      "吹雪":[6],
+      "宫子":[6,4,5],
+      "宫子(泳装)":[4,14,6],
+      "咲":[8,13,5],
+      "咲(泳装)":[8,13,5,6],
+      "美游":[5,6,12,6,14],
+      "美游(泳装)":[5,6,12],
+      "萌绘":[3,5,6],
+      "纱织":[7,5],
+      "美咲":[7],
+      "日和":[10],
+      "亚津子":[4,13]
+    },
+    "create_material_information": {
+      "Keystone": {
+        "weight": 10,
+        "availability": {
+          "phase1": true,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Special"
+      },
+      "Keystone-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": true,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Special"
+      },
+      "Nebra-Sky-Disk-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Nebra-Sky-Disk": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Damaged-Nebra-Sky-Disk": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Nebra-Sky-Disk": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Phasitos-Disc-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Phaistos-Disc": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Damaged-Phaistos-Disc": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Phaistos-Disc": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Wolfsegg-Iron-ore": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Wolfsegg-steel": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Low-Purity-Wolfsegg-steel": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "High-Purity-Wolfsegg-steel": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Nimrud-Lens-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Nimrud-Lens": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Damaged-Nimrud-Lens": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Nimrud-Lens": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Mandrake-Seed": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Mandrake-Sprout": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Mandrake-Juice": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Mandrake-Extract": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Rohonc-Codex-Page": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Rohonc-Codex": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Annotated-Rohonc-Codex": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Rohonc-Codex": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Aether-Dust": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Aether-Piece": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Aether-Shared": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Aether-Essence": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Antikythera-Mechanism-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Antikythera-Mechanism": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Damaged-Antikythera-Mechanism": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Antikythera-Mechanism": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Voynich-Manuscript-Page": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Damaged-Voynich-Manuscript": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Annotated-Voynich-Manuscript": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Voynich-Manuscript": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Crystal-Haniwa-Fragment": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Crystal-Haniwa": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Repaired-Crystal-Haniwa": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Crystal-Haniwa": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Totem-Pole-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Totem-Pole": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Repaired-Totem-Pole": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Totem-Pole": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Ancient-Battery-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Ancient-Battery": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Damaged-Ancient-Battery": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Ancient-Battery": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Golden-Fleece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Golden-Yarn": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Golden-Wool": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Golden-Dress": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Okiku-Doll-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Okiku-Doll": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Repaired-Okiku-Doll": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Okiku-Doll": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Disco-Colgante-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Disco-Colgante": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Repaired-Disco-Colgante": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Disco-Colgante": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Atlantis-Medal-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Atlantis-Medal": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Damaged-Atlantis-Medal": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Atlantis-Medal": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Roman-Dodecahedron-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Roman-Dodecahedron": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Repaired-Roman-Dodecahedron": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Roman-Dodecahedron": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Quimbaya-Relic-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Quimbaya-Relic": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Repaired-Quimbaya-Relic": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Quimbaya-Relic": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Istanbul-Rocket-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Istanbul-Rocket": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Repaired-Istanbul-Rocket": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Istanbul-Rocket": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Winnipesaukee-Stone-Piece": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Broken-Winnipesaukee-Stone": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Damage-Winnipesaukee-Stone": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Intact-Winnipesaukee-Stone": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Physical-Education-Workbook": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Shooting-Workbook": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Hygiene-Workbook": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Hyakkiyako)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Hyakkiyako)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Red Winter)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Red Winter)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Red Winter)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Red Winter)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Trinity)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Trinity)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Trinity)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Trinity)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Gehenna)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Gehenna)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Gehenna)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Gehenna)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Abydos)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Abydos)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Abydos)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Abydos)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Millennium)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Millennium)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Millennium)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Millennium)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Arius)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Arius)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Arius)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Arius)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Shanhaijing)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Shanhaijing)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Shanhaijing)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Shanhaijing)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tactical-Training-Blu-ray-(Valkyrie)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tactical-Training-Blu-ray-(Valkyrie)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tactical-Training-Blu-ray-(Valkyrie)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tactical-Training-Blu-ray-(Valkyrie)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Hyakkiyako)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Hyakkiyako)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Hyakkiyako)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Hyakkiyako)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Red Winter)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Red Winter)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Red Winter)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Red Winter)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Trinity)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Trinity)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Trinity)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Trinity)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Gehenna)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Gehenna)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Gehenna)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Gehenna)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Abydos)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Abydos)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Abydos)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Abydos)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Millennium)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Millennium)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Millennium)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Millennium)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Arius)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Arius)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Arius)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Arius)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Shanhaijing)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Shanhaijing)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Shanhaijing)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Shanhaijing)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Beginner-Tech-Notes-(Valkyrie)": {
+        "weight": 1,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Normal-Tech-Notes-(Valkyrie)": {
+        "weight": 2,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": false
+        },
+        "material_type": "Material"
+      },
+      "Advanced-Tech-Notes-(Valkyrie)": {
+        "weight": 4,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      },
+      "Superior-Tech-Notes-(Valkyrie)": {
+        "weight": 10,
+        "availability": {
+          "phase1": false,
+          "phase2": true,
+          "phase3": true
+        },
+        "material_type": "Material"
+      }
     },
     "lesson_region_name":{
-        "CN": [
-            "沙勒业务区",
-            "沙勒生活区",
-            "歌赫娜中央区",
-            "阿拜多斯高等学院",
-            "千禧年学习区",
-            "崔尼蒂广场区",
-            "红冬联邦学院",
-            "百鬼夜行中心"
-            ],
-        "Global": [
-            "Schale Office",
-            "Schale Residence Hall",
-            "Gehenna Hub",
-            "Abydos Main Building",
-            "Millennium Study Center",
-            "Trinity Plaza Area",
-            "Red Winter Federal Academy",
-            "Hyakkiyako Central Area",
-            "D.U. Shiratori City",
-            "Shanhaijing Main Special Zone"
-        ],
-        "JP": [
-            "シャーレオフィス",
-            "シャーレ居住区",
-            "ゲヘナ学園・中央区",
-            "アビドス高等学校",
-            "ミレニアム・スタデイーエリア",
-            "トリニティ・スクエア",
-            "レッドウインター連邦学園",
-            "百鬼夜行中心部",
-            "D.U.シラトリ区",
-            "山海経中央特区",
-            "春葉原"
-          ]
+      "CN": [
+          "沙勒业务区",
+          "沙勒生活区",
+          "歌赫娜中央区",
+          "阿拜多斯高等学院",
+          "千禧年学习区",
+          "崔尼蒂广场区",
+          "红冬联邦学院",
+          "百鬼夜行中心"
+          ],
+      "Global": [
+          "Schale Office",
+          "Schale Residence Hall",
+          "Gehenna Hub",
+          "Abydos Main Building",
+          "Millennium Study Center",
+          "Trinity Plaza Area",
+          "Red Winter Federal Academy",
+          "Hyakkiyako Central Area",
+          "D.U. Shiratori City",
+          "Shanhaijing Main Special Zone"
+      ],
+      "JP": [
+          "シャーレオフィス",
+          "シャーレ居住区",
+          "ゲヘナ学園・中央区",
+          "アビドス高等学校",
+          "ミレニアム・スタデイーエリア",
+          "トリニティ・スクエア",
+          "レッドウインター連邦学園",
+          "百鬼夜行中心部",
+          "D.U.シラトリ区",
+          "山海経中央特区",
+          "春葉原"
+        ]
     },
     "current_game_activity": {
-        "CN": "pleasant_Valentines_Day_in_schale",
-        "Global": "iveAlive",
-        "JP": "SerenadePromenade"
+        "CN": "reckless_nun_and_the_witch_in_the_old_library",
+        "Global": null,
+        "JP": "SunlightGirlsNightSong"
     },
     "dailyGameActivity": {
         "CN": null,

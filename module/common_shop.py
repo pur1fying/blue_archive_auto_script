@@ -1,9 +1,7 @@
-import time
-
-import cv2
 import numpy as np
 from core import color, picture
 from core import image
+from module.tactical_challenge_shop import get_purchase_state
 
 
 def implement(self):
@@ -30,9 +28,9 @@ def implement(self):
             self.logger.info("INADEQUATE assets for BUYING")
             return True
         buy(self, buy_list)
-        self.latest_img_array = self.get_screenshot_array()
 
-        if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
+        state = get_purchase_state(self)
+        if state == "shop_purchase-available":
             self.logger.info("-- Purchase available --")
             img_possibles = {
                 "shop_menu": (1163, 659),
@@ -56,7 +54,7 @@ def implement(self):
             picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
             assets = calculate_left_assets(self, assets, asset_required)
             to_common_shop(self)
-        elif color.judge_rgb_range(self, 1126, 665, 206, 226, 206, 226, 206, 226):
+        else:
             self.logger.info("Purchase Unavailable")
             return True
         if i != refresh_time:
@@ -83,6 +81,7 @@ def to_common_shop(self, skip_first_screenshot=False):
         "main_page_full-notice": (887, 165),
         "main_page_insufficient-inventory-space": (910, 138),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
@@ -105,7 +104,7 @@ def buy(self, buy_list):
     # get item position --> click buy --> check if chosen --> swipe --> get swipe y difference --> buy
     length = len(buy_list)
     last_checked_idx = 0
-    last_checked_y = 0  # item with y > should_buy_y should be considered not checked
+    last_checked_y = 0  # item with y > last_checked_y should be considered not checked
     while last_checked_idx < length:
         items, item_lines_y = get_item_position(self)
         for i in range(1, len(item_lines_y)):

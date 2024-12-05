@@ -173,14 +173,14 @@ class Layout(QWidget):
             self.config_buttons.append(cfbs_wrapper)
 
     def _read_config(self):
-        with open('./config/' + self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
+        with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
             s = f.read()
             if s == '':
                 return
             self._event_config = json.loads(s)
 
     def _save_config(self):
-        with open('./config/' + self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
+        with open(self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
 
     def _sort(self):
@@ -301,9 +301,10 @@ class Layout(QWidget):
         except Exception:
             try:
                 return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S').timestamp()
-            except Exception as e:
-                traceback.print_exc()
-                return 0
+            except Exception:
+                # traceback.print_exc()
+                print("Time format error Or Time is not set. Use 0 as default.")
+                return datetime.strptime("2021-2-4 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
 
     def _refresh_time(self):
         # abstract from self._event_config

@@ -31,6 +31,7 @@ def to_joint_firing_menu(self):
         "drill_Season-Record": (119, 101),
         "drill_drill-finish": (644, 525),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
@@ -73,20 +74,30 @@ def check_drill_state(self):
 
 def solve_drill(self, state):
     drill_name = state[0]
-    sta = state[1]
+    drill_state = state[1]
     to_drill(self, drill_name)
     drill_ticket = get_drill_ticket(self)
-    if sta == "open" and drill_ticket == 0:
+
+    if drill_state == "fighting":
+        finish_existing_drill(self)
+        if self.config["drill_enable_sweep"] and drill_ticket > 0:
+            self.logger.info("Sweep drill.")
+            sweep_drill(self, drill_name, drill_ticket)
+            return
+    if drill_state == "open" and drill_ticket == 0:
         self.logger.info("No drill ticket left.")
         return
-    if sta == "open" and drill_ticket > 0:
+    if drill_state == "open" and drill_ticket > 0:
         drill_ticket -= 1
         fight_one_drill(self)
-    elif sta == "fighting":
-        finish_existing_drill(self)
     if self.config["drill_enable_sweep"] and drill_ticket > 0:
         self.logger.info("Sweep drill.")
         sweep_drill(self, drill_name, drill_ticket)
+
+
+def get_drill_fighting_state(self):
+    img_ends = ["drill_give-up-drill", "drill_start-drill"]
+    return picture.co_detect(self, None, None, img_ends, None, True)
 
 
 def to_drill(self, drill_name):
@@ -205,7 +216,18 @@ def finish_existing_drill(self):
     self.logger.info("Finish existing drill.")
     difficulty = self.config["drill_difficulty_list"]
     formation_num = self.config["drill_fight_formation_list"]
-    for i in range(0, 3):
+    last_unfinished_fight_number = 1
+    while last_unfinished_fight_number <= 2:
+        if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-unfinished", need_log=False):
+            break
+        if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-finished", need_log=False):
+            last_unfinished_fight_number += 1
+            self.logger.info("Drill fight [ " + str(last_unfinished_fight_number) + " ] finished.")
+            continue
+        self.logger.info("Unknown drill fight [ " + str(last_unfinished_fight_number) + " ] state. Assume finished.")
+        last_unfinished_fight_number += 1
+
+    for i in range(last_unfinished_fight_number-1, 3):
         diff = difficulty[i]
         form_id = formation_num[i]
         self.logger.info("Fight drill [ " + str(difficulty[i]) + " ] with formation [ " + str(formation_num[i]) + " ].")
@@ -236,6 +258,7 @@ def sweep_drill(self, drill_name, count):
     to_drill(self, drill_name)
     img_ends = [
         "drill_sweep-menu",
+        "drill_sweep-menu2",
     ]
     img_possibles = {
         "drill_Season-Record": (818, 654),
@@ -244,10 +267,10 @@ def sweep_drill(self, drill_name, count):
 
     self.click(993, 361, count=count-1, wait_over=True)
 
-    img_ends = "drill_Season-Record"
+    img_ends = "drill_sweep-complete"
     img_possibles = {
         "drill_sweep-menu": (880, 462),
+        "drill_sweep-menu2": (880, 462),
         "drill_start-sweep-notice": (766, 502),
-        "drill_sweep-complete": (640, 584)
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)

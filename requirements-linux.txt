@@ -2,6 +2,7 @@ lmdb
 PyQt5
 numpy
 flask
+av == 12.0.0
 cnocr
 imgaug
 onnxruntime

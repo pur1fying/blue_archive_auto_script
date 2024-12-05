@@ -1,5 +1,4 @@
 import time
-
 from core import color, picture
 
 
@@ -80,6 +79,7 @@ def to_commissions(self, num, skip_first_screenshot=False):
         "special_task_request-select": (992, commissions_y[self.server][num]),
         "special_task_task-info": (task_info_cross_x[self.server], 141),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
 

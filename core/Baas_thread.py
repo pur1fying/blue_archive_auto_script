@@ -1,5 +1,4 @@
 import copy
-import shutil
 from datetime import datetime
 import cv2
 from core.exception import ScriptError, RequestHumanTakeOver
@@ -14,8 +13,10 @@ from core.device.connection import Connection
 from core.device.uiautomator2_client import U2Client
 from core.pushkit import push
 import numpy as np
-import uiautomator2 as u2
 import module
+import requests
+
+from core.device.uiautomator2_client import BAAS_U2_Initer, __atx_agent_version__
 import threading
 import json
 import subprocess
@@ -63,7 +64,11 @@ func_dict = {
 
 
 class Baas_thread:
+
     def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
+        self.project_dir = os.path.abspath(os.path.dirname(__file__))
+        self.project_dir = os.path.dirname(self.project_dir)
+        self.u2_client = None
         self.u2 = None
         self.dailyGameActivity = None
         self.config_set = config
@@ -85,7 +90,7 @@ class Baas_thread:
         self.ratio = None
         self.next_time = None
         self.task_finish_to_main_page = False
-        self.static_config = None
+        self.static_config = self.config_set.static_config
         self.ocr = None
         self.logger = Logger(logger_signal)
         self.last_refresh_u2_time = 0
@@ -331,10 +336,24 @@ class Baas_thread:
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
-        if 'com.github.uiautomator' not in self.u2.app_list():
-            self.logger.info("ATX not found on stimulator, install")
-            self.u2.app_install("src/atx_app/ATX.apk")
+        _d = self.u2._wait_for_device()
+        if not _d:
+            raise RuntimeError("USB device %s is offline " + self.serial)
+        self.logger.info("Device [ " + self.serial + " ] is online.")
+
+        version_url = self.u2.path2url("/version")
+        try:
+            version = requests.get(version_url, timeout=3).text
+            if version != __atx_agent_version__:
+                raise EnvironmentError("atx-agent need upgrade")
+        except (requests.RequestException, EnvironmentError):
+            self.set_up_atx_agent()
         self.wait_uiautomator_start()
+        self.logger.info("Uiautomator2 service started.")
+
+    def set_up_atx_agent(self):
+        init = BAAS_U2_Initer(self.u2._adb_device, self.logger)
+        init.install()
 
     def send(self, msg, task=None):
         if msg == "start":
@@ -407,6 +426,21 @@ class Baas_thread:
         self.logger.info("            post_task        : " + str(task["post_task"]))
         self.logger.info("            }")
 
+    def update_create_priority(self):
+        for phase in range(1, 4):
+            cfg_key_name = 'createPriority_phase' + str(phase)
+            current_priority = self.config[cfg_key_name]
+            res = []
+            default_priority = self.static_config['create_default_priority'][self.config_set.server_mode]["phase" + str(phase)]
+            for i in range(0, len(current_priority)):
+                if current_priority[i] in default_priority:
+                    res.append(current_priority[i])
+            for j in range(0, len(default_priority)):
+                if default_priority[j] not in res:
+                    res.append(default_priority[j])
+            self.config[cfg_key_name] = res
+            self.config_set.set(cfg_key_name, res)
+
     def solve(self, activity) -> bool:
         try:
             return func_dict[activity](self)
@@ -424,6 +458,7 @@ class Baas_thread:
         img_possibles = {
             # 'normal_task_fight-pause': (908, 508),
             # 'normal_task_retreat-notice': (768, 507),
+            'main_page_game-download-resource-notice': (761, 504),
             "main_page_privacy-policy": (772, 501),
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
@@ -516,7 +551,7 @@ class Baas_thread:
 
     def init_rgb(self):
         try:
-            temp = 'src/rgb_feature/rgb_feature_' + self.server + '.json'
+            temp = self.project_dir + '/src/rgb_feature/rgb_feature_' + self.server + '.json'
             self.rgb_feature = json.load(open(temp, 'r', encoding='utf-8'))['rgb_feature']
             return True
         except Exception as e:
@@ -528,6 +563,7 @@ class Baas_thread:
         try:
             self.config = copy.deepcopy(self.config_set.config)
             self.config = self.operate_dict(self.config)
+            self.update_create_priority()
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")
@@ -777,8 +813,8 @@ class Baas_thread:
         subprocess.run(["shutdown", "-a"])
 
     def check_resolution(self):
-        self.u2 = U2Client.get_instance(self.serial).get_connection()
-        # self.check_atx_agent_cache()
+        self.u2_client = U2Client.get_instance(self.serial)
+        self.u2 = self.u2_client.get_connection()
         self.check_atx()
         self.last_refresh_u2_time = time.time()
         temp = self.resolution_uiautomator2()
@@ -800,3 +836,17 @@ class Baas_thread:
             except Exception as e:
                 print(e)
                 time.sleep(1)
+
+
+if __name__ == '__main__':
+    print(os.path.exists(
+        "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.1_linux_386\\atx-agent"))
+    # "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.0_linux_386\\atx-agent"
+    import uiautomator2
+
+    u2 = uiautomator2.connect("127.0.0.1:16512")
+    from core.utils import Logger
+
+    logger = Logger(None)
+    init = BAAS_U2_Initer(u2._adb_device, logger)
+    init.uninstall()

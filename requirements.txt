@@ -2,6 +2,7 @@ lmdb
 PyQt5
 numpy
 flask
+av == 12.0.0
 cnocr == 2.2.4.2
 imgaug
 win11toast
@@ -19,3 +20,4 @@ pyinstaller
 requests
 psutil
 tqdm
+

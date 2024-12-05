@@ -1,6 +1,7 @@
 import time
 from core import color, image
 from module.main_story import change_acc_auto
+from core.exception import RequestHumanTakeOver
 
 
 def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possibles=None, skip_first_screenshot=False,
@@ -103,9 +104,11 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                     self.click(tentitivex, tentitivey)
                     time.sleep(self.screenshot_interval)
                     fail_cnt = 0
+    if not self.flag_run:
+        raise RequestHumanTakeOver
 
 
-def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
+def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):  # pop ups which can appear at any time
     rgb_possibles = {
         "reward_acquired": (640, 100),
         "relationship_rank_up": (640, 100),
@@ -137,20 +140,16 @@ def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
                 return True, position
     img_possibles = {
         'CN': {
-            'main_page_news': (1142, 104),
-            'main_page_news2': (1142, 104),
-            'main_page_item-expire': (925, 119),
-            'main_page_renewal-month-card': (927, 109),
+
         },
         'JP': {
-            'main_page_news': (1142, 104),
-            'main_page_download-additional-resources': (769, 535),
+
         },
         'Global': {
-            'main_page_news': (1227, 56),
             'main_page_login-store': (883, 162),
             'main_page_net-work-unstable': (767, 501),
             'main_page_store-service-unavailable': (640, 500),
+            'main_page_request-failed-notice': (640, 513),
         }
     }
     img_possibles = img_possibles[self.server]
@@ -178,3 +177,22 @@ def choose_buff(self):
     }
     img_ends = "activity_buff-three-of-three"
     co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+GAME_ONE_TIME_POP_UPS = {
+    'CN': {
+        'main_page_news': (1142, 104),
+        'main_page_news2': (1142, 104),
+        'main_page_item-expire': (925, 119),
+        'main_page_renewal-month-card': (927, 109),
+    },
+    'JP': {
+        'main_page_news': (1142, 104),
+        'main_page_download-additional-resources': (769, 535),
+    },
+    'Global': {
+        'main_page_news': (1227, 56),
+        'main_page_item-expired-notice': (922, 159),
+        'main_page_item-expiring-notice': (931, 132)
+    }
+}

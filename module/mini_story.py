@@ -68,6 +68,7 @@ def to_mini_story(self, skip_first_screenshot=False):
         "mini_story_select-episode": (56, 40),
         'mini_story_episode-info': (916, 162),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 

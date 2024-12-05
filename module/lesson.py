@@ -1,21 +1,16 @@
 import time
 from core import color, picture
+from core.utils import build_possible_string_dict_and_length, most_similar_string
 
 
 def implement(self):
     self.quick_method_to_main_page()
     self.lesson_times = self.config["lesson_times"]
-    region_name = self.static_config["lesson_region_name"][self.server]
-    letter_dict = []
-    region_name_len = []
+    region_name = self.static_config["lesson_region_name"][self.server].copy()
     for i in range(0, len(region_name)):
-        letter_dict.append({})
-        temp = pre_process_lesson_name(self, region_name[i])
-        region_name_len.append(len(temp))
-        for j in range(0, len(temp)):
-            letter_dict[i].setdefault(temp[j], 0)
-            letter_dict[i][temp[j]] += 1
+        region_name[i] = pre_process_lesson_name(self, region_name[i])
 
+    letter_dict, region_name_len = build_possible_string_dict_and_length(region_name)
     click_lo = [[307, 257], [652, 257], [995, 257],
                 [307, 408], [652, 408], [995, 408],
                 [307, 560], [652, 560], [985, 560]]
@@ -128,21 +123,7 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
     while self.flag_run:
         name = self.ocr.get_region_res(self.latest_img_array, region[self.server], self.server, self.ratio)
         name = pre_process_lesson_name(self, name)
-        acc = []
-        detected_name_dict = {}
-        for i in range(0, len(name)):
-            detected_name_dict.setdefault(name[i], 0)
-            detected_name_dict[name[i]] += 1
-        detected_name_dict_keys = detected_name_dict.keys()
-        for i in range(0, len(letter_dict)):
-            cnt = 0
-            t = letter_dict[i].keys()
-            for j in t:
-                if j not in detected_name_dict_keys:
-                    continue
-                cnt = cnt + letter_dict[i][j] - abs(letter_dict[i][j] - detected_name_dict[j])
-            acc.append(cnt / region_name_len[i])
-        max_acc = max(acc)
+        max_acc, idx = most_similar_string(name, letter_dict, region_name_len)
         if max_acc < 0.5:
             self.logger.info("NOT FOUND")
             check_fail_times += 1
@@ -151,7 +132,7 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
             else:
                 self.latest_img_array = self.get_screenshot_array()
         else:
-            return acc.index(max_acc)
+            return idx
 
 
 def get_lesson_tickets(self):
@@ -201,6 +182,7 @@ def to_lesson_location_select(self, skip_first_screenshot=False):
         'lesson_purchase-lesson-ticket-notice': (920, 165),
         'lesson_purchase-lesson-ticket': (920, 165),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 
@@ -323,14 +305,15 @@ def get_lesson_each_region_status(self):
 
 
 def out_lesson_status(self, res):
-    message = "schedule status:"
+    self.logger.info("lesson status :")
+    message = ""
     for i in range(0, 9):
-        if i % 3 == 0:
-            message += "\n"
         message += "\t" + res[0][i]
         if res[0][i] == "available":
             message += " :" + str(res[1][i])
-    self.logger.info(message)
+        if i % 3 == 2:
+            self.logger.info(message)
+            message = ""
 
 
 def choose_lesson(self, res, region):

@@ -68,6 +68,7 @@ def to_group_story(self, skip_first_screenshot=False):
         "group_story_select-episode": (56, 40),
         'group_story_episode-info': (916, 162),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 

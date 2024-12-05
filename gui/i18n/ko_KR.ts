@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
@@ -317,7 +318,7 @@
     <message>
         <location filename="../util/config_translation.py" line="104"/>
         <source>B服</source>
-        <translation>비리비리 중섭</translation>
+        <translation>비리비리</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="105"/>
@@ -427,17 +428,17 @@
     <message>
         <location filename="../util/config_translation.py" line="133"/>
         <source>开</source>
-        <translation type="unfinished">열다</translation>
+        <translation>열다</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="134"/>
         <source>关</source>
-        <translation type="unfinished">닫다</translation>
+        <translation>닫다</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="135"/>
         <source>默认</source>
-        <translation type="unfinished">기본값</translation>
+        <translation>기본값</translation>
     </message>
 </context>
 <context>
@@ -876,15 +877,15 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>일반 스테이지 소탕 횟수
-(예: "1-1-1,1-2-3"은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
+(예: &quot;1-1-1,1-2-3&quot;은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회),
-구분은 쉼표로, 일본 서버와 해외 서버는 'max'로 입력할 수 있습니다:</translation>
+구분은 쉼표로, 일본 서버와 해외 서버는 &apos;max&apos;로 입력할 수 있습니다:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -1130,10 +1131,10 @@
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
-nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이터 
-주소'를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
+nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬레이터 
+주소&apos;를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="26"/>
@@ -1335,7 +1336,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
     <message>
         <location filename="../fragments/process.py" line="29"/>
         <source>当BAAS新增调度任务时,它的启用状态为</source>
-        <translation type="unfinished">새 스케줄링 작업이 BAAS에 추가되면 다음 상태로 활성화됩니다</translation>
+        <translation>새 스케줄링 작업이 BAAS에 추가되면 다음 상태로 활성화됩니다</translation>
     </message>
 </context>
 <context>
@@ -1407,12 +1408,12 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>B服</source>
-        <translation>비리비리 중섭</translation>
+        <translation>비리비리</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
         <source>国际服</source>
-        <translation>글로벌 서버</translation>
+        <translation>글로벌</translation>
     </message>
     <message>
         <location filename="../components/expand/serverConfig.py" line="26"/>
@@ -1804,19 +1805,19 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
-        <translation type="unfinished">구성 변환</translation>
+        <translation>켜다</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
-        <translation type="unfinished">구성 변환</translation>
+        <translation>끄다</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
-        <translation type="unfinished">구성 변환</translation>
+        <translation>기본</translation>
     </message>
 </context>
 <context>

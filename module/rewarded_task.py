@@ -174,8 +174,8 @@ def to_choose_bounty(self, skip_first_screenshot=False):
     }
     rgb_ends = "choose_bounty"
     rgb_possibles = {"main_page": (1198, 580)}
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles,
-                      skip_first_screenshot=skip_first_screenshot)
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
 def purchase_bounty_ticket(self, times):
