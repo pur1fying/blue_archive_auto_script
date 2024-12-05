@@ -94,22 +94,7 @@ class Layout(QWidget):
         self.config = config
         self.initiated = False
         self._init_layout()
-        self.update_create_priority()
 
-    def update_create_priority(self):
-        for phase in range(1, 4):
-            cfg_key_name = 'createPriority_phase' + str(phase)
-            current_priority = self.config.get(cfg_key_name)
-            res = []
-            default_priority = self.config.static_config['create_default_priority'][self.config.server_mode][
-                "phase" + str(phase)]
-            for i in range(0, len(current_priority)):
-                if current_priority[i] in default_priority:
-                    res.append(current_priority[i])
-            for j in range(0, len(default_priority)):
-                if default_priority[j] not in res:
-                    res.append(default_priority[j])
-            self.config.set(cfg_key_name, res)
 
     def _init_layout(self):
         self.viewLayout = QVBoxLayout(self)

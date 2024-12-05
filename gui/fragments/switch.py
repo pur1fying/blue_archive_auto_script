@@ -23,6 +23,7 @@ class SwitchFragment(ScrollArea):
         super().__init__(parent=parent)
         self.flowLayout = None
         self.config = config
+        self._config_update()
         # 创建一个QWidget实例作为滚动区域的内容部件
         self.scrollWidget = QWidget()
         # 创建一个ExpandLayout实例作为滚动区域的布局管理器
@@ -68,6 +69,35 @@ class SwitchFragment(ScrollArea):
     #     ]
     #     # 将_setting_cards列表中的SettingCard对象添加到basicGroup中
     #     self.basicGroup.addSettingCards(self._setting_cards)
+
+    def _config_update(self):
+        self._common_shop_config_update()
+        self._tactical_challenge_shop_config_update()
+        self._create_config_update()
+
+    def _common_shop_config_update(self):
+        default_goods = self.config.static_config['common_shop_price_list'][self.config.server_mode]
+        if len(self.config.get('CommonShopList')) != len(default_goods):
+            self.config.set('CommonShopList', len(default_goods) * [0])
+
+    def _tactical_challenge_shop_config_update(self):
+        default_goods = self.config.static_config['tactical_challenge_shop_price_list'][self.config.server_mode]
+        if len(self.config.get('TacticalChallengeShopList')) != len(default_goods):
+            self.config.set('TacticalChallengeShopList', len(default_goods) * [0])
+
+    def _create_config_update(self):
+        for phase in range(1, 4):
+            cfg_key_name = 'createPriority_phase' + str(phase)
+            current_priority = self.config.get(cfg_key_name)
+            res = []
+            default_priority = self.config.static_config['create_default_priority'][self.config.server_mode]["phase" + str(phase)]
+            for i in range(0, len(current_priority)):
+                if current_priority[i] in default_priority:
+                    res.append(current_priority[i])
+            for j in range(0, len(default_priority)):
+                if default_priority[j] not in res:
+                    res.append(default_priority[j])
+            self.config.set(cfg_key_name, res)
 
     def _lazy_load(self):
         # 根据_switch_config和_event_config列表的元素创建SettingCard对象，并将其添加到_setting_cards列表中
