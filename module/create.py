@@ -2,10 +2,11 @@ import re
 from core import color, image, picture
 from core.utils import build_possible_string_dict_and_length, most_similar_string
 
+
 def implement(self):
-    use_acceleration_ticket = self.config['use_acceleration_ticket']
-    left_create_times = self.config['createTime'] - self.config['alreadyCreateTime']
-    create_max_phase = self.config['create_phase']
+    use_acceleration_ticket = self.config_set.config['use_acceleration_ticket']
+    left_create_times = self.config_set.config['createTime'] - self.config_set.config['alreadyCreateTime']
+    create_max_phase = self.config_set.config['create_phase']
     self.logger.info("Left Create Times: [ " + str(left_create_times) + " ].")
     self.logger.info("Use Acceleration Ticket : [ " + str(use_acceleration_ticket).upper() + " ].")
     self.logger.info("Create Phase : [ " + str(create_max_phase) + " ].")
@@ -18,10 +19,11 @@ def implement(self):
         select_node(self, phase)
         confirm_select_node(self, 1)
         to_manufacture_store(self, True)
-    status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
     create_flag = True
     if left_create_times <= 0:
         create_flag = False
+        use_acceleration_ticket = False
+    status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
     while self.flag_run and create_flag:
         if status == ["unfinished", "unfinished", "unfinished"] and (not use_acceleration_ticket):
             self.logger.info("-- Stop Crafting --")
@@ -41,7 +43,8 @@ def implement(self):
                 need_acc_collect = True
                 self.config_set.config['alreadyCreateTime'] += 1
                 self.config_set.save()
-                self.logger.info("Today Total Create Times : [ " + str(self.config_set.config['alreadyCreateTime']) + " ].")
+                self.logger.info(
+                    "Today Total Create Times : [ " + str(self.config_set.config['alreadyCreateTime']) + " ].")
                 to_manufacture_store(self)
                 if self.config_set.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
@@ -99,7 +102,8 @@ def select_node(self, phase):
     for i in range(0, 5):
         if i != 0:
             image.click_until_image_disappear(self, node_x[i], node_y[i], region, 0.9, 10)
-        node_info = preprocess_node_info(self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
+        node_info = preprocess_node_info(
+            self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
         self.logger.info("Ocr Node " + str(i + 1) + " : " + node_info)
         for k in range(0, len(pri)):
             if pri[k] == node_info:  # complete match
@@ -123,7 +127,7 @@ def select_node(self, phase):
                 self.logger.warning("Node [ " + str(node_info) + " ] can't be recognized.")
                 self.logger.warning("If it's a new node, please contact the developer to update default node list.")
 
-    self.logger.info("Detected Nodes:" )
+    self.logger.info("Detected Nodes:")
     self.logger.info(str(node))
     for i in range(1, len(pri)):
         for j in range(0, len(node)):
@@ -405,7 +409,6 @@ def filter_list_ensure_choose(self, filter_list, flg):
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-
 def set_display_setting_filter_list_select_all(self, state):
     if self.server == "CN":
         if state:
@@ -503,7 +506,8 @@ def get_next_execute_time(self, status):
                 if res[j][0] == "0":
                     res[j] = res[j][1:]
             self.logger.info(
-                "ITEM " + str(i + 1) + " Crafting time: " + res[0] + "\tHOUR " + res[1] + "\tMINUTES " + res[2] + "\tSECONDS")
+                "ITEM " + str(i + 1) + " Crafting time: " + res[0] + "\tHOUR " + res[1] + "\tMINUTES " + res[
+                    2] + "\tSECONDS")
             time_deltas.append(int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2]))
     if time_deltas:
         self.next_time = min(time_deltas)
@@ -784,7 +788,8 @@ def item_recognize(self, check_state):
             holding_quantity = 0
             # detect name
             while self.flag_run:
-                pos, max_val = image.search_in_area(self, compare_img_name, item_image_region, threshold, 10, ret_max_val=True)
+                pos, max_val = image.search_in_area(self, compare_img_name, item_image_region, threshold, 10,
+                                                    ret_max_val=True)
                 if max_val < threshold:
                     if max_val > max_similarity:
                         max_similarity = max_val
