@@ -3068,9 +3068,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "reckless_nun_and_the_witch_in_the_old_library",
+        "CN": null,
         "Global": null,
-        "JP": "SunlightGirlsNightSong"
+        "JP": null
     },
     "dailyGameActivity": {
         "CN": null,
