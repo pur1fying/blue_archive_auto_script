@@ -5,8 +5,8 @@ from core.utils import build_possible_string_dict_and_length, most_similar_strin
 
 def implement(self):
     use_acceleration_ticket = self.config_set.config['use_acceleration_ticket']
-    left_create_times = self.config_set.config['createTime'] - self.config_set.config['alreadyCreateTime']
-    create_max_phase = self.config_set.config['create_phase']
+    left_create_times = int(self.config_set.config['createTime']) - int(self.config_set.config['alreadyCreateTime'])
+    create_max_phase = int(self.config_set.config['create_phase'])
     self.logger.info("Left Create Times: [ " + str(left_create_times) + " ].")
     self.logger.info("Use Acceleration Ticket : [ " + str(use_acceleration_ticket).upper() + " ].")
     self.logger.info("Create Phase : [ " + str(create_max_phase) + " ].")
