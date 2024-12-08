@@ -32,7 +32,10 @@ def implement(self):
         for i in range(0, len(status)):
             if status[i] == "empty":
                 to_phase1(self, i, True)
-                create_phase(self, 1)
+                material_adequate = create_phase(self, 1)
+                if not material_adequate:
+                    create_flag = False
+                    break
                 if create_max_phase >= 2:
                     confirm_select_node(self, 0)
                     create_phase(self, 2)
@@ -154,17 +157,23 @@ def create_phase(self, phase):
     expected_item_list = item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     # select item according to the config
     check_state = CreateItemCheckState(expected_item_list, sort_type, sort_direction, phase, self)
+    item_selected = False
     while self.flag_run:
         check_state.clear_exist_item()
         item_recognize(self, check_state)
         if check_state.try_choose_item():
+            item_selected = True
             break
         if check_state.item_all_checked():
             break
         check_state.list_swipe()
     log_detect_information(self, check_state.exist_item_list, "All Detected Items : ")
+    if not item_selected:
+        self.logger.warning("Material inadequate.")
+        return False
     start_phase(self, phase)
     select_node(self, phase)
+    return True
 
 
 def select_item(self, check_state, item_name, weight):
