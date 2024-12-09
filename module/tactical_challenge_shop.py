@@ -49,9 +49,11 @@ def implement(self):
             tactical_challenge_assets = tactical_challenge_assets - asset_required
             self.logger.info("left assets : " + str(tactical_challenge_assets))
             to_shop_menu(self)
-        else:
+        elif state == "shop_purchase-unavailable":
             self.logger.info("-- Purchase Unavailable --")
             return True
+        elif state == "shop_refresh-button-appear":
+            self.logger.warning("Refresh Button Detected, assume item purchased previously.")
         self.latest_img_array = self.get_screenshot_array()
         if i != refresh_time:
             if tactical_challenge_assets >= refresh_price[i] + asset_required:
@@ -69,8 +71,9 @@ def get_purchase_state(self):
     img_ends = [
         "shop_purchase-available",
         "shop_purchase-unavailable",
+        "shop_refresh-button-appear",
     ]
-    return picture.co_detect(self, None, None, img_ends, None, True)
+    return picture.co_detect(self, None, None, img_ends, None, False)
 
 
 def confirm_refresh(self):

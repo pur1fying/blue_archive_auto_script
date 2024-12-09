@@ -11,5 +11,6 @@ x_y_range = {
     'coin-type-creditpoints-grey': (637, 305, 682, 341),
     'purchase-available': (1121, 644, 1213, 678),
     # 'purchase-unavailable': (1121, 644, 1213, 678), jp don't have this
+    'refresh-button-appear': (1102, 644, 1213, 678),
 
 }

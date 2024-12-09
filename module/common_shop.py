@@ -57,9 +57,11 @@ def implement(self):
             picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
             assets = calculate_left_assets(self, assets, asset_required)
             to_common_shop(self)
-        else:
+        elif state == "shop_purchase-unavailable":
             self.logger.info("Purchase Unavailable")
             return True
+        elif state == "shop_refresh-button-appear":
+            self.logger.warning("Refresh Button Detected, assume item purchased previously.")
         if i != refresh_time:
             if assets['pyroxene'] != -1 and assets['pyroxene'] > refresh_price[i]:
                 self.logger.info("Refresh assets adequate")
