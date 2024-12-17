@@ -542,6 +542,12 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "main_story_final_episode_num": 6,
+    "main_story_available_episodes": {
+        "CN": [2, 3, 4, 5, 6],
+        "Global": [2, 3, 4, 5, 6, 7],
+        "JP": [1, 2, 3, 4, 5, 6, 7, 8]
+    },
     "explore_normal_task_region_range": [4, 27],
     "explore_hard_task_region_range": [1, 27],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],

@@ -8,4 +8,5 @@ x_y_range = {
     "change-unit-formation": (450, 74, 835, 108),
     "self-formation": (100, 9, 300, 40),
     'formation-edit': (100, 9, 300, 40),
+    'edit-self-formation': (550, 74, 735, 108)
 }
