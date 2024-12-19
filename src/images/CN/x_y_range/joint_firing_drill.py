@@ -15,7 +15,8 @@ x_y_range = {
 
     "Shooting-fighting": (1020, 108, 1100, 127),
     "Shooting-open": (1021, 141, 1098, 161),
-    # "Shooting-lock": (),
+    "Shooting-lock": (1046, 217, 1180, 261),
+
     "Shooting-next": (1021, 141, 1098, 161),
 
     "fight-1-finished": (747, 650, 777, 686),
