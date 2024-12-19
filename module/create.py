@@ -60,6 +60,11 @@ def implement(self):
 
 
 def confirm_select_node(self, tp=0):
+    """
+        click select node then
+        if tp = 0 : go to put more material page
+           tp = 1 : confirm create --> return to manufacture store
+    """
     p = [(854, 654), (1116, 648)]
     p = p[tp]
     img_possibles = {
@@ -142,6 +147,9 @@ def select_node(self, phase):
 
 
 def get_display_setting(self, phase):
+    """
+        return filter_list, sort_type, sort_direction
+    """
     if phase == 1:
         return [1, 1, 1, 1, 1, 1, 1, 1], "basic", "up"
     if phase == 2:
