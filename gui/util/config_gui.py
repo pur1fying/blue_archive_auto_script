@@ -1,10 +1,9 @@
-import json
-import os
 import sys
 
 from PyQt5.QtCore import QLocale, pyqtSignal
 from qfluentwidgets import (BoolValidator, ColorConfigItem, ConfigItem, ConfigSerializer,
                             OptionsConfigItem, OptionsValidator, QConfig, qconfig, setThemeColor)
+
 from gui.util.language import Language
 
 
@@ -31,8 +30,10 @@ class ConfigGui(QConfig):
         "MainWindow", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True)
     language = OptionsConfigItem(
         "MainWindow", "Language", Language.ENGLISH, OptionsValidator(Language), LanguageSerializer(), restart=True)
-    configLoadType = OptionsConfigItem(
+    configDisplayType = OptionsConfigItem(
         "MainWindow", "configLoadType", "Card", OptionsValidator(["Card", "List"]), restart=True)
+    cardDisplayType = OptionsConfigItem(
+        "MainWindow", "cardDisplayType", "withImage", OptionsValidator(["withImage", "plainText"]), restart=True)
 
 
 configGui = ConfigGui()

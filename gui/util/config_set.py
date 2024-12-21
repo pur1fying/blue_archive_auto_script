@@ -1,54 +1,9 @@
 import json
+import os
 import re
 
-from PyQt5.QtCore import QObject
-from PyQt5.QtGui import QColor
-from qfluentwidgets import qconfig
-
+from gui.util.customed_ui import BoundComponent
 from gui.util.translator import baasTranslator as bt
-import os
-
-class BoundComponent(QObject):
-    """
-    BoundComponent is a class that binds a component to a string rule. The string rule is a string that contains
-    placeholders that are keys in the config. When the config is updated, the component will be updated with the new
-    value. The rule string is a definition of how the component should be updated. For example, if the rule is
-    "Title: {title} - Subtitle: {subtitle}", the component will be updated with the new value of the title and subtitle
-    keys in the config.
-
-    :param component: Component to bind
-    :param string_rule: String rule to bind
-    :param config_manager: Config manager
-    :param attribute: Attribute to bind (default is setText)
-    """
-
-    def __init__(self, component, string_rule, config_manager, attribute="setText"):
-        super().__init__()
-        self.component = component
-        self.attribute = attribute
-        self.string_rule = string_rule
-        self.config_manager = config_manager
-        qconfig.themeChanged.connect(self._color_change)
-        self.update_component()  # 初始化时更新组件
-
-    def _color_change(self):
-        self.component.setTextColor(QColor(0, 0, 0) if qconfig.theme.name == "LIGHT" else QColor(255, 255, 255)
-                                    , QColor(255, 255, 255) if qconfig.theme.name == "LIGHT" else QColor(0, 0, 0))
-
-    def update_component(self):
-        """ Update the component with the new value """
-        # Replace the keys in the rule with the values in the config
-        new_value = self.string_rule
-        keys_in_rule = re.findall(r'{(.*?)}', self.string_rule)
-        for key in keys_in_rule:
-            new_value = new_value.replace(f'{{{key}}}', self.config_manager.config.get(key, ''))
-
-        # Dynamic call the attribute function of the component
-        getattr(self.component, self.attribute)(new_value)
-
-    def config_updated(self, key):
-        if f'{{{key}}}' in self.string_rule:
-            self.update_component()
 
 
 class ConfigSet:
@@ -64,10 +19,10 @@ class ConfigSet:
         self.static_config = None
         self.config_dir = None
         self.static_config_path = None
-        if os.path.exists(f'config/{config_dir}/config.json'):      # relative path
+        if os.path.exists(f'config/{config_dir}/config.json'):  # relative path
             self.config_dir = os.path.abspath(f'config/{config_dir}')
             self.static_config_path = os.path.dirname(self.config_dir) + '/static.json'
-        elif os.path.exists(f'{config_dir}/config.json'):           # absolute path
+        elif os.path.exists(f'{config_dir}/config.json'):  # absolute path
             self.config_dir = config_dir
             self.static_config_path = os.path.abspath(os.path.dirname(config_dir) + '/static.json')
         else:
@@ -168,5 +123,3 @@ class ConfigSet:
             if entry not in self.config["create_item_holding_quantity"]:
                 self.config["create_item_holding_quantity"][entry] = -1
         self.save()
-
-
