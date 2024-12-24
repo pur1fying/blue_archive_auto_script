@@ -161,8 +161,8 @@ def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge")
     tasks = [
-        # "challenge2_sss",
-        # "challenge2_task",
+        "challenge2_sss",
+        "challenge2_task",
         "challenge4_sss",
         "challenge4_task",
     ]
