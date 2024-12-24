@@ -3076,7 +3076,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "D_U_ShiratoriWardRestorationWork",
         "Global": null,
-        "JP": null
+        "JP": "SecretMidnightParty"
     },
     "dailyGameActivity": {
         "CN": null,
