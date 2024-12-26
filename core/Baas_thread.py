@@ -517,6 +517,7 @@ class Baas_thread:
                 "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
                 "main_page_net-work-unstable": (753, 500),
+                'main_page_fail-to-load-game-resources': (740, 437),
             },
             'JP': {
                 'main_page_news': (1142, 104),
