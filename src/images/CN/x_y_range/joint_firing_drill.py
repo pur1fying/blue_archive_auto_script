@@ -6,10 +6,10 @@ x_y_range = {
     # "Assault-fighting": (),
     "Assault-open": (96, 162, 171, 181),
     "Assault-lock": (118, 235, 253, 282),
-    # "Assault-next": (),
+    "Assault-next": (91, 162, 171, 181),
 
-    # "Defense-fighting": (),
-    # "Defense-open": (),
+    "Defense-fighting": (622, 157, 704, 177),
+    "Defense-open": (624, 192, 704, 214),
     "Defense-lock": (648, 268, 781, 307),
     "Defense-next": (623, 191, 702, 216),
 
