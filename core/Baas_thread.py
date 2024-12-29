@@ -1,7 +1,7 @@
 import copy
 from datetime import datetime
 import cv2
-from core.exception import ScriptError, RequestHumanTakeOver
+from core.exception import ScriptError, RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
 from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
@@ -431,7 +431,8 @@ class Baas_thread:
             cfg_key_name = 'createPriority_phase' + str(phase)
             current_priority = self.config[cfg_key_name]
             res = []
-            default_priority = self.static_config['create_default_priority'][self.config_set.server_mode]["phase" + str(phase)]
+            default_priority = self.static_config['create_default_priority'][self.config_set.server_mode][
+                "phase" + str(phase)]
             for i in range(0, len(current_priority)):
                 if current_priority[i] in default_priority:
                     res.append(current_priority[i])
@@ -442,13 +443,71 @@ class Baas_thread:
             self.config_set.set(cfg_key_name, res)
 
     def solve(self, activity) -> bool:
-        try:
-            return func_dict[activity](self)
-        except Exception as e:
-            if self.flag_run:
-                self.logger.error(e.__str__())
-                threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
-            return False
+        for i in range(0, 3):
+            if i != 0:
+                self.logger.info("Retry Task " + activity + " " + str(i))
+            try:
+                return func_dict[activity](self)
+            except FunctionCallTimeout:
+                if not self.deal_with_func_call_timeout():
+                    threading.Thread(target=self.simple_error, args=("Failed to Restart Game",)).start()
+                    return False
+            except PackageIncorrect as e:
+                pkg = e.message
+                if not self.deal_with_package_incorrect(pkg):
+                    threading.Thread(target=self.simple_error, args=("Failed to Restart Game",)).start()
+                    return False
+            except Exception as e:
+                if self.flag_run:
+                    self.logger.error(e.__str__())
+                    threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
+                return False
+
+    def deal_with_package_incorrect(self, curr_pkg):
+        """
+            1. no exception
+        """
+        self.logger.info("Handle package incorrect")
+        self.logger.warning("Package incorrect")
+        self.logger.warning("Expected: " + self.package_name)
+        self.logger.warning("Get     : " + curr_pkg)
+        self.logger.warning("Restarting game")
+        for i in range(0, 3):
+            if i != 0:  # skip first time check
+                package = self.connection.get_current_package()
+                if package == self.package_name:
+                    self.logger.info("current app is target app, close the game and call task restart")
+                    self.connection.close_current_app(package)
+            try:
+                func_dict['restart'](self)
+                return True
+            except RequestHumanTakeOver:
+                return False
+            except Exception as e:
+                pass
+        return False
+
+    def deal_with_func_call_timeout(self):
+        """
+            deal with co_detect function time out with following logic
+            1.current app is target app --> close the game and call task restart
+            2.current app is not target app --> call task restart
+            3.this func will not raise exception
+        """
+        self.logger.info("Handle function call timeout")
+        package = self.connection.get_current_package()
+        if package != self.package_name:
+            self.deal_with_package_incorrect(package)
+        else:
+            for i in range(0, 3):
+                self.logger.info("current app is target app, close the game and call task restart")
+                self.connection.close_current_app(package)
+            try:
+                func_dict['restart'](self)
+                return True
+            except Exception as e:
+                pass
+        return False
 
     def simple_error(self, info: str):
         push(self.logger, self.config, info)
@@ -545,7 +604,7 @@ class Baas_thread:
             # "fighting_feature": (1226, 51)
         }
         picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot,
-                          tentitive_click=True)
+                          tentative_click=True)
 
     def init_image_resource(self):
         return position.init_image_data(self)

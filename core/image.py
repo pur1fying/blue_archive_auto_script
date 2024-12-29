@@ -4,8 +4,7 @@ from core import position, color
 
 
 def screenshot_cut(self, area):
-    return self.latest_img_array[int(area[1] * self.ratio):int(area[3] * self.ratio),
-           int(area[0] * self.ratio):int(area[2] * self.ratio), :]
+    return self.latest_img_array[int(area[1] * self.ratio):int(area[3] * self.ratio),int(area[0] * self.ratio):int(area[2] * self.ratio), :]
 
 
 def img_cut(img, area):
@@ -72,15 +71,6 @@ def detect(self, end=None, possibles=None, pre_func=None, pre_argv=None, skip_fi
 
 def getImageByName(self, name):
     return position.image_dic[self.server][name]
-
-
-def click_to_disappear(self, img_possible, x, y):
-    msg = 'find : ' + img_possible
-    while self.flag_run and compare_image(self, img_possible, need_log=False):
-        self.logger.info(msg)
-        self.click(x, y, wait_over=True)
-        self.update_screenshot_array()
-    return True
 
 
 def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=20, ret_max_val=False):
