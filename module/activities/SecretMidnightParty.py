@@ -307,11 +307,12 @@ def to_story_task_info(self, number):
 
 
 def to_mission_task_info(self, number):
-    lo = [0, 200, 320, 425, 545]
-    index = [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
-    if number in [5, 6, 7, 8]:
-        self.swipe(916, 562, 916, 60, duration=0.5, post_sleep_time=0.7)
-    if number in [9, 10, 11, 12]:
+    lo = [0, 200, 320, 425, 545, 656]
+    index = [1, 2, 3, 4, 5, 4, 5, 1, 2, 3, 4, 5]
+    if number in [6, 7]:
+        self.u2_swipe(916, 562, 916, 272, duration=0.5, post_sleep_time=0.7)
+    if number in [8, 9, 10, 11, 12]:
+        self.swipe(943, 569, 943, 0, duration=0.1, post_sleep_time=0.7)
         self.swipe(943, 569, 943, 0, duration=0.1, post_sleep_time=0.7)
     possibles = {'activity_menu': (1124, lo[index[number - 1]])}
     ends = ["normal_task_task-info", "activity_task-info"]
@@ -354,7 +355,10 @@ def start_sweep(self, skip_first_screenshot=False):
         "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
     ]
-    img_possibles = {"normal_task_task-info": (941, 411)}
+    img_possibles = {
+        "normal_task_task-info": (941, 411),
+        "activity_task-info": (941, 411),
+    }
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice-localized" or res == "buy_ap_notice":
         return "inadequate_ap"
