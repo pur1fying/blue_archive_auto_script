@@ -312,7 +312,15 @@ def invite_girl(self, no=1):
     if to_invitation_ticket(self, True) == 'cafe_invitation-ticket-invalid':
         self.logger.info("Invitation Ticket Not Available")
         return
+
     method = self.config['cafe_reward_invite' + str(no) + '_criterion']
+    target_name_list = self.config['favorStudent' + str(no)]
+
+    if len(target_name_list) == 0:
+        self.logger.warning("Current mode is invite target student but no student name configured in favorStudent" + str(no))
+        self.logger.warning("Current mode fallback to invite by lowest affection")
+        invite_by_affection(self, 'lowest')
+        return
     if method == 'lowest_affection':
         invite_by_affection(self, 'lowest')
         return
@@ -325,7 +333,6 @@ def invite_girl(self, no=1):
         return
     # name
     student_name = get_student_name(self)  # all student name in current server
-    target_name_list = self.config['favorStudent' + str(no)]
     student_name.sort(key=len, reverse=True)
     self.logger.info("Inviting : " + str(target_name_list))
     for i in range(0, len(target_name_list)):
