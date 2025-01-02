@@ -313,13 +313,7 @@ def invite_girl(self, no=1):
         return
 
     method = self.config['cafe_reward_invite' + str(no) + '_criterion']
-    target_name_list = self.config['favorStudent' + str(no)]
 
-    if len(target_name_list) == 0:
-        self.logger.warning("Current mode is invite target student but no student name configured in favorStudent" + str(no))
-        self.logger.warning("Current mode fallback to invite by lowest affection")
-        invite_by_affection(self, 'lowest')
-        return
     if method == 'lowest_affection':
         invite_by_affection(self, 'lowest')
         return
@@ -329,6 +323,14 @@ def invite_girl(self, no=1):
     elif method == 'starred':
         position = self.config["cafe_reward_invite" + str(no) + "_starred_student_position"]
         invite_starred(self, position)
+        return
+    
+    target_name_list = self.config['favorStudent' + str(no)]
+
+    if len(target_name_list) == 0:
+        self.logger.warning("Current mode is invite target student but no student name configured in favorStudent" + str(no))
+        self.logger.warning("Current mode fallback to invite by lowest affection")
+        invite_by_affection(self, 'lowest')
         return
     # name
     student_name = get_student_name(self)  # all student name in current server
