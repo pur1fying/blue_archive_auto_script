@@ -566,12 +566,12 @@ class Baas_thread:
             'activity_fight-success-confirm': (640, 663),
             "total_assault_reach-season-highest-record": (640, 528),
             "total_assault_total-assault-info": (1165, 107),
+            "cafe_cafe-reward-status": (985, 147),
         }
         update = {
             'CN': {
                 'main_page_news': (1142, 104),
                 'main_page_news2': (1142, 104),
-                'cafe_cafe-reward-status': (905, 159),
                 'normal_task_task-info': (1126, 115),
                 "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
@@ -580,7 +580,6 @@ class Baas_thread:
             },
             'JP': {
                 'main_page_news': (1142, 104),
-                "cafe_cafe-reward-status": (985, 147),
                 'normal_task_task-info': (1126, 115),
                 "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
                 "special_task_task-info": (1126, 141),
@@ -589,7 +588,6 @@ class Baas_thread:
             'Global': {
                 'main_page_news': (1227, 56),
                 "special_task_task-info": (1126, 141),
-                'cafe_cafe-reward-status': (985, 147),
                 'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),

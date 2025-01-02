@@ -236,12 +236,7 @@ def to_manufacture_store(self, skip_first_screenshot=False):
 
 
 def check_crafting_list_status(self):
-    y_position = {
-        'CN': [312, 452, 594],
-        'Global': [288, 407, 534],
-        'JP': [288, 407, 534]
-    }
-    y_position = y_position[self.server]
+    y_position = [312, 452, 594]
     status = [None, None, None]
     for j in range(0, 3):
         if color.judge_rgb_range(self, 1126, y_position[j], 90, 130, 200, 230, 245, 255):
@@ -265,36 +260,18 @@ def receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket
 
 
 def collect(self, status, use_acceleration_ticket):
-    if self.server == 'JP' or self.server == 'Global':
-        if "finished" in status:
-            self.click(1126, 617, wait_over=True, duration=1.5)
-            self.click(640, 100, wait_over=True, count=2)
-            to_manufacture_store(self)
-        if ("unfinished" in status) and use_acceleration_ticket:
-            img_possibles = {"create_crafting-list": (1126, 617)}
-            img_ends = "create_complete-instantly"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            img_possibles = {"create_complete-instantly": (766, 516)}
-            img_ends = "create_crafting-list"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-        return
-    y_position = {
-        'CN': [312, 452, 594],
-    }
-    y_position = y_position[self.server]
-    for i in range(0, 3):
-        if status[i] == "unfinished" and use_acceleration_ticket:
-            img_possibles = {"create_crafting-list": (1126, y_position[i])}
-            img_ends = "create_complete-instantly"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            img_possibles = {"create_complete-instantly": (766, 516)}
-            img_ends = "create_crafting-list"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            status[i] = "finished"
-        if status[i] == "finished":
-            self.click(1126, y_position[i], wait_over=True, duration=1.5)
-            self.click(640, 100, wait_over=True, count=2)
-            to_manufacture_store(self)
+    if "finished" in status:
+        self.click(1126, 617, wait_over=True, duration=1.5)
+        self.click(640, 100, wait_over=True, count=2)
+        to_manufacture_store(self)
+    if ("unfinished" in status) and use_acceleration_ticket:
+        img_possibles = {"create_crafting-list": (1126, 617)}
+        img_ends = "create_complete-instantly"
+        picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        img_possibles = {"create_complete-instantly": (766, 516)}
+        img_ends = "create_crafting-list"
+        picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    return
 
 
 def check_create_availability(self):

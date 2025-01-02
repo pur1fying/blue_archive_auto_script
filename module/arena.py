@@ -44,12 +44,12 @@ def choose_enemy(self):
     self.logger.info("less level acceptable: " + str(less_level))
     self.logger.info("max refresh times: " + str(max_refresh))
     self_level_region = {
-        'CN': (165, 215, 208, 250),
+        'CN': (213, 190, 247, 213),
         'Global': (196, 192, 224, 213),
         'JP': (196, 192, 224, 213),
     }
     opponent_level_region = {
-        'CN': (551, 298, 581, 317),
+        'CN': (509, 291, 535, 317),
         'Global': (490, 298, 515, 317),
         'JP': (496, 291, 520, 315),
     }
