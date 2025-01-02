@@ -27,6 +27,7 @@ from module import explore_activity_challenge
 from module import explore_activity_mission
 from module import sweep_activity
 from module import dailyGameActivity
-from module import cafe_invite
+from module import no1_cafe_invite
+from module import no2_cafe_invite
 from module import friend
 from module import joint_firing_drill
