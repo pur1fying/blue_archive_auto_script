@@ -5,8 +5,8 @@ from core import color, picture, image
 def implement(self):
     self.quick_method_to_main_page()
     to_mini_story(self, True)
-    time.sleep(1)
-    self.latest_img_array = self.get_screenshot_array()
+    time.sleep(1)   # wait for the page to load, if not loaded, region status will be all false
+    self.update_screenshot_array()
     while self.flag_run:
         need_check_next_page = judge_need_check_next_page(self)
         region_status = check_6_region_status(self)
