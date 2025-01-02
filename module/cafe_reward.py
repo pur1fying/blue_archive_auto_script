@@ -237,9 +237,9 @@ def change_order_type(self, order_type):
     to_revise_order_type(self)
     order_type_location = {
         'CN': {
-            "academy": (534, 256),
-            "affection": (746, 256),
-            "starred": (534, 317),
+            "academy": (754, 267),
+            "affection": (529, 322),
+            "starred": (532, 263),
         },
         'Global': {
             "name": (534, 256),
@@ -324,7 +324,7 @@ def invite_girl(self, no=1):
         position = self.config["cafe_reward_invite" + str(no) + "_starred_student_position"]
         invite_starred(self, position)
         return
-    
+
     target_name_list = self.config['favorStudent' + str(no)]
 
     if len(target_name_list) == 0:
