@@ -152,6 +152,6 @@ def check_skip_button(self):
     self.logger.info("Check Arena Skip Button.")
     rgb_ends = "arena_skip_on"
     rgb_possibles = {
-        'arena_skip_on': (1225, 608),
+        'arena_skip_off': (1225, 608)
     }
     picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)

@@ -15,6 +15,7 @@ def implement(self):
         exchange_reward(self)
     return True
 
+
 # def explore_story(self):
 #     self.quick_method_to_main_page()
 #     to_activity(self, "story", True, True)
@@ -175,7 +176,7 @@ def explore_mission(self):
         to_formation_edit_i(self, number, (940, 538), True)
         start_fight(self, number)
         main_story.auto_fight(self)
-        to_activity(self, "challenge")
+        to_activity(self, "story", True, True)
         to_activity(self, "mission", True, True)
 
 
@@ -247,21 +248,26 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         return True
     rgb_lo = {
         "mission": 863,
-        "challenge": 951,
+        "story": 688,
+        "challenge": 1046,
     }
     click_lo = {
-        "mission": 939,
+        "mission": 1027,
+        "story": 848,
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
-            self.click(click_lo[region], 76)
+        if not color.judge_rgb_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
+            self.click(click_lo[region], 87)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
         else:
-            if region == "mission" and need_swipe:
-                self.u2_swipe(919, 153, 943, 720, duration=0.05, post_sleep_time=0.5)
-                self.u2_swipe(919, 153, 943, 720, duration=0.05, post_sleep_time=0.5)
+            if need_swipe:
+                if region == "mission":
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
+                elif region == "story":
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
             return True
 
 
@@ -332,6 +338,8 @@ def start_sweep(self, skip_first_screenshot=False):
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
+
+
 def exchange_reward(self):
     to_activity(self, "story", True)
     to_exchange(self, True)
@@ -344,7 +352,7 @@ def exchange_reward(self):
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
     while 1:
         while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
-            self.click(453, 651, wait_over=True, duration = 0.5)
+            self.click(453, 651, wait_over=True, duration=0.5)
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
@@ -396,6 +404,7 @@ def get_exchange_assets(self):
         "Global": (710, 98, 805, 130),
     }
     return self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
+
 
 def check_sweep_availability(self, plot):
     if plot == "activity_task-info":
