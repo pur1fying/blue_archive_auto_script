@@ -16,27 +16,27 @@ def implement(self):
     return True
 
 
-# def explore_story(self):
-#     self.quick_method_to_main_page()
-#     to_activity(self, "story", True, True)
-#     last_target_task = 1
-#     total_stories = 8
-#     while self.flag_run:
-#         plot = to_story_task_info(self, last_target_task)
-#         res = check_sweep_availability(self, plot)
-#         while res == "sss" and last_target_task <= total_stories - 1:
-#             self.logger.info("Current story sss check next story")
-#             self.click(1168, 353, duration=1, wait_over=True)
-#             last_target_task += 1
-#             plot = picture.co_detect(self, img_ends=["activity_task-info","normal_task_task-info",
-#                                                      "main_story_episode-info"])
-#             res = check_sweep_availability(self, plot)
-#         if last_target_task == total_stories and res == "sss":
-#             self.logger.info("All STORY SSS")
-#             return True
-#         start_story(self)
-#         to_activity(self, "mission", True)
-#         to_activity(self, "story", True, True)
+def explore_story(self):
+    self.quick_method_to_main_page()
+    to_activity(self, "story", True, True)
+    last_target_task = 1
+    total_stories = 13
+    while self.flag_run:
+        plot = to_story_task_info(self, last_target_task)
+        res = check_sweep_availability(self, plot)
+        while res == "sss" and last_target_task <= total_stories - 1:
+            self.logger.info("Current story sss check next story")
+            self.click(1168, 353, duration=1, wait_over=True)
+            last_target_task += 1
+            plot = picture.co_detect(self, img_ends=["activity_task-info","normal_task_task-info",
+                                                     "main_story_episode-info"])
+            res = check_sweep_availability(self, plot)
+        if last_target_task == total_stories and res == "sss":
+            self.logger.info("All STORY SSS")
+            return True
+        start_story(self)
+        to_activity(self, "mission", True)
+        to_activity(self, "story", True, True)
 
 
 def preprocess_activity_region(region):
@@ -268,17 +268,23 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
                     self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
                 elif region == "story":
                     self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
+                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
             return True
 
 
 def to_story_task_info(self, number):
-    lo = [0, 184, 277, 375, 480, 574]
-    index = [0, 1, 2, 3, 4, 5, 3, 4, 5]
-    if number in [6, 7, 8, 9, 10]:
+    lo = [0, 184, 297, 392, 492, 592, 674, 674, 159, 249, 349, 449, 549]
+    if number == 7:
+        self.u2_swipe(943, 636, 943, 475, duration=0.6, post_sleep_time=0.7)
+    elif number >= 8:
         self.swipe(943, 593, 943, 0, duration=0.1, post_sleep_time=0.7)
-    img_possibles = {'activity_menu': (1124, lo[index[number]])}
-    img_ends = "normal_task_task-info"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        self.swipe(943, 593, 943, 0, duration=0.1, post_sleep_time=0.7)
+    img_possibles = {'activity_menu': (1124, lo[number])}
+    img_ends = [
+        "activity_task-info",
+        "normal_task_task-info"
+    ]
+    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def to_mission_task_info(self, number):
