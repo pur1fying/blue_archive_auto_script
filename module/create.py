@@ -476,7 +476,7 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     self.logger.info("Sort Direction : " + sort_direction)
     result = []
     filter_type_list = self.static_config['create_filter_type_list']
-    if filter_list[6] and not (self.server == 'CN' and phase == 3):
+    if filter_list[6]:
         # when material is chosen key stone will be displayed at the top
         # CN server phase 3 key stone is not allowed to be chosen
         temp = self.static_config['create_item_order'][self.server]["basic"]["Special"]
