@@ -236,7 +236,7 @@ def to_manufacture_store(self, skip_first_screenshot=False):
 
 
 def check_crafting_list_status(self):
-    y_position = [312, 452, 594]
+    y_position = [288, 407, 534]
     status = [None, None, None]
     for j in range(0, 3):
         if color.judge_rgb_range(self, 1126, y_position[j], 90, 130, 200, 230, 245, 255):
@@ -284,24 +284,14 @@ def check_create_availability(self):
 
 
 def to_phase1(self, i, skip_first_screenshot=False):
-    y_position = {
-        'CN': [312, 452, 594],
-        'Global': [288, 407, 534],
-        'JP': [288, 407, 534]
-    }
-    y_position = y_position[self.server]
+    y_position = [288, 407, 534]
     img_possibles = {"create_crafting-list": (1153, y_position[i])}
     img_ends = "create_material-list"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
 
 def to_filter_menu(self):
-    x = {
-        'CN': 946,
-        'Global': 1048,
-        'JP': 1048
-    }
-    x = x[self.server]
+    x = 1048
     img_possibles = {
         "create_material-list": (x, 98),
         "create_sort-menu": (145, 160)
@@ -311,13 +301,7 @@ def to_filter_menu(self):
 
 
 def confirm_filter(self):
-    y = {
-        'CN': 493,
-        'Global': 595,
-        'JP': 595
-    }
-    y = y[self.server]
-    img_possibles = {"create_filter-menu": (765, y)}
+    img_possibles = {"create_filter-menu": (765, 595)}
     img_ends = "create_material-list"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
@@ -336,43 +320,24 @@ def set_display_setting_filter_list(self, filter_list):
     self.logger.info("Set Filter List: ")
     self.logger.info(str(filter_list[0:4]))
     self.logger.info(str(filter_list[4:8]))
-    total = sum(filter_list)
-
-    flg = False
-    if self.server == 'CN':
-        flg = total > 4
-        set_display_setting_filter_list_select_all(self, True)
-        if flg:
-            pass  # select all
-        else:
-            set_display_setting_filter_list_select_all(self, False)  # unselect all
-
-        if total == 0 or total == 8:
-            confirm_filter(self)
-            return
-    filter_list_ensure_choose(self, filter_list, flg)
+    filter_list_ensure_choose(self, filter_list)
     confirm_filter(self)
 
 
-def filter_list_ensure_choose(self, filter_list, flg):
+def filter_list_ensure_choose(self, filter_list):
     filter_type_list = self.static_config['create_filter_type_list']
     start_position = {
-        'CN': (263, 293),
+        'CN': (293, 273),
         'Global': (291, 294),
         'JP': (291, 294)
     }
-    dx = {
-        'CN': 202,
-        'Global': 235,
-        'JP': 235
-    }
+    dx = 235
     dy = {
-        'CN': 72,
+        'CN': 56,
         'Global': 65,
         'JP': 65
     }
     start_position = start_position[self.server]
-    dx = dx[self.server]
     dy = dy[self.server]
     curr_position = start_position
     for i in range(0, len(filter_list)):
@@ -383,9 +348,6 @@ def filter_list_ensure_choose(self, filter_list, flg):
                 curr_position = (curr_position[0] + dx, curr_position[1])
         pre = "create_filter-" + filter_type_list[i] + "-"
         if filter_list[i] == 1:
-            if self.server == 'CN' and flg:
-                self.logger.info("[ " + filter_type_list[i] + " ] is already chosen.")
-                continue
             img_possibles = {
                 pre + "not-chosen": curr_position,
                 pre + "reset": curr_position
@@ -393,9 +355,6 @@ def filter_list_ensure_choose(self, filter_list, flg):
             img_ends = pre + "chosen"
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
         else:
-            if self.server == 'CN' and not flg:
-                self.logger.info("[ " + filter_type_list[i] + " ] is already not chosen.")
-                continue
             img_possibles = {
                 pre + "chosen": curr_position,
             }
@@ -439,8 +398,8 @@ def confirm_sort(self):
 def set_sort_type(self, sort_type):
     sort_type_position = {
         'CN': {
-            'basic': (195, 168),
-            'count': (424, 168),
+            'basic': (290, 168),
+            'count': (590, 180),
         },
         'Global': {
             'basic': (294, 181),
