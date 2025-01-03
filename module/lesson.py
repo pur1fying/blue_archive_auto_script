@@ -14,7 +14,7 @@ def implement(self):
     click_lo = [[307, 257], [652, 257], [995, 257],
                 [307, 408], [652, 408], [995, 408],
                 [307, 560], [652, 560], [985, 560]]
-    purchase_ticket_times = min(self.config['purchase_lesson_ticket_times'], 4)  # ** 购买日程券的次数
+    purchase_ticket_times = min(self.config['purchase_lesson_ticket_times'], 4)
     to_lesson_location_select(self, True)
     if purchase_ticket_times > 0:
         self.logger.info("Purchase lesson ticket times :" + str(purchase_ticket_times))
@@ -76,7 +76,7 @@ def implement(self):
             to_location_info(self, click_lo[choice][0], click_lo[choice][1])
             res = start_lesson(self)
             if res == "inadequate_ticket":
-                self.logger.info("INADEQUATE LESSON TICKET")
+                self.logger.warning("INADEQUATE LESSON TICKET")
                 return True
             if res == "lesson_report":
                 self.logger.info("complete one lesson")
@@ -99,7 +99,7 @@ def pre_process_lesson_name(self, name):
             temp += name[i]
     elif self.server == "JP":
         for i in range(0, len(name)):
-            if name[i] == ' ' or is_english(name[i]) or name[i].isdigit():
+            if name[i] == ' ' or name[i].isdigit():
                 continue
             temp += name[i]
     elif self.server == "CN":
@@ -107,7 +107,7 @@ def pre_process_lesson_name(self, name):
             name = name[2:]
         temp = ""
         for i in range(0, len(name)):
-            if name[i] == ' ' or is_english(name[i]) or name[i].isdigit():
+            if name[i] == ' ' or name[i].isdigit():
                 continue
             temp += name[i]
     return temp
@@ -138,7 +138,7 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
 def get_lesson_tickets(self):
     try:
         region = {
-            "CN": (280, 85, 340, 114),
+            "CN": (133, 79, 181, 115),
             "Global": (220, 88, 282, 112),
             "JP": (188, 88, 252, 112),
         }
@@ -165,7 +165,7 @@ def purchase_lesson_ticket(self, times):
     rgb_possibles = {'reward_acquired': (640, 116)}
     img_ends = 'lesson_location-select'
     img_possibles = {
-        'lesson_purchase-lesson-ticket': (766, 507),
+        'lesson_purchase-lesson-ticket-menu': (766, 507),
         'lesson_purchase-lesson-ticket-notice': (766, 507),
     }
     picture.co_detect(self, img_ends, img_possibles, rgb_possibles)
@@ -180,7 +180,7 @@ def to_lesson_location_select(self, skip_first_screenshot=False):
     img_possibles = {
         'main_page_home-feature': (210, 655),
         'lesson_purchase-lesson-ticket-notice': (920, 165),
-        'lesson_purchase-lesson-ticket': (920, 165),
+        'lesson_purchase-lesson-ticket-menu': (920, 165),
     }
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
@@ -217,8 +217,7 @@ def start_lesson(self):
     }
     img_ends = [
         'lesson_lesson-report',
-        'lesson_inadequate-lesson-ticket',
-        'lesson_purchase-lesson-ticket',
+        'lesson_purchase-lesson-ticket-menu',
     ]
     rgb_possibles = {
         'reward_acquired': (637, 116),
@@ -226,7 +225,7 @@ def start_lesson(self):
         'area_rank_up': (637, 116),
     }
     res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
-    if res == 'lesson_inadequate-lesson-ticket' or res == 'lesson_purchase-lesson-ticket':
+    if res == 'lesson_purchase-lesson-ticket-menu':
         return 'inadequate_ticket'
     return 'lesson_report'
 
@@ -317,7 +316,14 @@ def out_lesson_status(self, res):
 
 
 def choose_lesson(self, res, region):
-    if self.config['lesson_relationship_first']:
+    """
+        Choose a lesson according to detected lesson status and config
+        res (List(str), List(int)):
+            Contains two list :
+                1.lesson availability list
+                2.relationship count list
+    """
+    if self.config['lesson_relationship_first']:        # choose bigger relationship count
         max_relationship = -1
         lo = -1
         for i in range(0, 9):
@@ -330,7 +336,7 @@ def choose_lesson(self, res, region):
         tier = ["superior", "advanced", "normal", "primary"]
         pri = self.config['lesson_each_region_object_priority'][region]
         if pri == []:
-            for i in range(8, -1, -1):
+            for i in range(8, -1, -1):      # choose the last available which gives higher tier reward
                 if res[0][i] == "available":
                     return i
             return -1
@@ -339,13 +345,13 @@ def choose_lesson(self, res, region):
             max_relationship = -1
             for i in range(0, len(tier)):
                 if tier[i] in pri:
-                    for j in range(2 * (3 - i), 2 * (4 - i)):
+                    for j in range(2 * (3 - i), 2 * (4 - i)):   # i = 0 -- > [6, 7]
                         if res[0][j] == "available" and res[1][j] > max_relationship:
                             if max_relationship != -1:
                                 self.logger.info("Due to relationship priority, current choice forward from [ " + str(
                                     choice + 1) + " ] to [ " + str(j + 1) + " ]")
                             max_relationship = res[1][j]
                             choice = j
-                        if choice != -1:
-                            return choice
+                    if choice != -1:
+                        return choice
             return choice
