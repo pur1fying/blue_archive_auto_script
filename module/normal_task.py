@@ -79,11 +79,11 @@ def implement(self):
     return True
 
 
-def readOneNormalTask(task_string):
+def readOneNormalTask(task_string, region):
     if task_string.count('-') != 2:
         raise ValueError("[ " + task_string + " ] format error.")
     mainline_available_missions = list(range(1, 6))
-    mainline_available_regions = list(range(5, 27))
+    mainline_available_regions = list(range(5, region[1] + 1))
     mainline_available_regions.append("tutorial")
     temp = task_string.split('-')
     region = temp[0]

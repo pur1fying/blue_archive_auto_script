@@ -797,7 +797,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i]))
+                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i], self.static_config["explore_normal_task_region_range"]))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
@@ -810,7 +810,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i]))
+                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i], self.static_config["explore_hard_task_region_range"]))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

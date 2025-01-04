@@ -102,11 +102,11 @@ def to_task_info(self, x, y, skip_first_screenshot=False):
     return picture.co_detect(self, None, rgb_possibles, img_ends, None, skip_first_screenshot)
 
 
-def readOneHardTask(task_string):
+def readOneHardTask(task_string, region):
     if task_string.count('-') != 2:
         raise ValueError("[ " + task_string + " ] format error.")
     mainline_available_missions = list(range(1, 4))
-    mainline_available_regions = list(range(1, 27))
+    mainline_available_regions = list(range(region[0], region[1] + 1))
     temp = task_string.split('-')
     region = temp[0]
     mission = temp[1]
