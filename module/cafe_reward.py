@@ -15,7 +15,7 @@ def implement(self):
     if self.config['cafe_reward_use_invitation_ticket'] and get_invitation_ticket_status(self):
         invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
-    if (self.server == 'JP' or self.server == 'Global') and self.config['cafe_reward_has_no2_cafe']:
+    if self.config['cafe_reward_has_no2_cafe']:
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
         if get_invitation_ticket_status(self) and self.config['cafe_reward_use_invitation_ticket']:
@@ -25,14 +25,9 @@ def implement(self):
 
 
 def to_cafe(self, skip_first_screenshot=False):
-    reward_status_cross_x = {
-        'CN': 904,
-        'JP': 985,
-        'Global': 985,
-    }
     img_possibles = {
         "cafe_gift": (1240, 577),
-        'cafe_cafe-reward-status': (reward_status_cross_x[self.server], 159),
+        'cafe_cafe-reward-status': (985, 159),
         'cafe_invitation-ticket': (835, 97),
         'cafe_students-arrived': (922, 189),
         'main_page_full-notice': (887, 165),
@@ -52,8 +47,12 @@ def to_cafe(self, skip_first_screenshot=False):
 
 def to_no2_cafe(self):
     to_cafe(self)
-    self.click(112, 97, wait_over=True, duration=0.5)
-    self.click(245, 159, wait_over=True, duration=0.5)
+    img_ends = "cafe_at-no1-cafe"
+    img_possibles = {
+        "cafe_menu": (118, 98)
+    }
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    image.click_to_disappear(self, "cafe_at-no1-cafe", 240, 168)
     to_cafe(self)
 
 
@@ -238,9 +237,9 @@ def change_order_type(self, order_type):
     to_revise_order_type(self)
     order_type_location = {
         'CN': {
-            "academy": (534, 256),
-            "affection": (746, 256),
-            "starred": (534, 317),
+            "academy": (754, 267),
+            "affection": (529, 322),
+            "starred": (532, 263),
         },
         'Global': {
             "name": (534, 256),
@@ -312,7 +311,9 @@ def invite_girl(self, no=1):
     if to_invitation_ticket(self, True) == 'cafe_invitation-ticket-invalid':
         self.logger.info("Invitation Ticket Not Available")
         return
+
     method = self.config['cafe_reward_invite' + str(no) + '_criterion']
+
     if method == 'lowest_affection':
         invite_by_affection(self, 'lowest')
         return
@@ -323,9 +324,16 @@ def invite_girl(self, no=1):
         position = self.config["cafe_reward_invite" + str(no) + "_starred_student_position"]
         invite_starred(self, position)
         return
+
+    target_name_list = self.config['favorStudent' + str(no)]
+
+    if len(target_name_list) == 0:
+        self.logger.warning("Current mode is invite target student but no student name configured in favorStudent" + str(no))
+        self.logger.warning("Current mode fallback to invite by lowest affection")
+        invite_by_affection(self, 'lowest')
+        return
     # name
     student_name = get_student_name(self)  # all student name in current server
-    target_name_list = self.config['favorStudent' + str(no)]
     student_name.sort(key=len, reverse=True)
     self.logger.info("Inviting : " + str(target_name_list))
     for i in range(0, len(target_name_list)):
@@ -382,7 +390,7 @@ def invite_girl(self, no=1):
                         return True
                 if not stop_flag:
                     self.logger.info("Didn't Find Target Student Swipe to Next Page")
-                    self.swipe(412, 580, 412, 150, duration=0.3)
+                    self.swipe(412, 580, 412, 150, duration=0.5)
                     self.click(412, 500, wait_over=True)
                     self.latest_img_array = self.get_screenshot_array()
         to_cafe(self)

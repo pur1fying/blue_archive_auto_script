@@ -4,11 +4,14 @@ from core import color, picture, image
 
 
 def implement(self):
+    buy_list = np.array(self.config["TacticalChallengeShopList"])
+    if not buy_list.any():
+        self.logger.info("Nothing to buy in tactical challenge shop.")
+        return True
     self.quick_method_to_main_page()
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
     tactical_challenge_assets = get_tactical_challenge_assets(self)
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))
-    buy_list = np.array(self.config["TacticalChallengeShopList"])
     price = self.static_config["tactical_challenge_shop_price_list"][self.server]
     temp = []
     for i in range(0, len(price)):
@@ -23,8 +26,9 @@ def implement(self):
             self.logger.info("INADEQUATE assets for BUYING")
             return True
         buy(self, buy_list)
-        self.latest_img_array = self.get_screenshot_array()
-        if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
+
+        state = get_purchase_state(self)
+        if state == "shop_purchase-available":
             self.logger.info("-- Purchase available --")
             img_possibles = {
                 "shop_menu": (1163, 659),
@@ -45,11 +49,11 @@ def implement(self):
             tactical_challenge_assets = tactical_challenge_assets - asset_required
             self.logger.info("left assets : " + str(tactical_challenge_assets))
             to_shop_menu(self)
-
-        elif color.judge_rgb_range(self, 1126, 662, 206, 226, 206, 226, 206, 226):
+        elif state == "shop_purchase-unavailable":
             self.logger.info("-- Purchase Unavailable --")
-            self.click(1240, 39, wait_over=True)
             return True
+        elif state == "shop_refresh-button-appear":
+            self.logger.warning("Refresh Button Detected, assume item purchased previously.")
         self.latest_img_array = self.get_screenshot_array()
         if i != refresh_time:
             if tactical_challenge_assets >= refresh_price[i] + asset_required:
@@ -61,6 +65,15 @@ def implement(self):
                 self.logger.info("left tactical challenge assets : " + str(tactical_challenge_assets))
                 confirm_refresh(self)
     return True
+
+
+def get_purchase_state(self):
+    img_ends = [
+        "shop_purchase-available",
+        "shop_purchase-unavailable",
+        "shop_refresh-button-appear",
+    ]
+    return picture.co_detect(self, None, None, img_ends, None, False)
 
 
 def confirm_refresh(self):

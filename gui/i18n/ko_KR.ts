@@ -1805,19 +1805,19 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
-        <translation type="unfinished">구성 변환</translation>
+        <translation>켜다</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
-        <translation type="unfinished">구성 변환</translation>
+        <translation>끄다</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="38"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
-        <translation type="unfinished">구성 변환</translation>
+        <translation>기본</translation>
     </message>
 </context>
 <context>

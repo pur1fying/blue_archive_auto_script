@@ -10,7 +10,6 @@ class Layout(QWidget):
         super().__init__(parent=parent)
         self.config = config
         self.default_goods = self.config.static_config['tactical_challenge_shop_price_list'][self.config.server_mode]
-        self.__check_server()
         self.goods = self.config.get(key='TacticalChallengeShopList')
         goods_count = len(self.goods)
         layout = FlowLayout(self, needAni=True)
@@ -59,6 +58,4 @@ class Layout(QWidget):
     def __accept(self):
         self.config.set('TacticalChallengeShopRefreshTime', self.input.text())
 
-    def __check_server(self):
-        if len(self.config.get('TacticalChallengeShopList')) != len(self.default_goods):
-            self.config.set('TacticalChallengeShopList', len(self.default_goods) * [0])
+

@@ -40,38 +40,28 @@ class Layout(TemplateLayout):
                 'type': 'text',
                 'key': 'special_task_times'
             },
-        ]
-        additional_items = [
             {
-                'label': SweepCountConfig.tr('国服购买邀请券可在<b>商店购买</b>中实现'),
+                'label': SweepCountConfig.tr('<b>用券数目设置，下拉框选择</b>'),
                 'type': 'label'
+            },
+            {
+                'label': SweepCountConfig.tr('悬赏委托扫荡券购买次数'),
+                'type': 'combo',
+                'key': 'purchase_rewarded_task_ticket_times',
+                'selection': ['max', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+            },
+            {
+                'label': SweepCountConfig.tr('日程券购买次数'),
+                'type': 'combo',
+                'key': 'purchase_lesson_ticket_times',
+                'selection': ['max', '0', '1', '2', '3', '4']
+            },
+            {
+                'label': SweepCountConfig.tr('学园交流会扫荡券购买次数'),
+                'type': 'combo',
+                'key': 'purchase_scrimmage_ticket_times',
+                'selection': ['max', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+
             }
         ]
-        if config.server_mode in ['JP', 'Global']:
-            additional_items = [
-                {
-                    'label': SweepCountConfig.tr('<b>用券数目设置，下拉框选择</b>'),
-                    'type': 'label'
-                },
-                {
-                    'label': SweepCountConfig.tr('悬赏委托扫荡券购买次数'),
-                    'type': 'combo',
-                    'key': 'purchase_rewarded_task_ticket_times',
-                    'selection': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'max']
-                },
-                {
-                    'label': SweepCountConfig.tr('日程券购买次数'),
-                    'type': 'combo',
-                    'key': 'purchase_lesson_ticket_times',
-                    'selection': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'max']
-                },
-                {
-                    'label': SweepCountConfig.tr('学园交流会扫荡券购买次数'),
-                    'type': 'combo',
-                    'key': 'purchase_scrimmage_ticket_times',
-                    'selection': ['0', '1', '2', '3', '4', 'max']
-                }
-            ]
-        for item in additional_items:
-            configItems.append(item)
         super().__init__(parent=parent, configItems=configItems, config=config, context='SweepCountConfig')

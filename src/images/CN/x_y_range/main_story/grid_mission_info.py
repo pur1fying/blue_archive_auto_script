@@ -9,5 +9,5 @@ x_y_range = {
     "The-Forth-Sanctum-Basilica-in-the-Catacomb": (279, 132, 913, 181),
     "The-Fifth-Sanctum-Outskirts-of-the-City-of-Eridu": (279, 132, 913, 181),
     "The-Final-Defense-Operation-Schale": (279, 132, 913, 181),
-    # "Rush": (279, 132, 450, 181)
+    "Rush": (279, 132, 450, 181)
 }

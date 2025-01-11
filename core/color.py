@@ -69,14 +69,14 @@ def judgeRGBFeatureOr(self, featureName):  # any rgb in range return True
 
 
 def check_sweep_availability(self, is_mainline=False):
-    if self.server == "CN" or ((self.server == "JP" or self.server == "Global") and is_mainline):
+    if is_mainline:
         if judgeRGBFeature(self, "mainLineTaskNoPass"):
             return "no-pass"
         if judgeRGBFeature(self, "mainLineTaskSSS"):
             return "sss"
         if judgeRGBFeatureOr(self, "mainLineTaskSSS"):
             return "pass"
-    if (self.server == "JP" or self.server == "Global") and not is_mainline:
+    if not is_mainline:
         if judgeRGBFeature(self, "sideTaskNoPass"):
             return "no-pass"
         if judgeRGBFeature(self, "sideTaskSSS"):

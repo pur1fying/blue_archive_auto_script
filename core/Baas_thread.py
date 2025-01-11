@@ -1,7 +1,7 @@
 import copy
 from datetime import datetime
 import cv2
-from core.exception import ScriptError, RequestHumanTakeOver
+from core.exception import ScriptError, RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
 from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
@@ -31,7 +31,8 @@ func_dict = {
     'momo_talk': module.momo_talk.implement,
     'common_shop': module.common_shop.implement,
     'cafe_reward': module.cafe_reward.implement,
-    'cafe_invite': module.cafe_invite.implement,
+    'no1_cafe_invite': module.no1_cafe_invite.implement,
+    'no2_cafe_invite': module.no2_cafe_invite.implement,
     'lesson': module.lesson.implement,
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
@@ -426,14 +427,88 @@ class Baas_thread:
         self.logger.info("            post_task        : " + str(task["post_task"]))
         self.logger.info("            }")
 
+    def update_create_priority(self):
+        for phase in range(1, 4):
+            cfg_key_name = 'createPriority_phase' + str(phase)
+            current_priority = self.config[cfg_key_name]
+            res = []
+            default_priority = self.static_config['create_default_priority'][self.config_set.server_mode][
+                "phase" + str(phase)]
+            for i in range(0, len(current_priority)):
+                if current_priority[i] in default_priority:
+                    res.append(current_priority[i])
+            for j in range(0, len(default_priority)):
+                if default_priority[j] not in res:
+                    res.append(default_priority[j])
+            self.config[cfg_key_name] = res
+            self.config_set.set(cfg_key_name, res)
+
     def solve(self, activity) -> bool:
-        try:
-            return func_dict[activity](self)
-        except Exception as e:
-            if self.flag_run:
-                self.logger.error(e.__str__())
-                threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
-            return False
+        for i in range(0, 3):
+            if i != 0:
+                self.logger.info("Retry Task " + activity + " " + str(i))
+            try:
+                return func_dict[activity](self)
+            except FunctionCallTimeout:
+                if not self.deal_with_func_call_timeout():
+                    threading.Thread(target=self.simple_error, args=("Failed to Restart Game",)).start()
+                    return False
+            except PackageIncorrect as e:
+                pkg = e.message
+                if not self.deal_with_package_incorrect(pkg):
+                    threading.Thread(target=self.simple_error, args=("Failed to Restart Game",)).start()
+                    return False
+            except Exception as e:
+                if self.flag_run:
+                    self.logger.error(e.__str__())
+                    threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
+                return False
+
+    def deal_with_package_incorrect(self, curr_pkg):
+        """
+            1. no exception
+        """
+        self.logger.info("Handle package incorrect")
+        self.logger.warning("Package incorrect")
+        self.logger.warning("Expected: " + self.package_name)
+        self.logger.warning("Get     : " + curr_pkg)
+        self.logger.warning("Restarting game")
+        for i in range(0, 3):
+            if i != 0:  # skip first time check
+                package = self.connection.get_current_package()
+                if package == self.package_name:
+                    self.logger.info("current app is target app, close the game and call task restart")
+                    self.connection.close_current_app(package)
+            try:
+                func_dict['restart'](self)
+                return True
+            except RequestHumanTakeOver:
+                return False
+            except Exception as e:
+                pass
+        return False
+
+    def deal_with_func_call_timeout(self):
+        """
+            deal with co_detect function time out with following logic
+            1.current app is target app --> close the game and call task restart
+            2.current app is not target app --> call task restart
+            3.this func will not raise exception
+        """
+        self.logger.info("Handle function call timeout")
+        package = self.connection.get_current_package()
+        if package != self.package_name:
+            self.deal_with_package_incorrect(package)
+        else:
+            for i in range(0, 3):
+                self.logger.info("current app is target app, close the game and call task restart")
+                self.connection.close_current_app(package)
+            try:
+                func_dict['restart'](self)
+                return True
+            except Exception as e:
+                pass
+        return False
 
     def simple_error(self, info: str):
         push(self.logger, self.config, info)
@@ -481,6 +556,9 @@ class Baas_thread:
             'lesson_lesson-information': (964, 117),
             'lesson_all-locations': (1138, 117),
             'lesson_lesson-report': (642, 556),
+            'lesson_purchase-lesson-ticket-menu': (921, 169),
+            'rewarded_task_purchase-bounty-ticket-menu': (921, 165),
+            'scrimmage_purchase-scrimmage-ticket-menu': (921, 162),
             'arena_battle-win': (640, 530),
             'arena_battle-lost': (640, 468),
             'arena_season-record': (640, 538),
@@ -492,29 +570,26 @@ class Baas_thread:
             'activity_fight-success-confirm': (640, 663),
             "total_assault_reach-season-highest-record": (640, 528),
             "total_assault_total-assault-info": (1165, 107),
+            "cafe_cafe-reward-status": (985, 147),
         }
         update = {
             'CN': {
                 'main_page_news': (1142, 104),
                 'main_page_news2': (1142, 104),
-                'cafe_cafe-reward-status': (905, 159),
                 'normal_task_task-info': (1126, 115),
-                "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
                 "main_page_net-work-unstable": (753, 500),
+                'main_page_fail-to-load-game-resources': (740, 437),
             },
             'JP': {
                 'main_page_news': (1142, 104),
-                "cafe_cafe-reward-status": (985, 147),
                 'normal_task_task-info': (1126, 115),
-                "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
                 "special_task_task-info": (1126, 141),
                 'main_page_attendance-reward': (642, 489),
             },
             'Global': {
                 'main_page_news': (1227, 56),
                 "special_task_task-info": (1126, 141),
-                'cafe_cafe-reward-status': (985, 147),
                 'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),
@@ -529,7 +604,7 @@ class Baas_thread:
             # "fighting_feature": (1226, 51)
         }
         picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot,
-                          tentitive_click=True)
+                          tentative_click=True)
 
     def init_image_resource(self):
         return position.init_image_data(self)
@@ -548,6 +623,7 @@ class Baas_thread:
         try:
             self.config = copy.deepcopy(self.config_set.config)
             self.config = self.operate_dict(self.config)
+            self.update_create_priority()
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")
@@ -721,7 +797,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i]))
+                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i], self.static_config["explore_normal_task_region_range"]))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
@@ -734,7 +810,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i]))
+                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i], self.static_config["explore_hard_task_region_range"]))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

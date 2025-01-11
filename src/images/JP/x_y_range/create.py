@@ -19,7 +19,7 @@ x_y_range = {
     'start-phase-3-bright': (1000, 630, 1240, 677),
 
     'phase-1-wait-to-check-node': (403, 91, 445, 129),
-    'phase-2-wait-to-check-node': (202, 489, 237, 499),
+    'phase-2-wait-to-check-node': (166, 570, 184, 591),
     'phase-3-wait-to-check-node': (106, 56, 145, 97),
 
     'sort-menu': (101, 196, 190, 226),
@@ -222,7 +222,7 @@ x_y_range = {
 
     'Beginner-Tech-Notes-(Hyakkiyako)': (881, 168, 919, 208),  # 初级技术笔记(百鬼夜行)
     'Normal-Tech-Notes-(Hyakkiyako)': (1015, 168, 1059, 208),  # 中级技术笔记(百鬼夜行)
-    'Advanced-Tech-Notes-(Hyakkiyako)': (1156, 168, 1196, 208),  # 高级技术笔记(百鬼夜行)
+    'Advanced-Tech-Notes-(Hyakkiyako)': (1015, 168, 1059, 208),  # 高级技术笔记(百鬼夜行)
     'Superior-Tech-Notes-(Hyakkiyako)': (740, 168, 781, 208),  # 特级技术笔记(百鬼夜行)
 
     'Beginner-Tech-Notes-(Red Winter)': (881, 168, 919, 208),  # 初级技术笔记(红冬)

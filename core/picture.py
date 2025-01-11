@@ -1,17 +1,29 @@
 import time
 from core import color, image
 from module.main_story import change_acc_auto
-from core.exception import RequestHumanTakeOver
+from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
 
 
 def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possibles=None, skip_first_screenshot=False,
-              tentitive_click=False, tentitivex=1238, tentitivey=45, max_fail_cnt=10, rgb_pop_ups=None,
-              img_pop_ups=None):
+              tentative_click=False, tentative_x=1238, tentative_y=45, max_fail_cnt=10, rgb_pop_ups=None,
+              img_pop_ups=None, time_out=600, check_pkg_interval=20):
     fail_cnt = 0
     self.last_click_time = 0
     self.last_click_position = (0, 0)
     self.last_click_name = ""
+    start_time = time.time()
+    feature_last_appear_time = start_time
+    last_check_pkg_time = start_time
     while self.flag_run:
+        t_start_this_round = time.time()
+        if t_start_this_round - start_time > time_out:
+            raise FunctionCallTimeout("Co_detect function timeout reached.")
+        if t_start_this_round - feature_last_appear_time > check_pkg_interval and t_start_this_round - last_check_pkg_time > check_pkg_interval:
+            last_check_pkg_time = t_start_this_round
+            self.logger.info("Check package.")
+            pkg = self.connection.get_current_package()
+            if pkg != self.package_name:
+                raise PackageIncorrect(pkg)
         if skip_first_screenshot:
             skip_first_screenshot = False
         else:
@@ -60,13 +72,14 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                 else:
                     fail_cnt = 0
                     f = 1
+                    feature_last_appear_time = time.time()
                     if time.time() - self.last_click_time <= 2 and self.last_click_position[0] == click[0] and \
                         self.last_click_position[1] == click[1] and self.last_click_name == position:
                         break
                     self.logger.info("find : " + position)
                     if click[0] >= 0 and click[1] >= 0:
+                        self.last_click_time = feature_last_appear_time
                         self.click(click[0], click[1])
-                        self.last_click_time = time.time()
                         self.last_click_position = (click[0], click[1])
                         self.last_click_name = position
                     break
@@ -84,24 +97,25 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                 if image.compare_image(self, position, False, threshold, rgb_diff):
                     fail_cnt = 0
                     f = 1
+                    feature_last_appear_time = time.time()
                     if time.time() - self.last_click_time <= 2 and self.last_click_position[0] == click[0] and \
                         self.last_click_position[1] == click[1] and self.last_click_name == position:
                         break
                     self.logger.info("find " + position)
                     if click[0] >= 0 and click[1] >= 0:
+                        self.last_click_time = feature_last_appear_time
                         self.click(click[0], click[1])
-                        self.last_click_time = time.time()
                         self.last_click_position = (click[0], click[1])
                         self.last_click_name = position
                     break
         if f == 1:
             continue
         if not deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):
-            if tentitive_click:
+            if tentative_click:
                 fail_cnt += 1
                 if fail_cnt > max_fail_cnt:
                     self.logger.info("tentative clicks")
-                    self.click(tentitivex, tentitivey)
+                    self.click(tentative_x, tentative_y)
                     time.sleep(self.screenshot_interval)
                     fail_cnt = 0
     if not self.flag_run:

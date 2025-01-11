@@ -23,5 +23,6 @@ x_y_range = {
     'confirm-invite': (543, 139, 735, 177),
     'duplicate-invite-notice': (400, 220, 888, 270),
     'switch-clothes-notice': (500, 150, 780, 189),
-    'gift': (20, 557, 118, 596)
+    'gift': (20, 557, 118, 596),
+    'at-no1-cafe': (91, 150, 157, 178),
 }

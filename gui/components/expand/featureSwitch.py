@@ -301,9 +301,10 @@ class Layout(QWidget):
         except Exception:
             try:
                 return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S').timestamp()
-            except Exception as e:
-                traceback.print_exc()
-                return 0
+            except Exception:
+                # traceback.print_exc()
+                print("Time format error Or Time is not set. Use 0 as default.")
+                return datetime.strptime("2021-2-4 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
 
     def _refresh_time(self):
         # abstract from self._event_config

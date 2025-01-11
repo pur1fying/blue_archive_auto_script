@@ -1,19 +1,20 @@
-import time
-
-import cv2
 import numpy as np
 from core import color, picture
 from core import image
+from module.tactical_challenge_shop import get_purchase_state
 
 
 def implement(self):
+    buy_list = np.array(self.config["CommonShopList"])
+    if not buy_list.any():
+        self.logger.info("Nothing to buy in common shop.")
+        return True
     self.quick_method_to_main_page()
     to_common_shop(self, True)
     assets = {
         "creditpoints": self.get_creditpoints(),
         "pyroxene": self.get_pyroxene(),
     }
-    buy_list = np.array(self.config["CommonShopList"])
     price = self.static_config["common_shop_price_list"][self.server]
     temp_price = []
     tp = []
@@ -30,9 +31,9 @@ def implement(self):
             self.logger.info("INADEQUATE assets for BUYING")
             return True
         buy(self, buy_list)
-        self.latest_img_array = self.get_screenshot_array()
 
-        if color.judge_rgb_range(self, 1126, 662, 235, 255, 222, 242, 64, 84):
+        state = get_purchase_state(self)
+        if state == "shop_purchase-available":
             self.logger.info("-- Purchase available --")
             img_possibles = {
                 "shop_menu": (1163, 659),
@@ -56,9 +57,11 @@ def implement(self):
             picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
             assets = calculate_left_assets(self, assets, asset_required)
             to_common_shop(self)
-        elif color.judge_rgb_range(self, 1126, 665, 206, 226, 206, 226, 206, 226):
+        elif state == "shop_purchase-unavailable":
             self.logger.info("Purchase Unavailable")
             return True
+        elif state == "shop_refresh-button-appear":
+            self.logger.warning("Refresh Button Detected, assume item purchased previously.")
         if i != refresh_time:
             if assets['pyroxene'] != -1 and assets['pyroxene'] > refresh_price[i]:
                 self.logger.info("Refresh assets adequate")

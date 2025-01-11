@@ -5,7 +5,7 @@ import uiautomator2 as u2
 import cv2
 import numpy as np
 import requests
-from uiautomator2.version import (__apk_version__, __atx_agent_version__, __jar_version__, __version__)
+from uiautomator2.version import (__apk_version__, __atx_agent_version__, __version__)
 import os
 
 appdir = os.path.join(os.path.expanduser("~"), '.uiautomator2')
@@ -15,6 +15,13 @@ GITHUB_BASEURL = "https://github.com/openatx"
 
 class U2Client:
     connections = dict()
+
+    def __init__(self, serial):
+        self.serial = serial
+        if ":" in serial:
+            self.connection = u2.connect(serial)
+        else:
+            self.connection = u2.connect_usb(serial)
 
     @staticmethod
     def get_instance(serial):
@@ -26,13 +33,6 @@ class U2Client:
     def release_instance(serial):
         if serial in U2Client.connections:
             del U2Client.connections[serial]
-
-    def __init__(self, serial):
-        self.serial = serial
-        if ":" in serial:
-            self.connection = u2.connect(serial)
-        else:
-            self.connection = u2.connect_usb(serial)
 
     def click(self, x, y):
         self.connection.click(x, y)

@@ -5,10 +5,9 @@ from module import main_story, normal_task, hard_task
 
 
 def implement(self):
-    temp = get_explore_normal_task_missions(self, self.config['explore_normal_task_regions'])
+    temp = get_explore_normal_task_missions(self, self.config['explore_normal_task_regions'], self.config['explore_normal_task_force_each_fight'])
     self.quick_method_to_main_page()
     if self.config['explore_normal_task_force_each_fight']:
-        temp = get_explore_normal_task_missions(self, self.config['explore_normal_task_regions'])
         self.logger.info("VALID TASKS : " + str(temp))
         normal_task.to_normal_event(self)
         for i in range(0, len(temp)):
@@ -541,6 +540,7 @@ def get_explore_normal_task_missions(self, st, force_each_fight=False):
             self.logger.error(e.__str__())
             self.logger.error("explore_normal_task_missions config error")
             return False
+    self.logger.info("Valid " + lg + " : " + str(ret))
     return ret
 
 

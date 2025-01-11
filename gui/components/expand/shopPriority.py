@@ -11,7 +11,6 @@ class Layout(QWidget):
         self.config = config
         self.default_goods = self.config.static_config['common_shop_price_list'][self.config.server_mode]
         # print(len(self.default_goods))
-        self.__check_server()
         self.goods = self.config.get(key='CommonShopList')
 
         layout = FlowLayout(self, needAni=True)
@@ -65,6 +64,4 @@ class Layout(QWidget):
     def __accept(self, input_content=None):
         self.config.set('CommonShopRefreshTime', self.input.text())
 
-    def __check_server(self):
-        if len(self.config.get('CommonShopList')) != len(self.default_goods):
-            self.config.set('CommonShopList', len(self.default_goods) * [0])
+

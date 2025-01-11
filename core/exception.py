@@ -7,7 +7,14 @@ class RequestHumanTakeOver(Exception):
         1. flag_run = false (click stop button)
         2. unable to connect to emulator
     """
+
     def __init__(self, message="Request Human Take Over"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class PackageIncorrect(Exception):
+    def __init__(self, message="Package Incorrect"):
         self.message = message
         super().__init__(self.message)
 
@@ -38,3 +45,9 @@ class ScriptError(Exception):
 
     def __str__(self):
         return self.message
+
+
+class FunctionCallTimeout(Exception):
+    def __init__(self, message="Function Call Timeout"):
+        self.message = message
+        super().__init__(self.message)

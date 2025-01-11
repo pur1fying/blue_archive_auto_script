@@ -96,7 +96,6 @@ def check_switch_config(dir_path='./default_config'):
         f.write(default_config.SWITCH_DEFAULT_CONFIG)
 
 
-
 def check_user_config(dir_path='./default_config'):
     path = './config/' + dir_path + '/config.json'
     if not os.path.exists(path):
@@ -458,10 +457,14 @@ class Window(MSFluentWindow):
 
     def init_main_class_thread(self):
         QApplication.processEvents()
-        from main import Main
-        self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal, self.ocr_needed)
-        for i in range(0, len(self._sub_list[0])):
-            self._sub_list[0][i]._main_thread_attach.Main = self.main_class
+        try:
+            from main import Main
+            self.main_class = Main(self._sub_list[0][0]._main_thread_attach.logger_signal, self.ocr_needed)
+            for i in range(0, len(self._sub_list[0])):
+                self._sub_list[0][i]._main_thread_attach.Main = self.main_class
+        except Exception as e:
+            from core.utils import Logger
+            Logger(self._sub_list[0][0]._main_thread_attach.logger_signal).error(e.__str__())
 
     def call_update(self):
         self.schedulerInterface.update_settings()
@@ -536,14 +539,10 @@ class Window(MSFluentWindow):
     def onTabChanged(self, _: int):
         self.__switchStatus = False
         objectName = self.tabBar.currentTab().routeKey()
-        currentName = self.stackedWidget.currentWidget().objectName()
-        row = -1
-        for i0, sub in enumerate(self._sub_list):
-            for i1, tab in enumerate(sub):
-                if tab.object_name == currentName:
-                    row = i0
-        assert row != -1
-        col = [x.object_name for x in self._sub_list[0]].index(objectName)
+        row = [x.isSelected for x in self.navi_btn_list].index(True)
+        _ref = [x.object_name for x in self._sub_list[0]]
+        if objectName not in _ref: col = 0
+        else: col = [x.object_name for x in self._sub_list[0]].index(objectName)
         self.dispatchSubView(row, col)
 
     def dispatchSubView(self, i0: int, i1: int):
@@ -555,7 +554,9 @@ class Window(MSFluentWindow):
         if addDialog.exec_():
             text = addDialog.pathLineEdit.text()
             if text in list(map(lambda x: x.config['name'], self.config_dir_list)):
-                notification.error(self.tr('设置失败'), f'{self.tr("名为")}“{text}”{self.tr("的配置已经存在！")}', self)
+                notification.error(label=self.tr('设置失败'),
+                                   msg=f'{self.tr("名为")}“{text}”{self.tr("的配置已经存在！")}',
+                                   config=self.config_dir_list[0])
                 return
             serial_name = str(int(datetime.datetime.now().timestamp()))
             os.mkdir(f'./config/{serial_name}')
@@ -569,16 +570,18 @@ class Window(MSFluentWindow):
             from gui.fragments.switch import SwitchFragment
             from gui.fragments.settings import SettingsFragment
             _config = ConfigSet(config_dir=serial_name)
+            _config.add_signal("notify_signal", self.notify_signal)
             _sub_list_ = [
                 HomeFragment(parent=self, config=_config),
-                SwitchFragment(parent=self, config=_config),
                 ProcessFragment(parent=self, config=_config),
+                SwitchFragment(parent=self, config=_config),
                 SettingsFragment(parent=self, config=_config)
             ]
             for i in range(0, len(_sub_list_)):
                 self._sub_list[i].append(_sub_list_[i])
                 self.stackedWidget.addWidget(_sub_list_[i])
             self.addTab(_sub_list_[0].object_name, _config, 'resource/Smiling_with_heart.png')
+            self.config_dir_list.append(_config)
 
     def onTabCloseRequested(self, i0):
         config_name = self._sub_list[0][i0].config["name"]
@@ -586,8 +589,21 @@ class Window(MSFluentWindow):
         content = self.tr("""你需要在确认后重启BAAS以完成更改。""")
         closeRequestBox = MessageBox(title, content, self)
         if closeRequestBox.exec():
-            shutil.rmtree(f'./config/{self._sub_list[0][i0].config.config_dir}')
-
+            shutil.rmtree(self._sub_list[0][i0].config.config_dir)
+            _changed_table = []
+            for sub in self._sub_list:
+                _changed_row = []
+                for tab in sub:
+                    if config_name != tab.config["name"]:
+                        _changed_row.append(tab)
+                _changed_table.append(_changed_row)
+            self._sub_list = _changed_table
+            # Remove the config from the list
+            for _config in self.config_dir_list:
+                if _config["name"] == config_name:
+                    self.config_dir_list.remove(_config)
+                    break
+            self.tabBar.removeTab(i0)
     def addTab(self, routeKey: str, config: ConfigSet, icon: Union[QIcon, str, FluentIconBase, None]):
         self.tabBar.addBAASTab(routeKey, config, icon, window=self)
 

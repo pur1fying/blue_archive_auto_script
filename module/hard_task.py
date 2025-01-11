@@ -65,11 +65,6 @@ def implement(self):
 
 
 def to_hard_event(self, skip_first_screenshot=False):
-    task_info_lo = {
-        'CN': (1087, 140),
-        'Global': (1128, 130),
-        'JP': (1128, 130)
-    }
     rgb_ends = 'event_hard'
     rgb_possibles = {
         "event_normal": (1064, 165),
@@ -82,7 +77,7 @@ def to_hard_event(self, skip_first_screenshot=False):
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
         "normal_task_unlock-notice": (887, 164),
-        "normal_task_task-info": task_info_lo[self.server],
+        "normal_task_task-info": (1128, 130),
         'normal_task_skip-sweep-complete': (643, 506),
         "purchase_ap_notice": (919, 165),
         "purchase_ap_notice-localized": (919, 165),
@@ -107,11 +102,11 @@ def to_task_info(self, x, y, skip_first_screenshot=False):
     return picture.co_detect(self, None, rgb_possibles, img_ends, None, skip_first_screenshot)
 
 
-def readOneHardTask(task_string):
+def readOneHardTask(task_string, region):
     if task_string.count('-') != 2:
         raise ValueError("[ " + task_string + " ] format error.")
     mainline_available_missions = list(range(1, 4))
-    mainline_available_regions = list(range(1, 27))
+    mainline_available_regions = list(range(region[0], region[1] + 1))
     temp = task_string.split('-')
     region = temp[0]
     mission = temp[1]

@@ -434,7 +434,7 @@ def to_set_exchange_times_menu(self, skip_first_screenshot=False):
 def continue_exchange(self):
     img_possibles = {"activity_continue-exchange": (931, 600)}
     img_ends = "activity_continue-exchange-grey"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True, tentitive_click=True, max_fail_cnt=5)
+    picture.co_detect(self, None, None, img_ends, img_possibles, True, tentative_click=True, max_fail_cnt=5)
 
 
 def get_exchange_assets(self):

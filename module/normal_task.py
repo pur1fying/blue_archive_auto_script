@@ -79,11 +79,11 @@ def implement(self):
     return True
 
 
-def readOneNormalTask(task_string):
+def readOneNormalTask(task_string, region):
     if task_string.count('-') != 2:
         raise ValueError("[ " + task_string + " ] format error.")
     mainline_available_missions = list(range(1, 6))
-    mainline_available_regions = list(range(5, 27))
+    mainline_available_regions = list(range(5, region[1] + 1))
     mainline_available_regions.append("tutorial")
     temp = task_string.split('-')
     region = temp[0]
@@ -110,11 +110,6 @@ def readOneNormalTask(task_string):
 
 
 def to_normal_event(self, skip_first_screenshot=False):
-    task_info_lo = {
-        'CN': (1087, 140),
-        'Global': (1128, 130),
-        'JP': (1128, 130)
-    }
     rgb_ends = 'event_normal'
     rgb_possibles = {
         "event_hard": (805, 165),
@@ -127,7 +122,7 @@ def to_normal_event(self, skip_first_screenshot=False):
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
         "normal_task_unlock-notice": (887, 164),
-        "normal_task_task-info": task_info_lo[self.server],
+        "normal_task_task-info": (1128, 130),
         'normal_task_skip-sweep-complete': (643, 506),
         "purchase_ap_notice-localized": (919, 165),
         "purchase_ap_notice": (919, 165),

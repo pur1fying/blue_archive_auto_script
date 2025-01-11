@@ -164,8 +164,7 @@ def most_similar_string(s, possible_string_letter_dict, possible_string_length):
             if letter not in s_letter_dict:
                 continue
             possible_string_letter_appear_cnt = possible_string_letter_dict[i][letter]
-            cnt += max(0, (
-                    possible_string_letter_appear_cnt - abs(s_letter_dict[letter] - possible_string_letter_appear_cnt)))
+            cnt += max(0, (possible_string_letter_appear_cnt - abs(s_letter_dict[letter] - possible_string_letter_appear_cnt)))
         acc.append(cnt / possible_string_length[i])
 
     max_acc = max(acc)
