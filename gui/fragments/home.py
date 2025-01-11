@@ -97,15 +97,14 @@ class HomeFragment(QFrame):
         self.__initLayout()
         self.__connectSignalToSlot()
 
-        self._main_thread_attach = MainThread(self.config)
-        self.config.set_main_thread(self._main_thread_attach)
-        self._main_thread_attach.button_signal.connect(self.set_button_state)
-        self._main_thread_attach.logger_signal.connect(self.logger_box.append)
-        self._main_thread_attach.update_signal.connect(self.call_update)
-        self._main_thread_attach.exit_signal.connect(lambda x: sys.exit(x))
+        self.main_thread_attach = MainThread(self.config)
+        self.config.set_main_thread(self.main_thread_attach)
+        self.main_thread_attach.button_signal.connect(self.set_button_state)
+        self.main_thread_attach.logger_signal.connect(self.logger_box.append)
+        self.main_thread_attach.update_signal.connect(self.call_update)
+        self.main_thread_attach.exit_signal.connect(lambda x: sys.exit(x))
 
-        config.add_signal('update_signal', self._main_thread_attach.update_signal)
-        # self.banner.button_clicked_signal.connect(self._main_thread_attach.get_screen)
+        config.add_signal('update_signal', self.main_thread_attach.update_signal)
         self.startup_card.clicked.connect(self._start_clicked)
         # set a hash object name for this widget
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
@@ -162,7 +161,7 @@ class HomeFragment(QFrame):
     def set_button_state(self, state):
         state = bt.tr('MainThread', state)
         self.startup_card.button.setText(state)
-        self._main_thread_attach.running = True if state == bt.tr("MainThread", "停止") else False
+        self.main_thread_attach.running = True if state == bt.tr("MainThread", "停止") else False
 
     def __initLayout(self):
         self.expandLayout.setSpacing(28)
@@ -184,13 +183,13 @@ class HomeFragment(QFrame):
 
     def _start_clicked(self):
         self.call_update()
-        if self._main_thread_attach.running:
-            self._main_thread_attach.stop_play()
+        if self.main_thread_attach.running:
+            self.main_thread_attach.stop_play()
         else:
-            self._main_thread_attach.start()
+            self.main_thread_attach.start()
 
     def get_main_thread(self):
-        return self._main_thread_attach
+        return self.main_thread_attach
 
     def update_content_then(self, option: str):
         self.startup_card.setContent(self.tr('开始你的档案之旅') + ' - ' + self.tr("完成后") + f' {option}')

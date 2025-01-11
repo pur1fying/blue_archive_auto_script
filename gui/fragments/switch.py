@@ -17,28 +17,53 @@ from gui.util.config_gui import configGui
 
 lock = threading.Lock()
 
-
 class SwitchFragment(ScrollArea):
+    """
+    A class that manages switch-related settings in a scrollable interface.
+    """
+
+    CARD2COMP = {
+        "Card": TemplateSettingCardForClick,
+        "List": TemplateSettingCard
+    }
+
     def __init__(self, parent=None, config=None):
+        """
+        Initializes the SwitchFragment.
+
+        Args:
+            parent: The parent widget.
+            config: Configuration object for settings injection.
+        """
         super().__init__(parent=parent)
         self.flowLayout = None
         self.config = config
         self._config_update()
         # 创建一个QWidget实例作为滚动区域的内容部件
+
+        # Create a QWidget instance to serve as the content of the scroll area.
         self.scrollWidget = QWidget()
-        # 创建一个ExpandLayout实例作为滚动区域的布局管理器
+
+        # Create an ExpandLayout instance for managing the scroll area's layout.
         self.expandLayout = ExpandLayout(self.scrollWidget)
-        # 创建一个标题为“调度设置”的TitleLabel实例
+
+        # Create a TitleLabel instance with the title "Scheduler Settings".
         self.settingLabel = TitleLabel(self.scrollWidget)
-        config.inject(self.settingLabel, self.tr("配置设置") + " {name}")
-        self.configLoadType = configGui.configLoadType.value
-        # 初始化basicGroup变量,_setting_cards列表
+        config.inject(self.settingLabel, self.tr("Configuration Settings") + " {name}")
+        self.configLoadType = configGui.configDisplayType.value
+
+        # Initialize variables for the basic group and setting cards.
         self.basicGroup = None
         self._setting_cards = []
-        self._event_config, self._switch_config = [], []  # 初始化_event_config和_switch_config列表
-        self._read_config()  # 调用_read_config()方法读取配置文件并更新_event_config和_switch_config列表
-        # 创建一个定时器，500毫秒后调用_lazy_load()方法，延迟加载设置，避免卡顿
+        self._event_config, self._switch_config = [], []
+
+        # Read configuration files to populate the event and switch settings.
+        self._read_config()
+
+        # Use a timer to lazily load settings after 500ms to avoid UI lag.
         QTimer.singleShot(500, self._lazy_load)
+
+        # Generate a unique object name for the instance.
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(self.object_name)
 
@@ -100,7 +125,9 @@ class SwitchFragment(ScrollArea):
             self.config.set(cfg_key_name, res)
 
     def _lazy_load(self):
-        # 根据_switch_config和_event_config列表的元素创建SettingCard对象，并将其添加到_setting_cards列表中
+        """
+        Lazily loads setting cards based on the switch and event configuration.
+        """
         self._setting_cards = [
             self._create_card(
                 name=item_event['name'],
@@ -110,26 +137,45 @@ class SwitchFragment(ScrollArea):
             for item_event in self._switch_config
         ]
 
-        self.__initLayout()  # 调用__initLayout()方法初始化布局
-        self.__initWidget()  # 调用__initWidget()方法初始化部件
+        self.__initLayout()
+        self.__initWidget()
 
     def _change_time(self, event_name: str, event_time: str) -> None:
+        """
+        Updates the next execution time for a specific event.
+
+        Args:
+            event_name: The name of the event to update.
+            event_time: The new execution time in the format 'YYYY-MM-DD HH:MM:SS'.
+        """
         try:
             event_time = int(datetime.strptime(event_time, "%Y-%m-%d %H:%M:%S").timestamp())
         except ValueError:
             return
-        self._read_config()  # 读取配置文件并更新_event_config列表
-        # 更新_event_config列表中与给定事件名称相对应的元素的next_tick属性值
+        self._read_config()
+
+        # Update the 'next_tick' value for the specified event.
         self._event_config = [
             {**item, 'next_tick': event_time}
             if item['event_name'] == event_name else item
             for item in self._event_config
         ]
-        self._commit_change()  # 调用_commit_change()方法提交更改
+        self._commit_change()
 
     def _create_card(self, name: str, tip: str, setting_name: str) -> Union[
         TemplateSettingCard, TemplateSettingCardForClick]:
-        Component = TemplateSettingCardForClick if self.configLoadType == 'Card' else TemplateSettingCard
+        """
+        Creates a setting card based on the provided parameters.
+
+        Args:
+            name: The title of the setting card.
+            tip: A description or tooltip for the setting card.
+            setting_name: The configuration name associated with the card.
+
+        Returns:
+            A TemplateSettingCard or TemplateSettingCardForClick instance.
+        """
+        Component = self.CARD2COMP[self.configLoadType]
         _switch_card = Component(
             title=name,
             content=tip,
@@ -138,57 +184,72 @@ class SwitchFragment(ScrollArea):
             config=self.config,
             context='ConfigTranslation',
             setting_name=setting_name
-        )  # 创建TemplateSettingCard实例
-        return _switch_card  # 返回创建的TemplateSettingCard实例
+        )
+        return _switch_card
 
     def _commit_change(self):
+        """
+        Commits changes to the event configuration by saving them to a file.
+        """
         with lock:
             with open(self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
-                json.dump(self._event_config, f, ensure_ascii=False, indent=2)  # 将_event_config列表写入配置文件
+                json.dump(self._event_config, f, ensure_ascii=False, indent=2)
 
     def _read_config(self):
+        """
+        Reads event and switch configurations from their respective files.
+        """
         with lock:
             with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
-                self._event_config = json.load(f)  # 从配置文件中读取数据并更新_event_config列表
+                self._event_config = json.load(f)
             with open(self.config.config_dir + '/switch.json', 'r', encoding='utf-8') as f:
-                self._switch_config = json.load(f)  # 从配置文件中读取数据并更新_switch_config列表
+                self._switch_config = json.load(f)
 
     def update_settings(self):
+        """
+        Updates the displayed settings based on the current configuration type.
+        """
         if self.configLoadType == 'List':
             if self.basicGroup is not None:
-                self.basicGroup.deleteLater()  # 如果basicGroup已经存在，则删除它
+                self.basicGroup.deleteLater()
 
-            self.basicGroup = SettingCardGroup(self.tr("功能开关"),
-                                               self.scrollWidget)  # 创建一个标题为"功能开关"的SettingCardGroup实例
-            self.basicGroup.vBoxLayout.insertSpacing(1, -10)  # 设置basicGroup的垂直布局的间距为20
+            self.basicGroup = SettingCardGroup(self.tr("Features"),
+                                               self.scrollWidget)
+            self.basicGroup.vBoxLayout.insertSpacing(1, -10)
             self.basicGroup.titleLabel.deleteLater()
-            self.basicGroup.addSettingCards(self._setting_cards)  # 将_setting_cards列表中的SettingCard对象添加到basicGroup中
-            self.expandLayout.addWidget(self.basicGroup)  # 将basicGroup添加到expandLayout布局中
+            self.basicGroup.addSettingCards(self._setting_cards)
+            self.expandLayout.addWidget(self.basicGroup)
         else:
             wrapper_widget = QWidget(self.scrollWidget)
-            self.flowLayout = FlowLayout(wrapper_widget, needAni=True)  # 创建一个FlowLayout实例作为滚动区域的布局管理器
+            self.flowLayout = FlowLayout(wrapper_widget, needAni=True)
             self.flowLayout.setSpacing(10)
             self.flowLayout.setAlignment(Qt.AlignTop)
             for card in self._setting_cards:
                 self.flowLayout.addWidget(card)
-            # Attention: 150 is the height of the card, 4 is the row count
+
             wrapper_widget.setFixedHeight(150 * 4 + 50)
             self.expandLayout.addWidget(wrapper_widget)
 
     def __initLayout(self):
-        self.expandLayout.setSpacing(28)  # 设置expandLayout的间距为28
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # 设置水平滚动条策略为始终关闭
-        self.setWidgetResizable(True)  # 设置滚动区域的部件可调整大小
-        self.settingLabel.setObjectName('settingLabel')  # 设置settingLabel的对象名称为'settingLabel'
+        """
+        Initializes the layout for the scrollable content.
+        """
+        self.expandLayout.setSpacing(28)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setWidgetResizable(True)
+        self.settingLabel.setObjectName('settingLabel')
         self.setStyleSheet('''
             QScrollArea {
                 background-color: transparent;
                 border: none;
             }
-        ''')  # 设置滚动区域的样式表
-        self.viewport().setStyleSheet("background-color: transparent;")  # 设置滚动区域的背景颜色为透明
-        self.expandLayout.addWidget(self.settingLabel)  # 将settingLabel添加到expandLayout布局中
-        self.update_settings()  # 调用update_settings()方法更新设置
+        ''')
+        self.viewport().setStyleSheet("background-color: transparent;")
+        self.expandLayout.addWidget(self.settingLabel)
+        self.update_settings()
 
     def __initWidget(self):
-        self.setWidget(self.scrollWidget)  # 设置滚动区域的部件为scrollWidget
+        """
+        Sets the scrollable widget for the scroll area.
+        """
+        self.setWidget(self.scrollWidget)

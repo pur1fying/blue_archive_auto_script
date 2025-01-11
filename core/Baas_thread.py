@@ -1,4 +1,5 @@
 import copy
+import traceback
 from datetime import datetime
 import cv2
 from core.exception import ScriptError, RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
@@ -414,17 +415,15 @@ class Baas_thread:
                     time.sleep(1)
                     if self.flag_run:  # allow user to stop script before then action
                         self.handle_then()
-        except Exception as e:
+        except Exception:
             notify(title='', body='任务已停止')
-            self.logger.error(e.__str__())
-            self.logger.error("error occurred, stop all activities")
             self.signal_stop()
 
     def genScheduleLog(self, task):
         self.logger.info("Scheduler : {")
-        self.logger.info("            pre_task         : " + str(task["pre_task"]))
-        self.logger.info("            current_task     : " + str(task["current_task"]))
-        self.logger.info("            post_task        : " + str(task["post_task"]))
+        self.logger.info("                pre_task         : " + str(task["pre_task"]))
+        self.logger.info("                current_task     : " + str(task["current_task"]))
+        self.logger.info("                post_task        : " + str(task["post_task"]))
         self.logger.info("            }")
 
     def update_create_priority(self):
@@ -510,9 +509,9 @@ class Baas_thread:
                 pass
         return False
 
-    def simple_error(self, info: str):
-        push(self.logger, self.config, info)
-        raise ScriptError(message=info, context=self)
+    def simple_error(self, title: str, error_message: str):
+        push(self.logger, self.config, title)
+        raise ScriptError(title=title, message=error_message, context=self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
         img_possibles = {
