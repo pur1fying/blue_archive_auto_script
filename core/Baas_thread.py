@@ -2,7 +2,7 @@ import copy
 import traceback
 from datetime import datetime
 import cv2
-from core.exception import ScriptError, RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
+from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
@@ -396,16 +396,17 @@ class Baas_thread:
                         task_with_log_info.append((task, 'post_task'))
 
                     for task, task_type in task_with_log_info:
-                        flg = False
                         if not self.flag_run:
                             break
+                        flg = False
                         self.logger.info(f"{task_type}: [ {task} ] start")
                         if task_type == 'current_task':
                             flg = True
                             self.next_time = 0
                         if not self.solve(task):
                             self.signal_stop()
-                            raise RequestHumanTakeOver
+                            notify(title='', body='任务已停止')
+                            return
                         if flg:
                             currentTaskNextTime = self.next_time
 
@@ -426,9 +427,9 @@ class Baas_thread:
                     time.sleep(1)
                     if self.flag_run:  # allow user to stop script before then action
                         self.handle_then()
-        except Exception:
-            notify(title='', body='任务已停止')
-            self.signal_stop()
+        except Exception as e:
+            self.logger.error(traceback.format_exc())
+            return
 
     def genScheduleLog(self, task):
         self.logger.info("Scheduler : {")
@@ -464,19 +465,18 @@ class Baas_thread:
                 return func_dict[activity](self)
             except FunctionCallTimeout:
                 if not self.deal_with_func_call_timeout():
-                    threading.Thread(target=self.simple_error, args=("Failed to Restart Game",)).start()
+                    self.push_and_log_error_msg("Function Call Timeout", "Failed to Restart Game when function call timeout")
                     return False
             except PackageIncorrect as e:
                 pkg = e.message
                 if not self.deal_with_package_incorrect(pkg):
-                    threading.Thread(target=self.simple_error, args=("Failed to Restart Game",)).start()
+                    self.push_and_log_error_msg("Package Incorrect", "Failed to Restart Game when package incorrect")
                     return False
-            except Exception as e:
+            except Exception:
                 if self.flag_run:
-                    self.logger.error(e.__str__())
-                    threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
+                    self.push_and_log_error_msg("Script Error Occurred", traceback.format_exc())
                     return False
-                return True
+                return True # Human take over
 
     def deal_with_package_incorrect(self, curr_pkg):
         """
@@ -524,9 +524,9 @@ class Baas_thread:
                 pass
         return False
 
-    def simple_error(self, title: str, error_message: str):
+    def push_and_log_error_msg(self, title, message):
         push(self.logger, self.config, title)
-        raise ScriptError(title=title, message=error_message, context=self)
+        LogTraceback(title, message, self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
         img_possibles = {
