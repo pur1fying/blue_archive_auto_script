@@ -1,71 +1,38 @@
 # coding:utf-8
+import os
 
 from PyQt5.QtCore import pyqtProperty, QPropertyAnimation, pyqtSignal
 from PyQt5.QtGui import QColor
-from qfluentwidgets import ExpandSettingCard, MessageBoxBase
-from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets import ExpandSettingCard
+from qfluentwidgets import FluentIcon
 
 from core.utils import delay
+from gui.util.config_gui import configGui
+from gui.util.customed_ui import OutlineLabel, DialogSettingBox
 from gui.util.translator import baasTranslator as bt
-
-BANNER_IMAGE_DIR = 'gui/assets/banners'
 
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGraphicsDropShadowEffect
 from PyQt5.QtGui import QPixmap, QFont, QPainter, QPainterPath
 from PyQt5.QtCore import Qt, QRectF
 
-
-class OutlineLabel(QLabel):
-    def __init__(self, text, parent=None):
-        super().__init__(text, parent)
-        self.setFont(QFont("Arial", 20, QFont.Bold))
-        self.setAlignment(Qt.AlignCenter)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-
-        outline_color = QColor("white")
-        text_color = QColor("black")
-
-        # 设置文字边框（描边）
-        painter.setPen(outline_color)
-        x_offset = y_offset = 1  # 边框偏移量
-        for dx in (-x_offset, 0, x_offset):
-            for dy in (-y_offset, 0, y_offset):
-                if dx != 0 or dy != 0:
-                    painter.drawText(self.rect().translated(dx, dy), Qt.AlignCenter, self.text())
-
-        # 绘制原文字
-        painter.setPen(text_color)
-        painter.drawText(self.rect(), Qt.AlignCenter, self.text())
-
-
-class DialogSettingBox(MessageBoxBase):
-    def __init__(self, parent=None, config=None, layout=None, *_, **kwargs):
-        super().__init__(parent)
-        setting_name = kwargs.get('setting_name')
-        self.config = config
-        # self.layout = layout
-        frame = QFrame(self)
-        layout_wrapper = QVBoxLayout(frame)
-        layout_wrapper.setContentsMargins(0, 0, 0, 0)
-        layout_wrapper.setSpacing(0)
-        layout_wrapper.addWidget(layout)
-        layout.setStyleSheet("""
-            * {
-                font-family: "Microsoft YaHei";
-                font-size: 14px;
-            }
-        """)
-        # Check if the layout name contains "shop"
-        if 'shop' in setting_name or 'Shop' in setting_name:
-            frame.setMinimumWidth(800)
-        frame.setLayout(layout_wrapper)
-        self.viewLayout.addWidget(frame)
+BANNER_IMAGE_DIR = 'gui/assets/banners'
 
 
 class TemplateSettingCardForClick(QFrame):
+    COLOR_THEME = {
+        'Light': {
+            'background': '#ffffff',
+            'background_hover': '#e0f7fa',
+            'text': '#333333',
+            'outline': '#fff'
+        },
+        'Dark': {
+            'background': '#333333',
+            'background_hover': '#555555',
+            'text': '#fff',
+            'outline': '#333333'
+        }
+    }
 
     def __init__(self, title: str = '', content: str = '', parent=None,
                  sub_view=None, config=None, context=None, setting_name=''):
@@ -79,8 +46,9 @@ class TemplateSettingCardForClick(QFrame):
         self.content = content
         self.sub_view = sub_view
         self.config = config
+        self.card_display_type = configGui.cardDisplayType.value
         self.card_width = 250
-        self.card_height = 150
+        self.card_height = 150 if self.card_display_type == 'withImage' else 90
 
         self.setFixedWidth(self.card_width)
         self.setFixedHeight(self.card_height)
@@ -93,29 +61,42 @@ class TemplateSettingCardForClick(QFrame):
         self.__initWidget()
         self.set_shadow_effect()
 
+        configGui.themeChanged.connect(self._onThemeChange)
+
     def __initWidget(self):
         # 设置图片
-        self.image_label = QLabel(self)
-        pixmap = QPixmap(self.image_path).scaled(self.card_width, int(self.card_height * 0.8),
-                                                 Qt.KeepAspectRatioByExpanding)
-        rounded_pixmap = self._add_top_rounded_corners(pixmap, 20)
-        self.image_label.setPixmap(rounded_pixmap)
-        self.image_label.setFixedSize(self.card_width, int(self.card_height * 0.8))
-        self.image_label.setAlignment(Qt.AlignTop)
+        if self.card_display_type == 'withImage':
+            self.image_label = QLabel(self)
+            rounded_pixmap = self._create_image()
+            self.image_label.setPixmap(rounded_pixmap)
+
+            self.image_label.setFixedSize(self.card_width, int(self.card_height * 0.8))
+            self.image_label.setAlignment(Qt.AlignTop)
+            self.viewLayout.addWidget(self.image_label)
 
         # 设置标题
-        self.title_label = OutlineLabel(self.title, self)
-        self.title_label.setFont(QFont("Microsoft YaHei", 15, QFont.Bold))
+        self.title_label = OutlineLabel(self.title, parent=self,
+                                        font_size=15,
+                                        font_family='Microsoft YaHei',
+                                        font_weight=QFont.Bold)
+
         self.title_label.setAlignment(Qt.AlignCenter)
 
+        # self.title_label.setContentsMargins(0, 0, 0, 0)
+
         # 设置简介
-        self.content_label = QLabel(self.content, self)
-        self.content_label.setFont(QFont("Microsoft YaHei", 10))
+        self.content_label = OutlineLabel(self.content, parent=self,
+                                          font_size=10,
+                                          font_family='Microsoft YaHei',
+                                          font_weight=QFont.Normal)
+
         self.content_label.setAlignment(Qt.AlignCenter)
         self.content_label.setWordWrap(True)
 
+        if self.card_display_type != 'withImage':
+            self.title_label.setContentsMargins(0, 20, 0, 0)
+
         # 添加组件到布局
-        self.viewLayout.addWidget(self.image_label)
         self.viewLayout.addWidget(self.title_label)
         self.viewLayout.addWidget(self.content_label)
         self.viewLayout.setAlignment(Qt.AlignTop)
@@ -125,19 +106,45 @@ class TemplateSettingCardForClick(QFrame):
         self.animation = QPropertyAnimation(self, b"back_color")
         self.animation.setDuration(300)  # 动画持续时间 300ms
 
+    def _create_image(self):
+        if not os.path.exists(self.image_path):
+            self.image_path = f'{BANNER_IMAGE_DIR}/default.png'
+        pixmap = QPixmap(self.image_path).scaled(self.card_width, int(self.card_height * 0.8),
+                                                 Qt.KeepAspectRatioByExpanding)
+        rounded_pixmap = self._add_top_rounded_corners(pixmap, 20)
+        return rounded_pixmap
+
     def set_default_style(self):
         # 设置卡片的样式
         self.setStyleSheet("""
             QFrame {
                 border-radius: 20px;
-                background-color: #fff;
+                background-color: %s;
             }
             QLabel {
-                margin-bottom: 10px;
-                color: #333;
                 background-color: transparent;
             }
-        """)
+        """ % self.COLOR_THEME[configGui.theme.value]['background'])
+
+        if self.card_display_type == 'withImage':
+            self.content_label.setStyleSheet("""
+                QLabel {
+                    margin-bottom: 15px;
+                }
+            """)
+
+        # 设置标题的样式
+        self.title_label.outline_color = QColor(self.COLOR_THEME[configGui.theme.value]['outline'])
+        self.title_label.text_color = QColor(self.COLOR_THEME[configGui.theme.value]['text'])
+        self.title_label.update()
+
+        # 设置简介的样式
+        self.content_label.outline_color = QColor(self.COLOR_THEME[configGui.theme.value]['outline'])
+        self.content_label.text_color = QColor(self.COLOR_THEME[configGui.theme.value]['text'])
+        self.content_label.update()
+
+    def _onThemeChange(self):
+        self.set_default_style()
 
     def set_shadow_effect(self):
         shadow = QGraphicsDropShadowEffect(self)
@@ -148,12 +155,18 @@ class TemplateSettingCardForClick(QFrame):
 
     def enterEvent(self, event):
         # 进入时使用动画渐变至 hover 背景色
-        self.start_background_animation(QColor("#fff"), QColor("#e0f7fa"))
+        self.start_background_animation(
+            QColor(self.COLOR_THEME[configGui.theme.value]['background']),
+            QColor(self.COLOR_THEME[configGui.theme.value]['background_hover'])
+        )
         super().enterEvent(event)
 
     def leaveEvent(self, event):
         # 离开时使用动画渐变回默认背景色
-        self.start_background_animation(QColor("#e0f7fa"), QColor("#fff"))
+        self.start_background_animation(
+            QColor(self.COLOR_THEME[configGui.theme.value]['background_hover']),
+            QColor(self.COLOR_THEME[configGui.theme.value]['background'])
+        )
         super().leaveEvent(event)
 
     def start_background_animation(self, start_color, end_color):
@@ -173,8 +186,6 @@ class TemplateSettingCardForClick(QFrame):
                 background-color: %s;
             }
             QLabel {
-                margin-bottom: 10px;
-                color: #333;
                 background-color: transparent;
             }
         """ % col.name())
@@ -183,7 +194,8 @@ class TemplateSettingCardForClick(QFrame):
 
     back_color = pyqtProperty(QColor, fset=_set_back_color)
 
-    def _add_top_rounded_corners(self, pixmap, radius):
+    @staticmethod
+    def _add_top_rounded_corners(pixmap, radius):
         # 创建一个与pixmap相同大小的QPixmap作为目标图像
         rounded_pixmap = QPixmap(pixmap.size())
         rounded_pixmap.fill(Qt.transparent)
@@ -229,7 +241,7 @@ class TemplateSettingCard(ExpandSettingCard):
                  **kwargs):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
-        super().__init__(FIF.CHECKBOX, title, content, parent)
+        super().__init__(FluentIcon.CHECKBOX, title, content, parent)
         assert sub_view is not None, 'Sub_view is required'
         self.initiated = False
         self.expand_view = None
@@ -274,10 +286,11 @@ class TemplateSettingCard(ExpandSettingCard):
 class SimpleSettingCard(ExpandSettingCard):
     """ Folder list setting card """
 
-    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None, context=None, **kwargs):
+    def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None, context=None,
+                 **kwargs):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
-        super().__init__(FIF.CHECKBOX, title, content, parent)
+        super().__init__(FluentIcon.CHECKBOX, title, content, parent)
         self._adjustViewSize()
         self.initiated = False
         self.expand_view = None
@@ -305,4 +318,3 @@ class SimpleSettingCard(ExpandSettingCard):
         self.viewLayout.addWidget(self.expand_view)
         self.expand_view.show()
         self._adjustViewSize()
-

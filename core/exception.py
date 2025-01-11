@@ -19,15 +19,31 @@ class PackageIncorrect(Exception):
         super().__init__(self.message)
 
 
-class ScriptError(Exception):
-    def __init__(self, message=None, context=None):
+class FunctionCallTimeout(Exception):
+    def __init__(self, message="Function Call Timeout"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class LogTraceback:
+    def __init__(self, title=None, message=None, context=None):
         traceback.print_exc()
         assert context is not None
         self.message = message
         self.context = context
         context.send('stop')
-        self.context.logger.error(message)
-        super().__init__(self.message)
+        self.context.logger.error(title)
+        lines = message.split('\n')
+        _lines = []
+        for line in lines:
+            while len(line) > 50:
+                _lines.append(line[:50])
+                line = line[50:]
+            if line == '': continue
+            _lines.append(line)
+        for line in _lines:
+            self.context.logger.error(line)
+        self.context.logger.error('All activities stopped. Require human take over.')
         # self.log_into_file()
 
     def log_into_file(self):
@@ -45,9 +61,3 @@ class ScriptError(Exception):
 
     def __str__(self):
         return self.message
-
-
-class FunctionCallTimeout(Exception):
-    def __init__(self, message="Function Call Timeout"):
-        self.message = message
-        super().__init__(self.message)

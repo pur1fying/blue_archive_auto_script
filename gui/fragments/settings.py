@@ -4,7 +4,8 @@ from random import random
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
-from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF, ScrollArea, TitleLabel, SettingCardGroup,
+from qfluentwidgets import (ComboBoxSettingCard, ExpandLayout, FluentIcon as FIF, ScrollArea, TitleLabel,
+                            SettingCardGroup,
                             SwitchSettingCard, OptionsSettingCard, CustomColorSettingCard, setTheme, setThemeColor)
 
 import window
@@ -12,6 +13,7 @@ from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
 from gui.util import notification
 from gui.util.config_gui import configGui, isWin11
+from gui.util.language import Language
 
 
 class SettingsFragment(ScrollArea):
@@ -20,7 +22,7 @@ class SettingsFragment(ScrollArea):
         self.config = config
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
-        self.settingLabel = TitleLabel( self.scrollWidget)
+        self.settingLabel = TitleLabel(self.scrollWidget)
         config.inject(self.settingLabel, self.tr(f"普通设置") + " {name}")
 
         self.basicGroup = SettingCardGroup(
@@ -144,16 +146,18 @@ class SettingsFragment(ScrollArea):
             ],
             parent=self.guiGroup
         )
-        # self.languageCard = ComboBoxSettingCard(
-        #     configGui.language,
-        #     FIF.LANGUAGE,
-        #     self.tr('语言'),
-        #     self.tr('设置界面的首选语言'),
-        #     texts=Language.combobox(),
-        #     parent=self.guiGroup
-        # )
+
+        self.languageCard = ComboBoxSettingCard(
+            configGui.language,
+            FIF.LANGUAGE,
+            self.tr('语言'),
+            self.tr('设置界面的首选语言'),
+            texts=Language.combobox(),
+            parent=self.guiGroup
+        )
+
         self.modeCard = ComboBoxSettingCard(
-            configGui.configLoadType,
+            configGui.configDisplayType,
             FIF.LIBRARY,
             self.tr('配置界面模式'),
             self.tr('设置配置界面模式'),
@@ -161,8 +165,18 @@ class SettingsFragment(ScrollArea):
             parent=self.guiGroup
         )
 
+        self.modeCardType = ComboBoxSettingCard(
+            configGui.cardDisplayType,
+            FIF.LIBRARY,
+            self.tr('卡片显示模式'),
+            self.tr('卡片是否显示精美图片'),
+            texts=["withImage", "plainText"],
+            parent=self.guiGroup
+        )
+
         self.guiGroupItems = [
-            self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.modeCard
+            self.languageCard, self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.modeCard,
+            self.modeCardType
         ]
 
         self.__initLayout()

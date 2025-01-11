@@ -1,18 +1,19 @@
-import os
-import sys
-import shutil
-import logging
-import zipfile
-import platform
-import psutil
 import argparse
-import requests
-import threading
-import traceback
+import configparser
+import logging
+import os
+import platform
+import shutil
 import subprocess
-from tqdm import tqdm
+import sys
+import traceback
+import zipfile
+
+import psutil
+import requests
 from dulwich import porcelain
 from dulwich.repo import Repo
+from tqdm import tqdm
 
 # For Gitee download links, replace 'blob' with 'raw'
 TMP_PATH = 'tmp'
@@ -97,7 +98,7 @@ def check_python_installation():
         result = subprocess.run(["python", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
             print(f"Python is installed: {result.stdout.strip()}")
-            return True
+            return "python"
     except FileNotFoundError:
         pass
 
@@ -106,49 +107,55 @@ def check_python_installation():
         result = subprocess.run(["python3", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
             print(f"Python 3 is installed: {result.stdout.strip()}")
-            return True
+            return "python3"
     except FileNotFoundError:
         pass
 
     # If both checks fail, Python is not installed
     print("Python is not installed on this system.")
-    return False
+    return None
 
 
 def install_package():
     try:
-        # Detect the OS and select the appropriate Python executable and path
-        system = platform.system()
+        if args.runtime_path == 'default':
+            # Detect the OS and select the appropriate Python executable and path
+            system = platform.system()
 
-        # If Linux, don't create a virtual environment
-        if system == 'Linux':
-            env_python_exec = './env/bin/python3'
-            subprocess.run([env_python_exec, '-m', 'pip', 'install', '-r', './requirements-linux.txt', '-i',
-                            'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'], check=True)
-            return
+            # If Linux, don't create a virtual environment
+            if system == 'Linux':
+                env_python_exec = './env/bin/python3'
+                subprocess.run([env_python_exec, '-m', 'pip', 'install', '-r', './requirements-linux.txt', '-i',
+                                args.source, '--no-warn-script-location'], check=True)
+                return
 
-        if system == 'Windows':
-            python_exec_file = './lib/python.exe'
-            env_python_exec = './env/Scripts/python'
+            if system == 'Windows':
+                python_exec_file = './lib/python.exe'
+                env_python_exec = './env/Scripts/python'
+            else:
+                raise Exception("Unsupported OS")
+
+            if not os.path.exists('./env/Scripts/python.exe'):
+                # Install virtualenv package
+                subprocess.run(
+                    [python_exec_file, '-m', 'pip', 'install', 'virtualenv', '-i',
+                     args.source,
+                     '--no-warn-script-location'], check=True)
+
+                # Create the virtual environment
+                subprocess.run([python_exec_file, '-m', 'virtualenv', 'env'], check=True)
+
+                # Remove the Build Environment -> Remaining Problem for `ModuleNotFoundError: No module named '_socket'`
+                # shutil.rmtree('./lib')
         else:
-            raise Exception("Unsupported OS")
+            env_python_exec = check_python_installation()
 
-        if not os.path.exists('./env/Scripts/python.exe'):
-            # Install virtualenv package
-            subprocess.run(
-                [python_exec_file, '-m', 'pip', 'install', 'virtualenv', '-i',
-                 'https://pypi.tuna.tsinghua.edu.cn/simple',
-                 '--no-warn-script-location'], check=True)
-
-            # Create the virtual environment
-            subprocess.run([python_exec_file, '-m', 'virtualenv', 'env'], check=True)
-
-            # Remove the Build Environment -> Remaining Problem for `ModuleNotFoundError: No module named '_socket'`
-            # shutil.rmtree('./lib')
+        if not env_python_exec:
+            env_python_exec = args.runtime_path
 
         # Install packages in requirements.txt within the virtual environment
         subprocess.run([env_python_exec, '-m', 'pip', 'install', '-r', './requirements.txt', '-i',
-                        'https://pypi.tuna.tsinghua.edu.cn/simple', '--no-warn-script-location'], check=True)
+                        args.source, '--no-warn-script-location'], check=True)
 
         print("Packages installed successfully")
 
@@ -221,16 +228,16 @@ def run_app():
                     except:
                         os.system(f'taskkill /f /pid {last_pid}')
                 else:
-                    with open("pid", "w+") as f:
-                        f.write(str(start_app()))
+                    with open("pid", "w+") as _f:
+                        _f.write(str(start_app()))
                     logger.info("Start app success.")
             f.close()
-            with open("pid", "w+") as f:
-                f.write(str(start_app()))
+            with open("pid", "w+") as _f:
+                _f.write(str(start_app()))
                 logger.info("Start app success.")
-                f.close()
+                _f.close()
 
-    except Exception as e:
+    except Exception:
         raise Exception("Run app failed")
 
     if platform.system() == "Windows" and args.no_build == False:
@@ -275,12 +282,6 @@ def check_requirements():
     logger.info("Check package Installation...")
     install_package()
     logger.info("Install requirements success")
-
-
-def check_path():
-    logger.info("Checking tmp path...")
-    if not os.path.exists(TMP_PATH):
-        os.mkdir(TMP_PATH)
 
 
 def check_pip():
@@ -370,10 +371,7 @@ def check_git():
         logger.info(f"remote_sha: {remote_sha}")
         logger.info(f"local_sha: {local_sha}")
 
-        # Check if there are any changes
-        status = porcelain.status(repo)
-        has_changes = status.unstaged or status.staged
-        refresh_required = args.refresh and has_changes
+        refresh_required = args.refresh
         if local_sha == remote_sha and not refresh_required:
             logger.info("No updates available")
         else:
@@ -413,22 +411,41 @@ def check_frozen_installer():
 
 
 def dynamic_update_installer():
+    # Define paths for the installer and Python interpreter
+    installer_path = "./deploy/installer/installer.py"
+
+    # Use platform-independent way to determine Python executable
+    if platform.system() == "Windows":
+        python_path = "./env/Scripts/python.exe"
+    else:  # Linux/Unix
+        python_path = "./env/bin/python"
+
+    # Prepare the command arguments
     launch_exec_args = sys.argv.copy()
-    launch_exec_args[0] = os.path.abspath("./env/Scripts/python.exe")
-    launch_exec_args.insert(1, os.path.abspath("./installer.py"))
-    if os.path.exists('./installer.py') and os.path.exists('./env/Scripts/python.exe') and len(sys.argv) > 1:
-        # print(launch_exec_args)
+    launch_exec_args[0] = os.path.abspath(python_path)
+    launch_exec_args.insert(1, os.path.abspath(installer_path))
+
+    # Check if paths exist and arguments are provided
+    if os.path.exists(installer_path) and os.path.exists(python_path) and len(sys.argv) > 1:
         try:
             subprocess.run(launch_exec_args)
-        except:
+        except Exception as e:
+            print(f"Error running installer: {e}")
             run_app()
-    elif args.internal_launch == True:
+    elif args.internal_launch:  # Internal launch fallback
         run_app()
     else:
-        if not os.path.exists('./installer.py'):
+        if not os.path.exists(installer_path):
+            print("Installer not found. Launching app directly.")
             run_app()
             sys.exit()
-        os.system("START \" \" ./env/Scripts/python.exe ./installer.py --launch")
+
+        # Use platform-specific commands to start the installer
+        if platform.system() == "Windows":
+            os.system(f"START \" \" \"{python_path}\" \"{installer_path}\" --launch")
+        else:  # Linux/Unix
+            subprocess.run([python_path, installer_path, "--launch"])
+
     sys.exit()
 
 
@@ -436,38 +453,115 @@ def check_install():
     try:
         clear_tmp()
         create_tmp()
-        check_python()
-        check_pip()
+        if args.runtime_path == 'default' and not args.use_local_python:
+            check_python()
+            check_pip()
+            check_pth()
+            check_env_patch()
         check_git()
-        check_pth()
         check_atx()
-        check_env_patch()
         check_requirements()
+        clear_tmp()
         # check_onnxruntime()
         # run_app()
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         clear_tmp()
         os.system('pause')
 
 
-if __name__ == '__main__':
-    # argsions
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
-                                     description="Blue Archive Auto Script Launcher & Installer\nGitHub Repo: https://github.com/pur1fying/blue_archive_auto_script\nOfficial QQ Group: 658302636")
-    parser.add_argument('--dev', dest='dev', action='store_true', help='Development mode')
-    parser.add_argument('--refresh', dest='refresh', action='store_true', help='Drop all changes')
+def parse_args_and_config():
+    # Default configuration file path
+    default_config_path = "setup.ini"
+
+    # Initialize argparse for command-line arguments
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=(
+            "Blue Archive Auto Script Launcher & Installer\n"
+            "GitHub Repo: https://github.com/pur1fying/blue_archive_auto_script\n"
+            "Official QQ Group: 658302636"
+        )
+    )
+
+    # Define command-line arguments
+    parser.add_argument('--config', type=str, default=default_config_path, help='Path to the INI configuration file')
+    parser.add_argument('--dev', action='store_true', help='Development mode')
+    parser.add_argument('--refresh', action='store_true', help='Drop all changes')
     parser.add_argument('--launch', action='store_true', help='Directly launch BAAS')
-    parser.add_argument('--force-launch', action='store_true', help='ignore multi BAAS instance check')
+    parser.add_argument('--force-launch', action='store_true', help='Ignore multi BAAS instance check')
     parser.add_argument('--internal-launch', action='store_true', help='Use launcher inside pre-build executable files')
     parser.add_argument('--no-build', action='store_true', help='Disable Internal BAAS Installer builder')
     parser.add_argument('--debug', action='store_true', help='Enable Console Output')
+    parser.add_argument('--source', type=str, help='Specify the source of the package')
+    parser.add_argument('--runtime_path', type=str, help='Specify the runtime path of the package')
+    parser.add_argument('--use_local_python', action='store_true',
+                        help='Whether to use local python instead of embedded python')
+
+    global args, unknown_args
+    # Parse command-line arguments
     args, unknown_args = parser.parse_known_args()
 
+    # Load configuration from INI file
+    config = configparser.ConfigParser()
+    if os.path.exists(args.config):
+        config.read(args.config)
+    else:
+        print(f"Warning: Configuration file '{args.config}' not found. Using default settings.")
+        # Create a default configuration file if it doesn't exist
+        with open(args.config, 'w') as config_file:
+            config.write(config_file)
+
+    # Helper function to retrieve values from the configuration file
+    def get_config_option(section, option, fallback=None, value_type=any):
+        """
+        Retrieve a configuration option from the INI file.
+
+        :param section: The section name in the INI file.
+        :param option: The option name within the section.
+        :param fallback: The default value to use if the option is missing.
+        :param value_type: The expected type of the value (str, bool, int).
+        :return: The retrieved value or the fallback value.
+        """
+        try:
+            if value_type == bool:
+                return config.getboolean(section, option, fallback=fallback)
+            elif value_type == int:
+                return config.getint(section, option, fallback=fallback)
+            else:
+                return config.get(section, option, fallback=fallback)
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            return fallback
+
+    # Override configuration values with command-line arguments if provided
+    args.dev = args.dev or get_config_option('General', 'dev', fallback=False, value_type=bool)
+    args.refresh = args.refresh or get_config_option('General', 'refresh', fallback=False, value_type=bool)
+    args.launch = args.launch or get_config_option('General', 'launch', fallback=False, value_type=bool)
+    args.force_launch = args.force_launch or get_config_option('General', 'force_launch', fallback=False,
+                                                               value_type=bool)
+    args.internal_launch = args.internal_launch or get_config_option('General', 'internal_launch', fallback=False,
+                                                                     value_type=bool)
+    args.no_build = args.no_build or get_config_option('General', 'no_build', fallback=False, value_type=bool)
+    args.debug = args.debug or get_config_option('General', 'debug', fallback=False, value_type=bool)
+    args.source = args.source or get_config_option('General', 'source',
+                                                   fallback='https://pypi.tuna.tsinghua.edu.cn/simple')
+    args.runtime_path = args.runtime_path or get_config_option('General', 'runtime_path', fallback='default')
+    args.use_local_python = args.use_local_python or get_config_option('General', 'use_local_python', fallback=False,
+                                                                       value_type=bool)
+
+    return args, unknown_args
+
+
+if __name__ == '__main__':
+    # Parse command-line arguments and configuration
+    args, unknown_args = parse_args_and_config()
+
+    # Check the whole installation
     if not args.launch:
         check_install()
 
+    # Check if the installer is frozen
     if not check_frozen_installer():
-        run_app()
+        run_app()  # Run the app if not frozen
     else:
-        dynamic_update_installer()
+        dynamic_update_installer()  # Update the installer if frozen

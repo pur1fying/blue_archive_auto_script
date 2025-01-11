@@ -1,7 +1,8 @@
 import copy
+import traceback
 from datetime import datetime
 import cv2
-from core.exception import ScriptError, RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
+from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
@@ -369,11 +370,17 @@ class Baas_thread:
             return self.solve(task)
 
     def thread_starter(self):
+        """
+            Solving tasks given by the scheduler.
+            Features:
+            1.Never stop until user push the "stop" button on ui, or an unmanageable error occurs.
+            2.task solve order is fully controlled by the scheduler (core/scheduler.py).
+        """
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
-            self.solve('restart')
+            self.solve('restart')  # check package and go to main_page
             while self.flag_run:
-                nextTask = self.scheduler.heartbeat()
+                nextTask = self.scheduler.heartbeat()  # get next task
                 if nextTask:
                     self.task_finish_to_main_page = True
                     self.daily_config_refresh()
@@ -381,29 +388,35 @@ class Baas_thread:
                         self.solve('refresh_uiautomator2')
                     self.genScheduleLog(nextTask)
 
+                    task_with_log_info = []
                     for task in nextTask['pre_task']:
-                        self.logger.info("pre_task: [ " + task + " ] start")
-                        if not self.solve(task):
-                            raise RequestHumanTakeOver
-                    self.logger.info("current_task: [ " + nextTask['current_task'] + " ] start")
-                    self.next_time = 0
-                    if not self.solve(nextTask['current_task']):
-                        raise RequestHumanTakeOver
-                    currentTaskNextTime = self.next_time
+                        task_with_log_info.append((task, 'pre_task'))
+                    task_with_log_info.append((nextTask['current_task'], 'current_task'))
                     for task in nextTask['post_task']:
-                        self.logger.info("post_task: [ " + task + " ] start")
+                        task_with_log_info.append((task, 'post_task'))
+
+                    for task, task_type in task_with_log_info:
+                        if not self.flag_run:
+                            break
+                        flg = False
+                        self.logger.info(f"{task_type}: [ {task} ] start")
+                        if task_type == 'current_task':
+                            flg = True
+                            self.next_time = 0
                         if not self.solve(task):
-                            raise RequestHumanTakeOver
+                            self.signal_stop()
+                            notify(title='', body='任务已停止')
+                            return
+                        if flg:
+                            currentTaskNextTime = self.next_time
 
                     if self.flag_run:
                         next_tick = self.scheduler.systole(nextTask['current_task'], currentTaskNextTime)
                         self.logger.info(nextTask['current_task'] + " next_time : " + str(next_tick))
-                    elif not self.flag_run:
+                    else:
                         self.logger.info("BAAS Exited, Reason : Human Take Over")
                         self.signal_stop()
-                    else:
-                        self.logger.error("error occurred, stop all activities")
-                        self.signal_stop()
+
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
@@ -415,16 +428,14 @@ class Baas_thread:
                     if self.flag_run:  # allow user to stop script before then action
                         self.handle_then()
         except Exception as e:
-            notify(title='', body='任务已停止')
-            self.logger.error(e.__str__())
-            self.logger.error("error occurred, stop all activities")
-            self.signal_stop()
+            self.logger.error(traceback.format_exc())
+            return
 
     def genScheduleLog(self, task):
         self.logger.info("Scheduler : {")
-        self.logger.info("            pre_task         : " + str(task["pre_task"]))
-        self.logger.info("            current_task     : " + str(task["current_task"]))
-        self.logger.info("            post_task        : " + str(task["post_task"]))
+        self.logger.info("                pre_task         : " + str(task["pre_task"]))
+        self.logger.info("                current_task     : " + str(task["current_task"]))
+        self.logger.info("                post_task        : " + str(task["post_task"]))
         self.logger.info("            }")
 
     def update_create_priority(self):
@@ -444,6 +455,9 @@ class Baas_thread:
             self.config_set.set(cfg_key_name, res)
 
     def solve(self, activity) -> bool:
+        """
+            execute the task by call the corresponding function in func_dict
+        """
         for i in range(0, 3):
             if i != 0:
                 self.logger.info("Retry Task " + activity + " " + str(i))
@@ -451,18 +465,18 @@ class Baas_thread:
                 return func_dict[activity](self)
             except FunctionCallTimeout:
                 if not self.deal_with_func_call_timeout():
-                    threading.Thread(target=self.simple_error, args=("Failed to Restart Game",)).start()
+                    self.push_and_log_error_msg("Function Call Timeout", "Failed to Restart Game when function call timeout")
                     return False
             except PackageIncorrect as e:
                 pkg = e.message
                 if not self.deal_with_package_incorrect(pkg):
-                    threading.Thread(target=self.simple_error, args=("Failed to Restart Game",)).start()
+                    self.push_and_log_error_msg("Package Incorrect", "Failed to Restart Game when package incorrect")
                     return False
-            except Exception as e:
+            except Exception:
                 if self.flag_run:
-                    self.logger.error(e.__str__())
-                    threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
-                return False
+                    self.push_and_log_error_msg("Script Error Occurred", traceback.format_exc())
+                    return False
+                return True # Human take over
 
     def deal_with_package_incorrect(self, curr_pkg):
         """
@@ -510,9 +524,9 @@ class Baas_thread:
                 pass
         return False
 
-    def simple_error(self, info: str):
-        push(self.logger, self.config, info)
-        raise ScriptError(message=info, context=self)
+    def push_and_log_error_msg(self, title, message):
+        push(self.logger, self.config, title)
+        LogTraceback(title, message, self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
         img_possibles = {
