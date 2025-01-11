@@ -593,6 +593,7 @@ class Baas_thread:
                 'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),
+                'main_page_Failed-to-convert-errorResponse': (641, 511),
             }
         }
         img_possibles.update(**update[self.server])
