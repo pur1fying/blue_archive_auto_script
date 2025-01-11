@@ -185,7 +185,7 @@ class NemuClient:
         try:
             self.lib = ctypes.CDLL(ipc_dll)
         except OSError as e:
-            logger.error(e.__str__())
+            self.logger.error(e.__str__())
             # OSError: [WinError 126] 找不到指定的模块。
             if not os.path.exists(ipc_dll):
                 raise NemuIpcIncompatible(

@@ -370,11 +370,17 @@ class Baas_thread:
             return self.solve(task)
 
     def thread_starter(self):
+        """
+            Solving tasks given by the scheduler.
+            Features:
+            1.Never stop until user push the "stop" button on ui, or an unmanageable error occurs.
+            2.task solve order is fully controlled by the scheduler (core/scheduler.py).
+        """
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
-            self.solve('restart')
+            self.solve('restart')  # check package and go to main_page
             while self.flag_run:
-                nextTask = self.scheduler.heartbeat()
+                nextTask = self.scheduler.heartbeat()  # get next task
                 if nextTask:
                     self.task_finish_to_main_page = True
                     self.daily_config_refresh()
@@ -382,29 +388,34 @@ class Baas_thread:
                         self.solve('refresh_uiautomator2')
                     self.genScheduleLog(nextTask)
 
+                    task_with_log_info = []
                     for task in nextTask['pre_task']:
-                        self.logger.info("pre_task: [ " + task + " ] start")
-                        if not self.solve(task):
-                            raise RequestHumanTakeOver
-                    self.logger.info("current_task: [ " + nextTask['current_task'] + " ] start")
-                    self.next_time = 0
-                    if not self.solve(nextTask['current_task']):
-                        raise RequestHumanTakeOver
-                    currentTaskNextTime = self.next_time
+                        task_with_log_info.append((task, 'pre_task'))
+                    task_with_log_info.append((nextTask['current_task'], 'current_task'))
                     for task in nextTask['post_task']:
-                        self.logger.info("post_task: [ " + task + " ] start")
+                        task_with_log_info.append((task, 'post_task'))
+
+                    for task, task_type in task_with_log_info:
+                        flg = False
+                        if not self.flag_run:
+                            break
+                        self.logger.info(f"{task_type}: [ {task} ] start")
+                        if task_type == 'current_task':
+                            flg = True
+                            self.next_time = 0
                         if not self.solve(task):
+                            self.signal_stop()
                             raise RequestHumanTakeOver
+                        if flg:
+                            currentTaskNextTime = self.next_time
 
                     if self.flag_run:
                         next_tick = self.scheduler.systole(nextTask['current_task'], currentTaskNextTime)
                         self.logger.info(nextTask['current_task'] + " next_time : " + str(next_tick))
-                    elif not self.flag_run:
+                    else:
                         self.logger.info("BAAS Exited, Reason : Human Take Over")
                         self.signal_stop()
-                    else:
-                        self.logger.error("error occurred, stop all activities")
-                        self.signal_stop()
+
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
@@ -443,6 +454,9 @@ class Baas_thread:
             self.config_set.set(cfg_key_name, res)
 
     def solve(self, activity) -> bool:
+        """
+            execute the task by call the corresponding function in func_dict
+        """
         for i in range(0, 3):
             if i != 0:
                 self.logger.info("Retry Task " + activity + " " + str(i))
@@ -461,7 +475,8 @@ class Baas_thread:
                 if self.flag_run:
                     self.logger.error(e.__str__())
                     threading.Thread(target=self.simple_error, args=(e.__str__(),)).start()
-                return False
+                    return False
+                return True
 
     def deal_with_package_incorrect(self, curr_pkg):
         """
