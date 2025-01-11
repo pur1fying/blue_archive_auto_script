@@ -280,7 +280,7 @@ class NemuClient:
         # Get to actual error message printed in std
         if err:
             self.logger.warning(f'Failed to call {func.__name__}, result={result}')
-            with CaptureNemuIpc():
+            with CaptureNemuIpc(self.logger):
                 result = self._ev.run_until_complete(self.ev_run_async(func, *args, **kwargs))
 
         return result
