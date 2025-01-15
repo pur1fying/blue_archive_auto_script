@@ -19,6 +19,7 @@ paddlepaddle == 2.6.0
 #windows installer auto build
 pyinstaller
 requests
+dulwich
 psutil
 tqdm
 
