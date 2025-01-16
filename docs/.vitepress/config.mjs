@@ -11,42 +11,51 @@ export default defineConfig({
   // 则需要将你的 base 设置为 /repo/。
   base: '/blue_archive_auto_script/',
   themeConfig: {
+    logo: 'assets/logo.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '主页', link: '/' },
-      { text: '下载', link: '/downloads' }
+      { text: '下载', link: '/downloads'}
     ],
-
-    sidebar: [
-      {
-        text: '用户文档',
-        items: [
-          { text: '特性', link: '/features' },
-          { text: '安装', link: '/install' },
-          { text: '配置', link: '/config' },
-          { text: '常见问题', link: '/faq' },
-          { text: '上报问题', link: '/report' },
-          { text: '编写文档', link: '/docs' },
-          { text: '关于', link: '/about' }
-        ]
-      },
-      {
-        text: '开发文档',
-        items: [
-          { text: '模拟器api', link: '/device_operation' },
-        ]
-      },
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      }
-    ],
-
+    search: {
+      provider: 'local'
+    },
+    sidebar: {
+      '/usage_doc/': [
+        {
+          text: '用户文档',
+          items: [
+            {text: '特性', link: '/usage_doc/features'},
+            {text: '安装', link: '/usage_doc/install/choose_platform'},
+            {text: '配置', link: '/usage_doc/config'},
+            {text: '常见问题', link: '/usage_doc/faq'},
+            {text: '上报问题', link: '/usage_doc/report'},
+            {text: '编写文档', link: '/usage_doc/docs'},
+            {text: '已知问题', link: '/usage_doc/about'},
+            {text: 'CLI用法', link: '/usage_doc/CLI'}
+          ]
+        }
+      ],
+      '/develop_doc/': [
+        {
+          text: '开发文档',
+            items: [
+                {text: '总览', link: '/develop_doc/develop_guide'},
+                {text: '开发环境', link: '/develop_doc/env'},
+                {text: '模拟器连接', link: '/develop_doc/script/Connection'},
+                {text: '模拟器截图', link: '/develop_doc/script/screenshot'},
+                {text: '模拟器控制', link: '/develop_doc/script/control'},
+                {text: 'Baas_thread', link: '/develop_doc/script/Baas_thread'},
+                {text: '模拟器开关/状态检测', link: '/develop_doc/script/device_operation'},
+                {text: '配置详解', link: '/develop_doc/script/config'},
+                {text: '开发约定', link: '/develop_doc/develop_format'}
+            ]
+        }
+      ]
+    },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/pur1fying/blue_archive_auto_script' }
+      { icon: 'github', link: 'https://github.com/pur1fying/blue_archive_auto_script' },
+        { icon: 'assets/Bilibili.svg', link: 'https://space.bilibili.com/259089751/upload/opus' }
     ],
 
     lastUpdated: {

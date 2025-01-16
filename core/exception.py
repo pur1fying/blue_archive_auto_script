@@ -14,12 +14,24 @@ class RequestHumanTakeOver(Exception):
 
 
 class PackageIncorrect(Exception):
+    """
+        every 20s core.picture.co_detect func didn't match a feature it will check the package through adb.
+        possible reasons:
+        1. Game crushed.
+        2. When starting the game BAAS may click into browser in Global server.
+    """
     def __init__(self, message="Package Incorrect"):
         self.message = message
         super().__init__(self.message)
 
 
 class FunctionCallTimeout(Exception):
+    """
+        core.picture.co_detect func call timeout 600s reached.
+        possible reasons:
+        1. Meet unexpected ui.
+        2. Game keeps loading.
+    """
     def __init__(self, message="Function Call Timeout"):
         self.message = message
         super().__init__(self.message)
