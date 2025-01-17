@@ -132,7 +132,7 @@
 - **Constraints**:
   - `"lowest_affection"`: 邀请最低好感度学生
   - `"highest_affection"`: 邀请最高好感度学生
-  - `"starred"`: 邀请收藏的[指定编号](#cafe_reward_invite1_starred_student_position)的学生  // fail to jump
+  - `"starred"`: 邀请收藏的[指定编号](#cafe-reward-invite1-starred-student-position)的学生  // fail to jump
   - `"name"`: 邀请[指定名字](#favorstudent1)的学生
 - **Description**: 1号咖啡厅的邀请方式
 ## `cafe_reward_invite1_starred_student_position`
@@ -147,7 +147,7 @@
 - **Constraints**:
   - `"lowest_affection"`: 邀请最低好感度学生
   - `"highest_affection"`: 邀请最高好感度学生
-  - `"starred"`: 邀请收藏的[指定编号](#cafe_reward_invite2_starred_student_position)的学生  // fail to jump
+  - `"starred"`: 邀请收藏的[指定编号](#cafe-reward-invite2-starred-student-position)的学生  // fail to jump
   - `"name"`: 邀请[指定名字](#favorstudent2)的学生
 - **Description**: 2号咖啡厅的邀请方式
 ## `cafe_reward_invite2_starred_student_position`

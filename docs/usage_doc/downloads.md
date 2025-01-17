@@ -13,5 +13,5 @@ hero:
       text: "QQ群：658302636"
     - theme: alt
       text: "已下载，看看怎么用"
-      link: /features
+      link: /usage_doc/features
 ---

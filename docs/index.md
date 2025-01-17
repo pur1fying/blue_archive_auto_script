@@ -10,7 +10,7 @@ hero:
   actions:
     - theme: brand
       text: "下载"
-      link: /downloads
+      link: /usage_doc/downloads
     - theme: brand
       text: "使用文档"
       link: /usage_doc/features

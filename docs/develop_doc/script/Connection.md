@@ -8,7 +8,7 @@
 ## 总览
 1. **检查设备连接**
 - **related configs** : [adbIP](/develop_doc/script/config#adbip), [adbPort](/develop_doc/script/config#adbiport)
-- **related functions** : [self.detect_device](#detect_device) 
+- **related functions** : [self.detect_device](#detect-device) 
 
 2. **检查游戏包**
 - **related configs** : [server](/develop_doc/script/config#server)
