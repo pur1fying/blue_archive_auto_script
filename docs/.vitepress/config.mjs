@@ -14,13 +14,19 @@ export default defineConfig({
   // 忽略死链接，因为我们的文档可能包含未完成的链接，
   // 这些链接可能会在将来的更新中修复。
   ignoreDeadLinks: true,
-  
+
+  // 添加favicon
+  head: [
+    ['link', { rel: 'icon', type: 'image/png', href: 'assets/logo.png' }],
+    ['meta', { name: 'author', content: 'pur1fying' }],
+  ],
+
   themeConfig: {
     logo: 'assets/logo.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '主页', link: '/' },
-      { text: '下载', link: '/downloads'}
+      { text: '下载', link: '/usage_doc/downloads'}
     ],
     search: {
       provider: 'local'
