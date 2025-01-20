@@ -167,9 +167,14 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_invitation-ticket',
         'cafe_invitation-ticket-invalid',
     ]
+    invitation_ticket_x = {
+        'CN': 838,
+        'Global': 838,
+        'JP': 887,
+    }
     img_possible = {
         'cafe_cafe-reward-status': (905, 159),
-        'cafe_menu': (838, 647),
+        'cafe_menu': (invitation_ticket_x[self.server], 647),
         'cafe_duplicate-invite-notice': (534, 497),
         'cafe_switch-clothes-notice': (534, 497),
         'cafe_duplicate-invite': (534, 497),
