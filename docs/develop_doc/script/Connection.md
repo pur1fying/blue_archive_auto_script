@@ -7,8 +7,8 @@
 :::
 ## 总览
 1. **检查设备连接**
-- **related configs** : [adbIP](/develop_doc/script/config#adbip), [adbPort](/develop_doc/script/config#adbiport)
-- **related functions** : [self.detect_device](#detect-device) 
+- **related configs** : [adbIP](/develop_doc/script/config#adbip) **|** [adbPort](/develop_doc/script/config#adbiport)
+- **related functions** :  [check_serial](#check_serial) **|** [detect_device](#detect_device) **|** [adb_connect](#adb_connect) 
 
 2. **检查游戏包**
 - **related configs** : [server](/develop_doc/script/config#server)
@@ -46,7 +46,7 @@ def __init__(self, Baas_instance)
 #### `self.adbPort`
 ---
 
-## Key Methods
+## Methods
 
 ### `detect_device()`
 Identifies available devices and sets the active serial.
@@ -89,29 +89,6 @@ Ensures the MuMu app keep-alive feature is properly configured.
 
 ---
 
-## Exception Handling
-
-The class uses the `RequestHumanTakeOver` exception to signal scenarios requiring manual intervention, such as:
-- No devices detected.
-- Multiple devices found without a specified serial.
-- Package detection failures.
-- ADB connection issues.
-
----
-
-## Logging
-The `logger` is used extensively for:
-- Informational messages about the current state.
-- Warnings for potential issues.
-- Errors requiring user attention.
-
----
-
-## Dependencies
-- **Python Modules**: `re`, `adbutils`
-- **Custom Modules**: `core.exception`
-
----
 
 ## Notes
 - Ensure the `adb` command-line tool is installed and accessible in your environment.
