@@ -3085,9 +3085,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "no_68_spring_wild_dream",
+        "CN": null,
         "Global": null,
-        "JP": "SecretMidnightParty"
+        "JP": "CodeBox"
     },
     "dailyGameActivity": {
         "CN": null,

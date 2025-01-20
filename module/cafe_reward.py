@@ -47,10 +47,13 @@ def to_cafe(self, skip_first_screenshot=False):
 
 def to_no2_cafe(self):
     to_cafe(self)
+    if self.server == "JP":
+        img_ends = "cafe_button-goto-no1-cafe"
+        img_possibles = {"cafe_button-goto-no2-cafe": (118, 98)}
+        picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        return
     img_ends = "cafe_at-no1-cafe"
-    img_possibles = {
-        "cafe_menu": (118, 98)
-    }
+    img_possibles = {"cafe_menu": (118, 98)}
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
     image.click_to_disappear(self, "cafe_at-no1-cafe", 240, 168)
     to_cafe(self)
@@ -164,9 +167,14 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_invitation-ticket',
         'cafe_invitation-ticket-invalid',
     ]
+    invitation_ticket_x = {
+        'CN': 838,
+        'Global': 838,
+        'JP': 887,
+    }
     img_possible = {
         'cafe_cafe-reward-status': (905, 159),
-        'cafe_menu': (838, 647),
+        'cafe_menu': (invitation_ticket_x[self.server], 647),
         'cafe_duplicate-invite-notice': (534, 497),
         'cafe_switch-clothes-notice': (534, 497),
         'cafe_duplicate-invite': (534, 497),
@@ -415,7 +423,7 @@ def collect(self):
 
 
 def get_invitation_ticket_status(self):
-    if color.judge_rgb_range(self, 851, 647, 250, 255, 250, 255, 250, 255):
+    if color.judgeRGBFeature(self, "invitation_ticket_available_to_use"):
         self.logger.info("Invite ticket available for use")
         return True
     else:
@@ -426,6 +434,7 @@ def get_invitation_ticket_status(self):
 def get_cafe_earning_status(self):
     if not image.compare_image(self, 'cafe_0.0'):
         return True
+    return False
 
 
 def find_k_b_of_point1_and_point2(point1, point2):
