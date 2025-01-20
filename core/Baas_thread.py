@@ -115,6 +115,9 @@ class Baas_thread:
     def click(self, x, y, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
             raise RequestHumanTakeOver
+        if self.control.method == "nemu":
+            self.click_thread(x, y, count, rate, duration)
+            return
         click_ = threading.Thread(target=self.click_thread, args=(x, y, count, rate, duration))
         click_.start()
         if wait_over:  # wait for click to be over

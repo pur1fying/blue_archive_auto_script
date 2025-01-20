@@ -9,20 +9,20 @@ class Control:
         self.connection = Baas_instance.connection
 
         self.config = Baas_instance.get_config()
+        self.method = self.config.get("control_method")
         self.logger = Baas_instance.get_logger()
         self.control_instance = None
         self.init_control_instance()
 
     def init_control_instance(self):
-        method = self.config.get("control_method")
-        self.logger.info("Control method : " + method)
-        if method == "nemu":
+        self.logger.info("Control method : " + self.method)
+        if self.method == "nemu":
             self.control_instance = NemuControl(self.connection)
-        elif method == "adb":
+        elif self.method == "adb":
             self.control_instance = AdbControl(self.connection)
-        elif method == "uiautomator2":
+        elif self.method == "uiautomator2":
             self.control_instance = U2Control(self.connection)
-        elif method == "scrcpy":
+        elif self.method == "scrcpy":
             self.control_instance = ScrcpyControl(self.connection)
 
     def click(self, x, y):
