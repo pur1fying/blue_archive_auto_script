@@ -112,7 +112,9 @@ def interaction_for_cafe_solve_method3(self):
         if not res:
             self.logger.info("No interaction found")
             if swipeT < self.config["cafe_reward_interaction_shot_delay"] + 0.3:
-                self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(shotDelay) + " ]")
+                self.logger.warning(
+                    "Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(
+                        shotDelay) + " ]")
                 self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
                 if swipeT > 0.4:
                     self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
@@ -196,7 +198,8 @@ def checkConfirmInvite(self, y):
     if res == 'cafe_switch-clothes-notice' and not self.config['cafe_reward_allow_exchange_student']:
         self.logger.warning("Not Allow Student Switch Clothes")
         f = True
-    elif res == 'cafe_duplicate-invite' and not self.config['cafe_reward_allow_duplicate_invite']:
+    elif (res == 'cafe_duplicate-invite' or res == 'cafe_duplicate-invite-notice') \
+            and not self.config['cafe_reward_allow_duplicate_invite']:
         self.logger.warning("Not Allow Duplicate Invite")
         f = True
     if f:
@@ -289,6 +292,7 @@ def to_confirm_invite(self, lo):
     img_ends = [
         "cafe_confirm-invite",
         "cafe_switch-clothes-notice",
+        "cafe_duplicate-invite-notice",
         "cafe_duplicate-invite",
     ]
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -298,8 +302,8 @@ def confirm_invite(self):
     img_possibles = {
         "cafe_confirm-invite": (767, 514),
         "cafe_duplicate-invite": (767, 514),
-        'cafe_invitation-ticket': (835, 97),
-        'cafe_switch-clothes-notice': (764, 501),
+        "cafe_invitation-ticket": (835, 97),
+        "cafe_switch-clothes-notice": (764, 501),
         "cafe_duplicate-invite-notice": (764, 514),
     }
     img_ends = "cafe_menu"
@@ -336,7 +340,8 @@ def invite_girl(self, no=1):
     target_name_list = self.config['favorStudent' + str(no)]
 
     if len(target_name_list) == 0:
-        self.logger.warning("Current mode is invite target student but no student name configured in favorStudent" + str(no))
+        self.logger.warning(
+            "Current mode is invite target student but no student name configured in favorStudent" + str(no))
         self.logger.warning("Current mode fallback to invite by lowest affection")
         invite_by_affection(self, 'lowest')
         return
@@ -448,7 +453,7 @@ def operate_name(name, server):
         t = ""
         for i in range(0, len(name)):
             if name[i] == '(' or name[i] == "（" or name[i] == ")" or \
-                name[i] == "）" or name[i] == ' ':
+                    name[i] == "）" or name[i] == ' ':
                 continue
             elif server == 'JP' and is_english(name[i]):
                 continue
@@ -459,7 +464,7 @@ def operate_name(name, server):
         t = ""
         for j in range(0, len(name[i])):
             if name[i][j] == '(' or name[i][j] == "（" or name[i][j] == ")" or \
-                name[i][j] == "）" or name[i][j] == ' ':
+                    name[i][j] == "）" or name[i][j] == ' ':
                 continue
             elif server == 'JP' and is_english(name[i]):
                 continue
