@@ -3085,7 +3085,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "WarningOfWhiteChalkWhereAestheticsResideInTheMansionOfDeception",
         "Global": null,
         "JP": "CodeBox"
     },

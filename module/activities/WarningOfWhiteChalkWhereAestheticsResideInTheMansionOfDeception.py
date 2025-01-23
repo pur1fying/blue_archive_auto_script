@@ -1,4 +1,5 @@
 import importlib
+import importlib
 import time
 from core import color, picture, image
 from module import main_story
@@ -107,7 +108,7 @@ def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True, True)
     last_target_task = 1
-    total_stories = 8
+    total_stories = 11
     while self.flag_run:
         plot = to_story_task_info(self, last_target_task)
         res = check_sweep_availability(self, plot)
@@ -186,7 +187,6 @@ def explore_mission(self):
         to_activity(self, "mission", True, True)
 
 
-#挑战这里还没改动
 def explore_challenge(self):
     self.quick_method_to_main_page()
     to_activity(self, "challenge", True, True)
@@ -289,9 +289,8 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
             return True
 
 
-#这里是8关
 def to_story_task_info(self, number):
-    lo = [0, 180, 280, 380, 480, 580, 680, 545, 640]
+    lo = [0, 180, 280, 380, 480, 580, 680, 243, 343, 443, 543, 643]
     if number >= 7:
         self.swipe(916, 667, 916, 0, duration=0.05, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[number])}
