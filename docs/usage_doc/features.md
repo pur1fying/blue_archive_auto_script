@@ -9,11 +9,11 @@ BAAS，一个带GUI的蔚蓝档案（全服支持），为屏幕分辨率为 16�
 baas 是一款免费开源软件，地址：[Github](https://github.com/pur1fying/blue_archive_auto_script)
 
 GUI预览图：
-![gui](../assets/ui.png)
+![gui](/assets/ui.png)
 
-![gui](../assets/ui2.png)
+![gui](/assets/ui2.png)
 
-![gui](../assets/ui3.png)
+![gui](/assets/ui3.png)
 
 ## 功能 Features
 

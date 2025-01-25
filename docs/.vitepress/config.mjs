@@ -22,6 +22,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
+    outline: [2, 3],
     logo: 'assets/logo.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -37,13 +38,15 @@ export default defineConfig({
           text: '用户文档',
           items: [
             {text: '特性', link: '/usage_doc/features'},
-            {text: '安装', link: '/usage_doc/install/choose_platform'},
+            {text: '下载', link: '/usage_doc/downloads'},
+            {text: '安装教程', link: '/usage_doc/install/choose_platform'},
             {text: '配置', link: '/usage_doc/config'},
             {text: '常见问题', link: '/usage_doc/faq'},
             {text: '上报问题', link: '/usage_doc/report'},
-            {text: '编写文档', link: '/usage_doc/docs'},
             {text: '已知问题', link: '/usage_doc/about'},
-            {text: 'CLI用法', link: '/usage_doc/CLI'}
+            {text: 'CLI用法', link: '/usage_doc/CLI'},
+            {text: 'QQ群规定', link: '/usage_doc/qq_group_regulation'},
+            {text: '项目破坏者', link: '/usage_doc/destroyer'}
           ]
         }
       ],
@@ -57,9 +60,11 @@ export default defineConfig({
                 {text: '模拟器截图', link: '/develop_doc/script/screenshot'},
                 {text: '模拟器控制', link: '/develop_doc/script/control'},
                 {text: 'Baas_thread', link: '/develop_doc/script/Baas_thread'},
+                {text: '编写文档', link: '/develop_doc/docs'},
                 {text: '模拟器开关/状态检测', link: '/develop_doc/script/device_operation'},
                 {text: '配置详解', link: '/develop_doc/script/config'},
-                {text: '开发约定', link: '/develop_doc/develop_format'}
+                {text: '开发约定', link: '/develop_doc/develop_format'},
+                {text: '日志', link: '/develop_doc/log'}
             ]
         }
       ]

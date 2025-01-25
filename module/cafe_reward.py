@@ -298,8 +298,8 @@ def confirm_invite(self):
     img_possibles = {
         "cafe_confirm-invite": (767, 514),
         "cafe_duplicate-invite": (767, 514),
-        'cafe_invitation-ticket': (835, 97),
-        'cafe_switch-clothes-notice': (764, 501),
+        "cafe_invitation-ticket": (835, 97),
+        "cafe_switch-clothes-notice": (764, 501),
         "cafe_duplicate-invite-notice": (764, 514),
     }
     img_ends = "cafe_menu"

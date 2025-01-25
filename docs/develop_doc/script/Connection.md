@@ -3,17 +3,17 @@
 ::: info
 阅读这部分内容前你可能需要了解
 1. 如何用[ADB](https://developer.android.com/tools/adb?hl=zh-cn)管理安卓设备的连接
-2. 一些有关计算机网络的知识
+2. 一些有关计算机网络的知识, 比如socket通信, 很多模拟器的截图/控制方法的底层都基于它实现
 :::
 ## 总览
 1. **检查设备连接**
-- **related configs** : [adbIP](/develop_doc/script/config#adbip) **|** [adbPort](/develop_doc/script/config#adbiport)
-- **related functions** :  [check_serial](#check_serial) **|** [detect_device](#detect_device) **|** [adb_connect](#adb_connect) 
+   - **related configs** : [adbIP](/develop_doc/script/config#adbip) **|** [adbPort](/develop_doc/script/config#adbiport)
+   - **related functions** :  [check_serial](#check_serial) **|** [detect_device](#detect_device) **|** [adb_connect](#adb_connect) 
 
 2. **检查游戏包**
-- **related configs** : [server](/develop_doc/script/config#server)
-    - Supports multiple servers (`CN`, `Global`, `JP`) for package configuration.
-    - Handles package-related exceptions gracefully.
+   - **related configs** : [server](/develop_doc/script/config#server)
+   - Supports multiple servers (`CN`, `Global`, `JP`) for package configuration.
+   - Handles package-related exceptions gracefully.
 
 3. **检查模拟器设置**
     - Executes shell commands on connected devices.
@@ -26,19 +26,20 @@
 def __init__(self, Baas_instance)
 ```
 ### **Args**:
-#### `Baas_instance`: Baas_thread 的实例
+#### `Baas_instance`: [**Baas_thread**](/develop_doc/script/Baas_thread) 的实例
 
 ### **Members**:
-#### `self.activity`
-**type** : str
-#### `self.package`
-**type** : str
-#### `self.server`
-**type** : str
 #### `self.Baas_thread`
 **type** : `Baas_thread` Object
 #### `self.logger`
-
+**type** : `Logger` Object
+#### `self.package`
+**type** : str
+#### `self.activity`
+**type** : str
+**description** : 当前package的activity名称
+#### `self.server`
+**type** : str
 #### `self.config_set`
 #### `self.config`
 #### `self.static_config`

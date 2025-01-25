@@ -101,20 +101,12 @@ if __name__ == '__main__':
     ocr_needed = ["Global", "CN", "JP"]
     t = Main(ocr_needed=ocr_needed)
     t.init_static_config()
-    config = ConfigSet(config_dir="1708185944")
+    config = ConfigSet(config_dir="1708148000")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
-    from module.create import item_order_list_builder
-    import json
-    from module.create import confirm_select_node, create_phase
-    create_phase(tt, 1)
-    confirm_select_node(tt, 0)
-    create_phase(tt, 2)
-    confirm_select_node(tt, 0)
-    create_phase(tt, 3)
-    confirm_select_node(tt, 1)
+
     from module import create
     # create.select_node(tt, 1)
 
@@ -130,7 +122,7 @@ if __name__ == '__main__':
     # tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     # tt.solve("total_assault")
-    # tt.solve("cafe_reward")
+    tt.solve("cafe_reward")
     # tt.solve("momo_talk")
     tt.solve("explore_normal_task")
     # tt.solve("explore_hard_task")

@@ -380,7 +380,7 @@
 - **description** : 在启动BAAS ui启动完全后自动运行这一项配置
 
 ## `burst1` `burst2` `pierce1` `pierce2` `mystic1` `mystic2` `shock1` `shock2`
-
+- **type** : int
 ## `manual_boss`
 
 ## `push_after_error`

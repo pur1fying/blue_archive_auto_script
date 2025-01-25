@@ -19,7 +19,7 @@ hero:
       link: /develop_doc/develop_guide.md
 
 features:
-  - title: "安装"
+  - title: "安装教程"
     details: "最详细的教程,使用BAAS需要下载的软件"
     link: /usage_doc/install/choose_platform
   - title: "低配置适用"
@@ -49,4 +49,10 @@ features:
   - title: "活动"
     details: "一键活动推剧情，任务，挑战，走格子"
     link: /usage_doc/activity
+  - title: "自动更新"
+    details: "如何更新BAAS"
+    link: /usage_doc/update
+  - title: "致谢"
+    details: "感谢所有对BAAS做出贡献的人"
+    link: /thanks
 ---
