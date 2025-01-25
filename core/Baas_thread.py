@@ -540,7 +540,6 @@ class Baas_thread:
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
             'main_page_item-expire': (925, 119),
-            'main_page_download-additional-resources': (769, 535),
             'main_page_skip-notice': (762, 507),
             'normal_task_fight-end-back-to-main-page': (511, 662),
             "main_page_enter-existing-fight": (514, 501),
@@ -603,6 +602,7 @@ class Baas_thread:
                 'normal_task_task-info': (1126, 115),
                 "special_task_task-info": (1126, 141),
                 'main_page_attendance-reward': (642, 489),
+                'main_page_download-additional-resources': (769, 535),
             },
             'Global': {
                 'main_page_news': (1227, 56),

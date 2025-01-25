@@ -212,7 +212,6 @@ GAME_ONE_TIME_POP_UPS = {
     },
     'JP': {
         'main_page_news': (1142, 104),
-        'main_page_download-additional-resources': (769, 535),
     },
     'Global': {
         'main_page_news': (1227, 56),
