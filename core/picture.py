@@ -7,6 +7,16 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possibles=None, skip_first_screenshot=False,
               tentative_click=False, tentative_x=1238, tentative_y=45, max_fail_cnt=10, rgb_pop_ups=None,
               img_pop_ups=None, time_out=600, check_pkg_interval=20):
+    """
+        Keep screenshot and compare image until one of the features (rgb_ends or img_ends) appears.
+        When an unexpected feature in rgb_possibles or ima_possibles appears click a specified position.
+        Args:
+            self: Baas_thread instance
+            tentative_click, tentative_x, tentative_y, max_fail_cnt: If tentative_click is ture and max_fail_cnt round
+                                                                didn't match any feature, click tentative_x, tentative_y
+
+        Detailed explanation can be found in docs
+    """
     fail_cnt = 0
     self.last_click_time = 0
     self.last_click_position = (0, 0)

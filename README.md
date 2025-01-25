@@ -1,13 +1,9 @@
 # Blue Archive Auto Script
 ![Python](https://img.shields.io/badge/-Python-000000?style=flat&logo=python)
 
-baas，一个带GUI(简体中文 English 日本語)的蔚蓝档案（全服支持），为屏幕分辨率为 16：9 (1280x720 最佳) 运行的场景而设计 最终目的是接管一切蔚蓝档案任务 实现完全自动化
+**BAAS**,一个带GUI的蔚蓝档案（全服支持），为屏幕分辨率为 16:9 (1280x720 最佳) 运行的场景而设计 最终目的是接管一切蔚蓝档案任务 实现完全自动化
 
 关于安装，您可以参考我们的演示视频：[视频链接](https://www.bilibili.com/video/BV19y421e7XF/?spm_id_from=333.337.search-card.all.click)
-
-
-
-baas 是一款免费开源软件，地址：https://github.com/pur1fying/blue_archive_auto_script
 
 
 GUI预览图：
@@ -31,68 +27,21 @@ GUI预览图：
 - **剧情**: 一键清理主线剧情，小组剧情
 - **活动**: 一键活动推剧情，任务，挑战，走格子(国服活动稳定更新, 其他服务器随缘)
 
-#### 突出特性：
+### 突出特性：
 
 - **16:9分辨率模拟器都可以运行，不局限于1280x720**
 - **在低配电脑上运行也不会出现问题** 处理器速度低的电脑可以手动调小截图速度 增长运行时间
 - **自定义调度(每日固定刷新时间，执行间隔)**
+
 ## 安装 Installation 
   **请确保安装路径没有中文(QT框架限制)**
   解压Release或qq交流群中的下载包，双击`BlueArchiveAutoScript.exe`安装环境，请耐心等待。
   安装完成后，BAAS 的ui界面将自动启动。同时，我们提供了pyinstaller可使用的打包脚本，您可以自
   行打包，具体内容在`deploy/installer`文件夹中。此外，本项目尝试支持Docker部署，但目前仍无法
   运行，目前在`deploy/docker`文件夹中，如有解决方案，请提交PR。
-  
-  ### 安装时可能遇到的故障：
-  双击`BlueArchiveAutoScript.exe`后可能因为各种原因导致环境变量没有配置好，就会出现下图的"**软件启动失败,因为无法初始化Qt**"错误弹窗
- 
- ![image](https://github.com/user-attachments/assets/8dd60377-5c8f-459d-a174-6a64c8d20d61)
-
-
-修复此问题只需要将本应该在安装时添加的环境变量添加回去就好了
-
-**具体操作环节为** `windows设置→系统→关于→高级系统设置→高级→环境变量→新建→填写变量名与变量值→点两下确定关闭窗口`
-![屏幕截图 2024-11-23 210112](https://github.com/user-attachments/assets/dd0b17c6-b47c-47df-8ce6-00a51b775e73)
-
-**变量名：** `QT_QPA_PLATFORM_PLUGIN_PATH`  
-
-**变量值：** 填写已知兼容的Qt路径 ↓  
-
-Baas的Qt目录： `（Baas的安装路径）\BlueArchiveAutoSctipt\env\Lib\site-packages\PyQt5\Qt5\plugins`  
-
-MuMu模拟器的Qt目录： `（MuMu模拟器安装路径）\MuMu Player 12\shell\plugins`  
-
-自己装的Qt： 自己研究，在py的安装目录下或者在AppData\Local的py软件配置文件夹里
-
-
-- 变量值填写非MuMu模拟器的Qt目录时可能会与MuMu模拟器所需的Qt发生冲突，导致MuMu模拟器无法打开，已知MUMU模拟器与最新的Qt5.15.11不兼容，非必要不建议填写自己安装的Qt（要用到时自己改）。
-**因为MUMU模拟器的Qt与Baas兼容，所以在发生冲突无法打开MuMu模拟器时建议在变量值处填写** `MuMu模拟器的Qt目录` 删除变量也可以正常打开MuMu模拟器。
-
- 
-
-
-  
-  
 
 ## 如何使用
-一些关键的参数
-- **模拟器最佳是mumu模拟器 16：9尺寸 1280x720 60帧**
-- **服务器：官服/b服/国际服/日服**
-- **连接安卓模拟器：请设置端口号(模拟器多开请自行查询对应端口号)**
-- **截图间隔：0.3s (CPU性能高)  /  0.5s - 2s(CPU性能较低)**
-  **国际服必须使用英文语言**
-
-推送设置
-- **serverchan：填写ServerChan提供的SendKey**
-- **json：填写自定义的完整地址（如http://127.0.0.1:8081/）**
-- **推送的json格式为:**
-`{"title":"Baas Error","desp":"error..."}`
-
-### CLI 使用方法
-
-CLI 用法及 macOS 支持，参考 [CLI.md](docs/CLI.md)。
-
-
+用户文档见wiki, 有详细的BAAS配置教程和使用方法
 
 ## 如何上报bug How to Report Bugs
 在提问题之前至少花费 5 分钟来思考和准备，才会有人花费他的 5 分钟来帮助你。
@@ -101,70 +50,30 @@ CLI 用法及 macOS 支持，参考 [CLI.md](docs/CLI.md)。
 检查 BAAS 的更新，确认使用的是最新版(重启程序自动更新至最新版本)。
 如果是非预期的行为，请提供非预期行为发生时UI界面的日志,模拟器截图或视频。
 
+## 开发
+我们会在github issue和开发文档中发布一些需求,如果您有兴趣可以参与开发, BAAS函数及架构请查阅wiki的开发文档
+
+1. 如果你会使用yolo目标检测,请联系作者,我们需要一个检测模型以供自动总力战使用
+2. 欢迎将gui适配其他语言(目前有English,简体中文,日本語, 한국말)
+
 ## 已知问题 Known Issues
-
-- **ocr中文文字识别精度尚可,但不是特别高**
-- **截图速度过快可能导致问题**
+- **ocr字符识别精度尚可,但对一些特殊字符会有误识别**
 - **在使用本软件时请勿游玩游戏瓦洛兰特(可能会受到若干小时的封号处罚)**
+
 ## 联系我们 Contact Us
-
-- QQ群：658302636 （有开发意向请加作者 Email pur1fying at 2274916027@qq.com）
-- 欢迎将gui适配其他语言
-
+- QQ
+  - 1群: 658302636
+  - 2群: 1027430247
+- 有开发意向请加作者 Email pur1fying at 2274916027@qq.com）
+- BiliBili: 
+  - [BAAS-Official](https://space.bilibili.com/259089751)
+  - [益生君-1208](https://space.bilibili.com/496075546)(一些视频教程)
 ## 未来目标 Future Goals
 - **学生党，痛苦喵，大家一起来开源喵**
 - **使用C++重构一部分功能(正在进行中https://github.com/pur1fying/BAAS_Cpp)**
-- **使用yolo目标检测训练所有学生追踪模型，完成自动总力战功能**
+- **使用yolo目标检测训练所有学生追踪模型, 完成自动总力战功能**
 - **完善体力规划模块,使脚本可以在二/三倍活动掉落期间刷不同图，购买体力等，使刷体力更灵活可变**
 - **增加竞技场新赛季碎石挖矿功能**
 - **构建一套完善的图像识别+模拟器交互系统**
-## 致谢
-1.GUI 支持, 感谢 
 
-**[@キラメイ Kiramei](https://github.com/Kiramei)**
-
-**[@Scxppp](https://github.com/Scxppp)** 
-
-2.模拟器启动支持, 感谢 
-
-**[@Daodanfd5](https://github.com/Daodanfd5)**
-
-**[@Drstargaze](https://github.com/Drstargaze)**
-
-3.英文GUI支持, 感谢 
-
-**[@RedDeadDepresso](https://github.com/RedDeadDepresso)**
-
-4.一些bug的修复, 感谢 
-
-**[@2meito](https://github.com/2meito)** 
-
-**[@walkonbothsides](https://github.com/walkonbothsides)** 
-
-**[@misaka10843](https://github.com/misaka10843)**
-
-**[@kibokiboki](https://github.com/kibokiboki)**
-
-**[@Poke Chen](https://github.com/Popopopoke)**
-
-5.推送信息支持, 感谢
-
-**[@wyeeeee](https://github.com/wyeeeee)**
-
-6.帮助文档网站支持, 感谢
-
-**[@lzw-723](https://github.com/lzw-723)**
-
-7.日文GUI支持,同样感谢
-
-**[@キラメイ Kiramei](https://github.com/Kiramei)**
-
-8.韩文GUI支持,感谢
-**[@VoltIcaRus](https://github.com/VoltIcaRus) && [@RedDeadDepresso](https://github.com/RedDeadDepresso)**
-
-9.日服活动维护,感谢
-**[@shenxianjiejie](https://github.com/shenxian66ya)**
-
-10. 国际服活动维护,感谢
-**[@beihaihaihai](https://github.com/beihaihaihai)**
 

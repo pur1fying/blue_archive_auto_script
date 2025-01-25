@@ -2,21 +2,22 @@
 
 ![Python](https://img.shields.io/badge/-Python-000000?style=flat&logo=python)
 
-baas，一个带GUI的蔚蓝档案（全服支持），为屏幕分辨率为 16：9 (1280x720 最佳) 运行的场景而设计 最终目的是接管一切蔚蓝档案任务 实现完全自动化
+BAAS，一个带GUI的蔚蓝档案（全服支持），为屏幕分辨率为 16：9 (1280x720 最佳) 运行的场景而设计 最终目的是接管一切蔚蓝档案任务 实现完全自动化
 
-baas 是一款免费开源软件，地址：<https://github.com/pur1fying/blue_archive_auto_script>
+关于安装，您可以参考我们的演示视频：[视频链接](https://www.bilibili.com/video/BV19y421e7XF/?spm_id_from=333.337.search-card.all.click)
 
-GUI support, thanks **[@キラメイ Kiramei](https://github.com/Kiramei)**
-感谢其他contributors
+baas 是一款免费开源软件，地址：[Github](https://github.com/pur1fying/blue_archive_auto_script)
 
 GUI预览图：
-![gui](https://github.com/pur1fying/blue_archive_auto_script/blob/master/ui.png)
-![gui](https://github.com/pur1fying/blue_archive_auto_script/blob/master/ui2.png)
-![gui](https://github.com/pur1fying/blue_archive_auto_script/blob/master/ui3.png)
+![gui](/assets/ui.png)
+
+![gui](/assets/ui2.png)
+
+![gui](/assets/ui3.png)
 
 ## 功能 Features
 
-- **主线** 自动推图(普通4-25，困难1-25)
+- **主线** 自动推图(普通4-27，困难1-27)
 - **咖啡厅** 邀请券可选择指定学生 咖啡厅摸头 咖啡厅奖励
 - **商店** 支持指定普通物品商店 以及竞技场商店自动购买和刷新次数
 - **收获**：每日小组体力 邮箱 竞技场每日领奖 总力战累计积分领奖 每日任务领奖

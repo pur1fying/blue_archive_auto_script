@@ -3,20 +3,25 @@
 layout: home
 
 hero:
-  name: "BAAS"
-  text: "接管一切蔚蓝档案任务"
-  tagline: "带GUI的蔚蓝档案自动化"
+  
+  name: '<span style="font-size: 4rem; white-space: nowrap; ">BlueArchiveAutoScript</span>'
+  text: '<em><strong>BAAS</strong></em>'
+  tagline: '接管一切蔚蓝档案任务'
   actions:
     - theme: brand
       text: "下载"
-      link: /downloads
-    - theme: alt
-      text: "文档"
-      link: /features
+      link: /usage_doc/downloads
+    - theme: brand
+      text: "使用文档"
+      link: /usage_doc/features
+    - theme: brand
+      text: "开发"
+      link: /develop_doc/develop_guide.md
 
 features:
-  - title: "屏幕适配"
-    details: "16:9分辨率模拟器都可以运行，不局限于1280x720"
+  - title: "安装教程"
+    details: "最详细的教程,使用BAAS需要下载的软件"
+    link: /usage_doc/install/choose_platform
   - title: "低配置适用"
     details: "处理器速度低的电脑可以手动调小截图速度 增长运行时间"
   - title: "主线"
@@ -43,4 +48,11 @@ features:
     details: "一键清理主线剧情，小组剧情"
   - title: "活动"
     details: "一键活动推剧情，任务，挑战，走格子"
+    link: /usage_doc/activity
+  - title: "自动更新"
+    details: "如何更新BAAS"
+    link: /usage_doc/update
+  - title: "致谢"
+    details: "感谢所有对BAAS做出贡献的人"
+    link: /thanks
 ---
