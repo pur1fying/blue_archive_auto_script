@@ -49,7 +49,10 @@ def to_no2_cafe(self):
     to_cafe(self)
     if self.server == "JP":
         img_ends = "cafe_button-goto-no1-cafe"
-        img_possibles = {"cafe_button-goto-no2-cafe": (118, 98)}
+        img_possibles = {
+            "cafe_button-goto-no2-cafe": (118, 98),
+            "cafe_students-arrived": (922, 189),
+        }
         picture.co_detect(self, None, None, img_ends, img_possibles, True)
         return
     img_ends = "cafe_at-no1-cafe"
