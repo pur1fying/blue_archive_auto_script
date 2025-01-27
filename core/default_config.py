@@ -421,8 +421,6 @@ DEFAULT_CONFIG = """
     "shock2": "3",
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
-    "activity_exchange_reward": false,
-    "activity_exchange_50_times_at_once": false,
     "explore_hard_task_need_sss": true,
     "explore_hard_task_need_present": true,
     "explore_hard_task_need_task": true,

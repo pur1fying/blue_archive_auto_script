@@ -20,7 +20,7 @@ hero:
 
 features:
   - title: "安装教程"
-    details: "最详细的教程,使用BAAS需要下载的软件"
+    details: "详细的教程和问题解答"
     link: /usage_doc/install/choose_platform
   - title: "低配置适用"
     details: "处理器速度低的电脑可以手动调小截图速度 增长运行时间"
