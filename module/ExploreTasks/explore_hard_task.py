@@ -47,6 +47,8 @@ def verify_and_add(self, task: str) -> tuple[bool, str]:
         if t.isdigit():
             if submission != -1:
                 return False, "Duplicated submission number"
+            if submission < 0 or submission > 3:
+                return False, "Invalid submission number"
             submission = int(t)
         if t == "sss":
             need_sss = True
