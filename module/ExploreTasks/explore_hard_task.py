@@ -47,7 +47,7 @@ def verify_and_add(self, task: str) -> tuple[bool, str]:
         if t.isdigit():
             if submission != -1:
                 return False, "Duplicated submission number"
-            if submission < 0 or submission > 3:
+            if int(t) < 0 or int(t) > 3:
                 return False, "Invalid submission number"
             submission = int(t)
         if t == "sss":
@@ -191,7 +191,7 @@ def implement(self):
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
             continue
     for task in tasklist:
-        self.logger.info(task_to_string(task) + ",")
+        self.logger.info("\t" + task_to_string(task) + ",")
     self.logger.info("]")
 
     mission_los = [249, 363, 476]
@@ -201,7 +201,9 @@ def implement(self):
     for task in tasklist:
         region = task[0]
         mission = task[1]
+        self.logger.info("-- Start Pushing H" + str(region) + "-" + str(mission) + " --")
         self.stage_data = get_stage_data(region)
+        current_task_stage_data = ""
         for key in self.stage_data:
             if key.startswith(str(region) + '-' + str(mission)):
                 if task[2] and "sss" not in key:
@@ -211,19 +213,19 @@ def implement(self):
                 if task[4] and "present" not in key:
                     continue
                 current_task_stage_data = self.stage_data[key]
-                if current_task_stage_data == "":
-                    self.logger.warning("task '%s' not support" % (task_to_string(task)))
-                    continue
-                choose_region(self, region)
-                to_mission_info(self, mission_los[mission - 1])
-                if not judge_need_fight(self, task):
-                    self.logger.warning("According to the mission info current mission no need fight")
-                    hard_task.to_hard_event(self, False)
-                else:
-                    common_gird_method(self, current_task_stage_data)
-                    main_story.auto_fight(self)
-                    if self.config['manual_boss']:
-                        self.click(1235, 41)
-                    normal_task.to_normal_event(self)
-                    hard_task.to_hard_event(self, False)
+        if current_task_stage_data == "":
+            self.logger.warning("task '%s' not support" % (task_to_string(task)))
+            continue
+        choose_region(self, region)
+        to_mission_info(self, mission_los[mission - 1])
+        if not judge_need_fight(self, task):
+            self.logger.warning("According to the mission info current mission no need fight")
+            hard_task.to_hard_event(self, False)
+        else:
+            common_gird_method(self, current_task_stage_data)
+            main_story.auto_fight(self)
+            if self.config['manual_boss']:
+                self.click(1235, 41)
+            normal_task.to_normal_event(self)
+            hard_task.to_hard_event(self, False)
     return True
