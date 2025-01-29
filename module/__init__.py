@@ -5,8 +5,7 @@ from module import collect_reward
 from module import common_shop
 from module import create
 from module import de_clothes
-from module import explore_hard_task
-from module import explore_normal_task
+from module.ExploreTasks import explore_hard_task
 from module import group
 from module import hard_task
 from module import lesson

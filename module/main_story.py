@@ -2,7 +2,7 @@ import importlib
 import os
 import time
 from core import color, picture, image
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.explore_normal_task import common_gird_method
 
 
 def implement(self):

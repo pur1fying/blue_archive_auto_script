@@ -3,69 +3,80 @@ import time
 from core import color, image, picture
 from module import main_story, normal_task, hard_task
 
+tasklist: list[tuple[int, int, bool, bool, bool]] = []
+"""
+Define tasklist as a list of tuple:
+    - region (int): The region number.
+    - submission (int): The submission number.
+    - manual_boss (bool): Indicates whether to pause and allow manual boss fight.
+    - need_sss (bool): Indicates whether to explore if not sss.
+    - force (bool): Indicates whether to forcibly re-explore regardless of the sss.
+"""
+
 
 def implement(self):
-    temp = get_explore_normal_task_missions(self, self.config['explore_normal_task_regions'], self.config['explore_normal_task_force_each_fight'])
+    """
+        Implement the logic for exploring normal tasks.
+    """
+    tasklist.clear()
+    self.logger.info("VALID TASK LIST [")
+    for taskStr in str(self.config['explore_normal_task_regions']).split(','):
+        result = verify_and_add(self, taskStr)
+        if not result[0]:
+            self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
+            continue
+    for task in tasklist:
+        self.logger.info("\t" + task_to_string(task) + ",")
+    self.logger.info("]")
+
     self.quick_method_to_main_page()
-    if self.config['explore_normal_task_force_each_fight']:
-        self.logger.info("VALID TASKS : " + str(temp))
-        normal_task.to_normal_event(self)
-        for i in range(0, len(temp)):
-            region = temp[i][0]
-            mission = temp[i][1]
-            self.logger.info("-- Start Pushing " + str(region) + "-" + str(mission) + " --")
-            choose_region(self, region)
-            self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
-            normal_task_y_coordinates = [242, 341, 439, 537, 611]
-            res = to_mission_info(self, normal_task_y_coordinates[mission - 1], True)
-            self.stage_data = get_stage_data(region)
-            mission = str(region) + "-" + str(mission)
-            current_task_stage_data = self.stage_data[mission]
+    normal_task.to_normal_event(self)
+
+    for task in tasklist:
+        region = task[0]
+        mission = task[1]
+        self.logger.info("-- Start Pushing " + str(region) + "-" + str(mission) + " --")
+        self.stage_data = get_stage_data(region)
+        if str(region) + '-' + str(mission) not in self.stage_data:
+            self.logger.warning("task '%s' not support" % (task_to_string(task)))
+            continue
+        current_task_stage_data: dict = self.stage_data[str(region) + '-' + str(mission)]
+        self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
+        normal_task_y_coordinates = [242, 341, 439, 537, 611]
+
+        # TODO 修复region或mission未解锁导致卡死的bug
+        choose_region(self, region)
+        to_mission_info(self, normal_task_y_coordinates[mission - 1], False)
+
+        task_state = check_task_state(self)
+        needExplore = True
+        if task_state == "sss":
+            needExplore = False
+        if task_state == "pass" and (not task[3]):  # pass and not require sss
+            needExplore = False
+        if task[4]:  # if forced
+            needExplore = True
+        if not needExplore:
+            continue
+
+        if mission == 'sub':
+            start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
+            rgb_possibles = {
+                "formation_edit" + str(self.config[self.stage_data[str(region)]['SUB']]): (1171, 670),
+            }
+            rgb_ends = "fighting_feature"
+            picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
+        else:
             common_gird_method(self, current_task_stage_data)
-            main_story.auto_fight(self)
-            if self.config['manual_boss']:
-                self.click(1235, 41)
-            hard_task.to_hard_event(self)
-            normal_task.to_normal_event(self, True)
-    else:
-        need_change_acc = True
-        self.logger.info("VALID REGIONS : " + str(temp))
-        self.quick_method_to_main_page()
+
+        main_story.auto_fight(self)
+        if self.config['manual_boss']:
+            self.click(1235, 41)
+        hard_task.to_hard_event(self)
         normal_task.to_normal_event(self, True)
-        for i in range(0, len(temp)):
-            region = temp[i]
-            self.logger.info("-- Start Pushing Region " + str(region) + " --")
-            if not 4 <= region <= 27:
-                self.logger.warning("Region not support")
-                continue
-            choose_region(self, region)
-            self.stage_data = get_stage_data(region)
-            for k in range(0, 13):  # 5 grid to walk and 8 sub task
-                mission = calc_need_fight_stage(self, region, self.config['explore_normal_task_force_sss'])
-                if mission == "ALL MISSION SWEEP AVAILABLE":
-                    self.logger.critical("ALL MISSION AVAILABLE TO SWEEP")
-                    normal_task.to_normal_event(self, True)
-                    break
-                if mission == 'SUB':
-                    start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
-                    rgb_possibles = {
-                        "formation_edit" + str(self.config[self.stage_data[str(region)]['SUB']]): (1171, 670),
-                    }
-                    rgb_ends = "fighting_feature"
-                    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
-                else:
-                    current_task_stage_data = self.stage_data[mission]
-                    common_gird_method(self, current_task_stage_data)
-                main_story.auto_fight(self, need_change_acc)
-                need_change_acc = False
-                if self.config['manual_boss']:
-                    self.click(1235, 41)
-                hard_task.to_hard_event(self)
-                normal_task.to_normal_event(self, True)
-        return True
 
 
-def get_stage_data(region):
+def get_stage_data(region) -> dict:
     module_path = 'src.explore_task_data.normal_task.normal_task_' + str(region)
     stage_module = importlib.import_module(module_path)
     stage_data = getattr(stage_module, 'stage_data', None)
@@ -74,32 +85,8 @@ def get_stage_data(region):
 
 def check_task_state(self):
     if image.compare_image(self, 'normal_task_SUB'):
-        return 'SUB'
+        return 'sub'
     return color.check_sweep_availability(self, True)
-
-
-def calc_need_fight_stage(self, region, force_sss):
-    self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
-    to_mission_info(self, 238, True)
-    for i in range(1, 6):
-        task_state = check_task_state(self)
-        self.logger.info("Current mission status : {0}".format(task_state))
-        if task_state == 'SUB':
-            self.logger.info("Start SUB Fight")
-            return task_state
-        if task_state == 'no-pass':
-            self.logger.info("Current task not pass. Start main line fight")
-            return str(region) + "-" + str(i)
-        if task_state == 'pass' and not force_sss:
-            self.logger.info("Current task not sss. Start main line fight")
-            return str(region) + "-" + str(i)
-        if task_state == 'sss':
-            self.logger.info("CURRENT MISSION SSS")
-        if i == 5:
-            return "ALL MISSION SWEEP AVAILABLE"
-        self.logger.info("Check next mission")
-        self.click(1172, 358, wait_over=True, duration=1)
-        self.latest_img_array = self.get_screenshot_array()
 
 
 def get_force(self):
@@ -152,7 +139,7 @@ def start_action(self, actions):
             return
         desc = "start " + str(i + 1) + " operation : "
         if 'desc' in act:
-             desc += act['desc']
+            desc += act['desc']
         self.logger.info(desc)
         force_index = get_force(self)
         op = act['t']
@@ -184,7 +171,8 @@ def start_action(self, actions):
             elif op[j] == 'end-turn':
                 end_turn(self)
                 if i != len(actions) - 1:
-                    if 'end-turn-wait-over' in act and act['end-turn-wait-over'] is False:  # not every end turn need to wait
+                    if 'end-turn-wait-over' in act and act[
+                        'end-turn-wait-over'] is False:  # not every end turn need to wait
                         self.logger.info("End Turn without wait over")
                     else:
                         wait_over(self)
@@ -259,15 +247,15 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
-    while cu_region != region and self.flag_run:
-        if cu_region > region:
-            self.click(40, 360, count=cu_region - region, rate=0.1, wait_over=True)
+    curRegion = self.ocr.get_region_num_int(self.latest_img_array, square[self.server], self.ratio)
+    while curRegion != region and self.flag_run:
+        if curRegion > region:
+            self.click(40, 360, count=curRegion - region, rate=0.1, wait_over=True)
         else:
-            self.click(1245, 360, count=region - cu_region, rate=0.1, wait_over=True)
+            self.click(1245, 360, count=region - curRegion, rate=0.1, wait_over=True)
         time.sleep(0.5)
         normal_task.to_normal_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+        curRegion = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
 
 
 def to_normal_task_wait_to_begin_page(self, skip_first_screenshot=False):
@@ -382,8 +370,8 @@ def calc_team_number(self, current_task_stage_data):
         'burst2': ['burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
         'mystic1': ['mystic1', 'mystic2', 'shock1', 'shock2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
         'mystic2': ['mystic2', 'burst1', 'shock1', 'shock2', 'burst2', 'pierce1', 'pierce2'],
-        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ],
-        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ]
+        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2'],
+        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2']
     }
     used = {
         'pierce1': False,
@@ -466,82 +454,52 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot, img_pop_ups=img_pop_ups)
 
 
-def get_explore_normal_task_missions(self, st, force_each_fight=False):
-    lg = "Tasks"
-    if not force_each_fight:
-        lg = "Regions"
-    self.logger.info("Get Explore Normal Task Valid " + lg)
-    region_range = self.static_config['explore_normal_task_region_range']
-    ret = []
-    if not force_each_fight:
-        if type(st) is int:
-            st = str(st)
-        if type(st) is str:
-            st = st.replace(' ', '')
-            st = st.replace('，', ',')
-            st = st.split(',')
-        if type(st) is list:
-            for t in st:
-                if type(t) is str:
-                    try:
-                        t = int(t)
-                    except ValueError:
-                        self.logger.warning("[ " + t + " ] is not a number.Skip")
-                        continue
-                if type(t) is int:
-                    if t < region_range[0] or t > region_range[1]:
-                        self.logger.warning("Region [ " + str(t) + " ] not support")
-                        continue
-                    ret.append(t)
+def verify_and_add(self, task: str) -> tuple[bool, str]:
+    """
+    Verifies the task information and returns the results.
 
+    Args:
+        self:
+        task: Task information. Example:16-2-sss
+
+    Returns:
+        Tuple[bool, str]:
+            - The first element (bool): The verification result. Returns True if verification passes; otherwise, False.
+            - The second element (str): The error message. Returns a detailed error message if verification fails; otherwise, an empty string.
+    """
+    global tasklist
+    manual_boss = bool(self.config['manual_boss'])
+    need_sss = bool(self.config['explore_normal_task_force_sss'])
+    force = bool(self.config['explore_normal_task_force_each_fight'])
+    valid_chapter_range = self.static_config['explore_normal_task_region_range']
+    info = task.split('-')
+    if (not info[0].isdigit()) or int(info[0]) < valid_chapter_range[0] or int(info[0]) > valid_chapter_range[1]:
+        return False, "Invalid chapter or unsupported chapter"
+    if len(info) > 5:
+        return False, "The length of info should not exceed 5"
+    if info.count('sss') > 1 or info.count('force') > 1 or info.count('manualboss') > 1:
+        return False, "Duplicate task type: 'sss', 'force' or 'manualboss' appears more than once"
+    region = int(info[0])
+    submission = -1
+    for t in info[1:]:
+        if t.isdigit():
+            if submission != -1:
+                return False, "Duplicated submission number"
+            if int(t) < 0 or int(t) > 5:
+                return False, "Invalid submission number"
+            submission = int(t)
+        if t == "sss":
+            need_sss = True
+        if t == "manualboss":
+            manual_boss = True
+        if t == "force":
+            force = True
+    if submission == -1:
+        for i in range(1, 6):
+            tasklist.append((region, i, manual_boss, need_sss, force))
     else:
-        try:
-            if type(st) is list:
-                for i in range(0, len(st)):
-                    st[i] = str(st[i])
-            elif type(st) is not str:
-                st = str(st)
-            if type(st) is str:
-                st = st.replace(' ', '')
-                st = st.replace('，', ',')
-                st = st.split(',')
-            for t in st:
-                if '-' in t:
-                    temp = t.split('-')
-                    if len(temp) != 2:
-                        self.logger.error("[ " + t + " ] format error. Expected : 'region-mission'")
-                        continue
-                    try:
-                        region = int(temp[0])
-                    except ValueError:
-                        self.logger.warning("Region [ " + t + " ] is not a number.Skip")
-                        continue
-                    try:
-                        mission = int(temp[1])
-                    except ValueError:
-                        self.logger.warning("Mission [ " + t + " ] is not a number.Skip")
-                        continue
-                    if region < region_range[0] or region > region_range[1]:
-                        self.logger.error("Region [ " + temp[0] + " ] not support")
-                        continue
-                    ret.append([region, mission])
-                else:
-                    try:
-                        region = int(t)
-                    except ValueError:
-                        self.logger.warning("Region [ " + t + " ] is not a number.Skip")
-                        continue
-                    if region < region_range[0] or region > region_range[1]:
-                        self.logger.error("Region [ " + t + " ] not support")
-                        continue
-                    for j in range(1, 6):
-                        ret.append([int(t), j])
-        except Exception as e:
-            self.logger.error(e.__str__())
-            self.logger.error("explore_normal_task_missions config error")
-            return False
-    self.logger.info("Valid " + lg + " : " + str(ret))
-    return ret
+        tasklist.append((region, submission, manual_boss, need_sss, force))
+    return True, ""
 
 
 def choose_team_according_to_stage_data_and_config(self, current_task_stage_data):
@@ -592,3 +550,14 @@ def formation_attr_to_cn(attr):
     elif attr.startswith('shock'):
         return '振动'
     return None
+
+
+def task_to_string(task: tuple[int, int, bool, bool, bool]):
+    taskStr = str(task[0]) + "-" + str(task[1])
+    if task[2]:
+        taskStr += "-manualboss"
+    if task[3]:
+        taskStr += "-sss"
+    if task[4]:
+        taskStr += "-force"
+    return taskStr
