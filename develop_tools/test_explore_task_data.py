@@ -1,5 +1,5 @@
 from module.explore_normal_task import get_explore_normal_task_missions
-from module.explore_hard_task import get_explore_hard_task_data
+from module.explore_hard_task import verify_and_add
 from core.utils import Logger
 from core.Baas_thread import Baas_thread
 from gui.util.config_set import ConfigSet
