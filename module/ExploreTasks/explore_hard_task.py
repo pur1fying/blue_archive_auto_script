@@ -1,10 +1,9 @@
 import importlib
 import time
-from typing import List, Any
 
 from core import color, picture
 from module import main_story, normal_task, hard_task
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.explore_normal_task import common_gird_method
 
 tasklist: list[tuple[int, int, bool, bool, bool]] = []
 """
@@ -34,9 +33,10 @@ def verify_and_add(self, task: str) -> tuple[bool, str]:
     need_sss = bool(self.config['explore_hard_task_need_sss'])
     need_task = bool(self.config['explore_hard_task_need_task'])
     need_present = bool(self.config['explore_hard_task_need_present'])
+    valid_chapter_range = self.static_config['explore_hard_task_region_range']
     info = task.split('-')
-    if (not info[0].isdigit()) or int(info[0]) < 0 or int(info[0]) > 27:
-        return False, "Invalid chapter"
+    if (not info[0].isdigit()) or int(info[0]) < valid_chapter_range[0] or int(info[0]) > valid_chapter_range[1]:
+        return False, "Invalid chapter or unsupported chapter"
     if len(info) > 5:
         return False, "The length of info should not exceed 5"
     if info.count('sss') > 1 or info.count('present') > 1 or info.count('task') > 1:
