@@ -1,14 +1,13 @@
-import importlib
 import os
 import time
 from core import color, picture, image
 from module.ExploreTasks.explore_normal_task import common_gird_method
+import json
 
 
 def implement(self):
     self.logger.info("START pushing main story")
-    stage_module = importlib.import_module("src.explore_task_data.main_story.main_story")
-    self.main_story_stage_data = getattr(stage_module, "stage_data")
+    self.main_story_stage_data = get_stage_data()
     self.quick_method_to_main_page()
     to_main_story(self, True)
     push_episode_list = process_regions(self, self.config['main_story_regions'])
@@ -24,24 +23,31 @@ def implement(self):
     return True
 
 
+def get_stage_data():
+    path = "src/explore_task_data/main_story/main_story.json"
+    with open(path, "r") as f:
+        data = json.load(f)
+    return data
+
+
 def judge_acc(self):
     if color.judge_rgb_range(self, 1180, 621, 200, 255, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
+            color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
         return 1
     elif color.judge_rgb_range(self, 1250, 621, 100, 150, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
+            color.judge_rgb_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
         return 2
     elif color.judge_rgb_range(self, 1250, 621, 210, 255, 180, 240, 0, 80) and \
-        color.judge_rgb_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
+            color.judge_rgb_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
         return 3
 
 
 def judge_auto(self):
     if color.judge_rgb_range(self, 1250, 677, 180, 255, 180, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
+            color.judge_rgb_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
         return 'off'
     elif color.judge_rgb_range(self, 1250, 677, 200, 255, 180, 255, 0, 80) and \
-        color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
+            color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
         return 'on'
 
 
@@ -148,7 +154,7 @@ def to_episode(self, num):
             x_start, x_end = 0, 400
             if num < _min:  # search left to _max
                 wait_to_detect_list = detect_episode_list[:detect_episode_list.index(_max)]
-            else:           # search right from _min
+            else:  # search right from _min
                 x_start, x_end = x_end, x_start
                 wait_to_detect_list = detect_episode_list[detect_episode_list.index(_min) + 1:]
             self.swipe(x_start, 142, x_end, 142, 0.7, post_sleep_time=1)

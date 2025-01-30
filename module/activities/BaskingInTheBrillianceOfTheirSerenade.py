@@ -1,6 +1,7 @@
 import time
 from core import color, picture
 from module import main_story
+from module.activities.activity_utils import get_stage_data
 
 
 def implement(self):

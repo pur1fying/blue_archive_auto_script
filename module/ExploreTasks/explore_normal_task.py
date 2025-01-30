@@ -1,5 +1,4 @@
-import importlib
-import time
+import time, json
 from core import color, image, picture
 from module import main_story, normal_task, hard_task
 
@@ -41,11 +40,11 @@ def implement(self):
             self.logger.warning("task '%s' not support" % (task_to_string(task)))
             continue
         current_task_stage_data: dict = self.stage_data[str(region) + '-' + str(mission)]
-        self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
         normal_task_y_coordinates = [242, 341, 439, 537, 611]
 
         # TODO 修复region或mission未解锁导致卡死的bug
         choose_region(self, region)
+        self.swipe(917, 220, 917, 552, duration=0.1, post_sleep_time=1)
         to_mission_info(self, normal_task_y_coordinates[mission - 1], False)
 
         task_state = check_task_state(self)
@@ -74,13 +73,6 @@ def implement(self):
             self.click(1235, 41)
         hard_task.to_hard_event(self)
         normal_task.to_normal_event(self, True)
-
-
-def get_stage_data(region) -> dict:
-    module_path = 'src.explore_task_data.normal_task.normal_task_' + str(region)
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
 
 
 def check_task_state(self):
@@ -403,7 +395,7 @@ def calc_team_number(self, current_task_stage_data):
                 continue
             possible_index = self.config[possible_attr]
             if not used[possible_attr] and 4 - possible_index >= total_teams - len(
-                team_res) - 1 and last_chosen < possible_index:
+                    team_res) - 1 and last_chosen < possible_index:
                 team_res.append(possible_index)
                 team_attr.append(possible_attr)
                 used[possible_attr] = True
@@ -561,3 +553,11 @@ def task_to_string(task: tuple[int, int, bool, bool, bool]):
     if task[4]:
         taskStr += "-force"
     return taskStr
+
+
+def get_stage_data(region, is_normal=True):
+    t = "normal_task" if is_normal else "hard_task"
+    data_path = f"src/explore_task_data/{t}/{t}_{region}.json"
+    with open(data_path, 'r') as f:
+        stage_data = json.load(f)
+    return stage_data

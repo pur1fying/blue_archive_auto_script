@@ -1,4 +1,4 @@
-import importlib
+from module.activities.activity_utils import get_stage_data
 import time
 from core import image, color, picture
 from module import main_story
@@ -13,13 +13,6 @@ def implement(self):
         return sweep(self, region, times)
     else:
         return True
-
-
-def get_stage_data():
-    module_path = 'src.explore_task_data.activities.sakura_flowing_chaos_in_the_gala'
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
 
 
 def sweep(self, number, times):
@@ -148,7 +141,7 @@ def explore_challenge(self):
         "challenge2_sss",
         "challenge2_task"
     ]
-    stage_data = get_stage_data()
+    stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
         current_task_stage_data = stage_data[tasks[i]]
         data = tasks[i].split("_")

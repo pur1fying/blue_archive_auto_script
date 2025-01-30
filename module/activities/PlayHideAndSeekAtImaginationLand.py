@@ -1,4 +1,4 @@
-import importlib
+from module.activities.activity_utils import get_stage_data
 import time
 from core import color, picture, image
 from module import main_story
@@ -59,14 +59,6 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data(self):
-    try:
-        module_path = 'src.explore_task_data.activities.' + self.current_game_activity
-        stage_module = importlib.import_module(module_path)
-        stage_data = getattr(stage_module, 'stage_data', None)
-        return stage_data
-    except Exception as e:
-        return None
 
 
 
@@ -164,7 +156,7 @@ def start_story(self, i):
     elif res == "reward_acquired":
         pass
     else:
-        common_gird_method(self, get_stage_data()["story" + str(i)])
+        common_gird_method(self, get_stage_data(self)["story" + str(i)])
         main_story.auto_fight(self)
     return
 

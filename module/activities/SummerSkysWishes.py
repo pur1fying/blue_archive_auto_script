@@ -1,4 +1,4 @@
-import importlib
+
 import time
 from core import color, picture, image
 from module import main_story
@@ -61,11 +61,6 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data():
-    module_path = 'src.explore_task_data.activities.SummerSkysWishes'
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
 
 
 def sweep(self, number, times):
@@ -110,7 +105,7 @@ def explore_story(self):
     to_activity(self, "story", True, True)
     last_target_task = 1
     total_stories = 7
-    self.stage_data = get_stage_data()
+    self.stage_data = get_stage_data(self)
     while self.flag_run:
         plot = to_story_task_info(self, last_target_task)
         if plot == "normal_task_task-info":
@@ -160,7 +155,7 @@ def start_story(self, i):
     elif res == "reward_acquired":
         pass
     else:
-        common_gird_method(self, get_stage_data()["story" + str(i)])
+        common_gird_method(self, get_stage_data(self)["story" + str(i)])
         main_story.auto_fight(self)
     return
 
@@ -218,7 +213,7 @@ def explore_challenge(self):
         "challenge3_sss",
         "challenge3_task",
     ]
-    stage_data = get_stage_data()
+    stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))

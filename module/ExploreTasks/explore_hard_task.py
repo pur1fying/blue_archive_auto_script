@@ -1,9 +1,7 @@
-import importlib
 import time
-
 from core import color, picture, image
 from module import main_story, normal_task, hard_task
-from module.ExploreTasks.explore_normal_task import common_gird_method
+from module.ExploreTasks.explore_normal_task import common_gird_method, get_stage_data
 
 tasklist: list[tuple[int, int, bool, bool, bool]] = []
 """
@@ -73,13 +71,6 @@ def task_to_string(task: tuple[int, int, bool, bool, bool]):
     if task[4]:
         taskStr += "-present"
     return taskStr
-
-
-def get_stage_data(region):
-    module_path = 'src.explore_task_data.hard_task.hard_task_' + str(region)
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
 
 
 def judge_need_fight(self, task):
@@ -244,7 +235,7 @@ def implement(self):
         region = task[0]
         mission = task[1]
         self.logger.info("-- Start Pushing H" + str(region) + "-" + str(mission) + " --")
-        self.stage_data = get_stage_data(region)
+        self.stage_data = get_stage_data(region, False)
         current_task_stage_data = ""
         for key in self.stage_data:
             if key.startswith(str(region) + '-' + str(mission)):
