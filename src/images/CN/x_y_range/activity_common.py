@@ -15,4 +15,5 @@ x_y_range = {
     "refresh-exchange-times-bright": (1110, 99, 1190, 133),
     "refresh-exchange-times-notice": (507, 311, 763, 354),
     'task-info': (576, 118, 707, 160),
+    'quest-challenge-button': (334, 255, 416, 288)
 }

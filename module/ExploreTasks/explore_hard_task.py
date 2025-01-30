@@ -1,7 +1,7 @@
 import importlib
 import time
 
-from core import color, picture
+from core import color, picture, image
 from module import main_story, normal_task, hard_task
 from module.ExploreTasks.explore_normal_task import common_gird_method
 
@@ -87,13 +87,49 @@ def judge_need_fight(self, task):
         res = color.check_sweep_availability(self, True)
         if res == 'no-pass' or res == 'pass':
             return True
-    if task[3]:  # need_task
-        # TODO task verify
-        return True
-    if task[4]:  # need_present
+    if task[4]:  # need_present (check present first because check task will change latest screenshot)
         if color.judgeRGBFeature(self, 'hardTaskHasPresent'):
             return True
+    if task[3]:  # need_task
+        res = check_task(self, 1)
+        if res[0] != 1:
+            return True
     return False
+
+
+def check_task(self, challenge_count=1):
+    """
+        Returns:
+            list[int] :
+                int = 0, task unfinished
+                int = 1, task finished
+                int = 2, task state unknown
+    """
+    to_challenge_menu(self)
+    ret = []
+    for i in range(1, challenge_count + 1):
+        if image.compare_image(self, "normal_task_challenge" + str(i) + "-unfinished", False, 0.8, 10):
+            ret.append(0)
+        elif image.compare_image(self, "normal_task_challenge" + str(i) + "-finished", False, 0.8, 10):
+            ret.append(1)
+        else:
+            ret.append(2)
+    to_mission_info(self)
+    return ret
+
+
+def to_challenge_menu(self):
+    challenge_button_y = {
+        'CN': 272,
+        'Global': 302,
+        'JP': 302
+    }
+    img_ends = 'normal_task_challenge-menu'
+    img_possibles = {
+        "normal_task_challenge-button": (536, challenge_button_y[self.server]),
+        "activity_quest-challenge-button": (319, 270)
+    }
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def choose_region(self, region):
@@ -115,10 +151,16 @@ def choose_region(self, region):
         self.logger.info("Current Region : " + str(cu_region))
 
 
-def to_mission_info(self, y):
+def to_mission_info(self, y=0):
     rgb_possibles = {"event_hard": (1114, y)}
-    img_ends = "normal_task_task-info"
-    img_possibles = {'normal_task_select-area': (1114, y)}
+    img_ends = [
+        "normal_task_task-info",
+        "activity_task-info"
+    ]
+    img_possibles = {
+        'normal_task_select-area': (1114, y),
+        'normal_task_challenge-menu': (640, 490)
+    }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
@@ -160,7 +202,7 @@ def calc_team_number(self, current_task_stage_data):
                 continue
             possible_index = self.config[possible_attr]
             if not used[possible_attr] and 4 - possible_index >= length - len(
-                res) - 1 and last_chosen < possible_index:
+                    res) - 1 and last_chosen < possible_index:
                 res.append(possible_index)
                 used[possible_attr] = True
                 last_chosen = self.config[possible_attr]

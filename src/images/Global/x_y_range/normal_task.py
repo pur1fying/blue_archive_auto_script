@@ -28,5 +28,11 @@ x_y_range = {
     "sweep-complete": (550, 561, 730, 604),
     "task-finish": (950, 648, 1100, 678),
     'skip-sweep-complete': (597, 488, 684, 531),  # 跳过扫荡完成
+    'challenge-button': (467, 287, 602, 315),
+    'challenge-menu': (556, 171, 724, 212),
+    'challenge1-finished': (395, 330, 434, 366),
+    'challenge1-unfinished': (395, 330, 434, 366),
+    # 'challenge2-finished': (395, 366, 434, 401),
+    # 'challenge2-unfinished': (395, 366, 434, 401),
 
 }
