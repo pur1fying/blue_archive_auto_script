@@ -2,8 +2,6 @@ import time
 
 from core import image, picture
 from module import hard_task, main_story
-from module.ExploreTasks.explore_hard_task import to_mission_info
-from module.ExploreTasks.explore_normal_task import calc_team_number, choose_team
 
 
 def get_challenge_state(self, challenge_count=1) -> list[int]:
@@ -40,7 +38,7 @@ def get_challenge_state(self, challenge_count=1) -> list[int]:
     return result
 
 
-def choose_region(self, region, isNormal: bool):
+def to_region(self, region, isNormal: bool):
     square = {
         'CN': [122, 178, 163, 208],
         'Global': [122, 178, 163, 208],
@@ -85,7 +83,7 @@ def formation_attr_to_cn(attr):
     return None
 
 
-def common_gird_method(self, current_task_stage_data):
+def execute_grid_task(self, taskData):
     img_possibles = {
         'normal_task_help': (1017, 131),
         'normal_task_task-info': (946, 540),
@@ -96,13 +94,13 @@ def common_gird_method(self, current_task_stage_data):
     }
     img_ends = "normal_task_task-wait-to-begin-feature"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    choose_team_according_to_stage_data_and_config(self, current_task_stage_data)
+    choose_team_according_to_stage_data_and_config(self, taskData)
     start_mission(self)
-    check_skip_fight_and_auto_over(self)
-    start_action(self, current_task_stage_data['action'])
+    set_skip_and_auto_over(self)
+    start_action(self, taskData['action'])
 
 
-def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
+def task_mission_operating(self, skip_first_screenshot=False):
     img_possibles = {
         "normal_task_mission-operating-task-info-notice": (995, 101),
         "normal_task_end-turn": (890, 162),
@@ -116,27 +114,25 @@ def to_normal_task_mission_operating_page(self, skip_first_screenshot=False):
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot, img_pop_ups=img_pop_ups)
 
 
-def turn_off_skip_fight(self):
+def turn_off_skip_fight(self) -> None:
     while self.flag_run:
-        to_normal_task_mission_operating_page(self, False)
+        task_mission_operating(self, False)
         if image.compare_image(self, 'normal_task_fight-skip'):
             self.click(1194, 547, wait_over=True, duration=0.5)
         else:
             return
 
 
-def check_skip_fight_and_auto_over(self):
-    while self.flag_run:
-        f = 1
+def set_skip_and_auto_over(self) -> None:
+    need_adjustment = True
+    while self.flag_run and need_adjustment:
         if not image.compare_image(self, 'normal_task_fight-skip'):
-            f = 0
+            need_adjustment = False
             self.click(1194, 547, wait_over=True, duration=0.5)
         if not image.compare_image(self, 'normal_task_auto-over'):
-            f = 0
+            need_adjustment = False
             self.click(1194, 600, wait_over=True, duration=0.5)
-        if f:
-            return
-        to_normal_task_mission_operating_page(self, False)
+        task_mission_operating(self, False)
 
 
 def wait_formation_change(self, force_index):
@@ -235,8 +231,8 @@ def start_action(self, actions):
                         self.logger.info("retreat at fight" + str(retreatNum))
                         retreat(self)
                         break
-                to_normal_task_mission_operating_page(self, True)
-            check_skip_fight_and_auto_over(self)
+                task_mission_operating(self, False)
+            set_skip_and_auto_over(self)
         if 'ec' in act:
             wait_formation_change(self, force_index)
         if 'wait-over' in act:
@@ -246,7 +242,7 @@ def start_action(self, actions):
         if 'post-wait' in act:
             time.sleep(act['post-wait'])
         if i != len(actions) - 1:
-            to_normal_task_mission_operating_page(self, skip_first_screenshot=skip_first_screenshot)
+            task_mission_operating(self, skip_first_screenshot=skip_first_screenshot)
     self.set_screenshot_interval(self.config['screenshot_interval'])
 
 
@@ -256,7 +252,7 @@ def get_force(self):
         'Global': (116, 542, 131, 570),
         'JP': (116, 542, 131, 570)
     }
-    to_normal_task_mission_operating_page(self)
+    task_mission_operating(self)
     ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
     if ocr_res == "UNKNOWN":
         return get_force(self)
@@ -305,8 +301,8 @@ def confirm_teleport(self):
     picture.co_detect(self, None, None, img_end, img_possibles, True)
 
 
-def choose_team_according_to_stage_data_and_config(self, current_task_stage_data):
-    res, los = calc_team_number(self, current_task_stage_data)
+def choose_team_according_to_stage_data_and_config(self, taskData):
+    res, los = calc_team_number(self, taskData)
     for j in range(0, len(res)):
         if res[j] == "swipe":
             time.sleep(1)
@@ -314,3 +310,133 @@ def choose_team_according_to_stage_data_and_config(self, current_task_stage_data
             time.sleep(1)
         else:
             choose_team(self, res[j], los[j], True)
+
+
+def to_mission_info(self, y=0):
+    rgb_possibles = {"event_hard": (1114, y), "event_normal": (1114, y)}
+    img_ends = [
+        "normal_task_task-info",
+        "activity_task-info",
+        "normal_task_SUB"
+    ]
+    img_possibles = {
+        'normal_task_select-area': (1114, y),
+        'normal_task_challenge-menu': (640, 490)
+    }
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, False)
+
+
+def choose_team(self, number, position, skip_first_screenshot=False):
+    self.logger.info("According to the config. Choose team " + str(number))
+    to_formation_edit_i(self, number, position, skip_first_screenshot)
+    to_normal_task_wait_to_begin_page(self, skip_first_screenshot)
+
+
+def calc_team_number(self, taskData):
+    pri = {
+        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
+        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
+        'burst1': ['burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
+        'burst2': ['burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
+        'mystic1': ['mystic1', 'mystic2', 'shock1', 'shock2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+        'mystic2': ['mystic2', 'burst1', 'shock1', 'shock2', 'burst2', 'pierce1', 'pierce2'],
+        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2'],
+        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2']
+    }
+    used = {
+        'pierce1': False,
+        'pierce2': False,
+        'burst1': False,
+        'burst2': False,
+        'mystic1': False,
+        'mystic2': False,
+        'shock1': False,
+        'shock2': False,
+    }
+    keys = used.keys()
+    total_teams = 0
+    for i in range(0, len(taskData['start'])):
+        if taskData['start'][i][0] in keys:
+            total_teams += 1
+    last_chosen = 0
+    team_res = []
+    team_attr = []
+    los = []
+    for i in range(0, len(taskData['start'])):
+        attr, position = taskData['start'][i][0], taskData['start'][i][1]
+        los.append(position)
+        if attr not in keys:
+            continue
+        for j in range(0, len(pri[attr])):
+            possible_attr = pri[attr][j]
+            if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
+                continue
+            possible_index = self.config[possible_attr]
+            if not used[possible_attr] and 4 - possible_index >= total_teams - len(
+                team_res) - 1 and last_chosen < possible_index:
+                team_res.append(possible_index)
+                team_attr.append(possible_attr)
+                used[possible_attr] = True
+                last_chosen = self.config[possible_attr]
+                break
+    if len(team_res) != total_teams:
+        self.logger.warning("Insufficient forces are chosen")
+        if total_teams - len(team_res) <= 4 - last_chosen:
+            for i in range(0, total_teams - len(team_res)):
+                team_res.append(last_chosen + i + 1)
+                team_attr.append("auto-choose")
+        else:
+            self.logger.warning("USE formations as the number increase")
+            team_res.clear()
+            team_attr = ["auto-choose"]
+            cnt = 1
+            for i in range(0, len(taskData['start'])):
+                if taskData['start'][i][0] in keys:
+                    team_res.append(cnt)
+                    los.append(taskData['start'][i][1])
+                    cnt += 1
+    self.logger.info("Choose formations : " + str(team_res))
+    self.logger.info("attr : " + str(team_attr))
+    action_res = []
+    temp = 0
+    for i in range(0, len(taskData['start'])):
+        if taskData['start'][i][0] not in keys:
+            action_res.append(taskData['start'][i][0])
+        else:
+            action_res.append(team_res[temp])
+            temp += 1
+    self.logger.info("actions : " + str(action_res))
+    self.logger.info("position : " + str(los))
+    return action_res, los
+
+
+def to_normal_task_wait_to_begin_page(self, skip_first_screenshot=False):
+    rgb_possibles = {
+        "formation_edit1": (1154, 625),
+        "formation_edit2": (1154, 625),
+        "formation_edit3": (1154, 625),
+        "formation_edit4": (1154, 625),
+    }
+    img_ends = [
+        'normal_task_task-wait-to-begin-feature',
+        'normal_task_task-operating-feature'
+    ]
+    img_possibles = {
+        'task-begin-without-further-editing-notice': (888, 164)
+    }
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+
+
+def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
+    loy = [195, 275, 354, 423]
+    y = loy[i - 1]
+    rgb_ends = "formation_edit" + str(i)
+    rgb_possibles = {
+        "formation_edit1": (74, y),
+        "formation_edit2": (74, y),
+        "formation_edit3": (74, y),
+        "formation_edit4": (74, y),
+    }
+    rgb_possibles.pop("formation_edit" + str(i))
+    img_possibles = {"normal_task_task-wait-to-begin-feature": lo}
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)

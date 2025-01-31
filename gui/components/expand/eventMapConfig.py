@@ -118,7 +118,7 @@ class Layout(TemplateLayout):
             "mission": self.tr("任务"),
             "challenge": self.tr("挑战"),
         }
-        from module.ExploreTasks.explore_normal_task import formation_attr_to_cn
+        from module.ExploreTasks.TaskUtils import formation_attr_to_cn
         for key, value in stage_data.items():
             print(key)
             if key == "story" or key == "mission" or key == "challenge":

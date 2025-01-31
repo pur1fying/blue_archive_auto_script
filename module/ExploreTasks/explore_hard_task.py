@@ -1,6 +1,6 @@
 from core import color
 from module import main_story, hard_task, normal_task
-from module.ExploreTasks.TaskUtils import get_challenge_state, to_region, common_gird_method, to_mission_info
+from module.ExploreTasks.TaskUtils import get_challenge_state, to_region, execute_grid_task, to_mission_info
 import json
 
 
@@ -169,7 +169,7 @@ def implement(self):
             self.logger.warning(f"H{region}-{mission} is already finished,skip.")
             hard_task.to_hard_event(self)
             continue
-        common_gird_method(self, task[2])
+        execute_grid_task(self, task[2])
         main_story.auto_fight(self)
         if self.config['manual_boss']:
             self.click(1235, 41)

@@ -2,7 +2,7 @@ from module.activities.activity_utils import get_stage_data
 import time
 from core import image, color, picture
 from module import main_story
-from module.ExploreTasks.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
@@ -119,7 +119,7 @@ def explore_story(self):
             picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
         else:
             current_task_stage_data = stage_data[mission]
-            common_gird_method(self, current_task_stage_data)
+            execute_grid_task(self, current_task_stage_data)
         main_story.auto_fight(self, need_change_acc)
         need_change_acc = False
         if self.config['manual_boss']:
@@ -214,7 +214,7 @@ def explore_challenge(self):
             elif res == "no-pass" or res == "pass":
                 need_fight = True
         if need_fight:
-            common_gird_method(self, current_task_stage_data)
+            execute_grid_task(self, current_task_stage_data)
             main_story.auto_fight(self)
             if self.config['manual_boss']:
                 self.click(1235, 41)

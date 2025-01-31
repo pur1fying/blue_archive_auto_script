@@ -1,7 +1,7 @@
 import os
 import time
 from core import color, picture, image
-from module.ExploreTasks.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
 import json
 
 
@@ -221,7 +221,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
         return res
     if res == "normal_task_task-wait-to-begin-feature":
         stage_data = check_state_and_get_stage_data(self)
-        common_gird_method(self, stage_data)
+        execute_grid_task(self, stage_data)
     auto_fight(self)
     return clear_current_plot(self)
 
