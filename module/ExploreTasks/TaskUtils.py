@@ -124,14 +124,16 @@ def turn_off_skip_fight(self) -> None:
 
 
 def set_skip_and_auto_over(self) -> None:
-    need_adjustment = True
-    while self.flag_run and need_adjustment:
-        if not image.compare_image(self, 'normal_task_fight-skip'):
-            need_adjustment = False
+    while self.flag_run:
+        finish_adjustment = True
+        if not image.compare_image(self, 'normal_task_fight-skip', False):
+            finish_adjustment = False
             self.click(1194, 547, wait_over=True, duration=0.5)
-        if not image.compare_image(self, 'normal_task_auto-over'):
-            need_adjustment = False
+        if not image.compare_image(self, 'normal_task_auto-over', False):
+            finish_adjustment = False
             self.click(1194, 600, wait_over=True, duration=0.5)
+        if finish_adjustment:
+            return
         task_mission_operating(self, False)
 
 
@@ -153,14 +155,14 @@ def start_mission(self):
         'normal_task_end-turn': (888, 163),
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    wait_over(self)
+    task_mission_operating(self, True)
 
 
 def start_action(self, actions):
     self.set_screenshot_interval(1)
     self.logger.info("Start Actions total : " + str(len(actions)))
     for i, act in enumerate(actions):
-        if not self.flag_run:
-            return
         desc = "start " + str(i + 1) + " operation : "
         if 'desc' in act:
             desc += act['desc']
