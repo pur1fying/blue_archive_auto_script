@@ -1,162 +1,82 @@
-import time
-from core import color, picture, image
-from module import main_story, normal_task, hard_task
-from module.ExploreTasks.explore_normal_task import common_gird_method, get_stage_data
-
-tasklist: list[tuple[int, int, bool, bool, bool]] = []
-"""
-Define tasklist as a list of tuple:
-    - region (int): The region number.
-    - submission (int): The submission ID or count.
-    - need_sss (bool): Whether a certain validation is required (True or False).
-    - need_task (bool): Whether task-related processing is required (True or False).
-    - need_present (bool): Whether presentation-related actions are required (True or False).
-"""
+from core import color
+from module import main_story, hard_task, normal_task
+from module.ExploreTasks.TaskUtils import get_challenge_state, to_region, common_gird_method, to_mission_info
+import json
 
 
-def verify_and_add(self, task: str) -> tuple[bool, str]:
+def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]) -> tuple[bool, str]:
     """
     Verifies the task information and returns the results.
 
     Args:
-        self:
+        self: The BAAS thread
         task: Task information. Example:16-2-sss
+        tasklist: The list to contain tasks
 
     Returns:
         Tuple[bool, str]:
             - The first element (bool): The verification result. Returns True if verification passes; otherwise, False.
             - The second element (str): The error message. Returns a detailed error message if verification fails; otherwise, an empty string.
     """
-    global tasklist
-    need_sss = bool(self.config['explore_hard_task_need_sss'])
-    need_task = bool(self.config['explore_hard_task_need_task'])
-    need_present = bool(self.config['explore_hard_task_need_present'])
     valid_chapter_range = self.static_config['explore_hard_task_region_range']
     info = task.split('-')
     if (not info[0].isdigit()) or int(info[0]) < valid_chapter_range[0] or int(info[0]) > valid_chapter_range[1]:
         return False, "Invalid chapter or unsupported chapter"
     if len(info) > 5:
         return False, "The length of info should not exceed 5"
-    if info.count('sss') > 1 or info.count('present') > 1 or info.count('task') > 1:
-        return False, "Duplicate task type: 'sss', 'present', or 'task' appears more than once"
+
     region = int(info[0])
     submission = -1
     for t in info[1:]:
         if t.isdigit():
             if submission != -1:
-                return False, "Duplicated submission number"
+                return False, "Multiple submission specified"
             if int(t) < 0 or int(t) > 3:
-                return False, "Invalid submission number"
+                return False, "Invalid submission"
             submission = int(t)
-        if t == "sss":
-            need_sss = True
-        if t == "task":
-            need_task = True
-        if t == "present":
-            need_present = True
-    if submission == -1:
-        for i in range(1, 4):
-            tasklist.append((region, i, need_sss, need_task, need_present))
-    else:
-        tasklist.append((region, submission, need_sss, need_task, need_present))
+        else:
+            return False, f"Invalid task type: {t}"
+
+    data_path = f"src/explore_task_data/hard_task/hard_task_{region}.json"
+    with open(data_path, 'r') as file:
+        region_data = json.load(file)
+        for i in range(1, 4) if submission == -1 else [submission]:
+            # if submission is specified, then add submission only ,otherwise add 1~3
+            if f"{region}-{i}-sss-present-task" in region_data:
+                tasklist.append((region, i, region_data[f"{region}-{i}-sss-present-task"]))
+            elif f"{region}-{i}-sss-present" in region_data and f"{region}-{i}-task" in region_data:
+                tasklist.append((region, i, region_data[f"{region}-{i}-sss-present"]))
+                tasklist.append((region, i, region_data[f"{region}-{i}-task"]))
+            else:
+                return False, f"No task data found for region {region}-{i}"
     return True, ""
 
 
-def task_to_string(task: tuple[int, int, bool, bool, bool]):
-    taskStr = str(task[0]) + "-" + str(task[1])
-    if task[2]:
-        taskStr += "-sss"
-    if task[3]:
-        taskStr += "-task"
-    if task[4]:
-        taskStr += "-present"
-    return taskStr
+def need_fight(self):
+    """
+    Determines if a fight is needed based on the given task parameters.
 
+    This function checks various conditions (SSS rank, present requirement, and task completion)
+    to decide whether a fight is necessary for the current task.
 
-def judge_need_fight(self, task):
-    if task[2]:  # need_sss
-        res = color.check_sweep_availability(self, True)
-        if res == 'no-pass' or res == 'pass':
-            return True
-    if task[4]:  # need_present (check present first because check task will change latest screenshot)
-        if color.judgeRGBFeature(self, 'hardTaskHasPresent'):
-            return True
-    if task[3]:  # need_task
-        res = check_task(self, 1)
-        if res[0] != 1:
-            return True
+    Args:
+        self: The BAAS Thread
+
+    Returns:
+        bool: True if a fight is needed, False otherwise.
+    """
+    sss_check = color.check_sweep_availability(self, True)  # sss check
+    if sss_check == 'no-pass' or sss_check == 'pass':
+        return True
+    if color.judgeRGBFeature(self, 'hardTaskHasPresent'):  # present check
+        return True
+    if get_challenge_state(self, 1)[0] != 1:  # challenge check
+        return True
     return False
 
 
-def check_task(self, challenge_count=1):
-    """
-        Returns:
-            list[int] :
-                int = 0, task unfinished
-                int = 1, task finished
-                int = 2, task state unknown
-    """
-    to_challenge_menu(self)
-    ret = []
-    for i in range(1, challenge_count + 1):
-        if image.compare_image(self, "normal_task_challenge" + str(i) + "-unfinished", False, 0.8, 10):
-            ret.append(0)
-        elif image.compare_image(self, "normal_task_challenge" + str(i) + "-finished", False, 0.8, 10):
-            ret.append(1)
-        else:
-            ret.append(2)
-    to_mission_info(self)
-    return ret
-
-
-def to_challenge_menu(self):
-    challenge_button_y = {
-        'CN': 272,
-        'Global': 302,
-        'JP': 302
-    }
-    img_ends = 'normal_task_challenge-menu'
-    img_possibles = {
-        "normal_task_challenge-button": (536, challenge_button_y[self.server]),
-        "activity_quest-challenge-button": (319, 270)
-    }
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
-
-def choose_region(self, region):
-    square = {
-        'CN': [122, 178, 163, 208],
-        'Global': [122, 178, 163, 208],
-        'JP': [122, 178, 163, 208]
-    }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
-    self.logger.info("Current Region : " + str(cu_region))
-    while cu_region != region and self.flag_run:
-        if cu_region > region:
-            self.click(40, 360, count=cu_region - region, rate=0.1, wait_over=True)
-        else:
-            self.click(1245, 360, count=region - cu_region, rate=0.1, wait_over=True)
-        time.sleep(0.5)
-        hard_task.to_hard_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
-        self.logger.info("Current Region : " + str(cu_region))
-
-
-def to_mission_info(self, y=0):
-    rgb_possibles = {"event_hard": (1114, y)}
-    img_ends = [
-        "normal_task_task-info",
-        "activity_task-info"
-    ]
-    img_possibles = {
-        'normal_task_select-area': (1114, y),
-        'normal_task_challenge-menu': (640, 490)
-    }
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
-
-
 def calc_team_number(self, current_task_stage_data):
-    pri = {
+    priority = {
         'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
         'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
         'burst1': ['burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
@@ -187,13 +107,13 @@ def calc_team_number(self, current_task_stage_data):
             los.append(position)
             continue
         los.append(position)
-        for i in range(0, len(pri[attr])):
-            possible_attr = pri[attr][i]
+        for i in range(0, len(priority[attr])):
+            possible_attr = priority[attr][i]
             if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
                 continue
             possible_index = self.config[possible_attr]
             if not used[possible_attr] and 4 - possible_index >= length - len(
-                    res) - 1 and last_chosen < possible_index:
+                res) - 1 and last_chosen < possible_index:
                 res.append(possible_index)
                 used[possible_attr] = True
                 last_chosen = self.config[possible_attr]
@@ -216,49 +136,45 @@ def implement(self):
     """
     Implement the logic for exploring hard tasks.
     """
-    tasklist.clear()
-    self.logger.info("VALID TASK LIST [")
+
+    tasklist: list[tuple[int, int, dict]] = []
+    """
+    Define tasklist as a list of tuple:
+        - region (int): The region number.
+        - submission (int): The submission ID or count.
+        - stage_data (dict): The stage data.
+    """
+
     for taskStr in str(self.config['explore_hard_task_list']).split(','):
-        result = verify_and_add(self, taskStr)
+        result = validate_and_add_task(self, taskStr, tasklist)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
             continue
+    self.logger.info("VALID TASK LIST {")
     for task in tasklist:
-        self.logger.info("\t" + task_to_string(task) + ",")
-    self.logger.info("]")
+        self.logger.info(f"\t- H{task[0]}-{task[1]}")
+    self.logger.info("}")
 
     mission_los = [249, 363, 476]
     self.quick_method_to_main_page()
-    hard_task.to_hard_event(self, False)
+    hard_task.to_hard_event(self)
 
     for task in tasklist:
         region = task[0]
         mission = task[1]
-        self.logger.info("-- Start Pushing H" + str(region) + "-" + str(mission) + " --")
-        self.stage_data = get_stage_data(region, False)
-        current_task_stage_data = ""
-        for key in self.stage_data:
-            if key.startswith(str(region) + '-' + str(mission)):
-                if task[2] and "sss" not in key:
-                    continue
-                if task[3] and "task" not in key:
-                    continue
-                if task[4] and "present" not in key:
-                    continue
-                current_task_stage_data = self.stage_data[key]
-        if current_task_stage_data == "":
-            self.logger.warning("task '%s' not support" % (task_to_string(task)))
-            continue
-        choose_region(self, region)
+        self.logger.info(f"--- Start exploring H{region}-{mission} ---")
+        to_region(self, region, False)
         to_mission_info(self, mission_los[mission - 1])
-        if not judge_need_fight(self, task):
-            self.logger.warning("According to the mission info current mission no need fight")
-            hard_task.to_hard_event(self, False)
-        else:
-            common_gird_method(self, current_task_stage_data)
-            main_story.auto_fight(self)
-            if self.config['manual_boss']:
-                self.click(1235, 41)
-            normal_task.to_normal_event(self)
-            hard_task.to_hard_event(self, False)
+        if not need_fight(self):
+            self.logger.warning(f"H{region}-{mission} is already finished,skip.")
+            hard_task.to_hard_event(self)
+            continue
+        common_gird_method(self, task[2])
+        main_story.auto_fight(self)
+        if self.config['manual_boss']:
+            self.click(1235, 41)
+
+        # skip unlocking animation by switching
+        normal_task.to_normal_event(self)
+        hard_task.to_hard_event(self)
     return True

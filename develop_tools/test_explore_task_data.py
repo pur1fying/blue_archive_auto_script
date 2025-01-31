@@ -1,4 +1,3 @@
-from module.ExploreTasks.explore_normal_task import verify_and_add,tasklist,task_to_string
 from core.Baas_thread import Baas_thread
 from gui.util.config_set import ConfigSet
 from core.utils import Logger
@@ -42,15 +41,17 @@ expected_1 = [
 ]
 
 if __name__ == '__main__':
-    for example in input:
-        tasklist.clear()
-        bthread.logger.info("VALID TASK LIST [")
-        for taskStr in str(example).split(','):
-            result = verify_and_add(bthread, taskStr)
-            if not result[0]:
-                bthread.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
-                continue
-        for task in tasklist:
-            bthread.logger.info("\t" + task_to_string(task) + ",")
-        bthread.logger.info("]")
+    pass
+
+    # for example in input:
+    #     tasklist.clear()
+    #     bthread.logger.info("VALID TASK LIST [")
+    #     for taskStr in str(example).split(','):
+    #         result = verify_and_add(bthread, taskStr)
+    #         if not result[0]:
+    #             bthread.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
+    #             continue
+    #     for task in tasklist:
+    #         bthread.logger.info("\t" + task_to_string(task) + ",")
+    #     bthread.logger.info("]")
 
