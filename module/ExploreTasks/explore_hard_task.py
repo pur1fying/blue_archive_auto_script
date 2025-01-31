@@ -141,7 +141,7 @@ def implement(self):
     """
     Define tasklist as a list of tuple:
         - region (int): The region number.
-        - submission (int): The submission ID or count.
+        - submission (int): The submission number.
         - stage_data (dict): The stage data.
     """
     for taskStr in str(self.config_set.config['explore_hard_task_list']).split(','):
