@@ -144,7 +144,7 @@ def implement(self):
         - submission (int): The submission number.
         - stage_data (dict): The stage data.
     """
-    for taskStr in str(self.config_set.config['explore_hard_task_list']).split(','):
+    for taskStr in str(self.config_set.config['explore_hard_task_list']).replace(" ","").split(','):
         result = validate_and_add_task(self, taskStr, tasklist)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
