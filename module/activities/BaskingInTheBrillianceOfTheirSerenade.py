@@ -1,8 +1,7 @@
-import importlib
 import time
-from core import color, picture, image
+from core import color, picture
 from module import main_story
-from module.explore_normal_task import common_gird_method
+from module.activities.activity_utils import get_stage_data
 
 
 def implement(self):

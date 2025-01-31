@@ -31,4 +31,10 @@ x_y_range = {
     "teleport-notice": (526, 309, 740, 351),
     'fight-pause': (594, 139, 681, 174),
     'retreat-notice': (469, 308, 796, 351),
+    'challenge-button': (481, 255, 584, 288),
+    'challenge-menu': (592, 171, 677, 212),
+    'challenge1-finished': (395, 330, 434, 366),
+    'challenge1-unfinished': (395, 330, 434, 366),
+    'challenge2-finished': (395, 366, 434, 401),
+    'challenge2-unfinished': (395, 366, 434, 401),
 }

@@ -1,9 +1,8 @@
-import importlib
-import json
+from module.activities.activity_utils import get_stage_data
 import time
 from core import image, color, picture
 from module import main_story
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
@@ -61,11 +60,6 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data():
-    module_path = 'src.explore_task_data.activities.revolutionKupalaNight'
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
 
 
 def sweep(self, number, times):
@@ -109,7 +103,7 @@ def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True, True)
     need_change_acc = True
-    stage_data = get_stage_data()
+    stage_data = get_stage_data(self)
     for i in range(0, 15):
         to_story_task_info(self)
         mission = calc_need_fight_stage(self)
@@ -125,7 +119,7 @@ def explore_story(self):
             picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
         else:
             current_task_stage_data = stage_data[mission]
-            common_gird_method(self, current_task_stage_data)
+            execute_grid_task(self, current_task_stage_data)
         main_story.auto_fight(self, need_change_acc)
         need_change_acc = False
         if self.config['manual_boss']:
@@ -202,7 +196,7 @@ def explore_challenge(self):
         "challenge1_sss",
         "challenge1_task",
     ]
-    stage_data = get_stage_data()
+    stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
         current_task_stage_data = stage_data[tasks[i]]
         data = tasks[i].split("_")
@@ -220,7 +214,7 @@ def explore_challenge(self):
             elif res == "no-pass" or res == "pass":
                 need_fight = True
         if need_fight:
-            common_gird_method(self, current_task_stage_data)
+            execute_grid_task(self, current_task_stage_data)
             main_story.auto_fight(self)
             if self.config['manual_boss']:
                 self.click(1235, 41)

@@ -6,13 +6,13 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
-from core.utils import Logger
 from device_operation import process_api
 from core.device.Screenshot import Screenshot
 from core.device.Control import Control
 from core.device.connection import Connection
 from core.device.uiautomator2_client import U2Client
 from core.pushkit import push
+from core.utils import Logger
 import numpy as np
 import module
 import requests
@@ -38,8 +38,8 @@ func_dict = {
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
     'create': module.create.implement,
-    'explore_normal_task': module.explore_normal_task.implement,
-    'explore_hard_task': module.explore_hard_task.implement,
+    'explore_normal_task': module.ExploreTasks.explore_normal_task.implement,
+    'explore_hard_task': module.ExploreTasks.explore_hard_task.implement,
     'mail': module.mail.implement,
     'main_story': module.main_story.implement,
     'group_story': module.group_story.implement,

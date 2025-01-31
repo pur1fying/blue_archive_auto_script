@@ -8,14 +8,31 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
               tentative_click=False, tentative_x=1238, tentative_y=45, max_fail_cnt=10, rgb_pop_ups=None,
               img_pop_ups=None, time_out=600, check_pkg_interval=20):
     """
-        Keep screenshot and compare image until one of the features (rgb_ends or img_ends) appears.
-        When an unexpected feature in rgb_possibles or ima_possibles appears click a specified position.
-        Args:
-            self: Baas_thread instance
-            tentative_click, tentative_x, tentative_y, max_fail_cnt: If tentative_click is ture and max_fail_cnt round
-                                                                didn't match any feature, click tentative_x, tentative_y
+        Detects specific RGB or image features on the screen and performs actions based on the detection.
 
-        Detailed explanation can be found in docs
+        Args:
+            self: The BAAS thread.
+            rgb_ends (list or str, optional): RGB features that indicate the end of detection.
+            rgb_possibles (dict, optional): Possible RGB features and their corresponding click positions.
+            img_ends (list or str or tuple, optional): Image features that indicate the end of detection.
+            img_possibles (dict, optional): Possible image features and their corresponding click positions.
+            skip_first_screenshot (bool, optional): Whether to skip the first screenshot.
+            tentative_click (bool, optional): Whether to perform tentative clicks if detection fails.
+            tentative_x (int, optional): X-coordinate for tentative clicks.
+            tentative_y (int, optional): Y-coordinate for tentative clicks.
+            max_fail_cnt (int, optional): Maximum number of failed attempts to perform a tentative click.
+            rgb_pop_ups (dict, optional): RGB features for pop-ups that can appear at any time.
+            img_pop_ups (dict, optional): Image features for pop-ups that can appear at any time.
+            time_out (int, optional): Timeout for the detection process.
+            check_pkg_interval (int, optional): Interval for checking the current package.
+
+        Raises:
+            - FunctionCallTimeout: If the detection process times out.
+            - PackageIncorrect: If the current package is incorrect.
+            - RequestHumanTakeOver: If the detection process is stopped manually.
+
+        Returns:
+            - str: The name of the detected end feature.
     """
     fail_cnt = 0
     self.last_click_time = 0

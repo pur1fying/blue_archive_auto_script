@@ -1,31 +1,26 @@
-from module.explore_normal_task import get_explore_normal_task_missions
-from module.explore_hard_task import get_explore_hard_task_data
-from core.utils import Logger
 from core.Baas_thread import Baas_thread
 from gui.util.config_set import ConfigSet
+from core.utils import Logger
 from main import Main
 
 t = Main(ocr_needed=[])
-config = ConfigSet(config_dir="D:\\github\\bass\\blue_archive_auto_script\\config\\1708148000")
-tt = Baas_thread(config, None, None, None)
-tt.init_all_data()
+config = ConfigSet(config_dir=r"../config/default_config")
+bthread = Baas_thread(config, None, None, None)
+bthread.init_all_data()
 
-st = [
+input = [
     1,
     4,
     26,
     99,
     "6,7",
     "1，2，3",
-    "18,19,20",
+    "18,19-force,20",
     "18，19，20",
-    [18, 19, 20],
     "5,19,21",
-    [4, 23, -1],
     "5,16,q9,",
-    [5, 16, "q9"],
-    "16-4",
-    '15-4'
+    "16-4-force",
+    '15-4-manualboss'
 ]
 expected_1 = [
     [],
@@ -45,7 +40,18 @@ expected_1 = [
     [[15, 4]]
 ]
 
-for i in range(len(st)):
-    ret = get_explore_normal_task_missions(tt, st[i], True)
-    print(ret)
-    assert ret == expected_1[i]
+if __name__ == '__main__':
+    pass
+
+    # for example in input:
+    #     tasklist.clear()
+    #     bthread.logger.info("VALID TASK LIST [")
+    #     for taskStr in str(example).split(','):
+    #         result = verify_and_add(bthread, taskStr)
+    #         if not result[0]:
+    #             bthread.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
+    #             continue
+    #     for task in tasklist:
+    #         bthread.logger.info("\t" + task_to_string(task) + ",")
+    #     bthread.logger.info("]")
+

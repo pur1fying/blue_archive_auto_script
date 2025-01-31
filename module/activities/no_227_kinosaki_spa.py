@@ -1,8 +1,8 @@
-import importlib
+from module.activities.activity_utils import get_stage_data
 import time
 from core import color, picture, image
 from module import main_story
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
@@ -59,11 +59,7 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data(self):
-    module_path = 'src.explore_task_data.activities.' + self.current_game_activity
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
+
 
 
 def sweep(self, number, times):
@@ -172,7 +168,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = get_stage_data()["mission"]
+    characteristic = get_stage_data(self)["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -223,7 +219,7 @@ def explore_challenge(self):
             elif res == "no-pass" or res == "pass":
                 need_fight = True
         if need_fight:
-            common_gird_method(self, current_task_stage_data)
+            execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
         if self.config['manual_boss']:
