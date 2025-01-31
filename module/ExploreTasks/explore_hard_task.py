@@ -153,6 +153,8 @@ def implement(self):
     for task in tasklist:
         self.logger.info(f"\t- H{task[0]}-{task[1]}")
     self.logger.info("}")
+    if len(tasklist) == 0:
+        return False
 
     mission_los = [249, 363, 476]
     self.quick_method_to_main_page()

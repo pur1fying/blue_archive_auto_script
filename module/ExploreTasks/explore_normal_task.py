@@ -100,6 +100,8 @@ def implement(self):
     for task in tasklist:
         self.logger.info(f"\t- {task[0]}-{task[1]}")
     self.logger.info("}")
+    if len(tasklist) == 0:
+        return False
 
     self.quick_method_to_main_page()
     normal_task.to_normal_event(self)
