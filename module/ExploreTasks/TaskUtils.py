@@ -1,7 +1,7 @@
 import time
 
 from core import image, picture
-from module import hard_task, main_story
+from module import hard_task, main_story, normal_task
 
 
 def get_challenge_state(self, challenge_count=1) -> list[int]:
@@ -323,7 +323,7 @@ def to_mission_info(self, y=0):
         'normal_task_select-area': (1114, y),
         'normal_task_challenge-menu': (640, 490)
     }
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, False)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
 def choose_team(self, number, position, skip_first_screenshot=False):

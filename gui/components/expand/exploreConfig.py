@@ -17,16 +17,6 @@ class Layout(TemplateLayout):
                 'type': 'switch'
             },
             {
-                'label': ExploreConfig.tr('是否不强制打到sss（启用后跳过已通过但未sss的关卡）'),
-                'key': 'explore_normal_task_force_sss',
-                'type': 'switch'
-            },
-            {
-                'label': ExploreConfig.tr('开启后强制打每一个指定的关卡（不管是否sss）'),
-                'key': 'explore_normal_task_force_each_fight',
-                'type': 'switch'
-            },
-            {
                 'label': ExploreConfig.tr('爆发一队'),
                 'key': 'burst1',
                 'selection': ['1', '2', '3', '4'],

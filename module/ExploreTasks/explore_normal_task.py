@@ -91,7 +91,7 @@ def implement(self):
         - stage_data (dict): The stage data.
     """
 
-    for taskStr in str(self.config['explore_normal_task_regions']).split(','):
+    for taskStr in str(self.config_set.config['explore_normal_task_regions']).split(','):
         result = validate_and_add_task(self, taskStr, tasklist)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
@@ -117,7 +117,7 @@ def implement(self):
 
         if not need_fight(self):
             self.logger.warning(f"{region}-{mission} is already finished,skip.")
-            normal_task.to_normal_event(self)
+            normal_task.to_normal_event(self, True)
             continue
 
         if mission == 'sub':

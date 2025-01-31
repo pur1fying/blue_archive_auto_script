@@ -268,15 +268,6 @@
 - **type**: `str`
 - **description** : 今日还未扫荡的普通任务的扫荡关卡
 - **note** : 每日刷新
-## `explore_hard_task_need_sss` & `explore_hard_task_need_present` & `explore_hard_task_need_task`
-
-- **type**: `bool`
-- **note** : 当使用困难推图时,共有三个任务要完成:
-1. 打到sss
-2. 拿取走格子过程中的礼物
-3. 完成挑战任务(通常是以一个较少的回合通关)
-
-由于完成不同的任务可能需要的走格子路线不同,所以为了避免体力浪费,BAAS检测已经完成了哪些任务,自动舍去不必要的走格子,当用户指定一个关卡并未指定需要完成以上三个任务的哪几个时, BAAS会根据以上变量的值确定要打什么关卡
 
 ## `explore_hard_task_List`
 - **type**: `str`

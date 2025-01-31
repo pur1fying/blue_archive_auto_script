@@ -144,8 +144,7 @@ def implement(self):
         - submission (int): The submission ID or count.
         - stage_data (dict): The stage data.
     """
-
-    for taskStr in str(self.config['explore_hard_task_list']).split(','):
+    for taskStr in str(self.config_set.config['explore_hard_task_list']).split(','):
         result = validate_and_add_task(self, taskStr, tasklist)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
@@ -157,7 +156,7 @@ def implement(self):
 
     mission_los = [249, 363, 476]
     self.quick_method_to_main_page()
-    hard_task.to_hard_event(self)
+    hard_task.to_hard_event(self, True)
 
     for task in tasklist:
         region = task[0]
@@ -167,7 +166,7 @@ def implement(self):
         to_mission_info(self, mission_los[mission - 1])
         if not need_fight(self):
             self.logger.warning(f"H{region}-{mission} is already finished,skip.")
-            hard_task.to_hard_event(self)
+            hard_task.to_hard_event(self, True)
             continue
         execute_grid_task(self, task[2])
         main_story.auto_fight(self)
@@ -175,6 +174,6 @@ def implement(self):
             self.click(1235, 41)
 
         # skip unlocking animation by switching
-        normal_task.to_normal_event(self)
-        hard_task.to_hard_event(self)
+        normal_task.to_normal_event(self, True)
+        hard_task.to_hard_event(self, True)
     return True
