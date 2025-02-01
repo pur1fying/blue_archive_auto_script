@@ -111,7 +111,8 @@ def task_mission_operating(self, skip_first_screenshot=False):
     }
     img_ends = "normal_task_task-operating-feature"
     img_pop_ups = {"activity_choose-buff": (644, 570)}
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot, pop_ups_img_reactions=img_pop_ups)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot,
+                      pop_ups_img_reactions=img_pop_ups)
 
 
 def turn_off_skip_fight(self) -> None:
@@ -290,8 +291,8 @@ def wait_over(self):
         "normal_task_fight-confirm": (1171, 670),
         'normal_task_present': (640, 519),
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles,
-                      True, pop_ups_rgb_reactions={"fighting_feature": (-1, -1)},
+    picture.co_detect(self, None, None, img_ends, img_possibles, True,
+                      pop_ups_rgb_reactions={"fighting_feature": (-1, -1)},
                       pop_ups_img_reactions={"activity_choose-buff": (644, 570)})
 
 
@@ -336,43 +337,56 @@ def choose_team(self, number, position, skip_first_screenshot=False):
 
 
 def calc_team_number(self, taskData):
-    priority = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
-
-    unit_available = [2, 2, 2, 2]
-    # Number of units available for each attribute: burst, pierce, mystic, shock
-    unit_used = [0, 0, 0, 0]
-    # Number of units used for each attribute: burst, pierce, mystic, shock
-
-    unit_required = len(taskData["start"])
-
+    pri = {
+        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
+        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
+        'burst1': ['burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
+        'burst2': ['burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
+        'mystic1': ['mystic1', 'mystic2', 'shock1', 'shock2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
+        'mystic2': ['mystic2', 'burst1', 'shock1', 'shock2', 'burst2', 'pierce1', 'pierce2'],
+        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2'],
+        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2']
+    }
+    used = {
+        'pierce1': False,
+        'pierce2': False,
+        'burst1': False,
+        'burst2': False,
+        'mystic1': False,
+        'mystic2': False,
+        'shock1': False,
+        'shock2': False,
+    }
+    keys = used.keys()
+    total_teams = 0
+    for i in range(0, len(taskData['start'])):
+        if taskData['start'][i][0] in keys:
+            total_teams += 1
     last_chosen = 0
     team_res = []
     team_attr = []
     los = []
-
-    for attribute, position in teamData["start"]:
+    for i in range(0, len(taskData['start'])):
+        attr, position = taskData['start'][i][0], taskData['start'][i][1]
         los.append(position)
-        if attribute not in ["burst", "pierce", "mystic", "shock"]:
-            raise Exception(f"Invalid attribute {attribute} in task data.")
-
-        for j in range(0, len(pri[attribute])):
-            possible_attr = pri[attribute][j]
+        if attr not in keys:
+            continue
+        for j in range(0, len(pri[attr])):
+            possible_attr = pri[attr][j]
             if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
                 continue
             possible_index = self.config[possible_attr]
-            if (not used[possible_attr]
-                and 4 - possible_index >= unit_required - len(team_res) - 1
-                and last_chosen < possible_index):
+            if not used[possible_attr] and 4 - possible_index >= total_teams - len(
+                team_res) - 1 and last_chosen < possible_index:
                 team_res.append(possible_index)
                 team_attr.append(possible_attr)
                 used[possible_attr] = True
                 last_chosen = self.config[possible_attr]
                 break
-
-    if len(team_res) != unit_required:
+    if len(team_res) != total_teams:
         self.logger.warning("Insufficient forces are chosen")
-        if unit_required - len(team_res) <= 4 - last_chosen:
-            for i in range(0, unit_required - len(team_res)):
+        if total_teams - len(team_res) <= 4 - last_chosen:
+            for i in range(0, total_teams - len(team_res)):
                 team_res.append(last_chosen + i + 1)
                 team_attr.append("auto-choose")
         else:
@@ -389,14 +403,12 @@ def calc_team_number(self, taskData):
     self.logger.info("attr : " + str(team_attr))
     action_res = []
     temp = 0
-
     for i in range(0, len(taskData['start'])):
         if taskData['start'][i][0] not in keys:
             action_res.append(taskData['start'][i][0])
         else:
             action_res.append(team_res[temp])
             temp += 1
-
     self.logger.info("actions : " + str(action_res))
     self.logger.info("position : " + str(los))
     return action_res, los
