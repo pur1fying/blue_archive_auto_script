@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ja_JP" sourcelanguage="zh_CN">
 <context>
@@ -868,7 +867,7 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>普通のステージ名時間(例:「1-1-1、1-2-3」は、レベルが1-1で1回プレイされ、その後、レベルが1-2で3回プレイされることを意味します):</translation>
     </message>
     <message>
@@ -1125,7 +1124,7 @@
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
 nemu の使用が推奨され、nemu を使用している場合は、「エミュレータ
  アドレス」を MuMu エミュレータ パスに正確に設定してくださいMuMuPlayer.exe</translation>

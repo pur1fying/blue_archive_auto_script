@@ -366,7 +366,7 @@ DEFAULT_CONFIG = """
     "cafe_reward_has_no2_cafe": false,
     "cafe_reward_collect_hour_reward": true,
     "cafe_reward_invite2_criterion" : "starred",
-        "favorStudent2": [
+    "favorStudent2": [
         "爱丽丝(女仆)"
     ],
     "cafe_reward_invite2_starred_student_position" : 1,
@@ -387,6 +387,8 @@ DEFAULT_CONFIG = """
         1,
         1
     ],
+    "lesson_enableInviteFavorStudent": false,
+    "lesson_favorStudent": ["Aris (Maid)", "Aris"],
     "lesson_relationship_first": false,
     "lesson_each_region_object_priority": [
         ["primary","normal","advanced","superior"],
@@ -1512,8 +1514,8 @@ STATIC_DEFAULT_CONFIG = '''
       "晴(野营)":[3,4],
       "小玉":[7],
       "小玉(野营)":[7],
-      "尼禄":[7],
-      "尼禄(兔女郎)":[3,2,4],
+      "妮露":[7],
+      "妮露(兔女郎)":[3,2,4],
       "花凛":[7],
       "花凛(兔女郎)":[7],
       "朱音":[10],
@@ -3125,7 +3127,7 @@ STATIC_DEFAULT_CONFIG = '''
         ["12-1", "琴里"] , ["12-2", "优香"] , ["12-3", "晴奈"] ,
         ["13-1", "遥香"] , ["13-2", "睦月"] , ["13-3", "泉"] ,
         ["14-1", "佳代子"] , ["14-2", "千世"] , ["14-3", "伊织"] ,
-        ["15-1", "遥香"] , ["15-2", "椿"] , ["15-3", "尼禄"] ,
+        ["15-1", "遥香"] , ["15-2", "椿"] , ["15-3", "妮露"] ,
         ["16-1", "明日奈"] , ["16-2", "睦月"] , ["16-3", "日奈"] ,
         ["17-1", "好美"] , ["17-2", "千世"] , ["17-3", "花凛"] ,
         ["18-1", "志美子"] , ["18-2", "绫音"] , ["18-3", "爱露"] ,
@@ -3683,7 +3685,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "峰",
+      "CN_name": "美祢",
       "CN_implementation": false,
       "Global_name": "Mine",
       "Global_implementation": true,
