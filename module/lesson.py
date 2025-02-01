@@ -1,19 +1,19 @@
 import time
-from core import color, picture
+
+from core import color, picture, image
 from core.utils import build_possible_string_dict_and_length, most_similar_string
+import importlib
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    # self.quick_method_to_main_page()
     self.lesson_times = self.config["lesson_times"]
     region_name = self.static_config["lesson_region_name"][self.server].copy()
     for i in range(0, len(region_name)):
         region_name[i] = pre_process_lesson_name(self, region_name[i])
 
-    letter_dict, region_name_len = build_possible_string_dict_and_length(region_name)
-    click_lo = [[307, 257], [652, 257], [995, 257],
-                [307, 408], [652, 408], [995, 408],
-                [307, 560], [652, 560], [985, 560]]
+    self.lesson_letter_dict, self.lesson_region_name_len = build_possible_string_dict_and_length(region_name)
+
     purchase_ticket_times = min(self.config['purchase_lesson_ticket_times'], 4)
     to_lesson_location_select(self, True)
     if purchase_ticket_times > 0:
@@ -22,49 +22,28 @@ def implement(self):
     res = get_lesson_tickets(self)
     if res == "UNKNOWN":
         self.logger.info("UNKNOWN tickets")
-        lesson_tickets = 999
+        self.lesson_tickets = 999
     else:
-        lesson_tickets = res
-        self.logger.info("tickets: " + str(lesson_tickets))
-        if lesson_tickets == 0:
+        self.lesson_tickets = res
+        self.logger.info("tickets: " + str(self.lesson_tickets))
+        if self.lesson_tickets == 0:
             self.logger.info("no tickets")
             return True
+    to_lesson_location_select(self, True)
     self.swipe(940, 213, 940, 560, duration=0.1, post_sleep_time=0.5)
-    left_change_page_x = 32
-    right_change_page_x = 1247
-    change_page_y = 360
-    cur_num = 0
+    if self.config.get("lesson_enableInviteFavorStudent"):
+        invite_favor_student(self)
+        if self.lesson_tickets == 0:
+            return True
+    to_select_location(self, True)
+    cur_num = get_lesson_region_num(self)
     for k in range(0, len(self.lesson_times)):
         if self.lesson_times[k] == 0:
             continue
         tar_num = k
         times = self.lesson_times[k]
         self.logger.info("begin schedule in [" + region_name[k] + "]")
-        to_select_location(self, True)
-        self.logger.info("now in page " + region_name[cur_num])
-        while cur_num != tar_num and self.flag_run:
-            if cur_num > tar_num:
-                if (cur_num - tar_num) * 2 < len(region_name):
-                    self.click(left_change_page_x, change_page_y, count=cur_num - tar_num,
-                               duration=1.5, wait_over=True)
-                else:
-                    self.click(right_change_page_x, change_page_y, count=len(region_name) - cur_num + tar_num,
-                               duration=1.5, wait_over=True)
-            else:
-                if (tar_num - cur_num) * 2 < len(region_name):
-                    self.click(right_change_page_x, change_page_y, count=tar_num - cur_num, duration=1.5,
-                               wait_over=True)
-                else:
-                    self.click(left_change_page_x, change_page_y, count=len(region_name) - tar_num + cur_num,
-                               duration=1.5, wait_over=True)
-            to_select_location(self)
-            res = get_lesson_region_num(self, letter_dict, region_name_len)
-            if res != 'NOT FOUND':
-                cur_num = res
-            else:
-                self.logger.warning("fail to find region name, use last region name")
-                cur_num = tar_num
-            self.logger.info("now in page " + region_name[cur_num])
+        to_lesson_region(self, tar_num, cur_num)
         for j in range(0, times):
             to_all_locations(self, True)
             res = [get_lesson_each_region_status(self), get_lesson_relationship_counts(self)]
@@ -72,17 +51,15 @@ def implement(self):
             choice = choose_lesson(self, res, cur_num)
             if choice == -1:
                 break
-            self.logger.info("CHOOSE lesson " + str(choice + 1))
-            to_location_info(self, click_lo[choice][0], click_lo[choice][1])
-            res = start_lesson(self)
+            res = execute_lesson(self, choice)
             if res == "inadequate_ticket":
-                self.logger.warning("INADEQUATE LESSON TICKET")
+                self.logger.warning("INADEQUATE LESSON TICKET.")
                 return True
             if res == "lesson_report":
-                self.logger.info("complete one lesson")
-                lesson_tickets -= 1
-                if lesson_tickets == 0:
-                    self.logger.info("no tickets")
+                self.logger.info("Complete one lesson.")
+                self.lesson_tickets -= 1
+                if self.lesson_tickets == 0:
+                    self.logger.info("No Tickets.")
                     return True
     return True
 
@@ -113,7 +90,45 @@ def pre_process_lesson_name(self, name):
     return temp
 
 
-def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
+def to_lesson_region(self, tar_num, cur_num=0):
+    region_name = self.static_config["lesson_region_name"][self.server]
+    to_select_location(self, True)
+    while cur_num != tar_num and self.flag_run:
+        self.logger.info("now in page [ " + region_name[cur_num] + " ]")
+        if cur_num > tar_num:
+            res = switch_lesson_region_page(self, to_left_page=True, cur_num=cur_num)
+        else:
+            res = switch_lesson_region_page(self, to_left_page=False, cur_num=cur_num)
+        get_lesson_region_num(self)
+        if res != 'NOT FOUND':
+            cur_num = res
+        else:
+            self.logger.warning("fail to find region name, use last region name")
+            cur_num = tar_num
+    self.logger.info("Reach lesson page [ " + region_name[cur_num] + " ]")
+
+
+def switch_lesson_region_page(self, to_left_page=False, cur_num=0):
+    """
+        Switch one lesson region page.
+        Returns:
+            final page num
+    """
+    left_change_page_x = 32
+    right_change_page_x = 1247
+    change_page_y = 360
+    x = right_change_page_x
+    if to_left_page:
+        x = left_change_page_x
+    while True:
+        self.click(x, change_page_y, duration=0.5, wait_over=True)
+        to_select_location(self)
+        res = get_lesson_region_num(self)
+        if res != cur_num:  # if res == 'NOT FOUND', keep switching
+            return res
+
+
+def get_lesson_region_num(self):
     region = {
         'CN': (925, 94, 1240, 128),
         'Global': (932, 94, 1240, 129),
@@ -123,14 +138,14 @@ def get_lesson_region_num(self, letter_dict=None, region_name_len=None):
     while self.flag_run:
         name = self.ocr.get_region_res(self.latest_img_array, region[self.server], self.server, self.ratio)
         name = pre_process_lesson_name(self, name)
-        max_acc, idx = most_similar_string(name, letter_dict, region_name_len)
+        max_acc, idx = most_similar_string(name, self.lesson_letter_dict, self.lesson_region_name_len)
         if max_acc < 0.5:
             self.logger.info("NOT FOUND")
             check_fail_times += 1
             if check_fail_times >= 4:
                 return 'NOT FOUND'
             else:
-                self.latest_img_array = self.get_screenshot_array()
+                self.update_screenshot_array()
         else:
             return idx
 
@@ -203,8 +218,17 @@ def to_select_location(self, skip_first_screenshot=False):
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 
-def to_location_info(self, x, y):
-    img_possibles = {"lesson_all-locations": (x, y)}
+def execute_lesson(self, lesson_id):
+    self.logger.info("Execute Lesson " + str(lesson_id + 1))
+    to_location_info(self, lesson_id)
+    return start_lesson(self)
+
+
+def to_location_info(self, lesson_id):
+    click_lo = [[307, 257], [652, 257], [995, 257],
+                [307, 408], [652, 408], [995, 408],
+                [307, 560], [652, 560], [985, 560]]
+    img_possibles = {"lesson_all-locations": click_lo[lesson_id]}
     img_ends = 'lesson_lesson-information'
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
@@ -289,8 +313,7 @@ def get_lesson_each_region_status(self):
     for i in range(0, 9):
         if color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
             res.append("available")
-        elif color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230,
-                                   249):
+        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230, 249):
             res.append("done")
         elif color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
             res.append("lock")
@@ -303,7 +326,7 @@ def get_lesson_each_region_status(self):
 
 
 def out_lesson_status(self, res):
-    self.logger.info("lesson status :")
+    self.logger.info("Lesson status :")
     message = ""
     for i in range(0, 9):
         message += "\t" + res[0][i]
@@ -354,3 +377,134 @@ def choose_lesson(self, res, region):
                     if choice != -1:
                         return choice
             return choice
+
+
+def invite_favor_student(self):
+    """
+        search all lessons and invite specified student
+        use each server image template, if image not exists use shared
+    """
+    self.logger.info("Lesson Inviting favor student.")
+    favorStudentList = self.config['lesson_favorStudent'].copy()
+
+    detected_student_pos = dict()  # student name : {(region, block)}
+    region_block_names = [[[] for _ in range(9)] for _ in range(len(self.lesson_region_name_len))]
+    template_image_names = get_favor_student_image_template_names(self.server)
+    template_not_exist = [x for x in favorStudentList if x not in template_image_names]
+    if len(template_not_exist) > 0:
+        self.logger.warning("Didn't find template image for [ " + ", ".join(template_not_exist) + " ]")
+        self.logger.warning("Possible reasons : ")
+        self.logger.warning("                   1. Template image not exists, please contact developer to add it.")
+        self.logger.warning("                   2. You wrote wrong student name.")
+    favorStudentList = [x for x in favorStudentList if x not in template_not_exist]
+    if len(favorStudentList) == 0:
+        self.logger.info("FavorStudent list is empty.")
+        return
+    to_select_location(self, True)
+    start_num = get_lesson_region_num(self)
+    cur_num = start_num
+    tar_stu = favorStudentList[0]
+    self.logger.info("Target Student : [ " + tar_stu + " ]")
+    # the first student will search a round, all detected data during this round are stored in detected_student_pos
+    while True:
+        to_all_locations(self, True)
+        res = [get_lesson_each_region_status(self), get_lesson_relationship_counts(self)]  # [status, relationship]
+        out_lesson_status(self, res)
+        self.swipe(983, 588, 983, 466, duration=0.1, post_sleep_time=0.5)
+        self.update_screenshot_array()
+        self.logger.info("Get Page Favor Student Names.")
+        t1 = time.time()
+        lesson_need_to_execute = None
+        for j in range(0, 9):
+            block_existing_names = []
+            if res[0][j] == "available":
+                detect_region = get_favor_student_detect_region(j)
+                block_detect_student = []
+                for key in template_image_names:
+                    if key in block_existing_names:
+                        continue
+                    ret = image.search_in_area(self, "lesson_" + key, detect_region, threshold=0.75)
+                    if not ret:
+                        continue
+                    block_detect_student.append((ret[0], key))
+                    block_existing_names.append(key)
+
+                    if len(block_detect_student) == res[1][j]:  # reach max affection stu count
+                        break
+                if len(block_detect_student) == 0:
+                    continue
+                block_detect_student.sort()
+                block_names = [x[1] for x in block_detect_student]
+                self.logger.info("Block " + str(j + 1) + " : " + ", ".join(block_names))
+                if tar_stu in block_names:
+                    self.logger.info("Find [ " + tar_stu + " ] in Block.")
+                    lesson_need_to_execute = j
+                else:
+                    for name in block_names:
+                        detected_student_pos.setdefault(name, set())
+                        detected_student_pos[name].add((cur_num, j))
+                    region_block_names[cur_num][j] = block_names
+        t2 = time.time()
+        self.logger.info("Detecting time : " + str(int((t2 - t1) * 1000)) + "ms.")
+        if lesson_need_to_execute is not None:  # target student found
+            t = execute_lesson(self, lesson_need_to_execute)
+            if t == "inadequate_ticket":
+                self.logger.warning("INADEQUATE LESSON TICKET")
+                return
+            if t == "lesson_report":
+                self.logger.info("Complete one lesson.")
+                self.lesson_tickets -= 1
+                if self.lesson_tickets == 0:
+                    self.logger.info("No Tickets.")
+                    return True
+        to_select_location(self, True)
+        cur_num = switch_lesson_region_page(self, to_left_page=False, cur_num=cur_num)
+        if cur_num == start_num:  # checked a round
+            break
+    for student in favorStudentList[1:]:
+        self.logger.info("Target Student : " + student)
+        if student not in detected_student_pos:
+            self.logger.warning("Didn't find [ " + student + " ] in any lesson regions.Skip")
+            continue
+        self.logger.info("Recorded Position(s) : " + str(detected_student_pos[student]))
+        while True:
+            _set = detected_student_pos[student]
+            if len(_set) == 0:
+                break
+            region, lesson_id = next(iter(_set))
+            to_lesson_region(self, region, start_num)
+            to_all_locations(self, True)
+            t = execute_lesson(self, lesson_id)
+            if t == "inadequate_ticket":
+                self.logger.warning("INADEQUATE LESSON TICKET")
+                return
+            if t == "lesson_report":
+                self.logger.info("Complete one lesson.")
+                self.lesson_tickets -= 1
+                if self.lesson_tickets == 0:
+                    self.logger.info("No Tickets.")
+                    return True
+                else:
+                    names = region_block_names[region][lesson_id]
+                    self.logger.info("Pop [" + str(region) + ", " + str(lesson_id) + "] : " + ", ".join(names))
+                    for name in region_block_names[region][lesson_id]:
+                        detected_student_pos[name].remove((region, lesson_id))
+
+
+def get_favor_student_detect_region(lesson_cnt):
+    x_start = 285
+    y_start = 240
+    dx1 = 344
+    dy1 = 152
+    dx2 = 161
+    dy2 = 52
+    x1 = x_start + dx1 * (lesson_cnt % 3)
+    y1 = y_start + dy1 * (lesson_cnt // 3)
+    return x1, y1, x1 + dx2, y1 + dy2
+
+
+def get_favor_student_image_template_names(server):
+    server_image_module_path = 'src.images.' + server + '.x_y_range.lesson_affection'
+    data = importlib.import_module(server_image_module_path)
+    x_y_range = getattr(data, 'x_y_range', None)
+    return list(x_y_range.keys())
