@@ -156,7 +156,7 @@ def deal_with_pop_ups(self, pop_ups_rgb_reactions: dict = None, pop_ups_img_reac
     }
     if pop_ups_rgb_reactions is not None:
         common_pop_ups.update(pop_ups_rgb_reactions)
-    for rgb_feature, click in common_pop_ups:
+    for rgb_feature, click in common_pop_ups.items():
         if color.match_rgb_feature(self, rgb_feature):
             self.logger.info("Found pop-ups RGB feature: " + rgb_feature)
             if rgb_feature == "fighting_feature":

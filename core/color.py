@@ -103,7 +103,7 @@ def check_sweep_availability(self, is_mainline=False):
             return "sss"
         if match_any_rgb_feature(self, "sideTaskSSS"):
             return "pass"
-    return "UNKNOWN"
+    return "unknown"
 
 
 def getRegionMeanRGB(image, x1, y1, x2, y2):
