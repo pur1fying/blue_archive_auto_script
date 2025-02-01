@@ -68,7 +68,7 @@ def need_fight(self):
     sss_check = color.check_sweep_availability(self, True)  # sss check
     if sss_check == 'no-pass' or sss_check == 'pass':
         return True
-    if color.judgeRGBFeature(self, 'hardTaskHasPresent'):  # present check
+    if color.match_rgb_feature(self, 'hardTaskHasPresent'):  # present check
         return True
     if get_challenge_state(self, 1)[0] != 1:  # challenge check
         return True

@@ -3,7 +3,7 @@ import cv2
 
 from core import picture
 from core.device.screenshot.nemu import NemuScreenshot
-from core.color import judge_rgb_range
+from core.color import is_rgb_in_range
 from module.activities.PresidentHinasSummerVacation import to_activity
 
 midy = 302
@@ -21,13 +21,13 @@ def implement(self):
 
 
 def blue_judge(self, x):
-    if judge_rgb_range(self, x, midy, 47, 67, 186, 206, 186, 206):
+    if is_rgb_in_range(self, x, midy, 47, 67, 186, 206, 186, 206):
         return True
     return False
 
 
 def yellow_judge(self, x):
-    if judge_rgb_range(self, x, midy, 210, 230, 170, 210, 0, 20):
+    if is_rgb_in_range(self, x, midy, 210, 230, 170, 210, 0, 20):
         return True
     return False
 

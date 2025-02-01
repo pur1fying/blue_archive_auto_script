@@ -279,7 +279,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
+        if not color.is_rgb_in_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
             self.click(click_lo[region], 87)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
@@ -378,14 +378,14 @@ def check_sweep_availability(self, plot):
     if plot == "activity_task-info":
         if image.compare_image(self, "activity_task-no-goals", False):
             self.logger.info("Judge Task Without Goal")
-            if not color.judgeRGBFeature(self, "no-goal-task_passed"):
+            if not color.match_rgb_feature(self, "no-goal-task_passed"):
                 return "sss"
             else:
                 return "no-pass"
         else:
             return color.check_sweep_availability(self)
     elif plot == "main_story_episode-info":
-        if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+        if not color.is_rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
             return "sss"
         else:
             return "no-pass"

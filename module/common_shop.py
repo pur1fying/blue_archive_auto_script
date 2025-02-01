@@ -158,7 +158,7 @@ def get_item_position(self):
         curr_y = 127
         while curr_y <= y_end:
             # purchase available
-            if color.judge_rgb_range(self, possibles_x, curr_y, 99, 139, 211, 231, 245, 255):
+            if color.is_rgb_in_range(self, possibles_x, curr_y, 99, 139, 211, 231, 245, 255):
                 area = (possibles_x - 14, curr_y - 10, possibles_x + 40, curr_y + 40)
                 currency_type = None
                 if image.search_in_area(self, "shop_coin-type-creditpoints-bright", area=area, threshold=0.8):
@@ -179,7 +179,7 @@ def get_item_position(self):
                 else:
                     curr_y += 1
             # purchase unavailable
-            elif color.judge_rgb_range(self, possibles_x, curr_y, 68, 88, 140, 160, 164, 184):
+            elif color.is_rgb_in_range(self, possibles_x, curr_y, 68, 88, 140, 160, 164, 184):
                 area = (possibles_x - 14, curr_y - 10, possibles_x + 40, curr_y + 40)
                 currency_type = None
                 if image.search_in_area(self, "shop_coin-type-creditpoints-grey", area=area, threshold=0.8):

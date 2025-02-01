@@ -425,13 +425,13 @@ def to_cafe_earning_status(self):
 
 def collect(self):
     to_cafe_earning_status(self)
-    if color.judge_rgb_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
+    if color.is_rgb_in_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
         self.logger.info("Collect Cafe Earnings")
         self.click(643, 521, wait_over=True)
 
 
 def get_invitation_ticket_status(self):
-    if color.judgeRGBFeature(self, "invitation_ticket_available_to_use"):
+    if color.match_rgb_feature(self, "invitation_ticket_available_to_use"):
         self.logger.info("Invite ticket available for use")
         return True
     else:

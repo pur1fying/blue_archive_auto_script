@@ -167,7 +167,7 @@ def total_assault_highest_difficulty_button_detection(self, maxx):
 
 
 def judge_unfinished_fight(self):
-    if color.judge_rgb_range(self, 1105, 206, 131, 151, 218, 238, 245, 255) and color.judge_rgb_range(
+    if color.is_rgb_in_range(self, 1105, 206, 131, 151, 218, 238, 245, 255) and color.is_rgb_in_range(
         self.latest_img_array, 1109, 252, 131, 151, 218, 238, 245, 255):
         return True
     self.logger.info("NO UNFINISHED FIGHT")
@@ -201,7 +201,7 @@ def collect_season_reward(self):
 
 
 def judge_and_collect_reward(self):
-    if color.judge_rgb_range(self, 962, 558, 213, 233, 213, 233, 213, 233):
+    if color.is_rgb_in_range(self, 962, 558, 213, 233, 213, 233, 213, 233):
         self.logger.info("need not collect")
         return False
     self.logger.info("collect")
@@ -330,7 +330,7 @@ def one_detect(self, button_detected, maxx, character_dict):
             if acc[maximum_acc_index] > 0.8 and (not button_detected[maximum_acc_index].any()):
                 temp = 1
                 y[maximum_acc_index] = int(ocr_res[j]["position"][3][1]/self.ratio) + region[1]
-                if color.judge_rgb_range(self, 1163, y[maximum_acc_index], 235, 255, 223, 243, 65, 85):
+                if color.is_rgb_in_range(self, 1163, y[maximum_acc_index], 235, 255, 223, 243, 65, 85):
                     temp = 0
                 self.logger.info("find " + self.total_assault_difficulty_names[maximum_acc_index].upper() + " " + name[
                     temp] + " button")

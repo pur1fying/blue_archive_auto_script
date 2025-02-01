@@ -208,7 +208,7 @@ def to_activity(self, region, skip_first_screenshot=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
+        if not color.is_rgb_in_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
             self.click(click_lo[region], 76)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
@@ -244,17 +244,17 @@ def to_challenge_task_info(self, number):
 
 
 def check_sweep_availability(self):
-    if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
+    if color.is_rgb_in_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
+        color.is_rgb_in_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
+        color.is_rgb_in_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
         return "no-pass"
-    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.is_rgb_in_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
+        color.is_rgb_in_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
+        color.is_rgb_in_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "sss"
-    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.is_rgb_in_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
+        color.is_rgb_in_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
+        color.is_rgb_in_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "pass"
 
 

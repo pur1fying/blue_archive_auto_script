@@ -112,7 +112,7 @@ def check_story_status(self, plot):
         "normal_task_task-info": 528,
         "main_story_episode-info": 322,
     }
-    if not color.judge_rgb_range(self, x[plot], y[plot], 232, 255, 219, 255, 0, 30):
+    if not color.is_rgb_in_range(self, x[plot], y[plot], 232, 255, 219, 255, 0, 30):
         return "sss"
     else:
         return "no-pass"
@@ -296,7 +296,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "JP": 83,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], rgb_lo_y[self.server], 20, 60, 40, 70, 70, 100):
+        if not color.is_rgb_in_range(self, rgb_lo[region], rgb_lo_y[self.server], 20, 60, 40, 70, 70, 100):
             self.click(click_lo[region], click_lo_y[self.server])
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()

@@ -250,7 +250,7 @@ class Baas_thread:
             self.logger.error(e.__str__())
             return False
 
-    def subprocess_run(self, cmd: Tuple[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    def subprocess_run(self, cmd: list[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        encoding="utf-8"):
         # 代码来源BAAH
         if isasync:
@@ -621,7 +621,7 @@ class Baas_thread:
             'reward_acquired': (640, 100),
             # "fighting_feature": (1226, 51)
         }
-        picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot,
+        picture.co_detect(self, ["main_page"], rgb_possibles, None, img_possibles, skip_first_screenshot,
                           tentative_click=True)
 
     def init_image_resource(self):
@@ -629,8 +629,8 @@ class Baas_thread:
 
     def init_rgb(self):
         try:
-            temp = self.project_dir + '/src/rgb_feature/rgb_feature_' + self.server + '.json'
-            self.rgb_feature = json.load(open(temp, 'r', encoding='utf-8'))['rgb_feature']
+            fileName = self.project_dir + '/src/rgb_feature/rgb_feature_' + self.server + '.json'
+            self.rgb_feature = json.load(open(fileName, 'r', encoding='utf-8'))['rgb_feature']
             return True
         except Exception as e:
             self.logger.error(e.__str__())
