@@ -1,434 +1,434 @@
 {
-    "24-1-sss-present-task": {
-        "start": [
-            [
-                "shock1",
-                [
-                    403,
-                    428
-                ]
-            ],
-            [
-                "burst1",
-                [
-                    1044,
-                    323
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    445,
-                    327
-                ],
-                "ec": true,
-                "desc": "1 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    665,
-                    374
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 left"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    502,
-                    427
-                ],
-                "desc": "1 choose self and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    800,
-                    511
-                ],
-                "ec": true,
-                "desc": "1 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    665,
-                    394
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    668,
-                    562
-                ],
-                "ec": true,
-                "desc": "1 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    604,
-                    257
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 upper left"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    784,
-                    507
-                ],
-                "ec": true,
-                "desc": "1 right and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    461,
-                    232
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    871,
-                    320
-                ],
-                "desc": "1 right"
-            }
+  "24-1-sss-present-task": {
+    "start": [
+      [
+        "shock",
+        [
+          403,
+          428
         ]
-    },
-    "24-2-sss-present-task": {
-        "start": [
-            [
-                "shock1",
-                [
-                    401,
-                    342
-                ]
-            ],
-            [
-                "burst1",
-                [
-                    853,
-                    198
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    565,
-                    513
-                ],
-                "ec": true,
-                "desc": "1 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    637,
-                    317
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    610,
-                    565
-                ],
-                "ec": true,
-                "desc": "1 lower right"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    695,
-                    278
-                ],
-                "desc": "2 choose self and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    720,
-                    371
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 upper right"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    764,
-                    284
-                ],
-                "ec": true,
-                "desc": "2 upper right"
-            },
-            {
-                "t": "end-turn"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    683,
-                    386
-                ],
-                "ec": true,
-                "desc": "2 lower left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    460,
-                    549
-                ],
-                "wait-over": true,
-                "desc": "1 lower left"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    707,
-                    385
-                ],
-                "ec": true,
-                "desc": "1 upper right and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    591,
-                    193
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 upper left"
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    607,
-                    275
-                ],
-                "wait-over": true,
-                "desc": "change 1 2"
-            },
-            {
-                "t": "click",
-                "p": [
-                    663,
-                    193
-                ],
-                "desc": "1 upper right"
-            },
-            {
-                "t": "end-turn"
-            }
+      ],
+      [
+        "burst",
+        [
+          1044,
+          323
         ]
-    },
-    "24-3-sss-present-task": {
-        "start": [
-            [
-                "shock1",
-                [
-                    963,
-                    261
-                ]
-            ],
-            [
-                "burst1",
-                [
-                    476,
-                    419
-                ]
-            ],
-            [
-                "shock2",
-                [
-                    208,
-                    192
-                ]
-            ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          445,
+          327
         ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    719,
-                    313
-                ],
-                "ec": true,
-                "desc": "1 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    598,
-                    379
-                ],
-                "ec": true,
-                "desc": "2 upper right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    570,
-                    413
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "3 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    668,
-                    397
-                ],
-                "ec": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    668,
-                    397
-                ],
-                "desc": "swap 2 3"
-            },
-            {
-                "t": "click",
-                "p": [
-                    606,
-                    308
-                ],
-                "ec": true,
-                "desc": "2 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    430,
-                    481
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "3 lower left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    725,
-                    489
-                ],
-                "ec": true,
-                "desc": "1 lower left"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    439,
-                    513
-                ],
-                "ec": true,
-                "desc": "3 lower left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    637,
-                    317
-                ],
-                "wait-over": true,
-                "desc": "2 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    619,
-                    589
-                ],
-                "ec": true,
-                "desc": "1 lower left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    744,
-                    273
-                ],
-                "ec": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "end-turn"
-            },
-            {
-                "t": "click",
-                "p": [
-                    877,
-                    461
-                ],
-                "ec": true,
-                "desc": "1 right"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    749,
-                    199
-                ],
-                "ec": true,
-                "desc": "2 upper right and tp"
-            },
-            {
-                "t": "end-turn"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    805,
-                    386
-                ],
-                "ec": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    785,
-                    388
-                ],
-                "desc": "swap 1 2"
-            },
-            {
-                "t": "click",
-                "p": [
-                    901,
-                    386
-                ],
-                "desc": "1 right"
-            }
+        "ec": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          665,
+          374
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          502,
+          427
+        ],
+        "desc": "1 choose self and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          800,
+          511
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          665,
+          394
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          668,
+          562
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          604,
+          257
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper left"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          784,
+          507
+        ],
+        "ec": true,
+        "desc": "1 right and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          461,
+          232
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          871,
+          320
+        ],
+        "desc": "1 right"
+      }
+    ]
+  },
+  "24-2-sss-present-task": {
+    "start": [
+      [
+        "shock",
+        [
+          401,
+          342
         ]
-    }
+      ],
+      [
+        "burst",
+        [
+          853,
+          198
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          565,
+          513
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          637,
+          317
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          610,
+          565
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          695,
+          278
+        ],
+        "desc": "2 choose self and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          720,
+          371
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          764,
+          284
+        ],
+        "ec": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "end-turn"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          683,
+          386
+        ],
+        "ec": true,
+        "desc": "2 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          460,
+          549
+        ],
+        "wait-over": true,
+        "desc": "1 lower left"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          707,
+          385
+        ],
+        "ec": true,
+        "desc": "1 upper right and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          591,
+          193
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper left"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          607,
+          275
+        ],
+        "wait-over": true,
+        "desc": "change 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          663,
+          193
+        ],
+        "desc": "1 upper right"
+      },
+      {
+        "t": "end-turn"
+      }
+    ]
+  },
+  "24-3-sss-present-task": {
+    "start": [
+      [
+        "shock",
+        [
+          963,
+          261
+        ]
+      ],
+      [
+        "burst",
+        [
+          476,
+          419
+        ]
+      ],
+      [
+        "shock",
+        [
+          208,
+          192
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          719,
+          313
+        ],
+        "ec": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          598,
+          379
+        ],
+        "ec": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          570,
+          413
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "3 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          668,
+          397
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          668,
+          397
+        ],
+        "desc": "swap 2 3"
+      },
+      {
+        "t": "click",
+        "p": [
+          606,
+          308
+        ],
+        "ec": true,
+        "desc": "2 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          430,
+          481
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "3 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          725,
+          489
+        ],
+        "ec": true,
+        "desc": "1 lower left"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          439,
+          513
+        ],
+        "ec": true,
+        "desc": "3 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          637,
+          317
+        ],
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          619,
+          589
+        ],
+        "ec": true,
+        "desc": "1 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          744,
+          273
+        ],
+        "ec": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "end-turn"
+      },
+      {
+        "t": "click",
+        "p": [
+          877,
+          461
+        ],
+        "ec": true,
+        "desc": "1 right"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          749,
+          199
+        ],
+        "ec": true,
+        "desc": "2 upper right and tp"
+      },
+      {
+        "t": "end-turn"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          805,
+          386
+        ],
+        "ec": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          785,
+          388
+        ],
+        "desc": "swap 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          901,
+          386
+        ],
+        "desc": "1 right"
+      }
+    ]
+  }
 }

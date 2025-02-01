@@ -1,6 +1,6 @@
 import time
 
-from core import image, picture
+from core import image, picture, color
 from module import hard_task, main_story, normal_task
 
 
@@ -44,7 +44,7 @@ def to_region(self, region, isNormal: bool):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    curRegion = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+    curRegion = self.ocr.get_region_num_int(self.latest_img_array, square[self.server], self.ratio)
     self.logger.info("Current Region : " + str(curRegion))
     while curRegion != region and self.flag_run:
         if curRegion > region:
@@ -94,7 +94,7 @@ def execute_grid_task(self, taskData):
     }
     img_ends = "normal_task_task-wait-to-begin-feature"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    choose_team_according_to_stage_data_and_config(self, taskData)
+    employ_units(self, taskData)
     start_mission(self)
     set_skip_and_auto_over(self)
     start_action(self, taskData['action'])
@@ -291,8 +291,8 @@ def wait_over(self):
         "normal_task_fight-confirm": (1171, 670),
         'normal_task_present': (640, 519),
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles, True,
-                      pop_ups_rgb_reactions={"fighting_feature": (-1, -1)},
+    picture.co_detect(self, None, None, img_ends, img_possibles,
+                      True, pop_ups_rgb_reactions={"fighting_feature": (-1, -1)},
                       pop_ups_img_reactions={"activity_choose-buff": (644, 570)})
 
 
@@ -305,15 +305,82 @@ def confirm_teleport(self):
     picture.co_detect(self, None, None, img_end, img_possibles, True)
 
 
-def choose_team_according_to_stage_data_and_config(self, taskData):
-    res, los = calc_team_number(self, taskData)
-    for j in range(0, len(res)):
-        if res[j] == "swipe":
+def employ_units(self, taskData: dict) -> tuple[bool, str]:
+    # get employ presets data
+    priority = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
+
+    unit_available = {attribute: len(preset) for attribute, preset in tmp_teams.items()}
+    # Number of units available for each attribute: burst, pierce, mystic, shock
+    total_available = sum([len(preset) for attribute, preset in tmp_teams.items()])
+    # Number of units available in total
+    unit_used = {attribute: 0 for attribute, count in tmp_teams.items()}
+    # Number of units used for each attribute: burst, pierce, mystic, shock
+    currently_used = 0
+
+    employ_presets: list[list[int, int]] = []
+
+    for attribute, info in taskData["start"]:
+        if attribute == "swipe":  # skip if it's a swipe command.
+            continue
+        if attribute not in ["burst", "pierce", "mystic", "shock"]:
+            return False, f"Invalid attribute {attribute} in task data."
+        current_attribute = attribute
+        if total_available <= currently_used:
+            return (False,
+                    f"Insufficient presets. Currently used: {currently_used}, total available: {total_available}")
+        while unit_available[current_attribute] - unit_used[current_attribute] == 0 \
+            or (self.server == "CN" and current_attribute == "shock"):
+            current_attribute = priority[current_attribute]
+        employ_presets.append(tmp_teams[current_attribute][unit_used[current_attribute]])
+        unit_used[current_attribute] += 1
+        currently_used += 1
+
+    employed = 0
+    for command, info in taskData["start"]:
+        if command == "swipe":
             time.sleep(1)
-            self.swipe(los[j][0], los[j][1], los[j][2], los[j][3], duration=los[j][4])
+            self.swipe(info[0], info[1], info[2], info[3], duration=info[4])
             time.sleep(1)
-        else:
-            choose_team(self, res[j], los[j], True)
+        else:  # employ units from presets
+            preset_column = employ_presets[employed][0]
+            preset_row = employ_presets[employed][1]
+            self.logger.info(f"Choosing team from preset {preset_column}-{preset_row}.")
+
+            # open formation menu and preset menu
+            img_reactions = {
+                "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
+                "normal_task_formation-menu": (1204, 486)
+            }
+            img_ends = ["normal_task_formation-preset"]
+            picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
+
+            # to preset
+            while get_current_preset_column(self) != preset_column:
+                self.click(178 + (preset_column - 1) * 156, 153)
+                self.latest_img_array = self.get_screenshot_array()
+                time.sleep(0.3)
+            if preset_row < 3:
+                self.swipe(333, 220, 333, 552, duration=0.2, post_sleep_time=1)
+                self.swipe(333, 220, 333, 552, duration=0.2, post_sleep_time=1)
+            else:
+                self.swipe(333, 552, 333, 220, duration=0.2, post_sleep_time=1)
+                self.swipe(333, 552, 333, 220, duration=0.2, post_sleep_time=1)
+
+            # confirm use preset
+            formation_y = [324, 511, 209, 372, 559]
+            img_reactions = {
+                "normal_task_formation-preset": (1151, formation_y[preset_row - 1]),
+                "normal_task_formation-set-confirm": (761, 574),
+                "normal_task_formation-menu": (1154, 625),
+                "task-begin-without-further-editing-notice": (888, 164)
+            }
+            img_ends = [
+                "normal_task_task-wait-to-begin-feature",
+                "normal_task_task-operating-feature"
+            ]
+            picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
+
+            employed += 1
 
 
 def to_mission_info(self, y=0):
@@ -330,117 +397,14 @@ def to_mission_info(self, y=0):
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
-def choose_team(self, number, position, skip_first_screenshot=False):
-    self.logger.info("According to the config. Choose team " + str(number))
-    to_formation_edit_i(self, number, position, skip_first_screenshot)
-    to_normal_task_wait_to_begin_page(self, skip_first_screenshot)
+tmp_teams = {"burst": [[1, 1], [3, 2]], "pierce": [[1, 2], [4, 4]], "shock": [[1, 3], [2, 3]],
+             "mystic": [[1, 3], [2, 3]]}
 
 
-def calc_team_number(self, taskData):
-    pri = {
-        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
-        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
-        'burst1': ['burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
-        'burst2': ['burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
-        'mystic1': ['mystic1', 'mystic2', 'shock1', 'shock2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
-        'mystic2': ['mystic2', 'burst1', 'shock1', 'shock2', 'burst2', 'pierce1', 'pierce2'],
-        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2'],
-        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2']
-    }
-    used = {
-        'pierce1': False,
-        'pierce2': False,
-        'burst1': False,
-        'burst2': False,
-        'mystic1': False,
-        'mystic2': False,
-        'shock1': False,
-        'shock2': False,
-    }
-    keys = used.keys()
-    total_teams = 0
-    for i in range(0, len(taskData['start'])):
-        if taskData['start'][i][0] in keys:
-            total_teams += 1
-    last_chosen = 0
-    team_res = []
-    team_attr = []
-    los = []
-    for i in range(0, len(taskData['start'])):
-        attr, position = taskData['start'][i][0], taskData['start'][i][1]
-        los.append(position)
-        if attr not in keys:
-            continue
-        for j in range(0, len(pri[attr])):
-            possible_attr = pri[attr][j]
-            if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
-                continue
-            possible_index = self.config[possible_attr]
-            if not used[possible_attr] and 4 - possible_index >= total_teams - len(
-                team_res) - 1 and last_chosen < possible_index:
-                team_res.append(possible_index)
-                team_attr.append(possible_attr)
-                used[possible_attr] = True
-                last_chosen = self.config[possible_attr]
-                break
-    if len(team_res) != total_teams:
-        self.logger.warning("Insufficient forces are chosen")
-        if total_teams - len(team_res) <= 4 - last_chosen:
-            for i in range(0, total_teams - len(team_res)):
-                team_res.append(last_chosen + i + 1)
-                team_attr.append("auto-choose")
-        else:
-            self.logger.warning("USE formations as the number increase")
-            team_res.clear()
-            team_attr = ["auto-choose"]
-            cnt = 1
-            for i in range(0, len(taskData['start'])):
-                if taskData['start'][i][0] in keys:
-                    team_res.append(cnt)
-                    los.append(taskData['start'][i][1])
-                    cnt += 1
-    self.logger.info("Choose formations : " + str(team_res))
-    self.logger.info("attr : " + str(team_attr))
-    action_res = []
-    temp = 0
-    for i in range(0, len(taskData['start'])):
-        if taskData['start'][i][0] not in keys:
-            action_res.append(taskData['start'][i][0])
-        else:
-            action_res.append(team_res[temp])
-            temp += 1
-    self.logger.info("actions : " + str(action_res))
-    self.logger.info("position : " + str(los))
-    return action_res, los
-
-
-def to_normal_task_wait_to_begin_page(self, skip_first_screenshot=False):
-    rgb_possibles = {
-        "formation_edit1": (1154, 625),
-        "formation_edit2": (1154, 625),
-        "formation_edit3": (1154, 625),
-        "formation_edit4": (1154, 625),
-    }
-    img_ends = [
-        'normal_task_task-wait-to-begin-feature',
-        'normal_task_task-operating-feature'
-    ]
-    img_possibles = {
-        'task-begin-without-further-editing-notice': (888, 164)
-    }
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
-
-
-def to_formation_edit_i(self, i, lo, skip_first_screenshot=False):
-    loy = [195, 275, 354, 423]
-    y = loy[i - 1]
-    rgb_ends = "formation_edit" + str(i)
-    rgb_possibles = {
-        "formation_edit1": (74, y),
-        "formation_edit2": (74, y),
-        "formation_edit3": (74, y),
-        "formation_edit4": (74, y),
-    }
-    rgb_possibles.pop("formation_edit" + str(i))
-    img_possibles = {"normal_task_task-wait-to-begin-feature": lo}
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
+def get_current_preset_column(self) -> int:
+    x, y = 178, 153  # column 1
+    # x add 156 each time to get to the next column
+    for i in range(4):
+        if color.is_rgb_in_range(self, x + i * 156, y, 40, 50, 70, 80, 110, 120):
+            return i + 1
+    return -1
