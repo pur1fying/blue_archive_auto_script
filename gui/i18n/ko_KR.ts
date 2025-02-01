@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
@@ -877,15 +876,15 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>일반 스테이지 소탕 횟수
-(예: &quot;1-1-1,1-2-3&quot;은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
+(예: "1-1-1,1-2-3"은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회),
-구분은 쉼표로, 일본 서버와 해외 서버는 &apos;max&apos;로 입력할 수 있습니다:</translation>
+구분은 쉼표로, 일본 서버와 해외 서버는 'max'로 입력할 수 있습니다:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -1131,10 +1130,10 @@
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
-nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬레이터 
-주소&apos;를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
+nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이터 
+주소'를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="26"/>

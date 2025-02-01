@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US" sourcelanguage="zh_CN">
 <context>
@@ -263,27 +262,27 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="89"/>
         <source>静子神明文字x5</source>
-        <translation>Shizuko&apos;s Eleph</translation>
+        <translation>Shizuko's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="90"/>
         <source>真白神明文字x5</source>
-        <translation>Mashiro&apos;s Eleph</translation>
+        <translation>Mashiro's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="91"/>
         <source>纱绫神明文字x5</source>
-        <translation>Saya&apos;s Eleph</translation>
+        <translation>Saya's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="92"/>
         <source>风香神明文字x5</source>
-        <translation>Fuuka&apos;s Eleph</translation>
+        <translation>Fuuka's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="93"/>
         <source>歌原神明文字x5</source>
-        <translation>Utaha&apos;s Eleph</translation>
+        <translation>Utaha's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="94"/>
@@ -388,7 +387,7 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="88"/>
         <source>宫子神明文字x5</source>
-        <translation>Miyako&apos;s Eleph</translation>
+        <translation>Miyako's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="115"/>
@@ -825,14 +824,14 @@ See Clear Hard and Normal Stages in Help</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
-        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
-        <translation>Normal stage and number of sweeps(e.g. &quot;1-1-1,1-2-3&quot; means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
+        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <translation>Normal stage and number of sweeps(e.g. "1-1-1,1-2-3" means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="23"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>Set hard stages as above, with a maximum of 3 sweeps. Use commas for separation.
-For JP or Global server, you can use &apos;max&apos;:</translation>
+For JP or Global server, you can use 'max':</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="114"/>
@@ -1068,7 +1067,7 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <location filename="../components/expand/scriptConfig.py" line="18"/>
         <source>这些功能在运行多个实例时可能无法按预期工作。涉及模拟器的操作将遵循“模拟器启动设置”中的设置。</source>
         <translation>These features may not work as expected when running multiple instances.
-Operations involving the emulator will follow the settings in &quot;Emulator Startup Settings.</translation>
+Operations involving the emulator will follow the settings in "Emulator Startup Settings.</translation>
     </message>
     <message>
         <location filename="../components/expand/friendWhiteList.py" line="16"/>
@@ -1119,7 +1118,7 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
     <message>
         <location filename="../components/expand/arenaPriority.py" line="21"/>
         <source>自定义对手的编号：</source>
-        <translation>Customize your opponent&apos;s number:</translation>
+        <translation>Customize your opponent's number:</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="118"/>
@@ -1134,10 +1133,10 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
 It is recommended to use nemu and if you are using nemu, please 
-set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
+set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="26"/>
@@ -1479,7 +1478,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
     <message>
         <location filename="../fragments/settings.py" line="31"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
-        <translation>Select your server platform and set your port (set to 0 if you don&apos;t know the port)</translation>
+        <translation>Select your server platform and set your port (set to 0 if you don't know the port)</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="39"/>
@@ -1614,7 +1613,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
     <message>
         <location filename="../fragments/settings.py" line="130"/>
         <source>更改应用的主题颜色</source>
-        <translation>Change the app&apos;s theme color</translation>
+        <translation>Change the app's theme color</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="137"/>
