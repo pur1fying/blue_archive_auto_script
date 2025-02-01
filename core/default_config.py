@@ -401,9 +401,7 @@ DEFAULT_CONFIG = """
         ["primary","normal","advanced","superior"]
     ],
     "purchase_lesson_ticket_times": "0",
-    "explore_normal_task_regions": [
-
-    ],
+    "explore_normal_task_list": [],
     "explore_hard_task_list": "此处填写需要推图的关卡",
     "emulatorIsMultiInstance": false,
     "emulatorMultiInstanceNumber": 0,

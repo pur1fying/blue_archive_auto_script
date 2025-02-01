@@ -91,7 +91,7 @@ def implement(self):
         - stage_data (dict): The stage data.
     """
 
-    for taskStr in str(self.config_set.config['explore_normal_task_regions']).replace(" ","").split(','):
+    for taskStr in str(self.config_set.config['explore_normal_task_list']).replace(" ","").split(','):
         result = validate_and_add_task(self, taskStr, tasklist)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))

@@ -252,7 +252,7 @@
 - **type**: `str`
 - **description** : 今日还未扫荡的普通任务的扫荡关卡
 - **note** : 每日刷新
-## `explore_normal_task_regions`
+## `explore_normal_task_list`
 - **type**: `str`
 - **description** : 普通图推图关卡
 - **note** : 填写帮助详见[普通图扫荡填写说明](/usage_doc/config#普通图扫荡填写说明)
