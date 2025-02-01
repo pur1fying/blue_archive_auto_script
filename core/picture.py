@@ -3,10 +3,11 @@ from core import color, image
 from module.main_story import set_acc_and_auto
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
 from core.color import match_rgb_feature
+import typing
 
 
-def co_detect(self, rgb_ends: list[str] | str = None, rgb_reactions: dict = None,
-              img_ends: list | str | tuple = None, img_reactions: dict = None,
+def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions: dict = None,
+              img_ends: typing.Union[list, str, tuple] = None, img_reactions: dict = None,
               skip_first_screenshot=False,
               tentative_click=False, tentative_x=1238, tentative_y=45, max_fail_cnt=10,
               pop_ups_rgb_reactions: dict = None, pop_ups_img_reactions: dict = None,
