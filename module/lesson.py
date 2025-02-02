@@ -6,7 +6,7 @@ import importlib
 
 
 def implement(self):
-    # self.quick_method_to_main_page()
+    self.quick_method_to_main_page()
     self.lesson_times = self.config["lesson_times"]
     region_name = self.static_config["lesson_region_name"][self.server].copy()
     for i in range(0, len(region_name)):
