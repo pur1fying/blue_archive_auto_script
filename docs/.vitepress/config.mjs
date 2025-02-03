@@ -59,6 +59,7 @@ export default defineConfig({
                 {text: '模拟器连接', link: '/develop_doc/script/Connection'},
                 {text: '模拟器截图', link: '/develop_doc/script/screenshot'},
                 {text: '模拟器控制', link: '/develop_doc/script/control'},
+                {text: '文字识别', link: '/develop_doc/script/ocr'},
                 {text: 'Baas_thread', link: '/develop_doc/script/Baas_thread'},
                 {text: '编写文档', link: '/develop_doc/docs'},
                 {text: '模拟器开关/状态检测', link: '/develop_doc/script/device_operation'},
