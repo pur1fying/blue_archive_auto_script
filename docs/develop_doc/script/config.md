@@ -10,6 +10,27 @@
 8. **related docs** : 相关文档
 9. **related issue** : 相关issue(这项配置由于这个issue才被添加)
 :::
+## 配置文件
+- 在`config`目录下, 每个**文件夹**中储存一份可以独立运行**BAAS**的配置文件, 一个配置文件夹中包含以下文件:
+  1. `config.json` : 用户配置, 与**BAAS的GUI**交互时基本都是在修改这个文件
+  2. `event.json` : 调度配置
+  3. `switch.json` : 一些GUI有关的配置
+- `config/gui.json` GUI的配置文件
+- `config/static.json` 为共享的配置文件, 其中的内容在**BAAS**运行时不会被修改
+
+### 如何在重新安装BAAS时保留原有配置
+1. 复制一份原始BAAS的config文件夹
+2. 将复制的config文件夹放在新**BAAS**可执行文件的同级目录下
+   - 如果你使用full_env, 则**覆盖**新的config文件夹
+3. 运行**BAAS**可执行程序
+
+### 增删一条用户配置
+1. 在`core/default_config.py` 中修改`DEFAULT_CONFIG`变量, 添加对应字段后**重启UI** 
+2. 便会将所有新配置插入
+
+### 增删一条调度配置
+1. 在`core/default_config.py` 中修改`SWITCH_CONFIG`变量, 添加对应字段后**重启UI**
+2. 调度配置的每一项具体含义可以见[调度配置](/usage_doc/config#调度配置)
 # Emulator Related (模拟器相关)
 
 ## `screenshot_interval`
