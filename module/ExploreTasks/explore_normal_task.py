@@ -42,15 +42,13 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]
         else:
             return False, f"Invalid task type: {t}"
 
-    data_path = f"src/explore_task_data/normal_task/normal_task_{region}.json"
-    with open(data_path, 'r') as file:
-        region_data = json.load(file)
-        for i in range(1, 6) if submission == -1 else [submission]:
-            # if submission is specified, then add submission only ,otherwise add 1~5
-            if f"{region}-{i}" in region_data:
-                tasklist.append((region, i, region_data[f"{region}-{i}"]))
-            else:
-                return False, f"No task data found for region {region}-{i}"
+    region_data = get_stage_data(region)
+    for i in range(1, 6) if submission == -1 else [submission]:
+        # if submission is specified, then add submission only ,otherwise add 1~5
+        if f"{region}-{i}" in region_data:
+            tasklist.append((region, i, region_data[f"{region}-{i}"]))
+        else:
+            return False, f"No task data found for region {region}-{i}"
     return True, ""
 
 
@@ -158,3 +156,11 @@ def start_choose_side_team(self, index):
     rgb_ends = "formation_edit" + str(index)
     rgb_possibles.pop("formation_edit" + str(index))
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+
+
+def get_stage_data(region, is_normal=True):
+    t = "normal_task" if is_normal else "hard_task"
+    data_path = f"src/explore_task_data/{t}/{t}_{region}.json"
+    with open(data_path, 'r') as f:
+        stage_data = json.load(f)
+    return stage_data
