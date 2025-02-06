@@ -218,7 +218,7 @@ def explore_challenge(self):
 
 
 def to_story_task_info(self, number):
-    lo = [0, 180, 280, 380, 480, 580, 680, 580, 680]
+    lo = [0, 180, 280, 380, 480, 580, 680, 543, 643]
     if number >= 7:
         self.swipe(916, 667, 916, 0, duration=0.05, post_sleep_time=0.7)
     img_possibles = {'activity_menu': (1124, lo[number])}
