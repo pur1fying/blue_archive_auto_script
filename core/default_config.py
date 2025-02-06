@@ -555,8 +555,8 @@ STATIC_DEFAULT_CONFIG = '''
         "Global": [2, 3, 4, 5, 6, 7],
         "JP": [1, 2, 3, 4, 5, 6, 7, 8]
     },
-    "explore_normal_task_region_range": [4, 27],
-    "explore_hard_task_region_range": [1, 27],
+    "explore_normal_task_region_range": [4, 28],
+    "explore_hard_task_region_range": [1, 28],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
     "common_shop_price_list": {
