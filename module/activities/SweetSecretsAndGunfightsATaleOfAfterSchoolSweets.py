@@ -299,7 +299,7 @@ def start_sweep(self, skip_first_screenshot=False):
 
 def check_sweep_availability(self, plot):
     if plot == "activity_task-info":
-        if image.compare_image(self, "activity_task-no-goals", False):
+        if image.compare_image(self, "activity_task-no-goals"):
             self.logger.info("Judge Task Without Goal")
             if not color.judgeRGBFeature(self, "no-goal-task_passed"):
                 return "sss"

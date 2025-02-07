@@ -66,7 +66,7 @@ def need_fight(self):
         bool: True if a fight is needed, False otherwise.
     """
     if (self.server == "CN" and
-        image.compare_image(self, 'normal_task_SUB')):  # submission check (now only available in CN servers)
+            image.compare_image(self, 'normal_task_SUB')):  # submission check (now only available in CN servers)
         return True
     sss_check = color.check_sweep_availability(self, True)  # sss check
     if sss_check == 'no-pass' or sss_check == 'pass':

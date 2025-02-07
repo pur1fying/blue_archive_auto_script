@@ -28,9 +28,9 @@ def get_challenge_state(self, challenge_count=1) -> list[int]:
 
     result = []
     for i in range(1, challenge_count + 1):
-        if image.compare_image(self, "normal_task_challenge" + str(i) + "-unfinished", False, 0.8, 10):
+        if image.compare_image(self, "normal_task_challenge" + str(i) + "-unfinished", 0.8, 10):
             result.append(0)
-        elif image.compare_image(self, "normal_task_challenge" + str(i) + "-finished", False, 0.8, 10):
+        elif image.compare_image(self, "normal_task_challenge" + str(i) + "-finished", 0.8, 10):
             result.append(1)
         else:
             result.append(-1)
@@ -126,10 +126,10 @@ def turn_off_skip_fight(self) -> None:
 def set_skip_and_auto_over(self) -> None:
     while self.flag_run:
         finish_adjustment = True
-        if not image.compare_image(self, 'normal_task_fight-skip', False):
+        if not image.compare_image(self, 'normal_task_fight-skip'):
             finish_adjustment = False
             self.click(1194, 547, wait_over=True, duration=0.5)
-        if not image.compare_image(self, 'normal_task_auto-over', False):
+        if not image.compare_image(self, 'normal_task_auto-over'):
             finish_adjustment = False
             self.click(1194, 600, wait_over=True, duration=0.5)
         if finish_adjustment:

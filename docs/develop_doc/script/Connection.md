@@ -25,26 +25,26 @@
 ```python
 def __init__(self, Baas_instance)
 ```
-### **Args**:
-#### `Baas_instance`: [**Baas_thread**](/develop_doc/script/Baas_thread) 的实例
+- **Args**:
+  1. `Baas_instance`: [**Baas_thread**](/develop_doc/script/Baas_thread) 的实例
 
-### **Members**:
-#### `self.Baas_thread`
+## Members
+### `Baas_thread`
 **type** : `Baas_thread` Object
-#### `self.logger`
+### `logger`
 **type** : `Logger` Object
-#### `self.package`
+### `package`
 **type** : str
-#### `self.activity`
+### `activity`
 **type** : str
 **description** : 当前package的activity名称
-#### `self.server`
+### `server`
 **type** : str
-#### `self.config_set`
-#### `self.config`
-#### `self.static_config`
-#### `self.adbIP`
-#### `self.adbPort`
+### `config_set`
+### `config`
+### `static_config`
+### `adbIP`
+### `adbPort`
 ---
 
 ## Methods

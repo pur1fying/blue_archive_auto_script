@@ -77,7 +77,7 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                         img_name = img_ends[i][0]
                         threshold = img_ends[i][1]
                         rgb_diff = img_ends[i][2]
-                if image.compare_image(self, img_name, False, threshold, rgb_diff):
+                if image.compare_image(self, img_name, threshold, rgb_diff):
                     self.logger.info('end : ' + img_name)
                     return img_name
         f = 0
@@ -121,7 +121,7 @@ def co_detect(self, rgb_ends=None, rgb_possibles=None, img_ends=None, img_possib
                 elif len(click) == 4:
                     threshold = click[2]
                     rgb_diff = click[3]
-                if image.compare_image(self, position, False, threshold, rgb_diff):
+                if image.compare_image(self, position, threshold, rgb_diff):
                     fail_cnt = 0
                     f = 1
                     feature_last_appear_time = time.time()
@@ -197,7 +197,7 @@ def deal_with_pop_ups(self, rgb_pop_ups, img_pop_ups):  # pop ups which can appe
     if img_pop_ups is not None:
         img_possibles.update(img_pop_ups)
     for position, click in img_possibles.items():
-        if image.compare_image(self, position, need_log=False):
+        if image.compare_image(self, position):
             self.logger.info("find " + position)
             if position == "activity_choose-buff":
                 choose_buff(self)

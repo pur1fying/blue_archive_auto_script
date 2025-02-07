@@ -65,7 +65,7 @@ def chooseLoop(self):
     totalTime = 115
     while time.time() - startTime < totalTime:
         self.latest_img_array = self.get_screenshot_array()
-        if not image.compare_image(self, "dailyGameActivity_game-playing-feature", need_log=False):
+        if not image.compare_image(self, "dailyGameActivity_game-playing-feature"):
             break
         for i in range(0, 3):
             region = regions[i]

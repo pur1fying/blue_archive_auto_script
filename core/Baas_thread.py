@@ -398,6 +398,7 @@ class Baas_thread:
                     for task in nextTask['post_task']:
                         task_with_log_info.append((task, 'post_task'))
 
+                    currentTaskNextTime = 0
                     for task, task_type in task_with_log_info:
                         if not self.flag_run:
                             break

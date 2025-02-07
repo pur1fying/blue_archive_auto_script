@@ -321,7 +321,7 @@ def check_state_and_get_stage_data(self):
         for filename in filenames:
             if filename.endswith(".png"):
                 name = "main_story_" + filename[:-4]
-                if image.compare_image(self, name, need_log=False):
+                if image.compare_image(self, name):
                     self.logger.info("CURRENT STATE: " + filename[:-4])
                     img_possibles = {"normal_task_mission-operating-task-info-notice": (993, 97)}
                     img_ends = "normal_task_task-wait-to-begin-feature"

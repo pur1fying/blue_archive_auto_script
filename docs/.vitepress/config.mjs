@@ -45,6 +45,7 @@ export default defineConfig({
             {text: '上报问题', link: '/usage_doc/report'},
             {text: '已知问题', link: '/usage_doc/about'},
             {text: 'CLI用法', link: '/usage_doc/CLI'},
+            {text: '卸载', link: '/usage_doc/uninstall'},
             {text: 'QQ群规定', link: '/usage_doc/qq_group_regulation'},
             {text: '项目破坏者', link: '/usage_doc/destroyer'}
           ]
@@ -60,6 +61,7 @@ export default defineConfig({
                 {text: '模拟器截图', link: '/develop_doc/script/screenshot'},
                 {text: '模拟器控制', link: '/develop_doc/script/control'},
                 {text: '图像资源', link: '/develop_doc/script/image_resource'},
+                {text: '图像识别', link: '/develop_doc/script/game_feature'},
                 {text: '文字识别', link: '/develop_doc/script/ocr'},
                 {text: 'Baas_thread', link: '/develop_doc/script/Baas_thread'},
                 {text: '编写文档', link: '/develop_doc/docs'},
