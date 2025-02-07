@@ -442,12 +442,11 @@ def preprocess_node_info(st, server):
 
 
 def get_next_execute_time(self, status):
-    regions = {
-        'CN': [(686, 278, 883, 327), (686, 419, 883, 469), (686, 561, 883, 614)],
-        'Global': [(686, 278, 883, 327), (686, 419, 883, 469), (686, 561, 883, 614)],
-        'JP': [(686, 252, 883, 302), (686, 374, 883, 422), (686, 498, 883, 547)]
-    }
-    regions = regions[self.server]
+    regions = [
+        (686, 252, 883, 302),
+        (686, 374, 883, 422),
+        (686, 498, 883, 547)
+    ]
     time_deltas = []
     for i in range(0, 3):
         if status[i] == "unfinished":
