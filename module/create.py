@@ -529,6 +529,7 @@ class CreateItemCheckState:
         self.baas = baas
         self.weight_sum = self.baas.static_config["create_each_phase_weight"][phase]
         self.select_item_rule = self.baas.config["create_phase_" + str(phase) + "_select_item_rule"]
+        self.baas.logger.info("Select Item Rule : [ " + self.select_item_rule + " ].")
         self.already_selected_item = dict()
         self.check_item_order = check_item_order
         self.last_check_y = 0
