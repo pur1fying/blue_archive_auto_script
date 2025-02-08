@@ -517,6 +517,12 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
 class CreateItemCheckState:
     # During a full phase of item creation. This class is used for information transfer and store checked item state
     possible_x = [710, 851, 992, 1133]
+    level_weight = {
+        "primary": 1,
+        "normal": 2,
+        "advanced": 4,
+        "superior": 10
+    }
 
     def __init__(self, check_item_order=None, sort_type="basic", sort_direction="up", phase=1, baas=None):
         self.phase = phase
@@ -543,8 +549,46 @@ class CreateItemCheckState:
         self.current_recorded_y_list = []  # (y, num) means line y has num items
         self.swipe_no_change_cnt = 0
         self.select_item_func_list = {
-            "default": [0, self.phase1_default_select_item, self.phase2_default_select_item,
-                        self.phase3_default_select_item],
+            "default": [
+                self.phase1_default_select_item,
+                None,
+                None
+            ],
+            "primary": [
+                None,
+                (self.select_levels, "primary"),
+                None
+            ],
+            "normal": [
+                None,
+                (self.select_levels, "normal"),
+                None
+            ],
+            "primary_normal": [
+                None,
+                (self.select_levels, "primary_normal"),
+                None
+            ],
+            "advanced": [
+                None,
+                (self.select_levels, "advanced"),
+                (self.select_levels, "advanced"),
+            ],
+            'superior': [
+                None,
+                (self.select_levels, "superior"),
+                (self.select_levels, "superior"),
+            ],
+            "advanced_superior": [
+                None,
+                (self.select_levels, "advanced_superior"),
+                (self.select_levels, "advanced_superior"),
+            ],
+            "primary_normal_advanced_superior": [
+                None,
+                (self.select_levels, "primary_normal_advanced_superior"),
+                None
+            ],
         }
 
     def next_possible_item_name(self):
@@ -621,7 +665,11 @@ class CreateItemCheckState:
         self.last_check_y -= dy
 
     def try_choose_item(self):
-        return self.select_item_func_list[self.select_item_rule][self.phase]()
+        func = self.select_item_func_list[self.select_item_rule][self.phase - 1]
+        if type(func) is tuple:
+            return func[0](func[1])
+        else:
+            return func()
 
     def phase1_default_select_item(self):
         for name in self.now_exist_item_info:
@@ -629,25 +677,33 @@ class CreateItemCheckState:
                 return True
         return False
 
-    def phase2_default_select_item(self):
+    def select_levels(self, level_str):
+        levels = level_str.split("_")
         for name in self.now_exist_item_info:
-            if self.item_is_Artifact(name, 0):
+            if name == 'Keystone' or name == 'Keystone-Piece':
+                continue
+            if self.item_level_in(name, levels):
                 if select_item(self.baas, self, name, self.weight_sum):
                     return True
+        return False
 
-    def phase3_default_select_item(self):
+    def select_material(self, levels):
         for name in self.now_exist_item_info:
-            if self.item_is_Artifact(name, 2):
+            if self.item_is_Material(name, levels):
                 if select_item(self.baas, self, name, self.weight_sum):
                     return True
+        return False
 
-    def item_weight_is(self, name, weight):
+    def item_level_is(self, name, level):
+        weight = CreateItemCheckState.level_weight[level]
         return self.baas.static_config["create_material_information"][name]["weight"] == weight
 
-    def item_is_Artifact(self, name, level):
-        wt = [1, 2, 4, 10]
-        wt = wt[level]
-        return self.item_type_is(name, "Material") and self.item_weight_is(name, wt)
+    def item_level_in(self, name, levels):
+        weights = [CreateItemCheckState.level_weight[level] for level in levels]
+        return self.baas.static_config["create_material_information"][name]["weight"] in weights
+
+    def item_is_Material(self, name, level):
+        return self.item_type_is(name, "Material") and self.item_level_is(name, level)
 
     def item_type_is(self, name, material_type):
         return self.baas.static_config["create_material_information"][name]["material_type"] == material_type
@@ -898,13 +954,13 @@ def judge_item_state(self, x, y):
     dx = 83
     dy = 23
     if color.judge_rgb_range(self, x, y, 57, 77, 72, 92, 92, 112) and \
-        color.judge_rgb_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
-        color.judge_rgb_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
-        color.judge_rgb_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
+            color.judge_rgb_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
+            color.judge_rgb_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
+            color.judge_rgb_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
         return 1
     elif color.judge_rgb_range(self, x, y, 145, 165, 160, 180, 165, 185) and \
-        color.judge_rgb_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
-        color.judge_rgb_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
-        color.judge_rgb_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
+            color.judge_rgb_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
+            color.judge_rgb_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
+            color.judge_rgb_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
         return 2
     return 0  # 0: not am item, 1: usable 2 : unusable but is an item

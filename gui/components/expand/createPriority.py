@@ -218,18 +218,40 @@ class Layout(QWidget):
                 3: self.tr('三级制造配置')
             }
 
-            __dict_for_method = {
-                'default': self.tr('默认')
-            }
+            __dict_for_method = [
+                {
+                    'default': self.tr('默认')
+                },
+                {
+                    'primary': self.tr('白色材料'),
+                    'normal': self.tr('蓝色材料'),
+                    'primary_normal': self.tr('白色+蓝色材料'),
+                    'advanced': self.tr('金色材料'),
+                    'superior': self.tr('紫色材料'),
+                    'advanced_superior': self.tr('金色+紫色材料'),
+                    'primary_normal_advanced_superior': self.tr('白色+蓝色+金色+紫色材料'),
+                },
+                {
+                    'advanced': self.tr('金色材料'),
+                    'superior': self.tr('紫色材料'),
+                    'advanced_superior': self.tr('金色+紫色材料'),
+                }
+            ]
+            __dict_for_method = __dict_for_method[phase - 1]
             __rev_dict_for_method = {v: k for k, v in __dict_for_method.items()}
 
             layout_for_line_one = QHBoxLayout()
 
             layout_for_create_method = QHBoxLayout()
-            label_for_create_method = QLabel(self.tr('制造方式'), self)
+            label_for_create_method = QLabel(self.tr('材料选择'), self)
             input_for_create_method = ComboBox(self)
-            input_for_create_method.addItems([self.tr('默认')])
+            for key in __dict_for_method:
+                input_for_create_method.addItems([__dict_for_method[key]])
             self.create_method = self.config.get(f'create_phase_{phase}_select_item_rule')
+            if self.create_method not in __dict_for_method:
+                self.create_method = list(__dict_for_method.keys())[0]
+                self.config.set(f'create_phase_{phase}_select_item_rule', self.create_method)
+                self.config.save()
             input_for_create_method.setCurrentText(__dict_for_method[self.create_method])
             input_for_create_method.currentTextChanged.connect(
                 lambda text: self.config.set('create_method', __rev_dict_for_method[text]))
