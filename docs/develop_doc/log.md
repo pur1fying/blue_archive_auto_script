@@ -1,10 +1,22 @@
 # 日志 `class Logger`
-对应文件路径 : `"core/utils.py"`
+对应文件路径 : `"core/utils.py"`, 
+::: info
+Wiki中所有与`logger`有关的变量都是指`Logger`类的实例
+:::
+## Members
+### `self.logger`
+**type**: `Logger`
+
+### `self.logger_signal`
+**type**: `pyqtSignal`
+**description**: 用于发送日志信号, 使UI主界面显示日志(window.py)
+**note**: 信号为`None`时日志会打印在终端(main.py)
+
 ## 使用须知
 ### 1.语言
 日志的所有**静态字符串(Static String)**请都使用**英文(English)**
 ### 2.使用方法
-- Baas_thread的成员logger是一个Logger对象
+- `Baas_thread`的成员`self.logger`是一个Logger对象, module中所有函数的`self`成员变量都是`Baas_thread`实例, 所以可以直接使用以下方法
 
 ```python
 self.logger.info("Info Message")
@@ -13,6 +25,7 @@ self.logger.error("Error Message")
 self.logger.critical("Critical Message")
 self.logger.line()
 ```
+
 ### 何时使用对应级别日志
 #### ```info```
 BAAS正常运行日志

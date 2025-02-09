@@ -2,38 +2,6 @@ import importlib
 import os
 import cv2
 
-"""
-    This module is used to control image used by baas.
-
-    Rules:
-    1.Image has server,group,name,position which are stored in src/image/server/x_y_range/*.py
-    Example(src/image/CN/x_y_range/arena.py):
-
-        prefix = "arena"    # group
-        path = "arena"      # path of image
-        x_y_range = {
-            'menu': (107, 9, 162, 36)
-            'edit-force': (107, 9, 162, 36)
-            # name : position
-        }
-
-    Then put clipped screenshot image.
-    resource/image/server/arena
-    │
-    ├── menu.png
-    └── edit-force.png
-
-    2. image group can contain " _ " character, but name must not.
-    Reason: get_area(server, name) use rsplit.
-
-    3. Get image
-    img = image_dic[server][group_name]
-
-    4. Get image area
-    area =
-    (1) image_x_y_range[server][group_name][image_name]
-    (2) get_area(server, group_name)
-"""
 
 image_x_y_range = {
 
@@ -51,9 +19,6 @@ initialized_image = {
 
 
 def init_image_data(self):
-    """
-    param self: baas object (load image for baas.server)
-    """
     try:
         global image_x_y_range
         global image_dic
@@ -121,16 +86,16 @@ def alter_img_position(self, name, point):
     global image_dic
     if name in image_dic[self.server]:
         shape = image_dic[self.server][name].shape
-        module, name = name.rsplit("_", 1)
-        if image_x_y_range[self.server][module][name] is not None:
+        prefix, name = name.rsplit("_", 1)
+        if image_x_y_range[self.server][prefix][name] is not None:
             self.logger.info("Alter position of : [ " + name + " ] --> " + str(point))
-            image_x_y_range[self.server][module][name] = (point[0], point[1], point[0] + shape[1], point[1] + shape[0])
+            image_x_y_range[self.server][prefix][name] = (point[0], point[1], point[0] + shape[1], point[1] + shape[0])
 
 
 def get_area(server, name):
     global image_x_y_range
     global image_dic
-    module, name = name.rsplit("_", 1)
-    if image_x_y_range[server][module][name] is None:
+    prefix, name = name.rsplit("_", 1)
+    if image_x_y_range[server][prefix][name] is None:
         return False
-    return image_x_y_range[server][module][name]
+    return image_x_y_range[server][prefix][name]

@@ -1,14 +1,13 @@
-import importlib
 import os
 import time
 from core import color, picture, image
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
+import json
 
 
 def implement(self):
     self.logger.info("START pushing main story")
-    stage_module = importlib.import_module("src.explore_task_data.main_story.main_story")
-    self.main_story_stage_data = getattr(stage_module, "stage_data")
+    self.main_story_stage_data = get_stage_data()
     self.quick_method_to_main_page()
     to_main_story(self, True)
     push_episode_list = process_regions(self, self.config['main_story_regions'])
@@ -24,24 +23,31 @@ def implement(self):
     return True
 
 
+def get_stage_data():
+    path = "src/explore_task_data/main_story/main_story.json"
+    with open(path, "r") as f:
+        data = json.load(f)
+    return data
+
+
 def judge_acc(self):
     if color.judge_rgb_range(self, 1180, 621, 200, 255, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
+            color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
         return 1
     elif color.judge_rgb_range(self, 1250, 621, 100, 150, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
+            color.judge_rgb_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
         return 2
     elif color.judge_rgb_range(self, 1250, 621, 210, 255, 180, 240, 0, 80) and \
-        color.judge_rgb_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
+            color.judge_rgb_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
         return 3
 
 
 def judge_auto(self):
     if color.judge_rgb_range(self, 1250, 677, 180, 255, 180, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
+            color.judge_rgb_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
         return 'off'
     elif color.judge_rgb_range(self, 1250, 677, 200, 255, 180, 255, 0, 80) and \
-        color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
+            color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
         return 'on'
 
 
@@ -148,7 +154,7 @@ def to_episode(self, num):
             x_start, x_end = 0, 400
             if num < _min:  # search left to _max
                 wait_to_detect_list = detect_episode_list[:detect_episode_list.index(_max)]
-            else:           # search right from _min
+            else:  # search right from _min
                 x_start, x_end = x_end, x_start
                 wait_to_detect_list = detect_episode_list[detect_episode_list.index(_min) + 1:]
             self.swipe(x_start, 142, x_end, 142, 0.7, post_sleep_time=1)
@@ -215,7 +221,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
         return res
     if res == "normal_task_task-wait-to-begin-feature":
         stage_data = check_state_and_get_stage_data(self)
-        common_gird_method(self, stage_data)
+        execute_grid_task(self, stage_data)
     auto_fight(self)
     return clear_current_plot(self)
 
@@ -315,7 +321,7 @@ def check_state_and_get_stage_data(self):
         for filename in filenames:
             if filename.endswith(".png"):
                 name = "main_story_" + filename[:-4]
-                if image.compare_image(self, name, need_log=False):
+                if image.compare_image(self, name):
                     self.logger.info("CURRENT STATE: " + filename[:-4])
                     img_possibles = {"normal_task_mission-operating-task-info-notice": (993, 97)}
                     img_ends = "normal_task_task-wait-to-begin-feature"

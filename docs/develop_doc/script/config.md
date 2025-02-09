@@ -1,30 +1,51 @@
 ::: info
 本文档收录BAAS每一条配置
-1. **type** : 数据类型
-2. **element** : 列表 / 字典元素的数据类型
+1. **type**: 数据类型
+2. **element** : 列表 / 字典**元素**的数据类型
 3. **constrains** : 可选值范围(n 选 1)
-4. **range** : 数值范围
+4. **range** : 数值型数据的范围
 5. **description** : 配置描述
 6. **note** : 需要注意的地方
 7. **example** : 填写示例
 8. **related docs** : 相关文档
 9. **related issue** : 相关issue(这项配置由于这个issue才被添加)
 :::
+## 配置文件
+- 在`config`目录下, 每个**文件夹**中储存一份可以独立运行**BAAS**的配置文件, 一个配置文件夹中包含以下文件:
+  1. `config.json` : 用户配置, 与**BAAS的GUI**交互时基本都是在修改这个文件
+  2. `event.json` : 调度配置
+  3. `switch.json` : 一些GUI有关的配置
+- `config/gui.json` GUI的配置文件
+- `config/static.json` 为共享的配置文件, 其中的内容在**BAAS**运行时不会被修改
+
+### 如何在重新安装BAAS时保留原有配置
+1. 复制一份原始BAAS的config文件夹
+2. 将复制的config文件夹放在新**BAAS**可执行文件的同级目录下
+   - 如果你使用full_env, 则**覆盖**新的config文件夹
+3. 运行**BAAS**可执行程序
+
+### 增删一条用户配置
+1. 在`core/default_config.py` 中修改`DEFAULT_CONFIG`变量, 添加对应字段后**重启UI** 
+2. 便会将所有新配置插入
+
+### 增删一条调度配置
+1. 在`core/default_config.py` 中修改`SWITCH_CONFIG`变量, 添加对应字段后**重启UI**
+2. 调度配置的每一项具体含义可以见[调度配置](/usage_doc/config#调度配置)
 # Emulator Related (模拟器相关)
 
 ## `screenshot_interval`
-- **type** : double
+- **type**: `float`
 - **range** : [0.3, INF]
 - **description** : 截图间隔
 - **note** : 这里的 **间隔** 是指从获取上一张截图的函数调用完毕到下一次获取函数截图开始的时间间隔
 
 ## `adbIP`
-- **type** : str
+- **type**: `str`
 - **description** : 模拟器的ip地址
 - **note** : 参见 [`adbPort`的note](#adbport)
 
 ## `adbPort`
-- **type** : Union[int, str]
+- **type**: `Union[int, str]`
 - **description** : 模拟器端口号
 - **note** : 当你的模拟器序列号并非为`<IP>:<Port>`格式时, 将`adbIP` 或 `adbPort` 设置为空, 另一个设置为需要连接的模拟器的完整的序列号即可,
 - **example** : 首先请阅读[adb设备连接管理
@@ -52,49 +73,49 @@
 
 
 ## `screenshot_method`
-- **type** : str 
+- **type**: `str` 
 - **description** : 模拟器截图方式
 - **related docs** : [从模拟器获取截图](/develop_doc/script/screenshot.md)
 ## `control_method`
-- **type** : str 
+- **type**: `str` 
 - **description** : 模拟器控制方式
 - **related docs** : [模拟器控制方案](/develop_doc/script/control.md)
 ## `server`
-- **type** : str
+- **type**: `str`
 - **constrains** : "官服" / "B服" / "日服" / "国际服" / "国际服青少年" / "韩国ONE"
 - **description** : 服务器名称
 - **note** : 
   1. 用于`Baas_thread`类中的`self.server`, `self.package`以及`ConfigSet`类中的`self.server_mode`变量值
   2. 不同服务器的配置不同, 切换服务器时需要**重启UI**以更新配置
 ## `then`
-- **type** : str
+- **type**: `str`
 - **constrains** :
 `"退出 Baas"` / `"退出 模拟器"` / `"退出 Baas 和 模拟器"` / `"关机"` / `"无动作"`
 - **description** : BAAS运行完毕后的动作
 - **note** : 运行完毕的标志为 **下一次执行任务的等待时间>=120s**
 ## `program_address`
-- **type** : str
+- **type**: `str`
 - **description** : 模拟器的安装路径
 - **note** : 
 1. 特定模拟器截图/控制需要加载其安装路径下的动态库
 2. 启动模拟器时确定可执行文件位置
 ## `open_emulator_stat`
-- **type** : bool
+- **type**: `bool`
 - **description** : 启动调度器后是否先启动模拟器
 ## `emulator_wait_time`
-- **type** : int
+- **type**: `int`
 - **range** : [0, INF] 
 - **description** : 开启模拟器的等待时间,在这一固定时间后BAAS认为模拟器已经打开完全,可以执行具体任务
 - **note** : 未来希望去除这一配置,模拟器的启动与否不是单纯靠等待一个固定时间决定的,需要有方法去检测模拟器是否启动完全
 ## `emulatorIsMultiInstance`
-- **type** : bool
+- **type**: `bool`
 - **description** : 模拟器是否为多开
 ## `emulatorMultiInstanceNumber`
-- **type** : int
+- **type**: `int`
 - **range** : [0, INF]
 - **description** : 模拟器多开号
 ## `multiEmulatorName`
-- **type** : str
+- **type**: `str`
 - **description** : 使用的模拟器的名称
 - **constrains** : 
 1. `"mumu"`: 'MuMu模拟器',
@@ -106,20 +127,20 @@
 
 # Arena (竞技场)
 ## `purchase_arena_ticket_times`
-- **type** : int
+- **type**: `int`
 - **range** : [0, INF]
 - **description** : 每日购买竞技场门票次数
 - **note** : 每日竞技场战斗次数 = 5 + 5 * 购买次数
 ## `ArenaLevelDiff`
-- **type** : int
+- **type**: `int`
 - **range** : [-INF, INF]
 - **description** : 竞技场选择对手时能接受的最大等级差距, 正数表示可以接受对手等级高于自己的对手, 负数表示可以接受对手等级低于自己的对手
 ## `ArenaComponentNumber`
-- **type** : int
+- **type**: `int`
 - **range** : [1, 3]
 - **description** : 竞技场对手编号
 ## `maxArenaRefreshTimes`
-- **type** : int
+- **type**: `int`
 - **range** : [0, INF]
 - **description** : 当遇到等级差距过大的对手时, 最多刷新次数
 ---
@@ -128,33 +149,33 @@
 # Cafe (咖啡厅)
 
 ## `cafe_reward_invite1_criterion`
-- **type**: str
+- **type**: `str`
 - **Constraints**:
   - `"lowest_affection"`: 邀请最低好感度学生
   - `"highest_affection"`: 邀请最高好感度学生
-  - `"starred"`: 邀请收藏的[指定编号](#cafe-reward-invite1-starred-student-position)的学生  // fail to jump
+  - `"starred"`: 邀请收藏的[指定编号](#cafe-reward-invite1-starred-student-position)的学生  
   - `"name"`: 邀请[指定名字](#favorstudent1)的学生
 - **Description**: 1号咖啡厅的邀请方式
 ## `cafe_reward_invite1_starred_student_position`
-- **type**: int
+- **type**: `int`
 - **range**: [1, 5]
 ## `favorStudent1`
-- **type**: List[str]
+- **type**: `List[str]`
 - **Description**: 1号咖啡厅的邀请学生名字
 - **note**: 索引小到大逐次尝试, 邀请时[`ocr`]()获取的姓名与配置名完全匹配才会邀请
 ## `cafe_reward_invite2_criterion`
-- **type**: str
+- **type**: `str`
 - **Constraints**:
   - `"lowest_affection"`: 邀请最低好感度学生
   - `"highest_affection"`: 邀请最高好感度学生
-  - `"starred"`: 邀请收藏的[指定编号](#cafe-reward-invite2-starred-student-position)的学生  // fail to jump
+  - `"starred"`: 邀请收藏的[指定编号](#cafe-reward-invite2-starred-student-position)的学生 
   - `"name"`: 邀请[指定名字](#favorstudent2)的学生
 - **Description**: 2号咖啡厅的邀请方式
 ## `cafe_reward_invite2_starred_student_position`
-- **type**: int
+- **type**: `int`
 - **range**: [1, 5]
 ## `favorStudent2`
-- **type**: List[str]
+- **type**: `List[str]`
 - **Description**: 2号咖啡厅的邀请学生名字
 - **note**: 索引小到大逐次尝试, 邀请时[`ocr`]()获取的姓名与配置名完全匹配才会邀请
 
@@ -163,48 +184,48 @@
 # Create (制造)
 
 ## `createTime`
-- **type** : int
-- **range** : [0, INF]
+- **type**: `int`
+- **range**: [0, INF]
 - **description** : 每日制造次数上限
 ## `alreadyCreateTime`
-- **type** : int
-- **range** : [0, INF]
+- **type**: `int`
+- **range**: [0, INF]
 - **description** : 当日已经制造次数
-- **note** : 每日4:00重置
+- **note**: 每日重置
 ## `create_phase`
-- **type** : int
-- **range** : [1, 3]
+- **type**: `int`
+- **range**: [1, 3]
 - **description** : 制造级数
 ## `createPriority_phase1`
-- **type**: List[str]
+- **type**: `List[str]`
 - **Description**: 制造一阶段选择节点的优先级
 ## `create_phase_1_select_item_rule`
-- **type**: str
+- **type**: `str`
 - **Description**: 制造一阶段选择材料的方式
-- - **constrains**
-1.  `"default"`: 使用10个制造石碎片或1个制造石
+- **constrains**:
+  1.  `"default"`: 使用10个制造石碎片或1个制造石
 ## `createPriority_phase2`
-- **type**: List[str]
+- **type**: `List[str]`
 - **Description**: 制造二阶段选择节点的优先级
 ## `create_phase_2_select_item_rule`
-- **type**: str
+- **type**: `str`
 - **Description**: 制造二阶段选择材料的方式
-- - **constrains**
-1.  `"default"`: 使用数量最多的白色材料
+- **constrains**
+  1.  `"default"`: 使用数量最多的白色材料
 ## `createPriority_phase3`
-- **type**: List[str]
+- **type**: `List[str]`
 - **Description**: 制造三阶段选择节点的优先级
 ## `create_phase_3_select_item_rule`
-- **type**: str
+- **type**: `str`
 - **constrains** 
-1.  `"default"`: 使用数量最多的金色材料
+  1.  `"default"`: 使用数量最多的金色材料
 - **Description**: 制造三阶段选择材料的方式
 ## `create_item_holding_quantity`
-- **type**: dict[str, int]
+- **type**: `dict[str, int]`
 - **Description**: 每一种制造材料的剩余数量
 - **note**: BAAS在选择制造材料时会确定每个位置的材料名称和数量, 当材料以数量排序时, 用于确定图像匹配的顺序
 ## `use_acceleration_ticket`
-- **type**: bool
+- **type**: `bool`
 - **Description**: 自动制造是否使用加速券
 ---
 <div style="margin-top: 100px;"></div>
@@ -212,13 +233,13 @@
 # Lesson (日程)
 
 ## `purchase_lesson_ticket_times`
-- **type** : int
+- **type**: `int`
 - **range** : [0, 4]
 - **description** : 购买日程券的次数
 ## `lesson_each_region_object_priority`
-- **type** : List
+- **type**: `List`
 - **element** : List
-  - **element** : str
+  - **element** : `str`
   - **description** : 每个区域选择日程的等级
   - **example** : 
   ```json
@@ -231,11 +252,11 @@
   **表示这个区域会优先做编号为7-8的日程(superior) --> 3-4(normal) --> 1-2(primary)**
 - **note** : 当在两个日程间做选择时,会优先选择获得好感经验多的日程
 ## `lesson_relationship_first`
-- **type** : bool
+- **type**: `bool`
 - **description** : 选择日程时是否优先选择可获得好感度多的
 ## `lesson_times`
-- **type** : List
-- **element** : int
+- **type**: `List`
+- **element** : `int`
   - **range** : [0, INF]
 - **length** : 不同服务器长度不同
 - **description** : 每个区域日程次数
@@ -245,88 +266,88 @@
 # Common Task
 
 ## `mainlinePriority`
-- **type** : str
-- **description** : 普通任务的扫荡关卡
-- **note**
+- **type**: `str`
+- **description** : 普通图扫荡关卡
+- **note** : 填写帮助详见[普通任务填写说明](/usage_doc/config#普通任务填写说明)
 ## `unfinished_normal_tasks`
-- **type** : str
-- **description** : 普通任务的扫荡关卡
-- **note** : 
+- **type**: `str`
+- **description** : 今日还未扫荡的普通任务的扫荡关卡
+- **note** : 每日刷新
 ## `explore_normal_task_regions`
+- **type**: `str`
+- **description** : 普通图推图关卡
+- **note** : 填写帮助详见[普通图扫荡填写说明](/usage_doc/config#普通图扫荡填写说明)
 ---
 <div style="margin-top: 100px;"></div>
 
 # Hard Task
-
 ## `hardPriority`
-
+- **type**: `str`
+- **description** : 困难图扫荡关卡
+- **note** : 填写帮助详见[困难图扫荡填写说明](/usage_doc/config#困难图扫荡填写说明)
 ## `unfinished_hard_tasks`
-
-## `explore_hard_task_need_sss` & `explore_hard_task_need_present` & `explore_hard_task_need_task`
-
-- **type** : bool
-- **note** : 当使用困难推图时,共有三个任务要完成:
-1. 打到sss
-2. 拿取走格子过程中的礼物
-3. 完成挑战任务(通常是以一个较少的回合通关)
-
-由于完成不同的任务可能需要的走格子路线不同,所以为了避免体力浪费,BAAS检测已经完成了哪些任务,自动舍去不必要的走格子,当用户指定一个关卡并未指定需要完成以上三个任务的哪几个时, BAAS会根据以上变量的值确定要打什么关卡
+- **type**: `str`
+- **description** : 今日还未扫荡的普通任务的扫荡关卡
+- **note** : 每日刷新
 
 ## `explore_hard_task_List`
-
+- **type**: `str`
+- **description** : 困难图推图关卡
+- **note** : 填写帮助详见[普通任务填写说明](/usage_doc/config#困难图推图关卡填写说明)
 # Drill (战术综合测试)
 
 ## `drill_difficulty_List`
-- **type** : List
-- **element** : int
+- **type**: `List`
+- **length** : 3
+- **element** : `int`
   - **range** : [1, 4]
 - **description** : 战术综合测试三次挑战的难度
 ## `drill_fight_formation_List`
-- **type** : List
-- **element** : int
+- **type**: `List`
+- **length** : 3
+- **element** : `int`
   - **range** : [1, 4]
 - **description** : 战术综合测试三次挑战的队伍编号
 - **note** : 队伍编号不能重复
 ## `drill_enable_sweep`
-- **type** : bool
+- **type**: `bool`
 - **description** : 是否扫荡综合战术测试
 ---
 <div style="margin-top: 100px;"></div>
 
 # Common Shop
-
 ## `CommonShopList`
-- **type** : List
-- **range** : [0, 3]
-- **description** : 日常商店的刷新次数
+- **type**: `List[int]`
+- **description** : 日常商店购买商品列表, 0表示不购买, 1表示购买
+- **note** : 不同服务器的长度不同
 ## `CommonShopRefreshTime`
-- **type** : int
+- **type**: `int`
 - **range** : [0, 3]
 - **description** : 日常商店的刷新次数
 ---
 <div style="margin-top: 100px;"></div>
 
 # Tactical Challenge Shop
-
 ## `TacticalChallengeShopList`
-
-- **type** : int
+- **type**: `List[int]`
+- **description** : 竞技场商店购买商品列表, 0表示不购买, 1表示购买
+- **note** : 不同服务器的长度不同
+## `TacticalChallengeShopRefreshTime`
+- **type**: `int`
 - **range** : [0, 3]
 - **description** : 竞技场商店的刷新次数
-
-## `TacticalChallengeShopRefreshTime`
 ---
 <div style="margin-top: 100px;"></div>
 
-# bounty (悬赏委托)
 
+# Bounty (悬赏委托)
 ## `rewarded_task_times`
-- **type** : List[Union[int, str]]
+- **type**: `List[Union[int, str]]`
 - **element** : [0, INF] or 'max'
 - **length** : 3
 - **description** : 每个区域使用学园交流会券的次数
 ## `purchase_rewarded_task_ticket_times`
-- **type** : int
+- **type**: `int`
 - **range** : [0, 12]
 - **description** : 购买悬赏委托券的次数
 ---
@@ -335,7 +356,7 @@
 # Commissions (特殊委托)
 
 ## `special_task_times`
-- **type** : List[Union[int, str]]
+- **type**: `List[Union[int, str]]`
 - **element** : [0, INF] or 'max'
 - **length** : 2
 - **description** : 扫荡经验本(据点防御)和钱本(信用回收)的次数
@@ -344,64 +365,102 @@
 
 # Scrimmage (学园交流会)
 ## `scrimmage_times`
-- **type** : List[Union[int, str]]
-- **element** : [0, INF] or 'max'
-- **length** : 3
+- **type**: `List[Union[int, str]]`
+- **element**: [0, INF] or 'max'
+- **length**: 3
 - **description** : 每个区域使用学园交流会券的次数
 ## `purchase_scrimmage_ticket_times`
-- **type** : int
-- **range** : [0, 12]
-- **description** : 购买学院交流会券的次数
+- **type**: `int`
+- **range**: [0, 12]
+- **description**: 购买学院交流会券的次数
 ---
 <div style="margin-top: 100px;"></div>
 
 # Activity 
 
 ## `activity_sweep_task_number`
-
+- **type**: `List[int]`
+- **description**: 活动图扫荡关卡列表(只记录关卡号)
+- **note**: 详见[活动图扫荡填写说明](/usage_doc/config#活动图扫荡填写说明)
 ## `activity_sweep_times`
-
-## `activity_exchange_reward'
-
-## `activity_exchange_50_times_at_once`
+- **type**: `List[int | float | str]`
+- **description**: 活动图扫荡次数列表(只记录次数)
+- **note**: 详见[活动图扫荡填写说明](/usage_doc/config#活动图扫荡填写说明)
 ---
 <div style="margin-top: 100px;"></div>
 
 # Clear Friend (自动清好友)
 
 ## `clear_friend_white_List`
+- **type**: `List[str]`
+- **description** : 自动删好友白名单, 每一项为好友码
 ---
 <div style="margin-top: 100px;"></div>
 
 # Other 
 
 ## `auto_start`
-- **type** : bool
-- **description** : 在启动BAAS ui启动完全后自动运行这一项配置
-
+- **type**: `bool`
+- **description**: 在启动BAAS ui启动完全后自动运行这一项配置
 ## `burst1` `burst2` `pierce1` `pierce2` `mystic1` `mystic2` `shock1` `shock2`
-- **type** : int
+- **type**: `int`
+- **range**: [1, 4]
+- **description**: 对应属性在游戏里队伍的编号, 用于[自动选择队伍](/usage_doc/config#选队逻辑)
 ## `manual_boss`
-
+- **type**: `bool`
+- **description**: 推图时是否手动打BOSS, 为真则进入BOSS战会点击暂停并等待手动操作
 ## `push_after_error`
-
+- **type**: `bool`
+- **description**: 当BAAS发生错误时是否推送错误信息
 ## `push_after_completion`
-
+- **type**: `bool`
+- **description**: 当BAAS完成任务时是否推送完成信息
 ## `push_json`
-
+- **type**: `str`
+- **description**: 推送json信息的url地址
 ## `push_serverchan`
-
+- **type**: `str`
+- **description**: 填写ServerChan提供的SendKey
+- **note**: [serverChan文档](https://sct.ftqq.com/)
 ## `last_refresh_config_time`
+- **type**: `float`
+- **description**: 上次刷新配置的时间
+- **note**: 
+1. BAAS根据**上次刷新时间**和**当前时间**判断是否需要刷新配置, 当且仅当以下表达式不满足时需要刷新配置(同一天每日游戏数据刷新时间前/后), [游戏数据重置时间](#游戏每日数据重置时间)
+    ```python
+        daily_reset = 4 - (self.server == "Global" or self.server == "JP")
+    ```
 
+    ```python
+        # 判断语句
+        now.day == last_refresh.day and 
+        now.year == last_refresh.year and 
+        now.month == last_refresh.month and \
+        ((hour < daily_reset and last_refresh_hour < daily_reset) # 两者都在四点前
+        or 
+        (hour >= daily_reset and last_refresh_hour >= daily_reset)) # 两者都在四点后
+    ```
+2. 哪些数据会被重置
+
+   | 名称                                                    | 重置为                                     |
+   |-------------------------------------------------------|-----------------------------------------|
+   | [`alreadyCreateTime`](#alreadycreatetime)             | `0`                                     |
+   | [`unfinished_normal_tasks`](#unfinished-normal-tasks) | [`mainlinePriority`](#mainlinepriority) |
+   | [`unfinished_hard_tasks`](#unfinished-hard-tasks)     | [`hardPriority`](#hardpriority)         |
 ## `new_event_enable_state`
-- **type** : str
+- **type**: `str`
 - **description** : 当BAAS更新新的功能时,如果它加入调度器,那么它的开关状态
 - **related issue** : [#166](https://github.com/pur1fying/blue_archive_auto_script/issues/166)
 ## `bannerVisibility`
-- **type** : bool
+- **type**: `bool`
 - **description** : 是否显示ui首页banner(关闭后日志界面更大)
 ## `name`
-- **type** : str
+- **type**: `str`
 - **description** : ui界面顶层显示的该配置的配置名
 
 # 在不同服务器有区别的配置
+## 游戏每日数据重置时间
+- **description**:
+  - 国服: 4:00
+  - 国际服/日服: 3:00 
+- **note**: 时间为UTC+8

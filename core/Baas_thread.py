@@ -8,13 +8,13 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
-from core.utils import Logger
 from device_operation import process_api
 from core.device.Screenshot import Screenshot
 from core.device.Control import Control
 from core.device.connection import Connection
 from core.device.uiautomator2_client import U2Client
 from core.pushkit import push
+from core.utils import Logger
 import numpy as np
 import module
 import requests
@@ -40,8 +40,8 @@ func_dict = {
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
     'create': module.create.implement,
-    'explore_normal_task': module.explore_normal_task.implement,
-    'explore_hard_task': module.explore_hard_task.implement,
+    'explore_normal_task': module.ExploreTasks.explore_normal_task.implement,
+    'explore_hard_task': module.ExploreTasks.explore_hard_task.implement,
     'mail': module.mail.implement,
     'main_story': module.main_story.implement,
     'group_story': module.group_story.implement,
@@ -400,6 +400,7 @@ class Baas_thread:
                     for task in nextTask['post_task']:
                         task_with_log_info.append((task, 'post_task'))
 
+                    currentTaskNextTime = 0
                     for task, task_type in task_with_log_info:
                         if not self.flag_run:
                             break
@@ -542,7 +543,6 @@ class Baas_thread:
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
             'main_page_item-expire': (925, 119),
-            'main_page_download-additional-resources': (769, 535),
             'main_page_skip-notice': (762, 507),
             'normal_task_fight-end-back-to-main-page': (511, 662),
             "main_page_enter-existing-fight": (514, 501),
@@ -605,6 +605,7 @@ class Baas_thread:
                 'normal_task_task-info': (1126, 115),
                 "special_task_task-info": (1126, 141),
                 'main_page_attendance-reward': (642, 489),
+                'main_page_download-additional-resources': (769, 535),
             },
             'Global': {
                 'main_page_news': (1227, 56),

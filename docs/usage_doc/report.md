@@ -8,7 +8,7 @@
 2. 检查以下配置是否为推荐配置
 3. 这个问题是否以前出现过，我是否能自己尝试解决。
    - [常见安装问题](/usage_doc/install/Windows#问题解答)
-   - [常见使用问题]()
+   - [常见使用问题](/usage_doc/faq)
    - [查询github issue](https://github.com/pur1fying/blue_archive_auto_script/issues)
 4. 我现在是否每次运行都出现这个问题, 或它的发生是否遵循一定规律。
 5. 我该提供哪些信息来让其他人帮我解决问题。

@@ -102,14 +102,14 @@ class Layout(TemplateLayout):
 
     def gen_event_formation_attr(self):
         current_event = self.config.static_config['current_game_activity'][self.config.server_mode]
-        print(current_event)
         if current_event is None:
             return None
-        import importlib
+        import json
         try:
-            module = importlib.import_module('src.explore_task_data.activities.' + current_event)
-            stage_data = getattr(module, 'stage_data')
-        except ModuleNotFoundError:
+            file_path = f"src/explore_task_data/activities/{current_event}.json"
+            with open(file_path, "r") as f:
+                stage_data = json.load(f)
+        except FileNotFoundError:
             return None
         ret = dict(activity_name=current_event, story=dict(), mission=dict(), challenge=dict())
         print(stage_data)
@@ -118,7 +118,7 @@ class Layout(TemplateLayout):
             "mission": self.tr("任务"),
             "challenge": self.tr("挑战"),
         }
-        from module.explore_normal_task import formation_attr_to_cn
+        from module.ExploreTasks.TaskUtils import formation_attr_to_cn
         for key, value in stage_data.items():
             print(key)
             if key == "story" or key == "mission" or key == "challenge":

@@ -12,15 +12,34 @@ def implement(self):
         self.logger.info("Collect Cafe Earnings")
         collect(self)
         to_cafe(self, False)
-    if self.config.cafe_reward_use_invitation_ticket and get_invitation_ticket_status(self):
-        invite_girl(self, 1)
+    ticket1_next_time = None
+    ticket2_next_time = None
+    if self.config.cafe_reward_use_invitation_ticket:
+        if not get_invitation_ticket_status(self):
+            ticket1_next_time = get_invitation_ticket_next_time(self)
+        else:
+            invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
     if self.config.cafe_reward_has_no2_cafe:
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
-        if get_invitation_ticket_status(self) and self.config.cafe_reward_use_invitation_ticket:
-            invite_girl(self, 2)
+        if self.config.cafe_reward_use_invitation_ticket:
+            if not get_invitation_ticket_status(self):
+                ticket2_next_time = get_invitation_ticket_next_time(self)
+            else:
+                invite_girl(self, 2)
         interaction_for_cafe_solve_method3(self)
+
+    # handle next time according to invitation ticket cool time and interval
+    if ticket1_next_time is not None:
+        self.next_time = ticket1_next_time
+    if ticket2_next_time is not None:
+        if self.next_time == 0:
+            self.next_time = ticket2_next_time
+        else:
+            self.next_time = min(ticket2_next_time, self.next_time)
+    if self.next_time < self.scheduler.get_interval('cafe_reward'):
+        self.next_time = 0
     return True
 
 
@@ -199,7 +218,8 @@ def checkConfirmInvite(self, y):
     if res == 'cafe_switch-clothes-notice' and not self.config['cafe_reward_allow_exchange_student']:
         self.logger.warning("Not Allow Student Switch Clothes")
         f = True
-    elif res == 'cafe_duplicate-invite' and not self.config['cafe_reward_allow_duplicate_invite']:
+    elif (res == 'cafe_duplicate-invite' or res == 'cafe_duplicate-invite-notice') \
+            and not self.config['cafe_reward_allow_duplicate_invite']:
         self.logger.warning("Not Allow Duplicate Invite")
         f = True
     if f:
@@ -240,7 +260,7 @@ def to_revise_order_type(self):
 
 def change_order_type(self, order_type):
     target = "cafe_invitation-ticket-order-" + order_type
-    if image.compare_image(self, target, False, threshold=0.9):
+    if image.compare_image(self, target, threshold=0.9):
         self.logger.info("Invitation ticket order [ " + order_type + " ]")
         return
 
@@ -292,6 +312,7 @@ def to_confirm_invite(self, lo):
     img_ends = [
         "cafe_confirm-invite",
         "cafe_switch-clothes-notice",
+        "cafe_duplicate-invite-notice",
         "cafe_duplicate-invite",
     ]
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -301,7 +322,6 @@ def confirm_invite(self):
     img_possibles = {
         "cafe_confirm-invite": (767, 514),
         "cafe_duplicate-invite": (767, 514),
-        "cafe_invitation-ticket": (835, 97),
         "cafe_switch-clothes-notice": (764, 501),
         "cafe_duplicate-invite-notice": (764, 514),
     }
@@ -339,7 +359,8 @@ def invite_girl(self, no=1):
     target_name_list = self.config['favorStudent' + str(no)]
 
     if len(target_name_list) == 0:
-        self.logger.warning("Current mode is invite target student but no student name configured in favorStudent" + str(no))
+        self.logger.warning(
+            "Current mode is invite target student but no student name configured in favorStudent" + str(no))
         self.logger.warning("Current mode fallback to invite by lowest affection")
         invite_by_affection(self, 'lowest')
         return
@@ -451,7 +472,7 @@ def operate_name(name, server):
         t = ""
         for i in range(0, len(name)):
             if name[i] == '(' or name[i] == "（" or name[i] == ")" or \
-                name[i] == "）" or name[i] == ' ':
+                    name[i] == "）" or name[i] == ' ':
                 continue
             elif server == 'JP' and is_english(name[i]):
                 continue
@@ -462,7 +483,7 @@ def operate_name(name, server):
         t = ""
         for j in range(0, len(name[i])):
             if name[i][j] == '(' or name[i][j] == "（" or name[i][j] == ")" or \
-                name[i][j] == "）" or name[i][j] == ' ':
+                    name[i][j] == "）" or name[i][j] == ' ':
                 continue
             elif server == 'JP' and is_english(name[i]):
                 continue
@@ -509,3 +530,30 @@ def is_lower_english(char):
 
 def is_english(char):
     return is_upper_english(char) or is_lower_english(char)
+
+
+def get_invitation_ticket_next_time(self):
+    region = {
+        'CN': (800, 584, 875, 608),
+        'Global': (800, 584, 875, 608),
+        'JP': (850, 588, 926, 614)
+    }
+    region = region[self.server]
+    res = self.ocr.get_region_res(self.latest_img_array, region, 'Global', self.ratio)
+    if res.count(":") != 2:
+        return None
+    res = res.split(":")
+    for j in range(0, len(res)):
+        if res[j][0] == "0":
+            res[j] = res[j][1:]
+    self.logger.info(
+        "Invitation Ticket Next time: " +
+        res[0] + "\tHOUR " +
+        res[1] + "\tMINUTES " +
+        res[2] + "\tSECONDS"
+    )
+    try:
+        return int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2])
+    except ValueError:
+        pass
+    return None

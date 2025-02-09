@@ -347,11 +347,9 @@ DEFAULT_CONFIG = """
     "main_story_regions": "",
     "rewarded_task_times": "2,2,2",
     "purchase_rewarded_task_ticket_times": "0",
-    "explore_normal_task_force_sss": true,
     "special_task_times": "1,1",
     "purchase_scrimmage_ticket_times": "0",
     "scrimmage_times": "2,2,2",
-    "explore_normal_task_force_each_fight" : false,
     "patStyle": "拖动礼物",
     "antiHarmony": true,
     "bannerVisibility": true,
@@ -423,11 +421,6 @@ DEFAULT_CONFIG = """
     "shock2": "3",
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
-    "activity_exchange_reward": false,
-    "activity_exchange_50_times_at_once": false,
-    "explore_hard_task_need_sss": true,
-    "explore_hard_task_need_present": true,
-    "explore_hard_task_need_task": true,
     "TacticalChallengeShopRefreshTime": "0",
     "TacticalChallengeShopList": [
         0,
@@ -562,8 +555,8 @@ STATIC_DEFAULT_CONFIG = '''
         "Global": [2, 3, 4, 5, 6, 7],
         "JP": [1, 2, 3, 4, 5, 6, 7, 8]
     },
-    "explore_normal_task_region_range": [4, 27],
-    "explore_hard_task_region_range": [1, 27],
+    "explore_normal_task_region_range": [4, 28],
+    "explore_hard_task_region_range": [1, 28],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
     "common_shop_price_list": {
@@ -599,10 +592,10 @@ STATIC_DEFAULT_CONFIG = '''
             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
         "Global": [
-             ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
-             ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
-             ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
-             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
+             ["宫子神明文字x5",50],["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],
+             ["风香神明文字x5",50],["歌原神明文字x5",50],["30AP", 15],["60AP", 30], 
+             ["初级经验书x5", 5],["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],
+             ["信用点x5k", 4],["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
         "JP": [
              ["宫子神明文字x5", 50],  ["静子神明文字x5",50],    ["真白神明文字x5",50],    ["纱绫神明文字x5",50],
@@ -616,6 +609,8 @@ STATIC_DEFAULT_CONFIG = '''
         "phase1": [
              "花",
              "桃桃朋友咖啡厅",
+             "阿拜多斯讲堂主题",
+             "游戏开发部主题",
              "果冻游戏中心",
              "情人节",
              "夏日",
@@ -3087,7 +3082,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets",
         "Global": null,
         "JP": "CodeBox"
     },

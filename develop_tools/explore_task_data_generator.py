@@ -1,6 +1,5 @@
 # this script is used to generate explore task data which can be used
 # in function common_gird_method which is under this line in module.explore_normal_task
-from module.explore_normal_task import common_gird_method
 
 
 import json

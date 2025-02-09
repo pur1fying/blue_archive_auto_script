@@ -85,7 +85,21 @@ class Baas_ocr:
 
         if temp == '':
             return "UNKNOWN"
+        # 不提倡返回值类型不统一
+        # 涉及的引用太多了 不敢改
         return category(temp)
+
+    def get_region_num_int(self, img, region, ratio=1.0) -> int:
+        img = self.get_region_img(img, region, ratio)
+        res = self.ocrNUM.ocr_for_single_line(img)['text']
+        res = res.replace('<unused3>', '')
+        res = res.replace('<unused2>', '')
+
+        result = 0
+        for i in range(0, len(res)):
+            if res[i].isdigit():
+                result = result * 10 + int(res[i])
+        return result
 
     def get_region_pure_english(self, img, region, ratio=1.0):
         img = self.get_region_img(img, region, ratio)

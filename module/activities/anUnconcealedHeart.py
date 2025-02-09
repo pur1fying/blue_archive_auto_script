@@ -1,8 +1,8 @@
-import importlib
+from module.activities.activity_utils import get_stage_data
 import time
 from core import color, picture, image
 from module import main_story
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
@@ -59,12 +59,6 @@ def preprocess_activity_sweep_times(times):
                 times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
         return times
 
-
-def get_stage_data():
-    module_path = 'src.explore_task_data.activities.anUnconcealedHeart'
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
 
 
 def sweep(self, number, times):
@@ -214,7 +208,7 @@ def explore_challenge(self):
         "challenge2_task",
         "challenge4_task",
     ]
-    stage_data = get_stage_data()
+    stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))
@@ -233,7 +227,7 @@ def explore_challenge(self):
             elif res == "no-pass" or res == "pass":
                 need_fight = True
         if need_fight:
-            common_gird_method(self, current_task_stage_data)
+            execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
         if self.config['manual_boss']:

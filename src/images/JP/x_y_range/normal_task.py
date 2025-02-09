@@ -30,4 +30,10 @@ x_y_range = {
     'teleport-notice': (437,313, 655, 352),
     'present': (572,185,704,225),
     'fight-confirm': (1120, 646, 1222, 681),
+    'challenge-button': (467, 287, 602, 315),
+    'challenge-menu': (556, 171, 724, 212),
+    'challenge1-finished': (395, 330, 434, 366),
+    'challenge1-unfinished': (395, 330, 434, 366),
+    # 'challenge2-finished': (395, 366, 434, 401),
+    # 'challenge2-unfinished': (395, 366, 434, 401),
 }

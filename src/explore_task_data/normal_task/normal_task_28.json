@@ -1,0 +1,592 @@
+{
+    "28-1": {
+    "start": [
+      [
+        "burst1",
+        [
+          304,
+          516
+        ]
+      ],
+      [
+        "shock1",
+        [
+          988,
+          270
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          625,
+          444
+        ],
+        "ec": true,
+        "desc": "1 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          713,
+          423
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 lower left"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          718,
+          435
+        ],
+        "ec": true,
+        "desc": "2 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          559,
+          341
+        ],
+        "wait-over": true,
+        "desc": "1 upper right"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          736,
+          405
+        ],
+        "ec": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          556,
+          320
+        ],
+        "wait-over": true,
+        "desc": "1 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          655,
+          311
+        ],
+        "desc": "1 upper right"
+      }
+    ]
+  },
+  "28-2": {
+    "start": [
+      [
+        "burst1",
+        [
+          821,
+          558
+        ]
+      ],
+      [
+        "shock1",
+        [
+          370,
+          468
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          664,
+          420
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          616,
+          407
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          586,
+          411
+        ],
+        "desc": "change 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          527,
+          327
+        ],
+        "ec": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          586,
+          411
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          673,
+          399
+        ],
+        "ec": true,
+        "desc": "1 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          799,
+          503
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          817,
+          553
+        ],
+        "ec": true,
+        "desc": "2 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          527,
+          203
+        ],
+        "desc": "1 upper left"
+      }
+    ]
+  },
+    "28-3": {
+    "start": [
+      [
+        "burst1",
+        [
+          577,
+          429
+        ]
+      ],
+      [
+        "shock1",
+        [
+          758,
+          561
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          718,
+          330
+        ],
+        "ec": true,
+        "desc": "1 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          769,
+          405
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          728,
+          447
+        ],
+        "desc": "change 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          844,
+          447
+        ],
+        "ec": true,
+        "desc": "1 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          664,
+          258
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          758,
+          414
+        ],
+        "ec": true,
+        "desc": "1 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          701,
+          335
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "1 right"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          725,
+          302
+        ],
+        "desc": "change 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          610,
+          305
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          724,
+          468
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          382,
+          371
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          841,
+          511
+        ],
+        "desc": "2 lower right"
+      }
+    ]
+  },
+"28-4": {
+    "start": [
+      [
+        "burst1",
+        [
+          818,
+          429
+        ]
+      ],
+      [
+        "shock1",
+        [
+          340,
+          504
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          664,
+          369
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          623,
+          429
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          578,
+          404
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          592,
+          390
+        ],
+        "desc": "change 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          712,
+          387
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          652,
+          474
+        ],
+        "ec": true,
+        "desc": "1 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          589,
+          380
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          712,
+          558
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          515,
+          254
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper left"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          473,
+          280
+        ],
+        "ec": true,
+        "desc": "2 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          715,
+          447
+        ],
+        "desc": "1 lower right"
+      }
+    ]
+  },
+  "28-5": {
+    "start": [
+      [
+        "burst1",
+        [
+          640,
+          432
+        ]
+      ],
+      [
+        "shock1",
+        [
+          280,
+          560
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          704,
+          420
+        ],
+        "ec": true,
+        "desc": "1 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          631,
+          450
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          727,
+          455
+        ],
+        "ec": true,
+        "desc": "1 lower left"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          730,
+          458
+        ],
+        "desc": "change 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          785,
+          378
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          667,
+          373
+        ],
+        "ec": true,
+        "desc": "1 upper right"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          667,
+          373
+        ],
+        "desc": "change 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          605,
+          285
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          848,
+          480
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          604,
+          219
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          623,
+          208
+        ],
+        "ec": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          808,
+          347
+        ],
+        "wait-over": true,
+        "desc": "1 upper right"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          715,
+          357
+        ],
+        "ec": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          715,
+          357
+        ],
+        "desc": "change 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          773,
+          273
+        ],
+        "desc": "1 upper right"
+      }
+    ]
+  }
+}

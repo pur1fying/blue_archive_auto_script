@@ -22,4 +22,5 @@ x_y_range = {
     'friend-menu': (100, 8, 220, 37),
     'friend-management-menu': (100, 8, 261, 37),
     'fail-to-load-game-resources': (388, 252, 872, 384),
+    'game-download-resource-notice': (400, 335, 900, 370),
 }
