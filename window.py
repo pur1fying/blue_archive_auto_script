@@ -541,8 +541,10 @@ class Window(MSFluentWindow):
         objectName = self.tabBar.currentTab().routeKey()
         row = [x.isSelected for x in self.navi_btn_list].index(True)
         _ref = [x.object_name for x in self._sub_list[0]]
-        if objectName not in _ref: col = 0
-        else: col = [x.object_name for x in self._sub_list[0]].index(objectName)
+        if objectName not in _ref:
+            col = 0
+        else:
+            col = [x.object_name for x in self._sub_list[0]].index(objectName)
         self.dispatchSubView(row, col)
 
     def dispatchSubView(self, i0: int, i1: int):
@@ -553,7 +555,7 @@ class Window(MSFluentWindow):
         addDialog.pathLineEdit.setFocus()
         if addDialog.exec_():
             text = addDialog.pathLineEdit.text()
-            if text in list(map(lambda x: x.config['name'], self.config_dir_list)):
+            if text in list(map(lambda x: x.config.name, self.config_dir_list)):
                 notification.error(label=self.tr('设置失败'),
                                    msg=f'{self.tr("名为")}“{text}”{self.tr("的配置已经存在！")}',
                                    config=self.config_dir_list[0])
@@ -584,7 +586,7 @@ class Window(MSFluentWindow):
             self.config_dir_list.append(_config)
 
     def onTabCloseRequested(self, i0):
-        config_name = self._sub_list[0][i0].config["name"]
+        config_name = self._sub_list[0][i0].config.config.name
         title = self.tr('是否要删除配置：') + f' {config_name}？'
         content = self.tr("""你需要在确认后重启BAAS以完成更改。""")
         closeRequestBox = MessageBox(title, content, self)
@@ -594,16 +596,17 @@ class Window(MSFluentWindow):
             for sub in self._sub_list:
                 _changed_row = []
                 for tab in sub:
-                    if config_name != tab.config["name"]:
+                    if config_name != tab.config.config.name:
                         _changed_row.append(tab)
                 _changed_table.append(_changed_row)
             self._sub_list = _changed_table
             # Remove the config from the list
             for _config in self.config_dir_list:
-                if _config["name"] == config_name:
+                if _config.config.name == config_name:
                     self.config_dir_list.remove(_config)
                     break
             self.tabBar.removeTab(i0)
+
     def addTab(self, routeKey: str, config: ConfigSet, icon: Union[QIcon, str, FluentIconBase, None]):
         self.tabBar.addBAASTab(routeKey, config, icon, window=self)
 
