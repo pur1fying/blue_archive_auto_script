@@ -16,13 +16,13 @@ from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MS
     RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
 from qfluentwidgets import (SubtitleLabel, setFont)
 
-from core import default_config
+from core.config import default_config
 from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
 from gui.util.config_gui import configGui
-from gui.util.config_set import ConfigSet
+from core.config.config_set import ConfigSet
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
 
@@ -291,7 +291,7 @@ class BAASTabBar(TabBar):
             index = len(self.items)
         if index <= self.currentIndex() and self.currentIndex() >= 0:
             self._currentIndex += 1
-        text = config.get_origin('name')
+        text = config.config.name
         item = BAASTabItem(text, self.view, icon, config=config, window=window)
         item.setRouteKey(routeKey)
         _w = self.tabMaximumWidth() if self.isScrollable() else self.tabMinimumWidth()

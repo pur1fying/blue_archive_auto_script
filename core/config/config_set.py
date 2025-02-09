@@ -1,22 +1,28 @@
 import json
 import os
 import re
-
+from core.config.generated_user_config import Config
+from core.config.generated_static_config import StaticConfig
 from gui.util.customed_ui import BoundComponent
 from gui.util.translator import baasTranslator as bt
+from dataclasses import asdict
 
 
 class ConfigSet:
+    static_config: StaticConfig = None
+
     def __init__(self, config_dir):
+        # change happens in self.config ( dataclass )
+        # save change : dataclass --> dict --> json_str
         super().__init__()
-        self.config = None
-        self.gui_config = None
+        if ConfigSet.static_config is None:
+            ConfigSet._init_static_config()
+        self.config: Config
         self.server_mode = 'CN'
         self.inject_comp_list = []
         self.inject_config_list = []
         self.window = None
         self.main_thread = None
-        self.static_config = None
         self.config_dir = None
         self.static_config_path = None
         if os.path.exists(f'config/{config_dir}/config.json'):  # relative path
@@ -30,37 +36,38 @@ class ConfigSet:
         self.signals = {}
         self._init_config()
 
+    @staticmethod
+    def _init_static_config():
+        with open('config/static.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            ConfigSet.static_config = StaticConfig(**data)
+
     def _init_config(self):
         with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
-            self.config = json.load(f)
-        with open(self.static_config_path, 'r', encoding='utf-8') as f:
-            self.static_config = json.load(f)
-        if self.config['server'] == '国服' or self.config['server'] == 'B服':
+            self.config = Config(**json.load(f))
+        if self.config.server == '国服' or self.config.server == 'B服':
             self.server_mode = 'CN'
-        elif self.config['server'] in ['国际服', '国际服青少年', '韩国ONE']:
+        elif self.config.server in ['国际服', '国际服青少年', '韩国ONE']:
             self.server_mode = 'Global'
-        elif self.config['server'] == '日服':
+        elif self.config.server == '日服':
             self.server_mode = 'JP'
 
     def get(self, key):
         self._init_config()
-        value = self.config.get(key)
+        value = getattr(self.config, key, None)
         return bt.tr('ConfigTranslation', value)
-
-    def get_origin(self, key):
-        self._init_config()
-        return self.config.get(key)
 
     def set(self, key, value):
         self._init_config()
         value = bt.undo(value)
-        self.config[key] = value
+        setattr(self.config, key, value)
         self.save()
         self.dynamic_update(key)
 
     def save(self):
+        data = asdict(self.config)
         with open(os.path.join(self.config_dir, "config.json"), 'w', encoding='utf-8') as f:
-            json.dump(self.config, f, indent=4, ensure_ascii=False)
+            json.dump(data, f, indent=4, ensure_ascii=False)
 
     def dynamic_update(self, key):
         if key not in self.inject_config_list: return
@@ -71,7 +78,7 @@ class ConfigSet:
         self.set(key, value)
 
     def __getitem__(self, item: str):
-        return self.config[item]
+        return self.get(item)
 
     def check(self, key, value):
         with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
@@ -110,16 +117,16 @@ class ConfigSet:
         return bounded
 
     def update_create_quantity_entry(self):
-        dft = self.static_config["create_item_order"][self.server_mode]["basic"]
+        dft = self.static_config.create_item_order[self.server_mode]["basic"]
         dft_list = [item for sublist in dft.values() for item in sublist]
         pop_list = []
-        for key in self.config["create_item_holding_quantity"]:
+        for key in self.config.create_item_holding_quantity:
             if key not in dft_list:
                 pop_list.append(key)
         for key in pop_list:
-            self.config["create_item_holding_quantity"].pop(key)
+            self.config.create_item_holding_quantity.pop(key)
 
         for entry in dft_list:
-            if entry not in self.config["create_item_holding_quantity"]:
-                self.config["create_item_holding_quantity"][entry] = -1
+            if entry not in self.config.create_item_holding_quantity:
+                self.config.create_item_holding_quantity[entry] = -1
         self.save()

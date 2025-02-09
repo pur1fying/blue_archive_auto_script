@@ -8,7 +8,7 @@ from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, SpinBox
 
 from core.utils import delay
 from gui.util import notification
-from gui.util.config_set import ConfigSet
+from core.config.config_set import ConfigSet
 from gui.util.translator import baasTranslator as bt
 
 

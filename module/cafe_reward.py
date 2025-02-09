@@ -8,17 +8,17 @@ from core import image, color, picture
 def implement(self):
     self.quick_method_to_main_page()
     to_cafe(self, True)
-    if self.config['cafe_reward_collect_hour_reward'] and get_cafe_earning_status(self):
+    if self.config.cafe_reward_collect_hour_reward and get_cafe_earning_status(self):
         self.logger.info("Collect Cafe Earnings")
         collect(self)
         to_cafe(self, False)
-    if self.config['cafe_reward_use_invitation_ticket'] and get_invitation_ticket_status(self):
+    if self.config.cafe_reward_use_invitation_ticket and get_invitation_ticket_status(self):
         invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
-    if self.config['cafe_reward_has_no2_cafe']:
+    if self.config.cafe_reward_has_no2_cafe:
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
-        if get_invitation_ticket_status(self) and self.config['cafe_reward_use_invitation_ticket']:
+        if get_invitation_ticket_status(self) and self.config.cafe_reward_use_invitation_ticket:
             invite_girl(self, 2)
         interaction_for_cafe_solve_method3(self)
     return True
@@ -102,7 +102,7 @@ def interaction_for_cafe_solve_method3(self):
     max_times = 4
     for i in range(0, max_times):
         cafe_to_gift(self)
-        shotDelay = self.config["cafe_reward_interaction_shot_delay"]
+        shotDelay = self.config.cafe_reward_interaction_shot_delay
         t1 = threading.Thread(target=shot, args=(self, shotDelay))
         t1.start()
         startT = time.time()
@@ -114,12 +114,12 @@ def interaction_for_cafe_solve_method3(self):
         res = match(img)
         if not res:
             self.logger.info("No interaction found")
-            if swipeT < self.config["cafe_reward_interaction_shot_delay"] + 0.3:
+            if swipeT < self.config.cafe_reward_interaction_shot_delay + 0.3:
                 self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(shotDelay) + " ]")
                 self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
                 if swipeT > 0.4:
                     self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
-                    self.config["cafe_reward_interaction_shot_delay"] = swipeT - 0.3
+                    self.config.cafe_reward_interaction_shot_delay = swipeT - 0.3
                     self.config_set.set("cafe_reward_interaction_shot_delay",
                                         self.config["cafe_reward_interaction_shot_delay"])
             time.sleep(1)

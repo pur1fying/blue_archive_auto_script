@@ -2,6 +2,8 @@ import copy
 import traceback
 from datetime import datetime
 import cv2
+
+from core.config.config_set import ConfigSet
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
 from core.scheduler import Scheduler
@@ -92,7 +94,7 @@ class Baas_thread:
         self.ratio = None
         self.next_time = None
         self.task_finish_to_main_page = False
-        self.static_config = self.config_set.static_config
+        self.static_config = ConfigSet.static_config
         self.ocr = None
         self.logger = Logger(logger_signal)
         self.last_refresh_u2_time = 0
@@ -717,7 +719,10 @@ class Baas_thread:
             if type(dic[key]) is dict:
                 dic[key] = self.operate_dict(dic[key])
             else:
+                origin = copy.deepcopy(dic[key])
                 dic[key] = self.operate_item(dic[key])
+                if origin != dic[key]:
+                    self.logger.info("Change " + key + " from " + str(origin) + " to " + str(dic[key]))
         return dic
 
     def is_float(self, s):
@@ -806,6 +811,7 @@ class Baas_thread:
     def refresh_create_time(self):
         self.config['alreadyCreateTime'] = 0
         self.config_set.set("alreadyCreateTime", 0)
+        self.config_set.config.alreadyCreateTime = 0
 
     def refresh_common_tasks(self):
         from module.normal_task import readOneNormalTask

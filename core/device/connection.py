@@ -1,5 +1,6 @@
 import re
 from adbutils import adb
+from adbutils.errors import AdbTimeout
 from core.exception import RequestHumanTakeOver
 
 
@@ -108,7 +109,7 @@ class Connection:
                 self.logger.info("Auto device detection found only one device, using it")
                 self.set_serial(available[0])
             elif n_available == 2 and (available[0] == "127.0.0.1:16384" and available[1] == "127.0.0.1:7555") or \
-                (available[0] == "127.0.0.1:7555" and available[1] == "127.0.0.1:16384"):
+                    (available[0] == "127.0.0.1:7555" and available[1] == "127.0.0.1:16384"):
                 self.logger.info("Find Same MuMu12 Device, using it")
                 self.set_serial("127.0.0.1:16384")
             else:
@@ -229,8 +230,23 @@ class Connection:
 
     def list_packages(self):
         self.logger.info("List Packages")
-        d = adb.device(self.serial)
-        return d.list_packages()
+        for _ in range(3):
+            d = adb.device(self.serial)
+            result = []
+            try:
+                output = d.shell(["pm", "list", "packages"], timeout=5)
+                for m in re.finditer(r'^package:([^\s]+)\r?$', output, re.M):
+                    result.append(m.group(1))
+                return list(sorted(result))
+            except AdbTimeout as e:
+                self.logger.error(f"Error: {e}")
+                self.kill_adb()
+                self.logger.info("Retry list packages")
+        return []
+
+    def kill_adb(self):
+        self.logger.info("Kill ADB Server")
+        adb.server_kill()
 
     def package2server(self, package):
         server2package = self.static_config['package_name']
