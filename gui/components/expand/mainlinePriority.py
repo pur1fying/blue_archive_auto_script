@@ -30,10 +30,10 @@ class Layout(QWidget):
             self.tr("根据学生添加关卡"): [],
             self.tr("爱丽丝宝贝"): [],
         }
-        for i in range(0, len(self.config.static_config["hard_task_student_material"])):
-            translated_name = bt.getStudent(self.config.static_config["hard_task_student_material"][i][1])
+        for i in range(0, len(self.config.static_config.hard_task_student_material)):
+            translated_name = bt.getStudent(self.config.static_config.hard_task_student_material[i][1])
             self.each_student_task_number_dict.setdefault(translated_name, [])
-            temp = self.config.static_config["hard_task_student_material"][i][0] + "-3"
+            temp = self.config.static_config.hard_task_student_material[i][0] + "-3"
             (self.each_student_task_number_dict[translated_name].append(temp))
 
         for key in self.each_student_task_number_dict.keys():
@@ -91,7 +91,7 @@ class Layout(QWidget):
             input_content = input_content.split(',')
             temp = []
             for i in range(0, len(input_content)):
-                temp.append(readOneNormalTask(input_content[i],self.config.static_config["explore_normal_task_region_range"]))
+                temp.append(readOneNormalTask(input_content[i],self.static_config.explore_normal_task_region_range))
             self.config.set("unfinished_normal_tasks", temp)  # refresh the config unfinished_normal_tasks
             notification.success(self.tr('设置成功'), f'{self.tr("你的普通关卡已经被设置为：")}{input_content}',
                                  self.config)
@@ -106,7 +106,7 @@ class Layout(QWidget):
             input_content = input_content.split(',')
             temp = []
             for i in range(0, len(input_content)):
-                temp.append(readOneHardTask(input_content[i], self.config.static_config["explore_hard_task_region_range"]))
+                temp.append(readOneHardTask(input_content[i], self.static_config.explore_hard_task_region_range))
             self.config.set("unfinished_hard_tasks", temp)  # refresh the config unfinished_hard_tasks
             notification.success(self.tr('设置成功'), f'{self.tr("你的困难关卡已经被设置为：")}{input_content}',
                                  self.config)

@@ -1,6 +1,8 @@
 import json
 import time
+
 from core import color, picture
+
 
 def get_stage_data(self):
     json_path = 'src/explore_task_data/activities/' + self.current_game_activity + '.json'
@@ -68,3 +70,47 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
                 elif region == "story":
                     self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
             return True
+
+
+def preprocess_activity_region(region):
+    if type(region) is int:
+        return [region]
+    if type(region) is str:
+        region = region.split(",")
+        for i in range(0, len(region)):
+            region[i] = int(region[i])
+        return region
+    if type(region) is list:
+        for i in range(0, len(region)):
+            if type(region[i]) is int:
+                continue
+            region[i] = int(region[i])
+        return region
+
+
+def preprocess_activity_sweep_times(times):
+    if type(times) is int:
+        return [times]
+    if type(times) is float:
+        return [times]
+    if type(times) is str:
+        times = times.split(",")
+        for i in range(0, len(times)):
+            if '.' in times[i]:
+                times[i] = min(float(times[i]), 1.0)
+            elif '/' in times[i]:
+                temp = times[i].split("/")
+                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
+            else:
+                times[i] = int(times[i])
+        return times
+    if type(times) is list:
+        for i in range(0, len(times)):
+            if type(times[i]) is int:
+                continue
+            if '.' in times[i]:
+                times[i] = min(float(times[i]), 1.0)
+            elif '/' in times[i]:
+                temp = times[i].split("/")
+                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
+        return times

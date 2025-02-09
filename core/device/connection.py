@@ -16,8 +16,8 @@ class Connection:
         self.config_set = Baas_instance.get_config()
         self.config = self.config_set.config
         self.static_config = self.config_set.static_config
-        self.adbIP = self.config['adbIP']
-        self.adbPort = self.config['adbPort']
+        self.adbIP = self.config.adbIP
+        self.adbPort = self.config.adbPort
         is_usb_or_emulator_device = (self.adbIP == "" or self.adbPort == "")
         if self.adbIP == "" and self.adbPort != "":
             self.serial = self.adbPort
@@ -185,12 +185,12 @@ class Connection:
     # set corresponding package
     def detect_package(self):
         self.logger.info("Detect Package")
-        server = self.config['server']
+        server = self.config.server
         package_exist = False
         if server == "auto":
             self.auto_detect_package()
             package_exist = True
-        server = self.config['server']
+        server = self.config.server
         if server == '官服' or server == 'B服':
             self.server = 'CN'
         elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
@@ -199,7 +199,7 @@ class Connection:
             self.server = 'JP'
         if not package_exist:
             self.check_package_exist(server)
-        self.activity = self.static_config['activity_name'][server]
+        self.activity = self.static_config.activity_name[server]
         self.logger.info("Server : " + self.server)
 
     def auto_detect_package(self):
@@ -217,14 +217,14 @@ class Connection:
             raise RequestHumanTakeOver("No available package.")
         if len(available_packages) == 1:
             self.logger.info(f"Only find one available package [ {available_packages[0]} ], using it.")
-            self.config.set("server", self.package2server(available_packages[0]))
+            self.config.server, self.package2server(available_packages[0])
             self.package = available_packages[0]
             return
         self.logger.error("Multiple available packages found.")
         raise RequestHumanTakeOver("Multiple packages")
 
     def available_packages(self):
-        server2package = self.static_config['package_name']
+        server2package = self.static_config.package_name
         all_available_packages = [server2package[server] for server in server2package]
         return all_available_packages
 
@@ -249,14 +249,14 @@ class Connection:
         adb.server_kill()
 
     def package2server(self, package):
-        server2package = self.static_config['package_name']
+        server2package = self.static_config.package_name
         for server in server2package:
             if server2package[server] == package:
                 return server
         return None
 
     def check_package_exist(self, server):
-        target_package = self.static_config['package_name'][server]
+        target_package = self.static_config.package_name[server]
         self.logger.info("Check Package [ " + target_package + " ] Exist.")
         installed_packages = self.list_packages()
         if target_package not in installed_packages:

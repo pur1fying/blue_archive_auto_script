@@ -140,7 +140,7 @@ def interaction_for_cafe_solve_method3(self):
                     self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
                     self.config.cafe_reward_interaction_shot_delay = swipeT - 0.3
                     self.config_set.set("cafe_reward_interaction_shot_delay",
-                                        self.config["cafe_reward_interaction_shot_delay"])
+                                        self.config.cafe_reward_interaction_shot_delay)
             time.sleep(1)
             continue
         gift_to_cafe(self)
@@ -207,19 +207,19 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
 def get_student_name(self):
     current_server_student_name_list = []
     target = self.server + "_name"
-    for i in range(0, len(self.static_config['student_names'])):
-        current_server_student_name_list.append(self.static_config['student_names'][i][target])
+    for i in range(0, len(self.static_config.student_names)):
+        current_server_student_name_list.append(self.static_config.student_names[i][target])
     return operate_name(current_server_student_name_list, self.server)
 
 
 def checkConfirmInvite(self, y):
     res = to_confirm_invite(self, (785, y))
     f = False
-    if res == 'cafe_switch-clothes-notice' and not self.config['cafe_reward_allow_exchange_student']:
+    if res == 'cafe_switch-clothes-notice' and not self.config.cafe_reward_allow_exchange_student:
         self.logger.warning("Not Allow Student Switch Clothes")
         f = True
     elif (res == 'cafe_duplicate-invite' or res == 'cafe_duplicate-invite-notice') \
-            and not self.config['cafe_reward_allow_duplicate_invite']:
+            and not self.config.cafe_reward_allow_duplicate_invite:
         self.logger.warning("Not Allow Duplicate Invite")
         f = True
     if f:

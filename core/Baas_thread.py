@@ -2,7 +2,7 @@ import copy
 import traceback
 from datetime import datetime
 import cv2
-
+from dataclasses import fields
 from core.config.config_set import ConfigSet
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
@@ -188,7 +188,7 @@ class Baas_thread:
 
             shell = win32com.client.Dispatch("WScript.Shell")
             shortcut = shell.CreateShortCut(lnk_path)
-            self.config_set.config['program_address'] = shortcut.Targetpath
+            self.config_set.program_address = shortcut.Targetpath
 
     def extract_filename_and_extension(self, file_path):
         """
@@ -265,7 +265,7 @@ class Baas_thread:
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
         if emulator_strat_stat:
             self.logger.info(f"-- BAAS Check Emulator Start --")
-            if self.config['emulatorIsMultiInstance']:
+            if self.config.emulatorIsMultiInstance:
                 name = self.config.get("multiEmulatorName")
                 num = self.config.get("emulatorMultiInstanceNumber")
                 self.logger.info(f"-- Start Multi Emulator --")
@@ -307,8 +307,8 @@ class Baas_thread:
         return True
 
     def start_emulator(self):
-        self.emulator_start_stat = self.config.get("open_emulator_stat")
-        self.wait_time = self.config.get("emulator_wait_time")
+        self.emulator_start_stat = self.config.open_emulator_stat
+        self.wait_time = self.config.emulator_wait_time
         if not self.start_check_emulator_stat(self.emulator_start_stat, self.wait_time):
             raise Exception("Emulator start failed")
 
@@ -325,12 +325,12 @@ class Baas_thread:
             self.serial = self.connection.get_serial()
             self.server = self.connection.get_server()
             self.package_name = self.connection.get_package_name()
-            self.current_game_activity = self.static_config['current_game_activity'][self.server]
+            self.current_game_activity = self.static_config.current_game_activity[self.server]
             self.activity_name = self.connection.get_activity_name()
             self.screenshot = Screenshot(self)
 
             self.control = Control(self)
-            self.set_screenshot_interval(self.config['screenshot_interval'])
+            self.set_screenshot_interval(self.config.screenshot_interval)
 
             self.check_resolution()
 
@@ -447,17 +447,15 @@ class Baas_thread:
     def update_create_priority(self):
         for phase in range(1, 4):
             cfg_key_name = 'createPriority_phase' + str(phase)
-            current_priority = self.config[cfg_key_name]
+            current_priority = self.config_set.get(cfg_key_name)
             res = []
-            default_priority = self.static_config['create_default_priority'][self.config_set.server_mode][
-                "phase" + str(phase)]
+            default_priority = self.static_config.create_default_priority[self.config_set.server_mode]["phase" + str(phase)]
             for i in range(0, len(current_priority)):
                 if current_priority[i] in default_priority:
                     res.append(current_priority[i])
             for j in range(0, len(default_priority)):
                 if default_priority[j] not in res:
                     res.append(default_priority[j])
-            self.config[cfg_key_name] = res
             self.config_set.set(cfg_key_name, res)
 
     def solve(self, activity) -> bool:
@@ -642,9 +640,16 @@ class Baas_thread:
 
     def init_config(self):
         try:
-            self.config = copy.deepcopy(self.config_set.config)
-            self.config = self.operate_dict(self.config)
             self.update_create_priority()
+            self.config = copy.deepcopy(self.config_set.config)
+            for field in fields(self.config):
+                value = getattr(self.config, field.name)
+                if type(value) is not str:
+                    continue
+                if value.isdigit():
+                    setattr(self.config, field.name, int(value))
+                elif self.is_float(value):
+                    setattr(self.config, field.name, float(value))
             return True
         except Exception as e:
             self.logger.error("Config initialization failed")
@@ -715,48 +720,13 @@ class Baas_thread:
         self.logger.info("Credit Points: " + str(temp))
         return temp
 
-    def operate_dict(self, dic):
-        for key in dic:
-            if type(dic[key]) is dict:
-                dic[key] = self.operate_dict(dic[key])
-            else:
-                origin = copy.deepcopy(dic[key])
-                dic[key] = self.operate_item(dic[key])
-                if origin != dic[key]:
-                    self.logger.info("Change " + key + " from " + str(origin) + " to " + str(dic[key]))
-        return dic
-
-    def is_float(self, s):
+    @staticmethod
+    def is_float(s):
         try:
             float(s)
             return True
         except ValueError:
             return False
-
-    def operate_item(self, item):
-        if type(item) is int or type(item) is bool or type(item) is float or item is None:
-            return item
-        if type(item) is str:
-            if item.isdigit():
-                return int(item)
-            elif self.is_float(item):
-                return float(item)
-            else:
-                if item.count(",") == 2:
-                    temp = item.split(",")
-                    for j in range(0, len(temp)):
-                        if temp[j].isdigit():
-                            temp[j] = int(temp[j])
-                    item = temp
-                return item
-        else:
-            temp = []
-            for i in range(0, len(item)):
-                if type(item[i]) is dict:
-                    temp.append(self.operate_dict(item[i]))
-                else:
-                    temp.append(self.operate_item(item[i]))
-            return temp
 
     def init_all_data(self):
         self.logger.info("--------Initializing All Data----------")
@@ -794,7 +764,7 @@ class Baas_thread:
     def daily_config_refresh(self):
         now = datetime.now()
         hour = now.hour
-        last_refresh = datetime.fromtimestamp(self.config['last_refresh_config_time'])
+        last_refresh = datetime.fromtimestamp(self.config.last_refresh_config_time)
         last_refresh_hour = last_refresh.hour
         daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
         if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
@@ -802,7 +772,7 @@ class Baas_thread:
                 hour >= daily_reset and last_refresh_hour >= daily_reset)):
             return
         else:
-            self.config['last_refresh_config_time'] = time.time()
+            self.config.last_refresh_config_time = time.time()
             self.config_set.set("last_refresh_config_time", time.time())
             self.refresh_create_time()
             self.refresh_common_tasks()
@@ -810,35 +780,35 @@ class Baas_thread:
             self.logger.info("daily config refreshed")
 
     def refresh_create_time(self):
-        self.config['alreadyCreateTime'] = 0
+        self.config.alreadyCreateTime = 0
         self.config_set.set("alreadyCreateTime", 0)
         self.config_set.config.alreadyCreateTime = 0
 
     def refresh_common_tasks(self):
         from module.normal_task import readOneNormalTask
-        temp = self.config['mainlinePriority']
-        self.config['unfinished_normal_tasks'] = []
+        temp = self.config.mainlinePriority
+        self.config.unfinished_normal_tasks = []
         if type(temp) is str:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i], self.static_config["explore_normal_task_region_range"]))
+                self.config.unfinished_normal_tasks.append(readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
-        self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
+        self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
 
     def refresh_hard_tasks(self):
         from module.hard_task import readOneHardTask
-        self.config['unfinished_hard_tasks'] = []
-        temp = self.config['hardPriority']
+        self.config.unfinished_hard_tasks = []
+        temp = self.config.hardPriority
         if type(temp) is str:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i], self.static_config["explore_hard_task_region_range"]))
+                self.config.unfinished_hard_tasks.append(readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
-        self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])
+        self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)
 
     def handle_then(self):
         action = self.config_set["then"]
@@ -857,7 +827,7 @@ class Baas_thread:
 
     def exit_emulator(self):
         self.logger.info(f"-- BAAS Exit Emulator --")
-        if self.config['emulatorIsMultiInstance']:
+        if self.config.emulatorIsMultiInstance:
             name = self.config.get("multiEmulatorName")
             num = self.config.get("emulatorMultiInstanceNumber")
             self.logger.info(f"-- Exit Multi Emulator --")

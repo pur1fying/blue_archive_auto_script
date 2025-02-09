@@ -4,7 +4,7 @@ from core import color, picture, image
 
 
 def implement(self):
-    buy_list = np.array(self.config["TacticalChallengeShopList"])
+    buy_list = np.array(self.config.TacticalChallengeShopList)
     if not buy_list.any():
         self.logger.info("Nothing to buy in tactical challenge shop.")
         return True
@@ -12,13 +12,13 @@ def implement(self):
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
     tactical_challenge_assets = get_tactical_challenge_assets(self)
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))
-    price = self.static_config["tactical_challenge_shop_price_list"][self.server]
+    price = self.static_config.tactical_challenge_shop_price_list[self.server]
     temp = []
     for i in range(0, len(price)):
         temp.append(price[i][1])
     temp = np.array(temp)
     asset_required = (buy_list * temp).sum()
-    refresh_time = min(self.config['TacticalChallengeShopRefreshTime'], 3)
+    refresh_time = min(self.config.TacticalChallengeShopRefreshTime, 3)
     refresh_price = [10, 10, 10]
     for i in range(0, refresh_time + 1):
         self.logger.info("asset_required : " + str(asset_required))

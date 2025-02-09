@@ -35,7 +35,7 @@ class BoundComponent(QObject):
         new_value = self.string_rule
         keys_in_rule = re.findall(r'{(.*?)}', self.string_rule)
         for key in keys_in_rule:
-            new_value = new_value.replace(f'{{{key}}}', self.config_manager.config.get(key, ''))
+            new_value = new_value.replace(f'{{{key}}}', self.config_manager.get(key, ''))
 
         # Dynamic call the attribute function of the component
         getattr(self.component, self.attribute)(new_value)

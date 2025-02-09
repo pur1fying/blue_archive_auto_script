@@ -245,7 +245,7 @@ def start_action(self, actions):
             time.sleep(act['post-wait'])
         if i != len(actions) - 1:
             task_mission_operating(self, skip_first_screenshot=skip_first_screenshot)
-    self.set_screenshot_interval(self.config['screenshot_interval'])
+    self.set_screenshot_interval(self.config.screenshot_interval)
 
 
 def get_force(self):

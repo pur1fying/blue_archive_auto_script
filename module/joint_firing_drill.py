@@ -80,7 +80,7 @@ def solve_drill(self, state):
 
     if drill_state == "fighting":
         finish_existing_drill(self)
-        if self.config["drill_enable_sweep"] and drill_ticket > 0:
+        if self.config.drill_enable_sweep and drill_ticket > 0:
             self.logger.info("Sweep drill.")
             sweep_drill(self, drill_name, drill_ticket)
             return
@@ -90,7 +90,7 @@ def solve_drill(self, state):
     if drill_state == "open" and drill_ticket > 0:
         drill_ticket -= 1
         fight_one_drill(self)
-    if self.config["drill_enable_sweep"] and drill_ticket > 0:
+    if self.config.drill_enable_sweep and drill_ticket > 0:
         self.logger.info("Sweep drill.")
         sweep_drill(self, drill_name, drill_ticket)
 
@@ -148,8 +148,8 @@ def get_drill_ticket(self):
 def fight_one_drill(self):
     self.logger.info("Start Drill.")
     start_drill(self)
-    difficulty = self.config["drill_difficulty_list"]
-    formation_num = self.config["drill_fight_formation_list"]
+    difficulty = self.config.drill_difficulty_list
+    formation_num = self.config.drill_fight_formation_list
     for i in range(0, 3):
         diff = difficulty[i]
         form_id = formation_num[i]
@@ -214,8 +214,8 @@ def enter_fight(self, i):
 
 def finish_existing_drill(self):
     self.logger.info("Finish existing drill.")
-    difficulty = self.config["drill_difficulty_list"]
-    formation_num = self.config["drill_fight_formation_list"]
+    difficulty = self.config.drill_difficulty_list
+    formation_num = self.config.drill_fight_formation_list
     last_unfinished_fight_number = 1
     while last_unfinished_fight_number <= 2:
         if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-unfinished"):

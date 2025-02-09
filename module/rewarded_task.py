@@ -1,24 +1,15 @@
 import time
-
+from module.clear_special_task_power import get_task_count
 from core import color, picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
-    try:
-        count = self.config["rewarded_task_times"]
-        if type(count) is str:
-            count = count.split(",")
-        for i in range(0, len(count)):
-            if count[i] == "max":
-                continue
-            count[i] = int(count[i])
-    except Exception as e:
-        self.logger.error("rewarded task config error")
-        self.logger.error(e.__str__())
+    count = get_task_count(self, "rewarded_task", 3)
+    if not count:
         return True
 
-    buy_ticket_times = max(0, self.config['purchase_rewarded_task_ticket_times'])  # ** 购买悬赏委托券的次数
+    self.quick_method_to_main_page()
+    buy_ticket_times = max(0, self.config.purchase_rewarded_task_ticket_times)  # ** 购买悬赏委托券的次数
     buy_ticket_times = min(buy_ticket_times, 12)
     if buy_ticket_times > 0:
         to_choose_bounty(self, True)
@@ -179,3 +170,4 @@ def purchase_bounty_ticket(self, times):
         "rewarded_task_purchase-bounty-ticket-notice": (766, 507),
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=False)
+

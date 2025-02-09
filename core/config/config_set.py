@@ -52,9 +52,9 @@ class ConfigSet:
         elif self.config.server == '日服':
             self.server_mode = 'JP'
 
-    def get(self, key):
+    def get(self, key, default=None):
         self._init_config()
-        value = getattr(self.config, key, None)
+        value = getattr(self.config, key, default)
         return bt.tr('ConfigTranslation', value)
 
     def set(self, key, value):
