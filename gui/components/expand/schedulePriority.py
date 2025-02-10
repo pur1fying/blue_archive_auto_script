@@ -28,7 +28,6 @@ class Layout(QWidget):
         self.lesson_favorStudent_LineEdit = LineEdit(self)
         self.lesson_favorStudent_LineEdit.setText('>'.join(self.config.get('lesson_favorStudent')))
         self.accept_favor_student = PushButton(self.tr('确定'), self)
-        self.accept_favor_student.clicked.connect(self.Slot_for_accept_favor_student)
 
         self.relationship_check_box_description = QLabel(self.tr('优先做好感等级多的日程'), self)
         self.relationship_check_box = CheckBox('', self)
@@ -65,6 +64,7 @@ class Layout(QWidget):
             self.needed_levels = temp
             self.config.set('lesson_each_region_object_priority', self.needed_levels)
 
+
     def Slot_for_accept_favor_student(self):
         res = self.lesson_favorStudent_LineEdit.text().split('>')
         self.config.set('lesson_favorStudent', res)
@@ -91,6 +91,8 @@ class Layout(QWidget):
         return notification.success(self.tr('日程次数'), f'{self.tr("日程次数设置成功为:")}{self.priority_list}', self.config)
 
     def __init_Signals_and_Slots(self):
+        self.lesson_enableFavorStudent_check_box.stateChanged.connect(self.Slot_for_enableFavorStudent_check_box)
+        self.accept_favor_student.clicked.connect(self.Slot_for_accept_favor_student)
         self.relationship_check_box.stateChanged.connect(self.Slot_for_relationship_check_box)
         for i in range(0, len(self.lesson_names)):
             for j in range(0, 4):
@@ -152,3 +154,6 @@ class Layout(QWidget):
 
     def Slot_for_relationship_check_box(self, state):
         self.config.set('lesson_relationship_first', state == Qt.Checked)
+
+    def Slot_for_enableFavorStudent_check_box(self, state):
+        self.config.set('lesson_enableInviteFavorStudent', state == Qt.Checked)
