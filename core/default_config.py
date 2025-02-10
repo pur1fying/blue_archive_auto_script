@@ -3574,7 +3574,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "玲纱",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Reisa",
       "Global_implementation": true,
       "JP_name": "レイサ",
@@ -3582,15 +3582,15 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "柚子(女仆)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Yuzu (Maid)",
       "Global_implementation": true,
       "JP_name": "ユズ(メイド)",
       "JP_implementation": true
     },
     {
-      "CN_name": "时(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "时(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Toki (Bunny)",
       "Global_implementation": true,
       "JP_name": "トキ(バニーガール)",
@@ -3598,7 +3598,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "爱丽丝(女仆)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Aris (Maid)",
       "Global_implementation": true,
       "JP_name": "アリス(メイド)",
@@ -3613,16 +3613,16 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "春香(正月)",
-      "CN_implementation": false,
+      "CN_name": "春香(新年)",
+      "CN_implementation": true,
       "Global_name": "Haruka (New Year)",
       "Global_implementation": true,
       "JP_name": "ハルカ(正月)",
       "JP_implementation": true
     },
     {
-      "CN_name": "佳代子(正月)",
-      "CN_implementation": false,
+      "CN_name": "佳代子(新年)",
+      "CN_implementation": true,
       "Global_name": "Kayoko (New Year)",
       "Global_implementation": true,
       "JP_name": "カヨコ(正月)",
@@ -3630,7 +3630,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "小雪",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Koyuki",
       "Global_implementation": true,
       "JP_name": "コユキ",
@@ -3638,7 +3638,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "渚",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Nagisa",
       "Global_implementation": true,
       "JP_name": "ナギサ",
@@ -3646,7 +3646,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "时",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Toki",
       "Global_implementation": true,
       "JP_name": "トキ",
@@ -3654,23 +3654,23 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "樱子",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Sakurako",
       "Global_implementation": true,
       "JP_name": "サクラコ",
       "JP_implementation": true
     },
     {
-      "CN_name": "叶渚",
-      "CN_implementation": false,
+      "CN_name": "康娜",
+      "CN_implementation": true,
       "Global_name": "Kanna",
       "Global_implementation": true,
       "JP_name": "カンナ",
       "JP_implementation": true
     },
     {
-      "CN_name": "惠久",
-      "CN_implementation": false,
+      "CN_name": "惠",
+      "CN_implementation": true,
       "Global_name": "Megu",
       "Global_implementation": true,
       "JP_name": "メグ",
@@ -3678,7 +3678,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "未花",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Mika",
       "Global_implementation": true,
       "JP_name": "ミカ",
@@ -3686,14 +3686,14 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "美祢",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Mine",
       "Global_implementation": true,
       "JP_name": "ミネ",
       "JP_implementation": true
     },
     {
-      "CN_name": "纯子(正月)",
+      "CN_name": "纯子(新年)",
       "CN_implementation": true,
       "Global_name": "Junko (New Year)",
       "Global_implementation": true,
@@ -3701,7 +3701,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "风香(正月)",
+      "CN_name": "风香(新年)",
       "CN_implementation": true,
       "Global_name": "Fuuka (New Year)",
       "Global_implementation": true,
@@ -3709,7 +3709,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "晴奈(正月)",
+      "CN_name": "晴奈(新年)",
       "CN_implementation": true,
       "Global_name": "Haruna (New Year)",
       "Global_implementation": true,
@@ -3717,7 +3717,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "花江(圣诞节)",
+      "CN_name": "花江(圣诞)",
       "CN_implementation": true,
       "Global_name": "Hanae (Christmas)",
       "Global_implementation": true,
@@ -3725,7 +3725,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "芹娜(圣诞节)",
+      "CN_name": "芹娜(圣诞)",
       "CN_implementation": true,
       "Global_name": "Serina (Christmas)",
       "Global_implementation": true,
