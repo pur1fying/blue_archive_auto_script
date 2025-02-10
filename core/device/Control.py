@@ -3,6 +3,7 @@ from core.device.control.adb import AdbControl
 from core.device.control.uiautomator2 import U2Control
 from core.device.control.scrcpy import ScrcpyControl
 
+
 class Control:
     def __init__(self, Baas_instance):
         self.Baas_instance = Baas_instance
