@@ -31,7 +31,7 @@ def implement(self):
             return True
     to_lesson_location_select(self, True)
     self.swipe(940, 213, 940, 560, duration=0.1, post_sleep_time=0.5)
-    if self.config.get("lesson_enableInviteFavorStudent"):
+    if self.config_set.get("lesson_enableInviteFavorStudent"):
         invite_favor_student(self)
         if self.lesson_tickets == 0:
             return True

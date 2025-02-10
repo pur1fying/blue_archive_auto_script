@@ -343,7 +343,7 @@ def invite_girl(self, no=1):
         self.logger.info("Invitation Ticket Not Available")
         return
 
-    method = self.config['cafe_reward_invite' + str(no) + '_criterion']
+    method = self.config_set.get('cafe_reward_invite' + str(no) + '_criterion')
 
     if method == 'lowest_affection':
         invite_by_affection(self, 'lowest')
@@ -352,11 +352,11 @@ def invite_girl(self, no=1):
         invite_by_affection(self, 'highest')
         return
     elif method == 'starred':
-        position = self.config["cafe_reward_invite" + str(no) + "_starred_student_position"]
+        position = self.config_set.get("cafe_reward_invite" + str(no) + "_starred_student_position")
         invite_starred(self, position)
         return
 
-    target_name_list = self.config['favorStudent' + str(no)]
+    target_name_list = self.config_set.get('favorStudent' + str(no))
 
     if len(target_name_list) == 0:
         self.logger.warning(
