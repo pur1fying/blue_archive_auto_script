@@ -11,11 +11,10 @@ class AdbScreenshot:
         self.adb = adb.device(self.serial)
 
     def screenshot(self):
-        data = self.adb.shell(['screencap', '-p'], stream=True)
+        data = self.adb.shell(['screencap', '-p'], stream=False, encoding=None)
         if len(data) < 500:
             self.logger.warning(f'Unexpected screenshot: {data}')
         image = np.frombuffer(data, np.uint8)
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-        cv2.cvtColor(image, cv2.COLOR_BGR2RGB, dst=image)
         return image
 

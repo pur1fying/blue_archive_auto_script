@@ -250,7 +250,7 @@ class Layout(QWidget):
             self.create_method = self.config.get(f'create_phase_{phase}_select_item_rule')
             input_for_create_method.setCurrentText(__dict_for_create_method[self.create_method])
             input_for_create_method.currentTextChanged.connect(
-                lambda text: self.config.set('create_method', __rev_dict_for_method[text]))
+                lambda text: self.config.set(f'create_phase_{phase}_select_item_rule', __rev_dict_for_method[text]))
             layout_for_create_method.addWidget(label_for_create_method, 1, Qt.AlignLeft)
             layout_for_create_method.addWidget(input_for_create_method, 0, Qt.AlignRight)
 

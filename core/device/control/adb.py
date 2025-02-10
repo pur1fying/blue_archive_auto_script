@@ -3,9 +3,9 @@ from core.device.connection import Connection
 import time
 
 
-class AdbControl(Connection):
-    def __init__(self, Baas_instance):
-        super().__init__(Baas_instance)
+class AdbControl:
+    def __init__(self, conn):
+        self.serial = conn.serial
         self.adb = adb.device(self.serial)
 
     def click(self, x, y):

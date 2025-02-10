@@ -573,6 +573,7 @@ class Window(MSFluentWindow):
             from gui.fragments.settings import SettingsFragment
             _config = ConfigSet(config_dir=serial_name)
             _config.add_signal("notify_signal", self.notify_signal)
+            _config.set_window(self)
             _sub_list_ = [
                 HomeFragment(parent=self, config=_config),
                 ProcessFragment(parent=self, config=_config),
