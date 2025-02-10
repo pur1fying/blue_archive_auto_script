@@ -422,7 +422,6 @@ class Baas_thread:
                     else:
                         self.logger.info("BAAS Exited, Reason : Human Take Over")
                         self.signal_stop()
-
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
@@ -811,7 +810,7 @@ class Baas_thread:
         self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)
 
     def handle_then(self):
-        action = self.config_set["then"]
+        action = self.config_set.config.then
         if action == '无动作' or not self.scheduler.is_wait_long():  # Do Nothing
             return
         elif action == '退出 Baas':  # Exit Baas
