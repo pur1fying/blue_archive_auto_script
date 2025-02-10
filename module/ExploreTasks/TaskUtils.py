@@ -346,19 +346,15 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
             preset_row = employ_presets[employed][1]
             self.logger.info(f"Choosing team from preset {preset_column}-{preset_row}.")
 
-            # open formation menu and preset menu
+            # open formation menu -> preset menu -> choose column
             img_reactions = {
                 "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
-                "normal_task_formation-menu": (1204, 486)
+                "normal_task_formation-menu": (1204, 486),
+                "normal_task_formation-preset": (178 + (preset_column - 1) * 156, 153)
             }
-            img_ends = ["normal_task_formation-preset"]
-            picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
+            rgb_ends = ["preset_choose" + str(preset_column)]
+            picture.co_detect(self, img_reactions=img_reactions, rgb_ends=rgb_ends, skip_first_screenshot=True)
 
-            # to preset
-            while get_current_preset_column(self) != preset_column:
-                self.click(178 + (preset_column - 1) * 156, 153)
-                self.latest_img_array = self.get_screenshot_array()
-                time.sleep(0.3)
             if preset_row < 3:
                 self.swipe(333, 220, 333, 552, duration=0.2, post_sleep_time=1)
                 self.swipe(333, 220, 333, 552, duration=0.2, post_sleep_time=1)
@@ -399,12 +395,3 @@ def to_mission_info(self, y=0):
 
 tmp_teams = {"burst": [[1, 1], [3, 2]], "pierce": [[1, 2], [4, 4]], "shock": [[1, 3], [2, 3]],
              "mystic": [[1, 3], [2, 3]]}
-
-
-def get_current_preset_column(self) -> int:
-    x, y = 178, 153  # column 1
-    # x add 156 each time to get to the next column
-    for i in range(4):
-        if color.is_rgb_in_range(self, x + i * 156, y, 40, 50, 70, 80, 110, 120):
-            return i + 1
-    return -1
