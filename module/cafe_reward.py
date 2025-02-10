@@ -30,7 +30,7 @@ def implement(self):
                 invite_girl(self, 2)
         interaction_for_cafe_solve_method3(self)
 
-    # handle next time accroding to invitation ticket cool time and interval
+    # handle next time according to invitation ticket cool time and interval
     if ticket1_next_time is not None:
         self.next_time = ticket1_next_time
     if ticket2_next_time is not None:
@@ -38,7 +38,7 @@ def implement(self):
             self.next_time = ticket2_next_time
         else:
             self.next_time = min(ticket2_next_time, self.next_time)
-    if self.next_time < self.scheduler.get_interval('cafe_reward'):
+    if self.next_time > self.scheduler.get_interval('cafe_reward'):
         self.next_time = 0
     return True
 
