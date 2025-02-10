@@ -18,23 +18,20 @@ class ConfigSet:
         if ConfigSet.static_config is None:
             ConfigSet._init_static_config()
         self.config: Config
+        self.config_dir = None
+        if os.path.exists(f'config/{config_dir}/config.json'):  # relative path
+            self.config_dir = os.path.abspath(f'config/{config_dir}')
+        elif os.path.exists(f'{config_dir}/config.json'):  # absolute path
+            self.config_dir = config_dir
+        else:
+            raise FileNotFoundError(f'config/{config_dir}/config.json not found')
         self.server_mode = 'CN'
+        self._init_config()
         self.inject_comp_list = []
         self.inject_config_list = []
         self.window = None
         self.main_thread = None
-        self.config_dir = None
-        self.static_config_path = None
-        if os.path.exists(f'config/{config_dir}/config.json'):  # relative path
-            self.config_dir = os.path.abspath(f'config/{config_dir}')
-            self.static_config_path = os.path.dirname(self.config_dir) + '/static.json'
-        elif os.path.exists(f'{config_dir}/config.json'):  # absolute path
-            self.config_dir = config_dir
-            self.static_config_path = os.path.abspath(os.path.dirname(config_dir) + '/static.json')
-        else:
-            raise FileNotFoundError(f'config/{config_dir}/config.json not found')
         self.signals = {}
-        self._init_config()
 
     @staticmethod
     def _init_static_config():
@@ -64,6 +61,9 @@ class ConfigSet:
         self.save()
         self.dynamic_update(key)
 
+    def update(self, key, value):
+        self.set(key, value)
+
     def save(self):
         data = asdict(self.config)
         with open(os.path.join(self.config_dir, "config.json"), 'w', encoding='utf-8') as f:
@@ -74,16 +74,8 @@ class ConfigSet:
         for comp in self.inject_comp_list:
             comp.config_updated(key)
 
-    def update(self, key, value):
-        self.set(key, value)
-
     def __getitem__(self, item: str):
         return self.get(item)
-
-    def check(self, key, value):
-        with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
-            new_config = json.load(f)
-        return new_config.get(key) == value
 
     def add_signal(self, key, signal):
         self.signals[key] = signal

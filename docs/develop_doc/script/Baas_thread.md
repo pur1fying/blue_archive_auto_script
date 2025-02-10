@@ -28,7 +28,7 @@
 - **description**: 日常小游戏名
 
 ### `config_set`
-- **type**: `ConfigSet` 实例
+- **type**: [`ConfigSet`](/develop_doc/script/ConfigSet#class-configset) 实例
 
 ### `process_name`
 
@@ -55,7 +55,8 @@
 ### `package_name`
 
 ### `server`
-
+- **type**: `str`
+- **description**: 用于标识当前游戏服务器, 使得**BAAS**能根据不同服务器的区别执行不同的操作
 ### `rgb_feature`
 
 ### `config_path`

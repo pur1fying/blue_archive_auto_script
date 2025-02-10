@@ -67,6 +67,7 @@ export default defineConfig({
                 {text: '编写文档', link: '/develop_doc/docs'},
                 {text: '模拟器开关/状态检测', link: '/develop_doc/script/device_operation'},
                 {text: '配置详解', link: '/develop_doc/script/config'},
+                {text: 'ConfigSet', link: '/develop_doc/script/ConfigSet'},
                 {text: '开发约定', link: '/develop_doc/develop_format'},
                 {text: '日志', link: '/develop_doc/log'}
             ]
