@@ -1,6 +1,6 @@
 import re
 from adbutils import adb
-from adbutils.errors import AdbTimeout
+from adbutils.errors import AdbTimeout, AdbError
 from core.exception import RequestHumanTakeOver
 
 
@@ -275,9 +275,16 @@ class Connection:
         return self.activity
 
     def get_current_package(self):
-        self.logger.info("Get Current Package")
-        d = adb.device(self.serial)
-        return d.app_current().package
+        self.logger.info("List Packages")
+        for _ in range(3):
+            d = adb.device(self.serial)
+            try:
+                d.app_current().package
+            except AdbError as e:
+                self.logger.error(f"Error: {e}")
+                self.kill_adb()
+                self.logger.info("Retry list packages")
+        return ""
 
     def adb_connect(self):
         for device in self.list_devices():
