@@ -1,6 +1,7 @@
 import time
 
 from core import image, picture, color
+from core.image import swipe_search_target_str
 from module import hard_task, main_story, normal_task
 
 
@@ -355,17 +356,24 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
             rgb_ends = ["preset_choose" + str(preset_column)]
             picture.co_detect(self, img_reactions=img_reactions, rgb_ends=rgb_ends, skip_first_screenshot=True)
 
-            if preset_row < 3:
-                self.swipe(333, 220, 333, 552, duration=0.2, post_sleep_time=1)
-                self.swipe(333, 220, 333, 552, duration=0.2, post_sleep_time=1)
-            else:
-                self.swipe(333, 552, 333, 220, duration=0.2, post_sleep_time=1)
-                self.swipe(333, 552, 333, 220, duration=0.2, post_sleep_time=1)
+            p = swipe_search_target_str(
+                self,
+                "normal_task_formation-edit-preset-name",
+                search_area=(1156, 201, 1229, 553),
+                threshold=0.8,
+                possible_strs=["1", "2", "3", "4", "5"],
+                target_str_index=4,
+                swipe_params=(145, 578, 145, 273, 1.0, 0.5),
+                ocr_language="NUM",
+                ocr_region_offsets=(-1103, 0, 16, 33),
+                ocr_str_replace_func=None,
+                max_swipe_times=5
+            )
 
             # confirm use preset
-            formation_y = [324, 511, 209, 372, 559]
+            preset_y = p[1] + 76
             img_reactions = {
-                "normal_task_formation-preset": (1151, formation_y[preset_row - 1]),
+                "normal_task_formation-preset": (1151, preset_y),
                 "normal_task_formation-set-confirm": (761, 574),
                 "normal_task_formation-menu": (1154, 625),
                 "task-begin-without-further-editing-notice": (888, 164)

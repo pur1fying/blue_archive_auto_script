@@ -38,6 +38,7 @@ x_y_range = {
     # 'challenge2-unfinished': (395, 366, 434, 401),
     'formation-menu': (101, 1, 161, 45),
     'formation-preset': (558, 79, 768, 129),
+    'formation-edit-preset-name': (1184, 219, 1211, 252),
     'formation-set-confirm': (575, 79, 706, 125),
     'task-A-info': (576, 117, 704, 170)
 }
