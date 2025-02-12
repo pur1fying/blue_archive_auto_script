@@ -74,7 +74,7 @@ def need_fight(self, taskDataName: str):
         bool: True if a fight is needed, False otherwise.
     """
     if (self.server == "CN" and
-        image.compare_image(self, 'normal_task_SUB')):  # sub mission check (now only available in CN servers)
+            image.compare_image(self, 'normal_task_SUB')):  # sub mission check (now only available in CN servers)
         return True
     if "-6" in taskDataName:  # mission A sss check
         return color.is_rgb_in_range(self, 768, 357, 60, 80, 60, 80, 60, 80)
@@ -114,7 +114,7 @@ def implement(self):
         return False
 
     self.quick_method_to_main_page()
-    normal_task.to_normal_event(self)
+    normal_task.to_normal_event(self, True)
 
     for task in tasklist:
         region = task[0]
@@ -122,17 +122,27 @@ def implement(self):
         for taskDataName, taskData in task[2].items():
             taskName = str(region) + "-" + (str(mission) if mission != 6 else "A")
             self.logger.info(f"--- Start exploring {taskName}({taskDataName}) ---")
-
-            normal_task_y_coordinates = [242, 341, 439, 537, 611, 576]
             to_region(self, region, True)
-            if mission < 6:
-                self.swipe(917, 220, 917, 552, duration=0.2, post_sleep_time=1)
-            else:
-                self.swipe(917, 552, 917, 220, duration=0.2, post_sleep_time=1)
-            to_mission_info(self, normal_task_y_coordinates[mission - 1])
+            possible_strs = build_mission_name_possible_strs(region)
+            p = image.swipe_search_target_str(
+                self,
+                "normal_task_enter-task-button",
+                (1055, 191, 1201, 632),
+                0.8,
+                possible_strs,
+                mission - 1,
+                (917, 552, 917, 220, 0.2, 1.0),
+                'Global',
+                (-396, -7, 60, 33),
+                None,
+                3
+            )
+            y = p[1]
+            to_mission_info(self, y)
 
             if not need_fight(self, taskDataName):
                 self.logger.warning(f"{taskDataName} is already finished,skip.")
+                normal_task.to_normal_event(self, True)
                 continue
 
             # TODO: sub mission must be broken :D
@@ -190,3 +200,12 @@ def get_stage_data(region, is_normal=True):
     with open(data_path, 'r') as f:
         stage_data = json.load(f)
     return stage_data
+
+
+def build_mission_name_possible_strs(region):
+    ret = []
+    for i in range(1, 6):
+        ret.append(f"{region}-{i}")
+    if region % 3 == 0:
+        ret.append(f"{region}-A")
+    return ret

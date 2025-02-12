@@ -59,9 +59,6 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-
-
-
 def sweep(self, number, times):
     self.quick_method_to_main_page()
     to_activity(self, "mission", True, True)
@@ -98,6 +95,7 @@ def sweep(self, number, times):
             continue
     return True
 
+
 def check_sweep_availability(self, plot):
     if plot == "activity_task-info":
         if image.compare_image(self, "activity_task-no-goals"):
@@ -113,6 +111,7 @@ def check_sweep_availability(self, plot):
         else:
             return "no-pass"
     return "no-pass"
+
 
 def explore_story(self):
     self.quick_method_to_main_page()
@@ -261,7 +260,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'purchase_ap_notice-localized': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
-        "activity_task-info": (task_info_x[self.server],141),
+        "activity_task-info": (task_info_x[self.server], 141),
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
         "main_story_episode-info": (917, 161),
@@ -382,5 +381,3 @@ def start_sweep(self, skip_first_screenshot=False):
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
-
-

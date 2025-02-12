@@ -37,4 +37,6 @@ x_y_range = {
     'challenge1-unfinished': (395, 330, 434, 366),
     'challenge2-finished': (395, 366, 434, 401),
     'challenge2-unfinished': (395, 366, 434, 401),
+    'task-A-info': (576, 117, 704, 170),
+    'enter-task-button': (1087, 219, 1156, 261)
 }

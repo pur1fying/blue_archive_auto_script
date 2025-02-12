@@ -182,6 +182,10 @@ def swipe_search_target_str(
     if possible_strs is None:
         raise ValueError("possible_strs can't be None.")
     target_str = possible_strs[target_str_index]
+    self.logger.info(f"Swipe Searching for \"{target_str}\".")
+    self.logger.info("Possible strings : ")
+    for i in range(len(possible_strs)):
+        self.logger.info(possible_strs[i])
     for time in range(max_swipe_times):
         if time != 0:  # skip first screenshot
             self.update_screenshot_array()
@@ -192,7 +196,7 @@ def swipe_search_target_str(
             continue
         all_positions = merge_nearby_coordinates(all_positions, 5, 5)
         max_idx = -1  # impossible value
-        min_idx = len(all_positions)
+        min_idx = len(possible_strs)
         all_strs = []
         for pos in all_positions:
             x_coords = [coord[0] for coord in pos]
@@ -231,7 +235,7 @@ def swipe_search_target_str(
                 self.logger.info(f"Target idx {target_str_index} > max idx {max_idx}.")
                 self.swipe(*swipe_params)
                 continue
-        if min_idx != len(all_positions):
+        if min_idx != len(possible_strs):
             if target_str_index < min_idx:
                 self.logger.info(f"Target idx {target_str_index} < min idx {min_idx}.")
                 self.logger.info("Swipe Backward.")

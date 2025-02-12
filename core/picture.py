@@ -89,7 +89,7 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
                 threshold = img_feature[1]
                 if len(img_feature) > 2:
                     rgb_diff = img_feature[2]
-            if image.compare_image(self, img_feature, False, threshold, rgb_diff):
+            if image.compare_image(self, img_feature, threshold, rgb_diff):
                 self.logger.info('Current stage ended with matched img feature: ' + img_feature)
                 return img_feature
         # click if match reaction rules
@@ -116,7 +116,7 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
             for img_feature, click in img_reactions.items():
                 threshold = 0.8 if len(click) < 3 else click[2]
                 rgb_diff = 20 if len(click) < 4 else click[3]
-                if image.compare_image(self, img_feature, False, threshold, rgb_diff):
+                if image.compare_image(self, img_feature, threshold, rgb_diff):
                     matched = True
                     feature_last_appear_time = current_time
                     if (time.time() - self.last_click_time <= 2
