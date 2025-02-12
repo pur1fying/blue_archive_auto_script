@@ -22,6 +22,12 @@ class Scheduler:
         self.funcs = []
         self._read_config()
 
+    def get_interval(self, func_name):
+        for item in self._event_config:
+            if item['func_name'] == func_name:
+                return item['interval']
+        return 0
+
     def _read_config(self):
         with lock:
             with open(self.event_config_path, 'r', encoding='utf-8') as f:

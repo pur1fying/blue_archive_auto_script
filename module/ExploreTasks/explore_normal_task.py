@@ -46,17 +46,15 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]
         else:
             return False, f"Invalid task type: {t}"
 
-    data_path = f"src/explore_task_data/normal_task/normal_task_{region}.json"
-    with open(data_path, 'r') as file:
-        region_data = json.load(file)
-        maxMission = 6 if region % 3 != 0 else 7
-        for i in range(1, maxMission) if mission == -1 else [mission]:
-            # if mission is specified, then add mission only ,otherwise add 1~5,
-            # if the region has -A mission, then add -6
-            if not any(f"{region}-{i}" in key for key in region_data.keys()):
-                return False, f"No task data found for mission {region}-{i}"
-            tasklist.append((region, i, {taskDataName: taskData for taskDataName, taskData in region_data.items()
-                                         if taskDataName.startswith(f"{region}-{i}")}))
+    region_data = get_stage_data(region)
+    maxMission = 6 if region % 3 != 0 else 7
+    for i in range(1, maxMission) if mission == -1 else [mission]:
+        # if mission is specified, then add mission only ,otherwise add 1~5,
+        # if the region has -A mission, then add -6
+        if not any(f"{region}-{i}" in key for key in region_data.keys()):
+            return False, f"No task data found for mission {region}-{i}"
+        tasklist.append((region, i, {taskDataName: taskData for taskDataName, taskData in region_data.items()
+                                     if taskDataName.startswith(f"{region}-{i}")}))
 
     return True, ""
 
@@ -165,3 +163,30 @@ def implement(self):
             hard_task.to_hard_event(self, True)
             normal_task.to_normal_event(self, True)
     return True
+
+
+def start_choose_side_team(self, index):
+    self.logger.info("According to the config. Choose formation " + str(index))
+    loy = [195, 275, 354, 423]
+    y = loy[index - 1]
+    img_possibles = {
+        'normal_task_SUB': (637, 508),
+        'normal_task_task-info': (946, 540)
+    }
+    rgb_possibles = {
+        "formation_edit1": (74, y),
+        "formation_edit2": (74, y),
+        "formation_edit3": (74, y),
+        "formation_edit4": (74, y),
+    }
+    rgb_ends = "formation_edit" + str(index)
+    rgb_possibles.pop("formation_edit" + str(index))
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+
+
+def get_stage_data(region, is_normal=True):
+    t = "normal_task" if is_normal else "hard_task"
+    data_path = f"src/explore_task_data/{t}/{t}_{region}.json"
+    with open(data_path, 'r') as f:
+        stage_data = json.load(f)
+    return stage_data

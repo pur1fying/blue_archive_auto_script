@@ -13,8 +13,8 @@ x_y_range = {
     "Defense-lock": (648, 268, 781, 307),
     "Defense-next": (623, 191, 702, 216),
 
-    "Shooting-fighting": (1020, 108, 1100, 127),
-    "Shooting-open": (1021, 141, 1098, 161),
+    "Shooting-fighting": (1020, 125, 1100, 149),
+    "Shooting-open": (1021, 162, 1098, 185),
     "Shooting-lock": (1046, 217, 1180, 261),
     "Shooting-next": (1017, 162, 1098, 186),
 

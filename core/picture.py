@@ -72,7 +72,6 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
             skip_first_screenshot = False
         else:
             color.wait_loading(self)
-
         # exit the stage if any end feature is matched
         for rgb_feature in rgb_ends:
             if rgb_feature is None:
@@ -93,7 +92,6 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
             if image.compare_image(self, img_feature, False, threshold, rgb_diff):
                 self.logger.info('Current stage ended with matched img feature: ' + img_feature)
                 return img_feature
-
         # click if match reaction rules
         matched = False
         if rgb_reactions is not None:
@@ -105,6 +103,7 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
                         and self.last_click_position[0] == click[0] and self.last_click_position[1] == click[1]
                         and self.last_click_name == rgb_feature):
                         # avoid duplicated clicks
+
                         break
                     self.logger.info("Found RGB feature: " + rgb_feature)
                     if click[0] >= 0 and click[1] >= 0:
@@ -134,7 +133,6 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
         if matched:  # avoid duplicated click
             fail_cnt = 0  # reset failure counter
             continue
-
         if not deal_with_pop_ups(self, pop_ups_rgb_reactions, pop_ups_img_reactions):
             if tentative_click:
                 fail_cnt += 1
@@ -196,7 +194,7 @@ def deal_with_pop_ups(self, pop_ups_rgb_reactions: dict = None, pop_ups_img_reac
     if pop_ups_img_reactions is not None:
         common_task_img_reactions.update(pop_ups_img_reactions)
     for rgb_feature, click in common_task_img_reactions.items():
-        if image.compare_image(self, rgb_feature, need_log=False):
+        if image.compare_image(self, rgb_feature):
             self.logger.info("find " + rgb_feature)
             if rgb_feature == "activity_choose-buff":
                 choose_buff(self)

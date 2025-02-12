@@ -99,8 +99,9 @@ def sweep(self, number, times):
 
 def check_sweep_availability(self, plot):
     if plot == "activity_task-info":
-        if image.compare_image(self, "activity_task-no-goals", False):
+        if image.compare_image(self, "activity_task-no-goals"):
             if not color.is_rgb_in_range(self, 146, 522, 232, 255, 219, 255, 0, 30):
+
                 return "sss"
             else:
                 return "no-pass"

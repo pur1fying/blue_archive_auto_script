@@ -99,6 +99,7 @@ class SwitchFragment(ScrollArea):
         self._common_shop_config_update()
         self._tactical_challenge_shop_config_update()
         self._create_config_update()
+        self.config.save()
 
     def _common_shop_config_update(self):
         default_goods = self.config.static_config['common_shop_price_list'][self.config.server_mode]
@@ -111,6 +112,11 @@ class SwitchFragment(ScrollArea):
             self.config.set('TacticalChallengeShopList', len(default_goods) * [0])
 
     def _create_config_update(self):
+        valid_methods = [
+            ['default'],
+            ['primary', 'normal', 'primary_normal', 'advanced', 'superior','advanced_superior','primary_normal_advanced_superior'],
+            ['advanced', 'superior', 'advanced_superior']
+        ]
         for phase in range(1, 4):
             cfg_key_name = 'createPriority_phase' + str(phase)
             current_priority = self.config.get(cfg_key_name)
@@ -123,6 +129,10 @@ class SwitchFragment(ScrollArea):
                 if default_priority[j] not in res:
                     res.append(default_priority[j])
             self.config.set(cfg_key_name, res)
+            create_method = self.config.get(f'create_phase_{phase}_select_item_rule')
+            if create_method not in valid_methods[phase - 1]:
+                create_method = valid_methods[phase - 1][0]
+                self.config.set(f'create_phase_{phase}_select_item_rule', create_method)
 
     def _lazy_load(self):
         """

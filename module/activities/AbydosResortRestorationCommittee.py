@@ -70,7 +70,7 @@ def sweep(self, number, times):
         sweep_times = times[i]
         if type(sweep_times) is float:
             sweep_times = int(ap * sweep_times / sweep_one_time_ap[number[i]])
-        click_times = sweep_times
+        click_times = sweep_times - 1
         duration = 1
         if sweep_times > 50:
             sweep_times = int(ap / sweep_one_time_ap[number[i]])

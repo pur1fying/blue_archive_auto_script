@@ -41,7 +41,7 @@ def implement(self, need_check_mode=True):
 
 
 def check_mode(self):
-    if not image.compare_image(self, "momo_talk_unread", need_log=False):
+    if not image.compare_image(self, "momo_talk_unread"):
         y = {
             "CN": 426,
             "Global": 475,
@@ -55,10 +55,10 @@ def check_mode(self):
     else:
         self.logger.info("UNREAD mode")
     self.latest_img_array = self.get_screenshot_array()
-    if image.compare_image(self, "momo_talk_up", need_log=False):
+    if image.compare_image(self, "momo_talk_up"):
         self.logger.info("change UP to DOWN")
         self.click(634, 169, duration=0.2, wait_over=True)
-    elif image.compare_image(self, "momo_talk_down", need_log=False):
+    elif image.compare_image(self, "momo_talk_down"):
         self.logger.info("DOWN mode")
     else:
         self.logger.info("can't detect up/down button")
@@ -119,7 +119,7 @@ def common_solve_affection_story_method(self):
 
 def getConversationState(self):
     self.latest_img_array = self.get_screenshot_array()
-    if image.compare_image(self, "plot_menu", need_log=False):      # menu --> skip plot --> skip notice --> reward acquired
+    if image.compare_image(self, "plot_menu"):      # menu --> skip plot --> skip notice --> reward acquired
         return ['plot_menu']
     if color.is_rgb_in_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
             color.is_rgb_in_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \

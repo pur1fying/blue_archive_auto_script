@@ -43,7 +43,7 @@ def implement(self):
         tar_num = k
         times = self.lesson_times[k]
         self.logger.info("begin schedule in [" + region_name[k] + "]")
-        to_lesson_region(self, tar_num, cur_num)
+        cur_num = to_lesson_region(self, tar_num, cur_num)
         for j in range(0, times):
             to_all_locations(self, True)
             res = [get_lesson_each_region_status(self), get_lesson_relationship_counts(self)]
@@ -106,6 +106,7 @@ def to_lesson_region(self, tar_num, cur_num=0):
             self.logger.warning("fail to find region name, use last region name")
             cur_num = tar_num
     self.logger.info("Reach lesson page [ " + region_name[cur_num] + " ]")
+    return cur_num
 
 
 def switch_lesson_region_page(self, to_left_page=False, cur_num=0):
