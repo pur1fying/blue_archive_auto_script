@@ -3082,7 +3082,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "SweetSecretsAndGunfightsATaleOfAfterSchoolSweets",
+        "CN": "anUnconcealedHeart",
         "Global": null,
         "JP": "CodeBox"
     },
