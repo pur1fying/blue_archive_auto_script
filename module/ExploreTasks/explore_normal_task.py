@@ -1,8 +1,7 @@
-import json
 from core import color, image, picture
 from module import main_story, normal_task, hard_task
 from module.ExploreTasks.TaskUtils import to_mission_info, to_region, execute_grid_task, get_challenge_state, \
-    employ_units
+    employ_units, get_stage_data
 
 
 def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]) -> tuple[bool, str]:
@@ -123,13 +122,12 @@ def implement(self):
             taskName = str(region) + "-" + (str(mission) if mission != 6 else "A")
             self.logger.info(f"--- Start exploring {taskName}({taskDataName}) ---")
             to_region(self, region, True)
-            possible_strs = build_mission_name_possible_strs(region)
             p = image.swipe_search_target_str(
                 self,
                 "normal_task_enter-task-button",
                 (1055, 191, 1201, 632),
                 0.8,
-                possible_strs,
+                build_mission_name_possible_strs(region),
                 mission - 1,
                 (917, 552, 917, 220, 0.2, 1.0),
                 'Global',
@@ -175,7 +173,7 @@ def implement(self):
     return True
 
 
-def start_choose_side_team(self, index):
+def choose_side_team(self, index):
     self.logger.info("According to the config. Choose formation " + str(index))
     loy = [195, 275, 354, 423]
     y = loy[index - 1]
@@ -192,14 +190,6 @@ def start_choose_side_team(self, index):
     rgb_ends = "formation_edit" + str(index)
     rgb_possibles.pop("formation_edit" + str(index))
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
-
-
-def get_stage_data(region, is_normal=True):
-    t = "normal_task" if is_normal else "hard_task"
-    data_path = f"src/explore_task_data/{t}/{t}_{region}.json"
-    with open(data_path, 'r') as f:
-        stage_data = json.load(f)
-    return stage_data
 
 
 def build_mission_name_possible_strs(region):

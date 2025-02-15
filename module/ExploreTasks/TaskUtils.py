@@ -1,3 +1,4 @@
+import json
 import time
 
 from core import image, picture, color
@@ -163,7 +164,7 @@ def start_mission(self):
 
 def start_action(self, actions):
     self.set_screenshot_interval(1)
-    self.logger.info("Start Actions total : " + str(len(actions)))
+    self.logger.info(f"Starting actions. Total actions: {len(actions)}")
     for i, act in enumerate(actions):
         desc = "start " + str(i + 1) + " operation : "
         if 'desc' in act:
@@ -199,8 +200,8 @@ def start_action(self, actions):
             elif op[j] == 'end-turn':
                 end_turn(self)
                 if i != len(actions) - 1:
-                    if 'end-turn-wait-over' in act and act[
-                        'end-turn-wait-over'] is False:  # not every end turn need to wait
+                    if 'end-turn-wait-over' in act and act['end-turn-wait-over'] is False:
+                        # not every end turn need to wait
                         self.logger.info("End Turn without wait over")
                     else:
                         wait_over(self)
@@ -258,11 +259,10 @@ def get_force(self):
     }
     task_mission_operating(self)
     ocr_res = self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
-    if ocr_res == "UNKNOWN":
-        return get_force(self)
     if ocr_res == 7:
         ocr_res = 1
     if ocr_res not in [1, 2, 3, 4]:
+        # 无法识别可能会导致死循环
         return get_force(self)
     self.logger.info("Current force : " + str(ocr_res))
     return ocr_res
@@ -403,3 +403,11 @@ def to_mission_info(self, y=0):
 
 tmp_teams = {"burst": [[1, 1], [3, 2]], "pierce": [[1, 2], [4, 4]], "shock": [[1, 3], [2, 3]],
              "mystic": [[1, 3], [2, 3]]}
+
+
+def get_stage_data(region, is_normal=True):
+    t = "normal_task" if is_normal else "hard_task"
+    data_path = f"src/explore_task_data/{t}/{t}_{region}.json"
+    with open(data_path, 'r') as f:
+        stage_data = json.load(f)
+    return stage_data
