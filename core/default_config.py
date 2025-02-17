@@ -593,7 +593,7 @@ STATIC_DEFAULT_CONFIG = '''
         ],
         "Global": [
              ["宫子神明文字x5",50],["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],
-             ["风香神明文字x5",50],["歌原神明文字x5",50],["30AP", 15],["60AP", 30], 
+             ["风香神明文字x5",50],["歌原神明文字x5",50],["30AP", 15],["60AP", 30],
              ["初级经验书x5", 5],["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],
              ["信用点x5k", 4],["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
@@ -4705,7 +4705,7 @@ try:
     _init_path = os.path.join(_init_path, "common", "config.py")
 
     fr = open(_init_path, "r")
-    _init_content = fr.read().replace("print(ALERT)", r"print("",end="")")
+    _init_content = fr.read().replace("print(ALERT)", "pass")
     fr.close()
 
     fw = open(_init_path, "w")
