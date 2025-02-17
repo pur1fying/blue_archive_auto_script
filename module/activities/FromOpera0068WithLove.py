@@ -1,8 +1,8 @@
-import importlib
+from module.activities.activity_utils import get_stage_data
 import time
 from core import color, picture, image
 from module import main_story
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
@@ -59,11 +59,6 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data():
-    module_path = 'src.explore_task_data.activities.FromOpera0068WithLove'
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
 
 
 def sweep(self, number, times):
@@ -164,7 +159,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = get_stage_data()["mission"]
+    characteristic = get_stage_data(self)["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -193,7 +188,7 @@ def explore_challenge(self):
     tasks = [
 
     ]
-    stage_data = get_stage_data()
+    stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))
@@ -212,7 +207,7 @@ def explore_challenge(self):
             elif res == "no-pass" or res == "pass":
                 need_fight = True
         if need_fight:
-            common_gird_method(self, current_task_stage_data)
+            execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
         if self.config['manual_boss']:
@@ -307,10 +302,10 @@ def to_mission_task_info(self, number):
     lo = [0, 200, 315, 425, 545, 665]
     index = [1, 2, 3, 4, 5, 4, 5, 1, 2, 3, 4, 5]
     if number in [6, 7]:
-        self.swipe(916, 456, 916, 180, duration=0.5, post_sleep_time=0.7)
+        self.u2_swipe(916, 456, 916, 180, duration=0.5, post_sleep_time=0.7)
     if number in [8, 9, 10, 11, 12]:
-        self.swipe(943, 670, 943, 170, duration=0.1, post_sleep_time=0.7)
-        self.swipe(943, 670, 943, 170, duration=0.1, post_sleep_time=0.7)
+        self.u2_swipe(943, 670, 943, 170, duration=0.1, post_sleep_time=0.7)
+        self.u2_swipe(943, 670, 943, 170, duration=0.1, post_sleep_time=0.7)
     possibles = {'activity_menu': (1124, lo[index[number - 1]])}
     ends = ["normal_task_task-info", "activity_task-info"]
     return picture.co_detect(self, None, None, ends, possibles, True)
@@ -354,7 +349,7 @@ def start_sweep(self, skip_first_screenshot=False):
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice-localized" or res == "buy_ap_notice":
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return "inadequate_ap"
     rgb_ends = [
         "skip_sweep_complete",
@@ -372,7 +367,7 @@ def start_sweep(self, skip_first_screenshot=False):
 
 def check_sweep_availability(self, plot):
     if plot == "activity_task-info":
-        if image.compare_image(self, "activity_task-no-goals", False):
+        if image.compare_image(self, "activity_task-no-goals"):
             self.logger.info("Judge Task Without Goal")
             if not color.judgeRGBFeature(self, "no-goal-task_passed"):
                 return "sss"

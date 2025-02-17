@@ -41,5 +41,13 @@ class NemuScreenshot:
             raise Exception("Invalid serial. Unable to use Init NemuScreenshot.")
 
     def screenshot(self):
-        return self.nemu_client.screenshot()
+        for i in range(3):
+            try:
+                if i > 0:
+                    self.logger.warning("Retry : " + str(i))
+                return self.nemu_client.screenshot()
+            except Exception as e:
+                self.logger.warning("Fail to call nemu screenshot.")
+                self.logger.warning(e.__str__())
+
 

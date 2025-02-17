@@ -58,14 +58,13 @@ class Layout(QWidget):
         self.layEnableExchangeStudent = self.labeled_switchBtn_template(
             self.tr('是否允许学生更换服饰:'), 'cafe_reward_allow_exchange_student')
 
-        if self.config.server_mode in ('JP', 'Global'):
-            self.labelSecondCafe = QLabel(self.tr('是否有二号咖啡厅:'))
-            self.second_switch = SwitchButton()
-            self.second_switch.setChecked(self.config.get('cafe_reward_has_no2_cafe'))
-            self.laySecondCafe.addWidget(self.labelSecondCafe, 1, Qt.AlignLeft)
-            self.laySecondCafe.addWidget(self.second_switch, 0, Qt.AlignRight)
-            self.layEnableDuplicateInvite = self.labeled_switchBtn_template(
-                self.tr('是否允许重复邀请:'), 'cafe_reward_allow_duplicate_invite')
+        self.labelSecondCafe = QLabel(self.tr('是否有二号咖啡厅:'))
+        self.second_switch = SwitchButton()
+        self.second_switch.setChecked(self.config.get('cafe_reward_has_no2_cafe'))
+        self.laySecondCafe.addWidget(self.labelSecondCafe, 1, Qt.AlignLeft)
+        self.laySecondCafe.addWidget(self.second_switch, 0, Qt.AlignRight)
+        self.layEnableDuplicateInvite = self.labeled_switchBtn_template(
+            self.tr('是否允许重复邀请:'), 'cafe_reward_allow_duplicate_invite')
 
         # 创建摸头方式选择
         self.labelPatStyle = QLabel(self.tr('选择摸头方式：'))
@@ -82,14 +81,12 @@ class Layout(QWidget):
         self.mainLayout.addLayout(self.layUseInvitationTicket)
         # self.mainLayout.addLayout(self.layInviteLowestAffection)
         self.mainLayout.addLayout(self.layEnableExchangeStudent)
-        if self.config.server_mode in ('JP', 'Global'):
-            self.mainLayout.addLayout(self.layEnableDuplicateInvite)
+        self.mainLayout.addLayout(self.layEnableDuplicateInvite)
         self.mainLayout.addLayout(self.layPatStyle)
         self.mainLayout.setContentsMargins(20, 0, 20, 10)
-        if self.config.server_mode in ('JP', 'Global'):
-            self.mainLayout.addLayout(self.laySecondCafe)
-            if self.config.get('cafe_reward_has_no2_cafe'):
-                self.create_cafe_mode_sel(2)
+        self.mainLayout.addLayout(self.laySecondCafe)
+        if self.config.get('cafe_reward_has_no2_cafe'):
+            self.create_cafe_mode_sel(2)
 
         self.__init_Signals_and_Slots()
 
@@ -169,8 +166,7 @@ class Layout(QWidget):
 
     def __init_Signals_and_Slots(self):
         self.inputPatStyle.currentTextChanged.connect(self.__accept_pat_style)
-        if self.config.server_mode in ('JP', 'Global'):
-            self.second_switch.checkedChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
+        self.second_switch.checkedChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
 
     def check_valid_student_names(self, favor_student):
         temp = []

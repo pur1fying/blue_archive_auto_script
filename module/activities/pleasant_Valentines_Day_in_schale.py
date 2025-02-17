@@ -1,8 +1,8 @@
-import importlib
+from module.activities.activity_utils import get_stage_data
 import time
 from core import color, picture, image
 from module import main_story
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
@@ -59,11 +59,6 @@ def preprocess_activity_sweep_times(times):
         return times
 
 
-def get_stage_data(self):
-    module_path = 'src.explore_task_data.activities.' + self.current_game_activity
-    stage_module = importlib.import_module(module_path)
-    stage_data = getattr(stage_module, 'stage_data', None)
-    return stage_data
 
 
 def sweep(self, number, times):
@@ -223,7 +218,7 @@ def explore_challenge(self):
             elif res == "no-pass" or res == "pass":
                 need_fight = True
         if need_fight:
-            common_gird_method(self, current_task_stage_data)
+            execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
         if self.config['manual_boss']:
@@ -358,7 +353,7 @@ def start_sweep(self, skip_first_screenshot=False):
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice-localized" or res == "buy_ap_notice":
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return "inadequate_ap"
     rgb_ends = [
         "skip_sweep_complete",
@@ -428,7 +423,7 @@ def to_set_exchange_times_menu(self, skip_first_screenshot=False):
 def continue_exchange(self):
     img_possibles = {"activity_continue-exchange": (931, 600)}
     img_ends = "activity_continue-exchange-grey"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True, tentitive_click=True, max_fail_cnt=5)
+    picture.co_detect(self, None, None, img_ends, img_possibles, True, tentative_click=True, max_fail_cnt=5)
 
 
 def get_exchange_assets(self):

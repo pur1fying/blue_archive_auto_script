@@ -1,7 +1,7 @@
 prefix = "create"
 path = "create"
 x_y_range = {
-    'crafting-list': (865, 168, 1073, 195),
+    'crafting-list': (865, 156, 1073, 184),
     'start-phase-1-grey': (1000, 630, 1240, 677),
     'start-phase-1-bright': (1000, 630, 1240, 677),
     'start-phase-2-grey': (1000, 630, 1240, 677),
@@ -20,32 +20,50 @@ x_y_range = {
     'point-up': (1222, 90, 1246, 117),
     'point-down': (1222, 90, 1246, 117),
     'complete-instantly': (448, 261, 790, 311),
-    'sort-menu': (604, 83, 681, 116),
-    'sort-basic-chosen': (150, 153, 234, 183),
-    'sort-basic-not-chosen': (150, 153, 234, 183),
-    'sort-count-chosen': (352, 153, 482, 183),
-    'sort-count-not-chosen': (352, 153, 482, 183),
-    'filter-menu': (601, 158, 689, 198),
+    'sort-menu': (101, 196, 190, 226),
+
+    'sort-basic-chosen': (279, 163, 308, 190),
+    'sort-basic-not-chosen': (279, 163, 308, 190),
+
+    'sort-count-chosen': (517, 163, 544, 190),
+    'sort-count-not-chosen': (517, 163, 544, 190),
+
+    'filter-menu': (101, 137, 190, 174),
 
     'filter-select-all-chosen': (897, 222, 930, 249),
     'filter-select-all-not-chosen': (897, 222, 930, 249),
 
-    'filter-Equipment-chosen': (232, 270, 339, 314),
-    'filter-Equipment-not-chosen': (232, 270, 339, 314),
-    'filter-Furniture-chosen': (440, 270, 546, 314),
-    'filter-Furniture-not-chosen': (440, 270, 546, 314),
-    'filter-Decoration-chosen': (642, 270, 752, 314),
-    'filter-Decoration-not-chosen': (642, 270, 752, 314),
-    'filter-Interior-chosen': (848, 270, 994, 314),
-    'filter-Interior-not-chosen': (848, 270, 994, 314),
-    'filter-Eleph-chosen': (235, 347, 385, 388),
-    'filter-Eleph-not-chosen': (235, 347, 385, 388),
-    'filter-Coin-chosen': (440, 339, 546, 392),
-    'filter-Coin-not-chosen': (440, 339, 546, 392),
-    'filter-Material-chosen': (642, 339, 752, 392),
-    'filter-Material-not-chosen': (642, 339, 752, 392),
-    'filter-Gift-chosen': (848, 339, 951, 392),
-    'filter-Gift-not-chosen': (848, 339, 951, 392),
+    'filter-Equipment-chosen': (262, 242, 321, 296),
+    'filter-Equipment-not-chosen': (262, 242, 321, 296),
+    'filter-Equipment-reset': (262, 242, 321, 296),
+
+    'filter-Furniture-chosen': (496, 242, 549, 296),
+    'filter-Furniture-not-chosen': (496, 242, 549, 296),
+    'filter-Furniture-reset': (496, 242, 549, 296),
+
+    'filter-Decoration-chosen': (728, 242, 781, 296),
+    'filter-Decoration-not-chosen': (728, 242, 781, 296),
+    'filter-Decoration-reset': (728, 242, 781, 296),
+
+    'filter-Interior-chosen': (960, 242, 1015, 296),
+    'filter-Interior-not-chosen': (960, 242, 1015, 296),
+    'filter-Interior-reset': (960, 242, 1015, 296),
+
+    'filter-Eleph-chosen': (262, 300, 321, 350),
+    'filter-Eleph-not-chosen': (262, 300, 321, 350),
+    'filter-Eleph-reset': (262, 300, 321, 350),
+
+    'filter-Coin-chosen': (496, 300, 549, 350),
+    'filter-Coin-not-chosen': (496, 300, 549, 350),
+    'filter-Coin-reset': (496, 300, 549, 350),
+
+    'filter-Material-chosen': (728, 300, 781, 350),
+    'filter-Material-not-chosen': (728, 300, 781, 350),
+    'filter-Material-reset': (728, 300, 781, 350),
+
+    'filter-Gift-chosen': (960, 300, 1015, 350),
+    'filter-Gift-not-chosen': (960, 300, 1015, 350),
+    'filter-Gift-reset': (960, 300, 1015, 350),
 
     'material-list': (701, 78, 762, 129),
     'Eligma': (),  # 神名文字
@@ -115,10 +133,10 @@ x_y_range = {
     'Damaged-Ancient-Battery': (719, 168, 814, 223),          # 磨损的巴格达电池
     'Intact-Ancient-Battery': (854, 168, 960, 223),           # 完整的巴格达电池
 
-    'Golden-Fleece': (993, 168, 1092, 223),
-    'Golden-Yarn': (1130, 168, 1229, 223),
-    'Golden-Wool': (719, 168, 814, 223),
-    'Golden-Dress': (854, 168, 960, 223),
+    # 'Golden-Fleece': (993, 168, 1092, 223),
+    # 'Golden-Yarn': (1130, 168, 1229, 223),
+    # 'Golden-Wool': (719, 168, 814, 223),
+    # 'Golden-Dress': (854, 168, 960, 223),
 
     'Okiku-Doll-Piece': (993, 168, 1092, 223),
     'Broken-Okiku-Doll': (1130, 168, 1229, 223),
@@ -130,10 +148,10 @@ x_y_range = {
     'Repaired-Disco-Colgante': (719, 168, 814, 223),         # 修好的的圆盘吊坠
     'Intact-Disco-Colgante': (854, 168, 960, 223),           # 完整的圆盘吊坠
 
-    'Atlantis-Medal-Piece': (),
-    'Broken-Atlantis-Medal': (),
-    'Damaged-Atlantis-Medal': (),
-    'Intact-Atlantis-Medal': (),
+    'Atlantis-Medal-Piece': (993, 168, 1092, 223),
+    'Broken-Atlantis-Medal': (1130, 168, 1229, 223),
+    'Damaged-Atlantis-Medal': (719, 168, 814, 223),
+    'Intact-Atlantis-Medal': (854, 168, 960, 223),
 
     'Roman-Dodecahedron-Piece': (),
     'Broken-Roman-Dodecahedron': (),

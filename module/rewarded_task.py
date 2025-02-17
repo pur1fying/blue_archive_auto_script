@@ -1,6 +1,6 @@
 import time
 
-from core import color, image, picture
+from core import color, picture
 
 
 def implement(self):
@@ -18,12 +18,11 @@ def implement(self):
         self.logger.error(e.__str__())
         return True
 
-    if self.server == 'Global' or self.server == 'JP':
-        buy_ticket_times = max(0, self.config['purchase_rewarded_task_ticket_times'])  # ** 购买悬赏委托券的次数
-        buy_ticket_times = min(buy_ticket_times, 12)
-        if buy_ticket_times > 0:
-            to_choose_bounty(self, True)
-            purchase_bounty_ticket(self, buy_ticket_times)
+    buy_ticket_times = max(0, self.config['purchase_rewarded_task_ticket_times'])  # ** 购买悬赏委托券的次数
+    buy_ticket_times = min(buy_ticket_times, 12)
+    if buy_ticket_times > 0:
+        to_choose_bounty(self, True)
+        purchase_bounty_ticket(self, buy_ticket_times)
 
     bounty_name = ["OVERPASS", "DESSERT RAILWAY", "CLASSROOM"]
     self.rewarded_task_status = [False, False, False]
@@ -44,9 +43,8 @@ def implement(self):
                     return True
             elif res == "inadequate_ticket":
                 self.logger.warning("INADEQUATE TICKET")
-                if self.server == 'Global' or self.server == 'JP':
-                    self.logger.info("Rewarded task status : " + self.rewarded_task_status.__str__())
-                    return True
+                self.logger.info("Rewarded task status : " + self.rewarded_task_status.__str__())
+                return True
             elif res == "0SWEEPABLE":
                 self.logger.warning("0 SWEEPABLE")
 
@@ -55,20 +53,15 @@ def implement(self):
 
 
 def start_sweep(self):
-    rgb_ends = [
-        "purchase_bounty_ticket",
-        "start_sweep_notice",
-    ]
-    rgb_possibles = {'mission_info': (941, 411)}
     img_ends = [
-        "rewarded_task_purchase-bounty-ticket",
+        "rewarded_task_purchase-bounty-ticket-menu",
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {
         "rewarded_task_task-info": (941, 411),
     }
-    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
-    if res == "rewarded_task_purchase-bounty-ticket" or res == "purchase_bounty_ticket":
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    if res == "rewarded_task_purchase-bounty-ticket-menu":
         return "inadequate_ticket"
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     img_ends = [
@@ -136,63 +129,53 @@ def bounty_common_operation(self, a, b):
 
 
 def to_bounty(self, num, skip_first_screenshot=False):
-    bounty_location_y = {
-        'CN': [0, 277, 406, 554],
-        'JP': [0, 206, 309, 418],
-        'Global': [0, 206, 309, 418]
-    }
-    task_info_cross_x = {
-        'CN': 1085,
-        'JP': 1129,
-        'Global': 1129
-    }
+    bounty_location_y = [0, 206, 309, 418]
     img_ends = "rewarded_task_level-list"
     img_possibles = {
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
-        "rewarded_task_location-select": (992, bounty_location_y[self.server][num]),
-        "rewarded_task_task-info": (task_info_cross_x[self.server], 141),
+        "rewarded_task_location-select": (992, bounty_location_y[num]),
+        "rewarded_task_task-info": (1129, 141),
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
 def to_choose_bounty(self, skip_first_screenshot=False):
-    task_info_cross_x = {
-        'CN': 1085,
-        'JP': 1129,
-        'Global': 1129
-    }
     img_ends = "rewarded_task_location-select"
     img_possibles = {
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
         "rewarded_task_level-list": (57, 41),
-        "rewarded_task_task-info": (task_info_cross_x[self.server], 141),
+        "rewarded_task_task-info": (1129, 141),
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
+        'rewared_task_help': (1014, 135),
         'rewarded_task_purchase-bounty-ticket-notice': (888, 163),
     }
     rgb_ends = "choose_bounty"
     rgb_possibles = {"main_page": (1198, 580)}
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
+    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles,
+                      skip_first_screenshot=skip_first_screenshot)
+
+
+def to_purchase_bounty_ticket_menu(self):
+    img_possibles = {
+        "rewarded_task_location-select": (148, 101),
+    }
+    img_ends = "rewarded_task_purchase-bounty-ticket-menu"
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def purchase_bounty_ticket(self, times):
-    self.click(148, 101, duration=1.5, wait_over=True)
+    to_purchase_bounty_ticket_menu(self)
     if times == 12:  # max
         self.click(879, 346, wait_over=True)
     else:
         self.click(807, 346, count=times - 1, wait_over=True)
-    rgb_ends = "choose_bounty",
-    rgb_possibles = {
-        "purchase_bounty_ticket": (766, 507),
-        "purchase_ticket_notice": (766, 507),
-        "reward_acquired": (640, 116),
-    }
     img_ends = "rewarded_task_location-select"
     img_possibles = {
-        "rewarded_task_purchase-bounty-ticket": (766, 507),
+        "rewarded_task_purchase-bounty-ticket-menu": (766, 507),
         "rewarded_task_purchase-bounty-ticket-notice": (766, 507),
     }
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=False)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=False)

@@ -22,4 +22,5 @@ x_y_range = {
     "item-expiring-notice": (590, 100, 700, 150),
     "item-expired-notice": (390, 145, 900, 300),
     "request-failed-notice": (440, 300, 850, 370),
+    "Failed-to-convert-errorResponse": (419, 320, 862, 357),
 }

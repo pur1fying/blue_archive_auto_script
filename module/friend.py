@@ -1,6 +1,4 @@
-import time
-
-from core import picture, color
+from core import picture, image
 
 
 def implement(self):
@@ -9,7 +7,7 @@ def implement(self):
         return True
     self.quick_method_to_main_page()
     to_friend_management(self, True)
-    self.logger.info("Clear Friend White List : + " + str(self.config.get("clear_friend_white_list")))
+    self.logger.info("Clear Friend White List : " + str(self.config.get("clear_friend_white_list")))
     self.last_friend_id = None
     last_friend_id = None
     exit_cnt = 0
@@ -45,8 +43,7 @@ def implement(self):
                 checked_position = position[1]
                 continue
             else:
-                delete_position = (1128, position[1] + 85)
-                delete_friend(self, delete_position)
+                delete_friend(self, position)
                 need_swipe = False  # delete a friend, other id move, no need to swipe
                 break
         if need_swipe:
@@ -60,67 +57,17 @@ def to_friend_management(self, skip_first_screenshot=False):
     img_ends = "friend_friend-management-menu"
     img_possibles = {
         "friend_friend-menu": (579, 374),
-        "main_page_menu": (537, 467),
         "friend_player-info": (903, 101),
         "friend_delete-friend-notice": (887, 165),
         "group_enter-button": (627, 383),
     }
-    main_page_click_position = {
-        'CN': (1226, 39),
-        'Global': (562, 659),
-        'JP': (562, 659)
-    }
-    rgb_possibles = {"main_page": main_page_click_position[self.server]}
+    rgb_possibles = {"main_page": (562, 659)}
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
 def get_possible_friend_positions(self):
-    funcs = {
-        'CN': search_cn,
-        'Global': search_global,
-        'JP': search_jp
-    }
-    return funcs[self.server](self)
-
-
-def search_cn(self):
-    found_list = []
-    i = 157
-    x = 1183
-    while i < 595:
-        if color.judge_rgb_range(self, x, i, 34, 54, 60, 80, 88, 108):
-            found_list.append((1183, i))
-            i += 50
-        else:
-            i += 1
-    return found_list
-
-
-def search_global(self):
-    found_list = []
-    i = 157
-    x = 487
-    while i < 595:
-        if color.judge_rgb_range(self, x, i, 250, 255, 250, 255, 250, 255) and color.judge_rgb_range(self, x, i + 18, 250, 255, 250, 255, 250, 255):
-            found_list.append((493, i + 9))
-            i += 50
-        else:
-            i += 1
-    return found_list
-
-
-def search_jp(self):
-    found_list = []
-    i = 157
-    x = 487
-    while i < 595:
-        if color.judge_rgb_range(self, x, i, 250, 255, 250, 255, 250, 255) and color.judge_rgb_range(self, x, i + 18, 250, 255, 250, 255, 250, 255):
-            found_list.append((493, i + 9))
-            i += 50
-        else:
-            i += 1
-    return found_list
+    return image.get_image_all_appear_position(self, "friend_delete-friend", (1067, 155, 1196, 691), 0.8)
 
 
 def to_player_info(self, position):
@@ -129,14 +76,14 @@ def to_player_info(self, position):
         "friend_delete-friend-notice"
     ]
     img_possibles = {
-        "friend_friend-management-menu": position
+        "friend_friend-management-menu": (position[0] - 608, position[1] + 20)
     }
     return picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def check_name_in_white_list(self):
     ocr_region = {
-        'CN': (680, 385, 747, 409),
+        'CN': (711, 390, 796, 416),
         'Global': (711, 394, 823, 419),
         'JP': (680, 385, 747, 409),
     }

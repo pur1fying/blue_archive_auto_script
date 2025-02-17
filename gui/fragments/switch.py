@@ -38,6 +38,8 @@ class SwitchFragment(ScrollArea):
         super().__init__(parent=parent)
         self.flowLayout = None
         self.config = config
+        self._config_update()
+        # 创建一个QWidget实例作为滚动区域的内容部件
 
         # Create a QWidget instance to serve as the content of the scroll area.
         self.scrollWidget = QWidget()
@@ -64,6 +66,73 @@ class SwitchFragment(ScrollArea):
         # Generate a unique object name for the instance.
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(self.object_name)
+
+    # def _change_status(self, event_name: str, event_enabled: str) -> None:
+    #     self._read_config()  # 读取配置文件并更新_event_config列表
+    #     # 更新_event_config列表中与给定事件名称相对应的元素的enabled属性值
+    #     self._event_config = [
+    #         {**item, 'enabled': event_enabled}
+    #         if item['event_name'] == event_name else item
+    #         for item in self._event_config
+    #     ]
+    #     self._commit_change()  # 调用_commit_change()方法提交更改
+
+    # def update_status(self, event_name: str, event_enabled: str) -> None:
+    #     self._read_config()  # 读取配置文件并更新_event_config和_switch_config列表
+    #     # 根据_switch_config和_event_config列表的元素创建SettingCard对象，并将其添加到_setting_cards列表中
+    #     self._setting_cards = [
+    #         self._create_card(
+    #             name=item_event['event_name'],
+    #             tip=item_switch['tip'],
+    #             # enabled=item_event['enabled'],
+    #             # next_tick=item_event['next_tick'],
+    #             setting_name=item_switch['config']
+    #         )
+    #         for item_event in self._event_config
+    #         for item_switch in self._switch_config
+    #         if item_event['event_name'] == item_switch['name']
+    #     ]
+    #     # 将_setting_cards列表中的SettingCard对象添加到basicGroup中
+    #     self.basicGroup.addSettingCards(self._setting_cards)
+
+    def _config_update(self):
+        self._common_shop_config_update()
+        self._tactical_challenge_shop_config_update()
+        self._create_config_update()
+        self.config.save()
+
+    def _common_shop_config_update(self):
+        default_goods = self.config.static_config['common_shop_price_list'][self.config.server_mode]
+        if len(self.config.get('CommonShopList')) != len(default_goods):
+            self.config.set('CommonShopList', len(default_goods) * [0])
+
+    def _tactical_challenge_shop_config_update(self):
+        default_goods = self.config.static_config['tactical_challenge_shop_price_list'][self.config.server_mode]
+        if len(self.config.get('TacticalChallengeShopList')) != len(default_goods):
+            self.config.set('TacticalChallengeShopList', len(default_goods) * [0])
+
+    def _create_config_update(self):
+        valid_methods = [
+            ['default'],
+            ['primary', 'normal', 'primary_normal', 'advanced', 'superior','advanced_superior','primary_normal_advanced_superior'],
+            ['advanced', 'superior', 'advanced_superior']
+        ]
+        for phase in range(1, 4):
+            cfg_key_name = 'createPriority_phase' + str(phase)
+            current_priority = self.config.get(cfg_key_name)
+            res = []
+            default_priority = self.config.static_config['create_default_priority'][self.config.server_mode]["phase" + str(phase)]
+            for i in range(0, len(current_priority)):
+                if current_priority[i] in default_priority:
+                    res.append(current_priority[i])
+            for j in range(0, len(default_priority)):
+                if default_priority[j] not in res:
+                    res.append(default_priority[j])
+            self.config.set(cfg_key_name, res)
+            create_method = self.config.get(f'create_phase_{phase}_select_item_rule')
+            if create_method not in valid_methods[phase - 1]:
+                create_method = valid_methods[phase - 1][0]
+                self.config.set(f'create_phase_{phase}_select_item_rule', create_method)
 
     def _lazy_load(self):
         """

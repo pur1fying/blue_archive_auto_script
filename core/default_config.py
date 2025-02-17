@@ -40,10 +40,22 @@ EVENT_DEFAULT_CONFIG = """
     "enabled": false,
     "priority": 0,
     "interval": 0,
-    "daily_reset": [[20, 0, 0], [8, 0, 0]],
+    "daily_reset": [[20, 0, 0]],
     "next_tick": 0,
-    "event_name": "咖啡厅邀请",
-    "func_name": "cafe_invite",
+    "event_name": "1号咖啡厅邀请",
+    "func_name": "no1_cafe_invite",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
+  },
+  {
+    "enabled": false,
+    "priority": 0,
+    "interval": 0,
+    "daily_reset": [[8, 0, 0]],
+    "next_tick": 0,
+    "event_name": "2号咖啡厅邀请",
+    "func_name": "no2_cafe_invite",
     "disabled_time_range": [],
     "pre_task": [],
     "post_task": []
@@ -335,11 +347,9 @@ DEFAULT_CONFIG = """
     "main_story_regions": "",
     "rewarded_task_times": "2,2,2",
     "purchase_rewarded_task_ticket_times": "0",
-    "explore_normal_task_force_sss": true,
     "special_task_times": "1,1",
     "purchase_scrimmage_ticket_times": "0",
     "scrimmage_times": "2,2,2",
-    "explore_normal_task_force_each_fight" : false,
     "patStyle": "拖动礼物",
     "antiHarmony": true,
     "bannerVisibility": true,
@@ -356,7 +366,7 @@ DEFAULT_CONFIG = """
     "cafe_reward_has_no2_cafe": false,
     "cafe_reward_collect_hour_reward": true,
     "cafe_reward_invite2_criterion" : "starred",
-        "favorStudent2": [
+    "favorStudent2": [
         "爱丽丝(女仆)"
     ],
     "cafe_reward_invite2_starred_student_position" : 1,
@@ -377,6 +387,8 @@ DEFAULT_CONFIG = """
         1,
         1
     ],
+    "lesson_enableInviteFavorStudent": false,
+    "lesson_favorStudent": ["Aris (Maid)", "Aris"],
     "lesson_relationship_first": false,
     "lesson_each_region_object_priority": [
         ["primary","normal","advanced","superior"],
@@ -409,11 +421,6 @@ DEFAULT_CONFIG = """
     "shock2": "3",
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
-    "activity_exchange_reward": false,
-    "activity_exchange_50_times_at_once": false,
-    "explore_hard_task_need_sss": true,
-    "explore_hard_task_need_present": true,
-    "explore_hard_task_need_task": true,
     "TacticalChallengeShopRefreshTime": "0",
     "TacticalChallengeShopList": [
         0,
@@ -542,19 +549,23 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
-    "explore_normal_task_region_range": [4, 27],
-    "explore_hard_task_region_range": [1, 27],
+    "main_story_final_episode_num": 6,
+    "main_story_available_episodes": {
+        "CN": [2, 3, 4, 5, 6],
+        "Global": [2, 3, 4, 5, 6, 7],
+        "JP": [1, 2, 3, 4, 5, 6, 7, 8]
+    },
+    "explore_normal_task_region_range": [4, 28],
+    "explore_hard_task_region_range": [1, 28],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
     "common_shop_price_list": {
         "CN": [
-            ["悬赏通缉[光碟]券",30,"pyroxene"],["悬赏通缉[技术笔记]券",30,"pyroxene"],["悬赏通缉[神秘古物]券",30,"pyroxene"],["日程券",30,"pyroxene"],
-            ["学院交流会[崔尼蒂]券",30,"pyroxene"],["学院交流会[歌赫娜]券",30,"pyroxene"],["学院交流会[千禧年]券",30,"pyroxene"],["初级经验书", 12500, "creditpoints"],
-            ["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书",500000,"creditpoints"],["初级经验珠", 10000, "creditpoints"],
-            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 10000, "creditpoints"],
-            ["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],["初级经验珠", 20000, "creditpoints"],
-            ["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 258000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],
-            ["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
+            ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书",500000,"creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
+            ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 258000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ],
         "Global": [
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书", 500000, "creditpoints"],
@@ -581,10 +592,10 @@ STATIC_DEFAULT_CONFIG = '''
             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
         "Global": [
-             ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
-             ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
-             ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
-             ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
+             ["宫子神明文字x5",50],["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],
+             ["风香神明文字x5",50],["歌原神明文字x5",50],["30AP", 15],["60AP", 30], 
+             ["初级经验书x5", 5],["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],
+             ["信用点x5k", 4],["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
         "JP": [
              ["宫子神明文字x5", 50],  ["静子神明文字x5",50],    ["真白神明文字x5",50],    ["纱绫神明文字x5",50],
@@ -598,6 +609,8 @@ STATIC_DEFAULT_CONFIG = '''
         "phase1": [
              "花",
              "桃桃朋友咖啡厅",
+             "阿拜多斯讲堂主题",
+             "游戏开发部主题",
              "果冻游戏中心",
              "情人节",
              "夏日",
@@ -1501,8 +1514,8 @@ STATIC_DEFAULT_CONFIG = '''
       "晴(野营)":[3,4],
       "小玉":[7],
       "小玉(野营)":[7],
-      "尼禄":[7],
-      "尼禄(兔女郎)":[3,2,4],
+      "妮露":[7],
+      "妮露(兔女郎)":[3,2,4],
       "花凛":[7],
       "花凛(兔女郎)":[7],
       "朱音":[10],
@@ -3039,7 +3052,8 @@ STATIC_DEFAULT_CONFIG = '''
           "千禧年学习区",
           "崔尼蒂广场区",
           "红冬联邦学院",
-          "百鬼夜行中心"
+          "百鬼夜行中心",
+          "D.U.白鸟区"
           ],
       "Global": [
           "Schale Office",
@@ -3068,9 +3082,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "reckless_nun_and_the_witch_in_the_old_library",
+        "CN": "anUnconcealedHeart",
         "Global": null,
-        "JP": "SunlightGirlsNightSong"
+        "JP": "CodeBox"
     },
     "dailyGameActivity": {
         "CN": null,
@@ -3113,7 +3127,7 @@ STATIC_DEFAULT_CONFIG = '''
         ["12-1", "琴里"] , ["12-2", "优香"] , ["12-3", "晴奈"] ,
         ["13-1", "遥香"] , ["13-2", "睦月"] , ["13-3", "泉"] ,
         ["14-1", "佳代子"] , ["14-2", "千世"] , ["14-3", "伊织"] ,
-        ["15-1", "遥香"] , ["15-2", "椿"] , ["15-3", "尼禄"] ,
+        ["15-1", "遥香"] , ["15-2", "椿"] , ["15-3", "妮露"] ,
         ["16-1", "明日奈"] , ["16-2", "睦月"] , ["16-3", "日奈"] ,
         ["17-1", "好美"] , ["17-2", "千世"] , ["17-3", "花凛"] ,
         ["18-1", "志美子"] , ["18-2", "绫音"] , ["18-3", "爱露"] ,
@@ -3560,7 +3574,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "玲纱",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Reisa",
       "Global_implementation": true,
       "JP_name": "レイサ",
@@ -3568,15 +3582,15 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "柚子(女仆)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Yuzu (Maid)",
       "Global_implementation": true,
       "JP_name": "ユズ(メイド)",
       "JP_implementation": true
     },
     {
-      "CN_name": "时(兔女郎)",
-      "CN_implementation": false,
+      "CN_name": "时(邦妮)",
+      "CN_implementation": true,
       "Global_name": "Toki (Bunny)",
       "Global_implementation": true,
       "JP_name": "トキ(バニーガール)",
@@ -3584,7 +3598,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "爱丽丝(女仆)",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Aris (Maid)",
       "Global_implementation": true,
       "JP_name": "アリス(メイド)",
@@ -3599,16 +3613,16 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "春香(正月)",
-      "CN_implementation": false,
+      "CN_name": "春香(新年)",
+      "CN_implementation": true,
       "Global_name": "Haruka (New Year)",
       "Global_implementation": true,
       "JP_name": "ハルカ(正月)",
       "JP_implementation": true
     },
     {
-      "CN_name": "佳代子(正月)",
-      "CN_implementation": false,
+      "CN_name": "佳代子(新年)",
+      "CN_implementation": true,
       "Global_name": "Kayoko (New Year)",
       "Global_implementation": true,
       "JP_name": "カヨコ(正月)",
@@ -3616,7 +3630,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "小雪",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Koyuki",
       "Global_implementation": true,
       "JP_name": "コユキ",
@@ -3624,7 +3638,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "渚",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Nagisa",
       "Global_implementation": true,
       "JP_name": "ナギサ",
@@ -3632,7 +3646,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "时",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Toki",
       "Global_implementation": true,
       "JP_name": "トキ",
@@ -3640,23 +3654,23 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "樱子",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Sakurako",
       "Global_implementation": true,
       "JP_name": "サクラコ",
       "JP_implementation": true
     },
     {
-      "CN_name": "叶渚",
-      "CN_implementation": false,
+      "CN_name": "康娜",
+      "CN_implementation": true,
       "Global_name": "Kanna",
       "Global_implementation": true,
       "JP_name": "カンナ",
       "JP_implementation": true
     },
     {
-      "CN_name": "惠久",
-      "CN_implementation": false,
+      "CN_name": "惠",
+      "CN_implementation": true,
       "Global_name": "Megu",
       "Global_implementation": true,
       "JP_name": "メグ",
@@ -3664,22 +3678,22 @@ STATIC_DEFAULT_CONFIG = '''
     },
     {
       "CN_name": "未花",
-      "CN_implementation": false,
+      "CN_implementation": true,
       "Global_name": "Mika",
       "Global_implementation": true,
       "JP_name": "ミカ",
       "JP_implementation": true
     },
     {
-      "CN_name": "峰",
-      "CN_implementation": false,
+      "CN_name": "美祢",
+      "CN_implementation": true,
       "Global_name": "Mine",
       "Global_implementation": true,
       "JP_name": "ミネ",
       "JP_implementation": true
     },
     {
-      "CN_name": "纯子(正月)",
+      "CN_name": "纯子(新年)",
       "CN_implementation": true,
       "Global_name": "Junko (New Year)",
       "Global_implementation": true,
@@ -3687,7 +3701,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "风香(正月)",
+      "CN_name": "风香(新年)",
       "CN_implementation": true,
       "Global_name": "Fuuka (New Year)",
       "Global_implementation": true,
@@ -3695,7 +3709,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "晴奈(正月)",
+      "CN_name": "晴奈(新年)",
       "CN_implementation": true,
       "Global_name": "Haruna (New Year)",
       "Global_implementation": true,
@@ -3703,7 +3717,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "花江(圣诞节)",
+      "CN_name": "花江(圣诞)",
       "CN_implementation": true,
       "Global_name": "Hanae (Christmas)",
       "Global_implementation": true,
@@ -3711,7 +3725,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "芹娜(圣诞节)",
+      "CN_name": "芹娜(圣诞)",
       "CN_implementation": true,
       "Global_name": "Serina (Christmas)",
       "Global_implementation": true,

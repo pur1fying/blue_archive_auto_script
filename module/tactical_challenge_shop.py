@@ -4,11 +4,14 @@ from core import color, picture, image
 
 
 def implement(self):
+    buy_list = np.array(self.config["TacticalChallengeShopList"])
+    if not buy_list.any():
+        self.logger.info("Nothing to buy in tactical challenge shop.")
+        return True
     self.quick_method_to_main_page()
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
     tactical_challenge_assets = get_tactical_challenge_assets(self)
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))
-    buy_list = np.array(self.config["TacticalChallengeShopList"])
     price = self.static_config["tactical_challenge_shop_price_list"][self.server]
     temp = []
     for i in range(0, len(price)):
@@ -46,9 +49,11 @@ def implement(self):
             tactical_challenge_assets = tactical_challenge_assets - asset_required
             self.logger.info("left assets : " + str(tactical_challenge_assets))
             to_shop_menu(self)
-        else:
+        elif state == "shop_purchase-unavailable":
             self.logger.info("-- Purchase Unavailable --")
             return True
+        elif state == "shop_refresh-button-appear":
+            self.logger.warning("Refresh Button Detected, assume item purchased previously.")
         self.latest_img_array = self.get_screenshot_array()
         if i != refresh_time:
             if tactical_challenge_assets >= refresh_price[i] + asset_required:
@@ -66,8 +71,9 @@ def get_purchase_state(self):
     img_ends = [
         "shop_purchase-available",
         "shop_purchase-unavailable",
+        "shop_refresh-button-appear",
     ]
-    return picture.co_detect(self, None, None, img_ends, None, True)
+    return picture.co_detect(self, None, None, img_ends, None, False)
 
 
 def confirm_refresh(self):

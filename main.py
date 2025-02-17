@@ -48,7 +48,8 @@ class Main:
 
     def init_static_config(self):
         try:
-            self.static_config = self.operate_dict(json.load(open(self.project_dir + "/config/static.json", 'r', encoding='utf-8')))
+            self.static_config = self.operate_dict(
+                json.load(open(self.project_dir + "/config/static.json", 'r', encoding='utf-8')))
             return True
         except Exception as e:
             self.logger.error("Static Config initialization failed")
@@ -97,25 +98,17 @@ class Main:
 
 
 if __name__ == '__main__':
-    # ocr_needed = ["NUM", "CN", "Global"]
-    ocr_needed = ["Global", "CN", "JP"]
+    ocr_needed = ["Global", "CN", "JP", "NUM"]
     t = Main(ocr_needed=ocr_needed)
     t.init_static_config()
-    config = ConfigSet(config_dir="1708185944")
+    config = ConfigSet(config_dir="1708148000")
     tt = Baas_thread(config, None, None, None)
     tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
-    from module.create import item_order_list_builder
-    import json
-    from module.create import confirm_select_node, create_phase
-    create_phase(tt, 1)
-    confirm_select_node(tt, 0)
-    create_phase(tt, 2)
-    confirm_select_node(tt, 0)
-    create_phase(tt, 3)
-    confirm_select_node(tt, 1)
+
     from module import create
+
     # create.select_node(tt, 1)
 
     # print(json.dumps(res, indent=4))
@@ -132,8 +125,8 @@ if __name__ == '__main__':
     # tt.solve("total_assault")
     # tt.solve("cafe_reward")
     # tt.solve("momo_talk")
-    tt.solve("explore_normal_task")
-    # tt.solve("explore_hard_task")
+    # tt.solve("explore_normal_task")
+    tt.solve("explore_hard_task")
     # tt.solve("normal_task")
     # tt.solve("hard_task")
     # tt.solve("arena")
@@ -141,7 +134,7 @@ if __name__ == '__main__':
     # tt.solve("group")
     # tt.solve("mail")
     # tt.solve("collect_reward")
-    tt.solve("main_story")
+    # tt.solve("main_story")
     # tt.solve("group_story")
     # tt.solve("mini_story")
     # tt.solve("clear_special_task_power")

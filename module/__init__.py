@@ -5,8 +5,7 @@ from module import collect_reward
 from module import common_shop
 from module import create
 from module import de_clothes
-from module import explore_hard_task
-from module import explore_normal_task
+from module.ExploreTasks import explore_hard_task
 from module import group
 from module import hard_task
 from module import lesson
@@ -27,6 +26,7 @@ from module import explore_activity_challenge
 from module import explore_activity_mission
 from module import sweep_activity
 from module import dailyGameActivity
-from module import cafe_invite
+from module import no1_cafe_invite
+from module import no2_cafe_invite
 from module import friend
 from module import joint_firing_drill

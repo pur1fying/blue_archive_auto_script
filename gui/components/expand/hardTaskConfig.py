@@ -1,33 +1,13 @@
-from PyQt5.QtCore import Qt, QObject
-from PyQt5.QtWidgets import QHBoxLayout, QLabel
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel, QWidget
 from qfluentwidgets import LineEdit, PushButton
-
-from .expandTemplate import TemplateLayout
 from ...util import notification
 
-class Layout(TemplateLayout):
+class Layout(QWidget):
     def __init__(self, parent=None, config=None):
-        HardTaskConfig = QObject()
-        configItems = [
-            {
-                'label': HardTaskConfig.tr('打到SSS'),
-                'key': 'explore_hard_task_need_sss',
-                'type': 'switch'
-            },
-            {
-                'label': HardTaskConfig.tr('拿礼物'),
-                'key': 'explore_hard_task_need_present',
-                'type': 'switch'
-            },
-            {
-                'label': HardTaskConfig.tr('完成成就任务'),
-                'key': 'explore_hard_task_need_task',
-                'type': 'switch'
-            }
-        ]
-
-        super().__init__(parent=parent, configItems=configItems, config=config, context="HardTaskConfig")
-
+        super().__init__(parent=parent)
+        self.vBoxLayout = QVBoxLayout(self)
+        self.config = config
         self.push_card = QHBoxLayout()
         self.push_card_label = QHBoxLayout()
         self.label_tip_push = QLabel(

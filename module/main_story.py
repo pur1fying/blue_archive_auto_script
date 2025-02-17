@@ -1,51 +1,53 @@
-import importlib
 import os
 import time
 from core import color, picture, image
-from module.explore_normal_task import common_gird_method
+from module.ExploreTasks.TaskUtils import execute_grid_task
+import json
 
 
 def implement(self):
     self.logger.info("START pushing main story")
-    stage_module = importlib.import_module("src.explore_task_data.main_story.main_story")
-    self.main_story_stage_data = getattr(stage_module, "stage_data")
+    self.main_story_stage_data = get_stage_data()
     self.quick_method_to_main_page()
     to_main_story(self, True)
     push_episode_list = process_regions(self, self.config['main_story_regions'])
     if not push_episode_list:
-        default_list = {
-            'CN': [1, 2, 3, 4, 5],
-            'Global': [1, 2, 3, 4, 5, 4, 6],
-            'JP': [1, 2, 3, 4, 5, 4, 6]
-        }
+        default_list = self.static_config['main_story_available_episodes']
         push_episode_list = default_list[self.server]
     for i in range(0, len(push_episode_list)):
         current_episode = push_episode_list[i]
         is_final = False
-        if current_episode == 5:
+        if current_episode == self.static_config['main_story_final_episode_num']:
             is_final = True
         push_episode(self, current_episode, is_final)
     return True
 
 
+def get_stage_data():
+    path = "src/explore_task_data/main_story/main_story.json"
+    with open(path, "r") as f:
+        data = json.load(f)
+    return data
+
+
 def judge_acc(self):
     if color.judge_rgb_range(self, 1180, 621, 200, 255, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
+            color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
         return 1
     elif color.judge_rgb_range(self, 1250, 621, 100, 150, 200, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
+            color.judge_rgb_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
         return 2
     elif color.judge_rgb_range(self, 1250, 621, 210, 255, 180, 240, 0, 80) and \
-        color.judge_rgb_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
+            color.judge_rgb_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
         return 3
 
 
 def judge_auto(self):
     if color.judge_rgb_range(self, 1250, 677, 180, 255, 180, 255, 200, 255) and \
-        color.judge_rgb_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
+            color.judge_rgb_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
         return 'off'
     elif color.judge_rgb_range(self, 1250, 677, 200, 255, 180, 255, 0, 80) and \
-        color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
+            color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
         return 'on'
 
 
@@ -76,17 +78,20 @@ def change_acc_auto(self):
 
 
 def enter_fight(self):
+    self.logger.info("Enter Fight")
     img_possibles = {
         'normal_task_present': (640, 519),
-        'normal_task_teleport-notice': (886, 165)
+        'normal_task_teleport-notice': (886, 165),
+        'plot_formation': (1157, 651),
+        'plot_self-formation': (1157, 651)
     }
-    rgb_ends = [
-        "fighting_feature",
+    img_ends = [
         "normal_task_fight-confirm",
-        "normal_task_fail-confirm",
+        "normal_task_fail-confirm"
     ]
+    rgb_ends = "fighting_feature"
     img_pop_ups = {"activity_choose-buff": (644, 570)}
-    ret = picture.co_detect(self, rgb_ends, None, None, img_possibles, True, img_pop_ups=img_pop_ups)
+    ret = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True, img_pop_ups=img_pop_ups)
     if ret != "fighting_feature":
         self.logger.info("fight end.")
     return ret
@@ -98,7 +103,6 @@ def auto_fight(self, need_change_acc=True):
         time.sleep(2)
         self.latest_img_array = self.get_screenshot_array()
         change_acc_auto(self)
-
 
 
 def check_episode(self):
@@ -114,23 +118,66 @@ def check_episode(self):
 
 
 def to_episode(self, num):
-    origin_position = {
-        'CN': [0, [305, 255], [526, 449], [892, 255], [597, 449], [850, 630]],
-        'Global': [0, [305, 255], [526, 449], [892, 255], [263, 470], [850, 630]],
-        'JP': [0, [305, 255], [526, 449], [892, 255], [278, 463], [850, 630], [729, 249]]
-    }
-    episode_position = origin_position[self.server]
-    if num in [1, 2, 3, 4]:
-        self.swipe(14, 364, 654, 364, duration=0.1, post_sleep_time=0.5)
-    if num == 4:
-        self.swipe(654, 364, 14, 364, duration=0.1, post_sleep_time=0.5)
-    img_possibles = {
-        "main_story_menu": episode_position[num],
-        "main_story_select-episode": (60, 36)
-    }
-    img_ends = "main_story_episode" + str(num)
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    """
+        ensure goto required episode page, may not single swipe
+    """
+    final_num = self.static_config['main_story_final_episode_num']
+    if num == final_num:
+        img_possibles = {
+            "main_story_menu": (850, 630),
+            "main_story_select-episode": (60, 36)
+        }
+        img_ends = "main_story_episode" + str(num)
+        return picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    detect_episode_list = self.static_config['main_story_available_episodes'][self.server].copy()
+    detect_episode_list.remove(final_num)
+
+    wait_to_detect_list = detect_episode_list.copy()
+    last_detected_ep = False
+    last_detected_pos = False
+
+    while self.flag_run:
+        last_detected_ep, last_detected_pos = search_episode(self, wait_to_detect_list)
+        if not last_detected_ep:
+            to_main_story(self, False)
+            continue
+        if num in last_detected_ep:
+            img_possibles = {
+                "main_story_menu": last_detected_pos[last_detected_ep.index(num)],
+                "main_story_select-episode": (60, 36)
+            }
+            img_ends = "main_story_episode" + str(num)
+            return picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        else:
+            _min = min(last_detected_ep)
+            _max = max(last_detected_ep)
+            x_start, x_end = 0, 400
+            if num < _min:  # search left to _max
+                wait_to_detect_list = detect_episode_list[:detect_episode_list.index(_max)]
+            else:  # search right from _min
+                x_start, x_end = x_end, x_start
+                wait_to_detect_list = detect_episode_list[detect_episode_list.index(_min) + 1:]
+            self.swipe(x_start, 142, x_end, 142, 0.7, post_sleep_time=1)
+            to_main_story(self, False)
     return True
+
+
+def search_episode(self, possible_list):
+    self.logger.info("Search Episode " + str(possible_list))
+    regions = [[0, 293, 910, 362], [0, 506, 812, 588]]
+    appeared_episodes = []
+    position = []
+    for i in range(0, len(possible_list)):
+        for j in range(0, len(regions)):
+            ret = image.search_in_area(self, "main_story_episode-" + str(possible_list[i]) + "-title", regions[j], 0.8)
+            if ret:
+                self.logger.info("Episode " + str(possible_list[i]) + " detected at " + str(ret))
+                appeared_episodes.append(possible_list[i])
+                position.append(ret)
+                break
+    if len(appeared_episodes) == 0:
+        return False, False
+    return appeared_episodes, position
 
 
 def check_current_plot_status(self, position):
@@ -155,6 +202,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
         'normal_task_fight-confirm': (1168, 659),
         'normal_task_fail-confirm': (643, 658),
         'normal_task_task-finish': (1038, 662),
+        'main_story_get-new-search-data': (514, 510),
     }
     img_ends = [
         "main_story_episode-cleared-feature",
@@ -164,7 +212,6 @@ def clear_current_plot(self, skip_first_screenshot=False):
         ("plot_self-formation", 0.9),
         "normal_task_task-wait-to-begin-feature",
         "main_story_continue-plot",
-        "episode5"
     ]
     res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     if res == "main_story_continue-plot":
@@ -174,13 +221,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
         return res
     if res == "normal_task_task-wait-to-begin-feature":
         stage_data = check_state_and_get_stage_data(self)
-        common_gird_method(self, stage_data)
-    rgb_ends = "fighting_feature"
-    img_possibles = {"plot_formation": (1157, 651)}
-    if res == "plot_self-formation":
-        auto_choose_formation(self, True)
-        img_possibles = {"plot_self-formation": (1157, 651)}
-    picture.co_detect(self, rgb_ends, None, None, img_possibles, True)
+        execute_grid_task(self, stage_data)
     auto_fight(self)
     return clear_current_plot(self)
 
@@ -188,10 +229,19 @@ def clear_current_plot(self, skip_first_screenshot=False):
 def auto_choose_formation(self, skip_first_screenshot=False, rgb_possibles=None, rgb_ends=None):
     self.logger.info("AUTO choose formation")
     img_possibles = {"plot_self-formation": (1180, 183)}
-    img_ends = "plot_change-unit-formation"
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
-    self.click(649, 596, wait_over=True)
-    img_possibles = {"plot_change-unit-formation": (1130, 586)}
+    img_ends = [
+        "plot_change-unit-formation",
+        "plot_edit-self-formation"
+    ]
+    ret = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    if ret == "plot_change-unit-formation":
+        self.click(649, 596, wait_over=True)
+    else:
+        self.click(936, 592, wait_over=True)
+    img_possibles = {
+        "plot_edit-self-formation": (1174, 595),
+        "plot_change-unit-formation": (1130, 586)
+    }
     img_ends = "plot_self-formation"
     picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
 
@@ -229,10 +279,11 @@ def to_main_story(self, skip_first_screenshot=False):
     rgb_possibles = {
         'main_page': (1188, 575)
     }
+    final_num = self.static_config['main_story_final_episode_num']
     img_possibles = {
         "main_page_bus": (1098, 261),
         "main_story_enter-main-story": (327, 510),
-        "main_story_episode5": (149, 109),
+        "main_story_episode" + str(final_num): (149, 109),
         "main_story_select-episode": (60, 36),
     }
     img_ends = "main_story_menu"
@@ -241,9 +292,10 @@ def to_main_story(self, skip_first_screenshot=False):
 
 
 def to_select_episode(self, res, skip_first_screenshot):
+    final_num = self.static_config['main_story_final_episode_num']
     img_possibles = {
         "main_story_menu": res,
-        "main_story_episode5": res
+        "main_story_episode" + str(final_num): res
     }
     img_ends = [
         "main_story_episode-cleared-feature",
@@ -269,7 +321,7 @@ def check_state_and_get_stage_data(self):
         for filename in filenames:
             if filename.endswith(".png"):
                 name = "main_story_" + filename[:-4]
-                if image.compare_image(self, name, need_log=False):
+                if image.compare_image(self, name):
                     self.logger.info("CURRENT STATE: " + filename[:-4])
                     img_possibles = {"normal_task_mission-operating-task-info-notice": (993, 97)}
                     img_ends = "normal_task_task-wait-to-begin-feature"

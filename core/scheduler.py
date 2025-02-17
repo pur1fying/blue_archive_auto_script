@@ -22,6 +22,12 @@ class Scheduler:
         self.funcs = []
         self._read_config()
 
+    def get_interval(self, func_name):
+        for item in self._event_config:
+            if item['func_name'] == func_name:
+                return item['interval']
+        return 0
+
     def _read_config(self):
         with lock:
             with open(self.event_config_path, 'r', encoding='utf-8') as f:
@@ -39,7 +45,8 @@ class Scheduler:
     def get_next_time(cls, hour, minute, second):
         t = datetime.now(timezone.utc)
         deltaDay = 0
-        if t.hour > hour or (t.hour == hour and t.minute > minute) or (t.hour == hour and t.minute == minute and t.second > second):
+        if t.hour > hour or (t.hour == hour and t.minute > minute) or (
+            t.hour == hour and t.minute == minute and t.second > second):
             deltaDay = 1
         td = timedelta(days=deltaDay)
         return (t.replace(hour=hour, minute=minute, second=second, microsecond=0) + td).timestamp()
@@ -54,13 +61,15 @@ class Scheduler:
                         interval = event['interval']
                         if event['interval'] <= 0:
                             interval = 86400
-                        daily_reset = event['daily_reset']                          # daily_reset is a list with items like : [hour, minute, second]
+                        daily_reset = event[
+                            'daily_reset']  # daily_reset is a list with items like : [hour, minute, second]
                         sorted(daily_reset, key=lambda x: x[0] * 3600 + x[1] * 60 + x[2])
                         current = datetime.now(timezone.utc).timestamp()
-                        temp = 2**63
+                        temp = 2 ** 63
 
                         for i in range(0, len(daily_reset)):
-                            temp = min(self.get_next_time(daily_reset[i][0], daily_reset[i][1], daily_reset[i][2]), temp)
+                            temp = min(self.get_next_time(daily_reset[i][0], daily_reset[i][1], daily_reset[i][2]),
+                                       temp)
                         if current + interval >= temp:
                             event['next_tick'] = temp
                         else:
@@ -73,6 +82,9 @@ class Scheduler:
                     return datetime.fromtimestamp(event['next_tick'])
 
     def heartbeat(self):
+        """
+            Get the next task to be executed.
+        """
         self.update_valid_task_queue()
         if len(self._valid_task_queue) != 0:
             self.first_waiting = True
@@ -90,14 +102,21 @@ class Scheduler:
             return None
 
     def update_valid_task_queue(self):
+        """
+            Update the task queue.
+            1. Filter out unqualified unqualified tasks:
+                a. enabled = False
+                b. next_tick > current time
+            2. Sort by priority.
+        """
         self._read_config()
         time_since_epoch = time.time()
         now = datetime.now()
-        time_since_midnight = self.convert_to_seconds(now.hour, now.minute, now.second)
+        time_since_midnight = Scheduler.convert_to_seconds(now.hour, now.minute, now.second)
 
         _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time_since_epoch and \
-                        not self.is_disable_period(x, time_since_midnight)]    # filter out event not ready
-        _valid_event = sorted(_valid_event, key=lambda x: x['priority'])                                    # sort by priority
+                        not self.is_disable_period(x, time_since_midnight)]  # filter out event not ready
+        _valid_event = sorted(_valid_event, key=lambda x: x['priority'])  # sort by priority
 
         self._valid_task_queue = []
         for i in range(0, len(_valid_event)):
@@ -121,14 +140,16 @@ class Scheduler:
             thisTask["post_task"] = temp
             self._valid_task_queue.append(thisTask)
 
-    def convert_to_seconds(self, hour, minute, second) -> float:
+    @staticmethod
+    def convert_to_seconds(hour, minute, second) -> float:
         return hour * 3600 + minute * 60 + second
 
-    def is_disable_period(self, event_list, time_since_midnight) -> bool:
+    @staticmethod
+    def is_disable_period(event_list, time_since_midnight) -> bool:
         disabled = event_list["disabled_time_range"]
         for period in disabled:
-            start = self.convert_to_seconds(*period[0])
-            end = self.convert_to_seconds(*period[1])
+            start = Scheduler.convert_to_seconds(*period[0])
+            end = Scheduler.convert_to_seconds(*period[1])
             if start <= time_since_midnight <= end:
                 return True
         return False
@@ -140,11 +161,11 @@ class Scheduler:
         """
         time_since_epoch = time.time()
         now = datetime.now()
-        time_since_midnight = self.convert_to_seconds(now.hour, now.minute, now.second)
+        time_since_midnight = Scheduler.convert_to_seconds(now.hour, now.minute, now.second)
 
         _valid_event = [x for x in self._event_config if x['enabled'] and \
-                         x['next_tick'] > time_since_epoch and \
-                            not self.is_disable_period(x, time_since_midnight)]
+                        x['next_tick'] > time_since_epoch and \
+                        not self.is_disable_period(x, time_since_midnight)]
         if _valid_event:
             event_list = min(_valid_event, key=lambda x: x['next_tick'])
             next_tick = event_list['next_tick']

@@ -13,13 +13,38 @@ class RequestHumanTakeOver(Exception):
         super().__init__(self.message)
 
 
-class ScriptError(Exception):
+class PackageIncorrect(Exception):
+    """
+        every 20s core.picture.co_detect func didn't match a feature it will check the package through adb.
+        possible reasons:
+        1. Game crushed.
+        2. When starting the game BAAS may click into browser in Global server.
+    """
+    def __init__(self, message="Package Incorrect"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class FunctionCallTimeout(Exception):
+    """
+        core.picture.co_detect func call timeout 600s reached.
+        possible reasons:
+        1. Meet unexpected ui.
+        2. Game keeps loading.
+    """
+    def __init__(self, message="Function Call Timeout"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class LogTraceback:
     def __init__(self, title=None, message=None, context=None):
         traceback.print_exc()
         assert context is not None
         self.message = message
         self.context = context
         context.send('stop')
+        self.context.logger.error(title)
         lines = message.split('\n')
         _lines = []
         for line in lines:
@@ -30,9 +55,7 @@ class ScriptError(Exception):
             _lines.append(line)
         for line in _lines:
             self.context.logger.error(line)
-        self.context.logger.error(title)
         self.context.logger.error('All activities stopped. Require human take over.')
-        super().__init__(self.message)
         # self.log_into_file()
 
     def log_into_file(self):

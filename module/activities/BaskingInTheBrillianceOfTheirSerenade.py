@@ -1,8 +1,7 @@
-import importlib
 import time
-from core import color, picture, image
+from core import color, picture
 from module import main_story
-from module.explore_normal_task import common_gird_method
+from module.activities.activity_utils import get_stage_data
 
 
 def implement(self):
@@ -317,7 +316,7 @@ def start_sweep(self, skip_first_screenshot=False):
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
-    if res == "purchase_ap_notice-localized" or res == "buy_ap_notice":
+    if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return "inadequate_ap"
     rgb_ends = [
         "skip_sweep_complete",

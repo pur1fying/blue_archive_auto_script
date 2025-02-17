@@ -12,8 +12,8 @@ def sweep(self, times):
             "mainline_training-formation": (1153, 659),
             "mainline_tutorial": (640, 360)
         }
-        picture.co_detect(self, None, {"fighting_feature": (-1, -1)}, "normal_task_fight-confirm", img_possibles, True, tentitive_click=True,
-                          tentitivex=640, tentitivey=360, max_fail_cnt=1)
+        picture.co_detect(self, None, {"fighting_feature": (-1, -1)}, "normal_task_fight-confirm", img_possibles, True, tentative_click=True,
+                          tentative_x=640, tentative_y=360, max_fail_cnt=1)
         hard_task.to_hard_event(self, True)
         normal_task.to_normal_event(self, True)
 

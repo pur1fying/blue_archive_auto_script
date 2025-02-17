@@ -2,10 +2,11 @@ import re
 from core import color, image, picture
 from core.utils import build_possible_string_dict_and_length, most_similar_string
 
+
 def implement(self):
-    use_acceleration_ticket = self.config['use_acceleration_ticket']
-    left_create_times = self.config['createTime'] - self.config['alreadyCreateTime']
-    create_max_phase = self.config['create_phase']
+    use_acceleration_ticket = self.config_set.config['use_acceleration_ticket']
+    left_create_times = int(self.config_set.config['createTime']) - int(self.config_set.config['alreadyCreateTime'])
+    create_max_phase = int(self.config_set.config['create_phase'])
     self.logger.info("Left Create Times: [ " + str(left_create_times) + " ].")
     self.logger.info("Use Acceleration Ticket : [ " + str(use_acceleration_ticket).upper() + " ].")
     self.logger.info("Create Phase : [ " + str(create_max_phase) + " ].")
@@ -18,10 +19,11 @@ def implement(self):
         select_node(self, phase)
         confirm_select_node(self, 1)
         to_manufacture_store(self, True)
-    status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
     create_flag = True
-    if left_create_times == 0:
+    if left_create_times <= 0:
         create_flag = False
+        use_acceleration_ticket = False
+    status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
     while self.flag_run and create_flag:
         if status == ["unfinished", "unfinished", "unfinished"] and (not use_acceleration_ticket):
             self.logger.info("-- Stop Crafting --")
@@ -30,7 +32,10 @@ def implement(self):
         for i in range(0, len(status)):
             if status[i] == "empty":
                 to_phase1(self, i, True)
-                create_phase(self, 1)
+                material_adequate = create_phase(self, 1)
+                if not material_adequate:
+                    create_flag = False
+                    break
                 if create_max_phase >= 2:
                     confirm_select_node(self, 0)
                     create_phase(self, 2)
@@ -41,7 +46,8 @@ def implement(self):
                 need_acc_collect = True
                 self.config_set.config['alreadyCreateTime'] += 1
                 self.config_set.save()
-                self.logger.info("Today Total Create Times : [ " + str(self.config_set.config['alreadyCreateTime']) + " ].")
+                self.logger.info(
+                    "Today Total Create Times : [ " + str(self.config_set.config['alreadyCreateTime']) + " ].")
                 to_manufacture_store(self)
                 if self.config_set.config['alreadyCreateTime'] >= self.config['createTime']:
                     create_flag = False
@@ -54,6 +60,11 @@ def implement(self):
 
 
 def confirm_select_node(self, tp=0):
+    """
+        click select node then
+        if tp = 0 : go to put more material page
+           tp = 1 : confirm create --> return to manufacture store
+    """
     p = [(854, 654), (1116, 648)]
     p = p[tp]
     img_possibles = {
@@ -99,7 +110,8 @@ def select_node(self, phase):
     for i in range(0, 5):
         if i != 0:
             image.click_until_image_disappear(self, node_x[i], node_y[i], region, 0.9, 10)
-        node_info = preprocess_node_info(self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
+        node_info = preprocess_node_info(
+            self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
         self.logger.info("Ocr Node " + str(i + 1) + " : " + node_info)
         for k in range(0, len(pri)):
             if pri[k] == node_info:  # complete match
@@ -123,7 +135,7 @@ def select_node(self, phase):
                 self.logger.warning("Node [ " + str(node_info) + " ] can't be recognized.")
                 self.logger.warning("If it's a new node, please contact the developer to update default node list.")
 
-    self.logger.info("Detected Nodes:" )
+    self.logger.info("Detected Nodes:")
     self.logger.info(str(node))
     for i in range(1, len(pri)):
         for j in range(0, len(node)):
@@ -135,6 +147,9 @@ def select_node(self, phase):
 
 
 def get_display_setting(self, phase):
+    """
+        return filter_list, sort_type, sort_direction
+    """
     if phase == 1:
         return [1, 1, 1, 1, 1, 1, 1, 1], "basic", "up"
     if phase == 2:
@@ -150,17 +165,23 @@ def create_phase(self, phase):
     expected_item_list = item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     # select item according to the config
     check_state = CreateItemCheckState(expected_item_list, sort_type, sort_direction, phase, self)
+    item_selected = False
     while self.flag_run:
         check_state.clear_exist_item()
         item_recognize(self, check_state)
         if check_state.try_choose_item():
+            item_selected = True
             break
         if check_state.item_all_checked():
             break
         check_state.list_swipe()
     log_detect_information(self, check_state.exist_item_list, "All Detected Items : ")
+    if not item_selected:
+        self.logger.warning("Material inadequate.")
+        return False
     start_phase(self, phase)
     select_node(self, phase)
+    return True
 
 
 def select_item(self, check_state, item_name, weight):
@@ -215,12 +236,7 @@ def to_manufacture_store(self, skip_first_screenshot=False):
 
 
 def check_crafting_list_status(self):
-    y_position = {
-        'CN': [312, 452, 594],
-        'Global': [288, 407, 534],
-        'JP': [288, 407, 534]
-    }
-    y_position = y_position[self.server]
+    y_position = [288, 407, 534]
     status = [None, None, None]
     for j in range(0, 3):
         if color.judge_rgb_range(self, 1126, y_position[j], 90, 130, 200, 230, 245, 255):
@@ -244,36 +260,18 @@ def receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket
 
 
 def collect(self, status, use_acceleration_ticket):
-    if self.server == 'JP' or self.server == 'Global':
-        if "finished" in status:
-            self.click(1126, 617, wait_over=True, duration=1.5)
-            self.click(640, 100, wait_over=True, count=2)
-            to_manufacture_store(self)
-        if ("unfinished" in status) and use_acceleration_ticket:
-            img_possibles = {"create_crafting-list": (1126, 617)}
-            img_ends = "create_complete-instantly"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            img_possibles = {"create_complete-instantly": (766, 516)}
-            img_ends = "create_crafting-list"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-        return
-    y_position = {
-        'CN': [312, 452, 594],
-    }
-    y_position = y_position[self.server]
-    for i in range(0, 3):
-        if status[i] == "unfinished" and use_acceleration_ticket:
-            img_possibles = {"create_crafting-list": (1126, y_position[i])}
-            img_ends = "create_complete-instantly"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            img_possibles = {"create_complete-instantly": (766, 516)}
-            img_ends = "create_crafting-list"
-            picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            status[i] = "finished"
-        if status[i] == "finished":
-            self.click(1126, y_position[i], wait_over=True, duration=1.5)
-            self.click(640, 100, wait_over=True, count=2)
-            to_manufacture_store(self)
+    if "finished" in status:
+        self.click(1126, 617, wait_over=True, duration=1.5)
+        self.click(640, 100, wait_over=True, count=2)
+        to_manufacture_store(self)
+    if ("unfinished" in status) and use_acceleration_ticket:
+        img_possibles = {"create_crafting-list": (1126, 617)}
+        img_ends = "create_complete-instantly"
+        picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        img_possibles = {"create_complete-instantly": (766, 516)}
+        img_ends = "create_crafting-list"
+        picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    return
 
 
 def check_create_availability(self):
@@ -286,24 +284,14 @@ def check_create_availability(self):
 
 
 def to_phase1(self, i, skip_first_screenshot=False):
-    y_position = {
-        'CN': [312, 452, 594],
-        'Global': [288, 407, 534],
-        'JP': [288, 407, 534]
-    }
-    y_position = y_position[self.server]
+    y_position = [288, 407, 534]
     img_possibles = {"create_crafting-list": (1153, y_position[i])}
     img_ends = "create_material-list"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
 
 def to_filter_menu(self):
-    x = {
-        'CN': 946,
-        'Global': 1048,
-        'JP': 1048
-    }
-    x = x[self.server]
+    x = 1048
     img_possibles = {
         "create_material-list": (x, 98),
         "create_sort-menu": (145, 160)
@@ -313,13 +301,7 @@ def to_filter_menu(self):
 
 
 def confirm_filter(self):
-    y = {
-        'CN': 493,
-        'Global': 595,
-        'JP': 595
-    }
-    y = y[self.server]
-    img_possibles = {"create_filter-menu": (765, y)}
+    img_possibles = {"create_filter-menu": (765, 595)}
     img_ends = "create_material-list"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
@@ -338,43 +320,24 @@ def set_display_setting_filter_list(self, filter_list):
     self.logger.info("Set Filter List: ")
     self.logger.info(str(filter_list[0:4]))
     self.logger.info(str(filter_list[4:8]))
-    total = sum(filter_list)
-
-    flg = False
-    if self.server == 'CN':
-        flg = total > 4
-        set_display_setting_filter_list_select_all(self, True)
-        if flg:
-            pass  # select all
-        else:
-            set_display_setting_filter_list_select_all(self, False)  # unselect all
-
-        if total == 0 or total == 8:
-            confirm_filter(self)
-            return
-    filter_list_ensure_choose(self, filter_list, flg)
+    filter_list_ensure_choose(self, filter_list)
     confirm_filter(self)
 
 
-def filter_list_ensure_choose(self, filter_list, flg):
+def filter_list_ensure_choose(self, filter_list):
     filter_type_list = self.static_config['create_filter_type_list']
     start_position = {
-        'CN': (263, 293),
+        'CN': (293, 273),
         'Global': (291, 294),
         'JP': (291, 294)
     }
-    dx = {
-        'CN': 202,
-        'Global': 235,
-        'JP': 235
-    }
+    dx = 235
     dy = {
-        'CN': 72,
+        'CN': 56,
         'Global': 65,
         'JP': 65
     }
     start_position = start_position[self.server]
-    dx = dx[self.server]
     dy = dy[self.server]
     curr_position = start_position
     for i in range(0, len(filter_list)):
@@ -385,9 +348,6 @@ def filter_list_ensure_choose(self, filter_list, flg):
                 curr_position = (curr_position[0] + dx, curr_position[1])
         pre = "create_filter-" + filter_type_list[i] + "-"
         if filter_list[i] == 1:
-            if self.server == 'CN' and flg:
-                self.logger.info("[ " + filter_type_list[i] + " ] is already chosen.")
-                continue
             img_possibles = {
                 pre + "not-chosen": curr_position,
                 pre + "reset": curr_position
@@ -395,15 +355,11 @@ def filter_list_ensure_choose(self, filter_list, flg):
             img_ends = pre + "chosen"
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
         else:
-            if self.server == 'CN' and not flg:
-                self.logger.info("[ " + filter_type_list[i] + " ] is already not chosen.")
-                continue
             img_possibles = {
                 pre + "chosen": curr_position,
             }
             img_ends = [pre + "not-chosen", pre + "reset"]
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
 
 
 def set_display_setting_filter_list_select_all(self, state):
@@ -442,8 +398,8 @@ def confirm_sort(self):
 def set_sort_type(self, sort_type):
     sort_type_position = {
         'CN': {
-            'basic': (195, 168),
-            'count': (424, 168),
+            'basic': (290, 168),
+            'count': (590, 180),
         },
         'Global': {
             'basic': (294, 181),
@@ -486,12 +442,11 @@ def preprocess_node_info(st, server):
 
 
 def get_next_execute_time(self, status):
-    regions = {
-        'CN': [(686, 278, 883, 327), (686, 419, 883, 469), (686, 561, 883, 614)],
-        'Global': [(686, 278, 883, 327), (686, 419, 883, 469), (686, 561, 883, 614)],
-        'JP': [(686, 252, 883, 302), (686, 374, 883, 422), (686, 498, 883, 547)]
-    }
-    regions = regions[self.server]
+    regions = [
+        (686, 252, 883, 302),
+        (686, 374, 883, 422),
+        (686, 498, 883, 547)
+    ]
     time_deltas = []
     for i in range(0, 3):
         if status[i] == "unfinished":
@@ -503,7 +458,8 @@ def get_next_execute_time(self, status):
                 if res[j][0] == "0":
                     res[j] = res[j][1:]
             self.logger.info(
-                "ITEM " + str(i + 1) + " Crafting time: " + res[0] + "\tHOUR " + res[1] + "\tMINUTES " + res[2] + "\tSECONDS")
+                "ITEM " + str(i + 1) + " Crafting time: " + res[0] + "\tHOUR " + res[1] + "\tMINUTES " + res[
+                    2] + "\tSECONDS")
             time_deltas.append(int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2]))
     if time_deltas:
         self.next_time = min(time_deltas)
@@ -519,7 +475,7 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     self.logger.info("Sort Direction : " + sort_direction)
     result = []
     filter_type_list = self.static_config['create_filter_type_list']
-    if filter_list[6] and not (self.server == 'CN' and phase == 3):
+    if filter_list[6]:
         # when material is chosen key stone will be displayed at the top
         # CN server phase 3 key stone is not allowed to be chosen
         temp = self.static_config['create_item_order'][self.server]["basic"]["Special"]
@@ -561,12 +517,19 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
 class CreateItemCheckState:
     # During a full phase of item creation. This class is used for information transfer and store checked item state
     possible_x = [710, 851, 992, 1133]
+    level_weight = {
+        "primary": 1,
+        "normal": 2,
+        "advanced": 4,
+        "superior": 10
+    }
 
     def __init__(self, check_item_order=None, sort_type="basic", sort_direction="up", phase=1, baas=None):
         self.phase = phase
         self.baas = baas
         self.weight_sum = self.baas.static_config["create_each_phase_weight"][phase]
         self.select_item_rule = self.baas.config["create_phase_" + str(phase) + "_select_item_rule"]
+        self.baas.logger.info("Select Item Rule : [ " + self.select_item_rule + " ].")
         self.already_selected_item = dict()
         self.check_item_order = check_item_order
         self.last_check_y = 0
@@ -587,8 +550,46 @@ class CreateItemCheckState:
         self.current_recorded_y_list = []  # (y, num) means line y has num items
         self.swipe_no_change_cnt = 0
         self.select_item_func_list = {
-            "default": [0, self.phase1_default_select_item, self.phase2_default_select_item,
-                        self.phase3_default_select_item],
+            "default": [
+                self.phase1_default_select_item,
+                None,
+                None
+            ],
+            "primary": [
+                None,
+                (self.select_levels, "primary"),
+                None
+            ],
+            "normal": [
+                None,
+                (self.select_levels, "normal"),
+                None
+            ],
+            "primary_normal": [
+                None,
+                (self.select_levels, "primary_normal"),
+                None
+            ],
+            "advanced": [
+                None,
+                (self.select_levels, "advanced"),
+                (self.select_levels, "advanced"),
+            ],
+            'superior': [
+                None,
+                (self.select_levels, "superior"),
+                (self.select_levels, "superior"),
+            ],
+            "advanced_superior": [
+                None,
+                (self.select_levels, "advanced_superior"),
+                (self.select_levels, "advanced_superior"),
+            ],
+            "primary_normal_advanced_superior": [
+                None,
+                (self.select_levels, "primary_normal_advanced_superior"),
+                None
+            ],
         }
 
     def next_possible_item_name(self):
@@ -665,7 +666,11 @@ class CreateItemCheckState:
         self.last_check_y -= dy
 
     def try_choose_item(self):
-        return self.select_item_func_list[self.select_item_rule][self.phase]()
+        func = self.select_item_func_list[self.select_item_rule][self.phase - 1]
+        if type(func) is tuple:
+            return func[0](func[1])
+        else:
+            return func()
 
     def phase1_default_select_item(self):
         for name in self.now_exist_item_info:
@@ -673,25 +678,33 @@ class CreateItemCheckState:
                 return True
         return False
 
-    def phase2_default_select_item(self):
+    def select_levels(self, level_str):
+        levels = level_str.split("_")
         for name in self.now_exist_item_info:
-            if self.item_is_Artifact(name, 0):
+            if name == 'Keystone' or name == 'Keystone-Piece':
+                continue
+            if self.item_level_in(name, levels):
                 if select_item(self.baas, self, name, self.weight_sum):
                     return True
+        return False
 
-    def phase3_default_select_item(self):
+    def select_material(self, levels):
         for name in self.now_exist_item_info:
-            if self.item_is_Artifact(name, 2):
+            if self.item_is_Material(name, levels):
                 if select_item(self.baas, self, name, self.weight_sum):
                     return True
+        return False
 
-    def item_weight_is(self, name, weight):
+    def item_level_is(self, name, level):
+        weight = CreateItemCheckState.level_weight[level]
         return self.baas.static_config["create_material_information"][name]["weight"] == weight
 
-    def item_is_Artifact(self, name, level):
-        wt = [1, 2, 4, 10]
-        wt = wt[level]
-        return self.item_type_is(name, "Material") and self.item_weight_is(name, wt)
+    def item_level_in(self, name, levels):
+        weights = [CreateItemCheckState.level_weight[level] for level in levels]
+        return self.baas.static_config["create_material_information"][name]["weight"] in weights
+
+    def item_is_Material(self, name, level):
+        return self.item_type_is(name, "Material") and self.item_level_is(name, level)
 
     def item_type_is(self, name, material_type):
         return self.baas.static_config["create_material_information"][name]["material_type"] == material_type
@@ -784,7 +797,8 @@ def item_recognize(self, check_state):
             holding_quantity = 0
             # detect name
             while self.flag_run:
-                pos, max_val = image.search_in_area(self, compare_img_name, item_image_region, threshold, 10, ret_max_val=True)
+                pos, max_val = image.search_in_area(self, compare_img_name, item_image_region, threshold, 10,
+                                                    ret_max_val=True)
                 if max_val < threshold:
                     if max_val > max_similarity:
                         max_similarity = max_val
@@ -941,13 +955,13 @@ def judge_item_state(self, x, y):
     dx = 83
     dy = 23
     if color.judge_rgb_range(self, x, y, 57, 77, 72, 92, 92, 112) and \
-        color.judge_rgb_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
-        color.judge_rgb_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
-        color.judge_rgb_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
+            color.judge_rgb_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
+            color.judge_rgb_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
+            color.judge_rgb_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
         return 1
     elif color.judge_rgb_range(self, x, y, 145, 165, 160, 180, 165, 185) and \
-        color.judge_rgb_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
-        color.judge_rgb_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
-        color.judge_rgb_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
+            color.judge_rgb_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
+            color.judge_rgb_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
+            color.judge_rgb_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
         return 2
     return 0  # 0: not am item, 1: usable 2 : unusable but is an item

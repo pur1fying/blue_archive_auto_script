@@ -62,22 +62,13 @@ def start_sweep(self, skip_first_screenshot=False):
 
 
 def to_commissions(self, num, skip_first_screenshot=False):
-    commissions_y = {
-        'CN': [0, 277, 406],
-        'Global': [0, 206, 309],
-        'JP': [0, 206, 309]
-    }
-    task_info_cross_x = {
-        'CN': 1085,
-        'JP': 1129,
-        'Global': 1129
-    }
+    commissions_y = [0, 206, 309]
     img_ends = 'special_task_level-list'
     img_possibles = {
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (724, 515),
-        "special_task_request-select": (992, commissions_y[self.server][num]),
-        "special_task_task-info": (task_info_cross_x[self.server], 141),
+        "special_task_request-select": (992, commissions_y[num]),
+        "special_task_task-info": (1129, 141),
     }
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)

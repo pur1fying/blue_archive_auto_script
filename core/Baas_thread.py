@@ -2,17 +2,17 @@ import copy
 import traceback
 from datetime import datetime
 import cv2
-from core.exception import ScriptError, RequestHumanTakeOver
+from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
 from core.scheduler import Scheduler
 from core import position, picture
-from core.utils import Logger
 from device_operation import process_api
 from core.device.Screenshot import Screenshot
 from core.device.Control import Control
 from core.device.connection import Connection
 from core.device.uiautomator2_client import U2Client
 from core.pushkit import push
+from core.utils import Logger
 import numpy as np
 import module
 import requests
@@ -32,13 +32,14 @@ func_dict = {
     'momo_talk': module.momo_talk.implement,
     'common_shop': module.common_shop.implement,
     'cafe_reward': module.cafe_reward.implement,
-    'cafe_invite': module.cafe_invite.implement,
+    'no1_cafe_invite': module.no1_cafe_invite.implement,
+    'no2_cafe_invite': module.no2_cafe_invite.implement,
     'lesson': module.lesson.implement,
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
     'create': module.create.implement,
-    'explore_normal_task': module.explore_normal_task.implement,
-    'explore_hard_task': module.explore_hard_task.implement,
+    'explore_normal_task': module.ExploreTasks.explore_normal_task.implement,
+    'explore_hard_task': module.ExploreTasks.explore_hard_task.implement,
     'mail': module.mail.implement,
     'main_story': module.main_story.implement,
     'group_story': module.group_story.implement,
@@ -114,6 +115,9 @@ class Baas_thread:
     def click(self, x, y, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
             raise RequestHumanTakeOver
+        if self.control.method == "nemu":
+            self.click_thread(x, y, count, rate, duration)
+            return
         click_ = threading.Thread(target=self.click_thread, args=(x, y, count, rate, duration))
         click_.start()
         if wait_over:  # wait for click to be over
@@ -369,11 +373,17 @@ class Baas_thread:
             return self.solve(task)
 
     def thread_starter(self):
+        """
+            Solving tasks given by the scheduler.
+            Features:
+            1.Never stop until user push the "stop" button on ui, or an unmanageable error occurs.
+            2.task solve order is fully controlled by the scheduler (core/scheduler.py).
+        """
         try:
             self.logger.info("-------------- Start Scheduler ----------------")
-            self.solve('restart')
+            self.solve('restart')  # check package and go to main_page
             while self.flag_run:
-                nextTask = self.scheduler.heartbeat()
+                nextTask = self.scheduler.heartbeat()  # get next task
                 if nextTask:
                     self.task_finish_to_main_page = True
                     self.daily_config_refresh()
@@ -381,29 +391,36 @@ class Baas_thread:
                         self.solve('refresh_uiautomator2')
                     self.genScheduleLog(nextTask)
 
+                    task_with_log_info = []
                     for task in nextTask['pre_task']:
-                        self.logger.info("pre_task: [ " + task + " ] start")
-                        if not self.solve(task):
-                            raise RequestHumanTakeOver
-                    self.logger.info("current_task: [ " + nextTask['current_task'] + " ] start")
-                    self.next_time = 0
-                    if not self.solve(nextTask['current_task']):
-                        raise RequestHumanTakeOver
-                    currentTaskNextTime = self.next_time
+                        task_with_log_info.append((task, 'pre_task'))
+                    task_with_log_info.append((nextTask['current_task'], 'current_task'))
                     for task in nextTask['post_task']:
-                        self.logger.info("post_task: [ " + task + " ] start")
+                        task_with_log_info.append((task, 'post_task'))
+
+                    currentTaskNextTime = 0
+                    for task, task_type in task_with_log_info:
+                        if not self.flag_run:
+                            break
+                        flg = False
+                        self.logger.info(f"{task_type}: [ {task} ] start")
+                        if task_type == 'current_task':
+                            flg = True
+                            self.next_time = 0
                         if not self.solve(task):
-                            raise RequestHumanTakeOver
+                            self.signal_stop()
+                            notify(title='', body='任务已停止')
+                            return
+                        if flg:
+                            currentTaskNextTime = self.next_time
 
                     if self.flag_run:
                         next_tick = self.scheduler.systole(nextTask['current_task'], currentTaskNextTime)
                         self.logger.info(nextTask['current_task'] + " next_time : " + str(next_tick))
-                    elif not self.flag_run:
+                    else:
                         self.logger.info("BAAS Exited, Reason : Human Take Over")
                         self.signal_stop()
-                    else:
-                        self.logger.error("error occurred, stop all activities")
-                        self.signal_stop()
+
                 else:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
@@ -414,9 +431,9 @@ class Baas_thread:
                     time.sleep(1)
                     if self.flag_run:  # allow user to stop script before then action
                         self.handle_then()
-        except Exception:
-            notify(title='', body='任务已停止')
-            self.signal_stop()
+        except Exception as e:
+            self.logger.error(traceback.format_exc())
+            return
 
     def genScheduleLog(self, task):
         self.logger.info("Scheduler : {")
@@ -442,18 +459,78 @@ class Baas_thread:
             self.config_set.set(cfg_key_name, res)
 
     def solve(self, activity) -> bool:
-        try:
-            return func_dict[activity](self)
-        except Exception as e:
-            if self.flag_run:
-                error_message = traceback.format_exc()
-                title = e.__str__()
-                threading.Thread(target=self.simple_error, args=(title, error_message,)).start()
-            return False
+        """
+            execute the task by call the corresponding function in func_dict
+        """
+        for i in range(0, 3):
+            if i != 0:
+                self.logger.info("Retry Task " + activity + " " + str(i))
+            try:
+                return func_dict[activity](self)
+            except FunctionCallTimeout:
+                if not self.deal_with_func_call_timeout():
+                    self.push_and_log_error_msg("Function Call Timeout", "Failed to Restart Game when function call timeout")
+                    return False
+            except PackageIncorrect as e:
+                pkg = e.message
+                if not self.deal_with_package_incorrect(pkg):
+                    self.push_and_log_error_msg("Package Incorrect", "Failed to Restart Game when package incorrect")
+                    return False
+            except Exception:
+                if self.flag_run:
+                    self.push_and_log_error_msg("Script Error Occurred", traceback.format_exc())
+                    return False
+                return True # Human take over
 
-    def simple_error(self, title: str, error_message: str):
+    def deal_with_package_incorrect(self, curr_pkg):
+        """
+            1. no exception
+        """
+        self.logger.info("Handle package incorrect")
+        self.logger.warning("Package incorrect")
+        self.logger.warning("Expected: " + self.package_name)
+        self.logger.warning("Get     : " + curr_pkg)
+        self.logger.warning("Restarting game")
+        for i in range(0, 3):
+            if i != 0:  # skip first time check
+                package = self.connection.get_current_package()
+                if package == self.package_name:
+                    self.logger.info("current app is target app, close the game and call task restart")
+                    self.connection.close_current_app(package)
+            try:
+                func_dict['restart'](self)
+                return True
+            except RequestHumanTakeOver:
+                return False
+            except Exception as e:
+                pass
+        return False
+
+    def deal_with_func_call_timeout(self):
+        """
+            deal with co_detect function time out with following logic
+            1.current app is target app --> close the game and call task restart
+            2.current app is not target app --> call task restart
+            3.this func will not raise exception
+        """
+        self.logger.info("Handle function call timeout")
+        package = self.connection.get_current_package()
+        if package != self.package_name:
+            self.deal_with_package_incorrect(package)
+        else:
+            for i in range(0, 3):
+                self.logger.info("current app is target app, close the game and call task restart")
+                self.connection.close_current_app(package)
+            try:
+                func_dict['restart'](self)
+                return True
+            except Exception as e:
+                pass
+        return False
+
+    def push_and_log_error_msg(self, title, message):
         push(self.logger, self.config, title)
-        raise ScriptError(title=title, message=error_message, context=self)
+        LogTraceback(title, message, self)
 
     def quick_method_to_main_page(self, skip_first_screenshot=False):
         img_possibles = {
@@ -464,7 +541,6 @@ class Baas_thread:
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
             'main_page_item-expire': (925, 119),
-            'main_page_download-additional-resources': (769, 535),
             'main_page_skip-notice': (762, 507),
             'normal_task_fight-end-back-to-main-page': (511, 662),
             "main_page_enter-existing-fight": (514, 501),
@@ -497,6 +573,9 @@ class Baas_thread:
             'lesson_lesson-information': (964, 117),
             'lesson_all-locations': (1138, 117),
             'lesson_lesson-report': (642, 556),
+            'lesson_purchase-lesson-ticket-menu': (921, 169),
+            'rewarded_task_purchase-bounty-ticket-menu': (921, 165),
+            'scrimmage_purchase-scrimmage-ticket-menu': (921, 162),
             'arena_battle-win': (640, 530),
             'arena_battle-lost': (640, 468),
             'arena_season-record': (640, 538),
@@ -508,32 +587,31 @@ class Baas_thread:
             'activity_fight-success-confirm': (640, 663),
             "total_assault_reach-season-highest-record": (640, 528),
             "total_assault_total-assault-info": (1165, 107),
+            "cafe_cafe-reward-status": (985, 147),
         }
         update = {
             'CN': {
                 'main_page_news': (1142, 104),
                 'main_page_news2': (1142, 104),
-                'cafe_cafe-reward-status': (905, 159),
                 'normal_task_task-info': (1126, 115),
-                "rewarded_task_purchase-bounty-ticket-notice": (888, 162),
                 "special_task_task-info": (1085, 141),
                 "main_page_net-work-unstable": (753, 500),
+                'main_page_fail-to-load-game-resources': (740, 437),
             },
             'JP': {
                 'main_page_news': (1142, 104),
-                "cafe_cafe-reward-status": (985, 147),
                 'normal_task_task-info': (1126, 115),
-                "rewarded_task_purchase-bounty-ticket-notice": (919, 165),
                 "special_task_task-info": (1126, 141),
                 'main_page_attendance-reward': (642, 489),
+                'main_page_download-additional-resources': (769, 535),
             },
             'Global': {
                 'main_page_news': (1227, 56),
                 "special_task_task-info": (1126, 141),
-                'cafe_cafe-reward-status': (985, 147),
                 'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),
+                'main_page_Failed-to-convert-errorResponse': (641, 511),
             }
         }
         img_possibles.update(**update[self.server])
@@ -545,7 +623,7 @@ class Baas_thread:
             # "fighting_feature": (1226, 51)
         }
         picture.co_detect(self, "main_page", rgb_possibles, None, img_possibles, skip_first_screenshot,
-                          tentitive_click=True)
+                          tentative_click=True)
 
     def init_image_resource(self):
         return position.init_image_data(self)
@@ -738,7 +816,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i]))
+                self.config['unfinished_normal_tasks'].append(readOneNormalTask(temp[i], self.static_config["explore_normal_task_region_range"]))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config['unfinished_normal_tasks'])
@@ -751,7 +829,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i]))
+                self.config['unfinished_hard_tasks'].append(readOneHardTask(temp[i], self.static_config["explore_hard_task_region_range"]))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config['unfinished_hard_tasks'])

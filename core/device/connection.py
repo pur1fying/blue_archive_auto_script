@@ -17,13 +17,13 @@ class Connection:
         self.static_config = self.config_set.static_config
         self.adbIP = self.config['adbIP']
         self.adbPort = self.config['adbPort']
-        self.is_usb = (self.adbIP == "" or self.adbPort == "")
+        is_usb_or_emulator_device = (self.adbIP == "" or self.adbPort == "")
         if self.adbIP == "" and self.adbPort != "":
             self.serial = self.adbPort
         elif self.adbIP != "" and self.adbPort == "":
             self.serial = self.adbIP
 
-        if not self.is_usb:
+        if not is_usb_or_emulator_device:
             if isinstance(self.adbPort, int):
                 self.adbPort = str(self.adbPort)
             self.serial = self.adbIP + ":" + self.adbPort
@@ -68,7 +68,6 @@ class Connection:
         # auto127.0.0.1:16384
         serial = serial.replace('auto127.0.0.1', '127.0.0.1').replace('autoemulator', 'emulator')
         return str(serial)
-
 
     @staticmethod
     def serial_port(serial):
@@ -116,8 +115,6 @@ class Connection:
                 self.logger.error("Multiple devices detected, please specify the device serial.")
                 raise RequestHumanTakeOver("Multiple devices detected.")
 
-
-
         if self.is_mumu12_family():
             matched = False
             for device in available:
@@ -129,10 +126,10 @@ class Connection:
                 port = self.serial_port(self.serial)
                 for device in available:
                     if abs(self.serial_port(device) - port) <= 2:
-                        self.logger.info("MuMu12 device serial switched from [ " + self.serial + " ] to [ " + device + " ]")
+                        self.logger.info(
+                            "MuMu12 device serial switched from [ " + self.serial + " ] to [ " + device + " ]")
                         self.set_serial(device)
                         break
-
 
     def set_activity(self):
         pass
@@ -261,6 +258,11 @@ class Connection:
     def get_activity_name(self):
         return self.activity
 
+    def get_current_package(self):
+        self.logger.info("Get Current Package")
+        d = adb.device(self.serial)
+        return d.app_current().package
+
     def adb_connect(self):
         for device in self.list_devices():
             if device.state == 'offline':
@@ -303,3 +305,10 @@ class Connection:
 
     def get_serial(self):
         return self.serial
+
+    def close_current_app(self, pkg_name=None):
+        self.logger.info("Close Current App")
+        d = adb.device(self.serial)
+        if pkg_name is None:
+            pkg_name = self.get_current_package()
+        d.app_stop(pkg_name)

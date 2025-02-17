@@ -11,7 +11,6 @@ x_y_range = {
     'news': (250, 85, 328, 117),
     'back-arrow': (37, 20, 80, 57),
     'download-additional-resources': (474, 100, 808, 143),
-    # 'relationship-rank-up': (754, 595, 776, 647),
     'full-notice': (400, 280, 880, 390),
     "net-work-unstable": (400, 280, 880, 390),
 }

@@ -94,22 +94,7 @@ class Layout(QWidget):
         self.config = config
         self.initiated = False
         self._init_layout()
-        self.update_create_priority()
 
-    def update_create_priority(self):
-        for phase in range(1, 4):
-            cfg_key_name = 'createPriority_phase' + str(phase)
-            current_priority = self.config.get(cfg_key_name)
-            res = []
-            default_priority = self.config.static_config['create_default_priority'][self.config.server_mode][
-                "phase" + str(phase)]
-            for i in range(0, len(current_priority)):
-                if current_priority[i] in default_priority:
-                    res.append(current_priority[i])
-            for j in range(0, len(default_priority)):
-                if default_priority[j] not in res:
-                    res.append(default_priority[j])
-            self.config.set(cfg_key_name, res)
 
     def _init_layout(self):
         self.viewLayout = QVBoxLayout(self)
@@ -222,6 +207,7 @@ class Layout(QWidget):
         self.initiated = True
 
     class Layout(QWidget):
+
         def __init__(self, parent=None, config=None, phase=1):
             super().__init__(parent=parent)
             self.viewLayout = QVBoxLayout(self)
@@ -232,22 +218,39 @@ class Layout(QWidget):
                 2: self.tr('二级制造配置'),
                 3: self.tr('三级制造配置')
             }
-
-            __dict_for_method = {
-                'default': self.tr('默认')
-            }
-            __rev_dict_for_method = {v: k for k, v in __dict_for_method.items()}
+            __dict_for_create_method = [
+                {
+                    'default': self.tr('默认')
+                },
+                {
+                    'primary': self.tr('白色材料'),
+                    'normal': self.tr('蓝色材料'),
+                    'primary_normal': self.tr('白色+蓝色材料'),
+                    'advanced': self.tr('金色材料'),
+                    'superior': self.tr('紫色材料'),
+                    'advanced_superior': self.tr('金色+紫色材料'),
+                    'primary_normal_advanced_superior': self.tr('白色+蓝色+金色+紫色材料'),
+                },
+                {
+                    'advanced': self.tr('金色材料'),
+                    'superior': self.tr('紫色材料'),
+                    'advanced_superior': self.tr('金色+紫色材料'),
+                }
+            ]
+            __dict_for_create_method = __dict_for_create_method[phase - 1]
+            __rev_dict_for_method = {v: k for k, v in __dict_for_create_method.items()}
 
             layout_for_line_one = QHBoxLayout()
 
             layout_for_create_method = QHBoxLayout()
-            label_for_create_method = QLabel(self.tr('制造方式'), self)
+            label_for_create_method = QLabel(self.tr('材料选择'), self)
             input_for_create_method = ComboBox(self)
-            input_for_create_method.addItems([self.tr('默认')])
+            for key in __dict_for_create_method:
+                input_for_create_method.addItems([__dict_for_create_method[key]])
             self.create_method = self.config.get(f'create_phase_{phase}_select_item_rule')
-            input_for_create_method.setCurrentText(__dict_for_method[self.create_method])
+            input_for_create_method.setCurrentText(__dict_for_create_method[self.create_method])
             input_for_create_method.currentTextChanged.connect(
-                lambda text: self.config.set('create_method', __rev_dict_for_method[text]))
+                lambda text: self.config.set(f'create_phase_{phase}_select_item_rule', __rev_dict_for_method[text]))
             layout_for_create_method.addWidget(label_for_create_method, 1, Qt.AlignLeft)
             layout_for_create_method.addWidget(input_for_create_method, 0, Qt.AlignRight)
 

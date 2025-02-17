@@ -5,6 +5,7 @@ flask
 av == 12.0.0
 cnocr
 imgaug
+dulwich
 onnxruntime
 adbutils <= 2.2.1
 uiautomator2

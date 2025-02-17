@@ -17,7 +17,7 @@ def implement(self):
 
 def to_joint_firing_menu(self):
     drill_position = {
-        "CN": (901, 577),
+        "CN": (1112, 452),
         "Global": (1002, 439),
         "JP": (901, 577)
     }
@@ -54,7 +54,7 @@ def check_drill_state(self):
                 continue
             for s in state:
                 img_name = "drill_" + t[0] + "-" + s
-                if image.compare_image(self, img_name, False):
+                if image.compare_image(self, img_name):
                     t[1] = True
                     if s == "open" or s == "fighting":
                         open_state = (t[0], s)
@@ -218,9 +218,9 @@ def finish_existing_drill(self):
     formation_num = self.config["drill_fight_formation_list"]
     last_unfinished_fight_number = 1
     while last_unfinished_fight_number <= 2:
-        if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-unfinished", need_log=False):
+        if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-unfinished"):
             break
-        if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-finished", need_log=False):
+        if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-finished"):
             last_unfinished_fight_number += 1
             self.logger.info("Drill fight [ " + str(last_unfinished_fight_number) + " ] finished.")
             continue
