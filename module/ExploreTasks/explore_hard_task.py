@@ -1,7 +1,7 @@
 from core import color
 from module import main_story, hard_task, normal_task
-from module.ExploreTasks.TaskUtils import get_challenge_state, to_region, execute_grid_task, to_mission_info
-from module.ExploreTasks.explore_normal_task import get_stage_data
+from module.ExploreTasks.TaskUtils import get_challenge_state, to_region, execute_grid_task, to_mission_info, \
+    get_stage_data
 
 
 def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, list[str], dict]]) -> tuple[bool, str]:
@@ -26,20 +26,20 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, list[s
         return False, "The length of info should not exceed 5"
 
     region = int(info[0])
-    submission = -1
+    mission = -1
     for t in info[1:]:
         if t.isdigit():
-            if submission != -1:
-                return False, "Multiple submission specified"
+            if mission != -1:
+                return False, "Multiple mission specified"
             if int(t) < 0 or int(t) > 3:
-                return False, "Invalid submission"
-            submission = int(t)
+                return False, "Invalid mission"
+            mission = int(t)
         else:
             return False, f"Invalid task type: {t}"
 
     region_data = get_stage_data(region, False)
 
-    for i in range(1, 4) if submission == -1 else [submission]:
+    for i in range(1, 4) if mission == -1 else [mission]:
         tasks = ["sss", "present", "task"]
         while len(tasks) > 0:
             current_task = [tasks.pop(0)]
@@ -81,69 +81,12 @@ def need_fight(self, check_data: list[str]):
         if sss_check == 'no-pass' or sss_check == 'pass':
             return True
     if "present" in check_data:
-        if color.judgeRGBFeature(self, 'hardTaskHasPresent'):  # present check
+        if color.match_rgb_feature(self, 'hardTaskHasPresent'):  # present check
             return True
     if "task" in check_data:
         if get_challenge_state(self, 1)[0] != 1:  # challenge check
             return True
     return False
-
-
-def calc_team_number(self, current_task_stage_data):
-    priority = {
-        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
-        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
-        'burst1': ['burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
-        'burst2': ['burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
-        'mystic1': ['mystic1', 'mystic2', 'shock1', 'shock2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
-        'mystic2': ['mystic2', 'burst1', 'shock1', 'shock2', 'burst2', 'pierce1', 'pierce2'],
-        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ],
-        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ]
-    }
-    length = len(current_task_stage_data['start'])
-    used = {
-        'pierce1': False,
-        'pierce2': False,
-        'burst1': False,
-        'burst2': False,
-        'mystic1': False,
-        'mystic2': False,
-        'shock1': False,
-        'shock2': False,
-    }
-    keys = used.keys()
-    last_chosen = 0
-    res = []
-    los = []
-    for attr, position in current_task_stage_data['start'].items():
-        if attr not in keys:
-            res.append(attr)
-            los.append(position)
-            continue
-        los.append(position)
-        for i in range(0, len(priority[attr])):
-            possible_attr = priority[attr][i]
-            if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
-                continue
-            possible_index = self.config[possible_attr]
-            if not used[possible_attr] and 4 - possible_index >= length - len(
-                    res) - 1 and last_chosen < possible_index:
-                res.append(possible_index)
-                used[possible_attr] = True
-                last_chosen = self.config[possible_attr]
-                break
-    if len(res) != length:
-        self.logger.warning("Insufficient forces are chosen")
-        if length - len(res) <= 4 - last_chosen:
-            for i in range(0, length - len(res)):
-                res.append(last_chosen + i + 1)
-        else:
-            self.logger.warning("USE formations as the number increase")
-            res.clear()
-            for i in range(0, length):
-                res.append(i + 1)
-    self.logger.info("Choose formations : " + str(res))
-    return res, los
 
 
 def implement(self):
@@ -155,10 +98,11 @@ def implement(self):
     """
     Define tasklist as a list of tuple:
         - region (int): The region number.
-        - submission (int): The submission ID or count.
-        - stage_data (dict): The stage data.
+        - mission (int): The mission number.
+        - taskDatas (dict): The task datas.
     """
-    for taskStr in str(self.config_set.config['explore_hard_task_list']).split(','):
+
+    for taskStr in str(self.config_set.config['explore_hard_task_list']).replace(" ", "").split(','):
         result = validate_and_add_task(self, taskStr, tasklist)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
@@ -171,7 +115,6 @@ def implement(self):
     if len(tasklist) == 0:
         return False
 
-    mission_los = [249, 363, 476]
     self.quick_method_to_main_page()
     hard_task.to_hard_event(self, True)
 
@@ -179,8 +122,9 @@ def implement(self):
         region = task[0]
         mission = task[1]
         check_data = task[2]
-        self.logger.info(f"--- Start exploring H{region}-{mission} ---")
+        self.logger.info(f"--- Start exploring H{region}-{mission}-{check_data} ---")
         to_region(self, region, False)
+        mission_los = [249, 363, 476]
         to_mission_info(self, mission_los[mission - 1])
         if not need_fight(self, check_data):
             self.logger.warning(f"H{region}-{mission} is already finished,skip.")
@@ -190,7 +134,6 @@ def implement(self):
         main_story.auto_fight(self)
         if self.config['manual_boss']:
             self.click(1235, 41)
-
         # skip unlocking animation by switching
         normal_task.to_normal_event(self, True)
         hard_task.to_hard_event(self, True)

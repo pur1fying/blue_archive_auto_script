@@ -110,7 +110,7 @@ def explore_story(self):
         if plot == "normal_task_task-info" or plot == "activity_task-info":
             res = color.check_sweep_availability(self)
         elif plot == "main_story_episode-info":
-            if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+            if not color.is_rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
                 res = "sss"
             else:
                 res = "no-pass"
@@ -123,7 +123,7 @@ def explore_story(self):
             if plot == "normal_task_task-info" or plot == "activity_task-info":
                 res = color.check_sweep_availability(self)
             elif plot == "main_story_episode-info":
-                if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+                if not color.is_rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
                     res = "sss"
                 else:
                     res = "no-pass"
@@ -282,7 +282,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
+        if not color.is_rgb_in_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
             self.click(click_lo[region], 87)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
@@ -387,12 +387,12 @@ def exchange_reward(self):
     img_ends = "activity_exchange-menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
     while 1:
-        while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
+        while color.is_rgb_in_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
             self.click(453, 651, wait_over=True, duration=0.5)
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        if color.judge_rgb_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
+        if color.is_rgb_in_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
             if get_exchange_assets(self) >= 6:
                 self.logger.info("refresh exchange times")
                 refresh_exchange_times(self)

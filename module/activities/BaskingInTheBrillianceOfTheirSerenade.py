@@ -102,7 +102,7 @@ def explore_story(self):
         if plot == "normal_task_task-info" or plot == "activity_task-info":
             res = color.check_sweep_availability(self)
         elif plot == "main_story_episode-info":
-            if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+            if not color.is_rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
                 res = "sss"
             else:
                 res = "no-pass"
@@ -114,7 +114,7 @@ def explore_story(self):
             if plot == "normal_task_task-info" or plot == "activity_task-info":
                 res = color.check_sweep_availability(self)
             elif plot == "main_story_episode-info":
-                if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+                if not color.is_rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
                     res = "sss"
                 else:
                     res = "no-pass"
@@ -148,7 +148,7 @@ def start_story(self):
 
 def start_fight(self, i):
     rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
-    rgb_ends = "fighting_feature"
+    rgb_ends = ["fighting_feature"]
     picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
 
 def explore_mission(self):
@@ -249,7 +249,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], 131, 20, 60, 40, 80, 70, 116):
+        if not color.is_rgb_in_range(self, rgb_lo[region], 131, 20, 60, 40, 80, 70, 116):
             self.click(click_lo[region], 87)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()

@@ -252,7 +252,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
+        if not color.is_rgb_in_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
             self.click(click_lo[region], 76)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
