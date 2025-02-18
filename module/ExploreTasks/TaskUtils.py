@@ -330,7 +330,7 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
             return (False,
                     f"Insufficient presets. Currently used: {currently_used}, total available: {total_available}")
         while unit_available[current_attribute] - unit_used[current_attribute] == 0 \
-            or (self.server == "CN" and current_attribute == "shock"):
+                or (self.server == "CN" and current_attribute == "shock"):
             current_attribute = priority[current_attribute]
         employ_presets.append(tmp_teams[current_attribute][unit_used[current_attribute]])
         unit_used[current_attribute] += 1
@@ -350,11 +350,21 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
             # open formation menu -> preset menu -> choose column
             img_reactions = {
                 "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
+            }
+            img_ends = "normal_task_formation-menu"
+            picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
+            img_reactions = {
                 "normal_task_formation-menu": (1204, 486),
                 "normal_task_formation-preset": (178 + (preset_column - 1) * 156, 153)
             }
-            rgb_ends = ["preset_choose" + str(preset_column)]
+            rgb_ends = "preset_choose" + str(preset_column)
             picture.co_detect(self, img_reactions=img_reactions, rgb_ends=rgb_ends, skip_first_screenshot=True)
+
+            offsets = {
+                'CN': (-1103, 0, 16, 33),
+                'Global': (-1048, -4, 20, 36),
+                'JP': (-1103, 0, 16, 33)
+            }
 
             p = swipe_search_target_str(
                 self,
@@ -365,7 +375,7 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
                 target_str_index=4,
                 swipe_params=(145, 578, 145, 273, 1.0, 0.5),
                 ocr_language="NUM",
-                ocr_region_offsets=(-1103, 0, 16, 33),
+                ocr_region_offsets=offsets[self.server],
                 ocr_str_replace_func=None,
                 max_swipe_times=5
             )
@@ -382,7 +392,8 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
                 "normal_task_task-wait-to-begin-feature",
                 "normal_task_task-operating-feature"
             ]
-            picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
+            rgb_ends = "fighting_feature"
+            picture.co_detect(self,rgb_ends=rgb_ends, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
 
             employed += 1
 

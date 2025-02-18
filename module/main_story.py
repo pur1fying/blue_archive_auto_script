@@ -98,7 +98,7 @@ def set_acc_and_auto(self):
         self.logger.warning("Unable to detect auto status.")
     elif auto_phase == 0:
         self.click(1215, 677)
-    self.logger.info("Auto mode toggled:" + "yes" if get_auto(self) else "no")
+    self.logger.info("Auto mode toggled:" + ("yes" if get_auto(self) else "no"))
 
 
 def enter_battle(self):

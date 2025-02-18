@@ -155,12 +155,6 @@ def implement(self):
                 # get preset unit
                 employ_units(self, taskData)
 
-                # start battle
-                img_reactions = {
-                    'normal_task_formation-menu': (946, 540)
-                }
-                rgb_ends = "fighting_feature"
-                picture.co_detect(self, rgb_ends=rgb_ends, img_reactions=img_reactions, skip_first_screenshot=True)
                 main_story.auto_fight(self)
             else:
                 execute_grid_task(self, taskData)

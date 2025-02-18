@@ -314,7 +314,7 @@ def get_lesson_each_region_status(self):
     for i in range(0, 9):
         if color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
             res.append("available")
-        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230, 249):
+        elif color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230, 249):
             res.append("done")
         elif color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
             res.append("lock")

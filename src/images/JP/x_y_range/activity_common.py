@@ -7,5 +7,7 @@ x_y_range = {
     "unit-formation": (102, 10, 200, 40),
     "task-no-goals": (324, 381, 534, 408),
     "task-info": (578, 124, 702, 153),
-    'quest-challenge-button': (311, 255, 449, 288)
+    'quest-challenge-button': (311, 255, 449, 288),
+    'story-enter-task-button': (1094, 170, 1162, 215),
+    'mission-enter-task-button': (1093, 174, 1166, 222),
 }
