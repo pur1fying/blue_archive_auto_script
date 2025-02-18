@@ -178,10 +178,10 @@ U = eDict(config["URLs"])
 P = eDict(config["Paths"])
 
 BAAS_ROOT_PATH = Path(P.BAAS_ROOT_PATH).resolve() if P.BAAS_ROOT_PATH else "" or BASE_PATH
-print(f"BAAS_ROOT_PATH: {BAAS_ROOT_PATH}")
+G.runtime_path = G.runtime_path.replace("\\", "/")
 P.TMP_PATH = BAAS_ROOT_PATH / Path(P.TMP_PATH)
 P.TOOL_KIT_PATH = BAAS_ROOT_PATH / Path(P.TOOL_KIT_PATH)
-if not os.path.exists(P.BAAS_ROOT_PATH):
+if P.BAAS_ROOT_PATH and not os.path.exists(P.BAAS_ROOT_PATH):
     os.makedirs(P.BAAS_ROOT_PATH)
 if not os.path.exists(P.TMP_PATH):
     os.makedirs(P.TMP_PATH)
@@ -197,6 +197,7 @@ logger.add(
     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>",
     level="INFO",
 )
+
 
 logger.add(
     BAAS_ROOT_PATH / "log" / "installer.log",
@@ -242,7 +243,6 @@ def check_python_installation():
 def install_package():
     try:
         env_pip_exec = None
-
         # Detect the OS and select the appropriate Python executable and path
         def try_sources(pkg_mgr_path, followed_cmd=None):
             for _source in G.source_list:
@@ -255,7 +255,7 @@ def install_package():
                     else:
                         followed_cmd.extend(["-i", _source])
                     if followed_cmd:
-                        if type(pkg_mgr_path) == str:
+                        if not type(pkg_mgr_path) == list:
                             cmds = [pkg_mgr_path, *followed_cmd]
                         else:
                             cmds = pkg_mgr_path
@@ -266,10 +266,9 @@ def install_package():
                     logger.error("User interrupted the process.")
                     return
                 except:
-                    logger.warning(
-                        f"Failed to connect to {_source}, trying next source..."
-                    )
+                    logger.exception(f"Failed to connect to {_source}, trying next source...")
             logger.error("Packages Installation failed with all sources.")
+            error_tackle()
 
         if G.runtime_path == "default":
 
@@ -387,7 +386,7 @@ def start_app():
         return proc.returncode
     else:
         proc = subprocess.Popen(
-            [str(_path).replace("\\", "/"), str(BAAS_ROOT_PATH / "window.py")],  # 直接用列表传递命令
+            [_path, str(BAAS_ROOT_PATH / "window.py")],  # 直接用列表传递命令
             cwd=BAAS_ROOT_PATH,  # 先 cd 到 BAAS_ROOT_PATH
         )
     logger.info(f"Started process with PID: {proc.pid}")
@@ -425,6 +424,7 @@ def run_app():
 
     except Exception:
         logger.exception("Run app failed")
+        error_tackle()
 
     if __system__ == "Windows" and not G.no_build:
         try:
@@ -462,7 +462,6 @@ def run_app():
             logger.warning(
                 "Build new BAAS launcher failed, Please check the Python Environment"
             )
-
             error_tackle()
 
 
@@ -479,6 +478,7 @@ def error_tackle():
         "이제 이 명령줄 창을 안전하게 종료하거나 이 문제를 개발자에게 보고할 수 있습니다。"
     )
     os.system("pause")
+    sys.exit()
 
 
 def check_requirements():
