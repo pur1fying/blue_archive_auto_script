@@ -177,10 +177,12 @@ G = eDict(config["General"])
 U = eDict(config["URLs"])
 P = eDict(config["Paths"])
 
-BAAS_ROOT_PATH = P.BAAS_ROOT_PATH or BASE_PATH
+BAAS_ROOT_PATH = Path(P.BAAS_ROOT_PATH).resolve() if P.BAAS_ROOT_PATH else "" or BASE_PATH
+print(f"BAAS_ROOT_PATH: {BAAS_ROOT_PATH}")
 P.TMP_PATH = BAAS_ROOT_PATH / Path(P.TMP_PATH)
 P.TOOL_KIT_PATH = BAAS_ROOT_PATH / Path(P.TOOL_KIT_PATH)
-
+if not os.path.exists(P.BAAS_ROOT_PATH):
+    os.makedirs(P.BAAS_ROOT_PATH)
 if not os.path.exists(P.TMP_PATH):
     os.makedirs(P.TMP_PATH)
 if not os.path.exists(P.TOOL_KIT_PATH):
@@ -195,6 +197,7 @@ logger.add(
     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>",
     level="INFO",
 )
+
 logger.add(
     BAAS_ROOT_PATH / "log" / "installer.log",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
@@ -207,7 +210,7 @@ spinner = Halo()
 logger.info("Blue Archive Auto Script Launcher & Installer")
 logger.info("GitHub Repo: https://github.com/pur1fying/blue_archive_auto_script")
 logger.info("Official QQ Group: 658302636")
-logger.info("Current BAAS Path: " + str(BASE_PATH))
+logger.info("Current BAAS Path: " + str(BAAS_ROOT_PATH))
 
 
 def check_python_installation():
@@ -238,6 +241,8 @@ def check_python_installation():
 
 def install_package():
     try:
+        env_pip_exec = None
+
         # Detect the OS and select the appropriate Python executable and path
         def try_sources(pkg_mgr_path, followed_cmd=None):
             for _source in G.source_list:
@@ -250,7 +255,11 @@ def install_package():
                     else:
                         followed_cmd.extend(["-i", _source])
                     if followed_cmd:
-                        cmds = [pkg_mgr_path, *followed_cmd]
+                        if type(pkg_mgr_path) == str:
+                            cmds = [pkg_mgr_path, *followed_cmd]
+                        else:
+                            cmds = pkg_mgr_path
+                            cmds.extend(followed_cmd)
                         subprocess.run(cmds, check=True)
                     return
                 except KeyboardInterrupt:
@@ -284,7 +293,7 @@ def install_package():
                 return
 
             python_exec_file = BAAS_ROOT_PATH / ".env/python.exe"
-            env_python_exec = BAAS_ROOT_PATH / ".venv/Scripts/pip.exe"
+            env_pip_exec = BAAS_ROOT_PATH / ".venv/Scripts/pip.exe"
 
             if (
                 not os.path.exists(BAAS_ROOT_PATH / ".venv")
@@ -306,14 +315,12 @@ def install_package():
                     check=True,
                 )
 
-        else:
-            env_python_exec = check_python_installation()
-
-        if not env_python_exec:
+        if not env_pip_exec:
             env_python_exec = G.runtime_path
+            env_pip_exec = (env_python_exec + " -m pip").split(" ")
 
         try_sources(
-            env_python_exec,
+            env_pip_exec,
             [
                 "install",
                 "-r",
@@ -347,39 +354,42 @@ def check_pth():
 
 
 def start_app():
-    _path = (
-        BAAS_ROOT_PATH / ".venv/Scripts/pythonw.exe"
-        if __system__ == "Windows"
-        else (
-            BAAS_ROOT_PATH / ".venv/bin/python3"
-            if G.package_manager == "pdm"
-            else BAAS_ROOT_PATH / ".env/bin/python3"
+    if G.runtime_path == "default":
+        _path = (
+            BAAS_ROOT_PATH / ".venv/Scripts/pythonw.exe"
+            if __system__ == "Windows"
+            else (
+                BAAS_ROOT_PATH / ".venv/bin/python3"
+                if G.package_manager == "pdm"
+                else BAAS_ROOT_PATH / ".env/bin/python3"
+            )
         )
-    )
-    _path = (
-        BAAS_ROOT_PATH / ".venv/Scripts/python"
-        if G.debug and __system__ == "Windows"
-        else _path
-    )
+        _path = (
+            BAAS_ROOT_PATH / ".venv/Scripts/python"
+            if G.debug and __system__ == "Windows"
+            else _path
+        )
+    else:
+        _path = G.runtime_path
 
     if __system__ == "Linux":
         env = os.environ.copy()
-        env["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(
-            BAAS_ROOT_PATH
-            / ".env/lib/python3.9/site-packages/PyQt5/Qt5/plugins/platforms"
-        )
+        if G.runtime_path == "default":
+            env["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(
+                BAAS_ROOT_PATH
+                / ".env/lib/python3.9/site-packages/PyQt5/Qt5/plugins/platforms"
+            )
         proc = subprocess.run(
             [_path, str(BAAS_ROOT_PATH / "window.py")],  # 直接用列表传递命令
             cwd=BAAS_ROOT_PATH,  # 先 cd 到 BAAS_ROOT_PATH
-            env=env,  # 传递修改后的环境变量
+            env=env  # 传递修改后的环境变量
         )
         return proc.returncode
     else:
         proc = subprocess.Popen(
-            [_path, str(BAAS_ROOT_PATH / "window.py")],  # 直接用列表传递命令
+            [str(_path).replace("\\", "/"), str(BAAS_ROOT_PATH / "window.py")],  # 直接用列表传递命令
             cwd=BAAS_ROOT_PATH,  # 先 cd 到 BAAS_ROOT_PATH
         )
-    print(_path)
     logger.info(f"Started process with PID: {proc.pid}")
     return proc.pid
 
@@ -452,18 +462,23 @@ def run_app():
             logger.warning(
                 "Build new BAAS launcher failed, Please check the Python Environment"
             )
-            logger.info(
-                "Now you can turn off this command line window safely or report this issue to developers."
-            )
-            logger.info("现在您可以安全地关闭此命令行窗口或向开发者上报问题。")
-            logger.info("您现在可以安全地关闭此命令行窗口或向开发人员报告此问题。")
-            logger.info(
-                "今、このコマンドラインウィンドウを安全に閉じるか、この問題を開発者に報告することができます。"
-            )
-            logger.info(
-                "이제 이 명령줄 창을 안전하게 종료하거나 이 문제를 개발자에게 보고할 수 있습니다。"
-            )
-            os.system("pause")
+
+            error_tackle()
+
+
+def error_tackle():
+    logger.info(
+        "Now you can turn off this command line window safely or report this issue to developers."
+    )
+    logger.info("现在您可以安全地关闭此命令行窗口或向开发者上报问题。")
+    logger.info("您现在可以安全地关闭此命令行窗口或向开发人员报告此问题。")
+    logger.info(
+        "今、このコマンドラインウィンドウを安全に閉じるか、この問題を開発者に報告することができます。"
+    )
+    logger.info(
+        "이제 이 명령줄 창을 안전하게 종료하거나 이 문제를 개발자에게 보고할 수 있습니다。"
+    )
+    os.system("pause")
 
 
 def check_requirements():
@@ -562,7 +577,7 @@ def check_git():
         porcelain.clone(U.REPO_URL_HTTP, BAAS_ROOT_PATH)
         spinner.succeed("Clone completed.")
         logger.success("Install success!")
-    elif not os.path.exists("./no_update"):
+    else:
         logger.info("+--------------------------------+")
         logger.info("|          UPDATE BAAS           |")
         logger.info("+--------------------------------+")
@@ -682,4 +697,6 @@ if __name__ == "__main__":
             dynamic_update_installer()  # Update the installer if frozen
     except Exception as e:
         logger.exception("Error occurred during setup...")
+        error_tackle()
+
     # Parse command-line arguments and configuration

@@ -83,7 +83,7 @@ installer.py的运行步骤:
 - **description** : Python的下载地址
 ### BAAS_ROOT_PATH
 **type**: `str`
-**description**: 安装根目录, 一般不需要修改
+**description**: 安装根目录, 一般不需要修改。 如需修改, 切记填写绝对路径
 ### TMP_PATH
 **type**: `str`
 **description**: 临时文件夹, 一般不需要修改
