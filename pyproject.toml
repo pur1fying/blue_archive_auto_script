@@ -7,7 +7,6 @@ dependencies = [
     "lmdb",
     "PyQt5",
     "numpy",
-    "flask",
     "cnocr",
     "imgaug",
     "onnxruntime",

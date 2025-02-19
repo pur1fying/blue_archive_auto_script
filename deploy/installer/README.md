@@ -12,3 +12,4 @@
     $ bash ./build.sh
     ```
    Note that you have to run the script on filesystem that supports `chmod +x` command.
+3. The installer will be generated in the Current Directory.
