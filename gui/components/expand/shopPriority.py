@@ -25,7 +25,6 @@ class Layout(QWidget):
         self.label.setFixedWidth(160)
         self.input = LineEdit(self)
         self.input.setValidator(QIntValidator(0, 5))
-        print(self.config.get('CommonShopRefreshTime'))
         self.input.setText(str(self.config.get('CommonShopRefreshTime')))
         self.accept = PushButton(self.tr('确定'), self)
         self.boxes = []

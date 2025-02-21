@@ -112,7 +112,6 @@ class Layout(TemplateLayout):
         except FileNotFoundError:
             return None
         ret = dict(activity_name=current_event, story=dict(), mission=dict(), challenge=dict())
-        print(stage_data)
         en2cn = {
             "story": self.tr("故事"),
             "mission": self.tr("任务"),
@@ -120,10 +119,8 @@ class Layout(TemplateLayout):
         }
         from module.ExploreTasks.TaskUtils import formation_attr_to_cn
         for key, value in stage_data.items():
-            print(key)
             if key == "story" or key == "mission" or key == "challenge":
                 for i in range(len(value)):
-                    print(value[i])
                     ret[key][en2cn[key] + str(i + 1)] = formation_attr_to_cn(value[i])
                 continue
             tp = None

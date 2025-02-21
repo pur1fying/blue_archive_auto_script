@@ -204,8 +204,6 @@ def get_item_position(self):
             # purchase unavailable
     state = sorted(state, key=lambda t: t[0][1])
     recorded_y = sorted(recorded_y, key=lambda t: t[0])
-    print(state)
-    print(recorded_y)
     return state, recorded_y
 
 

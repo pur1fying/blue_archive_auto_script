@@ -608,7 +608,6 @@ class CreateItemCheckState:
             self.check_item_order = self.check_item_order[self.last_checked_idx:]
             self.not_exist_item_list.extend(ret)
         elif self.sort_type == "count":
-            print("pop" + self.check_item_order[self.last_checked_idx - 1])
             del self.check_item_order[self.last_checked_idx - 1]
         self.last_checked_idx = 0
         return ret
