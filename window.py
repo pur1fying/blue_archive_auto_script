@@ -16,13 +16,13 @@ from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MS
     RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
 from qfluentwidgets import (SubtitleLabel, setFont)
 
-from core import default_config
+from core.config import default_config
 from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
 from gui.util.config_gui import configGui
-from gui.util.config_set import ConfigSet
+from core.config.config_set import ConfigSet
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
 
@@ -291,7 +291,7 @@ class BAASTabBar(TabBar):
             index = len(self.items)
         if index <= self.currentIndex() and self.currentIndex() >= 0:
             self._currentIndex += 1
-        text = config.get_origin('name')
+        text = config.config.name
         item = BAASTabItem(text, self.view, icon, config=config, window=window)
         item.setRouteKey(routeKey)
         _w = self.tabMaximumWidth() if self.isScrollable() else self.tabMinimumWidth()
@@ -541,8 +541,10 @@ class Window(MSFluentWindow):
         objectName = self.tabBar.currentTab().routeKey()
         row = [x.isSelected for x in self.navi_btn_list].index(True)
         _ref = [x.object_name for x in self._sub_list[0]]
-        if objectName not in _ref: col = 0
-        else: col = [x.object_name for x in self._sub_list[0]].index(objectName)
+        if objectName not in _ref:
+            col = 0
+        else:
+            col = [x.object_name for x in self._sub_list[0]].index(objectName)
         self.dispatchSubView(row, col)
 
     def dispatchSubView(self, i0: int, i1: int):
@@ -553,7 +555,7 @@ class Window(MSFluentWindow):
         addDialog.pathLineEdit.setFocus()
         if addDialog.exec_():
             text = addDialog.pathLineEdit.text()
-            if text in list(map(lambda x: x.config['name'], self.config_dir_list)):
+            if text in list(map(lambda x: x.config.name, self.config_dir_list)):
                 notification.error(label=self.tr('设置失败'),
                                    msg=f'{self.tr("名为")}“{text}”{self.tr("的配置已经存在！")}',
                                    config=self.config_dir_list[0])
@@ -585,7 +587,7 @@ class Window(MSFluentWindow):
             self.config_dir_list.append(_config)
 
     def onTabCloseRequested(self, i0):
-        config_name = self._sub_list[0][i0].config["name"]
+        config_name = self._sub_list[0][i0].config.config.name
         title = self.tr('是否要删除配置：') + f' {config_name}？'
         content = self.tr("""你需要在确认后重启BAAS以完成更改。""")
         closeRequestBox = MessageBox(title, content, self)
@@ -595,16 +597,17 @@ class Window(MSFluentWindow):
             for sub in self._sub_list:
                 _changed_row = []
                 for tab in sub:
-                    if config_name != tab.config["name"]:
+                    if config_name != tab.config.config.name:
                         _changed_row.append(tab)
                 _changed_table.append(_changed_row)
             self._sub_list = _changed_table
             # Remove the config from the list
             for _config in self.config_dir_list:
-                if _config["name"] == config_name:
+                if _config.config.name == config_name:
                     self.config_dir_list.remove(_config)
                     break
             self.tabBar.removeTab(i0)
+
     def addTab(self, routeKey: str, config: ConfigSet, icon: Union[QIcon, str, FluentIconBase, None]):
         self.tabBar.addBAASTab(routeKey, config, icon, window=self)
 

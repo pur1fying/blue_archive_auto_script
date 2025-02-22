@@ -2,7 +2,7 @@ import asyncio
 import threading
 
 from core.Baas_thread import Baas_thread
-from gui.util.config_set import ConfigSet
+from core.config.config_set import ConfigSet
 from main import Main
 
 baas_lock = threading.Lock()

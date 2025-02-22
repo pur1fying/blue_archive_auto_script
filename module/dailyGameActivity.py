@@ -2,7 +2,7 @@ import importlib
 
 
 def implement(self):
-    self.daily_game_activity = self.static_config["dailyGameActivity"][self.server]
+    self.daily_game_activity = self.static_config.dailyGameActivity[self.server]
     if self.daily_game_activity is None:
         self.logger.warning("Current activity is not supported")
         return True

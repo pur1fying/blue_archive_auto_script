@@ -198,7 +198,6 @@ logger.add(
     level="INFO",
 )
 
-
 logger.add(
     BAAS_ROOT_PATH / "log" / "installer.log",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
@@ -292,17 +291,18 @@ def install_package():
                 return
 
             python_exec_file = BAAS_ROOT_PATH / ".env/python.exe"
-            env_pip_exec = BAAS_ROOT_PATH / ".venv/Scripts/pip.exe"
+            env_pip_exec = [str(python_exec_file), '-m', 'pip']
 
             if (
                 not os.path.exists(BAAS_ROOT_PATH / ".venv")
                 and G.package_manager == "pip"
             ):
                 # Install virtualenv package
-                pip_path = BAAS_ROOT_PATH / ".env/Scripts/pip.exe"
+                cmd_list = ["install", "virtualenv", "--no-warn-script-location"]
+
                 try_sources(
-                    str(pip_path),
-                    ["install", "virtualenv", "--no-warn-script-location"],
+                    env_pip_exec,
+                    cmd_list,
                 )
                 subprocess.run(
                     [
@@ -488,26 +488,27 @@ def check_requirements():
 
 
 def check_pdm():
-    if os.path.exists(BAAS_ROOT_PATH / ".venv"):
-        logger.info("Already installed pdm.")
-        return
-
-    logger.info("Checking pdm installation...")
-    if __system__ == "Linux":
-        if os.path.exists(BAAS_ROOT_PATH / ".env/bin/pdm"):
-            return
-        subprocess.run([BAAS_ROOT_PATH / ".env/bin/pip3", "install", "pdm"], check=True)
-        return
-
-    assert __system__ == "Windows"
-    if not os.path.exists(BAAS_ROOT_PATH / ".env/Scripts/pip.exe"):
-        logger.warning("Pip is not installed, trying to install pip...")
-        filepath = Utils.download_file(U.GET_PIP_URL, P.TMP_PATH)
-        subprocess.run([BAAS_ROOT_PATH / ".env/python.exe", filepath])
-
-    if not os.path.exists(BAAS_ROOT_PATH / ".env/Scripts/pdm.exe"):
-        logger.warning("Pdm is not installed, trying to install pdm...")
-        subprocess.run([BAAS_ROOT_PATH / ".env/Scripts/pip.exe", "install", "pdm"])
+    raise NotImplementedError("PDM currently not supported.")
+    # if os.path.exists(BAAS_ROOT_PATH / ".venv"):
+    #     logger.info("Already installed pdm.")
+    #     return
+    #
+    # logger.info("Checking pdm installation...")
+    # if __system__ == "Linux":
+    #     if os.path.exists(BAAS_ROOT_PATH / ".env/bin/pdm"):
+    #         return
+    #     subprocess.run([BAAS_ROOT_PATH / ".env/bin/pip3", "install", "pdm"], check=True)
+    #     return
+    #
+    # assert __system__ == "Windows"
+    # if not os.path.exists(BAAS_ROOT_PATH / ".env/Scripts/pip.exe"):
+    #     logger.warning("Pip is not installed, trying to install pip...")
+    #     filepath = Utils.download_file(U.GET_PIP_URL, P.TMP_PATH)
+    #     subprocess.run([BAAS_ROOT_PATH / ".env/python.exe", filepath])
+    #
+    # if not os.path.exists(BAAS_ROOT_PATH / ".env/Scripts/pdm.exe"):
+    #     logger.warning("Pdm is not installed, trying to install pdm...")
+    #     subprocess.run([BAAS_ROOT_PATH / ".env/Scripts/pip.exe", "install", "pdm"])
 
 
 def check_pip():

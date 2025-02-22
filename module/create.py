@@ -4,9 +4,9 @@ from core.utils import build_possible_string_dict_and_length, most_similar_strin
 
 
 def implement(self):
-    use_acceleration_ticket = self.config_set.config['use_acceleration_ticket']
-    left_create_times = int(self.config_set.config['createTime']) - int(self.config_set.config['alreadyCreateTime'])
-    create_max_phase = int(self.config_set.config['create_phase'])
+    use_acceleration_ticket = self.config.use_acceleration_ticket
+    left_create_times = int(self.config.createTime) - int(self.config.alreadyCreateTime)
+    create_max_phase = int(self.config.create_phase)
     self.logger.info("Left Create Times: [ " + str(left_create_times) + " ].")
     self.logger.info("Use Acceleration Ticket : [ " + str(use_acceleration_ticket).upper() + " ].")
     self.logger.info("Create Phase : [ " + str(create_max_phase) + " ].")
@@ -44,12 +44,12 @@ def implement(self):
                         create_phase(self, 3)
                 confirm_select_node(self, 1)
                 need_acc_collect = True
-                self.config_set.config['alreadyCreateTime'] += 1
+                self.config.alreadyCreateTime += 1
                 self.config_set.save()
                 self.logger.info(
-                    "Today Total Create Times : [ " + str(self.config_set.config['alreadyCreateTime']) + " ].")
+                    "Today Total Create Times : [ " + str(self.config.alreadyCreateTime) + " ].")
                 to_manufacture_store(self)
-                if self.config_set.config['alreadyCreateTime'] >= self.config['createTime']:
+                if self.config.alreadyCreateTime >= self.config.createTime:
                     create_flag = False
                     need_acc_collect = False
                     break
@@ -94,7 +94,7 @@ def start_phase(self, phase_num):
 
 
 def select_node(self, phase):
-    pri = self.config['createPriority_phase' + str(phase)]
+    pri = self.config_set.get('createPriority_phase' + str(phase))
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
 
@@ -185,7 +185,7 @@ def create_phase(self, phase):
 
 
 def select_item(self, check_state, item_name, weight):
-    item_weight = self.static_config['create_material_information'][item_name]["weight"]
+    item_weight = self.static_config.create_material_information[item_name]["weight"]
     count = weight // item_weight
     self.logger.info("Select : [ " + item_name + " ] " + "Weight : " + str(item_weight))
     holding_quantity = check_state.item_quantity(item_name)
@@ -222,9 +222,9 @@ def to_manufacture_store(self, skip_first_screenshot=False):
     }
     img_ends = [
         "create_crafting-list",
-        "create_phase-1-wait-to-check-node"
+        "create_phase-1-wait-to-check-node",
         "create_phase-2-wait-to-check-node",
-        "create_phase-3-wait-to-check-node",
+        "create_phase-3-wait-to-check-node"
     ]
     img_possibles = {
         "create_start-crafting": (1115, 657),
@@ -325,7 +325,7 @@ def set_display_setting_filter_list(self, filter_list):
 
 
 def filter_list_ensure_choose(self, filter_list):
-    filter_type_list = self.static_config['create_filter_type_list']
+    filter_type_list = self.static_config.create_filter_type_list
     start_position = {
         'CN': (293, 273),
         'Global': (291, 294),
@@ -474,15 +474,15 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     self.logger.info("Sort Type : " + sort_type)
     self.logger.info("Sort Direction : " + sort_direction)
     result = []
-    filter_type_list = self.static_config['create_filter_type_list']
+    filter_type_list = self.static_config.create_filter_type_list
     if filter_list[6]:
         # when material is chosen key stone will be displayed at the top
         # CN server phase 3 key stone is not allowed to be chosen
-        temp = self.static_config['create_item_order'][self.server]["basic"]["Special"]
+        temp = self.static_config.create_item_order[self.server]["basic"]["Special"]
         if sort_type == "count":
             t = []
             for itm in temp:
-                t.append([itm, self.config_set.config["create_item_holding_quantity"][itm]])
+                t.append([itm, self.config.create_item_holding_quantity[itm]])
             t.sort(key=lambda x: x[1])
             temp = [x[0] for x in t]
 
@@ -493,18 +493,18 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
         return result
 
     temp = []
-    item_info = self.static_config['create_material_information']
+    item_info = self.static_config.create_material_information
     phase_id = "phase" + str(phase)
     for i in range(0, len(filter_list)):
         if filter_list[i]:
-            for itm in self.static_config['create_item_order'][self.server]["basic"][filter_type_list[i]]:
+            for itm in self.static_config.create_item_order[self.server]["basic"][filter_type_list[i]]:
                 if item_info[itm]["availability"][phase_id]:
                     temp.append(itm)
 
     if sort_type == "count":
         t = []
         for itm in temp:
-            t.append([itm, self.config_set.config["create_item_holding_quantity"][itm]])
+            t.append([itm, self.config.create_item_holding_quantity[itm]])
         t.sort(key=lambda x: x[1])
         temp = [x[0] for x in t]
     if sort_direction == "down":
@@ -527,8 +527,8 @@ class CreateItemCheckState:
     def __init__(self, check_item_order=None, sort_type="basic", sort_direction="up", phase=1, baas=None):
         self.phase = phase
         self.baas = baas
-        self.weight_sum = self.baas.static_config["create_each_phase_weight"][phase]
-        self.select_item_rule = self.baas.config["create_phase_" + str(phase) + "_select_item_rule"]
+        self.weight_sum = self.baas.static_config.create_each_phase_weight[phase]
+        self.select_item_rule = self.baas.config_set.get("create_phase_" + str(phase) + "_select_item_rule")
         self.baas.logger.info("Select Item Rule : [ " + self.select_item_rule + " ].")
         self.already_selected_item = dict()
         self.check_item_order = check_item_order
@@ -697,17 +697,17 @@ class CreateItemCheckState:
 
     def item_level_is(self, name, level):
         weight = CreateItemCheckState.level_weight[level]
-        return self.baas.static_config["create_material_information"][name]["weight"] == weight
+        return self.baas.static_config.create_material_information[name]["weight"] == weight
 
     def item_level_in(self, name, levels):
         weights = [CreateItemCheckState.level_weight[level] for level in levels]
-        return self.baas.static_config["create_material_information"][name]["weight"] in weights
+        return self.baas.static_config.create_material_information[name]["weight"] in weights
 
     def item_is_Material(self, name, level):
         return self.item_type_is(name, "Material") and self.item_level_is(name, level)
 
     def item_type_is(self, name, material_type):
-        return self.baas.static_config["create_material_information"][name]["material_type"] == material_type
+        return self.baas.static_config.create_material_information[name]["material_type"] == material_type
 
     @staticmethod
     def item_type_is_Disk(name):
@@ -828,7 +828,7 @@ def item_recognize(self, check_state):
                     log_name_list.append("UNKNOWN")
                     continue
             items[temp + j]["holding_quantity"] = holding_quantity
-            self.config_set.config["create_item_holding_quantity"][name] = holding_quantity
+            self.config.create_item_holding_quantity[name] = holding_quantity
             log_name_list.append(name)
             log_quantity_list.append(holding_quantity)
             item_invisible = check_state.pop_checked_item(items[temp + j])
@@ -837,7 +837,7 @@ def item_recognize(self, check_state):
                 self.logger.info("Item : [ " + str(item_invisible) + " ] invisible.")
                 self.logger.info("Set holding quantity to 0.")
                 for invisible_item_name in item_invisible:
-                    self.config["create_item_holding_quantity"][invisible_item_name] = 0
+                    self.config.create_item_holding_quantity[invisible_item_name] = 0
         check_state.last_check_y = y
         temp += item_lines_y[i][1]
     if len(log_name_list) > 0:

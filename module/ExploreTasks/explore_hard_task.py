@@ -18,7 +18,7 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, list[s
             - The first element (bool): The verification result. Returns True if verification passes; otherwise, False.
             - The second element (str): The error message. Returns a detailed error message if verification fails; otherwise, an empty string.
     """
-    valid_chapter_range = self.static_config['explore_hard_task_region_range']
+    valid_chapter_range = self.static_config.explore_hard_task_region_range
     info = task.split('-')
     if (not info[0].isdigit()) or int(info[0]) < valid_chapter_range[0] or int(info[0]) > valid_chapter_range[1]:
         return False, "Invalid chapter or unsupported chapter"
@@ -158,7 +158,7 @@ def implement(self):
         - submission (int): The submission ID or count.
         - stage_data (dict): The stage data.
     """
-    for taskStr in str(self.config_set.config['explore_hard_task_list']).split(','):
+    for taskStr in str(self.config_set.config.explore_hard_task_list).split(','):
         result = validate_and_add_task(self, taskStr, tasklist)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
@@ -188,7 +188,7 @@ def implement(self):
             continue
         execute_grid_task(self, task[3])
         main_story.auto_fight(self)
-        if self.config['manual_boss']:
+        if self.config.manual_boss:
             self.click(1235, 41)
 
         # skip unlocking animation by switching

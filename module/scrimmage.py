@@ -1,18 +1,20 @@
 import time
-
+from module.clear_special_task_power import get_task_count
 from core import color, picture
 
 
 def implement(self):
+    count = get_task_count(self, "scrimmage", 3)
+    if not count:
+        return True
+
     self.quick_method_to_main_page()
     scrimmage_area_name = ["Trinity", "Gehenna", "Millennium"]
-    buy_ticket_times = min(self.config['purchase_scrimmage_ticket_times'], 12)  # ** 购买悬赏委托券的次数
+    buy_ticket_times = min(self.config.purchase_scrimmage_ticket_times, 12)  # ** 购买悬赏委托券的次数
     buy_ticket_times = max(buy_ticket_times, 0)
     if buy_ticket_times > 0 and self.server != 'CN':
         to_choose_scrimmage(self, True)
         purchase_scrimmage_ticket(self, buy_ticket_times)
-
-    count = self.config['scrimmage_times']
 
     self.scrimmage_task_status = [False, False, False]
     just_do_task = False
@@ -67,7 +69,7 @@ def get_los(self):
     los = []
     while i > 196:
         if color.judge_rgb_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
-            color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
+                color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
             continue
@@ -157,3 +159,5 @@ def purchase_scrimmage_ticket(self, times):
         "rewarded_task_purchase-scrimmage-ticket-notice": (766, 507),
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=False)
+
+

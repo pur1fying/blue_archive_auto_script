@@ -9,7 +9,7 @@ class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config
-        self.default_goods = self.config.static_config['tactical_challenge_shop_price_list'][self.config.server_mode]
+        self.default_goods = self.config.static_config.tactical_challenge_shop_price_list[self.config.server_mode]
         self.goods = self.config.get(key='TacticalChallengeShopList')
         goods_count = len(self.goods)
         layout = FlowLayout(self, needAni=True)

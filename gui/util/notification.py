@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import InfoBar, InfoBarIcon, InfoBarPosition
 
-from gui.util.config_set import ConfigSet
+from core.config.config_set import ConfigSet
 
 
 def success(label: str, msg: str, config: ConfigSet, duration: int = 800) -> None:

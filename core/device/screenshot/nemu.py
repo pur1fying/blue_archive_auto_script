@@ -10,7 +10,7 @@ class NemuScreenshot:
         self.logger = conn.logger
         self.serial = conn.serial
 
-        self.nemu_folder = self.config.get("program_address")
+        self.nemu_folder = self.config_set.get("program_address")
         self.nemu_folder = os.path.dirname(self.nemu_folder)
         self.nemu_folder = os.path.dirname(self.nemu_folder)  # C:/Program Files/Netease/MuMu Player 12
 
