@@ -5,7 +5,7 @@ TEMP_FOLDER=temp_build
 TEMP_BUILD=build
 TEMP_GENERATION=dist
 DEB_PACKAGE_NAME=blue-archive-auto-script
-DEB_VERSION=1.0.0
+DEB_VERSION=1.1.0
 DEB_ARCH=amd64
 INSTALL_DIR=/usr/local/bin
 
@@ -22,13 +22,13 @@ source $TEMP_FOLDER/$VENV_NAME/bin/activate
 pip install -r requirements.installer.txt
 
 # Pyinstaller build the executable file
-pyinstaller -i gui/assets/logo.ico --name BlueArchiveAutoScript -F installer.py
+pyinstaller -i gui/assets/logo.ico --name baas -F installer.py
 
 # Move the generated file out of the temp generation dir
 mv ./dist/* ./
 
 # Remove the temporary directories
-rm -rf $TEMP_FOLDER $TEMP_BUILD $TEMP_GENERATION BlueArchiveAutoScript.spec
+rm -rf $TEMP_FOLDER $TEMP_BUILD $TEMP_GENERATION baas.spec
 
 # Begin creating the .deb package
 DEB_TEMP_DIR=deb_build
@@ -36,7 +36,7 @@ mkdir -p $DEB_TEMP_DIR/DEBIAN
 mkdir -p $DEB_TEMP_DIR/$INSTALL_DIR
 
 # Move the executable into the installation directory
-mv BlueArchiveAutoScript $DEB_TEMP_DIR/$INSTALL_DIR/
+mv baas $DEB_TEMP_DIR/$INSTALL_DIR/
 
 # Create the control file
 cat <<EOL > $DEB_TEMP_DIR/DEBIAN/control

@@ -40,6 +40,7 @@ export default defineConfig({
             {text: '特性', link: '/usage_doc/features'},
             {text: '下载', link: '/usage_doc/downloads'},
             {text: '安装教程', link: '/usage_doc/install/choose_platform'},
+            {text: '自定义安装', link: '/usage_doc/install/setup_config'},
             {text: '配置', link: '/usage_doc/config'},
             {text: '常见问题', link: '/usage_doc/faq'},
             {text: '上报问题', link: '/usage_doc/report'},

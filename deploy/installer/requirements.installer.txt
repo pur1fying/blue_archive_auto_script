@@ -1,5 +1,10 @@
-tqdm
-psutil
-dulwich
-requests
-pyinstaller
+alive-progress>=3.2.0
+halo>=0.0.31
+psutil>=7.0.0
+loguru>=0.7.3
+dulwich>=0.22.7
+requests>=2.32.3
+pyinstaller>=4.5.1
+tomli>=2.2.1
+tomli-w>=1.2.0
+easydict>=1.13
