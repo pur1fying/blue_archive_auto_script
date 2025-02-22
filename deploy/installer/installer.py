@@ -313,6 +313,7 @@ def install_package():
                     ],
                     check=True,
                 )
+            env_pip_exec[0] = BAAS_ROOT_PATH / ".venv/Scripts/python.exe"
 
         if not env_pip_exec:
             env_python_exec = G.runtime_path
