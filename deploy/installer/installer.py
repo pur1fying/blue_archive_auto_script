@@ -88,8 +88,66 @@ def download_file(url: str):
                 file.write(chunk)
                 progress_bar.update(len(chunk))
 
-    progress_bar.close()
-    return file_path
+# Find the configuration file in the current directory
+config_file = BASE_PATH / "setup.toml"
+if not config_file.exists():
+
+    # If not found, create a default configuration file
+    with open(config_file, "wb") as file:
+        if __system__ == "Linux":
+            print(
+                "Since it's your first time running the script, we require password for installing packages."
+            )
+            print(
+                "Don't worry, we won't use it for any other purposes. (You may check the source code)"
+            )
+            pwd = getpass.getpass("Please enter your password: ")
+            DEFAULT_SETTINGS["General"]["linux_pwd"] = pwd
+        tomli_w.dump(DEFAULT_SETTINGS, file)
+    config = DEFAULT_SETTINGS
+else:
+    # Load the configuration file
+    with open(config_file, "rb") as file:
+        config = tomllib.load(file)
+
+G = eDict(config["General"])
+U = eDict(config["URLs"])
+P = eDict(config["Paths"])
+
+BAAS_ROOT_PATH = Path(P.BAAS_ROOT_PATH).resolve() if P.BAAS_ROOT_PATH else "" or BASE_PATH
+G.runtime_path = G.runtime_path.replace("\\", "/")
+P.TMP_PATH = BAAS_ROOT_PATH / Path(P.TMP_PATH)
+P.TOOL_KIT_PATH = BAAS_ROOT_PATH / Path(P.TOOL_KIT_PATH)
+if P.BAAS_ROOT_PATH and not os.path.exists(P.BAAS_ROOT_PATH):
+    os.makedirs(P.BAAS_ROOT_PATH)
+if not os.path.exists(P.TMP_PATH):
+    os.makedirs(P.TMP_PATH)
+if not os.path.exists(P.TOOL_KIT_PATH):
+    os.makedirs(P.TOOL_KIT_PATH)
+
+# ==================== Logging Configuration ====================
+
+logger.remove()
+logger.add(
+    sys.stdout,
+    colorize=True,
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>",
+    level="INFO",
+)
+
+logger.add(
+    BAAS_ROOT_PATH / "log" / "installer.log",
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+    level="INFO",
+)
+
+spinner = Halo()
+
+# ==================== Welcome Message ====================
+logger.info("Blue Archive Auto Script Launcher & Installer")
+logger.info("GitHub Repo: https://github.com/pur1fying/blue_archive_auto_script")
+logger.info("Official QQ Group: 658302636")
+logger.info("Current BAAS Path: " + str(BAAS_ROOT_PATH))
 
 
 def check_python_installation():
@@ -118,9 +176,36 @@ def check_python_installation():
 
 def install_package():
     try:
-        if args.runtime_path == 'default':
-            # Detect the OS and select the appropriate Python executable and path
-            system = platform.system()
+        env_pip_exec = None
+
+        # Detect the OS and select the appropriate Python executable and path
+        def try_sources(pkg_mgr_path, followed_cmd=None):
+            for _source in G.source_list:
+                try:
+                    if G.package_manager == "pdm":
+                        subprocess.run(
+                            [pkg_mgr_path, "config", "--local", "pypi.url", _source],
+                            check=True,
+                        )
+                    else:
+                        followed_cmd.extend(["-i", _source])
+                    if followed_cmd:
+                        if not type(pkg_mgr_path) == list:
+                            cmds = [pkg_mgr_path, *followed_cmd]
+                        else:
+                            cmds = pkg_mgr_path
+                            cmds.extend(followed_cmd)
+                        subprocess.run(cmds, check=True)
+                    return
+                except KeyboardInterrupt:
+                    logger.error("User interrupted the process.")
+                    return
+                except:
+                    logger.exception(f"Failed to connect to {_source}, trying next source...")
+            logger.error("Packages Installation failed with all sources.")
+            error_tackle()
+
+        if G.runtime_path == "default":
 
             # If Linux, don't create a virtual environment
             if system == 'Linux':
@@ -129,14 +214,17 @@ def install_package():
                                 args.source, '--no-warn-script-location'], check=True)
                 return
 
-            if system == 'Windows':
-                python_exec_file = './lib/python.exe'
-                env_python_exec = './env/Scripts/python'
-            else:
-                raise Exception("Unsupported OS")
+            python_exec_file = BAAS_ROOT_PATH / ".env/python.exe"
+            env_pip_exec = [str(python_exec_file), '-m', 'pip']
 
             if not os.path.exists('./env/Scripts/python.exe'):
                 # Install virtualenv package
+                cmd_list = ["install", "virtualenv", "--no-warn-script-location"]
+
+                try_sources(
+                    env_pip_exec,
+                    cmd_list,
+                )
                 subprocess.run(
                     [python_exec_file, '-m', 'pip', 'install', 'virtualenv', '-i',
                      args.source,
@@ -281,7 +369,31 @@ def run_app():
 def check_requirements():
     logger.info("Check package Installation...")
     install_package()
-    logger.info("Install requirements success")
+    logger.success("Install requirements success")
+
+
+def check_pdm():
+    raise NotImplementedError("PDM currently not supported.")
+    # if os.path.exists(BAAS_ROOT_PATH / ".venv"):
+    #     logger.info("Already installed pdm.")
+    #     return
+    #
+    # logger.info("Checking pdm installation...")
+    # if __system__ == "Linux":
+    #     if os.path.exists(BAAS_ROOT_PATH / ".env/bin/pdm"):
+    #         return
+    #     subprocess.run([BAAS_ROOT_PATH / ".env/bin/pip3", "install", "pdm"], check=True)
+    #     return
+    #
+    # assert __system__ == "Windows"
+    # if not os.path.exists(BAAS_ROOT_PATH / ".env/Scripts/pip.exe"):
+    #     logger.warning("Pip is not installed, trying to install pip...")
+    #     filepath = Utils.download_file(U.GET_PIP_URL, P.TMP_PATH)
+    #     subprocess.run([BAAS_ROOT_PATH / ".env/python.exe", filepath])
+    #
+    # if not os.path.exists(BAAS_ROOT_PATH / ".env/Scripts/pdm.exe"):
+    #     logger.warning("Pdm is not installed, trying to install pdm...")
+    #     subprocess.run([BAAS_ROOT_PATH / ".env/Scripts/pip.exe", "install", "pdm"])
 
 
 def check_pip():
