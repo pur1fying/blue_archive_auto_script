@@ -6,8 +6,8 @@ from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
-    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
-    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    times = preprocess_activity_sweep_times(self.config_set.get("activity_sweep_times"))
+    region = preprocess_activity_region(self.config_set.get("activity_sweep_task_number"))
     self.logger.info("activity sweep task number : " + str(region))
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
@@ -170,7 +170,7 @@ def explore_mission(self):
         if last_target_mission == total_missions and res == "sss":
             self.logger.info("All MISSION SSS")
             return True
-        number = self.config[characteristic[last_target_mission - 1]]
+        number = self.config_set.get(characteristic[last_target_mission - 1])
         self.logger.info("according to config, choose formation " + str(number))
         to_formation_edit_i(self, number, (940, 538), True)
         start_fight(self, number)
@@ -210,7 +210,7 @@ def explore_challenge(self):
             execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
-        if self.config['manual_boss']:
+        if self.config.manual_boss:
             self.click(1235, 41)
         to_activity(self, "mission", True)
         to_activity(self, "challenge", True)

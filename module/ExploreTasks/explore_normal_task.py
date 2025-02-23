@@ -121,9 +121,10 @@ def implement(self):
             continue
 
         if mission == 'sub':
-            start_choose_side_team(self, self.config[self.stage_data[str(region)]['SUB']])
+            formation_id = self.config_set.get(self.stage_data[str(region)]['SUB'])
+            start_choose_side_team(self, formation_id)
             rgb_possibles = {
-                "formation_edit" + str(self.config[self.stage_data[str(region)]['SUB']]): (1171, 670),
+                "formation_edit" + str(formation_id): (1171, 670),
             }
             rgb_ends = "fighting_feature"
             picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
