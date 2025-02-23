@@ -86,5 +86,6 @@ x_y_range = {
     "Moe": [],
     "Yuzu (Maid)": [],
     "Natsu": [],
-    "Cherino": []
+    "Cherino": [],
+    "Reisa": [],
 }
