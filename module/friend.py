@@ -7,7 +7,7 @@ def implement(self):
         return True
     self.quick_method_to_main_page()
     to_friend_management(self, True)
-    self.logger.info("Clear Friend White List : " + str(self.config.get("clear_friend_white_list")))
+    self.logger.info("Clear Friend White List : " + str(self.config.clear_friend_white_list))
     self.last_friend_id = None
     last_friend_id = None
     exit_cnt = 0

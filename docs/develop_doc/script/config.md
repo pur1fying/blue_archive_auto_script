@@ -1,5 +1,10 @@
 ::: info
 本文档收录BAAS每一条配置
+阅读前你可能需要了解:
+- json基本语法
+- python dataclass 装饰器
+
+一些字段的含义:
 1. **type**: 数据类型
 2. **element** : 列表 / 字典**元素**的数据类型
 3. **constrains** : 可选值范围(n 选 1)
@@ -17,7 +22,9 @@
   3. `switch.json` : 一些GUI有关的配置
 - `config/gui.json` GUI的配置文件
 - `config/static.json` 为共享的配置文件, 其中的内容在**BAAS**运行时不会被修改
-
+- `core/default_config.py`: 默认配置
+- `core/config/generated_user_config.py` , `core/config/generated_static_config.py`: 由`default_config.py`生成的`dataclass`代码
+- `core/config_set.py`: `ConfigSet`类具体定义, 用于管理配置
 ### 如何在重新安装BAAS时保留原有配置
 1. 复制一份原始BAAS的config文件夹
 2. 将复制的config文件夹放在新**BAAS**可执行文件的同级目录下
@@ -25,9 +32,10 @@
 3. 运行**BAAS**可执行程序
 
 ### 增删一条用户配置
-1. 在`core/default_config.py` 中修改`DEFAULT_CONFIG`变量, 添加对应字段后**重启UI** 
-2. 便会将所有新配置插入
-
+1. 在`core/default_config.py` 中修改`DEFAULT_CONFIG`变量, 添加对应字段和默认值。
+2. 运行`develop_tools/generate_dataclass_code` 生成新的`dataclass`代码
+3. 重启UI便会将所有新配置插入
+4. [引用配置](/develop_doc/script/ConfigSet#使用示例-example-usage)
 ### 增删一条调度配置
 1. 在`core/default_config.py` 中修改`SWITCH_CONFIG`变量, 添加对应字段后**重启UI**
 2. 调度配置的每一项具体含义可以见[调度配置](/usage_doc/config#调度配置)

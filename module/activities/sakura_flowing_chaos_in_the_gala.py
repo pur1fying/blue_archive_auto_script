@@ -1,14 +1,15 @@
-from module.activities.activity_utils import get_stage_data
 import time
+
 from core import image, color, picture
 from module import main_story
 from module.ExploreTasks.TaskUtils import execute_grid_task
+from module.activities.activity_utils import get_stage_data
 
 
 def implement(self):
     self.quick_method_to_main_page()
-    region = self.config["activity_sweep_task_number"]
-    times = self.config["activity_sweep_times"]
+    region = self.config.activity_sweep_task_number
+    times = self.config.activity_sweep_times
     if times > 0:
         return sweep(self, region, times)
     else:
@@ -160,7 +161,7 @@ def explore_challenge(self):
         if need_fight:
             execute_grid_task(self, current_task_stage_data)
             main_story.auto_fight(self)
-            if self.config['manual_boss']:
+            if self.config.manual_boss:
                 self.click(1235, 41)
             to_activity(self, "mission", True)
             to_activity(self, "challenge", True)
@@ -245,16 +246,16 @@ def to_challenge_task_info(self, number):
 
 def check_sweep_availability(self):
     if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
-        color.judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
+            color.judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
+            color.judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
         return "no-pass"
     if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
-        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
+            color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
+            color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "sss"
     if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
-        color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
+            color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
+            color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "pass"
 
 
@@ -295,4 +296,3 @@ def start_sweep(self, skip_first_screenshot=False):
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
-

@@ -7,14 +7,14 @@ import importlib
 
 def implement(self):
     self.quick_method_to_main_page()
-    self.lesson_times = self.config["lesson_times"]
-    region_name = self.static_config["lesson_region_name"][self.server].copy()
+    self.lesson_times = self.config.lesson_times
+    region_name = self.static_config.lesson_region_name[self.server].copy()
     for i in range(0, len(region_name)):
         region_name[i] = pre_process_lesson_name(self, region_name[i])
 
     self.lesson_letter_dict, self.lesson_region_name_len = build_possible_string_dict_and_length(region_name)
 
-    purchase_ticket_times = min(self.config['purchase_lesson_ticket_times'], 4)
+    purchase_ticket_times = min(self.config.purchase_lesson_ticket_times, 4)
     to_lesson_location_select(self, True)
     if purchase_ticket_times > 0:
         self.logger.info("Purchase lesson ticket times :" + str(purchase_ticket_times))
@@ -31,7 +31,7 @@ def implement(self):
             return True
     to_lesson_location_select(self, True)
     self.swipe(940, 213, 940, 560, duration=0.1, post_sleep_time=0.5)
-    if self.config.get("lesson_enableInviteFavorStudent"):
+    if self.config_set.get("lesson_enableInviteFavorStudent"):
         invite_favor_student(self)
         if self.lesson_tickets == 0:
             return True
@@ -91,7 +91,7 @@ def pre_process_lesson_name(self, name):
 
 
 def to_lesson_region(self, tar_num, cur_num=0):
-    region_name = self.static_config["lesson_region_name"][self.server]
+    region_name = self.static_config.lesson_region_name[self.server]
     to_select_location(self, True)
     while cur_num != tar_num and self.flag_run:
         self.logger.info("now in page [ " + region_name[cur_num] + " ]")
@@ -346,7 +346,7 @@ def choose_lesson(self, res, region):
                 1.lesson availability list
                 2.relationship count list
     """
-    if self.config['lesson_relationship_first']:  # choose bigger relationship count
+    if self.config.lesson_relationship_first:  # choose bigger relationship count
         max_relationship = -1
         lo = -1
         for i in range(0, 9):
@@ -357,7 +357,7 @@ def choose_lesson(self, res, region):
         return lo
     else:
         tier = ["superior", "advanced", "normal", "primary"]
-        pri = self.config['lesson_each_region_object_priority'][region]
+        pri = self.config.lesson_each_region_object_priority[region]
         if pri == []:
             for i in range(8, -1, -1):  # choose the last available which gives higher tier reward
                 if res[0][i] == "available":
@@ -386,7 +386,7 @@ def invite_favor_student(self):
         use each server image template, if image not exists use shared
     """
     self.logger.info("Lesson Inviting favor student.")
-    favorStudentList = self.config['lesson_favorStudent'].copy()
+    favorStudentList = self.config.lesson_favorStudent.copy()
 
     detected_student_pos = dict()  # student name : {(region, block)}
     region_block_names = [[[] for _ in range(9)] for _ in range(len(self.lesson_region_name_len))]

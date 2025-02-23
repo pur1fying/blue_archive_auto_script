@@ -40,10 +40,10 @@ class Layout(QWidget):
             self.tr('关机')]) # Shutdown
         self.thenCombo.setCurrentText(self.config.get('then'))
 
-        self.screenshotCombo.addItems(self.config.static_config.get('screenshot_methods'))
+        self.screenshotCombo.addItems(self.config.static_config.screenshot_methods)
         self.screenshotCombo.setCurrentText(self.config.get('screenshot_method'))
 
-        self.controlCombo.addItems(self.config.static_config.get('control_methods'))
+        self.controlCombo.addItems(self.config.static_config.control_methods)
         self.controlCombo.setCurrentText(self.config.get('control_method'))
 
         self.screenshot_box.textChanged.connect(self._save_port)

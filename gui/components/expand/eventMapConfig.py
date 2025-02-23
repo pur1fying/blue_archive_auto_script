@@ -101,7 +101,7 @@ class Layout(TemplateLayout):
         threading.Thread(target=self.main_thread.start_explore_activity_challenge).start()
 
     def gen_event_formation_attr(self):
-        current_event = self.config.static_config['current_game_activity'][self.config.server_mode]
+        current_event = self.config.static_config.current_game_activity[self.config.server_mode]
         if current_event is None:
             return None
         import json
