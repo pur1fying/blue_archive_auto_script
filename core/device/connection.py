@@ -275,15 +275,15 @@ class Connection:
         return self.activity
 
     def get_current_package(self):
-        self.logger.info("List Packages")
+        self.logger.info("Get Current Package.")
         for _ in range(3):
             d = adb.device(self.serial)
             try:
-                d.app_current().package
+                return d.app_current().package
             except AdbError as e:
                 self.logger.error(f"Error: {e}")
                 self.kill_adb()
-                self.logger.info("Retry list packages")
+                self.logger.info("Retry Get Current Package.")
         return ""
 
     def adb_connect(self):
