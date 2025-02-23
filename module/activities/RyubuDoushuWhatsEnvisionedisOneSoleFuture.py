@@ -170,7 +170,7 @@ def explore_mission(self):
         if last_target_mission == total_missions and res == "sss":
             self.logger.info("All MISSION SSS")
             return True
-        number = self.config_set.get(characteristic[last_target_mission - 1])
+        number = int(self.config_set.get(characteristic[last_target_mission - 1]))
         self.logger.info("according to config, choose formation " + str(number))
         to_formation_edit_i(self, number, (940, 538), True)
         start_fight(self, number)
