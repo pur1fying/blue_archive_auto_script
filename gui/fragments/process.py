@@ -101,7 +101,6 @@ class ProcessFragment(ScrollArea):
             if self.baas_thread is not None:
                 crt_task = self.baas_thread.scheduler.getCurrentTaskName()
                 task_list = self.baas_thread.scheduler.getWaitingTaskList()
-                print(crt_task, task_list)
 
                 crt_task = crt_task if crt_task else self.tr("暂无正在执行的任务")
                 task_list = [bt.tr('ConfigTranslation', task) for task in task_list] if task_list else [

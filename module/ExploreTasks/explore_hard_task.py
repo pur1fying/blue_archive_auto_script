@@ -125,12 +125,12 @@ def calc_team_number(self, current_task_stage_data):
             possible_attr = priority[attr][i]
             if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
                 continue
-            possible_index = self.config[possible_attr]
+            possible_index = self.config_set.get(possible_attr)
             if not used[possible_attr] and 4 - possible_index >= length - len(
                     res) - 1 and last_chosen < possible_index:
                 res.append(possible_index)
                 used[possible_attr] = True
-                last_chosen = self.config[possible_attr]
+                last_chosen = self.config_set.get(possible_attr)
                 break
     if len(res) != length:
         self.logger.warning("Insufficient forces are chosen")
