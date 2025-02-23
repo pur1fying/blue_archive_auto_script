@@ -266,8 +266,8 @@ class Baas_thread:
         if emulator_strat_stat:
             self.logger.info(f"-- BAAS Check Emulator Start --")
             if self.config.emulatorIsMultiInstance:
-                name = self.config.get("multiEmulatorName")
-                num = self.config.get("emulatorMultiInstanceNumber")
+                name = self.config.multiEmulatorName
+                num = self.config.emulatorMultiInstanceNumber
                 self.logger.info(f"-- Start Multi Emulator --")
                 self.logger.info(f"EmulatorName: {name}")
                 self.logger.info(f"MultiInstanceNumber: {num}")
@@ -282,7 +282,7 @@ class Baas_thread:
                     return False
                 return True
             else:
-                self.file_path = self.config.get("program_address")
+                self.file_path = self.config.program_address
                 self.process_name = self.extract_filename_and_extension(self.file_path)
                 if self.check_process_running(self.process_name):
                     self.logger.info(f"-- Emulator Process {self.process_name} is running --")
