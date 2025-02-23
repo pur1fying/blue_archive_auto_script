@@ -89,63 +89,6 @@ def need_fight(self, check_data: list[str]):
     return False
 
 
-def calc_team_number(self, current_task_stage_data):
-    priority = {
-        'pierce1': ['pierce1', 'pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
-        'pierce2': ['pierce2', 'burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2'],
-        'burst1': ['burst1', 'burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
-        'burst2': ['burst2', 'mystic1', 'mystic2', 'shock1', 'shock2', 'pierce1', 'pierce2'],
-        'mystic1': ['mystic1', 'mystic2', 'shock1', 'shock2', 'burst1', 'burst2', 'pierce1', 'pierce2'],
-        'mystic2': ['mystic2', 'burst1', 'shock1', 'shock2', 'burst2', 'pierce1', 'pierce2'],
-        'shock1': ['shock1', 'shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ],
-        'shock2': ['shock2', 'pierce1', 'pierce2', 'mystic1', 'mystic2', 'burst1', 'burst2', ]
-    }
-    length = len(current_task_stage_data['start'])
-    used = {
-        'pierce1': False,
-        'pierce2': False,
-        'burst1': False,
-        'burst2': False,
-        'mystic1': False,
-        'mystic2': False,
-        'shock1': False,
-        'shock2': False,
-    }
-    keys = used.keys()
-    last_chosen = 0
-    res = []
-    los = []
-    for attr, position in current_task_stage_data['start'].items():
-        if attr not in keys:
-            res.append(attr)
-            los.append(position)
-            continue
-        los.append(position)
-        for i in range(0, len(priority[attr])):
-            possible_attr = priority[attr][i]
-            if (possible_attr == 'shock1' or possible_attr == 'shock2') and self.server == 'CN':
-                continue
-            possible_index = self.config_set.get(possible_attr)
-            if not used[possible_attr] and 4 - possible_index >= length - len(
-                    res) - 1 and last_chosen < possible_index:
-                res.append(possible_index)
-                used[possible_attr] = True
-                last_chosen = self.config_set.get(possible_attr)
-                break
-    if len(res) != length:
-        self.logger.warning("Insufficient forces are chosen")
-        if length - len(res) <= 4 - last_chosen:
-            for i in range(0, length - len(res)):
-                res.append(last_chosen + i + 1)
-        else:
-            self.logger.warning("USE formations as the number increase")
-            res.clear()
-            for i in range(0, length):
-                res.append(i + 1)
-    self.logger.info("Choose formations : " + str(res))
-    return res, los
-
-
 def implement(self):
     """
     Implement the logic for exploring hard tasks.
