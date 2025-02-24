@@ -92,7 +92,7 @@ class Baas_thread:
         self.config_path = self.config_set.config_dir
         self.config = None
         self.ratio = None
-        self.next_time = None
+        self.next_time = 0
         self.task_finish_to_main_page = False
         self.static_config = ConfigSet.static_config
         self.ocr = None
