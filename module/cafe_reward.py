@@ -9,7 +9,6 @@ def implement(self):
     self.quick_method_to_main_page()
     to_cafe(self, True)
     if self.config.cafe_reward_collect_hour_reward and get_cafe_earning_status(self):
-        self.logger.info("Collect Cafe Earnings")
         collect(self)
         to_cafe(self, False)
     ticket1_next_time = None
