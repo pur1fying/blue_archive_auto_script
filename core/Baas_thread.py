@@ -26,6 +26,7 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
+from core.utils import Logger
 from device_operation import process_api
 
 func_dict = {
