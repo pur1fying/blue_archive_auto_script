@@ -187,6 +187,7 @@ def confirm_teleport(self):
     picture.co_detect(self, None, None, img_ends, img_reactions, True)
 
 
+# Functions related to task loops
 # 与任务循环相关的函数
 
 def execute_grid_task(self, taskData):
@@ -355,7 +356,8 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
             time.sleep(1)
             self.swipe(info[0], info[1], info[2], info[3], duration=info[4])
             time.sleep(1)
-        else:  # employ units from presets
+        else:
+            # employ units from presets
             preset_column = employ_presets[employed][0]
             preset_row = employ_presets[employed][1]
             self.logger.info(f"Choosing team from preset {preset_column}-{preset_row}.")
@@ -412,5 +414,24 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
             employed += 1
 
 
+def employ_from_side(self, index):
+    self.logger.info("According to the config. Choose formation " + str(index))
+    loy = [195, 275, 354, 423]
+    y = loy[index - 1]
+    img_possibles = {
+        'normal_task_SUB': (637, 508),
+        'normal_task_task-info': (946, 540)
+    }
+    rgb_possibles = {
+        "formation_edit1": (74, y),
+        "formation_edit2": (74, y),
+        "formation_edit3": (74, y),
+        "formation_edit4": (74, y),
+    }
+    rgb_ends = "formation_edit" + str(index)
+    rgb_possibles.pop("formation_edit" + str(index))
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+
 tmp_teams = {"burst": [[1, 1], [3, 2]], "pierce": [[1, 2], [4, 4]], "shock": [[1, 3], [2, 3]],
              "mystic": [[1, 3], [2, 3]]}
+

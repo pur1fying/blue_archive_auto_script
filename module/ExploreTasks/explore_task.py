@@ -250,20 +250,3 @@ def explore_hard_task(self):
     return True
 
 
-def choose_side_team(self, index):
-    self.logger.info("According to the config. Choose formation " + str(index))
-    loy = [195, 275, 354, 423]
-    y = loy[index - 1]
-    img_possibles = {
-        'normal_task_SUB': (637, 508),
-        'normal_task_task-info': (946, 540)
-    }
-    rgb_possibles = {
-        "formation_edit1": (74, y),
-        "formation_edit2": (74, y),
-        "formation_edit3": (74, y),
-        "formation_edit4": (74, y),
-    }
-    rgb_ends = "formation_edit" + str(index)
-    rgb_possibles.pop("formation_edit" + str(index))
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
