@@ -73,7 +73,7 @@ def need_fight(self, taskDataName: str):
         bool: True if a fight is needed, False otherwise.
     """
     if (self.server == "CN" and
-            image.compare_image(self, 'normal_task_SUB')):  # sub mission check (now only available in CN servers)
+        image.compare_image(self, 'normal_task_SUB')):  # sub mission check (now only available in CN servers)
         return True
     if "-6" in taskDataName:  # mission A sss check
         return color.is_rgb_in_range(self, 768, 357, 60, 80, 60, 80, 60, 80)
@@ -122,12 +122,19 @@ def implement(self):
             taskName = str(region) + "-" + (str(mission) if mission != 6 else "A")
             self.logger.info(f"--- Start exploring {taskName}({taskDataName}) ---")
             to_region(self, region, True)
+
+            fullMissionList = []
+            for i in range(1, 6):
+                fullMissionList.append(f"{region}-{i}")
+            if region % 3 == 0:
+                fullMissionList.append(f"{region}-A")
+
             p = image.swipe_search_target_str(
                 self,
                 "normal_task_enter-task-button",
                 (1055, 191, 1201, 632),
                 0.8,
-                build_mission_name_possible_strs(region),
+                fullMissionList,
                 mission - 1,
                 (917, 552, 917, 220, 0.2, 1.0),
                 'Global',
@@ -150,7 +157,7 @@ def implement(self):
                     'normal_task_task-A-info': (946, 540)
                 }
                 img_ends = "normal_task_formation-menu"
-                picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
+                picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_loading=True)
 
                 # get preset unit
                 employ_units(self, taskData)
@@ -184,12 +191,3 @@ def choose_side_team(self, index):
     rgb_ends = "formation_edit" + str(index)
     rgb_possibles.pop("formation_edit" + str(index))
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
-
-
-def build_mission_name_possible_strs(region):
-    ret = []
-    for i in range(1, 6):
-        ret.append(f"{region}-{i}")
-    if region % 3 == 0:
-        ret.append(f"{region}-A")
-    return ret

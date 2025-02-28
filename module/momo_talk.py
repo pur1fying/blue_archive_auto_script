@@ -73,7 +73,7 @@ def to_momotalk2(self, skip_first_screenshot=False):
     }
     rgb_ends = "momotalk2"
     img_possibles = picture.GAME_ONE_TIME_POP_UPS[self.server]
-    return picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot=skip_first_screenshot)
+    return picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_loading=skip_first_screenshot)
 
 
 def common_solve_affection_story_method(self):
@@ -109,7 +109,7 @@ def common_solve_affection_story_method(self):
                 'plot_skip-plot-notice': (770, 519),
             }
             rgb_ends = "reward_acquired"
-            picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
+            picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_loading=True)
             self.logger.info("Relationship Story Over")
             to_momotalk2(self, True)
             return True

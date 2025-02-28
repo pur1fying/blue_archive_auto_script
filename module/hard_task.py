@@ -158,7 +158,7 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+    cu_region = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
     self.logger.info("current region: -- " + str(cu_region) + " --")
     while cu_region != region and self.flag_run:
         if cu_region > region:
@@ -170,5 +170,5 @@ def choose_region(self, region):
                 self.click(1245, 360, count=region - cu_region - 1, rate=0.1, wait_over=True)
             self.click(1245, 360, rate=0.1, duration=1, wait_over=True)
         to_hard_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+        cu_region = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
         self.logger.info("current region: -- " + str(cu_region) + " --")

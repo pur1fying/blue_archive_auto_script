@@ -53,13 +53,13 @@ def choose_enemy(self):
         'Global': (490, 298, 515, 317),
         'JP': (496, 291, 520, 315),
     }
-    self_lv = self.ocr.get_region_num(self.latest_img_array, self_level_region[self.server], int, self.ratio)
+    self_lv = self.ocr.recognize_number(self.latest_img_array, self_level_region[self.server], int, self.ratio)
     self.logger.info("self level " + str(self_lv))
     refresh = 0
     while self.flag_run:
         if refresh >= max_refresh:
             break
-        opponent_lv = self.ocr.get_region_num(self.latest_img_array, opponent_level_region[self.server], int, self.ratio)
+        opponent_lv = self.ocr.recognize_number(self.latest_img_array, opponent_level_region[self.server], int, self.ratio)
         if opponent_lv == "UNKNOWN":
             continue
         self.logger.info("opponent level " + str(opponent_lv))
@@ -125,7 +125,7 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
         'arena_purchase-tactical-challenge-ticket': (883, 162)
     }
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_loading=skip_first_screenshot)
 
 
 def get_tickets(self):
@@ -134,7 +134,7 @@ def get_tickets(self):
         'Global': (209, 477, 227, 498),
         'JP': (196, 477, 218, 498),
     }
-    ocr_res = self.ocr.get_region_num(self.latest_img_array, ticket_num_region[self.server], int, self.ratio)
+    ocr_res = self.ocr.recognize_number(self.latest_img_array, ticket_num_region[self.server], int, self.ratio)
     return ocr_res
 
 

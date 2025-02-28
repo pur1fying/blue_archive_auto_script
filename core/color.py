@@ -1,22 +1,17 @@
 import time
 import numpy as np
+from core import Baas_thread
 
 
-def wait_loading(self) -> None:
+def wait_loading(self:Baas_thread) -> None:
     startTime = time.time()
-    while self.flag_run:
-        self.latest_img_array = self.get_screenshot_array()
-        if (match_rgb_feature(self, "loadingNotWhite")
-            and match_rgb_feature(self, "loadingWhite")):
-            loadingTime = round(time.time() - startTime, 3)
-            self.logger.info("Detected loading, loading time: " + str(loadingTime))
-            if loadingTime > 20:
-                self.logger.warning("Loading process took longer than expected (over 20 seconds), adjusting "
-                                    "screenshot interval to 1 second.")
-                self.set_screenshot_interval(1)
-            time.sleep(self.screenshot_interval)
-            continue
-        return
+    while (self.flag_run and
+           match_rgb_feature(self, "loadingNotWhite") and match_rgb_feature(self, "loadingWhite")):
+        self.update_screenshot_array()
+        loadingTime = round(time.time() - startTime, 3)
+        self.logger.info("Detected loading, loading time: " + str(loadingTime))
+        time.sleep(self.screenshot_interval)
+    return
 
 
 def is_rgb_in_range(self, x: int, y: int, r_min: int, r_max: int, g_min: int, g_max: int, b_min: int, b_max: int,

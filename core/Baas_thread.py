@@ -133,9 +133,11 @@ class Baas_thread:
         for i in range(0, yspace_needed):
             yspace += " "
         if count == 1:
-            self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ")")
+            # self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ")")
+            pass
         else:
-            self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ") " + str(count) + " times")
+            # self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ") " + str(count) + " times")
+            pass
         for i in range(count):
             if not self.flag_run:
                 break

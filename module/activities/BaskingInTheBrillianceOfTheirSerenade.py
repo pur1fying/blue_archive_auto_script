@@ -138,7 +138,7 @@ def start_story(self):
         "formation_edit1",
         "reward_acquired"
     ]
-    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
+    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_loading=True)
     if res == "formation_edit1":
         start_fight(self, 1)
         main_story.auto_fight(self)
@@ -149,7 +149,7 @@ def start_story(self):
 def start_fight(self, i):
     rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
     rgb_ends = ["fighting_feature"]
-    picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, skip_loading=True)
 
 def explore_mission(self):
     self.quick_method_to_main_page()
@@ -231,7 +231,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
     # 到上面一步是进到这个界面，检测的是左上角的event 但是之前国际服没有截图所以现在截一下，截图的四个坐标可以用mumu的这个看 左上右下 ,你可以适当调整截图范围让图片意思更明了，这里play-guide就小了
    #现在能到这个断点了
 
