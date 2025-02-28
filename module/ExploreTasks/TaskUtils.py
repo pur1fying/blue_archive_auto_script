@@ -17,11 +17,10 @@ def to_region(self, region, isNormal: bool):
     self.logger.info("Current Region : " + str(curRegion))
     while curRegion != region and self.flag_run:
         if curRegion > region:
-            self.click(40, 360, count=curRegion - region, rate=0.1, wait_over=True)
+            self.click(40, 360, count=curRegion - region, rate=0.1, wait_over=True, duration=0.5)
         else:
-            self.click(1245, 360, count=region - curRegion, rate=0.1, wait_over=True)
+            self.click(1245, 360, count=region - curRegion, rate=0.1, wait_over=True, duration=0.5)
         # TODO 检测是否是未解锁区域
-        time.sleep(0.5)
         if isNormal:
             normal_task.to_normal_event(self)
         else:
