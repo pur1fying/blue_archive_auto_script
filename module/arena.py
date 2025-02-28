@@ -12,7 +12,7 @@ def implement(self):
     else:
         self.logger.info("TICKETS: " + str(tickets))
         choose_enemy(self)
-        choice = self.config['ArenaComponentNumber']
+        choice = self.config.ArenaComponentNumber
         x = 844
         y = [261, 414, 581]
         y = y[choice - 1]
@@ -39,8 +39,8 @@ def implement(self):
 
 
 def choose_enemy(self):
-    less_level = self.config['ArenaLevelDiff']
-    max_refresh = self.config['maxArenaRefreshTimes']
+    less_level = self.config.ArenaLevelDiff
+    max_refresh = self.config.maxArenaRefreshTimes
     self.logger.info("less level acceptable: " + str(less_level))
     self.logger.info("max refresh times: " + str(max_refresh))
     self_level_region = {

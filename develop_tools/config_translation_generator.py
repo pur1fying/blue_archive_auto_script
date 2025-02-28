@@ -13,12 +13,8 @@ python -m develop_tools.config_translation_generator
 import re
 import json
 
-from core.default_config import (DISPLAY_DEFAULT_CONFIG, 
-                                    DEFAULT_CONFIG, 
-                                    EVENT_DEFAULT_CONFIG, 
-                                    STATIC_DEFAULT_CONFIG, 
-                                    SWITCH_DEFAULT_CONFIG, 
-                                    )
+from core.config.default_config import (STATIC_DEFAULT_CONFIG,
+                                        )
 
 
 def deserialize(l):

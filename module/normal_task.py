@@ -7,8 +7,8 @@ from core.staticUtils import isInt
 
 
 def implement(self):
-    if len(self.config['unfinished_normal_tasks']) != 0:
-        temp = deepcopy(self.config['unfinished_normal_tasks'])
+    if len(self.config.unfinished_normal_tasks) != 0:
+        temp = deepcopy(self.config.unfinished_normal_tasks)
         self.logger.info("unfinished normal task list: " + str(temp))
         self.quick_method_to_main_page()
         all_task_x_coordinate = 1118
@@ -70,8 +70,8 @@ def implement(self):
             elif t == "pass" or t == "no-pass":
                 self.logger.info("AUTO SWEEP UNAVAILABLE")
 
-            self.config['unfinished_normal_tasks'].pop(0)
-            self.config_set.set('unfinished_normal_tasks', self.config['unfinished_normal_tasks'])
+            self.config.unfinished_normal_tasks.pop(0)
+            self.config_set.set('unfinished_normal_tasks', self.config.unfinished_normal_tasks)
 
             to_normal_event(self, True)
         self.logger.info("common task finished")

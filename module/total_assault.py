@@ -12,7 +12,7 @@ def implement(self):
     if tickets == 0:
         self.logger.warning("NO TICKETS")
         return True
-    maxx_name = self.config['totalForceFightDifficulty']
+    maxx_name = self.config.totalForceFightDifficulty
     self.logger.info("begin auto total assault highest difficulty: " + maxx_name)
     total_assault_difficulty_name_dict = {"NORMAL": 0, "HARD": 1, "VERYHARD": 2, "HARDCORE": 3, "EXTREME": 4,
                                           "INSANE": 5, "TORMENT": 6}

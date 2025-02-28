@@ -40,6 +40,7 @@ export default defineConfig({
             {text: '特性', link: '/usage_doc/features'},
             {text: '下载', link: '/usage_doc/downloads'},
             {text: '安装教程', link: '/usage_doc/install/choose_platform'},
+            {text: '自定义安装', link: '/usage_doc/install/setup_config'},
             {text: '配置', link: '/usage_doc/config'},
             {text: '常见问题', link: '/usage_doc/faq'},
             {text: '上报问题', link: '/usage_doc/report'},
@@ -67,6 +68,7 @@ export default defineConfig({
                 {text: '编写文档', link: '/develop_doc/docs'},
                 {text: '模拟器开关/状态检测', link: '/develop_doc/script/device_operation'},
                 {text: '配置详解', link: '/develop_doc/script/config'},
+                {text: 'ConfigSet', link: '/develop_doc/script/ConfigSet'},
                 {text: '开发约定', link: '/develop_doc/develop_format'},
                 {text: '日志', link: '/develop_doc/log'}
             ]

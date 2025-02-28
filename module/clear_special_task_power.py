@@ -3,18 +3,11 @@ from core import color, picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
-    try:
-        count = self.config["special_task_times"].split(",")
-        for i in range(0, len(count)):
-            if count[i] == "max":
-                continue
-            count[i] = int(count[i])
-    except Exception as e:
-        self.logger.error("special_task_times config error")
-        self.logger.error(e.__str__())
+    count = get_task_count(self, "special_task", 2)
+    if not count:
         return True
 
+    self.quick_method_to_main_page()
     commissions_name = ["BASE DEFENSE", "ITEM RETRIEVAL"]
     self.commissions_status = [False, False]
     just_do_task = False
@@ -78,8 +71,8 @@ def get_los(self):
     i = 675
     los = []
     while i > 196:
-        if color.is_rgb_in_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
-            color.is_rgb_in_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
+        if color.judge_rgb_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
+                color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
             continue
@@ -97,7 +90,7 @@ def one_detect(self, a, b):
     for i in range(0, len(los)):
         img_possibles = {"special_task_level-list": (1118, los[i])}
         img_ends = "special_task_task-info"
-        picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+        picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
         t = color.check_sweep_availability(self)
         if t == "sss":
             if b == "max":
@@ -126,3 +119,25 @@ def commissions_common_operation(self, a, b):
     self.swipe(926, 188, 926, 381, duration=1, post_sleep_time=1)
     self.latest_img_array = self.get_screenshot_array()
     return one_detect(self, a, b)
+
+
+def get_task_count(self, task_name, expected_len):
+    try:
+        count = self.config_set.get(task_name+"_times")
+        if type(count) is str:
+            count = count.split(',')
+        if len(count) < expected_len:
+            self.logger.warning(task_name + " Config Length Error.")
+            self.logger.warning("Expected: " + str(expected_len))
+            self.logger.warning("Actual  : " + str(len(count)))
+            return False
+        for i in range(0, len(count)):
+            if count[i] == "max":
+                continue
+            count[i] = int(count[i])
+        self.logger.info(task_name + " Sweep Times: " + str(count))
+        return count
+    except Exception as e:
+        self.logger.error("special task config error")
+        self.logger.error(e.__str__())
+        return False

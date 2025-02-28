@@ -1,14 +1,15 @@
-from module.activities.activity_utils import get_stage_data
 import time
+
 from core import image, color, picture
 from module import main_story
 from module.ExploreTasks.TaskUtils import execute_grid_task
+from module.activities.activity_utils import get_stage_data
 
 
 def implement(self):
     self.quick_method_to_main_page()
-    region = self.config["activity_sweep_task_number"]
-    times = self.config["activity_sweep_times"]
+    region = self.config.activity_sweep_task_number
+    times = self.config.activity_sweep_times
     if times > 0:
         return sweep(self, region, times)
     else:
@@ -83,7 +84,7 @@ def start_story(self):
         "formation_edit1",
         "activity_menu",
     ]
-    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_loading=True)
+    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
     if res == "formation_edit1":
         start_fight(self, 1)
         main_story.auto_fight(self)
@@ -95,7 +96,7 @@ def start_story(self):
 def start_fight(self, i):
     rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, rgb_possibles, skip_loading=True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
 
 
 def explore_mission(self):
@@ -160,7 +161,7 @@ def explore_challenge(self):
         if need_fight:
             execute_grid_task(self, current_task_stage_data)
             main_story.auto_fight(self)
-            if self.config['manual_boss']:
+            if self.config.manual_boss:
                 self.click(1235, 41)
             to_activity(self, "mission", True)
             to_activity(self, "challenge", True)
@@ -194,7 +195,7 @@ def to_activity(self, region, skip_first_screenshot=False):
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
     if region is None:
         return True
     rgb_lo = {
@@ -208,7 +209,7 @@ def to_activity(self, region, skip_first_screenshot=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.is_rgb_in_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
+        if not color.judge_rgb_range(self, rgb_lo[region], 121, 20, 60, 40, 70, 70, 100):
             self.click(click_lo[region], 76)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
@@ -244,17 +245,17 @@ def to_challenge_task_info(self, number):
 
 
 def check_sweep_availability(self):
-    if color.is_rgb_in_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
-        color.is_rgb_in_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
-        color.is_rgb_in_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
+    if color.judge_rgb_range(self, 211, 369, 192, 212, 192, 212, 192, 212) and \
+            color.judge_rgb_range(self, 211, 402, 192, 212, 192, 212, 192, 212) and \
+            color.judge_rgb_range(self, 211, 436, 192, 212, 192, 212, 192, 212):
         return "no-pass"
-    if color.is_rgb_in_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
-        color.is_rgb_in_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
-        color.is_rgb_in_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) and \
+            color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) and \
+            color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "sss"
-    if color.is_rgb_in_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
-        color.is_rgb_in_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
-        color.is_rgb_in_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
+    if color.judge_rgb_range(self, 211, 368, 225, 255, 200, 255, 20, 60) or \
+            color.judge_rgb_range(self, 211, 404, 225, 255, 200, 255, 20, 60) or \
+            color.judge_rgb_range(self, 211, 434, 225, 255, 200, 255, 20, 60):
         return "pass"
 
 
@@ -295,4 +296,3 @@ def start_sweep(self, skip_first_screenshot=False):
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
-

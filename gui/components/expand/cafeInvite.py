@@ -31,7 +31,7 @@ class Layout(QWidget):
         self.pat_styles = [bt.tr('ConfigTranslation', '拖动礼物')]
         self.student_name = []
 
-        for student in self.config.static_config['student_names']:
+        for student in self.config.static_config.student_names:
             if student[self.config.server_mode + '_implementation']:
                 name = student[self.config.server_mode + '_name']
                 self.student_name.append(name)

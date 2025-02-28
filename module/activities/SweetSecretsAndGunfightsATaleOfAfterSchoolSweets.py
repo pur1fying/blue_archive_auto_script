@@ -1,4 +1,4 @@
-from module.activities.activity_utils import get_stage_data, to_activity, explore_activity_story,explore_activity_mission
+from module.activities.activity_utils import get_stage_data, preprocess_activity_region, preprocess_activity_sweep_times, to_activity
 import time
 from core import color, picture, image
 from module import main_story
@@ -6,8 +6,8 @@ from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
-    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
-    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    times = preprocess_activity_sweep_times(self.config.activity_sweep_times)
+    region = preprocess_activity_region(self.config.activity_sweep_task_number)
     self.logger.info("activity sweep task number : " + str(region))
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
@@ -16,53 +16,9 @@ def implement(self):
     return True
 
 
-def preprocess_activity_region(region):
-    if type(region) is int:
-        return [region]
-    if type(region) is str:
-        region = region.split(",")
-        for i in range(0, len(region)):
-            region[i] = int(region[i])
-        return region
-    if type(region) is list:
-        for i in range(0, len(region)):
-            if type(region[i]) is int:
-                continue
-            region[i] = int(region[i])
-        return region
-
-
-def preprocess_activity_sweep_times(times):
-    if type(times) is int:
-        return [times]
-    if type(times) is float:
-        return [times]
-    if type(times) is str:
-        times = times.split(",")
-        for i in range(0, len(times)):
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-            else:
-                times[i] = int(times[i])
-        return times
-    if type(times) is list:
-        for i in range(0, len(times)):
-            if type(times[i]) is int:
-                continue
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-        return times
-
-
 def sweep(self, number, times):
     self.quick_method_to_main_page()
-    to_activity(self, "mission", True)
+    to_activity(self, "mission", True, True)
     ap = self.get_ap()
     sweep_one_time_ap = [0, 10, 10, 10, 10, 15, 15, 15, 15, 20, 20, 20, 20]
     for i in range(0, min(len(number), len(times))):
@@ -90,7 +46,7 @@ def sweep(self, number, times):
             elif res == "sweep_complete":
                 self.logger.info("Current sweep task " + str(number[i]) + " :" + str(sweep_times) + " times complete")
                 if i != len(number) - 1:
-                    to_activity(self, "mission", True)
+                    to_activity(self, "mission", True, True)
         elif res == "pass" or res == "no-pass":
             self.logger.warning("task not sss, sweep unavailable")
             continue
@@ -98,15 +54,91 @@ def sweep(self, number, times):
 
 
 def explore_story(self):
-    explore_activity_story(self)
+    self.quick_method_to_main_page()
+    to_activity(self, "story", True, True)
+    last_target_task = 1
+    total_stories = 8
+    while self.flag_run:
+        plot = to_story_task_info(self, last_target_task)
+        res = check_sweep_availability(self, plot)
+        while res == "sss" and last_target_task <= total_stories - 1:
+            self.logger.info("Current story sss check next story")
+            self.click(1168, 353, duration=1, wait_over=True)
+            last_target_task += 1
+            plot = picture.co_detect(self, img_ends=["activity_task-info", "normal_task_task-info",
+                                                     "main_story_episode-info"])
+            res = check_sweep_availability(self, plot)
+        if last_target_task == total_stories and res == "sss":
+            self.logger.info("All STORY SSS")
+            return True
+        start_story(self)
+        to_activity(self, "mission", True)
+        to_activity(self, "story", True, True)
+
+
+def start_story(self):
+    img_possibles = {
+        "activity_task-info": (940, 538),
+        "normal_task_task-info": (940, 538),
+        "plot_menu": (1205, 34),
+        "plot_skip-plot-button": (1213, 116),
+        "plot_skip-plot-notice": (766, 520),
+        "main_story_episode-info": (629, 518),
+        "story-fight-success-confirm": (1117, 639, 1219, 687)
+    }
+    rgb_ends = [
+        "formation_edit1",
+        "reward_acquired"
+    ]
+    img_ends = "activity_unit-formation"
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
+    if res == "formation_edit1" or res == "activity_unit-formation":
+        start_fight(self, 1)
+        main_story.auto_fight(self)
+    elif res == "reward_acquired":
+        pass
+    return
+
+
+def start_fight(self, i):
+    rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
+    rgb_ends = "fighting_feature"
+    img_possibles = {
+        "activity_unit-formation": (1156, 659),
+    }
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot=True)
+
 
 def explore_mission(self):
-    explore_activity_mission(self)
+    self.quick_method_to_main_page()
+    to_activity(self, "mission", True, True)
+    last_target_mission = 1
+    total_missions = 12
+    characteristic = get_stage_data(self)["mission"]
+    while last_target_mission <= total_missions and self.flag_run:
+        to_mission_task_info(self, last_target_mission)
+        res = color.check_sweep_availability(self)
+        while res == "sss" and last_target_mission <= total_missions - 1 and self.flag_run:
+            self.logger.info("Current task sss check next task")
+            self.click(1168, 353, duration=1, wait_over=True)
+            last_target_mission += 1
+            picture.co_detect(self, img_ends=["normal_task_task-info", "activity_task-info"])
+            res = color.check_sweep_availability(self)
+        if last_target_mission == total_missions and res == "sss":
+            self.logger.info("All MISSION SSS")
+            return True
+        number = self.config[characteristic[last_target_mission - 1]]
+        self.logger.info("according to config, choose formation " + str(number))
+        to_formation_edit_i(self, number, (940, 538), True)
+        start_fight(self, number)
+        main_story.auto_fight(self)
+        to_activity(self, "story")
+        to_activity(self, "mission", True, True)
 
 
 def explore_challenge(self):
     self.quick_method_to_main_page()
-    to_activity(self, "challenge", True)
+    to_activity(self, "challenge", True, True)
     tasks = [
         "challenge2_sss",
         "challenge2_task",
@@ -135,10 +167,23 @@ def explore_challenge(self):
             execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
-        if self.config['manual_boss']:
+        if self.config.manual_boss:
             self.click(1235, 41)
         to_activity(self, "mission", True)
         to_activity(self, "challenge", True)
+
+
+def to_story_task_info(self, number):
+    lo = [0, 180, 280, 380, 480, 580, 680, 543, 643]
+    if number >= 7:
+        self.swipe(916, 667, 916, 0, duration=0.05, post_sleep_time=0.7)
+    img_possibles = {'activity_menu': (1124, lo[number])}
+    img_ends = [
+        "activity_task-info",
+        "normal_task_task-info",
+        "main_story_episode-info"
+    ]
+    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def to_mission_task_info(self, number):
@@ -165,7 +210,23 @@ def to_challenge_task_info(self, number):
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-
+def to_formation_edit_i(self, i, lo=(0, 0), skip_first_screenshot=False):
+    loy = [195, 275, 354, 423]
+    y = loy[i - 1]
+    rgb_ends = "formation_edit" + str(i)
+    rgb_possibles = {
+        "formation_edit1": (74, y),
+        "formation_edit2": (74, y),
+        "formation_edit3": (74, y),
+        "formation_edit4": (74, y),
+    }
+    rgb_possibles.pop("formation_edit" + str(i))
+    img_possibles = {
+        "activity_task-info": (lo[0], lo[1]),
+        "normal_task_task-info": (lo[0], lo[1]),
+        "normal_task_SUB": (647, 517)
+    }
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
 def start_sweep(self, skip_first_screenshot=False):
@@ -192,6 +253,24 @@ def start_sweep(self, skip_first_screenshot=False):
     return "sweep_complete"
 
 
+def check_sweep_availability(self, plot):
+    if plot == "activity_task-info":
+        if image.compare_image(self, "activity_task-no-goals"):
+            self.logger.info("Judge Task Without Goal")
+            if not color.judgeRGBFeature(self, "no-goal-task_passed"):
+                return "sss"
+            else:
+                return "no-pass"
+        else:
+            return color.check_sweep_availability(self)
+    elif plot == "main_story_episode-info":
+        if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+            return "sss"
+        else:
+            return "no-pass"
+    return "no-pass"
+
+
 def exchange_reward(self):
     to_activity(self, "story", True)
     to_exchange(self, True)
@@ -203,12 +282,12 @@ def exchange_reward(self):
     img_ends = "activity_exchange-menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
     while 1:
-        while color.is_rgb_in_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
+        while color.judge_rgb_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
             self.click(453, 651, wait_over=True, duration=0.5)
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        if color.is_rgb_in_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
+        if color.judge_rgb_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
             if get_exchange_assets(self) >= 6:
                 self.logger.info("refresh exchange times")
                 refresh_exchange_times(self)
@@ -255,4 +334,4 @@ def get_exchange_assets(self):
         "JP": (710, 98, 805, 130),
         "Global": (710, 98, 805, 130),
     }
-    return self.ocr.recognize_number(self.latest_img_array, region[self.server], int, self.ratio)
+    return self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)

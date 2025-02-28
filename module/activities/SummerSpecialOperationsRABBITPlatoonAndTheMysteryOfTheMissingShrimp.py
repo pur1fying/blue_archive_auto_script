@@ -1,62 +1,19 @@
-from module.activities.activity_utils import get_stage_data
 import time
+
 from core import color, picture, image
 from module import main_story
 from module.ExploreTasks.TaskUtils import execute_grid_task
+from module.activities.activity_utils import get_stage_data, preprocess_activity_region, preprocess_activity_sweep_times
 
 
 def implement(self):
-    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
-    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    times = preprocess_activity_sweep_times(self.config.activity_sweep_times)
+    region = preprocess_activity_region(self.config.activity_sweep_task_number)
     self.logger.info("activity sweep task number : " + str(region))
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
         sweep(self, region, times)
     return True
-
-
-def preprocess_activity_region(region):
-    if type(region) is int:
-        return [region]
-    if type(region) is str:
-        region = region.split(",")
-        for i in range(0, len(region)):
-            region[i] = int(region[i])
-        return region
-    if type(region) is list:
-        for i in range(0, len(region)):
-            if type(region[i]) is int:
-                continue
-            region[i] = int(region[i])
-        return region
-
-
-def preprocess_activity_sweep_times(times):
-    if type(times) is int:
-        return [times]
-    if type(times) is float:
-        return [times]
-    if type(times) is str:
-        times = times.split(",")
-        for i in range(0, len(times)):
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-            else:
-                times[i] = int(times[i])
-        return times
-    if type(times) is list:
-        for i in range(0, len(times)):
-            if type(times[i]) is int:
-                continue
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-        return times
 
 
 def sweep(self, number, times):
@@ -99,14 +56,14 @@ def sweep(self, number, times):
 def check_sweep_availability(self, plot):
     if plot == "activity_task-info":
         if image.compare_image(self, "activity_task-no-goals"):
-            if not color.is_rgb_in_range(self, 146, 522, 232, 255, 219, 255, 0, 30):
+            if not color.judge_rgb_range(self, 146, 522, 232, 255, 219, 255, 0, 30):
                 return "sss"
             else:
                 return "no-pass"
         else:
             return color.check_sweep_availability(self)
     elif plot == "main_story_episode-info":
-        if not color.is_rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+        if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
             return "sss"
         else:
             return "no-pass"
@@ -148,7 +105,7 @@ def start_story(self):
         "reward_acquired"
     ]
     img_ends = "plot_formation-edit"
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_loading=True)
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
     if res == "formation_edit1" or res == "plot_formation-edit":
         start_fight(self, 1)
         main_story.auto_fight(self)
@@ -165,7 +122,7 @@ def start_fight(self, i):
         "plot_formation-edit": (1156, 659)
     }
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_loading=True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot=True)
 
 
 def explore_mission(self):
@@ -237,7 +194,7 @@ def explore_challenge(self):
             execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
-        if self.config['manual_boss']:
+        if self.config.manual_boss:
             self.click(1235, 41)
         to_activity(self, "mission", True)
         to_activity(self, "challenge", True)
@@ -277,7 +234,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
     if region is None:
         return True
     rgb_lo = {
@@ -291,7 +248,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.is_rgb_in_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
+        if not color.judge_rgb_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
             self.click(click_lo[region], 87)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()

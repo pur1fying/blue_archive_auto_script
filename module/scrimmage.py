@@ -1,18 +1,20 @@
 import time
-
+from module.clear_special_task_power import get_task_count
 from core import color, picture
 
 
 def implement(self):
+    count = get_task_count(self, "scrimmage", 3)
+    if not count:
+        return True
+
     self.quick_method_to_main_page()
     scrimmage_area_name = ["Trinity", "Gehenna", "Millennium"]
-    buy_ticket_times = min(self.config['purchase_scrimmage_ticket_times'], 12)  # ** 购买悬赏委托券的次数
+    buy_ticket_times = min(self.config.purchase_scrimmage_ticket_times, 12)  # ** 购买悬赏委托券的次数
     buy_ticket_times = max(buy_ticket_times, 0)
     if buy_ticket_times > 0 and self.server != 'CN':
         to_choose_scrimmage(self, True)
         purchase_scrimmage_ticket(self, buy_ticket_times)
-
-    count = self.config['scrimmage_times']
 
     self.scrimmage_task_status = [False, False, False]
     just_do_task = False
@@ -45,7 +47,7 @@ def start_sweep(self):
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"scrimmage_task-info": (932, 408)}
-    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
     if res == "scrimmage_purchase-scrimmage-ticket-menu":
         self.logger.warning("INADEQUATE TICKET")
         return "inadequate_ticket"
@@ -58,7 +60,7 @@ def start_sweep(self):
         "normal_task_skip-sweep-complete"
     ]
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_loading=True)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     return "sweep_complete"
 
 
@@ -66,8 +68,8 @@ def get_los(self):
     i = 675
     los = []
     while i > 196:
-        if color.is_rgb_in_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
-            color.is_rgb_in_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
+        if color.judge_rgb_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
+                color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
             continue
@@ -133,7 +135,7 @@ def to_choose_scrimmage(self, skip_first_screenshot=False):
         "scrimmage_purchase-scrimmage-ticket": (886, 162),
     }
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
 def to_purchase_scrimmage_ticket_menu(self):
@@ -141,7 +143,7 @@ def to_purchase_scrimmage_ticket_menu(self):
         "rewarded_task_location-select": (148, 101),
     }
     img_ends = "rewarded_task_purchase-scrimmage-ticket-menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def purchase_scrimmage_ticket(self, times):
@@ -156,4 +158,6 @@ def purchase_scrimmage_ticket(self, times):
         "scrimmage_task_purchase-scrimmage-ticket-menu": (766, 507),
         "rewarded_task_purchase-scrimmage-ticket-notice": (766, 507),
     }
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_loading=False)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=False)
+
+

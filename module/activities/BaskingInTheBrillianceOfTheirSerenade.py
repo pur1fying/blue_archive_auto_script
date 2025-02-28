@@ -1,59 +1,19 @@
 import time
+
 from core import color, picture
 from module import main_story
-from module.activities.activity_utils import get_stage_data
+from module.activities.activity_utils import preprocess_activity_region, preprocess_activity_sweep_times
 
 
 def implement(self):
-    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
-    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    times = preprocess_activity_sweep_times(self.config.activity_sweep_times)
+    region = preprocess_activity_region(self.config.activity_sweep_task_number)
     self.logger.info("activity sweep task number : " + str(region))
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
         sweep(self, region, times)
     return True
 
-def preprocess_activity_region(region):
-    if type(region) is int:
-        return [region]
-    if type(region) is str:
-        region = region.split(",")
-        for i in range(0, len(region)):
-            region[i] = int(region[i])
-        return region
-    if type(region) is list:
-        for i in range(0, len(region)):
-            if type(region[i]) is int:
-                continue
-            region[i] = int(region[i])
-        return region
-
-def preprocess_activity_sweep_times(times):
-    if type(times) is int:
-        return [times]
-    if type(times) is float:
-        return [times]
-    if type(times) is str:
-        times = times.split(",")
-        for i in range(0, len(times)):
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-            else:
-                times[i] = int(times[i])
-        return times
-    if type(times) is list:
-        for i in range(0, len(times)):
-            if type(times[i]) is int:
-                continue
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-        return times
 
 def sweep(self, number, times):
     self.quick_method_to_main_page()
@@ -91,6 +51,7 @@ def sweep(self, number, times):
             continue
     return True
 
+
 def explore_story(self):
     self.quick_method_to_main_page()
     to_activity(self, "story", True, True)
@@ -110,7 +71,8 @@ def explore_story(self):
             self.logger.info("Current story sss check next story")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_task += 1
-            plot = picture.co_detect(self, img_ends=["normal_task_task-info","activity_task-info", "main_story_episode-info"])
+            plot = picture.co_detect(self, img_ends=["normal_task_task-info", "activity_task-info",
+                                                     "main_story_episode-info"])
             if plot == "normal_task_task-info" or plot == "activity_task-info":
                 res = color.check_sweep_availability(self)
             elif plot == "main_story_episode-info":
@@ -124,6 +86,7 @@ def explore_story(self):
         start_story(self)
         to_activity(self, "mission", True)
         to_activity(self, "story", True, True)
+
 
 def start_story(self):
     img_possibles = {
@@ -146,10 +109,12 @@ def start_story(self):
         pass
     return
 
+
 def start_fight(self, i):
     rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
     rgb_ends = ["fighting_feature"]
     picture.co_detect(self, rgb_ends, rgb_possibles, skip_loading=True)
+
 
 def explore_mission(self):
     self.quick_method_to_main_page()
@@ -213,7 +178,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'purchase_ap_notice-localized': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
-        "activity_task-info": (task_info_x[self.server],141),
+        "activity_task-info": (task_info_x[self.server], 141),
         "normal_task_task-info": task_info[self.server],
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
@@ -233,11 +198,11 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
     img_ends = "activity_menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
     # 到上面一步是进到这个界面，检测的是左上角的event 但是之前国际服没有截图所以现在截一下，截图的四个坐标可以用mumu的这个看 左上右下 ,你可以适当调整截图范围让图片意思更明了，这里play-guide就小了
-   #现在能到这个断点了
+    # 现在能到这个断点了
 
     if region is None:
         return True
-    #这期没有challenge 所以这里坐标又要调整一下（这里我写的很粗糙，你不用理解是干嘛的，总之就是选择这两个（之前活动是三个））
+    # 这期没有challenge 所以这里坐标又要调整一下（这里我写的很粗糙，你不用理解是干嘛的，总之就是选择这两个（之前活动是三个））
     rgb_lo = {
         "story": 683,
         "mission": 952,
@@ -289,6 +254,7 @@ def to_mission_task_info(self, number):
     ends = ["normal_task_task-info", "activity_task-info"]
     return picture.co_detect(self, None, None, ends, possibles, True)
 
+
 def to_formation_edit_i(self, i, lo=(0, 0), skip_first_screenshot=False):
     loy = [195, 275, 354, 423]
     y = loy[i - 1]
@@ -330,29 +296,3 @@ def start_sweep(self, skip_first_screenshot=False):
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

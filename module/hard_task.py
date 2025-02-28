@@ -6,8 +6,8 @@ from core.staticUtils import isInt
 
 
 def implement(self):
-    if len(self.config['unfinished_hard_tasks']) != 0:
-        temp = deepcopy(self.config['unfinished_hard_tasks'])
+    if len(self.config.unfinished_hard_tasks) != 0:
+        temp = deepcopy(self.config.unfinished_hard_tasks)
         self.logger.info("unfinished hard task list: " + str(temp))
         self.quick_method_to_main_page()
         all_task_x_coordinate = 1118
@@ -57,8 +57,8 @@ def implement(self):
                     self.logger.warning("Current Task Challenge Counts Insufficient")
             elif t == "pass" or t == "no-pass":
                 self.logger.warning("Current Task [ " + str(tar_region) + str(tar_mission) + " ] Sweep Unavailable")
-            self.config['unfinished_hard_tasks'].pop(0)
-            self.config_set.set('unfinished_hard_tasks', self.config['unfinished_hard_tasks'])
+            self.config.unfinished_hard_tasks.pop(0)
+            self.config_set.set('unfinished_hard_tasks', self.config.unfinished_hard_tasks)
             to_hard_event(self, True)
         self.logger.info("Hard task All Finished")
     return True

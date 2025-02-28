@@ -5,7 +5,7 @@ from module.tactical_challenge_shop import get_purchase_state
 
 
 def implement(self):
-    buy_list = np.array(self.config["CommonShopList"])
+    buy_list = np.array(self.config.CommonShopList)
     if not buy_list.any():
         self.logger.info("Nothing to buy in common shop.")
         return True
@@ -15,7 +15,7 @@ def implement(self):
         "creditpoints": self.get_creditpoints(),
         "pyroxene": self.get_pyroxene(),
     }
-    price = self.static_config["common_shop_price_list"][self.server]
+    price = self.static_config.common_shop_price_list[self.server]
     temp_price = []
     tp = []
     for i in range(0, len(price)):
@@ -23,7 +23,7 @@ def implement(self):
         tp.append(price[i][2])
     temp_price = np.array(temp_price)
     asset_required = calculate_one_time_assets(self, buy_list, temp_price, tp)
-    refresh_time = min(self.config['CommonShopRefreshTime'], 3)
+    refresh_time = min(self.config.CommonShopRefreshTime, 3)
     refresh_price = [40, 60, 80]
     for i in range(0, refresh_time + 1):
         if asset_required["creditpoints"] > assets['creditpoints'] != -1 or asset_required["pyroxene"] > assets[
@@ -204,8 +204,6 @@ def get_item_position(self):
             # purchase unavailable
     state = sorted(state, key=lambda t: t[0][1])
     recorded_y = sorted(recorded_y, key=lambda t: t[0])
-    print(state)
-    print(recorded_y)
     return state, recorded_y
 
 
