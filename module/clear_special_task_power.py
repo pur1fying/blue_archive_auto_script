@@ -1,4 +1,5 @@
 import time
+
 from core import color, picture
 
 
@@ -7,7 +8,7 @@ def implement(self):
     if not count:
         return True
 
-    self.quick_method_to_main_page()
+    self.to_main_page()
     commissions_name = ["BASE DEFENSE", "ITEM RETRIEVAL"]
     self.commissions_status = [False, False]
     just_do_task = False
@@ -16,7 +17,7 @@ def implement(self):
         if count[i] == "max" or count[i] > 0:
             self.logger.info("Start commissions task: " + commissions_name[i] + " count : " + str(count[i]))
             if just_do_task:
-                self.quick_method_to_main_page()
+                self.to_main_page()
             just_do_task = True
             to_commissions(self, i + 1, skip_first_screenshot=True)
             res = commissions_common_operation(self, i + 1, count[i])
@@ -90,7 +91,7 @@ def one_detect(self, a, b):
     for i in range(0, len(los)):
         img_possibles = {"special_task_level-list": (1118, los[i])}
         img_ends = "special_task_task-info"
-        picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+        picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
         t = color.check_sweep_availability(self)
         if t == "sss":
             if b == "max":

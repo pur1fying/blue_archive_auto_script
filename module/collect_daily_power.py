@@ -4,7 +4,7 @@ from core import color, picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_tasks(self, True)
     time.sleep(0.5)
     self.latest_img_array = self.get_screenshot_array()

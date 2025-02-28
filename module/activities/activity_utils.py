@@ -6,7 +6,6 @@ from core.image import compare_image, swipe_search_target_str
 from module import main_story
 
 
-
 def get_stage_data(self):
     json_path = 'src/explore_task_data/activities/' + self.current_game_activity + '.json'
     with open(json_path, 'r') as f:
@@ -47,7 +46,7 @@ def to_activity(self, region=None, skip_first_screenshot=False, layout=0):
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
     if region is None:
         return True
     rgb_lo, click_lo = get_rgb_and_click_lo(layout)
@@ -81,7 +80,7 @@ def explore_activity_mission(self):
     self.stage_data = get_stage_data(self)
     total_mission = len(self.stage_data["mission"])
     layout = self.stage_data["layout"]
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "mission", True, layout)
     last_target_task = 1
     while self.flag_run:
@@ -127,7 +126,7 @@ def explore_activity_story(self):
     self.stage_data = get_stage_data(self)
     layout = self.stage_data["layout"]
     total_story = self.stage_data["total_story"]
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "story", True, layout)
     last_target_task = 1
     while self.flag_run:
@@ -163,7 +162,7 @@ def start_story(self):
         "reward_acquired"
     ]
     img_ends = "activity_unit-formation"
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_loading=True)
+    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
     if res == "formation_edit1" or res == "activity_unit-formation":
         start_fight(self, 1)
         main_story.auto_fight(self)
@@ -178,7 +177,7 @@ def start_fight(self, i):
     img_possibles = {
         "activity_unit-formation": (1156, 659),
     }
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_loading=True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot=True)
 
 
 def check_sweep_availability(self, plot):

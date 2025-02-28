@@ -1,9 +1,12 @@
 import time
+import typing
+
 import numpy as np
+
 from core import Baas_thread
 
 
-def wait_loading(self:Baas_thread) -> None:
+def wait_loading(self: Baas_thread) -> None:
     startTime = time.time()
     while (self.flag_run and
            match_rgb_feature(self, "loadingNotWhite") and match_rgb_feature(self, "loadingWhite")):
@@ -57,7 +60,14 @@ def match_rgb_feature(self, featureName):
     return True
 
 
-def match_any_rgb_feature(self, featureName):
+def match_any_rgb_feature(self: Baas_thread, featureList: list[typing.Union[tuple, str]]) -> bool:
+    for rgb_feature in featureList:
+        if match_rgb_feature(self, rgb_feature):
+            return True
+    return False
+
+
+def match_any_rgb_in_feature(self, featureName):
     """
     Check if any RGB values in the specified feature are within the defined range.
 
@@ -89,14 +99,14 @@ def check_sweep_availability(self, is_mainline=False):
             return "no-pass"
         if match_rgb_feature(self, "mainLineTaskSSS"):
             return "sss"
-        if match_any_rgb_feature(self, "mainLineTaskSSS"):
+        if match_any_rgb_in_feature(self, "mainLineTaskSSS"):
             return "pass"
     if not is_mainline:
         if match_rgb_feature(self, "sideTaskNoPass"):
             return "no-pass"
         if match_rgb_feature(self, "sideTaskSSS"):
             return "sss"
-        if match_any_rgb_feature(self, "sideTaskSSS"):
+        if match_any_rgb_in_feature(self, "sideTaskSSS"):
             return "pass"
     return "unknown"
 

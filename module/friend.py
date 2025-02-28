@@ -5,7 +5,7 @@ def implement(self):
     if self.server == 'Global' or self.server == 'JP':
         self.logger.info("Friend Management Not Support In Global And JP Server")
         return True
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_friend_management(self, True)
     self.logger.info("Clear Friend White List : " + str(self.config.clear_friend_white_list))
     self.last_friend_id = None
@@ -63,7 +63,7 @@ def to_friend_management(self, skip_first_screenshot=False):
     }
     rgb_possibles = {"main_page": (562, 659)}
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_loading=skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
 def get_possible_friend_positions(self):
@@ -78,7 +78,7 @@ def to_player_info(self, position):
     img_possibles = {
         "friend_friend-management-menu": (position[0] - 608, position[1] + 20)
     }
-    return picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+    return picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def check_name_in_white_list(self):
@@ -104,9 +104,9 @@ def delete_friend(self, position):
     img_possibles = {
         "friend_friend-management-menu": position
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
     img_ends = "friend_friend-management-menu"
     img_possibles = {
         "friend_delete-friend-notice": (761, 499)
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)

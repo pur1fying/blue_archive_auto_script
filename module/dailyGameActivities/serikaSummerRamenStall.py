@@ -1,13 +1,14 @@
+import os
 import time
 
 import cv2
 import numpy as np
-import os
-from core import picture, image,color
+
+from core import picture, image, color
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     startGame(self)
     chooseLoop(self)
     collectDailyReward(self)
@@ -25,7 +26,7 @@ def startGame(self):
     rgb_possibles = {
         "main_page": (1195, 574),
     }
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_loading=True)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def chooseLoop(self):
@@ -105,7 +106,7 @@ def collectDailyReward(self):
         "dailyGameActivity_collect-reward-bright": (637, 480)
     }
     img_ends = ["dailyGameActivity_collect-reward-grey", "dailyGameActivity_daily-task-grey"]
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def returnToMainPage(self):
@@ -117,4 +118,4 @@ def returnToMainPage(self):
         "main_page_quick-home": (1225, 31)
     }
     rgb_ends = "main_page"
-    picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_loading=True)
+    picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)

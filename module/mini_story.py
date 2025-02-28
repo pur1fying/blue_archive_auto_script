@@ -1,9 +1,10 @@
 import time
+
 from core import color, picture, image
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_mini_story(self, True)
     time.sleep(1)   # wait for the page to load, if not loaded, region status will be all false
     self.update_screenshot_array()

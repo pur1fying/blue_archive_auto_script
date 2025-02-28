@@ -1,9 +1,10 @@
-from module.activities.activity_utils import get_stage_data, preprocess_activity_region, \
-    preprocess_activity_sweep_times, to_activity, explore_activity_story, explore_activity_mission
 import time
+
 from core import color, picture, image
 from module import main_story
 from module.ExploreTasks.TaskUtils import execute_grid_task
+from module.activities.activity_utils import get_stage_data, preprocess_activity_region, \
+    preprocess_activity_sweep_times, to_activity, explore_activity_story, explore_activity_mission
 
 
 def implement(self):
@@ -18,7 +19,7 @@ def implement(self):
 
 
 def sweep(self, number, times):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "mission", True)
     ap = self.get_ap()
     sweep_one_time_ap = [0, 10, 10, 10, 10, 15, 15, 15, 15, 20, 20, 20, 20]
@@ -62,7 +63,7 @@ def explore_mission(self):
 
 
 def explore_challenge(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "challenge", True)
     tasks = [
         "challenge2_sss",

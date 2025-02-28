@@ -1,12 +1,12 @@
+import importlib
 import time
 
 from core import color, picture, image
 from core.utils import build_possible_string_dict_and_length, most_similar_string
-import importlib
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     self.lesson_times = self.config.lesson_times
     region_name = self.static_config.lesson_region_name[self.server].copy()
     for i in range(0, len(region_name)):
@@ -167,7 +167,7 @@ def to_purchase_lesson_ticket(self):
     img_possibles = {
         'lesson_location-select': (148, 101)
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def purchase_lesson_ticket(self, times):
@@ -231,7 +231,7 @@ def to_location_info(self, lesson_id):
                 [307, 560], [652, 560], [985, 560]]
     img_possibles = {"lesson_all-locations": click_lo[lesson_id]}
     img_ends = 'lesson_lesson-information'
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 
 def start_lesson(self):

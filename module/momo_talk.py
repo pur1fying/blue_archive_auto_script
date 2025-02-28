@@ -1,9 +1,10 @@
 import time
+
 from core import color, image, picture
 
 
 def implement(self, need_check_mode=True):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_momotalk2(self, True)
     if need_check_mode:
         check_mode(self)
@@ -29,7 +30,7 @@ def implement(self, need_check_mode=True):
                 return True
             else:
                 self.logger.info("restart momo_talk task")
-                self.quick_method_to_main_page()
+                self.to_main_page()
                 return implement(self, need_check_mode=False)
         else:
             for i in range(0, len(unread_location)):
@@ -73,7 +74,8 @@ def to_momotalk2(self, skip_first_screenshot=False):
     }
     rgb_ends = "momotalk2"
     img_possibles = picture.GAME_ONE_TIME_POP_UPS[self.server]
-    return picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_loading=skip_first_screenshot)
+    return picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles,
+                             skip_first_screenshot=skip_first_screenshot)
 
 
 def common_solve_affection_story_method(self):
@@ -109,7 +111,7 @@ def common_solve_affection_story_method(self):
                 'plot_skip-plot-notice': (770, 519),
             }
             rgb_ends = "reward_acquired"
-            picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_loading=True)
+            picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
             self.logger.info("Relationship Story Over")
             to_momotalk2(self, True)
             return True

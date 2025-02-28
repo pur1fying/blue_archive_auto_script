@@ -1,12 +1,14 @@
 import threading
 import time
+
 import cv2
 import numpy as np
+
 from core import image, color, picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_cafe(self, True)
     if self.config.cafe_reward_collect_hour_reward and get_cafe_earning_status(self):
         collect(self)

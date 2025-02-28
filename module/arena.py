@@ -2,7 +2,7 @@ from core import color, picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_tactical_challenge(self, True)
     tickets = get_tickets(self)
     if tickets == 0:
@@ -125,7 +125,7 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
         'arena_purchase-tactical-challenge-ticket': (883, 162)
     }
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_loading=skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
 def get_tickets(self):

@@ -1,33 +1,32 @@
 import copy
+import json
+import os
+import subprocess
+import threading
+import time
 import traceback
-from datetime import datetime
-import cv2
 from dataclasses import fields
-from core.config.config_set import ConfigSet
-from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
-from core.notification import notify, toast
-from core.scheduler import Scheduler
-from core import position, picture
-from device_operation import process_api
-from core.device.Screenshot import Screenshot
-from core.device.Control import Control
-from core.device.connection import Connection
-from core.device.uiautomator2_client import U2Client
-from core.pushkit import push
-from core.utils import Logger
+from datetime import datetime
+
+import cv2
 import numpy as np
-import module
+import psutil
 import requests
 
-from core.device.uiautomator2_client import BAAS_U2_Initer, __atx_agent_version__
-import threading
-import json
-import subprocess
-import psutil
-import os
-import time
 import device_operation
-from typing import Tuple
+import module.ExploreTasks.explore_task
+from core import position, picture
+from core.config.config_set import ConfigSet
+from core.device.Control import Control
+from core.device.Screenshot import Screenshot
+from core.device.connection import Connection
+from core.device.uiautomator2_client import BAAS_U2_Initer, __atx_agent_version__
+from core.device.uiautomator2_client import U2Client
+from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
+from core.notification import notify, toast
+from core.pushkit import push
+from core.scheduler import Scheduler
+from device_operation import process_api
 
 func_dict = {
     'group': module.group.implement,
@@ -40,8 +39,8 @@ func_dict = {
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
     'create': module.create.implement,
-    'explore_normal_task': module.ExploreTasks.explore_normal_task.implement,
-    'explore_hard_task': module.ExploreTasks.explore_hard_task.implement,
+    'explore_normal_task': module.ExploreTasks.explore_task.explore_normal_task,
+    'explore_hard_task': module.ExploreTasks.explore_task.explore_hard_task,
     'mail': module.mail.implement,
     'main_story': module.main_story.implement,
     'group_story': module.group_story.implement,
@@ -126,31 +125,18 @@ class Baas_thread:
             click_.join()
 
     def click_thread(self, x, y, count=1, rate=0, duration=0):
-        xspace_needed = 5 - len(str(x))
-        yspace_needed = 3 - len(str(y))
-        xspace = ""
-        yspace = ""
-        for i in range(0, xspace_needed):
-            xspace += " "
-        for i in range(0, yspace_needed):
-            yspace += " "
         if count == 1:
-            # self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ")")
+            self.logger.info(f"Click @ ({x},{y})")
             pass
         else:
-            # self.logger.info("click (" + str(x) + xspace + ",  " + str(y) + yspace + ") " + str(count) + " times")
-            pass
+            self.logger.info(f"Click {count} times @ ({x},{y})")
         for i in range(count):
             if not self.flag_run:
                 break
             if rate > 0:
                 time.sleep(rate)
-            noisex = np.random.uniform(-5, 5)
-            noisey = np.random.uniform(-5, 5)
-            click_x = x + noisex
-            click_y = y + noisey
-            click_x = max(0, click_x)
-            click_y = max(0, click_y)
+            click_x = max(0, x + np.random.uniform(-5, 5))
+            click_y = max(0, y + np.random.uniform(-5, 5))
             click_x = int(min(1280, click_x) * self.ratio)
             click_y = int(min(720, click_y) * self.ratio)
             self.control.click(click_x, click_y)
@@ -428,7 +414,7 @@ class Baas_thread:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
                         push(self.logger, self.config)
-                        self.quick_method_to_main_page()
+                        self.to_main_page()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
                     time.sleep(1)
@@ -450,7 +436,8 @@ class Baas_thread:
             cfg_key_name = 'createPriority_phase' + str(phase)
             current_priority = self.config_set.get(cfg_key_name)
             res = []
-            default_priority = self.static_config.create_default_priority[self.config_set.server_mode]["phase" + str(phase)]
+            default_priority = self.static_config.create_default_priority[self.config_set.server_mode][
+                "phase" + str(phase)]
             for i in range(0, len(current_priority)):
                 if current_priority[i] in default_priority:
                     res.append(current_priority[i])
@@ -470,7 +457,8 @@ class Baas_thread:
                 return func_dict[activity](self)
             except FunctionCallTimeout:
                 if not self.deal_with_func_call_timeout():
-                    self.push_and_log_error_msg("Function Call Timeout", "Failed to Restart Game when function call timeout")
+                    self.push_and_log_error_msg("Function Call Timeout",
+                                                "Failed to Restart Game when function call timeout")
                     return False
             except PackageIncorrect as e:
                 pkg = e.message
@@ -481,7 +469,7 @@ class Baas_thread:
                 if self.flag_run:
                     self.push_and_log_error_msg("Script Error Occurred", traceback.format_exc())
                     return False
-                return True # Human take over
+                return True  # Human take over
 
     def deal_with_package_incorrect(self, curr_pkg):
         """
@@ -533,8 +521,8 @@ class Baas_thread:
         push(self.logger, self.config, title)
         LogTraceback(title, message, self)
 
-    def quick_method_to_main_page(self, skip_first_screenshot=False):
-        img_possibles = {
+    def to_main_page(self, skip_first_screenshot=False):
+        img_reactions = {
             # 'normal_task_fight-pause': (908, 508),
             # 'normal_task_retreat-notice': (768, 507),
             'main_page_game-download-resource-notice': (761, 504),
@@ -615,7 +603,7 @@ class Baas_thread:
                 'main_page_Failed-to-convert-errorResponse': (641, 511),
             }
         }
-        img_possibles.update(**update[self.server])
+        img_reactions.update(**update[self.server])
         rgb_possibles = {
             'relationship_rank_up': (640, 360),
             'area_rank_up': (640, 100),
@@ -623,7 +611,7 @@ class Baas_thread:
             'reward_acquired': (640, 100),
             # "fighting_feature": (1226, 51)
         }
-        picture.co_detect(self, ["main_page"], rgb_possibles, None, img_possibles, skip_first_screenshot,
+        picture.co_detect(self, ["main_page"], rgb_possibles, None, img_reactions, skip_first_screenshot,
                           tentative_click=True)
 
     def init_image_resource(self):
@@ -793,7 +781,8 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_normal_tasks.append(readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
+                self.config.unfinished_normal_tasks.append(
+                    readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
@@ -806,7 +795,8 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_hard_tasks.append(readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
+                self.config.unfinished_hard_tasks.append(
+                    readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)

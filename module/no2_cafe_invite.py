@@ -3,7 +3,7 @@ from module.no1_cafe_invite import judge_use_invitation_ticket, delay_cafe_rewar
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_cafe(self, True)
     to_no2_cafe(self)
     if judge_use_invitation_ticket(self, 2):

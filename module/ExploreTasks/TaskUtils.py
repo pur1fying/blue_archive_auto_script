@@ -6,6 +6,7 @@ from core.image import swipe_search_target_str
 from module import hard_task, main_story, normal_task
 
 
+# Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
 def to_region(self, region, isNormal: bool):
     square = {
@@ -43,8 +44,8 @@ def to_mission_info(self, y=0):
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
-def get_stage_data(region, is_normal=True):
-    t = "normal_task" if is_normal else "hard_task"
+def get_stage_data(region, isNormal):
+    t = "normal_task" if isNormal else "hard_task"
     data_path = f"src/explore_task_data/{t}/{t}_{region}.json"
     with open(data_path, 'r') as f:
         stage_data = json.load(f)
@@ -85,6 +86,7 @@ def get_challenge_state(self, challenge_count=1) -> list[int]:
     return result
 
 
+# Functions related to executing tasks
 # 与执行任务相关的函数
 def retreat(self):
     rgb_reactions = {"fighting_feature": (1226, 51)}
@@ -94,7 +96,7 @@ def retreat(self):
     }
     img_ends = ['normal_task_fail-confirm']
     picture.co_detect(self, rgb_reactions=rgb_reactions, img_ends=img_ends, img_reactions=img_reactions,
-                      skip_loading=True)
+                      skip_first_screenshot=True)
 
 
 def set_skip_status(self, status: bool) -> None:
@@ -145,7 +147,7 @@ def get_formation_index(self):
     if ocr_res == 7:
         ocr_res = 1
     if ocr_res not in [1, 2, 3, 4]:
-        # 无法识别可能会导致死循环
+        # TODO 无法识别可能会导致死循环
         return get_formation_index(self)
     return ocr_res
 
@@ -156,12 +158,12 @@ def end_turn(self):
         'normal_task_task-operating-feature': (1170, 670),
         'normal_task_present': (640, 519)
     }
-    picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_loading=True)
+    picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
 
     # confirm the end turn pop-up
     img_ends = 'normal_task_task-operating-feature'
     img_reactions = {'normal_task_end-turn': (767, 501)}
-    picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_loading=True)
+    picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
 
 
 def wait_over(self):
@@ -235,19 +237,24 @@ def run_task_action(self, actions):
         if 'pre-wait' in action:
             self.logger.info(f"---Delaying {action['pre-wait']} second(s)---\n")
             time.sleep(action['pre-wait'])
-        if 'retreat' in action:  # 关闭自动战斗来处理撤退
+
+        # turn off skip fight mode to handle retreat
+        # 关闭自动战斗来处理撤退
+        if 'retreat' in action:
             set_skip_status(self, False)
         wait_loading = False
 
         if operation.startswith('click'):
-            description += f"Click @ ({position[0]}, {position[1]})\n"
+            description += f"Click @ ({position[0]}, {position[1]})"
             self.click(position[0], position[1], wait_over=True)
             if "teleport" in operation:
                 confirm_teleport(self)
         elif operation == 'teleport':
             description += f"Teleport\n"
             confirm_teleport(self)
-        elif operation.startswith("exchange"):  # 切换队伍
+        elif operation.startswith("exchange"):
+            # 切换队伍
+            # Switch formation
             description += f"Switch formation"
             current_formation = switch_formation(self, current_formation)
             if "twice" in operation:
@@ -257,7 +264,9 @@ def run_task_action(self, actions):
                 description += f" && Click @ ({position[0]}, {position[1]})"
                 self.click(position[0], position[1], wait_over=True)
             description += "\n"
-        elif operation == 'end-turn':  # 结束回合
+        elif operation == 'end-turn':
+            # End this turn
+            # 结束回合
             description += "End Turn"
             end_turn(self)
             if i != len(actions) - 1:
@@ -268,12 +277,20 @@ def run_task_action(self, actions):
                     wait_loading = True
             description += "\n"
 
-        elif operation == 'choose_and_change':  # 交换两条队伍
+        elif operation == 'choose_and_change':
+            # exchange the formation
+            # 交换两条队伍
             description += f"Exchange formation @ ({position[0]}, {position[1]})\n"
             self.click(position[0], position[1], wait_over=True, duration=0.3)
             self.click(position[0] - 100, position[1], wait_over=True, duration=1)
 
-        if 'retreat' in action:  # 处理撤退
+        if 'description' in action:
+            description += f"->info:{action['description']}\n"
+        self.logger.info(description)
+
+        if 'retreat' in action:
+            # handle retreat
+            # 处理撤退
             description += f"Retreating fight {action['retreat'][1:]}\n"
             fight_counts = action['retreat'][0]
             for current_fight_index in range(0, fight_counts):
@@ -296,13 +313,9 @@ def run_task_action(self, actions):
             self.logger.info(f"---Delaying {action['pre-wait']} second(s)---\n")
             time.sleep(action['post-wait'])
 
-        if 'description' in action:
-            description += f"->info:{action['description']}\n"
-        self.logger.info(description)
-
         if i != len(actions) - 1:
             handle_task_pop_ups(self, wait_loading)
-    self.set_screenshot_interval(self.config['screenshot_interval'])
+    self.set_screenshot_interval(self.config.screenshot_interval)
 
 
 def employ_units(self, taskData: dict) -> tuple[bool, str]:
@@ -352,13 +365,13 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
                 "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
             }
             img_ends = "normal_task_formation-menu"
-            picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_loading=True)
+            picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
             img_reactions = {
                 "normal_task_formation-menu": (1204, 486),
                 "normal_task_formation-preset": (178 + (preset_column - 1) * 156, 153)
             }
             rgb_ends = "preset_choose" + str(preset_column)
-            picture.co_detect(self, img_reactions=img_reactions, rgb_ends=rgb_ends, skip_loading=True)
+            picture.co_detect(self, img_reactions=img_reactions, rgb_ends=rgb_ends, skip_first_screenshot=True)
 
             offsets = {
                 'CN': (-1103, 0, 16, 33),
@@ -366,13 +379,13 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
                 'JP': (-1103, 0, 16, 33)
             }
 
-            p = swipe_search_target_str(
+            presetButtonPos = swipe_search_target_str(
                 self,
                 "normal_task_formation-edit-preset-name",
                 search_area=(1156, 201, 1229, 553),
                 threshold=0.8,
                 possible_strs=["1", "2", "3", "4", "5"],
-                target_str_index=4,
+                target_str_index=preset_row - 1,
                 swipe_params=(145, 578, 145, 273, 1.0, 0.5),
                 ocr_language="NUM",
                 ocr_region_offsets=offsets[self.server],
@@ -381,7 +394,7 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
             )
 
             # confirm use preset
-            preset_y = p[1] + 76
+            preset_y = presetButtonPos[1] + 76
             img_reactions = {
                 "normal_task_formation-preset": (1151, preset_y),
                 "normal_task_formation-set-confirm": (761, 574),
@@ -394,7 +407,7 @@ def employ_units(self, taskData: dict) -> tuple[bool, str]:
             ]
             rgb_ends = "fighting_feature"
             picture.co_detect(self, rgb_ends=rgb_ends, img_reactions=img_reactions, img_ends=img_ends,
-                              skip_loading=True)
+                              skip_first_screenshot=True)
 
             employed += 1
 

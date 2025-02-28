@@ -1,14 +1,15 @@
+import json
 import os
 import time
+
 from core import color, picture, image
 from module.ExploreTasks.TaskUtils import execute_grid_task
-import json
 
 
 def implement(self):
     self.logger.info("START pushing main story")
     self.main_story_stage_data = get_stage_data()
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_main_story(self, True)
     push_episode_list = process_regions(self, self.config.main_story_regions)
     if not push_episode_list:

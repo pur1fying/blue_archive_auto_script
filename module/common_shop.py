@@ -1,4 +1,5 @@
 import numpy as np
+
 from core import color, picture
 from core import image
 from module.tactical_challenge_shop import get_purchase_state
@@ -9,7 +10,7 @@ def implement(self):
     if not buy_list.any():
         self.logger.info("Nothing to buy in common shop.")
         return True
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_common_shop(self, True)
     assets = {
         "creditpoints": self.get_creditpoints(),

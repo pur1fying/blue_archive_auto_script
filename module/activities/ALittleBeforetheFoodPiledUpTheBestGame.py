@@ -17,7 +17,7 @@ def implement(self):
 
 
 def sweep(self, number, times):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "mission", True, True)
     ap = self.get_ap()
     sweep_one_time_ap = [0, 10, 10, 10, 10, 15, 15, 15, 15, 20, 20, 20, 20]
@@ -55,7 +55,7 @@ def sweep(self, number, times):
 
 # 推剧情的测试完没有问题
 def explore_story(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "story", True, True)
     last_target_task = 1
     total_stories = 10
@@ -102,7 +102,7 @@ def start_story(self):
         "formation_edit1",
         "reward_acquired"
     ]
-    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_loading=True)
+    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
     if res == "formation_edit1":
         start_fight(self, 1)
         main_story.auto_fight(self)
@@ -114,11 +114,11 @@ def start_story(self):
 def start_fight(self, i):
     rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, rgb_possibles, skip_loading=True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
 
 
 def explore_mission(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
@@ -146,7 +146,7 @@ def explore_mission(self):
 
 # 挑战这里还没改动
 def explore_challenge(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "challenge", True, True)
     tasks = [
         "challenge2_sss",
@@ -222,7 +222,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
     if region is None:
         return True
     rgb_lo = {

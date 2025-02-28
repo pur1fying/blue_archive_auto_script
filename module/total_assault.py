@@ -1,11 +1,13 @@
 import time
+
 import numpy as np
+
 from core import color, picture
 from module import main_story
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_total_assault(self, True)
     tickets = get_total_assault_tickets(self)
     self.logger.info("TICKETS: " + str(tickets))

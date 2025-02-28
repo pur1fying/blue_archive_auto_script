@@ -1,6 +1,6 @@
-import time
 from copy import deepcopy
-from core import picture
+
+from core import picture, color
 from core.color import check_sweep_availability
 from core.staticUtils import isInt
 
@@ -9,7 +9,7 @@ def implement(self):
     if len(self.config.unfinished_hard_tasks) != 0:
         temp = deepcopy(self.config.unfinished_hard_tasks)
         self.logger.info("unfinished hard task list: " + str(temp))
-        self.quick_method_to_main_page()
+        self.to_main_page()
         all_task_x_coordinate = 1118
         hard_task_y_coordinates = [253, 364, 478]
         for i in range(0, len(temp)):
@@ -65,13 +65,13 @@ def implement(self):
 
 
 def to_hard_event(self, skip_first_screenshot=False):
-    rgb_ends = 'event_hard'
-    rgb_possibles = {
+    rgb_ends = ['event_hard']
+    rgb_reactions = {
         "event_normal": (1064, 165),
         "main_page": (1198, 580),
         "level_up": (640, 200),
     }
-    img_possibles = {
+    img_reactions = {
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (823, 261),
         "normal_task_sweep-complete": (643, 585),
@@ -89,8 +89,14 @@ def to_hard_event(self, skip_first_screenshot=False):
         'normal_task_mission-conclude-confirm': (1042, 671),
         'normal_task_charge-challenge-counts': (887, 161),
     }
-    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
+    img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
+
+    # skip navigating to main page if any known feature is detected.
+    if not (picture.match_any_img_feature(self, list(img_reactions)) or
+            color.match_any_rgb_feature(self, rgb_ends) or
+            color.match_any_rgb_feature(self, list(rgb_reactions))):
+        self.to_main_page()
+    picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
 
 
 def to_task_info(self, x, y, skip_first_screenshot=False):

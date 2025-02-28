@@ -1,8 +1,7 @@
-import cv2
-
-from core import picture
-from core.color import check_sweep_availability
 from copy import deepcopy
+
+from core import picture, Baas_thread, color
+from core.color import check_sweep_availability
 from core.staticUtils import isInt
 
 
@@ -10,7 +9,7 @@ def implement(self):
     if len(self.config.unfinished_normal_tasks) != 0:
         temp = deepcopy(self.config.unfinished_normal_tasks)
         self.logger.info("unfinished normal task list: " + str(temp))
-        self.quick_method_to_main_page()
+        self.to_main_page()
         all_task_x_coordinate = 1118
         normal_task_y_coordinates = [242, 341, 439, 537, 611]
         for i in range(0, len(temp)):
@@ -109,14 +108,14 @@ def readOneNormalTask(task_string, region):
     return region, mission, counts
 
 
-def to_normal_event(self, skip_first_screenshot=False):
-    rgb_ends = 'event_normal'
-    rgb_possibles = {
+def to_normal_event(self: Baas_thread, skip_first_screenshot=False):
+    rgb_ends = ['event_normal']
+    rgb_reactions = {
         "event_hard": (805, 165),
         "main_page": (1198, 580),
         "level_up": (640, 200),
     }
-    img_possibles = {
+    img_reactions = {
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (823, 261),
         "normal_task_sweep-complete": (643, 585),
@@ -133,8 +132,15 @@ def to_normal_event(self, skip_first_screenshot=False):
         'normal_task_reward-acquired-confirm': (800, 660),
         'normal_task_mission-conclude-confirm': (1042, 671),
     }
-    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, rgb_ends, rgb_possibles,None, img_possibles, skip_first_screenshot)
+    img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
+
+    # skip navigating to main page if any known feature is detected.
+    if not (picture.match_any_img_feature(self, list(img_reactions)) or
+            color.match_any_rgb_feature(self, rgb_ends) or
+            color.match_any_rgb_feature(self, list(rgb_reactions))):
+        self.to_main_page()
+
+    picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
 
 
 def to_task_info(self, x, y):

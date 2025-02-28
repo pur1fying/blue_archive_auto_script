@@ -1,4 +1,5 @@
 import time
+
 from core import color, picture
 
 
@@ -10,7 +11,7 @@ def to_mail(self):
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_mail(self)
     time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()

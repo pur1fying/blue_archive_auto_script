@@ -1,6 +1,6 @@
-import time
 import numpy as np
-from core import color, picture, image
+
+from core import picture
 
 
 def implement(self):
@@ -8,7 +8,7 @@ def implement(self):
     if not buy_list.any():
         self.logger.info("Nothing to buy in tactical challenge shop.")
         return True
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
     tactical_challenge_assets = get_tactical_challenge_assets(self)
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))

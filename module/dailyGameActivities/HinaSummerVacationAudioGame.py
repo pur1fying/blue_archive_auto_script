@@ -1,16 +1,15 @@
 import time
-import cv2
 
 from core import picture
-from core.device.screenshot.nemu import NemuScreenshot
 from core.color import is_rgb_in_range
+from core.device.screenshot.nemu import NemuScreenshot
 from module.activities.PresidentHinasSummerVacation import to_activity
 
 midy = 302
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "story")
     tasks = ["Normal", "Hard", "VeryHard", "Special"]
     for task in tasks:

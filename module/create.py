@@ -1,4 +1,5 @@
 import re
+
 from core import color, image, picture
 from core.utils import build_possible_string_dict_and_length, most_similar_string
 
@@ -10,7 +11,7 @@ def implement(self):
     self.logger.info("Left Create Times: [ " + str(left_create_times) + " ].")
     self.logger.info("Use Acceleration Ticket : [ " + str(use_acceleration_ticket).upper() + " ].")
     self.logger.info("Create Phase : [ " + str(create_max_phase) + " ].")
-    self.quick_method_to_main_page()
+    self.to_main_page()
     res = to_manufacture_store(self, True)
 
     if res.startswith("create_phase"):

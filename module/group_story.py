@@ -1,9 +1,10 @@
 import time
+
 from core import color, picture, image
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_group_story(self, True)
     time.sleep(1)
     self.latest_img_array = self.get_screenshot_array()

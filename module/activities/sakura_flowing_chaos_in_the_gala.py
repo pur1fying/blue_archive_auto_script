@@ -7,7 +7,7 @@ from module.activities.activity_utils import get_stage_data
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     region = self.config.activity_sweep_task_number
     times = self.config.activity_sweep_times
     if times > 0:
@@ -50,7 +50,7 @@ def sweep(self, number, times):
 
 
 def explore_story(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "story", True)
     last_target_task = 1
     total_stories = 10
@@ -84,7 +84,7 @@ def start_story(self):
         "formation_edit1",
         "activity_menu",
     ]
-    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_loading=True)
+    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
     if res == "formation_edit1":
         start_fight(self, 1)
         main_story.auto_fight(self)
@@ -96,11 +96,11 @@ def start_story(self):
 def start_fight(self, i):
     rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, rgb_possibles, skip_loading=True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
 
 
 def explore_mission(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "mission", True)
     last_target_mission = 1
     total_missions = 6
@@ -136,7 +136,7 @@ def explore_mission(self):
 
 
 def explore_challenge(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "challenge")
     tasks = [
         "challenge2_sss",
@@ -195,7 +195,7 @@ def to_activity(self, region, skip_first_screenshot=False):
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
     if region is None:
         return True
     rgb_lo = {

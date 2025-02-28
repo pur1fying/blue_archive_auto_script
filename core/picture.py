@@ -1,14 +1,15 @@
 import time
-from core import color, image, Baas_thread
-from module.main_story import set_acc_and_auto
-from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
-from core.color import match_rgb_feature
 import typing
+
+from core import color, image, Baas_thread
+from core.color import match_rgb_feature
+from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
+from module.main_story import set_acc_and_auto
 
 
 def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions: dict = None,
               img_ends: typing.Union[list, str, tuple] = None, img_reactions: dict = None,
-              skip_loading=False,
+              skip_first_screenshot=False,
               tentative_click=False, tentative_x=1238, tentative_y=45, max_fail_cnt=10,
               pop_ups_rgb_reactions: dict = None, pop_ups_img_reactions: dict = None,
               time_out=600, check_pkg_interval=20):
@@ -21,7 +22,7 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
             rgb_reactions (dict, optional): Possible RGB features and their corresponding click positions.
             img_ends (list or str or tuple, optional): Image features that indicate the end of detection.
             img_reactions (dict, optional): Possible image features and their corresponding click positions.
-            skip_loading (bool, optional): Whether to wait for the loading screen.
+            skip_first_screenshot (bool, optional): Whether to skip the first screenshot to save time.
             tentative_click (bool, optional): Whether to perform tentative clicks if detection fails.
             tentative_x (int, optional): X-coordinate for tentative clicks.
             tentative_y (int, optional): Y-coordinate for tentative clicks.
@@ -57,7 +58,9 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
 
     while self.flag_run:
         current_time = time.time()
-        self.update_screenshot_array()
+        if not skip_first_screenshot:
+            self.update_screenshot_array()
+        skip_first_screenshot = False
 
         # time out check
         if current_time - start_time > time_out:
@@ -72,10 +75,9 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
             if pkgName != self.package_name:
                 raise PackageIncorrect(pkgName)
 
-        if skip_loading:
-            skip_loading = False
-        else:
-            color.wait_loading(self)
+        # loading check
+        color.wait_loading(self)
+
         # exit the stage if any end feature is matched
         for rgb_feature in rgb_ends:
             if rgb_feature is None:
@@ -86,14 +88,7 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
         for img_feature in img_ends:
             if img_feature is None:
                 continue
-            threshold = 0.8
-            rgb_diff = 20
-            if type(img_feature) is tuple:
-                img_feature = img_feature[0]
-                threshold = img_feature[1]
-                if len(img_feature) > 2:
-                    rgb_diff = img_feature[2]
-            if image.compare_image(self, img_feature, threshold, rgb_diff):
+            if match_img_feature(self, img_feature):
                 self.logger.info('Stage ended with matched img feature: ' + img_feature)
                 return img_feature
 
@@ -121,7 +116,7 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
             for img_feature, click in img_reactions.items():
                 threshold = 0.8 if len(click) < 3 else click[2]
                 rgb_diff = 20 if len(click) < 4 else click[3]
-                if image.compare_image(self, img_feature, threshold, rgb_diff):
+                if match_img_feature(self, img_feature, threshold, rgb_diff):
                     matched = True
                     feature_last_appear_time = current_time
                     if (time.time() - self.last_click_time <= 2
@@ -219,6 +214,23 @@ def choose_buff(self):
     }
     img_ends = "activity_buff-three-of-three"
     co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def match_img_feature(self: Baas_thread, img_feature: typing.Union[tuple, str]
+                      , threshold: float = 0.8, rgb_diff: int = 20) -> bool:
+    if type(img_feature) is tuple:
+        img_feature = img_feature[0]
+        threshold = img_feature[1]
+        if len(img_feature) > 2:
+            rgb_diff = img_feature[2]
+    return image.compare_image(self, img_feature, threshold, rgb_diff)
+
+
+def match_any_img_feature(self: Baas_thread, featureList: list[typing.Union[tuple, str]]) -> bool:
+    for img_feature in featureList:
+        if match_img_feature(self, img_feature):
+            return True
+    return False
 
 
 # pop-ups that only appear once
