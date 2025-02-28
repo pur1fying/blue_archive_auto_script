@@ -129,8 +129,6 @@ def explore_normal_task(self):
     if len(tasklist) == 0:
         return False
 
-    normal_task.to_normal_event(self, True)
-
     for task in tasklist:
         region = task[0]
         mission = task[1]
@@ -143,6 +141,8 @@ def explore_normal_task(self):
             self.logger.info(f"--- Start exploring {taskName}({taskDataName}) ---")
 
             if not skip_navigate:
+                normal_task.to_normal_event(self, True)
+                to_region(self, region, True)
                 fullMissionList = []
                 for i in range(1, 6):
                     fullMissionList.append(f"{region}-{i}")
@@ -161,7 +161,6 @@ def explore_normal_task(self):
                     None,
                     3
                 )
-                to_region(self, region, True)
                 to_mission_info(self, missionButtonPos[1])
 
             if not need_fight(self, taskDataName, True):
@@ -219,8 +218,6 @@ def explore_hard_task(self):
             self.logger.info(f"\t - {taskName}({taskDataName})")
     self.logger.info("}")
 
-    hard_task.to_hard_event(self, True)
-
     for task in tasklist:
         region = task[0]
         mission = task[1]
@@ -233,6 +230,7 @@ def explore_hard_task(self):
 
             mission_los = [249, 363, 476]
             if not skip_navigate:
+                hard_task.to_hard_event(self, True)
                 to_region(self, region, False)
                 to_mission_info(self, mission_los[mission - 1])
 
