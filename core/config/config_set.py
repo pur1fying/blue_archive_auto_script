@@ -1,82 +1,81 @@
 import json
 import os
 import re
-
+from core.config.generated_user_config import Config
+from core.config.generated_static_config import StaticConfig
 from gui.util.customed_ui import BoundComponent
 from gui.util.translator import baasTranslator as bt
+from dataclasses import asdict
 
 
 class ConfigSet:
+    static_config: StaticConfig = None
+
     def __init__(self, config_dir):
+        # change happens in self.config ( dataclass )
+        # save change : dataclass --> dict --> json_str
         super().__init__()
-        self.config = None
-        self.gui_config = None
+        if ConfigSet.static_config is None:
+            ConfigSet._init_static_config()
+        self.config: Config
+        self.config_dir = None
+        if os.path.exists(f'config/{config_dir}/config.json'):  # relative path
+            self.config_dir = os.path.abspath(f'config/{config_dir}')
+        elif os.path.exists(f'{config_dir}/config.json'):  # absolute path
+            self.config_dir = config_dir
+        else:
+            raise FileNotFoundError(f'config/{config_dir}/config.json not found')
         self.server_mode = 'CN'
+        self._init_config()
         self.inject_comp_list = []
         self.inject_config_list = []
         self.window = None
         self.main_thread = None
-        self.static_config = None
-        self.config_dir = None
-        self.static_config_path = None
-        if os.path.exists(f'config/{config_dir}/config.json'):  # relative path
-            self.config_dir = os.path.abspath(f'config/{config_dir}')
-            self.static_config_path = os.path.dirname(self.config_dir) + '/static.json'
-        elif os.path.exists(f'{config_dir}/config.json'):  # absolute path
-            self.config_dir = config_dir
-            self.static_config_path = os.path.abspath(os.path.dirname(config_dir) + '/static.json')
-        else:
-            raise FileNotFoundError(f'config/{config_dir}/config.json not found')
         self.signals = {}
-        self._init_config()
+
+    @staticmethod
+    def _init_static_config():
+        with open('config/static.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            ConfigSet.static_config = StaticConfig(**data)
 
     def _init_config(self):
         with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
-            self.config = json.load(f)
-        with open(self.static_config_path, 'r', encoding='utf-8') as f:
-            self.static_config = json.load(f)
-        if self.config['server'] == '国服' or self.config['server'] == 'B服':
+            self.config = Config(**json.load(f))
+        if self.config.server == '国服' or self.config.server == 'B服':
             self.server_mode = 'CN'
-        elif self.config['server'] in ['国际服', '国际服青少年', '韩国ONE']:
+        elif self.config.server in ['国际服', '国际服青少年', '韩国ONE']:
             self.server_mode = 'Global'
-        elif self.config['server'] == '日服':
+        elif self.config.server == '日服':
             self.server_mode = 'JP'
 
-    def get(self, key):
+    def get(self, key, default=None):
         self._init_config()
-        value = self.config.get(key)
+        value = getattr(self.config, key, default)
         return bt.tr('ConfigTranslation', value)
-
-    def get_origin(self, key):
-        self._init_config()
-        return self.config.get(key)
 
     def set(self, key, value):
         self._init_config()
         value = bt.undo(value)
-        self.config[key] = value
+        setattr(self.config, key, value)
         self.save()
         self.dynamic_update(key)
 
+    def update(self, key, value):
+        self.set(key, value)
+
     def save(self):
+        data = asdict(self.config)
         with open(os.path.join(self.config_dir, "config.json"), 'w', encoding='utf-8') as f:
-            json.dump(self.config, f, indent=4, ensure_ascii=False)
+            json.dump(data, f, indent=4, ensure_ascii=False)
 
     def dynamic_update(self, key):
         if key not in self.inject_config_list: return
         for comp in self.inject_comp_list:
             comp.config_updated(key)
 
-    def update(self, key, value):
-        self.set(key, value)
-
     def __getitem__(self, item: str):
-        return self.config[item]
-
-    def check(self, key, value):
-        with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
-            new_config = json.load(f)
-        return new_config.get(key) == value
+        return self.get(item)
 
     def add_signal(self, key, signal):
         self.signals[key] = signal
@@ -110,16 +109,16 @@ class ConfigSet:
         return bounded
 
     def update_create_quantity_entry(self):
-        dft = self.static_config["create_item_order"][self.server_mode]["basic"]
+        dft = self.static_config.create_item_order[self.server_mode]["basic"]
         dft_list = [item for sublist in dft.values() for item in sublist]
         pop_list = []
-        for key in self.config["create_item_holding_quantity"]:
+        for key in self.config.create_item_holding_quantity:
             if key not in dft_list:
                 pop_list.append(key)
         for key in pop_list:
-            self.config["create_item_holding_quantity"].pop(key)
+            self.config.create_item_holding_quantity.pop(key)
 
         for entry in dft_list:
-            if entry not in self.config["create_item_holding_quantity"]:
-                self.config["create_item_holding_quantity"][entry] = -1
+            if entry not in self.config.create_item_holding_quantity:
+                self.config.create_item_holding_quantity[entry] = -1
         self.save()

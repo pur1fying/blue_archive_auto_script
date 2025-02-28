@@ -2,7 +2,7 @@ import json
 import os
 from core.utils import Logger
 from core.ocr import ocr
-from gui.util.config_set import ConfigSet
+from core.config.config_set import ConfigSet
 from core.Baas_thread import Baas_thread
 
 
@@ -108,6 +108,7 @@ if __name__ == '__main__':
     tt.ocr = t.ocr
 
     from module import create
+    create.create_phase(tt, 3)
 
     # create.select_node(tt, 1)
 

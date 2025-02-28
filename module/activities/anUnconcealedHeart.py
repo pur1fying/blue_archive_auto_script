@@ -1,64 +1,20 @@
-from module.activities.activity_utils import get_stage_data
 import time
+
 from core import color, picture, image
 from module import main_story
 from module.ExploreTasks.TaskUtils import execute_grid_task
+from module.activities.activity_utils import get_stage_data, preprocess_activity_region, preprocess_activity_sweep_times
 
 
 def implement(self):
-    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
-    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    times = preprocess_activity_sweep_times(self.config.activity_sweep_times)
+    region = preprocess_activity_region(self.config.activity_sweep_task_number)
     self.logger.info("activity sweep task number : " + str(region))
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
         sweep(self, region, times)
     drawCard(self)
     return True
-
-
-def preprocess_activity_region(region):
-    if type(region) is int:
-        return [region]
-    if type(region) is str:
-        region = region.split(",")
-        for i in range(0, len(region)):
-            region[i] = int(region[i])
-        return region
-    if type(region) is list:
-        for i in range(0, len(region)):
-            if type(region[i]) is int:
-                continue
-            region[i] = int(region[i])
-        return region
-
-
-def preprocess_activity_sweep_times(times):
-    if type(times) is int:
-        return [times]
-    if type(times) is float:
-        return [times]
-    if type(times) is str:
-        times = times.split(",")
-        for i in range(0, len(times)):
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-            else:
-                times[i] = int(times[i])
-        return times
-    if type(times) is list:
-        for i in range(0, len(times)):
-            if type(times[i]) is int:
-                continue
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-        return times
-
 
 
 def sweep(self, number, times):
@@ -164,20 +120,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = [
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-    ]
+    characteristic = get_stage_data(self)["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -185,7 +128,7 @@ def explore_mission(self):
             self.logger.info("Current task sss check next task")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_mission += 1
-            image.detect(self, "normal_task_task-info")
+            picture.co_detect(self, img_ends="normal_task_task-info")
             res = color.check_sweep_availability(self)
         if last_target_mission == total_missions and res == "sss":
             self.logger.info("All MISSION SSS")
@@ -230,7 +173,7 @@ def explore_challenge(self):
             execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
-        if self.config['manual_boss']:
+        if self.config.manual_boss:
             self.click(1235, 41)
         to_activity(self, "mission", True)
         to_activity(self, "challenge", True)
@@ -316,10 +259,12 @@ def to_mission_task_info(self, number):
     if number in [6, 7]:
         self.swipe(916, 483, 916, 219, duration=0.5, post_sleep_time=0.7)
     if number in [8, 9, 10, 11, 12]:
-        self.swipe(943, 698, 943, 0, duration=0.1, post_sleep_time=0.7)
+        self.swipe(943, 688, 943, 0, duration=0.1, post_sleep_time=0.7)
+        self.swipe(943, 688, 943, 0, duration=0.1, post_sleep_time=0.7)
+
     possibles = {'activity_menu': (1124, lo[index[number - 1]])}
     ends = "normal_task_task-info"
-    image.detect(self, ends, possibles)
+    return picture.co_detect(self, None, None, ends, possibles, True)
 
 
 def to_challenge_task_info(self, number):

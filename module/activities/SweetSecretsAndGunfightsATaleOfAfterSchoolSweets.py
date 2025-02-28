@@ -1,4 +1,5 @@
-from module.activities.activity_utils import get_stage_data, to_activity, explore_activity_story,explore_activity_mission
+from module.activities.activity_utils import get_stage_data, preprocess_activity_region, \
+    preprocess_activity_sweep_times, to_activity, explore_activity_story, explore_activity_mission
 import time
 from core import color, picture, image
 from module import main_story
@@ -6,58 +7,14 @@ from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
-    times = preprocess_activity_sweep_times(self.config["activity_sweep_times"])
-    region = preprocess_activity_region(self.config["activity_sweep_task_number"])
+    times = preprocess_activity_sweep_times(self.config.activity_sweep_times)
+    region = preprocess_activity_region(self.config.activity_sweep_task_number)
     self.logger.info("activity sweep task number : " + str(region))
     self.logger.info("activity sweep times : " + str(times))
     if len(times) > 0:
         sweep(self, region, times)
     exchange_reward(self)
     return True
-
-
-def preprocess_activity_region(region):
-    if type(region) is int:
-        return [region]
-    if type(region) is str:
-        region = region.split(",")
-        for i in range(0, len(region)):
-            region[i] = int(region[i])
-        return region
-    if type(region) is list:
-        for i in range(0, len(region)):
-            if type(region[i]) is int:
-                continue
-            region[i] = int(region[i])
-        return region
-
-
-def preprocess_activity_sweep_times(times):
-    if type(times) is int:
-        return [times]
-    if type(times) is float:
-        return [times]
-    if type(times) is str:
-        times = times.split(",")
-        for i in range(0, len(times)):
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-            else:
-                times[i] = int(times[i])
-        return times
-    if type(times) is list:
-        for i in range(0, len(times)):
-            if type(times[i]) is int:
-                continue
-            if '.' in times[i]:
-                times[i] = min(float(times[i]), 1.0)
-            elif '/' in times[i]:
-                temp = times[i].split("/")
-                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
-        return times
 
 
 def sweep(self, number, times):
@@ -135,7 +92,7 @@ def explore_challenge(self):
             execute_grid_task(self, current_task_stage_data)
             i += 1
         main_story.auto_fight(self)
-        if self.config['manual_boss']:
+        if self.config.manual_boss:
             self.click(1235, 41)
         to_activity(self, "mission", True)
         to_activity(self, "challenge", True)

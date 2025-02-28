@@ -3,18 +3,11 @@ from core import color, picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
-    try:
-        count = self.config["special_task_times"].split(",")
-        for i in range(0, len(count)):
-            if count[i] == "max":
-                continue
-            count[i] = int(count[i])
-    except Exception as e:
-        self.logger.error("special_task_times config error")
-        self.logger.error(e.__str__())
+    count = get_task_count(self, "special_task", 2)
+    if not count:
         return True
 
+    self.quick_method_to_main_page()
     commissions_name = ["BASE DEFENSE", "ITEM RETRIEVAL"]
     self.commissions_status = [False, False]
     just_do_task = False
@@ -126,3 +119,25 @@ def commissions_common_operation(self, a, b):
     self.swipe(926, 188, 926, 381, duration=1, post_sleep_time=1)
     self.latest_img_array = self.get_screenshot_array()
     return one_detect(self, a, b)
+
+
+def get_task_count(self, task_name, expected_len):
+    try:
+        count = self.config_set.get(task_name+"_times")
+        if type(count) is str:
+            count = count.split(',')
+        if len(count) < expected_len:
+            self.logger.warning(task_name + " Config Length Error.")
+            self.logger.warning("Expected: " + str(expected_len))
+            self.logger.warning("Actual  : " + str(len(count)))
+            return False
+        for i in range(0, len(count)):
+            if count[i] == "max":
+                continue
+            count[i] = int(count[i])
+        self.logger.info(task_name + " Sweep Times: " + str(count))
+        return count
+    except Exception as e:
+        self.logger.error("special task config error")
+        self.logger.error(e.__str__())
+        return False

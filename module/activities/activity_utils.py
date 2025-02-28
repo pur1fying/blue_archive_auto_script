@@ -1,8 +1,10 @@
 import json
 import time
+
 from core import color, picture
 from core.image import compare_image, swipe_search_target_str
 from module import main_story
+
 
 
 def get_stage_data(self):
@@ -306,3 +308,45 @@ def get_exchange_assets(self):
         "Global": (710, 98, 805, 130),
     }
     return self.ocr.recognize_number(self.latest_img_array, region[self.server], int, self.ratio)
+def preprocess_activity_region(region):
+    if type(region) is int:
+        return [region]
+    if type(region) is str:
+        region = region.split(",")
+        for i in range(0, len(region)):
+            region[i] = int(region[i])
+        return region
+    if type(region) is list:
+        for i in range(0, len(region)):
+            if type(region[i]) is int:
+                continue
+            region[i] = int(region[i])
+        return region
+
+
+def preprocess_activity_sweep_times(times):
+    if type(times) is int:
+        return [times]
+    if type(times) is float:
+        return [times]
+    if type(times) is str:
+        times = times.split(",")
+        for i in range(0, len(times)):
+            if '.' in times[i]:
+                times[i] = min(float(times[i]), 1.0)
+            elif '/' in times[i]:
+                temp = times[i].split("/")
+                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
+            else:
+                times[i] = int(times[i])
+        return times
+    if type(times) is list:
+        for i in range(0, len(times)):
+            if type(times[i]) is int:
+                continue
+            if '.' in times[i]:
+                times[i] = min(float(times[i]), 1.0)
+            elif '/' in times[i]:
+                temp = times[i].split("/")
+                times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
+        return times

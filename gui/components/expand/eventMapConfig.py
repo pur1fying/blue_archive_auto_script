@@ -101,7 +101,7 @@ class Layout(TemplateLayout):
         threading.Thread(target=self.main_thread.start_explore_activity_challenge).start()
 
     def gen_event_formation_attr(self):
-        current_event = self.config.static_config['current_game_activity'][self.config.server_mode]
+        current_event = self.config.static_config.current_game_activity[self.config.server_mode]
         if current_event is None:
             return None
         import json
@@ -112,17 +112,14 @@ class Layout(TemplateLayout):
         except FileNotFoundError:
             return None
         ret = dict(activity_name=current_event, story=dict(), mission=dict(), challenge=dict())
-        print(stage_data)
         en2cn = {
             "story": self.tr("故事"),
             "mission": self.tr("任务"),
             "challenge": self.tr("挑战"),
         }
         for key, value in stage_data.items():
-            print(key)
             if key == "story" or key == "mission" or key == "challenge":
                 for i in range(len(value)):
-                    print(value[i])
                     ret[key][en2cn[key] + str(i + 1)] = formation_attr_to_cn(value[i])
                 continue
             tp = None

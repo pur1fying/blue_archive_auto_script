@@ -13,7 +13,7 @@ class Layout(QWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.label = QLabel(self.tr('最高难度'), self)
         self.input = ComboBox(self)
-        self.difficulties = self.config.static_config['total_assault_difficulties'][self.config.server_mode]
+        self.difficulties = self.config.static_config.total_assault_difficulties[self.config.server_mode]
         self.input.addItems(self.difficulties)
         if self.config.get('totalForceFightDifficulty') not in self.difficulties:
             self.config.set('totalForceFightDifficulty', self.difficulties[0])

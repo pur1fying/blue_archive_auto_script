@@ -10,14 +10,14 @@ def implement(self):
     self.main_story_stage_data = get_stage_data()
     self.quick_method_to_main_page()
     to_main_story(self, True)
-    push_episode_list = process_regions(self, self.config['main_story_regions'])
+    push_episode_list = process_regions(self, self.config.main_story_regions)
     if not push_episode_list:
-        default_list = self.static_config['main_story_available_episodes']
+        default_list = self.static_config.main_story_available_episodes
         push_episode_list = default_list[self.server]
     for i in range(0, len(push_episode_list)):
         current_episode = push_episode_list[i]
         is_final = False
-        if current_episode == self.static_config['main_story_final_episode_num']:
+        if current_episode == self.static_config.main_story_final_episode_num:
             is_final = True
         push_episode(self, current_episode, is_final)
     return True
@@ -145,7 +145,7 @@ def to_episode(self, num):
     """
         ensure goto required episode page, may not single swipe
     """
-    final_num = self.static_config['main_story_final_episode_num']
+    final_num = self.static_config.main_story_final_episode_num
     if num == final_num:
         img_possibles = {
             "main_story_menu": (850, 630),
@@ -153,7 +153,7 @@ def to_episode(self, num):
         }
         img_ends = "main_story_episode" + str(num)
         return picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    detect_episode_list = self.static_config['main_story_available_episodes'][self.server].copy()
+    detect_episode_list = self.static_config.main_story_available_episodes[self.server].copy()
     detect_episode_list.remove(final_num)
 
     wait_to_detect_list = detect_episode_list.copy()
@@ -303,7 +303,7 @@ def to_main_story(self, skip_first_screenshot=False):
     rgb_possibles = {
         'main_page': (1188, 575)
     }
-    final_num = self.static_config['main_story_final_episode_num']
+    final_num = self.static_config.main_story_final_episode_num
     img_possibles = {
         "main_page_bus": (1098, 261),
         "main_story_enter-main-story": (327, 510),
@@ -316,7 +316,7 @@ def to_main_story(self, skip_first_screenshot=False):
 
 
 def to_select_episode(self, res, skip_first_screenshot):
-    final_num = self.static_config['main_story_final_episode_num']
+    final_num = self.static_config.main_story_final_episode_num
     img_possibles = {
         "main_story_menu": res,
         "main_story_episode" + str(final_num): res

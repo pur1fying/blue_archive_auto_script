@@ -18,7 +18,7 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]
             - The first element (bool): The verification result. Returns True if verification passes; otherwise, False.
             - The second element (str): The error message. Returns a detailed error message if verification fails; otherwise, an empty string.
     """
-    valid_chapter_range = self.static_config['explore_normal_task_region_range']
+    valid_chapter_range = self.static_config.explore_normal_task_region_range
     info = task.split('-')
     if (not info[0].isdigit()) or int(info[0]) < valid_chapter_range[0] or int(info[0]) > valid_chapter_range[1]:
         return False, "Invalid chapter or unsupported chapter"
@@ -98,7 +98,7 @@ def implement(self):
         - taskDatas (dict): The task datas.
     """
 
-    for taskStr in str(self.config_set.config['explore_normal_task_list']).replace(" ", "").split(','):
+    for taskStr in str(self.config_set.config.explore_normal_task_regions).split(','):
         result = validate_and_add_task(self, taskStr, tasklist)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))

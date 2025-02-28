@@ -83,5 +83,9 @@ x_y_range = {
     "Yuuka": [],
     "Yuzu": [],
     "Fuuka": [],
-    "Moe": []
+    "Moe": [],
+    "Yuzu (Maid)": [],
+    "Natsu": [],
+    "Cherino": [],
+    "Reisa": [],
 }

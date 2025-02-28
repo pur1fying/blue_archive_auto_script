@@ -8,22 +8,21 @@ from core import image, color, picture
 def implement(self):
     self.quick_method_to_main_page()
     to_cafe(self, True)
-    if self.config['cafe_reward_collect_hour_reward'] and get_cafe_earning_status(self):
-        self.logger.info("Collect Cafe Earnings")
+    if self.config.cafe_reward_collect_hour_reward and get_cafe_earning_status(self):
         collect(self)
         to_cafe(self, False)
     ticket1_next_time = None
     ticket2_next_time = None
-    if self.config['cafe_reward_use_invitation_ticket']:
+    if self.config.cafe_reward_use_invitation_ticket:
         if not get_invitation_ticket_status(self):
             ticket1_next_time = get_invitation_ticket_next_time(self)
         else:
             invite_girl(self, 1)
     interaction_for_cafe_solve_method3(self)
-    if self.config['cafe_reward_has_no2_cafe']:
+    if self.config.cafe_reward_has_no2_cafe:
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
-        if self.config['cafe_reward_use_invitation_ticket']:
+        if self.config.cafe_reward_use_invitation_ticket:
             if not get_invitation_ticket_status(self):
                 ticket2_next_time = get_invitation_ticket_next_time(self)
             else:
@@ -121,7 +120,7 @@ def interaction_for_cafe_solve_method3(self):
     max_times = 4
     for i in range(0, max_times):
         cafe_to_gift(self)
-        shotDelay = self.config["cafe_reward_interaction_shot_delay"]
+        shotDelay = self.config.cafe_reward_interaction_shot_delay
         t1 = threading.Thread(target=shot, args=(self, shotDelay))
         t1.start()
         startT = time.time()
@@ -133,16 +132,14 @@ def interaction_for_cafe_solve_method3(self):
         res = match(img)
         if not res:
             self.logger.info("No interaction found")
-            if swipeT < self.config["cafe_reward_interaction_shot_delay"] + 0.3:
-                self.logger.warning(
-                    "Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(
-                        shotDelay) + " ]")
+            if swipeT < self.config.cafe_reward_interaction_shot_delay + 0.3:
+                self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(shotDelay) + " ]")
                 self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
                 if swipeT > 0.4:
                     self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
-                    self.config["cafe_reward_interaction_shot_delay"] = swipeT - 0.3
+                    self.config.cafe_reward_interaction_shot_delay = swipeT - 0.3
                     self.config_set.set("cafe_reward_interaction_shot_delay",
-                                        self.config["cafe_reward_interaction_shot_delay"])
+                                        self.config.cafe_reward_interaction_shot_delay)
             time.sleep(1)
             continue
         gift_to_cafe(self)
@@ -209,19 +206,19 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
 def get_student_name(self):
     current_server_student_name_list = []
     target = self.server + "_name"
-    for i in range(0, len(self.static_config['student_names'])):
-        current_server_student_name_list.append(self.static_config['student_names'][i][target])
+    for i in range(0, len(self.static_config.student_names)):
+        current_server_student_name_list.append(self.static_config.student_names[i][target])
     return operate_name(current_server_student_name_list, self.server)
 
 
 def checkConfirmInvite(self, y):
     res = to_confirm_invite(self, (785, y))
     f = False
-    if res == 'cafe_switch-clothes-notice' and not self.config['cafe_reward_allow_exchange_student']:
+    if res == 'cafe_switch-clothes-notice' and not self.config.cafe_reward_allow_exchange_student:
         self.logger.warning("Not Allow Student Switch Clothes")
         f = True
     elif (res == 'cafe_duplicate-invite' or res == 'cafe_duplicate-invite-notice') \
-            and not self.config['cafe_reward_allow_duplicate_invite']:
+            and not self.config.cafe_reward_allow_duplicate_invite:
         self.logger.warning("Not Allow Duplicate Invite")
         f = True
     if f:
@@ -345,7 +342,7 @@ def invite_girl(self, no=1):
         self.logger.info("Invitation Ticket Not Available")
         return
 
-    method = self.config['cafe_reward_invite' + str(no) + '_criterion']
+    method = self.config_set.get('cafe_reward_invite' + str(no) + '_criterion')
 
     if method == 'lowest_affection':
         invite_by_affection(self, 'lowest')
@@ -354,11 +351,11 @@ def invite_girl(self, no=1):
         invite_by_affection(self, 'highest')
         return
     elif method == 'starred':
-        position = self.config["cafe_reward_invite" + str(no) + "_starred_student_position"]
+        position = self.config_set.get("cafe_reward_invite" + str(no) + "_starred_student_position")
         invite_starred(self, position)
         return
 
-    target_name_list = self.config['favorStudent' + str(no)]
+    target_name_list = self.config_set.get('favorStudent' + str(no))
 
     if len(target_name_list) == 0:
         self.logger.warning(
@@ -541,21 +538,24 @@ def get_invitation_ticket_next_time(self):
         'JP': (850, 588, 926, 614)
     }
     region = region[self.server]
-    res = self.ocr.get_region_res(self.latest_img_array, region, 'Global', self.ratio)
-    if res.count(":") != 2:
-        return None
-    res = res.split(":")
-    for j in range(0, len(res)):
-        if res[j][0] == "0":
-            res[j] = res[j][1:]
-    self.logger.info(
-        "Invitation Ticket Next time: " +
-        res[0] + "\tHOUR " +
-        res[1] + "\tMINUTES " +
-        res[2] + "\tSECONDS"
-    )
-    try:
-        return int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2])
-    except ValueError:
-        pass
-    return None
+    for i in range(0, 3):
+        if i != 0:
+            self.update_screenshot_array()
+        res = self.ocr.get_region_res(self.latest_img_array, region, 'Global', self.ratio)
+        if res.count(":") != 2:
+            return None
+        res = res.split(":")
+        for j in range(0, len(res)):
+            if res[j][0] == "0":
+                res[j] = res[j][1:]
+        self.logger.info(
+            "Invitation Ticket Next time: " +
+            res[0] + "\tHOUR " +
+            res[1] + "\tMINUTES " +
+            res[2] + "\tSECONDS"
+        )
+        try:
+            return int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2])
+        except ValueError:
+            pass
+    return 0
