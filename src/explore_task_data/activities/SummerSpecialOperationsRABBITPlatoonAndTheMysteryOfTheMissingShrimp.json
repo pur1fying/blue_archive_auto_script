@@ -2,14 +2,14 @@
     "challenge2_sss_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     792,
                     561
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     535,
                     389
@@ -112,21 +112,21 @@
     "challenge4_sss_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     731,
                     555
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     865,
                     392
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     894,
                     226

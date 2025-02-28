@@ -2,14 +2,14 @@
     "challenge2_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     850,
                     472
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     339,
                     350
@@ -148,14 +148,14 @@
     "challenge2_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     429,
                     381
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     922,
                     472

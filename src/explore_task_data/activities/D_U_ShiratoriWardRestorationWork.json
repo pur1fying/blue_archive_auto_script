@@ -1,29 +1,29 @@
 {
     "mission": [
-        "mystic1",
-        "burst1",
-        "pierce1",
-        "mystic1",
-        "mystic1",
-        "burst1",
-        "pierce1",
-        "mystic1",
-        "mystic1",
-        "burst1",
-        "pierce1",
-        "mystic1"
+      "mystic",
+      "burst",
+      "pierce",
+      "mystic",
+      "mystic",
+      "burst",
+      "pierce",
+      "mystic",
+      "mystic",
+      "burst",
+      "pierce",
+      "mystic"
     ],
     "challenge2_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     585,
                     104
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     558,
                     686
@@ -118,14 +118,14 @@
     "challenge2_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     585,
                     104
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     558,
                     686
@@ -208,21 +208,21 @@
     "challenge4_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     615,
                     303
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     118,
                     315
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     1082,
                     217
@@ -374,14 +374,14 @@
     "challenge4_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     612,
                     305
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     113,
                     305

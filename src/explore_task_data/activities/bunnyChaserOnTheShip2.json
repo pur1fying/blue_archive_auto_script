@@ -1,33 +1,33 @@
 {
     "mission": [
-        "mystic1",
-        "mystic1",
-        "pierce1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1"
+      "mystic",
+      "mystic",
+      "pierce",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst"
     ],
     "challenge2_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     493,
                     380
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     871,
                     387
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     1081,
                     471
@@ -223,21 +223,21 @@
     "challenge2_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     493,
                     380
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     871,
                     387
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     1081,
                     471

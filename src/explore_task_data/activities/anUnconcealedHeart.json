@@ -1,29 +1,29 @@
 {
     "mission": [
-        "pierce1",
-        "mystic1",
-        "burst1",
-        "pierce1",
-        "pierce1",
-        "mystic1",
-        "burst1",
-        "pierce1",
-        "pierce1",
-        "mystic1",
-        "pierce1",
-        "mystic1"
+      "pierce",
+      "mystic",
+      "burst",
+      "pierce",
+      "pierce",
+      "mystic",
+      "burst",
+      "pierce",
+      "pierce",
+      "mystic",
+      "pierce",
+      "mystic"
     ],
     "challenge2_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     275,
                     555
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     527,
                     116
@@ -129,7 +129,7 @@
     "challenge2_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     290,
                     225
@@ -186,21 +186,21 @@
     "challenge4_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     967,
                     344
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     665,
                     207
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     535,
                     600
@@ -311,14 +311,14 @@
     "challenge4_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     730,
                     516
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     814,
                     141

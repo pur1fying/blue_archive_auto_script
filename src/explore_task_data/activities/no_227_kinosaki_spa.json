@@ -15,14 +15,14 @@
     "challenge2_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     841,
                     220
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     690,
                     553
@@ -116,14 +116,14 @@
     "challenge2_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     841,
                     220
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     690,
                     553
@@ -196,21 +196,21 @@
     "challenge4_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     293,
                     226
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     1091,
                     168
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     39,
                     671
@@ -429,21 +429,21 @@
     "challenge4_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     293,
                     226
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     1091,
                     168
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     39,
                     671

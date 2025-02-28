@@ -3,7 +3,7 @@
     "story1": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     458,
                     468
@@ -33,7 +33,7 @@
     "story2": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     493,
                     383
@@ -63,7 +63,7 @@
     "story3": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     502,
                     386
@@ -102,7 +102,7 @@
     "story4": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     521,
                     387
@@ -141,7 +141,7 @@
     "story5": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     463,
                     429
@@ -180,14 +180,14 @@
     "challenge1_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     823,
                     517
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     437,
                     374
@@ -338,14 +338,14 @@
     "challenge1_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     523,
                     430
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     841,
                     513
