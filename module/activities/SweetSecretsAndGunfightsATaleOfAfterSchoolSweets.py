@@ -255,4 +255,4 @@ def get_exchange_assets(self):
         "JP": (710, 98, 805, 130),
         "Global": (710, 98, 805, 130),
     }
-    return self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
+    return self.ocr.recognize_number(self.latest_img_array, region[self.server], int, self.ratio)

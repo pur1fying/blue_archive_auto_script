@@ -167,7 +167,7 @@ def to_purchase_lesson_ticket(self):
     img_possibles = {
         'lesson_location-select': (148, 101)
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
 
 
 def purchase_lesson_ticket(self, times):
@@ -231,7 +231,7 @@ def to_location_info(self, lesson_id):
                 [307, 560], [652, 560], [985, 560]]
     img_possibles = {"lesson_all-locations": click_lo[lesson_id]}
     img_ends = 'lesson_lesson-information'
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
 
 
 def start_lesson(self):

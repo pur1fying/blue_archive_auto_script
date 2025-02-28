@@ -45,7 +45,7 @@ def start_sweep(self):
         "normal_task_start-sweep-notice",
     ]
     img_possibles = {"scrimmage_task-info": (932, 408)}
-    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
     if res == "scrimmage_purchase-scrimmage-ticket-menu":
         self.logger.warning("INADEQUATE TICKET")
         return "inadequate_ticket"
@@ -58,7 +58,7 @@ def start_sweep(self):
         "normal_task_skip-sweep-complete"
     ]
     img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_loading=True)
     return "sweep_complete"
 
 
@@ -133,7 +133,7 @@ def to_choose_scrimmage(self, skip_first_screenshot=False):
         "scrimmage_purchase-scrimmage-ticket": (886, 162),
     }
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
 
 
 def to_purchase_scrimmage_ticket_menu(self):
@@ -141,7 +141,7 @@ def to_purchase_scrimmage_ticket_menu(self):
         "rewarded_task_location-select": (148, 101),
     }
     img_ends = "rewarded_task_purchase-scrimmage-ticket-menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
 
 
 def purchase_scrimmage_ticket(self, times):
@@ -156,4 +156,4 @@ def purchase_scrimmage_ticket(self, times):
         "scrimmage_task_purchase-scrimmage-ticket-menu": (766, 507),
         "rewarded_task_purchase-scrimmage-ticket-notice": (766, 507),
     }
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=False)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_loading=False)

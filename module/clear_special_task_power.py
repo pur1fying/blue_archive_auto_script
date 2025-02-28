@@ -97,7 +97,7 @@ def one_detect(self, a, b):
     for i in range(0, len(los)):
         img_possibles = {"special_task_level-list": (1118, los[i])}
         img_ends = "special_task_task-info"
-        picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
+        picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=True)
         t = color.check_sweep_availability(self)
         if t == "sss":
             if b == "max":

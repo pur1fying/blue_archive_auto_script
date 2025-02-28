@@ -83,7 +83,7 @@ def start_story(self):
         "formation_edit1",
         "activity_menu",
     ]
-    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
+    res = picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_loading=True)
     if res == "formation_edit1":
         start_fight(self, 1)
         main_story.auto_fight(self)
@@ -95,7 +95,7 @@ def start_story(self):
 def start_fight(self, i):
     rgb_possibles = {"formation_edit" + str(i): (1156, 659)}
     rgb_ends = "fighting_feature"
-    picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, skip_loading=True)
 
 
 def explore_mission(self):
@@ -194,7 +194,7 @@ def to_activity(self, region, skip_first_screenshot=False):
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
+    picture.co_detect(self, None, None, img_ends, img_possibles, skip_loading=skip_first_screenshot)
     if region is None:
         return True
     rgb_lo = {

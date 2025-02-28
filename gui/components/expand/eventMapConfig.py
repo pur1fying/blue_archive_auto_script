@@ -118,7 +118,6 @@ class Layout(TemplateLayout):
             "mission": self.tr("任务"),
             "challenge": self.tr("挑战"),
         }
-        from module.ExploreTasks.TaskUtils import formation_attr_to_cn
         for key, value in stage_data.items():
             print(key)
             if key == "story" or key == "mission" or key == "challenge":
@@ -153,3 +152,10 @@ class Layout(TemplateLayout):
                 team = team[:-1]
             ret[tp][name] = team
         return ret
+
+
+def formation_attr_to_cn(attr):
+    attrMap = {"burst": "爆发", "pierce": "贯穿", "mystic": "神秘", "shock": "振动"}
+    if attr not in attrMap:
+        return None
+    return attrMap[attr]

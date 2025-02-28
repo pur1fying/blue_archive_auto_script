@@ -1,14 +1,14 @@
 import time
-from core import color, image
+from core import color, image, Baas_thread
 from module.main_story import set_acc_and_auto
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
 from core.color import match_rgb_feature
 import typing
 
 
-def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions: dict = None,
+def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions: dict = None,
               img_ends: typing.Union[list, str, tuple] = None, img_reactions: dict = None,
-              skip_first_screenshot=False,
+              skip_loading=False,
               tentative_click=False, tentative_x=1238, tentative_y=45, max_fail_cnt=10,
               pop_ups_rgb_reactions: dict = None, pop_ups_img_reactions: dict = None,
               time_out=600, check_pkg_interval=20):
@@ -21,7 +21,7 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
             rgb_reactions (dict, optional): Possible RGB features and their corresponding click positions.
             img_ends (list or str or tuple, optional): Image features that indicate the end of detection.
             img_reactions (dict, optional): Possible image features and their corresponding click positions.
-            skip_first_screenshot (bool, optional): Whether to skip the first screenshot.
+            skip_loading (bool, optional): Whether to wait for the loading screen.
             tentative_click (bool, optional): Whether to perform tentative clicks if detection fails.
             tentative_x (int, optional): X-coordinate for tentative clicks.
             tentative_y (int, optional): Y-coordinate for tentative clicks.
@@ -32,13 +32,15 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
             check_pkg_interval (int, optional): Interval(second(s)) for checking the current package.
 
         Raises:
-            - FunctionCallTimeout: If the detection process times out.
-            - PackageIncorrect: If the current package is incorrect.
-            - RequestHumanTakeOver: If the detection process is stopped manually.
+            FunctionCallTimeout: If the detection process times out.
+            PackageIncorrect: If the current package is incorrect.
+            RequestHumanTakeOver: If the detection process is stopped manually.
 
         Returns:
-            - str: The name of the detected end feature.
+            str: The name of the detected end feature.
     """
+
+    # Initialize variables
     fail_cnt = 0
     self.last_click_time = 0
     self.last_click_position = (0, 0)
@@ -47,6 +49,7 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
     feature_last_appear_time = start_time
     last_check_pkg_time = start_time
 
+    # Convert single RGB or image features to lists
     if type(rgb_ends) is not list:
         rgb_ends = [rgb_ends]
     if type(img_ends) is not list:
@@ -54,6 +57,7 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
 
     while self.flag_run:
         current_time = time.time()
+        self.update_screenshot_array()
 
         # time out check
         if current_time - start_time > time_out:
@@ -63,13 +67,13 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
         if (current_time - feature_last_appear_time > check_pkg_interval
             and current_time - last_check_pkg_time > check_pkg_interval):
             last_check_pkg_time = current_time
-            self.logger.info("Checking package....")
-            pkg = self.connection.get_current_package()
-            if pkg != self.package_name:
-                raise PackageIncorrect(pkg)
+            pkgName = self.connection.get_current_package()
+            self.logger.info(f"Current package name: {pkgName}")
+            if pkgName != self.package_name:
+                raise PackageIncorrect(pkgName)
 
-        if skip_first_screenshot:
-            skip_first_screenshot = False
+        if skip_loading:
+            skip_loading = False
         else:
             color.wait_loading(self)
         # exit the stage if any end feature is matched
@@ -77,7 +81,7 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
             if rgb_feature is None:
                 continue
             if color.match_rgb_feature(self, rgb_feature):
-                self.logger.info("Current stage ended with matched RGB feature: " + rgb_feature)
+                self.logger.info("Stage ended with matched RGB feature: " + rgb_feature)
                 return rgb_feature
         for img_feature in img_ends:
             if img_feature is None:
@@ -90,8 +94,9 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
                 if len(img_feature) > 2:
                     rgb_diff = img_feature[2]
             if image.compare_image(self, img_feature, threshold, rgb_diff):
-                self.logger.info('Current stage ended with matched img feature: ' + img_feature)
+                self.logger.info('Stage ended with matched img feature: ' + img_feature)
                 return img_feature
+
         # click if match reaction rules
         matched = False
         if rgb_reactions is not None:
@@ -105,7 +110,7 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
                         # avoid duplicated clicks
 
                         break
-                    self.logger.info("Found RGB feature: " + rgb_feature)
+                    self.logger.info(f"RGB feature: {rgb_feature} -> Click @ ({click[0]},{click[1]})")
                     if click[0] >= 0 and click[1] >= 0:
                         self.last_click_time = current_time
                         self.click(click[0], click[1])
@@ -123,25 +128,24 @@ def co_detect(self, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions
                         and self.last_click_position[0] == click[0] and self.last_click_position[1] == click[1]
                         and self.last_click_name == img_feature):
                         break
-                    self.logger.info("Found img feature: " + img_feature)
+                    self.logger.info(f"Image feature: {img_feature} -> Click @ ({click[0]},{click[1]})")
                     if click[0] >= 0 and click[1] >= 0:
                         self.last_click_time = feature_last_appear_time
                         self.click(click[0], click[1])
                         self.last_click_position = (click[0], click[1])
                         self.last_click_name = img_feature
                     break
-        if matched:  # avoid duplicated click
-            fail_cnt = 0  # reset failure counter
-            continue
-        if not deal_with_pop_ups(self, pop_ups_rgb_reactions, pop_ups_img_reactions):
+        if not matched and not deal_with_pop_ups(self, pop_ups_rgb_reactions, pop_ups_img_reactions):
             if tentative_click:
                 fail_cnt += 1
                 if fail_cnt > max_fail_cnt:
                     self.logger.info(
-                        f"Performing tentative click at ({tentative_x},{tentative_y}) due to recognition failure.")
+                        f"Performing tentative click @ ({tentative_x},{tentative_y}) due to recognition failure.")
                     self.click(tentative_x, tentative_y)
                     time.sleep(self.screenshot_interval)
-                    fail_cnt = 0
+        if matched:
+            fail_cnt = 0
+        time.sleep(self.screenshot_interval)
     if not self.flag_run:
         raise RequestHumanTakeOver
 

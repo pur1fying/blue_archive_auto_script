@@ -145,8 +145,8 @@ def get_tactical_challenge_assets(self):
         'Global': [907, 68, 1045, 98],
         'JP': [907, 68, 1045, 98]
     }
-    return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server], int,
-                                   self.ratio)
+    return self.ocr.recognize_number(self.latest_img_array, tactical_challenge_assets_region[self.server], int,
+                                     self.ratio)
 
 
 def buy(self, buy_list):
