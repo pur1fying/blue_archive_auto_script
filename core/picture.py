@@ -70,7 +70,7 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
 
         # package check
         if (current_time - feature_last_appear_time > check_pkg_interval
-            and current_time - last_check_pkg_time > check_pkg_interval):
+                and current_time - last_check_pkg_time > check_pkg_interval):
             last_check_pkg_time = current_time
             pkgName = self.connection.get_current_package()
             self.logger.info(f"Current package name: {pkgName}")
@@ -102,8 +102,8 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
                     matched = True
                     feature_last_appear_time = current_time
                     if (current_time - self.last_click_time <= 2
-                        and self.last_click_position[0] == click[0] and self.last_click_position[1] == click[1]
-                        and self.last_click_name == rgb_feature):
+                            and self.last_click_position[0] == click[0] and self.last_click_position[1] == click[1]
+                            and self.last_click_name == rgb_feature):
                         # avoid duplicated clicks
 
                         break
@@ -122,8 +122,8 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
                     matched = True
                     feature_last_appear_time = current_time
                     if (time.time() - self.last_click_time <= 2
-                        and self.last_click_position[0] == click[0] and self.last_click_position[1] == click[1]
-                        and self.last_click_name == img_feature):
+                            and self.last_click_position[0] == click[0] and self.last_click_position[1] == click[1]
+                            and self.last_click_name == img_feature):
                         break
                     self.logger.info(f"Image feature: {img_feature} -> Click @ ({click[0]},{click[1]})")
                     if click[0] >= 0 and click[1] >= 0:
@@ -140,10 +140,9 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
                         f"Performing tentative click @ ({tentative_x},{tentative_y}) due to recognition failure.")
                     self.click(tentative_x, tentative_y)
                     time.sleep(self.screenshot_interval)
+                    fail_cnt = 0
         if matched:
             fail_cnt = 0
-    if not self.flag_run:
-        raise RequestHumanTakeOver
 
 
 def deal_with_pop_ups(self, pop_ups_rgb_reactions: dict = None, pop_ups_img_reactions: dict = None):
