@@ -2,7 +2,7 @@
     "mission1_sss": {
         "start": [
             [
-                "mystic1",
+              "mystic",
                 [
                     760,
                     345
@@ -50,7 +50,7 @@
     "mission2_sss": {
         "start": [
             [
-                "mystic1",
+              "mystic",
                 [
                     493,
                     302
@@ -80,7 +80,7 @@
     "mission3_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     551,
                     513
@@ -119,14 +119,14 @@
     "mission4_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     403,
                     302
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     685,
                     257
@@ -202,7 +202,7 @@
     "mission4_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     407,
                     307
@@ -259,14 +259,14 @@
     "mission5_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     582,
                     304
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     877,
                     389
@@ -314,14 +314,14 @@
     "mission5_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     582,
                     304
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     877,
                     389
@@ -363,14 +363,14 @@
     "mission6_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     522,
                     345
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     643,
                     559
@@ -426,14 +426,14 @@
     "mission6_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     522,
                     345
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     643,
                     559
@@ -483,14 +483,14 @@
     "mission7_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     550,
                     386
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     638,
                     560
@@ -539,7 +539,7 @@
     "mission7_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     551,
                     556
@@ -578,14 +578,14 @@
     "mission8_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     579,
                     559
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     484,
                     478
@@ -659,14 +659,14 @@
     "mission8_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     579,
                     559
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     484,
                     478
@@ -734,14 +734,14 @@
     "mission9_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     728,
                     183
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     333,
                     604
@@ -828,14 +828,14 @@
     "mission9_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     728,
                     183
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     333,
                     604
@@ -929,21 +929,21 @@
     "challenge2_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     493,
                     380
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     871,
                     387
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     1081,
                     471
@@ -1139,21 +1139,21 @@
     "challenge2_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     493,
                     380
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     871,
                     387
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     1081,
                     471

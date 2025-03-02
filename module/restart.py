@@ -28,7 +28,7 @@ def start(self):
     self.u2.app_start(self.package_name, activity_name)
     time.sleep(1)
     if self.server == 'Global':
-        self.quick_method_to_main_page()
+        self.to_main_page()
         time.sleep(4)
 
 

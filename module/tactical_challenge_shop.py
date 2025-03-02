@@ -1,6 +1,6 @@
-import time
 import numpy as np
-from core import color, picture, image
+
+from core import picture
 
 
 def implement(self):
@@ -8,7 +8,7 @@ def implement(self):
     if not buy_list.any():
         self.logger.info("Nothing to buy in tactical challenge shop.")
         return True
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
     tactical_challenge_assets = get_tactical_challenge_assets(self)
     self.logger.info("tactical assets : " + str(tactical_challenge_assets))
@@ -133,7 +133,7 @@ def to_refresh(self):
         'main_page_full-notice': (887, 165),
         "main_page_insufficient-inventory-space": (910, 138),
     }
-    res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True, img_pop_ups=img_pop_ups)
+    res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True, pop_ups_img_reactions=img_pop_ups)
     if res == "shop_refresh-notice":
         return True
     return False
@@ -145,8 +145,8 @@ def get_tactical_challenge_assets(self):
         'Global': [907, 68, 1045, 98],
         'JP': [907, 68, 1045, 98]
     }
-    return self.ocr.get_region_num(self.latest_img_array, tactical_challenge_assets_region[self.server], int,
-                                   self.ratio)
+    return self.ocr.recognize_number(self.latest_img_array, tactical_challenge_assets_region[self.server], int,
+                                     self.ratio)
 
 
 def buy(self, buy_list):

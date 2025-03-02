@@ -10,7 +10,6 @@ class Main:
     def __init__(self, logger_signal=None, ocr_needed=None):
         self.ocr_needed = ocr_needed
         self.ocr = None
-        self.static_config = None
         self.logger = Logger(logger_signal)
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.logger.info(self.project_dir)
@@ -100,15 +99,13 @@ class Main:
 if __name__ == '__main__':
     ocr_needed = ["Global", "CN", "JP", "NUM"]
     t = Main(ocr_needed=ocr_needed)
-    t.init_static_config()
-    config = ConfigSet(config_dir="1708148000")
+    config = ConfigSet(config_dir="1708185944")
     tt = Baas_thread(config, None, None, None)
-    tt.static_config = t.static_config
     tt.init_all_data()
     tt.ocr = t.ocr
 
-    from module import create
-    create.create_phase(tt, 3)
+    # from module import create
+    # create.create_phase(tt, 3)
 
     # create.select_node(tt, 1)
 
@@ -121,13 +118,13 @@ if __name__ == '__main__':
     # tt.solve("activity_sweep")
     # tt.solve("tactical_challenge_shop")
     # tt.solve("explore_activity_mission")
-    # tt.solve("explore_activity_story")
+    tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     # tt.solve("total_assault")
     # tt.solve("cafe_reward")
     # tt.solve("momo_talk")
     # tt.solve("explore_normal_task")
-    tt.solve("explore_hard_task")
+    # tt.solve("explore_hard_task")
     # tt.solve("normal_task")
     # tt.solve("hard_task")
     # tt.solve("arena")
