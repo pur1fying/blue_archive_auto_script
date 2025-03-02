@@ -1,6 +1,8 @@
 import time
 import typing
 
+import cv2
+
 from core import color, image, Baas_thread
 from core.color import match_rgb_feature
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
@@ -56,13 +58,12 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
     if type(img_ends) is not list:
         img_ends = [img_ends]
 
-    while self.flag_run:
+    while True:
         current_time = time.time()
         if skip_first_screenshot:
             skip_first_screenshot = False
         else:
             self.update_screenshot_array()
-
         # time out check
         if current_time - start_time > time_out:
             raise FunctionCallTimeout("Co_detect function timeout reached.")
@@ -141,7 +142,6 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
                     time.sleep(self.screenshot_interval)
         if matched:
             fail_cnt = 0
-        time.sleep(self.screenshot_interval)
     if not self.flag_run:
         raise RequestHumanTakeOver
 

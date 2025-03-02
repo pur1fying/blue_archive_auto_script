@@ -1,5 +1,30 @@
 {
-    "SUB": "burst1",
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 5,
+    "mission": [
+        "pierce1",
+        "pierce1",
+        "burst1",
+        "pierce1",
+        "pierce1",
+        "burst1",
+        "pierce1"
+    ],
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15
+    ],
+    "grid_tasks_challenge": [
+      "challenge1_sss",
+      "challenge1_task"
+    ],
     "story1": {
         "start": [
             [

@@ -1,4 +1,30 @@
 {
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 10,
+    "mission": [
+        "mystic1",
+        "pierce1",
+        "mystic1",
+        "mystic1",
+        "pierce1",
+        "mystic1"
+    ],
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15
+    ],
+    "grid_tasks_challenge": [
+      "challenge2_sss",
+      "challenge2_task",
+      "challenge4_sss",
+      "challenge4_task"
+    ],
     "challenge2_sss": {
         "start": [
             [

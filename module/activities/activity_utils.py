@@ -159,16 +159,9 @@ def explore_activity_mission(self):
         res = check_sweep_availability(self, plot)
         while res == "sss" and last_target_task <= total_mission - 1:
             self.logger.info("Current mission sss check next mission")
-            self.click(1168, 353, duration=1, wait_over=True)
+            to_activity(self, "mission", True)
             last_target_task += 1
-            plot = picture.co_detect(
-                self,
-                img_ends=[
-                    "activity_task-info",
-                    "normal_task_task-info",
-                    "main_story_episode-info"
-                ]
-            )
+            plot = to_mission_task_info(self, last_target_task, total_mission)
             res = check_sweep_availability(self, plot)
         if last_target_task == total_mission and res == "sss":
             self.logger.info("All MISSION SSS")
@@ -187,7 +180,7 @@ def to_mission_task_info(self, target_index, total_mission):
         0.8,
         possible_strs,
         target_str_index=target_index - 1,
-        swipe_params=(907, 432, 907, 156, 0.5, 1.0),
+        swipe_params=(907, 432, 907, 156, 0.1, 0.5),
         ocr_language='NUM',
         ocr_region_offsets=(-384, -8, 43, 28),
         ocr_str_replace_func=None,
@@ -195,7 +188,7 @@ def to_mission_task_info(self, target_index, total_mission):
     )
     y = p[1]
     possibles = {'activity_menu': (1124, y)}
-    ends = ["normal_task_task-info", "activity_task-info"]
+    ends = "activity_task-info"
     return picture.co_detect(self, None, None, ends, possibles, True)
 
 
@@ -210,10 +203,9 @@ def explore_activity_story(self):
         res = check_sweep_availability(self, plot)
         while res == "sss" and last_target_task <= total_story - 1:
             self.logger.info("Current story sss check next story")
-            self.click(1168, 353, duration=1, wait_over=True)
+            to_activity(self, "story", True)
             last_target_task += 1
-            plot = picture.co_detect(self, img_ends=["activity_task-info", "normal_task_task-info",
-                                                     "main_story_episode-info"])
+            plot = to_story_task_info(self, last_target_task, total_story)
             res = check_sweep_availability(self, plot)
         if last_target_task == total_story and res == "sss":
             self.logger.info("All STORY SSS")
@@ -358,7 +350,7 @@ def to_story_task_info(self, target_index, total_story):
         0.8,
         possible_strs,
         target_str_index=target_index - 1,
-        swipe_params=(907, 432, 907, 156, 0.5, 1.0),
+        swipe_params=(907, 432, 907, 156, 0.1, 0.5),
         ocr_language='NUM',
         ocr_region_offsets=(-387, -6, 50, 28),
         ocr_str_replace_func=None,
@@ -368,10 +360,13 @@ def to_story_task_info(self, target_index, total_story):
     img_possibles = {'activity_menu': (1124, y)}
     img_ends = [
         "activity_task-info",
-        "normal_task_task-info",
         "main_story_episode-info"
     ]
-    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    t1 = time.time()
+    ret = picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    t2 = time.time() - t1
+    print("detect time: " + str(t2))
+    return ret
 
 
 # exchange reward
