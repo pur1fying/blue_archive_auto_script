@@ -58,9 +58,10 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
 
     while self.flag_run:
         current_time = time.time()
-        if not skip_first_screenshot:
+        if skip_first_screenshot:
+            skip_first_screenshot = False
+        else:
             self.update_screenshot_array()
-        skip_first_screenshot = False
 
         # time out check
         if current_time - start_time > time_out:
