@@ -115,7 +115,9 @@ def enter_battle(self):
         "normal_task_fail-confirm"
     ]
     rgb_ends = "fighting_feature"
-    img_pop_ups = {"activity_choose-buff": (644, 570)}
+    img_pop_ups = {
+        "activity_choose-buff": (644, 570)
+    }
     ret = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True, pop_ups_img_reactions=img_pop_ups)
     if ret != "fighting_feature":
         self.logger.info("fight end.")
