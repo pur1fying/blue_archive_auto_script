@@ -76,6 +76,9 @@ class Config:
     emulatorMultiInstanceNumber: int
     multiEmulatorName: str
     manual_boss: bool
+    choose_team_method: str
+    choose_team_order: list
+    preset_team_attribute: dict
     burst1: str
     burst2: str
     pierce1: str

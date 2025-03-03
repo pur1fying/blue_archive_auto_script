@@ -180,7 +180,6 @@ def explore_normal_task(self):
 
                 # get preset unit
                 employ_units(self, taskData)
-
                 main_story.auto_fight(self)
             else:
                 execute_grid_task(self, taskData)

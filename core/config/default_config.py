@@ -409,6 +409,14 @@ DEFAULT_CONFIG = """
     "emulatorMultiInstanceNumber": 0,
     "multiEmulatorName": "mumu",
     "manual_boss": false,
+    "choose_team_method": "preset",
+    "choose_team_order": [1, 2, 3],
+    "preset_team_attribute": {
+        "burst":    [[1, 1], [1, 2]], 
+        "pierce":   [[2, 1], [2, 2]], 
+        "shock":    [[3, 1], [3, 2]],
+        "mystic":   [[4, 1], [4, 2]]
+    },
     "burst1": "1",
     "burst2": "2",
     "pierce1": "1",

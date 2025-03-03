@@ -127,8 +127,7 @@ def enter_battle(self):
 def auto_fight(self, need_change_acc=True):
     ret = enter_battle(self)
     if need_change_acc and ret == "fighting_feature":
-        time.sleep(2)
-        self.latest_img_array = self.get_screenshot_array()
+        self.update_screenshot_array()
         set_acc_and_auto(self)
 
 

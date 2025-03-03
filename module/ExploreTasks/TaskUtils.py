@@ -320,118 +320,140 @@ def run_task_action(self, actions):
 
 
 def employ_units(self, taskData: dict) -> tuple[bool, str]:
-    # get employ presets data
-    priority = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
-
-    unit_available = {attribute: len(preset) for attribute, preset in tmp_teams.items()}
-    # Number of units available for each attribute: burst, pierce, mystic, shock
-    total_available = sum([len(preset) for attribute, preset in tmp_teams.items()])
-    # Number of units available in total
-    unit_used = {attribute: 0 for attribute, count in tmp_teams.items()}
-    # Number of units used for each attribute: burst, pierce, mystic, shock
-    currently_used = 0
-
-    employ_presets: list[list[int, int]] = []
-
+    method = self.config.choose_team_method
+    self.logger.info(f"Employ team method: {method}.")
+    count = 0
     for attribute, info in taskData["start"]:
-        if attribute == "swipe":  # skip if it's a swipe command.
+        if attribute == "swipe":
             continue
-        if attribute not in ["burst", "pierce", "mystic", "shock"]:
-            return False, f"Invalid attribute {attribute} in task data."
+        count += 1
+    self.logger.info(f"Required Team count: {count}.")
+    if method == "order":
+        order = self.config.choose_team_order
+        if len(order) < count:
+            return False, f"Insufficient order. Required: {count}, available: {len(order)}."
+        count = 0
+        for attribute, info in taskData["start"]:
+            if attribute == "swipe":
+                self.u2_swipe(info[0], info[1], info[2], info[3], duration=info[4], post_sleep_time=1)
+            else:
+                index = order[count]
+                count += 1
+                self.logger.info("According to the config. Choose formation " + str(index))
+                loy = [195, 275, 354, 423]
+                y = loy[index - 1]
+                img_reactions = {
+                    "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
+                }
+                rgb_reactions = {
+                    "formation_edit1": (74, y),
+                    "formation_edit2": (74, y),
+                    "formation_edit3": (74, y),
+                    "formation_edit4": (74, y),
+                }
+                rgb_ends = "formation_edit" + str(index)
+                rgb_reactions.pop("formation_edit" + str(index))
+                picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, True)
 
-        current_attribute = attribute
-        if total_available <= currently_used:
-            return (False,
-                    f"Insufficient presets. Currently used: {currently_used}, total available: {total_available}")
-        while unit_available[current_attribute] - unit_used[current_attribute] == 0 \
-            or (self.server == "CN" and current_attribute == "shock"):
-            current_attribute = priority[current_attribute]
-        employ_presets.append(tmp_teams[current_attribute][unit_used[current_attribute]])
-        unit_used[current_attribute] += 1
-        currently_used += 1
+                # confirm employ
+                rgb_reactions = {
+                    "formation_edit" + str(index): (1154, 625),
+                }
+                img_ends = "normal_task_task-wait-to-begin-feature"
+                rgb_ends = "fighting_feature"
+                picture.co_detect(self, rgb_ends, rgb_reactions, img_ends, None, True)
+    elif method == "preset":
+        teams = self.config.preset_team_attribute
 
-    employed = 0
-    for command, info in taskData["start"]:
-        if command == "swipe":
-            time.sleep(1)
-            self.swipe(info[0], info[1], info[2], info[3], duration=info[4])
-            time.sleep(1)
-        else:
-            # employ units from presets
-            preset_column = employ_presets[employed][0]
-            preset_row = employ_presets[employed][1]
-            self.logger.info(f"Choosing team from preset {preset_column}-{preset_row}.")
+        # get employ presets data
+        priority = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
 
-            # open formation menu -> preset menu -> choose column
-            img_reactions = {
-                "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
-            }
-            img_ends = "normal_task_formation-menu"
-            picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
-            img_reactions = {
-                "normal_task_formation-menu": (1204, 486),
-                "normal_task_formation-preset": (178 + (preset_column - 1) * 156, 153)
-            }
-            rgb_ends = "preset_choose" + str(preset_column)
-            picture.co_detect(self, img_reactions=img_reactions, rgb_ends=rgb_ends, skip_first_screenshot=True)
+        unit_available = {attribute: len(preset) for attribute, preset in teams.items()}
+        # Number of units available for each attribute: burst, pierce, mystic, shock
+        total_available = sum([len(preset) for attribute, preset in teams.items()])
+        # Number of units available in total
+        unit_used = {attribute: 0 for attribute, count in teams.items()}
+        # Number of units used for each attribute: burst, pierce, mystic, shock
+        currently_used = 0
 
-            offsets = {
-                'CN': (-1103, 0, 16, 33),
-                'Global': (-1048, -4, 20, 36),
-                'JP': (-1103, 0, 16, 33)
-            }
+        employ_presets: list[list[int, int]] = []
 
-            presetButtonPos = swipe_search_target_str(
-                self,
-                "normal_task_formation-edit-preset-name",
-                search_area=(1156, 201, 1229, 553),
-                threshold=0.8,
-                possible_strs=["1", "2", "3", "4", "5"],
-                target_str_index=preset_row - 1,
-                swipe_params=(145, 578, 145, 273, 1.0, 0.5),
-                ocr_language="NUM",
-                ocr_region_offsets=offsets[self.server],
-                ocr_str_replace_func=None,
-                max_swipe_times=5
-            )
+        for attribute, info in taskData["start"]:
+            if attribute == "swipe":  # skip if it's a swipe command.
+                continue
+            if attribute not in ["burst", "pierce", "mystic", "shock"]:
+                return False, f"Invalid attribute {attribute} in task data."
 
-            # confirm use preset
-            preset_y = presetButtonPos[1] + 76
-            img_reactions = {
-                "normal_task_formation-preset": (1151, preset_y),
-                "normal_task_formation-set-confirm": (761, 574),
-                "normal_task_formation-menu": (1154, 625),
-                "task-begin-without-further-editing-notice": (888, 164)
-            }
-            img_ends = [
-                "normal_task_task-wait-to-begin-feature",
-                "normal_task_task-operating-feature"
-            ]
-            rgb_ends = "fighting_feature"
-            picture.co_detect(self, rgb_ends=rgb_ends, img_reactions=img_reactions, img_ends=img_ends,
-                              skip_first_screenshot=True)
+            current_attribute = attribute
+            if total_available <= currently_used:
+                return (False,
+                        f"Insufficient presets. Currently used: {currently_used}, total available: {total_available}")
+            while unit_available[current_attribute] - unit_used[current_attribute] == 0 \
+                or (self.server == "CN" and current_attribute == "shock"):
+                current_attribute = priority[current_attribute]
+            employ_presets.append(teams[current_attribute][unit_used[current_attribute]])
+            unit_used[current_attribute] += 1
+            currently_used += 1
 
-            employed += 1
+        employed = 0
+        for command, info in taskData["start"]:
+            if command == "swipe":
+                time.sleep(1)
+                self.u2_swipe(info[0], info[1], info[2], info[3], duration=info[4], post_sleep_time=1)
+            else:
+                # employ units from presets
+                preset_column = employ_presets[employed][0]
+                preset_row = employ_presets[employed][1]
+                self.logger.info(f"Choosing team from preset {preset_column}-{preset_row}.")
 
+                # open formation menu -> preset menu -> choose column
+                img_reactions = {
+                    "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
+                }
+                img_ends = "normal_task_formation-menu"
+                picture.co_detect(self, img_reactions=img_reactions, img_ends=img_ends, skip_first_screenshot=True)
+                img_reactions = {
+                    "normal_task_formation-menu": (1204, 486),
+                    "normal_task_formation-preset": (178 + (preset_column - 1) * 156, 153)
+                }
+                rgb_ends = "preset_choose" + str(preset_column)
+                picture.co_detect(self, img_reactions=img_reactions, rgb_ends=rgb_ends, skip_first_screenshot=True)
 
-def employ_from_side(self, index):
-    self.logger.info("According to the config. Choose formation " + str(index))
-    loy = [195, 275, 354, 423]
-    y = loy[index - 1]
-    img_possibles = {
-        'normal_task_SUB': (637, 508),
-        'normal_task_task-info': (946, 540)
-    }
-    rgb_possibles = {
-        "formation_edit1": (74, y),
-        "formation_edit2": (74, y),
-        "formation_edit3": (74, y),
-        "formation_edit4": (74, y),
-    }
-    rgb_ends = "formation_edit" + str(index)
-    rgb_possibles.pop("formation_edit" + str(index))
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+                offsets = {
+                    'CN': (-1103, 0, 16, 33),
+                    'Global': (-1048, -4, 20, 36),
+                    'JP': (-1103, 0, 16, 33)
+                }
 
-tmp_teams = {"burst": [[1, 1], [3, 2]], "pierce": [[1, 2], [4, 4]], "shock": [[1, 3], [2, 3]],
-             "mystic": [[1, 3], [2, 3]]}
+                presetButtonPos = swipe_search_target_str(
+                    self,
+                    "normal_task_formation-edit-preset-name",
+                    search_area=(1156, 201, 1229, 553),
+                    threshold=0.8,
+                    possible_strs=["1", "2", "3", "4", "5"],
+                    target_str_index=preset_row - 1,
+                    swipe_params=(145, 578, 145, 273, 1.0, 0.5),
+                    ocr_language="NUM",
+                    ocr_region_offsets=offsets[self.server],
+                    ocr_str_replace_func=None,
+                    max_swipe_times=5
+                )
+
+                # confirm use preset
+                preset_y = presetButtonPos[1] + 76
+                img_reactions = {
+                    "normal_task_formation-preset": (1151, preset_y),
+                    "normal_task_formation-set-confirm": (761, 574),
+                    "normal_task_formation-menu": (1154, 625),
+                    "task-begin-without-further-editing-notice": (888, 164)
+                }
+                img_ends = [
+                    "normal_task_task-wait-to-begin-feature",
+                    "normal_task_task-operating-feature"
+                ]
+                rgb_ends = "fighting_feature"
+                picture.co_detect(self, rgb_ends=rgb_ends, img_reactions=img_reactions, img_ends=img_ends,
+                                  skip_first_screenshot=True)
+
+                employed += 1
 

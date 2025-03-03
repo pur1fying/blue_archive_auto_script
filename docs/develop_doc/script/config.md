@@ -410,10 +410,27 @@
 ## `auto_start`
 - **type**: `bool`
 - **description**: 在启动BAAS ui启动完全后自动运行这一项配置
-## `burst1` `burst2` `pierce1` `pierce2` `mystic1` `mystic2` `shock1` `shock2`
-- **type**: `int`
-- **range**: [1, 4]
-- **description**: 对应属性在游戏里队伍的编号, 用于[自动选择队伍](/usage_doc/config#选队逻辑)
+
+## `choose_team_method`
+- **type**: `str`
+- **constrains** : `"preset"` / `"order"`
+- **description** : 选队逻辑, 值为`"preset"`时使用[预设队伍属性](#preset_team_attribute)进行选队, 值为`"order"`时按照[选队顺序](#choose_team_order)选队
+## `preset_team_attribute`
+- **type**: `dict[str, List[[int, int]]]`
+- **description**: 对应属性在游戏中预设的编号, 用于[自动选择队伍](/usage_doc/config#选队逻辑)
+- **example**:
+- ```json
+    {
+        "burst": [[1, 1]],
+        "pierce": [[2, 1]],
+        "mystic": [[3, 1]],
+        "shock": [[4, 1]]
+    }
+  ```
+  爆发队伍在预设第一列第一行, 贯穿队伍在预设第二列第一行 以此类推...
+## `choose_team_order`
+- **type**: `List[int]`
+- **description**: 选队顺序, 用于[自动选择队伍](/usage_doc/config#小春版配队指南)
 ## `manual_boss`
 - **type**: `bool`
 - **description**: 推图时是否手动打BOSS, 为真则进入BOSS战会点击暂停并等待手动操作

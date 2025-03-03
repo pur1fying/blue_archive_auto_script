@@ -90,12 +90,6 @@ def to_hard_event(self, skip_first_screenshot=False):
         'normal_task_charge-challenge-counts': (887, 161),
     }
     img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-
-    # skip navigating to main page if any known feature is detected.
-    if not (picture.match_any_img_feature(self, list(img_reactions)) or
-            color.match_any_rgb_feature(self, rgb_ends) or
-            color.match_any_rgb_feature(self, list(rgb_reactions))):
-        self.to_main_page()
     picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
 
 
