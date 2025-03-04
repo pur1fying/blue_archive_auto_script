@@ -20,6 +20,7 @@ class PackageIncorrect(Exception):
         1. Game crushed.
         2. When starting the game BAAS may click into browser in Global server.
     """
+
     def __init__(self, message="Package Incorrect"):
         self.message = message
         super().__init__(self.message)
@@ -32,7 +33,17 @@ class FunctionCallTimeout(Exception):
         1. Meet unexpected ui.
         2. Game keeps loading.
     """
+
     def __init__(self, message="Function Call Timeout"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class OcrInternalError(Exception):
+    """
+        BAAS_ocr_server internal error
+    """
+    def __init__(self, message="Ocr Internal Error"):
         self.message = message
         super().__init__(self.message)
 

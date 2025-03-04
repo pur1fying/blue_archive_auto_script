@@ -1,11 +1,35 @@
-import time
+import os.path
+import sys
 import cv2
-from cnocr import CnOcr
+from core.exception import OcrInternalError
+
+use_baas_ocr = False
+try:
+    from cnocr import CnOcr
+except ImportError:
+    # Now only available in Windows
+    if sys.platform == 'win32':
+        import json
+        from core.ocr.baas_ocr_client import Client
+        from core.ocr.baas_ocr_client.server_installer import check_git
+
+        use_baas_ocr = True
 
 
 class Baas_ocr:
+    language_convert_dict = {
+        'CN': 'zh-cn',
+        'Global': 'en-us',
+        'JP': 'ja-jp',
+        'NUM': 'en-us'
+    }
+
     def __init__(self, logger, ocr_needed=None):
         self.logger = logger
+        if use_baas_ocr:
+            self.client = None
+            self._init_client(ocr_needed)
+            return
         self.ocrEN = None
         self.ocrCN = None
         self.ocrJP = None
@@ -73,16 +97,18 @@ class Baas_ocr:
 
     def get_region_num(self, img, region, category=int, ratio=1.0):
         img = self.get_region_img(img, region, ratio)
-        res = self.ocrNUM.ocr_for_single_line(img)['text']
-        res = res.replace('<unused3>', '')
-        res = res.replace('<unused2>', '')
+        if use_baas_ocr:
+            res = self.ocr_for_single_line("en-us", "", img, "", 1)
+        else:
+            res = self.ocrNUM.ocr_for_single_line(img)['text']
+            res = res.replace('<unused3>', '')
+            res = res.replace('<unused2>', '')
         temp = ''
         for i in range(0, len(res)):
             if res[i].isdigit():
                 temp += res[i]
             elif res[i] == '.' and category == float:
                 temp += res[i]
-
         if temp == '':
             return "UNKNOWN"
         # 不提倡返回值类型不统一
@@ -103,9 +129,12 @@ class Baas_ocr:
 
     def get_region_pure_english(self, img, region, ratio=1.0):
         img = self.get_region_img(img, region, ratio)
-        res = self.ocrEN.ocr_for_single_line(img)['text']
-        res = res.replace('<unused3>', '')
-        res = res.replace('<unused2>', '')
+        if use_baas_ocr:
+            res = self.ocr_for_single_line("en-us", "", img, "", 1)
+        else:
+            res = self.ocrEN.ocr_for_single_line(img)['text']
+            res = res.replace('<unused3>', '')
+            res = res.replace('<unused2>', '')
         temp = ''
         for i in range(0, len(res)):
             if self.is_english(res[i]):
@@ -114,9 +143,12 @@ class Baas_ocr:
 
     def get_region_pure_chinese(self, img, region, ratio=1.0):
         img = self.get_region_img(img, region, ratio)
-        res = self.ocrCN.ocr_for_single_line(img)['text']
-        res = res.replace('<unused3>', '')
-        res = res.replace('<unused2>', '')
+        if use_baas_ocr:
+            res = self.ocr_for_single_line("zh-cn", "", img, "", 1)
+        else:
+            res = self.ocrCN.ocr_for_single_line(img)['text']
+            res = res.replace('<unused3>', '')
+            res = res.replace('<unused2>', '')
         temp = ''
         for i in range(0, len(res)):
             if self.is_chinese_char(res[i]):
@@ -139,37 +171,146 @@ class Baas_ocr:
     def is_chinese_char(self, char):
         return 0x4e00 <= ord(char) <= 0x9fff
 
-    def get_region_res(self, img, region, model='CN', ratio=1.0):
+    def get_region_res(self, img, region, model='CN', ratio=1.0, candidates=""):
         img = self.get_region_img(img, region, ratio)
         res = ""
-        if model == 'CN':
-            res = self.ocrCN.ocr_for_single_line(img)['text']
-        elif model == 'Global':
-            res = self.ocrEN.ocr_for_single_line(img)['text']
-        elif model == 'NUM':
-            res = self.ocrNUM.ocr_for_single_line(img)['text']
-        elif model == 'JP':
-            res = self.ocrJP.ocr_for_single_line(img)['text']
-        res = res.replace('<unused3>', '')
-        res = res.replace('<unused2>', '')
+        if use_baas_ocr:
+            language = self.language_convert(model)
+            res = self.ocr_for_single_line(language, "", img, candidates, 1)
+        else:
+            if model == 'CN':
+                res = self.ocrCN.ocr_for_single_line(img)['text']
+            elif model == 'Global':
+                res = self.ocrEN.ocr_for_single_line(img)['text']
+            elif model == 'NUM':
+                res = self.ocrNUM.ocr_for_single_line(img)['text']
+            elif model == 'JP':
+                res = self.ocrJP.ocr_for_single_line(img)['text']
+            res = res.replace('<unused3>', '')
+            res = res.replace('<unused2>', '')
         return res
 
-    def get_region_raw_res(self, img, region, model='CN', ratio=1.0):
+    def get_region_raw_res(self, img, region, model='CN', ratio=1.0, candidates=""):
         img = self.get_region_img(img, region, ratio)
         res = ""
-        if model == 'CN':
-            res = self.ocrCN.ocr(img)
-        elif model == 'Global':
-            res = self.ocrEN.ocr(img)
-        elif model == 'NUM':
-            res = self.ocrNUM.ocr(img)
-        elif model == 'JP':
-            res = self.ocrJP.ocr(img)
-        for i in range(0, len(res)):
-            res[i]['text'] = res[i]['text'].replace('<unused3>', '')
-            res[i]['text'] = res[i]['text'].replace('<unused2>', '')
+        if use_baas_ocr:
+            language = self.language_convert(model)
+            res = self.ocr(language, "", img, candidates, 1)
+        else:
+            if model == 'CN':
+                res = self.ocrCN.ocr(img)
+            elif model == 'Global':
+                res = self.ocrEN.ocr(img)
+            elif model == 'NUM':
+                res = self.ocrNUM.ocr(img)
+            elif model == 'JP':
+                res = self.ocrJP.ocr(img)
+            for i in range(0, len(res)):
+                res[i]['text'] = res[i]['text'].replace('<unused3>', '')
+                res[i]['text'] = res[i]['text'].replace('<unused2>', '')
         return res
 
-    def get_region_img(self, img, region, ratio=1.0):
+    @staticmethod
+    def get_region_img(img, region, ratio=1.0):
         img = img[int(region[1] * ratio):int(region[3] * ratio), int(region[0] * ratio):int(region[2] * ratio)]
         return img
+
+    def _init_client(self, ocr_needed):
+        check_git(logger=self.logger)
+        self.client = Client.BaasOcrClient()
+        self.client.start_server()
+        self.enable_thread_pool(4)
+        self.init_model(ocr_needed)
+        self.test_models(ocr_needed)
+
+    def enable_thread_pool(self, count=4):
+        self.logger.info("Ocr Enable Thread Pool.")
+        response = self.client.enable_thread_pool(count=count)
+        if response.status_code == 200:
+            pass
+        else:
+            self.logger.error("Enable Thread Pool Error: " + response.text)
+            raise OcrInternalError("Enable Thread Pool Error: " + response.text)
+
+    def init_model(self, language: list[str], gpu_id=-1, num_thread=4):
+        self.logger.info("Ocr Init Model.")
+        language = self.language_convert(language)
+        self.logger.info("Language  : " + str(language))
+        self.logger.info("GPU ID    : " + str(gpu_id))
+        self.logger.info("Num Thread: " + str(num_thread))
+        response = self.client.init_model(language, gpu_id, num_thread)
+        if response.status_code == 200:
+            ret_json = json.loads(response.text)
+            self.logger.info("Time Cost : " + str(ret_json["time"]) + "ms")
+        else:
+            self.logger.error("Init Model Error: " + response.text)
+            raise OcrInternalError("Init Model Error: " + response.text)
+
+    def test_models(self, language: list[str]):
+        self.logger.info("Test Ocr.")
+        language = self.language_convert(language)
+        for lang in language:
+            path = os.path.join(
+                Client.BaasOcrClient.server_folder_path,
+                "resource",
+                "ocr_models",
+                "test_images",
+                f"{lang}.png"
+            )
+            self.ocr_for_single_line(lang, f"test {lang}", None, "", 2, path)
+
+    def ocr_for_single_line(self,
+                            language: str,
+                            log_info="",
+                            origin_image=None,
+                            candidates: str = "",
+                            pass_method: int = 1,
+                            local_path: str = "",
+                            ):
+        response = self.client.ocr_for_single_line(language, origin_image, candidates, pass_method, local_path)
+        if response.status_code == 200:
+            ret_json = json.loads(response.text)
+            txt = ret_json['text']
+            self.logger.info(f"Ocr {log_info} : {txt} | Time : {ret_json['time']}ms")
+            return txt
+        else:
+            self.logger.error("Ocr For Single Line Error: " + response.text)
+            raise OcrInternalError("Ocr For Single Line Error: " + response.text)
+
+    def ocr(self,
+            language: str,
+            origin_image=None,
+            candidates: str = "",
+            pass_method: int = 1,
+            local_path: str = "",
+            ret_options: int = 0b100
+            ):
+        response = self.client.ocr(language, origin_image, candidates, pass_method, local_path, ret_options)
+        if response.status_code == 200:
+            return response.text
+        else:
+            self.logger.error("Ocr Error: " + response.text)
+            raise OcrInternalError("Ocr Error: " + response.text)
+
+    @staticmethod
+    def language_convert(origin_languages):
+        """
+            CN      -> zh-cn
+            Global  -> en-us
+            JP      -> ja-jp
+            NUM     -> en-us
+        """
+        if type(origin_languages) is str:
+            if origin_languages not in Baas_ocr.language_convert_dict:
+                return origin_languages
+            return Baas_ocr.language_convert_dict[origin_languages]
+        elif type(origin_languages) is list:
+            ret = []
+            for lang in origin_languages:
+                if lang not in Baas_ocr.language_convert_dict:
+                    ret.append(lang)
+                    continue
+                temp = Baas_ocr.language_convert_dict[lang]
+                if temp not in ret:
+                    ret.append(temp)
+            return ret
