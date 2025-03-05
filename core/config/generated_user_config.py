@@ -70,12 +70,15 @@ class Config:
     lesson_relationship_first: bool
     lesson_each_region_object_priority: list
     purchase_lesson_ticket_times: str
-    explore_normal_task_regions: list
-    explore_hard_task_list: str
+    explore_normal_task_list: list
+    explore_hard_task_list: list
     emulatorIsMultiInstance: bool
     emulatorMultiInstanceNumber: int
     multiEmulatorName: str
     manual_boss: bool
+    choose_team_method: str
+    choose_team_order: list
+    preset_team_attribute: dict
     burst1: str
     burst2: str
     pierce1: str

@@ -2,7 +2,7 @@ from core import picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     res = to_group(self)
     if res == 'group_sign-up-reward':
         self.logger.info('GET 10 AP')

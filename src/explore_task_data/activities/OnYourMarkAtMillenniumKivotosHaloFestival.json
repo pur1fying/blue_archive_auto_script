@@ -1,29 +1,53 @@
 {
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 7,
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15,
+        20,
+        20,
+        20,
+        20
+    ],
+    "grid_tasks_challenge": [
+      "challenge2_sss",
+      "challenge2_task",
+      "challenge4_sss",
+      "challenge4_task"
+    ],
     "mission": [
-        "burst1",
-        "burst1",
-        "pierce1",
-        "pierce1",
-        "burst1",
-        "burst1",
-        "pierce1",
-        "pierce1",
-        "burst1",
-        "burst1",
-        "pierce1",
-        "pierce1"
+      "burst",
+      "burst",
+      "pierce",
+      "pierce",
+      "burst",
+      "burst",
+      "pierce",
+      "pierce",
+      "burst",
+      "burst",
+      "pierce",
+      "pierce"
     ],
     "challenge2_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     586,
                     308
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     524,
                     228
@@ -117,7 +141,7 @@
     "challenge2_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     581,
                     309
@@ -174,21 +198,21 @@
     "challenge4_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     283,
                     475
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     1265,
                     177
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     718,
                     598
@@ -398,14 +422,14 @@
     "challenge4_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     280,
                     473
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     1225,
                     426

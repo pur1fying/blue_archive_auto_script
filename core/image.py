@@ -1,7 +1,9 @@
+from statistics import median
+
 import cv2
 import numpy as np
-from core import position, color
-
+from core import position
+from core.utils import merge_nearby_coordinates
 
 def screenshot_cut(self, area):
     # template is from 1280 * 720 screenshot, if real screenshot is 2560 * 1440, then ratio is 2.0
@@ -140,3 +142,104 @@ def resize_ss_image(self, area, interpolation=cv2.INTER_AREA):
     ss_img = screenshot_cut(self, area)
     tar_size = (int(ss_img.shape[1] / self.ratio), int(ss_img.shape[0] / self.ratio))
     return cv2.resize(ss_img, tar_size, interpolation=interpolation)
+
+
+def swipe_search_target_str(
+        self,
+        name,
+        search_area=(0, 0, 1280, 720),
+        threshold=0.8,
+        possible_strs=None,
+        target_str_index=0,
+        swipe_params=(0, 0, 0, 0, 0.0, 0.0),
+        ocr_language='NUM',
+        ocr_region_offsets=(0, 0, 0, 0),
+        ocr_str_replace_func=None,
+        max_swipe_times=3
+):
+    temp = len(swipe_params)
+    if temp < 4:
+        raise ValueError("swipe_params must have at least 4 elements.")
+    if temp == 4:
+        swipe_params = (
+            swipe_params[0], swipe_params[1],
+            swipe_params[2], swipe_params[3],
+            0.5, 0.0
+        )
+    elif temp == 5:
+        swipe_params = (
+            swipe_params[0], swipe_params[1],
+            swipe_params[2], swipe_params[3],
+            swipe_params[4],
+            0.0
+        )
+    reversed_swipe_params = (
+        swipe_params[2], swipe_params[3],
+        swipe_params[0], swipe_params[1],
+        swipe_params[4],
+        swipe_params[5]
+    )
+    if possible_strs is None:
+        raise ValueError("possible_strs can't be None.")
+    target_str = possible_strs[target_str_index]
+    self.logger.info(f"Swipe Searching for \"{target_str}\".")
+    self.logger.info("Possible strings : ")
+    for i in range(len(possible_strs)):
+        self.logger.info(possible_strs[i])
+    for time in range(max_swipe_times):
+        if time != 0:  # skip first screenshot
+            self.update_screenshot_array()
+        all_positions = get_image_all_appear_position(self, name, search_area, threshold)
+        if len(all_positions) == 0:
+            self.logger.warning("Didn't find target image, try swipe.")
+            self.swipe(*swipe_params)
+            continue
+        all_positions = merge_nearby_coordinates(all_positions, 5, 5)
+        max_idx = -1  # impossible value
+        min_idx = len(possible_strs)
+        all_strs = []
+        for pos in all_positions:
+            x_coords = [coord[0] for coord in pos]
+            y_coords = [coord[1] for coord in pos]
+            p = (median(x_coords), median(y_coords))
+            ocr_region = (
+                p[0] + ocr_region_offsets[0],
+                p[1] + ocr_region_offsets[1],
+                p[0] + ocr_region_offsets[0] + ocr_region_offsets[2],
+                p[1] + ocr_region_offsets[1] + ocr_region_offsets[3]
+            )
+            ocr_str = self.ocr.get_region_res(self.latest_img_array, ocr_region, ocr_language, self.ratio)
+            # check twice, before replace and after replace
+            all_strs.append(ocr_str)
+            if ocr_str == target_str:
+                self.logger.info(f"Found \"{target_str}\" at {p}.")
+                return p
+            if ocr_str in possible_strs:
+                idx = possible_strs.index(ocr_str)
+                max_idx = max(max_idx, idx)
+                min_idx = min(min_idx, idx)
+                continue
+            if ocr_str_replace_func is None:
+                continue
+            ocr_str = ocr_str_replace_func(ocr_str)
+            if ocr_str == target_str:
+                self.logger.info(f"Found \"{target_str}\" (replaced) at {p}.")
+                return p
+            if ocr_str in possible_strs:
+                idx = possible_strs.index(ocr_str)
+                max_idx = max(max_idx, idx)
+                min_idx = min(min_idx, idx)
+        self.logger.info(f"All detected strings: {all_strs}.")
+        if max_idx != -1:
+            if target_str_index > max_idx:
+                self.logger.info(f"Target idx {target_str_index} > max idx {max_idx}.")
+                self.swipe(*swipe_params)
+                continue
+        if min_idx != len(possible_strs):
+            if target_str_index < min_idx:
+                self.logger.info(f"Target idx {target_str_index} < min idx {min_idx}.")
+                self.logger.info("Swipe Backward.")
+                self.swipe(*reversed_swipe_params)
+                continue
+        self.logger.warning("Didn't find target string, try swipe.")
+        self.swipe(*swipe_params)

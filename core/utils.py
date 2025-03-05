@@ -3,6 +3,7 @@ import sys
 import threading
 from datetime import datetime
 from typing import Union
+from datetime import datetime, timedelta, timezone
 
 
 def delay(wait=1):
@@ -164,7 +165,8 @@ def most_similar_string(s, possible_string_letter_dict, possible_string_length):
             if letter not in s_letter_dict:
                 continue
             possible_string_letter_appear_cnt = possible_string_letter_dict[i][letter]
-            cnt += max(0, (possible_string_letter_appear_cnt - abs(s_letter_dict[letter] - possible_string_letter_appear_cnt)))
+            cnt += max(0, (possible_string_letter_appear_cnt - abs(
+                s_letter_dict[letter] - possible_string_letter_appear_cnt)))
         acc.append(cnt / possible_string_length[i])
 
     max_acc = max(acc)
@@ -195,3 +197,46 @@ def get_serial_pair(serial):
             pass
 
     return None, None
+
+
+def merge_nearby_coordinates(coords, abs_x=10, abs_y=10):
+    coords.sort()
+    groups = []
+    for coord in coords:
+        found_group = False
+        for group in groups:
+            if is_nearby_group(coord, group, abs_x, abs_y):
+                group.append(coord)
+                found_group = True
+                break
+        if not found_group:
+            groups.append([coord])
+
+    return groups
+
+
+def is_nearby_group(coord, group, abs_x=10, abs_y=10):
+    for p in group:
+        if abs(p[0] - coord[0]) <= abs_x and abs(p[1] - coord[1]) <= abs_y:
+            return True
+    return False
+
+def get_nearest_hour(target_hour):
+    now = datetime.now(timezone.utc)
+    current_hour = now.hour
+    if target_hour >= current_hour:
+        diff = target_hour - current_hour
+        if diff > 12:
+            hour_delta = diff - 24
+        else:
+            hour_delta = diff
+    else:   # target_hour < current_hour
+        diff = current_hour - target_hour
+        if diff > 12:
+            hour_delta = 24 - diff
+        else:
+            hour_delta = -diff
+
+    nearest_time = (now + timedelta(hours=hour_delta)).replace(minute=0, second=0, microsecond=0)
+    return nearest_time
+

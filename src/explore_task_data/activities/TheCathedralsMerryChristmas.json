@@ -1,17 +1,41 @@
 {
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 9,
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15,
+        20,
+        20,
+        20,
+        20
+    ],
     "mission": [
-        "mystic1",
-        "pierce1",
-        "burst1",
-        "mystic1",
-        "mystic1",
-        "pierce1",
-        "burst1",
-        "mystic1",
-        "mystic1",
-        "pierce1",
-        "burst1",
-        "mystic1"
+      "mystic",
+      "pierce",
+      "burst",
+      "mystic",
+      "mystic",
+      "pierce",
+      "burst",
+      "mystic",
+      "mystic",
+      "pierce",
+      "burst",
+      "mystic"
+    ],
+    "grid_tasks_challenge": [
+      "challenge2_sss",
+      "challenge2_task",
+      "challenge4_sss",
+      "challenge4_task"
     ],
     "challenge2_sss": {
         "start": [

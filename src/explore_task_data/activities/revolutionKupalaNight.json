@@ -1,9 +1,34 @@
 {
-    "SUB": "burst1",
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 5,
+    "mission": [
+        "pierce1",
+        "pierce1",
+        "burst1",
+        "pierce1",
+        "pierce1",
+        "burst1",
+        "pierce1"
+    ],
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15
+    ],
+    "grid_tasks_challenge": [
+      "challenge1_sss",
+      "challenge1_task"
+    ],
     "story1": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     458,
                     468
@@ -33,7 +58,7 @@
     "story2": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     493,
                     383
@@ -63,7 +88,7 @@
     "story3": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     502,
                     386
@@ -102,7 +127,7 @@
     "story4": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     521,
                     387
@@ -141,7 +166,7 @@
     "story5": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     463,
                     429
@@ -180,14 +205,14 @@
     "challenge1_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     823,
                     517
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     437,
                     374
@@ -338,14 +363,14 @@
     "challenge1_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     523,
                     430
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     841,
                     513

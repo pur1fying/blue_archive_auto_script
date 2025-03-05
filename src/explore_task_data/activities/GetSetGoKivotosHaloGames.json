@@ -1,29 +1,53 @@
 {
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 10,
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15,
+        20,
+        20,
+        20,
+        20
+    ],
+    "grid_tasks_challenge": [
+      "challenge2_sss",
+      "challenge2_task",
+      "challenge4_sss",
+      "challenge4_task"
+    ],
     "mission": [
-        "mystic1",
-        "pierce1",
-        "pierce1",
-        "mystic1",
-        "mystic1",
-        "pierce1",
-        "pierce1",
-        "mystic1",
-        "mystic1",
-        "pierce1",
-        "pierce1",
-        "mystic1"
+      "mystic",
+      "pierce",
+      "pierce",
+      "mystic",
+      "mystic",
+      "pierce",
+      "pierce",
+      "mystic",
+      "mystic",
+      "pierce",
+      "pierce",
+      "mystic"
     ],
     "challenge2_sss": {
         "start": [
             [
-                "mystic1",
+              "mystic",
                 [
                     761,
                     555
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     762,
                     229
@@ -98,7 +122,7 @@
     "challenge2_task": {
         "start": [
             [
-                "mystic1",
+              "mystic",
                 [
                     759,
                     558
@@ -146,7 +170,7 @@
     "challenge4_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     1118,
                     391
@@ -163,14 +187,14 @@
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     6,
                     543
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     680,
                     56
@@ -367,14 +391,14 @@
     "challenge4_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     273,
                     565
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     700,
                     60

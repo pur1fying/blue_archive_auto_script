@@ -1,15 +1,16 @@
 import threading
 import time
+
 import cv2
 import numpy as np
+
 from core import image, color, picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_cafe(self, True)
     if self.config.cafe_reward_collect_hour_reward and get_cafe_earning_status(self):
-        self.logger.info("Collect Cafe Earnings")
         collect(self)
         to_cafe(self, False)
     ticket1_next_time = None
@@ -441,13 +442,13 @@ def to_cafe_earning_status(self):
 
 def collect(self):
     to_cafe_earning_status(self)
-    if color.judge_rgb_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
+    if color.is_rgb_in_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
         self.logger.info("Collect Cafe Earnings")
         self.click(643, 521, wait_over=True)
 
 
 def get_invitation_ticket_status(self):
-    if color.judgeRGBFeature(self, "invitation_ticket_available_to_use"):
+    if color.match_rgb_feature(self, "invitation_ticket_available_to_use"):
         self.logger.info("Invite ticket available for use")
         return True
     else:
@@ -539,21 +540,24 @@ def get_invitation_ticket_next_time(self):
         'JP': (850, 588, 926, 614)
     }
     region = region[self.server]
-    res = self.ocr.get_region_res(self.latest_img_array, region, 'Global', self.ratio)
-    if res.count(":") != 2:
-        return None
-    res = res.split(":")
-    for j in range(0, len(res)):
-        if res[j][0] == "0":
-            res[j] = res[j][1:]
-    self.logger.info(
-        "Invitation Ticket Next time: " +
-        res[0] + "\tHOUR " +
-        res[1] + "\tMINUTES " +
-        res[2] + "\tSECONDS"
-    )
-    try:
-        return int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2])
-    except ValueError:
-        pass
-    return None
+    for i in range(0, 3):
+        if i != 0:
+            self.update_screenshot_array()
+        res = self.ocr.get_region_res(self.latest_img_array, region, 'Global', self.ratio)
+        if res.count(":") != 2:
+            return None
+        res = res.split(":")
+        for j in range(0, len(res)):
+            if res[j][0] == "0":
+                res[j] = res[j][1:]
+        self.logger.info(
+            "Invitation Ticket Next time: " +
+            res[0] + "\tHOUR " +
+            res[1] + "\tMINUTES " +
+            res[2] + "\tSECONDS"
+        )
+        try:
+            return int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2])
+        except ValueError:
+            pass
+    return 0

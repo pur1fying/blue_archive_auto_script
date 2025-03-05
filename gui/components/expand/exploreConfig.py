@@ -78,7 +78,7 @@ class Layout(TemplateLayout):
         self.accept_push = PushButton(self.tr('开始推图'), self)
 
         self.input_push.setText(
-            self.config.get('explore_normal_task_regions').__str__().replace('[', '').replace(']', ''))
+            self.config.get('explore_normal_task_list').__str__().replace('[', '').replace(']', ''))
         self.input_push.setFixedWidth(700)
         self.accept_push.clicked.connect(self._accept_push)
 
@@ -98,7 +98,7 @@ class Layout(TemplateLayout):
         self.vBoxLayout.addLayout(self.push_card)
 
     def _accept_push(self):
-        self.config.set('explore_normal_task_regions', self.input_push.text())
+        self.config.set('explore_normal_task_list', self.input_push.text())
         value = self.input_push.text()
         notification.success(self.tr('普通关推图'), f'{self.tr("你的普通关配置已经被设置为：")}{value}，{self.tr("正在推普通关。")}', self.config)
         sig = self.config.get_signal('update_signal')
