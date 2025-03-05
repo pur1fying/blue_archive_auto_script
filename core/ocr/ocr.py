@@ -266,8 +266,16 @@ class Baas_ocr:
                             candidates: str = "",
                             pass_method: int = 1,
                             local_path: str = "",
+                            shared_memory_name: str = ""
                             ):
-        response = self.client.ocr_for_single_line(language, origin_image, candidates, pass_method, local_path)
+        response = self.client.ocr_for_single_line(
+            language,
+            origin_image,
+            candidates,
+            pass_method,
+            local_path,
+            shared_memory_name
+        )
         if response.status_code == 200:
             ret_json = json.loads(response.text)
             txt = ret_json['text']
@@ -283,9 +291,18 @@ class Baas_ocr:
             candidates: str = "",
             pass_method: int = 1,
             local_path: str = "",
-            ret_options: int = 0b100
+            ret_options: int = 0b100,
+            shared_memory_name: str = ""
             ):
-        response = self.client.ocr(language, origin_image, candidates, pass_method, local_path, ret_options)
+        response = self.client.ocr(
+            language,
+            origin_image,
+            candidates,
+            pass_method,
+            local_path,
+            ret_options,
+            shared_memory_name
+        )
         if response.status_code == 200:
             return response.text
         else:

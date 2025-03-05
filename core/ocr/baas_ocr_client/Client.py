@@ -7,6 +7,8 @@ import subprocess
 import datetime
 import shutil
 import json
+from core.ipc_manager import SharedMemory
+from core.exception import SharedMemoryError
 
 
 class ServerConfig:
@@ -59,6 +61,23 @@ class BaasOcrClient:
                 if time_dis >= time_distance:
                     shutil.rmtree(path)
 
+    def create_shared_memory(self, name, size):
+        url = self.config.base_url + "/create_shared_memory"
+        data = {
+            "name": name,
+            "size": size
+        }
+        SharedMemory.get(name)
+        return requests.post(url, json=data)
+
+    def release_shared_memory(self, name):
+        url = self.config.base_url + "/release_shared_memory"
+        data = {
+            "name": name
+        }
+        SharedMemory.release(name)
+        return requests.post(url, json=data)
+
     def enable_thread_pool(self, count=4):
         url = self.config.base_url + "/enable_thread_pool"
         data = {
@@ -108,9 +127,10 @@ class BaasOcrClient:
             language: str,
             origin_image=None,
             candidates: str = "",
-            pass_method: int = 1,
+            pass_method: int = 0,
             local_path: str = "",
-            ret_options: int = 0b100
+            ret_options: int = 0b100,
+            shared_memory_name: str = ""
             ):
         url = self.config.base_url + "/ocr"
         data = {
@@ -121,9 +141,16 @@ class BaasOcrClient:
             },
             "ret_options": ret_options
         }
-        # TODO: shm pass method
         if pass_method == 0:
-            return
+            if not SharedMemory.shm_exists(shared_memory_name):
+                raise SharedMemoryError(f"Shared memory {shared_memory_name} not found, you should create it first.")
+            col = origin_image.shape[1]
+            row = origin_image.shape[0]
+            size = col * row * 3
+            SharedMemory.set_data(shared_memory_name, origin_image.tobytes(), size)
+            data["image"]["shared_memory_name"] = shared_memory_name
+            data["image"]["shape"] = [row, col]
+            return requests.post(url, json=data)
         if pass_method == 1:
             image_bytes = self.get_image_bytes(origin_image)
             files = {
@@ -132,17 +159,16 @@ class BaasOcrClient:
             }
             return requests.post(url, files=files)
         if pass_method == 2:
-            print(114)
             data["image"]["local_path"] = local_path
-            print(data)
             return requests.post(url, json=data)
 
     def ocr_for_single_line(self,
                             language: str,
                             origin_image=None,
                             candidates: str = "",
-                            pass_method: int = 1,
-                            local_path: str = ""
+                            pass_method: int = 0,
+                            local_path: str = "",
+                            shared_memory_name: str = ""
                             ):
         url = self.config.base_url + "/ocr_for_single_line"
         data = {
@@ -153,7 +179,15 @@ class BaasOcrClient:
             },
         }
         if pass_method == 0:
-            return
+            if not SharedMemory.shm_exists(shared_memory_name):
+                raise SharedMemoryError(f"Shared memory {shared_memory_name} not found, you should create it first.")
+            col = origin_image.shape[1]
+            row = origin_image.shape[0]
+            size = col * row * 3
+            SharedMemory.set_data(shared_memory_name, origin_image.tobytes(), size)
+            data["image"]["shared_memory_name"] = shared_memory_name
+            data["image"]["shape"] = [row, col]
+            return requests.post(url, json=data)
         if pass_method == 1:
             image_bytes = self.get_image_bytes(origin_image)
             files = {

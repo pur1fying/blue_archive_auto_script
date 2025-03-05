@@ -63,6 +63,8 @@
 | `/image/pass_method`        | `unsigned int` | 是  | 图像传递方式       |
 | `/image/local_path`         | `string`       | 否  | 图像本地路径       |
 | `/image/shared_memory_name` | `string`       | 否  | 图像数据所在的共享内存名 |
+| `/image/resolution`         | `[int, int]`   | 否  | 图像尺寸         |
+
 
 ### ocr
 
@@ -140,7 +142,23 @@
     "time": 28
 }
 ```
+### 创建共享内存
 
+#### **请求信息**
+| 方法     | URL                     |
+|--------|-------------------------|
+| `POST` | `/create_shared_memory` |
+
+#### **请求头**
+| 参数             | 说明        | 示例值                |
+|----------------|-----------|--------------------|
+| `Content-Type` | 指定请求的数据格式 | `application/json` |
+
+#### **请求体**
+| 参数                    | 类型                   | 必填 | 说明     |
+|-----------------------|----------------------|----|--------|
+| `/shared_memory_name` | `string`             | 是  | 共享内存名  |
+| `/size`               | `unsigned long long` | 是  | 共享内存大小 |
 
 ## 可选的语言
 | language | 语言     |

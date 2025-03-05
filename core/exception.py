@@ -1,6 +1,14 @@
 import traceback
 
 
+class SharedMemoryError(Exception):
+    """
+        Shared memory error.
+    """
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
 class RequestHumanTakeOver(Exception):
     """
         Exception can't be handled by baas.
