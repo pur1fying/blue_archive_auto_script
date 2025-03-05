@@ -1,7 +1,7 @@
 from core import color, image, picture
 from module import main_story, normal_task, hard_task
 from module.ExploreTasks.TaskUtils import to_mission_info, to_region, execute_grid_task, get_challenge_state, \
-    employ_units, get_stage_data
+    employ_units, get_stage_data, convert_team_config
 
 
 def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]],
@@ -129,6 +129,8 @@ def explore_normal_task(self):
     if len(tasklist) == 0:
         return False
 
+    teamConfig = convert_team_config(self)
+
     for task in tasklist:
         region = task[0]
         mission = task[1]
@@ -179,12 +181,12 @@ def explore_normal_task(self):
                 picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
 
                 # get preset unit
-                employ_units(self, taskData)
+                employ_units(self, taskData, teamConfig)
                 main_story.auto_fight(self)
             else:
                 execute_grid_task(self, taskData)
                 main_story.auto_fight(self)
-                if self.config['manual_boss']:
+                if self.config.manual_boss:
                     self.click(1235, 41)
             # skip unlocking animation by switching
             hard_task.to_hard_event(self, True)
@@ -247,5 +249,3 @@ def explore_hard_task(self):
             normal_task.to_normal_event(self, True)
             hard_task.to_hard_event(self, True)
     return True
-
-
