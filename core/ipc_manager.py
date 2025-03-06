@@ -11,7 +11,7 @@ class SharedMemory:
     @staticmethod
     def get(name):
         if name not in SharedMemory.shm_map:
-            return SharedMemory(name)
+            SharedMemory.shm_map[name] = SharedMemory(name)
         return SharedMemory.shm_map[name]
 
     @staticmethod
@@ -23,7 +23,7 @@ class SharedMemory:
         if name not in SharedMemory.shm_map:
             raise SharedMemoryError(f"Shared memory {name} not found")
         shm = SharedMemory.shm_map[name]
-        if shm.size != size:
+        if shm.size < size:
             raise SharedMemoryError(f"Shared memory {name} size {shm.size} not enough for {size}")
         shm.shm.buf[:size] = data
 
@@ -44,7 +44,6 @@ class SharedMemory:
         if self.shm is None:
             raise SharedMemoryError(f"Shared memory {self.name} not found")
         self.size = self.shm.size
-        print(self.shm.size)
 
     def _release(self):
         self.shm.close()

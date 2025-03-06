@@ -3,32 +3,11 @@ import time
 
 from core import image, picture
 from core.image import swipe_search_target_str
-from module import hard_task, main_story, normal_task
+from module import main_story
 
 
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
-def to_region(self, region, isNormal: bool):
-    square = {
-        'CN': [122, 178, 163, 208],
-        'Global': [122, 178, 163, 208],
-        'JP': [122, 178, 163, 208]
-    }
-    curRegion = self.ocr.recognize_int(self.latest_img_array, square[self.server], self.ratio)
-    self.logger.info("Current Region : " + str(curRegion))
-    while curRegion != region and self.flag_run:
-        if curRegion > region:
-            self.click(40, 360, count=curRegion - region, rate=0.1, wait_over=True, duration=0.5)
-        else:
-            self.click(1245, 360, count=region - curRegion, rate=0.1, wait_over=True, duration=0.5)
-        # TODO 检测是否是未解锁区域
-        if isNormal:
-            normal_task.to_normal_event(self)
-        else:
-            hard_task.to_hard_event(self)
-        curRegion = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
-        self.logger.info("Current Region : " + str(curRegion))
-
 
 def to_mission_info(self, y=0):
     rgb_possibles = {"event_hard": (1114, y), "event_normal": (1114, y)}

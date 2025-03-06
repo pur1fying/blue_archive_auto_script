@@ -115,10 +115,21 @@ class Baas_ocr:
         # 涉及的引用太多了 不敢改
         return category(temp)
 
-    def recognize_int(self, img, area, ratio=1.0) -> int:
-        img = self.get_area_img(img, area, ratio)
-        res = self.ocrNUM.ocr_for_single_line(img)['text']
-        res = res.replace('<unused3>', '').replace('<unused2>', '')
+    def recognize_int(self, baas, area, log_info="") -> int:
+        img = self.get_area_img(baas.latest_img_array, area, baas.ratio)
+        if use_baas_ocr:
+            res = self.ocr_for_single_line(
+                "en-us",
+                log_info,
+                img,
+                "0123456789",
+                baas.ocr_img_pass_method,
+                "",
+                baas.shared_memory_name
+            )
+        else:
+            res = self.ocrNUM.ocr_for_single_line(img)['text']
+            res = res.replace('<unused3>', '').replace('<unused2>', '')
 
         result = 0
         for i in range(0, len(res)):
@@ -194,7 +205,7 @@ class Baas_ocr:
         res = ""
         if use_baas_ocr:
             language = self.language_convert(model)
-            res = self.ocr(language, "", img, candidates, 1)
+            res = self.ocr(language, img, candidates, 1)
         else:
             if model == 'CN':
                 res = self.ocrCN.ocr(img)
@@ -230,6 +241,14 @@ class Baas_ocr:
         else:
             self.logger.error("Enable Thread Pool Error: " + response.text)
             raise OcrInternalError("Enable Thread Pool Error: " + response.text)
+
+    def create_shared_memory(self, name, size):
+        self.logger.info("Ocr Create Shared Memory [ " + name + " ]")
+        self.client.create_shared_memory(name, size)
+
+    def release_shared_memory(self, name):
+        self.logger.info("Ocr Release Shared Memory [ " + name + " ]")
+        self.client.release_shared_memory(name)
 
     def init_model(self, language: list[str], gpu_id=-1, num_thread=4):
         self.logger.info("Ocr Init Model.")

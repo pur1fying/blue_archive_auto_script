@@ -4,6 +4,7 @@ from dulwich import porcelain
 from dulwich.repo import Repo
 
 REPO_URL_HTTP = None
+
 if sys.platform == 'win32':
     REPO_URL_HTTP = "https://gitee.com/pur1fy/windows-compiled_baas_ocr_server.git"
 
@@ -27,7 +28,7 @@ def check_git(logger):
         remote_sha = remote_refs.get(b'refs/heads/main').decode('ascii')
 
         logger.info(f"remote_sha: {remote_sha}")
-        logger.info(f"local_sha: {local_sha}")
+        logger.info(f"local_sha : {local_sha}")
 
         if local_sha == remote_sha:
             logger.info("No updates available")
@@ -36,7 +37,7 @@ def check_git(logger):
             # Reset the local repository to the state of the remote repository
             porcelain.reset(repo, mode='hard')
             # Pull the latest changes from the remote repository
-            porcelain.pull(repo, REPO_URL_HTTP, 'master', protocol_version=0)
+            porcelain.pull(repo, REPO_URL_HTTP, 'main', protocol_version=0)
             updated_local_sha = repo.head().decode('ascii')
             if updated_local_sha == remote_sha:
                 logger.info("Update success")

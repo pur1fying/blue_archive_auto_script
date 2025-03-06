@@ -30,10 +30,17 @@ class Main:
             self.logger.error(e.__str__())
             return False
 
-    def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None,
-                   exit_signal=None):
+    def get_thread(
+            self,
+            config,
+            name="1",
+            logger_signal=None,
+            button_signal=None,
+            update_signal=None,
+            exit_signal=None
+        ):
         t = Baas_thread(config, logger_signal, button_signal, update_signal, exit_signal)
-        t.ocr = self.ocr
+        t.set_ocr(self.ocr)
         self.threads.setdefault(name, t)
         return t
 
@@ -99,10 +106,10 @@ class Main:
 if __name__ == '__main__':
     ocr_needed = ["Global", "CN", "JP", "NUM"]
     t = Main(ocr_needed=ocr_needed)
-    config = ConfigSet(config_dir="1708185944")
+    config = ConfigSet(config_dir="1708148000")
     tt = Baas_thread(config, None, None, None)
+    tt.set_ocr(t.ocr)
     tt.init_all_data()
-    tt.ocr = t.ocr
 
     # from module import create
     # create.create_phase(tt, 3)

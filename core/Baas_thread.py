@@ -7,7 +7,7 @@ import time
 import traceback
 from dataclasses import fields
 from datetime import datetime
-
+from core.utils import Logger
 import cv2
 import numpy as np
 import psutil
@@ -15,6 +15,7 @@ import requests
 
 import device_operation
 import module.ExploreTasks.explore_task
+from core.ocr.ocr import use_baas_ocr
 from core import position, picture
 from core.config.config_set import ConfigSet
 from core.device.Control import Control
@@ -26,7 +27,6 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
-from core.utils import Logger
 from device_operation import process_api
 
 func_dict = {
@@ -107,6 +107,18 @@ class Baas_thread:
         self.activity_name = None
         self.control = None
         self.screenshot = None
+        if use_baas_ocr:
+            self.ocr_img_pass_method = None
+            self.shared_memory_name = None
+
+    def set_ocr(self, ocr):
+        self.ocr = ocr
+        if use_baas_ocr:
+            if self.ocr.client.config.server_is_remote:
+                self.ocr_img_pass_method = 1
+            else:
+                self.ocr_img_pass_method = 0
+                self.shared_memory_name = os.path.basename(self.config_set.config_dir)
 
     def get_logger(self):
         return self.logger
@@ -758,8 +770,8 @@ class Baas_thread:
         last_refresh_hour = last_refresh.hour
         daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
         if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
-            ((hour < daily_reset and last_refresh_hour < daily_reset) or (
-                hour >= daily_reset and last_refresh_hour >= daily_reset)):
+                ((hour < daily_reset and last_refresh_hour < daily_reset) or (
+                        hour >= daily_reset and last_refresh_hour >= daily_reset)):
             return
         else:
             self.config.last_refresh_config_time = time.time()
@@ -868,6 +880,8 @@ class Baas_thread:
         self.logger.info("Screen Size  " + str(temp))
         if temp[0] != 1280 or temp[1] != 720:
             self.logger.warning("Screen Size is not 1280x720, we recommend you to use 1280x720.")
+        if self.ocr_img_pass_method == 0:
+            self.ocr.create_shared_memory(self.shared_memory_name, temp[0]*temp[1]*3)
         width = temp[0]
         self.ratio = width / 1280
         self.logger.info("Screen Size Ratio: " + str(self.ratio))

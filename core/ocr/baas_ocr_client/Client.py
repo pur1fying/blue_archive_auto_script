@@ -17,6 +17,7 @@ class ServerConfig:
         self.config_path = os.path.join(BaasOcrClient.server_folder_path, "config", "global_setting.json")
         self.host = None
         self.port = None
+        self.server_is_remote = False
         self.base_url = None
         self.__init_config()
 
@@ -32,6 +33,9 @@ class ServerConfig:
             self.host = self.config["ocr"]["server"]["host"]
             self.port = self.config["ocr"]["server"]["port"]
             self.base_url = f"http://{self.host}:{self.port}"
+            # check is remote
+            if self.host != "localhost" and self.host != "127.0.0.1":
+                self.server_is_remote = True
 
 
 class BaasOcrClient:
@@ -64,11 +68,13 @@ class BaasOcrClient:
     def create_shared_memory(self, name, size):
         url = self.config.base_url + "/create_shared_memory"
         data = {
-            "name": name,
+            "shared_memory_name": name,
             "size": size
         }
-        SharedMemory.get(name)
-        return requests.post(url, json=data)
+        ret = requests.post(url, json=data)
+        if ret.status_code == 200:
+            SharedMemory.get(name)
+        return ret
 
     def release_shared_memory(self, name):
         url = self.config.base_url + "/release_shared_memory"
@@ -186,7 +192,7 @@ class BaasOcrClient:
             size = col * row * 3
             SharedMemory.set_data(shared_memory_name, origin_image.tobytes(), size)
             data["image"]["shared_memory_name"] = shared_memory_name
-            data["image"]["shape"] = [row, col]
+            data["image"]["resolution"] = [col, row]
             return requests.post(url, json=data)
         if pass_method == 1:
             image_bytes = self.get_image_bytes(origin_image)

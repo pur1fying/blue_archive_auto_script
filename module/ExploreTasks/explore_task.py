@@ -1,7 +1,7 @@
 from core import color, image, picture
 from module import main_story, normal_task, hard_task
-from module.ExploreTasks.TaskUtils import to_mission_info, to_region, execute_grid_task, get_challenge_state, \
-    employ_units, get_stage_data
+from module.ExploreTasks.TaskUtils import (to_mission_info, execute_grid_task, get_challenge_state, employ_units,
+                                           get_stage_data)
 
 
 def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]],
@@ -142,7 +142,7 @@ def explore_normal_task(self):
 
             if not skip_navigate:
                 normal_task.to_normal_event(self, True)
-                to_region(self, region, True)
+                normal_task.to_region(self, region, True)
                 fullMissionList = []
                 for i in range(1, 6):
                     fullMissionList.append(f"{region}-{i}")
@@ -230,7 +230,7 @@ def explore_hard_task(self):
             mission_los = [249, 363, 476]
             if not skip_navigate:
                 hard_task.to_hard_event(self, True)
-                to_region(self, region, False)
+                normal_task.to_region(self, region, False)
                 to_mission_info(self, mission_los[mission - 1])
 
             if not need_fight(self, taskDataName, False):
