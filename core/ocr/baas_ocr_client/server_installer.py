@@ -1,5 +1,6 @@
 import sys
 import os
+from core.exception import OcrInternalError
 from dulwich import porcelain
 from dulwich.repo import Repo
 
@@ -21,10 +22,18 @@ SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
 def check_git(logger):
     if not os.path.exists(SERVER_BIN_DIR + '/.git'):
         logger.info("Installing Ocr Server, please wait...")
-        porcelain.clone(REPO_URL_HTTP, SERVER_BIN_DIR)
-        logger.info("Install success")
+        for i in range(1, 4):
+            try:
+                porcelain.clone(REPO_URL_HTTP, SERVER_BIN_DIR)
+                break
+            except Exception as e:
+                if i == 3:
+                    raise OcrInternalError("Failed to install the BAAS_ocr_server. Please check your network")
+                logger.error(f"Failed to install BAAS_ocr_server, retrying... {i}")
+                logger.error(e)
+        logger.info("Ocr Server Install success.")
     else:
-        logger.info("Ocr Server Update check")
+        logger.info("Ocr Server Update check.")
         repo = Repo(SERVER_BIN_DIR)
         # Get local SHA
         local_sha = repo.head().decode('ascii')
@@ -37,16 +46,24 @@ def check_git(logger):
         logger.info(f"local_sha : {local_sha}")
 
         if local_sha == remote_sha:
-            logger.info("No updates available")
+            logger.info("Ocr Server No updates available.")
         else:
             logger.info("Pulling updates from the remote repository...")
             # Reset the local repository to the state of the remote repository
             porcelain.reset(repo, mode='hard')
             # Pull the latest changes from the remote repository
-            porcelain.pull(repo, REPO_URL_HTTP, 'main', protocol_version=0)
+            for i in range(1, 4):
+                try:
+                    porcelain.pull(repo, REPO_URL_HTTP, 'main', protocol_version=0)
+                    break
+                except Exception as e:
+                    if i == 3:
+                        raise OcrInternalError("Failed to install the BAAS_ocr_server. Please check your network")
+                    logger.error(f"Failed to update BAAS_ocr_server, retrying... {i}")
+                    logger.error(e)
             updated_local_sha = repo.head().decode('ascii')
             if updated_local_sha == remote_sha:
-                logger.info("Update success")
+                logger.info("Ocr Server Update success.")
             else:
                 logger.warning(
                     "Failed to update the source code, please check your network or for conflicting files")

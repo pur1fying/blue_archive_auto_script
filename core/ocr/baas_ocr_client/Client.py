@@ -40,17 +40,24 @@ class ServerConfig:
 
 class BaasOcrClient:
     server_folder_path = os.path.join(os.path.dirname(__file__), "bin")
+    executable_name = "BAAS_ocr_server"
     if sys.platform == "win32":
-        executable_name = "BAAS_ocr_server"
+        executable_name += ".exe"
 
     def __init__(self):
         self.exe_path = os.path.join(self.server_folder_path, self.executable_name)
-        if sys.platform == "win32":
-            self.exe_path += ".exe"
+
         if not os.path.exists(self.exe_path):
             raise Exception("Didn't find ocr server executable.")
         self.config = ServerConfig()
         self.server_process = None
+
+    @staticmethod
+    def kilL_existing_server():
+        if sys.platform == "linux":
+            subprocess.run(["pkill", "-9", BaasOcrClient.executable_name])
+        elif sys.platform == "win32":
+            subprocess.run(["taskkill", "/f", "/im", BaasOcrClient.executable_name], check=True)
 
     # clear log since time_distance days ago
     def clear_log(self, time_distance=7):
@@ -100,10 +107,20 @@ class BaasOcrClient:
     def start_server(self):
         if self.server_process is not None:
             return
+        # chmod +x BAAS_ocr_server
+        if sys.platform == "linux":
+            subprocess.run(["chmod", "+x", self.exe_path])
         self.server_process = subprocess.Popen(
             self.exe_path,
             cwd=self.server_folder_path,
         )
+        # wait for server start
+        for _ in range(0, 30):
+            try:
+                requests.get(self.config.base_url)
+                break
+            except requests.exceptions.ConnectionError:
+                time.sleep(0.1)
 
     def stop_server(self):
         if self.server_process is not None:
