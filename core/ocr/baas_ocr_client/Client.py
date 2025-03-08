@@ -41,10 +41,12 @@ class ServerConfig:
 class BaasOcrClient:
     server_folder_path = os.path.join(os.path.dirname(__file__), "bin")
     if sys.platform == "win32":
-        executable_name = "BAAS_ocr_server.exe"
+        executable_name = "BAAS_ocr_server"
 
     def __init__(self):
         self.exe_path = os.path.join(self.server_folder_path, self.executable_name)
+        if sys.platform == "win32":
+            self.exe_path += ".exe"
         if not os.path.exists(self.exe_path):
             raise Exception("Didn't find ocr server executable.")
         self.config = ServerConfig()

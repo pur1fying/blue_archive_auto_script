@@ -3,10 +3,16 @@ import os
 from dulwich import porcelain
 from dulwich.repo import Repo
 
-REPO_URL_HTTP = None
 
-if sys.platform == 'win32':
-    REPO_URL_HTTP = "https://gitee.com/pur1fy/windows-compiled_baas_ocr_server.git"
+if sys.platform not in ['win32', 'linux']:
+    raise Exception("Ocr Unsupported platform " + sys.platform)
+
+REPO_URL_HTTP = {
+    'win32': "https://gitee.com/pur1fy/windows-compiled_baas_ocr_server.git",
+    'linux': "https://gitee.com/pur1fy/linux-compiled_baas_ocr_server.git",
+}
+
+REPO_URL_HTTP = REPO_URL_HTTP[sys.platform]
 
 SERVER_INSTALLER_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')

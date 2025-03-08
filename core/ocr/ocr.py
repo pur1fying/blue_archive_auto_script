@@ -7,12 +7,11 @@ use_baas_ocr = False
 try:
     from cnocr import CnOcr
 except ImportError:
-    # Now only available in Windows
-    if sys.platform == 'win32':
+    # Available in Windows and Linux
+    if sys.platform == 'win32' or sys.platform == 'linux':
         import json
         from core.ocr.baas_ocr_client import Client
         from core.ocr.baas_ocr_client.server_installer import check_git
-
         use_baas_ocr = True
 
 
