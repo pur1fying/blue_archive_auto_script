@@ -13,7 +13,9 @@ image_dic = {
 
 initialized_image = {
     'CN': False,
-    'Global': False,
+    'Global_zh-cn': False,
+    'Global_en-us': False,
+    'Global_ko-kr': False,
     'JP': False
 }
 
@@ -22,11 +24,12 @@ def init_image_data(self):
     try:
         global image_x_y_range
         global image_dic
-        if not initialized_image[self.server]:
-            image_dic.setdefault(self.server, {})
-            image_x_y_range.setdefault(self.server, {})
-            initialized_image[self.server] = True
-            path = 'src/images/' + self.server + '/x_y_range'
+        identifier = self.identifier
+        if not initialized_image[identifier]:
+            image_dic.setdefault(identifier, {})
+            image_x_y_range.setdefault(identifier, {})
+            initialized_image[identifier] = True
+            path = 'src/images/' + identifier + '/x_y_range'
             for file_path, child_file_name, files in os.walk(path):
                 if file_path.endswith('activity'):
                     continue
@@ -39,39 +42,39 @@ def init_image_data(self):
                         x_y_range = getattr(data, 'x_y_range', None)
                         path = getattr(data, 'path', None)
                         prefix = getattr(data, 'prefix', None)
-                        if prefix in image_x_y_range[self.server]:
-                            image_x_y_range[self.server][prefix].update(x_y_range)
+                        if prefix in image_x_y_range[identifier]:
+                            image_x_y_range[identifier][prefix].update(x_y_range)
                         else:
-                            image_x_y_range[self.server][prefix] = x_y_range
+                            image_x_y_range[identifier][prefix] = x_y_range
                         for key in x_y_range:
-                            img_path = 'src/images/' + self.server + '/' + path + '/' + key + '.png'
+                            img_path = 'src/images/' + identifier + '/' + path + '/' + key + '.png'
                             if os.path.exists(img_path):
                                 img = cv2.imread(img_path)
-                                image_dic[self.server][prefix + '_' + key] = img
+                                image_dic[identifier][prefix + '_' + key] = img
             if self.current_game_activity is not None:
-                current_activity_img_data_path = 'src.images.' + self.server + '.x_y_range.activity.' \
+                current_activity_img_data_path = 'src.images.' + identifier + '.x_y_range.activity.' \
                                                  + self.current_game_activity
                 data = importlib.import_module(current_activity_img_data_path)
                 x_y_range = getattr(data, 'x_y_range', None)
                 path = getattr(data, 'path', None)
-                image_x_y_range[self.server]['activity'].update(**x_y_range)
+                image_x_y_range[identifier]['activity'].update(**x_y_range)
                 for key in x_y_range:
-                    img_path = 'src/images/' + self.server + '/' + path + '/' + key + '.png'
+                    img_path = 'src/images/' + identifier + '/' + path + '/' + key + '.png'
                     if os.path.exists(img_path):
                         img = cv2.imread(img_path)
-                        image_dic[self.server]['activity_' + key] = img
+                        image_dic[identifier]['activity_' + key] = img
             if self.dailyGameActivity is not None:
-                current_activity_img_data_path = 'src.images.' + self.server + '.x_y_range.dailyGameActivity.' \
+                current_activity_img_data_path = 'src.images.' + identifier + '.x_y_range.dailyGameActivity.' \
                                                  + self.dailyGameActivity
                 data = importlib.import_module(current_activity_img_data_path)
                 x_y_range = getattr(data, 'x_y_range', None)
                 path = getattr(data, 'path', None)
-                image_x_y_range[self.server]['dailyGameActivity'].update(**x_y_range)
+                image_x_y_range[identifier]['dailyGameActivity'].update(**x_y_range)
                 for key in x_y_range:
-                    img_path = 'src/images/' + self.server + '/' + path + '/' + key + '.png'
+                    img_path = 'src/images/' + identifier + '/' + path + '/' + key + '.png'
                     if os.path.exists(img_path):
                         img = cv2.imread(img_path)
-                        image_dic[self.server]['dailyGameActivity_' + key] = img
+                        image_dic[identifier]['dailyGameActivity_' + key] = img
             return True
         else:
             return True
@@ -84,12 +87,12 @@ def init_image_data(self):
 def alter_img_position(self, name, point):
     global image_x_y_range
     global image_dic
-    if name in image_dic[self.server]:
-        shape = image_dic[self.server][name].shape
+    if name in image_dic[self.identifier]:
+        shape = image_dic[self.identifier][name].shape
         prefix, name = name.rsplit("_", 1)
-        if image_x_y_range[self.server][prefix][name] is not None:
+        if image_x_y_range[self.identifier][prefix][name] is not None:
             self.logger.info("Alter position of : [ " + name + " ] --> " + str(point))
-            image_x_y_range[self.server][prefix][name] = (point[0], point[1], point[0] + shape[1], point[1] + shape[0])
+            image_x_y_range[self.identifier][prefix][name] = (point[0], point[1], point[0] + shape[1], point[1] + shape[0])
 
 
 def get_area(server, name):

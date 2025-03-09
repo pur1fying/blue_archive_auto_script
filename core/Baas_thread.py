@@ -85,6 +85,8 @@ class Baas_thread:
         self.scheduler = None
         self.screenshot_interval = None
         self.flag_run = None
+        self.ocr_language = None
+        self.identifier = None
         self.current_game_activity = None
         self.package_name = None
         self.server = None
@@ -334,6 +336,10 @@ class Baas_thread:
             self.set_screenshot_interval(self.config.screenshot_interval)
 
             self.check_resolution()
+            self.ocr_language = self.get_ocr_language()
+            self.identifier = self.server
+            if self.server == "Global":
+                self.identifier += "_" + self.ocr_language
 
             self.logger.info("--------Emulator Init Finished----------")
             return True
@@ -341,6 +347,41 @@ class Baas_thread:
             self.logger.error(e.__str__())
             self.logger.error("Emulator initialization failed")
             return False
+
+    def get_ocr_language(self) -> str:
+        self.logger.info("Get OCR Language.")
+        lang = None
+        if self.server == "CN":
+            lang = "zh-cn"
+        elif self.server == "Global":
+            src = "/data/media/0/Android/data/com.nexon.bluearchive/files/DeviceOption"
+            dst = os.path.basename(self.config_set.config_dir) + "_DeviceOption.json"
+            # remove dst existing file
+            if os.path.exists(dst):
+                os.remove(dst)
+            sync = self.u2._adb_device.sync
+            src_file_info = sync.stat(src)
+            is_src_file = src_file_info.mode & 32768 != 0
+
+            if is_src_file:
+                sync.pull_file(src, dst)
+            else:
+                raise Exception("Global Server DeviceOption File not exist.")
+            supported_language_convert_dict = {
+                "Kr": "ko-kr",
+                "En": "en-us",
+                "Tw": "zh-tw",
+            }
+            with open(dst, "r") as f:
+                data = json.load(f)
+                game_lan = data["Language"]
+                if game_lan in supported_language_convert_dict:
+                    lang = supported_language_convert_dict[game_lan]
+                else:
+                    raise Exception("Global Server Invalid Language : " + game_lan + ".")
+        elif self.server == "JP":
+            lang = "ja-jp"
+        self.logger.info("Ocr Language : " + lang)
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")

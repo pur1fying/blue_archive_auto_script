@@ -54,10 +54,13 @@ class BaasOcrClient:
 
     @staticmethod
     def kilL_existing_server():
-        if sys.platform == "linux":
-            subprocess.run(["pkill", "-9", BaasOcrClient.executable_name])
-        elif sys.platform == "win32":
-            subprocess.run(["taskkill", "/f", "/im", BaasOcrClient.executable_name], check=True)
+        try:
+            if sys.platform == "linux":
+                subprocess.run(["pkill", "-9", BaasOcrClient.executable_name])
+            elif sys.platform == "win32":
+                subprocess.run(["taskkill", "/f", "/im", BaasOcrClient.executable_name], check=True)
+        except Exception:
+            pass
 
     # clear log since time_distance days ago
     def clear_log(self, time_distance=7):
