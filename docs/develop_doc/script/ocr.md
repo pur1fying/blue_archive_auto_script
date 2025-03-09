@@ -23,11 +23,16 @@
 | `Content-Type` | 指定请求的数据格式 | `application/json` |
 
 #### **请求体**
-| 参数           | 类型             | 必填 | 说明      |
-|--------------|----------------|----|---------|
-| `language`   | `List[str]`    | 是  | 语言      |
-| `gpu_id`     | `int`          | 否  | gpu id  |
-| `num_thread` | `int`          | 否  | 推理线程数   |
+| 参数                     | 类型          | 必填 | 说明      |
+|------------------------|-------------|----|---------|
+| `language`             | `List[str]` | 是  | 语言      |
+| `gpu_id`               | `int`       | 否  | gpu id  |
+| `num_thread`           | `int`       | 否  | 推理线程数   |
+| `EnableCpuMemoryArena` | `bool`      | 否  | 是否使用内存池 |
+
+**note**: 
+1. 当使用内存池时, BAAS_ocr_server会占用更多内存, 推理速度略有增加
+2. num_thread越大, 推理速度越块, 经测试4时达最快速度
 
 
 #### **响应体**

@@ -254,13 +254,13 @@ class Baas_ocr:
         self.logger.info("Ocr Release Shared Memory [ " + name + " ]")
         self.client.release_shared_memory(name)
 
-    def init_model(self, language: list[str], gpu_id=-1, num_thread=4):
+    def init_model(self, language: list[str], gpu_id=-1, num_thread=4, EnableCpuMemoryArena=False):
         self.logger.info("Ocr Init Model.")
         language = self.language_convert(language)
         self.logger.info("Language  : " + str(language))
         self.logger.info("GPU ID    : " + str(gpu_id))
         self.logger.info("Num Thread: " + str(num_thread))
-        response = self.client.init_model(language, gpu_id, num_thread)
+        response = self.client.init_model(language, gpu_id, num_thread, EnableCpuMemoryArena)
         if response.status_code == 200:
             ret_json = json.loads(response.text)
             self.logger.info("Time Cost : " + str(ret_json["time"]) + "ms")
