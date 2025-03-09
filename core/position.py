@@ -95,10 +95,10 @@ def alter_img_position(self, name, point):
             image_x_y_range[self.identifier][prefix][name] = (point[0], point[1], point[0] + shape[1], point[1] + shape[0])
 
 
-def get_area(server, name):
+def get_area(identifier, name):
     global image_x_y_range
     global image_dic
     prefix, name = name.rsplit("_", 1)
-    if image_x_y_range[server][prefix][name] is None:
+    if image_x_y_range[identifier][prefix][name] is None:
         return False
-    return image_x_y_range[server][prefix][name]
+    return image_x_y_range[identifier][prefix][name]

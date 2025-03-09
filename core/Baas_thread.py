@@ -674,7 +674,7 @@ class Baas_thread:
 
     def init_rgb(self):
         try:
-            fileName = self.project_dir + '/src/rgb_feature/rgb_feature_' + self.server + '.json'
+            fileName = self.project_dir + '/src/rgb_feature/' + self.identifier + '.json'
             self.rgb_feature = json.load(open(fileName, 'r', encoding='utf-8'))['rgb_feature']
             return True
         except Exception as e:

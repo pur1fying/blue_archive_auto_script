@@ -8,7 +8,8 @@ from core.utils import merge_nearby_coordinates
 def screenshot_cut(self, area):
     # template is from 1280 * 720 screenshot, if real screenshot is 2560 * 1440, then ratio is 2.0
     # cut the same area from real screenshot
-    return self.latest_img_array[int(area[1] * self.ratio):int(area[3] * self.ratio),
+    return self.latest_img_array[
+           int(area[1] * self.ratio):int(area[3] * self.ratio),
            int(area[0] * self.ratio):int(area[2] * self.ratio), :]
 
 
@@ -18,10 +19,10 @@ def img_cut(img, area):
 
 
 def compare_image(self, name, threshold=0.8, rgb_diff=20):
-    if name not in position.image_dic[self.server]:  # template image not found
+    if name not in position.image_dic[self.identifier]:  # template image not found
         return False
-    area = position.get_area(self.server, name)
-    template_img = position.image_dic[self.server][name]
+    area = position.get_area(self.identifier, name)
+    template_img = position.image_dic[self.identifier][name]
     ss_img = screenshot_cut(self, area)
     if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
         return False
