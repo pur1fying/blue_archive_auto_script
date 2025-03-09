@@ -1,15 +1,41 @@
 {
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 5,
+    "mission": [
+    ],
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15,
+        20,
+        20,
+        20,
+        20
+    ],
+    "grid_tasks_challenge": [
+      "challenge2_sss",
+      "challenge2_task",
+      "challenge4_sss",
+      "challenge4_task"
+    ],
     "challenge2_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     701,
                     559
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     309,
                     481
@@ -121,14 +147,14 @@
     "challenge2_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     701,
                     559
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     309,
                     481
@@ -198,21 +224,21 @@
     "challenge4_sss": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     460,
                     475
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     773,
                     440
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     403,
                     269
@@ -287,21 +313,21 @@
     "challenge4_task": {
         "start": [
             [
-                "pierce1",
+              "pierce",
                 [
                     460,
                     475
                 ]
             ],
             [
-                "mystic1",
+              "mystic",
                 [
                     773,
                     440
                 ]
             ],
             [
-                "burst1",
+              "burst",
                 [
                     403,
                     269

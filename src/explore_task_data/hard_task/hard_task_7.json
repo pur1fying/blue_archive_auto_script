@@ -1,342 +1,342 @@
 {
-    "7-1-sss-present": {
-        "start": [
-            [
-                "burst1",
-                [
-                    820,
-                    387
-                ]
-            ],
-            [
-                "burst2",
-                [
-                    780,
-                    563
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    653,
-                    227
-                ],
-                "ec": true,
-                "desc": "1 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    572,
-                    494
-                ],
-                "wait-over": true,
-                "ec": true,
-                "desc": "2 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    557,
-                    289
-                ],
-                "ec": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    503,
-                    504
-                ],
-                "wait-over": true,
-                "ec": true,
-                "desc": "2 left and tp"
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    668,
-                    335
-                ],
-                "desc": "swap 1 2"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    667,
-                    355
-                ],
-                "desc": "1 choose self and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    527,
-                    364
-                ],
-                "ec": true,
-                "desc": "1 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    525,
-                    268
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    486,
-                    388
-                ],
-                "desc": "1 upper left"
-            }
+  "7-1-sss-present": {
+    "start": [
+      [
+        "burst",
+        [
+          820,
+          387
         ]
-    },
-    "7-1-task": {
-        "start": [
-            [
-                "burst1",
-                [
-                    820,
-                    387
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click_and_teleport",
-                "wait-over": true,
-                "p": [
-                    658,
-                    387
-                ],
-                "desc": "1 left and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    553,
-                    335
-                ],
-                "wait-over": true,
-                "desc": "upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    473,
-                    274
-                ],
-                "desc": "upper left"
-            }
+      ],
+      [
+        "burst",
+        [
+          780,
+          563
         ]
-    },
-    "7-2-sss-present": {
-        "start": [
-            [
-                "burst1",
-                [
-                    469,
-                    229
-                ]
-            ],
-            [
-                "burst2",
-                [
-                    650,
-                    296
-                ]
-            ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          653,
+          227
         ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    583,
-                    474
-                ],
-                "ec": true,
-                "desc": "1 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    760,
-                    394
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "p": [
-                    523,
-                    560
-                ],
-                "desc": "1 lower left and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    758,
-                    365
-                ],
-                "wait-over": true,
-                "desc": "2 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    737,
-                    411
-                ],
-                "desc": "1 upper right"
-            },
-            {
-                "t": "end-turn"
-            }
-        ]
-    },
-    "7-2-task": {
-        "start": [
-            [
-                "burst1",
-                [
-                    469,
-                    229
-                ]
-            ],
-            [
-                "burst2",
-                [
-                    650,
-                    296
-                ]
-            ]
+        "ec": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          572,
+          494
         ],
-        "action": [
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    578,
-                    473
-                ],
-                "ec": true,
-                "desc": "2 lower left"
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    578,
-                    473
-                ],
-                "desc": "swap 1 2"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    520,
-                    560
-                ],
-                "wait-over": true,
-                "desc": "1 lower left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    716,
-                    378
-                ],
-                "desc": "1 upper right"
-            },
-            {
-                "t": "end-turn"
-            }
-        ]
-    },
-    "7-3-sss-present-task": {
-        "start": [
-            [
-                "burst1",
-                [
-                    943,
-                    471
-                ]
-            ],
-            [
-                "burst2",
-                [
-                    182,
-                    260
-                ]
-            ]
+        "wait-over": true,
+        "ec": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          557,
+          289
         ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    659,
-                    433
-                ],
-                "ec": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    626,
-                    350
-                ],
-                "wait-over": true,
-                "ec": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "p": [
-                    667,
-                    384
-                ],
-                "desc": "1 left and tp"
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "wait-over": true,
-                "p": [
-                    596,
-                    382
-                ],
-                "desc": "2 lower right and tp"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    451,
-                    494
-                ],
-                "wait-over": true,
-                "desc": "2 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    841,
-                    294
-                ],
-                "desc": "1 right"
-            }
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          503,
+          504
+        ],
+        "wait-over": true,
+        "ec": true,
+        "desc": "2 left and tp"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          668,
+          335
+        ],
+        "desc": "swap 1 2"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          667,
+          355
+        ],
+        "desc": "1 choose self and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          527,
+          364
+        ],
+        "ec": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          525,
+          268
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          486,
+          388
+        ],
+        "desc": "1 upper left"
+      }
+    ]
+  },
+  "7-1-task": {
+    "start": [
+      [
+        "burst",
+        [
+          820,
+          387
         ]
-    }
+      ]
+    ],
+    "action": [
+      {
+        "t": "click_and_teleport",
+        "wait-over": true,
+        "p": [
+          658,
+          387
+        ],
+        "desc": "1 left and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          553,
+          335
+        ],
+        "wait-over": true,
+        "desc": "upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          473,
+          274
+        ],
+        "desc": "upper left"
+      }
+    ]
+  },
+  "7-2-sss-present": {
+    "start": [
+      [
+        "burst",
+        [
+          469,
+          229
+        ]
+      ],
+      [
+        "burst",
+        [
+          650,
+          296
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          583,
+          474
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          760,
+          394
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          523,
+          560
+        ],
+        "desc": "1 lower left and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          758,
+          365
+        ],
+        "wait-over": true,
+        "desc": "2 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          737,
+          411
+        ],
+        "desc": "1 upper right"
+      },
+      {
+        "t": "end-turn"
+      }
+    ]
+  },
+  "7-2-task": {
+    "start": [
+      [
+        "burst",
+        [
+          469,
+          229
+        ]
+      ],
+      [
+        "burst",
+        [
+          650,
+          296
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "exchange_and_click",
+        "p": [
+          578,
+          473
+        ],
+        "ec": true,
+        "desc": "2 lower left"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          578,
+          473
+        ],
+        "desc": "swap 1 2"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          520,
+          560
+        ],
+        "wait-over": true,
+        "desc": "1 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          716,
+          378
+        ],
+        "desc": "1 upper right"
+      },
+      {
+        "t": "end-turn"
+      }
+    ]
+  },
+  "7-3-sss-present-task": {
+    "start": [
+      [
+        "burst",
+        [
+          943,
+          471
+        ]
+      ],
+      [
+        "burst",
+        [
+          182,
+          260
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          659,
+          433
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          626,
+          350
+        ],
+        "wait-over": true,
+        "ec": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          667,
+          384
+        ],
+        "desc": "1 left and tp"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "wait-over": true,
+        "p": [
+          596,
+          382
+        ],
+        "desc": "2 lower right and tp"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          451,
+          494
+        ],
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          841,
+          294
+        ],
+        "desc": "1 right"
+      }
+    ]
+  }
 }

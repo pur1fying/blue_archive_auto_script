@@ -1,5 +1,29 @@
 {
-    "missions": [
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 7,
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15,
+        20,
+        20,
+        20,
+        20
+    ],
+    "grid_tasks_challenge": [
+      "challenge2_sss",
+      "challenge2_task",
+      "challenge4_sss",
+      "challenge4_task"
+    ],
+    "mission": [
         "burst1",
         "pierce1",
         "pierce1",
@@ -15,14 +39,14 @@
     "challenge2_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     841,
                     220
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     690,
                     553
@@ -116,14 +140,14 @@
     "challenge2_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     841,
                     220
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     690,
                     553
@@ -196,21 +220,21 @@
     "challenge4_sss": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     293,
                     226
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     1091,
                     168
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     39,
                     671
@@ -429,21 +453,21 @@
     "challenge4_task": {
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     293,
                     226
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     1091,
                     168
                 ]
             ],
             [
-                "pierce2",
+              "pierce",
                 [
                     39,
                     671

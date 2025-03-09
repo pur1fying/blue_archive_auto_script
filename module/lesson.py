@@ -1,12 +1,12 @@
+import importlib
 import time
 
 from core import color, picture, image
 from core.utils import build_possible_string_dict_and_length, most_similar_string
-import importlib
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     self.lesson_times = self.config.lesson_times
     region_name = self.static_config.lesson_region_name[self.server].copy()
     for i in range(0, len(region_name)):
@@ -299,7 +299,7 @@ def get_lesson_relationship_counts(self):
     for i in range(0, 9):
         cnt = 0
         for j in range(0, 3):
-            if color.judge_rgb_range(self, position[i][0] - dx * j, position[i][1], 245, 255, 108, 128,
+            if color.is_rgb_in_range(self, position[i][0] - dx * j, position[i][1], 245, 255, 108, 128,
                                      134, 154):
                 cnt += 1
         res.append(cnt)
@@ -312,13 +312,13 @@ def get_lesson_each_region_status(self):
              [289, 511], [643, 511], [985, 511]]
     res = []
     for i in range(0, 9):
-        if color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
+        if color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
             res.append("available")
-        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230, 249):
+        elif color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230, 249):
             res.append("done")
-        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
+        elif color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
             res.append("lock")
-        elif color.judge_rgb_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
+        elif color.is_rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
                                    215):
             res.append("no activity")
         else:

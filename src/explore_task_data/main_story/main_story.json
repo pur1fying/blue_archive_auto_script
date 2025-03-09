@@ -62,21 +62,21 @@
         "will-fight": true,
         "start": [
             [
-                "burst1",
+              "burst",
                 [
                     490,
                     385
                 ]
             ],
             [
-                "burst2",
+              "burst",
                 [
                     693,
                     305
                 ]
             ],
             [
-                "pierce1",
+              "pierce",
                 [
                     645,
                     564

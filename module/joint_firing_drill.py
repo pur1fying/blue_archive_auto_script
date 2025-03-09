@@ -5,7 +5,7 @@ from module.main_story import auto_fight
 def implement(self):
     if self.server == "JP":
         return True
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_joint_firing_menu(self)
     state = check_drill_state(self)
     if not state:

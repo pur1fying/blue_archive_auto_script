@@ -13,7 +13,7 @@ def implement(self):
         self.logger.warning("Module [ " + module_name + " ] not found")
         return True
     try:
-        func = getattr(mod, "implement")
+        func = getattr(mod, "sweep")
     except AttributeError:
         self.logger.warning("Function [ implement ] not found in module , possible reason : ")
         self.logger.warning("1. Challenge Task is not open or exist in this activity")
