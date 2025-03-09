@@ -382,6 +382,7 @@ class Baas_thread:
         elif self.server == "JP":
             lang = "ja-jp"
         self.logger.info("Ocr Language : " + lang)
+        return lang
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
