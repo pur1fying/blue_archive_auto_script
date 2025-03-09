@@ -254,7 +254,9 @@ def explore_activity_challenge(self):
             elif res == "no-pass" or res == "pass":
                 need_fight = True
         if need_fight:
-            execute_grid_task(self, current_task_stage_data)
+            if not execute_grid_task(self, current_task_stage_data):
+                self.logger.error(f"Skipping task due to error.")
+                continue
             i += 1
         main_story.auto_fight(self)
         if self.config.manual_boss:

@@ -181,10 +181,16 @@ def explore_normal_task(self):
                 picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
 
                 # get preset unit
-                employ_units(self, taskData, teamConfig)
+                if not employ_units(self, taskData, teamConfig):
+                    self.logger.error(f"Skipping task {taskName} due to error.")
+                    continue
+
                 main_story.auto_fight(self)
             else:
-                execute_grid_task(self, taskData)
+                if not execute_grid_task(self, taskData):
+                    self.logger.error(f"Skipping task {taskName} due to error.")
+                    continue
+
                 main_story.auto_fight(self)
                 if self.config.manual_boss:
                     self.click(1235, 41)
@@ -241,7 +247,10 @@ def explore_hard_task(self):
                 continue
             skip_navigate = False
 
-            execute_grid_task(self, taskData)
+            if not execute_grid_task(self, taskData):
+                self.logger.error(f"Skipping task {taskName} due to error.")
+                continue
+
             main_story.auto_fight(self)
             if self.config.manual_boss:
                 self.click(1235, 41)

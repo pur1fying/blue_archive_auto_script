@@ -201,7 +201,7 @@ def confirm_teleport(self):
 # Functions related to task loops
 # 与任务循环相关的函数
 
-def execute_grid_task(self, taskData):
+def execute_grid_task(self, taskData) -> bool:
     # enter the mission
     img_reactions = {
         'normal_task_help': (1017, 131),
@@ -214,7 +214,8 @@ def execute_grid_task(self, taskData):
     img_ends = "normal_task_task-wait-to-begin-feature"
     picture.co_detect(self, None, None, img_ends, img_reactions, True)
 
-    employ_units(self, taskData, convert_team_config(self))
+    if not employ_units(self, taskData, convert_team_config(self)):
+        return False
 
     # start the mission
     img_ends = "normal_task_task-operating-feature"
@@ -230,6 +231,7 @@ def execute_grid_task(self, taskData):
     handle_task_pop_ups(self, True)
     set_skip_status(self, True)
     run_task_action(self, taskData['action'])
+    return True
 
 
 def run_task_action(self, actions):
@@ -330,7 +332,7 @@ def run_task_action(self, actions):
     self.set_screenshot_interval(self.config.screenshot_interval)
 
 
-def employ_units(self, taskData: dict, teamConfig: dict) -> tuple[bool, str]:
+def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
     self.logger.info(f"Employ team method: {self.config.choose_team_method}.")
 
     # get employ presets data
@@ -345,8 +347,9 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> tuple[bool, str]:
 
     unit_need = len([attribute for attribute, info in taskData["start"] if attribute != "swipe"])
     if total_available <= unit_need:
-        return (False,
-                f"Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
+        self.logger.error(
+            f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
+        return False
 
     employ_presets: list[list[int, int]] = []
 
@@ -440,3 +443,4 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> tuple[bool, str]:
                               skip_first_screenshot=True)
 
             employed += 1
+    return True
