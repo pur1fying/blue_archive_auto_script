@@ -10,6 +10,7 @@ class Layout(QWidget):
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
         self.config = config
+        self.max_region = self.config.static_config.max_region[self.config.server_mode]
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
         self.lay1 = QHBoxLayout()
@@ -20,8 +21,7 @@ class Layout(QWidget):
         self.label = QLabel(self.tr('普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：'), self)
         self.input = LineEdit(self)
         self.accept = PushButton(self.tr('确定'), self)
-        self.label_hard = QLabel(self.tr('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：'),
-                                 self)
+        self.label_hard = QLabel(self.tr('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：'),self)
         self.input_hard = LineEdit(self)
         self.accept_hard = PushButton(self.tr('确定'), self)
 
@@ -31,10 +31,13 @@ class Layout(QWidget):
             self.tr("爱丽丝宝贝"): [],
         }
         for i in range(0, len(self.config.static_config.hard_task_student_material)):
+            this_region = int(self.config.static_config.hard_task_student_material[i][0].split("-")[0])
+            if this_region > self.max_region:
+                break
             translated_name = bt.getStudent(self.config.static_config.hard_task_student_material[i][1])
             self.each_student_task_number_dict.setdefault(translated_name, [])
             temp = self.config.static_config.hard_task_student_material[i][0] + "-3"
-            (self.each_student_task_number_dict[translated_name].append(temp))
+            self.each_student_task_number_dict[translated_name].append(temp)
 
         for key in self.each_student_task_number_dict.keys():
             self.hard_task_combobox.addItem(key)
@@ -87,6 +90,11 @@ class Layout(QWidget):
         try:
             from module.normal_task import readOneNormalTask
             input_content = self.input.text()
+            if input_content == "":
+                self.config.set('mainlinePriority', "")
+                self.config.set("unfinished_normal_tasks", [])
+                notification.success(self.tr('设置成功'), f'{self.tr("普通关扫荡设置已清空")}',self.config)
+                return
             self.config.set('mainlinePriority', input_content)
             input_content = input_content.split(',')
             temp = []
@@ -105,6 +113,11 @@ class Layout(QWidget):
         try:
             from module.hard_task import readOneHardTask
             input_content = self.input_hard.text()
+            if input_content == "":
+                self.config.set('hardPriority', "")
+                self.config.set("unfinished_hard_tasks", [])
+                notification.success(self.tr('设置成功'), f'{self.tr("困难关扫荡设置已清空")}', self.config)
+                return
             self.config.set('hardPriority', input_content)
             input_content = input_content.split(',')
             temp = []

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 class StaticConfig:
     main_story_final_episode_num: int
     main_story_available_episodes: dict
+    max_region: dict
     explore_normal_task_region_range: list
     explore_hard_task_region_range: list
     screenshot_methods: list
