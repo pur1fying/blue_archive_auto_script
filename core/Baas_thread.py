@@ -827,8 +827,8 @@ class Baas_thread:
     def exit_emulator(self):
         self.logger.info(f"-- BAAS Exit Emulator --")
         if self.config.emulatorIsMultiInstance:
-            name = self.config.get("multiEmulatorName")
-            num = self.config.get("emulatorMultiInstanceNumber")
+            name = self.config.multiEmulatorName
+            num = self.config.emulatorMultiInstanceNumber
             self.logger.info(f"-- Exit Multi Emulator --")
             self.logger.info(f"EmulatorName: {name}")
             self.logger.info(f"MultiInstanceNumber: {num}")
