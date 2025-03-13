@@ -228,10 +228,10 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         else:
             if need_swipe:
                 if region == "mission":
-                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
-                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
+                    self.swipe(919, 172, 943, 720, duration=0.05, post_sleep_time=1)
+                    self.swipe(919, 172, 943, 720, duration=0.05, post_sleep_time=1)
                 elif region == "story":
-                    self.swipe(919, 155, 943, 720, duration=0.05, post_sleep_time=1)
+                    self.swipe(919, 172, 943, 720, duration=0.05, post_sleep_time=1)
             return True
 
 
