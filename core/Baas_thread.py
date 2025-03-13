@@ -15,7 +15,6 @@ import requests
 
 import device_operation
 import module.ExploreTasks.explore_task
-from core.ocr.ocr import use_baas_ocr
 from core import position, picture
 from core.config.config_set import ConfigSet
 from core.device.Control import Control
@@ -109,18 +108,16 @@ class Baas_thread:
         self.activity_name = None
         self.control = None
         self.screenshot = None
-        if use_baas_ocr:
-            self.ocr_img_pass_method = None
-            self.shared_memory_name = None
+        self.ocr_img_pass_method = None
+        self.shared_memory_name = None
 
     def set_ocr(self, ocr):
         self.ocr = ocr
-        if use_baas_ocr:
-            if self.ocr.client.config.server_is_remote:
-                self.ocr_img_pass_method = 1
-            else:
-                self.ocr_img_pass_method = 0
-                self.shared_memory_name = os.path.basename(self.config_set.config_dir)
+        if self.ocr.client.config.server_is_remote:
+            self.ocr_img_pass_method = 1
+        else:
+            self.ocr_img_pass_method = 0
+            self.shared_memory_name = os.path.basename(self.config_set.config_dir)
 
     def get_logger(self):
         return self.logger
@@ -340,7 +337,8 @@ class Baas_thread:
             self.identifier = self.server
             if self.server == "Global":
                 self.identifier += "_" + self.ocr_language
-
+                self.ocr.init_baas_model(self)
+                self.ocr.test_models([self.ocr_language], self.logger)
             self.logger.info("--------Emulator Init Finished----------")
             return True
         except Exception as e:
@@ -354,7 +352,16 @@ class Baas_thread:
         if self.server == "CN":
             lang = "zh-cn"
         elif self.server == "Global":
-            src = "/data/media/0/Android/data/com.nexon.bluearchive/files/DeviceOption"
+            basic_path = self.u2._adb_device.shell(f"echo $EXTERNAL_STORAGE").strip()
+            src = "/".join([
+                basic_path,
+                "Android",
+                "data",
+                self.package_name,
+                "files",
+                "DeviceOption"
+            ])
+            print(src)
             dst = os.path.basename(self.config_set.config_dir) + "_DeviceOption.json"
             # remove dst existing file
             if os.path.exists(dst):
@@ -787,6 +794,7 @@ class Baas_thread:
                 self.logger.critical("Initialization Failed")
                 self.flag_run = False
                 return False
+
         self.logger.info("--------Initialization Finished----------")
         return True
 
@@ -923,7 +931,7 @@ class Baas_thread:
         if temp[0] != 1280 or temp[1] != 720:
             self.logger.warning("Screen Size is not 1280x720, we recommend you to use 1280x720.")
         if self.ocr_img_pass_method == 0:
-            self.ocr.create_shared_memory(self.shared_memory_name, temp[0]*temp[1]*3)
+            self.ocr.create_shared_memory(self, temp[0] * temp[1] * 3)
         width = temp[0]
         self.ratio = width / 1280
         self.logger.info("Screen Size Ratio: " + str(self.ratio))

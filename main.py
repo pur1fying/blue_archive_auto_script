@@ -38,7 +38,7 @@ class Main:
             button_signal=None,
             update_signal=None,
             exit_signal=None
-        ):
+    ):
         t = Baas_thread(config, logger_signal, button_signal, update_signal, exit_signal)
         t.set_ocr(self.ocr)
         self.threads.setdefault(name, t)
@@ -104,13 +104,16 @@ class Main:
 
 
 if __name__ == '__main__':
-    ocr_needed = ["Global", "CN", "JP", "NUM"]
+    ocr_needed = ["en-us"]
     t = Main(ocr_needed=ocr_needed)
-    config = ConfigSet(config_dir="1708148000")
+    config = ConfigSet(config_dir="1708232489")
     tt = Baas_thread(config, None, None, None)
     tt.set_ocr(t.ocr)
     tt.init_all_data()
-
+    # tt.update_screenshot_array()
+    # for i in range(0, 10):
+    #     tt.ocr.get_region_res(tt, (1005, 94, 1240, 129), "ko-kr", "lesson region name")
+    # exit(0)
     # from module import create
     # create.create_phase(tt, 3)
 
@@ -125,7 +128,7 @@ if __name__ == '__main__':
     # tt.solve("activity_sweep")
     # tt.solve("tactical_challenge_shop")
     # tt.solve("explore_activity_mission")
-    tt.solve("explore_activity_story")
+    # tt.solve("explore_activity_story")
     # tt.solve("common_shop")
     # tt.solve("total_assault")
     # tt.solve("cafe_reward")
@@ -135,7 +138,7 @@ if __name__ == '__main__':
     # tt.solve("normal_task")
     # tt.solve("hard_task")
     # tt.solve("arena")
-    # tt.solve("lesson")
+    tt.solve("lesson")
     # tt.solve("group")
     # tt.solve("mail")
     # tt.solve("collect_reward")

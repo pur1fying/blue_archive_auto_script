@@ -33,16 +33,16 @@ def compare_image(self, name, threshold=0.8, rgb_diff=20):
 
 
 def getImageByName(self, name):
-    return position.image_dic[self.server][name]
+    return position.image_dic[self.identifier][name]
 
 
 def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=20, ret_max_val=False):
     # search image "name" in area, return upper left point of template image if found, else return False
-    if name not in position.image_dic[self.server]:
+    if name not in position.image_dic[self.identifier]:
         if ret_max_val:
             return False, 0
         return False
-    template_img = position.image_dic[self.server][name]
+    template_img = position.image_dic[self.identifier][name]
     ss_img = resize_ss_image(self, area)
 
     similarity = cv2.matchTemplate(ss_img, template_img, cv2.TM_CCOEFF_NORMED)
@@ -125,9 +125,9 @@ def click_until_image_disappear(self, x, y, region, threshold=0.8, rgb_diff=20, 
 
 
 def get_image_all_appear_position(self, image_template_name, search_area=(0, 0, 1280, 720), threshold=0.8):
-    if image_template_name not in position.image_dic[self.server]:
+    if image_template_name not in position.image_dic[self.identifier]:
         return []
-    template_img = position.image_dic[self.server][image_template_name]  # template image
+    template_img = position.image_dic[self.identifier][image_template_name]  # template image
     ss_img = resize_ss_image(self, search_area)  # screenshot image
     similarity = cv2.matchTemplate(ss_img, template_img, cv2.TM_CCOEFF_NORMED)
     loc = np.where(similarity >= threshold)

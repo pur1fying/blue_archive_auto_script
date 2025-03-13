@@ -3066,7 +3066,7 @@ STATIC_DEFAULT_CONFIG = '''
           "百鬼夜行中心",
           "D.U.白鸟区"
           ],
-      "Global": [
+      "Global_en-us": [
           "Schale Office",
           "Schale Residence Hall",
           "Gehenna Hub",
@@ -3076,7 +3076,34 @@ STATIC_DEFAULT_CONFIG = '''
           "Red Winter Federal Academy",
           "Hyakkiyako Central Area",
           "D.U. Shiratori City",
-          "Shanhaijing Main Special Zone"
+          "Shanhaijing Main Special Zone",
+          "Haruhabara Electric Town"
+      ],
+        "Global_zh-tw": [
+          "夏萊辦公室",
+          "夏萊居住區",
+          "格黑娜學園中央區",
+          "阿拜多斯高中",
+          "千年研究區域",
+          "三一廣場臨",
+          "赤冬聯邦學園",
+          "百鬼夜行中心部",
+          "D.U.白鳥區",
+          "山海經中央特區",
+          "春葉原"
+      ],
+      "Global_ko-kr": [
+            "살레 업무관",
+            "살레 생활관",
+            "게헨나 중앙구",
+            "아비도스 본관",
+            "밀레니엄 학습관",
+            "트리니티 광장 구역",
+            "붉은겨울 연방학원",
+            "백귀야행 중심부",
+            "D.U.시라토리구",
+            "산해경 중앙특구",
+            "하루하바라 전자상가"
       ],
       "JP": [
           "シャーレオフィス",

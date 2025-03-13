@@ -1,8 +1,8 @@
 prefix = "group"
 path = "group"
 x_y_range = {
-    'menu': (107, 9, 256, 40),
-    'sign-up-reward': (445, 141, 829, 176),
-    "join-club": (100, 10, 224, 39),
+    'menu': (107, 9, 206, 40),
+    'sign-up-reward': (535, 141, 739, 176),
+    "join-club": (887, 645, 997, 680),
     "enter-button": (196, 306, 386, 354),
 }

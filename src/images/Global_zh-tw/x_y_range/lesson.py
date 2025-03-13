@@ -1,12 +1,11 @@
 prefix = "lesson"
 path = "lesson"
 x_y_range = {
-    'select-location': (100, 9, 313, 39),
-    'location-select': (100, 9, 200, 39),
-    'lesson-information': (528, 100, 745, 135),
-    'all-locations': (538, 100, 742, 135),
-    'lesson-report': (538, 120, 747, 158),
-    'inadequate-lesson-ticket': (694, 313, 747, 348),
-    'purchase-lesson-ticket-menu': (461, 149, 819, 185),
-    'purchase-lesson-ticket-notice': (461, 165, 819, 200),
+    'location-select': (107, 9, 162, 36),
+    'select-location': (107, 9, 244, 40),
+    'lesson-information': (563, 100, 715, 135),
+    'all-locations': (563, 100, 715, 135),
+    'lesson-report': (563, 125, 715, 150),
+    'purchase-lesson-ticket-menu': (530, 147, 750, 186),
+    'purchase-lesson-ticket-notice': (530, 162, 750, 201),
 }

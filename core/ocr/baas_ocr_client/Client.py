@@ -132,7 +132,6 @@ class BaasOcrClient:
 
     def init_model(self, language: list[str], gpu_id=-1, num_thread=4, EnableCpuMemoryArena=False):
         url = self.config.base_url + "/init_model"
-        print(url)
         data = {
             "language": language,
             "gpu_id": gpu_id,
