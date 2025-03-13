@@ -62,25 +62,14 @@ def explore_story(self):
     total_stories = 9
     while self.flag_run:
         plot = to_story_task_info(self, last_target_task)
-        if plot == "normal_task_task-info":
-            res = color.check_sweep_availability(self)
-        elif plot == "main_story_episode-info":
-            if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
-                res = "sss"
-            else:
-                res = "no-pass"
+        res = check_sweep_availability(self, plot)
         while res == "sss" and last_target_task <= total_stories - 1:
             self.logger.info("Current story sss check next story")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_task += 1
-            plot = picture.co_detect(self, img_ends=["normal_task_task-info", "main_story_episode-info"])
-            if plot == "normal_task_task-info":
-                res = color.check_sweep_availability(self)
-            elif plot == "main_story_episode-info":
-                if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
-                    res = "sss"
-                else:
-                    res = "no-pass"
+            plot = picture.co_detect(self, img_ends=["activity_task-info", "normal_task_task-info",
+                                                     "main_story_episode-info"])
+            res = check_sweep_availability(self, plot)
         if last_target_task == total_stories and res == "sss":
             self.logger.info("All STORY SSS")
             return True
@@ -121,20 +110,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = [
-        'burst1',
-        'burst1',
-        'pierce1',
-        'pierce1',
-        'burst1',
-        'burst1',
-        'pierce1',
-        'pierce1',
-        'burst1',
-        'burst1',
-        'pierce1',
-        'pierce1'
-    ]
+    characteristic = get_stage_data(self)["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)
@@ -142,19 +118,18 @@ def explore_mission(self):
             self.logger.info("Current task sss check next task")
             self.click(1168, 353, duration=1, wait_over=True)
             last_target_mission += 1
-            image.detect(self, "normal_task_task-info")
+            picture.co_detect(self, img_ends=["normal_task_task-info", "activity_task-info"])
             res = color.check_sweep_availability(self)
         if last_target_mission == total_missions and res == "sss":
             self.logger.info("All MISSION SSS")
             return True
-        number = self.config[characteristic[last_target_mission - 1]]
+        number = int(self.config_set.get(characteristic[last_target_mission - 1]))
         self.logger.info("according to config, choose formation " + str(number))
         to_formation_edit_i(self, number, (940, 538), True)
         start_fight(self, number)
         main_story.auto_fight(self)
         to_activity(self, "story")
         to_activity(self, "mission", True, True)
-
 
 def explore_challenge(self):
     self.quick_method_to_main_page()
@@ -487,3 +462,21 @@ def startJointFight(self):
     rgb_possibles = {"formation_edit1": (1156, 659)}
     rgb_ends = "fighting_feature"
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+
+
+def check_sweep_availability(self, plot):
+    if plot == "activity_task-info":
+        if image.compare_image(self, "activity_task-no-goals"):
+            self.logger.info("Judge Task Without Goal")
+            if not color.judgeRGBFeature(self, "no-goal-task_passed"):
+                return "sss"
+            else:
+                return "no-pass"
+        else:
+            return color.check_sweep_availability(self)
+    elif plot == "main_story_episode-info":
+        if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+            return "sss"
+        else:
+            return "no-pass"
+    return "no-pass"
