@@ -30,8 +30,6 @@ x_y_range = {
 
     'filter-menu': (101, 137, 190, 174),
 
-    'filter-select-all-chosen': (897, 222, 930, 249),
-    'filter-select-all-not-chosen': (897, 222, 930, 249),
 
     'filter-Equipment-chosen': (262, 242, 321, 296),
     'filter-Equipment-not-chosen': (262, 242, 321, 296),

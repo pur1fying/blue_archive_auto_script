@@ -1,14 +1,14 @@
 prefix = "create"
 path = "create"
 x_y_range = {
-    'crafting-list': (865, 158, 1073, 185),
+    'crafting-list': (910, 158, 1003, 185),
     'select-node': (1000, 630, 1240, 677),
     'start-crafting': (1000, 630, 1240, 677),
-    'start-crafting-notice': (451, 296, 854, 328),
+    'start-crafting-notice': (521, 296, 754, 328),
 
     'point-up': (1222, 90, 1246, 117),
     'point-down': (1222, 90, 1246, 117),
-    'complete-instantly': (448, 261, 790, 311),
+    'complete-instantly': (538, 261, 730, 311),
 
     'start-phase-1-grey': (1000, 630, 1240, 677),
     'start-phase-1-bright': (1000, 630, 1240, 677),
@@ -30,8 +30,6 @@ x_y_range = {
     'sort-count-not-chosen': (755, 159, 785, 196),
 
     'filter-menu': (101, 137, 190, 174),
-    'filter-select-all-chosen': (897, 222, 930, 249),
-    'filter-select-all-not-chosen': (897, 222, 930, 249),
 
     'filter-Equipment-chosen': (263, 260, 321, 315),
     'filter-Equipment-not-chosen': (263, 260, 321, 315),

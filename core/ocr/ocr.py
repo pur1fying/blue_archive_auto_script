@@ -29,16 +29,18 @@ class Baas_ocr:
             return "UNKNOWN"
         return category(temp)
 
-    def recognize_int(self, baas, area, log_info="") -> int:
+    def recognize_int(self, baas, area, log_info="", filter_score=0.2) -> int:
         img = self.get_area_img(baas.latest_img_array, area, baas.ratio)
         res = self.ocr_for_single_line(
-            "en-us",
-            log_info,
-            img,
-            "0123456789",
-            baas.ocr_img_pass_method,
-            "",
-            baas.shared_memory_name
+            language="en-us",
+            log_info=log_info,
+            origin_image=img,
+            candidates="0123456789",
+            pass_method=baas.ocr_img_pass_method,
+            local_path="",
+            shared_memory_name=baas.shared_memory_name,
+            _logger=baas.logger,
+            filter_score=filter_score,
         )
         result = 0
         for i in range(0, len(res)):
@@ -80,9 +82,19 @@ class Baas_ocr:
     def is_chinese_char(self, char):
         return 0x4e00 <= ord(char) <= 0x9fff
 
-    def get_region_res(self, baas, region, language='zh-cn', log_info="", candidates=""):
+    def get_region_res(self, baas, region, language='zh-cn', log_info="", candidates="", filter_score=0.2):
         img = self.get_area_img(baas.latest_img_array, region, baas.ratio)
-        res = self.ocr_for_single_line(language, log_info, img, candidates, 1, _logger=baas.logger)
+        res = self.ocr_for_single_line(
+            language=language,
+            log_info=log_info,
+            origin_image=img,
+            candidates=candidates,
+            pass_method=baas.ocr_img_pass_method,
+            local_path="",
+            shared_memory_name=baas.shared_memory_name,
+            _logger=baas.logger,
+            filter_score=filter_score
+        )
         return res
 
     def get_region_raw_res(self, img, region, language='CN', ratio=1.0, candidates=""):
@@ -179,7 +191,8 @@ class Baas_ocr:
                             pass_method: int = 1,
                             local_path: str = "",
                             shared_memory_name: str = "",
-                            _logger=None
+                            _logger=None,
+                            filter_score=0.2
                             ):
         if _logger is None:
             logger = self.logger
@@ -197,6 +210,8 @@ class Baas_ocr:
         if response.status_code == 200:
             ret_json = json.loads(response.text)
             txt = ret_json['text']
+            char_scores = ret_json['char_scores']
+            txt = ''.join([char for i, char in enumerate(txt) if char_scores[i] > filter_score])
             logger.info(f"Ocr {log_info} : {txt} | Time : {ret_json['time']}ms")
             return txt
         else:

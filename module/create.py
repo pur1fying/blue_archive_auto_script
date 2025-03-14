@@ -8,17 +8,14 @@ def implement(self):
     use_acceleration_ticket = self.config.use_acceleration_ticket
     left_create_times = int(self.config.createTime) - int(self.config.alreadyCreateTime)
     create_max_phase = int(self.config.create_phase)
-    self.logger.info("Left Create Times: [ " + str(left_create_times) + " ].")
+    self.logger.info("Left Create Times       : [ " + str(left_create_times) + " ].")
     self.logger.info("Use Acceleration Ticket : [ " + str(use_acceleration_ticket).upper() + " ].")
-    self.logger.info("Create Phase : [ " + str(create_max_phase) + " ].")
+    self.logger.info("Create Phase            : [ " + str(create_max_phase) + " ].")
     self.to_main_page()
-    res = to_manufacture_store(self, True)
+    ret = to_manufacture_store(self, True)
 
-    if res.startswith("create_phase"):
-        phase = int(re.findall(r"\d", res)[0])
-        start_phase(self, phase)
-        select_node(self, phase)
-        confirm_select_node(self, 1)
+    if ret.startswith("create_phase"):
+        solve_unfinished_create(self, ret)
         to_manufacture_store(self, True)
     create_flag = True
     if left_create_times <= 0:
@@ -32,7 +29,11 @@ def implement(self):
         need_acc_collect = False
         for i in range(0, len(status)):
             if status[i] == "empty":
-                to_phase1(self, i, True)
+                ret = to_phase1(self, i, True)
+                if ret.startswith("create_phase"):
+                    solve_unfinished_create(self, ret)
+                    status = check_crafting_list_status(self)  # current position might be occupied by unfinished create
+                    continue
                 material_adequate = create_phase(self, 1)
                 if not material_adequate:
                     create_flag = False
@@ -47,8 +48,7 @@ def implement(self):
                 need_acc_collect = True
                 self.config.alreadyCreateTime += 1
                 self.config_set.save()
-                self.logger.info(
-                    "Today Total Create Times : [ " + str(self.config.alreadyCreateTime) + " ].")
+                self.logger.info("Today Total Create Times : [ " + str(self.config.alreadyCreateTime) + " ].")
                 to_manufacture_store(self)
                 if self.config.alreadyCreateTime >= self.config.createTime:
                     create_flag = False
@@ -58,6 +58,15 @@ def implement(self):
             status = receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket)
     get_next_execute_time(self, status)
     return True
+
+
+def solve_unfinished_create(self, phase_text):
+    self.logger.info("Solve Unfinished Create.")
+    phase = int(re.findall(r"\d", phase_text)[0])
+    start_phase(self, phase)
+    select_node(self, phase)
+    confirm_select_node(self, 1)
+    to_manufacture_store(self, True)
 
 
 def confirm_select_node(self, tp=0):
@@ -94,8 +103,19 @@ def start_phase(self, phase_num):
     return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
+def priority_language_convert(self, phase, pri):
+    if self.identifier in ["CN", "Global_en-us", "JP"]:
+        return pri
+    self.logger.info(f"Phase {phase}. Priority Language Convert.")
+    origin_lst = self.static_config.create_default_priority["Global"]["phase" + str(phase)]
+    target_lst = self.static_config.create_default_priority[self.identifier]["phase" + str(phase)]
+    return [target_lst[origin_lst.index(x)] for x in pri]
+
+
 def select_node(self, phase):
     pri = self.config_set.get('createPriority_phase' + str(phase))
+    pri = priority_language_convert(self, phase, pri)
+
     for i in range(0, len(pri)):
         pri[i] = preprocess_node_info(pri[i], self.server)
 
@@ -111,13 +131,17 @@ def select_node(self, phase):
     for i in range(0, 5):
         if i != 0:
             image.click_until_image_disappear(self, node_x[i], node_y[i], region, 0.9, 10)
-        node_info = preprocess_node_info(
-            self.ocr.get_region_res(self.latest_img_array, region, self.server, self.ratio), self.server)
-        self.logger.info("Ocr Node " + str(i + 1) + " : " + node_info)
+        origin_text = self.ocr.get_region_res(
+            self,
+            region,
+            self.ocr_language,
+            "Node " + str(i + 1) + " Text",
+        )
+        node_info = preprocess_node_info(origin_text, self.identifier)
         for k in range(0, len(pri)):
             if pri[k] == node_info:  # complete match
                 if k == 0:  # node == pri[0]
-                    self.logger.info("choose node : " + pri[0])
+                    self.logger.info("Choose Node : " + pri[0])
                     return
                 else:
                     node.append(pri[k])
@@ -252,13 +276,15 @@ def check_crafting_list_status(self):
 def receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket):
     while self.flag_run:
         status = check_crafting_list_status(self)
-        self.logger.info("crafting list status: " + str(status))
+        self.logger.info("Crafting List Status: " + str(status))
         if ("unfinished" in status and use_acceleration_ticket) or "finished" in status:
             collect(self, status, use_acceleration_ticket)
-        else:
+        elif "empty" in status or status.count("unfinished") == 3:
             return status
-        self.update_screenshot_array()
-
+        else:
+            ret = to_manufacture_store(self)
+            if ret.startswith("create_phase"):
+                solve_unfinished_create(self, ret)
 
 def collect(self, status, use_acceleration_ticket):
     if "finished" in status:
@@ -287,8 +313,13 @@ def check_create_availability(self):
 def to_phase1(self, i, skip_first_screenshot=False):
     y_position = [288, 407, 534]
     img_possibles = {"create_crafting-list": (1153, y_position[i])}
-    img_ends = "create_material-list"
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+    img_ends = [
+        "create_material-list",
+        "create_phase-1-wait-to-check-node",
+        "create_phase-2-wait-to-check-node",
+        "create_phase-3-wait-to-check-node"
+    ]
+    return picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 
 
 def to_filter_menu(self):
@@ -298,7 +329,7 @@ def to_filter_menu(self):
         "create_sort-menu": (145, 160)
     }
     img_ends = "create_filter-menu"
-    picture.co_detect(self, None, None, img_ends, img_possibles, True)
+    return picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def confirm_filter(self):
@@ -363,17 +394,6 @@ def filter_list_ensure_choose(self, filter_list):
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-def set_display_setting_filter_list_select_all(self, state):
-    if self.server == "CN":
-        if state:
-            img_possibles = {"create_filter-select-all-not-chosen": (964, 232)}
-            img_ends = "create_filter-select-all-chosen"
-        else:
-            img_possibles = {"create_filter-select-all-chosen": (964, 232)}
-            img_ends = "create_filter-select-all-not-chosen"
-        picture.co_detect(self, None, None, img_ends, img_possibles, True)
-
-
 def set_display_setting_sort_type(self, sort_type):
     self.logger.info("Set Sort Type: " + sort_type)
     to_sort_menu(self)
@@ -431,13 +451,13 @@ def set_display_setting_sort_arrow_direction(self, direction):
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-def preprocess_node_info(st, server):
+def preprocess_node_info(st, identifier):
     st = st.replace(" ", "")
     st = st.replace("・", "")
     st = st.replace(".", "")
     st = st.replace("·", "")
     st = st.replace("’", "")
-    if server == 'Global':
+    if identifier == 'Global_en-us':
         st = st.lower()
     return st
 
@@ -451,16 +471,19 @@ def get_next_execute_time(self, status):
     time_deltas = []
     for i in range(0, 3):
         if status[i] == "unfinished":
-            res = self.ocr.get_region_res(self.latest_img_array, regions[i], 'Global', self.ratio)
+            res = self.ocr.get_region_res(
+                baas=self,
+                region=regions[i],
+                language="en-us",
+                log_info=f"Item {i + 1} Left Time",
+                candidates="0123456789:"
+            )
             if res.count(":") != 2:
                 continue
             res = res.split(":")
             for j in range(0, len(res)):
                 if res[j][0] == "0":
                     res[j] = res[j][1:]
-            self.logger.info(
-                "ITEM " + str(i + 1) + " Crafting time: " + res[0] + "\tHOUR " + res[1] + "\tMINUTES " + res[
-                    2] + "\tSECONDS")
             time_deltas.append(int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2]))
     if time_deltas:
         self.next_time = min(time_deltas)
@@ -811,7 +834,7 @@ def item_recognize(self, check_state):
                         compare_img_name += "-Used-Up"
                     continue
                 if usability == 1:
-                    holding_quantity = get_item_holding_quantity(self, item_holding_quantity_region)
+                    holding_quantity = get_item_holding_quantity(self, item_holding_quantity_region, name)
                 elif usability == 2:
                     self.logger.info("Item : [ " + name + " ] is used up.Set holding quantity to 0.")
                 break
@@ -857,10 +880,14 @@ def log_detect_information(self, itm_list, pre_info=None):
     return
 
 
-def get_item_holding_quantity(self, region):
-    res = self.ocr.get_region_res(self.latest_img_array, region, "Global", self.ratio)
-    res = res.replace("g", "9")
-    res = res.replace("i", "1")
+def get_item_holding_quantity(self, region, name):
+    res = self.ocr.get_region_res(
+        baas=self,
+        region=region,
+        language="en-us",
+        log_info=name,
+        candidates="0123456789xX"
+    )
     try:
         if 'x' in res:
             return int(res.split("x")[1])
@@ -877,10 +904,13 @@ def get_item_holding_quantity(self, region):
 
 
 def get_item_selected_quantity(self, region):
-    res = self.ocr.get_region_res(self.latest_img_array, region, "Global", self.ratio)
-    res = res.replace("g", "9")
-    res = res.replace("i", "1")
-    res = re.sub(r"\D", "", res)
+    res = self.ocr.get_region_res(
+        baas=self,
+        region=region,
+        language="en-us",
+        log_info="Select Count",
+        candidates="0123456789"
+    )
     try:
         res = int(res)
         return res
@@ -955,13 +985,13 @@ def judge_item_state(self, x, y):
     dx = 83
     dy = 23
     if color.is_rgb_in_range(self, x, y, 57, 77, 72, 92, 92, 112) and \
-        color.is_rgb_in_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
-        color.is_rgb_in_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
-        color.is_rgb_in_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
+            color.is_rgb_in_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
+            color.is_rgb_in_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
+            color.is_rgb_in_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
         return 1
     elif color.is_rgb_in_range(self, x, y, 145, 165, 160, 180, 165, 185) and \
-        color.is_rgb_in_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
-        color.is_rgb_in_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
-        color.is_rgb_in_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
+            color.is_rgb_in_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
+            color.is_rgb_in_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
+            color.is_rgb_in_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
         return 2
     return 0  # 0: not am item, 1: usable 2 : unusable but is an item
