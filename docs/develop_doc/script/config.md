@@ -558,16 +558,18 @@
 - **type**: `list[list[str]]`
 - **description**: 每列每行对应的队伍属性, 用于[自动选择队伍](/usage_doc/config#选队逻辑)
 - **example**:
-- ```json
-    [
-        ["burst","pierce","Unused","burst","mystic"],
-        ["pierce","burst","shock","burst","Unused"],
-        ["pierce","shock","burst","Unused","burst"],
-        ["burst","Unused","pierce","burst","mystic"]
-    ]
-  ```
-  爆发队伍在预设第一列第一行, 贯穿队伍在预设第二列第一行 以此类推...
-
+  - ```json
+      [
+          ["burst","pierce","Unused","burst","mystic"],
+          ["pierce","burst","shock","burst","Unused"],
+          ["pierce","shock","burst","Unused","burst"],
+          ["burst","Unused","pierce","burst","mystic"]
+      ]
+    ```
+    预设1 编队1-5分别是: 爆发, 贯穿, 未使用, 爆发, 神秘
+    预设2            : 贯穿, 爆发, 振动, 爆发, 未使用
+    预设3            : 贯穿, 振动, 爆发, 未使用, 爆发
+    预设4            : 爆发, 未使用, 贯穿, 爆发, 神秘
 ## `side_team_attribute`
 
 - **type**: `list[list[str]]`
@@ -575,8 +577,10 @@
 - **example**:
 - ```json
     [
-        ["burst","pierce","Unused","burst","mystic"]
+        ["burst","pierce","Unused","burst"]
     ]
+    ```
+    队伍1-4队伍属性: 爆发, 贯穿, 未使用, 爆发
 - **note**: 侧栏队伍只有一行，使用两个list是为了与preset_team_attribute保持格式一致
 
 ## `manual_boss`
