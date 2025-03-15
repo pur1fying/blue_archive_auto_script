@@ -561,6 +561,11 @@ STATIC_DEFAULT_CONFIG = '''
         "Global": [2, 3, 4, 5, 6, 7],
         "JP": [1, 2, 3, 4, 5, 6, 7, 8]
     },
+    "max_region": {
+        "CN": 23,
+        "Global": 26,
+        "JP": 28
+    },
     "explore_normal_task_region_range": [4, 28],
     "explore_hard_task_region_range": [1, 28],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
@@ -3088,7 +3093,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
+        "CN": "AbydosResortRestorationCommittee",
         "Global": null,
         "JP": "WaffleCrisisTheMiracleMoment"
     },
@@ -3143,7 +3148,10 @@ STATIC_DEFAULT_CONFIG = '''
         ["22-1", "志美子"] , ["22-2", "桐乃"] , ["22-3", "响"] ,
         ["23-1", "朱莉"] , ["23-2", "椿"] , ["23-3", "爱丽丝宝贝"] ,
         ["24-1", "芹娜"] , ["24-2", "玛丽"] , ["24-3", "日奈"] ,
-        ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"]
+        ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"],
+        ["26-1", "好美"], ["26-2", "爱莉"], ["26-3", "瞬(小)"],
+        ["27-1", "志美子"], ["27-2", "晴"], ["27-3", "千夏(温泉)"],
+        ["28-1", "朱莉"], ["28-2", "玛丽"], ["28-3", "美咲"]
     ],
   "student_names": [
     {

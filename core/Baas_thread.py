@@ -820,14 +820,14 @@ class Baas_thread:
     def exit_emulator(self):
         self.logger.info(f"-- BAAS Exit Emulator --")
         if self.config.emulatorIsMultiInstance:
-            name = self.config.get("multiEmulatorName")
-            num = self.config.get("emulatorMultiInstanceNumber")
+            name = self.config.multiEmulatorName
+            num = self.config.emulatorMultiInstanceNumber
             self.logger.info(f"-- Exit Multi Emulator --")
-            self.logger.info(f"EmulatorName: {name}")
-            self.logger.info(f"MultiInstanceNumber: {num}")
+            self.logger.info(f"EmulatorName         : {name}")
+            self.logger.info(f"MultiInstanceNumber  : {num}")
             device_operation.stop_simulator_classic(name, num)
         else:
-            self.file_path = self.config.get("program_address")
+            self.file_path = self.config.program_address
             if not process_api.terminate(self.file_path):
                 self.logger.error("Emulator exit failed")
                 return False
