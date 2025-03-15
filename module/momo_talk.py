@@ -1,15 +1,12 @@
 import time
-
 from core import color, image, picture
 
 
 def implement(self, need_check_mode=True):
     self.to_main_page()
-    to_momotalk2(self, True)
+    to_momotalk(self, True, 2)
     if need_check_mode:
         check_mode(self)
-        time.sleep(0.5)
-        self.latest_img_array = self.get_screenshot_array()
     main_to_momotalk = True
     while 1:
         color.wait_loading(self)
@@ -23,13 +20,13 @@ def implement(self, need_check_mode=True):
             else:
                 y += 1
         length = len(unread_location)
-        self.logger.info("find  " + str(length) + "  unread message")
+        self.logger.info("Find  " + str(length) + "  Unread Message")
         if length == 0:
             if main_to_momotalk:
-                self.logger.info("momo_talk task finished")
+                self.logger.info("momo_talk task Finished")
                 return True
             else:
-                self.logger.info("restart momo_talk task")
+                self.logger.info("Restart momo_talk task")
                 self.to_main_page()
                 return implement(self, need_check_mode=False)
         else:
@@ -37,42 +34,76 @@ def implement(self, need_check_mode=True):
                 self.click(unread_location[i][0], unread_location[i][1], wait_over=True)
                 common_solve_affection_story_method(self)
         main_to_momotalk = False
-        self.click(170, 197, duration=0.2, wait_over=True)
-        self.click(170, 270, duration=0.2, wait_over=True)
+        to_momotalk(self, True, 1)
+        to_momotalk(self, True, 2)
 
 
 def check_mode(self):
-    if not image.compare_image(self, "momo_talk_unread"):
-        y = {
-            "CN": 426,
-            "Global": 475,
-            "JP": 475
-        }
-        y = y[self.server]
-        self.logger.info("change NEWEST to UNREAD mode")
-        self.click(514, 177, duration=0.3, wait_over=True)
-        self.click(562, 297, duration=0.3, wait_over=True)
-        self.click(461, y, duration=0.3, wait_over=True)
-    else:
-        self.logger.info("UNREAD mode")
-    self.latest_img_array = self.get_screenshot_array()
-    if image.compare_image(self, "momo_talk_up"):
-        self.logger.info("change UP to DOWN")
-        self.click(634, 169, duration=0.2, wait_over=True)
-    elif image.compare_image(self, "momo_talk_down"):
-        self.logger.info("DOWN mode")
-    else:
-        self.logger.info("can't detect up/down button")
-    return True
+    change_sort(self, "unread")
+    change_direction(self, "down")
 
 
-def to_momotalk2(self, skip_first_screenshot=False):
+def change_sort(self, sort="unread"):
+    self.logger.info(f"Change Sort to [{sort}]")
+    all_sort_p = {
+        "newest": (339, 296),
+        "unread": (555, 296),
+        "name": (339, 353),
+        "affection": (555, 353),
+        "starred": (339, 407)
+    }
+    p = all_sort_p[sort]
+    keys = list(all_sort_p.keys())
+    # to sort menu
+    img_reactions = {
+        "momo_talk_momotalk-peach": (511, 177),
+    }
+    img_ends = "momo_talk_sort-menu"
+    picture.co_detect(self, None, None, img_ends, img_reactions, skip_first_screenshot=True)
+    # change sort
+    keys.remove(sort)
+    img_reactions = {f"momo_talk_sort-{key}-chosen": p for key in keys}
+    img_ends = f"momo_talk_sort-{sort}-chosen"
+    picture.co_detect(self, None, None, img_ends, img_reactions, skip_first_screenshot=True)
+    # confirm
+    confirm_y = {
+        "CN": 426,
+        "Global": 475,
+        "JP": 475
+    }
+    confirm_y = confirm_y[self.server]
+    image.click_until_template_disappear(
+        self,
+        "momo_talk_sort-menu",
+        461, confirm_y,
+        0.8,
+        20,
+        True
+    )
+
+
+def change_direction(self, direction="down"):
+    self.logger.info(f"Change Direction to [{direction}]")
+    opposite = {
+        "down": "up",
+        "up": "down"
+    }
+    img_reactions = {
+        f"momo_talk_{opposite[direction]}": (634, 169),
+    }
+    img_ends = f"momo_talk_{direction}"
+    picture.co_detect(self, None, None, img_ends, img_reactions, skip_first_screenshot=True)
+
+
+def to_momotalk(self, skip_first_screenshot=False, target=2):
+    opposite = 3 - target
+    momotalk_p = [(), (168, 280), (168, 202)]
     rgb_possibles = {
         "main_page": (166, 150),
-        "momotalk1": (170, 278),
+        f"momotalk{opposite}": momotalk_p[opposite],
         "reward_acquired": (640, 100),
     }
-    rgb_ends = "momotalk2"
+    rgb_ends = f"momotalk{target}"
     img_possibles = picture.GAME_ONE_TIME_POP_UPS[self.server]
     return picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles,
                              skip_first_screenshot=skip_first_screenshot)
@@ -85,7 +116,7 @@ def common_solve_affection_story_method(self):
         self.click(924, 330, wait_over=True)
     start_time = time.time()
     timeOut = 10
-    while time.time() <= start_time + timeOut:       # when 10s no reply , conclude this conversation
+    while time.time() <= start_time + timeOut:  # when 10s no reply , conclude this conversation
         res = getConversationState(self)
         if res[0] == 'reply':
             if res[1] >= 625:
@@ -113,32 +144,27 @@ def common_solve_affection_story_method(self):
             rgb_ends = "reward_acquired"
             picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
             self.logger.info("Relationship Story Over")
-            to_momotalk2(self, True)
+            to_momotalk(self, False, 2)
             return True
-        time.sleep(self.screenshot_interval)
     self.logger.info(str(timeOut) + "s Time Out Reached And Assume Current Conversation Over")
 
 
 def getConversationState(self):
-    self.latest_img_array = self.get_screenshot_array()
-    if image.compare_image(self, "plot_menu"):      # menu --> skip plot --> skip notice --> reward acquired
+    self.update_screenshot_array()
+    if image.compare_image(self, "plot_menu"):  # menu --> skip plot --> skip notice --> reward acquired
         return ['plot_menu']
     if color.is_rgb_in_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
             color.is_rgb_in_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
-                color.is_rgb_in_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):    # blue enter
+            color.is_rgb_in_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):  # blue enter
         return ['enter']
     i = 657
     while i > 156:
         if color.is_rgb_in_range(self, 786, i, 29, 49, 143, 163, 219, 239, True, 1) and \
-            color.is_rgb_in_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):  # reply
+                color.is_rgb_in_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):  # reply
             return ['reply', i + 65]
         elif color.is_rgb_in_range(self, 862, 813 - i, 245, 255, 227, 247, 230, 250) and \
-            color.is_rgb_in_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):        # pink enter
+                color.is_rgb_in_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):  # pink enter
             return ['affection', min(625, 843 - i)]
         else:
             i -= 1
-    return ['end'] # nothing found
-
-
-
-
+    return ['end']  # nothing found

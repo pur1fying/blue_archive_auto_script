@@ -5,6 +5,7 @@ import numpy as np
 from core import position
 from core.utils import merge_nearby_coordinates
 
+
 def screenshot_cut(self, area):
     # template is from 1280 * 720 screenshot, if real screenshot is 2560 * 1440, then ratio is 2.0
     # cut the same area from real screenshot
@@ -53,7 +54,8 @@ def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=2
         else:
             return False
 
-    ss_img = img_cut(ss_img, (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
+    ss_img = img_cut(ss_img,
+                     (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
     if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
         if ret_max_val:
             return False, 0  # rgb diff not match, assume not found
@@ -87,7 +89,8 @@ def search_image_in_area(self, image, area=(0, 0, 1280, 720), threshold=0.8, rgb
     _, max_val, _, max_loc = cv2.minMaxLoc(similarity)
     if max_val < threshold:
         return False
-    ss_img = img_cut(ss_img,(max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
+    ss_img = img_cut(ss_img,
+                     (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
     if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
         return False
     upper_left = (int(max_loc[0] / self.ratio) + area[0], int(max_loc[1] / self.ratio) + area[1])
@@ -120,6 +123,15 @@ def click_until_image_disappear(self, x, y, region, threshold=0.8, rgb_diff=20, 
         self.click(x, y, wait_over=True)
         self.update_screenshot_array()
     while self.flag_run and search_image_in_area(self, image, region, threshold, rgb_diff):
+        self.click(x, y, wait_over=True)
+        self.update_screenshot_array()
+
+
+def click_until_template_disappear(self, name, x, y, threshold=0.8, rgb_diff=20, click_first=True):
+    if click_first:
+        self.click(x, y, wait_over=True)
+        self.update_screenshot_array()
+    while self.flag_run and compare_image(self, name, threshold, rgb_diff):
         self.click(x, y, wait_over=True)
         self.update_screenshot_array()
 
