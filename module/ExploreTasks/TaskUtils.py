@@ -10,14 +10,16 @@ from module import main_story
 # 与导航或获取地图数据相关的函数
 
 def to_mission_info(self, y=0):
-    rgb_possibles = {"event_hard": (1114, y), "event_normal": (1114, y)}
+    rgb_possibles = {
+        "event_hard": (1114, y),
+        "event_normal": (1114, y)
+    }
     img_ends = [
         "normal_task_task-info",
         "activity_task-info",
         "normal_task_SUB"
     ]
     img_possibles = {
-        'normal_task_select-area': (1114, y),
         'normal_task_challenge-menu': (640, 490)
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)

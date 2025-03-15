@@ -2,18 +2,15 @@ prefix = "normal_task"
 path = "normal_task"
 x_y_range = {
     'charge-challenge-counts': (427, 348, 601, 381),
-    'select-area': (97, 9, 255, 37),
     'fight-confirm': (1120, 646, 1222, 681),
     'prize-confirm': (712, 643, 836, 675),
     'task-info': (508, 90, 752, 153),
     'help': (597, 111, 675, 150),
-    'mission-operating-feature': (10, 10, 121, 40),
     'end-turn': (595, 372, 669, 402),
     "fail-confirm": (560, 637, 700, 676),
     'teleport-notice': (542, 317, 625, 351),
     'task-begin-without-further-editing-notice': (730, 284, 846, 314),
     'mission-pause': (536, 142, 740, 182),
-    'mission-conclude-confirm': (959, 641, 1102, 687),
     'fight-skip': (1087, 535, 1105, 556),
     'auto-over': (1039, 591, 1052, 609),
     'present': (585, 496, 698, 532),

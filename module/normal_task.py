@@ -129,7 +129,6 @@ def to_normal_event(self: Baas_thread, skip_first_screenshot=False):
         'normal_task_fight-confirm': (1168, 659),
         'normal_task_fight-complete-confirm': (1160, 666),
         'normal_task_reward-acquired-confirm': (800, 660),
-        'normal_task_mission-conclude-confirm': (1042, 671),
     }
     img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
@@ -166,14 +165,11 @@ def to_hard_event(self, skip_first_screenshot=False):
 
 def to_task_info(self, x, y):
     rgb_possibles = {"event_normal": (x, y)}
-    img_possibles = {
-        "normal_task_select-area": (x, y),
-    }
     img_ends = [
         "normal_task_unlock-notice",
         "normal_task_task-info"
     ]
-    res = picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles)
+    res = picture.co_detect(self, None, rgb_possibles, img_ends, None, True)
     if res == "normal_task_unlock-notice" or res == 'unlock_notice':
         return "unlock_notice"
     return True
