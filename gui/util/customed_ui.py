@@ -216,7 +216,8 @@ class TableManager(TableWidget):
                  col_length=1,
                  convert_dict=None,
                  convert_method=None,
-                 transpose=False):
+                 transpose=False,
+                 **kwargs):
         """
         Initializes the TableManager.
 
@@ -249,7 +250,7 @@ class TableManager(TableWidget):
         self.revert_dict = {v: k for k, v in self.convert_dict.items()} if self.convert_dict else None
 
         # Initialize the table with given settings
-        self.reset_table(data_key, unit_config, update_callback, col_headers, row_headers, col_length, transpose)
+        self.reset_table(data_key, unit_config, update_callback, col_headers, row_headers, col_length, transpose, **kwargs)
 
         # Disable direct editing in the table
         self.setEditTriggers(self.NoEditTriggers)
@@ -259,7 +260,7 @@ class TableManager(TableWidget):
         return [[data[j][i] for j in range(len(data))] for i in range(len(data[0]))]
 
     def reset_table(self, data_key, unit_config: dict, update_callback=None,
-                    col_headers: list = None, row_headers=None, col_length=None, transpose=False):
+                    col_headers: list = None, row_headers=None, col_length=None, transpose=False, **kwargs):
         """
         Resets the table with new configuration settings.
 
@@ -271,7 +272,7 @@ class TableManager(TableWidget):
         :param col_length: Number of columns.
         :param transpose: Flag to transpose the data.
         """
-        self.setFixedHeight(200)
+        self.setFixedHeight(kwargs.get('height', 200))
         self.data_key = data_key if data_key else self.data_key
         self.update_callback = update_callback if update_callback else self.update_callback
         self.unit_config = unit_config if unit_config else self.unit_config
