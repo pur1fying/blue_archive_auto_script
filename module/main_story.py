@@ -1,6 +1,5 @@
 import json
 import os
-import time
 
 from core import color, picture, image
 from module.ExploreTasks.TaskUtils import execute_grid_task
