@@ -1,4 +1,3 @@
-from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
 from gui.util.customed_ui import LineWidget, TableManager
@@ -10,13 +9,12 @@ class Layout(QWidget):
 
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
-        ExploreConfig = QObject()
         self.PROPERTY = {
-            "burst": ExploreConfig.tr('爆发'),
-            "pierce": ExploreConfig.tr('贯穿'),
-            "mystic": ExploreConfig.tr('神秘'),
-            "shock": ExploreConfig.tr('振动'),
-            "Unused": ExploreConfig.tr('未使用')
+            "burst": self.tr('爆发'),
+            "pierce": self.tr('贯穿'),
+            "mystic": self.tr('神秘'),
+            "shock": self.tr('振动'),
+            "Unused": self.tr('未使用')
         }
         # Reverse the dictionary
         self.NAME = {v: k for k, v in self.PROPERTY.items()}
@@ -29,8 +27,7 @@ class Layout(QWidget):
 
     def _init_ui(self):
         self.choose_team_method = self.config.get('choose_team_method')
-
-        self.vBoxLayout = QVBoxLayout()
+        self.vBoxLayout = QVBoxLayout(self)
 
         mode_changer = LineWidget.get_combo_box(
             label=self.tr('编队选择方式'),

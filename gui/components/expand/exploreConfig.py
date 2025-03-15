@@ -1,6 +1,4 @@
-from PyQt5.QtCore import Qt, QObject
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel, QWidget
-from qfluentwidgets import LineEdit, PushButton
+from PyQt5.QtCore import QObject
 
 from core.utils import detach
 from gui.components.expand.expandTemplate import TemplateLayout
@@ -34,7 +32,7 @@ class Layout(TemplateLayout):
                 'selection': self._action_hard
             }
         ]
-        super().__init__(parent=parent, config=config, configItems=configItems, context=ExploreConfig)
+        super().__init__(parent=parent, config=config, configItems=configItems, context="ExploreConfig")
 
     @detach
     def _action_hard(self):
