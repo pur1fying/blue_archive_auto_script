@@ -29,18 +29,14 @@ class Baas_ocr:
             return "UNKNOWN"
         return category(temp)
 
-    def recognize_int(self, baas, area, log_info="", filter_score=0.2) -> int:
-        img = self.get_area_img(baas.latest_img_array, area, baas.ratio)
-        res = self.ocr_for_single_line(
+    def recognize_int(self, baas, region, log_info="", filter_score=0.2) -> int:
+        res = self.get_region_res(
+            baas=baas,
+            region=region,
             language="en-us",
             log_info=log_info,
-            origin_image=img,
             candidates="0123456789",
-            pass_method=baas.ocr_img_pass_method,
-            local_path="",
-            shared_memory_name=baas.shared_memory_name,
-            _logger=baas.logger,
-            filter_score=filter_score,
+            filter_score=filter_score
         )
         result = 0
         for i in range(0, len(res)):
@@ -48,38 +44,34 @@ class Baas_ocr:
                 result = result * 10 + int(res[i])
         return result
 
-    def get_region_pure_english(self, img, region, ratio=1.0):
-        img = self.get_area_img(img, region, ratio)
-        res = self.ocr_for_single_line("en-us", "", img, "", 1)
-        temp = ''
-        for i in range(0, len(res)):
-            if self.is_english(res[i]):
-                temp += res[i]
-        return temp
+    def get_region_pure_english(self, baas, region, log_info="", filter_score=0.2):
+        res = self.get_region_res(
+            baas=baas,
+            region=region,
+            language="en-us",
+            log_info=log_info,
+            candidates="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+            filter_score=filter_score
+        )
+        return res
 
-    def get_region_pure_chinese(self, img, region, ratio=1.0):
-        img = self.get_area_img(img, region, ratio)
-        res = self.ocr_for_single_line("zh-cn", "", img, "", 1)
-        temp = ''
+    def get_region_pure_chinese(self, baas, region, log_info="", filter_score=0.2):
+        res = self.get_region_res(
+            baas=baas,
+            region=region,
+            language="zh-cn",
+            log_info=log_info,
+            candidates="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+            filter_score=filter_score
+        )
+        temp = ""
         for i in range(0, len(res)):
             if self.is_chinese_char(res[i]):
                 temp += res[i]
         return temp
 
-    def is_upper_english(self, char):
-        if 'A' <= char <= 'Z':
-            return True
-        return False
-
-    def is_lower_english(self, char):
-        if 'a' <= char <= 'z':
-            return True
-        return False
-
-    def is_english(self, char):
-        return self.is_upper_english(char) or self.is_lower_english(char)
-
-    def is_chinese_char(self, char):
+    @staticmethod
+    def is_chinese_char(char):
         return 0x4e00 <= ord(char) <= 0x9fff
 
     def get_region_res(self, baas, region, language='zh-cn', log_info="", candidates="", filter_score=0.2):
@@ -247,7 +239,8 @@ class Baas_ocr:
             logger.error("Ocr Error: " + response.text)
             raise OcrInternalError("Ocr Error: " + response.text)
 
-    def unique_language(self, ocr_needed):
+    @staticmethod
+    def unique_language(ocr_needed):
         ret = []
         for lang in ocr_needed:
             if lang not in ret:

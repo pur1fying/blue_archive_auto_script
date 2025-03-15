@@ -42,13 +42,13 @@ def check_6_region_status(self):
     for y in possibles_y:
         for x in possibles_x:
             if self.server == 'JP' or self.server == "Global":
-                ocr_res = self.ocr.get_region_pure_english(self.latest_img_array, (x, y, x + dx, y + dy), self.ratio)
+                ocr_res = self.ocr.get_region_pure_english(self, (x, y, x + dx, y + dy))
                 if ocr_res.lower() == 'new':
                     res.append(True)
                 else:
                     res.append(False)
             if self.server == 'CN':
-                ocr_res = self.ocr.get_region_pure_chinese(self.latest_img_array, (x, y, x + dx, y + dy), self.ratio)
+                ocr_res = self.ocr.get_region_pure_chinese(self, (x, y, x + dx, y + dy))
                 if ocr_res.lower() == '新':
                     res.append(True)
                 else:
