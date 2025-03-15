@@ -199,11 +199,13 @@ class DialogSettingBox(MessageBoxBase):
         # Add the frame to the dialog's main layout
         self.viewLayout.addWidget(frame)
 
+
 class TableManager(TableWidget):
     """
     A class that manages a table widget with configurable data, headers, and unit components.
     Supports various input types such as labels, combo boxes, line edits, and checkboxes.
     """
+
     def __init__(self, parent,
                  config,
                  data_key: str,
@@ -213,7 +215,8 @@ class TableManager(TableWidget):
                  row_headers=None,
                  col_length=1,
                  convert_dict=None,
-                 convert_method=None):
+                 convert_method=None,
+                 transpose=False):
         """
         Initializes the TableManager.
 
@@ -227,6 +230,7 @@ class TableManager(TableWidget):
         :param col_length: Number of columns in the table.
         :param convert_dict: Dictionary for value conversions.
         :param convert_method: Function for data conversion.
+        :param transpose: Flag to transpose the data.
         """
         super().__init__(parent)
         self.config = config
@@ -245,13 +249,17 @@ class TableManager(TableWidget):
         self.revert_dict = {v: k for k, v in self.convert_dict.items()} if self.convert_dict else None
 
         # Initialize the table with given settings
-        self.reset_table(data_key, unit_config, update_callback, col_headers, row_headers, col_length)
+        self.reset_table(data_key, unit_config, update_callback, col_headers, row_headers, col_length, transpose)
 
         # Disable direct editing in the table
         self.setEditTriggers(self.NoEditTriggers)
 
+    @staticmethod
+    def __transpose__(data):
+        return [[data[j][i] for j in range(len(data))] for i in range(len(data[0]))]
+
     def reset_table(self, data_key, unit_config: dict, update_callback=None,
-                    col_headers: list = None, row_headers=None, col_length=None):
+                    col_headers: list = None, row_headers=None, col_length=None, transpose=False):
         """
         Resets the table with new configuration settings.
 
@@ -261,6 +269,7 @@ class TableManager(TableWidget):
         :param col_headers: Optional list of column headers.
         :param row_headers: Optional list of row headers.
         :param col_length: Number of columns.
+        :param transpose: Flag to transpose the data.
         """
         self.setFixedHeight(200)
         self.data_key = data_key if data_key else self.data_key
@@ -268,35 +277,34 @@ class TableManager(TableWidget):
         self.unit_config = unit_config if unit_config else self.unit_config
         self.setColumnCount(col_length if col_length else self.col_length)
 
-        # Set column headers
-        if col_headers is not None:
-            self.setVerticalHeaderLabels(col_headers)
+        self.verticalHeader().hide()
+        self.horizontalHeader().hide()
+        # 设置列头
+        if col_headers is not None or (self.col_headers and row_headers is None):
+            self.setVerticalHeaderLabels(col_headers or self.col_headers)
             self.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        elif self.col_headers:
-            self.setVerticalHeaderLabels(self.col_headers)
-            self.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        else:
-            self.verticalHeader().hide()
+            self.verticalHeader().show()
 
-        # Set row headers
-        if row_headers is not None:
-            self.setHorizontalHeaderLabels(row_headers)
+        # 设置行头
+        if row_headers is not None or (self.row_headers and col_headers is None):
+            self.setHorizontalHeaderLabels(row_headers or self.row_headers)
             self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        if self.row_headers:
-            self.setHorizontalHeaderLabels(self.row_headers)
-            self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        else:
-            self.horizontalHeader().hide()
+            self.horizontalHeader().show()
 
-        self.create_table()
+        self.create_table(transpose)
 
-    def create_table(self):
+    def create_table(self, transpose=False):
         """
         Populates the table with data and initializes UI components.
         """
         self.data = self.config.get(self.data_key, None)
         assert self.data is not None, f"Invalid data key: {self.data_key}"
+
+        if transpose:
+            self.data = self.__transpose__(self.data)
+
         self.setRowCount(len(self.data))
+        self.setColumnCount(len(self.data[0]))
 
         # Iterate through the data and create UI components
         for _row, _row_data in enumerate(self.data):
@@ -341,6 +349,7 @@ class LineWidget:
     """
     A utility class for creating different types of interactive widgets within a horizontal layout.
     """
+
     @staticmethod
     def get_btn(label, text, callback, tips=None, parent=None):
         """Creates a button with a label."""
