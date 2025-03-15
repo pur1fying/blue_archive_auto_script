@@ -23,6 +23,7 @@ class Layout(QWidget):
             "side_team_attribute": 4
         }
         self.config = config
+        self.table = None
         self._init_ui()
 
     def _init_ui(self):
@@ -39,28 +40,50 @@ class Layout(QWidget):
 
         assert self.choose_team_method in ["preset", "order"], "Invalid choose_team_method"
         key = "preset_team_attribute" if self.choose_team_method == "preset" else "side_team_attribute"
-
-        self.table = TableManager(parent=self,
-                                  config=self.config,
-                                  data_key=key,
-                                  row_headers=[str(x + 1) for x in range(4)],
-                                  col_length=self.COL_NUM_DICT[key],
-                                  unit_config={
-                                      "type": "comboBox",
-                                      "items": [self.PROPERTY[x] for x in self.PROPERTY],
-                                  },
-                                  convert_dict=self.PROPERTY,
-                                  )
-
+        self._recreate_table(key)
         self.vBoxLayout.addLayout(mode_changer)
         self.vBoxLayout.addWidget(self.table)
         self.setLayout(self.vBoxLayout)
+
+        # Though it's meaningless, the visual effect is better
+        if self.choose_team_method == "order":
+            self._recreate_table("preset_team_attribute")
+            self._recreate_table("side_team_attribute")
 
     def _change_choose_team_method(self, index):
         self.choose_team_method = "preset" if index == 0 else "order"
         self.config.set('choose_team_method', self.choose_team_method)
         key = "preset_team_attribute" if self.choose_team_method == "preset" else "side_team_attribute"
-        self.table.reset_table(data_key=key, unit_config={
+        self._recreate_table(key)
+
+    def _recreate_table(self, key):
+        unit_config = {
             "type": "comboBox",
-            "items": [self.PROPERTY[x] for x in self.PROPERTY],
-        }, col_length=self.COL_NUM_DICT[key])
+            "items": list(self.PROPERTY.values()),
+        }
+        col_length = self.COL_NUM_DICT[key]
+
+        headers = {"row_headers": [str(x + 1) for x in range(5)]} \
+            if key == "preset_team_attribute" else \
+            {"col_headers": [str(x + 1) for x in range(4)]}
+        transpose = key != "preset_team_attribute"
+
+        if not self.table:
+            self.table = TableManager(
+                parent=self,
+                config=self.config,
+                data_key=key,
+                col_length=col_length,
+                unit_config=unit_config,
+                convert_dict=self.PROPERTY,
+                transpose=transpose,
+                **headers
+            )
+        else:
+            self.table.reset_table(
+                data_key=key,
+                col_length=col_length,
+                unit_config=unit_config,
+                transpose=transpose,
+                **headers
+            )
