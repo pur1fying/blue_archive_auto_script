@@ -382,10 +382,10 @@
     ],
     "action": [
       {
-        "t": [
-          "exchange",
-          "click_and_teleport"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "ec": true,
         "p": [
           719,

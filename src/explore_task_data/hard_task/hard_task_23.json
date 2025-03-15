@@ -56,10 +56,10 @@
         "desc": "2 lower right"
       },
       {
-        "t": [
-          "exchange",
-          "click_and_teleport"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "p": [
           885,
           367
@@ -360,10 +360,10 @@
         "desc": "2 left"
       },
       {
-        "t": [
-          "exchange_twice",
-          "choose_and_change"
-        ],
+        "t": "exchange_twice"
+      },
+      {
+        "t": "choose_and_change",
         "p": [
           497,
           372

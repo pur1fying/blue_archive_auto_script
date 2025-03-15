@@ -386,10 +386,10 @@
         "desc": "2 left"
       },
       {
-        "t": [
-          "exchange_twice",
-          "choose_and_change"
-        ],
+        "t": "exchange_twice"
+      },
+      {
+        "t": "choose_and_change",
         "p": [
           631,
           372
