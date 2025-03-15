@@ -91,7 +91,7 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
             if img_feature is None:
                 continue
             if match_img_feature(self, img_feature):
-                self.logger.info('Stage ended with matched img feature: ' + img_feature)
+                self.logger.info('Stage ended with matched img feature: ' + str(img_feature))
                 return img_feature
 
         # click if match reaction rules
@@ -219,11 +219,15 @@ def choose_buff(self):
 def match_img_feature(self: Baas_thread, img_feature: typing.Union[tuple, str]
                       , threshold: float = 0.8, rgb_diff: int = 20) -> bool:
     if type(img_feature) is tuple:
-        img_feature = img_feature[0]
-        threshold = img_feature[1]
-        if len(img_feature) > 2:
+        image_name = img_feature[0]
+        length = len(img_feature)
+        if length >= 2:
+            threshold = img_feature[1]
+        if length >= 3:
             rgb_diff = img_feature[2]
-    return image.compare_image(self, img_feature, threshold, rgb_diff)
+    else:
+        image_name = img_feature
+    return image.compare_image(self, image_name, threshold, rgb_diff)
 
 
 def match_any_img_feature(self: Baas_thread, featureList: list[typing.Union[tuple, str]]) -> bool:
