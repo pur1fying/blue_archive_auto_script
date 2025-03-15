@@ -19,7 +19,7 @@ class Layout(QWidget):
         # Reverse the dictionary
         self.NAME = {v: k for k, v in self.PROPERTY.items()}
         self.COL_NUM_DICT = {
-            "preset_team_attribute": 5,
+            "preset_team_attribute": 4,
             "side_team_attribute": 4
         }
         self.config = config
@@ -63,10 +63,11 @@ class Layout(QWidget):
         }
         col_length = self.COL_NUM_DICT[key]
 
-        headers = {"row_headers": [str(x + 1) for x in range(5)]} \
+        headers:dict = {"row_headers": [str(x + 1) for x in range(4)]} \
             if key == "preset_team_attribute" else \
             {"col_headers": [str(x + 1) for x in range(4)]}
-        transpose = key != "preset_team_attribute"
+        headers["height"] = 230
+        transpose = True
 
         if not self.table:
             self.table = TableManager(
