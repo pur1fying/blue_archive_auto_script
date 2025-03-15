@@ -59,17 +59,17 @@ class SettingsFragment(ScrollArea):
 
         self.exploreGroupItems = [
             SimpleSettingCard(
-                title=self.tr('普通图推图设置'),
-                content=self.tr('根据你的推图需求，调整相应的参数。'),
-                sub_view=expand.__dict__['exploreConfig'],
+                title=self.tr('编队配置'),
+                content=self.tr('根据你的实际情况，设置编队相关参数。'),
+                sub_view=expand.__dict__['formationConfig'],
                 parent=self.exploreGroup,
                 config=self.config
             ),
 
             SimpleSettingCard(
-                title=self.tr('困难图推图设置'),
-                content=self.tr('根据你所需困难图刷关，设置参数。'),
-                sub_view=expand.__dict__['hardTaskConfig'],
+                title=self.tr('推图设置'),
+                content=self.tr('根据你所需推图关卡，设置参数。'),
+                sub_view=expand.__dict__['exploreConfig'],
                 parent=self.exploreGroup,
                 config=self.config
             ),

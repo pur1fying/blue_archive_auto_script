@@ -1,7 +1,6 @@
 import logging
 import sys
 import threading
-from datetime import datetime
 from typing import Union
 from datetime import datetime, timedelta, timezone
 
@@ -26,6 +25,10 @@ def delay(wait=1):
 
     return decorator
 
+def detach(func):
+    def wrapper(*args, **kwargs):
+        threading.Thread(target=func, args=args[:-1], kwargs=kwargs).start()
+    return wrapper
 
 class Logger:
     """
@@ -199,6 +202,28 @@ def get_serial_pair(serial):
     return None, None
 
 
+def merge_nearby_coordinates(coords, abs_x=10, abs_y=10):
+    coords.sort()
+    groups = []
+    for coord in coords:
+        found_group = False
+        for group in groups:
+            if is_nearby_group(coord, group, abs_x, abs_y):
+                group.append(coord)
+                found_group = True
+                break
+        if not found_group:
+            groups.append([coord])
+
+    return groups
+
+
+def is_nearby_group(coord, group, abs_x=10, abs_y=10):
+    for p in group:
+        if abs(p[0] - coord[0]) <= abs_x and abs(p[1] - coord[1]) <= abs_y:
+            return True
+    return False
+
 def get_nearest_hour(target_hour):
     now = datetime.now(timezone.utc)
     current_hour = now.hour
@@ -217,5 +242,4 @@ def get_nearest_hour(target_hour):
 
     nearest_time = (now + timedelta(hours=hour_delta)).replace(minute=0, second=0, microsecond=0)
     return nearest_time
-
 

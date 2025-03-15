@@ -1,13 +1,14 @@
+import os
 import time
 
 import cv2
 import numpy as np
-import os
-from core import picture, image,color
+
+from core import picture, image, color
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     startGame(self)
     chooseLoop(self)
     collectDailyReward(self)

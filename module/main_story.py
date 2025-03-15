@@ -1,14 +1,15 @@
+import json
 import os
 import time
+
 from core import color, picture, image
 from module.ExploreTasks.TaskUtils import execute_grid_task
-import json
 
 
 def implement(self):
     self.logger.info("START pushing main story")
     self.main_story_stage_data = get_stage_data()
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_main_story(self, True)
     push_episode_list = process_regions(self, self.config.main_story_regions)
     if not push_episode_list:
@@ -30,55 +31,79 @@ def get_stage_data():
     return data
 
 
-def judge_acc(self):
-    if color.judge_rgb_range(self, 1180, 621, 200, 255, 200, 255, 200, 255) and \
-            color.judge_rgb_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
+def get_acceleration(self) -> int:
+    """
+    Determine the current acceleration phase based on the color of specific pixels on the screen.
+
+    This function checks the RGB values at two specific pixel locations (1180, 621) and (1250, 621)
+    to determine the current acceleration phase in the game.
+
+    Parameters:
+    self (object): The BAAS thread.
+
+    Returns:
+    int: The current acceleration phase.
+         1 - First acceleration phase
+         2 - Second acceleration phase
+         3 - Third acceleration phase
+         -1 - Unable to determine acceleration phase
+    """
+    if color.is_rgb_in_range(self, 1180, 621, 200, 255, 200, 255, 200, 255) and \
+        color.is_rgb_in_range(self, 1250, 621, 200, 255, 200, 255, 200, 255):
         return 1
-    elif color.judge_rgb_range(self, 1250, 621, 100, 150, 200, 255, 200, 255) and \
-            color.judge_rgb_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
+    elif color.is_rgb_in_range(self, 1250, 621, 100, 150, 200, 255, 200, 255) and \
+        color.is_rgb_in_range(self, 1180, 621, 100, 155, 200, 255, 200, 255):
         return 2
-    elif color.judge_rgb_range(self, 1250, 621, 210, 255, 180, 240, 0, 80) and \
-            color.judge_rgb_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
+    elif color.is_rgb_in_range(self, 1250, 621, 210, 255, 180, 240, 0, 80) and \
+        color.is_rgb_in_range(self, 1180, 621, 200, 255, 180, 240, 0, 80):
         return 3
+    return -1  # Unable to determine acceleration phase
 
 
-def judge_auto(self):
-    if color.judge_rgb_range(self, 1250, 677, 180, 255, 180, 255, 200, 255) and \
-            color.judge_rgb_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
-        return 'off'
-    elif color.judge_rgb_range(self, 1250, 677, 200, 255, 180, 255, 0, 80) and \
-            color.judge_rgb_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
-        return 'on'
+def get_auto(self) -> int:
+    """
+    Determine the current auto mode status based on the color of specific pixels on the screen.
+
+    This function checks the RGB values at two specific pixel locations (1250, 677) and (1170, 677)
+    to determine whether the auto mode is on or off in the game.
+
+    Parameters:
+    self (object): The BAAS thread.
+
+    Returns:
+    int: The current auto mode status.
+         0 - Auto mode is off
+         1 - Auto mode is on
+         -1 - Unable to determine auto mode status
+    """
+    if color.is_rgb_in_range(self, 1250, 677, 180, 255, 180, 255, 200, 255) and \
+        color.is_rgb_in_range(self, 1170, 677, 180, 255, 180, 255, 200, 255):
+        return 0
+    elif color.is_rgb_in_range(self, 1250, 677, 200, 255, 180, 255, 0, 80) and \
+        color.is_rgb_in_range(self, 1170, 677, 200, 255, 180, 255, 0, 80):
+        return 1
+    return -1
 
 
-def change_acc_auto(self):
-    self.logger.info("-- CHANGE acceleration phase and auto --")
-    y = 625
-    acc_phase = judge_acc(self)
-    if acc_phase == 1:
-        self.logger.info("CHANGE acceleration phase from 1 to 3")
-        self.click(1215, y, wait_over=True, count=2)
-    elif acc_phase == 2:
-        self.logger.info("CHANGE acceleration phase from 2 to 3")
-        self.click(1215, y, wait_over=True)
-    elif acc_phase == 3:
-        self.logger.info("ACCELERATION phase 3")
-    else:
-        self.logger.warning("CAN'T DETECT acceleration BUTTON")
-    y = 677
+def set_acc_and_auto(self):
+    # set acceleration phase to 3
+    current_acceleration = get_acceleration(self)
+    if current_acceleration == -1:
+        self.logger.warning("Unable to detect acceleration phase.")
+        return
+    self.click(1215, 625, wait_over=True, count=3 - current_acceleration)
+    self.logger.info("Current acceleration phase: " + str(get_acceleration(self)))
 
-    auto_phase = judge_auto(self)
-    if auto_phase == 'off':
-        self.logger.info("CHANGE MANUAL to auto")
-        self.click(1215, y)
-    elif auto_phase == 'on':
-        self.logger.info("AUTO")
-    else:
-        self.logger.warning("can't identify auto button")
+    auto_phase = get_auto(self)
+    if auto_phase == -1:
+        self.logger.warning("Unable to detect auto status.")
+    elif auto_phase == 0:
+        self.click(1215, 677)
+    self.logger.info("Auto mode toggled:" + ("yes" if get_auto(self) else "no"))
 
 
-def enter_fight(self):
-    self.logger.info("Enter Fight")
+def enter_battle(self):
+    self.logger.info("Entering battle.")
     img_possibles = {
         'normal_task_present': (640, 519),
         'normal_task_teleport-notice': (886, 165),
@@ -90,19 +115,20 @@ def enter_fight(self):
         "normal_task_fail-confirm"
     ]
     rgb_ends = "fighting_feature"
-    img_pop_ups = {"activity_choose-buff": (644, 570)}
-    ret = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True, img_pop_ups=img_pop_ups)
+    img_pop_ups = {
+        "activity_choose-buff": (644, 570)
+    }
+    ret = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True, pop_ups_img_reactions=img_pop_ups)
     if ret != "fighting_feature":
         self.logger.info("fight end.")
     return ret
 
 
 def auto_fight(self, need_change_acc=True):
-    ret = enter_fight(self)
+    ret = enter_battle(self)
     if need_change_acc and ret == "fighting_feature":
-        time.sleep(2)
-        self.latest_img_array = self.get_screenshot_array()
-        change_acc_auto(self)
+        self.update_screenshot_array()
+        set_acc_and_auto(self)
 
 
 def check_episode(self):
@@ -112,7 +138,7 @@ def check_episode(self):
     b = position1[1] - k * position1[0]
     for i in range(833, 982):
         y = int(k * i + b)
-        if color.judge_rgb_range(self, i, y, 250, 255, 177, 200, 0, 80):
+        if color.is_rgb_in_range(self, i, y, 250, 255, 177, 200, 0, 80):
             return i + 155, y + 17
     return "ALL_CLEAR"
 
@@ -181,11 +207,11 @@ def search_episode(self, possible_list):
 
 
 def check_current_plot_status(self, position):
-    if color.judge_rgb_range(self, position[0], position[1], 245, 255, 214, 234, 0, 40):
+    if color.is_rgb_in_range(self, position[0], position[1], 245, 255, 214, 234, 0, 40):
         return "CLEAR"
-    if color.judge_rgb_range(self, position[0], position[1], 170, 196, 178, 199, 178, 199):
+    if color.is_rgb_in_range(self, position[0], position[1], 170, 196, 178, 199, 178, 199):
         return "UNLOCK"
-    if color.judge_rgb_range(self, position[0], position[1], 197, 207, 200, 210, 200, 210):
+    if color.is_rgb_in_range(self, position[0], position[1], 197, 207, 200, 210, 200, 210):
         return "UNCLEAR"
 
 

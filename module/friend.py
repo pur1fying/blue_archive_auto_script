@@ -5,7 +5,7 @@ def implement(self):
     if self.server == 'Global' or self.server == 'JP':
         self.logger.info("Friend Management Not Support In Global And JP Server")
         return True
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_friend_management(self, True)
     self.logger.info("Clear Friend White List : " + str(self.config.clear_friend_white_list))
     self.last_friend_id = None

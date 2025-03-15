@@ -569,48 +569,33 @@
     <name>ExploreConfig</name>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="15"/>
-        <source>是否手动boss战（进入关卡后暂停等待手操）</source>
-        <translation>手動でボスと戦うかどうか(レベルに入ったら一時停止し、手動演習を待ちます)</translation>
+        <source>是否手动boss战</source>
+        <translation>手動でボス戦</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="20"/>
-        <source>爆发一队</source>
-        <translation>第一爆発チーム</translation>
+        <location filename="../components/expand/exploreConfig.py" line="18"/>
+        <source>普通图独有配置，进入关卡后暂停等待手操</source>
+        <translation>普通のグラフィック専用設定で、ステージに入った後は一時停止して手動操作を待ちます</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="26"/>
-        <source>爆发二队</source>
-        <translation>第二爆発チーム</translation>
+        <location filename="../components/expand/exploreConfig.py" line="21"/>
+        <source>普通图推图设置</source>
+        <translation>普通ステージのクリアの設定</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="24"/>
+        <source>请填写要推的图,填写方式见-普通图自动推图说明-</source>
+        <translation>推奨する画像を記入してください。記入方法は-通常の画像自動推奨説明-を参照してください</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="29"/>
+        <source>困难图推图设置</source>
+        <translation>ハードステージのクリアの設定</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="32"/>
-        <source>贯穿一队</source>
-        <translation>第一貫串チーム</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="38"/>
-        <source>贯穿二队</source>
-        <translation>第二貫串チーム</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="44"/>
-        <source>神秘一队</source>
-        <translation>第一神秘チーム</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="50"/>
-        <source>神秘二队</source>
-        <translation>第二神秘チーム</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="57"/>
-        <source>振动一队</source>
-        <translation>第一振动チーム</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="57"/>
-        <source>振动二队</source>
-        <translation>第二振动チーム</translation>
+        <source>困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍</source>
+        <translation>難易度の高いマップのチーム属性は通常マップと同じです（通常マップ推奨設定を参照）。ヘルプに記載されている通り、難易度の高いマップのステージを選択し、対応する設定に従ってチームを設定してください</translation>
     </message>
 </context>
 <context>
@@ -687,7 +672,7 @@
         <translation>更新する必要がある最大回数を入力します：</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="30"/>
+        <location filename="../components/expand/shopPriority.py" line="29"/>
         <source>确定</source>
         <translation>確認</translation>
     </message>
@@ -762,22 +747,7 @@
         <translation>マルチアカウント</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="75"/>
-        <source>推图选项</source>
-        <translation>クリアオプション</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="75"/>
-        <source>请在下面填写要推的图,填写方式见-普通图自动推图说明-</source>
-        <translation>以下に押すステージを記入していただき、その記入方法は普通のステージと同じで説明を見てください</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/hardTaskConfig.py" line="17"/>
-        <source>开始推图</source>
-        <translation>クリアを開始する</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="103"/>
+        <location filename="../components/expand/exploreConfig.py" line="49"/>
         <source>普通关推图</source>
         <translation>通常のステージのクリア</translation>
     </message>
@@ -832,12 +802,7 @@
         <translation>詳細な設定</translation>
     </message>
     <message>
-        <location filename="../components/expand/hardTaskConfig.py" line="13"/>
-        <source>&lt;b&gt;困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍&lt;/b&gt;</source>
-        <translation>&lt;b&gt;難易度ステージのチーム属性は普通のステージと同じです(普通のステージの設定を参照)ので、&lt;br/&gt;ヘルプの指示に従ってレベルを選択し、対応するステージに従ってチームを設定してください&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/hardTaskConfig.py" line="41"/>
+        <location filename="../components/expand/exploreConfig.py" line="42"/>
         <source>困难关推图</source>
         <translation>ハードステージをクリア</translation>
     </message>
@@ -852,7 +817,7 @@
         <translation>ハードステージの設定は上記と同じですが、（注:最大回数は3回です）、カンマは英語のカンマで、日本サーバーと海外サーバーには「max」で入力できます：</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="117"/>
+        <location filename="../components/expand/mainlinePriority.py" line="124"/>
         <source>根据学生添加关卡</source>
         <translation>学生に基づいてレベルを追加する</translation>
     </message>
@@ -862,42 +827,42 @@
         <translation>アリス・ベイビー</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="114"/>
+        <location filename="../components/expand/mainlinePriority.py" line="121"/>
         <source>设置失败</source>
         <translation>セットアップ失敗</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="33"/>
+        <location filename="../components/expand/schedulePriority.py" line="32"/>
         <source>优先做好感等级多的日程</source>
         <translation>好感が多くのスケジュールが優先されます</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="148"/>
+        <location filename="../components/expand/schedulePriority.py" line="150"/>
         <source>日程次数</source>
         <translation>スケジュールの回数</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="130"/>
+        <location filename="../components/expand/schedulePriority.py" line="132"/>
         <source>区域名称</source>
         <translation>地域の名前</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="138"/>
         <source>初级</source>
         <translation>ジュニア</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="138"/>
         <source>普通</source>
         <translation>普通</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="138"/>
         <source>高级</source>
         <translation>高級</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="138"/>
         <source>特级</source>
         <translation>特級</translation>
     </message>
@@ -927,12 +892,12 @@
         <translation>adbアドレスを取得できませんでした</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="39"/>
+        <location filename="../components/expand/shopPriority.py" line="38"/>
         <source>信用点</source>
         <translation>クレジット</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="41"/>
+        <location filename="../components/expand/shopPriority.py" line="40"/>
         <source>青辉石</source>
         <translation>青煇石</translation>
     </message>
@@ -1007,27 +972,27 @@
         <translation>属性</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="117"/>
+        <location filename="../components/expand/eventMapConfig.py" line="116"/>
         <source>故事</source>
         <translation>物語</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="118"/>
+        <location filename="../components/expand/eventMapConfig.py" line="117"/>
         <source>任务</source>
         <translation>タスク</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="119"/>
+        <location filename="../components/expand/eventMapConfig.py" line="118"/>
         <source>挑战</source>
         <translation>挑戦</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="144"/>
+        <location filename="../components/expand/eventMapConfig.py" line="140"/>
         <source>三星</source>
         <translation>サムスン</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="146"/>
+        <location filename="../components/expand/eventMapConfig.py" line="142"/>
         <source>成就任务</source>
         <translation>アチーブメントクエスト</translation>
     </message>
@@ -1151,17 +1116,17 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>製造グレード</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="216"/>
+        <location filename="../components/expand/createPriority.py" line="217"/>
         <source>一级制造配置</source>
         <translation>レベル1製造構成</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="217"/>
+        <location filename="../components/expand/createPriority.py" line="218"/>
         <source>二级制造配置</source>
         <translation>レベル2製造構成</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="218"/>
+        <location filename="../components/expand/createPriority.py" line="219"/>
         <source>三级制造配置</source>
         <translation>レベル3製造構成</translation>
     </message>
@@ -1216,27 +1181,27 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>材料選択</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="269"/>
+        <location filename="../components/expand/createPriority.py" line="265"/>
         <source>一键设置推荐优先级</source>
         <translation>ワンクリックで推奨優先度を設定</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="272"/>
+        <location filename="../components/expand/createPriority.py" line="268"/>
         <source>选择学生</source>
         <translation>学生選択</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="315"/>
+        <location filename="../components/expand/createPriority.py" line="311"/>
         <source>制造优先级</source>
         <translation>製造優先</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="329"/>
+        <location filename="../components/expand/createPriority.py" line="325"/>
         <source>修改成功</source>
         <translation>修正成功</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="329"/>
+        <location filename="../components/expand/createPriority.py" line="325"/>
         <source>推荐制造优先级</source>
         <translation>製造優先順位の推奨</translation>
     </message>
@@ -1254,6 +1219,56 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <location filename="../components/expand/schedulePriority.py" line="71"/>
         <source>指定学生(填写指南见wiki)</source>
         <translation>学生指定（記入方法についてはウィキを参照）</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="42"/>
+        <source>正在推困难关</source>
+        <translation>難しい関門を突破しようとしている</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="49"/>
+        <source>正在推普通关</source>
+        <translation>普通の関を推進しています</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="13"/>
+        <source>爆发</source>
+        <translation>爆発</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="14"/>
+        <source>贯穿</source>
+        <translation>貫通</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="15"/>
+        <source>神秘</source>
+        <translation>神秘</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="16"/>
+        <source>振动</source>
+        <translation>振動</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="17"/>
+        <source>未使用</source>
+        <translation>未使用</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="32"/>
+        <source>编队选择方式</source>
+        <translation>フォーメーションの選択方法</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="32"/>
+        <source>预设编队</source>
+        <translation>プリセットフォーメーション</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="32"/>
+        <source>按序编队</source>
+        <translation>順番に編成する</translation>
     </message>
 </context>
 <context>
@@ -1393,7 +1408,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="25"/>
+        <location filename="../fragments/process.py" line="30"/>
         <source>调度状态</source>
         <translation>スケジュールステータス</translation>
     </message>
@@ -1403,7 +1418,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>実行中</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="114"/>
+        <location filename="../fragments/process.py" line="113"/>
         <source>暂无正在执行的任务</source>
         <translation>進行中のタスクはない</translation>
     </message>
@@ -1413,7 +1428,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>タスク隊列</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="116"/>
+        <location filename="../fragments/process.py" line="115"/>
         <source>暂无队列中的任务</source>
         <translation>隊列にタスクがない</translation>
     </message>
@@ -1588,26 +1603,6 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>関連設定</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="61"/>
-        <source>普通图推图设置</source>
-        <translation>普通ステージのクリアの設定</translation>
-    </message>
-    <message>
-        <location filename="../fragments/settings.py" line="61"/>
-        <source>根据你的推图需求，调整相应的参数。</source>
-        <translation>プッシュのニーズに応じて、対応するパラメータを調整します。</translation>
-    </message>
-    <message>
-        <location filename="../fragments/settings.py" line="69"/>
-        <source>困难图推图设置</source>
-        <translation>ハードステージのクリアの設定</translation>
-    </message>
-    <message>
-        <location filename="../fragments/settings.py" line="69"/>
-        <source>根据你所需困难图刷关，设置参数。</source>
-        <translation>必要な難易度に応じてパラメータを設定します。</translation>
-    </message>
-    <message>
         <location filename="../fragments/settings.py" line="77"/>
         <source>推剧情</source>
         <translation>プロットをクリアする</translation>
@@ -1737,6 +1732,26 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <source>卡片是否显示精美图片</source>
         <translation>カードに美しい画像を表示するかどうか</translation>
     </message>
+    <message>
+        <location filename="../fragments/settings.py" line="61"/>
+        <source>编队配置</source>
+        <translation>編隊配置</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="61"/>
+        <source>根据你的实际情况，设置编队相关参数。</source>
+        <translation>あなたの実際の状況に基づいて、編隊に関連するパラメータを設定してください。</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="69"/>
+        <source>推图设置</source>
+        <translation>推図設定</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="69"/>
+        <source>根据你所需推图关卡，设置参数。</source>
+        <translation>必要に応じてマップのレベルに合わせてパラメータを設定してください。</translation>
+    </message>
 </context>
 <context>
     <name>SweepCountConfig</name>
@@ -1804,7 +1819,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>設定</translation>
     </message>
     <message>
-        <location filename="../fragments/switch.py" line="216"/>
+        <location filename="../fragments/switch.py" line="226"/>
         <source>Features</source>
         <translation>特徴</translation>
     </message>
@@ -1812,17 +1827,17 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>TemplateLayout</name>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="82"/>
+        <location filename="../components/expand/expandTemplate.py" line="104"/>
         <source>执行</source>
         <translation>実行する</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="91"/>
+        <location filename="../components/expand/expandTemplate.py" line="94"/>
         <source>确定</source>
         <translation>確認</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="121"/>
+        <location filename="../components/expand/expandTemplate.py" line="134"/>
         <source>设置成功</source>
         <translation>セットアップ成功</translation>
     </message>
@@ -1850,17 +1865,17 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>設定</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="557"/>
+        <location filename="../../window.py" line="559"/>
         <source>设置失败</source>
         <translation>セットアップ失敗</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="588"/>
+        <location filename="../../window.py" line="591"/>
         <source>是否要删除配置：</source>
         <translation>設定を削除しますか：</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="589"/>
+        <location filename="../../window.py" line="592"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>変更を完了するには、確認後に BAAS を再起動する必要があります。</translation>
     </message>
@@ -1885,7 +1900,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>普通</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="82"/>
+        <location filename="../components/expand/expandTemplate.py" line="85"/>
         <source>TemplateLayout</source>
         <translation>実行</translation>
     </message>

@@ -1,6 +1,6 @@
-import time
 from copy import deepcopy
-from core import picture
+
+from core import picture, color
 from core.color import check_sweep_availability
 from core.staticUtils import isInt
 
@@ -9,7 +9,7 @@ def implement(self):
     if len(self.config.unfinished_hard_tasks) != 0:
         temp = deepcopy(self.config.unfinished_hard_tasks)
         self.logger.info("unfinished hard task list: " + str(temp))
-        self.quick_method_to_main_page()
+        self.to_main_page()
         all_task_x_coordinate = 1118
         hard_task_y_coordinates = [253, 364, 478]
         for i in range(0, len(temp)):
@@ -65,13 +65,13 @@ def implement(self):
 
 
 def to_hard_event(self, skip_first_screenshot=False):
-    rgb_ends = 'event_hard'
-    rgb_possibles = {
+    rgb_ends = ['event_hard']
+    rgb_reactions = {
         "event_normal": (1064, 165),
         "main_page": (1198, 580),
         "level_up": (640, 200),
     }
-    img_possibles = {
+    img_reactions = {
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (823, 261),
         "normal_task_sweep-complete": (643, 585),
@@ -89,8 +89,8 @@ def to_hard_event(self, skip_first_screenshot=False):
         'normal_task_mission-conclude-confirm': (1042, 671),
         'normal_task_charge-challenge-counts': (887, 161),
     }
-    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
+    img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
+    picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
 
 
 def to_task_info(self, x, y, skip_first_screenshot=False):
@@ -158,7 +158,7 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+    cu_region = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
     self.logger.info("current region: -- " + str(cu_region) + " --")
     while cu_region != region and self.flag_run:
         if cu_region > region:
@@ -170,5 +170,5 @@ def choose_region(self, region):
                 self.click(1245, 360, count=region - cu_region - 1, rate=0.1, wait_over=True)
             self.click(1245, 360, rate=0.1, duration=1, wait_over=True)
         to_hard_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+        cu_region = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
         self.logger.info("current region: -- " + str(cu_region) + " --")
