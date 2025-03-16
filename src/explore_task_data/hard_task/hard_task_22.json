@@ -167,10 +167,10 @@
         "desc": "2 right"
       },
       {
-        "t": [
-          "exchange",
-          "choose_and_change"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "choose_and_change",
         "p": [
           739,
           300
@@ -296,10 +296,10 @@
         "desc": "3 lower right"
       },
       {
-        "t": [
-          "exchange",
-          "choose_and_change"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "choose_and_change",
         "p": [
           790,
           394
@@ -398,10 +398,10 @@
         "desc": "2 upper right"
       },
       {
-        "t": [
-          "exchange_twice",
-          "choose_and_change"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "choose_and_change",
         "p": [
           667,
           384

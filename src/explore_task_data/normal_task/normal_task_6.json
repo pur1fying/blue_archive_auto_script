@@ -160,10 +160,6 @@
         ]
       ]
     ],
-    "attr": {
-      "1": "pierce1",
-      "2": "pierce2"
-    },
     "action": [
       {
         "t": "click",

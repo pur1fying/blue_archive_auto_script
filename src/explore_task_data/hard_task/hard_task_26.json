@@ -293,10 +293,10 @@
         "desc": "3 right"
       },
       {
-        "t": [
-          "exchange",
-          "choose_and_change"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "choose_and_change",
         "p": [
           717,
           523
@@ -395,10 +395,10 @@
         "desc": "2 lower left"
       },
       {
-        "t": [
-          "exchange_twice",
-          "choose_and_change"
-        ],
+        "t": "exchange_twice"
+      },
+      {
+        "t": "choose_and_change",
         "p": [
           678,
           394

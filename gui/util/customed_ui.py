@@ -1,9 +1,10 @@
 import re
+from functools import partial
 
 from PyQt5.QtCore import Qt, QObject
 from PyQt5.QtGui import QFont, QPainter, QColor
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame
-from qfluentwidgets import MessageBoxBase
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout
+from qfluentwidgets import MessageBoxBase, TableWidget, CheckBox, LineEdit, ComboBox, PushButton
 from qfluentwidgets.window.fluent_window import FluentWindowBase, FluentTitleBar
 
 
@@ -197,3 +198,219 @@ class DialogSettingBox(MessageBoxBase):
 
         # Add the frame to the dialog's main layout
         self.viewLayout.addWidget(frame)
+
+
+class TableManager(TableWidget):
+    """
+    A class that manages a table widget with configurable data, headers, and unit components.
+    Supports various input types such as labels, combo boxes, line edits, and checkboxes.
+    """
+
+    def __init__(self, parent,
+                 config,
+                 data_key: str,
+                 unit_config: dict,
+                 update_callback=None,
+                 col_headers: list = None,
+                 row_headers=None,
+                 col_length=1,
+                 convert_dict=None,
+                 convert_method=None,
+                 transpose=False,
+                 **kwargs):
+        """
+        Initializes the TableManager.
+
+        :param parent: The parent widget.
+        :param config: Configuration object storing table data.
+        :param data_key: The key to access data from config.
+        :param unit_config: Configuration dictionary defining the type of UI component.
+        :param update_callback: Callback function triggered on value updates.
+        :param col_headers: List of column headers.
+        :param row_headers: List of row headers.
+        :param col_length: Number of columns in the table.
+        :param convert_dict: Dictionary for value conversions.
+        :param convert_method: Function for data conversion.
+        :param transpose: Flag to transpose the data.
+        """
+        super().__init__(parent)
+        self.config = config
+        self.data = None
+        self.parent = parent
+        self.data_key = data_key
+        self.update_callback = update_callback
+        self.unit_config = unit_config
+        self.convert_dict = convert_dict
+        self.convert_method = convert_method
+        self.col_length = col_length
+        self.col_headers = col_headers
+        self.row_headers = row_headers
+        self.transpose = False
+
+        # Reverse lookup dictionary for value conversion
+        self.revert_dict = {v: k for k, v in self.convert_dict.items()} if self.convert_dict else None
+
+        # Initialize the table with given settings
+        self.reset_table(data_key, unit_config, update_callback, col_headers,
+                         row_headers, col_length, transpose, **kwargs)
+
+        # Disable direct editing in the table
+        self.setEditTriggers(self.NoEditTriggers)
+
+    @staticmethod
+    def __transpose__(data):
+        return [[data[j][i] for j in range(len(data))] for i in range(len(data[0]))]
+
+    def reset_table(self, data_key, unit_config: dict, update_callback=None,
+                    col_headers: list = None, row_headers=None, col_length=None, transpose=False, **kwargs):
+        """
+        Resets the table with new configuration settings.
+
+        :param data_key: The key to access data from config.
+        :param unit_config: Dictionary defining UI components.
+        :param update_callback: Function triggered when values change.
+        :param col_headers: Optional list of column headers.
+        :param row_headers: Optional list of row headers.
+        :param col_length: Number of columns.
+        :param transpose: Flag to transpose the data.
+        """
+        self.setFixedHeight(kwargs.get('height', 200))
+        self.data_key = data_key if data_key else self.data_key
+        self.update_callback = update_callback if update_callback else self.update_callback
+        self.unit_config = unit_config if unit_config else self.unit_config
+        self.setColumnCount(col_length if col_length else self.col_length)
+
+        self.verticalHeader().hide()
+        self.horizontalHeader().hide()
+        # 设置列头
+        if col_headers is not None or (self.col_headers and row_headers is None):
+            self.setVerticalHeaderLabels(col_headers or self.col_headers)
+            self.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.verticalHeader().show()
+
+        # 设置行头
+        if row_headers is not None or (self.row_headers and col_headers is None):
+            self.setHorizontalHeaderLabels(row_headers or self.row_headers)
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.horizontalHeader().show()
+
+        self.create_table(transpose)
+
+    def create_table(self, transpose=False):
+        """
+        Populates the table with data and initializes UI components.
+        """
+        self.data = self.config.get(self.data_key, None)
+        assert self.data is not None, f"Invalid data key: {self.data_key}"
+        self.transpose = transpose
+
+        disp_data = self.__transpose__(self.data) if transpose else self.data
+
+        self.setRowCount(len(disp_data))
+        self.setColumnCount(len(disp_data[0]))
+
+        # Iterate through the data and create UI components
+        for _row, _row_data in enumerate(disp_data):
+            for _col, unit_data in enumerate(_row_data):
+                unit_component = None
+                if self.unit_config["type"] == "label":
+                    unit_component = QLabel(unit_data, self.parent)
+                if self.unit_config["type"] == "comboBox":
+                    unit_component = ComboBox(self.parent)
+                    unit_component.addItems(self.unit_config["items"])
+                    unit_component.setCurrentText(self.convert_dict.get(unit_data, unit_data))
+                    unit_component.currentTextChanged.connect(
+                        partial(self._parse_update, _row, _col))
+                if self.unit_config["type"] == "lineEdit":
+                    unit_component = LineEdit(self.parent)
+                    unit_component.setText(unit_data)
+                    unit_component.textChanged.connect(partial(self._parse_update, _row, _col))
+                if self.unit_config["type"] == "switch":
+                    unit_component = CheckBox(self.parent)
+                    unit_component.setChecked(unit_data)
+                    unit_component.stateChanged.connect(
+                        partial(self._parse_update, _row, _col))
+
+                self.setCellWidget(_row, _col, unit_component)
+
+    def _parse_update(self, row, col, *args):
+        """
+        Handles updates to table cell values.
+
+        :param row: Row index of the updated cell.
+        :param col: Column index of the updated cell.
+        :param args: Updated value.
+        """
+        value = args[0]
+
+        _row = row if not self.transpose else col
+        _col = col if not self.transpose else row
+
+        self.data[_row][_col] = self.revert_dict.get(value, value)
+
+        self.config.set(self.data_key, self.data)
+        if self.update_callback:
+            self.update_callback(row, col, value)
+
+
+class LineWidget:
+    """
+    A utility class for creating different types of interactive widgets within a horizontal layout.
+    """
+
+    @staticmethod
+    def get_btn(label, text, callback, tips=None, parent=None):
+        """Creates a button with a label."""
+        layout = QHBoxLayout()
+        label = QLabel(label, parent)
+        btn = PushButton(parent)
+        btn.setText(text)
+        btn.clicked.connect(callback)
+        if tips:
+            label.setToolTip(tips)
+        layout.addWidget(label, 1, Qt.AlignLeft)
+        layout.addWidget(btn, 1, Qt.AlignRight)
+        return layout
+
+    @staticmethod
+    def get_text_edit(label, text, callback, tips=None, parent=None):
+        """Creates a text edit field with a label."""
+        layout = QHBoxLayout()
+        label = QLabel(label, parent)
+        edit = LineEdit(parent)
+        edit.setText(text)
+        edit.textChanged.connect(callback)
+        if tips:
+            label.setToolTip(tips)
+        layout.addWidget(label, 1, Qt.AlignLeft)
+        layout.addWidget(edit, 1, Qt.AlignRight)
+        return layout
+
+    @staticmethod
+    def get_combo_box(label, items, current_index, callback, tips=None, parent=None):
+        """Creates a combo box with a label."""
+        layout = QHBoxLayout()
+        label = QLabel(label, parent)
+        combo = ComboBox(parent)
+        combo.addItems(items)
+        combo.setCurrentIndex(current_index)
+        combo.currentIndexChanged.connect(callback)
+        if tips:
+            label.setToolTip(tips)
+        layout.addWidget(label, 1, Qt.AlignLeft)
+        layout.addWidget(combo, 1, Qt.AlignRight)
+        return layout
+
+    @staticmethod
+    def get_check_box(label, checked, callback, tips=None, parent=None):
+        """Creates a checkbox with a label."""
+        layout = QHBoxLayout()
+        label = QLabel(label, parent)
+        check = CheckBox(parent)
+        check.setChecked(checked)
+        check.stateChanged.connect(callback)
+        if tips:
+            label.setToolTip(tips)
+        layout.addWidget(label, 1, Qt.AlignLeft)
+        layout.addWidget(check, 1, Qt.AlignRight)
+        return layout

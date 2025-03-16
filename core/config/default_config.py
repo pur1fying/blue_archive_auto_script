@@ -410,13 +410,13 @@ DEFAULT_CONFIG = """
     "multiEmulatorName": "mumu",
     "manual_boss": false,
     "choose_team_method": "preset",
-    "choose_team_order": [1, 2, 3],
-    "preset_team_attribute": {
-        "burst":    [[1, 1], [1, 2]], 
-        "pierce":   [[2, 1], [2, 2]], 
-        "shock":    [[3, 1], [3, 2]],
-        "mystic":   [[4, 1], [4, 2]]
-    },
+    "side_team_attribute": [["Unused","Unused","Unused","Unused"]],
+    "preset_team_attribute": [
+        ["Unused","Unused","Unused","Unused","Unused"],
+        ["Unused","Unused","Unused","Unused","Unused"],
+        ["Unused","Unused","Unused","Unused","Unused"],
+        ["Unused","Unused","Unused","Unused","Unused"]
+    ],
     "burst1": "1",
     "burst2": "2",
     "pierce1": "1",
@@ -3290,7 +3290,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
+        "CN": "AbydosResortRestorationCommittee",
         "Global": null,
         "JP": "WaffleCrisisTheMiracleMoment"
     },
@@ -4911,6 +4911,7 @@ STATIC_DEFAULT_CONFIG = '''
 try:
     import os
     import importlib.util as iu
+
     _init_path = iu.find_spec("qfluentwidgets").origin
     _init_path = os.path.dirname(_init_path)
     _init_path = os.path.join(_init_path, "common", "config.py")

@@ -323,10 +323,10 @@
         "desc": "2 left"
       },
       {
-        "t": [
-          "exchange",
-          "click_and_teleport"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "p": [
           500,
           507
@@ -573,17 +573,19 @@
         "desc": "2 lower right"
       },
       {
-        "t": [
-          "exchange",
-          "click_and_teleport",
-          "teleport"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "p": [
           613,
           405
         ],
         "ec": true,
         "desc": "2 right and tp"
+      },
+      {
+        "t": "teleport"
       },
       {
         "t": "choose_and_change",

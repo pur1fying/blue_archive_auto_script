@@ -1,7 +1,6 @@
 import logging
 import sys
 import threading
-from datetime import datetime
 from typing import Union
 from datetime import datetime, timedelta, timezone
 
@@ -26,6 +25,10 @@ def delay(wait=1):
 
     return decorator
 
+def detach(func):
+    def wrapper(*args, **kwargs):
+        threading.Thread(target=func, args=args[:-1], kwargs=kwargs).start()
+    return wrapper
 
 class Logger:
     """

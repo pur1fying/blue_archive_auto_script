@@ -143,15 +143,15 @@
         "wait-over": true
       },
       {
-        "t": [
-          "exchange_and_click",
-          "teleport"
-        ],
+        "t": "exchange_and_click",
         "ec": true,
         "p": [
           432,
           451
         ]
+      },
+      {
+        "t": "teleport"
       },
       {
         "t": "click",
@@ -221,10 +221,10 @@
         "wait-over": true
       },
       {
-        "t": [
-          "exchange",
-          "click_and_teleport"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "ec": true,
         "p": [
           835,

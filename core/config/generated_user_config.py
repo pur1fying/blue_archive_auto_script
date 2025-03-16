@@ -77,8 +77,8 @@ class Config:
     multiEmulatorName: str
     manual_boss: bool
     choose_team_method: str
-    choose_team_order: list
-    preset_team_attribute: dict
+    side_team_attribute: list
+    preset_team_attribute: list
     burst1: str
     burst2: str
     pierce1: str
