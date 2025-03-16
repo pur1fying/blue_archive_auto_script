@@ -20,6 +20,7 @@ SOURCES += \
     ../../gui/components/expand/shopPriority.py \
     ../../gui/components/expand/sweepCountConfig.py \
     ../../gui/components/expand/totalForceFightPriority.py \
+    ../../gui/util/customed_ui.py \
     ../../gui/components/dialog_panel.py \
     ../../gui/components/template_card.py \
     ../../gui/fragments/history.py \

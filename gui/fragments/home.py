@@ -16,24 +16,11 @@ from qfluentwidgets import (
 )
 
 from core.notification import notify
+from gui.util.customed_ui import AssetsWidget, FuncLabel
 from gui.util.translator import baasTranslator as bt
 from window import Window
 
-
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
-
-
-class MyQLabel(QLabel):
-    button_clicked_signal = pyqtSignal()
-
-    def __init__(self, parent=None):
-        super(MyQLabel, self).__init__(parent)
-
-    def mouseReleaseEvent(self, QMouseEvent):
-        self.button_clicked_signal.emit()
-
-    def connect_customized_slot(self, func):
-        self.button_clicked_signal.connect(func)
 
 
 class HomeFragment(QFrame):
@@ -56,6 +43,7 @@ class HomeFragment(QFrame):
 
         title = self.tr("蔚蓝档案自动脚本") + ' {name}'
         self.banner_visible = self.config.get('bannerVisibility')
+        self.status_visible = self.config.get('statusVisibility')
         self.label = SubtitleLabel(self)
         config.inject(self.label, title)
         self.info = SubtitleLabel(self.tr('无任务'), self)
@@ -66,7 +54,7 @@ class HomeFragment(QFrame):
         self.infoLayout.addStretch(1)
         self.infoLayout.addWidget(self.info, 0, Qt.AlignRight)
 
-        self.banner = MyQLabel(self)
+        self.banner = FuncLabel(self)
         self.banner.setFixedHeight(200)
         self.banner.setMaximumHeight(200)
         pixmap = QPixmap(MAIN_BANNER).scaled(
@@ -90,6 +78,14 @@ class HomeFragment(QFrame):
         self.logger_box = TextEdit(self)
         self.logger_box.setReadOnly(True)
         self.column_2.addWidget(self.logger_box)
+
+        handler_for_logger = QHBoxLayout(self.logger_box)
+        handler_for_logger.setSpacing(0)
+        handler_for_logger.setContentsMargins(0, 5, 5, 0)
+        assets_status = AssetsWidget(config, self)
+        handler_for_logger.addWidget(assets_status)
+        handler_for_logger.setAlignment(assets_status, Qt.AlignRight | Qt.AlignTop)
+        assets_status.start_patch()
 
         self.bottomLayout.addLayout(self.column_2)
         self.bottomLayout.setSpacing(10)
@@ -132,7 +128,8 @@ class HomeFragment(QFrame):
 
             if data:
                 if type(data[0]) is dict:
-                    self.info.setText(self.tr("正在运行：") + bt.tr('ConfigTranslation', self.event_map[data[0]["func_name"]]))
+                    self.info.setText(
+                        self.tr("正在运行：") + bt.tr('ConfigTranslation', self.event_map[data[0]["func_name"]]))
                 else:
                     self.info.setText(self.tr("正在运行：") + bt.tr('ConfigTranslation', data[0]))
                     _main_thread_ = self.config.get_main_thread()
@@ -274,7 +271,6 @@ class MainThread(QThread):
             notify(title='BAAS', body=self.tr('普通图推图已完成'))
         self.update_signal.emit([self.tr('无任务')])
         self.display(self.tr('启动'))
-
 
     def start_fhx(self):
         self._init_script()
