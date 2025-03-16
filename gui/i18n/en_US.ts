@@ -2,6 +2,74 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US" sourcelanguage="zh_CN">
 <context>
+    <name>AssetsWidget</name>
+    <message>
+        <location filename="../util/customed_ui.py" line="232"/>
+        <source>体力</source>
+        <translation type="unfinished">Physical</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="238"/>
+        <source>信用点</source>
+        <translation type="unfinished">Credits</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="244"/>
+        <source>青辉石</source>
+        <translation type="unfinished">Pyroxene</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="250"/>
+        <source>竞技币</source>
+        <translation type="unfinished">Athletic coins</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="259"/>
+        <source>悬赏令</source>
+        <translation type="unfinished">Bounty Order</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="265"/>
+        <source>拱心片</source>
+        <translation type="unfinished">Arch piece</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="271"/>
+        <source>拱心石</source>
+        <translation type="unfinished">Keystone</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="451"/>
+        <source>{0}秒前</source>
+        <translation type="unfinished">{0} seconds ago</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="453"/>
+        <source>{0}分钟前</source>
+        <translation type="unfinished">{0} minutes ago</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="455"/>
+        <source>{0}小时前</source>
+        <translation type="unfinished">{0} hours ago</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="457"/>
+        <source>{0}天前</source>
+        <translation type="unfinished">{0} days ago</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="459"/>
+        <source>{0}个月前</source>
+        <translation type="unfinished">{0} months ago</translation>
+    </message>
+    <message>
+        <location filename="../util/customed_ui.py" line="461"/>
+        <source>{0}年前</source>
+        <translation type="unfinished">{0} years ago</translation>
+    </message>
+</context>
+<context>
     <name>BAASLangAltButton</name>
     <message>
         <location filename="../../window.py" line="322"/>
@@ -276,27 +344,27 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="89"/>
         <source>静子神明文字x5</source>
-        <translation>Shizuko&apos;s Eleph</translation>
+        <translation>Shizuko's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="90"/>
         <source>真白神明文字x5</source>
-        <translation>Mashiro&apos;s Eleph</translation>
+        <translation>Mashiro's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="91"/>
         <source>纱绫神明文字x5</source>
-        <translation>Saya&apos;s Eleph</translation>
+        <translation>Saya's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="92"/>
         <source>风香神明文字x5</source>
-        <translation>Fuuka&apos;s Eleph</translation>
+        <translation>Fuuka's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="93"/>
         <source>歌原神明文字x5</source>
-        <translation>Utaha&apos;s Eleph</translation>
+        <translation>Utaha's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="94"/>
@@ -401,7 +469,7 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="88"/>
         <source>宫子神明文字x5</source>
-        <translation>Miyako&apos;s Eleph</translation>
+        <translation>Miyako's Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="115"/>
@@ -641,37 +709,37 @@ make sure to do it before starting the script.</translation>
 <context>
     <name>HomeFragment</name>
     <message>
-        <location filename="../fragments/home.py" line="57"/>
+        <location filename="../fragments/home.py" line="44"/>
         <source>蔚蓝档案自动脚本</source>
         <translation>Blue Archive Auto Script</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="61"/>
+        <location filename="../fragments/home.py" line="49"/>
         <source>无任务</source>
         <translation>No task</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="78"/>
+        <location filename="../fragments/home.py" line="66"/>
         <source>启动</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="78"/>
+        <location filename="../fragments/home.py" line="66"/>
         <source>档案，启动</source>
         <translation>BlueArchive, Launch</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="195"/>
+        <location filename="../fragments/home.py" line="192"/>
         <source>开始你的档案之旅</source>
         <translation>Start Script</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="137"/>
+        <location filename="../fragments/home.py" line="134"/>
         <source>正在运行：</source>
         <translation>Running:</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="195"/>
+        <location filename="../fragments/home.py" line="192"/>
         <source>完成后</source>
         <translation>Then</translation>
     </message>
@@ -690,7 +758,7 @@ Use positive number for below and negative for above:</translation>
         <translation>Enter how many times you need to refresh:</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="30"/>
+        <location filename="../components/expand/shopPriority.py" line="29"/>
         <source>确定</source>
         <translation>Save</translation>
     </message>
@@ -797,18 +865,18 @@ See Clear Hard and Normal Stages in Help</translation>
 (see Clear Hard and Normal Stages in Help)&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="20"/>
+        <location filename="../components/expand/mainlinePriority.py" line="21"/>
         <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>Normal stage and number of sweeps(e.g. &quot;1-1-1,1-2-3&quot; means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="23"/>
+        <location filename="../components/expand/mainlinePriority.py" line="24"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>Set hard stages as above, with a maximum of 3 sweeps. Use commas for separation.
-For JP or Global server, you can use &apos;max&apos;:</translation>
+For JP or Global server, you can use 'max':</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="117"/>
+        <location filename="../components/expand/mainlinePriority.py" line="137"/>
         <source>根据学生添加关卡</source>
         <translation>Add based on students</translation>
     </message>
@@ -818,37 +886,37 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>爱丽丝宝贝</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="33"/>
+        <location filename="../components/expand/schedulePriority.py" line="35"/>
         <source>优先做好感等级多的日程</source>
         <translation>Prioritize lessons with higher affection levels</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="148"/>
+        <location filename="../components/expand/schedulePriority.py" line="153"/>
         <source>日程次数</source>
         <translation>Number of tickets</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="130"/>
+        <location filename="../components/expand/schedulePriority.py" line="135"/>
         <source>区域名称</source>
         <translation>Location</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="141"/>
         <source>初级</source>
         <translation>Novice</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="141"/>
         <source>普通</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="141"/>
         <source>高级</source>
         <translation>Advanced</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="141"/>
         <source>特级</source>
         <translation>Superior</translation>
     </message>
@@ -873,12 +941,12 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>adb address fetch failed</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="39"/>
+        <location filename="../components/expand/shopPriority.py" line="38"/>
         <source>信用点</source>
         <translation>Credits</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="41"/>
+        <location filename="../components/expand/shopPriority.py" line="40"/>
         <source>青辉石</source>
         <translation>Pyroxene</translation>
     </message>
@@ -903,7 +971,7 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>Hard Mainline Map Clear</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="114"/>
+        <location filename="../components/expand/mainlinePriority.py" line="134"/>
         <source>设置失败</source>
         <translation>Setup failed</translation>
     </message>
@@ -1013,27 +1081,27 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>The table matches stages to attributes</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="117"/>
+        <location filename="../components/expand/eventMapConfig.py" line="116"/>
         <source>故事</source>
         <translation>Story</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="118"/>
+        <location filename="../components/expand/eventMapConfig.py" line="117"/>
         <source>任务</source>
         <translation>Quest</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="119"/>
+        <location filename="../components/expand/eventMapConfig.py" line="118"/>
         <source>挑战</source>
         <translation>Challenge</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="144"/>
+        <location filename="../components/expand/eventMapConfig.py" line="140"/>
         <source>三星</source>
         <translation>sss</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="146"/>
+        <location filename="../components/expand/eventMapConfig.py" line="142"/>
         <source>成就任务</source>
         <translation>tasks</translation>
     </message>
@@ -1092,7 +1160,7 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
     <message>
         <location filename="../components/expand/arenaPriority.py" line="21"/>
         <source>自定义对手的编号：</source>
-        <translation>Customize your opponent&apos;s number:</translation>
+        <translation>Customize your opponent's number:</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="118"/>
@@ -1107,10 +1175,10 @@ Operations involving the emulator will follow the settings in &quot;Emulator Sta
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
 It is recommended to use nemu and if you are using nemu, please 
-set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
+set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="26"/>
@@ -1158,17 +1226,17 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Grade of Creation</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="216"/>
+        <location filename="../components/expand/createPriority.py" line="217"/>
         <source>一级制造配置</source>
         <translation>Level 1 manufacturing configuration</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="217"/>
+        <location filename="../components/expand/createPriority.py" line="218"/>
         <source>二级制造配置</source>
         <translation>Secondary manufacturing configuration</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="218"/>
+        <location filename="../components/expand/createPriority.py" line="219"/>
         <source>三级制造配置</source>
         <translation>Three-level manufacturing configuration</translation>
     </message>
@@ -1223,42 +1291,42 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Material selection</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="269"/>
+        <location filename="../components/expand/createPriority.py" line="265"/>
         <source>一键设置推荐优先级</source>
         <translation>Set recommendation priority with one click</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="272"/>
+        <location filename="../components/expand/createPriority.py" line="268"/>
         <source>选择学生</source>
         <translation>Select Student</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="315"/>
+        <location filename="../components/expand/createPriority.py" line="311"/>
         <source>制造优先级</source>
         <translation>Manufacturing priority</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="329"/>
+        <location filename="../components/expand/createPriority.py" line="325"/>
         <source>修改成功</source>
         <translation>Modified</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="329"/>
+        <location filename="../components/expand/createPriority.py" line="325"/>
         <source>推荐制造优先级</source>
         <translation>Recommend manufacturing priorities</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="23"/>
+        <location filename="../components/expand/schedulePriority.py" line="26"/>
         <source>优先做指定学生存在的日程</source>
         <translation>Priority is given to the schedule that specifies the presence of the student</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="27"/>
+        <location filename="../components/expand/schedulePriority.py" line="30"/>
         <source>指定学生</source>
         <translation>Specify Student</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="71"/>
+        <location filename="../components/expand/schedulePriority.py" line="74"/>
         <source>指定学生(填写指南见wiki)</source>
         <translation>Specify Student (See wiki for guidelines on how to fill in)</translation>
     </message>
@@ -1266,97 +1334,97 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="337"/>
+        <location filename="../fragments/home.py" line="333"/>
         <source>停止</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="341"/>
+        <location filename="../fragments/home.py" line="337"/>
         <source>启动</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="265"/>
+        <location filename="../fragments/home.py" line="262"/>
         <source>困难图推图已完成</source>
         <translation>Clear Hard Mission completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="274"/>
+        <location filename="../fragments/home.py" line="271"/>
         <source>普通图推图已完成</source>
         <translation>Clear Normal Mission completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="282"/>
+        <location filename="../fragments/home.py" line="278"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>Anti-harmony success, please restart BA download resources</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="290"/>
+        <location filename="../fragments/home.py" line="286"/>
         <source>主线剧情已完成</source>
         <translation>Main Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="300"/>
+        <location filename="../fragments/home.py" line="296"/>
         <source>小组剧情已完成</source>
         <translation>Group Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="310"/>
+        <location filename="../fragments/home.py" line="306"/>
         <source>支线剧情已完成</source>
         <translation>Mini story completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="320"/>
+        <location filename="../fragments/home.py" line="316"/>
         <source>活动剧情已完成</source>
         <translation>Event Story Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="330"/>
+        <location filename="../fragments/home.py" line="326"/>
         <source>活动任务已完成</source>
         <translation>Event Quest Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="340"/>
+        <location filename="../fragments/home.py" line="336"/>
         <source>活动挑战推图已完成</source>
         <translation>Event Challenge Completed</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="342"/>
+        <location filename="../fragments/home.py" line="338"/>
         <source>无任务</source>
         <translation>No task</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="271"/>
+        <location filename="../fragments/home.py" line="268"/>
         <source>普通关推图</source>
         <translation>Clear Normal Mission</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="286"/>
+        <location filename="../fragments/home.py" line="282"/>
         <source>自动主线剧情</source>
         <translation>Main Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="296"/>
+        <location filename="../fragments/home.py" line="292"/>
         <source>自动小组剧情</source>
         <translation>Group Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="307"/>
+        <location filename="../fragments/home.py" line="303"/>
         <source>自动支线剧情</source>
         <translation>Mini Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="317"/>
+        <location filename="../fragments/home.py" line="313"/>
         <source>自动活动剧情</source>
         <translation>Clear Event Story</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="327"/>
+        <location filename="../fragments/home.py" line="323"/>
         <source>自动活动任务</source>
         <translation>Clear Event Quest</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="336"/>
+        <location filename="../fragments/home.py" line="332"/>
         <source>自动活动挑战</source>
         <translation>Clear Event Challenge</translation>
     </message>
@@ -1400,7 +1468,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="25"/>
+        <location filename="../fragments/process.py" line="30"/>
         <source>调度状态</source>
         <translation>Scheduling Status</translation>
     </message>
@@ -1410,12 +1478,12 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Executing</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="114"/>
+        <location filename="../fragments/process.py" line="113"/>
         <source>暂无正在执行的任务</source>
         <translation>No active tasks</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="116"/>
+        <location filename="../fragments/process.py" line="115"/>
         <source>暂无队列中的任务</source>
         <translation>There are no tasks in the queue</translation>
     </message>
@@ -1567,7 +1635,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
     <message>
         <location filename="../fragments/settings.py" line="32"/>
         <source>选择你的服务器平台，设置你的端口（不知道端口请设置为0）</source>
-        <translation>Select your server platform and set your port (set to 0 if you don&apos;t know the port)</translation>
+        <translation>Select your server platform and set your port (set to 0 if you don't know the port)</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="40"/>
@@ -1702,7 +1770,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
     <message>
         <location filename="../fragments/settings.py" line="131"/>
         <source>更改应用的主题颜色</source>
-        <translation>Change the app&apos;s theme color</translation>
+        <translation>Change the app's theme color</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="138"/>
@@ -1811,7 +1879,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>CommPhil Gulation Setins</translation>
     </message>
     <message>
-        <location filename="../fragments/switch.py" line="216"/>
+        <location filename="../fragments/switch.py" line="226"/>
         <source>Features</source>
         <translation>Fetures</translation>
     </message>
@@ -1837,37 +1905,37 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="474"/>
+        <location filename="../../window.py" line="476"/>
         <source>主页</source>
         <translation>Home</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="476"/>
+        <location filename="../../window.py" line="478"/>
         <source>配置</source>
         <translation>Dailies</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="477"/>
+        <location filename="../../window.py" line="479"/>
         <source>设置</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="588"/>
+        <location filename="../../window.py" line="593"/>
         <source>是否要删除配置：</source>
         <translation>Do you want to delete the configuration:</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="589"/>
+        <location filename="../../window.py" line="594"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>You will need to restart Baas after confirmation to complete the changes.</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="475"/>
+        <location filename="../../window.py" line="477"/>
         <source>调度</source>
         <translation>Schedule</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="557"/>
+        <location filename="../../window.py" line="561"/>
         <source>设置失败</source>
         <translation>Setup failed</translation>
     </message>
@@ -1897,12 +1965,12 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>ConfigTranslation</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="162"/>
+        <location filename="../fragments/home.py" line="159"/>
         <source>MainThread</source>
         <translation>MainThread</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="164"/>
+        <location filename="../fragments/home.py" line="161"/>
         <source>MainThread</source>
         <comment>停止</comment>
         <translation>MainThread</translation>
@@ -1929,7 +1997,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="516"/>
+        <location filename="../../window.py" line="518"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>
