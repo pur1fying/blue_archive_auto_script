@@ -57,10 +57,6 @@ class Baas_ocr:
                 temp += res[i]
         return temp
 
-    @staticmethod
-    def is_chinese_char(char):
-        return 0x4e00 <= ord(char) <= 0x9fff
-
     def get_region_res(self, baas, region, language='zh-cn', log_info="", candidates="", filter_score=0.2):
         img = self.get_area_img(baas.latest_img_array, region, baas.ratio)
         res = self.ocr_for_single_line(
@@ -80,6 +76,10 @@ class Baas_ocr:
         img = self.get_area_img(img, region, ratio)
         res = self.ocr(language, img, candidates, 1)
         return res
+
+    @staticmethod
+    def is_chinese_char(char):
+        return 0x4e00 <= ord(char) <= 0x9fff
 
     @staticmethod
     def get_area_img(img, area, ratio=1.0):

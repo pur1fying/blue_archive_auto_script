@@ -409,10 +409,12 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
                     possible_strs=["1", "2", "3", "4", "5"],
                     target_str_index=row - 1,
                     swipe_params=(145, 578, 145, 273, 1.0, 0.5),
-                    ocr_language="NUM",
+                    ocr_language="en-us",
                     ocr_region_offsets=offsets[self.server],
                     ocr_str_replace_func=None,
-                    max_swipe_times=5
+                    max_swipe_times=5,
+                    ocr_candidates="12345",
+                    ocr_filter_score=0.2
                 )
                 preset_y = presetButtonPos[1] + 76
 

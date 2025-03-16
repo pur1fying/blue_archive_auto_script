@@ -151,17 +151,19 @@ def explore_normal_task(self):
                 if region % 3 == 0:
                     fullMissionList.append(f"{region}-A")
                 missionButtonPos = image.swipe_search_target_str(
-                    self,
-                    "normal_task_enter-task-button",
-                    (1055, 191, 1201, 632),
-                    0.8,
-                    fullMissionList,
-                    mission - 1,
-                    (917, 552, 917, 220, 0.2, 1.0),
-                    'Global',
-                    (-396, -7, 60, 33),
-                    None,
-                    3
+                    self=self,
+                    name="normal_task_enter-task-button",
+                    search_area=(1055, 191, 1201, 632),
+                    threshold=0.8,
+                    possible_strs=fullMissionList,
+                    target_str_index=mission - 1,
+                    swipe_params=(917, 552, 917, 220, 0.2, 1.0),
+                    ocr_language='en-us',
+                    ocr_region_offsets=(-396, -7, 60, 33),
+                    ocr_str_replace_func=None,
+                    max_swipe_times=3,
+                    ocr_candidates="123456789-",
+                    ocr_filter_score=0.2,
                 )
                 to_mission_info(self, missionButtonPos[1])
 

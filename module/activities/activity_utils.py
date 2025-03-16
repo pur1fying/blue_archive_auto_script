@@ -180,7 +180,7 @@ def to_mission_task_info(self, target_index, total_mission):
         possible_strs,
         target_str_index=target_index - 1,
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
-        ocr_language='NUM',
+        ocr_language='en-us',
         ocr_region_offsets=(-384, -8, 43, 28),
         ocr_str_replace_func=None,
         max_swipe_times=10
@@ -352,7 +352,7 @@ def to_story_task_info(self, target_index, total_story):
         possible_strs,
         target_str_index=target_index - 1,
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
-        ocr_language='NUM',
+        ocr_language='en-us',
         ocr_region_offsets=(-387, -6, 50, 28),
         ocr_str_replace_func=None,
         max_swipe_times=10
