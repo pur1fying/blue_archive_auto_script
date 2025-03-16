@@ -245,12 +245,14 @@ class TableManager(TableWidget):
         self.col_length = col_length
         self.col_headers = col_headers
         self.row_headers = row_headers
+        self.transpose = False
 
         # Reverse lookup dictionary for value conversion
         self.revert_dict = {v: k for k, v in self.convert_dict.items()} if self.convert_dict else None
 
         # Initialize the table with given settings
-        self.reset_table(data_key, unit_config, update_callback, col_headers, row_headers, col_length, transpose, **kwargs)
+        self.reset_table(data_key, unit_config, update_callback, col_headers,
+                         row_headers, col_length, transpose, **kwargs)
 
         # Disable direct editing in the table
         self.setEditTriggers(self.NoEditTriggers)
@@ -300,15 +302,15 @@ class TableManager(TableWidget):
         """
         self.data = self.config.get(self.data_key, None)
         assert self.data is not None, f"Invalid data key: {self.data_key}"
+        self.transpose = transpose
 
-        if transpose:
-            self.data = self.__transpose__(self.data)
+        disp_data = self.__transpose__(self.data) if transpose else self.data
 
-        self.setRowCount(len(self.data))
-        self.setColumnCount(len(self.data[0]))
+        self.setRowCount(len(disp_data))
+        self.setColumnCount(len(disp_data[0]))
 
         # Iterate through the data and create UI components
-        for _row, _row_data in enumerate(self.data):
+        for _row, _row_data in enumerate(disp_data):
             for _col, unit_data in enumerate(_row_data):
                 unit_component = None
                 if self.unit_config["type"] == "label":
@@ -340,7 +342,12 @@ class TableManager(TableWidget):
         :param args: Updated value.
         """
         value = args[0]
-        self.data[row][col] = self.revert_dict.get(value, value)
+
+        _row = row if not self.transpose else col
+        _col = col if not self.transpose else row
+
+        self.data[_row][_col] = self.revert_dict.get(value, value)
+
         self.config.set(self.data_key, self.data)
         if self.update_callback:
             self.update_callback(row, col, value)

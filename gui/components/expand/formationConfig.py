@@ -63,7 +63,7 @@ class Layout(QWidget):
         }
         col_length = self.COL_NUM_DICT[key]
 
-        headers:dict = {"row_headers": [str(x + 1) for x in range(4)]} \
+        headers: dict = {"row_headers": [str(x + 1) for x in range(4)]} \
             if key == "preset_team_attribute" else \
             {"col_headers": [str(x + 1) for x in range(4)]}
         headers["height"] = 230
