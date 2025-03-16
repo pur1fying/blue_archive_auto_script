@@ -16,19 +16,6 @@ class Baas_ocr:
         self.client = None
         self._init_client(ocr_needed)
 
-    def recognize_number(self, img, area, category=int, ratio=1.0):
-        img = self.get_area_img(img, area, ratio)
-        res = self.ocr_for_single_line("en-us", "", img, "", 1)
-        temp = ''
-        for i in range(0, len(res)):
-            if res[i].isdigit():
-                temp += res[i]
-            elif res[i] == '.' and category == float:
-                temp += res[i]
-        if temp == '':
-            return "UNKNOWN"
-        return category(temp)
-
     def recognize_int(self, baas, region, log_info="", filter_score=0.2) -> int:
         res = self.get_region_res(
             baas=baas,

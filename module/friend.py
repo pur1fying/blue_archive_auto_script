@@ -88,7 +88,7 @@ def check_name_in_white_list(self):
         'JP': (680, 385, 747, 409),
     }
     white_list = self.config.get("clear_friend_white_list")
-    friend_id = self.ocr.get_region_res(self.latest_img_array, ocr_region[self.server], 'Global', self.ratio)
+    friend_id = self.ocr.get_region_res(self, ocr_region[self.server], 'en-us')
     self.last_friend_id = friend_id
     self.logger.info("Ocr Friend ID : [ " + friend_id + " ]")
     if friend_id in white_list:

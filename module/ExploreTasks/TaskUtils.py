@@ -124,11 +124,19 @@ def get_formation_index(self):
         'JP': (116, 542, 131, 570)
     }
     handle_task_pop_ups(self)
-    ocr_res = self.ocr.recognize_number(self.latest_img_array, region[self.server], int, self.ratio)
-    if ocr_res == 7:
-        ocr_res = 1
+    ocr_res = self.ocr(
+        baas=self,
+        region=region[self.server],
+        language="en-us",
+        log_info="Formation Index",
+        candidates="1234",
+        filter_score=0.2
+    )
+    try:
+        ocr_res = int(ocr_res)
+    except ValueError:
+        return get_formation_index(self)
     if ocr_res not in [1, 2, 3, 4]:
-        # TODO 无法识别可能会导致死循环
         return get_formation_index(self)
     return ocr_res
 

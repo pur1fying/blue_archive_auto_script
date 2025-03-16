@@ -477,6 +477,7 @@ class Baas_thread:
                         self.logger.info("all activities finished, return to main page")
                         push(self.logger, self.config)
                         self.to_main_page()
+                        self.main_page_update_data()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
                     time.sleep(1)
@@ -723,53 +724,87 @@ class Baas_thread:
         if post_sleep_time > 0:
             time.sleep(post_sleep_time)
 
-    def get_ap(self):
-        region = {
-            'CN': [557, 10, 662, 40],
-            'Global': [557, 10, 662, 40],
-            'JP': [557, 10, 662, 40],
-        }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
-        ap = 0
-        for j in range(0, len(_ocr_res)):
-            if (not _ocr_res[j].isdigit()) and _ocr_res[j] != '/' and _ocr_res[j] != '.':
-                return "UNKNOWN"
-            if _ocr_res[j].isdigit():
-                ap = ap * 10 + int(_ocr_res[j])
-            elif _ocr_res[j] == '/':
-                self.logger.info("AP: " + str(ap))
-                return ap
-        return "UNKNOWN"
+    def get_ap(self, is_main_page=False):
+        if is_main_page:
+            region = (512, 25, 609, 52)
+        else:
+            region = (557, 10, 662, 40)
+        ocr_res = self.ocr.get_region_res(
+            self,
+            region,
+            "en-us",
+            "AP",
+            "0123456789/"
+        )
+        _max = -1
+        if '/' in ocr_res:
+            ocr_res = ocr_res.split('/')
+            _max = ocr_res[1]
+            ocr_res = ocr_res[0]
+        try:
+            ocr_res = int(ocr_res)
+            _max = int(_max)
+            data = {
+                "count": ocr_res,
+                "max": _max,
+                "time": time.time()
+            }
+            self.config_set.set("ap", data)
 
-    def get_pyroxene(self):
-        region = {
-            'CN': [961, 10, 1072, 40],
-            'Global': [961, 10, 1072, 40],
-            'JP': [961, 10, 1072, 40],
-        }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
-        temp = 0
-        for j in range(0, len(_ocr_res)):
-            if not _ocr_res[j].isdigit():
-                continue
-            temp = temp * 10 + int(_ocr_res[j])
-        self.logger.info("Pyroxene: " + str(temp))
-        return temp
+            return ocr_res
+        except ValueError:
+            self.logger.warning("Failed to get AP.")
+            return 999
 
-    def get_creditpoints(self):
-        region = {
-            'CN': [769, 10, 896, 40],
-            'Global': [769, 10, 896, 40],
-            'JP': [769, 10, 896, 40],
-        }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
-        temp = 0
-        for j in range(0, len(_ocr_res)):
-            if not _ocr_res[j].isdigit():
+    def get_pyroxene(self, is_main_page):
+        if is_main_page:
+            region = (871, 25, 967, 52)
+        else:
+            region = (961, 10, 1072, 40)
+        ocr_res = self.ocr.get_region_res(
+            self,
+            region,
+            "en-us",
+            "Pyroxene",
+            "0123456789,",
+            0.2
+        )
+        ret = 0
+        for j in range(0, len(ocr_res)):
+            if not ocr_res[j].isdigit():
                 continue
-            temp = temp * 10 + int(_ocr_res[j])
-        self.logger.info("Credit Points: " + str(temp))
-        return temp
+            ret = ret * 10 + int(ocr_res[j])
+        data = {
+            "count": ocr_res,
+            "time": time.time()
+        }
+        self.config_set.set("pyroxene", data)
+        return ocr_res
+
+    def get_creditpoints(self, is_main_page=False):
+        if is_main_page:
+            region = (699, 25, 819, 52)
+        else:
+            region = (769, 10, 896, 40)
+        ocr_res = self.ocr.get_region_res(
+            self,
+            region,
+            "en-us",
+            "Credit Points",
+            "0123456789,",
+            0.2
+        )
+        ret = 0
+        for j in range(0, len(ocr_res)):
+            if not ocr_res[j].isdigit():
+                continue
+            ret = ret * 10 + int(ocr_res[j])
+        data = {
+            "count": ret,
+            "time": time.time()
+        }
+        self.config_set.set("creditpoints", data)
+        return ret
 
     @staticmethod
     def is_float(s):
@@ -947,6 +982,11 @@ class Baas_thread:
             except Exception as e:
                 print(e)
                 time.sleep(1)
+
+    def main_page_update_data(self):
+        self.get_ap(True)
+        self.get_creditpoints(True)
+        self.get_pyroxene(True)
 
 
 if __name__ == '__main__':

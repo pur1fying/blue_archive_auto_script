@@ -40,8 +40,33 @@ def implement(self):
             elif res == "0SWEEPABLE":
                 self.logger.warning("0 SWEEPABLE")
 
-    self.logger.info("Rewarded task status : " + self.rewarded_task_status.__str__())
+    self.logger.info("Rewarded Task Status : " + self.rewarded_task_status.__str__())
+    get_bounty_coin(self)
     return True
+
+
+def get_bounty_coin(self):
+    to_bounty(self, 0, True)
+    region = (148, 581, 376, 614)
+    ocr_res = self.ocr.get_region_res(
+        self,
+        region,
+        "en-us",
+        "Bounty Coin",
+        "0123456789,",
+        0.2
+    )
+    ret = 0
+    for j in range(0, len(ocr_res)):
+        if not ocr_res[j].isdigit():
+            continue
+        ret = ret * 10 + int(ocr_res[j])
+    data = {
+        "count": ocr_res,
+        "time": time.time()
+    }
+    self.config_set.set("bounty_coin", data)
+    return
 
 
 def start_sweep(self):
@@ -74,7 +99,7 @@ def get_los(self):
     los = []
     while i > 196:
         if color.is_rgb_in_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
-            color.is_rgb_in_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
+                color.is_rgb_in_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
             continue
@@ -116,7 +141,7 @@ def bounty_common_operation(self, a, b):
     if res != "0SWEEPABLE":
         return res
     self.swipe(926, 190, 926, 650, duration=1, post_sleep_time=1)
-    self.latest_img_array = self.get_screenshot_array()
+    self.update_screenshot_array()
     return one_detect(self, a, b)
 
 
@@ -128,6 +153,8 @@ def to_bounty(self, num, skip_first_screenshot=False):
         "main_page_bus": (731, 431),
         "rewarded_task_location-select": (992, bounty_location_y[num]),
         "rewarded_task_task-info": (1129, 141),
+        "normal_task_sweep-complete": (643, 585),
+        "normal_task_start-sweep-notice": (887, 164)
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
@@ -141,7 +168,7 @@ def to_choose_bounty(self, skip_first_screenshot=False):
         "rewarded_task_task-info": (1129, 141),
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
-        'rewared_task_help': (1014, 135),
+        'rewarded_task_help': (1014, 135),
         'rewarded_task_purchase-bounty-ticket-notice': (888, 163),
     }
     rgb_ends = "choose_bounty"

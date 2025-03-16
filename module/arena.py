@@ -6,13 +6,13 @@ def implement(self):
     to_tactical_challenge(self, True)
     tickets = get_tickets(self)
     if tickets == 0:
-        self.logger.info("INADEQUATE TICKETS COLLECT REWARD")
+        self.logger.info("Inadequate Arena Ticket Collect Reward")
         collect_tactical_challenge_reward(self)
         return True
     else:
-        self.logger.info("TICKETS: " + str(tickets))
-        choose_enemy(self)
+        self.logger.info("Ticket: " + str(tickets))
         choice = self.config.ArenaComponentNumber
+        choose_enemy(self, choice)
         x = 844
         y = [261, 414, 581]
         y = y[choice - 1]
@@ -38,36 +38,33 @@ def implement(self):
             return True
 
 
-def choose_enemy(self):
+def choose_enemy(self, choice=1):
     less_level = self.config.ArenaLevelDiff
     max_refresh = self.config.maxArenaRefreshTimes
-    self.logger.info("less level acceptable: " + str(less_level))
-    self.logger.info("max refresh times: " + str(max_refresh))
+    self.logger.info("Less Level Acceptable: " + str(less_level))
+    self.logger.info("Max Refresh Times    : " + str(max_refresh))
     self_level_region = {
         'CN': (213, 190, 247, 213),
         'Global': (196, 192, 224, 213),
         'JP': (196, 192, 224, 213),
     }
     opponent_level_region = {
-        'CN': (509, 291, 535, 317),
-        'Global': (490, 298, 515, 317),
-        'JP': (496, 291, 520, 315),
+        'CN': [(509, 291, 535, 314), (509, 449, 535, 476), (509, 610, 535, 630)],
+        'Global': [(490, 294, 515, 313), (490, 453, 515, 477), (490, 611, 515, 633)],
+        'JP': [(496, 291, 520, 315), (496, 449, 520, 476), (496, 611, 520, 633)],
     }
-    self_lv = self.ocr.recognize_number(self.latest_img_array, self_level_region[self.server], int, self.ratio)
-    self.logger.info("self level " + str(self_lv))
+    opponent_level_region = opponent_level_region[self.server][choice - 1]
+    self_lv = self.ocr.recognize_int(self, self_level_region[self.server], "Self Level")
     refresh = 0
     while self.flag_run:
         if refresh >= max_refresh:
             break
-        opponent_lv = self.ocr.recognize_number(self.latest_img_array, opponent_level_region[self.server], int, self.ratio)
-        if opponent_lv == "UNKNOWN":
-            continue
-        self.logger.info("opponent level " + str(opponent_lv))
+        opponent_lv = self.ocr.recognize_int(self, opponent_level_region, "Opponent Level")
         if opponent_lv + less_level <= self_lv:
             break
-        self.logger.info("refresh total times : " + str(refresh + 1))
+        self.logger.info("Refresh Total Times : " + str(refresh + 1))
         self.click(1158, 145, wait_over=True, duration=1)
-        color.wait_loading(self)
+        self.update_screenshot_array()
         refresh += 1
 
 
@@ -130,12 +127,26 @@ def to_tactical_challenge(self, skip_first_screenshot=False):
 
 def get_tickets(self):
     ticket_num_region = {
-        'CN': (193, 477, 206, 498),
-        'Global': (209, 477, 227, 498),
-        'JP': (196, 477, 218, 498),
+        'CN': (190, 475, 231, 501),
+        'Global_en-us': (212, 477, 248, 503),
+        'Global_zh-tw': (165, 479, 194, 504),
+        'Global_ko-kr': (),
+        'JP': (203, 478, 241, 502),
     }
-    ocr_res = self.ocr.recognize_number(self.latest_img_array, ticket_num_region[self.server], int, self.ratio)
-    return ocr_res
+    ocr_res = self.ocr.get_region_res(
+        self,
+        ticket_num_region[self.identifier],
+        "en-us",
+        "Arena Ticket Number",
+        "0123456789/"
+    )
+    if '/' in ocr_res:
+        ocr_res = ocr_res.split('/')[0]
+    try:
+        return int(ocr_res)
+    except ValueError:
+        self.logger.warning("Failed to get Arena Ticket Number")
+        return 999
 
 
 def fight(self, skip_first_screenshot=False):

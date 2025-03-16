@@ -165,7 +165,7 @@ def swipe_search_target_str(
         possible_strs=None,
         target_str_index=0,
         swipe_params=(0, 0, 0, 0, 0.0, 0.0),
-        ocr_language='NUM',
+        ocr_language='en-us',
         ocr_region_offsets=(0, 0, 0, 0),
         ocr_str_replace_func=None,
         max_swipe_times=3
@@ -221,7 +221,7 @@ def swipe_search_target_str(
                 p[0] + ocr_region_offsets[0] + ocr_region_offsets[2],
                 p[1] + ocr_region_offsets[1] + ocr_region_offsets[3]
             )
-            ocr_str = self.ocr.get_region_res(self.latest_img_array, ocr_region, ocr_language, self.ratio)
+            ocr_str = self.ocr.get_region_res(self, ocr_region, ocr_language)
             # check twice, before replace and after replace
             all_strs.append(ocr_str)
             if ocr_str == target_str:

@@ -404,7 +404,7 @@ DEFAULT_CONFIG = """
     ],
     "purchase_lesson_ticket_times": "0",
     "explore_normal_task_list": [],
-    "explore_hard_task_list": "此处填写需要推图的关卡",
+    "explore_hard_task_list": [],
     "emulatorIsMultiInstance": false,
     "emulatorMultiInstanceNumber": 0,
     "multiEmulatorName": "mumu",
@@ -467,7 +467,28 @@ DEFAULT_CONFIG = """
     "drill_difficulty_list": [1,1,1],
     "drill_fight_formation_list": [1,2,3],
     "drill_enable_sweep": true,
-    "new_event_enable_state": "default"
+    "new_event_enable_state": "default",
+    "ap": {
+        "count": -1,
+        "max": -1,
+        "time": 0
+    },
+    "creditpoints": {
+        "count": -1,
+        "time": 0
+    },
+    "pyroxene": {
+        "count": -1,
+        "time": 0
+    },
+    "tactical_challenge_coin": {
+        "count": -1,
+        "time": 0
+    },
+    "bounty_coin": {
+        "count": -1,
+        "time": 0
+    }
 }
 """
 
