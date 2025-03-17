@@ -232,47 +232,47 @@ class AssetsWidget(QFrame):
                 "ap": {
                     "name": self.tr("体力"),
                     'icon': 'gui/assets/icons/currency_icon_ap.webp',
-                    'value': 'UNK',
-                    "time": 'UNK'
+                    'value': 'Unknown',
+                    "time": '-'
                 },
                 "creditpoints": {
                     "name": self.tr("信用点"),
                     'icon': 'gui/assets/icons/currency_icon_gold.webp',
-                    'value': 'UNK',
-                    "time": 'UNK'
+                    'value': 'Unknown',
+                    "time": '-'
                 },
                 "pyroxene": {
                     "name": self.tr("青辉石"),
                     'icon': 'gui/assets/icons/currency_icon_gem.webp',
-                    'value': 'UNK',
-                    "time": 'UNK'
+                    'value': 'Unknown',
+                    "time": '-'
                 },
                 "tactical_challenge_coin": {
                     "name": self.tr("竞技币"),
                     'icon': 'gui/assets/icons/item_icon_arenacoin.webp',
-                    'value': 'UNK',
-                    "time": 'UNK'
+                    'value': 'Unknown',
+                    "time": '-'
                 }
             },
             "Second": {
 
                 "bounty_coin": {
-                    "name": self.tr("悬赏令"),
+                    "name": self.tr("悬赏委托币"),
                     'icon': 'gui/assets/icons/item_icon_chasercoin.webp',
-                    'value': 'UNK',
-                    "time": 'UNK'
+                    'value': 'Unknown',
+                    "time": '-'
                 },
                 "Keystone-Piece": {
-                    "name": self.tr("拱心片"),
+                    "name": self.tr("拱心石碎片"),
                     'icon': 'gui/assets/icons/item_icon_craftitem_0.webp',
-                    'value': 'UNK',
-                    "time": 'UNK'
+                    'value': 'Unknown',
+                    "time": '-'
                 },
                 "Keystone": {
                     "name": self.tr("拱心石"),
                     'icon': 'gui/assets/icons/item_icon_craftitem_1.webp',
-                    'value': 'UNK',
-                    "time": 'UNK'
+                    'value': 'Unknown',
+                    "time": 'Unknown'
                 }
             }
         }
@@ -355,53 +355,53 @@ class AssetsWidget(QFrame):
 
     def _parse_config(self):
         # AP
-        original_ap = self.config.get('ap', 'UNK')
+        original_ap = self.config.get('ap', 'Unknown')
         if type(original_ap) == dict:
-            ap_value = original_ap.get('count', 'UNK')
-            max_value = original_ap.get('max', 'UNK')
-            ap_time = original_ap.get('time', 'UNK')
-            ap_value = ap_value if ap_value != -1 else 'UNK'
-            max_value = max_value if max_value != -1 else 'UNK'
+            ap_value = original_ap.get('count', 'Unknown')
+            max_value = original_ap.get('max', 'Unknown')
+            ap_time = original_ap.get('time', '-')
+            ap_value = ap_value if ap_value != -1 else 'Unknown'
+            max_value = max_value if max_value != -1 else 'Unknown'
             self.disp_config.get('First').get('ap')['value'] = f"{ap_value}/{max_value}"
             self.disp_config.get('First').get('ap')['time'] = self._parse_time(ap_time)
 
-        original_creditpoints = self.config.get('creditpoints', 'UNK')
+        original_creditpoints = self.config.get('creditpoints', 'Unknown')
         if type(original_creditpoints) == dict:
-            creditpoints_value = original_creditpoints.get('count', 'UNK')
-            creditpoints_time = original_creditpoints.get('time', 'UNK')
-            creditpoints_value = creditpoints_value if creditpoints_value != -1 else 'UNK'
+            creditpoints_value = original_creditpoints.get('count', 'Unknown')
+            creditpoints_time = original_creditpoints.get('time', '-')
+            creditpoints_value = creditpoints_value if creditpoints_value != -1 else 'Unknown'
             self.disp_config.get('First').get('creditpoints')['value'] = creditpoints_value
             self.disp_config.get('First').get('creditpoints')['time'] = self._parse_time(creditpoints_time)
 
-        original_pyroxene = self.config.get('pyroxene', 'UNK')
+        original_pyroxene = self.config.get('pyroxene', 'Unknown')
         if type(original_pyroxene) == dict:
-            pyroxene_value = original_pyroxene.get('count', 'UNK')
-            pyroxene_time = original_pyroxene.get('time', 'UNK')
-            pyroxene_value = pyroxene_value if pyroxene_value != -1 else 'UNK'
+            pyroxene_value = original_pyroxene.get('count', 'Unknown')
+            pyroxene_time = original_pyroxene.get('time', '-')
+            pyroxene_value = pyroxene_value if pyroxene_value != -1 else 'Unknown'
             self.disp_config.get('First').get('pyroxene')['value'] = pyroxene_value
             self.disp_config.get('First').get('pyroxene')['time'] = self._parse_time(pyroxene_time)
 
-        original_tactical_challenge_coin = self.config.get('tactical_challenge_coin', 'UNK')
+        original_tactical_challenge_coin = self.config.get('tactical_challenge_coin', 'Unknown')
         if type(original_tactical_challenge_coin) == dict:
-            tactical_challenge_coin_value = original_tactical_challenge_coin.get('count', 'UNK')
-            tactical_challenge_coin_time = original_tactical_challenge_coin.get('time', 'UNK')
-            tactical_challenge_coin_value = tactical_challenge_coin_value if tactical_challenge_coin_value != -1 else 'UNK'
+            tactical_challenge_coin_value = original_tactical_challenge_coin.get('count', 'Unknown')
+            tactical_challenge_coin_time = original_tactical_challenge_coin.get('time', '-')
+            tactical_challenge_coin_value = tactical_challenge_coin_value if tactical_challenge_coin_value != -1 else 'Unknown'
             self.disp_config.get('First').get('tactical_challenge_coin')['value'] = tactical_challenge_coin_value
             self.disp_config.get('First').get('tactical_challenge_coin')['time'] = self._parse_time(
                 tactical_challenge_coin_time)
 
-        original_bounty_coin = self.config.get('bounty_coin', 'UNK')
+        original_bounty_coin = self.config.get('bounty_coin', 'Unknown')
         if type(original_bounty_coin) == dict:
-            bounty_coin_value = original_bounty_coin.get('count', 'UNK')
-            bounty_coin_time = original_bounty_coin.get('time', 'UNK')
-            bounty_coin_value = bounty_coin_value if bounty_coin_value != -1 else 'UNK'
+            bounty_coin_value = original_bounty_coin.get('count', 'Unknown')
+            bounty_coin_time = original_bounty_coin.get('time', '-')
+            bounty_coin_value = bounty_coin_value if bounty_coin_value != -1 else 'Unknown'
             self.disp_config.get('Second').get('bounty_coin')['value'] = bounty_coin_value
             self.disp_config.get('Second').get('bounty_coin')['time'] = self._parse_time(bounty_coin_time)
 
-        original_keystone_piece = self.config.get('create_item_holding_quantity').get('Keystone-Piece', 'UNK')
-        original_keystone_piece = original_keystone_piece if original_keystone_piece != -1 else 'UNK'
-        original_keystone = self.config.get('create_item_holding_quantity').get('Keystone', 'UNK')
-        original_keystone = original_keystone if original_keystone != -1 else 'UNK'
+        original_keystone_piece = self.config.get('create_item_holding_quantity').get('Keystone-Piece', 'Unknown')
+        original_keystone_piece = original_keystone_piece if original_keystone_piece != -1 else 'Unknown'
+        original_keystone = self.config.get('create_item_holding_quantity').get('Keystone', 'Unknown')
+        original_keystone = original_keystone if original_keystone != -1 else 'Unknown'
         self.disp_config.get('Second').get('Keystone-Piece')['value'] = original_keystone_piece
         self.disp_config.get('Second').get('Keystone-Piece')['time'] = "/"
         self.disp_config.get('Second').get('Keystone')['value'] = original_keystone
@@ -443,7 +443,7 @@ class AssetsWidget(QFrame):
         assert type(timestamp) in [int, float], "Timestamp must be an integer or float"
         timestamp = int(timestamp)
         if timestamp == 0:
-            return "UNK"
+            return "-"
         now = datetime.now()
         past = datetime.fromtimestamp(timestamp)
         diff = now - past  # Calculate time difference
