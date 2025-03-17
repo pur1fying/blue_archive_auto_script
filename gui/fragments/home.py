@@ -21,7 +21,7 @@ from gui.util.translator import baasTranslator as bt
 from window import Window
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
-
+HUMAN_TAKE_OVER_MESSAGE = "BAAS Exited, Reason : Human Take Over"
 
 class HomeFragment(QFrame):
     updateButtonState = pyqtSignal(bool)  # 创建用于更新按钮状态的信号
@@ -259,7 +259,10 @@ class MainThread(QThread):
         self.update_signal.emit(['困难关推图'])
         self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'explore_hard_task'):
-            notify(title='BAAS', body=self.tr('困难图推图已完成'))
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body=self.tr('困难图推图已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.update_signal.emit([self.tr('无任务')])
         self.display(self.tr("启动"))
 
@@ -268,7 +271,10 @@ class MainThread(QThread):
         self.update_signal.emit([self.tr('普通关推图')])
         self.display(self.tr('停止'))
         if self._main_thread.send('solve', 'explore_normal_task'):
-            notify(title='BAAS', body=self.tr('普通图推图已完成'))
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body=self.tr('普通图推图已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.update_signal.emit([self.tr('无任务')])
         self.display(self.tr('启动'))
 
@@ -284,6 +290,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'main_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('主线剧情已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.update_signal.emit([self.tr('无任务')])
         self.display(self.tr('启动'))
 
@@ -294,6 +302,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'group_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('小组剧情已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display('启动')
         self.update_signal.emit([self.tr('无任务')])
 
@@ -304,6 +314,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'mini_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('支线剧情已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display(self.tr('启动'))
         self.update_signal.emit([self.tr('无任务')])
 
@@ -314,6 +326,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'explore_activity_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('活动剧情已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display(self.tr('启动'))
         self.update_signal.emit([self.tr('无任务')])
 
@@ -324,6 +338,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'explore_activity_mission'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('活动任务已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display(self.tr('启动'))
         self.update_signal.emit([self.tr('无任务')])
 
@@ -334,6 +350,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'explore_activity_challenge'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('活动挑战推图已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display(self.tr('启动'))
         self.update_signal.emit([self.tr('无任务')])
 
