@@ -5,6 +5,6 @@ x_y_range = {
     'skip-plot-button': (1193, 103, 1235, 132),
     'skip-plot-notice': (566, 124, 715, 160),
     "formation": (100, 9, 220, 40),
-    # "self-formation": (100, 9, 340, 40),
-    # "change-unit-formation": (450, 74, 835, 108),
+    "self-formation": (100, 9, 260, 40),
+    "change-unit-formation": (580, 74, 705, 108),
 }
