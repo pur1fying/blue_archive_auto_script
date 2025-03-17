@@ -51,8 +51,8 @@ class Scheduler:
         td = timedelta(days=deltaDay)
         return (t.replace(hour=hour, minute=minute, second=second, microsecond=0) + td).timestamp()
 
-    def systole(self, task_name: str, next_time=0):
-        if task_name == self._current_task['current_task']:
+    def systole(self, task_name: str, next_time=0, force_task=False):
+        if force_task or task_name == self._current_task['current_task']:
             for event in self._event_config:
                 if event['func_name'] == task_name:
                     if next_time > 0:
@@ -61,8 +61,7 @@ class Scheduler:
                         interval = event['interval']
                         if event['interval'] <= 0:
                             interval = 86400
-                        daily_reset = event[
-                            'daily_reset']  # daily_reset is a list with items like : [hour, minute, second]
+                        daily_reset = event['daily_reset']  # daily_reset is a list with items like : [hour, minute, second]
                         sorted(daily_reset, key=lambda x: x[0] * 3600 + x[1] * 60 + x[2])
                         current = datetime.now(timezone.utc).timestamp()
                         temp = 2 ** 63
