@@ -6,12 +6,13 @@ from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
 def implement(self):
-    self.logger.info("START pushing main story")
+    self.logger.info("Pushing Main Story.")
     self.main_story_stage_data = get_stage_data()
     self.to_main_page()
     to_main_story(self, True)
     push_episode_list = process_regions(self, self.config.main_story_regions)
     if not push_episode_list:
+        self.logger.warning("Use Default Push Episode List.")
         default_list = self.static_config.main_story_available_episodes
         push_episode_list = default_list[self.server]
     for i in range(0, len(push_episode_list)):
@@ -119,7 +120,7 @@ def enter_battle(self):
     }
     ret = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True, pop_ups_img_reactions=img_pop_ups)
     if ret != "fighting_feature":
-        self.logger.info("fight end.")
+        self.logger.info("Fight Ended.")
     return ret
 
 
