@@ -4,7 +4,7 @@ x_y_range = {
     'bus': (107, 9, 150, 40),
     'home-feature': (1203, 24, 1240, 60),
     'quick-home': (1215, 5, 1255, 42),
-    # 'insufficient-inventory-space': (464, 391, 810, 453),
+    'insufficient-inventory-space': (464, 391, 810, 453),
     'login-store': (551, 145, 730, 182),
     'login-feature': (40, 625, 96, 649),
     'news': (50, 102, 96, 144),

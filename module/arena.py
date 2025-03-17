@@ -130,7 +130,7 @@ def get_tickets(self):
         'CN': (190, 475, 231, 501),
         'Global_en-us': (212, 477, 248, 503),
         'Global_zh-tw': (165, 479, 194, 504),
-        'Global_ko-kr': (),
+        'Global_ko-kr': (157, 477, 197, 503),
         'JP': (203, 478, 241, 502),
     }
     ocr_res = self.ocr.get_region_res(
