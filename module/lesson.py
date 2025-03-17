@@ -142,14 +142,16 @@ def get_lesson_region_num(self):
         )
         name = pre_process_lesson_name(self, name)
         max_acc, idx = most_similar_string(name, self.lesson_letter_dict, self.lesson_region_name_len)
-        if max_acc < 0.5:
+        if max_acc <= 0.4:
             self.logger.info("NOT FOUND")
             check_fail_times += 1
             if check_fail_times >= 4:
+                self.logger.warning("Fail To Detect Lesson Region Name After 4 Times.")
                 return 'NOT FOUND'
             else:
                 self.update_screenshot_array()
         else:
+            self.logger.info(f"Lesson Region Num : {idx} | Acc : {round(max_acc, 3)}")
             return idx
 
 
