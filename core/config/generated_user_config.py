@@ -103,3 +103,4 @@ class Config:
     pyroxene: dict
     tactical_challenge_coin: dict
     bounty_coin: dict
+    assetsVisibility: bool

@@ -488,7 +488,8 @@ DEFAULT_CONFIG = """
     "bounty_coin": {
         "count": -1,
         "time": 0
-    }
+    },
+    "assetsVisibility": true
 }
 """
 

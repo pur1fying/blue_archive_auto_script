@@ -77,8 +77,9 @@ class HomeFragment(QFrame):
         self.switch_assets = SwitchButton(self.startup_card, IndicatorPosition.RIGHT)
         self.switch_assets.setOnText(self.tr('资产显示：开'))
         self.switch_assets.setOffText(self.tr('资产显示：关'))
-        self.switch_assets.setChecked(self.config.get('assetsVisibility'))
+        self.switch_assets.setChecked(self.config.get("assetsVisibility"))
         self.switch_assets.checkedChanged.connect(self._change_assets_visibility)
+
         self.startup_card.hBoxLayout.insertWidget(5, self.switch_assets, 0, Qt.AlignRight)
         self.startup_card.hBoxLayout.insertSpacing(6, 20)
         self.startup_card.setContentsMargins(0, 0, 0, 0)
@@ -98,7 +99,7 @@ class HomeFragment(QFrame):
         handler_for_logger.addWidget(self.assets_status)
         self.assets_status.start_patch()
 
-        self.assets_status.hide()
+        self.assets_status.show() if self.config.get("assetsVisibility") else self.assets_status.hide()
 
         self.column_2.addLayout(handler_for_logger)
         self.column_2.addWidget(self.logger_box)
