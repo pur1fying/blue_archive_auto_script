@@ -8,9 +8,9 @@ from .serverConfig import Layout
 from .arenaShopPriority import Layout
 from .scriptConfig import Layout
 from .totalForceFightPriority import Layout
-from .exploreConfig import Layout
+from .formationConfig import Layout
 from .otherConfig import Layout
-from .hardTaskConfig import Layout
+from .exploreConfig import Layout
 from .featureSwitch import Layout
 from .sweepCountConfig import Layout
 from .proceedPlot import Layout

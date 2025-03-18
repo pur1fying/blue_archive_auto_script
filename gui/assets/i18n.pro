@@ -9,7 +9,7 @@ SOURCES += \
     ../../gui/components/expand/exploreConfig.py \
     ../../gui/components/expand/featureSwitch.py \
     ../../gui/components/expand/friendWhiteList.py \
-    ../../gui/components/expand/hardTaskConfig.py \
+    ../../gui/components/expand/formationConfig.py \
     ../../gui/components/expand/mainlinePriority.py \
     ../../gui/components/expand/otherConfig.py \
     ../../gui/components/expand/proceedPlot.py \

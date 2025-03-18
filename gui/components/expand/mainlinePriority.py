@@ -12,7 +12,7 @@ class Layout(QWidget):
         self.config = config
         self.max_region = self.config.static_config.max_region[self.config.server_mode]
         self.info_widget = self.parent()
-        self.hBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout = QVBoxLayout(self)
         self.lay1 = QHBoxLayout()
         self.lay2 = QHBoxLayout()
         self.lay1_hard = QHBoxLayout()
@@ -77,14 +77,14 @@ class Layout(QWidget):
 
         self.lay2_hard.setAlignment(Qt.AlignCenter)
 
-        self.hBoxLayout.addSpacing(16)
-        self.hBoxLayout.setAlignment(Qt.AlignCenter)
+        self.vBoxLayout.addSpacing(16)
+        self.vBoxLayout.setAlignment(Qt.AlignCenter)
 
-        self.hBoxLayout.addLayout(self.lay1)
-        self.hBoxLayout.addLayout(self.lay2)
+        self.vBoxLayout.addLayout(self.lay1)
+        self.vBoxLayout.addLayout(self.lay2)
 
-        self.hBoxLayout.addLayout(self.lay1_hard)
-        self.hBoxLayout.addLayout(self.lay2_hard)
+        self.vBoxLayout.addLayout(self.lay1_hard)
+        self.vBoxLayout.addLayout(self.lay2_hard)
 
     def __accept_main(self):
         try:

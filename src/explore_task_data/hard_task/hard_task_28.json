@@ -422,10 +422,10 @@
         "desc": "3 lower right"
       },
       {
-        "t": [
-          "exchange",
-          "choose_and_change"
-        ],
+        "t": "exchange"
+      },
+      {
+        "t": "choose_and_change",
         "p": [
           634,
           345

@@ -2,7 +2,7 @@ from core import color, picture
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_tactical_challenge(self, True)
     tickets = get_tickets(self)
     if tickets == 0:
@@ -53,13 +53,13 @@ def choose_enemy(self):
         'Global': (490, 298, 515, 317),
         'JP': (496, 291, 520, 315),
     }
-    self_lv = self.ocr.get_region_num(self.latest_img_array, self_level_region[self.server], int, self.ratio)
+    self_lv = self.ocr.recognize_number(self.latest_img_array, self_level_region[self.server], int, self.ratio)
     self.logger.info("self level " + str(self_lv))
     refresh = 0
     while self.flag_run:
         if refresh >= max_refresh:
             break
-        opponent_lv = self.ocr.get_region_num(self.latest_img_array, opponent_level_region[self.server], int, self.ratio)
+        opponent_lv = self.ocr.recognize_number(self.latest_img_array, opponent_level_region[self.server], int, self.ratio)
         if opponent_lv == "UNKNOWN":
             continue
         self.logger.info("opponent level " + str(opponent_lv))
@@ -74,10 +74,10 @@ def choose_enemy(self):
 def collect_tactical_challenge_reward(self):
     reward_status = [False, False]
     for i in range(0, 3):
-        if color.judge_rgb_range(self, 353, 404, 206, 226, 206, 226, 204, 224):
+        if color.is_rgb_in_range(self, 353, 404, 206, 226, 206, 226, 204, 224):
             reward_status[0] = True
             break
-        if color.judge_rgb_range(self, 353, 404, 235, 255, 222, 242, 52, 92):
+        if color.is_rgb_in_range(self, 353, 404, 235, 255, 222, 242, 52, 92):
             self.logger.info("COLLECT TIME REWARD")
             self.click(353, 404, wait_over=True, duration=1)
             self.click(670, 96, wait_over=True)
@@ -87,10 +87,10 @@ def collect_tactical_challenge_reward(self):
             self.update_screenshot_array()
 
     for i in range(0, 3):
-        if color.judge_rgb_range(self, 353, 487, 206, 226, 206, 226, 204, 224):
+        if color.is_rgb_in_range(self, 353, 487, 206, 226, 206, 226, 204, 224):
             reward_status[1] = True
             break
-        if color.judge_rgb_range(self, 353, 487, 235, 255, 222, 242, 52, 92):
+        if color.is_rgb_in_range(self, 353, 487, 235, 255, 222, 242, 52, 92):
             self.logger.info("COLLECT DAILY REWARD")
             self.click(353, 487, wait_over=True, duration=1)
             self.click(670, 96, wait_over=True)
@@ -134,7 +134,7 @@ def get_tickets(self):
         'Global': (209, 477, 227, 498),
         'JP': (196, 477, 218, 498),
     }
-    ocr_res = self.ocr.get_region_num(self.latest_img_array, ticket_num_region[self.server], int, self.ratio)
+    ocr_res = self.ocr.recognize_number(self.latest_img_array, ticket_num_region[self.server], int, self.ratio)
     return ocr_res
 
 

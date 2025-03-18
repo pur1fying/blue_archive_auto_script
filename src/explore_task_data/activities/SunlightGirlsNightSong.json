@@ -1,16 +1,36 @@
 {
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 8,
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15,
+        20,
+        20,
+        20,
+        20
+    ],
+    "grid_tasks_challenge": [
+    ],
     "mission": [
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1",
-        "burst1"
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst",
+      "burst"
     ]
 }

@@ -8,6 +8,7 @@ stage_data = {}
 
 input_record = ""
 
+
 def get_input():
     global input_record
     temp = input()
@@ -22,29 +23,18 @@ def get_stage_name():
 
 
 def get_team_info():
-    valid_team_attr = {
-        "burst1": True,
-        "burst2": True,
-        "pierce1": True,
-        "pierce2": True,
-        "mystic1": True,
-        "mystic2": True,
-        "shock1": True,
-        "shock2": True,
-    }
-
     char2attr = {
         "b": "burst",
         "p": "pierce",
         "m": "mystic",
         "s": "shock",
     }
-    print("Please enter the team count : ")
-    cnt = int(get_input())
-    teams = []
-    while cnt > 0:
-        print("left teams : ", cnt)
 
+    print("Please enter the team count : ")
+    teamLeft = int(get_input())
+    teams = []
+    while teamLeft > 0:
+        print("Teams left : ", teamLeft)
         print(f"Please enter the team name : \n b : burst \n p : pierce \n m : mystic \n s : shock \n swipe : swipe")
         char = get_input().replace(" ", "")
         if char == "swipe":
@@ -57,25 +47,11 @@ def get_team_info():
             duration = float(t[4])
             teams.append(["swipe", (x1, y1, x2, y2, duration)])
         elif char in ["b", "p", "m", "s"]:
-            temp = char2attr[char] + "1"
-            if valid_team_attr[temp]:
-                print("Please enter the position : ")
-                pos = get_one_position()
-                teams.append([temp, pos])
-                cnt -= 1
-                valid_team_attr[temp] = False
-            else:
-                temp = char2attr[char] + "2"
-                if valid_team_attr[temp]:
-                    print("Please enter the position : ")
-                    pos = tuple(map(int, get_input().split()))
-                    teams.append([temp, pos])
-                    cnt -= 1
-                    valid_team_attr[temp] = False
-                else:
-                    print("Invalid team attribute")
-                    continue
-            print('successfully add team : ', temp)
+            print("Please enter the position : ")
+            pos = get_one_position()
+            teams.append([char2attr[char], pos])
+            teamLeft -= 1
+            print('successfully add team : ', char2attr[char])
             print('--------------------------------------------------')
             print("current teams : ", teams)
             print('--------------------------------------------------')
@@ -132,7 +108,9 @@ def get_actions(team_cnt):
         one_action = {
 
         }
-        print("please enter the action type : \n 0 : exchange \n 1 : exchange_twice \n 2 : click \n 3 : exchange_and_click \n 4 : exchange_twice_and_click \n 5 : click_and_teleport \n 6 : choose_and_change \n 7 : end-turn \n 8 : retreat")
+        print("please enter the action type : \n 0 : exchange \n 1 : exchange_twice \n 2 : click \n 3 : "
+              "exchange_and_click \n 4 : exchange_twice_and_click \n 5 : click_and_teleport \n 6 : choose_and_change "
+              "\n 7 : end-turn \n 8 : retreat")
         print("q : quit")
         tp = get_input()
 
@@ -146,7 +124,8 @@ def get_actions(team_cnt):
             t = []
             for i in temp:
                 if i == "8":
-                    print("please enter total fights and which fight to retreat : format [ total_fights fight_to_retreat ]")
+                    print("please enter total fights and which fight to retreat : format [ total_fights "
+                          "fight_to_retreat ]")
                     one_action["retreat"] = get_one_position()
                 if i != "8":
                     t.append(action_name[i])
@@ -189,7 +168,6 @@ except Exception as e:
     print(json.dumps(stage_data, indent=2))
     print("Invalid input")
     print(e)
-
 
 print("---------------------------------")
 print("input record : ")

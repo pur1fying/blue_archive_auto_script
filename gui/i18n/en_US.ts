@@ -570,49 +570,33 @@ make sure to do it before starting the script.</translation>
     <name>ExploreConfig</name>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="15"/>
-        <source>是否手动boss战（进入关卡后暂停等待手操）</source>
-        <translation>Manual boss battle? (Pause and Wait for
- manual control after entering the battle)</translation>
+        <source>是否手动boss战</source>
+        <translation>Manual Boss Fight</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="20"/>
-        <source>爆发一队</source>
-        <translation>Explosive Team 1</translation>
+        <location filename="../components/expand/exploreConfig.py" line="18"/>
+        <source>普通图独有配置，进入关卡后暂停等待手操</source>
+        <translation>Unique configuration of the normal map, pausing and waiting for manual operation after entering the level</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="26"/>
-        <source>爆发二队</source>
-        <translation>Explosive Team 2</translation>
+        <location filename="../components/expand/exploreConfig.py" line="21"/>
+        <source>普通图推图设置</source>
+        <translation>Clear Normal Mission Settings</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="24"/>
+        <source>请填写要推的图,填写方式见-普通图自动推图说明-</source>
+        <translation>Please fill in the figure to be pushed, and the filling method is shown in - Description of automatic push of ordinary figure -</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="29"/>
+        <source>困难图推图设置</source>
+        <translation>Clear Hard Mission Settings</translation>
     </message>
     <message>
         <location filename="../components/expand/exploreConfig.py" line="32"/>
-        <source>贯穿一队</source>
-        <translation>Piercing Team 1</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="38"/>
-        <source>贯穿二队</source>
-        <translation>Piercing Team 2</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="44"/>
-        <source>神秘一队</source>
-        <translation>Mystic Team 1</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="50"/>
-        <source>神秘二队</source>
-        <translation>Mystic Team 2</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="57"/>
-        <source>振动一队</source>
-        <translation>Sonic Team 1</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="57"/>
-        <source>振动二队</source>
-        <translation>Sonic Team 2</translation>
+        <source>困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍</source>
+        <translation>The team attributes of the difficult map are the same as those of the normal map (see the settings of the normal map), please follow the instructions in the help to select the level of the difficult map and set the team according to the corresponding map</translation>
     </message>
 </context>
 <context>
@@ -690,7 +674,7 @@ Use positive number for below and negative for above:</translation>
         <translation>Enter how many times you need to refresh:</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="30"/>
+        <location filename="../components/expand/shopPriority.py" line="29"/>
         <source>确定</source>
         <translation>Save</translation>
     </message>
@@ -735,22 +719,6 @@ Use positive number for below and negative for above:</translation>
         <translation>Whether to use booster tickets</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="75"/>
-        <source>推图选项</source>
-        <translation>Map-clear Options</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/exploreConfig.py" line="75"/>
-        <source>请在下面填写要推的图,填写方式见-普通图自动推图说明-</source>
-        <translation>Please enter the stages to be cleared.
-See Clear Hard and Normal Stages in Help</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/hardTaskConfig.py" line="17"/>
-        <source>开始推图</source>
-        <translation>Run</translation>
-    </message>
-    <message>
         <location filename="../components/expand/featureSwitch.py" line="106"/>
         <source>全部(不)启用</source>
         <translation>All (not) enabled</translation>
@@ -791,12 +759,6 @@ See Clear Hard and Normal Stages in Help</translation>
         <translation>Enable</translation>
     </message>
     <message>
-        <location filename="../components/expand/hardTaskConfig.py" line="13"/>
-        <source>&lt;b&gt;困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Hard stages follow the same unit requirements of Normal stages
-(see Clear Hard and Normal Stages in Help)&lt;/b&gt;</translation>
-    </message>
-    <message>
         <location filename="../components/expand/mainlinePriority.py" line="20"/>
         <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>Normal stage and number of sweeps(e.g. &quot;1-1-1,1-2-3&quot; means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
@@ -808,7 +770,7 @@ See Clear Hard and Normal Stages in Help</translation>
 For JP or Global server, you can use &apos;max&apos;:</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="117"/>
+        <location filename="../components/expand/mainlinePriority.py" line="124"/>
         <source>根据学生添加关卡</source>
         <translation>Add based on students</translation>
     </message>
@@ -818,37 +780,37 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>爱丽丝宝贝</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="33"/>
+        <location filename="../components/expand/schedulePriority.py" line="32"/>
         <source>优先做好感等级多的日程</source>
         <translation>Prioritize lessons with higher affection levels</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="148"/>
+        <location filename="../components/expand/schedulePriority.py" line="150"/>
         <source>日程次数</source>
         <translation>Number of tickets</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="130"/>
+        <location filename="../components/expand/schedulePriority.py" line="132"/>
         <source>区域名称</source>
         <translation>Location</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="138"/>
         <source>初级</source>
         <translation>Novice</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="138"/>
         <source>普通</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="138"/>
         <source>高级</source>
         <translation>Advanced</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="136"/>
+        <location filename="../components/expand/schedulePriority.py" line="138"/>
         <source>特级</source>
         <translation>Superior</translation>
     </message>
@@ -873,12 +835,12 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>adb address fetch failed</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="39"/>
+        <location filename="../components/expand/shopPriority.py" line="38"/>
         <source>信用点</source>
         <translation>Credits</translation>
     </message>
     <message>
-        <location filename="../components/expand/shopPriority.py" line="41"/>
+        <location filename="../components/expand/shopPriority.py" line="40"/>
         <source>青辉石</source>
         <translation>Pyroxene</translation>
     </message>
@@ -888,7 +850,7 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>Highest Difficulty</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="103"/>
+        <location filename="../components/expand/exploreConfig.py" line="49"/>
         <source>普通关推图</source>
         <translation>Normal Level Mainline Map Clear</translation>
     </message>
@@ -898,12 +860,12 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>More Configuration</translation>
     </message>
     <message>
-        <location filename="../components/expand/hardTaskConfig.py" line="41"/>
+        <location filename="../components/expand/exploreConfig.py" line="42"/>
         <source>困难关推图</source>
         <translation>Hard Mainline Map Clear</translation>
     </message>
     <message>
-        <location filename="../components/expand/mainlinePriority.py" line="114"/>
+        <location filename="../components/expand/mainlinePriority.py" line="121"/>
         <source>设置失败</source>
         <translation>Setup failed</translation>
     </message>
@@ -1013,27 +975,27 @@ For JP or Global server, you can use &apos;max&apos;:</translation>
         <translation>The table matches stages to attributes</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="117"/>
+        <location filename="../components/expand/eventMapConfig.py" line="116"/>
         <source>故事</source>
         <translation>Story</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="118"/>
+        <location filename="../components/expand/eventMapConfig.py" line="117"/>
         <source>任务</source>
         <translation>Quest</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="119"/>
+        <location filename="../components/expand/eventMapConfig.py" line="118"/>
         <source>挑战</source>
         <translation>Challenge</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="144"/>
+        <location filename="../components/expand/eventMapConfig.py" line="140"/>
         <source>三星</source>
         <translation>sss</translation>
     </message>
     <message>
-        <location filename="../components/expand/eventMapConfig.py" line="146"/>
+        <location filename="../components/expand/eventMapConfig.py" line="142"/>
         <source>成就任务</source>
         <translation>tasks</translation>
     </message>
@@ -1158,17 +1120,17 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Grade of Creation</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="216"/>
+        <location filename="../components/expand/createPriority.py" line="217"/>
         <source>一级制造配置</source>
         <translation>Level 1 manufacturing configuration</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="217"/>
+        <location filename="../components/expand/createPriority.py" line="218"/>
         <source>二级制造配置</source>
         <translation>Secondary manufacturing configuration</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="218"/>
+        <location filename="../components/expand/createPriority.py" line="219"/>
         <source>三级制造配置</source>
         <translation>Three-level manufacturing configuration</translation>
     </message>
@@ -1223,27 +1185,27 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Material selection</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="269"/>
+        <location filename="../components/expand/createPriority.py" line="265"/>
         <source>一键设置推荐优先级</source>
         <translation>Set recommendation priority with one click</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="272"/>
+        <location filename="../components/expand/createPriority.py" line="268"/>
         <source>选择学生</source>
         <translation>Select Student</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="315"/>
+        <location filename="../components/expand/createPriority.py" line="311"/>
         <source>制造优先级</source>
         <translation>Manufacturing priority</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="329"/>
+        <location filename="../components/expand/createPriority.py" line="325"/>
         <source>修改成功</source>
         <translation>Modified</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="329"/>
+        <location filename="../components/expand/createPriority.py" line="325"/>
         <source>推荐制造优先级</source>
         <translation>Recommend manufacturing priorities</translation>
     </message>
@@ -1261,6 +1223,56 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <location filename="../components/expand/schedulePriority.py" line="71"/>
         <source>指定学生(填写指南见wiki)</source>
         <translation>Specify Student (See wiki for guidelines on how to fill in)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="42"/>
+        <source>正在推困难关</source>
+        <translation>Pushing the hard level</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="49"/>
+        <source>正在推普通关</source>
+        <translation>Pushing the normal level</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="13"/>
+        <source>爆发</source>
+        <translation>Explosive</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="14"/>
+        <source>贯穿</source>
+        <translation>Piercing</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="15"/>
+        <source>神秘</source>
+        <translation>Mystic</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="16"/>
+        <source>振动</source>
+        <translation>Sonic</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="17"/>
+        <source>未使用</source>
+        <translation>Unused</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="32"/>
+        <source>编队选择方式</source>
+        <translation>How the formation is selected</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="32"/>
+        <source>预设编队</source>
+        <translation>Preset formations</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/formationConfig.py" line="32"/>
+        <source>按序编队</source>
+        <translation>Formation in order</translation>
     </message>
 </context>
 <context>
@@ -1400,7 +1412,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="25"/>
+        <location filename="../fragments/process.py" line="30"/>
         <source>调度状态</source>
         <translation>Scheduling Status</translation>
     </message>
@@ -1410,12 +1422,12 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Executing</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="114"/>
+        <location filename="../fragments/process.py" line="113"/>
         <source>暂无正在执行的任务</source>
         <translation>No active tasks</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="116"/>
+        <location filename="../fragments/process.py" line="115"/>
         <source>暂无队列中的任务</source>
         <translation>There are no tasks in the queue</translation>
     </message>
@@ -1595,26 +1607,6 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Features</translation>
     </message>
     <message>
-        <location filename="../fragments/settings.py" line="61"/>
-        <source>普通图推图设置</source>
-        <translation>Clear Normal Mission Settings</translation>
-    </message>
-    <message>
-        <location filename="../fragments/settings.py" line="61"/>
-        <source>根据你的推图需求，调整相应的参数。</source>
-        <translation>Adjust the parameters according to your normal clear needs.</translation>
-    </message>
-    <message>
-        <location filename="../fragments/settings.py" line="69"/>
-        <source>困难图推图设置</source>
-        <translation>Clear Hard Mission Settings</translation>
-    </message>
-    <message>
-        <location filename="../fragments/settings.py" line="69"/>
-        <source>根据你所需困难图刷关，设置参数。</source>
-        <translation>Adjust the parameters according to your hard clear needs.</translation>
-    </message>
-    <message>
         <location filename="../fragments/settings.py" line="77"/>
         <source>推剧情</source>
         <translation>Push the Story Forward</translation>
@@ -1744,6 +1736,26 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <source>卡片是否显示精美图片</source>
         <translation>Whether the card displays a refined image</translation>
     </message>
+    <message>
+        <location filename="../fragments/settings.py" line="61"/>
+        <source>编队配置</source>
+        <translation>Formation configuration</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="61"/>
+        <source>根据你的实际情况，设置编队相关参数。</source>
+        <translation>Set the parameters related to the formation according to your actual situation.</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="69"/>
+        <source>推图设置</source>
+        <translation>Push map settings</translation>
+    </message>
+    <message>
+        <location filename="../fragments/settings.py" line="69"/>
+        <source>根据你所需推图关卡，设置参数。</source>
+        <translation>Set the parameters according to the level you need.</translation>
+    </message>
 </context>
 <context>
     <name>SweepCountConfig</name>
@@ -1811,7 +1823,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>CommPhil Gulation Setins</translation>
     </message>
     <message>
-        <location filename="../fragments/switch.py" line="216"/>
+        <location filename="../fragments/switch.py" line="226"/>
         <source>Features</source>
         <translation>Fetures</translation>
     </message>
@@ -1819,17 +1831,17 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
 <context>
     <name>TemplateLayout</name>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="82"/>
+        <location filename="../components/expand/expandTemplate.py" line="104"/>
         <source>执行</source>
         <translation>Run</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="91"/>
+        <location filename="../components/expand/expandTemplate.py" line="94"/>
         <source>确定</source>
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="121"/>
+        <location filename="../components/expand/expandTemplate.py" line="134"/>
         <source>设置成功</source>
         <translation>successfully set</translation>
     </message>
@@ -1852,12 +1864,12 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="588"/>
+        <location filename="../../window.py" line="591"/>
         <source>是否要删除配置：</source>
         <translation>Do you want to delete the configuration:</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="589"/>
+        <location filename="../../window.py" line="592"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>You will need to restart Baas after confirmation to complete the changes.</translation>
     </message>
@@ -1867,7 +1879,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>Schedule</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="557"/>
+        <location filename="../../window.py" line="559"/>
         <source>设置失败</source>
         <translation>Setup failed</translation>
     </message>
@@ -1887,7 +1899,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <translation>ConfigTranslation</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="82"/>
+        <location filename="../components/expand/expandTemplate.py" line="85"/>
         <source>TemplateLayout</source>
         <translation>TemplateLayout</translation>
     </message>

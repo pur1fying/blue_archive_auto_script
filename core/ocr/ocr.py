@@ -71,8 +71,8 @@ class Baas_ocr:
             img_JP = cv2.imread('src/test_ocr/JP.png')
             self.logger.info("Test ocrJP : " + self.ocrJP.ocr_for_single_line(img_JP)['text'])
 
-    def get_region_num(self, img, region, category=int, ratio=1.0):
-        img = self.get_region_img(img, region, ratio)
+    def recognize_number(self, img, area, category=int, ratio=1.0):
+        img = self.get_area_img(img, area, ratio)
         res = self.ocrNUM.ocr_for_single_line(img)['text']
         res = res.replace('<unused3>', '')
         res = res.replace('<unused2>', '')
@@ -89,11 +89,10 @@ class Baas_ocr:
         # 涉及的引用太多了 不敢改
         return category(temp)
 
-    def get_region_num_int(self, img, region, ratio=1.0) -> int:
-        img = self.get_region_img(img, region, ratio)
+    def recognize_int(self, img, area, ratio=1.0) -> int:
+        img = self.get_area_img(img, area, ratio)
         res = self.ocrNUM.ocr_for_single_line(img)['text']
-        res = res.replace('<unused3>', '')
-        res = res.replace('<unused2>', '')
+        res = res.replace('<unused3>', '').replace('<unused2>', '')
 
         result = 0
         for i in range(0, len(res)):
@@ -102,7 +101,7 @@ class Baas_ocr:
         return result
 
     def get_region_pure_english(self, img, region, ratio=1.0):
-        img = self.get_region_img(img, region, ratio)
+        img = self.get_area_img(img, region, ratio)
         res = self.ocrEN.ocr_for_single_line(img)['text']
         res = res.replace('<unused3>', '')
         res = res.replace('<unused2>', '')
@@ -113,7 +112,7 @@ class Baas_ocr:
         return temp
 
     def get_region_pure_chinese(self, img, region, ratio=1.0):
-        img = self.get_region_img(img, region, ratio)
+        img = self.get_area_img(img, region, ratio)
         res = self.ocrCN.ocr_for_single_line(img)['text']
         res = res.replace('<unused3>', '')
         res = res.replace('<unused2>', '')
@@ -140,7 +139,7 @@ class Baas_ocr:
         return 0x4e00 <= ord(char) <= 0x9fff
 
     def get_region_res(self, img, region, model='CN', ratio=1.0):
-        img = self.get_region_img(img, region, ratio)
+        img = self.get_area_img(img, region, ratio)
         res = ""
         if model == 'CN':
             res = self.ocrCN.ocr_for_single_line(img)['text']
@@ -155,7 +154,7 @@ class Baas_ocr:
         return res
 
     def get_region_raw_res(self, img, region, model='CN', ratio=1.0):
-        img = self.get_region_img(img, region, ratio)
+        img = self.get_area_img(img, region, ratio)
         res = ""
         if model == 'CN':
             res = self.ocrCN.ocr(img)
@@ -170,6 +169,6 @@ class Baas_ocr:
             res[i]['text'] = res[i]['text'].replace('<unused2>', '')
         return res
 
-    def get_region_img(self, img, region, ratio=1.0):
-        img = img[int(region[1] * ratio):int(region[3] * ratio), int(region[0] * ratio):int(region[2] * ratio)]
+    def get_area_img(self, img, area, ratio=1.0):
+        img = img[int(area[1] * ratio):int(area[3] * ratio), int(area[0] * ratio):int(area[2] * ratio)]
         return img

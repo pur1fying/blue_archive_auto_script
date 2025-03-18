@@ -1,16 +1,18 @@
 import json
 import os
+import time
+
 from core.utils import Logger
 from core.ocr import ocr
 from core.config.config_set import ConfigSet
 from core.Baas_thread import Baas_thread
+from core import picture, color
 
 
 class Main:
     def __init__(self, logger_signal=None, ocr_needed=None):
         self.ocr_needed = ocr_needed
         self.ocr = None
-        self.static_config = None
         self.logger = Logger(logger_signal)
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.logger.info(self.project_dir)
@@ -99,49 +101,47 @@ class Main:
 
 if __name__ == '__main__':
     ocr_needed = ["Global", "CN", "JP", "NUM"]
-    t = Main(ocr_needed=ocr_needed)
-    t.init_static_config()
-    config = ConfigSet(config_dir="1708148000")
-    tt = Baas_thread(config, None, None, None)
-    tt.static_config = t.static_config
-    tt.init_all_data()
-    tt.ocr = t.ocr
+    INSTANCE = Main(ocr_needed=ocr_needed)
+    config = ConfigSet(config_dir="default_config")
+    bThread = Baas_thread(config, None, None, None)
+    bThread.init_all_data()
+    bThread.ocr = INSTANCE.ocr
 
-    from module import create
-    create.create_phase(tt, 3)
+    # from module import create
+    # create.create_phase(bThread, 3)
 
-    # create.select_node(tt, 1)
+    # create.select_node(bThread, 1)
 
     # print(json.dumps(res, indent=4))
     # print(len(res))
     # exit(0)
-    # tt.thread_starter()
-    # tt.solve("refresh_uiautomator2")
-    # tt.solve("explore_activity_challenge")
-    # tt.solve("activity_sweep")
-    # tt.solve("tactical_challenge_shop")
-    # tt.solve("explore_activity_mission")
-    # tt.solve("explore_activity_story")
-    # tt.solve("common_shop")
-    # tt.solve("total_assault")
-    # tt.solve("cafe_reward")
-    # tt.solve("momo_talk")
-    # tt.solve("explore_normal_task")
-    tt.solve("explore_hard_task")
-    # tt.solve("normal_task")
-    # tt.solve("hard_task")
-    # tt.solve("arena")
-    # tt.solve("lesson")
-    # tt.solve("group")
-    # tt.solve("mail")
-    # tt.solve("collect_reward")
-    # tt.solve("main_story")
-    # tt.solve("group_story")
-    # tt.solve("mini_story")
-    # tt.solve("clear_special_task_power")
-    # tt.solve("scrimmage")
-    # tt.solve("rewarded_task")
-    # tt.solve("create")
-    # tt.solve("dailyGameActivity")
-    # tt.solve("friend")
-    # tt.solve("joint_firing_drill")
+    # bThread.thread_starter()
+    # bThread.solve("refresh_uiautomator2")
+    # bThread.solve("explore_activity_challenge")
+    # bThread.solve("activity_sweep")
+    # bThread.solve("tactical_challenge_shop")
+    # bThread.solve("explore_activity_mission")
+    # bThread.solve("explore_activity_story")
+    # bThread.solve("common_shop")
+    # bThread.solve("total_assault")
+    # bThread.solve("cafe_reward")
+    # bThread.solve("momo_talk")
+    bThread.solve("explore_normal_task")
+    # bThread.solve("explore_hard_task")
+    # bThread.solve("normal_task")
+    # bThread.solve("hard_task")
+    # bThread.solve("arena")
+    # bThread.solve("lesson")
+    # bThread.solve("group")
+    # bThread.solve("mail")
+    # bThread.solve("collect_reward")
+    # bThread.solve("main_story")
+    # bThread.solve("group_story")
+    # bThread.solve("mini_story")
+    # bThread.solve("clear_special_task_power")
+    # bThread.solve("scrimmage")
+    # bThread.solve("rewarded_task")
+    # bThread.solve("create")
+    # bThread.solve("dailyGameActivity")
+    # bThread.solve("friend")
+    # bThread.solve("joint_firing_drill")
