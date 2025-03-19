@@ -589,6 +589,8 @@ class Baas_thread:
             # 'normal_task_fight-pause': (908, 508),
             # 'normal_task_retreat-notice': (768, 507),
             'main_page_game-download-resource-notice': (761, 504),
+            'main_page_game-download-resource-notice2': (761, 504),
+            'main_page_game-download-resource-notice3': (761, 504),
             "main_page_privacy-policy": (772, 501),
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
