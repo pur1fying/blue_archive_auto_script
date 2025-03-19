@@ -278,9 +278,13 @@ def start_story(self):
         "formation_edit1",
         "reward_acquired"
     ]
-    img_ends = "activity_unit-formation"
+    img_ends = [
+        "activity_unit-formation",
+        "activity_formation",
+        "activity_self-formation",
+    ]
     res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
-    if res == "formation_edit1" or res == "activity_unit-formation":
+    if res in ["formation_edit1", "activity_unit-formation", "activity_formation", "activity_self-formation"]:
         start_fight(self, 1)
         main_story.auto_fight(self)
     elif res == "reward_acquired":
@@ -297,6 +301,8 @@ def start_fight(self, i):
     ]
     img_possibles = {
         "activity_unit-formation": (1156, 659),
+        "activity_self-formation": (1156, 659),
+        "activity_formation": (1156, 659),
     }
     ret = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     if ret != "fighting_feature":

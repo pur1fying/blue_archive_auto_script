@@ -3292,7 +3292,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "AbydosResortRestorationCommittee",
-        "Global": null,
+        "Global": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
         "JP": "WaffleCrisisTheMiracleMoment"
     },
     "dailyGameActivity": {
