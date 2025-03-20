@@ -102,11 +102,14 @@ def start_story(self):
     }
     rgb_ends = [
         "formation_edit1",
-        "reward_acquired"
+        "reward_acquired",
     ]
-    img_ends = "plot_formation-edit"
+    img_ends = [
+        "plot_formation-edit",
+        "activity_formation"
+    ]
     res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
-    if res == "formation_edit1" or res == "plot_formation-edit":
+    if res in ["formation_edit1", "activity_formation", "plot_formation-edit"]:
         start_fight(self, 1)
         main_story.auto_fight(self)
     elif res == "reward_acquired":
@@ -119,7 +122,8 @@ def start_fight(self, i):
         "formation_edit" + str(i): (1156, 659)
     }
     img_possibles = {
-        "plot_formation-edit": (1156, 659)
+        "plot_formation-edit": (1156, 659),
+        "activity_formation": (1156, 659),
     }
     rgb_ends = "fighting_feature"
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot=True)
@@ -130,20 +134,7 @@ def explore_mission(self):
     to_activity(self, "mission", True, True)
     last_target_mission = 1
     total_missions = 12
-    characteristic = [
-        'pierce1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-        'burst1',
-        'mystic1',
-    ]
+    characteristic = get_stage_data(self)["mission"]
     while last_target_mission <= total_missions and self.flag_run:
         to_mission_task_info(self, last_target_mission)
         res = color.check_sweep_availability(self)

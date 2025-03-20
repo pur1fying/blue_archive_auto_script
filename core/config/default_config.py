@@ -3087,7 +3087,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "AbydosResortRestorationCommittee",
+        "CN": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp",
         "Global": null,
         "JP": null
     },
