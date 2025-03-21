@@ -191,11 +191,7 @@ def explore_challenge(self):
 
 
 def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
-    task_info_x = {
-        'CN': 1087,
-        'Global': 1128,
-        'JP': 1126
-    }
+
     img_possibles = {
         "activity_enter1": (1196, 195),
         "activity_enter2": (100, 149),
@@ -207,7 +203,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'purchase_ap_notice-localized': (919, 168),
         "plot_skip-plot-notice": (766, 520),
         "normal_task_help": (1017, 131),
-        "activity_task-info": (task_info_x[self.server], 141),
+        "activity_task-info": (1128, 141),
         "activity_play-guide": (1184, 152),
         'main_story_fight-confirm': (1168, 659),
         "main_story_episode-info": (917, 161),
