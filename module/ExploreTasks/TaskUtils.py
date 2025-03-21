@@ -334,37 +334,41 @@ def run_task_action(self, actions):
 
 def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
     self.logger.info(f"Employ team method: {self.config.choose_team_method}.")
+    attribute_type_fallbacks = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
 
-    # get employ presets data
-    priority = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
+    employ_pos: list[list[int, int]] = []
 
-    unit_available = {attribute: len(preset) for attribute, preset in teamConfig.items()}
-    # Number of units available for each attribute: burst, pierce, mystic, shock
-    total_available = sum([len(preset) for attribute, preset in teamConfig.items()])
-    # Number of units available in total
-    unit_used = {attribute: 0 for attribute, count in teamConfig.items()}
-    # Number of units used for each attribute: burst, pierce, mystic, shock
+    if self.config.choose_team_method == "order":
+        # give employ pos a fallback value to let it employ formations by order(from 1-4)_
+        employ_pos = [[0, 1], [0, 2], [0, 3], [0, 4]]
+    else:
+        # Number of units available for each attribute: burst, pierce, mystic, shock
+        unit_available = {attribute: len(preset) for attribute, preset in teamConfig.items()}
 
-    unit_need = len([attribute for attribute, info in taskData["start"] if attribute != "swipe"])
-    if total_available <= unit_need:
-        self.logger.error(
-            f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
-        return False
+        # Number of units used for each attribute: burst, pierce, mystic, shock
+        unit_used = {attribute: 0 for attribute, count in teamConfig.items()}
 
-    employ_presets: list[list[int, int]] = []
+        # Number of units available in total
+        total_available = sum([len(preset) for attribute, preset in teamConfig.items()])
 
-    for attribute, info in taskData["start"]:
-        if attribute == "swipe":  # skip if it's a swipe command.
-            continue
+        unit_need = len([attribute for attribute, info in taskData["start"] if attribute != "swipe"])
+        if total_available <= unit_need:
+            self.logger.error(
+                f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
+            return False
 
-        # switch to the next attribute available.
-        cur_attribute = attribute
-        while unit_available[cur_attribute] == unit_used[cur_attribute] \
-            or (self.server == "CN" and cur_attribute == "shock"):
-            cur_attribute = priority[cur_attribute]
+        for attribute, info in taskData["start"]:
+            if attribute == "swipe":  # skip if it's a swipe command.
+                continue
 
-        employ_presets.append(teamConfig[cur_attribute][unit_used[cur_attribute]])
-        unit_used[cur_attribute] += 1
+            # switch to the next attribute available.
+            cur_attribute = attribute
+            while unit_available[cur_attribute] == unit_used[cur_attribute] \
+                or (self.server == "CN" and cur_attribute == "shock"):
+                cur_attribute = attribute_type_fallbacks[cur_attribute]
+
+            employ_pos.append(teamConfig[cur_attribute][unit_used[cur_attribute]])
+            unit_used[cur_attribute] += 1
 
     employed = 0
     for command, info in taskData["start"]:
@@ -372,9 +376,9 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
             time.sleep(1)
             self.u2_swipe(info[0], info[1], info[2], info[3], duration=info[4], post_sleep_time=1)
         else:
-            # employ units from presets
-            column = employ_presets[employed][0]
-            row = employ_presets[employed][1]
+            # employ command
+            column = employ_pos[employed][0]
+            row = employ_pos[employed][1]
             self.logger.info(f"Choosing team from preset {column}-{row}.")
 
             preset_y = 0
@@ -384,7 +388,7 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
                 loy = [195, 275, 354, 423]
                 y = loy[row - 1]
                 img_reactions = {
-                    "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
+                    "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y] the entry of employ
                 }
                 rgb_reactions = {
                     "normal_task_formation-menu": (74, y)
