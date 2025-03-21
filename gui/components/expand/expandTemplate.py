@@ -99,7 +99,12 @@ class TemplateLayout(QWidget):
                 inputComponent.setFixedWidth(400)
                 inputComponent.setText(str(self.config.get(currentKey)))
                 inputComponent.setReadOnly(cfg.readOnly)
-                inputComponent.textChanged.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
+
+                @delay(0.8)
+                def async_change_text(_currentKey, _inputComponent, _labelComponent, *_):
+                    self._commit(_currentKey, _inputComponent, _labelComponent)
+
+                inputComponent.textChanged.connect(partial(async_change_text, currentKey, inputComponent, labelComponent))
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 selectButton = PushButton(self.tr('执行'), self)
                 selectButton.clicked.connect(cfg.selection)

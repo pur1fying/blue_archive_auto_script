@@ -1,10 +1,12 @@
 import re
 from functools import partial
+from typing import Union
 
-from PyQt5.QtCore import Qt, QObject
-from PyQt5.QtGui import QFont, QPainter, QColor
+from PyQt5.QtCore import Qt, QObject, QEvent
+from PyQt5.QtGui import QFont, QPainter, QColor, QIcon
 from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout
-from qfluentwidgets import MessageBoxBase, TableWidget, CheckBox, LineEdit, ComboBox, PushButton
+from qfluentwidgets import (MessageBoxBase, TableWidget, CheckBox, LineEdit,
+                            ComboBox, PushButton, ExpandSettingCard, FluentIcon as FIF)
 from qfluentwidgets.window.fluent_window import FluentWindowBase, FluentTitleBar
 
 
@@ -254,9 +256,6 @@ class TableManager(TableWidget):
         self.reset_table(data_key, unit_config, update_callback, col_headers,
                          row_headers, col_length, transpose, **kwargs)
 
-        # Disable direct editing in the table
-        self.setEditTriggers(self.NoEditTriggers)
-
     @staticmethod
     def __transpose__(data):
         return [[data[j][i] for j in range(len(data))] for i in range(len(data[0]))]
@@ -274,7 +273,7 @@ class TableManager(TableWidget):
         :param col_length: Number of columns.
         :param transpose: Flag to transpose the data.
         """
-        self.setFixedHeight(kwargs.get('height', 200))
+        # self.setFixedHeight(kwargs.get('height', 200))
         self.data_key = data_key if data_key else self.data_key
         self.update_callback = update_callback if update_callback else self.update_callback
         self.unit_config = unit_config if unit_config else self.unit_config
@@ -414,3 +413,38 @@ class LineWidget:
         layout.addWidget(label, 1, Qt.AlignLeft)
         layout.addWidget(check, 1, Qt.AlignRight)
         return layout
+
+
+class ClickFocusLineEdit(LineEdit):
+    """
+    Custom LineEdit that does not focus unless clicked
+    This is to prevent the LineEdit from stealing focus
+    from the parent widget when the user strike a hover
+    on the LineEdit. This is useful when the LineEdit is
+    used in a TableWidget, and the user wants to click on
+    the parent widget to select a row.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.installEventFilter(self)
+
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.MouseButtonPress:
+            self.setFocus()
+        return super().eventFilter(a0, a1)
+
+
+class BAASSettingCard(ExpandSettingCard):
+    def __init__(self, icon: Union[str, QIcon, FIF], title: str, content: str = None, parent=None):
+        super().__init__(icon, title, content, parent)
+        self._adjustViewSize()
+        self.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress:
+            key = event.key()
+            if key in [Qt.Key_Up, Qt.Key_Down]:
+                return True
+        return super().eventFilter(obj, event)
