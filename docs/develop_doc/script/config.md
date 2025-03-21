@@ -549,9 +549,9 @@
 ## `choose_team_method`
 
 - **type**: `str`
-- **constrains** : `"preset"` / `"order"`
+- **constrains** : `"preset"` / `"order"` / `"side"`
 - **description** : 选队逻辑, 值为`"preset"`时使用[预设队伍属性](#preset_team_attribute)进行选队, 值为`"order"`
-  时按照[选队顺序](#choose_team_order)选队
+  时按照[侧栏顺序](#choose_team_order)选队, 值为`"side"` 时按照[侧栏属性](#choose_team_side)选队
 
 ## `preset_team_attribute`
 
