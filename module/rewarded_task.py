@@ -73,8 +73,8 @@ def get_los(self):
     i = 675
     los = []
     while i > 196:
-        if color.is_rgb_in_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
-            color.is_rgb_in_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
+        if color.rgb_in_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
+            color.rgb_in_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
             continue

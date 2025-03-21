@@ -8,7 +8,7 @@ from module import hard_task, main_story, normal_task
 
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
-def to_region(self, region, isNormal: bool):
+def to_region(self, region: int, isNormal: bool) -> bool:
     square = {
         'CN': [122, 178, 163, 208],
         'Global': [122, 178, 163, 208],
@@ -18,30 +18,41 @@ def to_region(self, region, isNormal: bool):
     self.logger.info("Current Region : " + str(curRegion))
     while curRegion != region and self.flag_run:
         if curRegion > region:
+            if picture.match_img_feature(self, "normal_task_region-unavailable-left"):
+                # region locked or not available
+                return False
             self.click(40, 360, count=curRegion - region, rate=0.1, wait_over=True, duration=0.5)
         else:
+            if picture.match_img_feature(self, "normal_task_region-unavailable-right"):
+                # region locked or not available
+                return False
             self.click(1245, 360, count=region - curRegion, rate=0.1, wait_over=True, duration=0.5)
-        # TODO 检测是否是未解锁区域
         if isNormal:
             normal_task.to_normal_event(self)
         else:
             hard_task.to_hard_event(self)
         curRegion = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
         self.logger.info("Current Region : " + str(curRegion))
+    return True
 
 
-def to_mission_info(self, y=0):
-    rgb_possibles = {"event_hard": (1114, y), "event_normal": (1114, y)}
+def to_mission_info(self, mission_button_y=0) -> bool:
+    if color.rgb_in_range(self, 1150, mission_button_y, 40, 50, 70, 80, 85, 95):
+        # mission locked or not available
+        return False
+
+    rgb_possibles = {"event_hard": (1114, mission_button_y), "event_normal": (1114, mission_button_y)}
     img_ends = [
         "normal_task_task-info",
         "activity_task-info",
         "normal_task_SUB"
     ]
     img_possibles = {
-        'normal_task_select-area': (1114, y),
+        'normal_task_select-area': (1114, mission_button_y),
         'normal_task_challenge-menu': (640, 490)
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
+    return True
 
 
 def get_stage_data(region, isNormal):

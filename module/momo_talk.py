@@ -17,7 +17,7 @@ def implement(self, need_check_mode=True):
         dy = 18
         unread_location = []
         while y <= 620:
-            if color.is_rgb_in_range(self, 637, y, 241, 255, 61, 81, 15, 35):
+            if color.rgb_in_range(self, 637, y, 241, 255, 61, 81, 15, 35):
                 unread_location.append([637, int(y + dy / 2)])
                 y += 60
             else:
@@ -123,17 +123,17 @@ def getConversationState(self):
     self.latest_img_array = self.get_screenshot_array()
     if image.compare_image(self, "plot_menu"):      # menu --> skip plot --> skip notice --> reward acquired
         return ['plot_menu']
-    if color.is_rgb_in_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
-            color.is_rgb_in_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
-                color.is_rgb_in_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):    # blue enter
+    if color.rgb_in_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
+        color.rgb_in_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
+        color.rgb_in_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):  # blue enter
         return ['enter']
     i = 657
     while i > 156:
-        if color.is_rgb_in_range(self, 786, i, 29, 49, 143, 163, 219, 239, True, 1) and \
-            color.is_rgb_in_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):  # reply
+        if color.rgb_in_range(self, 786, i, 29, 49, 143, 163, 219, 239, True, 1) and \
+            color.rgb_in_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):  # reply
             return ['reply', i + 65]
-        elif color.is_rgb_in_range(self, 862, 813 - i, 245, 255, 227, 247, 230, 250) and \
-            color.is_rgb_in_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):        # pink enter
+        elif color.rgb_in_range(self, 862, 813 - i, 245, 255, 227, 247, 230, 250) and \
+            color.rgb_in_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):  # pink enter
             return ['affection', min(625, 843 - i)]
         else:
             i -= 1

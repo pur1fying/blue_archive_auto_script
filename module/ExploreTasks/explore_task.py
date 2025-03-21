@@ -83,7 +83,7 @@ def need_fight(self, taskDataName: str, isNormal: bool):
         if self.server == "CN" and image.compare_image(self, 'normal_task_SUB'):
             return True
         if "-6" in taskDataName:  # mission A sss check
-            return color.is_rgb_in_range(self, 768, 357, 60, 80, 60, 80, 60, 80)
+            return color.rgb_in_range(self, 768, 357, 60, 80, 60, 80, 60, 80)
 
     # sss check
     sss_check = color.check_sweep_availability(self, True)
@@ -144,7 +144,9 @@ def explore_normal_task(self):
 
             if not skip_navigate:
                 normal_task.to_normal_event(self, True)
-                to_region(self, region, True)
+                if not to_region(self, region, True):
+                    self.logger.error(f"Skipping task {taskName} since it's not available.")
+                    continue
                 fullMissionList = []
                 for i in range(1, 6):
                     fullMissionList.append(f"{region}-{i}")
@@ -163,7 +165,9 @@ def explore_normal_task(self):
                     None,
                     3
                 )
-                to_mission_info(self, missionButtonPos[1])
+                if not to_mission_info(self, missionButtonPos[1]):
+                    self.logger.error(f"Skipping task {taskName} since it's not available.")
+                    continue
 
             if not need_fight(self, taskDataName, True):
                 self.logger.warning(f"{taskDataName} is already finished,skip.")
@@ -238,8 +242,9 @@ def explore_hard_task(self):
             mission_los = [249, 363, 476]
             if not skip_navigate:
                 hard_task.to_hard_event(self, True)
-                to_region(self, region, False)
-                to_mission_info(self, mission_los[mission - 1])
+                if not (to_region(self, region, False) and to_mission_info(self, mission_los[mission - 1])):
+                    self.logger.error(f"Skipping task {taskName} since it's not available.")
+                    continue
 
             if not need_fight(self, taskDataName, False):
                 self.logger.warning(f"H{taskDataName} is already finished,skip.")

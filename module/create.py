@@ -240,11 +240,11 @@ def check_crafting_list_status(self):
     y_position = [288, 407, 534]
     status = [None, None, None]
     for j in range(0, 3):
-        if color.is_rgb_in_range(self, 1126, y_position[j], 90, 130, 200, 230, 245, 255):
+        if color.rgb_in_range(self, 1126, y_position[j], 90, 130, 200, 230, 245, 255):
             status[j] = "unfinished"
-        elif color.is_rgb_in_range(self, 1126, y_position[j], 235, 255, 222, 255, 53, 93):
+        elif color.rgb_in_range(self, 1126, y_position[j], 235, 255, 222, 255, 53, 93):
             status[j] = "finished"
-        elif color.is_rgb_in_range(self, 1126, y_position[j], 222, 255, 222, 255, 222, 255):
+        elif color.rgb_in_range(self, 1126, y_position[j], 222, 255, 222, 255, 222, 255):
             status[j] = "empty"
     return status
 
@@ -276,9 +276,9 @@ def collect(self, status, use_acceleration_ticket):
 
 
 def check_create_availability(self):
-    if color.is_rgb_in_range(self, 1112, 681, 210, 230, 210, 230, 210, 230):
+    if color.rgb_in_range(self, 1112, 681, 210, 230, 210, 230, 210, 230):
         return "grey"
-    elif color.is_rgb_in_range(self, 1112, 681, 235, 255, 233, 253, 65, 85):
+    elif color.rgb_in_range(self, 1112, 681, 235, 255, 233, 253, 65, 85):
         return "bright"
     else:
         return "unknown"
@@ -954,14 +954,14 @@ def judge_item_state(self, x, y):
     # item unavailable 155 162 168
     dx = 83
     dy = 23
-    if color.is_rgb_in_range(self, x, y, 57, 77, 72, 92, 92, 112) and \
-        color.is_rgb_in_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
-        color.is_rgb_in_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
-        color.is_rgb_in_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
+    if color.rgb_in_range(self, x, y, 57, 77, 72, 92, 92, 112) and \
+        color.rgb_in_range(self, x + dx, y, 57, 77, 72, 92, 92, 112) and \
+        color.rgb_in_range(self, x, y + dy, 57, 77, 72, 92, 92, 112) and \
+        color.rgb_in_range(self, x + dx, y + dy, 57, 77, 72, 92, 92, 112):
         return 1
-    elif color.is_rgb_in_range(self, x, y, 145, 165, 160, 180, 165, 185) and \
-        color.is_rgb_in_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
-        color.is_rgb_in_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
-        color.is_rgb_in_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
+    elif color.rgb_in_range(self, x, y, 145, 165, 160, 180, 165, 185) and \
+        color.rgb_in_range(self, x + dx, y, 145, 165, 160, 180, 165, 185) and \
+        color.rgb_in_range(self, x, y + dy, 145, 165, 160, 180, 165, 185) and \
+        color.rgb_in_range(self, x + dx, y + dy, 145, 165, 160, 180, 165, 185):
         return 2
     return 0  # 0: not am item, 1: usable 2 : unusable but is an item

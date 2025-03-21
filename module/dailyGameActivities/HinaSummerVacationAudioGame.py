@@ -1,7 +1,7 @@
 import time
 
 from core import picture
-from core.color import is_rgb_in_range
+from core.color import rgb_in_range
 from core.device.screenshot.nemu import NemuScreenshot
 from module.activities.PresidentHinasSummerVacation import to_activity
 
@@ -20,13 +20,13 @@ def implement(self):
 
 
 def blue_judge(self, x):
-    if is_rgb_in_range(self, x, midy, 47, 67, 186, 206, 186, 206):
+    if rgb_in_range(self, x, midy, 47, 67, 186, 206, 186, 206):
         return True
     return False
 
 
 def yellow_judge(self, x):
-    if is_rgb_in_range(self, x, midy, 210, 230, 170, 210, 0, 20):
+    if rgb_in_range(self, x, midy, 210, 230, 170, 210, 0, 20):
         return True
     return False
 

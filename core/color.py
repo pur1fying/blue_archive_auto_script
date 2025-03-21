@@ -17,8 +17,8 @@ def wait_loading(self: Baas_thread) -> None:
     return
 
 
-def is_rgb_in_range(self, x: int, y: int, r_min: int, r_max: int, g_min: int, g_max: int, b_min: int, b_max: int,
-                    check_nearby=False, nearby_range=1):
+def rgb_in_range(self, x: int, y: int, r_min: int, r_max: int, g_min: int, g_max: int, b_min: int, b_max: int,
+                 check_nearby=False, nearby_range=1):
     if r_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][2] <= r_max and \
         g_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][1] <= g_max and \
         b_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][0] <= b_max:
@@ -47,15 +47,15 @@ def match_rgb_feature(self, featureName):
     if featureName not in self.rgb_feature:
         return False
     for i in range(0, len(self.rgb_feature[featureName][0])):
-        if not is_rgb_in_range(self,
-                               self.rgb_feature[featureName][0][i][0],
-                               self.rgb_feature[featureName][0][i][1],
-                               self.rgb_feature[featureName][1][i][0],
-                               self.rgb_feature[featureName][1][i][1],
-                               self.rgb_feature[featureName][1][i][2],
-                               self.rgb_feature[featureName][1][i][3],
-                               self.rgb_feature[featureName][1][i][4],
-                               self.rgb_feature[featureName][1][i][5]):
+        if not rgb_in_range(self,
+                            self.rgb_feature[featureName][0][i][0],
+                            self.rgb_feature[featureName][0][i][1],
+                            self.rgb_feature[featureName][1][i][0],
+                            self.rgb_feature[featureName][1][i][1],
+                            self.rgb_feature[featureName][1][i][2],
+                            self.rgb_feature[featureName][1][i][3],
+                            self.rgb_feature[featureName][1][i][4],
+                            self.rgb_feature[featureName][1][i][5]):
             return False
     return True
 
@@ -80,15 +80,15 @@ def match_any_rgb_in_feature(self, featureName):
     """
     if featureName in self.rgb_feature:
         for i in range(0, len(self.rgb_feature[featureName][0])):
-            if is_rgb_in_range(self,
-                               self.rgb_feature[featureName][0][i][0],
-                               self.rgb_feature[featureName][0][i][1],
-                               self.rgb_feature[featureName][1][i][0],
-                               self.rgb_feature[featureName][1][i][1],
-                               self.rgb_feature[featureName][1][i][2],
-                               self.rgb_feature[featureName][1][i][3],
-                               self.rgb_feature[featureName][1][i][4],
-                               self.rgb_feature[featureName][1][i][5]):
+            if rgb_in_range(self,
+                            self.rgb_feature[featureName][0][i][0],
+                            self.rgb_feature[featureName][0][i][1],
+                            self.rgb_feature[featureName][1][i][0],
+                            self.rgb_feature[featureName][1][i][1],
+                            self.rgb_feature[featureName][1][i][2],
+                            self.rgb_feature[featureName][1][i][3],
+                            self.rgb_feature[featureName][1][i][4],
+                            self.rgb_feature[featureName][1][i][5]):
                 return True
     return False
 
