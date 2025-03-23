@@ -173,9 +173,9 @@ def to_purchase_lesson_ticket(self):
 def purchase_lesson_ticket(self, times):
     to_purchase_lesson_ticket(self)
     if times == 4:  # max
-        self.click(879, 346, wait=False)
+        self.click(879, 346, wait_over=False)
     else:
-        self.click(807, 346, count=times - 1, wait=False)
+        self.click(807, 346, count=times - 1, wait_over=False)
     rgb_possibles = {'reward_acquired': (640, 116)}
     img_ends = 'lesson_location-select'
     img_possibles = {

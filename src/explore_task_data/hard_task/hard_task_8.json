@@ -290,16 +290,16 @@
         "desc": "2 upper right"
       },
       {
-        "t": "exchange_and_click",
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "ec": true,
         "p": [
           613,
           236
         ],
         "desc": "2 upper right and tp"
-      },
-      {
-        "t": "teleport"
       },
       {
         "t": "end-turn"
@@ -438,16 +438,16 @@
     ],
     "action": [
       {
-        "t": "exchange_and_click",
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "p": [
           557,
           449
         ],
         "ec": true,
         "desc": "2 lower right and tp"
-      },
-      {
-        "t": "teleport"
       },
       {
         "t": "choose_and_change",
@@ -559,16 +559,16 @@
     ],
     "action": [
       {
-        "t": "exchange_and_click",
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "ec": true,
         "p": [
           557,
           449
         ],
         "desc": "2 lower right and tp"
-      },
-      {
-        "t": "teleport"
       },
       {
         "t": "choose_and_change",

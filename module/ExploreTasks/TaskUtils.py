@@ -203,7 +203,9 @@ def wait_over(self):
 
 
 def confirm_teleport(self):
-    self.logger.info("teleport")
+    self.logger.info("Wait Teleport Notice.")
+    picture.co_detect(self, None, None, "normal_task_teleport-notice", None)
+    self.logger.info("Confirm Teleport.")
     img_ends = ['normal_task_task-operating-feature']
     img_reactions = {'normal_task_teleport-notice': (767, 501)}
     picture.co_detect(self, None, None, img_ends, img_reactions, True)
@@ -274,9 +276,6 @@ def run_task_action(self, actions):
             self.click(position[0], position[1], wait_over=True)
             if "teleport" in operation:
                 confirm_teleport(self)
-        elif operation == 'teleport':
-            description += f"Teleport\n"
-            confirm_teleport(self)
         elif operation.startswith("exchange"):
             # 切换队伍
             # Switch formation
