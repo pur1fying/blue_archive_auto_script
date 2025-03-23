@@ -1,7 +1,7 @@
 import json
 import time
 
-from core import image, picture, Baas_thread
+from core import image, picture, Baas_thread, color
 from core.image import swipe_search_target_str
 from module import hard_task, main_story, normal_task
 
