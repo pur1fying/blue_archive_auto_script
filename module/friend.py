@@ -56,7 +56,6 @@ def implement(self):
 def to_friend_management(self, skip_first_screenshot=False):
     img_ends = "friend_friend-management-menu"
     img_possibles = {
-        "friend_friend-menu": (579, 374),
         "friend_player-info": (903, 101),
         "friend_delete-friend-notice": (887, 165),
         "group_enter-button": (627, 383),
