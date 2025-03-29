@@ -541,19 +541,19 @@ def get_invitation_ticket_next_time(self):
     for i in range(0, 3):
         if i != 0:
             self.update_screenshot_array()
-        res = self.ocr.get_region_res(self.latest_img_array, region, 'Global', self.ratio)
+        res = self.ocr.get_region_res(
+            baas=self,
+            region=region,
+            language='en-us',
+            log_info='Invitation Ticket Next Time',
+            candidates='0123456789:'
+        )
         if res.count(":") != 2:
             return None
         res = res.split(":")
         for j in range(0, len(res)):
             if res[j][0] == "0":
                 res[j] = res[j][1:]
-        self.logger.info(
-            "Invitation Ticket Next time: " +
-            res[0] + "\tHOUR " +
-            res[1] + "\tMINUTES " +
-            res[2] + "\tSECONDS"
-        )
         try:
             return int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2])
         except ValueError:

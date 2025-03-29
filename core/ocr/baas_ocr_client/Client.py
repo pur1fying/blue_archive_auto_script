@@ -8,7 +8,7 @@ import datetime
 import shutil
 import json
 from core.ipc_manager import SharedMemory
-from core.exception import SharedMemoryError
+from core.exception import SharedMemoryError, OcrInternalError
 
 
 class ServerConfig:
@@ -216,16 +216,18 @@ class BaasOcrClient:
             data["image"]["shared_memory_name"] = shared_memory_name
             data["image"]["resolution"] = [col, row]
             return requests.post(url, json=data)
-        if pass_method == 1:
+        elif pass_method == 1:
             image_bytes = self.get_image_bytes(origin_image)
             files = {
                 "data": (None, json.dumps(data), "application/json"),
                 "image": ("image.png", image_bytes, "image/png")
             }
             return requests.post(url, files=files)
-        if pass_method == 2:
+        elif pass_method == 2:
             data["image"]["local_path"] = local_path
             return requests.post(url, json=data)
+        else:
+            raise OcrInternalError(f"Invalid pass_method : {pass_method}")
 
     @staticmethod
     def get_image_bytes(image):
