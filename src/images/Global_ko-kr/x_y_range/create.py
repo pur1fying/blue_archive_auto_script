@@ -1,27 +1,28 @@
 prefix = "create"
 path = "create"
 x_y_range = {
-    'crafting-list': (865, 158, 1073, 185),
-    'select-node': (1000, 630, 1240, 677),
-    'start-crafting': (1000, 630, 1240, 677),
-    'start-crafting-notice': (451, 296, 854, 328),
+    'crafting-list': (900, 158, 1012, 185),
+    'select-node': (1059, 630, 1184, 677),
+    'start-crafting': (1053, 630, 1180, 677),
+    'start-crafting-notice': (470, 296, 804, 328),
 
     'point-up': (1222, 90, 1246, 117),
     'point-down': (1222, 90, 1246, 117),
-    'complete-instantly': (448, 261, 790, 311),
+    'complete-instantly': (478, 261, 790, 311),
+    'collect-all-rewards-grey': (1056, 598, 1184, 645),
 
-    'start-phase-1-grey': (1000, 630, 1240, 677),
-    'start-phase-1-bright': (1000, 630, 1240, 677),
-    'start-phase-2-grey': (1000, 630, 1240, 677),
-    'start-phase-2-bright': (1000, 630, 1240, 677),
-    'start-phase-3-grey': (1000, 630, 1240, 677),
-    'start-phase-3-bright': (1000, 630, 1240, 677),
+    'start-phase-1-grey': (1053, 630, 1174, 677),
+    'start-phase-1-bright': (1053, 630, 1174, 677),
+    'start-phase-2-grey': (1053, 630, 1174, 677),
+    'start-phase-2-bright': (1053, 630, 1174, 677),
+    'start-phase-3-grey': (1053, 630, 1174, 677),
+    'start-phase-3-bright': (1053, 630, 1174, 677),
 
     'phase-1-wait-to-check-node': (403, 91, 445, 129),
     'phase-2-wait-to-check-node': (166, 570, 184, 591),
     'phase-3-wait-to-check-node': (106, 56, 145, 97),
 
-    'sort-menu': (101, 196, 190, 226),
+    'sort-menu': (121, 196, 170, 226),
     'sort-basic-chosen': (273, 159, 305, 196),
     'sort-basic-not-chosen': (273, 159, 305, 196),
     'sort-name-chosen': (514, 159, 550, 196),
@@ -29,7 +30,7 @@ x_y_range = {
     'sort-count-chosen': (755, 159, 785, 196),
     'sort-count-not-chosen': (755, 159, 785, 196),
 
-    'filter-menu': (101, 137, 190, 174),
+    'filter-menu': (121, 137, 170, 174),
 
     'filter-Equipment-chosen': (263, 260, 321, 315),
     'filter-Equipment-not-chosen': (263, 260, 321, 315),

@@ -20,6 +20,8 @@ x_y_range = {
     'point-up': (1222, 90, 1246, 117),
     'point-down': (1222, 90, 1246, 117),
     'complete-instantly': (448, 261, 790, 311),
+    'collect-all-rewards-grey': (1056, 598, 1184, 645),
+
     'sort-menu': (101, 196, 190, 226),
 
     'sort-basic-chosen': (279, 163, 308, 190),

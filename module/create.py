@@ -30,7 +30,7 @@ def implement(self):
         for i in range(0, len(status)):
             if status[i] == "empty":
                 ret = to_phase1(self, i, True)
-                if ret.startswith("create_phase"):
+                if ret.startswith("create_phase") or ret == "create_start-crafting":
                     solve_unfinished_create(self, ret)
                     status = check_crafting_list_status(self)  # current position might be occupied by unfinished create
                     continue
@@ -62,10 +62,11 @@ def implement(self):
 
 def solve_unfinished_create(self, phase_text):
     self.logger.info("Solve Unfinished Create.")
-    phase = int(re.findall(r"\d", phase_text)[0])
-    start_phase(self, phase)
-    select_node(self, phase)
-    confirm_select_node(self, 1)
+    if phase_text.startswith("create_phase"):
+        phase = int(re.findall(r"\d", phase_text)[0])
+        start_phase(self, phase)
+        select_node(self, phase)
+        confirm_select_node(self, 1)
     to_manufacture_store(self, True)
 
 
@@ -286,6 +287,7 @@ def receive_objects_and_check_crafting_list_status(self, use_acceleration_ticket
             if ret.startswith("create_phase"):
                 solve_unfinished_create(self, ret)
 
+
 def collect(self, status, use_acceleration_ticket):
     if "finished" in status:
         self.click(1126, 617, wait_over=True, duration=1.5)
@@ -293,8 +295,14 @@ def collect(self, status, use_acceleration_ticket):
         to_manufacture_store(self)
     if ("unfinished" in status) and use_acceleration_ticket:
         img_possibles = {"create_crafting-list": (1126, 617)}
-        img_ends = "create_complete-instantly"
-        picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        img_ends = [
+            "create_complete-instantly",
+            "create_collect-all-rewards-grey"
+        ]
+        ret = picture.co_detect(self, None, None, img_ends, img_possibles, True)
+        if ret == "create_collect-all-rewards-grey":
+            self.logger.info("Reward All Collected.")
+            return
         img_possibles = {"create_complete-instantly": (766, 516)}
         img_ends = "create_crafting-list"
         picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -317,7 +325,8 @@ def to_phase1(self, i, skip_first_screenshot=False):
         "create_material-list",
         "create_phase-1-wait-to-check-node",
         "create_phase-2-wait-to-check-node",
-        "create_phase-3-wait-to-check-node"
+        "create_phase-3-wait-to-check-node",
+        "create_start-crafting"
     ]
     return picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
 

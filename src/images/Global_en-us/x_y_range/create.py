@@ -9,6 +9,7 @@ x_y_range = {
     'point-up': (1222, 90, 1246, 117),
     'point-down': (1222, 90, 1246, 117),
     'complete-instantly': (448, 261, 790, 311),
+    'collect-all-rewards-grey': (1056, 598, 1194, 645),
 
     'start-phase-1-grey': (1000, 630, 1240, 677),
     'start-phase-1-bright': (1000, 630, 1240, 677),
