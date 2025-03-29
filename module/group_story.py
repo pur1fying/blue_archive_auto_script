@@ -17,8 +17,7 @@ def implement(self):
                 while (not check_current_episode_cleared(self)) and self.flag_run:
                     res = one_detect(self)
                     while not res:
-                        time.sleep(self.screenshot_interval)
-                        self.latest_img_array = self.get_screenshot_array()
+                        self.update_screenshot_array()
                         res = one_detect(self)
                         continue
                     to_episode_info(self, res, True)
