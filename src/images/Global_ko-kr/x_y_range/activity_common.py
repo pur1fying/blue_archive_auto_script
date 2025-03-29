@@ -6,7 +6,7 @@ x_y_range = {
     "fight-success-confirm": (580, 650, 701, 684),
     # "unit-formation": (102, 10, 317, 40),
     'task-info': (578, 124, 702, 153),
-    # 'task-no-goals': (252, 387, 619, 411),
+    'task-no-goals': (302, 387, 559, 411),
     'formation': (103, 7, 190, 38),
     'self-formation': (103, 7, 190, 38),
     'quest-challenge-button': (317, 255, 455, 288),

@@ -194,6 +194,7 @@ def swipe_search_target_str(
         swipe_params[4],
         swipe_params[5]
     )
+    retry_swipe_dir = 0
     if possible_strs is None:
         raise ValueError("possible_strs can't be None.")
     target_str = possible_strs[target_str_index]
@@ -207,7 +208,11 @@ def swipe_search_target_str(
         all_positions = get_image_all_appear_position(self, name, search_area, threshold)
         if len(all_positions) == 0:
             self.logger.warning("Didn't find target image, try swipe.")
-            self.swipe(*swipe_params)
+            if retry_swipe_dir == 0:
+                self.swipe(*swipe_params)
+            else:
+                self.swipe(*reversed_swipe_params)
+            retry_swipe_dir ^= 1
             continue
         all_positions = merge_nearby_coordinates(all_positions, 5, 5)
         max_idx = -1  # impossible value
@@ -223,6 +228,9 @@ def swipe_search_target_str(
                 p[0] + ocr_region_offsets[0] + ocr_region_offsets[2],
                 p[1] + ocr_region_offsets[1] + ocr_region_offsets[3]
             )
+            # img = screenshot_cut(self, ocr_region)
+            # cv2.imshow("img", img)
+            # cv2.waitKey(0)
             ocr_str = self.ocr.get_region_res(
                 baas=self,
                 region=ocr_region,
@@ -263,4 +271,8 @@ def swipe_search_target_str(
                 self.swipe(*reversed_swipe_params)
                 continue
         self.logger.warning("Didn't find target string, try swipe.")
-        self.swipe(*swipe_params)
+        if retry_swipe_dir == 0:
+            self.swipe(*swipe_params)
+        else:
+            self.swipe(*reversed_swipe_params)
+        retry_swipe_dir ^= 1

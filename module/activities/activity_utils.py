@@ -172,6 +172,13 @@ def explore_activity_mission(self):
 
 def to_mission_task_info(self, target_index, total_mission):
     possible_strs = build_activity_task_name_list(total_mission)
+    ocr_region_offsets = {
+        "CN": (-384, -8, 43, 28),
+        "Global_en-us": (-384, 0, 43, 36),
+        "Global_zh-tw": (-384, 0, 43, 36),
+        "Global_ko-kr": (-384, 0, 43, 36),
+        "JP": (-384, -8, 43, 28),
+    }
     p = swipe_search_target_str(
         self,
         "activity_mission-enter-task-button",
@@ -181,11 +188,12 @@ def to_mission_task_info(self, target_index, total_mission):
         target_str_index=target_index - 1,
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
         ocr_language='en-us',
-        ocr_region_offsets=(-384, -8, 43, 28),
+        ocr_region_offsets=ocr_region_offsets[self.identifier],
         ocr_str_replace_func=None,
-        max_swipe_times=10
+        max_swipe_times=10,
+        ocr_candidates="0123456789"
     )
-    y = p[1]
+    y = p[1] + 10  # move down a little bit in case click to challenge page
     possibles = {'activity_menu': (1124, y)}
     ends = "activity_task-info"
     return picture.co_detect(self, None, None, ends, possibles, True)
@@ -361,7 +369,8 @@ def to_story_task_info(self, target_index, total_story):
         ocr_language='en-us',
         ocr_region_offsets=(-387, -6, 50, 28),
         ocr_str_replace_func=None,
-        max_swipe_times=10
+        max_swipe_times=10,
+        ocr_candidates="0123456789"
     )
     y = p[1]
     img_possibles = {'activity_menu': (1124, y)}
