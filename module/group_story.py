@@ -31,6 +31,7 @@ def implement(self):
             self.click(1255, 357, duration=1.5, wait_over=True)
             self.latest_img_array = self.get_screenshot_array()
 
+
 def to_group_story(self, skip_first_screenshot=False):
     rgb_possibles = {'main_page': (1196, 572)}
     img_ends = "group_story_menu"
