@@ -5,12 +5,13 @@ from dulwich import porcelain
 from dulwich.repo import Repo
 
 
-if sys.platform not in ['win32', 'linux']:
+if sys.platform not in ['win32', 'linux', 'darwin']:
     raise Exception("Ocr Unsupported platform " + sys.platform)
 
 REPO_URL_HTTP = {
     'win32': "https://gitee.com/pur1fy/windows-compiled_baas_ocr_server.git",
     'linux': "https://gitee.com/pur1fy/linux-compiled_baas_ocr_server.git",
+    'darwin': "https://gitee.com/pur1fy/mac-os_baas_ocr_server.git",
 }
 
 REPO_URL_HTTP = REPO_URL_HTTP[sys.platform]
@@ -30,7 +31,7 @@ def check_git(logger):
                 if i == 3:
                     raise OcrInternalError("Failed to install the BAAS_ocr_server. Please check your network")
                 logger.error(f"Failed to install BAAS_ocr_server, retrying... {i}")
-                logger.error(e)
+                logger.error(e.__str__())
         logger.info("Ocr Server Install success.")
     else:
         logger.info("Ocr Server Update check.")

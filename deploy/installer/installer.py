@@ -87,7 +87,7 @@ DEFAULT_SETTINGS = {
         "REPO_URL_HTTP": "https://gitee.com/pur1fy/blue_archive_auto_script.git",
         "GET_PIP_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py",
         "GET_UPX_URL": "https://ghp.ci/https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-win64.zip",
-        "GET_ENV_PATCH_URL": "https://gitee.com/kiramei/blue_archive_auto_script_assets/raw/master/env_patch.zip",
+        "GET_ENV_PATCH_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/env_patch.zip",
         "GET_PYTHON_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip",
     },
     "Paths": {

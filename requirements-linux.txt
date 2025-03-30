@@ -8,3 +8,4 @@ adbutils <= 2.2.1
 uiautomator2
 opencv-python-headless
 PyQt-Fluent-Widgets
+psutil

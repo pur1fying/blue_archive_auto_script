@@ -51,11 +51,12 @@ class BaasOcrClient:
             raise Exception("Didn't find ocr server executable.")
         self.config = ServerConfig()
         self.server_process = None
+        self.clear_log()
 
     @staticmethod
     def kilL_existing_server():
         try:
-            if sys.platform == "linux":
+            if sys.platform in ["linux", "darwin"]:
                 subprocess.run(["pkill", "-9", BaasOcrClient.executable_name])
             elif sys.platform == "win32":
                 subprocess.run(["taskkill", "/f", "/im", BaasOcrClient.executable_name], check=True)
@@ -79,8 +80,9 @@ class BaasOcrClient:
 
     def create_shared_memory(self, name, size):
         url = self.config.base_url + "/create_shared_memory"
+        pass_name = "/" + name if sys.platform != "win32" else name
         data = {
-            "shared_memory_name": name,
+            "shared_memory_name": pass_name,
             "size": size
         }
         ret = requests.post(url, json=data)
@@ -90,8 +92,9 @@ class BaasOcrClient:
 
     def release_shared_memory(self, name):
         url = self.config.base_url + "/release_shared_memory"
+        pass_name = "/" + name if sys.platform != "win32" else name
         data = {
-            "name": name
+            "name": pass_name
         }
         SharedMemory.release(name)
         return requests.post(url, json=data)
@@ -116,6 +119,9 @@ class BaasOcrClient:
         self.server_process = subprocess.Popen(
             self.exe_path,
             cwd=self.server_folder_path,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            text=True
         )
         # wait for server start
         for _ in range(0, 30):
@@ -126,9 +132,13 @@ class BaasOcrClient:
                 time.sleep(0.1)
 
     def stop_server(self):
-        if self.server_process is not None:
-            self.server_process.terminate()
-            self.server_process = None
+        self.server_process.stdin.write("exit\n")
+        self.server_process.stdin.flush()
+        return_code = self.server_process.wait(10)
+        if return_code != 0:
+            raise RuntimeError("Fail to stop server.")
+        self.server_process.stdin.close()
+        self.server_process = None
 
     def init_model(self, language: list[str], gpu_id=-1, num_thread=4, EnableCpuMemoryArena=False):
         url = self.config.base_url + "/init_model"
@@ -176,19 +186,21 @@ class BaasOcrClient:
             row = origin_image.shape[0]
             size = col * row * 3
             SharedMemory.set_data(shared_memory_name, origin_image.tobytes(), size)
-            data["image"]["shared_memory_name"] = shared_memory_name
+            data["image"]["shared_memory_name"] = "/" + shared_memory_name if sys.platform != "win32" else shared_memory_name
             data["image"]["shape"] = [row, col]
             return requests.post(url, json=data)
-        if pass_method == 1:
+        elif pass_method == 1:
             image_bytes = self.get_image_bytes(origin_image)
             files = {
                 "data": (None, json.dumps(data), "application/json"),
                 "image": ("image.png", image_bytes, "image/png")
             }
             return requests.post(url, files=files)
-        if pass_method == 2:
+        elif pass_method == 2:
             data["image"]["local_path"] = local_path
             return requests.post(url, json=data)
+        else:
+            raise OcrInternalError(f"Invalid pass_method [ {pass_method} ].")
 
     def ocr_for_single_line(self,
                             language: str,
@@ -213,10 +225,10 @@ class BaasOcrClient:
             row = origin_image.shape[0]
             size = col * row * 3
             SharedMemory.set_data(shared_memory_name, origin_image.tobytes(), size)
-            data["image"]["shared_memory_name"] = shared_memory_name
+            data["image"]["shared_memory_name"] = "/" + shared_memory_name if sys.platform != "win32" else shared_memory_name
             data["image"]["resolution"] = [col, row]
             return requests.post(url, json=data)
-        elif pass_method == 1:
+        if pass_method == 1:
             image_bytes = self.get_image_bytes(origin_image)
             files = {
                 "data": (None, json.dumps(data), "application/json"),
@@ -227,7 +239,7 @@ class BaasOcrClient:
             data["image"]["local_path"] = local_path
             return requests.post(url, json=data)
         else:
-            raise OcrInternalError(f"Invalid pass_method : {pass_method}")
+            raise OcrInternalError(f"Invalid pass_method [ {pass_method} ].")
 
     @staticmethod
     def get_image_bytes(image):
