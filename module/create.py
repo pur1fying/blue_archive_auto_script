@@ -851,7 +851,7 @@ def item_recognize(self, check_state):
                 if max_similarity >= 0.5:
                     check_state.last_checked_idx = max_idx + 1
                     name = check_state.check_item_order[max_idx]
-                    holding_quantity = get_item_holding_quantity(self, item_holding_quantity_region)
+                    holding_quantity = get_item_holding_quantity(self, item_holding_quantity_region, name)
                     self.logger.info("Predict : " + name)
                     self.logger.info("Similarity : " + str(round(max_similarity, 3)))
                 else:
