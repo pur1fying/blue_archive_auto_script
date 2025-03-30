@@ -190,7 +190,7 @@ class Baas_thread:
             shortcut = shell.CreateShortCut(lnk_path)
             self.config_set.program_address = shortcut.Targetpath
 
-    def extract_filename_and_extension(self, file_path):
+    def extract_filename_and_extension(self):
         """
         从可能包含启动参数的路径中提取文件名和扩展名
         """
@@ -227,41 +227,6 @@ class Baas_thread:
                 return True
         return False
 
-    def terminate_process(self, process_name):
-        """
-        终止指定名称的进程
-        """
-        for proc in psutil.process_iter(['pid', 'name']):
-            if proc.info['name'] == process_name:
-                proc.terminate()
-                return True
-        return False
-
-    def check_process_running_from_pid(self, pid):
-        # 代码来源于BAAH
-        try:
-            tasks = self.subprocess_run(["tasklist"], encoding="gbk").stdout
-            tasklist = tasks.split("\n")
-            for task in tasklist:
-                wordlist = task.strip().split()
-                if len(wordlist) > 1 and wordlist[1] == str(pid):
-                    self.logger.info(" | ".join(wordlist))
-                    return True
-            return False
-        except Exception as e:
-            self.logger.error(e.__str__())
-            return False
-
-    def subprocess_run(self, cmd: Tuple[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                       encoding="utf-8"):
-        # 代码来源BAAH
-        if isasync:
-            # 异步非阻塞执行
-            return subprocess.Popen(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
-        else:
-            # 同步阻塞执行
-            return subprocess.run(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
-
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
         if emulator_strat_stat:
             self.logger.info(f"-- BAAS Check Emulator Start --")
@@ -283,7 +248,7 @@ class Baas_thread:
                 return True
             else:
                 self.file_path = self.config.program_address
-                self.process_name = self.extract_filename_and_extension(self.file_path)
+                self.process_name = self.extract_filename_and_extension()
                 if self.check_process_running(self.process_name):
                     self.logger.info(f"-- Emulator Process {self.process_name} is running --")
                     return True
