@@ -61,8 +61,8 @@ class Layout(TemplateLayout):
             # command = ["adb", "devices"]
             # target_directory = "env/Lib/site-packages/adbutils/binaries"
             # results = get_address_from_str(subprocess.run(command, cwd=target_directory, check=True, capture_output=True, text=True).stdout)
-            import device_operation
-            results = device_operation.autosearch()
+            from core.device import emulator_manager
+            results = emulator_manager.autosearch()
             if len(results) == 0:
                 results = [self.tr("自动查询模拟器失败！请尝试手动输入端口")]
             self.tableView.setRowCount(len(results))
@@ -73,8 +73,6 @@ class Layout(TemplateLayout):
             print(e)
             self.tableView.setRowCount(1)
             self.tableView.setItem(0, 0, QTableWidgetItem(self.tr("adb地址获取失败")))
-        # import device_operation
-        # results = device_operation.autosearch()
 
     def _commit_port_change(self, x):
         addr = x.text()

@@ -37,4 +37,12 @@ x_y_range = {
     'challenge1-unfinished': (395, 330, 434, 366),
     'challenge2-finished': (395, 366, 434, 401),
     'challenge2-unfinished': (395, 366, 434, 401),
+    'formation-menu': (101, 1, 250, 45),
+    'formation-preset': (558, 79, 768, 129),
+    'formation-edit-preset-name': (1184, 219, 1211, 252),
+    # 'formation-set-confirm': (500, 79, 776, 125),
+    'task-A-info': (576, 117, 704, 170),
+    'enter-task-button': (1087, 219, 1156, 261),
+    "region-unavailable-right": (1213, 333, 1276, 420),
+    "region-unavailable-left": (8, 294, 77, 434)
 }

@@ -1,4 +1,3 @@
-import time
 from functools import partial
 
 from PyQt5.QtCore import Qt

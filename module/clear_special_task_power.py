@@ -1,4 +1,5 @@
 import time
+
 from core import color, picture
 
 
@@ -7,7 +8,7 @@ def implement(self):
     if not count:
         return True
 
-    self.quick_method_to_main_page()
+    self.to_main_page()
     commissions_name = ["BASE DEFENSE", "ITEM RETRIEVAL"]
     self.commissions_status = [False, False]
     just_do_task = False
@@ -16,7 +17,7 @@ def implement(self):
         if count[i] == "max" or count[i] > 0:
             self.logger.info("Start commissions task: " + commissions_name[i] + " count : " + str(count[i]))
             if just_do_task:
-                self.quick_method_to_main_page()
+                self.to_main_page()
             just_do_task = True
             to_commissions(self, i + 1, skip_first_screenshot=True)
             res = commissions_common_operation(self, i + 1, count[i])
@@ -71,8 +72,8 @@ def get_los(self):
     i = 675
     los = []
     while i > 196:
-        if color.judge_rgb_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
-                color.judge_rgb_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
+        if color.rgb_in_range(self, 1076, i, 131, 151, 218, 238, 245, 255) and \
+            color.rgb_in_range(self, 1076, i - 30, 131, 151, 218, 238, 245, 255):
             los.append(i - 35)
             i -= 100
             continue

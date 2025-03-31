@@ -1,434 +1,453 @@
 {
-    "15": {
-        "SUB": "mystic1"
-    },
-    "15-1": {
-        "start": [
-            [
-                "mystic1",
-                [
-                    376,
-                    344
-                ]
-            ],
-            [
-                "mystic2",
-                [
-                    1044,
-                    609
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    629,
-                    329
-                ],
-                "ec": true
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "wait-over": true,
-                "p": [
-                    824,
-                    365
-                ]
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    678,
-                    357
-                ],
-                "ec": true
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    679,
-                    347
-                ]
-            },
-            {
-                "t": "click",
-                "p": [
-                    794,
-                    352
-                ],
-                "wait-over": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    823,
-                    413
-                ],
-                "ec": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    444,
-                    446
-                ]
-            }
+  "15-sub": {
+    "start": [
+      [
+        "mystic",
+        [
+          0,
+          0
         ]
-    },
-    "15-2": {
-        "start": [
-            [
-                "mystic1",
-                [
-                    407,
-                    259
-                ]
-            ],
-            [
-                "mystic2",
-                [
-                    751,
-                    487
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    636,
-                    317
-                ],
-                "ec": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    673,
-                    385
-                ],
-                "ec": true
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    727,
-                    349
-                ],
-                "ec": true
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    727,
-                    342
-                ]
-            },
-            {
-                "t": "click",
-                "p": [
-                    838,
-                    344
-                ],
-                "wait-over": true
-            },
-            {
-                "t": [
-                    "exchange_and_click",
-                    "teleport"
-                ],
-                "ec": true,
-                "p": [
-                    432,
-                    451
-                ]
-            },
-            {
-                "t": "click",
-                "p": [
-                    814,
-                    245
-                ]
-            }
+      ]
+    ]
+  },
+  "15-1": {
+    "start": [
+      [
+        "mystic",
+        [
+          376,
+          344
         ]
-    },
-    "15-3": {
-        "start": [
-            [
-                "mystic1",
-                [
-                    757,
-                    144
-                ]
-            ],
-            [
-                "mystic2",
-                [
-                    407,
-                    188
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    728,
-                    461
-                ],
-                "ec": true
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "p": [
-                    576,
-                    399
-                ]
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    680,
-                    452
-                ]
-            },
-            {
-                "t": "click",
-                "p": [
-                    623,
-                    541
-                ],
-                "ec": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    797,
-                    421
-                ],
-                "ec": true,
-                "wait-over": true
-            },
-            {
-                "t": [
-                    "exchange",
-                    "click_and_teleport"
-                ],
-                "ec": true,
-                "p": [
-                    835,
-                    425
-                ]
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    610,
-                    459
-                ]
-            },
-            {
-                "t": "click",
-                "p": [
-                    671,
-                    546
-                ]
-            }
+      ],
+      [
+        "mystic",
+        [
+          1044,
+          609
         ]
-    },
-    "15-4": {
-        "start": [
-            [
-                "mystic1",
-                [
-                    824,
-                    554
-                ]
-            ],
-            [
-                "mystic2",
-                [
-                    665,
-                    66
-                ]
-            ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          629,
+          329
         ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    546,
-                    498
-                ],
-                "ec": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    687,
-                    343
-                ],
-                "ec": true,
-                "wait-over": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    547,
-                    419
-                ],
-                "ec": true
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "wait-over": true,
-                "p": [
-                    801,
-                    275
-                ]
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    460,
-                    498
-                ],
-                "ec": true
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    528,
-                    457
-                ]
-            },
-            {
-                "t": "click",
-                "p": [
-                    408,
-                    468
-                ],
-                "wait-over": true
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    897,
-                    416
-                ],
-                "wait-over": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    435,
-                    446
-                ]
-            }
+        "ec": true
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "wait-over": true,
+        "p": [
+          824,
+          365
         ]
-    },
-    "15-5": {
-        "start": [
-            [
-                "mystic1",
-                [
-                    314,
-                    300
-                ]
-            ],
-            [
-                "mystic2",
-                [
-                    490,
-                    526
-                ]
-            ]
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          678,
+          357
         ],
-        "action": [
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    608,
-                    384
-                ],
-                "ec": true
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    610,
-                    388
-                ]
-            },
-            {
-                "t": "click",
-                "p": [
-                    730,
-                    388
-                ],
-                "wait-over": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    784,
-                    218
-                ],
-                "ec": true
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "wait-over": true,
-                "p": [
-                    579,
-                    234
-                ]
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "wait-over": true,
-                "p": [
-                    788,
-                    216
-                ]
-            },
-            {
-                "t": "click",
-                "p": [
-                    651,
-                    373
-                ],
-                "wait-over": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    803,
-                    491
-                ],
-                "ec": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    734,
-                    354
-                ],
-                "wait-over": true
-            },
-            {
-                "t": "click",
-                "p": [
-                    779,
-                    511
-                ]
-            }
+        "ec": true
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          679,
+          347
         ]
-    }
+      },
+      {
+        "t": "click",
+        "p": [
+          794,
+          352
+        ],
+        "wait-over": true
+      },
+      {
+        "t": "click",
+        "p": [
+          823,
+          413
+        ],
+        "ec": true
+      },
+      {
+        "t": "click",
+        "p": [
+          444,
+          446
+        ]
+      }
+    ]
+  },
+  "15-2": {
+    "start": [
+      [
+        "mystic",
+        [
+          407,
+          259
+        ]
+      ],
+      [
+        "mystic",
+        [
+          751,
+          487
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          636,
+          317
+        ],
+        "ec": true
+      },
+      {
+        "t": "click",
+        "p": [
+          673,
+          385
+        ],
+        "ec": true
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          727,
+          349
+        ],
+        "ec": true
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          727,
+          342
+        ]
+      },
+      {
+        "t": "click",
+        "p": [
+          838,
+          344
+        ],
+        "wait-over": true
+      },
+      {
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          432,
+          451
+        ]
+      },
+      {
+        "t": "click",
+        "p": [
+          814,
+          245
+        ]
+      }
+    ]
+  },
+  "15-3": {
+    "start": [
+      [
+        "mystic",
+        [
+          757,
+          144
+        ]
+      ],
+      [
+        "mystic",
+        [
+          407,
+          188
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          728,
+          461
+        ],
+        "ec": true
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          576,
+          399
+        ]
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          680,
+          452
+        ]
+      },
+      {
+        "t": "click",
+        "p": [
+          623,
+          541
+        ],
+        "ec": true
+      },
+      {
+        "t": "click",
+        "p": [
+          797,
+          421
+        ],
+        "ec": true,
+        "wait-over": true
+      },
+      {
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          835,
+          425
+        ]
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          610,
+          459
+        ]
+      },
+      {
+        "t": "click",
+        "p": [
+          671,
+          546
+        ]
+      }
+    ]
+  },
+  "15-4": {
+    "start": [
+      [
+        "mystic",
+        [
+          824,
+          554
+        ]
+      ],
+      [
+        "mystic",
+        [
+          665,
+          66
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          546,
+          498
+        ],
+        "ec": true
+      },
+      {
+        "t": "click",
+        "p": [
+          687,
+          343
+        ],
+        "ec": true,
+        "wait-over": true
+      },
+      {
+        "t": "click",
+        "p": [
+          547,
+          419
+        ],
+        "ec": true
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "wait-over": true,
+        "p": [
+          801,
+          275
+        ]
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          460,
+          498
+        ],
+        "ec": true
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          528,
+          457
+        ]
+      },
+      {
+        "t": "click",
+        "p": [
+          408,
+          468
+        ],
+        "wait-over": true
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          897,
+          416
+        ],
+        "wait-over": true
+      },
+      {
+        "t": "click",
+        "p": [
+          435,
+          446
+        ]
+      }
+    ]
+  },
+  "15-5": {
+    "start": [
+      [
+        "mystic",
+        [
+          314,
+          300
+        ]
+      ],
+      [
+        "mystic",
+        [
+          490,
+          526
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "exchange_and_click",
+        "p": [
+          608,
+          384
+        ],
+        "ec": true
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          610,
+          388
+        ]
+      },
+      {
+        "t": "click",
+        "p": [
+          730,
+          388
+        ],
+        "wait-over": true
+      },
+      {
+        "t": "click",
+        "p": [
+          784,
+          218
+        ],
+        "ec": true
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "wait-over": true,
+        "p": [
+          579,
+          234
+        ]
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "wait-over": true,
+        "p": [
+          788,
+          216
+        ]
+      },
+      {
+        "t": "click",
+        "p": [
+          651,
+          373
+        ],
+        "wait-over": true
+      },
+      {
+        "t": "click",
+        "p": [
+          803,
+          491
+        ],
+        "ec": true
+      },
+      {
+        "t": "click",
+        "p": [
+          734,
+          354
+        ],
+        "wait-over": true
+      },
+      {
+        "t": "click",
+        "p": [
+          779,
+          511
+        ]
+      }
+    ]
+  },
+  "15-6": {
+    "start": [
+      [
+        "mystic",
+        [
+          0,
+          0
+        ]
+      ]
+    ]
+  }
 }

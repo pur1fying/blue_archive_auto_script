@@ -4,9 +4,8 @@ import ctypes
 import time
 from functools import partial
 import sys
-import cv2
 import numpy as np
-
+import cv2
 
 class NemuIpcIncompatible(Exception):
     pass
@@ -404,7 +403,7 @@ class NemuClient:
 
     @staticmethod
     def get_possible_mumu12_folder():
-        from device_operation import mumu12_api_backend
+        from core.device.emulator_manager import mumu12_api_backend
         try:
             path = mumu12_api_backend("mumu", 0, operation="get_path")
             return path

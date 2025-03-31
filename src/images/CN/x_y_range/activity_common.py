@@ -16,6 +16,17 @@ x_y_range = {
     "refresh-exchange-times-notice": (507, 311, 763, 354),
     'task-info': (576, 118, 707, 160),
     'quest-challenge-button': (334, 255, 416, 288),
+    'story-enter-task-button': (1094, 170, 1162, 215),
+    'mission-enter-task-button': (1093, 174, 1166, 222),
+
+    'story-not-chosen-0': (725, 89, 805, 127),
+    'story-chosen-0': (725, 89, 805, 127),
+
+    'mission-not-chosen-0': (916, 89, 976, 127),
+    'mission-chosen-0': (916, 89, 976, 127),
+
+    'challenge-not-chosen-0': (1094, 89, 1149, 127),
+    'challenge-chosen-0': (1094, 89, 1149, 127),
     "formation": (102, 7, 250, 38),
-    'task-no-goals': (352, 387, 519, 411),
+    'task-no-goals': (352, 387, 519, 411)
 }

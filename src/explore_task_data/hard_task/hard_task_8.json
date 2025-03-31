@@ -1,646 +1,646 @@
 {
-    "8-1-sss-present": {
-        "start": [
-            [
-                "pierce1",
-                [
-                    613,
-                    180
-                ]
-            ],
-            [
-                "pierce2",
-                [
-                    563,
-                    684
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    712,
-                    351
-                ],
-                "ec": true,
-                "desc": "1 lower right and tp"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    649,
-                    410
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 upper left and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    613,
-                    389
-                ],
-                "ec": true,
-                "desc": "1 right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    850,
-                    474
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    556,
-                    495
-                ],
-                "ec": true,
-                "desc": "1 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    896,
-                    423
-                ],
-                "wait-over": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    614,
-                    399
-                ],
-                "desc": "1 right"
-            },
-            {
-                "t": "end-turn"
-            },
-            {
-                "t": "click",
-                "p": [
-                    614,
-                    390
-                ],
-                "desc": "1 right"
-            }
+  "8-1-sss-present": {
+    "start": [
+      [
+        "pierce",
+        [
+          613,
+          180
         ]
-    },
-    "8-1-task": {
-        "start": [
-            [
-                "pierce1",
-                [
-                    613,
-                    180
-                ]
-            ],
-            [
-                "pierce2",
-                [
-                    563,
-                    684
-                ]
-            ]
-        ],
-        "action": [
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "p": [
-                    712,
-                    351
-                ],
-                "desc": "1 lower right and tp"
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "wait-over": true,
-                "p": [
-                    649,
-                    410
-                ],
-                "desc": "2 upper left and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    613,
-                    389
-                ],
-                "ec": true,
-                "desc": "1 right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    850,
-                    474
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    556,
-                    495
-                ],
-                "ec": true,
-                "desc": "1 lower right"
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "wait-over": true,
-                "p": [
-                    722,
-                    339
-                ],
-                "desc": "2 upper left and tp"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    626,
-                    345
-                ],
-                "ec": true,
-                "desc": "2 upper right"
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    626,
-                    345
-                ],
-                "desc": "swap 1 2"
-            },
-            {
-                "t": "click",
-                "p": [
-                    743,
-                    347
-                ],
-                "desc": "1 right"
-            }
+      ],
+      [
+        "pierce",
+        [
+          563,
+          684
         ]
-    },
-    "8-2-sss-present": {
-        "start": [
-            [
-                "pierce1",
-                [
-                    1000,
-                    342
-                ]
-            ],
-            [
-                "pierce2",
-                [
-                    71,
-                    373
-                ]
-            ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click_and_teleport",
+        "p": [
+          712,
+          351
         ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    728,
-                    474
-                ],
-                "ec": true,
-                "desc": "1 lower left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    553,
-                    477
-                ],
-                "wait-over": true,
-                "ec": true,
-                "desc": "2 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    664,
-                    414
-                ],
-                "ec": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    616,
-                    395
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    560,
-                    333
-                ],
-                "ec": true,
-                "desc": "2 upper right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    668,
-                    410
-                ],
-                "wait-over": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click_and_teleport",
-                "ec": true,
-                "p": [
-                    692,
-                    553
-                ],
-                "desc": "1 lower left and tp"
-            },
-            {
-                "t": "click",
-                "p": [
-                    592,
-                    232
-                ],
-                "wait-over": true,
-                "ec": true,
-                "desc": "2 upper right"
-            },
-            {
-                "t": [
-                    "exchange_and_click",
-                    "teleport"
-                ],
-                "ec": true,
-                "p": [
-                    613,
-                    236
-                ],
-                "desc": "2 upper right and tp"
-            },
-            {
-                "t": "end-turn"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    433,
-                    297
-                ],
-                "wait-over": true,
-                "desc": "2 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    613,
-                    490
-                ],
-                "desc": "1 left"
-            }
-        ]
-    },
-    "8-2-sss-task": {
-        "start": [
-            [
-                "pierce1",
-                [
-                    1000,
-                    342
-                ]
-            ],
-            [
-                "pierce2",
-                [
-                    71,
-                    373
-                ]
-            ]
+        "ec": true,
+        "desc": "1 lower right and tp"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          649,
+          410
         ],
-        "action": [
-            {
-                "t": "click",
-                "p": [
-                    728,
-                    474
-                ],
-                "ec": true,
-                "desc": "1 lower left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    553,
-                    477
-                ],
-                "wait-over": true,
-                "ec": true,
-                "desc": "2 lower right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    664,
-                    414
-                ],
-                "ec": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    616,
-                    395
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    560,
-                    333
-                ],
-                "ec": true,
-                "desc": "2 upper right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    668,
-                    410
-                ],
-                "wait-over": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    692,
-                    553
-                ],
-                "ec": true,
-                "desc": "1 lower left and tp"
-            },
-            {
-                "t": "end-turn"
-            },
-            {
-                "t": "click",
-                "p": [
-                    641,
-                    459
-                ],
-                "desc": "1 left"
-            }
-        ]
-    },
-    "8-3-present": {
-        "start": [
-            [
-                "pierce1",
-                [
-                    793,
-                    471
-                ]
-            ],
-            [
-                "pierce2",
-                [
-                    325,
-                    359
-                ]
-            ]
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper left and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          613,
+          389
         ],
-        "action": [
-            {
-                "t": [
-                    "exchange_and_click",
-                    "teleport"
-                ],
-                "p": [
-                    557,
-                    449
-                ],
-                "ec": true,
-                "desc": "2 lower right and tp"
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    713,
-                    336
-                ],
-                "desc": "swap 1 2"
-            },
-            {
-                "t": "click",
-                "p": [
-                    779,
-                    258
-                ],
-                "wait-over": true,
-                "desc": "1 upper right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    722,
-                    446
-                ],
-                "desc": "1 lower left"
-            },
-            {
-                "t": "end-turn"
-            },
-            {
-                "t": "click",
-                "p": [
-                    560,
-                    398
-                ],
-                "ec": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    754,
-                    422
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    445,
-                    275
-                ],
-                "ec": true,
-                "desc": "1 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    889,
-                    435
-                ],
-                "wait-over": true,
-                "desc": "2 right"
-            },
-            {
-                "t": "click",
-                "p": [
-                    460,
-                    249
-                ],
-                "ec": true,
-                "desc": "1 upper left"
-            },
-            {
-                "t": "end-turn"
-            },
-            {
-                "t": "click",
-                "p": [
-                    394,
-                    326
-                ],
-                "ec": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "end-turn"
-            }
-        ]
-    },
-    "8-3-sss-task": {
-        "start": [
-            [
-                "pierce1",
-                [
-                    793,
-                    471
-                ]
-            ],
-            [
-                "pierce2",
-                [
-                    325,
-                    359
-                ]
-            ]
+        "ec": true,
+        "desc": "1 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          850,
+          474
         ],
-        "action": [
-            {
-                "t": [
-                    "exchange_and_click",
-                    "teleport"
-                ],
-                "ec": true,
-                "p": [
-                    557,
-                    449
-                ],
-                "desc": "2 lower right and tp"
-            },
-            {
-                "t": "choose_and_change",
-                "p": [
-                    713,
-                    336
-                ],
-                "desc": "swap 1 2"
-            },
-            {
-                "t": "click",
-                "p": [
-                    604,
-                    341
-                ],
-                "wait-over": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    466,
-                    249
-                ],
-                "ec": true,
-                "desc": "1 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    823,
-                    377
-                ],
-                "ec": true,
-                "wait-over": true,
-                "desc": "2 upper right"
-            },
-            {
-                "t": "exchange_and_click",
-                "p": [
-                    727,
-                    318
-                ],
-                "ec": true,
-                "desc": "2 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    518,
-                    283
-                ],
-                "wait-over": true,
-                "desc": "1 upper left"
-            },
-            {
-                "t": "click",
-                "p": [
-                    433,
-                    300
-                ],
-                "ec": true,
-                "desc": "1 left"
-            },
-            {
-                "t": "click_and_teleport",
-                "p": [
-                    724,
-                    474
-                ],
-                "desc": "2 lower left and tp"
-            }
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          556,
+          495
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          896,
+          423
+        ],
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          614,
+          399
+        ],
+        "desc": "1 right"
+      },
+      {
+        "t": "end-turn"
+      },
+      {
+        "t": "click",
+        "p": [
+          614,
+          390
+        ],
+        "desc": "1 right"
+      }
+    ]
+  },
+  "8-1-task": {
+    "start": [
+      [
+        "pierce",
+        [
+          613,
+          180
         ]
-    }
+      ],
+      [
+        "pierce",
+        [
+          563,
+          684
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          712,
+          351
+        ],
+        "desc": "1 lower right and tp"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "wait-over": true,
+        "p": [
+          649,
+          410
+        ],
+        "desc": "2 upper left and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          613,
+          389
+        ],
+        "ec": true,
+        "desc": "1 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          850,
+          474
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          556,
+          495
+        ],
+        "ec": true,
+        "desc": "1 lower right"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "wait-over": true,
+        "p": [
+          722,
+          339
+        ],
+        "desc": "2 upper left and tp"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          626,
+          345
+        ],
+        "ec": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          626,
+          345
+        ],
+        "desc": "swap 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          743,
+          347
+        ],
+        "desc": "1 right"
+      }
+    ]
+  },
+  "8-2-sss-present": {
+    "start": [
+      [
+        "pierce",
+        [
+          1000,
+          342
+        ]
+      ],
+      [
+        "pierce",
+        [
+          71,
+          373
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          728,
+          474
+        ],
+        "ec": true,
+        "desc": "1 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          553,
+          477
+        ],
+        "wait-over": true,
+        "ec": true,
+        "desc": "2 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          664,
+          414
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          616,
+          395
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          560,
+          333
+        ],
+        "ec": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          668,
+          410
+        ],
+        "wait-over": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          692,
+          553
+        ],
+        "desc": "1 lower left and tp"
+      },
+      {
+        "t": "click",
+        "p": [
+          592,
+          232
+        ],
+        "wait-over": true,
+        "ec": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          613,
+          236
+        ],
+        "desc": "2 upper right and tp"
+      },
+      {
+        "t": "end-turn"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          433,
+          297
+        ],
+        "wait-over": true,
+        "desc": "2 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          613,
+          490
+        ],
+        "desc": "1 left"
+      }
+    ]
+  },
+  "8-2-sss-task": {
+    "start": [
+      [
+        "pierce",
+        [
+          1000,
+          342
+        ]
+      ],
+      [
+        "pierce",
+        [
+          71,
+          373
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "click",
+        "p": [
+          728,
+          474
+        ],
+        "ec": true,
+        "desc": "1 lower left"
+      },
+      {
+        "t": "click",
+        "p": [
+          553,
+          477
+        ],
+        "wait-over": true,
+        "ec": true,
+        "desc": "2 lower right"
+      },
+      {
+        "t": "click",
+        "p": [
+          664,
+          414
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          616,
+          395
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          560,
+          333
+        ],
+        "ec": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          668,
+          410
+        ],
+        "wait-over": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          692,
+          553
+        ],
+        "ec": true,
+        "desc": "1 lower left and tp"
+      },
+      {
+        "t": "end-turn"
+      },
+      {
+        "t": "click",
+        "p": [
+          641,
+          459
+        ],
+        "desc": "1 left"
+      }
+    ]
+  },
+  "8-3-present": {
+    "start": [
+      [
+        "pierce",
+        [
+          793,
+          471
+        ]
+      ],
+      [
+        "pierce",
+        [
+          325,
+          359
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          557,
+          449
+        ],
+        "ec": true,
+        "desc": "2 lower right and tp"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          713,
+          336
+        ],
+        "desc": "swap 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          779,
+          258
+        ],
+        "wait-over": true,
+        "desc": "1 upper right"
+      },
+      {
+        "t": "click",
+        "p": [
+          722,
+          446
+        ],
+        "desc": "1 lower left"
+      },
+      {
+        "t": "end-turn"
+      },
+      {
+        "t": "click",
+        "p": [
+          560,
+          398
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          754,
+          422
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          445,
+          275
+        ],
+        "ec": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          889,
+          435
+        ],
+        "wait-over": true,
+        "desc": "2 right"
+      },
+      {
+        "t": "click",
+        "p": [
+          460,
+          249
+        ],
+        "ec": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "end-turn"
+      },
+      {
+        "t": "click",
+        "p": [
+          394,
+          326
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "end-turn"
+      }
+    ]
+  },
+  "8-3-sss-task": {
+    "start": [
+      [
+        "pierce",
+        [
+          793,
+          471
+        ]
+      ],
+      [
+        "pierce",
+        [
+          325,
+          359
+        ]
+      ]
+    ],
+    "action": [
+      {
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
+        "ec": true,
+        "p": [
+          557,
+          449
+        ],
+        "desc": "2 lower right and tp"
+      },
+      {
+        "t": "choose_and_change",
+        "p": [
+          713,
+          336
+        ],
+        "desc": "swap 1 2"
+      },
+      {
+        "t": "click",
+        "p": [
+          604,
+          341
+        ],
+        "wait-over": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click",
+        "p": [
+          466,
+          249
+        ],
+        "ec": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          823,
+          377
+        ],
+        "ec": true,
+        "wait-over": true,
+        "desc": "2 upper right"
+      },
+      {
+        "t": "exchange_and_click",
+        "p": [
+          727,
+          318
+        ],
+        "ec": true,
+        "desc": "2 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          518,
+          283
+        ],
+        "wait-over": true,
+        "desc": "1 upper left"
+      },
+      {
+        "t": "click",
+        "p": [
+          433,
+          300
+        ],
+        "ec": true,
+        "desc": "1 left"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          724,
+          474
+        ],
+        "desc": "2 lower left and tp"
+      }
+    ]
+  }
 }

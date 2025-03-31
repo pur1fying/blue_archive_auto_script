@@ -1,110 +1,49 @@
-from PyQt5.QtCore import Qt, QObject
-from PyQt5.QtWidgets import QHBoxLayout, QLabel
-from qfluentwidgets import LineEdit, PushButton
+from PyQt5.QtCore import QObject
 
-from .expandTemplate import TemplateLayout
+from core.utils import detach
+from gui.components.expand.expandTemplate import TemplateLayout
 from ...util import notification
 
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
         ExploreConfig = QObject()
-        self.config = config
         configItems = [
             {
-                'label': ExploreConfig.tr('是否手动boss战（进入关卡后暂停等待手操）'),
+                'label': ExploreConfig.tr('是否手动boss战'),
                 'key': 'manual_boss',
-                'type': 'switch'
+                'type': 'switch',
+                'tip': ExploreConfig.tr('普通图独有配置，进入关卡后暂停等待手操')
             },
             {
-                'label': ExploreConfig.tr('爆发一队'),
-                'key': 'burst1',
-                'selection': ['1', '2', '3', '4'],
-                'type': 'combo'
+                'label': ExploreConfig.tr('普通图推图设置'),
+                'key': 'explore_normal_task_list',
+                'type': 'text__action',
+                'tip': ExploreConfig.tr('请填写要推的图,填写方式见-普通图自动推图说明-'),
+                'selection': self._action_normal
+
             },
             {
-                'label': ExploreConfig.tr('爆发二队'),
-                'key': 'burst2',
-                'selection': ['1', '2', '3', '4'],
-                'type': 'combo'
-            },
-            {
-                'label': ExploreConfig.tr('贯穿一队'),
-                'key': 'pierce1',
-                'selection': ['1', '2', '3', '4'],
-                'type': 'combo'
-            },
-            {
-                'label': ExploreConfig.tr('贯穿二队'),
-                'key': 'pierce2',
-                'selection': ['1', '2', '3', '4'],
-                'type': 'combo'
-            },
-            {
-                'label': ExploreConfig.tr('神秘一队'),
-                'key': 'mystic1',
-                'selection': ['1', '2', '3', '4'],
-                'type': 'combo'
-            },
-            {
-                'label': ExploreConfig.tr('神秘二队'),
-                'key': 'mystic2',
-                'selection': ['1', '2', '3', '4'],
-                'type': 'combo'
-            },
+                'label': ExploreConfig.tr('困难图推图设置'),
+                'key': 'explore_hard_task_list',
+                'type': 'text__action',
+                'tip': ExploreConfig.tr(
+                    '困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍'),
+                'selection': self._action_hard
+            }
         ]
-        if self.config.server_mode == 'JP' or self.config.server_mode == 'Global':
-            configItems.extend([
-                {
-                    'label': ExploreConfig.tr('振动一队'),
-                    'key': 'shock1',
-                    'selection': ['1', '2', '3', '4'],
-                    'type': 'combo'
-                },
-                {
-                    'label': ExploreConfig.tr('振动二队'),
-                    'key': 'shock2',
-                    'selection': ['1', '2', '3', '4'],
-                    'type': 'combo'
-                }
-            ])
-        super().__init__(parent=parent, configItems=configItems, config=config, context='ExploreConfig')
+        super().__init__(parent=parent, config=config, configItems=configItems, context="ExploreConfig")
 
-        self.push_card = QHBoxLayout()
-        self.push_card_label = QHBoxLayout()
-        self.label_tip_push = QLabel(
-            '<b>' + self.tr('推图选项') + '</b>&nbsp;' + self.tr('请在下面填写要推的图,填写方式见-普通图自动推图说明-'), self)
-        self.input_push = LineEdit(self)
-        self.accept_push = PushButton(self.tr('开始推图'), self)
+    @detach
+    def _action_hard(self):
+        nml_list = self.config.get('explore_hard_task_list')
+        notification.success(self.tr('困难关推图'), self.tr("正在推困难关")+": "+str(nml_list), self.config)
+        self.config.get_signal('update_signal').emit(['困难关推图'])
+        self.config.get_main_thread().start_hard_task()
 
-        self.input_push.setText(
-            self.config.get('explore_normal_task_regions').__str__().replace('[', '').replace(']', ''))
-        self.input_push.setFixedWidth(700)
-        self.accept_push.clicked.connect(self._accept_push)
-
-        self.push_card_label.addWidget(self.label_tip_push, 0, Qt.AlignLeft)
-        self.push_card.addWidget(self.input_push, 1, Qt.AlignLeft)
-        self.push_card.addWidget(self.accept_push, 0, Qt.AlignLeft)
-
-        self.push_card.addStretch(1)
-        self.push_card.setAlignment(Qt.AlignCenter)
-        self.push_card.setContentsMargins(10, 0, 0, 10)
-
-        self.push_card_label.addStretch(1)
-        self.push_card_label.setAlignment(Qt.AlignCenter)
-        self.push_card_label.setContentsMargins(10, 0, 0, 10)
-
-        self.vBoxLayout.addLayout(self.push_card_label)
-        self.vBoxLayout.addLayout(self.push_card)
-
-    def _accept_push(self):
-        self.config.set('explore_normal_task_regions', self.input_push.text())
-        value = self.input_push.text()
-        notification.success(self.tr('普通关推图'), f'{self.tr("你的普通关配置已经被设置为：")}{value}，{self.tr("正在推普通关。")}', self.config)
-        sig = self.config.get_signal('update_signal')
-        sig.emit(['普通关推图'])
-        import threading
-        threading.Thread(target=self.action).start()
-
-    def action(self):
+    @detach
+    def _action_normal(self):
+        nml_list = self.config.get('explore_normal_task_list')
+        notification.success(self.tr('普通关推图'), self.tr("正在推普通关")+": "+str(nml_list), self.config)
+        self.config.get_signal('update_signal').emit(['普通关推图'])
         self.config.get_main_thread().start_normal_task()

@@ -403,14 +403,20 @@ DEFAULT_CONFIG = """
         ["primary","normal","advanced","superior"]
     ],
     "purchase_lesson_ticket_times": "0",
-    "explore_normal_task_regions": [
-
-    ],
+    "explore_normal_task_list": [],
     "explore_hard_task_list": "此处填写需要推图的关卡",
     "emulatorIsMultiInstance": false,
     "emulatorMultiInstanceNumber": 0,
     "multiEmulatorName": "mumu",
     "manual_boss": false,
+    "choose_team_method": "preset",
+    "side_team_attribute": [["Unused","Unused","Unused","Unused"]],
+    "preset_team_attribute": [
+        ["Unused","Unused","Unused","Unused","Unused"],
+        ["Unused","Unused","Unused","Unused","Unused"],
+        ["Unused","Unused","Unused","Unused","Unused"],
+        ["Unused","Unused","Unused","Unused","Unused"]
+    ],
     "burst1": "1",
     "burst2": "2",
     "pierce1": "1",
@@ -3089,7 +3095,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp",
         "Global": null,
-        "JP": null
+        "JP": "JP_2025_03_26"
     },
     "dailyGameActivity": {
         "CN": null,
@@ -4708,6 +4714,7 @@ STATIC_DEFAULT_CONFIG = '''
 try:
     import os
     import importlib.util as iu
+
     _init_path = iu.find_spec("qfluentwidgets").origin
     _init_path = os.path.dirname(_init_path)
     _init_path = os.path.join(_init_path, "common", "config.py")

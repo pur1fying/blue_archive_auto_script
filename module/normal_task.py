@@ -1,8 +1,7 @@
-import cv2
-
-from core import picture
-from core.color import check_sweep_availability
 from copy import deepcopy
+
+from core import picture, Baas_thread, color
+from core.color import check_sweep_availability
 from core.staticUtils import isInt
 
 
@@ -10,7 +9,7 @@ def implement(self):
     if len(self.config.unfinished_normal_tasks) != 0:
         temp = deepcopy(self.config.unfinished_normal_tasks)
         self.logger.info("unfinished normal task list: " + str(temp))
-        self.quick_method_to_main_page()
+        self.to_main_page()
         all_task_x_coordinate = 1118
         normal_task_y_coordinates = [242, 341, 439, 537, 611]
         for i in range(0, len(temp)):
@@ -109,14 +108,14 @@ def readOneNormalTask(task_string, region):
     return region, mission, counts
 
 
-def to_normal_event(self, skip_first_screenshot=False):
-    rgb_ends = 'event_normal'
-    rgb_possibles = {
+def to_normal_event(self: Baas_thread, skip_first_screenshot=False):
+    rgb_ends = ['event_normal']
+    rgb_reactions = {
         "event_hard": (805, 165),
         "main_page": (1198, 580),
         "level_up": (640, 200),
     }
-    img_possibles = {
+    img_reactions = {
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (823, 261),
         "normal_task_sweep-complete": (643, 585),
@@ -132,9 +131,10 @@ def to_normal_event(self, skip_first_screenshot=False):
         'normal_task_fight-complete-confirm': (1160, 666),
         'normal_task_reward-acquired-confirm': (800, 660),
         'normal_task_mission-conclude-confirm': (1042, 671),
+        "normal_task_task-A-info": (1128, 130)
     }
-    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, rgb_ends, rgb_possibles,None, img_possibles, skip_first_screenshot)
+    img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
+    picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
 
 
 def to_task_info(self, x, y):
@@ -182,7 +182,7 @@ def choose_region(self, region):
         'Global': [122, 178, 163, 208],
         'JP': [122, 178, 163, 208]
     }
-    cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+    cu_region = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
     self.logger.info("current region: -- " + str(cu_region) + " --")
     while cu_region != region and self.flag_run:
         if cu_region > region:
@@ -194,5 +194,5 @@ def choose_region(self, region):
                 self.click(1245, 360, count=region - cu_region - 1, rate=0.1, wait_over=True)
             self.click(1245, 360, rate=0.1, duration=1, wait_over=True)
         to_normal_event(self)
-        cu_region = self.ocr.get_region_num(self.latest_img_array, square[self.server], int, self.ratio)
+        cu_region = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
         self.logger.info("current region: -- " + str(cu_region) + " --")

@@ -18,7 +18,7 @@ def implement(self):
 
 
 def sweep(self, number, times):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "mission", True, True)
     ap = self.get_ap()
     sweep_one_time_ap = [0, 10, 10, 10, 12, 12, 12, 15, 15, 15]
@@ -55,7 +55,7 @@ def sweep(self, number, times):
 
 
 def explore_story(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "story", True, True)
     last_target_task = 1
     total_stories = 6
@@ -64,7 +64,7 @@ def explore_story(self):
         if plot == "normal_task_task-info":
             res = color.check_sweep_availability(self)
         elif plot == "main_story_episode-info":
-            if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+            if not color.rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
                 res = "sss"
             else:
                 res = "no-pass"
@@ -76,7 +76,7 @@ def explore_story(self):
             if plot == "normal_task_task-info":
                 res = color.check_sweep_availability(self)
             elif plot == "main_story_episode-info":
-                if not color.judge_rgb_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+                if not color.rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
                     res = "sss"
                 else:
                     res = "no-pass"
@@ -116,7 +116,7 @@ def start_fight(self, i):
 
 
 def explore_mission(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "mission", True, True)
     tasks = [
         "mission1_sss",
@@ -154,7 +154,11 @@ def explore_mission(self):
                 need_fight = True
         if need_fight:
             self.logger.info("Start mission " + str(task_number) + " fight")
-            execute_grid_task(self, current_task_stage_data)
+
+            if not execute_grid_task(self, current_task_stage_data):
+                self.logger.error(f"Skipping task due to error.")
+                continue
+
             main_story.auto_fight(self)
             if self.config.manual_boss:
                 self.click(1235, 41)
@@ -163,7 +167,7 @@ def explore_mission(self):
 
 
 def explore_challenge(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_activity(self, "challenge", True, True)
     tp = [
         "fight",
@@ -204,7 +208,9 @@ def explore_challenge(self):
                     elif res == "no-pass" or res == "pass":
                         need_fight = True
                 if need_fight:
-                    execute_grid_task(self, current_task_stage_data)
+                    if not execute_grid_task(self, current_task_stage_data):
+                        self.logger.error(f"Skipping task due to error.")
+                        continue
                     i += 1
                 main_story.auto_fight(self)
                 if self.config.manual_boss:
@@ -272,7 +278,7 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         "challenge": 1196,
     }
     while self.flag_run:
-        if not color.judge_rgb_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
+        if not color.rgb_in_range(self, rgb_lo[region], 114, 20, 60, 40, 80, 70, 116):
             self.click(click_lo[region], 87)
             time.sleep(self.screenshot_interval)
             self.latest_img_array = self.get_screenshot_array()
@@ -366,7 +372,7 @@ def drawCard(self):
     region = {
         'CN': (708, 168, 781, 201)
     }
-    coin = self.ocr.get_region_num(self.latest_img_array, region[self.server], int, self.ratio)
+    coin = self.ocr.recognize_number(self.latest_img_array, region[self.server], int, self.ratio)
     drawCnt = int(coin / 200)
     for i in range(0, drawCnt):
         reshuffleCard(self)

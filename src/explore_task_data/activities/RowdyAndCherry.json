@@ -1,16 +1,36 @@
 {
     "mission": [
-        "pierce1",
-        "pierce1",
-        "burst1",
-        "burst1",
-        "pierce1",
-        "pierce1",
-        "burst1",
-        "burst1",
-        "pierce1",
-        "pierce1",
-        "burst1",
-        "burst1"
+      "pierce",
+      "pierce",
+      "burst",
+      "burst",
+      "pierce",
+      "pierce",
+      "burst",
+      "burst",
+      "pierce",
+      "pierce",
+      "burst",
+      "burst"
+    ],
+    "has_draw_card": false,
+    "has_exchange_reward": false,
+    "total_story": 11,
+    "sweep_ap_cost_mission": [
+        0,
+        10,
+        10,
+        10,
+        10,
+        15,
+        15,
+        15,
+        15,
+        20,
+        20,
+        20,
+        20
+    ],
+    "grid_tasks_challenge": [
     ]
 }

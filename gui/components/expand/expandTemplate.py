@@ -17,6 +17,7 @@ class ConfigItem:
     key: Union[str, None]
     selection: Union[list[str], bool, str, list[int], dict, callable, None]
     type: str
+    tip: Union[str, None]
 
     def __init__(self, **kwargs):
         self.label = kwargs.get('label')
@@ -24,6 +25,7 @@ class ConfigItem:
         self.selection = kwargs.get('selection')
         self.type = kwargs.get('type')
         self.readOnly = kwargs.get('readOnly', False)
+        self.tip = kwargs.get('tip', None)
 
 
 def parsePatch(func, key: str, raw_sig: str) -> None:
@@ -62,6 +64,7 @@ class TemplateLayout(QWidget):
             selectButton = None
             optionPanel = QHBoxLayout()
             labelComponent = QLabel(bt.tr(context, cfg.label), self)
+            labelComponent.setToolTip(cfg.tip) if cfg.tip else None
             optionPanel.addWidget(labelComponent, 0, Qt.AlignLeft)
             optionPanel.addStretch(1)
             if cfg.type == 'switch':
@@ -90,6 +93,21 @@ class TemplateLayout(QWidget):
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 confirmButton = PushButton(self.tr('确定'), self)
                 confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
+            elif cfg.type == 'text__action':
+                currentKey = cfg.key
+                inputComponent = LineEdit(self)
+                inputComponent.setFixedWidth(400)
+                inputComponent.setText(str(self.config.get(currentKey)))
+                inputComponent.setReadOnly(cfg.readOnly)
+
+                @delay(0.8)
+                def async_change_text(_currentKey, _inputComponent, _labelComponent, *_):
+                    self._commit(_currentKey, _inputComponent, _labelComponent)
+
+                inputComponent.textChanged.connect(partial(async_change_text, currentKey, inputComponent, labelComponent))
+                self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
+                selectButton = PushButton(self.tr('执行'), self)
+                selectButton.clicked.connect(cfg.selection)
             elif cfg.type == 'spin':
                 currentKey = cfg.key
                 inputComponent = SpinBox(self)

@@ -1,11 +1,12 @@
+from datetime import datetime, timedelta, timezone
+
+from core.utils import get_nearest_hour
 from module.cafe_reward import invite_girl, to_cafe, get_invitation_ticket_status, interaction_for_cafe_solve_method3, \
     get_invitation_ticket_next_time
-from core.utils import get_nearest_hour
-from datetime import datetime, timedelta, timezone
 
 
 def implement(self):
-    self.quick_method_to_main_page()
+    self.to_main_page()
     to_cafe(self, True)
     if judge_use_invitation_ticket(self, 1):
         invite_girl(self, 1)
