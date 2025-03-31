@@ -14,6 +14,7 @@ import psutil
 import requests
 
 import module.ExploreTasks.explore_task
+from core.device import emulator_manager
 from core import position, picture
 from core.config.config_set import ConfigSet
 from core.device.Control import Control
@@ -232,7 +233,7 @@ class Baas_thread:
                 self.logger.info(f"-- Start Multi Emulator --")
                 self.logger.info(f"EmulatorName: {name}")
                 self.logger.info(f"MultiInstanceNumber: {num}")
-                device_operation.start_simulator_classic(name, num)
+                emulator_manager.start_simulator_classic(name, num)
                 self.logger.info(f" Start wait {wait_time} seconds for emulator to start. ")
                 while self.flag_run:
                     time.sleep(0.01)
@@ -387,7 +388,7 @@ class Baas_thread:
                     if self.task_finish_to_main_page:
                         self.logger.info("all activities finished, return to main page")
                         push(self.logger, self.config)
-                        self.quick_method_to_main_page()
+                        self.to_main_page()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
                     time.sleep(1)
@@ -793,7 +794,7 @@ class Baas_thread:
             self.logger.info(f"-- Exit Multi Emulator --")
             self.logger.info(f"EmulatorName         : {name}")
             self.logger.info(f"MultiInstanceNumber  : {num}")
-            device_operation.stop_simulator_classic(name, num)
+            emulator_manager.stop_simulator_classic(name, num)
         else:
             self.file_path = self.config.program_address
             if not process_api.terminate(self.file_path):
