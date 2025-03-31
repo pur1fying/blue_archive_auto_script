@@ -585,7 +585,16 @@
         "desc": "2 right and tp"
       },
       {
-        "t": "teleport"
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
+        "p": [
+          577,
+          290
+        ],
+        "ec": true,
+        "desc": "2 click self and tp"
       },
       {
         "t": "choose_and_change",

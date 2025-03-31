@@ -39,5 +39,7 @@ x_y_range = {
     'formation-edit-preset-name': (1184, 219, 1211, 252),
     'formation-set-confirm': (575, 79, 706, 125),
     'task-A-info': (576, 117, 704, 170),
-    'enter-task-button': (1087, 219, 1156, 261)
+    'enter-task-button': (1087, 219, 1156, 261),
+    "region-unavailable-right": (1213, 333, 1276, 420),
+    "region-unavailable-left": (8, 294, 77, 434)
 }

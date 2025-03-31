@@ -13,8 +13,8 @@ import numpy as np
 import psutil
 import requests
 
-import device_operation
 import module.ExploreTasks.explore_task
+from core.device import emulator_manager
 from core import position, picture
 from core.config.config_set import ConfigSet
 from core.device.Control import Control
@@ -26,7 +26,8 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
-from device_operation import process_api
+from core.utils import Logger
+from core.device.emulator_manager import process_api
 
 func_dict = {
     'group': module.group.implement,
@@ -137,6 +138,14 @@ class Baas_thread:
             click_.join()
 
     def click_thread(self, x, y, count=1, rate=0, duration=0):
+        xspace_needed = 5 - len(str(x))
+        yspace_needed = 3 - len(str(y))
+        xspace = ""
+        yspace = ""
+        for i in range(0, xspace_needed):
+            xspace += " "
+        for i in range(0, yspace_needed):
+            yspace += " "
         if count == 1:
             self.logger.info(f"Click @ ({x},{y})")
             pass
@@ -190,7 +199,7 @@ class Baas_thread:
             shortcut = shell.CreateShortCut(lnk_path)
             self.config_set.program_address = shortcut.Targetpath
 
-    def extract_filename_and_extension(self, file_path):
+    def extract_filename_and_extension(self):
         """
         从可能包含启动参数的路径中提取文件名和扩展名
         """
@@ -227,41 +236,6 @@ class Baas_thread:
                 return True
         return False
 
-    def terminate_process(self, process_name):
-        """
-        终止指定名称的进程
-        """
-        for proc in psutil.process_iter(['pid', 'name']):
-            if proc.info['name'] == process_name:
-                proc.terminate()
-                return True
-        return False
-
-    def check_process_running_from_pid(self, pid):
-        # 代码来源于BAAH
-        try:
-            tasks = self.subprocess_run(["tasklist"], encoding="gbk").stdout
-            tasklist = tasks.split("\n")
-            for task in tasklist:
-                wordlist = task.strip().split()
-                if len(wordlist) > 1 and wordlist[1] == str(pid):
-                    self.logger.info(" | ".join(wordlist))
-                    return True
-            return False
-        except Exception as e:
-            self.logger.error(e.__str__())
-            return False
-
-    def subprocess_run(self, cmd: list[str], isasync=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                       encoding="utf-8"):
-        # 代码来源BAAH
-        if isasync:
-            # 异步非阻塞执行
-            return subprocess.Popen(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
-        else:
-            # 同步阻塞执行
-            return subprocess.run(cmd, stdout=stdout, stderr=stderr, encoding=encoding)
-
     def start_check_emulator_stat(self, emulator_strat_stat, wait_time):
         if emulator_strat_stat:
             self.logger.info(f"-- BAAS Check Emulator Start --")
@@ -271,7 +245,7 @@ class Baas_thread:
                 self.logger.info(f"-- Start Multi Emulator --")
                 self.logger.info(f"EmulatorName: {name}")
                 self.logger.info(f"MultiInstanceNumber: {num}")
-                device_operation.start_simulator_classic(name, num)
+                emulator_manager.start_simulator_classic(name, num)
                 self.logger.info(f" Start wait {wait_time} seconds for emulator to start. ")
                 while self.flag_run:
                     time.sleep(0.01)
@@ -283,7 +257,7 @@ class Baas_thread:
                 return True
             else:
                 self.file_path = self.config.program_address
-                self.process_name = self.extract_filename_and_extension(self.file_path)
+                self.process_name = self.extract_filename_and_extension()
                 if self.check_process_running(self.process_name):
                     self.logger.info(f"-- Emulator Process {self.process_name} is running --")
                     return True
@@ -500,8 +474,7 @@ class Baas_thread:
             cfg_key_name = 'createPriority_phase' + str(phase)
             current_priority = self.config_set.get(cfg_key_name)
             res = []
-            default_priority = self.static_config.create_default_priority[self.config_set.server_mode][
-                "phase" + str(phase)]
+            default_priority = self.static_config.create_default_priority[self.config_set.server_mode]["phase" + str(phase)]
             for i in range(0, len(current_priority)):
                 if current_priority[i] in default_priority:
                     res.append(current_priority[i])
@@ -521,8 +494,7 @@ class Baas_thread:
                 return func_dict[activity](self)
             except FunctionCallTimeout:
                 if not self.deal_with_func_call_timeout():
-                    self.push_and_log_error_msg("Function Call Timeout",
-                                                "Failed to Restart Game when function call timeout")
+                    self.push_and_log_error_msg("Function Call Timeout", "Failed to Restart Game when function call timeout")
                     return False
             except PackageIncorrect as e:
                 pkg = e.message
@@ -882,8 +854,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_normal_tasks.append(
-                    readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
+                self.config.unfinished_normal_tasks.append(readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
@@ -896,8 +867,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_hard_tasks.append(
-                    readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
+                self.config.unfinished_hard_tasks.append(readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)
@@ -925,7 +895,7 @@ class Baas_thread:
             self.logger.info(f"-- Exit Multi Emulator --")
             self.logger.info(f"EmulatorName         : {name}")
             self.logger.info(f"MultiInstanceNumber  : {num}")
-            device_operation.stop_simulator_classic(name, num)
+            emulator_manager.stop_simulator_classic(name, num)
         else:
             self.file_path = self.config.program_address
             if not process_api.terminate(self.file_path):

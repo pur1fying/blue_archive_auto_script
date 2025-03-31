@@ -449,7 +449,7 @@ def to_cafe_earning_status(self):
 
 def collect(self):
     to_cafe_earning_status(self)
-    if color.is_rgb_in_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
+    if color.rgb_in_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
         self.logger.info("Collect Cafe Earnings")
         self.click(643, 521, wait_over=True)
 

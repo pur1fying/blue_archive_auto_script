@@ -41,4 +41,4 @@ def judge_use_invitation_ticket(self, cafe_no=1):
 
 def delay_cafe_reward_execution_time(self):
     self.logger.info("Refresh cafe_reward schedule.")
-    self.scheduler.systole("cafe_reward", 0)
+    self.scheduler.systole("cafe_reward", 0, True)

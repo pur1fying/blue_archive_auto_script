@@ -42,5 +42,6 @@ x_y_range = {
     # 'formation-set-confirm': (500, 79, 776, 125),
     'task-A-info': (576, 117, 704, 170),
     'enter-task-button': (1087, 219, 1156, 261),
-
+    "region-unavailable-right": (1213, 333, 1276, 420),
+    "region-unavailable-left": (8, 294, 77, 434)
 }

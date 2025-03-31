@@ -71,10 +71,10 @@ def choose_enemy(self, choice=1):
 def collect_tactical_challenge_reward(self):
     reward_status = [False, False]
     for i in range(0, 3):
-        if color.is_rgb_in_range(self, 353, 404, 206, 226, 206, 226, 204, 224):
+        if color.rgb_in_range(self, 353, 404, 206, 226, 206, 226, 204, 224):
             reward_status[0] = True
             break
-        if color.is_rgb_in_range(self, 353, 404, 235, 255, 222, 242, 52, 92):
+        if color.rgb_in_range(self, 353, 404, 235, 255, 222, 242, 52, 92):
             self.logger.info("COLLECT TIME REWARD")
             self.click(353, 404, wait_over=True, duration=1)
             self.click(670, 96, wait_over=True)
@@ -84,10 +84,10 @@ def collect_tactical_challenge_reward(self):
             self.update_screenshot_array()
 
     for i in range(0, 3):
-        if color.is_rgb_in_range(self, 353, 487, 206, 226, 206, 226, 204, 224):
+        if color.rgb_in_range(self, 353, 487, 206, 226, 206, 226, 204, 224):
             reward_status[1] = True
             break
-        if color.is_rgb_in_range(self, 353, 487, 235, 255, 222, 242, 52, 92):
+        if color.rgb_in_range(self, 353, 487, 235, 255, 222, 242, 52, 92):
             self.logger.info("COLLECT DAILY REWARD")
             self.click(353, 487, wait_over=True, duration=1)
             self.click(670, 96, wait_over=True)

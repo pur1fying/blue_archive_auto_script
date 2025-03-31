@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
+from gui.components.template_card import BAASSettingCard
 from gui.util.customed_ui import LineWidget, TableManager
 
 
@@ -22,41 +23,62 @@ class Layout(QWidget):
             "preset_team_attribute": 4,
             "side_team_attribute": 4
         }
+        # Mode
+        self.MODE_DICT = {
+            "preset": self.tr('按预设编队'),
+            "side": self.tr('按侧栏属性编队'),
+            "order": self.tr('按侧栏顺序编队'),
+        }
+
+        self.items_k = [x for x in self.MODE_DICT.keys()]
+        self.items_v = [x for x in self.MODE_DICT.values()]
+
         self.config = config
         self.table = None
         self._init_ui()
 
     def _init_ui(self):
+        self.__async_post_init_process()
         self.choose_team_method = self.config.get('choose_team_method')
+        assert self.choose_team_method in self.items_k, "Invalid choose_team_method"
         self.vBoxLayout = QVBoxLayout(self)
 
         mode_changer = LineWidget.get_combo_box(
             label=self.tr('编队选择方式'),
-            items=[self.tr('预设编队'), self.tr('按序编队')],
-            current_index=0 if self.choose_team_method == "preset" else 1,
+            items=self.items_v,
+            current_index=self.items_k.index(self.choose_team_method),
             callback=self._change_choose_team_method,
             parent=self
         )
-
-        assert self.choose_team_method in ["preset", "order"], "Invalid choose_team_method"
-        key = "preset_team_attribute" if self.choose_team_method == "preset" else "side_team_attribute"
-        self._recreate_table(key)
         self.vBoxLayout.addLayout(mode_changer)
-        self.vBoxLayout.addWidget(self.table)
+
+        self._recreate_table(self.choose_team_method + "_team_attribute")
+        if not self.choose_team_method == "order":
+            self.vBoxLayout.addWidget(self.table)
+
         self.setLayout(self.vBoxLayout)
 
         # Though it's meaningless, the visual effect is better
-        if self.choose_team_method == "order":
+        if self.choose_team_method == "side":
             self._recreate_table("preset_team_attribute")
             self._recreate_table("side_team_attribute")
 
     def _change_choose_team_method(self, index):
-        self.choose_team_method = "preset" if index == 0 else "order"
+        self.choose_team_method = self.items_k[index]
         self.config.set('choose_team_method', self.choose_team_method)
-        key = "preset_team_attribute" if self.choose_team_method == "preset" else "side_team_attribute"
-        self._recreate_table(key)
+        self._recreate_table(self.choose_team_method + "_team_attribute")
 
     def _recreate_table(self, key):
+
+        if key == "order_team_attribute":
+            if self.table:
+                self.setFixedHeight(60)
+                self.table.hide()
+                self.__adjust_raw(self)
+            return
+
+        self.setFixedHeight(300)
+
         unit_config = {
             "type": "comboBox",
             "items": list(self.PROPERTY.values()),
@@ -88,3 +110,24 @@ class Layout(QWidget):
                 transpose=transpose,
                 **headers
             )
+
+        if self.vBoxLayout.count() == 1:
+            self.vBoxLayout.addWidget(self.table)
+        self.table.show()
+        self.__adjust_raw(self)
+
+    def __async_post_init_process(self):
+        global stored_height_local
+        stored_height_local = self.height()
+
+    def __adjust_raw(self, ref_widget):
+        while not isinstance(ref_widget, BAASSettingCard):
+            if ref_widget is None: return
+            ref_widget = ref_widget.parent()
+        top_card_widget = ref_widget
+        global stored_height_local
+        delta = self.height() - stored_height_local
+        stored_height_local = self.height()
+        assert isinstance(top_card_widget, BAASSettingCard)
+        top_card_widget.setFixedHeight(top_card_widget.height() + delta)
+        return top_card_widget

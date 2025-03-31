@@ -13,17 +13,20 @@ SIMULATOR_LISTS: Dict[str, List[str]] = {
     'xiaoyao_nat': ['memu.exe']
 }
 
+
 def get_running_processes() -> List[Dict[str, Union[int, str]]]:
     process_list: List[Dict[str, Union[int, str]]] = []
     for process in psutil.process_iter(['pid', 'name']):
         process_list.append(process.info)
     return process_list
 
+
 def check_simulator(process_name: str, simulator_lists: Dict[str, List[str]]) -> Optional[str]:
     for simulator, names in simulator_lists.items():
         if process_name.lower() in names:
             return simulator
     return None
+
 
 def auto_scan_simulators(pid_detect: bool = False) -> Tuple[List[int], List[str]]:
     pid_list: List[int] = []
@@ -49,6 +52,7 @@ def auto_scan_simulators(pid_detect: bool = False) -> Tuple[List[int], List[str]
         return pid_list, simulator_list
     else:
         return simulator_list
+
 
 def auto_search_adb_address() -> List[str]:
     regex_patterns: Dict[str, List[str]] = {
@@ -94,7 +98,7 @@ def auto_search_adb_address() -> List[str]:
             if simulator == 'bluestacks_nxt':
                 adb_address = f"127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance)}"
             elif simulator == 'bluestacks_nxt_cn':
-                adb_address = f"127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance,'cn')}"
+                adb_address = f"127.0.0.1:{get_bluestacks_nxt_adb_port_id(multi_instance, 'cn')}"
             else:
                 adb_address = get_simulator_port(simulator, multi_instance)
             adb_addresses.append(adb_address)

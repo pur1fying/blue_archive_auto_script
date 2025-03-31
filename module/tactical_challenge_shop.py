@@ -106,7 +106,7 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
         'JP': 531,
         'Global': 531
     }
-    rgb_ends = "tactical_challenge_shop",
+    rgb_ends = "tactical_challenge_shop"
     rgb_possibles = {
         "main_page": (tactical_challenge_x[self.server], 653),
         "reward_acquired": (640, 89),

@@ -261,16 +261,16 @@
         "desc": "2 right"
       },
       {
-        "t": "exchange_and_click",
+        "t": "exchange"
+      },
+      {
+        "t": "click_and_teleport",
         "p": [
           770,
           417
         ],
         "ec": true,
         "desc": "2 lower right and tp"
-      },
-      {
-        "t": "teleport"
       },
       {
         "t": "choose_and_change",

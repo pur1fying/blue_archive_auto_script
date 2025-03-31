@@ -5,7 +5,8 @@
 ## 使用方法
 
 ```python
-import device_operation
+
+from core.device import emulator_manager
 ```
 
 ## 包含功能&函数用法

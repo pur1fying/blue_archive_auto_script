@@ -3384,9 +3384,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "AbydosResortRestorationCommittee",
-        "Global": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
-        "JP": "WaffleCrisisTheMiracleMoment"
+        "CN": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp",
+        "Global": null,
+        "JP": "JP_2025_03_26"
     },
     "dailyGameActivity": {
         "CN": null,

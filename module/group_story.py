@@ -47,7 +47,7 @@ def to_group_story(self, skip_first_screenshot=False):
 
 def judge_need_check_next_page(self):
     for i in range(1231, 1280):
-        if color.is_rgb_in_range(self, i, 357, 60, 80, 89, 109, 142, 162):
+        if color.rgb_in_range(self, i, 357, 60, 80, 89, 109, 142, 162):
             self.logger.info("Need check next page")
             return True
     self.logger.info("Last page")
@@ -89,7 +89,7 @@ def check_current_episode_cleared(self):
 def one_detect(self):
     possibles = [[1073, 251], [1073, 351]]
     for i in range(0, len(possibles)):
-        if color.is_rgb_in_range(self, possibles[i][0], possibles[i][1], 109, 129, 211, 231, 245, 255):
+        if color.rgb_in_range(self, possibles[i][0], possibles[i][1], 109, 129, 211, 231, 245, 255):
             return possibles[i]
     return False
 

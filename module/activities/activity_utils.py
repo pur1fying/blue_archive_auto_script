@@ -331,7 +331,7 @@ def check_sweep_availability(self, plot):
         else:
             return color.check_sweep_availability(self)
     elif plot == "main_story_episode-info":
-        if not color.is_rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
+        if not color.rgb_in_range(self, 362, 322, 232, 255, 219, 255, 0, 30):
             return "sss"
         else:
             return "no-pass"
@@ -380,10 +380,7 @@ def to_story_task_info(self, target_index, total_story):
         "activity_task-info",
         "main_story_episode-info"
     ]
-    t1 = time.time()
     ret = picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    t2 = time.time() - t1
-    print("detect time: " + str(t2))
     return ret
 
 
@@ -399,12 +396,12 @@ def exchange_reward(self):
     img_ends = "activity_exchange-menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
     while 1:
-        while color.is_rgb_in_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
+        while color.rgb_in_range(self, 314, 684, 235, 255, 223, 243, 65, 85):
             self.click(453, 651, wait_over=True, duration=0.5)
             time.sleep(0.5)
             continue_exchange(self)
             to_exchange(self, True)
-        if color.is_rgb_in_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
+        if color.rgb_in_range(self, 45, 684, 185, 225, 185, 225, 185, 225):
             if get_exchange_assets(self) >= 6:
                 self.logger.info("refresh exchange times")
                 refresh_exchange_times(self)

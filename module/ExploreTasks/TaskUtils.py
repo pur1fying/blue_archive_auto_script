@@ -1,28 +1,58 @@
 import json
 import time
 
-from core import image, picture, Baas_thread
+from core import image, picture, Baas_thread, color
 from core.image import swipe_search_target_str
-from module import main_story
+from module import hard_task, main_story, normal_task
 
 
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
-
-def to_mission_info(self, y=0):
-    rgb_possibles = {
-        "event_hard": (1114, y),
-        "event_normal": (1114, y)
+def to_region(self, region: int, isNormal: bool) -> bool:
+    square = {
+        'CN': [122, 178, 163, 208],
+        'Global': [122, 178, 163, 208],
+        'JP': [122, 178, 163, 208]
     }
+    curRegion = self.ocr.recognize_int(self.latest_img_array, square[self.server], self.ratio)
+    self.logger.info("Current Region : " + str(curRegion))
+    while curRegion != region and self.flag_run:
+        if curRegion > region:
+            if picture.match_img_feature(self, "normal_task_region-unavailable-left"):
+                # region locked or not available
+                return False
+            self.click(40, 360, count=curRegion - region, rate=0.1, wait_over=True, duration=0.5)
+        else:
+            if picture.match_img_feature(self, "normal_task_region-unavailable-right"):
+                # region locked or not available
+                return False
+            self.click(1245, 360, count=region - curRegion, rate=0.1, wait_over=True, duration=0.5)
+        if isNormal:
+            normal_task.to_normal_event(self)
+        else:
+            hard_task.to_hard_event(self)
+        curRegion = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
+        self.logger.info("Current Region : " + str(curRegion))
+    return True
+
+
+def to_mission_info(self, mission_button_y=0) -> bool:
+    if color.rgb_in_range(self, 1150, mission_button_y, 40, 50, 70, 80, 85, 95):
+        # mission locked or not available
+        return False
+
+    rgb_possibles = {"event_hard": (1114, mission_button_y), "event_normal": (1114, mission_button_y)}
     img_ends = [
         "normal_task_task-info",
         "activity_task-info",
         "normal_task_SUB"
     ]
     img_possibles = {
+        'normal_task_select-area': (1114, mission_button_y),
         'normal_task_challenge-menu': (640, 490)
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
+    return True
 
 
 def get_stage_data(region, isNormal):
@@ -148,6 +178,7 @@ def get_formation_index(self):
     except ValueError:
         return get_formation_index(self)
     if ocr_res not in [1, 2, 3, 4]:
+        # TODO 无法识别可能会导致死循环
         return get_formation_index(self)
     return ocr_res
 
@@ -181,7 +212,9 @@ def wait_over(self):
 
 
 def confirm_teleport(self):
-    self.logger.info("teleport")
+    self.logger.info("Wait Teleport Notice.")
+    picture.co_detect(self, None, None, "normal_task_teleport-notice", None)
+    self.logger.info("Confirm Teleport.")
     img_ends = ['normal_task_task-operating-feature']
     img_reactions = {'normal_task_teleport-notice': (767, 501)}
     picture.co_detect(self, None, None, img_ends, img_reactions, True)
@@ -252,9 +285,6 @@ def run_task_action(self, actions):
             self.click(position[0], position[1], wait_over=True)
             if "teleport" in operation:
                 confirm_teleport(self)
-        elif operation == 'teleport':
-            description += f"Teleport\n"
-            confirm_teleport(self)
         elif operation.startswith("exchange"):
             # 切换队伍
             # Switch formation
@@ -323,37 +353,41 @@ def run_task_action(self, actions):
 
 def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
     self.logger.info(f"Employ team method: {self.config.choose_team_method}.")
+    attribute_type_fallbacks = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
 
-    # get employ presets data
-    priority = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
+    employ_pos: list[list[int, int]] = []
 
-    unit_available = {attribute: len(preset) for attribute, preset in teamConfig.items()}
-    # Number of units available for each attribute: burst, pierce, mystic, shock
-    total_available = sum([len(preset) for attribute, preset in teamConfig.items()])
-    # Number of units available in total
-    unit_used = {attribute: 0 for attribute, count in teamConfig.items()}
-    # Number of units used for each attribute: burst, pierce, mystic, shock
+    if self.config.choose_team_method == "order":
+        # give employ pos a fallback value to let it employ formations by order(from 1-4)_
+        employ_pos = [[0, 1], [0, 2], [0, 3], [0, 4]]
+    else:
+        # Number of units available for each attribute: burst, pierce, mystic, shock
+        unit_available = {attribute: len(preset) for attribute, preset in teamConfig.items()}
 
-    unit_need = len([attribute for attribute, info in taskData["start"] if attribute != "swipe"])
-    if total_available <= unit_need:
-        self.logger.error(
-            f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
-        return False
+        # Number of units used for each attribute: burst, pierce, mystic, shock
+        unit_used = {attribute: 0 for attribute, count in teamConfig.items()}
 
-    employ_presets: list[list[int, int]] = []
+        # Number of units available in total
+        total_available = sum([len(preset) for attribute, preset in teamConfig.items()])
 
-    for attribute, info in taskData["start"]:
-        if attribute == "swipe":  # skip if it's a swipe command.
-            continue
+        unit_need = len([attribute for attribute, info in taskData["start"] if attribute != "swipe"])
+        if total_available <= unit_need:
+            self.logger.error(
+                f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
+            return False
 
-        # switch to the next attribute available.
-        cur_attribute = attribute
-        while unit_available[cur_attribute] == unit_used[cur_attribute] \
-            or (self.server == "CN" and cur_attribute == "shock"):
-            cur_attribute = priority[cur_attribute]
+        for attribute, info in taskData["start"]:
+            if attribute == "swipe":  # skip if it's a swipe command.
+                continue
 
-        employ_presets.append(teamConfig[cur_attribute][unit_used[cur_attribute]])
-        unit_used[cur_attribute] += 1
+            # switch to the next attribute available.
+            cur_attribute = attribute
+            while unit_available[cur_attribute] == unit_used[cur_attribute] \
+                or (self.server == "CN" and cur_attribute == "shock"):
+                cur_attribute = attribute_type_fallbacks[cur_attribute]
+
+            employ_pos.append(teamConfig[cur_attribute][unit_used[cur_attribute]])
+            unit_used[cur_attribute] += 1
 
     employed = 0
     for command, info in taskData["start"]:
@@ -361,9 +395,9 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
             time.sleep(1)
             self.u2_swipe(info[0], info[1], info[2], info[3], duration=info[4], post_sleep_time=1)
         else:
-            # employ units from presets
-            column = employ_presets[employed][0]
-            row = employ_presets[employed][1]
+            # employ command
+            column = employ_pos[employed][0]
+            row = employ_pos[employed][1]
             self.logger.info(f"Choosing team from preset {column}-{row}.")
 
             preset_y = 0
@@ -373,7 +407,7 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
                 loy = [195, 275, 354, 423]
                 y = loy[row - 1]
                 img_reactions = {
-                    "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y]
+                    "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y] the entry of employ
                 }
                 rgb_reactions = {
                     "normal_task_formation-menu": (74, y)

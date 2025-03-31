@@ -1,21 +1,21 @@
 # coding:utf-8
 import os
 
+from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtCore import pyqtProperty, QPropertyAnimation, pyqtSignal
 from PyQt5.QtGui import QColor
-from qfluentwidgets import ExpandSettingCard
-from qfluentwidgets import FluentIcon
+from PyQt5.QtGui import QPixmap, QFont, QPainter, QPainterPath
+from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGraphicsDropShadowEffect
+from qfluentwidgets import FluentIcon as FIF
 
 from core.utils import delay
 from gui.util.config_gui import configGui
-from gui.util.customed_ui import OutlineLabel, DialogSettingBox
+from gui.util.customed_ui import OutlineLabel, DialogSettingBox, BAASSettingCard
 from gui.util.translator import baasTranslator as bt
 
-from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGraphicsDropShadowEffect
-from PyQt5.QtGui import QPixmap, QFont, QPainter, QPainterPath
-from PyQt5.QtCore import Qt, QRectF
-
 BANNER_IMAGE_DIR = 'gui/assets/banners'
+
+
 
 
 class TemplateSettingCardForClick(QFrame):
@@ -234,14 +234,14 @@ class TemplateSettingCardForClick(QFrame):
         if not rename_dialog.exec_(): return
 
 
-class TemplateSettingCard(ExpandSettingCard):
+class TemplateSettingCard(BAASSettingCard):
     onToggleChangeSignal = pyqtSignal()
 
     def __init__(self, title: str = '', content: str = None, parent=None, sub_view=None, config=None, context=None,
                  **kwargs):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
-        super().__init__(FluentIcon.CHECKBOX, title, content, parent)
+        super().__init__(FIF.CHECKBOX, title, content, parent)
         assert sub_view is not None, 'Sub_view is required'
         self.initiated = False
         self.expand_view = None
@@ -283,14 +283,14 @@ class TemplateSettingCard(ExpandSettingCard):
         self._adjustViewSize()
 
 
-class SimpleSettingCard(ExpandSettingCard):
+class SimpleSettingCard(BAASSettingCard):
     """ Folder list setting card """
 
     def __init__(self, sub_view, title: str = '', content: str = None, parent=None, config=None, context=None,
                  **kwargs):
         if context is not None:
             title, content = bt.tr(context, title), bt.tr(context, content)
-        super().__init__(FluentIcon.CHECKBOX, title, content, parent)
+        super().__init__(FIF.CHECKBOX, title, content, parent)
         self._adjustViewSize()
         self.initiated = False
         self.expand_view = None

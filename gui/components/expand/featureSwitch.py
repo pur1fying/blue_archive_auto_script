@@ -1,37 +1,17 @@
 import json
 import time
-import traceback
 from copy import deepcopy
 from datetime import datetime
 from functools import partial
 
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QHeaderView, QVBoxLayout
-from qfluentwidgets import CheckBox, TableWidget, LineEdit, PushButton, ComboBox, CaptionLabel, MessageBoxBase, \
+from qfluentwidgets import CheckBox, TableWidget, PushButton, ComboBox, CaptionLabel, MessageBoxBase, \
     SubtitleLabel
 
 from gui.components.expand.expandTemplate import TemplateLayoutV2
+from gui.util.customed_ui import ClickFocusLineEdit
 from gui.util.translator import baasTranslator as bt
-
-
-class ClickFocusLineEdit(LineEdit):
-    """
-    Custom LineEdit that does not focus unless clicked
-    This is to prevent the LineEdit from stealing focus
-    from the parent widget when the user strike a hover
-    on the LineEdit. This is useful when the LineEdit is
-    used in a TableWidget, and the user wants to click on
-    the parent widget to select a row.
-    """
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setFocusPolicy(Qt.NoFocus)
-        self.installEventFilter(self)
-
-    def eventFilter(self, a0, a1):
-        if a1.type() == QEvent.MouseButtonPress:
-            self.setFocus()
-        return super().eventFilter(a0, a1)
 
 
 class DetailSettingMessageBox(MessageBoxBase):
@@ -79,7 +59,7 @@ class DetailSettingMessageBox(MessageBoxBase):
             }
         ]
 
-        self.configWidget = TemplateLayoutV2(configItems, self, detail_config,  all_label_list=all_label_list,cs=cs)
+        self.configWidget = TemplateLayoutV2(configItems, self, detail_config, all_label_list=all_label_list, cs=cs)
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.configWidget)
 
@@ -127,7 +107,8 @@ class Layout(QWidget):
         self.tableView.setRowCount(len(self.qLabels))
         self.tableView.setColumnCount(4)
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.setHorizontalHeaderLabels([self.tr('事件'), self.tr('下次刷新时间'), self.tr('启用'), self.tr('更多配置')])
+        self.tableView.setHorizontalHeaderLabels(
+            [self.tr('事件'), self.tr('下次刷新时间'), self.tr('启用'), self.tr('更多配置')])
         self.tableView.setColumnWidth(0, 175)
         self.tableView.setColumnWidth(1, 175)
         self.tableView.setColumnWidth(2, 50)
@@ -196,7 +177,8 @@ class Layout(QWidget):
         self.tableView.setRowCount(len(temp))
         self.tableView.setColumnCount(4)
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.setHorizontalHeaderLabels([self.tr('事件'), self.tr('下次刷新时间'), self.tr('启用'), self.tr('更多配置')])
+        self.tableView.setHorizontalHeaderLabels(
+            [self.tr('事件'), self.tr('下次刷新时间'), self.tr('启用'), self.tr('更多配置')])
 
         # mode 0: default, mode 1: by next_tick
         if self.op_3.currentIndex() == 0:
@@ -269,7 +251,8 @@ class Layout(QWidget):
             for x in self._event_config
         ]
 
-        detailMessageBox = DetailSettingMessageBox(detail_config=dic, parent=top_window, all_label_list=all_label_list, cs=self.config)
+        detailMessageBox = DetailSettingMessageBox(detail_config=dic, parent=top_window, all_label_list=all_label_list,
+                                                   cs=self.config)
         if not detailMessageBox.exec_():
             return
         config = detailMessageBox.configWidget.config
