@@ -1,8 +1,9 @@
 import re
+import sys
+
 from adbutils import adb
 from adbutils.errors import AdbTimeout, AdbError
 from core.exception import RequestHumanTakeOver
-
 
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
 class Connection:
@@ -92,6 +93,7 @@ class Connection:
                 self.logger.info(f"{i + 1} : [ {device.serial} ]")
             else:
                 unavailable.append(device)
+
         if n_available == 0:
             self.logger.info("No available device. Please check your device connection.")
         if len(unavailable) > 0:
@@ -124,6 +126,16 @@ class Connection:
                     break
             if not matched:
                 self.logger.error("MuMu12 Device not found. It May change to near by serial. Check nearby serials.")
+                if sys.platform == 'win32':
+                    from core.device import emulator_manager
+                    self.logger.info("Detect More Device by Emulator Manager.")
+                    # use emulator manager to detect device
+                    temp = emulator_manager.autosearch()
+                    for serial in temp:
+                        if serial not in available:
+                            available.append(serial)
+                            self.logger.info(f"{len(available)} : [ {serial} ]")
+                            n_available += 1
                 port = self.serial_port(self.serial)
                 for device in available:
                     if abs(self.serial_port(device) - port) <= 2:
