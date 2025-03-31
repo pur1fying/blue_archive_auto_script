@@ -3095,7 +3095,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp",
         "Global": null,
-        "JP": "WaffleCrisisTheMiracleMoment"
+        "JP": "JP_2025_03_26"
     },
     "dailyGameActivity": {
         "CN": null,

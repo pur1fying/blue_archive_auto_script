@@ -364,10 +364,7 @@ def to_story_task_info(self, target_index, total_story):
         "activity_task-info",
         "main_story_episode-info"
     ]
-    t1 = time.time()
     ret = picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    t2 = time.time() - t1
-    print("detect time: " + str(t2))
     return ret
 
 
