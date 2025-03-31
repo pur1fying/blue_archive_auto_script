@@ -24,5 +24,6 @@ x_y_range = {
     'switch-clothes-notice': (500, 150, 780, 189),
     'duplicate-invite-notice': (400, 160, 888, 270),
     'at-no1-cafe': (91, 150, 157, 178),
+    'invite-student-button': (740, 210, 827, 237)
 }
 

@@ -337,6 +337,7 @@ class Baas_thread:
             self.identifier = self.server
             if self.server == "Global":
                 self.identifier += "_" + self.ocr_language
+                # dynamic init Global server ocr language
                 self.ocr.init_baas_model(self)
                 self.ocr.test_models([self.ocr_language], self.logger)
             self.logger.info("--------Emulator Init Finished----------")

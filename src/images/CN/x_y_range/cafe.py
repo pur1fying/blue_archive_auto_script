@@ -22,4 +22,6 @@ x_y_range = {
     'at-no1-cafe': (68, 145, 142, 171),
     'duplicate-invite': (400, 245, 888, 415),
     'duplicate-invite-notice': (400, 220, 888, 252),
+
+    'invite-student-button': (740, 210, 827, 237),
 }

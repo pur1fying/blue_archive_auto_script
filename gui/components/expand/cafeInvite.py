@@ -168,12 +168,13 @@ class Layout(QWidget):
         self.inputPatStyle.currentTextChanged.connect(self.__accept_pat_style)
         self.second_switch.checkedChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
 
-    def check_valid_student_names(self, favor_student):
+    @staticmethod
+    def check_valid_student_names(favor_student):
         temp = []
         appeared_names = set()
         for name in favor_student:
             name = name.strip()
-            if name in self.student_name and name not in appeared_names:
+            if name not in appeared_names:
                 temp.append(name)
                 appeared_names.add(name)
         return temp
