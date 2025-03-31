@@ -3,7 +3,7 @@ from module.activities.activity_utils import explore_activity_story, explore_act
 
 
 def sweep(self):
-    activity_sweep(self)
+    return activity_sweep(self)
 
 
 def explore_story(self):
