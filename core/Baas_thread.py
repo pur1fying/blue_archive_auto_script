@@ -13,7 +13,6 @@ import numpy as np
 import psutil
 import requests
 
-import device_operation
 import module.ExploreTasks.explore_task
 from core import position, picture
 from core.config.config_set import ConfigSet
@@ -27,7 +26,7 @@ from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
 from core.utils import Logger
-from device_operation import process_api
+from core.device.emulator_manager import process_api
 
 func_dict = {
     'group': module.group.implement,

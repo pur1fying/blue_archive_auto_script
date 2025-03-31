@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from device_operation.auto_scan_simulator import auto_scan_simulators
+from core.device.emulator_manager.auto_scan_simulator import auto_scan_simulators
 
 
 def mumu12_control_api_backend(multi_instance_number=0, operation="start"):
