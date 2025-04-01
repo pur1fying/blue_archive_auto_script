@@ -89,7 +89,9 @@ def activity_sweep(self):
     self.to_main_page()
     to_activity(self, "mission", True)
     ap = self.get_ap()
-    sweep_one_time_ap = get_stage_data(self)["sweep_ap_cost_mission"]
+    self.stage_data = get_stage_data(self)
+    sweep_one_time_ap = self.stage_data["sweep_ap_cost_mission"]
+    total_mission = len(self.stage_data["mission"])
     for i in range(0, min(len(number), len(times))):
         sweep_times = times[i]
         if type(sweep_times) is float:
@@ -104,7 +106,7 @@ def activity_sweep(self):
             self.logger.warning("inadequate ap")
             continue
         self.logger.info("Start sweep task " + str(number[i]) + " :" + str(sweep_times) + " times")
-        to_mission_task_info(self, number[i])
+        to_mission_task_info(self, number[i], total_mission)
         res = color.check_sweep_availability(self)
         if res == "sss":
             self.click(1032, 299, count=click_times, duration=duration, wait_over=True)
