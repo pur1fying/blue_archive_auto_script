@@ -7,6 +7,8 @@ from module import main_story
 
 
 def implement(self):
+    self.logger.info("Total Assault is Disabled")
+    return True
     self.to_main_page()
     to_total_assault(self, True)
     tickets = get_total_assault_tickets(self)
