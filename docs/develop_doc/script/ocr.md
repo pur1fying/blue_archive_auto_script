@@ -61,7 +61,7 @@ OCR 已使用[C++重构](https://github.com/pur1fying/BAAS_Cpp), 作为BAAS的�
 **note**: 
 1. 当使用内存池时, BAAS_ocr_server会占用更多内存, 推理速度略有增加
 2. num_thread越大, 推理速度越块, 经测试4时达最快速度
-
+3. language字段[可选的语言](#可选的语言)
 
 #### **响应体**
 | 参数                     | 类型          | 说明        |
@@ -283,14 +283,15 @@ OCR 已使用[C++重构](https://github.com/pur1fying/BAAS_Cpp), 作为BAAS的�
 
 
 ## 可选的语言
-| language | 语言     |
-|----------|--------|
-| `zh-cn`  | `简体中文` |
-| `zh-tw`  | `繁体中文` |
-| `en-us`  | `英文`   |
-| `ja-jp`  | `日文`   |
-| `ko-kr`  | `韩文`   |
-| `ru-ru`  | `俄文`   |
+| language   | 语言               |
+|------------|------------------|
+| `zh-cn`    | `ppocr_v4简体中文模型` |
+| `zh-cn_v3` | `ppocr_v3简体中文模型` |
+| `zh-tw`    | `繁体中文`           |
+| `en-us`    | `英文`             |
+| `ja-jp`    | `日文`             |
+| `ko-kr`    | `韩文`             |
+| `ru-ru`    | `俄文`             |
 
 
 ## 图像传递方式(pass_method)
