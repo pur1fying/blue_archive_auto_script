@@ -15,17 +15,20 @@ SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
 
 branch = {
     'win32': {
-        '64bit': 'windows-x64',
+        'amd64': 'windows-x64',
     },
     'linux': {
-        '64bit': 'linux-x64',
+        'amd64': 'linux-x64',
     },
     'darwin': {
-        '64bit': 'macos-x64',
+        'arm64': 'macos-arm64',
     },
 }
-
-branch = branch[sys.platform][platform.architecture()[0]]
+branch = branch[sys.platform]
+arch = platform.machine().lower()
+if arch not in branch:
+    raise Exception("Unsupported machine architecture " + arch)
+branch = branch[arch]
 
 def check_git(logger):
     if not os.path.exists(SERVER_BIN_DIR + '/.git'):
