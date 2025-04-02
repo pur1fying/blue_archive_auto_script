@@ -731,7 +731,7 @@ class Baas_thread:
             self.logger.warning("Failed to get AP.")
             return 999
 
-    def get_pyroxene(self, is_main_page):
+    def get_pyroxene(self, is_main_page=False):
         if is_main_page:
             region = (871, 25, 967, 52)
         else:
@@ -754,7 +754,7 @@ class Baas_thread:
             "time": time.time()
         }
         self.config_set.set("pyroxene", data)
-        return ocr_res
+        return ret
 
     def get_creditpoints(self, is_main_page=False):
         if is_main_page:

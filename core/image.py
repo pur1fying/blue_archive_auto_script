@@ -84,7 +84,6 @@ def search_image_in_area(self, image, area=(0, 0, 1280, 720), threshold=0.8, rgb
     # image may not from 1280x720
     template_img = image
     ss_img = screenshot_cut(self, area)
-
     similarity = cv2.matchTemplate(ss_img, template_img, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(similarity)
     if max_val < threshold:
