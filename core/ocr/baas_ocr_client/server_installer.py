@@ -18,7 +18,7 @@ branch = {
         'amd64': 'windows-x64',
     },
     'linux': {
-        'amd64': 'linux-x64',
+        'x86_64': 'linux-x64',
     },
     'darwin': {
         'arm64': 'macos-arm64',
