@@ -960,7 +960,7 @@ STATIC_DEFAULT_CONFIG = '''
             "白金",
             "銅",
             "武器零件",
-            "璀璨"            
+            "璀璨"
         ],
         "phase3": [
             "鑽石",
@@ -3384,7 +3384,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "SummerSpecialOperationsRABBITPlatoonAndTheMysteryOfTheMissingShrimp",
+        "CN": null,
         "Global": null,
         "JP": "JP_2025_03_26"
     },
