@@ -130,12 +130,15 @@ class Connection:
                     from core.device import emulator_manager
                     self.logger.info("Detect More Device by Emulator Manager.")
                     # use emulator manager to detect device
-                    temp = emulator_manager.autosearch()
-                    for serial in temp:
-                        if serial not in available:
-                            available.append(serial)
-                            self.logger.info(f"{len(available)} : [ {serial} ]")
-                            n_available += 1
+                    try:
+                        temp = emulator_manager.autosearch()
+                        for serial in temp:
+                            if serial not in available:
+                                available.append(serial)
+                                self.logger.info(f"{len(available)} : [ {serial} ]")
+                                n_available += 1
+                    except:
+                        pass
                 port = self.serial_port(self.serial)
                 for device in available:
                     if abs(self.serial_port(device) - port) <= 2:

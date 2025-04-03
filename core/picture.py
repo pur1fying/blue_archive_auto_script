@@ -221,8 +221,12 @@ def choose_buff(self):
     co_detect(self, None, None, img_ends, img_possibles, True)
 
 
-def match_img_feature(self: Baas_thread, img_feature: typing.Union[tuple, str]
-                      , threshold: float = 0.8, rgb_diff: int = 20) -> bool:
+def match_img_feature(
+        self: Baas_thread,
+        img_feature: typing.Union[tuple, str],
+        threshold: float = 0.8,
+        rgb_diff: int = 20
+) -> bool:
     if type(img_feature) is tuple:
         image_name = img_feature[0]
         length = len(img_feature)
@@ -233,6 +237,7 @@ def match_img_feature(self: Baas_thread, img_feature: typing.Union[tuple, str]
     else:
         image_name = img_feature
     return image.compare_image(self, image_name, threshold, rgb_diff)
+
 
 
 def match_any_img_feature(self: Baas_thread, featureList: list[typing.Union[tuple, str]]) -> bool:

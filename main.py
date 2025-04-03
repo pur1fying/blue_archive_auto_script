@@ -154,4 +154,4 @@ if __name__ == '__main__':
     # bThread.solve("create")
     # bThread.solve("dailyGameActivity")
     # bThread.solve("friend")
-    # bThread.solve("joint_firing_drill")
+    bThread.solve("joint_firing_drill")
