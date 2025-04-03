@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 
 from core import color, picture
@@ -27,8 +28,8 @@ def implement(self):
     refresh_time = min(self.config.CommonShopRefreshTime, 3)
     refresh_price = [40, 60, 80]
     for i in range(0, refresh_time + 1):
-        if asset_required["creditpoints"] > assets['creditpoints'] != -1 or asset_required["pyroxene"] > assets[
-            'pyroxene'] != -1:
+        if (asset_required["creditpoints"] > assets['creditpoints'] != -1 or
+                asset_required["pyroxene"] > assets['pyroxene'] != -1):
             self.logger.info("INADEQUATE assets for BUYING")
             return True
         buy(self, buy_list)
@@ -93,16 +94,23 @@ def to_common_shop(self, skip_first_screenshot=False):
 
 def swipe_get_y_diff(self, item_lines_y):
     max_y = item_lines_y[len(item_lines_y) - 1][0]
-    y1 = max_y + 81
-    y2 = max_y + 126
+
     if max_y > 604 - 126:
-        y1 = max_y
-        y2 = max_y + 23
-    area = (629, y1, 1228, y2)
+        template_y_min = max_y
+        template_y_max = max_y + 23
+    else:
+        template_y_min = max_y + 81
+        template_y_max = max_y + 126
+    search_area_y_min = template_y_min - 330
+    search_area_y_max = template_y_max + 30
+    area = (629, template_y_min, 1228, template_y_max)
     tar_img = image.screenshot_cut(self, area)
     self.swipe(1246, 594, 1246, 447, duration=0.05, post_sleep_time=1)
     self.update_screenshot_array()
-    position = image.search_image_in_area(self, tar_img, area=(629 - 10, 122, 1228 + 10, 482), threshold=0.8)
+    position = image.search_image_in_area(self, tar_img, area=(629 - 10, search_area_y_min, 1228 + 10, search_area_y_max), threshold=0.8)
+    if position is False:
+        self.logger.warning("Swipe Failed.")
+        raise
     return area[1] - position[1]
 
 
@@ -111,14 +119,18 @@ def buy(self, buy_list):
     length = len(buy_list)
     last_checked_idx = 0
     last_checked_y = 0  # item with y > last_checked_y should be considered not checked
+    total_item = buy_list.sum()
+    count = 0
     while last_checked_idx < length:
+        cv2.imwrite(f"buy_{count}.png", self.latest_img_array)
+        count += 1
         items, item_lines_y = get_item_position(self)
         for i in range(1, len(item_lines_y)):
             if item_lines_y[i - 1][1] < item_lines_y[i][1]:
                 self.logger.warning("Item num detected might be wrong, higher y has more items.")
         temp = 0
-        self.logger.info("detect item row y : " + str(item_lines_y))
-        self.logger.info("last checked y : " + str(last_checked_y))
+        self.logger.info("Detect Item Row y : " + str(item_lines_y))
+        self.logger.info("Last   Checked  y : " + str(last_checked_y))
         for i in range(0, len(item_lines_y)):
             if item_lines_y[i][0] - last_checked_y <= 10:
                 temp += item_lines_y[i][1]
@@ -127,12 +139,17 @@ def buy(self, buy_list):
                 curr_idx = last_checked_idx + items[temp + j][0][0]
                 if not buy_list[curr_idx]:
                     continue
+
                 if not items[temp + j][1]:
                     self.logger.warning("Item at [ " + str(curr_idx + 1) + " ] is not purchasable.")
                 else:
                     ensure_choose(self, items[temp + j])
+                total_item -= 1
             last_checked_idx += 4
             last_checked_y = item_lines_y[i][0]
+        if total_item == 0:
+            self.logger.info("All Required Items Bought.")
+            break
         if last_checked_idx >= length:
             break
         last_checked_y -= swipe_get_y_diff(self, item_lines_y)

@@ -20,6 +20,8 @@ x_y_range = {
     'point-up': (1222, 90, 1246, 117),
     'point-down': (1222, 90, 1246, 117),
     'complete-instantly': (448, 261, 790, 311),
+    'collect-all-rewards-grey': (1056, 598, 1184, 645),
+
     'sort-menu': (101, 196, 190, 226),
 
     'sort-basic-chosen': (279, 163, 308, 190),
@@ -30,8 +32,6 @@ x_y_range = {
 
     'filter-menu': (101, 137, 190, 174),
 
-    'filter-select-all-chosen': (897, 222, 930, 249),
-    'filter-select-all-not-chosen': (897, 222, 930, 249),
 
     'filter-Equipment-chosen': (262, 242, 321, 296),
     'filter-Equipment-not-chosen': (262, 242, 321, 296),

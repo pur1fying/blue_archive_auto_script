@@ -26,5 +26,6 @@ x_y_range = {
     'gift': (20, 557, 118, 596),
     'at-no1-cafe': (91, 150, 157, 178),
     'button-goto-no1-cafe': (93, 91, 112, 115),
-    'button-goto-no2-cafe': (93, 91, 112, 115)
+    'button-goto-no2-cafe': (93, 91, 112, 115),
+    'invite-student-button': (740, 210, 827, 237)
 }

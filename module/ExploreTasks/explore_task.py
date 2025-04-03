@@ -1,6 +1,6 @@
 from core import color, image, picture
 from module import main_story, normal_task, hard_task
-from module.ExploreTasks.TaskUtils import to_mission_info, to_region, execute_grid_task, get_challenge_state, \
+from module.ExploreTasks.TaskUtils import to_mission_info, execute_grid_task, get_challenge_state, \
     employ_units, get_stage_data, convert_team_config
 
 
@@ -144,7 +144,7 @@ def explore_normal_task(self):
 
             if not skip_navigate:
                 normal_task.to_normal_event(self, True)
-                if not to_region(self, region, True):
+                if not normal_task.to_region(self, region, True):
                     self.logger.error(f"Skipping task {taskName} since it's not available.")
                     continue
                 fullMissionList = []
@@ -153,17 +153,19 @@ def explore_normal_task(self):
                 if region % 3 == 0:
                     fullMissionList.append(f"{region}-A")
                 missionButtonPos = image.swipe_search_target_str(
-                    self,
-                    "normal_task_enter-task-button",
-                    (1055, 191, 1201, 632),
-                    0.8,
-                    fullMissionList,
-                    mission - 1,
-                    (917, 552, 917, 220, 0.2, 1.0),
-                    'Global',
-                    (-396, -7, 60, 33),
-                    None,
-                    3
+                    self=self,
+                    name="normal_task_enter-task-button",
+                    search_area=(1055, 191, 1201, 632),
+                    threshold=0.8,
+                    possible_strs=fullMissionList,
+                    target_str_index=mission - 1,
+                    swipe_params=(917, 552, 917, 220, 0.2, 1.0),
+                    ocr_language='en-us',
+                    ocr_region_offsets=(-396, -7, 60, 33),
+                    ocr_str_replace_func=None,
+                    max_swipe_times=3,
+                    ocr_candidates="123456789-",
+                    ocr_filter_score=0.2,
                 )
                 if not to_mission_info(self, missionButtonPos[1]):
                     self.logger.error(f"Skipping task {taskName} since it's not available.")
@@ -242,7 +244,7 @@ def explore_hard_task(self):
             mission_los = [249, 363, 476]
             if not skip_navigate:
                 hard_task.to_hard_event(self, True)
-                if not (to_region(self, region, False) and to_mission_info(self, mission_los[mission - 1])):
+                if not (normal_task.to_region(self, region, False) and to_mission_info(self, mission_los[mission - 1])):
                     self.logger.error(f"Skipping task {taskName} since it's not available.")
                     continue
 

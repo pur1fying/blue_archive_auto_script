@@ -14,7 +14,10 @@ class Layout(QWidget):
         self.config = config
         self.item_levels = ["primary", "normal", "advanced", "superior"]
         ls_names = self.config.static_config.lesson_region_name
-        self.lesson_names = ls_names[self.config.server_mode]
+        key = self.config.server_mode
+        if self.config.server_mode == 'Global':
+            key += "_en-us"
+        self.lesson_names = ls_names[key]
         self.priority_list = self.config.get('lesson_times')
         self.needed_levels = self.config.get('lesson_each_region_object_priority')
         self.check_config_validation()

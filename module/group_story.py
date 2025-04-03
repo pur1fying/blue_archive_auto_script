@@ -1,5 +1,5 @@
 import time
-
+from module.mini_story import check_6_region_status
 from core import color, picture, image
 
 
@@ -17,8 +17,7 @@ def implement(self):
                 while (not check_current_episode_cleared(self)) and self.flag_run:
                     res = one_detect(self)
                     while not res:
-                        time.sleep(self.screenshot_interval)
-                        self.latest_img_array = self.get_screenshot_array()
+                        self.update_screenshot_array()
                         res = one_detect(self)
                         continue
                     to_episode_info(self, res, True)
@@ -31,33 +30,6 @@ def implement(self):
             self.logger.info("Check Next page")
             self.click(1255, 357, duration=1.5, wait_over=True)
             self.latest_img_array = self.get_screenshot_array()
-
-
-def check_6_region_status(self):
-    possibles_x = [86, 660]
-    possibles_y = [155, 305, 456]
-    dx = 54
-    dy = 25
-    res = []
-    for y in possibles_y:
-        for x in possibles_x:
-            if self.server == 'JP' or self.server == "Global":
-                ocr_res = self.ocr.get_region_pure_english(self.latest_img_array, (x, y, x + dx, y + dy), self.ratio)
-                if ocr_res.lower() == 'new':
-                    res.append(True)
-                else:
-                    res.append(False)
-            if self.server == 'CN':
-                ocr_res = self.ocr.get_region_pure_chinese(self.latest_img_array, (x, y, x + dx, y + dy), self.ratio)
-                if ocr_res.lower() == '新':
-                    res.append(True)
-                else:
-                    res.append(False)
-    self.logger.info("6 region status : ")
-    self.logger.info(res[0:2].__str__())
-    self.logger.info(res[2:4].__str__())
-    self.logger.info(res[4:6].__str__())
-    return res
 
 
 def to_group_story(self, skip_first_screenshot=False):

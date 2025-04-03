@@ -1,19 +1,24 @@
 from core import picture, image
+from core.utils import merge_nearby_coordinates
+from statistics import median
 
 
 def implement(self):
-    if self.server == 'Global' or self.server == 'JP':
-        self.logger.info("Friend Management Not Support In Global And JP Server")
-        return True
     self.to_main_page()
     to_friend_management(self, True)
     self.logger.info("Clear Friend White List : " + str(self.config.clear_friend_white_list))
     self.last_friend_id = None
     last_friend_id = None
     exit_cnt = 0
-    checked_position = 0
     while exit_cnt <= 3 and self.flag_run:
-        positions = get_possible_friend_positions(self)
+        temp = get_possible_friend_positions(self)
+        temp = merge_nearby_coordinates(temp, 10)
+        positions = []
+        for pos in temp:
+            x_coords = [coord[0] for coord in pos]
+            y_coords = [coord[1] for coord in pos]
+            positions.append((median(x_coords), median(y_coords)))
+
         if len(positions) == 0:
             self.logger.info("No Friend Found")
             exit_cnt += 1
@@ -24,9 +29,6 @@ def implement(self):
         need_swipe = True
         for i in range(0, len(positions)):
             position = positions[i]
-            if position[1] < checked_position + 10:
-                self.logger.info("Position : " + str(position[1]) + "already checked, Skip")
-                continue
             res = to_player_info(self, position)
             if res == "friend_delete-friend-notice":
                 self.logger.info("UI AT delete friend notice, Skip")
@@ -36,11 +38,10 @@ def implement(self):
             if in_white_list:
                 if i == len(positions) - 1:
                     if last_friend_id == self.last_friend_id:
-                        self.logger.info("Last Friend ID : " + str(last_friend_id) + " remain same, Exit")
+                        self.logger.info("Last Friend ID [ " + str(last_friend_id) + " ] remain same, Exit")
                         return True
                     else:
                         last_friend_id = self.last_friend_id
-                checked_position = position[1]
                 continue
             else:
                 delete_friend(self, position)
@@ -48,7 +49,6 @@ def implement(self):
                 break
         if need_swipe:
             self.swipe(802, 635, 802, 156, 0.5, post_sleep_time=1)
-            checked_position = 0
         to_friend_management(self)
     return True
 
@@ -56,7 +56,6 @@ def implement(self):
 def to_friend_management(self, skip_first_screenshot=False):
     img_ends = "friend_friend-management-menu"
     img_possibles = {
-        "friend_friend-menu": (579, 374),
         "friend_player-info": (903, 101),
         "friend_delete-friend-notice": (887, 165),
         "group_enter-button": (627, 383),
@@ -87,14 +86,13 @@ def check_name_in_white_list(self):
         'Global': (711, 394, 823, 419),
         'JP': (680, 385, 747, 409),
     }
-    white_list = self.config.get("clear_friend_white_list")
-    friend_id = self.ocr.get_region_res(self.latest_img_array, ocr_region[self.server], 'Global', self.ratio)
+    white_list = self.config.clear_friend_white_list
+    friend_id = self.ocr.get_region_res(self, ocr_region[self.server], 'en-us', "Friend ID")
     self.last_friend_id = friend_id
-    self.logger.info("Ocr Friend ID : [ " + friend_id + " ]")
     if friend_id in white_list:
-        self.logger.info("Friend ID [ " + friend_id + " ] In White List")
+        self.logger.info("In White List")
         return True
-    self.logger.info("Friend ID [ " + friend_id + " ] Not In White List")
+    self.logger.info("Not In White List")
     return False
 
 

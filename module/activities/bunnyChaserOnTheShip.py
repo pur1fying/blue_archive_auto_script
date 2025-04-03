@@ -260,7 +260,6 @@ def to_activity(self, region, skip_first_screenshot=False, need_swipe=False):
         'normal_task_skip-sweep-complete': (643, 506),
         'normal_task_fight-complete-confirm': (1160, 666),
         'normal_task_reward-acquired-confirm': (800, 660),
-        'normal_task_mission-conclude-confirm': (1042, 671),
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"

@@ -1,11 +1,15 @@
 import re
 from functools import partial
+import threading
+import time
+from datetime import datetime, timedelta
+
 from typing import Union
 
-from PyQt5.QtCore import Qt, QObject, QEvent
+from PyQt5.QtCore import Qt, QObject, QEvent, pyqtSignal
 from PyQt5.QtGui import QFont, QPainter, QColor, QIcon
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout
-from qfluentwidgets import (MessageBoxBase, TableWidget, CheckBox, LineEdit,
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout, QWidget
+from qfluentwidgets import (MessageBoxBase, TableWidget, CheckBox, LineEdit, SubtitleLabel, ImageLabel, FlowLayout,
                             ComboBox, PushButton, ExpandSettingCard, FluentIcon as FIF)
 from qfluentwidgets.window.fluent_window import FluentWindowBase, FluentTitleBar
 
@@ -202,6 +206,278 @@ class DialogSettingBox(MessageBoxBase):
         self.viewLayout.addWidget(frame)
 
 
+class FuncLabel(QLabel):
+    button_clicked_signal = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(FuncLabel, self).__init__(parent)
+
+    def mouseReleaseEvent(self, QMouseEvent):
+        self.button_clicked_signal.emit()
+
+    def connect_customized_slot(self, func):
+        self.button_clicked_signal.connect(func)
+
+
+class AssetsWidget(QFrame):
+    def __init__(self, config, parent, **kwargs):
+        super().__init__(parent)
+        self.config = config
+        self.item_height = kwargs.get('item_height', 30)
+        self.layout = FlowLayout(self)
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(4, 2, 4, 2)
+        self.setLayout(self.layout)
+        self.patch_v_dict = {}
+        self.patch_t_dict = {}
+        self.disp_config = {
+            "ap": {
+                "name": self.tr("体力"),
+                'icon': 'gui/assets/icons/currency_icon_ap.webp',
+                'value': 'Unknown',
+                "time": '-'
+            },
+            "creditpoints": {
+                "name": self.tr("信用点"),
+                'icon': 'gui/assets/icons/currency_icon_gold.webp',
+                'value': 'Unknown',
+                "time": '-'
+            },
+            "pyroxene": {
+                "name": self.tr("青辉石"),
+                'icon': 'gui/assets/icons/currency_icon_gem.webp',
+                'value': 'Unknown',
+                "time": '-'
+            },
+            "tactical_challenge_coin": {
+                "name": self.tr("竞技币"),
+                'icon': 'gui/assets/icons/item_icon_arenacoin.webp',
+                'value': 'Unknown',
+                "time": '-'
+            },
+            "bounty_coin": {
+                "name": self.tr("悬赏委托币"),
+                'icon': 'gui/assets/icons/item_icon_chasercoin.webp',
+                'value': 'Unknown',
+                "time": '-'
+            },
+            "Keystone-Piece": {
+                "name": self.tr("拱心石碎片"),
+                'icon': 'gui/assets/icons/item_icon_craftitem_0.webp',
+                'value': 'Unknown',
+                "time": '-'
+            },
+            "Keystone": {
+                "name": self.tr("拱心石"),
+                'icon': 'gui/assets/icons/item_icon_craftitem_1.webp',
+                'value': 'Unknown',
+                "time": 'Unknown'
+            }
+        }
+        self._parse_config()
+        self._apply_config_to_layout(self.disp_config)
+        self.setStyleSheet("""
+            AssetsWidget {
+                background-color: rgba(255, 255, 255, 0.7);
+                border-radius: 10px;
+                border: 2px dashed rgba(0, 0, 0, 0.4);
+            }
+
+            QLabel {
+                font-size: %dpx;
+                line-height: %dpx;
+                border: none;
+            }
+
+            QToolTip {
+                 background-color: rgba(80, 80, 80, 0.9);  /* 深灰色背景 */
+                 color: white;  /* 文字白色 */
+                 border-radius: 5px;
+                 padding: 5px;
+                 font-size: 14px;
+                 height: 20px;
+             }
+        """ % ((self.item_height - 10) // 2, self.item_height))
+
+    def get_unit_layout(self, item_key, item_icon_path, item_name, item_value, item_time, parent=None):
+
+        unit_widget = QWidget(parent)
+
+        item_value = str(item_value)
+        unit_layout = QHBoxLayout(parent)
+        unit_layout.setSpacing(0)
+        unit_layout.setContentsMargins(0, 0, 0, 0)
+
+        item_icon_widget = ImageLabel(item_icon_path, parent)
+        item_icon_widget.setFixedSize(self.item_height + 5, self.item_height)
+        item_icon_widget.setToolTip(item_name)
+        unit_layout.addWidget(item_icon_widget, 0, Qt.AlignLeft)
+
+        text_layout = QVBoxLayout()
+
+        item_value_label = SubtitleLabel(f"{item_name}: {item_value}", parent)
+        item_value_label.setFixedHeight(self.item_height // 2)
+        item_value_label.setAlignment(Qt.AlignLeft)
+        self.patch_v_dict[item_key] = item_value_label
+        text_layout.addWidget(item_value_label, 1, Qt.AlignLeft)
+
+        item_time_label = SubtitleLabel(item_time, parent)
+        item_time_label.setFixedHeight(self.item_height // 2)
+        item_time_label.setAlignment(Qt.AlignLeft)
+        self.patch_t_dict[item_key] = item_time_label
+        text_layout.addWidget(item_time_label, 1, Qt.AlignLeft)
+
+        unit_layout.addLayout(text_layout, 1)
+
+        unit_layout.setSpacing(0)
+        unit_layout.setContentsMargins(0, 0, 0, 0)
+
+        unit_widget.setLayout(unit_layout)
+        return unit_widget
+
+    def _apply_config_to_layout(self, disp_config):
+
+        for ind, (item_key, v) in enumerate(self.disp_config.items()):
+                self.layout.addWidget(self.get_unit_layout(
+                    item_key, v['icon'], v['name'], v['value'], v['time'], self))
+
+        # for key, value in disp_config.items():
+        #     line_widget = QWidget()
+        #     line_layout = QHBoxLayout()
+        #     line_layout.setSpacing(0)
+        #     line_layout.setContentsMargins(4, 4, 4, 4)
+        #
+        #     line_widget.setMinimumSize(0, 0)  # ✅ Avoid 22px height
+        #     line_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)  # ✅ Horizontal expanding
+        #
+        #     line_widget.setLayout(line_layout)
+        #
+        #     for ind, (item_key, v) in enumerate(value.items()):
+        #         if ind != 0: line_layout.addSpacing(10)
+        #         line_layout.addLayout(self.get_unit_layout(
+        #             item_key, v['icon'], v['name'], v['value'], v['time'], line_widget))
+        #     line_widget.setContentsMargins(0, 0, 0, 0)
+        #     line_layout.setSpacing(0)
+        #     self.layout.addWidget(line_widget, 0, Qt.AlignRight)
+
+    def _parse_config(self):
+        # AP
+        original_ap = self.config.get('ap', 'Unknown')
+        if type(original_ap) == dict:
+            ap_value = original_ap.get('count', 'Unknown')
+            max_value = original_ap.get('max', 'Unknown')
+            ap_time = original_ap.get('time', '-')
+            ap_value = ap_value if ap_value != -1 else 'Unknown'
+            max_value = max_value if max_value != -1 else 'Unknown'
+            self.disp_config.get('ap')['value'] = f"{ap_value}/{max_value}"
+            self.disp_config.get('ap')['time'] = self._parse_time(ap_time)
+
+        original_creditpoints = self.config.get('creditpoints', 'Unknown')
+        if type(original_creditpoints) == dict:
+            creditpoints_value = original_creditpoints.get('count', 'Unknown')
+            creditpoints_time = original_creditpoints.get('time', '-')
+            creditpoints_value = creditpoints_value if creditpoints_value != -1 else 'Unknown'
+            self.disp_config.get('creditpoints')['value'] = creditpoints_value
+            self.disp_config.get('creditpoints')['time'] = self._parse_time(creditpoints_time)
+
+        original_pyroxene = self.config.get('pyroxene', 'Unknown')
+        if type(original_pyroxene) == dict:
+            pyroxene_value = original_pyroxene.get('count', 'Unknown')
+            pyroxene_time = original_pyroxene.get('time', '-')
+            pyroxene_value = pyroxene_value if pyroxene_value != -1 else 'Unknown'
+            self.disp_config.get('pyroxene')['value'] = pyroxene_value
+            self.disp_config.get('pyroxene')['time'] = self._parse_time(pyroxene_time)
+
+        original_tactical_challenge_coin = self.config.get('tactical_challenge_coin', 'Unknown')
+        if type(original_tactical_challenge_coin) == dict:
+            tactical_challenge_coin_value = original_tactical_challenge_coin.get('count', 'Unknown')
+            tactical_challenge_coin_time = original_tactical_challenge_coin.get('time', '-')
+            tactical_challenge_coin_value = tactical_challenge_coin_value if tactical_challenge_coin_value != -1 else 'Unknown'
+            self.disp_config.get('tactical_challenge_coin')['value'] = tactical_challenge_coin_value
+            self.disp_config.get('tactical_challenge_coin')['time'] = self._parse_time(
+                tactical_challenge_coin_time)
+
+        original_bounty_coin = self.config.get('bounty_coin', 'Unknown')
+        if type(original_bounty_coin) == dict:
+            bounty_coin_value = original_bounty_coin.get('count', 'Unknown')
+            bounty_coin_time = original_bounty_coin.get('time', '-')
+            bounty_coin_value = bounty_coin_value if bounty_coin_value != -1 else 'Unknown'
+            self.disp_config.get('bounty_coin')['value'] = bounty_coin_value
+            self.disp_config.get('bounty_coin')['time'] = self._parse_time(bounty_coin_time)
+
+        original_keystone_piece = self.config.get('create_item_holding_quantity').get('Keystone-Piece', 'Unknown')
+        original_keystone_piece = original_keystone_piece if original_keystone_piece != -1 else 'Unknown'
+        original_keystone = self.config.get('create_item_holding_quantity').get('Keystone', 'Unknown')
+        original_keystone = original_keystone if original_keystone != -1 else 'Unknown'
+        self.disp_config.get('Keystone-Piece')['value'] = original_keystone_piece
+        self.disp_config.get('Keystone-Piece')['time'] = "/"
+        self.disp_config.get('Keystone')['value'] = original_keystone
+        self.disp_config.get('Keystone')['time'] = "/"
+
+    def _apply_config(self):
+        self.patch_v_dict['ap'].setText(
+            f"{self.disp_config.get('ap')['name']}: {self.disp_config.get('ap')['value']}")
+        self.patch_t_dict['ap'].setText(self.disp_config.get('ap')['time'])
+        self.patch_v_dict['creditpoints'].setText(
+            f"{self.disp_config.get('creditpoints')['name']}: {self.disp_config.get('creditpoints')['value']}")
+        self.patch_t_dict['creditpoints'].setText(self.disp_config.get('creditpoints')['time'])
+        self.patch_v_dict['pyroxene'].setText(
+            f"{self.disp_config.get('pyroxene')['name']}: {self.disp_config.get('pyroxene')['value']}")
+        self.patch_t_dict['pyroxene'].setText(self.disp_config.get('pyroxene')['time'])
+        self.patch_v_dict['tactical_challenge_coin'].setText(
+            f"{self.disp_config.get('tactical_challenge_coin')['name']}: {self.disp_config.get('tactical_challenge_coin')['value']}")
+        self.patch_t_dict['tactical_challenge_coin'].setText(
+            self.disp_config.get('tactical_challenge_coin')['time'])
+
+        self.patch_v_dict['bounty_coin'].setText(
+            f"{self.disp_config.get('bounty_coin')['name']}: {self.disp_config.get('bounty_coin')['value']}")
+        self.patch_t_dict['bounty_coin'].setText(self.disp_config.get('bounty_coin')['time'])
+        self.patch_v_dict['Keystone-Piece'].setText(
+            f"{self.disp_config.get('Keystone-Piece')['name']}: {self.disp_config.get('Keystone-Piece')['value']}")
+        self.patch_v_dict['Keystone'].setText(
+            f"{self.disp_config.get('Keystone')['name']}: {self.disp_config.get('Keystone')['value']}")
+
+    def _parse_time(self, timestamp: float) -> str:
+        """
+        Converts a timestamp into a human-readable format such as
+        "5 minutes ago", "1 second ago", "3 hours ago", or "1 day ago",
+        with support for internationalization.
+
+        :param timestamp: Unix timestamp (seconds)
+        :param parent: Pass a QObject to support .tr()
+        :return: A localized, human-readable time string
+        """
+        assert type(timestamp) in [int, float], "Timestamp must be an integer or float"
+        timestamp = int(timestamp)
+        if timestamp == 0:
+            return "-"
+        now = datetime.now()
+        past = datetime.fromtimestamp(timestamp)
+        diff = now - past  # Calculate time difference
+
+        if diff < timedelta(seconds=60):
+            return self.tr("{0}秒前").format(diff.seconds)
+        elif diff < timedelta(hours=1):
+            return self.tr("{0}分钟前").format(diff.seconds // 60)
+        elif diff < timedelta(days=1):
+            return self.tr("{0}小时前").format(diff.seconds // 3600)
+        elif diff < timedelta(days=30):
+            return self.tr("{0}天前").format(diff.days)
+        elif diff < timedelta(days=365):
+            return self.tr("{0}个月前").format(diff.days // 30)
+        else:
+            return self.tr("{0}年前").format(diff.days // 365)
+
+    def start_patch(self):
+        def __interval__(interval=1):
+            while True:
+                self._parse_config()
+                self._apply_config()
+                time.sleep(interval)
+
+        threading.Thread(target=__interval__, daemon=True).start()
+
+
 class TableManager(TableWidget):
     """
     A class that manages a table widget with configurable data, headers, and unit components.
@@ -341,12 +617,9 @@ class TableManager(TableWidget):
         :param args: Updated value.
         """
         value = args[0]
-
         _row = row if not self.transpose else col
         _col = col if not self.transpose else row
-
         self.data[_row][_col] = self.revert_dict.get(value, value)
-
         self.config.set(self.data_key, self.data)
         if self.update_callback:
             self.update_callback(row, col, value)
