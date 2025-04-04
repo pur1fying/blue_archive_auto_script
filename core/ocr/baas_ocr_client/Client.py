@@ -121,6 +121,7 @@ class BaasOcrClient:
             cwd=self.server_folder_path,
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
+            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
             text=True
         )
         # wait for server start
