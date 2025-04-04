@@ -88,16 +88,11 @@ class Baas_ocr:
 
     def _init_client(self, ocr_needed):
         ocr_needed = self.unique_language(ocr_needed)
-        self.kill_existing_ocr_server()
         self.client = Client.BaasOcrClient()
         self.client.start_server()
         self.enable_thread_pool(4)
         self.init_model(ocr_needed)
         self.test_models(ocr_needed)
-
-    def kill_existing_ocr_server(self):
-        self.logger.info("Ocr Kill Existing Server.")
-        Client.BaasOcrClient.kilL_existing_server()
 
     def enable_thread_pool(self, count=4):
         self.logger.info("Ocr Enable Thread Pool.")
