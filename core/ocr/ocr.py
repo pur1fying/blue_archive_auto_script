@@ -89,7 +89,6 @@ class Baas_ocr:
     def _init_client(self, ocr_needed):
         ocr_needed = self.unique_language(ocr_needed)
         self.kill_existing_ocr_server()
-        check_git(logger=self.logger)
         self.client = Client.BaasOcrClient()
         self.client.start_server()
         self.enable_thread_pool(4)
