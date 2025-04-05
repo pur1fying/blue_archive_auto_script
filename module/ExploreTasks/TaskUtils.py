@@ -14,7 +14,6 @@ def to_region(self, region: int, isNormal: bool) -> bool:
             baas = self,
             region = region,
             log_info = "Region Num",
-            candidates = "0123456789",
             filter_score = 0.2
     )
     self.logger.info("Current Region : " + str(curRegion))
@@ -37,7 +36,6 @@ def to_region(self, region: int, isNormal: bool) -> bool:
             baas = self,
             region = region,
             log_info = "Region Num",
-            candidates = "0123456789",
             filter_score = 0.2
         )
         self.logger.info("Current Region : " + str(curRegion))
