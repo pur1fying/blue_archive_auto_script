@@ -9,12 +9,14 @@ from module import hard_task, main_story, normal_task
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
 def to_region(self, region: int, isNormal: bool) -> bool:
-    square = {
-        'CN': [122, 178, 163, 208],
-        'Global': [122, 178, 163, 208],
-        'JP': [122, 178, 163, 208]
-    }
-    curRegion = self.ocr.recognize_int(self.latest_img_array, square[self.server], self.ratio)
+    region  = [122, 178, 163, 208]
+    curRegion = self.ocr.recognize_int(
+            baas = self,
+            region = region,
+            log_info = "Region Num",
+            candidates = "0123456789",
+            filter_score = 0.2
+    )
     self.logger.info("Current Region : " + str(curRegion))
     while curRegion != region and self.flag_run:
         if curRegion > region:
@@ -31,7 +33,13 @@ def to_region(self, region: int, isNormal: bool) -> bool:
             normal_task.to_normal_event(self)
         else:
             hard_task.to_hard_event(self)
-        curRegion = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
+        curRegion = self.ocr.recognize_int(
+            baas = self,
+            region = region,
+            log_info = "Region Num",
+            candidates = "0123456789",
+            filter_score = 0.2
+        )
         self.logger.info("Current Region : " + str(curRegion))
     return True
 
