@@ -219,3 +219,4 @@ def to_region(self, region, isNormal: bool):
             to_hard_event(self)
         curRegion = self.ocr.recognize_int(self, square[self.server], "Region Num")
         self.logger.info("Current Region : " + str(curRegion))
+    return True
