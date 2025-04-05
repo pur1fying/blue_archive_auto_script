@@ -228,7 +228,7 @@ def select_item(self, check_state, item_name, weight):
     while curr_selected != count:
         diff = abs(curr_selected - count)
         if curr_selected < count:
-            self.click(add_click_x, add_click_y, count=diff, duration=0.1, wait_over=True)
+            self.click(add_click_x, add_click_y, count=diff, duration=0.3, wait_over=True)
         else:
             self.click(minus_click_x, minus_click_y, count=diff, duration=0.1, wait_over=True)
         self.update_screenshot_array()
