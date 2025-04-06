@@ -134,16 +134,12 @@ def to_refresh(self):
 
 
 def get_tactical_challenge_assets(self):
-    tactical_challenge_assets_region = {
-        'CN': [1109, 63, 1240, 102],
-        'Global': [907, 68, 1045, 98],
-        'JP': [907, 68, 1045, 98]
-    }
+    tactical_challenge_assets_region = [907, 68, 1045, 98]
     ret = self.ocr.recognize_int(
-                                self,
-                                tactical_challenge_assets_region[self.server],
-                                "Tactical Challenge Assets"
-                                )
+                baas=self,
+                region=tactical_challenge_assets_region,
+                log_info="Tactical Challenge Assets"
+                )
     data = {
         "count": ret,
         "time": time.time()
