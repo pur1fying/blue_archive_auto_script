@@ -13,13 +13,10 @@ def implement(self):
         self.to_main_page()
         all_task_x_coordinate = 1118
         hard_task_y_coordinates = [253, 364, 478]
+        ap = self.get_ap(True)
         for i in range(0, len(temp)):
             to_hard_event(self, True)
-            ap = self.get_ap()
-            if ap == "UNKNOWN":
-                self.logger.info("UNKNOWN AP")
-                ap = 999
-            self.logger.info("hard task " + str(temp[i]) + " begin")
+            self.logger.info("Hard Task " + str(temp[i]) + " Begin")
             tar_region = temp[i][0]
             tar_mission = temp[i][1]
             tar_times = temp[i][2]
