@@ -171,7 +171,7 @@ def get_formation_index(self):
         'JP': (116, 542, 131, 570)
     }
     handle_task_pop_ups(self)
-    ocr_res = self.ocr.ocr_for_single_line(
+    ocr_res = self.ocr.get_region_res(
         baas=self,
         region=region[self.server],
         language="en-us",
