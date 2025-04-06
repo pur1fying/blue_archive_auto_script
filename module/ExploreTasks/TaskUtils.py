@@ -34,7 +34,7 @@ def to_region(self, region: int, isNormal: bool) -> bool:
             hard_task.to_hard_event(self)
         curRegion = self.ocr.recognize_int(
             baas=self,
-            region=region,
+            region=ocr_area,
             log_info="Region Num",
             filter_score=0.2
         )
