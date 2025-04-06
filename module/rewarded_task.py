@@ -46,7 +46,7 @@ def implement(self):
 
 
 def get_bounty_coin(self):
-    to_bounty(self, 0, True)
+    to_bounty(self, 1, True)
     region = (148, 581, 376, 614)
     ocr_res = self.ocr.get_region_res(
         self,
