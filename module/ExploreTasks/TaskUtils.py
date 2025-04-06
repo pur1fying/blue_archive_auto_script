@@ -9,12 +9,12 @@ from module import hard_task, main_story, normal_task
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
 def to_region(self, region: int, isNormal: bool) -> bool:
-    region  = [122, 178, 163, 208]
+    ocr_area = [122, 178, 163, 208]
     curRegion = self.ocr.recognize_int(
-            baas = self,
-            region = region,
-            log_info = "Region Num",
-            filter_score = 0.2
+        baas=self,
+        region=ocr_area,
+        log_info="Region Num",
+        filter_score=0.2
     )
     self.logger.info("Current Region : " + str(curRegion))
     while curRegion != region and self.flag_run:
@@ -33,10 +33,10 @@ def to_region(self, region: int, isNormal: bool) -> bool:
         else:
             hard_task.to_hard_event(self)
         curRegion = self.ocr.recognize_int(
-            baas = self,
-            region = region,
-            log_info = "Region Num",
-            filter_score = 0.2
+            baas=self,
+            region=region,
+            log_info="Region Num",
+            filter_score=0.2
         )
         self.logger.info("Current Region : " + str(curRegion))
     return True
@@ -389,7 +389,7 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
             # switch to the next attribute available.
             cur_attribute = attribute
             while unit_available[cur_attribute] == unit_used[cur_attribute] \
-                or (self.server == "CN" and cur_attribute == "shock"):
+                    or (self.server == "CN" and cur_attribute == "shock"):
                 cur_attribute = attribute_type_fallbacks[cur_attribute]
 
             employ_pos.append(teamConfig[cur_attribute][unit_used[cur_attribute]])
