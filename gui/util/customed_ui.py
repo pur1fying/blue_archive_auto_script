@@ -472,7 +472,7 @@ class AssetsWidget(QFrame):
         def __interval__(interval=1):
             while True:
                 self._parse_config()
-                self._apply_config()
+                # self._apply_config()
                 time.sleep(interval)
 
         threading.Thread(target=__interval__, daemon=True).start()
