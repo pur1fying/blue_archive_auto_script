@@ -8,19 +8,25 @@ def implement(self, need_check_mode=True):
     if need_check_mode:
         check_mode(self)
     main_to_momotalk = True
+    first_try = True
+    unread_location = []
+    length = 0
+
     while 1:
-        color.wait_loading(self)
-        y = 210
-        dy = 18
-        unread_location = []
-        while y <= 620:
-            if color.rgb_in_range(self, 637, y, 241, 255, 61, 81, 15, 35):
-                unread_location.append([637, int(y + dy / 2)])
-                y += 60
-            else:
-                y += 1
-        length = len(unread_location)
-        self.logger.info("Find  " + str(length) + "  Unread Message")
+        if need_check_mode and first_try:
+            first_try = False
+            for _ in range(3):  # try three times in the first time
+                self.update_screenshot_array()
+                unread_location = get_unread_location(self)
+                length = len(unread_location)
+                if length > 0:
+                    break
+                if _ != 2:
+                    self.logger.info("No Unread Message Found, Detect Again.")
+        else:
+            color.wait_loading(self)
+            unread_location = get_unread_location(self)
+            length = len(unread_location)
         if length == 0:
             if main_to_momotalk:
                 self.logger.info("momo_talk task Finished")
@@ -154,17 +160,31 @@ def getConversationState(self):
     if image.compare_image(self, "plot_menu"):  # menu --> skip plot --> skip notice --> reward acquired
         return ['plot_menu']
     if color.rgb_in_range(self, 817, 582, 110, 130, 210, 230, 245, 255) and \
-        color.rgb_in_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
-        color.rgb_in_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):  # blue enter
+            color.rgb_in_range(self, 761, 418, 35, 55, 66, 86, 104, 124) and \
+            color.rgb_in_range(self, 1034, 582, 110, 130, 210, 230, 245, 255):  # blue enter
         return ['enter']
     i = 657
     while i > 156:
         if color.rgb_in_range(self, 786, i, 29, 49, 143, 163, 219, 239, True, 1) and \
-            color.rgb_in_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):  # reply
+                color.rgb_in_range(self, 786, i + 10, 29, 49, 143, 163, 219, 239, True, 1):  # reply
             return ['reply', i + 65]
         elif color.rgb_in_range(self, 862, 813 - i, 245, 255, 227, 247, 230, 250) and \
-            color.rgb_in_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):  # pink enter
+                color.rgb_in_range(self, 862, 823 - i, 245, 255, 125, 155, 145, 175):  # pink enter
             return ['affection', min(625, 843 - i)]
         else:
             i -= 1
     return ['end']  # nothing found
+
+
+def get_unread_location(self):
+    y = 210
+    dy = 18
+    unread_location = []
+    while y <= 620:
+        if color.rgb_in_range(self, 637, y, 241, 255, 61, 81, 15, 35):
+            unread_location.append([637, int(y + dy / 2)])
+            y += 60
+        else:
+            y += 1
+    self.logger.info("Find  " + str(len(unread_location)) + "  Unread Message")
+    return unread_location
