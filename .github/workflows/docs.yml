@@ -6,6 +6,7 @@ name: Docs
 on:
   push:
     branches: ["master"]
+    paths: ['docs/**']
 permissions:
   contents: write
 
