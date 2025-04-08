@@ -100,6 +100,8 @@
 ## 使用示例 (Example Usage)
 ```python
 config_set = ConfigSet(config_dir="default_config")
-server_mode = config_set.get("server")
+server_mode = config_set.get("server") # get方法获取值
+server_mode = config_set.config.server # 直接访问dataclass的成员
 config_set.set("server", "日服")
+
 ```
