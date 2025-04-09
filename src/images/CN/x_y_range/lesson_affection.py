@@ -88,4 +88,5 @@ x_y_range = {
     "Natsu": [],
     "Cherino": [],
     "Reisa": [],
+    "Noa": []
 }
