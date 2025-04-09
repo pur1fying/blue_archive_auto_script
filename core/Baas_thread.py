@@ -750,7 +750,7 @@ class Baas_thread:
                 continue
             ret = ret * 10 + int(ocr_res[j])
         data = {
-            "count": ocr_res,
+            "count": ret,
             "time": time.time()
         }
         self.config_set.set("pyroxene", data)

@@ -10,7 +10,7 @@ def implement(self):
         return True
 
     self.to_main_page()
-    buy_ticket_times = max(0, self.config.purchase_rewarded_task_ticket_times)  # ** 购买悬赏委托券的次数
+    buy_ticket_times = max(0, self.config.purchase_rewarded_task_ticket_times)
     buy_ticket_times = min(buy_ticket_times, 12)
     if buy_ticket_times > 0:
         to_choose_bounty(self, True)

@@ -1,5 +1,7 @@
 # 文字识别(OCR)
 
+
+
 ## 简介(Introduction)
 OCR 已使用[C++重构](https://github.com/pur1fying/BAAS_Cpp), 作为BAAS的子进程, 通过http请求为BAAS提供文字识别服务
 
@@ -20,6 +22,16 @@ OCR 已使用[C++重构](https://github.com/pur1fying/BAAS_Cpp), 作为BAAS的�
         ```shell
         /core/ocr/baas_ocr_server/bin
         ```
+## 预编译版本(Prebuild Version)
+1. **BAAS_ocr_server**使用github-action自动构建在不同操作系统的可执行程序, 并推送至[github仓库](https://github.com/pur1fying/BAAS_Cpp_prebuild)
+2. **BAAS**使用core/ocr/baas_ocr_client/server_installer.py自动 **安装/更新** 最新的可执行程序
+3. 可使用的预编译版本
+    -   | 操作系统    | 架构     | 版本           | 可执行程序分支                                                                        |
+        |---------|--------|--------------|--------------------------------------------------------------------------------|
+        | Windows | x86_64 | win10/win11  | [windows-x64](https://github.com/pur1fying/BAAS_Cpp_prebuild/tree/windows-x64) |
+        | Linux   | x86_64 | ubuntu-22.04 | [linux-x64](https://github.com/pur1fying/BAAS_Cpp_prebuild/tree/linux-x64)     |
+        | MacOS   | arm64  | 最新版本         | [macos-arm64](https://github.com/pur1fying/BAAS_Cpp_prebuild/tree/macos-arm64) |
+4. 如果你的操作系统无法使用预编译版本, 可能需要自行编译 / 联系开发者适配
 
 ## **配置列表(Config)**
 
@@ -317,3 +329,6 @@ OCR 已使用[C++重构](https://github.com/pur1fying/BAAS_Cpp), 作为BAAS的�
 2. `pass_method`为2时, post请求应该传递file参数, 没有json参数
     - 示例
    ![pass_method1_example](/assets/ocr/pass_method1_example.png)
+    - 
+
+
