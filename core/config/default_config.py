@@ -3386,7 +3386,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": null,
         "Global": null,
-        "JP": "JP_2025_03_26"
+        "JP": "FromOpera0068WithLove"
     },
     "dailyGameActivity": {
         "CN": null,
