@@ -12,7 +12,6 @@ from module import explore_activity_story
 from module import friend
 from module import group
 from module import group_story
-from module import hard_task
 from module import joint_firing_drill
 from module import lesson
 from module import mail
@@ -21,7 +20,7 @@ from module import mini_story
 from module import momo_talk
 from module import no1_cafe_invite
 from module import no2_cafe_invite
-from module import normal_task
+from module.ExploreTasks import normal_task, sweep_task
 from module import refresh_uiautomator2
 from module import restart
 from module import rewarded_task
