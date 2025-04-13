@@ -3,8 +3,7 @@ import time
 
 from core import image, picture, Baas_thread, color
 from core.image import swipe_search_target_str
-from module import hard_task, main_story, normal_task
-
+from module import main_story
 
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
@@ -29,9 +28,9 @@ def to_region(self, region: int, isNormal: bool) -> bool:
                 return False
             self.click(1245, 360, count=region - curRegion, rate=0.1, wait_over=True, duration=0.5)
         if isNormal:
-            normal_task.to_normal_event(self)
+            to_normal_event(self)
         else:
-            hard_task.to_hard_event(self)
+            to_hard_event(self)
         curRegion = self.ocr.recognize_int(
             baas=self,
             region=ocr_area,
@@ -59,6 +58,62 @@ def to_mission_info(self, mission_button_y=0) -> bool:
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
     return True
+
+
+def to_hard_event(self, skip_first_screenshot=False):
+    rgb_ends = ['event_hard']
+    rgb_reactions = {
+        "event_normal": (1064, 165),
+        "main_page": (1198, 580),
+        "level_up": (640, 200),
+    }
+    img_reactions = {
+        "main_page_home-feature": (1198, 580),
+        "main_page_bus": (823, 261),
+        "normal_task_sweep-complete": (643, 585),
+        "normal_task_start-sweep-notice": (887, 164),
+        "normal_task_unlock-notice": (887, 164),
+        "normal_task_task-info": (1128, 130),
+        'normal_task_skip-sweep-complete': (643, 506),
+        "purchase_ap_notice": (919, 165),
+        "purchase_ap_notice-localized": (919, 165),
+        'normal_task_task-finish': (1038, 662),
+        'normal_task_prize-confirm': (776, 655),
+        'normal_task_fight-confirm': (1168, 659),
+        'normal_task_fight-complete-confirm': (1160, 666),
+        'normal_task_reward-acquired-confirm': (800, 660),
+        'normal_task_charge-challenge-counts': (887, 161),
+        "normal_task_task-A-info": (1128, 130)
+    }
+    img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
+    picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
+
+
+def to_normal_event(self: Baas_thread, skip_first_screenshot=False):
+    rgb_ends = ['event_normal']
+    rgb_reactions = {
+        "event_hard": (805, 165),
+        "main_page": (1198, 580),
+        "level_up": (640, 200),
+    }
+    img_reactions = {
+        "main_page_home-feature": (1198, 580),
+        "main_page_bus": (823, 261),
+        "normal_task_sweep-complete": (643, 585),
+        "normal_task_start-sweep-notice": (887, 164),
+        "normal_task_unlock-notice": (887, 164),
+        "normal_task_task-info": (1128, 130),
+        'normal_task_skip-sweep-complete': (643, 506),
+        "purchase_ap_notice-localized": (919, 165),
+        "purchase_ap_notice": (919, 165),
+        'normal_task_task-finish': (1038, 662),
+        'normal_task_prize-confirm': (776, 655),
+        'normal_task_fight-confirm': (1168, 659),
+        'normal_task_fight-complete-confirm': (1160, 666),
+        'normal_task_reward-acquired-confirm': (800, 660),
+    }
+    img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
+    picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
 
 
 def get_stage_data(region, isNormal):

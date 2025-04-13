@@ -7,7 +7,6 @@ import time
 import traceback
 from dataclasses import fields
 from datetime import datetime
-from core.utils import Logger
 import cv2
 import numpy as np
 import psutil
@@ -26,8 +25,8 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
-from core.utils import Logger
 from core.device.emulator_manager import process_api
+from core.utils import Logger
 
 func_dict = {
     'group': module.group.implement,
@@ -48,8 +47,8 @@ func_dict = {
     'mini_story': module.mini_story.implement,
     'scrimmage': module.scrimmage.implement,
     'collect_reward': module.collect_reward.implement,
-    'normal_task': module.normal_task.implement,
-    'hard_task': module.hard_task.implement,
+    'normal_task': module.ExploreTasks.sweep_task.sweepNormalTask,
+    'hard_task': module.ExploreTasks.sweep_task.sweepHardTask,
     'clear_special_task_power': module.clear_special_task_power.implement,
     'de_clothes': module.de_clothes.implement,
     'tactical_challenge_shop': module.tactical_challenge_shop.implement,
@@ -847,7 +846,7 @@ class Baas_thread:
         self.config_set.config.alreadyCreateTime = 0
 
     def refresh_common_tasks(self):
-        from module.normal_task import readOneNormalTask
+        from module.ExploreTasks.sweep_task import readOneNormalTask
         temp = self.config.mainlinePriority
         self.config.unfinished_normal_tasks = []
         if type(temp) is str:
@@ -860,7 +859,7 @@ class Baas_thread:
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
 
     def refresh_hard_tasks(self):
-        from module.hard_task import readOneHardTask
+        from module.ExploreTasks.sweep_task import readOneHardTask
         self.config.unfinished_hard_tasks = []
         temp = self.config.hardPriority
         if type(temp) is str:
