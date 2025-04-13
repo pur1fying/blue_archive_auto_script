@@ -3,13 +3,13 @@
   "has_exchange_reward": false,
   "total_story": 5,
   "mission": [
-    "pierce1",
-    "pierce1",
-    "burst1",
-    "pierce1",
-    "pierce1",
-    "burst1",
-    "pierce1"
+    "pierce",
+    "pierce",
+    "burst",
+    "pierce",
+    "pierce",
+    "burst",
+    "pierce"
   ],
   "sweep_ap_cost_mission": [
     0,
