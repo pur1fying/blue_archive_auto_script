@@ -220,6 +220,8 @@ class FuncLabel(QLabel):
 
 
 class AssetsWidget(QFrame):
+    update_signal = pyqtSignal()
+
     def __init__(self, config, parent, **kwargs):
         super().__init__(parent)
         self.config = config
@@ -298,6 +300,7 @@ class AssetsWidget(QFrame):
                  height: 20px;
              }
         """ % ((self.item_height - 10) // 2, self.item_height))
+        self.update_signal.connect(self._apply_config)
 
     def get_unit_layout(self, item_key, item_icon_path, item_name, item_value, item_time, parent=None):
 
@@ -472,7 +475,7 @@ class AssetsWidget(QFrame):
         def __interval__(interval=1):
             while True:
                 self._parse_config()
-                self._apply_config()
+                self.update_signal.emit()
                 time.sleep(interval)
 
         threading.Thread(target=__interval__, daemon=True).start()
