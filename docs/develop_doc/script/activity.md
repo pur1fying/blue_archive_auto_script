@@ -20,9 +20,49 @@
 ## 活动配置
 
 你可以根据以下步骤完善活动配置
-1. 确定活动名`core/config/default_config.py`中, `"current_game_activity"`字段
-2. 活动配置的`json`文件存放在`src/explore_task_data/activities`下, **文件名必须与活动名相同**
+1. 确定活动名
+    - 修改`core/config/default_config.py`中, `"current_game_activity"`字段为当期活动名
+      - 推荐使用的活动名: 
+        1. 直接使用日期`"JP_2025_04_17"`
+        2. 活动英文名`"AbydosResortRestorationCommittee"`, 你可以在[BlueArchive Wiki](https://bluearchive.fandom.com/wiki/Event/Event_List)上查询活动英文名
+2. 活动配置以`json`文件存放在`src/explore_task_data/activities`下, **文件名必须与活动名相同**
+3. 截取进入活动关卡需要的图像
+   - 步骤:
+        1. 假设你的活动名为
+           ```python
+           activity_name = "AbydosResortRestorationCommittee"           
+           ```
+        2. 创建以下文件夹
+           ```python
+           f"src/images/{server}/activity/{activity_name}"
+           ```
+        3. 创建以下文件
+           ```python
+           f"src/images/{server}/x_y_range/activity/{activity_name}.py"
+           ```
+           - 内容为
+               ```python
+               prefix = "activity"  
+               path = "activity/AbydosResortRestorationCommittee" 
+               x_y_range = {
+                   'enter1': (1180, 180, 1202, 200),
+                   'enter2': (96, 140, 116, 150),
+                   'enter3': (176, 519, 265, 564)
+               }
+               ```
+        4. 截取enter1 / 2 / 3 图像并放入 2. 创建的文件夹中, 分别对应以下区域模板
+            - enter1
+               ![enter1.png](../../assets/activity/enter1.png)
+            - enter2
+               ![enter2.png](../../assets/activity/enter2.png)
+            - enter3
+               ![img.png](../../assets/activity/enter3.png)
 
+**note**: 
+1. 国际服需要同时更新英文, 繁体中文, 韩文的图像
+2. 活动结束后将`core/config/default_config.py`中, `"current_game_activity"`字段设置为`null`
+
+## 配置文件字段含义
 ### `"total_story"`
 - **type**: `int`
 - **description**: 活动故事总数

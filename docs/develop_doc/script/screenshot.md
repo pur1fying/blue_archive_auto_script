@@ -1,3 +1,4 @@
+
 # 从模拟器获取第一张截图(core\Screenshot.py)
 
 ```python

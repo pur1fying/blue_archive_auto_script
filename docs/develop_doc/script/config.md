@@ -289,8 +289,17 @@
 
 - **type**: `str`
 - **Description**: 制造二阶段选择材料的方式
-- **constrains**
-    1. `"default"`: 使用数量最多的白色材料
+- **constrains**:
+
+    | 值                                    | 含义                   |
+    |--------------------------------------|----------------------|
+    | `"primary"`                          | 使用数量最多的白色材料          |
+    | `"normal"`                           | 使用数量最多的蓝色材料          |
+    | `"primary_normal"`                   | 使用数量最多的白色或蓝色材料       |
+    | `"advanced"`                         | 使用数量最多的金色材料          |
+    | `"superior"`                         | 使用数量最多的紫色材料          |
+    | `"advanced_superior"`                | 使用数量最多的金色或紫色材料       |
+    | `"primary_normal_advanced_superior"` | 使用数量最多的白色、蓝色、金色或紫色材料 |
 
 ## `createPriority_phase3`
 
@@ -300,9 +309,14 @@
 ## `create_phase_3_select_item_rule`
 
 - **type**: `str`
-- **constrains**
-    1. `"default"`: 使用数量最多的金色材料
 - **Description**: 制造三阶段选择材料的方式
+- **constrains**
+
+    | 值                                    | 含义                   |
+    |--------------------------------------|----------------------|
+    | `"advanced"`                         | 使用数量最多的金色材料          |
+    | `"superior"`                         | 使用数量最多的紫色材料          |
+    | `"advanced_superior"`                | 使用数量最多的金色或紫色材料       |
 
 ## `create_item_holding_quantity`
 
@@ -319,6 +333,15 @@
 <div style="margin-top: 100px;"></div>
 
 # Lesson (日程)
+## `lesson_enableInviteFavorStudent`
+
+- **type**: `bool`
+- **description**: 是否优先邀请指定的学生
+
+## `lesson_favorStudent`
+
+- **type**: `List[str]`
+- **description**: 日程优先邀请学生的名字, 由前到后依次尝试
 
 ## `purchase_lesson_ticket_times`
 
@@ -329,7 +352,7 @@
 ## `lesson_each_region_object_priority`
 
 - **type**: `List`
-- **element** : List
+- **element** : `List`
     - **element** : `str`
     - **description** : 每个区域选择日程的等级
     - **example** :

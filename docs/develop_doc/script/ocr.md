@@ -329,6 +329,6 @@ OCR 已使用[C++重构](https://github.com/pur1fying/BAAS_Cpp), 作为BAAS的�
 2. `pass_method`为2时, post请求应该传递file参数, 没有json参数
     - 示例
    ![pass_method1_example](/assets/ocr/pass_method1_example.png)
-    - 
+   
 
 
