@@ -275,6 +275,11 @@ def explore_activity_challenge(self):
 
 
 def start_story(self):
+    rgb_possibles = {
+        "formation_edit2": (151, 387),
+        "formation_edit3": (151, 387),
+        "formation_edit4": (151, 387),
+    }
     img_possibles = {
         "activity_task-info": (940, 538),
         "normal_task_task-info": (940, 538),
@@ -293,7 +298,7 @@ def start_story(self):
         "activity_formation",
         "activity_self-formation",
     ]
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     if res in ["formation_edit1", "activity_unit-formation", "activity_formation", "activity_self-formation"]:
         start_fight(self, 1)
         main_story.auto_fight(self)
