@@ -3870,7 +3870,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "流美",
+      "CN_name": "瑠美",
       "CN_implementation": false,
       "Global_name": "Rumi",
       "Global_implementation": true,

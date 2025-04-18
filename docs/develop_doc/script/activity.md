@@ -56,7 +56,7 @@
             - enter2
                ![enter2.png](../../assets/activity/enter2.png)
             - enter3
-               ![img.png](../../assets/activity/enter3.png)
+               ![enter3.png](../../assets/activity/enter3.png)
 
 **note**: 
 1. 国际服需要同时更新英文, 繁体中文, 韩文的图像
