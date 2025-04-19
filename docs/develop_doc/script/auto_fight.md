@@ -7,6 +7,9 @@
 - 这里的自动战斗并非指使用游戏内的auto让角色盲目的释放技能, 而是指**BAAS**通过截取战斗时的图像并提取其中的信息, 根据一个确定流程在`恰当的条件`下释放技能
 - 这个流程简称为`轴`
 - 轴的运作理念类似于编译原理中的**有限状态自动机**
+- 下图为一个简单的流程图
+    ![procedure_draft](/assets/auto_fight/procedure_draft.png)
+
 ### 队伍配置
 - 通过规定角色练度确定是否可以使用这个轴 (可选)
 - 选择初始技能
@@ -32,64 +35,74 @@
 ![enemy_position.png](../../assets/auto_fight/enemy_position.png)
 
 
-## 重开条件(Restart Condition)
+## 状态(State)
+每个状态由以下内容组成
+1. action: 到达这个状态后执行的行为（如技能释放、开启auto/倍速等
+2. transition: action结束后的状态转移列表
+3. condition: 状态转移的条件
+4. next_state: 下一个状态
 
-### BOSS血量范围
-- **description**: 检查BOSS血量是否在某一范围
-- **checkpoint**:
-    1. 战斗剩余时间达到某值
-    2. 释放技能后x秒
-- **usage**:
-    1. 技能未暴击
-    2. 其他异常 (学生退场 / 寿司开盾减伤 / 黑白转阶段)
-
-### BOSS血量减少
-- **description**: 检查BOSS血量是否在某一时间段内下降期望值
-- **checkpoint**:
-  1. 战斗剩余时间达到某值计时x秒
-  2. 释放技能后计时x秒
-  
-### 技能槽
-- **description**:检查学生技能是否出现在技能槽
-- **checkpoint**:
-  1. 战斗剩余时间达到某值计时x秒
-  2. 释放技能后计时x秒
-- **usage**:
-   1. 检查初始技能顺序是否正确
-   2. 学生退场 --> 技能排序变化
-   3. `auto`异常释放技能
-
-### 技能Cost
-- **description**:检查技能Cost是否为指定值
-- **checkpoint**:
-  1. 战斗剩余时间达到某值计时x秒
-  2. 释放技能后计时x秒
-- **usage**:
-   1. 检查忧, 枫香(新年) 等减费角色的技能是否释放到期望目标
-
-## 节点(Node)
-每个节点由以下内容组成
-1. condition: 判断是否满足某个特定的状态。
-2. action: 满足条件后执行的行为（如技能释放、状态变更等）。
-3. 顺序/依赖关系: 决定该步骤在流程中的执行顺序或与其他步骤的依赖关系。
-
+**example**: 以上述内容书写一个简介中简单流程图的状态机
 ```json
 {
-  "start": {
-    "next_node": "node1"
+  "states": {
+    "start_state": {
+      "next_state": "state_release_skill_1"
+    },
+    "state_release_skill_1": {
+      "action": "release_skill_1",
+      "transitions": [
+        {
+          "condition": "condition_boss_health_over_500w",
+          "next_state": "state_release_skill_2"
+        },
+        {
+          "condition": "condition_null",
+          "next_state": "state_release_skill_2"
+        }
+      ]
+    },
+    "state_release_skill_2": {
+      "action": "release_skill_2",
+      "transitions": [
+        {
+          "condition": "condition_boss_health_over_0",
+          "next_state": "state_restart"
+        },
+        {
+          "condition": "condition_null",
+          "next_state": "state_end"
+        }
+      ]
+    },
+    "state_restart": {
+      "action": "restart",
+      "transitions": [
+        {
+          "condition": "condition_null",
+          "next_state": "start_state"
+        }
+      ]
+    },
+    "state_end": {
+      "description": "This is end of script."
+    }
   },
-  "node1": {
-    "condition":"cost > 5",
-    "action": "release skill A",
-    "next_node": "node2"
-  },
-  "node2": {
-    "condition": "boss health > 1000",
-    "action": "restart",
-    "next_node": "start"
+  "conditions": {
+    "condition_null": {
+      
+    },
+    
+    "condition_boss_health_over_500w": {
+      "condition": "Boss health > 5_000_000"
+    },
+    
+    "condition_boss_health_over_0": {
+      "condition": "Boss health > 0"
+    }
   },
   "actions": {
-    "release skill A": {
+    "release_skill_1": {
       "release_method": 1,
       "slot": {
         "number": 1
@@ -101,8 +114,25 @@
       "check": {
         "type": 0
       }
+    },
+    "release_skill_2": {
+      "release_method": 1,
+      "slot": {
+        "number": 1
+      },
+      "target": {
+        "position": [1180, 360],
+        "name": "goz"
+      },
+      "check": {
+        "type": 0
+      }
+    },
+    "restart": {
+      "description": "Restart The Game"
     }
   }
+  
 }
 
 ```
@@ -188,4 +218,38 @@
     }
 }
 ```
-向检测出
+
+## 重开条件(Restart Condition)
+
+### BOSS血量范围
+- **description**: 检查BOSS血量是否在某一范围
+- **checkpoint**:
+    1. 战斗剩余时间达到某值
+    2. 释放技能后x秒
+- **usage**:
+    1. 技能未暴击
+    2. 其他异常 (学生退场 / 寿司开盾减伤 / 黑白转阶段)
+
+### BOSS血量减少
+- **description**: 检查BOSS血量是否在某一时间段内下降期望值
+- **checkpoint**:
+  1. 战斗剩余时间达到某值计时x秒
+  2. 释放技能后计时x秒
+  
+### 技能槽
+- **description**:检查学生技能是否出现在技能槽
+- **checkpoint**:
+  1. 战斗剩余时间达到某值计时x秒
+  2. 释放技能后计时x秒
+- **usage**:
+   1. 检查初始技能顺序是否正确
+   2. 学生退场 --> 技能排序变化
+   3. `auto`异常释放技能
+
+### 技能Cost
+- **description**:检查技能Cost是否为指定值
+- **checkpoint**:
+  1. 战斗剩余时间达到某值计时x秒
+  2. 释放技能后计时x秒
+- **usage**:
+   1. 检查忧, 枫香(新年) 等减费角色的技能是否释放到期望目标
