@@ -66,6 +66,7 @@ export default defineConfig({
                 {text: '文字识别', link: '/develop_doc/script/ocr'},
                 {text: 'Baas_thread', link: '/develop_doc/script/Baas_thread'},
                 {text: '活动', link: '/develop_doc/script/activity'},
+                {text: '自动战斗', link: '/develop_doc/script/auto_fight'},
                 {text: '编写文档', link: '/develop_doc/docs'},
                 {text: '模拟器开关/状态检测', link: '/develop_doc/script/emulator_manager'},
                 {text: '配置详解', link: '/develop_doc/script/config'},
