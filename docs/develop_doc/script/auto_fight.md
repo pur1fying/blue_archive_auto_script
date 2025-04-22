@@ -32,7 +32,7 @@
 7. 学生位置坐标及
 ![student_position.png](/assets/auto_fight/student_position.png)
 8. 敌对角色的位置
-![enemy_position.png](../../assets/auto_fight/enemy_position.png)
+![enemy_position.png](/assets/auto_fight/enemy_position.png)
 
 
 ## 状态(State)
