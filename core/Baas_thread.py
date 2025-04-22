@@ -701,7 +701,12 @@ class Baas_thread:
 
     def get_ap(self, is_main_page=False):
         if is_main_page:
-            region = (512, 25, 609, 52)
+            region = {
+                'CN': (512, 25, 609, 52),
+                'Global':(512, 25, 609, 52),
+                'JP': (485, 23, 586, 54)
+            }
+            region = region[self.server]
         else:
             region = (557, 10, 662, 40)
         ocr_res = self.ocr.get_region_res(

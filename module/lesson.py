@@ -1,6 +1,8 @@
 import importlib
 import time
 
+import cv2
+
 from core import color, picture, image
 from core.utils import build_possible_string_dict_and_length, most_similar_string
 
@@ -295,18 +297,54 @@ def is_chinese_char(char):
 
 
 def get_lesson_relationship_counts(self):
-    position = [(443, 290), (787, 290), (1132, 290),
-                (443, 441), (787, 441), (1132, 441),
-                (443, 591), (787, 591), (1132, 591)]
-    dx = 51
+    position = {
+        'CN': [(443, 290), (787, 290), (1132, 290),
+               (443, 441), (787, 441), (1132, 441),
+               (443, 591), (787, 591), (1132, 591)],
+        'Global': [(443, 290), (787, 290), (1132, 290),
+                   (443, 441), (787, 441), (1132, 441),
+                   (443, 591), (787, 591), (1132, 591)],
+        'JP': [(354, 271), (701, 271), (1043, 271),
+               (354, 422), (701, 422), (1043, 422),
+               (354, 574), (701, 574), (1043, 574)]
+    }
+    dx = {
+        'CN': 51,
+        'Global': 51,
+        'JP': 72
+    }
+    rgb_range = {
+        'CN': [245, 255, 108, 128, 134, 154],
+        'Global': [245, 255, 108, 128, 134, 154],
+        'JP': [223, 255, 164, 224, 190, 230]
+    }
+    if self.server == "JP":
+        self.swipe(983, 588, 983, 466, duration=0.1, post_sleep_time=1.0)
+        self.update_screenshot_array()
+    rgb_range = rgb_range[self.server]
+    position = position[self.server]
+    dx = dx[self.server]
     res = []
     for i in range(0, 9):
         cnt = 0
         for j in range(0, 3):
-            if color.rgb_in_range(self, position[i][0] - dx * j, position[i][1], 245, 255, 108, 128,
-                                  134, 154):
+            if color.rgb_in_range(
+                    self,
+                    position[i][0] - dx * j,
+                    position[i][1],
+                    rgb_range[0],
+                    rgb_range[1],
+                    rgb_range[2],
+                    rgb_range[3],
+                    rgb_range[4],
+                    rgb_range[5],
+            ):
                 cnt += 1
+            # cv2.circle(self.latest_img_array, (position[i][0] - dx * j, position[i][1]), radius=2, color=1, thickness=1)
+
         res.append(cnt)
+    # cv2.imshow("test", self.latest_img_array)
+    # cv2.waitKey(0)
     return res
 
 
@@ -423,7 +461,7 @@ def invite_favor_student(self):
         for j in range(0, 9):
             block_existing_names = []
             if res[0][j] == "available":
-                detect_region = get_favor_student_detect_region(j)
+                detect_region = get_favor_student_detect_region(self, j)
                 block_detect_student = []
                 for key in template_image_names:
                     if key in block_existing_names:
@@ -496,13 +534,22 @@ def invite_favor_student(self):
                         detected_student_pos[name].remove((region, lesson_id))
 
 
-def get_favor_student_detect_region(lesson_cnt):
-    x_start = 285
-    y_start = 240
-    dx1 = 344
-    dy1 = 152
-    dx2 = 161
-    dy2 = 52
+def get_favor_student_detect_region(self, lesson_cnt):
+    if self.server == 'CN' or self.sever == 'Global':
+        x_start = 285
+        y_start = 240
+        dx1 = 344
+        dy1 = 152
+        dx2 = 161
+        dy2 = 52
+    else:
+        x_start = 145
+        y_start = 232
+        dx1 = 344
+        dy1 = 152
+        dx2 = 225
+        dy2 = 68
+
     x1 = x_start + dx1 * (lesson_cnt % 3)
     y1 = y_start + dy1 * (lesson_cnt // 3)
     return x1, y1, x1 + dx2, y1 + dy2
