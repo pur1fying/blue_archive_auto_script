@@ -535,7 +535,7 @@ def invite_favor_student(self):
 
 
 def get_favor_student_detect_region(self, lesson_cnt):
-    if self.server == 'CN' or self.sever == 'Global':
+    if self.server in ['CN', 'Global']:
         x_start = 285
         y_start = 240
         dx1 = 344
