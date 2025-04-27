@@ -63,6 +63,7 @@ export default defineConfig({
                 {text: '模拟器控制', link: '/develop_doc/script/control'},
                 {text: '图像资源', link: '/develop_doc/script/image_resource'},
                 {text: '图像识别', link: '/develop_doc/script/game_feature'},
+                {text: '目标检测(YOLO)', link: '/develop_doc/script/baas_yolo_detection'},
                 {text: '文字识别', link: '/develop_doc/script/ocr'},
                 {text: 'Baas_thread', link: '/develop_doc/script/Baas_thread'},
                 {text: '活动', link: '/develop_doc/script/activity'},
