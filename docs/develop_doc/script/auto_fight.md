@@ -18,14 +18,13 @@
 ### 可监测的数据
 以下图为例介绍在自动战斗中图像中可被提取的数据
 - ![total_assault_general.png](/assets/auto_fight/total_assault_general.png)
-1. BOSS的最大血量 / 总血量 
+1. BOSS的最大血量 / 总血量 [Code](/develop_doc/script/auto_fight_boss_health_update.md)
 ![boss_health.png](/assets/auto_fight/boss_health.png)
-    - [相关代码](/develop_doc/script/auto_fight_boss_health_update.md)
-2. 每个技能槽学生的技能以及技能Cost
+2. 每个技能槽学生的技能以及技能释费用 [Code](/develop_doc/script/auto_fight_skill_update.md)
 ![student_skill.png](/assets/auto_fight/student_skill.png)
 3. 倍速 / 自动状态
 ![acc_auto_phase.png](/assets/auto_fight/acc_auto_phase.png)
-4. 当前Cost
+4. 当前可用于释放技能的Cost
 ![current_cost.png](/assets/auto_fight/current_cost.png)
 5. 战斗剩余时间
 ![fight_left_time.png](/assets/auto_fight/fight_left_time.png)
