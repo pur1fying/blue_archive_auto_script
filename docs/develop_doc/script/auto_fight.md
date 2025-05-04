@@ -15,16 +15,19 @@
 - 通过规定角色练度确定是否可以使用这个轴 (可选)
 - 选择初始技能
 
+## 截图数据监测
+- 相关代码见 `apps/BAAS/src/module/auto_fight/screenshot_data` 文件夹
+
 ### 可监测的数据
 以下图为例介绍在自动战斗中图像中可被提取的数据
 - ![total_assault_general.png](/assets/auto_fight/total_assault_general.png)
 1. BOSS的最大血量 / 总血量 [Code](/develop_doc/script/auto_fight_boss_health_update.md)
 ![boss_health.png](/assets/auto_fight/boss_health.png)
-2. 每个技能槽学生的技能以及技能释费用 [Code](/develop_doc/script/auto_fight_skill_update.md)
+2. 每个技能槽学生的技能名以及技能释费用 [Code](/develop_doc/script/auto_fight_skill_update.md)
 ![student_skill.png](/assets/auto_fight/student_skill.png)
-3. 倍速 / 自动状态
+3. (倍速 [Code](/develop_doc/script/auto_fight_acc_phase_update.md))  / (自动 [Code](/develop_doc/script/auto_fight_auto_state_update.md)) 状态
 ![acc_auto_phase.png](/assets/auto_fight/acc_auto_phase.png)
-4. 当前可用于释放技能的Cost
+4. 当前可用于释放技能的费用 [Code](/develop_doc/script/auto_fight_cost_update.md)
 ![current_cost.png](/assets/auto_fight/current_cost.png)
 5. 战斗剩余时间
 ![fight_left_time.png](/assets/auto_fight/fight_left_time.png)
@@ -43,9 +46,26 @@ screenshot_data_recorder
 按照下图的架构实现自动战斗的数据更新
 ![screenshot_data_update_cycle.png](/assets/auto_fight/screenshot_data_update_cycle.png)
 
+- 每个数据更新都对应一个类, 他们都继承自[`class BaseDataUpdater`](/develop_doc/script/auto_fight_BaseDataUpdater.md)
+ 类`screenshot_data` 中 `d_updater_mask` 用于指示一轮数据更新中哪些`update()` 函数需要被调用, 每一位对应一个数据更新类, 对应关系如下
+
+    | Bit | Updater                    |
+    |-----|----------------------------|
+    | `1` | `CostUpdater`              |
+    | `2` | `BossHealthUpdater`        |
+    | `3` | `SkillNameUpdater`         |
+    | `4` | `SkillCostUpdater`         |
+    | `5` | `AccelerationPhaseUpdater` |
+    | `6` | `AutoStateUpdater`         |
+
+  **example**: 当`d_updater_mask` 被设置为 `0b1101` 则表示 `CostUpdater` , `SkillNameUpdater` 和 `SkillCostUpdater` 的 `update()` 函数需要被调用 
+
+- 数据更新多线程并行进行, 线程数量由配置中的`/auto_fight/d_update_max_thread`字段决定
+- 数据更新任务提交至线程池的顺序由每个`updater`重写的[`estimated_time_cost`](/develop_doc/script/auto_fight_BaseDataUpdater#estimated-time-cost)决定, 按照更新耗时由小到大进行更新
+
 ## 状态(State)
 每个状态由以下内容组成
-1. action: 到达这个状态后执行的行为（如技能释放、开启auto/倍速等
+1. action: 到达这个状态后执行的行为（如技能释放、开启auto/倍速等)
 2. transition: action结束后的状态转移列表
 3. condition: 状态转移的条件
 4. next_state: 下一个状态
@@ -269,15 +289,35 @@ screenshot_data_recorder
 
 ### 条件类(Condition Class)
 
-条件类需要有以下特性
+条件判断的一些重要信息如下
 1. 主循环截图并更新状态
 2. 单一状态信息更新后**紧接着**进行条件判断
     - 从截图提取的状态信息也会用于[`动作action`](#动作-action), 状态信息需要被`共享`
 3. 根据[可监测的数据](#可监测的数据)中任意**一个**进行比较的条件称为`原始条件 (primitive condition)`
 4. 条件可根据`or / and`进行组合, 称为`组合条件`
-5. 采用`多线程`进行状态信息提取
-6. 如果`一个状态信息`不被当前`任意一个条件`所需要, 则不更新 
-7. 每个条件必须包含一个`截止时间字段`, 时限内未出现期望状态则条件为false
+5. 如果`一条数据`不被当前`任意一个条件`所需要, 则不更新该数据 
+6. 每个条件包含`timeout`字段, 在条件判断开始后时限内未出现期望状态则自动判断条件为`false`
+
+## 条件书写规范
+你需要按照以下规范书写`condition`
+1. 所有condition
+```json
+{
+  "conditions": {
+    "condition_name" : {
+      
+    }    
+  }
+}
+
+```
+### 
+| 字段  | 含义                       |
+|-----|--------------------------|
+| `0` | 开启`auto`释放 (确保`auto`被选中) |
+| `1` | 自定义点击顺序                  |
+| `2` | 保证槽技能被选中-->释放            |
+
 
 ## 使用前须知
 ### 必要的游戏内设置

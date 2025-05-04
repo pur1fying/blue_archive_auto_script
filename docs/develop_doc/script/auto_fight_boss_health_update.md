@@ -1,5 +1,12 @@
 # Boss血量 (Boss Health)
 
+## 简介 (Introduction)
+本文主要考虑如何在图像中高效的提取以下信息:
+1. Boss的当前血量
+2. Boss的最大血量
+
+## `BossHealthUpdater`
+
 ## 相关配置 (Related Config)
 
 ## static_config
