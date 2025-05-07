@@ -9,9 +9,13 @@
 ## `CostUpdater`
 
 
+## `cost`精度
+可监测的`cost`最小变化精度约为 **0.035(1/28.7)**
+- **note** : 也就是说填写任何表示`cost`值时, 最大精度为小数点后两位
 
 ## `CostCondition`
-为cost比较提供以下比较方法
+以下为cost比较方法
+
 
 ### `op`
 - **type**: `string`
@@ -25,20 +29,17 @@
     | `increase` | 增长   | [`value`](#value) |
     | `decrease` | 下降   | [`value`](#value) |
 
-
 ### `value`
 - **type** : `double`
 - **range** : [0.0, 10.0]
-- **description** : 截图间隔
-- **note** : 可监测的`cost`变化 
 
 ### `range`
 - **type** : `List[double]`
 - **length** : 2
   - **element** : `double`
   - **range** : [0.0, 10.0]
-- **description** : 期望`cost`值所在区间
-- **note**: 值1 < 值2
+- **description** : 期望的`cost`值所在区间
+- **note**: 值1 < 值2, 增量应大于[最大精度](#cost精度)
 
 ### `reset`
 - **type** : `bool`
