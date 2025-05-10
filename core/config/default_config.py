@@ -3384,7 +3384,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "InSearchOfAHiddenHeritageTrinity'sExtracurricularActivities",
+        "CN": "GakumanDoujinshiTheFinalEpisodeSoughtByTwoPeople",
         "Global": "SerenadePromenade",
         "JP": "JP_2025_04_22"
     },
