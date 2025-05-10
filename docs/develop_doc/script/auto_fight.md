@@ -69,26 +69,29 @@ screenshot_data_recorder
 2. transition: action结束后的状态转移列表
 3. condition: 状态转移的条件
 4. next_state: 下一个状态
+5. default_transition: 当所有条件都不被满足时, 转移到的状态
 
+- **note**:
+1. 结束条件: 自动战斗会在以下状态退出循环
+    1. 到达一个没有任何transition的状态 (包含default_transition)
+    2. 状态所有的transition条件都不被满足并且没有default_transition
+2. 值得一提的是, 没有`default_transition`, 自动战斗也是逻辑完备的, 你只需要找到所有其他都不成立的条件, 并将其作为transition的最后一个条件也可以实现default_transition的功能
 **example**: 以上述内容书写一个简介中简单流程图的状态机
 ```json
 {
   "states": {
-    "start_state": {
-      "next_state": "state_release_skill_1"
+    "start": {
+      "default_transition": "state_release_skill_1"
     },
     "state_release_skill_1": {
       "action": "release_skill_1",
       "transitions": [
         {
           "condition": "condition_boss_health_over_500w",
-          "next_state": "state_release_skill_2"
-        },
-        {
-          "condition": "condition_null",
-          "next_state": "state_release_skill_2"
+          "next_state": "state_restart"
         }
-      ]
+      ],
+      "default_transition": "state_release_skill_2"
     },
     "state_release_skill_2": {
       "action": "release_skill_2",
@@ -96,31 +99,19 @@ screenshot_data_recorder
         {
           "condition": "condition_boss_health_over_0",
           "next_state": "state_restart"
-        },
-        {
-          "condition": "condition_null",
-          "next_state": "state_end"
         }
-      ]
+      ],
+      "default_transition": "end"
     },
     "state_restart": {
       "action": "restart",
-      "transitions": [
-        {
-          "condition": "condition_null",
-          "next_state": "start_state"
-        }
-      ]
+      "default_transition": "start"
     },
-    "state_end": {
-      "description": "This is end of script."
+    "end": {
+      "desc": "This is end of script."
     }
   },
   "conditions": {
-    "condition_null": {
-      
-    },
-    
     "condition_boss_health_over_500w": {
       "condition": "Boss health > 5_000_000"
     },
@@ -266,6 +257,7 @@ screenshot_data_recorder
     - 条件判断开始后时限内期望条件未被判断为(未)成立则认为该条件不成立
     - 设计`timeout`的一大原因是可以有效避免条件判断陷入死循环
 6. 条件类仅在加载自动战斗工作流时初始化, 条件类可被重复使用, 每次使用`condition`前刷新上一次使用的数据
+7. `desc`字段作为这个条件的描述, 方便理解, 并不会对条件判断产生任何影响
 
 
 ### 条件判断 (Condition Judgement)
@@ -321,6 +313,14 @@ screenshot_data_recorder
   2. 释放技能后计时x秒
 - **usage**:
    1. 检查忧, 枫香(新年) 等减费角色的技能是否释放到期望目标
+
+### 
+| 字段  | 含义                       |
+|-----|--------------------------|
+| `0` | 开启`auto`释放 (确保`auto`被选中) |
+| `1` | 自定义点击顺序                  |
+| `2` | 保证槽技能被选中-->释放            |
+
 
 ## 使用前须知
 ### 必要的游戏内设置
