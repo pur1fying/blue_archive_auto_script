@@ -36,7 +36,7 @@ def to_joint_firing_menu(self):
 
 
 def check_drill_state(self):
-    self.logger.info("Get drill state.")
+    self.logger.info("Get Drill State.")
     state = ["fighting", "open", "lock", "next"]
     open_state = False
     state_checked = [

@@ -3385,7 +3385,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "GakumanDoujinshiTheFinalEpisodeSoughtByTwoPeople",
-        "Global": "SerenadePromenade",
+        "Global": "SunlightGirlsNightSong",
         "JP": "JP_2025_04_22"
     },
     "dailyGameActivity": {

@@ -51,10 +51,12 @@ def to_activity(self, region=None, skip_first_screenshot=False):
 
     img_possibles = {
         "story": {
-            "activity_story-not-chosen-0": (844, 89)
+            "activity_story-not-chosen-0": (844, 89),
+            "activity_story-not-chosen-1": (936, 89),
         },
         "mission": {
-            "activity_mission-not-chosen-0": (1028, 91)
+            "activity_mission-not-chosen-0": (1028, 91),
+            "activity_mission-not-chosen-1": (1200, 91),
         },
         "challenge": {
             "activity_challenge-not-chosen-0": (1200, 89)
@@ -64,9 +66,11 @@ def to_activity(self, region=None, skip_first_screenshot=False):
     img_ends = {
         "story": [
             "activity_story-chosen-0",
+            "activity_story-chosen-1",
         ],
         "mission": [
             "activity_mission-chosen-0",
+            "activity_mission-chosen-1",
         ],
         "challenge": [
             "activity_challenge-chosen-0",
