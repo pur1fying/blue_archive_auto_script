@@ -197,7 +197,8 @@ def to_mission_task_info(self, target_index, total_mission):
         ocr_region_offsets=ocr_region_offsets[self.identifier],
         ocr_str_replace_func=None,
         max_swipe_times=10,
-        ocr_candidates="0123456789"
+        ocr_candidates="0123456789",
+        first_retry_dir=1
     )
     y = p[1] + 10  # move down a little bit in case click to challenge page
     possibles = {'activity_menu': (1124, y)}
