@@ -30,6 +30,7 @@ print(
 # ==================== Import Statements ====================
 
 import os
+import gc
 import re
 import platform
 import shutil
@@ -44,11 +45,13 @@ import requests
 import tomli_w
 from copy import deepcopy
 from alive_progress import alive_bar
-from dulwich import porcelain
-from dulwich.repo import Repo
+# from dulwich import porcelain
+# from dulwich.repo import Repo
 from easydict import EasyDict as eDict
 from halo import Halo
 from loguru import logger
+
+from pygit2 import clone_repository, Repository, RemoteCallbacks, GIT_RESET_HARD, GitError
 
 try:
     import tomllib
@@ -645,62 +648,184 @@ def fix_exe_shebangs(search_dir=".venv\\Scripts"):
         logger.info("No matching shebangs were found in .exe files.")
 
 
+class BAASGitCallbacks(RemoteCallbacks):
+    def __init__(self, bar_ref):
+        self.__transmitted = False
+        self.bar_ref = bar_ref
+        self.received_count = 0
+        self.current_count = 0
+        self.spinner = Halo(text="Resolving Objects ...", spinner="dots")
+        super().__init__()
+
+    def transfer_progress(self, stats):
+        if not self.__transmitted:
+            self.__transmitted = True
+            # Create the progress bar generator
+            bar_gen = alive_bar(stats.total_objects, title="Cloning repository...")
+            self.bar_ref["bar_gen"] = bar_gen
+            self.bar_ref["bar"] = bar_gen.__enter__()  # Enter the context
+
+        if self.bar_ref.get("bar"):
+            self.received_count = stats.received_objects
+            self.bar_ref["bar"](self.received_count - self.current_count)  # Advance the progress bar by one
+            self.current_count = self.received_count
+
+        if self.received_count == stats.total_objects:
+            self.bar_ref["bar_gen"].__exit__(None, None, None)
+            self.spinner.start()
+
+
+def clone_repo(repo_url, local_path):
+    bar_ref = {"bar": None}
+    callbacks = BAASGitCallbacks(bar_ref)
+    repo = clone_repository(repo_url, local_path, callbacks=callbacks)
+    callbacks.spinner.stop()
+    logger.success("Cloning completed successfully.")
+    return repo
+
+def repair_broken_git_repo():
+    repo = None
+    gc.collect()
+
+    # Remove the existing .git directory
+    git_dir = BAAS_ROOT_PATH / ".git"
+    if git_dir.exists():
+        logger.info("Removing broken Git repository...")
+        shutil.rmtree(git_dir, ignore_errors=True)
+
+    logger.warning("Attempting to repair invalid Git repo...")
+
+    temp_clone_path = BAAS_ROOT_PATH / "temp_clone"
+
+    # Remove any existing temp_clone directory
+    if temp_clone_path.exists():
+        shutil.rmtree(temp_clone_path, ignore_errors=True)
+
+    # Clone the repository to a temporary directory
+    logger.info("Cloning fresh repo to temporary directory...")
+    repo = clone_repo(U.REPO_URL_HTTP, str(temp_clone_path))
+
+    # Release the occupation of the directory
+    repo = None
+    gc.collect()
+
+    # Move the cloned repository to the desired location
+    for item in temp_clone_path.iterdir():
+        dst = BAAS_ROOT_PATH / item.name
+        if dst.exists():
+            if dst.is_dir():
+                shutil.rmtree(dst, ignore_errors=True)
+            else:
+                dst.unlink()
+        shutil.move(str(item), str(dst))
+
+    shutil.rmtree(temp_clone_path, ignore_errors=True)
+    logger.success("Git repository successfully repaired.")
+
 def check_git():
     if G.dev:
         return
+
     logger.info("Checking git installation...")
+
     if not os.path.exists(BAAS_ROOT_PATH / ".git"):
         logger.info("+--------------------------------+")
         logger.info("|         INSTALL BAAS           |")
         logger.info("+--------------------------------+")
-        spinner.start("Cloning the repository...")
-        porcelain.clone(U.REPO_URL_HTTP, BAAS_ROOT_PATH)
-        spinner.succeed("Clone completed.")
+        logger.info("Cloning the repository...")
+
+        temp_clone_path = BAAS_ROOT_PATH / "temp_clone"
+
+        if temp_clone_path.exists():
+            shutil.rmtree(temp_clone_path)
+
+        # Clone the repository using pygit2
+        repo = clone_repo(
+            U.REPO_URL_HTTP,
+            str(temp_clone_path),
+        )
+
+        # Release the occupation of the directory
+        repo = None
+        gc.collect()
+
+        # Move the cloned repository to the desired location
+        for item in temp_clone_path.iterdir():
+            target_path = BAAS_ROOT_PATH / item.name
+            if target_path.exists():
+                if target_path.is_dir():
+                    shutil.rmtree(target_path)
+                else:
+                    os.remove(target_path)
+            shutil.move(str(item), str(target_path))
+
+        # Remove temporary clone directory
+        shutil.rmtree(str(temp_clone_path))
+
         logger.success("Install success!")
     else:
-        logger.info("+--------------------------------+")
-        logger.info("|          UPDATE BAAS           |")
-        logger.info("+--------------------------------+")
-        repo = Repo(str(BAAS_ROOT_PATH))
-
-        # Get local SHA
         try:
-            local_sha = repo.head().decode("ascii")
-        except:
-            logger.error("Incorrect Key. Trying to reinstall...")
-            shutil.rmtree(BAAS_ROOT_PATH / ".git")
-            check_git()
-            return
 
-        # Get remote SHA
-        remote_refs = porcelain.ls_remote(U.REPO_URL_HTTP)
-        remote_sha = remote_refs.get(b"refs/heads/master").decode("ascii")
+            logger.info("+--------------------------------+")
+            logger.info("|          UPDATE BAAS           |")
+            logger.info("+--------------------------------+")
 
-        logger.info(f"remote_sha: {remote_sha}")
-        logger.info(f"local_sha: {local_sha}")
+            repo = Repository(str(BAAS_ROOT_PATH))
 
-        refresh_required = G.refresh
-        if local_sha == remote_sha and not refresh_required:
-            logger.info("No updates available")
-        else:
-            if refresh_required:
-                logger.info(
-                    "You've selected dropping all changes for the project file."
-                )
-            spinner.start("Pulling updates from the remote repository...")
-            # Reset the local repository to the state of the remote repository
-            porcelain.reset(repo, mode="hard")
-            # Pull the latest changes from the remote repository
-            porcelain.pull(repo, U.REPO_URL_HTTP, "master", protocol_version=0)
-            updated_local_sha = repo.head().decode("ascii")
-            if updated_local_sha == remote_sha:
-                spinner.succeed("Update completed.")
-                logger.success("Update success")
+            # Get local SHA
+            try:
+                local_sha = str(repo.head.target)
+            except Exception as e:
+                logger.error(f"Incorrect Key or corrupted repo: {e}. Reinstalling...")
+
+                # Release the occupation of the directory
+                repo = None
+                gc.collect()
+
+                shutil.rmtree(BAAS_ROOT_PATH / ".git")
+                check_git()
+                return
+
+            # Get remote SHA
+            remote = repo.remotes["origin"]
+            remote.fetch()
+            remote_sha = str(repo.references.get("refs/remotes/origin/master").target)
+
+            logger.info(f"remote_sha: {remote_sha}")
+            logger.info(f"local_sha: {local_sha}")
+
+            refresh_required = G.refresh
+            if local_sha == remote_sha and not refresh_required:
+                logger.info("No updates available")
             else:
-                spinner.fail("Update failed.")
-                logger.warning(
-                    "Failed to update the source code, please check your network or for conflicting files"
-                )
+                if refresh_required:
+                    logger.info("You've selected dropping all changes for the project file.")
+
+                spinner.start("Pulling updates from the remote repository...")
+
+                # Reset local branch to remote
+                repo.reset(repo.lookup_reference("refs/remotes/origin/master").target, GIT_RESET_HARD)
+
+                # Checkout to master (HEAD points to refs/heads/master)
+                repo.checkout("refs/heads/master")
+                # str(repo.references.get("refs/remotes/origin/master").target)
+                updated_local_sha = str(repo.head.target)
+                if updated_local_sha == remote_sha:
+                    spinner.succeed("Update completed.")
+                    logger.success("Update success")
+                else:
+                    spinner.fail("Update failed.")
+                    logger.warning(
+                        "Failed to update the source code, please check your network or for conflicting files"
+                    )
+        except GitError as e:
+            if "not owned by current user" in str(e):
+                logger.error(f"Git repo ownership error: {e}")
+                repair_broken_git_repo()
+            else:
+                logger.error(f"Unhandled Git error: {e}")
+                raise
+
 
 
 def dynamic_update_installer():
