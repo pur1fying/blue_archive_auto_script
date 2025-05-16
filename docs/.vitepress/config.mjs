@@ -73,7 +73,8 @@ export default defineConfig({
                 {text: '配置详解', link: '/develop_doc/script/config'},
                 {text: 'ConfigSet', link: '/develop_doc/script/ConfigSet'},
                 {text: '开发约定', link: '/develop_doc/develop_format'},
-                {text: '日志', link: '/develop_doc/log'}
+                {text: '日志', link: '/develop_doc/log'},
+                {text: 'C++代码', link: '/develop_doc/script/BAAS_Cpp'},
             ]
         }
       ]
