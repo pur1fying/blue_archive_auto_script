@@ -374,3 +374,153 @@ screenshot_data_recorder
 ```
 
 
+# `Class AutoFight`
+
+- **description**: 集成 condition / action / state 并最终执行自动战斗的类
+
+## 成员变量 (Members)
+
+### `config`
+
+
+### `logger`
+
+
+### `default_active_skill_template` / `default_inactive_skill_template`
+
+
+### `template_j_ptr_prefix`
+
+
+### `d_update_max_thread`
+
+**type**: int
+**description**: 数据更新最大同时运行的线程数量 (线程池大小)
+
+## `d_update_thread_pool`
+**type**: `std::unique_ptr<ThreadPool>`
+**description**: 数据更新使用的线程池
+
+## `d_update_thread_mutex`
+**type**: `std::mutex`
+**description**: 用于线程同步的互斥量
+
+
+## `d_updater_running_thread_count`
+**type**: `std::atomic<int>`
+**description**: 当前正在运行的数据更新线程数量
+
+## `d_updater_thread_finish_notifier`
+**type**: `std::condition_variable`
+**description**: 用于通知数据更新线程结束的条件变量
+
+## `d_updaters`
+**type**: `std::vector<std::unique_ptr<BaseDataUpdater>>`
+**description**: 指向所有数据更新类的指针集合
+
+## `d_wait_to_update_idx`
+**type**: `std::vector<uint8_t>`
+**description**: 需要被执行的数据更新函数所对应的类在[`d_updaters`](#d-updaters)中的索引
+
+## `d_updater_queue`
+**type**: `std::queue<uint8_t>`
+**description**: 根据数据更新的预估耗时排序后的`d_wait_to_update_idx`队列
+
+## `d_updater_map`
+**type**: `std::map<std::string, uint64_t>`
+**description**: 数据更新类的名称与偏移的映射
+
+## `d_auto_f`
+**type**: `auto_fight_d`
+**description**: 自动战斗的共享数据, 用于在 `action` / `condition` / `updaters` / `state` 之间传递数据
+
+## `_cond_type`
+**type**: `std::string`
+**description**: 目前正在录入的条件的类型名称
+
+## `all_cond`
+**type**: `std::vector<std::unique_ptr<BaseCondition>>`
+**description**: 所有条件的指针集合
+
+## `cond_name_idx_map`
+**type**: `std::map<std::string, uint64_t>`
+**description**: 条件名与[`all_cond`](#all-cond)中位置的映射
+**note**:
+1. 请注意**条件名**与**条件类型名**是完全不同的概念
+
+## `_cond_is_matched_recorder`
+**type**: `std::vector<bool>`
+**description**: 记录条件是否成立, 已被判断成立 / 不成立的条件不会参与以下内容
+1. 超时检查
+2. 条件成立判断
+
+**note**:  
+1. 长度与[`all_cond`](#all-cond)相同
+
+## `_cond_checked`
+**type**: `std::vector<bool>`
+**description**: 条件的 超时监测 / 重置状态 / 成立判断 是递归进行的, 记录每一项检查过的条件, 避免无限递归
+**note**:
+1. 长度与[`all_cond`](#all-cond)相同
+
+## `all_state`
+**type**: `std::vector<state_info>`
+**description**: 所有状态集合
+
+## `_state_trans_name_recorder`
+**type**: `std::vector<std::vector<std::string>>`
+**description**: 每个state可能有多个状态转移, 记录每个状态的每个状态转移的下一个状态名
+**note**: 当一个状态初始化时, 可能它的目标状态未初始化, 此时不知道该状态的索引, 该变量记录所有转移的下一个状态名, 以便再次遍历更新索引
+
+## `_state_default_trans_name_recorder`
+**type**: `std::vector<std::optional<std::string>>`
+**description**: 作用同[`_state_trans_name_recorder`](#state-trans-name-recorder), 使用`optional`原因为`state`允许没有默认转移
+
+## `state_name_idx_map`
+**type**: `std::map<std::string, uint64_t>`
+**description**: 状态名与[`all_state`](#all-state)中位置的映射
+
+## `_curr_state_idx`
+**type**: `uint64_t`
+**description**: 当前状态的索引
+
+## `_state_cond_j_start_t`
+**type**: `long long`
+**description**: 状态转移 条件判断循环的开始时间(ms)
+
+## `_state_cond_j_loop_start_t`
+**type**: `long long`
+**description**: 状态转移 条件判断循环每一轮循环的开始时间(ms)
+
+## `_state_cond_j_elapsed_t`
+**type**: `long long`
+**description**: 状态转移 条件判断循环的总耗时(ms)
+
+## `_state_trans_cond_matched_idx`
+**type**: `std::optional<uint64_t>`
+**description**: 第一个状态转移条件成立的转移索引
+
+## `_state_flg_all_trans_cond_dissatisfied`
+**type**: `bool`
+**description**: 指示是否所有状态转移条件都不成立
+
+## `_state_cond_j_loop_running_flg`
+**type**: `bool`
+**description**: 指示条件判断循环是否正在运行
+
+## `start_state_name`
+**type**: `std::string`
+**description**: 初始状态的名称
+
+## `workflow_path`
+**type**: `std::filesystem::path`
+**description**: 轴文件的路径
+
+## `workflow_name`
+**type**: `std::string`
+**description**: 轴的名称
+
+## `baas`
+**type**: `BAAS*`
+**description**: `BAAS`实例
+
