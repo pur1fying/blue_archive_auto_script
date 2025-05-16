@@ -547,7 +547,7 @@ def is_english(char):
 def get_invitation_ticket_next_time(self):
     region = {
         'CN': (800, 584, 875, 608),
-        'Global': (800, 584, 875, 608),
+        'Global': (850, 588, 926, 614),
         'JP': (850, 588, 926, 614)
     }
     region = region[self.server]
