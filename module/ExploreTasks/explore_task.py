@@ -20,6 +20,7 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]
             - The first element (bool): The verification result. Returns True if verification passes; otherwise, False.
             - The second element (str): The error message. Returns a detailed error message if verification fails; otherwise, an empty string.
     """
+    task = task.strip() # Remove leading and trailing spaces, and whitespaces
     valid_chapter_range = self.static_config.explore_normal_task_region_range if isNormal \
         else self.static_config.explore_hard_task_region_range  # Get the valid chapter range based on the task type
     info = task.split('-')

@@ -65,30 +65,30 @@ screenshot_data_recorder
 
 ## 状态(State)
 每个状态由以下内容组成
-1. action: 到达这个状态后执行的行为（如技能释放、开启auto/倍速等)
-2. transition: action结束后的状态转移列表
-3. condition: 状态转移的条件
-4. next_state: 下一个状态
-5. default_transition: 当所有条件都不被满足时, 转移到的状态
+1. `action`: 到达这个状态后执行的行为（如技能释放、开启auto/倍速等)
+2. `transitions`: action结束后的条件判断以及状态转移列表
+    - 每个状态转移转移包含以下参数
+      - `condition`: 状态转移的条件
+      - `next`: 下一个状态名
+3. `default_transition`: 当`transitions`中的**所有条件**都不被满足时, 默认转移状态
 
 - **note**:
-1. 结束条件: 自动战斗会在以下状态退出循环
-    1. 到达一个没有任何transition的状态 (包含default_transition)
-    2. 状态所有的transition条件都不被满足并且没有default_transition
-2. 值得一提的是, 没有`default_transition`, 自动战斗也是逻辑完备的, 你只需要找到所有其他都不成立的条件, 并将其作为transition的最后一个条件也可以实现default_transition的功能
+1. 初始状态：`start_state`字段指示
+2. 结束条件: 自动战斗会在**没有任何可转移状态**时退出循环
+3. 值得一提的是, 没有`default_transition`, 自动战斗也可以实现它的功能, 你只需要找到所有其他都不成立的条件, 并将其作为transition的最后一个条件也可以实现default_transition的功能
+### 状态书写规范
 **example**: 以上述内容书写一个简介中简单流程图的状态机
+
 ```json
 {
+  "start_state": "state_release_skill_1",
   "states": {
-    "start": {
-      "default_transition": "state_release_skill_1"
-    },
     "state_release_skill_1": {
       "action": "release_skill_1",
       "transitions": [
         {
           "condition": "condition_boss_health_over_500w",
-          "next_state": "state_restart"
+          "next": "state_restart"
         }
       ],
       "default_transition": "state_release_skill_2"
@@ -98,7 +98,7 @@ screenshot_data_recorder
       "transitions": [
         {
           "condition": "condition_boss_health_over_0",
-          "next_state": "state_restart"
+          "next": "state_restart"
         }
       ],
       "default_transition": "end"
