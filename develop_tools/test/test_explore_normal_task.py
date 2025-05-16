@@ -1,9 +1,12 @@
 import unittest
+
+import module.ExploreTasks.TaskUtils
 from main import Main
 from module.ExploreTasks.TaskUtils import to_mission_info, to_region, execute_grid_task, employ_units, convert_team_config
 from core import image, picture
 from module.ExploreTasks.explore_task import validate_and_add_task
-from module import normal_task, hard_task, main_story
+from module import main_story
+from module.ExploreTasks import normal_task, sweep_task
 from core.Baas_thread import Baas_thread
 from core.config.config_set import ConfigSet
 
@@ -53,7 +56,7 @@ class TestExploreNormalTask(unittest.TestCase):
                 taskName = str(region) + "-" + (str(mission) if mission != 6 else "A")
                 self.logger.info(f"--- Start exploring {taskName}({taskDataName}) ---")
 
-                normal_task.to_normal_event(self.baas_thread, True)
+                module.ExploreTasks.TaskUtils.to_normal_event(self.baas_thread, True)
                 if not to_region(self.baas_thread, region, True):
                     self.logger.error(f"Skipping task {taskName} since it's not available.")
                     continue
@@ -101,8 +104,8 @@ class TestExploreNormalTask(unittest.TestCase):
 
                     main_story.auto_fight(self.baas_thread)
                 # skip unlocking animation by switching
-                hard_task.to_hard_event(self.baas_thread, True)
-                normal_task.to_normal_event(self.baas_thread, True)
+                module.ExploreTasks.TaskUtils.to_hard_event(self.baas_thread, True)
+                module.ExploreTasks.TaskUtils.to_normal_event(self.baas_thread, True)
         return True
 
 
