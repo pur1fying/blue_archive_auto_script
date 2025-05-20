@@ -75,3 +75,5 @@ GUI预览图：
 - **构建一套完善的图像识别+模拟器交互系统**
 
 ## [致谢名单](https://blog.lzwi.fun/blue_archive_auto_script/thanks)
+
+![Contributors](https://contrib.rocks/image?repo=pur1fying/blue_archive_auto_script)
