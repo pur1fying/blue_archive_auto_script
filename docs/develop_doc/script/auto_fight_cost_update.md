@@ -39,7 +39,7 @@
   - **element** : `double`
   - **range** : [0.0, 10.0]
 - **description** : 期望的`cost`值所在区间
-- **note**: 值1 < 值2, 增量应大于[最大精度](#cost精度)
+- **note**: 值1 < 值2, 增量应大于[最大精度](#cost精度), 否则`range`中的值可能将永远无法被监测到
 
 ### `reset`
 - **type** : `bool`

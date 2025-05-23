@@ -2,11 +2,15 @@
 
 ## 简介(Introduction)
 
-本文档记录了**BAAS**自动战斗的框架以及原理, 并会教学每一位普通的用户如何按照**BAAS**的自动战斗框架的规范书写自动战斗的轴文件, 
+本文档记录了**BAAS**自动战斗的框架以及原理, 并通过一个例子教学如何按照**BAAS**的自动战斗框架的规范书写自动战斗的轴文件
 
 ::: info 
 **如果你是C++小白,不用理解代码是如何书写的,重点关注轴文件的格式, 跟着本文的指导一步一步理解也可以写出正确的轴文件**
 :::
+::: warning
+轴文件为json格式, 请先学习json的书写规范, 否则你可能会因为json格式错误导致轴文件无法被解析
+:::
+
 - 首先明确一点, 这里的自动战斗并非指使用游戏内的auto让角色盲目的释放技能, 而是指**BAAS**通过截取战斗时的图像并提取其中的信息, 根据一个用户指定的`流程`在`恰当的条件`下`释放技能`
 - 这个流程简称为`轴`, `轴`是一个`json`格式的文件, 里面包含了自动战斗的所有信息
 - 使用者可以根据需求与**自动战斗规范**书写`轴`文件, **BAAS**负责解析`轴`是否合法并运行合法的轴
@@ -111,6 +115,8 @@ screenshot_data_recorder
 
 ## 基准测试(Benchmark)
 
+在不同的设备下测试了**BAAS**自动战斗各模块的性能, 数据仅供参考
+
 ### 模拟器截图/控制速度测试
 截图/控制速度主要与模拟器 和 CPU 有关, 推荐使用`雷电`模拟器 / `MuMu`模拟器
 
@@ -175,267 +181,293 @@ screenshot_data_recorder
 | `Intel Core i5-9300H`   | `159.3ms - 222.5ms`<br/>平均`175.5ms` | 
 | `Intel Core i9-13900HX` | `70.1ms - 107.0ms`<br/>平均`90ms`     |
 
+## 基本配置
+
+下图为一个轴文件的基本配置, 规定了一下自动战斗的基本信息
+1. Boss血量的文字识别配置
+2. YOLO目标检测配置
+3. 出场角色以及所有出现的技能配置
+
+你可以在本文找到这些配置的含义, 一般来说, 你只需要设置 `3` 所相关的内容, 也就是`formation` 字段下的内容
+
+```json
+{
+  "formation": {
+    "front": ["Kayoko", "Koharu", "Mika", "Eimi"],
+    "back": ["Himari", "Fuuka (New Year)"],
+    "slot_count": 3,
+    "all_appeared_skills": [
+      "Himari",
+      "Kayoko",
+      "Fuuka (New Year)",
+      "Mika",
+      "Koharu",
+      "Eimi"
+    ]
+  },
+    "BossHealth": {
+    "current_ocr_region": [549, 45, 656, 60],
+    "max_ocr_region": [666, 45, 775, 60],
+    "ocr_region": [549, 45, 775, 60],
+    "ocr_model_name": "en-us"
+  },
+  "yolo_setting": {
+    "model": "best.onnx",
+    "update_interval": 100
+  }
+}
+```
+
+### `/formation/front`
+- **description**: 突击角色的名称列表
+- **type**: `list`
+- **elements**: 
+    - `string` : 角色名称
+- **note**: 
+  1. 这些名称直接决定了yolo模型检测的角色列表
+  2. `resource/yolo_models/data.yaml` 中`names` 列举了所有可以被yolo模型识别的角色列表, 同时这也是**BAAS** YOLO模型的训练配置
+    ![formation_names.png](/assets/auto_fight/yolo_data_yaml_names.png)
+  3. 目前可识别的角色还较少, 随着数据集的逐渐扩充, **BAAS**将会适配大部分的学生 / 敌对角色 的识别, 如果你愿意为**BAAS**做一点贡献, 欢迎你参与数据集标注工作, 请在[qq群](/usage_doc/qq_group_regulation/#qq群号)内联系作者
+
+### `/formation/back`
+- **description**: 后排角色的名称列表
+- **type**: `list`
+- **elements**: 
+    - `string` : 角色名称
+
+### `/formation/slot_count`
+- **description**: 技能槽的数量
+- **type**: `int`
+- **note**: 一般设置为`3`, 未来可能会支持更多的技能槽(爬塔玩法中六槽)
+
+### `/formation/all_appeared_skills`
+- **description**: 所有出现的技能名称列表
+- **type**: `list`
+- **elements**: 
+    - `string` : 技能名称
+- **note**:
+1. **BAAS**自动战斗在检测技能时, 只会检测该配置列出的技能
+2. 你可以在`/resource/images/CN/zh-cn/skill/active`查询已被录入的技能, 这个列表的技能名与该文件夹下的图片名一一对应
+![auto_fight_skill_templates](/assets/auto_fight/skill_templates.png)
+
+### `/BossHealth/current_ocr_region`
+- **description**: BOSS当前血量的文字识别区域
+- **type**: `list`
+- **elements**: 
+    - `int` : 文字识别区域的坐标, 由四个整数值组成, 分别表示`左上角x坐标`, `左上角y坐标`, `右下角x坐标`, `右下角y坐标`
+- **length**: `4`
+
+### `/BossHealth/max_ocr_region`
+- **description**: BOSS最大血量的文字识别区域
+- **type**: `list`
+- **elements**: 
+    - `int` 
+- **length**: `4`
+- **note**: 这个区域的坐标和`/BossHealth/current_ocr_region`相同, 但是它的坐标是**BOSS最大血量**的坐标
+
+### `/BossHealth/ocr_region`
+- **description**: BOSS血量的文字识别区域
+- **type**: `list`
+- **elements**: 
+    - `int` : 文字识别区域的坐标, 由四个整数值组成, 分别表示`左上角x坐标`, `左上角y坐标`, `右下角x坐标`, `右下角y坐标`
+- **length**: `4`
+- **note**: 这个区域的坐标同时包含最大血量和当前血量
+
+### `/BossHealth/ocr_model_name`
+- **description**: 文字识别模型的名称
+- **type**: `string`
+- **note**: 一般不需要修改
+
+### `/yolo_setting/model`
+- **description**: YOLO模型的名称
+- **type**: `string`
+- **constrains**:
+  - | 值                | 含义     |
+    |------------------|--------|
+    | `best.onnx`      | fp32模型 |
+    | `best_fp16.onnx` | fp16模型 |
 
 ## 状态(State)
 
-### 状态书写规范
-每个状态由以下内容组成
-1. `action`: 到达这个状态后立即执行的行为（如技能释放、开启auto/倍速等)
-2. `transitions`: `action`结束后的状态转移
-    - 每个状态转移转移包含以下参数
-      - `condition`: 状态转移的条件名
-      - `next`: 下一个状态名
-3. `default_transition`: 当`transitions`中的**所有条件**都不被满足时, 默认转移状态
+### `states`
+1. 所有状态都在`states`中定义, 它是一个字典, 每个键值对表示一个状态, `键表示状态名`, 值表示状态的参数
 
-- **note**:
-1. 初始状态：`start_state`字段指示
-2. 结束条件: 自动战斗会在**没有任何可转移状态**时退出循环
-3. 值得一提的是, 没有`default_transition`, 自动战斗也可以实现它的功能, 你只需要找到所有其他都不成立的条件, 并将其作为transition的最后一个条件也可以实现default_transition的功能
+### `start_state`
+1. 它**必须**在自动战斗流程文件中被定义, 指示自动战斗开始时的进入的状态
+2. 它的值是一个**字符串**, 和`states`中的一个状态名相等
 
-**example**: 以上述内容书写一个简介中简单流程图的状态机
+**example**:
+1. 下图在`states`中定义了三个状态, `状态一` / `状态二` / `状态三`, 起始状态为`状态一`
+```json
+{
+  "state_state": "状态一",
+  
+  "states": {
+    
+    "状态一": {
+
+    },
+    
+    "状态二": {
+      
+    },
+    
+    "状态三": {
+      
+    }
+  }  
+}
+```
+
+### 单个`state`的参数
+[`states`](#states) 中的例子列举了三个状态, 但是他们并没有任何实际内容, 我们需要在单个状态中设置以下参数以赋予状态意义 
+1. [`action`](#action)
+2. [`transitions`](#transitions)
+3. [`default_transition`](#default-transition)
+
+**note**: 以上三个参数都是可选的, 并非必须要设置
+
+#### `action`
+1. 到达这个状态后立即执行的行为（如技能释放、开启auto/倍速 重开战斗等)
+2. 它的值是一个**字符串**, 必须在[`actions`](#动作action)中被定义
+
+#### `transitions`
+1. 指示`action`结束后的状态转移, 它是一个`列表`, 每个元素表示[一个状态转移](#一个状态转移)
+
+#### `default_transition`
+1. 当`transitions`中的**所有条件**都不被满足时(或`transitions`没有任何条件), 默认转移状态
+
+### 一个状态转移
+每个状态转移转移表示在某个条件成立时转移到下一个状态, 我们需要指定`条件` 和 `下一个状态`, 分别对应以下参数
+1. `condition`
+    - 状态转移的条件名, 这个条件必须在[`conditions`](#条件condition)中被定义
+    - 它的值是一个**字符串**, 必须在[`conditions`](#条件condition)中被定义
+2. `next`
+      - 下一个状态名, 这个状态必须在[`states`](#states)中被定义
+      - 它的值是一个**字符串**, 必须在[`states`](#states)中被定义 
 
 ```json
 {
-  "start_state": "state_release_skill_1",
+  "状态一": {
+    "action": "释放技能一",
+    "transitions": [
+      {
+        "condition": "boss血量小于500w",
+        "next": "释放技能二"
+      }
+    ],
+    "default_transition": "重开"
+  }
+}
+```
+每个状态由以下内容组成
+1. `action`: 到达这个状态后立即执行的行为（如技能释放、开启auto/倍速等), 这个行为必须在`actions`中被定义
+2. `transitions`: `action`结束后的状态转移
+    - 每个状态转移转移包含以下参数
+      - `condition`: 状态转移的条件名, 这个条件必须在`conditions`中被定义
+      - `next`: 下一个状态名, 这个状态必须在`states`中被定义
+3. `default_transition`: 当`transitions`中的**所有条件**都不被满足时(或`transitions`没有任何条件), 默认转移状态
+
+- **note**:
+1. 初始状态[`start_state`](#start-state)被定义
+2. 结束条件: 自动战斗会在**没有任何可转移状态**时退出循环, 可能情况如下:
+    - `transitions`中没有任何条件成立, 并且没有`default_transition`
+    - `transitions`中没有条件, 并且没有`default_transition`
+3. 值得一提的是, 没有`default_transition`, 自动战斗也可以实现它的功能, 你只需要找到所有其他都不成立的条件, 并将其作为transition的最后一个条件也可以实现default_transition的功能
+
+**example**: [例子](#例子-example)中的轴需要的五个状态以及起始状态如下
+```json
+{
+  "start_state": "自动战斗开始",
+  
   "states": {
-    "state_release_skill_1": {
-      "action": "release_skill_1",
-      "transitions": [
-        {
-          "condition": "condition_boss_health_over_500w",
-          "next": "state_restart"
-        }
-      ],
-      "default_transition": "state_release_skill_2"
-    },
-    "state_release_skill_2": {
-      "action": "release_skill_2",
-      "transitions": [
-        {
-          "condition": "condition_boss_health_over_0",
-          "next": "state_restart"
-        }
-      ],
-      "default_transition": "end"
-    },
-    "state_restart": {
-      "action": "restart",
-      "default_transition": "start"
-    },
-    "end": {
-      "desc": "This is end of script."
-    }
-  },
-  "conditions": {
-    "condition_boss_health_over_500w": {
-      "condition": "Boss health > 5_000_000"
+    
+    "自动战斗开始": {
+      "default_transition": "释放技能1"
     },
     
-    "condition_boss_health_over_0": {
-      "condition": "Boss health > 0"
-    }
-  },
-  "actions": {
-    "release_skill_1": {
-      "release_method": 1,
-      "slot": {
-        "number": 1
-      },
-      "target": {
-        "position": [1180, 360],
-        "name": "goz"
-      },
-      "check": {
-        "type": 0
-      }
+    "释放技能1": {
+      "action": "释放技能1",
+      "transitions": [
+        {
+          "condition": "血量 > 500w",
+          "next": "释放技能2"
+        }
+      ],
+      "default_transition": "重开"
     },
-    "release_skill_2": {
-      "release_method": 1,
-      "slot": {
-        "number": 1
-      },
-      "target": {
-        "position": [1180, 360],
-        "name": "goz"
-      },
-      "check": {
-        "type": 0
-      }
+    
+    "释放技能2": {
+      "action": "释放技能2",
+      "transitions": [
+        {
+          "condition": "boss血量 < 0",
+          "next": "结束战斗"
+        }
+      ],
+      "default_transition": "重新开始"
     },
-    "restart": {
-      "description": "Restart The Game"
+    
+    "重新开始": {
+      "action": "重新开始",
+      "default_transition": "自动战斗开始"
+    },
+
+    "结束战斗": {
+      
     }
   }
-  
 }
-
 ```
+
+**note**:这个例子中的`action` 以及 `condition` 都还未被定义, 你需要在[`actions`](#动作action) 和 [`conditions`](#条件condition)中学习如何定义这些动作和条件
+
 
 ## 动作(Action)
 
-```json
+### `actions`
+1. 所有动作都在`actions`中定义, 它是一个字典, 每个键值对表示一个动作序列, `键表示动作名`, 值是一个**列表**
+2. 注意再次强调, 每个`action`的值是一个**列表**, 这个列表中的**每个元素**表示[`一个动作`](#单个action的参数), 你可以将它理解为一个动作序列, 这个动作序列会被依次执行
 
-[
-  {
-    "t": "auto",
-    "op": "on",
-    "desc": "turn on auto"
-  },
-  {
-    "t": "solve_procedure",
-    "procedure_name": "fight_restart"
-  },
-  {
-    "t": "acc",
-    "state": "3"
-  },
-  {
-    "t": "skill",
-    "op": "auto_release",
-    "check": {
-      "t": "C_decrease",
-      "v": 5.5,
-      "timeout": 5000
-    }
-  },
-  {
-    "t": "skill",
-    "op": "name",
-    "skill_n": "Fuuka (New Year)", 
-    "target": {
-      "t": "fixed_p",
-      "p": [1150, 360]
-    },
-    "check": {
-      "t": "C_decrease",
-      "v": 5.5,
-      "timeout": 5000
-    }
-  },
-  {
-    "t": "skill",
-    "op": "name",
-    "skill_n": "Mika", 
-    "target": {
-      "t": "fixed_p",
-      "p": [1150, 360]
-    },
-    "check": {
-      "t": "C_decrease",
-      "v": 2.5,
-      "timeout": 5000
-    }
-  },
-  {
-    "t": "skill",
-    "op": "name",
-    "skill_n": "Koharu", 
-    "target": {
-      "t": "yolo_p",
-      "obj_n": ["Eimi", "Mika"]
-    },
-    "check": {
-      "t": "C_decrease",
-      "v": 5.5,
-      "timeout": 5000
-    }
-  },
-  {
-    "t": "skill",
-    "op": "last_rel_p",
-    "l_rel_idx": 1,
-    "target": {
-      "t": "yolo_p",
-      "obj_n": ["Mika"]
-    },
-    "check": {
-      "t": "C_decrease",
-      "v": 5.5,
-      "timeout": 5000
-    }
-  }
-]
-
-```
-
-释放技能有关的参数
-
-### release_method
-
-- **description**: 释放一个技能的方式
-- **type**: `int`
-- **constrains**:
--
-    | 值   | 含义                       |
-    |-----|--------------------------|
-    | `0` | 开启`auto`释放 (确保`auto`被选中) |
-    | `1` | 自定义点击顺序                  |
-    | `2` | 保证槽技能被选中-->释放            |
-
-**note**:
-方式 `2, 3` 需要设置[`target`](#target) 
-
-### target
-
-#### type
-- **description**: 技能释放的目标类型
-- **type**: `int`
-- **constrains**:
-- 
-    | 值   | 含义           | 需要字段       |
-    |-----|--------------|------------|
-    | `0` | 一个固定坐标       | `position` |
-    | `1` | 一个运行过程中生成的坐标 | `name`     |
-- **examples**:
-1. `type` = 0
-    ```json
-    {
-      "target": {
-        "type": 0,
-        "position": [1180, 360]
-      }
-    }
-    ```
-    **explanation**: 释放技能的固定坐标为(1180, 360)
-2. `type` = 1
-    ```json
-    {
-      "target": {
-        "type": 0,
-        "name": "goz"
-      }
-    }
-    ```
-    **explanation**: 释放技能位置在运行时生成, 为yolo检测出名为"goz"的坐标
-### check
-
-- **description**: 检查技能释放的方式
-- **type**: `int`
-- **constrains**:
--
-    | 值   | 含义       |
-    |-----|----------|
-    | `0` | 不作检测     |
-    | `1` | `cost`减少 |
-    | `2` | 技能槽图标消失  |
-
-- **examples**:
+**example**:
 ```json
 {
-  "release_skill_Mika": {
-      "release_method": 2,
-      "slot": "Mika",
-      "target": {
-        "type": 0,
-        "name": "goz"
+  "actions": {
+    "释放技能1": [
+      {
+        "desc": "释放技能1的第一个操作"
       },
-      "check": {
-        "type": 1,
-        "decrease": 2.9
+      {
+        "desc": "释放技能1的第二个操作"
       }
-    }
+    ],
+    "释放技能2": [
+      {
+        "desc": "释放技能2的第一个操作"
+      }
+    ]
+  }
 }
 ```
+
+**note**: 
+设置单一`action`是一个动作列表有许多好处, 如下
+1. 允许你自由定义技能释放流程
+    - 释放完第一个技能后你可以立刻释放第二个技能, 实现游戏中`反手拐`(在主c技能释放后释放辅助增伤技能)的效果
+    - 释放技能前你可以选择调整游戏倍速为1
+    - 释放技能后你可以选择调整游戏倍速回到3
+2. 简化了`state`的书写
+    - `state`仅需指定`action`的名称, 而不需要重写所有`action`
+
+### 单个`action`的参数
+
+1. 首先你需要指定`action`的类型, 通过`"t"`字段设置, 设置了`"t"`字段后, 你需要根据`"t"`的值设置不同操作的具体参数
+    - | `"t"`     | `含义`         | 额外需要的设置的参数                                                          |
+      |-----------|--------------|---------------------------------------------------------------------|
+      | `"acc"`   | 调整游戏`倍速`     | [`"acc"动作额外参数`](/develop_doc/script/auto_fight_action_acc#额外参数)     |
+      | `"auto"`  | 调整游戏`auto`状态 | [`"auto"动作额外参数`](/develop_doc/script/auto_fight_action_auto#额外参数)   |
+      | `"skill"` | 释放技能         | [`"skill"动作额外参数`](/develop_doc/script/auto_fight_action_skill#额外参数) |
+
 
 ## 条件(Condition)
 
