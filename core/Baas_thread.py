@@ -715,6 +715,7 @@ class Baas_thread:
                 'Global': (557, 10, 662, 40),
                 'JP': (530, 10, 642, 40)
             }
+            region = region[self.server]
         ocr_res = self.ocr.get_region_res(
             self,
             region,
