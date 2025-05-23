@@ -474,7 +474,8 @@ class Baas_thread:
             cfg_key_name = 'createPriority_phase' + str(phase)
             current_priority = self.config_set.get(cfg_key_name)
             res = []
-            default_priority = self.static_config.create_default_priority[self.config_set.server_mode]["phase" + str(phase)]
+            default_priority = self.static_config.create_default_priority[self.config_set.server_mode][
+                "phase" + str(phase)]
             for i in range(0, len(current_priority)):
                 if current_priority[i] in default_priority:
                     res.append(current_priority[i])
@@ -494,7 +495,8 @@ class Baas_thread:
                 return func_dict[activity](self)
             except FunctionCallTimeout:
                 if not self.deal_with_func_call_timeout():
-                    self.push_and_log_error_msg("Function Call Timeout", "Failed to Restart Game when function call timeout")
+                    self.push_and_log_error_msg("Function Call Timeout",
+                                                "Failed to Restart Game when function call timeout")
                     return False
             except PackageIncorrect as e:
                 pkg = e.message
@@ -703,12 +705,16 @@ class Baas_thread:
         if is_main_page:
             region = {
                 'CN': (512, 25, 609, 52),
-                'Global':(512, 25, 609, 52),
+                'Global': (512, 25, 609, 52),
                 'JP': (485, 23, 586, 54)
             }
             region = region[self.server]
         else:
-            region = (557, 10, 662, 40)
+            region = {
+                'CN': (557, 10, 662, 40),
+                'Global': (557, 10, 662, 40),
+                'JP': (530, 10, 642, 40)
+            }
         ocr_res = self.ocr.get_region_res(
             self,
             region,
@@ -859,7 +865,8 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_normal_tasks.append(readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
+                self.config.unfinished_normal_tasks.append(
+                    readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
@@ -872,7 +879,8 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_hard_tasks.append(readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
+                self.config.unfinished_hard_tasks.append(
+                    readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)
