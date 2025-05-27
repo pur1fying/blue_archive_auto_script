@@ -153,6 +153,7 @@ def to_bounty(self, num, skip_first_screenshot=False):
         "main_page_bus": (731, 431),
         "rewarded_task_location-select": (992, bounty_location_y[num]),
         "rewarded_task_task-info": (1129, 141),
+        "rewarded_task_help": (1014, 135),
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164)
     }
@@ -168,8 +169,8 @@ def to_choose_bounty(self, skip_first_screenshot=False):
         "rewarded_task_task-info": (1129, 141),
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
-        'rewarded_task_help': (1014, 135),
-        'rewarded_task_purchase-bounty-ticket-notice': (888, 163),
+        "rewarded_task_help": (1014, 135),
+        "rewarded_task_purchase-bounty-ticket-notice": (888, 163),
     }
     rgb_ends = "choose_bounty"
     rgb_possibles = {"main_page": (1198, 580)}
