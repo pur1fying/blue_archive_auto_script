@@ -316,7 +316,7 @@ class Connection:
             elif device.state == 'device':
                 pass
             else:
-                self.logger.warning(f'Device {device.serial} is is having a unknown status: {device.status}')
+                self.logger.warning(f'Device {device.serial} is is having a unknown status: {device.state}')
 
         # Skip for emulator-5554
         if 'emulator-' in self.serial:
