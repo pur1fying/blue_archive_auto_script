@@ -1,0 +1,44 @@
+/* Add any global styles here */
+body {
+    margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .section-card {
+    margin-bottom: 20px;
+  }
+  
+  .el-form-item {
+    margin-bottom: 18px;
+  }
+  .dynamic-list-item {
+    border: 1px solid var(--el-border-color-lighter);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background-color: var(--el-fill-color-lighter);
+  }
+  .nested-list-item {
+    border: 1px dashed var(--el-border-color-light);
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: var(--el-bg-color);
+  }
+  .full-width-select .el-select {
+    width: 100%;
+  }
+  .action-buttons {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px; /* For spacing between buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+  }
