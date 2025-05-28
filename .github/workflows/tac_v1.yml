@@ -34,3 +34,4 @@ jobs:
         with:
           branch: gh-pages
           folder: ./docs/test_doc/tac_v1/dist
+          target-folder: tac_v1
