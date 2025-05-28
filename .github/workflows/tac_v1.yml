@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 20.x
           cache: "pnpm"
-          cache-dependency-path: ".docs/test_doc/tac_v1"
+          cache-dependency-path: "./docs/test_doc/tac_v1"
       - name: Build VitePress
         run: |
           pnpm install
