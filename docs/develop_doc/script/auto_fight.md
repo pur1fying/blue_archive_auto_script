@@ -27,43 +27,41 @@
     3. 血量 > 0
     4. 血量 < 0
 - 流程中存在以下动作`action`
-    1. 释放技能1 (`release_skill_1`)
-    2. 释放技能2 (`release_skill_2`)
-    3. 重开 (`restart`)
+    1. 释放技能1 `release_skill_1`
+    2. 释放技能2 `release_skill_2`
+    3. 重开 `restart`
 
 - 我们可以将流程拆分为以下状态`state`
-    1. 自动战斗开始 (`start`)
+    1. 自动战斗开始 `start`
         - 下一个状态 : 释放技能1
-    2. 释放技能1 (`release_skill_1`)
+    2. 释放技能1 `release_skill_1`
         - 动作 : 释放技能1
         - 状态转移 : 
             1. 条件 : 血量 > 500w  | 下一个状态 : 重开
             2. 条件 : 血量 < 500w | 下一个状态 : 释放技能2
-    3. 释放技能2 (`release_skill_2`)
+    3. 释放技能2 `release_skill_2`
         - 动作 : 释放技能2
         - 状态转移 : 
             1. 条件 : 血量 > 0 | 下一个状态 : 重开
             2. 条件 : 血量 < 0 | 下一个状态 : 结束
-    4. 重开 (`restart`)
+    4. 重开 `restart`
        - 动作 : 重开
        - 下一个状态 : 释放技能1
-    5. 结束 (`end`)
+    5. 结束 `end`
 
 :::info
-你或许会疑惑`state`中的释放技能1 / 释放技能2 / 重开 是不是与上面的`action`重复了, 这实际上是完全不同的概念, 状态名(`state`)是可以和动作(`action`)名相同的, 请注意区分同名的状态和动作
+你或许会疑惑`state`中的释放技能1 / 释放技能2 / 重开 是不是与上面的`action`重复了, 这实际上是完全不同的概念, 状态名`state`是可以和动作名`action`相同的, 请注意区分同名的状态和动作
 :::
 
 - 根据以上例子, 你可能发现了, **BAAS**自动战斗轴文件本质上需要你完成三个内容:
     - `状态(state)` : 自动战斗在到达状态时执行动作, 并按照转移条件转移到下一个状态
-        - [状态书写规范](#状态书写规范)
+        - [状态书写规范](#状态-state)
     - `条件(condition)` : 状态转移的条件
-        - [条件书写规范](#条件书写规范)
+        - [条件书写规范](#条件-condition)
     - `动作(action)` : 到达一个状态后立即执行的动作
-        - [动作书写规范](#动作action)
+        - [动作书写规范](#动作-action)
 
-### 队伍配置
-- 通过规定角色练度确定是否可以使用这个轴 (可选)
-- 选择初始技能
+- 接下来我们逐步讲解自动战斗轴该如何书写
 
 ## 截图数据监测
 - 相关代码见 `apps/BAAS/src/module/auto_fight/screenshot_data` 文件夹
@@ -222,7 +220,8 @@ screenshot_data_recorder
 - **description**: 突击角色的名称列表
 - **type**: `list`
 - **elements**: 
-    - `string` : 角色名称
+    - **description**: 角色名称
+    - **type**: `string`
 - **note**: 
   1. 这些名称直接决定了yolo模型检测的角色列表
   2. `resource/yolo_models/data.yaml` 中`names` 列举了所有可以被yolo模型识别的角色列表, 同时这也是**BAAS** YOLO模型的训练配置
@@ -233,18 +232,20 @@ screenshot_data_recorder
 - **description**: 后排角色的名称列表
 - **type**: `list`
 - **elements**: 
-    - `string` : 角色名称
+    - **description**: 角色名称
+    - **type**: `string`
 
 ### `/formation/slot_count`
 - **description**: 技能槽的数量
-- **type**: `int`
+- **type**: `unsigned int`
 - **note**: 一般设置为`3`, 未来可能会支持更多的技能槽(爬塔玩法中六槽)
 
 ### `/formation/all_appeared_skills`
 - **description**: 所有出现的技能名称列表
 - **type**: `list`
 - **elements**: 
-    - `string` : 技能名称
+    - **description**: 技能名称
+    - **type**: `string`
 - **note**:
 1. **BAAS**自动战斗在检测技能时, 只会检测该配置列出的技能
 2. 你可以在`/resource/images/CN/zh-cn/skill/active`查询已被录入的技能, 这个列表的技能名与该文件夹下的图片名一一对应
@@ -253,29 +254,41 @@ screenshot_data_recorder
 ### `/BossHealth/current_ocr_region`
 - **description**: BOSS当前血量的文字识别区域
 - **type**: `list`
-- **elements**: 
-    - `int` : 文字识别区域的坐标, 由四个整数值组成, 分别表示`左上角x坐标`, `左上角y坐标`, `右下角x坐标`, `右下角y坐标`
 - **length**: `4`
-
+- **elements**:
+    - **description**: 文字识别区域的坐标, 由四个整数值组成, 分别表示`左上角x坐标`, `左上角y坐标`, `右下角x坐标`, `右下角y坐标`
+    - **type**: `int`
+  
 ### `/BossHealth/max_ocr_region`
 - **description**: BOSS最大血量的文字识别区域
 - **type**: `list`
-- **elements**: 
-    - `int` 
 - **length**: `4`
-- **note**: 这个区域的坐标和`/BossHealth/current_ocr_region`相同, 但是它的坐标是**BOSS最大血量**的坐标
+- **elements**: 
+    - **type**: `int` 
+- **note**: 这个区域的坐标填写和`/BossHealth/current_ocr_region`相同, 但是它的坐标是**BOSS最大血量**的坐标
 
 ### `/BossHealth/ocr_region`
 - **description**: BOSS血量的文字识别区域
 - **type**: `list`
-- **elements**: 
-    - `int` : 文字识别区域的坐标, 由四个整数值组成, 分别表示`左上角x坐标`, `左上角y坐标`, `右下角x坐标`, `右下角y坐标`
 - **length**: `4`
+- **elements**: 
+    - **type**: `int` 
 - **note**: 这个区域的坐标同时包含最大血量和当前血量
 
 ### `/BossHealth/ocr_model_name`
 - **description**: 文字识别模型的名称
 - **type**: `string`
+- **constrains**:
+  - | 值          | 含义       |
+    |------------|----------|
+    | `en-us`    | 英文模型     |
+    | `zh-cn`    | v4简体中文模型 |
+    | `zh-cn_v3` | v3简体中文模型 |
+    | `ru-ru`    | 俄文模型     |
+    | `ja-jp`    | 日文模型     |
+    | `zh-tw`    | 繁体中文模型   |
+    | `ko-kr`    | 韩文模型     |
+  
 - **note**: 一般不需要修改
 
 ### `/yolo_setting/model`
@@ -287,14 +300,15 @@ screenshot_data_recorder
     | `best.onnx`      | fp32模型 |
     | `best_fp16.onnx` | fp16模型 |
 
+### `/yolo_setting/update_inverval`
+- **description**: 我们不希望每一张截图都更新目标位置, 设定一定间隔更新
+- **type**: `unsigned int`
+- **note**: 单位为`ms`, 值越小, 更新频率越快, cpu/gpu的负载越高
+
 ## 状态(State)
 
 ### `states`
 1. 所有状态都在`states`中定义, 它是一个字典, 每个键值对表示一个状态, `键表示状态名`, 值表示状态的参数
-
-### `start_state`
-1. 它**必须**在自动战斗流程文件中被定义, 指示自动战斗开始时的进入的状态
-2. 它的值是一个**字符串**, 和`states`中的一个状态名相等
 
 **example**:
 1. 下图在`states`中定义了三个状态, `状态一` / `状态二` / `状态三`, 起始状态为`状态一`
@@ -331,12 +345,12 @@ screenshot_data_recorder
 #### `action`
 - **description**: 到达这个状态后立即执行的行为（如技能释放, 开启auto/倍速, 重开战斗, 尝试跳过转阶段动画等)
 - **type**: `string`
-- **constrains**: 指定的动作必须在[`actions`](#动作action)中被定义
+- **constrains**: **动作引用**必须在[`actions`](#actions)中被定义
 
 #### `action_fail_transition`
 - **description**: 当`action`执行失败时(如未跳过转阶段动画时), 自动战斗会转移到这个状态
 - **type**: `string`
-- **constrains**: 指定的状态必须在[`states`](#states)中被定义
+- **constrains**: **状态引用**必须在[`states`](#states)中被定义
 
 #### `transitions`
 - **description**: 指示`action`结束后的状态转移, 它是一个`列表`, 每个元素表示[一个状态转移](#一个状态转移)
@@ -344,18 +358,26 @@ screenshot_data_recorder
     - **elements**: 
         - `dict` : 每个元素表示[一个状态转移](#一个状态转移)
 
-#### `default_transition`
-1. 当`transitions`中的**所有条件**都不被满足时(或`transitions`没有任何条件), 默认转移状态
-
 #### 一个状态转移
 每个状态转移转移表示在某个条件成立时转移到下一个状态, 我们需要指定`条件` 和 `下一个状态`, 分别对应以下参数
 1. `condition`
-    - 状态转移的条件名, 这个条件必须在[`conditions`](#条件condition)中被定义
-    - 它的值是一个**字符串**, 必须在[`conditions`](#条件condition)中被定义
-2. `next`
-      - 下一个状态名, 这个状态必须在[`states`](#states)中被定义
-      - 它的值是一个**字符串**, 必须在[`states`](#states)中被定义 
+    - **description**: 状态转移的条件名
+    - **type**: `string`
+    - **constrains**: **条件引用**必须在[`conditions`](#conditions)中被定义
 
+2. `next`
+    - **description**: 状态转移的下一个状态名
+    - **type**: `string`
+    - **constrains**: **状态引用**必须在[`states`](#states)中被定义
+
+#### `default_transition`
+1. 当`transitions`中的**所有条件**都不被满足时(或`transitions`没有任何条件), 默认转移状态
+
+### `start_state`
+- **description**: 自动战斗开始时的初始状态
+- **type**: `string`
+- **constrains**: **状态引用**必须在[`states`](#states)中被定义
+- **note**: 它**必须**在自动战斗流程文件中被定义, 指示自动战斗开始时的进入的状态
 
 ### 示例
 **example**: 
@@ -439,6 +461,75 @@ screenshot_data_recorder
 
 ## 条件(Condition)
 
+### `conditions`
+1. 所有条件都在`conditions`中定义, 它是一个字典, 每个键值对表示一个条件序列, `键表示条件名`, 值是一个**字典**
+
+**example**:
+```json
+{
+  "conditions": {
+    
+    "条件1": {
+
+    },
+    
+    "条件2": {
+
+    }
+  }
+}
+```
+
+### 单个`condition`的参数
+[`conditions`](#conditions) 中的例子列举了两个条件, 但是他们并没有任何实际内容, 我们需要在单个条件中设置以下参数以赋予状态意义
+
+1. 首先你需要通过`type`字段指定`condition`的类型, 合法的`type`如下, 接着你需要根据`type`的值设置额外参数
+    - | `type`         | `含义`                    | 额外需要的设置的参数                                                                         |
+      |----------------|-------------------------|------------------------------------------------------------------------------------|
+      | `and_combined` | 组合条件<br/>若干条件同时成立时才成立的  | [`and_combined条件额外参数`](/develop_doc/script/auto_fight_condition_and_combined#额外参数) |
+      | `or_combined`  | 组合条件<br/>若干条件中任意一个成立就成立 | [`or_combined条件额外参数`](/develop_doc/script/auto_fight_condition_or_combined#额外参数)   |
+      | `skill_name`   | 技能名称相关                  | [`skill_name条件额外参数`](/develop_doc/script/auto_fight_condition_skill_name#额外参数)     |
+      | `cost`         | 费用相关                    | [`cost条件额外参数`](/develop_doc/script/auto_fight_condition_cost#额外参数)                 |
+      | `boss_health`  | boss血量相关                | [`boss_health条件额外参数`](/develop_doc/script/auto_fight_condition_boss_health#额外参数)   |
+
+2. 可选参数
+    - [`timeout`](#timeout)
+    - [`and`](#and) 
+    - [`or`](#or)
+
+#### `timeout`
+**description**: 判断这个条件成立的时限, **超时则认为该条件不成立**
+- **type**: `unsigned int`
+- **note**: 
+    1. 这个参数的设计是为了避免条件判断陷入死循环
+    2. 单位为`ms`, 默认为`5000`
+
+#### `and`
+**description**: 你可以指定一系列条件, 当前条件成立时, 这些条件必须同时成立(加强条件的成立要求)
+- **type**: `list`
+    - **elements**: 
+        - **description**: 需要同时成立条件的名称
+        - **type**: `string`
+        - **constrains**: **条件引用**必须在[`conditions`](#conditions)中被定义
+
+#### `or`
+**description**: 你可以指定一系列条件, 如果它们中任意一个成立, 当前条件也会被视为成立(可以理解为一种补救措施, 减弱条件成立要求)
+- **type**: `list`
+    - **elements**: 
+        - **description**: 补救条件的名称
+        - **type**: `string`
+        - **constrains**: **条件引用**必须在[`conditions`](#conditions)中被定义
+    
+**note**: 一个条件存在`本体`, `与条件`和 `或条件`, 它们共同决定了条件成立与否, 具体逻辑如下
+1. 在一轮截图 + 数据更新后进行条件判断
+    - `本体`待定, 某个`与条件`不成立, 则认为整体条件不成立
+    - `本体`待定, 某个`或条件`成立, 则认为整体条件成立
+    - `本体`待定, 没有不成立的`与条件`, 且没有成立的`或条件`, 则继续进行截图 + 数据更新
+    - `本体`成立, 某个`与条件`不成立, 则认为整体条件不成立
+    - `本体`成立, 没有不成立的`与条件`, 且有待定的`与条件`, 则继续进行截图 + 数据更新
+    - `本体`不成立, 某个`或条件`成立, 则认为整体条件成立
+    - `本体`不成立, 没有成立的`或条件`, 且有待定的`或条件`, 则继续进行截图 + 数据更新
+
 ### 条件类(Condition Class)
 我们希望[可监测的数据](#可监测的数据)满足一些条件时进行自动化操作, 条件类让我们能用一种规范的语言表达我们所需要的条件
 
@@ -463,70 +554,6 @@ screenshot_data_recorder
 ### 条件判断 (Condition Judgement)
 按照下图的架构实现自动战斗的条件判断, 该架构设计参照[条件类](#条件类-condition-class)所需的特性
 ![condition_judgement.png](/assets/condition_judgement.png)
-
-### `conditions`
-1. 所有条件都在`conditions`中定义, 它是一个字典, 每个键值对表示一个条件, `键表示条件名`, 值是一个**字典**
-
-**example**:
-```json
-{
-  "conditions": {
-    
-    "条件1": {
-
-    },
-    
-    "条件2": {
-
-    }
-  }
-}
-```
-
-## 重开条件(Restart Condition)
-
-重开是凹分必不可少的环节之一, 列举以下重开条件以供参考
-
-### BOSS血量范围
-- **description**: 检查BOSS血量是否在某一范围
-- **checkpoint**:
-    1. 战斗剩余时间达到某值
-    2. 释放技能后x秒
-- **usage**:
-    1. 技能未暴击
-    2. 其他异常 (学生退场 / 寿司开盾减伤 / 黑白转阶段)
-
-### BOSS血量减少
-- **description**: 检查BOSS血量是否在某一时间段内下降期望值
-- **checkpoint**:
-  1. 战斗剩余时间达到某值计时x秒
-  2. 释放技能后计时x秒
-  
-### 技能槽
-- **description**:检查学生技能是否出现在技能槽
-- **checkpoint**:
-  1. 战斗剩余时间达到某值计时x秒
-  2. 释放技能后计时x秒
-- **usage**:
-   1. 检查初始技能顺序是否正确
-   2. 学生退场 --> 技能排序变化
-   3. `auto`异常释放技能
-
-### 技能Cost
-- **description**:检查技能Cost是否为指定值
-- **checkpoint**:
-  1. 战斗剩余时间达到某值计时x秒
-  2. 释放技能后计时x秒
-- **usage**:
-   1. 检查忧, 枫香(新年) 等减费角色的技能是否释放到期望目标
-
-### 
-| 字段  | 含义                       |
-|-----|--------------------------|
-| `0` | 开启`auto`释放 (确保`auto`被选中) |
-| `1` | 自定义点击顺序                  |
-| `2` | 保证槽技能被选中-->释放            |
-
 
 ## 使用前须知
 ### 必要的游戏内设置
