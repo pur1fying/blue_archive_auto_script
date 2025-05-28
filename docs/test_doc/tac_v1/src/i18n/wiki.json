@@ -1,0 +1,42 @@
+{
+    "en":{
+        "general": "Wiki for General Info section. Describes 'Axis Name' and 'Start State'.",
+        "formation": "Wiki for Formation. Explains front, back, slot count, skills.",
+        "battleInfo": "Wiki for Battle Info. How to configure boss health per phase.",
+        "bossHealthOcr": "Wiki for Boss Health OCR settings.",
+        "yolo": "Wiki for YOLO object detection settings.",
+        "states": "Wiki for States. How to define states, actions, transitions.",
+        "actions": "Wiki for Actions. Define sequences of operations.",
+        "conditions": "Wiki for Conditions. Define criteria for state transitions."
+    },
+    "zh":{
+        "general": "通用信息部分的 Wiki。描述“轴名称”和“起始状态”。",
+        "formation": "编队的 Wiki。解释前排、后排、技能槽数量和技能。",
+        "battleInfo": "战斗信息的 Wiki。如何配置每个阶段的 Boss 血量。",
+        "bossHealthOcr": "Boss 血量 OCR 设置的 Wiki。",
+        "yolo": "YOLO 目标检测设置的 Wiki。",
+        "states": "状态的 Wiki。如何定义状态、动作和转移。",
+        "actions": "动作的 Wiki。定义操作序列。",
+        "conditions": "条件的 Wiki。定义状态转移的标准。"
+    },
+    "ja":{
+        "general": "一般情報セクションのWiki。「軸名」と「開始状態」について説明します。",
+        "formation": "編成のWiki。前衛、後衛、スキルスロット数、スキルについて説明します。",
+        "battleInfo": "バトル情報のWiki。各フェーズのボスのHPを設定する方法。",
+        "bossHealthOcr": "ボスHP OCR設定のWiki。",
+        "yolo": "YOLOオブジェクト検出設定のWiki。",
+        "states": "状態のWiki。状態、アクション、遷移を定義する方法。",
+        "actions": "アクションのWiki。操作シーケンスを定義します。",
+        "conditions": "条件のWiki。状態遷移の基準を定義します。"
+    },
+    "ko":{
+        "general": "일반 정보 섹션의 위키. '축 이름'과 '시작 상태'를 설명합니다.",
+        "formation": "편성의 위키. 전열, 후열, 스킬 슬롯 수 및 스킬을 설명합니다.",
+        "battleInfo": "전투 정보의 위키. 각 단계의 보스 체력을 설정하는 방법.",
+        "bossHealthOcr": "보스 체력 OCR 설정의 위키.",
+        "yolo": "YOLO 객체 감지 설정의 위키.",
+        "states": "상태의 위키. 상태, 액션 및 전이를 정의하는 방법.",
+        "actions": "액션의 위키. 작업 시퀀스를 정의합니다.",
+        "conditions": "조건의 위키. 상태 전이 기준을 정의합니다."
+    }
+}
