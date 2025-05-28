@@ -322,22 +322,32 @@ screenshot_data_recorder
 ### 单个`state`的参数
 [`states`](#states) 中的例子列举了三个状态, 但是他们并没有任何实际内容, 我们需要在单个状态中设置以下参数以赋予状态意义 
 1. [`action`](#action)
-2. [`transitions`](#transitions)
-3. [`default_transition`](#default-transition)
+2. [`action_fail_transition`](#action-fail-transition)
+3. [`transitions`](#transitions)
+4. [`default_transition`](#default-transition)
 
-**note**: 以上三个参数都是可选的, 并非必须要设置
+**note**: 以上个参数都是可选的, 你可以根据需要自行选择
 
 #### `action`
-1. 到达这个状态后立即执行的行为（如技能释放、开启auto/倍速 重开战斗等)
-2. 它的值是一个**字符串**, 必须在[`actions`](#动作action)中被定义
+- **description**: 到达这个状态后立即执行的行为（如技能释放, 开启auto/倍速, 重开战斗, 尝试跳过转阶段动画等)
+- **type**: `string`
+- **constrains**: 指定的动作必须在[`actions`](#动作action)中被定义
+
+#### `action_fail_transition`
+- **description**: 当`action`执行失败时(如未跳过转阶段动画时), 自动战斗会转移到这个状态
+- **type**: `string`
+- **constrains**: 指定的状态必须在[`states`](#states)中被定义
 
 #### `transitions`
-1. 指示`action`结束后的状态转移, 它是一个`列表`, 每个元素表示[一个状态转移](#一个状态转移)
+- **description**: 指示`action`结束后的状态转移, 它是一个`列表`, 每个元素表示[一个状态转移](#一个状态转移)
+- **type**: `list`
+    - **elements**: 
+        - `dict` : 每个元素表示[一个状态转移](#一个状态转移)
 
 #### `default_transition`
 1. 当`transitions`中的**所有条件**都不被满足时(或`transitions`没有任何条件), 默认转移状态
 
-### 一个状态转移
+#### 一个状态转移
 每个状态转移转移表示在某个条件成立时转移到下一个状态, 我们需要指定`条件` 和 `下一个状态`, 分别对应以下参数
 1. `condition`
     - 状态转移的条件名, 这个条件必须在[`conditions`](#条件condition)中被定义
@@ -346,81 +356,37 @@ screenshot_data_recorder
       - 下一个状态名, 这个状态必须在[`states`](#states)中被定义
       - 它的值是一个**字符串**, 必须在[`states`](#states)中被定义 
 
+
+### 示例
+**example**: 
+1. 当自动战斗转移到这个状态时, 会立即执行`释放技能一`
+2. 如果释放技能失败, 转移到`重新开始战斗`
+3. 如果释放技能成功, 并且`boss血量小于500w`, 转移到`释放技能二`
+4. 否则转移到`重新开始战斗`
 ```json
 {
   "状态一": {
     "action": "释放技能一",
+    "action_fail_transition": "重新开始战斗",
     "transitions": [
       {
         "condition": "boss血量小于500w",
         "next": "释放技能二"
       }
     ],
-    "default_transition": "重开"
-  }
-}
-```
-每个状态由以下内容组成
-1. `action`: 到达这个状态后立即执行的行为（如技能释放、开启auto/倍速等), 这个行为必须在`actions`中被定义
-2. `transitions`: `action`结束后的状态转移
-    - 每个状态转移转移包含以下参数
-      - `condition`: 状态转移的条件名, 这个条件必须在`conditions`中被定义
-      - `next`: 下一个状态名, 这个状态必须在`states`中被定义
-3. `default_transition`: 当`transitions`中的**所有条件**都不被满足时(或`transitions`没有任何条件), 默认转移状态
-
-- **note**:
-1. 初始状态[`start_state`](#start-state)被定义
-2. 结束条件: 自动战斗会在**没有任何可转移状态**时退出循环, 可能情况如下:
-    - `transitions`中没有任何条件成立, 并且没有`default_transition`
-    - `transitions`中没有条件, 并且没有`default_transition`
-3. 值得一提的是, 没有`default_transition`, 自动战斗也可以实现它的功能, 你只需要找到所有其他都不成立的条件, 并将其作为transition的最后一个条件也可以实现default_transition的功能
-
-**example**: [例子](#例子-example)中的轴需要的五个状态以及起始状态如下
-```json
-{
-  "start_state": "自动战斗开始",
-  
-  "states": {
-    
-    "自动战斗开始": {
-      "default_transition": "释放技能1"
-    },
-    
-    "释放技能1": {
-      "action": "释放技能1",
-      "transitions": [
-        {
-          "condition": "血量 > 500w",
-          "next": "释放技能2"
-        }
-      ],
-      "default_transition": "重开"
-    },
-    
-    "释放技能2": {
-      "action": "释放技能2",
-      "transitions": [
-        {
-          "condition": "boss血量 < 0",
-          "next": "结束战斗"
-        }
-      ],
-      "default_transition": "重新开始"
-    },
-    
-    "重新开始": {
-      "action": "重新开始",
-      "default_transition": "自动战斗开始"
-    },
-
-    "结束战斗": {
-      
-    }
+    "default_transition": "重新开始战斗"
   }
 }
 ```
 
 **note**:这个例子中的`action` 以及 `condition` 都还未被定义, 你需要在[`actions`](#动作action) 和 [`conditions`](#条件condition)中学习如何定义这些动作和条件
+
+### 注意事项
+1. 初始状态`start_state`**必须被定义**
+2. 结束条件: 自动战斗会在**没有任何可转移状态**时退出循环, 可能情况如下:
+    - `transitions`中任何条件都不成立, 并且没有`default_transition`
+    - `transitions`中没有条件, 并且没有`default_transition`
+3. 值得一提的是, 没有`default_transition`, 自动战斗也可以实现它的功能, 你只需要找到所有其他都不成立的条件, 并将其作为transition的最后一个条件也可以实现`default_transition`的功能
 
 
 ## 动作(Action)
@@ -454,19 +420,21 @@ screenshot_data_recorder
 设置单一`action`是一个动作列表有许多好处, 如下
 1. 允许你自由定义技能释放流程
     - 释放完第一个技能后你可以立刻释放第二个技能, 实现游戏中`反手拐`(在主c技能释放后释放辅助增伤技能)的效果
-    - 释放技能前你可以选择调整游戏倍速为1
-    - 释放技能后你可以选择调整游戏倍速回到3
+    - 释放技能前你可以选择调整游戏倍速为`1`
+    - 释放技能后你可以选择调整游戏倍速回到`3`
 2. 简化了`state`的书写
     - `state`仅需指定`action`的名称, 而不需要重写所有`action`
 
 ### 单个`action`的参数
 
-1. 首先你需要指定`action`的类型, 通过`"t"`字段设置, 设置了`"t"`字段后, 你需要根据`"t"`的值设置不同操作的具体参数
-    - | `"t"`     | `含义`         | 额外需要的设置的参数                                                          |
-      |-----------|--------------|---------------------------------------------------------------------|
-      | `"acc"`   | 调整游戏`倍速`     | [`"acc"动作额外参数`](/develop_doc/script/auto_fight_action_acc#额外参数)     |
-      | `"auto"`  | 调整游戏`auto`状态 | [`"auto"动作额外参数`](/develop_doc/script/auto_fight_action_auto#额外参数)   |
-      | `"skill"` | 释放技能         | [`"skill"动作额外参数`](/develop_doc/script/auto_fight_action_skill#额外参数) |
+[`actions`](#actions) 中的例子列举了一些动作, 但是他们并没有任何实际内容, 我们需要在单个动作中设置以下参数以赋予状态意义
+
+1. 首先你需要通过`t`字段指定`action`的类型, 合法的`t`如下, 接着你需要根据`t`的值设置额外参数
+    - | `t`     | `含义`         | 额外需要的设置的参数                                                        |
+      |---------|--------------|-------------------------------------------------------------------|
+      | `acc`   | 调整游戏`倍速`     | [`acc动作额外参数`](/develop_doc/script/auto_fight_action_acc#额外参数)     |
+      | `auto`  | 调整游戏`auto`状态 | [`auto动作额外参数`](/develop_doc/script/auto_fight_action_auto#额外参数)   |
+      | `skill` | 释放技能         | [`skill动作额外参数`](/develop_doc/script/auto_fight_action_skill#额外参数) |
 
 
 ## 条件(Condition)
@@ -478,7 +446,7 @@ screenshot_data_recorder
     - 在循环中依次执行 `截图 --> 数据更新 --> 条件判断`
     - 数据更新前, 遍历每个`condition`, 通过标志位指示需要被更新的数据
     - 数据更新前, 首先判断界面是否为战斗中, 非战斗中则重新截图
-    - 数据更新前, 等待正在更新数据线程数为0 (防止同一数据更新同时进行)
+    - 数据更新前, 等待正在更新数据线程数为`0` (防止同一数据更新同时进行)
     - 由上一条可得, 如果`一条数据`不被当前`任意一个condition`所需要, 则不更新会该数据 
     - 当某一条件成立 / 所有条件不成立时结束判断
 2. 单一状态信息更新后**紧接着**进行条件判断
@@ -496,15 +464,21 @@ screenshot_data_recorder
 按照下图的架构实现自动战斗的条件判断, 该架构设计参照[条件类](#条件类-condition-class)所需的特性
 ![condition_judgement.png](/assets/condition_judgement.png)
 
-## 条件书写规范
-**BAAS**根据以下规范识别`condition`
-1. 用户书写的所有`condition` 存放在
+### `conditions`
+1. 所有条件都在`conditions`中定义, 它是一个字典, 每个键值对表示一个条件, `键表示条件名`, 值是一个**字典**
+
+**example**:
 ```json
 {
   "conditions": {
-    "condition_name" : {
-      
-    }    
+    
+    "条件1": {
+
+    },
+    
+    "条件2": {
+
+    }
   }
 }
 ```
