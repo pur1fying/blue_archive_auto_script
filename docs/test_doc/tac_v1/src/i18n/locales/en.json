@@ -2,12 +2,15 @@
     "appName": "BAAS Auto Fight JSON Generator",
     "loadWikiExample": "Load WIKI Example",
     "resetForm": "Reset Form",
-    "importFile": "Import File",
+    "importFile": "Load Config from File",
     "toggleTheme": "Toggle Theme",
     "toggleModuleJson": "Module JSON Panes",
     "generateAndCopy": "Generate & Copy",
     "jsonCopiedSuccess": "JSON copied to clipboard!",
     "jsonCopiedError": "Failed to copy JSON.",
+    "operation": "Operation",
+    "showJson": "Show JSON",
+    "hideJson": "Hide JSON",
     "remove": "Remove",
     "on": "ON",
     "off": "OFF",
@@ -103,5 +106,10 @@
     "navigation.title": "Configuration Navigation",
 
     "wikiPanelTitle": "WIKI Explanation",
-    "generatedJson": "Generated JSON"
+    "generatedJson": "Generated JSON",
+    
+    "exportToFile": "Export to File",
+    "fileExportedSuccess": "File exported successfully as",
+    "fileExportErrorBrowser": "File export is not supported by your browser.",
+    "jsonOutputEmpty": "JSON output is empty."
   }

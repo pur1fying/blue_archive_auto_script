@@ -2,7 +2,10 @@
   <el-config-provider :locale="currentElementLocale">
     <div class="app-layout">
       <!-- Main Header (Stays at the top or within the main content area) -->
-      <el-page-header @back="goBack" :content="$t('appName')" class="app-header">
+      <el-page-header :content="$t('appName')" class="app-header">
+        <template #breadcrumb >
+          <!-- 不提供内容，覆盖默认返回图标 -->
+        </template>
          <template #extra>
             <div class="header-actions">
               <LanguageSwitcher />
@@ -17,13 +20,14 @@
           <div class="scrollable-content">
             <el-card class="section-card global-actions-card">
               <div class="action-buttons">
-                <el-button type="primary" @click="formDataStore.loadExampleData()">{{ $t('loadWikiExample') }}</el-button>
-                <el-button @click="formDataStore.resetForm()">{{ $t('resetForm') }}</el-button>
+                <span style="font-size: 27px; line-height: 27px; font-weight: bold; margin-right: 20px; margin-top: 4px;">{{ $t('operation') }}</span>
                 <el-button @click="triggerFileInput">{{ $t('importFile') }}</el-button>
+                <el-button @click="formDataStore.loadExampleData()">{{ $t('loadWikiExample') }}</el-button>
+                <el-button @click="formDataStore.resetForm()">{{ $t('resetForm') }}</el-button>
                 <input type="file" ref="fileInput" @change="handleFileUpload" accept=".json" style="display: none;" />
-                <el-button @click="appSettingsStore.toggleModuleJsonPanes()">
+                <!-- <el-button @click="appSettingsStore.toggleModuleJsonPanes()">
                   {{ appSettingsStore.showModuleJsonPanes ? 'Hide' : 'Show' }} {{ $t('toggleModuleJson') }}
-                </el-button>
+                </el-button> -->
               </div>
             </el-card>
 
@@ -109,12 +113,6 @@ watch(() => appSettingsStore.language, (newLang) => {
   locale.value = newLang;
 });
 
-
-const goBack = () => {
-  // Placeholder if you implement routing later
-  console.log('Back button clicked');
-};
-
 const triggerFileInput = () => {
   fileInput.value?.click();
 };
@@ -168,6 +166,7 @@ const scrollToSection = (sectionId) => {
   border-bottom: 1px solid var(--el-border-color-light);
   flex-shrink: 0; /* Prevent header from shrinking */
 }
+
 .header-actions {
     display: flex;
     align-items: center;
@@ -196,5 +195,7 @@ const scrollToSection = (sectionId) => {
   height: 100%;
   padding-top: 20px; /* Align with top of first card potentially */
 }
+
+
 
 </style>

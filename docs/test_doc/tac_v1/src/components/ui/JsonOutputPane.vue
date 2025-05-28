@@ -1,18 +1,19 @@
 <template>
-    <div v-if="appSettings.showModuleJsonPanes && jsonDataString" class="module-json-pane">
-      <el-divider content-position="left">{{ title || 'Module JSON' }}</el-divider>
-      <el-input
-        type="textarea"
-        :value="jsonDataString"
-        :autosize="{ minRows: 3, maxRows: 10 }"
-        readonly
-      />
-    </div>
-  </template>
+  <!-- The v-if is now handled by the PARENT component -->
+  <div class="module-json-pane">
+    <el-divider content-position="left">{{ title || 'Module JSON' }}</el-divider>
+    <el-input
+      type="textarea"
+      :value="jsonDataString"
+      :autosize="{ minRows: 3, maxRows: 10 }"
+      readonly
+    />
+  </div>
+</template>
   
-  <script setup>
+<script setup>
   import { computed } from 'vue';
-  import { useAppSettingsStore } from '@/store/appSettings';
+  // import { useAppSettingsStore } from '@/store/appSettings';
   
   const props = defineProps({
     moduleData: {
@@ -22,7 +23,7 @@
     title: String,
   });
   
-  const appSettings = useAppSettingsStore();
+  // const appSettings = useAppSettingsStore();
   
   const jsonDataString = computed(() => {
     try {

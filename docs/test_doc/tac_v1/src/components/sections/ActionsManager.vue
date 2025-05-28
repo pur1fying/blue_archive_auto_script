@@ -1,6 +1,22 @@
 <template>
     <el-card class="section-card">
-      <template #header><span>{{ $t('actions.title') }}</span></template>
+      <!-- <template #header><span>{{ $t('actions.title') }}</span></template> -->
+
+      <template #header>
+        <div class="card-header-wrapper">
+          <span>{{ $t('actions.title') }}</span>
+          <el-button
+            type="primary"
+            link
+            @click="showJson = !showJson"
+            :icon="showJson ? Hide : View"
+            style="float: right;"
+          >
+            {{ showJson ? $t('hideJson') : $t('showJson') }}
+          </el-button>
+        </div>
+      </template>
+
       <div v-for="(actionSteps, actionName) in formDataStore.formData.actions" :key="actionName" class="dynamic-list-item">
         <el-form-item :label="$t('actions.actionName')">
           <el-input
@@ -11,7 +27,12 @@
           />
         </el-form-item>
   
-        <h4>{{ $t('actions.actionSteps') }}</h4>
+        <div>
+          <h4 style="display: inline;">{{ $t('actions.actionSteps') }}</h4>
+          <el-button type="danger" @click="formDataStore.removeAction(actionName)" style=" float: right; margin-top: -8px;" plain :icon="Close">
+          {{ $t('remove') }} {{ formDataStore.actionsMeta[actionName]?.newName || actionName }}
+        </el-button>
+        </div>
         <div v-for="(step, stepIndex) in actionSteps" :key="stepIndex" class="nested-list-item">
           <el-row :gutter="10" align="top">
             <el-col :span="6">
@@ -30,7 +51,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="4" style="padding-top: 30px;"> <!-- Adjust padding for alignment -->
-              <el-button type="danger" @click="formDataStore.removeActionStep(actionName, stepIndex)" plain size="small">{{ $t('actions.removeStep') }}</el-button>
+              <el-button type="danger" @click="formDataStore.removeActionStep(actionName, stepIndex)" plain style="float: right;" :icon="Close">{{ $t('actions.removeStep') }}</el-button>
             </el-col>
           </el-row>
           <!-- Parameters specific to action type -->
@@ -59,23 +80,24 @@
             </el-row>
           </div>
         </div>
-        <el-button @click="formDataStore.addActionStep(actionName)" type="success" plain size="small">{{ $t('actions.addStep') }}</el-button>
-        <el-button type="danger" @click="formDataStore.removeAction(actionName)" style="margin-top:10px; margin-left:10px;">
-          {{ $t('remove') }} {{ formDataStore.actionsMeta[actionName]?.newName || actionName }}
-        </el-button>
+        <el-button @click="formDataStore.addActionStep(actionName)" type="success" plain :icon="Plus" style="width: 100%;">{{ $t('actions.addStep') }}</el-button>
+
       </div>
-      <el-button @click="formDataStore.addAction()" type="primary" plain>{{ $t('actions.addAction') }}</el-button>
-      <JsonOutputPane :module-data="formDataStore.formData.actions" :title="$t('actions.jsonTitle')" />
+      <el-button @click="formDataStore.addAction()" type="primary" plain style="width: 100%;">{{ $t('actions.addAction') }}</el-button>
+      <JsonOutputPane v-if="showJson" :module-data="formDataStore.formData.actions" :title="$t('actions.jsonTitle')" />
       <WikiPanel module-key="actions" :module-title="$t('actions.title')" />
     </el-card>
   </template>
   
   <script setup>
+  import { View, Hide, Plus, Close } from '@element-plus/icons-vue'; // Import icons
+  import { ref } from 'vue'; // Add ref
   import { useFormDataStore } from '@/store/formData';
   import { useI18n } from 'vue-i18n';
   import JsonOutputPane from '../ui/JsonOutputPane.vue';
   import WikiPanel from '../ui/WikiPanel.vue';
-  
+  const showJson = ref(false); // Local state for this module's JSON pane
+
   const { t } = useI18n();
   const formDataStore = useFormDataStore();
   </script>

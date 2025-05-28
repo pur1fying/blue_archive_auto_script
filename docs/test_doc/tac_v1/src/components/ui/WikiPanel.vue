@@ -25,8 +25,9 @@
   <script setup>
   import { ref, computed, watch } from 'vue';
   import { useWikiDataStore } from '@/store/wikiData';
+  import { useI18n } from 'vue-i18n';
   import { marked } from 'marked'; // Optional: for Markdown rendering
-  
+  const { t, locale } = useI18n();
   const props = defineProps({
     moduleKey: { // e.g., 'formation', 'states'
       type: String,
@@ -41,7 +42,7 @@
   const isEditing = ref(false);
   const editableWikiText = ref('');
   
-  const currentWikiText = computed(() => wikiStore.getWikiText(props.moduleKey));
+  const currentWikiText = computed(() => wikiStore.getWikiText(props.moduleKey, locale.value));
   
   // For rendering, you can choose plain HTML or Markdown
   const renderedWikiText = computed(() => {
@@ -55,15 +56,15 @@
     }
   }, { immediate: true });
   
-  const saveWikiChanges = () => {
-    wikiStore.updateWikiText(props.moduleKey, editableWikiText.value);
-    isEditing.value = false;
-  };
+  // const saveWikiChanges = () => {
+  //   wikiStore.updateWikiText(props.moduleKey, editableWikiText.value);
+  //   isEditing.value = false;
+  // };
   
-  const cancelEdit = () => {
-    editableWikiText.value = currentWikiText.value; // Revert
-    isEditing.value = false;
-  };
+  // const cancelEdit = () => {
+  //   editableWikiText.value = currentWikiText.value; // Revert
+  //   isEditing.value = false;
+  // };
   </script>
   
   <style scoped>

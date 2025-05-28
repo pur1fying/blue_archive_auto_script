@@ -1,11 +1,15 @@
 import { createI18n } from 'vue-i18n'
 import en from './locales/en.json'
 import zh from './locales/zh.json'
+import ja from './locales/ja.json'
+import ko from './locales/ko.json'
 import { useAppSettingsStore } from '@/store/appSettings' // Adjust path if needed
 
 const messages = {
   en,
-  zh
+  zh,
+  ja,
+  ko
 }
 
 // Function to get initial locale, possibly from appSettings store

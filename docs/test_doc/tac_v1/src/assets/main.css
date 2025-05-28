@@ -42,3 +42,12 @@ body {
     gap: 10px; /* For spacing between buttons */
     flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
   }
+
+  
+.el-page-header__back {
+  display: none !important;
+}
+
+.el-page-header__back+.el-divider{
+  display: none !important;
+}

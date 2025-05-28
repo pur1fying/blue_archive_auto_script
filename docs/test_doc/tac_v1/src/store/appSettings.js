@@ -4,7 +4,7 @@ import { ref, watch } from 'vue'
 export const useAppSettingsStore = defineStore('appSettings', () => {
   const theme = ref(localStorage.getItem('theme') || 'light') // 'light' or 'dark'
   const language = ref(localStorage.getItem('language') || 'en') // 'en', 'zh', etc.
-  const showModuleJsonPanes = ref(false)
+  // const showModuleJsonPanes = ref(false)
 
   watch(theme, (newTheme) => {
     localStorage.setItem('theme', newTheme)
@@ -24,9 +24,9 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
     language.value = lang
   }
 
-  function toggleModuleJsonPanes() {
-    showModuleJsonPanes.value = !showModuleJsonPanes.value
-  }
+  // function toggleModuleJsonPanes() {
+  //   showModuleJsonPanes.value = !showModuleJsonPanes.value
+  // }
 
   // Initialize theme class on load
   document.documentElement.className = theme.value
@@ -34,9 +34,9 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
   return {
     theme,
     language,
-    showModuleJsonPanes,
+    // showModuleJsonPanes,
     toggleTheme,
     setLanguage,
-    toggleModuleJsonPanes,
+    // toggleModuleJsonPanes,
   }
 })

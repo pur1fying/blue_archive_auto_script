@@ -3,13 +3,16 @@
   "appName": "BAAS 自动战斗 JSON 生成器",
   "loadWikiExample": "加载 WIKI 示例",
   "resetForm": "重置表单",
-  "importFile": "导入文件",
+  "importFile": "从文件导入配置",
   "toggleTheme": "切换主题",
   "toggleModuleJson": "切换模块 JSON 面板",
   "generateAndCopy": "生成并复制",
   "jsonCopiedSuccess": "JSON 已复制到剪贴板！",
   "jsonCopiedError": "复制 JSON 失败。",
   "remove": "移除",
+  "operation": "操作",
+  "showJson": "显示 JSON 文本",
+  "hideJson": "隐藏 JSON 文本",
   "on": "开启",
   "off": "关闭",
 
@@ -102,5 +105,10 @@
   "conditions.jsonTitle": "条件 JSON",
   "navigation.title": "配置导航",
   "wikiPanelTitle": "WIKI 说明",
-  "generatedJson": "生成的 JSON"
+  "generatedJson": "生成的 JSON",
+
+  "exportToFile": "导出到文件",
+  "fileExportedSuccess": "文件已成功导出为",
+  "fileExportErrorBrowser": "您的浏览器不支持文件导出。",
+  "jsonOutputEmpty": "JSON 输出为空。"
 }
