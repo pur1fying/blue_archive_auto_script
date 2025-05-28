@@ -3,7 +3,7 @@ name: Tac V1
 
 on:
   push:
-    branches: ["master"]
+    branches: ["ui_refactor"]
     paths: ['docs/test_doc/tac_v1/**']
 permissions:
   contents: write
