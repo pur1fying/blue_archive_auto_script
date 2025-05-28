@@ -420,10 +420,12 @@ class Window(MSFluentWindow):
         if len(self.config_dir_list) == 0:
             check_config('default_config')
             self.config_dir_list.append(ConfigSet('default_config'))
-        self.ocr_needed = ['NUM', 'Global']
+        self.ocr_needed = ['en-us']
         for config in self.config_dir_list:
-            if config.server_mode not in self.ocr_needed:
-                self.ocr_needed.append(config.server_mode)
+            if config.server_mode == "CN":
+                self.ocr_needed.append('zh-cn')
+            elif config.server_mode == "JP":
+                self.ocr_needed.append('ja-jp')
             config.set_window(self)
         # create sub interface
         from gui.fragments.home import HomeFragment

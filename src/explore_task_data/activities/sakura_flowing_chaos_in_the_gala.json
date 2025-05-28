@@ -3,12 +3,12 @@
   "has_exchange_reward": false,
   "total_story": 10,
   "mission": [
-    "mystic1",
-    "pierce1",
-    "mystic1",
-    "mystic1",
-    "pierce1",
-    "mystic1"
+    "mystic",
+    "pierce",
+    "mystic",
+    "mystic",
+    "pierce",
+    "mystic"
   ],
   "sweep_ap_cost_mission": [
     0,

@@ -7,6 +7,7 @@ import numpy as np
 import requests
 from uiautomator2.version import (__apk_version__, __atx_agent_version__, __version__)
 import os
+import json
 
 appdir = os.path.join(os.path.expanduser("~"), '.uiautomator2')
 
@@ -45,6 +46,8 @@ class U2Client:
 
     def get_connection(self):
         return self.connection
+
+
 
 
 class BAAS_U2_Initer:

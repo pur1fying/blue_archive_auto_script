@@ -30,6 +30,7 @@ print(
 # ==================== Import Statements ====================
 
 import os
+import re
 import platform
 import shutil
 import subprocess
@@ -41,6 +42,7 @@ import psutil
 import getpass
 import requests
 import tomli_w
+from copy import deepcopy
 from alive_progress import alive_bar
 from dulwich import porcelain
 from dulwich.repo import Repo
@@ -53,8 +55,12 @@ try:
 except ModuleNotFoundError:
     import tomli as tomllib
 
-os.environ["PDM_IGNORE_ACTIVE_VENV"] = "1"
 __system__ = platform.system()
+__env__ = os.environ.copy()
+if __system__ == "Windows":
+    __env__["PYTHONPATH"] = '.env;.venv/Lib;.venv/Scripts;.venv;.;.venv/Lib/site-packages'
+
+os.environ["PDM_IGNORE_ACTIVE_VENV"] = "1"
 
 # ==================== Default Settings =====================
 
@@ -87,7 +93,7 @@ DEFAULT_SETTINGS = {
         "REPO_URL_HTTP": "https://gitee.com/pur1fy/blue_archive_auto_script.git",
         "GET_PIP_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py",
         "GET_UPX_URL": "https://ghp.ci/https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-win64.zip",
-        "GET_ENV_PATCH_URL": "https://gitee.com/kiramei/blue_archive_auto_script_assets/raw/master/env_patch.zip",
+        "GET_ENV_PATCH_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/env_patch.zip",
         "GET_PYTHON_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip",
     },
     "Paths": {
@@ -218,7 +224,7 @@ def check_python_installation():
         # Try to run the 'python' command to get version information
         result = subprocess.run(["python", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
-            print(f"Python is installed: {result.stdout.strip()}")
+            logger.info(f"Python is installed: {result.stdout.strip()}")
             return "python"
     except FileNotFoundError:
         pass
@@ -229,37 +235,41 @@ def check_python_installation():
             ["python3", "--version"], capture_output=True, text=True
         )
         if result.returncode == 0:
-            print(f"Python 3 is installed: {result.stdout.strip()}")
+            logger.info(f"Python 3 is installed: {result.stdout.strip()}")
             return "python3"
     except FileNotFoundError:
         pass
 
     # If both checks fail, Python is not installed
-    print("Python is not installed on this system.")
+    logger.info("Python is not installed on this system.")
     return None
 
 
 def install_package():
     try:
         env_pip_exec = None
+
         # Detect the OS and select the appropriate Python executable and path
         def try_sources(pkg_mgr_path, followed_cmd=None):
             for _source in G.source_list:
                 try:
+                    _followed_cmd = deepcopy(followed_cmd)
                     if G.package_manager == "pdm":
                         subprocess.run(
                             [pkg_mgr_path, "config", "--local", "pypi.url", _source],
                             check=True,
                         )
                     else:
-                        followed_cmd.extend(["-i", _source])
-                    if followed_cmd:
+                        _followed_cmd.extend(["-i", _source])
+                    if _followed_cmd:
                         if not type(pkg_mgr_path) == list:
-                            cmds = [pkg_mgr_path, *followed_cmd]
+                            cmds = [pkg_mgr_path, *_followed_cmd]
                         else:
-                            cmds = pkg_mgr_path
-                            cmds.extend(followed_cmd)
-                        subprocess.run(cmds, check=True)
+                            cmds = deepcopy(pkg_mgr_path)
+                            cmds.extend(_followed_cmd)
+                        subprocess.run(cmds,
+                                       env=__env__,
+                                       check=True)
                     return
                 except KeyboardInterrupt:
                     logger.error("User interrupted the process.")
@@ -373,22 +383,22 @@ def start_app():
         _path = G.runtime_path
 
     if __system__ == "Linux":
-        env = os.environ.copy()
         if G.runtime_path == "default":
-            env["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(
+            __env__["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(
                 BAAS_ROOT_PATH
                 / ".env/lib/python3.9/site-packages/PyQt5/Qt5/plugins/platforms"
             )
         proc = subprocess.run(
             [_path, str(BAAS_ROOT_PATH / "window.py")],  # 直接用列表传递命令
             cwd=BAAS_ROOT_PATH,  # 先 cd 到 BAAS_ROOT_PATH
-            env=env  # 传递修改后的环境变量
+            env=__env__  # 传递修改后的环境变量
         )
         return proc.returncode
     else:
         proc = subprocess.Popen(
             [_path, str(BAAS_ROOT_PATH / "window.py")],  # 直接用列表传递命令
             cwd=BAAS_ROOT_PATH,  # 先 cd 到 BAAS_ROOT_PATH
+            env=__env__,  # 传递修改后的环境变量
         )
     logger.info(f"Started process with PID: {proc.pid}")
     return proc.pid
@@ -567,6 +577,74 @@ def check_env_patch():
     Utils.unzip_file(filepath, BAAS_ROOT_PATH / ".env")
 
 
+def fix_exe_shebangs(search_dir=".venv\\Scripts"):
+    """
+    Scan all .exe files under the given directory and replace any shebang line
+    like '#!<any_path>\\.venv\\Scripts\\python.exe' with '#!python.exe',
+    while preserving the original file size by padding with spaces.
+    Backup files are saved to '__exe_backups__'.
+    """
+    backup_dir = ".venv/__exe_backups__"
+    os.makedirs(backup_dir, exist_ok=True)
+
+    # Regex to match any shebang line ending with .venv\Scripts\python.exe
+    pattern = re.compile(rb'#!.*?\\.venv\\Scripts\\python\.exe')
+    replacement = b"#!python.exe"
+
+    # Collect all .exe files under the search directory
+    exe_files = []
+    for root, _, files in os.walk(search_dir):
+        for filename in files:
+            if filename.lower().endswith(".exe"):
+                exe_files.append(os.path.join(root, filename))
+
+    modified_count = 0
+
+    with alive_bar(len(exe_files), title="Fixing .exe shebangs") as bar:
+        for full_path in exe_files:
+            bar()
+            try:
+                with open(full_path, "rb") as f:
+                    content = f.read()
+
+                match = pattern.search(content)
+                if not match:
+                    continue
+
+                matched_bytes = match.group(0)
+                padding_len = len(matched_bytes) - len(replacement)
+                if padding_len < 0:
+                    logger.warning(f"Skipped (replacement too long): {full_path}")
+                    continue
+
+                replacement_padded = replacement + b' ' * padding_len
+                new_content = content.replace(matched_bytes, replacement_padded, 1)
+
+                # Construct backup path
+                rel_path = os.path.relpath(full_path, search_dir)
+                backup_path = os.path.join(backup_dir, rel_path)
+                os.makedirs(os.path.dirname(backup_path), exist_ok=True)
+
+                # Save backup
+                with open(backup_path, "wb") as f:
+                    f.write(content)
+
+                # Overwrite original file
+                with open(full_path, "wb") as f:
+                    f.write(new_content)
+
+                modified_count += 1
+
+            except:
+                logger.exception(f"Failed to process {full_path}: {e}")
+
+    logger.success(f"Finished. {modified_count} .exe file(s) patched.")
+    if modified_count > 0:
+        logger.info(f"Backups saved to: {os.path.abspath(backup_dir)}")
+    else:
+        logger.info("No matching shebangs were found in .exe files.")
+
+
 def check_git():
     if G.dev:
         return
@@ -684,6 +762,8 @@ def pre_check():
         check_env_patch()
     check_git()
     check_requirements()
+    if __system__ == "Windows":
+        fix_exe_shebangs()
 
 
 if __name__ == "__main__":

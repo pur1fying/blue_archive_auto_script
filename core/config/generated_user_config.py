@@ -98,3 +98,9 @@ class Config:
     drill_fight_formation_list: list
     drill_enable_sweep: bool
     new_event_enable_state: str
+    ap: dict
+    creditpoints: dict
+    pyroxene: dict
+    tactical_challenge_coin: dict
+    bounty_coin: dict
+    assetsVisibility: bool

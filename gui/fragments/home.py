@@ -8,7 +8,7 @@ from random import random
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel, QHBoxLayout
-from qfluentwidgets import FluentIcon as FIF, TextEdit
+from qfluentwidgets import FluentIcon as FIF, TextEdit, SwitchButton, IndicatorPosition
 from qfluentwidgets import (
     PrimaryPushSettingCard,
     SubtitleLabel,
@@ -16,24 +16,12 @@ from qfluentwidgets import (
 )
 
 from core.notification import notify
+from gui.util.customed_ui import AssetsWidget, FuncLabel
 from gui.util.translator import baasTranslator as bt
 from window import Window
 
-
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
-
-
-class MyQLabel(QLabel):
-    button_clicked_signal = pyqtSignal()
-
-    def __init__(self, parent=None):
-        super(MyQLabel, self).__init__(parent)
-
-    def mouseReleaseEvent(self, QMouseEvent):
-        self.button_clicked_signal.emit()
-
-    def connect_customized_slot(self, func):
-        self.button_clicked_signal.connect(func)
+HUMAN_TAKE_OVER_MESSAGE = "BAAS Exited, Reason : Human Take Over"
 
 
 class HomeFragment(QFrame):
@@ -56,6 +44,7 @@ class HomeFragment(QFrame):
 
         title = self.tr("蔚蓝档案自动脚本") + ' {name}'
         self.banner_visible = self.config.get('bannerVisibility')
+        self.status_visible = self.config.get('statusVisibility')
         self.label = SubtitleLabel(self)
         config.inject(self.label, title)
         self.info = SubtitleLabel(self.tr('无任务'), self)
@@ -66,7 +55,7 @@ class HomeFragment(QFrame):
         self.infoLayout.addStretch(1)
         self.infoLayout.addWidget(self.info, 0, Qt.AlignRight)
 
-        self.banner = MyQLabel(self)
+        self.banner = FuncLabel(self)
         self.banner.setFixedHeight(200)
         self.banner.setMaximumHeight(200)
         pixmap = QPixmap(MAIN_BANNER).scaled(
@@ -83,16 +72,39 @@ class HomeFragment(QFrame):
             self
         )
 
+        # self.startup_card.set
+
+        self.switch_assets = SwitchButton(self.startup_card, IndicatorPosition.RIGHT)
+        self.switch_assets.setOnText(self.tr('资产显示：开'))
+        self.switch_assets.setOffText(self.tr('资产显示：关'))
+        self.switch_assets.setChecked(self.config.get("assetsVisibility"))
+        self.switch_assets.checkedChanged.connect(self._change_assets_visibility)
+
+        self.startup_card.hBoxLayout.insertWidget(5, self.switch_assets, 0, Qt.AlignRight)
+        self.startup_card.hBoxLayout.insertSpacing(6, 20)
+        self.startup_card.setContentsMargins(0, 0, 0, 0)
+
         self.column_2 = QVBoxLayout()
+        self.column_2.setSpacing(10)
         self.bottomLayout = QHBoxLayout()
         self.label_update = QLabel(self)
         self.label_logger = QLabel(self)
         self.logger_box = TextEdit(self)
         self.logger_box.setReadOnly(True)
+
+        handler_for_logger = QHBoxLayout()
+        handler_for_logger.setSpacing(0)
+        handler_for_logger.setContentsMargins(0, 0, 0, 0)
+        self.assets_status = AssetsWidget(config, self)
+        handler_for_logger.addWidget(self.assets_status)
+        self.assets_status.start_patch()
+
+        self.assets_status.show() if self.config.get("assetsVisibility") else self.assets_status.hide()
+
+        self.column_2.addLayout(handler_for_logger)
         self.column_2.addWidget(self.logger_box)
 
         self.bottomLayout.addLayout(self.column_2)
-        self.bottomLayout.setSpacing(10)
 
         self.__initLayout()
         self.__connectSignalToSlot()
@@ -111,6 +123,10 @@ class HomeFragment(QFrame):
         self.setObjectName(self.object_name)
         if self.config.get('autostart'):
             self.startup_card.button.click()
+
+    def _change_assets_visibility(self, checked):
+        self.config.set('assetsVisibility', checked)
+        self.assets_status.show() if checked else self.assets_status.hide()
 
     def resizeEvent(self, event):
         # 自动调整banner尺寸（保持比例）
@@ -132,7 +148,8 @@ class HomeFragment(QFrame):
 
             if data:
                 if type(data[0]) is dict:
-                    self.info.setText(self.tr("正在运行：") + bt.tr('ConfigTranslation', self.event_map[data[0]["func_name"]]))
+                    self.info.setText(
+                        self.tr("正在运行：") + bt.tr('ConfigTranslation', self.event_map[data[0]["func_name"]]))
                 else:
                     self.info.setText(self.tr("正在运行：") + bt.tr('ConfigTranslation', data[0]))
                     _main_thread_ = self.config.get_main_thread()
@@ -262,7 +279,10 @@ class MainThread(QThread):
         self.update_signal.emit(['困难关推图'])
         self.display(self.tr("停止"))
         if self._main_thread.send('solve', 'explore_hard_task'):
-            notify(title='BAAS', body=self.tr('困难图推图已完成'))
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body=self.tr('困难图推图已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.update_signal.emit([self.tr('无任务')])
         self.display(self.tr("启动"))
 
@@ -271,10 +291,12 @@ class MainThread(QThread):
         self.update_signal.emit([self.tr('普通关推图')])
         self.display(self.tr('停止'))
         if self._main_thread.send('solve', 'explore_normal_task'):
-            notify(title='BAAS', body=self.tr('普通图推图已完成'))
+            if self._main_thread.flag_run:
+                notify(title='BAAS', body=self.tr('普通图推图已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.update_signal.emit([self.tr('无任务')])
         self.display(self.tr('启动'))
-
 
     def start_fhx(self):
         self._init_script()
@@ -288,6 +310,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'main_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('主线剧情已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.update_signal.emit([self.tr('无任务')])
         self.display(self.tr('启动'))
 
@@ -298,6 +322,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'group_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('小组剧情已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display('启动')
         self.update_signal.emit([self.tr('无任务')])
 
@@ -308,6 +334,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'mini_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('支线剧情已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display(self.tr('启动'))
         self.update_signal.emit([self.tr('无任务')])
 
@@ -318,6 +346,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'explore_activity_story'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('活动剧情已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display(self.tr('启动'))
         self.update_signal.emit([self.tr('无任务')])
 
@@ -328,6 +358,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'explore_activity_mission'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('活动任务已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display(self.tr('启动'))
         self.update_signal.emit([self.tr('无任务')])
 
@@ -338,6 +370,8 @@ class MainThread(QThread):
         if self._main_thread.send('solve', 'explore_activity_challenge'):
             if self._main_thread.flag_run:
                 notify(title='BAAS', body=self.tr('活动挑战推图已完成'))
+            else:
+                self._main_thread.logger.info(HUMAN_TAKE_OVER_MESSAGE)
         self.display(self.tr('启动'))
         self.update_signal.emit([self.tr('无任务')])
 

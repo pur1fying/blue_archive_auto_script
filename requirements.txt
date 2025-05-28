@@ -2,18 +2,14 @@ lmdb
 PyQt5
 numpy < 2.0
 av == 12.0.0
-cnocr == 2.2.4.2
 imgaug
 win11toast
-onnxruntime == 1.16.0
-adbutils <= 2.2.1
+adbutils == 2.2.1
 uiautomator2 == 2.16.23
 opencv-python == 4.8.1.78
 
 PyQt-Fluent-Widgets == 1.2.0
 # gevent
-
-paddlepaddle == 2.6.2
 
 #windows installer auto build
 pyinstaller

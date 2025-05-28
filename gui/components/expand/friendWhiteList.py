@@ -13,7 +13,7 @@ class Layout(QWidget):
         self.config = config
         self.vBoxLayout = QVBoxLayout(self)
         self.to_add_lay = QHBoxLayout()
-        self.to_add_label = QLabel(self.tr('输入你需要添加进白名单的好友码(长度为7, 由小写字母和数字组成):'), self)
+        self.to_add_label = QLabel(self.tr('输入你需要添加进白名单的好友码:'), self)
         self.to_add_input = LineEdit(self)
         self.add_accept = PushButton(self.tr('确定'), self)
         self.table_view = None
@@ -40,15 +40,29 @@ class Layout(QWidget):
     def __accept_add(self):
         self.to_add = self.to_add_input.text()
         # Check the user code is valid
-        # The format of user code is 7 characters
+        # User code length is 7 in CN server, 8 in JP and Global server
         # The user code is a string, which only contains numbers and lower case letters
-        if len(self.to_add) != 7:
+        if self.config.server_mode == "CN":
+            expected_len = 7
+        elif self.config.server_mode == "JP":
+            expected_len = 8
+        elif self.config.server_mode == "Global":
+            expected_len = 8
+        else:
+            raise ValueError("Invalid server mode [ " + self.config.server_mode + " ]")
+        if len(self.to_add) != expected_len:
             notification.error(self.tr('添加失败'), self.tr('用户码长度不符合要求'), self.config)
             return
-        for i in self.to_add:
-            if not i.isdigit() and not i.islower():
-                notification.error(self.tr('添加失败'), self.tr('用户码格式不符合要求'), self.config)
-                return
+        if self.config.server_mode == "CN":
+            for i in self.to_add:
+                if not i.isdigit() and not i.islower():
+                    notification.error(self.tr('添加失败'), self.tr('用户码格式不符合要求'), self.config)
+                    return
+        elif self.config.server_mode == "Global":
+            for i in self.to_add:
+                if not i.isupper():
+                    notification.error(self.tr('添加失败'), self.tr('用户码格式不符合要求'), self.config)
+                    return
         # Check the user code is in the white list
         if self.to_add in self.white_list:
             notification.error(self.tr('添加失败'), self.tr('用户码已在白名单中'), self.config)

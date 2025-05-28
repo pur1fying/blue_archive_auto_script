@@ -13,7 +13,7 @@ def implement(self):
     scrimmage_area_name = ["Trinity", "Gehenna", "Millennium"]
     buy_ticket_times = min(self.config.purchase_scrimmage_ticket_times, 12)  # ** 购买悬赏委托券的次数
     buy_ticket_times = max(buy_ticket_times, 0)
-    if buy_ticket_times > 0 and self.server != 'CN':
+    if buy_ticket_times > 0 and self.server != "CN":
         to_choose_scrimmage(self, True)
         purchase_scrimmage_ticket(self, buy_ticket_times)
 
@@ -86,9 +86,9 @@ def scrimmage_common_operation(self, a, b):
         self.latest_img_array = self.get_screenshot_array()
         los = get_los(self)
     for i in range(0, len(los)):
-        rgb_possibles = {'scrimmage': (1118, los[i])}
-        rgb_ends = 'mission_info'
-        img_possibles = {'scrimmage_level-list': (1118, los[i])}
+        rgb_possibles = {"scrimmage": (1118, los[i])}
+        rgb_ends = "mission_info"
+        img_possibles = {"scrimmage_level-list": (1118, los[i])}
         img_ends = "scrimmage_task-info"
         picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
         t = color.check_sweep_availability(self)
@@ -119,6 +119,7 @@ def to_scrimmage(self, num, skip_first_screenshot=False):
         "main_page_bus": (716, 599),
         "scrimmage_academy-select": (992, select_scrimmage_y[num]),
         "scrimmage_purchase-scrimmage-ticket-notice": (886, 162),
+        "rewarded_task_help": (1014, 135),
         "scrimmage_task-info": (1129, 142),
     }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
@@ -130,8 +131,10 @@ def to_choose_scrimmage(self, skip_first_screenshot=False):
         "main_page-home-feature": (1198, 580),
         "main_page-bus": (716, 599),
         "scrimmage_level-list": (59, 45),
-        'normal_task_skip-sweep-complete': (643, 506),
+        "normal_task_skip-sweep-complete": (643, 506),
         "normal_task_sweep-complete": (643, 585),
+        "rewarded_task_help": (1014, 135),
+
         "scrimmage_task-info": (1129, 142),
         "scrimmage_purchase-scrimmage-ticket": (886, 162),
     }

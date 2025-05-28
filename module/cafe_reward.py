@@ -1,10 +1,10 @@
 import threading
 import time
-
 import cv2
 import numpy as np
-
 from core import image, color, picture
+from core.utils import merge_nearby_coordinates
+from statistics import median
 
 
 def implement(self):
@@ -67,7 +67,7 @@ def to_cafe(self, skip_first_screenshot=False):
 
 def to_no2_cafe(self):
     to_cafe(self)
-    if self.server == "JP":
+    if self.server == "JP" or self.server == "Global":
         img_ends = "cafe_button-goto-no1-cafe"
         img_possibles = {
             "cafe_button-goto-no2-cafe": (118, 98),
@@ -135,7 +135,9 @@ def interaction_for_cafe_solve_method3(self):
         if not res:
             self.logger.info("No interaction found")
             if swipeT < self.config.cafe_reward_interaction_shot_delay + 0.3:
-                self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(shotDelay) + " ]")
+                self.logger.warning(
+                    "Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(
+                        shotDelay) + " ]")
                 self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
                 if swipeT > 0.4:
                     self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
@@ -192,7 +194,7 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
     ]
     invitation_ticket_x = {
         'CN': 838,
-        'Global': 838,
+        'Global': 887,
         'JP': 887,
     }
     img_possible = {
@@ -203,14 +205,6 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_duplicate-invite': (534, 497),
     }
     return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
-
-
-def get_student_name(self):
-    current_server_student_name_list = []
-    target = self.server + "_name"
-    for i in range(0, len(self.static_config.student_names)):
-        current_server_student_name_list.append(self.static_config.student_names[i][target])
-    return operate_name(current_server_student_name_list, self.server)
 
 
 def checkConfirmInvite(self, y):
@@ -345,6 +339,7 @@ def invite_girl(self, no=1):
         return
 
     method = self.config_set.get('cafe_reward_invite' + str(no) + '_criterion')
+    self.logger.info(f"No.{no} Cafe Invite Student Method : [ {method} ].")
 
     if method == 'lowest_affection':
         invite_by_affection(self, 'lowest')
@@ -365,43 +360,66 @@ def invite_girl(self, no=1):
         self.logger.warning("Current mode fallback to invite by lowest affection")
         invite_by_affection(self, 'lowest')
         return
-    # name
-    student_name = get_student_name(self)  # all student name in current server
-    student_name.sort(key=len, reverse=True)
-    self.logger.info("Inviting : " + str(target_name_list))
+    self.logger.info("Invite Student List : " + str(target_name_list))
+    search_button_region = {
+        'CN': (717, 185, 857, 604),
+        'Global': (695, 187, 865, 604),
+        'JP': (695, 187, 852, 604),
+    }
+    ocr_region_offsets = {
+        'CN': (-255, -17, 225, 32),
+        'Global': (-252, -14, 220, 27),
+        'JP': (-258, -17, 222, 32),
+    }
+    search_button_region = search_button_region[self.server]
+    ocr_region_offsets = ocr_region_offsets[self.server]
     for i in range(0, len(target_name_list)):
         to_invitation_ticket(self, skip_first_screenshot=True)
         target_name = target_name_list[i]
-        self.logger.info("Begin Find Student " + target_name)
-        target_name = operate_name(target_name, self.server)
+        self.logger.info("Target Student [ " + target_name + " ].")
+        target_name = operate_name(target_name)
         stop_flag = False
         last_student_name = None
         while not stop_flag and self.flag_run:
-            region = {
-                'CN': (489, 185, 709, 604),
-                'Global': (489, 185, 709, 604),
-                'JP': (489, 185, 709, 604),
-            }
-            out = operate_student_name(
-                self.ocr.get_region_raw_res(self.latest_img_array, region[self.server], self.server, self.ratio))
-            detected_name = []
-            location = []
-            for k in range(0, len(out)):
-                temp = out[k]['text']
-                res = operate_name(temp, self.server)
-                for j in range(0, len(student_name)):
-                    if res == student_name[j]:
-                        if student_name[j] == "干世":
-                            detected_name.append("千世")
-                        else:
-                            detected_name.append(student_name[j])
-                        location.append((out[k]['position'][0][1] / self.ratio) + 210)
-                        if len(detected_name) == 5:
-                            break
-
-            if len(detected_name) == 0:
-                self.logger.info("No name detected")
+            all_position = image.get_image_all_appear_position(
+                self,
+                'cafe_invite-student-button',
+                search_button_region,
+                threshold=0.8
+            )
+            if len(all_position) == 0:
+                self.logger.warning("Can't Find Any Invite Student Button.")
                 break
+            all_position = merge_nearby_coordinates(all_position, 10, 10)
+            detected_name = []
+            for pos in all_position:
+                x_coords = [coord[0] for coord in pos]
+                y_coords = [coord[1] for coord in pos]
+                p = (median(x_coords), median(y_coords))
+                ocr_region = (
+                    p[0] + ocr_region_offsets[0],
+                    p[1] + ocr_region_offsets[1],
+                    p[0] + ocr_region_offsets[0] + ocr_region_offsets[2],
+                    p[1] + ocr_region_offsets[1] + ocr_region_offsets[3]
+                )
+                # img = image.screenshot_cut(self, ocr_region)
+                # cv2.imshow("img", img)
+                # cv2.waitKey(0)
+                res = self.ocr.get_region_res(
+                    baas=self,
+                    region=ocr_region,
+                    language=self.ocr_language,
+                    log_info='Student Name',
+                    candidates=''
+                )
+                detected_name.append(res)
+                res = operate_name(res)
+                if res == target_name:
+                    self.logger.info("Find Target Student [ " + target_name + " ]")
+                    if not checkConfirmInvite(self, p[1] + 10):
+                        stop_flag = True
+                        break
+                    return True
             st = ""
             for x in range(0, len(detected_name)):
                 st = st + detected_name[x]
@@ -414,18 +432,11 @@ def invite_girl(self, no=1):
                 stop_flag = True
             else:
                 last_student_name = detected_name[len(detected_name) - 1]
-                for s in range(0, len(detected_name)):
-                    if detected_name[s] == target_name:
-                        self.logger.info("Find Student " + target_name + " At " + str(location[s]))
-                        if not checkConfirmInvite(self, location[s]):
-                            stop_flag = True
-                            break
-                        return True
                 if not stop_flag:
                     self.logger.info("Didn't Find Target Student Swipe to Next Page")
-                    self.swipe(412, 580, 412, 150, duration=0.5)
+                    self.swipe(412, 580, 412, 170, duration=0.5)
                     self.click(412, 500, wait_over=True)
-                    self.latest_img_array = self.get_screenshot_array()
+                    self.update_screenshot_array()
         to_cafe(self)
 
 
@@ -468,30 +479,30 @@ def find_k_b_of_point1_and_point2(point1, point2):
     return k, b
 
 
-def operate_name(name, server):
-    if type(name) is str:
-        t = ""
-        for i in range(0, len(name)):
-            if name[i] == '(' or name[i] == "（" or name[i] == ")" or \
-                    name[i] == "）" or name[i] == ' ':
-                continue
-            elif server == 'JP' and is_english(name[i]):
-                continue
-            else:
-                t = t + name[i]
-        return t.lower()
+# replace special characters in name and return lower case
+def operate_name(name):
+    name = name.replace(" ", "")
+    name = name.replace(",", "")
+    name = name.replace("，", "")
+    name = name.replace("。", "")
+    name = name.replace(".", "")
+    name = name.replace("(", "")
+    name = name.replace(")", "")
+    name = name.replace("（", "")
+    name = name.replace("）", "")
+    name = name.replace("[", "")
+    name = name.replace("]", "")
+    name = name.replace("【", "")
+    name = name.replace("】", "")
+    name = name.replace("{", "")
+    name = name.replace("}", "")
+    ret = ""
     for i in range(0, len(name)):
-        t = ""
-        for j in range(0, len(name[i])):
-            if name[i][j] == '(' or name[i][j] == "（" or name[i][j] == ")" or \
-                    name[i][j] == "）" or name[i][j] == ' ':
-                continue
-            elif server == 'JP' and is_english(name[i]):
-                continue
-            else:
-                t = t + name[i][j]
-        name[i] = t.lower()
-    return name
+        if is_english(name[i]):
+            ret += name[i].lower()
+        else:
+            ret += name[i]
+    return ret
 
 
 def operate_student_name(names):
@@ -536,26 +547,26 @@ def is_english(char):
 def get_invitation_ticket_next_time(self):
     region = {
         'CN': (800, 584, 875, 608),
-        'Global': (800, 584, 875, 608),
+        'Global': (850, 588, 926, 614),
         'JP': (850, 588, 926, 614)
     }
     region = region[self.server]
     for i in range(0, 3):
         if i != 0:
             self.update_screenshot_array()
-        res = self.ocr.get_region_res(self.latest_img_array, region, 'Global', self.ratio)
+        res = self.ocr.get_region_res(
+            baas=self,
+            region=region,
+            language='en-us',
+            log_info='Invitation Ticket Next Time',
+            candidates='0123456789:'
+        )
         if res.count(":") != 2:
             return None
         res = res.split(":")
         for j in range(0, len(res)):
             if res[j][0] == "0":
                 res[j] = res[j][1:]
-        self.logger.info(
-            "Invitation Ticket Next time: " +
-            res[0] + "\tHOUR " +
-            res[1] + "\tMINUTES " +
-            res[2] + "\tSECONDS"
-        )
         try:
             return int(res[0]) * 3600 + int(res[1]) * 60 + int(res[2])
         except ValueError:

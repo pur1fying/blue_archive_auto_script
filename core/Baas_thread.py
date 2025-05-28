@@ -7,7 +7,7 @@ import time
 import traceback
 from dataclasses import fields
 from datetime import datetime
-
+from core.utils import Logger
 import cv2
 import numpy as np
 import psutil
@@ -85,6 +85,8 @@ class Baas_thread:
         self.scheduler = None
         self.screenshot_interval = None
         self.flag_run = None
+        self.ocr_language = None
+        self.identifier = None
         self.current_game_activity = None
         self.package_name = None
         self.server = None
@@ -107,6 +109,16 @@ class Baas_thread:
         self.activity_name = None
         self.control = None
         self.screenshot = None
+        self.ocr_img_pass_method = None
+        self.shared_memory_name = None
+
+    def set_ocr(self, ocr):
+        self.ocr = ocr
+        if self.ocr.client.config.server_is_remote:
+            self.ocr_img_pass_method = 1
+        else:
+            self.ocr_img_pass_method = 0
+            self.shared_memory_name = os.path.basename(self.config_set.config_dir)
 
     def get_logger(self):
         return self.logger
@@ -295,13 +307,64 @@ class Baas_thread:
             self.set_screenshot_interval(self.config.screenshot_interval)
 
             self.check_resolution()
-
+            self.ocr_language = self.get_ocr_language()
+            self.identifier = self.server
+            if self.server == "Global":
+                self.identifier += "_" + self.ocr_language
+                # dynamic init Global server ocr language
+                self.ocr.init_baas_model(self)
+                self.ocr.test_models([self.ocr_language], self.logger)
             self.logger.info("--------Emulator Init Finished----------")
             return True
         except Exception as e:
             self.logger.error(e.__str__())
             self.logger.error("Emulator initialization failed")
             return False
+
+    def get_ocr_language(self) -> str:
+        self.logger.info("Get OCR Language.")
+        lang = None
+        if self.server == "CN":
+            lang = "zh-cn"
+        elif self.server == "Global":
+            basic_path = self.u2._adb_device.shell(f"echo $EXTERNAL_STORAGE").strip()
+            src = "/".join([
+                basic_path,
+                "Android",
+                "data",
+                self.package_name,
+                "files",
+                "DeviceOption"
+            ])
+            print(src)
+            dst = os.path.basename(self.config_set.config_dir) + "_DeviceOption.json"
+            # remove dst existing file
+            if os.path.exists(dst):
+                os.remove(dst)
+            sync = self.u2._adb_device.sync
+            src_file_info = sync.stat(src)
+            is_src_file = src_file_info.mode & 32768 != 0
+
+            if is_src_file:
+                sync.pull_file(src, dst)
+            else:
+                raise Exception("Global Server DeviceOption File not exist.")
+            supported_language_convert_dict = {
+                "Kr": "ko-kr",
+                "En": "en-us",
+                "Tw": "zh-tw",
+            }
+            with open(dst, "r") as f:
+                data = json.load(f)
+                game_lan = data["Language"]
+                if game_lan in supported_language_convert_dict:
+                    lang = supported_language_convert_dict[game_lan]
+                else:
+                    raise Exception("Global Server Invalid Language : " + game_lan + ".")
+        elif self.server == "JP":
+            lang = "ja-jp"
+        self.logger.info("Ocr Language : " + lang)
+        return lang
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
@@ -389,6 +452,7 @@ class Baas_thread:
                         self.logger.info("all activities finished, return to main page")
                         push(self.logger, self.config)
                         self.to_main_page()
+                        self.main_page_update_data()
                         self.task_finish_to_main_page = False
                     self.scheduler.update_valid_task_queue()
                     time.sleep(1)
@@ -410,7 +474,8 @@ class Baas_thread:
             cfg_key_name = 'createPriority_phase' + str(phase)
             current_priority = self.config_set.get(cfg_key_name)
             res = []
-            default_priority = self.static_config.create_default_priority[self.config_set.server_mode]["phase" + str(phase)]
+            default_priority = self.static_config.create_default_priority[self.config_set.server_mode][
+                "phase" + str(phase)]
             for i in range(0, len(current_priority)):
                 if current_priority[i] in default_priority:
                     res.append(current_priority[i])
@@ -430,7 +495,8 @@ class Baas_thread:
                 return func_dict[activity](self)
             except FunctionCallTimeout:
                 if not self.deal_with_func_call_timeout():
-                    self.push_and_log_error_msg("Function Call Timeout", "Failed to Restart Game when function call timeout")
+                    self.push_and_log_error_msg("Function Call Timeout",
+                                                "Failed to Restart Game when function call timeout")
                     return False
             except PackageIncorrect as e:
                 pkg = e.message
@@ -498,6 +564,8 @@ class Baas_thread:
             # 'normal_task_fight-pause': (908, 508),
             # 'normal_task_retreat-notice': (768, 507),
             'main_page_game-download-resource-notice': (761, 504),
+            'main_page_game-download-resource-notice2': (761, 504),
+            'main_page_game-download-resource-notice3': (761, 504),
             "main_page_privacy-policy": (772, 501),
             'main_page_quick-home': (1236, 31),
             'main_page_daily-attendance': (640, 360),
@@ -591,7 +659,7 @@ class Baas_thread:
 
     def init_rgb(self):
         try:
-            fileName = self.project_dir + '/src/rgb_feature/rgb_feature_' + self.server + '.json'
+            fileName = self.project_dir + '/src/rgb_feature/' + self.identifier + '.json'
             self.rgb_feature = json.load(open(fileName, 'r', encoding='utf-8'))['rgb_feature']
             return True
         except Exception as e:
@@ -633,53 +701,97 @@ class Baas_thread:
         if post_sleep_time > 0:
             time.sleep(post_sleep_time)
 
-    def get_ap(self):
-        region = {
-            'CN': [557, 10, 662, 40],
-            'Global': [557, 10, 662, 40],
-            'JP': [557, 10, 662, 40],
-        }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
-        ap = 0
-        for j in range(0, len(_ocr_res)):
-            if (not _ocr_res[j].isdigit()) and _ocr_res[j] != '/' and _ocr_res[j] != '.':
-                return "UNKNOWN"
-            if _ocr_res[j].isdigit():
-                ap = ap * 10 + int(_ocr_res[j])
-            elif _ocr_res[j] == '/':
-                self.logger.info("AP: " + str(ap))
-                return ap
-        return "UNKNOWN"
+    def get_ap(self, is_main_page=False):
+        if is_main_page:
+            region = {
+                'CN': (512, 25, 609, 52),
+                'Global': (512, 25, 609, 52),
+                'JP': (485, 23, 586, 54)
+            }
+            region = region[self.server]
+        else:
+            region = {
+                'CN': (557, 10, 662, 40),
+                'Global': (557, 10, 662, 40),
+                'JP': (530, 10, 642, 40)
+            }
+            region = region[self.server]
+        ocr_res = self.ocr.get_region_res(
+            self,
+            region,
+            "en-us",
+            "AP",
+            "0123456789/"
+        )
+        _max = -1
+        if '/' in ocr_res:
+            ocr_res = ocr_res.split('/')
+            _max = ocr_res[1]
+            ocr_res = ocr_res[0]
+        try:
+            ocr_res = int(ocr_res)
+            _max = int(_max)
+            data = {
+                "count": ocr_res,
+                "max": _max,
+                "time": time.time()
+            }
+            self.config_set.set("ap", data)
 
-    def get_pyroxene(self):
-        region = {
-            'CN': [961, 10, 1072, 40],
-            'Global': [961, 10, 1072, 40],
-            'JP': [961, 10, 1072, 40],
-        }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
-        temp = 0
-        for j in range(0, len(_ocr_res)):
-            if not _ocr_res[j].isdigit():
-                continue
-            temp = temp * 10 + int(_ocr_res[j])
-        self.logger.info("Pyroxene: " + str(temp))
-        return temp
+            return ocr_res
+        except ValueError:
+            self.logger.warning("Failed to get AP.")
+            return 999
 
-    def get_creditpoints(self):
-        region = {
-            'CN': [769, 10, 896, 40],
-            'Global': [769, 10, 896, 40],
-            'JP': [769, 10, 896, 40],
-        }
-        _ocr_res = self.ocr.get_region_res(self.latest_img_array, region[self.server], 'Global', self.ratio)
-        temp = 0
-        for j in range(0, len(_ocr_res)):
-            if not _ocr_res[j].isdigit():
+    def get_pyroxene(self, is_main_page=False):
+        if is_main_page:
+            region = (871, 25, 967, 52)
+        else:
+            region = (961, 10, 1072, 40)
+        ocr_res = self.ocr.get_region_res(
+            self,
+            region,
+            "en-us",
+            "Pyroxene",
+            "0123456789,",
+            0.2
+        )
+        ret = 0
+        for j in range(0, len(ocr_res)):
+            if not ocr_res[j].isdigit():
                 continue
-            temp = temp * 10 + int(_ocr_res[j])
-        self.logger.info("Credit Points: " + str(temp))
-        return temp
+            ret = ret * 10 + int(ocr_res[j])
+        data = {
+            "count": ret,
+            "time": time.time()
+        }
+        self.config_set.set("pyroxene", data)
+        return ret
+
+    def get_creditpoints(self, is_main_page=False):
+        if is_main_page:
+            region = (699, 25, 819, 52)
+        else:
+            region = (769, 10, 896, 40)
+        ocr_res = self.ocr.get_region_res(
+            self,
+            region,
+            "en-us",
+            "Credit Points",
+            "0123456789,",
+            0.2
+        )
+        ret = 0
+        for j in range(0, len(ocr_res)):
+            if not ocr_res[j].isdigit():
+                continue
+            ret = ret * 10 + int(ocr_res[j])
+        data = {
+            "count": ret,
+            "time": time.time()
+        }
+        self.config_set.set("creditpoints", data)
+        return ret
 
     @staticmethod
     def is_float(s):
@@ -704,6 +816,7 @@ class Baas_thread:
                 self.logger.critical("Initialization Failed")
                 self.flag_run = False
                 return False
+
         self.logger.info("--------Initialization Finished----------")
         return True
 
@@ -729,8 +842,8 @@ class Baas_thread:
         last_refresh_hour = last_refresh.hour
         daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
         if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
-            ((hour < daily_reset and last_refresh_hour < daily_reset) or (
-                hour >= daily_reset and last_refresh_hour >= daily_reset)):
+                ((hour < daily_reset and last_refresh_hour < daily_reset) or (
+                        hour >= daily_reset and last_refresh_hour >= daily_reset)):
             return
         else:
             self.config.last_refresh_config_time = time.time()
@@ -753,7 +866,8 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_normal_tasks.append(readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
+                self.config.unfinished_normal_tasks.append(
+                    readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
@@ -766,7 +880,8 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_hard_tasks.append(readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
+                self.config.unfinished_hard_tasks.append(
+                    readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)
@@ -837,6 +952,8 @@ class Baas_thread:
         self.logger.info("Screen Size  " + str(temp))
         if temp[0] != 1280 or temp[1] != 720:
             self.logger.warning("Screen Size is not 1280x720, we recommend you to use 1280x720.")
+        if self.ocr_img_pass_method == 0:
+            self.ocr.create_shared_memory(self, temp[0] * temp[1] * 3)
         width = temp[0]
         self.ratio = width / 1280
         self.logger.info("Screen Size Ratio: " + str(self.ratio))
@@ -852,6 +969,11 @@ class Baas_thread:
             except Exception as e:
                 print(e)
                 time.sleep(1)
+
+    def main_page_update_data(self):
+        self.get_ap(True)
+        self.get_creditpoints(True)
+        self.get_pyroxene(True)
 
 
 if __name__ == '__main__':

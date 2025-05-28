@@ -146,6 +146,9 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
         if matched:
             fail_cnt = 0
 
+    if not self.flag_run:
+        raise RequestHumanTakeOver("Request Human Take Over.")
+
 
 def deal_with_pop_ups(self, pop_ups_rgb_reactions: dict = None, pop_ups_img_reactions: dict = None):
     common_pop_ups = {
@@ -179,7 +182,7 @@ def deal_with_pop_ups(self, pop_ups_rgb_reactions: dict = None, pop_ups_img_reac
                 return True, rgb_feature
     common_task_img_reactions = {
         'CN': {
-
+            'main_page_net-work-unstable': (767, 501),
         },
         'JP': {
 

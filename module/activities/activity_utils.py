@@ -44,7 +44,6 @@ def to_activity(self, region=None, skip_first_screenshot=False):
         'normal_task_skip-sweep-complete': (643, 506),
         'normal_task_fight-complete-confirm': (1160, 666),
         'normal_task_reward-acquired-confirm': (800, 660),
-        'normal_task_mission-conclude-confirm': (1042, 671),
         "activity_exchange-confirm": (673, 603),
     }
     img_ends = "activity_menu"
@@ -52,10 +51,12 @@ def to_activity(self, region=None, skip_first_screenshot=False):
 
     img_possibles = {
         "story": {
-            "activity_story-not-chosen-0": (844, 89)
+            "activity_story-not-chosen-0": (844, 89),
+            "activity_story-not-chosen-1": (936, 89),
         },
         "mission": {
-            "activity_mission-not-chosen-0": (1028, 91)
+            "activity_mission-not-chosen-0": (1028, 91),
+            "activity_mission-not-chosen-1": (1200, 91),
         },
         "challenge": {
             "activity_challenge-not-chosen-0": (1200, 89)
@@ -65,9 +66,11 @@ def to_activity(self, region=None, skip_first_screenshot=False):
     img_ends = {
         "story": [
             "activity_story-chosen-0",
+            "activity_story-chosen-1",
         ],
         "mission": [
             "activity_mission-chosen-0",
+            "activity_mission-chosen-1",
         ],
         "challenge": [
             "activity_challenge-chosen-0",
@@ -130,7 +133,7 @@ def start_sweep(self, skip_first_screenshot=False):
         "purchase_ap_notice-localized",
         "normal_task_start-sweep-notice",
     ]
-    img_possibles = {"normal_task_task-info": (941, 411)}
+    img_possibles = {"activity_task-info": (941, 411)}
     res = picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
     if res == "purchase_ap_notice-localized" or res == "purchase_ap_notice":
         return "inadequate_ap"
@@ -175,6 +178,13 @@ def explore_activity_mission(self):
 
 def to_mission_task_info(self, target_index, total_mission):
     possible_strs = build_activity_task_name_list(total_mission)
+    ocr_region_offsets = {
+        "CN": (-384, -8, 43, 28),
+        "Global_en-us": (-384, 0, 43, 36),
+        "Global_zh-tw": (-384, 0, 43, 36),
+        "Global_ko-kr": (-384, 0, 43, 36),
+        "JP": (-384, -8, 43, 28),
+    }
     p = swipe_search_target_str(
         self,
         "activity_mission-enter-task-button",
@@ -183,12 +193,14 @@ def to_mission_task_info(self, target_index, total_mission):
         possible_strs,
         target_str_index=target_index - 1,
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
-        ocr_language='NUM',
-        ocr_region_offsets=(-384, -8, 43, 28),
+        ocr_language='en-us',
+        ocr_region_offsets=ocr_region_offsets[self.identifier],
         ocr_str_replace_func=None,
-        max_swipe_times=10
+        max_swipe_times=10,
+        ocr_candidates="0123456789",
+        first_retry_dir=1
     )
-    y = p[1]
+    y = p[1] + 10  # move down a little bit in case click to challenge page
     possibles = {'activity_menu': (1124, y)}
     ends = "activity_task-info"
     return picture.co_detect(self, None, None, ends, possibles, True)
@@ -268,6 +280,11 @@ def explore_activity_challenge(self):
 
 
 def start_story(self):
+    rgb_possibles = {
+        "formation_edit2": (151, 387),
+        "formation_edit3": (151, 387),
+        "formation_edit4": (151, 387),
+    }
     img_possibles = {
         "activity_task-info": (940, 538),
         "normal_task_task-info": (940, 538),
@@ -283,10 +300,11 @@ def start_story(self):
     ]
     img_ends = [
         "activity_unit-formation",
-        "activity_formation"
+        "activity_formation",
+        "activity_self-formation",
     ]
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
-    if res in ["activity_unit-formation", "activity_formation", "formation_edit1"]:
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
+    if res in ["formation_edit1", "activity_unit-formation", "activity_formation", "activity_self-formation"]:
         start_fight(self, 1)
         main_story.auto_fight(self)
     elif res == "reward_acquired":
@@ -303,7 +321,8 @@ def start_fight(self, i):
     ]
     img_possibles = {
         "activity_unit-formation": (1156, 659),
-        "activity_formation": (1156, 659)
+        "activity_self-formation": (1156, 659),
+        "activity_formation": (1156, 659),
     }
     ret = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     if ret != "fighting_feature":
@@ -359,10 +378,11 @@ def to_story_task_info(self, target_index, total_story):
         possible_strs,
         target_str_index=target_index - 1,
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
-        ocr_language='NUM',
+        ocr_language='en-us',
         ocr_region_offsets=(-387, -6, 50, 28),
         ocr_str_replace_func=None,
-        max_swipe_times=10
+        max_swipe_times=10,
+        ocr_candidates="0123456789"
     )
     y = p[1]
     img_possibles = {'activity_menu': (1124, y)}
@@ -438,7 +458,7 @@ def get_exchange_assets(self):
         "JP": (710, 98, 805, 130),
         "Global": (710, 98, 805, 130),
     }
-    return self.ocr.recognize_number(self.latest_img_array, region[self.server], int, self.ratio)
+    return self.ocr.recognize_int(self, region[self.server], "Activity Exchange Assets")
 
 
 def preprocess_activity_region(region):

@@ -9,12 +9,13 @@ from module import hard_task, main_story, normal_task
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
 def to_region(self, region: int, isNormal: bool) -> bool:
-    square = {
-        'CN': [122, 178, 163, 208],
-        'Global': [122, 178, 163, 208],
-        'JP': [122, 178, 163, 208]
-    }
-    curRegion = self.ocr.recognize_int(self.latest_img_array, square[self.server], self.ratio)
+    ocr_area = [122, 178, 163, 208]
+    curRegion = self.ocr.recognize_int(
+        baas=self,
+        region=ocr_area,
+        log_info="Region Num",
+        filter_score=0.2
+    )
     self.logger.info("Current Region : " + str(curRegion))
     while curRegion != region and self.flag_run:
         if curRegion > region:
@@ -31,7 +32,12 @@ def to_region(self, region: int, isNormal: bool) -> bool:
             normal_task.to_normal_event(self)
         else:
             hard_task.to_hard_event(self)
-        curRegion = self.ocr.recognize_number(self.latest_img_array, square[self.server], int, self.ratio)
+        curRegion = self.ocr.recognize_int(
+            baas=self,
+            region=ocr_area,
+            log_info="Region Num",
+            filter_score=0.2
+        )
         self.logger.info("Current Region : " + str(curRegion))
     return True
 
@@ -165,9 +171,18 @@ def get_formation_index(self):
         'JP': (116, 542, 131, 570)
     }
     handle_task_pop_ups(self)
-    ocr_res = self.ocr.recognize_number(self.latest_img_array, region[self.server], int, self.ratio)
-    if ocr_res == 7:
-        ocr_res = 1
+    ocr_res = self.ocr.get_region_res(
+        baas=self,
+        region=region[self.server],
+        language="en-us",
+        log_info="Formation Index",
+        candidates="1234",
+        filter_score=0.2
+    )
+    try:
+        ocr_res = int(ocr_res)
+    except ValueError:
+        return get_formation_index(self)
     if ocr_res not in [1, 2, 3, 4]:
         # TODO 无法识别可能会导致死循环
         return get_formation_index(self)
@@ -374,7 +389,7 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
             # switch to the next attribute available.
             cur_attribute = attribute
             while unit_available[cur_attribute] == unit_used[cur_attribute] \
-                or (self.server == "CN" and cur_attribute == "shock"):
+                    or (self.server == "CN" and cur_attribute == "shock"):
                 cur_attribute = attribute_type_fallbacks[cur_attribute]
 
             employ_pos.append(teamConfig[cur_attribute][unit_used[cur_attribute]])
@@ -434,10 +449,12 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
                     possible_strs=["1", "2", "3", "4", "5"],
                     target_str_index=row - 1,
                     swipe_params=(145, 578, 145, 273, 1.0, 0.5),
-                    ocr_language="NUM",
+                    ocr_language="en-us",
                     ocr_region_offsets=offsets[self.server],
                     ocr_str_replace_func=None,
-                    max_swipe_times=5
+                    max_swipe_times=5,
+                    ocr_candidates="12345",
+                    ocr_filter_score=0.2
                 )
                 preset_y = presetButtonPos[1] + 76
 

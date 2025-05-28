@@ -42,9 +42,9 @@ export default defineConfig({
             {text: '安装教程', link: '/usage_doc/install/choose_platform'},
             {text: '自定义安装', link: '/usage_doc/install/setup_config'},
             {text: '配置', link: '/usage_doc/config'},
+            {text: '活动相关', link: '/usage_doc/activity'},
             {text: '常见问题', link: '/usage_doc/faq'},
             {text: '上报问题', link: '/usage_doc/report'},
-            {text: '已知问题', link: '/usage_doc/about'},
             {text: 'CLI用法', link: '/usage_doc/CLI'},
             {text: '卸载', link: '/usage_doc/uninstall'},
             {text: 'QQ群规定', link: '/usage_doc/qq_group_regulation'},
@@ -63,15 +63,18 @@ export default defineConfig({
                 {text: '模拟器控制', link: '/develop_doc/script/control'},
                 {text: '图像资源', link: '/develop_doc/script/image_resource'},
                 {text: '图像识别', link: '/develop_doc/script/game_feature'},
+                {text: '目标检测(YOLO)', link: '/develop_doc/script/baas_yolo_detection'},
                 {text: '文字识别', link: '/develop_doc/script/ocr'},
                 {text: 'Baas_thread', link: '/develop_doc/script/Baas_thread'},
                 {text: '活动', link: '/develop_doc/script/activity'},
+                {text: '自动战斗', link: '/develop_doc/script/auto_fight'},
                 {text: '编写文档', link: '/develop_doc/docs'},
                 {text: '模拟器开关/状态检测', link: '/develop_doc/script/emulator_manager'},
                 {text: '配置详解', link: '/develop_doc/script/config'},
                 {text: 'ConfigSet', link: '/develop_doc/script/ConfigSet'},
                 {text: '开发约定', link: '/develop_doc/develop_format'},
-                {text: '日志', link: '/develop_doc/log'}
+                {text: '日志', link: '/develop_doc/log'},
+                {text: 'C++代码', link: '/develop_doc/script/BAAS_Cpp'},
             ]
         }
       ]

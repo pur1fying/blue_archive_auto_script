@@ -141,7 +141,10 @@ class Connection:
                         pass
                 port = self.serial_port(self.serial)
                 for device in available:
-                    if abs(self.serial_port(device) - port) <= 2:
+                    temp = abs(self.serial_port(device) - port)
+                    if temp == 0:
+                        break
+                    if temp <= 2:
                         self.logger.info(
                             "MuMu12 device serial switched from [ " + self.serial + " ] to [ " + device + " ]")
                         self.set_serial(device)
@@ -313,7 +316,7 @@ class Connection:
             elif device.state == 'device':
                 pass
             else:
-                self.logger.warning(f'Device {device.serial} is is having a unknown status: {device.status}')
+                self.logger.warning(f'Device {device.serial} is is having a unknown status: {device.state}')
 
         # Skip for emulator-5554
         if 'emulator-' in self.serial:

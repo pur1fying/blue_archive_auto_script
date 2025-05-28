@@ -5,10 +5,12 @@ import numpy as np
 from core import position
 from core.utils import merge_nearby_coordinates
 
+
 def screenshot_cut(self, area):
     # template is from 1280 * 720 screenshot, if real screenshot is 2560 * 1440, then ratio is 2.0
     # cut the same area from real screenshot
-    return self.latest_img_array[int(area[1] * self.ratio):int(area[3] * self.ratio),
+    return self.latest_img_array[
+           int(area[1] * self.ratio):int(area[3] * self.ratio),
            int(area[0] * self.ratio):int(area[2] * self.ratio), :]
 
 
@@ -18,10 +20,10 @@ def img_cut(img, area):
 
 
 def compare_image(self, name, threshold=0.8, rgb_diff=20):
-    if name not in position.image_dic[self.server]:  # template image not found
+    if name not in position.image_dic[self.identifier]:  # template image not found
         return False
-    area = position.get_area(self.server, name)
-    template_img = position.image_dic[self.server][name]
+    area = position.get_area(self.identifier, name)
+    template_img = position.image_dic[self.identifier][name]
     ss_img = screenshot_cut(self, area)
     if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
         return False
@@ -32,16 +34,16 @@ def compare_image(self, name, threshold=0.8, rgb_diff=20):
 
 
 def getImageByName(self, name):
-    return position.image_dic[self.server][name]
+    return position.image_dic[self.identifier][name]
 
 
 def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=20, ret_max_val=False):
     # search image "name" in area, return upper left point of template image if found, else return False
-    if name not in position.image_dic[self.server]:
+    if name not in position.image_dic[self.identifier]:
         if ret_max_val:
             return False, 0
         return False
-    template_img = position.image_dic[self.server][name]
+    template_img = position.image_dic[self.identifier][name]
     ss_img = resize_ss_image(self, area)
 
     similarity = cv2.matchTemplate(ss_img, template_img, cv2.TM_CCOEFF_NORMED)
@@ -52,7 +54,8 @@ def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=2
         else:
             return False
 
-    ss_img = img_cut(ss_img, (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
+    ss_img = img_cut(ss_img,
+                     (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
     if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
         if ret_max_val:
             return False, 0  # rgb diff not match, assume not found
@@ -81,12 +84,12 @@ def search_image_in_area(self, image, area=(0, 0, 1280, 720), threshold=0.8, rgb
     # image may not from 1280x720
     template_img = image
     ss_img = screenshot_cut(self, area)
-
     similarity = cv2.matchTemplate(ss_img, template_img, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(similarity)
     if max_val < threshold:
         return False
-    ss_img = img_cut(ss_img,(max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
+    ss_img = img_cut(ss_img,
+                     (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
     if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
         return False
     upper_left = (int(max_loc[0] / self.ratio) + area[0], int(max_loc[1] / self.ratio) + area[1])
@@ -123,10 +126,19 @@ def click_until_image_disappear(self, x, y, region, threshold=0.8, rgb_diff=20, 
         self.update_screenshot_array()
 
 
+def click_until_template_disappear(self, name, x, y, threshold=0.8, rgb_diff=20, click_first=True):
+    if click_first:
+        self.click(x, y, wait_over=True)
+        self.update_screenshot_array()
+    while self.flag_run and compare_image(self, name, threshold, rgb_diff):
+        self.click(x, y, wait_over=True)
+        self.update_screenshot_array()
+
+
 def get_image_all_appear_position(self, image_template_name, search_area=(0, 0, 1280, 720), threshold=0.8):
-    if image_template_name not in position.image_dic[self.server]:
+    if image_template_name not in position.image_dic[self.identifier]:
         return []
-    template_img = position.image_dic[self.server][image_template_name]  # template image
+    template_img = position.image_dic[self.identifier][image_template_name]  # template image
     ss_img = resize_ss_image(self, search_area)  # screenshot image
     similarity = cv2.matchTemplate(ss_img, template_img, cv2.TM_CCOEFF_NORMED)
     loc = np.where(similarity >= threshold)
@@ -152,10 +164,13 @@ def swipe_search_target_str(
         possible_strs=None,
         target_str_index=0,
         swipe_params=(0, 0, 0, 0, 0.0, 0.0),
-        ocr_language='NUM',
+        ocr_language='en-us',
         ocr_region_offsets=(0, 0, 0, 0),
         ocr_str_replace_func=None,
-        max_swipe_times=3
+        max_swipe_times=3,
+        ocr_candidates="",
+        ocr_filter_score=0.2,
+        first_retry_dir=0
 ):
     temp = len(swipe_params)
     if temp < 4:
@@ -179,7 +194,7 @@ def swipe_search_target_str(
         swipe_params[4],
         swipe_params[5]
     )
-    retry_swipe_dir = 0
+    retry_swipe_dir = first_retry_dir
     if possible_strs is None:
         raise ValueError("possible_strs can't be None.")
     target_str = possible_strs[target_str_index]
@@ -217,10 +232,11 @@ def swipe_search_target_str(
             # cv2.imshow("img", img)
             # cv2.waitKey(0)
             ocr_str = self.ocr.get_region_res(
-                self.latest_img_array,
-                ocr_region,
-                ocr_language,
-                self.ratio
+                baas=self,
+                region=ocr_region,
+                language=ocr_language,
+                candidates=ocr_candidates,
+                filter_score=ocr_filter_score
             )
             # check twice, before replace and after replace
             all_strs.append(ocr_str)

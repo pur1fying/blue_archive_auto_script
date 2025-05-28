@@ -1,14 +1,11 @@
 lmdb
 PyQt5
-numpy
+numpy < 2.0
 av == 12.0.0
-cnocr
 imgaug
 dulwich
-onnxruntime
-adbutils <= 2.2.1
-uiautomator2
+adbutils == 2.2.1
+uiautomator2 == 2.16.23
 opencv-python-headless
 PyQt-Fluent-Widgets
-
-paddlepaddle
+psutil

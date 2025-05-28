@@ -40,14 +40,14 @@
   "challenge2_sss": {
     "start": [
       [
-        "burst1",
+        "burst",
         [
           703,
           644
         ]
       ],
       [
-        "burst2",
+        "burst",
         [
           547,
           325
@@ -152,7 +152,7 @@
   "challenge2_task": {
     "start": [
       [
-        "burst1",
+        "burst",
         [
           706,
           643
@@ -236,14 +236,14 @@
   "challenge4_sss": {
     "start": [
       [
-        "burst1",
+        "burst",
         [
           548,
           428
         ]
       ],
       [
-        "burst2",
+        "burst",
         [
           1003,
           558
@@ -391,7 +391,7 @@
   "challenge4_task": {
     "start": [
       [
-        "burst1",
+        "burst",
         [
           553,
           423

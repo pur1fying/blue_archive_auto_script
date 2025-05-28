@@ -2,6 +2,7 @@ import json
 import os
 import time
 
+from core.ocr.baas_ocr_client.server_installer import check_git
 from core.utils import Logger
 from core.ocr import ocr
 from core.config.config_set import ConfigSet
@@ -20,23 +21,39 @@ class Main:
         self.threads = {}
 
     def init_all_data(self):
-        self.init_ocr()
+        if not self.init_ocr():
+            self.logger.error("Ocr Init Incomplete Please restart .")
+            return
         self.init_static_config()
         self.logger.info("-- All Data Initialization Complete Script ready--")
 
     def init_ocr(self):
         try:
+            check_git(self.logger)
+        except Exception as e:
+            self.logger.error("OCR Update Failed.")
+            self.logger.error(e.__str__())
+            self.logger.info("Try to Start OCR Server Without Update.")
+
+        try:
             self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=self.ocr_needed)
+            self.ocr.client.start_server()
             return True
         except Exception as e:
-            self.logger.error("OCR initialization failed")
             self.logger.error(e.__str__())
             return False
 
-    def get_thread(self, config, name="1", logger_signal=None, button_signal=None, update_signal=None,
-                   exit_signal=None):
+    def get_thread(
+            self,
+            config,
+            name="1",
+            logger_signal=None,
+            button_signal=None,
+            update_signal=None,
+            exit_signal=None
+    ):
         t = Baas_thread(config, logger_signal, button_signal, update_signal, exit_signal)
-        t.ocr = self.ocr
+        t.set_ocr(self.ocr)
         self.threads.setdefault(name, t)
         return t
 
@@ -100,13 +117,16 @@ class Main:
 
 
 if __name__ == '__main__':
-    ocr_needed = ["Global", "CN", "JP", "NUM"]
+    ocr_needed = ["en-us"]
     INSTANCE = Main(ocr_needed=ocr_needed)
-    config = ConfigSet(config_dir="default_config")
+    config = ConfigSet(config_dir="1708232489")
     bThread = Baas_thread(config, None, None, None)
+    bThread.set_ocr(INSTANCE.ocr)
     bThread.init_all_data()
-    bThread.ocr = INSTANCE.ocr
-
+    # tt.update_screenshot_array()
+    # for i in range(0, 10):
+    #     tt.ocr.get_region_res(tt, (1005, 94, 1240, 129), "ko-kr", "lesson region name")
+    # exit(0)
     # from module import create
     # create.create_phase(bThread, 3)
 
@@ -122,7 +142,7 @@ if __name__ == '__main__':
     # bThread.solve("tactical_challenge_shop")
     # bThread.solve("explore_activity_mission")
     # bThread.solve("explore_activity_story")
-    # bThread.solve("common_shop")
+    bThread.solve("common_shop")
     # bThread.solve("total_assault")
     # bThread.solve("cafe_reward")
     # bThread.solve("momo_talk")

@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 from core import picture
@@ -11,7 +13,6 @@ def implement(self):
     self.to_main_page()
     to_tactical_challenge_shop(self, skip_first_screenshot=True)
     tactical_challenge_assets = get_tactical_challenge_assets(self)
-    self.logger.info("tactical assets : " + str(tactical_challenge_assets))
     price = self.static_config.tactical_challenge_shop_price_list[self.server]
     temp = []
     for i in range(0, len(price)):
@@ -21,9 +22,9 @@ def implement(self):
     refresh_time = min(self.config.TacticalChallengeShopRefreshTime, 3)
     refresh_price = [10, 10, 10]
     for i in range(0, refresh_time + 1):
-        self.logger.info("asset_required : " + str(asset_required))
+        self.logger.info("Assets Required : " + str(asset_required))
         if asset_required > tactical_challenge_assets:
-            self.logger.info("INADEQUATE assets for BUYING")
+            self.logger.info("Inadequate Assets For Buying.")
             return True
         buy(self, buy_list)
 
@@ -46,9 +47,8 @@ def implement(self):
             rgb_ends = "reward_acquired"
             img_ends = "main_page_full-notice"
             picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
-            tactical_challenge_assets = tactical_challenge_assets - asset_required
-            self.logger.info("left assets : " + str(tactical_challenge_assets))
             to_shop_menu(self)
+            tactical_challenge_assets = get_tactical_challenge_assets(self)
         elif state == "shop_purchase-unavailable":
             self.logger.info("-- Purchase Unavailable --")
             return True
@@ -61,9 +61,8 @@ def implement(self):
                 if not to_refresh(self):
                     self.logger.info("refresh Times inadequate")
                     return True
-                tactical_challenge_assets = tactical_challenge_assets - refresh_price[i]
-                self.logger.info("left tactical challenge assets : " + str(tactical_challenge_assets))
                 confirm_refresh(self)
+                tactical_challenge_assets = get_tactical_challenge_assets(self)
     return True
 
 
@@ -102,16 +101,11 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
         'JP': 778,
         'Global': 796
     }
-    tactical_challenge_y = {
-        'CN': 455,
-        'JP': 531,
-        'Global': 531
-    }
     rgb_ends = "tactical_challenge_shop"
     rgb_possibles = {
         "main_page": (tactical_challenge_x[self.server], 653),
         "reward_acquired": (640, 89),
-        "common_shop": (160, tactical_challenge_y[self.server]),
+        "common_shop": (160, 531),
     }
     img_possibles = {
         'main_page_full-notice': (887, 165),
@@ -141,12 +135,21 @@ def to_refresh(self):
 
 def get_tactical_challenge_assets(self):
     tactical_challenge_assets_region = {
-        'CN': [1109, 63, 1240, 102],
-        'Global': [907, 68, 1045, 98],
-        'JP': [907, 68, 1045, 98]
+        'CN': [907, 68, 1045, 98],
+        'Global': [751, 68, 884, 98],
+        'JP': [751, 68, 884, 98]
     }
-    return self.ocr.recognize_number(self.latest_img_array, tactical_challenge_assets_region[self.server], int,
-                                     self.ratio)
+    ret = self.ocr.recognize_int(
+        baas=self,
+        region=tactical_challenge_assets_region[self.server],
+        log_info="Tactical Challenge Assets"
+    )
+    data = {
+        "count": ret,
+        "time": time.time()
+    }
+    self.config_set.set("tactical_challenge_coin", data)
+    return ret
 
 
 def buy(self, buy_list):
