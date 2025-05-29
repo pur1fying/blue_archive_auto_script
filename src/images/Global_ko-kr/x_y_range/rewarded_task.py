@@ -5,5 +5,6 @@ x_y_range = {
     'level-list': (862, 98, 999, 123),
     'task-info': (588, 124, 702, 153),
     'purchase-bounty-ticket-menu': (524, 150, 760, 189),
-    'purchase-bounty-ticket-notice': (524, 159, 760, 201)
+    'purchase-bounty-ticket-notice': (524, 159, 760, 201),
+    'help': (583, 112, 691, 148),
 }
