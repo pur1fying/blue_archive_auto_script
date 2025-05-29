@@ -20,7 +20,7 @@
    国内用户使用清华源加速
 
    ```bash
-    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install -r requirements-linux.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
     ```
 
 4. 启动
