@@ -95,6 +95,8 @@ def activity_sweep(self):
     self.stage_data = get_stage_data(self)
     sweep_one_time_ap = self.stage_data["sweep_ap_cost_mission"]
     total_mission = len(self.stage_data["mission"])
+    if len(times) == 1 and times[0] == -1:
+        times = [int(ap / sum(sweep_one_time_ap[num] for num in number))] * len(number)
     for i in range(0, min(len(number), len(times))):
         sweep_times = times[i]
         if type(sweep_times) is float:
