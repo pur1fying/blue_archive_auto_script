@@ -1,5 +1,6 @@
+import module.ExploreTasks.TaskUtils
 from core import picture
-from module import hard_task, normal_task
+from module.ExploreTasks import normal_task, sweep_task
 
 
 def sweep(self, times):
@@ -17,6 +18,6 @@ def sweep(self, times):
         }
         picture.co_detect(self, None, rgb_reactions, "normal_task_fight-confirm", img_possibles, True, tentative_click=True,
                           tentative_x=640, tentative_y=360, max_fail_cnt=1)
-        hard_task.to_hard_event(self, True)
-        normal_task.to_normal_event(self, True)
+        module.ExploreTasks.TaskUtils.to_hard_event(self, True)
+        module.ExploreTasks.TaskUtils.to_normal_event(self, True)
 
