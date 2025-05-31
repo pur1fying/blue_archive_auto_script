@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { fileURLToPath } from 'node:url'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -15,6 +16,19 @@ export default defineConfig({
   // 这些链接可能会在将来的更新中修复。
   ignoreDeadLinks: true,
 
+  vite: {
+    resolve: {
+      alias: [
+        {
+          find: /^.*\/VPDocOutlineItem\.vue$/,
+          replacement: fileURLToPath(
+            new URL('./components/VPDocOutlineItem.vue', import.meta.url)
+          )
+        },
+      ]
+    },
+  },
+
   // 添加favicon
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: 'assets/logo.png' }],
@@ -23,6 +37,7 @@ export default defineConfig({
 
   themeConfig: {
     outline: [2, 3],
+    outlineTitle: '大纲',
     logo: 'assets/logo.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
