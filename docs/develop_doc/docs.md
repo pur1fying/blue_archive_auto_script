@@ -41,7 +41,7 @@ pnpm install
 执行
 
 ```bash
-npm run docs:dev
+pnpm docs:dev
 ```
 
 实时预览文档
@@ -55,7 +55,7 @@ npm run docs:dev
 执行
 
 ```bash
-npm run docs:build
+pnpm docs:build
 ```
 
 将会在 `docs/.vitepress/dist` 目录下生成静态文件
