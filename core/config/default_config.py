@@ -3386,7 +3386,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "GetSetGoKivotosHaloGames",
         "Global": "SunlightGirlsNightSong",
-        "JP": "LivelyandBusily"
+        "JP": "iveAlive"
     },
     "dailyGameActivity": {
         "CN": null,
