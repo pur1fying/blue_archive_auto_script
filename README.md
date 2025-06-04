@@ -50,29 +50,31 @@ GUI预览图：
 ## 开发
 我们会在github issue和开发文档中发布一些需求,如果您有兴趣可以参与开发, 欢迎向**BAAS**提交pull request,我们会仔细阅读你的每一行代码, 哦对了,别忘了阅读[开发文档](https://blog.lzwi.fun/blue_archive_auto_script/develop_doc/develop_guide)
 
-1. 如果你会使用yolo目标检测,请联系作者,我们需要一个检测模型以供自动总力战使用
+1. **BAAS**自动战斗使用YOLOv8检测游戏内角色, 如果你愿意帮助开发者分担压力, 参与数据标注, 欢迎联系作者
 2. 欢迎将gui适配其他语言(目前有English,简体中文,日本語, 한국말)
-3. 本项目尝试支持Docker部署，但目前仍无法运行，目前在`deploy/docker`文件夹中，如有解决方案，请提交PR
+3. 如果你愿意帮助推广**BAAS**, 也欢迎联系作者, 推广方式包括但不限于
+    - 在BiliBili使用**BAAS**自动战斗直播帮别人凹分
+    - 做使用教学视频在不同视频平台推广
 
 ## 已知问题 Known Issues
-- **ocr字符识别精度尚可,但对一些特殊字符会有误识别**
 - **在使用本软件时请勿游玩游戏瓦洛兰特(可能会受到若干小时的封号处罚)**
+- 本项目尝试支持Docker部署，但目前仍无法运行，目前在`deploy/docker`文件夹中，如有解决方案，请提交PR
 
 ## 联系我们 Contact Us
 - QQ 
   - 1群: 658302636
   - 2群: 1027430247
 - 有开发意向请加作者 Email pur1fying at 2274916027@qq.com）
-- BiliBili: 
-  - [BAAS-Official](https://space.bilibili.com/259089751)
-  - [益生君-1208](https://space.bilibili.com/496075546)(一些视频教程)
+- BiliBili (已弃用): 
+  - [BAAS-Official](https://space.bilibili.com/259089751)(已被封禁)
+  - [益生君-1208](https://space.bilibili.com/496075546)(一些视频教程 | 部分视频被下架)
+ 
 ## 未来目标 Future Goals
 - **学生党，痛苦喵，大家一起来开源喵**
 - **使用C++重构一部分功能(正在进行中https://github.com/pur1fying/BAAS_Cpp)**
-- **使用yolo目标检测训练所有学生追踪模型, 完成自动总力战功能**
+- **为自动战斗开发一个普通用户可用的GUI**
 - **完善体力规划模块,使脚本可以在二/三倍活动掉落期间刷不同图，购买体力等，使刷体力更灵活可变**
 - **增加竞技场新赛季碎石挖矿功能**
-- **构建一套完善的图像识别+模拟器交互系统**
 
 ## [致谢名单](https://blog.lzwi.fun/blue_archive_auto_script/thanks)
 
