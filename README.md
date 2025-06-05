@@ -37,11 +37,12 @@ GUI预览图：
   安装完成后，BAAS 的ui界面将自动启动。同时，我们提供了pyinstaller可使用的打包脚本，您可以自
   行打包，具体内容在`deploy/installer`文件夹中。
   [安装相关文档](https://blog.lzwi.fun/blue_archive_auto_script/usage_doc/install/choose_platform)
+  
 ## 如何使用
 用户文档见[wiki](https://blog.lzwi.fun/blue_archive_auto_script/), 有详细的BAAS配置教程和使用方法
 
 ## 如何上报bug How to Report Bugs
-在提问题之前至少花费 5 分钟来思考和准备，才会有人花费他的 5 分钟来帮助你。
+在提问题之前至少花费 5 分钟来思考和准备, 才会有人花费他的 5 分钟来帮助你。
 
 在提问题前，请先。
 检查 BAAS 的更新，确认使用的是最新版(重启程序自动更新至最新版本)。
@@ -64,10 +65,7 @@ GUI预览图：
 - QQ 
   - 1群: 658302636
   - 2群: 1027430247
-- 有开发意向请加作者 Email pur1fying at 2274916027@qq.com）
-- BiliBili (已弃用): 
-  - [BAAS-Official](https://space.bilibili.com/259089751)(已被封禁)
-  - [益生君-1208](https://space.bilibili.com/496075546)(一些视频教程 | 部分视频被下架)
+- 有开发意向请加作者（Email pur1fying at 2274916027@qq.com）
  
 ## 未来目标 Future Goals
 - **学生党，痛苦喵，大家一起来开源喵**
