@@ -203,6 +203,7 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_duplicate-invite-notice': (534, 497),
         'cafe_switch-clothes-notice': (534, 497),
         'cafe_duplicate-invite': (534, 497),
+        'cafe_students-arrived': (922, 189)
     }
     return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
 
