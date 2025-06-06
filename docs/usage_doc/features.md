@@ -4,7 +4,7 @@
 
 **BAAS**, 一个带GUI的蔚蓝档案（全服支持），为屏幕分辨率为 16:9 (1280x720 最佳), 全年午休挂机运行的场景而设计 最终目的是接管一切蔚蓝档案任务 实现完全自动化
 
-关于安装，您可以参考我们的演示视频：[视频链接](https://www.bilibili.com/video/BV19y421e7XF/?spm_id_from=333.337.search-card.all.click)
+关于安装，您可以参考我们的演示视频：[视频链接](https://www.acfun.cn/v/ac47360708_2)
 
 **BAAS** 是一款免费开源软件，地址：[Github](https://github.com/pur1fying/blue_archive_auto_script)
 

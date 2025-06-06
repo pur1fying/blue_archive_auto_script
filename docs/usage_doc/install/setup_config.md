@@ -68,28 +68,47 @@ installer.py的运行步骤:
 :::
 ### REPO_URL_HTTP
 - **type**: `str`
-- **description** : 用于获取`BAAS`源码的地址, 一般不需要修改
+- **description** : 获取/更新`BAAS`源码的地址, 可选项如下
+   1. `github`原始仓库, 可直连`github`用户可选
+       ```shell
+       https://github.com/pur1fying/blue_archive_auto_script.git
+       ```
+   2. `gitee`镜像仓库, 默认地址 ,国内用户推荐
+       ```shell
+       https://gitee.com/pur1fy/blue_archive_auto_script.git
+       ```
+   3. `gitcode`镜像仓库, 国内用户备用地址
+       ```shell
+       https://gitcode.com/m0_74686738/blue_archive_auto_script.git
+       ```
 ### GET_PIP_URL 
 - **type**: `str`
 - **description** : `get-pip.py`的下载地址
+
 ### GET_UPX_URL
 - **type**: `str`
 - **description** : UPX的下载地址
+
 ### GET_ENV_PATCH_URL
 - **type**: `str`
 - **description** : 环境补丁文件的地址
+
 ### GET_PYTHON_URL
 - **type**: `str`
 - **description** : Python的下载地址
+
 ### BAAS_ROOT_PATH
 **type**: `str`
 **description**: 安装根目录, 一般不需要修改。 如需修改, 切记填写绝对路径
+
 ### TMP_PATH
 **type**: `str`
 **description**: 临时文件夹, 一般不需要修改
+
 ### TOOL_KIT_PATH
 **type**: `str`
 **description**: 一般不需要修改
+
 
 
 ## 默认配置

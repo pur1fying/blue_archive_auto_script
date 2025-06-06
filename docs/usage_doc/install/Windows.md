@@ -6,7 +6,7 @@
 ## 安装步骤
 - 解压Release或qq交流群中的下载包，双击`BlueArchiveAutoScript.exe`安装环境，请耐心等待。
 安装完成后，BAAS 的ui界面将自动启动。
-- [视频教程](https://www.bilibili.com/video/BV19y421e7XF/?spm_id_from=333.337.search-card.all.click)
+- [视频教程](https://www.acfun.cn/v/ac47360708_2)
 
 ## 问题解答
 ### 确保安装路径没有中文
@@ -45,10 +45,7 @@
 
 - **解决方法** 
 1. 打开**BAAS**安装目录下的setup.toml
-2. 修改这一项
+2. 尝试修改[REPO_URL_HTTP](/usage_doc/install/setup_config#repo-url-http)为其他地址 (gitcode / github)
 ![setup_toml_REPO_URL_HTTP.png](/assets/install/setup_toml_REPO_URL_HTTP.png)
-```shell
-https://gitcode.com/m0_74686738/blue_archive_auto_script.git
-```
 
-- **原因:** 你的可能被gitee拒绝服务
+- **原因:** 你可能被gitee拒绝服务
