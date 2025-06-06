@@ -3384,7 +3384,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "GetSetGoKivotosHaloGames",
+        "CN": "TripTrapTrain",
         "Global": "SunlightGirlsNightSong",
         "JP": "iveAlive"
     },
