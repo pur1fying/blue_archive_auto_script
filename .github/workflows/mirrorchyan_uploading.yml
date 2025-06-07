@@ -1,0 +1,32 @@
+name: mirrorchyan_uploading
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mirrorchyan:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: mac
+            arch: amd64
+            filename: "BlueArchiveAutoScript_*_amd64.deb"
+          - os: win
+            arch: x64
+            filename: "BlueArchiveAutoScript_*_win_x86_64.exe"
+
+    steps:
+      - uses: MirrorChyan/uploading-action@v1
+        with:
+          filetype: latest-release
+          filename: ${{ matrix.filename }}
+          mirrorchyan_rid: BAAS
+
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          owner: pur1fying
+          repo: blue_archive_auto_script
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
+          os: ${{ matrix.os }}
+          arch: ${{ matrix.arch }}
