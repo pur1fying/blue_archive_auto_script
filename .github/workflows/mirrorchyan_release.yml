@@ -2,6 +2,8 @@ name: mirrorchyan_release
 
 on:
   workflow_dispatch:
+  release:
+    types: [released]
 
 jobs:
   mirrorchyan:
