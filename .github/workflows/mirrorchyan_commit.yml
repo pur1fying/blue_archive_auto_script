@@ -27,7 +27,8 @@ jobs:
         with:
           filetype: local
           mirrorchyan_rid: BAAS_repo
-          pick_files: '["../blue_archive_auto_script"]'
+          working-directory: ../
+          pick_files: '["blue_archive_auto_script"]'
           version_name: ${{ steps.version_name.outputs.version }}
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
           
