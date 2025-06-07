@@ -73,13 +73,17 @@ installer.py的运行步骤:
        ```shell
        https://github.com/pur1fying/blue_archive_auto_script.git
        ```
-   2. `gitee`镜像仓库, 默认地址 ,国内用户推荐
+   2. `gitee`镜像仓库, 默认地址, 国内用户推荐
        ```shell
        https://gitee.com/pur1fy/blue_archive_auto_script.git
        ```
    3. `gitcode`镜像仓库, 国内用户备用地址
        ```shell
        https://gitcode.com/m0_74686738/blue_archive_auto_script.git
+       ```
+   4. `腾讯云`镜像仓库(每日0点同步)
+       ```shell
+       https://e.coding.net/g-jbio0266/baas/blue_archive_auto_script.git
        ```
 ### GET_PIP_URL 
 - **type**: `str`
