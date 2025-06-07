@@ -20,9 +20,6 @@ jobs:
           version=$(git rev-parse HEAD)
           release_note=$(git log --pretty=format:"%ad %h %s" --date=iso -1)
 
-          # for zip file
-          cd ..
-
           echo "version=$version" | tee -a "$GITHUB_OUTPUT"
           echo "release_note=$release_note" | tee -a "$GITHUB_OUTPUT"
 
@@ -30,7 +27,7 @@ jobs:
         with:
           filetype: local
           mirrorchyan_rid: BAAS_repo
-          pick_files: '["blue_archive_auto_script"]'
+          pick_files: '["../blue_archive_auto_script"]'
           version_name: ${{ steps.version_name.outputs.version }}
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
           
