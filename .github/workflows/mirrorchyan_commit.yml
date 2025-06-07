@@ -11,8 +11,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Version Name
         id: version_name
@@ -22,6 +20,10 @@ jobs:
 
           echo "version=$version" | tee -a "$GITHUB_OUTPUT"
           echo "release_note=$release_note" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Remove .git
+        run: |
+          rm -rf .git
 
       - uses: MirrorChyan/uploading-action@v1
         with:
