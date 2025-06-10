@@ -11,10 +11,7 @@ def printTaskList(self: Baas_thread, tasklist: list[list], title: str, isNormal:
     self.logger.info(title + " {")
     ap_required = 0
     for task in tasklist:
-        if isNormal:
-            base_ap = 10 if task[0] != "tutorial" else 1
-        else:
-            base_ap = 20
+        base_ap = 10 if isNormal else 20
 
         taskName = f"{task[0]}-{task[1]}" if isNormal else f"H{task[0]}-{task[1]}"
         required_count = task[2]
@@ -82,7 +79,7 @@ def sweepNormalTask(self):
 
         region, mission, required_counts = task[0], task[1], task[2]
         current_ap = self.get_ap(True)
-        base_ap = 10 if region != "tutorial" else 1
+        base_ap = 10
         self.logger.info(f"--- Start sweeping {region}-{mission} * {required_counts} time(s)---")
 
         # Check if the AP is enough for sweeping
@@ -94,16 +91,6 @@ def sweepNormalTask(self):
 
         # Check if the task is available for sweeping
         to_normal_event(self, True)
-
-        # if the task is a tutorial, we transfer the task to the corresponding module
-        if region == "tutorial":
-            tutorial_region = [0, 1, 1, 1, 2, 3, 3]
-            to_region(self, tutorial_region[mission], True)
-            import importlib
-            module_name = "module.mainline.tutorial" + str(mission)
-            module = importlib.import_module(module_name)
-            module.sweep(self, required_counts)
-            continue
 
         if not to_region(self, region, True):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
@@ -199,16 +186,13 @@ def readOneNormalTask(task_string, region):
         raise ValueError("[ " + task_string + " ] format error.")
     mainline_available_missions = list(range(1, 6))
     mainline_available_regions = list(range(5, region[1] + 1))
-    mainline_available_regions.append("tutorial")
     temp = task_string.split('-')
     region = temp[0]
     mission = temp[1]
     counts = temp[2]
     if not isInt(region):
-        if region != "tutorial":
-            raise ValueError("[ " + task_string + " ] region : " + str(region) + " unavailable")
-    else:
-        region = int(region)
+        raise ValueError("[ " + task_string + " ] region : " + str(region) + " unavailable")
+    region = int(region)
     if region not in mainline_available_regions:
         raise ValueError("[ " + task_string + " ] region : " + str(region) + " not support")
     if not isInt(mission):
