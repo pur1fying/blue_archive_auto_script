@@ -2,7 +2,7 @@ prefix = "cafe"
 path = "cafe"
 x_y_range = {
     'menu': (107, 9, 235, 36),
-    '0.0': (1114, 642, 1160, 668),
+    '0.0': (1136, 655, 1210, 684),
     'students-arrived': (550, 240, 730, 269),
     'cafe-reward-status': (550, 132, 720, 174),
     'invitation-ticket': (421, 78, 451, 111),
@@ -23,7 +23,8 @@ x_y_range = {
     'confirm-invite': (543, 139, 735, 177),
     'switch-clothes-notice': ( 570, 150, 700, 189),
     'duplicate-invite-notice': (400, 154, 888, 270),
-    'at-no1-cafe': (91, 150, 157, 178),
+    'button-goto-no1-cafe': (153, 90, 164, 110),
+    'button-goto-no2-cafe': (153, 90, 164, 110),
     'invite-student-button': (740, 210, 827, 237)
 }
 

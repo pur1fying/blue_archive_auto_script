@@ -6,6 +6,7 @@ from core import image, color, picture
 from core.utils import merge_nearby_coordinates
 from statistics import median
 
+
 def implement(self):
     self.to_main_page()
     to_cafe(self, True)
@@ -66,7 +67,7 @@ def to_cafe(self, skip_first_screenshot=False):
 
 def to_no2_cafe(self):
     to_cafe(self)
-    if self.server == "JP":
+    if self.server == "JP" or self.server == "Global":
         img_ends = "cafe_button-goto-no1-cafe"
         img_possibles = {
             "cafe_button-goto-no2-cafe": (118, 98),
@@ -134,7 +135,9 @@ def interaction_for_cafe_solve_method3(self):
         if not res:
             self.logger.info("No interaction found")
             if swipeT < self.config.cafe_reward_interaction_shot_delay + 0.3:
-                self.logger.warning("Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(shotDelay) + " ]")
+                self.logger.warning(
+                    "Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(
+                        shotDelay) + " ]")
                 self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
                 if swipeT > 0.4:
                     self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
@@ -191,7 +194,7 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
     ]
     invitation_ticket_x = {
         'CN': 838,
-        'Global': 838,
+        'Global': 887,
         'JP': 887,
     }
     img_possible = {
@@ -200,8 +203,10 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_duplicate-invite-notice': (534, 497),
         'cafe_switch-clothes-notice': (534, 497),
         'cafe_duplicate-invite': (534, 497),
+        'cafe_students-arrived': (922, 189)
     }
     return picture.co_detect(self, None, None, img_end, img_possible, skip_first_screenshot)
+
 
 def checkConfirmInvite(self, y):
     res = to_confirm_invite(self, (785, y))
@@ -315,6 +320,7 @@ def confirm_invite(self):
         "cafe_duplicate-invite": (767, 514),
         "cafe_switch-clothes-notice": (764, 501),
         "cafe_duplicate-invite-notice": (764, 514),
+        "cafe_students-arrived": (922, 189)
     }
     img_ends = "cafe_menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -543,7 +549,7 @@ def is_english(char):
 def get_invitation_ticket_next_time(self):
     region = {
         'CN': (800, 584, 875, 608),
-        'Global': (800, 584, 875, 608),
+        'Global': (850, 588, 926, 614),
         'JP': (850, 588, 926, 614)
     }
     region = region[self.server]

@@ -585,7 +585,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "max_region": {
         "CN": 23,
-        "Global": 26,
+        "Global": 27,
         "JP": 28
     },
     "explore_normal_task_region_range": [4, 28],
@@ -3328,7 +3328,8 @@ STATIC_DEFAULT_CONFIG = '''
           "崔尼蒂广场区",
           "红冬联邦学院",
           "百鬼夜行中心",
-          "D.U.白鸟区"
+          "D.U.白鸟区",
+          "山海经中央特区"
           ],
       "Global_en-us": [
           "Schale Office",
@@ -3384,9 +3385,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": null,
-        "Global": null,
-        "JP": "FromOpera0068WithLove"
+        "CN": "TripTrapTrain",
+        "Global": "SunlightGirlsNightSong",
+        "JP": "iveAlive"
     },
     "dailyGameActivity": {
         "CN": null,
@@ -3870,7 +3871,7 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "流美",
+      "CN_name": "瑠美",
       "CN_implementation": false,
       "Global_name": "Rumi",
       "Global_implementation": true,

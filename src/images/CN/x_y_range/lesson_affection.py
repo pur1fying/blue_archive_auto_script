@@ -48,6 +48,7 @@ x_y_range = {
     "Koharu": [],
     "Kotama": [],
     "Maki": [],
+    "Mashiro": [],
     "Mashiro (Swimsuit)": [],
     "Megu": [],
     "Midori": [],
@@ -88,5 +89,10 @@ x_y_range = {
     "Natsu": [],
     "Cherino": [],
     "Reisa": [],
-    "Noa": []
+    "Noa": [],
+    "Kokona": [],
+    "Miyako": [],
+    "Miyako (Swimsuit)": [],
+    "Rumi": [],
+    "Mimori": []
 }

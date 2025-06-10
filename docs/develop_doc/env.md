@@ -14,5 +14,5 @@ conda activate baas_env
 ```
 ### 4.安装依赖:
 ```shell
-pip install -r requirements.txt
+pip install -r requirements-linux.txt
 ```

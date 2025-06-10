@@ -6,10 +6,10 @@
 ## 安装步骤
 - 解压Release或qq交流群中的下载包，双击`BlueArchiveAutoScript.exe`安装环境，请耐心等待。
 安装完成后，BAAS 的ui界面将自动启动。
-- [视频教程](https://www.bilibili.com/video/BV19y421e7XF/?spm_id_from=333.337.search-card.all.click)
+- [视频教程](https://www.acfun.cn/v/ac47360708_2)
 
 ## 问题解答
-### 1.确保安装路径没有中文
+### 确保安装路径没有中文
 - **报错截图** 
 ![中文路径无法启动ui](/assets/install/problem_fail_to_start_ui_for_path_with_chinese.png)
 
@@ -29,7 +29,7 @@
   **note:** 变量值填写非MuMu模拟器的Qt目录时可能会与MuMu模拟器所需的Qt发生冲突，导致MuMu模拟器无法打开，已知MUMU模拟器与最新的Qt5.15.11不兼容，非必要不建议填写自己安装的Qt（要用到时自己改）。
   **因为MUMU模拟器的Qt与Baas兼容，所以在发生冲突无法打开MuMu模拟器时建议在变量值处填写** `MuMu模拟器的Qt目录` 删除变量也可以正常打开MuMu模拟器。
 
-### 2.双击BlueArchiveAutoScript.exe后命令行界面全黑无反应
+### 双击BlueArchiveAutoScript.exe后命令行界面全黑无反应
 - **解决方法** 
 1. 打开windows设置
 2. 搜索并进入```病毒和威胁防护```
@@ -37,3 +37,15 @@
 4. 关闭```实时保护```
 
 - **原因:** 未知, 可能windows误识为病毒
+
+
+### 安装命令行出现如下报错
+
+![install_request400.png](/assets/install/install_request400.png)
+
+- **解决方法** 
+1. 打开**BAAS**安装目录下的setup.toml
+2. 尝试修改[REPO_URL_HTTP](/usage_doc/install/setup_config#repo-url-http)为其他地址 (gitcode / github)
+![setup_toml_REPO_URL_HTTP.png](/assets/install/setup_toml_REPO_URL_HTTP.png)
+
+- **原因:** 你可能被gitee拒绝服务

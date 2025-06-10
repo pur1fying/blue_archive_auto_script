@@ -155,6 +155,9 @@ def select_node(self, phase):
             if max_acc >= 0.5:
                 most_possible_node_name = pri[idx]
                 self.logger.info("Assume Node is : " + most_possible_node_name)
+                if idx == 0:
+                    self.logger.info("Choose Node : " + most_possible_node_name)
+                    return
                 node.append(most_possible_node_name)
                 lo.append(i)
             else:

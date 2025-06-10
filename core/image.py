@@ -169,7 +169,8 @@ def swipe_search_target_str(
         ocr_str_replace_func=None,
         max_swipe_times=3,
         ocr_candidates="",
-        ocr_filter_score=0.2
+        ocr_filter_score=0.2,
+        first_retry_dir=0
 ):
     temp = len(swipe_params)
     if temp < 4:
@@ -193,7 +194,7 @@ def swipe_search_target_str(
         swipe_params[4],
         swipe_params[5]
     )
-    retry_swipe_dir = 0
+    retry_swipe_dir = first_retry_dir
     if possible_strs is None:
         raise ValueError("possible_strs can't be None.")
     target_str = possible_strs[target_str_index]
