@@ -62,6 +62,8 @@ def sweepHardTask(self):
         result = start_sweep(self, True)
         if result == "charge_challenge_counts":
             self.logger.warning("Current Task Challenge Counts Insufficient")
+        elif result == "inadequate_ap":
+            self.logger.warning("Current AP Insufficient")
         to_hard_event(self, True)
 
     return True
@@ -126,6 +128,10 @@ def sweepNormalTask(self):
             duration = 0 if required_counts <= 4 else 1
             self.click(1014, botton_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
         result = start_sweep(self, True)
+        if result == "charge_challenge_counts":
+            self.logger.warning("Current Task Challenge Counts Insufficient")
+        elif result == "inadequate_ap":
+            self.logger.warning("Current AP Insufficient")
         to_normal_event(self, True)
 
     return True
