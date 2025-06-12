@@ -119,10 +119,10 @@ class BaasOcrClient:
             try:
                 requests.get(self.config.base_url)
                 break
-            except requests.exceptions.ConnectionError:
+            except requests.exceptions.ConnectionError as e:
+                if _ == 29:
+                    raise RuntimeError("Fail to start ocr server. " + e.__str__())
                 time.sleep(0.1)
-        else:
-            raise RuntimeError("Fail to start server.")
 
     def stop_server(self):
         self.server_process.stdin.write("exit\n")

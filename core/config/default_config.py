@@ -3386,7 +3386,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "TripTrapTrain",
-        "Global": "SunlightGirlsNightSong",
+        "Global": "SecretMidnightParty",
         "JP": "iveAlive"
     },
     "dailyGameActivity": {
