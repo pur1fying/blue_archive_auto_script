@@ -1,4 +1,5 @@
 from copy import deepcopy
+import TaskUtils
 
 from core import picture, Baas_thread, image
 from core.color import check_sweep_availability
@@ -23,6 +24,7 @@ def printTaskList(self: Baas_thread, tasklist: list[list], title: str, isNormal:
 
 
 def sweepHardTask(self):
+    TaskUtils.to_hard_event(self)
     tasklist = deepcopy(self.config.unfinished_hard_tasks)
     base_ap = 20
     printTaskList(self, tasklist, "SWEEPING TASKS LIST", False)
@@ -53,12 +55,12 @@ def sweepHardTask(self):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
             continue
 
-        botton_y_coord = 300 if self.server == "CN" else 328
+        button_y_coord = 300 if self.server == "CN" else 328
         if required_counts == "max":
-            self.click(1085, botton_y_coord, rate=1, wait_over=True)
+            self.click(1085, button_y_coord, rate=1, wait_over=True)
         else:
             duration = 0 if required_counts <= 4 else 1
-            self.click(1014, botton_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
+            self.click(1014, button_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
         result = start_sweep(self, True)
         if result == "charge_challenge_counts":
             self.logger.warning("Current Task Challenge Counts Insufficient")
@@ -70,6 +72,7 @@ def sweepHardTask(self):
 
 
 def sweepNormalTask(self):
+    TaskUtils.to_normal_event(self)
     tasklist = deepcopy(self.config.unfinished_normal_tasks)
     printTaskList(self, tasklist, "SWEEPING TASKS LIST", True)
 
@@ -80,7 +83,7 @@ def sweepNormalTask(self):
         # task[2] : sweep times (if it's "max",it means maximum possible,which is 3 for hard task)
 
         region, mission, required_counts = task[0], task[1], task[2]
-        current_ap = self.get_ap(True)
+        current_ap = self.get_ap()
         base_ap = 10
         self.logger.info(f"--- Start sweeping {region}-{mission} * {required_counts} time(s)---")
 
@@ -121,12 +124,12 @@ def sweepNormalTask(self):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
             continue
 
-        botton_y_coord = 300 if self.server == "CN" else 328
+        button_y_coord = 300 if self.server == "CN" else 328
         if required_counts == "max":
-            self.click(1085, botton_y_coord, rate=1, wait_over=True)
+            self.click(1085, button_y_coord, rate=1, wait_over=True)
         else:
             duration = 0 if required_counts <= 4 else 1
-            self.click(1014, botton_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
+            self.click(1014, button_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
         result = start_sweep(self, True)
         if result == "charge_challenge_counts":
             self.logger.warning("Current Task Challenge Counts Insufficient")
