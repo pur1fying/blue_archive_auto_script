@@ -7,6 +7,12 @@ from module import main_story
 from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
+
+# korean 11 will be recognized as ll
+def ocr_str_replace_func(st):
+    return st.replace("l", "1")
+
+
 # activity config
 def get_stage_data(self):
     json_path = 'src/explore_task_data/activities/' + self.current_game_activity + '.json'
@@ -178,6 +184,7 @@ def explore_activity_mission(self):
         to_activity(self, "mission", True)
 
 
+
 def to_mission_task_info(self, target_index, total_mission):
     possible_strs = build_activity_task_name_list(total_mission)
     ocr_region_offsets = {
@@ -197,9 +204,9 @@ def to_mission_task_info(self, target_index, total_mission):
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
         ocr_language='en-us',
         ocr_region_offsets=ocr_region_offsets[self.identifier],
-        ocr_str_replace_func=None,
+        ocr_str_replace_func=ocr_str_replace_func,
         max_swipe_times=10,
-        ocr_candidates="0123456789",
+        ocr_candidates="0123456789l",
         first_retry_dir=1
     )
     y = p[1] + 10  # move down a little bit in case click to challenge page
@@ -382,9 +389,9 @@ def to_story_task_info(self, target_index, total_story):
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
         ocr_language='en-us',
         ocr_region_offsets=(-387, -6, 50, 28),
-        ocr_str_replace_func=None,
+        ocr_str_replace_func=ocr_str_replace_func,
         max_swipe_times=10,
-        ocr_candidates="0123456789"
+        ocr_candidates="0123456789l"
     )
     y = p[1]
     img_possibles = {'activity_menu': (1124, y)}
