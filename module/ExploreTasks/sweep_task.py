@@ -40,7 +40,7 @@ def sweepHardTask(self):
 
         # Check if the AP is enough for sweeping
         # As for "max" task, it will always bypass check
-        if current_ap < base_ap or (type(required_counts) == int and required_counts * base_ap > current_ap):
+        if current_ap < base_ap or (required_counts is int and required_counts * base_ap > current_ap):
             self.logger.warning(f"Exiting sweeping since AP is insufficient.")
             printTaskList(self, tasklist[i:], "REMAIN TASKS LIST", False)
             return True
@@ -86,7 +86,7 @@ def sweepNormalTask(self):
 
         # Check if the AP is enough for sweeping
         # As for "max" task, it will always bypass check
-        if current_ap < base_ap or (type(required_counts) == int and required_counts * base_ap > current_ap):
+        if current_ap < base_ap or (required_counts is int and required_counts * base_ap > current_ap):
             self.logger.warning(f"Exiting sweeping since AP is insufficient.")
             printTaskList(self, tasklist[i:], "REMAIN TASKS LIST", False)
             return True
@@ -98,8 +98,8 @@ def sweepNormalTask(self):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
             continue
         fullMissionList = []
-        for i in range(1, 6):
-            fullMissionList.append(f"{region}-{i}")
+        for j in range(1, 6):
+            fullMissionList.append(f"{region}-{j}")
         if region % 3 == 0:
             fullMissionList.append(f"{region}-A")
         missionButtonPos = image.swipe_search_target_str(
