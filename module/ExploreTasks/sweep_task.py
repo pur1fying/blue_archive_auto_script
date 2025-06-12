@@ -1,4 +1,5 @@
 from copy import deepcopy
+import TaskUtils
 
 from core import picture, Baas_thread, image
 from core.color import check_sweep_availability
@@ -40,7 +41,7 @@ def sweepHardTask(self):
 
         # Check if the AP is enough for sweeping
         # As for "max" task, it will always bypass check
-        if current_ap < base_ap or (type(required_counts) == int and required_counts * base_ap > current_ap):
+        if current_ap < base_ap or (required_counts is int and required_counts * base_ap > current_ap):
             self.logger.warning(f"Exiting sweeping since AP is insufficient.")
             printTaskList(self, tasklist[i:], "Remain HARD tasks list", False)
             return True
@@ -53,15 +54,17 @@ def sweepHardTask(self):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
             continue
 
-        botton_y_coord = 300 if self.server == "CN" else 328
+        button_y_coord = 300 if self.server == "CN" else 328
         if required_counts == "max":
-            self.click(1085, botton_y_coord, rate=1, wait_over=True)
+            self.click(1085, button_y_coord, rate=1, wait_over=True)
         else:
             duration = 0 if required_counts <= 4 else 1
-            self.click(1014, botton_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
+            self.click(1014, button_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
         result = start_sweep(self, True)
         if result == "charge_challenge_counts":
             self.logger.warning("Current Task Challenge Counts Insufficient")
+        elif result == "inadequate_ap":
+            self.logger.warning("Current AP Insufficient")
         to_hard_event(self, True)
 
     return True
@@ -78,13 +81,13 @@ def sweepNormalTask(self):
         # task[2] : sweep times (if it's "max",it means maximum possible,which is 3 for hard task)
 
         region, mission, required_counts = task[0], task[1], task[2]
-        current_ap = self.get_ap(True)
+        current_ap = self.get_ap()
         base_ap = 10
         self.logger.info(f"--- Start sweeping {region}-{mission} * {required_counts} time(s)---")
 
         # Check if the AP is enough for sweeping
         # As for "max" task, it will always bypass check
-        if current_ap < base_ap or (type(required_counts) == int and required_counts * base_ap > current_ap):
+        if current_ap < base_ap or (required_counts is int and required_counts * base_ap > current_ap):
             self.logger.warning(f"Exiting sweeping since AP is insufficient.")
             printTaskList(self, tasklist[i:], "Remain NORMAL task list", False)
             return True
@@ -96,8 +99,8 @@ def sweepNormalTask(self):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
             continue
         fullMissionList = []
-        for i in range(1, 6):
-            fullMissionList.append(f"{region}-{i}")
+        for j in range(1, 6):
+            fullMissionList.append(f"{region}-{j}")
         if region % 3 == 0:
             fullMissionList.append(f"{region}-A")
         missionButtonPos = image.swipe_search_target_str(
@@ -119,13 +122,17 @@ def sweepNormalTask(self):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
             continue
 
-        botton_y_coord = 300 if self.server == "CN" else 328
+        button_y_coord = 300 if self.server == "CN" else 328
         if required_counts == "max":
-            self.click(1085, botton_y_coord, rate=1, wait_over=True)
+            self.click(1085, button_y_coord, rate=1, wait_over=True)
         else:
             duration = 0 if required_counts <= 4 else 1
-            self.click(1014, botton_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
+            self.click(1014, button_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
         result = start_sweep(self, True)
+        if result == "charge_challenge_counts":
+            self.logger.warning("Current Task Challenge Counts Insufficient")
+        elif result == "inadequate_ap":
+            self.logger.warning("Current AP Insufficient")
         to_normal_event(self, True)
 
     return True
