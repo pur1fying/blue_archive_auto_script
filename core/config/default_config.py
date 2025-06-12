@@ -403,8 +403,8 @@ DEFAULT_CONFIG = """
         ["primary","normal","advanced","superior"]
     ],
     "purchase_lesson_ticket_times": "0",
-    "explore_normal_task_list": [],
-    "explore_hard_task_list": [],
+    "explore_normal_task_list": "",
+    "explore_hard_task_list": "",
     "emulatorIsMultiInstance": false,
     "emulatorMultiInstanceNumber": 0,
     "multiEmulatorName": "mumu",

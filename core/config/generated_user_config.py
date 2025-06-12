@@ -70,8 +70,8 @@ class Config:
     lesson_relationship_first: bool
     lesson_each_region_object_priority: list
     purchase_lesson_ticket_times: str
-    explore_normal_task_list: list
-    explore_hard_task_list: list
+    explore_normal_task_list: str
+    explore_hard_task_list: str
     emulatorIsMultiInstance: bool
     emulatorMultiInstanceNumber: int
     multiEmulatorName: str
