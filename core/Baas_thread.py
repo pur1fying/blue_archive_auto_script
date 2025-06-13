@@ -7,26 +7,26 @@ import time
 import traceback
 from dataclasses import fields
 from datetime import datetime
+
 import cv2
 import numpy as np
 import psutil
 import requests
 
 import module.ExploreTasks.explore_task
-from core.device import emulator_manager
 from core import position, picture
 from core.config.config_set import ConfigSet
+from core.device import emulator_manager
 from core.device.Control import Control
 from core.device.Screenshot import Screenshot
 from core.device.connection import Connection
+from core.device.emulator_manager import process_api
 from core.device.uiautomator2_client import BAAS_U2_Initer, __atx_agent_version__
 from core.device.uiautomator2_client import U2Client
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
-from core.device.emulator_manager import process_api
-from core.utils import Logger
 
 func_dict = {
     'group': module.group.implement,
@@ -841,8 +841,8 @@ class Baas_thread:
         last_refresh_hour = last_refresh.hour
         daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
         if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
-                ((hour < daily_reset and last_refresh_hour < daily_reset) or (
-                        hour >= daily_reset and last_refresh_hour >= daily_reset)):
+            ((hour < daily_reset and last_refresh_hour < daily_reset) or (
+                hour >= daily_reset and last_refresh_hour >= daily_reset)):
             return
         else:
             self.config.last_refresh_config_time = time.time()
@@ -866,7 +866,7 @@ class Baas_thread:
         for i in range(0, len(temp)):
             try:
                 self.config.unfinished_normal_tasks.append(
-                    read_task(temp[i], True))
+                    read_task(self, temp[i], True))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
@@ -879,7 +879,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_hard_tasks.append(read_task(temp[i], False))
+                self.config.unfinished_hard_tasks.append(read_task(self, temp[i], False))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)

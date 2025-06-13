@@ -168,7 +168,7 @@ def start_sweep(self: Baas_thread, skip_first_screenshot: bool = False) -> str:
     return "sweep_complete"
 
 
-def read_task(task_string: str, is_normal: bool) -> tuple:
+def read_task(self: Baas_thread, task_string: str, is_normal: bool) -> tuple:
     type_str = "normal task" if is_normal else "hard task"
     if task_string.count('-') != 2:
         raise ValueError(f"[\"{task_string}\"] -{type_str} format error,"
