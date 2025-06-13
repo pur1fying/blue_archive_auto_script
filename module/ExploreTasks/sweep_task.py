@@ -65,6 +65,9 @@ def sweep_hard_task(self):
         elif result == "inadequate_ap":
             self.logger.warning("Current AP Insufficient")
             return True
+        if required_counts == "max":
+            self.logger.info("Exit task sweep since \"max\" uses up all ap.")
+            return True
         to_hard_event(self, True)
     return True
 
@@ -134,6 +137,9 @@ def sweep_normal_task(self):
             return True
         elif result == "inadequate_ap":
             self.logger.warning("Current AP Insufficient")
+            return True
+        if required_counts == "max":
+            self.logger.info("Exit task sweep since \"max\" uses up all ap.")
             return True
         to_normal_event(self, True)
     return True
