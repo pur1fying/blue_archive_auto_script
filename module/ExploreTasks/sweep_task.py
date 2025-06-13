@@ -23,11 +23,10 @@ def printTaskList(self: Baas_thread, tasklist: list[list], title: str, isNormal:
 
 
 def sweepHardTask(self):
-    TaskUtils.to_hard_event(self)
+    self.to_main_page(skip_first_screenshot=True)
     tasklist = deepcopy(self.config.unfinished_hard_tasks)
     base_ap = 20
-    printTaskList(self, tasklist, "SWEEPING TASKS LIST", False)
-
+    printTaskList(self, tasklist, "Sweeping HARD task list", False)
     for i in range(len(tasklist)):
         task = tasklist[i]
         # task[0] : target region
@@ -43,7 +42,7 @@ def sweepHardTask(self):
         # As for "max" task, it will always bypass check
         if current_ap < base_ap or (required_counts is int and required_counts * base_ap > current_ap):
             self.logger.warning(f"Exiting sweeping since AP is insufficient.")
-            printTaskList(self, tasklist[i:], "REMAIN TASKS LIST", False)
+            printTaskList(self, tasklist[i:], "Remain HARD tasks list", False)
             return True
 
         # Check if the task is available for sweeping
@@ -71,10 +70,9 @@ def sweepHardTask(self):
 
 
 def sweepNormalTask(self):
-    TaskUtils.to_normal_event(self)
+    self.to_main_page(skip_first_screenshot=True)
     tasklist = deepcopy(self.config.unfinished_normal_tasks)
-    printTaskList(self, tasklist, "SWEEPING TASKS LIST", True)
-
+    printTaskList(self, tasklist, "Sweeping NORMAL task list", True)
     for i in range(len(tasklist)):
         task = tasklist[i]
         # task[0] : target region
@@ -90,7 +88,7 @@ def sweepNormalTask(self):
         # As for "max" task, it will always bypass check
         if current_ap < base_ap or (required_counts is int and required_counts * base_ap > current_ap):
             self.logger.warning(f"Exiting sweeping since AP is insufficient.")
-            printTaskList(self, tasklist[i:], "REMAIN TASKS LIST", False)
+            printTaskList(self, tasklist[i:], "Remain NORMAL task list", False)
             return True
 
         # Check if the task is available for sweeping
