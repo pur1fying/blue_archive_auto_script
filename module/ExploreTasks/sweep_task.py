@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-import TaskUtils
 from core import picture, Baas_thread, image
 from core.color import check_sweep_availability
 from module.ExploreTasks.TaskUtils import to_hard_event, to_mission_info, to_region, to_normal_event
@@ -72,6 +71,7 @@ def sweep_hard_task(self):
 def sweep_normal_task(self):
     self.to_main_page(skip_first_screenshot=True)
     tasklist = deepcopy(self.config.unfinished_normal_tasks)
+
     print_task_list(self, tasklist, "Sweeping NORMAL task list", True)
     for i in range(len(tasklist)):
         task = tasklist[i]
@@ -159,9 +159,12 @@ def start_sweep(self: Baas_thread, skip_first_screenshot: bool = False) -> str:
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
 
+
 def read_task(task_string: str, is_normal: bool) -> tuple:
+    type_str = "normal task" if is_normal else "hard task"
     if task_string.count('-') != 2:
-        raise ValueError(f"[\"{task_string}\"] - format error.")
+        raise ValueError(f"[\"{task_string}\"] -{type_str} format error,"
+                         f" expected format: region-mission-counts(int or \"max\")")
     available_missions = list(range(1, 6)) if is_normal else list(range(1, 4))
     maximum_region = self.config.static_config.explore_normal_task_region_range[1] if is_normal else \
         self.config.static_config.explore_hard_task_region_range[1]
@@ -177,8 +180,8 @@ def read_task(task_string: str, is_normal: bool) -> tuple:
         raise ValueError(f"[\"{task_string}\"] - arguments are not integer or \"max\"")
 
     if region not in mainline_available_regions:
-        raise ValueError(f"[\"{task_string}\"] - region {region} is not support")
+        raise ValueError(f"[\"{task_string}\"] - {type_str} region {region} is not support")
     if mission not in available_missions:
-        raise ValueError(f"[\"{task_string}\"] - mission {mission} is not support")
+        raise ValueError(f"[\"{task_string}\"] - {type_str} mission {mission} is not support")
 
     return region, mission, counts
