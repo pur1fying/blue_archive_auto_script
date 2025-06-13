@@ -1,9 +1,8 @@
 from copy import deepcopy
-import TaskUtils
 
+import TaskUtils
 from core import picture, Baas_thread, image
 from core.color import check_sweep_availability
-from core.staticUtils import isInt
 from module.ExploreTasks.TaskUtils import to_hard_event, to_mission_info, to_region, to_normal_event
 
 
@@ -162,56 +161,26 @@ def start_sweep(self: Baas_thread, skip_first_screenshot: bool = False) -> str:
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
 
-
-def readOneHardTask(task_string, region):
+def read_task(task_string: str, is_normal: bool) -> tuple:
     if task_string.count('-') != 2:
-        raise ValueError("[ " + task_string + " ] format error.")
-    mainline_available_missions = list(range(1, 4))
-    mainline_available_regions = list(range(region[0], region[1] + 1))
+        raise ValueError(f"[\"{task_string}\"] - format error.")
+    available_missions = list(range(1, 6)) if is_normal else list(range(1, 4))
+    maximum_region = self.config.static_config.explore_normal_task_region_range[1] if is_normal else \
+        self.config.static_config.explore_hard_task_region_range[1]
+    mainline_available_regions = list(range(1, maximum_region + 1))
     temp = task_string.split('-')
-    region = temp[0]
-    mission = temp[1]
-    counts = temp[2]
-    if not isInt(region):
-        raise ValueError("[ " + task_string + " ] region : " + str(region) + " unavailable")
-    region = int(region)
-    if region not in mainline_available_regions:
-        raise ValueError("[ " + task_string + " ] region : " + str(region) + " not support")
-    if not isInt(mission):
-        raise ValueError("[ " + task_string + " ] mission : " + str(mission) + " unavailable")
-    mission = int(mission)
-    if mission not in mainline_available_missions:
-        raise ValueError("[ " + task_string + " ] mission : " + str(mission) + " not support")
-    if not isInt(counts):
+    try:
+        region, mission, counts = int(temp[0]), int(temp[1]), temp[2]
         if counts != "max":
-            raise ValueError("[ " + task_string + " ] count : " + str(counts) + " unavailable")
-    else:
-        counts = int(counts)
-    return region, mission, counts
+            # if the counts is not "max", it must be an integer.
+            # so we parse it to an integer, otherwise it would raise a ValueError
+            counts = int(counts)
+    except ValueError:
+        raise ValueError(f"[\"{task_string}\"] - arguments are not integer or \"max\"")
 
-
-def readOneNormalTask(task_string, region):
-    if task_string.count('-') != 2:
-        raise ValueError("[ " + task_string + " ] format error.")
-    mainline_available_missions = list(range(1, 6))
-    mainline_available_regions = list(range(5, region[1] + 1))
-    temp = task_string.split('-')
-    region = temp[0]
-    mission = temp[1]
-    counts = temp[2]
-    if not isInt(region):
-        raise ValueError("[ " + task_string + " ] region : " + str(region) + " unavailable")
-    region = int(region)
     if region not in mainline_available_regions:
-        raise ValueError("[ " + task_string + " ] region : " + str(region) + " not support")
-    if not isInt(mission):
-        raise ValueError("[ " + task_string + " ] mission : " + str(mission) + " unavailable")
-    mission = int(mission)
-    if mission not in mainline_available_missions:
-        raise ValueError("[ " + task_string + " ] mission : " + str(mission) + " not support")
-    if not isInt(counts):
-        if counts != "max":
-            raise ValueError("[ " + task_string + " ] count : " + str(counts) + " unavailable")
-    else:
-        counts = int(counts)
+        raise ValueError(f"[\"{task_string}\"] - region {region} is not support")
+    if mission not in available_missions:
+        raise ValueError(f"[\"{task_string}\"] - mission {mission} is not support")
+
     return region, mission, counts

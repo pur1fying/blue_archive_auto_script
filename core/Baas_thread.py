@@ -858,7 +858,7 @@ class Baas_thread:
         self.config_set.config.alreadyCreateTime = 0
 
     def refresh_common_tasks(self):
-        from module.ExploreTasks.sweep_task import readOneNormalTask
+        from module.ExploreTasks.sweep_task import read_task
         temp = self.config.mainlinePriority
         self.config.unfinished_normal_tasks = []
         if type(temp) is str:
@@ -866,21 +866,20 @@ class Baas_thread:
         for i in range(0, len(temp)):
             try:
                 self.config.unfinished_normal_tasks.append(
-                    readOneNormalTask(temp[i], self.static_config.explore_normal_task_region_range))
+                    read_task(temp[i], True))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
 
     def refresh_hard_tasks(self):
-        from module.ExploreTasks.sweep_task import readOneHardTask
+        from module.ExploreTasks.sweep_task import read_task
         self.config.unfinished_hard_tasks = []
         temp = self.config.hardPriority
         if type(temp) is str:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_hard_tasks.append(
-                    readOneHardTask(temp[i], self.static_config.explore_hard_task_region_range))
+                self.config.unfinished_hard_tasks.append(read_task(temp[i], False))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)
