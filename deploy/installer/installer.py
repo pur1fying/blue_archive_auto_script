@@ -172,7 +172,7 @@ class Utils:
         if results[fastest_mirror] == float('inf'):
             raise ConnectionError("No available mirrors found.Please check your network connection or mirror URLs.")
         else:
-            print(f"Choosing {fastest_mirror} with latency {results[fastest_mirror]:.2f} ms")
+            logger.info(f"Choosing {fastest_mirror} with latency {results[fastest_mirror]:.2f} ms")
         return fastest_mirror
 
     @staticmethod
