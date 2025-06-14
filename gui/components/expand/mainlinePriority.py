@@ -100,7 +100,7 @@ class Layout(QWidget):
             input_content = input_content.split(',')
             temp = []
             for i in range(0, len(input_content)):
-                temp.append(read_task(self, input_content[i], True))
+                temp.append(read_task(input_content[i], True))
             self.config.set("unfinished_normal_tasks", temp)  # refresh the config unfinished_normal_tasks
             notification.success(self.tr('设置成功'), f'{self.tr("你的普通关卡已经被设置为：")}{input_content}',
                                  self.config)
@@ -120,7 +120,7 @@ class Layout(QWidget):
             input_content = input_content.split(',')
             temp = []
             for i in range(0, len(input_content)):
-                temp.append(read_task(self, input_content[i], False))
+                temp.append(read_task(input_content[i], False))
             self.config.set("unfinished_hard_tasks", temp)  # refresh the config unfinished_hard_tasks
             notification.success(self.tr('设置成功'), f'{self.tr("你的困难关卡已经被设置为：")}{input_content}',
                                  self.config)

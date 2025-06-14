@@ -27,6 +27,7 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
+from core.utils import Logger
 
 func_dict = {
     'group': module.group.implement,
@@ -865,8 +866,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_normal_tasks.append(
-                    read_task(self, temp[i], True))
+                self.config.unfinished_normal_tasks.append(read_task(temp[i], True))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
@@ -879,7 +879,7 @@ class Baas_thread:
             temp = temp.split(',')
         for i in range(0, len(temp)):
             try:
-                self.config.unfinished_hard_tasks.append(read_task(self, temp[i], False))
+                self.config.unfinished_hard_tasks.append(read_task(temp[i], False))
             except Exception as e:
                 self.logger.error(e.__str__())
         self.config_set.set("unfinished_hard_tasks", self.config.unfinished_hard_tasks)
