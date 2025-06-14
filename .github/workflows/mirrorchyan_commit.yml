@@ -10,6 +10,10 @@ jobs:
   mirrorchyan:
     runs-on: macos-latest
     steps:
+      - name: Cancel run if not owner
+        if: ${{ github.repository_owner != 'pur1fying' }}
+        uses: andymckay/cancel-action@master
+
       - uses: actions/checkout@v4
 
       - name: Version Name
@@ -26,6 +30,7 @@ jobs:
           rm -rf .git
 
       - uses: MirrorChyan/uploading-action@v1
+        if: ${{ github.repository_owner == 'pur1fying' }}
         with:
           filetype: local
           mirrorchyan_rid: BAAS_repo
@@ -35,6 +40,7 @@ jobs:
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
           
       - uses: MirrorChyan/release-note-action@v1
+        if: ${{ github.repository_owner == 'pur1fying' }}
         with:
           mirrorchyan_rid: BAAS_repo
 
