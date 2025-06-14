@@ -2,6 +2,7 @@ from copy import deepcopy
 
 from core import picture, Baas_thread, image
 from core.color import check_sweep_availability
+from core.config.config_set import ConfigSet
 from module.ExploreTasks.TaskUtils import to_hard_event, to_mission_info, to_region, to_normal_event
 
 
@@ -166,14 +167,14 @@ def start_sweep(self: Baas_thread, skip_first_screenshot: bool = False) -> str:
     return "sweep_complete"
 
 
-def read_task(self: Baas_thread, task_string: str, is_normal: bool) -> tuple:
+def read_task(task_string: str, is_normal: bool) -> tuple:
     type_str = "normal task" if is_normal else "hard task"
     if task_string.count('-') != 2:
         raise ValueError(f"[\"{task_string}\"] -{type_str} format error,"
                          f" expected format: region-mission-counts(int or \"max\")")
     available_missions = list(range(1, 6)) if is_normal else list(range(1, 4))
-    maximum_region = self.config.static_config.explore_normal_task_region_range[1] if is_normal else \
-        self.config.static_config.explore_hard_task_region_range[1]
+    maximum_region = ConfigSet.static_config.explore_normal_task_region_range[1] if is_normal else \
+        ConfigSet.static_config.explore_hard_task_region_range[1]
     mainline_available_regions = list(range(1, maximum_region + 1))
     temp = task_string.split('-')
     try:
