@@ -14,7 +14,7 @@ import psutil
 import requests
 
 import module.ExploreTasks.explore_task
-from core import position, picture
+from core import position, picture, utils
 from core.config.config_set import ConfigSet
 from core.device import emulator_manager
 from core.device.Control import Control
@@ -97,7 +97,7 @@ class Baas_thread:
         self.task_finish_to_main_page = False
         self.static_config = ConfigSet.static_config
         self.ocr = None
-        self.logger = Logger(logger_signal)
+        self.logger = utils.Logger(logger_signal)
         self.last_refresh_u2_time = 0
         self.latest_img_array = None
         self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
