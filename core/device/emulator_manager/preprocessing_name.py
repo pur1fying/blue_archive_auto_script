@@ -21,5 +21,5 @@ def preprocess_name(simulator_type, multi_instance):
             multi_instance = 0
     elif simulator_type == "wsa":
         if multi_instance == None:
-            multi_instance == "localhost"
+            multi_instance = "localhost"
     return multi_instance
