@@ -25,6 +25,7 @@ def print_task_list(self: Baas_thread, tasklist: list[list], title: str, isNorma
 
 def sweep_hard_task(self: Baas_thread):
     self.to_main_page(skip_first_screenshot=True)
+    current_ap = self.get_ap(True)
     tasklist = deepcopy(self.config.unfinished_hard_tasks)
     base_ap = 20
     print_task_list(self, tasklist, "Sweeping HARD task list", False)
@@ -35,8 +36,6 @@ def sweep_hard_task(self: Baas_thread):
         # task[2] : sweep times (if it's "max",it means maximum possible,which is 3 for hard task)
 
         region, mission, required_counts = task[0], task[1], task[2]
-        current_ap = self.get_ap(True)
-
         self.logger.info(f"--- Start sweeping H{region}-{mission} * {required_counts} time(s)---")
 
         # Check if the AP is enough for sweeping
@@ -66,19 +65,18 @@ def sweep_hard_task(self: Baas_thread):
             return True
         if result == "charge_challenge_counts":
             self.logger.warning("Current Task Challenge Counts Insufficient")
+        else:
+            current_ap -= base_ap * (required_counts if required_counts != "max" else 3)
         self.config.unfinished_hard_tasks.pop(0)
         self.config_set.set('unfinished_hard_tasks', self.config.unfinished_hard_tasks)
-        if required_counts == "max":
-            self.logger.info("Exit task sweep since \"max\" uses up all ap.")
-            return True
         to_hard_event(self, True)
     return True
 
 
 def sweep_normal_task(self):
     self.to_main_page(skip_first_screenshot=True)
+    current_ap = self.get_ap(True)
     tasklist = deepcopy(self.config.unfinished_normal_tasks)
-
     print_task_list(self, tasklist, "Sweeping NORMAL task list", True)
     for i in range(len(tasklist)):
         task = tasklist[i]
@@ -87,7 +85,6 @@ def sweep_normal_task(self):
         # task[2] : sweep times (if it's "max",it means maximum possible,which is 3 for hard task)
 
         region, mission, required_counts = task[0], task[1], task[2]
-        current_ap = self.get_ap()
         base_ap = 10
         self.logger.info(f"--- Start sweeping {region}-{mission} * {required_counts} time(s)---")
 
@@ -143,6 +140,7 @@ def sweep_normal_task(self):
         if required_counts == "max":
             self.logger.info("Exit task sweep since \"max\" uses up all ap.")
             return True
+        current_ap -= required_counts * base_ap
         to_normal_event(self, True)
     return True
 
