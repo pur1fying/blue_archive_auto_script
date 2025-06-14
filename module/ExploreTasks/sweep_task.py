@@ -61,14 +61,13 @@ def sweep_hard_task(self: Baas_thread):
             duration = 0 if required_counts <= 4 else 1
             self.click(1014, button_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
         result = start_sweep(self, True)
-        if result == "charge_challenge_counts":
-            self.logger.warning("Current Task Challenge Counts Insufficient")
-        elif result == "inadequate_ap":
+        if result == "inadequate_ap":
             self.logger.warning("Current AP Insufficient")
             return True
-        else:  # result == "sweep_complete"
-            self.config.unfinished_hard_tasks.pop(0)
-            self.config_set.set('unfinished_hard_tasks', self.config.unfinished_hard_tasks)
+        if result == "charge_challenge_counts":
+            self.logger.warning("Current Task Challenge Counts Insufficient")
+        self.config.unfinished_hard_tasks.pop(0)
+        self.config_set.set('unfinished_hard_tasks', self.config.unfinished_hard_tasks)
         if required_counts == "max":
             self.logger.info("Exit task sweep since \"max\" uses up all ap.")
             return True
@@ -136,14 +135,11 @@ def sweep_normal_task(self):
             duration = 0 if required_counts <= 4 else 1
             self.click(1014, button_y_coord, count=required_counts - 1, duration=duration, wait_over=True)
         result = start_sweep(self, True)
-        if result == "charge_challenge_counts":
-            self.logger.warning("Current Task Challenge Counts Insufficient")
-        elif result == "inadequate_ap":
+        if result == "inadequate_ap":
             self.logger.warning("Current AP Insufficient")
             return True
-        else:  # result == "sweep_complete"
-            self.config.unfinished_normal_tasks.pop(0)
-            self.config_set.set('unfinished_normal_tasks', self.config.unfinished_normal_tasks)
+        self.config.unfinished_normal_tasks.pop(0)
+        self.config_set.set('unfinished_normal_tasks', self.config.unfinished_normal_tasks)
         if required_counts == "max":
             self.logger.info("Exit task sweep since \"max\" uses up all ap.")
             return True
