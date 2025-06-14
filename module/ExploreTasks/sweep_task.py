@@ -16,7 +16,8 @@ def print_task_list(self: Baas_thread, tasklist: list[list], title: str, isNorma
         taskName = f"{task[0]}-{task[1]}" if isNormal else f"H{task[0]}-{task[1]}"
         required_count = task[2]
         if required_count == "max":
-            required_count = current_ap // base_ap if isNormal else min(3, current_ap // base_ap)
+            required_count = (current_ap - ap_required) // base_ap if isNormal else (
+                min(3, (current_ap - ap_required) // base_ap))
         ap_required += required_count * base_ap
         self.logger.info(f"\t - {taskName} * {task[2]} time(s),using {required_count * base_ap} AP.")
     self.logger.info("},requiring " + str(ap_required) + " AP.")

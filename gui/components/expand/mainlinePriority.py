@@ -90,7 +90,7 @@ class Layout(QWidget):
     def __accept_main(self):
         try:
             from module.ExploreTasks.sweep_task import read_task
-            input_content = self.input.text()
+            input_content = self.input.text().replace(" ", "").replace("，", ",")
             if input_content == "":
                 self.config.set('mainlinePriority', "")
                 self.config.set("unfinished_normal_tasks", [])
@@ -110,7 +110,7 @@ class Layout(QWidget):
     def __accept_hard(self):
         try:
             from module.ExploreTasks.sweep_task import read_task
-            input_content = self.input_hard.text()
+            input_content = self.input_hard.text().replace(" ", "").replace("，", ",")
             if input_content == "":
                 self.config.set('hardPriority', "")
                 self.config.set("unfinished_hard_tasks", [])
