@@ -22,7 +22,7 @@ def print_task_list(self: Baas_thread, tasklist: list[list], title: str, isNorma
     self.logger.info("},requiring " + str(ap_required) + " AP.")
 
 
-def sweep_hard_task(self):
+def sweep_hard_task(self: Baas_thread):
     self.to_main_page(skip_first_screenshot=True)
     tasklist = deepcopy(self.config.unfinished_hard_tasks)
     base_ap = 20
@@ -65,6 +65,9 @@ def sweep_hard_task(self):
         elif result == "inadequate_ap":
             self.logger.warning("Current AP Insufficient")
             return True
+        else:  # result == "sweep_complete"
+            self.config.unfinished_hard_tasks.pop(0)
+            self.config_set.set('unfinished_hard_tasks', self.config.unfinished_hard_tasks)
         if required_counts == "max":
             self.logger.info("Exit task sweep since \"max\" uses up all ap.")
             return True
@@ -137,6 +140,9 @@ def sweep_normal_task(self):
         elif result == "inadequate_ap":
             self.logger.warning("Current AP Insufficient")
             return True
+        else:  # result == "sweep_complete"
+            self.config.unfinished_normal_tasks.pop(0)
+            self.config_set.set('unfinished_normal_tasks', self.config.unfinished_normal_tasks)
         if required_counts == "max":
             self.logger.info("Exit task sweep since \"max\" uses up all ap.")
             return True
