@@ -38,7 +38,7 @@ export default defineConfig({
   themeConfig: {
     outline: [2, 3],
     outlineTitle: '大纲',
-    logo: 'assets/logo.png',
+    logo: '/assets/logo.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '主页', link: '/' },
