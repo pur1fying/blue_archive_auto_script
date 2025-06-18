@@ -571,6 +571,7 @@ class Baas_thread:
             'main_page_daily-attendance': (640, 360),
             'main_page_item-expire': (925, 119),
             'main_page_skip-notice': (762, 507),
+            'draw-card-point-exchange-to-stone-piece-notice': (933, 155),
             'normal_task_fight-end-back-to-main-page': (511, 662),
             "main_page_enter-existing-fight": (514, 501),
             'main_page_login-feature': (640, 360),
