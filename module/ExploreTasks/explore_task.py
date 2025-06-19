@@ -165,7 +165,7 @@ def explore_normal_task(self):
                     ocr_region_offsets=(-396, -7, 60, 33),
                     ocr_str_replace_func=None,
                     max_swipe_times=3,
-                    ocr_candidates="0123456789-",
+                    ocr_candidates= "123456789-A" if region % 3 == 0 else "1234567890-",
                     ocr_filter_score=0.2,
                 )
                 if not to_mission_info(self, missionButtonPos[1]):
