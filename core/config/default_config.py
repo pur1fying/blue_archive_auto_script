@@ -584,7 +584,7 @@ STATIC_DEFAULT_CONFIG = '''
         "JP": [1, 2, 3, 4, 5, 6, 7, 8]
     },
     "max_region": {
-        "CN": 23,
+        "CN": 24,
         "Global": 27,
         "JP": 28
     },
@@ -3385,7 +3385,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "TripTrapTrain",
+        "CN": "ElectronicNewYearsMarch",
         "Global": "SecretMidnightParty",
         "JP": "iveAlive"
     },
