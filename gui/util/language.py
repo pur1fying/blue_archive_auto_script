@@ -23,8 +23,3 @@ class Language(Enum):
     @staticmethod
     def combobox():
         return ['简体中文', 'English', '日本語', '괴뢰어']
-
-
-if __name__ == "__main__":
-    for language in Language:
-        print(language.value.name())

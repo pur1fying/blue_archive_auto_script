@@ -14,4 +14,5 @@ x_y_range = {
     'full-notice': (400, 280, 880, 390),
     "net-work-unstable": (400, 280, 880, 390),
     "menu": (575, 204, 707, 252),
+    'draw-card-point-exchange-to-stone-piece-notice': (378, 220, 892, 291)
 }

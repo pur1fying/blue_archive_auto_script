@@ -10,7 +10,7 @@ export default defineConfig({
   // 那么你需要在 VitePress 配置中将 base 选项设置为 /blog/。
   // 例如，如果你使用的是 GitHub（或 GitLab）页面，并部署到 user.github.io/repo/，
   // 则需要将你的 base 设置为 /repo/。
-  base: '/blue_archive_auto_script/',
+  base: '/',
 
   // 忽略死链接，因为我们的文档可能包含未完成的链接，
   // 这些链接可能会在将来的更新中修复。
@@ -38,7 +38,7 @@ export default defineConfig({
   themeConfig: {
     outline: [2, 3],
     outlineTitle: '大纲',
-    logo: 'assets/logo.png',
+    logo: '/assets/logo.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '主页', link: '/' },
