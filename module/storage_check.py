@@ -48,7 +48,6 @@ def process_region(baas_thread, region, quantity_region, x, y, results, lock):
             language="en-us",
             origin_image=quantity_region,
             candidates="K0123456789",
-            filter_score=0.3
         )
         text = ocr_quantity.replace("K", "000")
         if text.isdigit():
