@@ -13,4 +13,5 @@ x_y_range = {
     'download-additional-resources': (474, 100, 808, 143),
     'full-notice': (400, 280, 880, 390),
     "net-work-unstable": (400, 280, 880, 390),
+    "menu": (575, 204, 707, 252),
 }
