@@ -11,168 +11,185 @@ import numpy as np
 from core import picture
 
 
-def compare_images_SQDIFF(source_img: np.ndarray,
-                          template_img: np.ndarray,
-                          max_diff_threshold: float = 600000) -> tuple[bool, Sequence[int], float]:
+def convert_to_bgr(image: np.ndarray) -> np.ndarray:
     """
-    使用 TM_SQDIFF 方法进行模板匹配，能有效忽略模板透明区域对应的源图像素。
-    非常适合模板周围有其他元素干扰的情况。
+    Converts an image to BGR format if it is not already in that format.
 
     Args:
-        source_img: The image to search in (BGR).
-        template_img: The template to search for (BGRA).
-        max_diff_threshold: 最大可接受的差值平方和。值越低，要求越严格。
+        image (np.ndarray): The input image.
 
     Returns:
-        A tuple containing:
-        - bool: True if a match is found, False otherwise.
-        - tuple: (x, y) coordinates of the top-left corner, or (-1, -1).
+        np.ndarray: The image in BGR format.
+    """
+    if len(image.shape) < 3 or image.shape[2] == 1:
+        return cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    elif image.shape[2] == 4:
+        return cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+    return image.copy()
+
+
+def resize_template(template_img: np.ndarray, source_img: np.ndarray) -> np.ndarray:
+    """
+    Resizes the template image to fit within the source image dimensions.
+    If the source image is already larger than the template image, it returns the original template image.
+
+    Args:
+        template_img (np.ndarray): The template image to resize.
+        source_img (np.ndarray): The source image to fit the template into.
+
+    Returns:
+        np.ndarray: The resized template image.
+    """
+    if source_img.shape[0] < template_img.shape[0] or source_img.shape[1] < template_img.shape[1]:
+        scale = min(source_img.shape[0] / template_img.shape[0],
+                    source_img.shape[1] / template_img.shape[1])
+        new_width = int(template_img.shape[1] * scale)
+        new_height = int(template_img.shape[0] * scale)
+        return cv2.resize(template_img, (new_width, new_height))
+    return template_img
+
+
+def compare_images_SQDIFF(source_img: np.ndarray,
+                          template_img: np.ndarray,
+                          max_diff_threshold: float = 10000,
+                          ignore_transparent: bool = True) -> tuple[bool, Sequence[int], float]:
+    """
+    Uses the TM_SQDIFF method for template matching and returns the best match location and best score.
+
+    Args:
+        source_img (np.ndarray): The image to search in.
+        template_img (np.ndarray): The template to search for.
+        max_diff_threshold (float, optional): Maximum acceptable sum of squared differences. Lower values are stricter. Defaults to 10000.
+        ignore_transparent (bool, optional): If True, ignores the transparent area in the template image. Defaults to True.
+
+    Returns:
+        Tuple[bool, Sequence[int], float]:
+            - bool: True if a match is found(normalized_score < max_diff_threshold), False otherwise.
+            - Sequence[int]: (x, y) coordinates of the top-left corner, or (-1, -1) if source_img or template_img is None.
+            - float: The normalized matching score.
     """
     if source_img is None or template_img is None:
-        print("Source or template image is None.")
+        # print("Source or template image is None.")
         return False, (-1, -1), -1.0
 
-    # Ensure the source image is larger than the template image
-    if source_img.shape[0] < template_img.shape[0] or source_img.shape[1] < template_img.shape[1]:
-        print("Source image is smaller than the template image.")
-        cv2.imwrite("source_image.png", source_img)
-        cv2.imwrite("template_image.png", template_img)
-        raise ValueError()
-        return False, (-1, -1), -1.0
+    # if the source image is smaller than the template, resize the template img
+    template_img = resize_template(template_img, source_img)
 
-    # 确保模板是4通道 (BGRA)
-    if template_img.shape[2] != 4:
-        raise ValueError("Template image must be a BGRA image with an alpha channel.")
+    mask = np.ones(template_img.shape[:2], dtype="uint8") * 255
+    # if the template image has an alpha channel, and we want to ignore transparent areas
+    if template_img.shape[2] == 4 and ignore_transparent:
+        # create a mask from the alpha channel
+        alpha = template_img[:, :, 3]
+        mask = (alpha > 0).astype("uint8") * 255
 
-    # 从Alpha通道创建mask
-    alpha_channel = template_img[:, :, 3]
-    mask = cv2.threshold(alpha_channel, 10, 255, cv2.THRESH_BINARY)[1]  # 忽略几乎透明的像素
+    # convert image to BGR.
+    source_img = convert_to_bgr(source_img)
+    template_img = convert_to_bgr(template_img)
 
-    # 确保源图是3通道，以便匹配
-    if len(source_img.shape) < 3 or source_img.shape[2] == 1:
-        source_img = cv2.cvtColor(source_img, cv2.COLOR_GRAY2BGR)
-    elif source_img.shape[2] == 4:
-        source_img = cv2.cvtColor(source_img, cv2.COLOR_BGRA2BGR)
+    res = cv2.matchTemplate(source_img, template_img, cv2.TM_SQDIFF, mask=mask)
 
-    template_bgr = template_img[:, :, :3]
+    # we ignore max_val and max_loc here, as we are using TM_SQDIFF, in which lower values are better.
+    min_val, _, min_loc, _ = cv2.minMaxLoc(res)
 
-    # --- 核心改动 ---
-    # 使用 TM_SQDIFF，它在有 mask 时，只计算非遮罩区域的像素差值平方和。
-    # 这能完美忽略源图中对应模板透明区域的“污染物”（如文字、图标）。
-    method = cv2.TM_SQDIFF
-
-    res = cv2.matchTemplate(source_img, template_bgr, method, mask=mask)
-
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-
-    # 对于 TM_SQDIFF, 我们关心的是最小值 (min_val)
-    best_score = min_val
-    best_loc = min_loc
-
-    # 计算模板中实际参与比较的像素数量，用于归一化阈值（可选，但推荐）
     num_pixels_in_mask = np.sum(mask > 0)
     if num_pixels_in_mask == 0:
-        print("No valid pixels in mask, cannot normalize score.")
-        return False, (-1, -1), -1.0  # 避免除以零
-    normalized_score = best_score / num_pixels_in_mask
+        # If the valid template is empty, we cannot compute a valid score.
+        # and we see it as a perfect match.
+        return True, (0, 0), 0.0
+    normalized_score = min_val / num_pixels_in_mask
 
-    # 阈值判断：值越小越好
     if normalized_score <= max_diff_threshold:
-        return True, best_loc, normalized_score
+        return True, min_loc, normalized_score
     else:
-        print(f"Match not found: score {normalized_score:.2f} exceeds threshold {max_diff_threshold}.")
-        return False, (-1, -1), -1.0
+        return False, min_loc, normalized_score
 
 
 def compare_images_CCOEFF_NORMED(source_img: np.ndarray,
                                  template_img: np.ndarray,
                                  threshold: float = 0.85) -> tuple[bool, Sequence[int], float]:
     """
-    通过在灰度图上使用归一化相关系数进行匹配，对颜色和亮度变化更具鲁棒性。
+    Uses the TM_CCOEFF_NORMED method for template matching and returns the best match location and best score.
 
     Args:
-        source_img: The image to search in.
-        template_img: The template to search for.
-        threshold: 匹配阈值 (0.0 to 1.0). 越高越严格.
+        source_img (np.ndarray): The image to search in.
+        template_img (np.ndarray): The template to search for.
+        threshold (float, optional): The threshold for matchTemplate, larger values are stricter. Defaults to 0.85.
 
     Returns:
-        Tuple[bool, Tuple[int, int], float]: 匹配结果和位置及最佳分数。
+        Tuple[bool, Sequence[int], float]:
+            - bool: True if a match is found(max_val > threshold), False otherwise.
+            - Sequence[int]: (x, y) coordinates of the top-left corner, or (-1, -1) if source_img or template_img is None.
+            - float: The matching score(max_val).
     """
+
     if source_img is None or template_img is None:
+        # print("Source or template image is None.")
         return False, (-1, -1), -1.0
 
-    # convert img to BGR channel if img is BGRA
-    if len(source_img.shape) == 3 and source_img.shape[2] == 4:
-        source_img = cv2.cvtColor(source_img, cv2.COLOR_BGRA2BGR)
-    if len(template_img.shape) == 3 and template_img.shape[2] == 4:
-        template_img = cv2.cvtColor(template_img, cv2.COLOR_BGRA2BGR)
+    # convert image to BGR.
+    source_img = convert_to_bgr(source_img)
+    template_img = convert_to_bgr(template_img)
 
     # if the source image is smaller than the template, resize the template img
-    if source_img.shape[0] < template_img.shape[0] or source_img.shape[1] < template_img.shape[1]:
-        scale = min(source_img.shape[0] / template_img.shape[0],
-                    source_img.shape[1] / template_img.shape[1])
-        new_width = int(template_img.shape[1] * scale)
-        new_height = int(template_img.shape[0] * scale)
-        template_img = cv2.resize(template_img, (new_width, new_height))
+    template_img = resize_template(template_img, source_img)
 
-    try:
-        res = cv2.matchTemplate(source_img, template_img, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    res = cv2.matchTemplate(source_img, template_img, cv2.TM_CCOEFF_NORMED)
 
-        if max_val >= threshold:
-            return True, max_loc, max_val
-        else:
-            return False, max_loc, max_val
-
-    except cv2.error as e:
-        print(f"OpenCV error during matchTemplate: {e}")
-        return False, (-1, -1), -1.0
-
-
-def compare_images_CCORR_NORMED(source: np.ndarray,
-                                template: np.ndarray,
-                                threshold: float = 0.85) -> tuple[bool, Sequence[int], float]:
-    """
-    使用模板匹配的黄金标准（彩色图 + TM_CCORR_NORMED + mask）来查找图像。
-    此方法对颜色、亮度和背景杂物具有很高的鲁棒性。
-
-    Args:
-        source: The image to search in (BGR).
-        template: The template to search for (BGRA).
-        threshold: 匹配阈值 (0.0 to 1.0). 越高越严格。对于此方法，推荐0.9以上。
-
-    Returns:
-        Tuple[bool, Tuple[int, int], float]:
-        - bool: 如果匹配分数高于或等于阈值，则为 True。
-        - Tuple[int, int]: 最佳匹配的左上角坐标 (x, y)。
-        - float: 实际的最佳匹配分数，范围通常在 -1.0 到 1.0 之间。
-    """
-    if source is None or template is None:
-        return False, (-1, -1), -1.0
-    h, w = template.shape[:2]
-    if source.shape[0] < h or source.shape[1] < w:
-        # Source image is too small for the given offset and template size.
-        return False, (-1, -1), -1.0
-
-    if template.shape[2] == 4:
-        # 提取 alpha 通道作为 mask
-        alpha = template[:, :, 3]
-        mask = (alpha > 0).astype("uint8") * 255
-        template_rgb = template[:, :, :3]
-        # 使用 CCORR_NORMED 和 mask 匹配（OpenCV 只支持这一个模式配合 mask）
-        res = cv2.matchTemplate(source, template_rgb, cv2.TM_CCORR_NORMED, mask=mask)
-    else:
-        if source.shape[2] != template.shape[2]:
-            print("Region and template have different dimensions.")
-            return False, (-1, -1), -1.0
-        res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
-
+    # we ignore min_val and min_loc here, as we are using TM_CCOEFF_NORMED, in which larger values are better.
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    print(similarity)
+
     if max_val >= threshold:
         return True, max_loc, max_val
     else:
+        return False, max_loc, max_val
+
+
+def compare_images_CCORR_NORMED(source_img: np.ndarray,
+                                template_img: np.ndarray,
+                                threshold: float = 0.85,
+                                ignore_transparent: bool = True) -> tuple[bool, Sequence[int], float]:
+    """
+    Uses the TM_CCORR_NORMED method for template matching and returns the best match location and best score.
+
+    Args:
+        source_img (np.ndarray): The image to search in.
+        template_img (np.ndarray): The template to search for.
+        threshold (float, optional): The threshold for matchTemplate, larger values are stricter. Defaults to 0.85.
+        ignore_transparent (bool, optional): If True, ignores the transparent area in the template image. Defaults to True.
+
+    Returns:
+        Tuple[bool, Sequence[int], float]:
+            - bool: True if a match is found(max_val > threshold), False otherwise.
+            - Sequence[int]: (x, y) coordinates of the top-left corner, or (-1, -1) if source_img or template_img is None.
+            - float: The matching score(max_val).
+    """
+    if source_img is None or template_img is None:
+        # print("Source or template image is None.")
         return False, (-1, -1), -1.0
+
+    # if the source image is smaller than the template, resize the template img
+    template_img = resize_template(template_img, source_img)
+
+    mask = np.ones(template_img.shape[:2], dtype="uint8") * 255
+    # if the template image has an alpha channel, and we want to ignore transparent areas
+    if template_img.shape[2] == 4 and ignore_transparent:
+        # create a mask from the alpha channel
+        alpha = template_img[:, :, 3]
+        mask = (alpha > 0).astype("uint8") * 255
+
+    # convert image to BGR.
+    source_img = convert_to_bgr(source_img)
+    template_img = convert_to_bgr(template_img)
+
+    res = cv2.matchTemplate(source_img, template_img, cv2.TM_CCORR_NORMED, mask=mask)
+
+    # we ignore min_val and min_loc here, as we are using TM_CCORR_NORMED, in which larger values are better.
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
+    if max_val >= threshold:
+        return True, max_loc, max_val
+    else:
+        return False, max_loc, max_val
 
 
 def navigate(self):
@@ -189,14 +206,16 @@ def navigate(self):
     picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, rgb_reactions=rgb_reactions)
 
 
-def process_region(self, region, quantity_region, sub_folders, x, y, results, flags, lock):
+def process_region(baas_thread, region, quantity_region, x, y, results, lock):
+    sub_folders = ["badge", "bag", "charm", "gloves", "hairpin", "hat", "necklace", "shoes", "watch",
+                   "exp", "weaponexp", "empty"]
     max_template_name, max_val, max_loc = None, float('inf'), None
     for sub_folder in sub_folders:
         equipment_template_folder = f"src/images/JP/equipment/{sub_folder}/"
         if not os.path.exists(equipment_template_folder):
             continue
-        equipmen_templates = os.listdir(equipment_template_folder)
-        for t in equipmen_templates:
+        equipment_templates = os.listdir(equipment_template_folder)
+        for t in equipment_templates:
             template = cv2.imread(os.path.join(equipment_template_folder, t), cv2.IMREAD_UNCHANGED)
             if template is not None:
                 result, loc, score = compare_images_SQDIFF(region, template)
@@ -205,8 +224,9 @@ def process_region(self, region, quantity_region, sub_folders, x, y, results, fl
                     max_template_name = t
                     max_loc = (loc[0] + x, loc[1] + y)
     quantity = -1
+    # print(f"found {max_template_name} with score {max_val:.4f}")
     if (max_template_name is not None) and (max_template_name != "empty.png"):
-        ocr_quantity = self.ocr.ocr_for_single_line(
+        ocr_quantity = baas_thread.ocr.ocr_for_single_line(
             language="en-us",
             origin_image=quantity_region,
             candidates="K0123456789",
@@ -217,75 +237,67 @@ def process_region(self, region, quantity_region, sub_folders, x, y, results, fl
             quantity = int(text)
     # print(f"Best match for {max_template_name} with score {max_val:.4f} at {max_loc}, quantity={quantity}")
     with lock:
-        if flags.get(max_template_name, False):
+        if max_template_name in results:
             if results[max_template_name]["quantity"] != quantity:
+                # If the template is already found, but the quantity is different, it indicates ocr has mistaken the counts.
                 raise ValueError(
                     f"Quantity mismatch for {max_template_name}: {results[max_template_name]['quantity']} != {quantity}")
         else:
             results[max_template_name] = {"loc": max_loc, "score": max_val, "quantity": quantity}
-        flags[max_template_name] = True
 
 
-def main(self, results: dict, flags: dict, count):
-    template_full = cv2.imread("src/images/JP/equipment/item_frame.png", cv2.IMREAD_UNCHANGED)
-    self.update_screenshot_array()
-    screen = imutils.resize(self.latest_img_array, width=1280, height=720)
-    column_region = screen[145:250, 660:815]
-
-    max_column_loc, max_score = (-1, -1), -1.0
-    for i in range(8):
-        template = template_full[i * 8:i * 8 + 8, ]
-        _, loc, score = compare_images_CCOEFF_NORMED(column_region, template, 0.8)
-        if score > max_score:
-            max_score = score
-            max_column_loc = loc
-    # visual
-    # vis_img = column_region.copy()
-    # cv2.rectangle(vis_img, max_column_loc,
-    #               (max_column_loc[0] + 109, max_column_loc[1] + 8), (0, 255, 0), 2)
-    # cv2.imshow("Column Match Visual", vis_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-
-    sub_folders = ["badge", "bag", "charm", "gloves", "hairpin", "hat", "necklace", "shoes", "watch",
-                   "exp", "weaponexp", "empty"]
-    # column_coords = [1020, 1180, 1340, 1510, 1670]
-    column_coords = [680, 786, 893, 1006, 1113]
-
-    # 使用线程池执行 process_region
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = []
-        for y in range(139 + max_column_loc[1], screen.shape[0] - 133, 101):
-            for x in column_coords:
-                count += 1
-                region = screen[y:y + 108, x:x + 130]
-                # cv2.imwrite(f"temp/region{count}.png", region)
-                quantity_region = region[72:, 45:115]
-                # cv2.imwrite(f"temp/quantity_region{count}.png", quantity_region)
-
-                lock = threading.Lock()
-                # 提交任务到线程池
-                futures.append(
-                    executor.submit(process_region, self, region, quantity_region, sub_folders, x, y, results,
-                                    flags, lock))
-
-        # 等待所有任务完成
-        for future in futures:
-            future.result()
-
-    return count
-
-
-def implement(self):
-    navigate(self)
-    flags = {}
+def implement(baas_thread):
+    navigate(baas_thread)
     results = {}
 
-    count = 0
-    count = main(self, results, flags, count)
-    while not flags.get("empty.png", False):
-        self.swipe(917, 552, 917, 220, 0.2, 1.0)
-        count = main(self, results, flags, count)
+    debug_count = 0
+    previous_results_length = -1
+
+    # if the length of results is not changed, we consider the process finished since no new item was added.
+    while previous_results_length != len(results) and ("empty.png" not in results):
+        previous_results_length = len(results)
+        template_full = cv2.imread("src/images/JP/equipment/item_frame.png", cv2.IMREAD_UNCHANGED)
+        baas_thread.update_screenshot_array()
+        screen = imutils.resize(baas_thread.latest_img_array, width=1280, height=720)
+        column_region = screen[145:250, 660:815]
+
+        max_column_loc, max_score = (-1, -1), -1.0
+        for i in range(8):
+            template = template_full[i * 8:i * 8 + 8, ]
+            _, loc, score = compare_images_CCOEFF_NORMED(column_region, template, 0.8)
+            if score > max_score:
+                max_score = score
+                max_column_loc = loc
+        # visual
+        # vis_img = column_region.copy()
+        # cv2.rectangle(vis_img, max_column_loc,
+        #               (max_column_loc[0] + 109, max_column_loc[1] + 8), (0, 255, 0), 2)
+        # cv2.imshow("Column Match Visual", vis_img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+
+        column_coords = [680, 786, 893, 1006, 1113]
+
+        # multithreading to speed up the process
+        lock = threading.Lock()
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = []
+            for y in range(139 + max_column_loc[1], screen.shape[0] - 133, 101):
+                for x in column_coords:
+                    debug_count += 1
+                    region = screen[y:y + 108, x:x + 130]
+                    # cv2.imwrite(f"temp/region{debug_count}.png", region)
+                    quantity_region = region[72:, 45:115]
+                    # cv2.imwrite(f"temp/quantity_region{debug_count}.png", quantity_region)
+
+                    # submit the task to the executor
+                    futures.append(executor.submit(process_region, baas_thread, region, quantity_region,
+                                                   x, y, results, lock))
+
+            # wait for all futures to complete
+            for future in futures:
+                future.result()
+        baas_thread.swipe(917, 552, 917, 220, 0.2, 1.0)
 
     print(json.dumps(results, sort_keys=True))
     return True
