@@ -240,12 +240,12 @@ def main(self, results: dict, flags: dict, count):
             max_score = score
             max_column_loc = loc
     # visual
-    vis_img = column_region.copy()
-    cv2.rectangle(vis_img, max_column_loc,
-                  (max_column_loc[0] + 109, max_column_loc[1] + 8), (0, 255, 0), 2)
-    cv2.imshow("Column Match Visual", vis_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # vis_img = column_region.copy()
+    # cv2.rectangle(vis_img, max_column_loc,
+    #               (max_column_loc[0] + 109, max_column_loc[1] + 8), (0, 255, 0), 2)
+    # cv2.imshow("Column Match Visual", vis_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     sub_folders = ["badge", "bag", "charm", "gloves", "hairpin", "hat", "necklace", "shoes", "watch",
                    "exp", "weaponexp", "empty"]
