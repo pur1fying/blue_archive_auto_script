@@ -248,14 +248,6 @@ class BaasOcrClient:
                 "pass_method": pass_method,
             },
         }
-        url = self.config.base_url + "/ocr_for_single_line"
-        data = {
-            "language": language,
-            "candidates": candidates,
-            "image": {
-                "pass_method": pass_method,
-            },
-        }
         self.get_request_data(data, pass_method, origin_image, local_path, shared_memory_name)
         if pass_method in [0, 2]:
             return requests.post(url, json=data)
@@ -266,7 +258,7 @@ class BaasOcrClient:
                 "image": ("image.png", image_bytes, "image/png")
             }
             return requests.post(url, files=files)
-        
+
     @staticmethod
     def get_image_bytes(image):
         _, encoded_image = cv2.imencode('.png', image)
