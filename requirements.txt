@@ -7,6 +7,7 @@ win11toast
 adbutils == 2.2.1
 uiautomator2 == 2.16.23
 opencv-python == 4.8.1.78
+imutils
 
 PyQt-Fluent-Widgets == 1.2.0
 # gevent
