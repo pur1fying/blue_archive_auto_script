@@ -47,9 +47,9 @@ def process_region(baas_thread, region, quantity_region, x, y, results, lock):
         ocr_quantity = baas_thread.ocr.ocr_for_single_line(
             language="en-us",
             origin_image=quantity_region,
-            candidates="K0123456789",
+            candidates="xK0123456789",
         )
-        text = ocr_quantity.replace("K", "000")
+        text = ocr_quantity[ocr_quantity.rfind("x") + 1:].replace("K", "000")
         if text.isdigit():
             quantity = int(text)
     # print(f"Best match for {max_template_name} with score {max_val:.4f} at {max_loc}, quantity={quantity}")
