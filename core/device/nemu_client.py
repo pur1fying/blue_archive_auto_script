@@ -347,18 +347,6 @@ class NemuClient:
         cv2.flip(image, 0, dst=image)
         return image
 
-    def convert_xy(self, x, y):
-        """
-        Convert classic ADB coordinates to Nemu's
-        `self.height` must be updated before calling this method
-
-        Returns:
-            int, int
-        """
-        x, y = int(x), int(y)
-        x, y = self.height - y, x
-        return x, y
-
     def down(self, x, y):
         """
         Contact down, continuous contact down will be considered as swipe
@@ -367,8 +355,6 @@ class NemuClient:
             self.connect()
         if self.height == 0:
             self.get_resolution()
-
-        x, y = self.convert_xy(x, y)
 
         ret = self.ev_run_sync(
             self.lib.nemu_input_event_touch_down,
