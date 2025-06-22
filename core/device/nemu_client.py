@@ -413,8 +413,8 @@ class NemuClient:
             if 0 <= index < 32 and offset in [-2, -1, 0, 1, 2]:
                 return index
         if port >= 5555 and port < 5555 + 32:
-            index = port - 5555
-            if 0 <= index < 32:
+            index, offset = divmod(port - 5555, 2)
+            if 0 <= index < 32 and offset in [0, 1]:
                 return index
 
     @staticmethod
