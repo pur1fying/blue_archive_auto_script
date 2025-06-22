@@ -168,31 +168,44 @@ class NemuClient:
                 return
 
     def __init__(self, nemu_folder, instance_id, logger, display_id=0):
+        self.lib = None
         self._ev = asyncio.new_event_loop()
         self.nemu_folder = nemu_folder
         self.instance_id = instance_id
         self.logger = logger
         self.display_id = display_id
 
-        ipc_dll = os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll'))
+        # try to load dll from various pathAdd commentMore actions
+        list_dll = [
+            # MuMuPlayer12
+            os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll')),
+            # MuMuPlayer12 5.0
+            os.path.abspath(os.path.join(nemu_folder, './nx_device/12.0/shell/sdk/external_renderer_ipc.dll')),
+        ]
+        ipc_dll = ''
+        for ipc_dll in list_dll:
+            if not os.path.exists(ipc_dll):
+                continue
+            try:
+                self.lib = ctypes.CDLL(ipc_dll)
+                break
+            except OSError as e:
+                self.logger.error(e)
+                self.logger.error(f'ipc_dll={ipc_dll} exists, but cannot be loaded')
+                continue
+        if not self.lib:
+            self.logger.error("NemuIpc requires MuMu12 version >= 3.8.13, please check your version.")
+            self.logger.error(f'None of the following path exists')
+            for path in list_dll:
+                self.logger.error(f'  {path}')
+            raise NemuIpcIncompatible("Please check your MuMu Player 12 version and install path in BAAS settings.")
+
         self.logger.info('NemuIpcImpl init')
         self.logger.info(f'nemu_folder = {nemu_folder}')
         self.logger.info(f'ipc_dll     = {ipc_dll}')
         self.logger.info(f'instance_id = {instance_id}')
         self.logger.info(f'display_id  = {display_id}')
 
-        try:
-            self.lib = ctypes.CDLL(ipc_dll)
-        except OSError as e:
-            self.logger.error(e.__str__())
-            # OSError: [WinError 126] 找不到指定的模块。
-            if not os.path.exists(ipc_dll):
-                raise NemuIpcIncompatible(
-                    f'ipc_dll={ipc_dll} does not exist, '
-                    f'NemuIpc requires MuMu12 version >= 3.8.13, please check your version')
-            else:
-                raise NemuIpcIncompatible(
-                    f'ipc_dll={ipc_dll} exists, but cannot be loaded')
         self.connect_id: int = 0
         self.width = 0
         self.height = 0
@@ -388,18 +401,21 @@ class NemuClient:
             Port from 16414 to 16418 -> 1
 
         Returns:
-            int: instance_id, or None if failed to predict
+             int: instance_id, or None if failed to predict
         """
         try:
             port = int(serial.split(':')[1])
         except (IndexError, ValueError):
             return None
-        index, offset = divmod(port - 16384 + 16, 32)
-        offset -= 16
-        if 0 <= index < 32 and offset in [-2, -1, 0, 1, 2]:
-            return index
-        else:
-            return None
+        if port >= 16384 and port < 16384 + 32 * 32:
+            index, offset = divmod(port - 16384 + 16, 32)
+            offset -= 16
+            if 0 <= index < 32 and offset in [-2, -1, 0, 1, 2]:
+                return index
+        if port >= 5555 and port < 5555 + 32:
+            index = port - 5555
+            if 0 <= index < 32:
+                return index
 
     @staticmethod
     def get_possible_mumu12_folder():
