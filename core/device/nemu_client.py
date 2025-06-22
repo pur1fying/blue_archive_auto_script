@@ -173,8 +173,11 @@ class NemuClient:
         self.instance_id = instance_id
         self.logger = logger
         self.display_id = display_id
-
-        ipc_dll = os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll'))
+        try:
+            from core.device.emulator_manager import mumu12_api_backend
+            ipc_dll = mumu12_api_backend('mumu','0',operation="get_nemu_client_path")
+        except:
+            ipc_dll = os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll'))
         self.logger.info('NemuIpcImpl init')
         self.logger.info(f'nemu_folder = {nemu_folder}')
         self.logger.info(f'ipc_dll     = {ipc_dll}')
@@ -399,15 +402,6 @@ class NemuClient:
         if 0 <= index < 32 and offset in [-2, -1, 0, 1, 2]:
             return index
         else:
-            return None
-
-    @staticmethod
-    def get_possible_mumu12_folder():
-        from core.device.emulator_manager import mumu12_api_backend
-        try:
-            path = mumu12_api_backend("mumu", 0, operation="get_path")
-            return path
-        except Exception as e:
             return None
 
 

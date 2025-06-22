@@ -8,7 +8,7 @@ from .simulator_native import process_native_api
 SIMULATOR_LISTS: Dict[str, List[str]] = {
     'bluestacks_nxt': ['hd-player.exe'],
     'yeshen': ['nox.exe'],
-    'mumu': ['mumuplayer.exe'],
+    'mumu': ['mumuplayer.exe', 'mumunxdevice.exe'],
     'leidian': ['dnplayer.exe'],
     'xiaoyao_nat': ['memu.exe']
 }
