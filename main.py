@@ -2,6 +2,7 @@ import json
 import os
 import time
 
+from core.ocr.baas_ocr_client.server_installer import check_git
 from core.utils import Logger
 from core.ocr import ocr
 from core.config.config_set import ConfigSet
@@ -20,16 +21,25 @@ class Main:
         self.threads = {}
 
     def init_all_data(self):
-        self.init_ocr()
+        if not self.init_ocr():
+            self.logger.error("Ocr Init Incomplete Please restart .")
+            return
         self.init_static_config()
         self.logger.info("-- All Data Initialization Complete Script ready--")
 
     def init_ocr(self):
         try:
+            check_git(self.logger)
+        except Exception as e:
+            self.logger.error("OCR Update Failed.")
+            self.logger.error(e.__str__())
+            self.logger.info("Try to Start OCR Server Without Update.")
+
+        try:
             self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=self.ocr_needed)
+            self.ocr.client.start_server()
             return True
         except Exception as e:
-            self.logger.error("OCR initialization failed")
             self.logger.error(e.__str__())
             return False
 

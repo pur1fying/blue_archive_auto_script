@@ -1,0 +1,51 @@
+name: mirrorchyan_commit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  mirrorchyan:
+    runs-on: macos-latest
+    steps:
+      - name: Cancel run if not owner
+        if: ${{ github.repository_owner != 'pur1fying' }}
+        uses: andymckay/cancel-action@master
+
+      - uses: actions/checkout@v4
+
+      - name: Version Name
+        id: version_name
+        run: |
+          version=$(git rev-parse HEAD)
+          release_note=$(git log --pretty=format:"%ad %h %s" --date=iso -1)
+
+          echo "version=$version" | tee -a "$GITHUB_OUTPUT"
+          echo "release_note=$release_note" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Remove .git
+        run: |
+          rm -rf .git
+
+      - uses: MirrorChyan/uploading-action@v1
+        if: ${{ github.repository_owner == 'pur1fying' }}
+        with:
+          filetype: local
+          mirrorchyan_rid: BAAS_repo
+          working-directory: ../
+          pick_files: '["blue_archive_auto_script"]'
+          version_name: ${{ steps.version_name.outputs.version }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
+          
+      - uses: MirrorChyan/release-note-action@v1
+        if: ${{ github.repository_owner == 'pur1fying' }}
+        with:
+          mirrorchyan_rid: BAAS_repo
+
+          version_name: ${{ steps.version_name.outputs.version }}
+          release_note: ${{ steps.version_name.outputs.release_note }}
+
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

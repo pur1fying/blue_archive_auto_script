@@ -53,16 +53,6 @@ class BaasOcrClient:
         self.server_process = None
         self.clear_log()
 
-    @staticmethod
-    def kilL_existing_server():
-        try:
-            if sys.platform in ["linux", "darwin"]:
-                subprocess.run(["pkill", "-9", BaasOcrClient.executable_name])
-            elif sys.platform == "win32":
-                subprocess.run(["taskkill", "/f", "/im", BaasOcrClient.executable_name], check=True)
-        except Exception:
-            pass
-
     # clear log since time_distance days ago
     def clear_log(self, time_distance=7):
         log_folder_path = os.path.join(self.server_folder_path, "output")
@@ -121,6 +111,7 @@ class BaasOcrClient:
             cwd=self.server_folder_path,
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
+            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
             text=True
         )
         # wait for server start
@@ -128,10 +119,10 @@ class BaasOcrClient:
             try:
                 requests.get(self.config.base_url)
                 break
-            except requests.exceptions.ConnectionError:
+            except requests.exceptions.ConnectionError as e:
+                if _ == 29:
+                    raise RuntimeError("Fail to start ocr server. " + e.__str__())
                 time.sleep(0.1)
-        else:
-            raise RuntimeError("Fail to start server.")
 
     def stop_server(self):
         self.server_process.stdin.write("exit\n")
@@ -181,15 +172,8 @@ class BaasOcrClient:
             },
             "ret_options": ret_options
         }
-        if pass_method == 0:
-            if not SharedMemory.shm_exists(shared_memory_name):
-                raise SharedMemoryError(f"Shared memory {shared_memory_name} not found, you should create it first.")
-            col = origin_image.shape[1]
-            row = origin_image.shape[0]
-            size = col * row * 3
-            SharedMemory.set_data(shared_memory_name, origin_image.tobytes(), size)
-            data["image"]["shared_memory_name"] = "/" + shared_memory_name if sys.platform != "win32" else shared_memory_name
-            data["image"]["shape"] = [row, col]
+        self.get_request_data(data, pass_method, origin_image, local_path, shared_memory_name)
+        if pass_method in [0, 2]:
             return requests.post(url, json=data)
         elif pass_method == 1:
             image_bytes = self.get_image_bytes(origin_image)
@@ -198,11 +182,55 @@ class BaasOcrClient:
                 "image": ("image.png", image_bytes, "image/png")
             }
             return requests.post(url, files=files)
+
+    def get_text_boxes(
+            self,
+            language: str,
+            origin_image=None,
+            pass_method: int = 0,
+            local_path: str = "",
+            shared_memory_name: str = ""
+    ):
+        url = self.config.base_url + "/get_text_boxes"
+        data = {
+            "language": language,
+            "image": {
+                "pass_method": pass_method,
+            },
+        }
+        self.get_request_data(data, pass_method, origin_image, local_path, shared_memory_name)
+        if pass_method in [0, 2]:
+            return requests.post(url, json=data)
+        elif pass_method == 1:
+            image_bytes = self.get_image_bytes(origin_image)
+            files = {
+                "data": (None, json.dumps(data), "application/json"),
+                "image": ("image.png", image_bytes, "image/png")
+            }
+            return requests.post(url, files=files)
+
+    @staticmethod
+    def get_request_data(
+            data,
+            pass_method,
+            origin_image=None,
+            local_path: str = "",
+            shared_memory_name: str = ""
+    ):
+        if pass_method == 0:
+            col = origin_image.shape[1]
+            row = origin_image.shape[0]
+            size = col * row * 3
+            SharedMemory.set_data(shared_memory_name, origin_image.tobytes(), size)
+            data["image"]["shared_memory_name"] = "/" + shared_memory_name if sys.platform != "win32" \
+                else shared_memory_name
+            data["image"]["resolution"] = [col, row]
+        elif pass_method == 1:
+            pass
         elif pass_method == 2:
             data["image"]["local_path"] = local_path
-            return requests.post(url, json=data)
         else:
-            raise OcrInternalError(f"Invalid pass_method [ {pass_method} ].")
+            raise OcrInternalError(f"Invalid pass_method {pass_method}")
 
     def ocr_for_single_line(self,
                             language: str,
@@ -220,28 +248,16 @@ class BaasOcrClient:
                 "pass_method": pass_method,
             },
         }
-        if pass_method == 0:
-            if not SharedMemory.shm_exists(shared_memory_name):
-                raise SharedMemoryError(f"Shared memory {shared_memory_name} not found, you should create it first.")
-            col = origin_image.shape[1]
-            row = origin_image.shape[0]
-            size = col * row * 3
-            SharedMemory.set_data(shared_memory_name, origin_image.tobytes(), size)
-            data["image"]["shared_memory_name"] = "/" + shared_memory_name if sys.platform != "win32" else shared_memory_name
-            data["image"]["resolution"] = [col, row]
+        self.get_request_data(data, pass_method, origin_image, local_path, shared_memory_name)
+        if pass_method in [0, 2]:
             return requests.post(url, json=data)
-        if pass_method == 1:
+        elif pass_method == 1:
             image_bytes = self.get_image_bytes(origin_image)
             files = {
                 "data": (None, json.dumps(data), "application/json"),
                 "image": ("image.png", image_bytes, "image/png")
             }
             return requests.post(url, files=files)
-        elif pass_method == 2:
-            data["image"]["local_path"] = local_path
-            return requests.post(url, json=data)
-        else:
-            raise OcrInternalError(f"Invalid pass_method [ {pass_method} ].")
 
     @staticmethod
     def get_image_bytes(image):

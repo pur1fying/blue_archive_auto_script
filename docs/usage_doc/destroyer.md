@@ -1,12 +1,16 @@
 # 有关BAAS项目的破坏者
 
-## 现状:
+## 现状
 1. 目前在QQ群以及B站均遇到了**BAAS**和相关项目的破坏者,他们导致了 
-- 相关项目[BAAH](https://github.com/sanmusen214/BAAH)的交流群被封禁
-- **BAAS**大群多次出现群风险提醒
-- 开发者在BiliBili发布的一些教程视频和专栏被下架
+   - 开发者在BiliBili发布的一些教程视频和专栏被下架
+   - BiliBili (已弃用): 
+     - [BAAS-Official](https://space.bilibili.com/259089751)(已被封禁)
+     - [益生君-1208](https://space.bilibili.com/496075546)(一些视频教程被下架)
+   - **BAAS**大群多次出现群风险提醒
+   - 相关项目[BAAH](https://github.com/sanmusen214/BAAH)的交流群被封禁
+2. 相关教程视频补档请见[AcFun](https://www.acfun.cn/u/76873903)
 
-## 哪些人会暗中作祟? GPT给出的答案是:
+## 哪些人会暗中作祟? GPT给出的答案是
 - 被举报的原因可能涉及以下几个方面，这些人可能的意图包括：
 1. 维护游戏公平性
    - 许多玩家认为使用脚本破坏了公平竞争，尤其是在有排行榜、PVP等竞争机制的游戏中，举报可能是出于维护公平环境的动机。

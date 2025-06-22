@@ -2,14 +2,14 @@
   "28-1-sss-present-task": {
     "start": [
       [
-        "burst1",
+        "burst",
         [
           488,
           558
         ]
       ],
       [
-        "shock1",
+        "shock",
         [
           802,
           144
@@ -123,14 +123,14 @@
   "28-2-sss-present-task": {
     "start": [
       [
-        "burst1",
+        "burst",
         [
           782,
           429
         ]
       ],
       [
-        "shock1",
+        "shock",
         [
           578,
           677
@@ -270,21 +270,21 @@
   "28-3-sss-present-task": {
     "start": [
       [
-        "burst1",
+        "burst",
         [
           883,
           432
         ]
       ],
       [
-        "shock1",
+        "shock",
         [
           469,
           673
         ]
       ],
       [
-        "burst2",
+        "burst",
         [
           295,
           83

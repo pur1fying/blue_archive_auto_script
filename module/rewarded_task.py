@@ -10,7 +10,7 @@ def implement(self):
         return True
 
     self.to_main_page()
-    buy_ticket_times = max(0, self.config.purchase_rewarded_task_ticket_times)  # ** 购买悬赏委托券的次数
+    buy_ticket_times = max(0, self.config.purchase_rewarded_task_ticket_times)
     buy_ticket_times = min(buy_ticket_times, 12)
     if buy_ticket_times > 0:
         to_choose_bounty(self, True)
@@ -46,7 +46,7 @@ def implement(self):
 
 
 def get_bounty_coin(self):
-    to_bounty(self, 0, True)
+    to_bounty(self, 1, True)
     region = (148, 581, 376, 614)
     ocr_res = self.ocr.get_region_res(
         self,
@@ -153,6 +153,7 @@ def to_bounty(self, num, skip_first_screenshot=False):
         "main_page_bus": (731, 431),
         "rewarded_task_location-select": (992, bounty_location_y[num]),
         "rewarded_task_task-info": (1129, 141),
+        "rewarded_task_help": (1014, 135),
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164)
     }
@@ -168,8 +169,8 @@ def to_choose_bounty(self, skip_first_screenshot=False):
         "rewarded_task_task-info": (1129, 141),
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
-        'rewarded_task_help': (1014, 135),
-        'rewarded_task_purchase-bounty-ticket-notice': (888, 163),
+        "rewarded_task_help": (1014, 135),
+        "rewarded_task_purchase-bounty-ticket-notice": (888, 163),
     }
     rgb_ends = "choose_bounty"
     rgb_possibles = {"main_page": (1198, 580)}

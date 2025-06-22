@@ -155,6 +155,9 @@ def select_node(self, phase):
             if max_acc >= 0.5:
                 most_possible_node_name = pri[idx]
                 self.logger.info("Assume Node is : " + most_possible_node_name)
+                if idx == 0:
+                    self.logger.info("Choose Node : " + most_possible_node_name)
+                    return
                 node.append(most_possible_node_name)
                 lo.append(i)
             else:
@@ -228,7 +231,7 @@ def select_item(self, check_state, item_name, weight):
     while curr_selected != count:
         diff = abs(curr_selected - count)
         if curr_selected < count:
-            self.click(add_click_x, add_click_y, count=diff, duration=0.1, wait_over=True)
+            self.click(add_click_x, add_click_y, count=diff, duration=0.3, wait_over=True)
         else:
             self.click(minus_click_x, minus_click_y, count=diff, duration=0.1, wait_over=True)
         self.update_screenshot_array()

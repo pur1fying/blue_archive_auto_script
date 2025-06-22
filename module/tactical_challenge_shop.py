@@ -101,16 +101,11 @@ def to_tactical_challenge_shop(self, skip_first_screenshot=False):
         'JP': 778,
         'Global': 796
     }
-    tactical_challenge_y = {
-        'CN': 455,
-        'JP': 531,
-        'Global': 531
-    }
     rgb_ends = "tactical_challenge_shop"
     rgb_possibles = {
         "main_page": (tactical_challenge_x[self.server], 653),
         "reward_acquired": (640, 89),
-        "common_shop": (160, tactical_challenge_y[self.server]),
+        "common_shop": (160, 531),
     }
     img_possibles = {
         'main_page_full-notice': (887, 165),
@@ -140,15 +135,15 @@ def to_refresh(self):
 
 def get_tactical_challenge_assets(self):
     tactical_challenge_assets_region = {
-        'CN': [1109, 63, 1240, 102],
-        'Global': [907, 68, 1045, 98],
-        'JP': [907, 68, 1045, 98]
+        'CN': [907, 68, 1045, 98],
+        'Global': [751, 68, 884, 98],
+        'JP': [751, 68, 884, 98]
     }
     ret = self.ocr.recognize_int(
-                                self,
-                                tactical_challenge_assets_region[self.server],
-                                "Tactical Challenge Assets"
-                                )
+        baas=self,
+        region=tactical_challenge_assets_region[self.server],
+        log_info="Tactical Challenge Assets"
+    )
     data = {
         "count": ret,
         "time": time.time()

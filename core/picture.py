@@ -182,7 +182,7 @@ def deal_with_pop_ups(self, pop_ups_rgb_reactions: dict = None, pop_ups_img_reac
                 return True, rgb_feature
     common_task_img_reactions = {
         'CN': {
-
+            'main_page_net-work-unstable': (767, 501),
         },
         'JP': {
 
@@ -254,14 +254,17 @@ GAME_ONE_TIME_POP_UPS = {
         'main_page_news2': (1142, 104),
         'main_page_item-expire': (925, 119),
         'main_page_renewal-month-card': (927, 109),
+        'draw-card-point-exchange-to-stone-piece-notice': (933, 155)
     },
     'JP': {
         'main_page_news': (1142, 104),
+        'draw-card-point-exchange-to-stone-piece-notice': (933, 155)
     },
     'Global': {
         'main_page_news': (1227, 56),
         'main_page_item-expired-notice': (922, 159),
         'main_page_item-expiring-notice': (931, 132),
-        'main_page_Failed-to-convert-errorResponse': (641, 511)
+        'main_page_Failed-to-convert-errorResponse': (641, 511),
+        'draw-card-point-exchange-to-stone-piece-notice': (933, 155)
     }
 }

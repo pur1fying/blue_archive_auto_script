@@ -1,8 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import PushButton, LineEdit, ComboBox
-from gui.util import notification
 
+from gui.util import notification
 from gui.util.translator import baasTranslator as bt
 
 
@@ -21,7 +21,8 @@ class Layout(QWidget):
         self.label = QLabel(self.tr('普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：'), self)
         self.input = LineEdit(self)
         self.accept = PushButton(self.tr('确定'), self)
-        self.label_hard = QLabel(self.tr('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：'),self)
+        self.label_hard = QLabel(self.tr('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：'),
+                                 self)
         self.input_hard = LineEdit(self)
         self.accept_hard = PushButton(self.tr('确定'), self)
 
@@ -88,21 +89,18 @@ class Layout(QWidget):
 
     def __accept_main(self):
         try:
-            from module.normal_task import readOneNormalTask
-            input_content = self.input.text()
+            from module.ExploreTasks.sweep_task import read_task
+            input_content = self.input.text().replace(" ", "").replace("，", ",")
             if input_content == "":
                 self.config.set('mainlinePriority', "")
                 self.config.set("unfinished_normal_tasks", [])
-                notification.success(self.tr('设置成功'), f'{self.tr("普通关扫荡设置已清空")}',self.config)
+                notification.success(self.tr('设置成功'), f'{self.tr("普通关扫荡设置已清空")}', self.config)
                 return
-            self.config.set('mainlinePriority', input_content)
-            input_content = input_content.split(',')
             temp = []
-            for i in range(0, len(input_content)):
-                temp.append(readOneNormalTask(
-                    input_content[i],
-                    self.config.static_config.explore_normal_task_region_range)
-                )
+            input_content_splits = input_content.split(',')
+            for i in range(0, len(input_content_splits)):
+                temp.append(read_task(input_content_splits[i], True))
+            self.config.set('mainlinePriority', input_content)
             self.config.set("unfinished_normal_tasks", temp)  # refresh the config unfinished_normal_tasks
             notification.success(self.tr('设置成功'), f'{self.tr("你的普通关卡已经被设置为：")}{input_content}',
                                  self.config)
@@ -111,22 +109,18 @@ class Layout(QWidget):
 
     def __accept_hard(self):
         try:
-            from module.hard_task import readOneHardTask
-            input_content = self.input_hard.text()
+            from module.ExploreTasks.sweep_task import read_task
+            input_content = self.input_hard.text().replace(" ", "").replace("，", ",")
             if input_content == "":
                 self.config.set('hardPriority', "")
                 self.config.set("unfinished_hard_tasks", [])
                 notification.success(self.tr('设置成功'), f'{self.tr("困难关扫荡设置已清空")}', self.config)
                 return
-            self.config.set('hardPriority', input_content)
-            input_content = input_content.split(',')
             temp = []
-            for i in range(0, len(input_content)):
-                temp.append(readOneHardTask(
-                            input_content[i],
-                            self.config.static_config.explore_hard_task_region_range
-                    )
-                )
+            input_content_splits = input_content.split(',')
+            for i in range(0, len(input_content_splits)):
+                temp.append(read_task(input_content_splits[i], False))
+            self.config.set('hardPriority', input_content)
             self.config.set("unfinished_hard_tasks", temp)  # refresh the config unfinished_hard_tasks
             notification.success(self.tr('设置成功'), f'{self.tr("你的困难关卡已经被设置为：")}{input_content}',
                                  self.config)

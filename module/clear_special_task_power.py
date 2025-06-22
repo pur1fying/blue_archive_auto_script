@@ -62,6 +62,7 @@ def to_commissions(self, num, skip_first_screenshot=False):
         "main_page_home-feature": (1198, 580),
         "main_page_bus": (724, 515),
         "special_task_request-select": (992, commissions_y[num]),
+        "rewarded_task_help": (1014, 135),
         "special_task_task-info": (1129, 141),
     }
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])

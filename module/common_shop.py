@@ -122,7 +122,6 @@ def buy(self, buy_list):
     total_item = buy_list.sum()
     count = 0
     while last_checked_idx < length:
-        cv2.imwrite(f"buy_{count}.png", self.latest_img_array)
         count += 1
         items, item_lines_y = get_item_position(self)
         for i in range(1, len(item_lines_y)):

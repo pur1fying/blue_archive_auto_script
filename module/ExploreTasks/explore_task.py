@@ -1,7 +1,8 @@
+import module.ExploreTasks.TaskUtils
 from core import color, image, picture
-from module import main_story, normal_task, hard_task
+from module import main_story
 from module.ExploreTasks.TaskUtils import to_mission_info, execute_grid_task, get_challenge_state, \
-    employ_units, get_stage_data, convert_team_config
+    employ_units, get_stage_data, convert_team_config, to_region, to_hard_event, to_normal_event
 
 
 def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]],
@@ -20,6 +21,7 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]
             - The first element (bool): The verification result. Returns True if verification passes; otherwise, False.
             - The second element (str): The error message. Returns a detailed error message if verification fails; otherwise, an empty string.
     """
+    task = task.strip() # Remove leading and trailing spaces, and whitespaces
     valid_chapter_range = self.static_config.explore_normal_task_region_range if isNormal \
         else self.static_config.explore_hard_task_region_range  # Get the valid chapter range based on the task type
     info = task.split('-')
@@ -132,8 +134,7 @@ def explore_normal_task(self):
     teamConfig = convert_team_config(self)
 
     for task in tasklist:
-        region = task[0]
-        mission = task[1]
+        region, mission = task[0], task[1]
 
         # skip navigate to mission if previous task is already finished
         skip_navigate = False
@@ -143,8 +144,8 @@ def explore_normal_task(self):
             self.logger.info(f"--- Start exploring {taskName}({taskDataName}) ---")
 
             if not skip_navigate:
-                normal_task.to_normal_event(self, True)
-                if not normal_task.to_region(self, region, True):
+                to_normal_event(self, True)
+                if not to_region(self, region, True):
                     self.logger.error(f"Skipping task {taskName} since it's not available.")
                     continue
                 fullMissionList = []
@@ -164,7 +165,7 @@ def explore_normal_task(self):
                     ocr_region_offsets=(-396, -7, 60, 33),
                     ocr_str_replace_func=None,
                     max_swipe_times=3,
-                    ocr_candidates="123456789-",
+                    ocr_candidates= "123456789-A" if region % 3 == 0 else "1234567890-",
                     ocr_filter_score=0.2,
                 )
                 if not to_mission_info(self, missionButtonPos[1]):
@@ -201,8 +202,8 @@ def explore_normal_task(self):
                 if self.config.manual_boss:
                     self.click(1235, 41)
             # skip unlocking animation by switching
-            hard_task.to_hard_event(self, True)
-            normal_task.to_normal_event(self, True)
+            to_hard_event(self, True)
+            to_normal_event(self, True)
     return True
 
 
@@ -232,8 +233,7 @@ def explore_hard_task(self):
     self.logger.info("}")
 
     for task in tasklist:
-        region = task[0]
-        mission = task[1]
+        region, mission = task[0], task[1]
 
         # skip navigate to mission if previous task is already finished
         skip_navigate = False
@@ -243,8 +243,8 @@ def explore_hard_task(self):
 
             mission_los = [249, 363, 476]
             if not skip_navigate:
-                hard_task.to_hard_event(self, True)
-                if not (normal_task.to_region(self, region, False) and to_mission_info(self, mission_los[mission - 1])):
+                to_hard_event(self, True)
+                if not (to_region(self, region, False) and to_mission_info(self, mission_los[mission - 1])):
                     self.logger.error(f"Skipping task {taskName} since it's not available.")
                     continue
 
@@ -262,6 +262,6 @@ def explore_hard_task(self):
             if self.config.manual_boss:
                 self.click(1235, 41)
             # skip unlocking animation by switching
-            normal_task.to_normal_event(self, True)
-            hard_task.to_hard_event(self, True)
+            to_normal_event(self, True)
+            to_hard_event(self, True)
     return True

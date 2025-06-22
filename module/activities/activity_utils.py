@@ -7,6 +7,12 @@ from module import main_story
 from module.ExploreTasks.TaskUtils import execute_grid_task
 
 
+
+# korean 11 will be recognized as ll
+def ocr_str_replace_func(st):
+    return st.replace("l", "1")
+
+
 # activity config
 def get_stage_data(self):
     json_path = 'src/explore_task_data/activities/' + self.current_game_activity + '.json'
@@ -51,10 +57,12 @@ def to_activity(self, region=None, skip_first_screenshot=False):
 
     img_possibles = {
         "story": {
-            "activity_story-not-chosen-0": (844, 89)
+            "activity_story-not-chosen-0": (844, 89),
+            "activity_story-not-chosen-1": (936, 89),
         },
         "mission": {
-            "activity_mission-not-chosen-0": (1028, 91)
+            "activity_mission-not-chosen-0": (1028, 91),
+            "activity_mission-not-chosen-1": (1200, 91),
         },
         "challenge": {
             "activity_challenge-not-chosen-0": (1200, 89)
@@ -64,9 +72,11 @@ def to_activity(self, region=None, skip_first_screenshot=False):
     img_ends = {
         "story": [
             "activity_story-chosen-0",
+            "activity_story-chosen-1",
         ],
         "mission": [
             "activity_mission-chosen-0",
+            "activity_mission-chosen-1",
         ],
         "challenge": [
             "activity_challenge-chosen-0",
@@ -91,6 +101,8 @@ def activity_sweep(self):
     self.stage_data = get_stage_data(self)
     sweep_one_time_ap = self.stage_data["sweep_ap_cost_mission"]
     total_mission = len(self.stage_data["mission"])
+    if len(times) == 1 and times[0] == -1:
+        times = [int(ap / sum(sweep_one_time_ap[num] for num in number))] * len(number)
     for i in range(0, min(len(number), len(times))):
         sweep_times = times[i]
         if type(sweep_times) is float:
@@ -172,6 +184,7 @@ def explore_activity_mission(self):
         to_activity(self, "mission", True)
 
 
+
 def to_mission_task_info(self, target_index, total_mission):
     possible_strs = build_activity_task_name_list(total_mission)
     ocr_region_offsets = {
@@ -191,9 +204,10 @@ def to_mission_task_info(self, target_index, total_mission):
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
         ocr_language='en-us',
         ocr_region_offsets=ocr_region_offsets[self.identifier],
-        ocr_str_replace_func=None,
+        ocr_str_replace_func=ocr_str_replace_func,
         max_swipe_times=10,
-        ocr_candidates="0123456789"
+        ocr_candidates="0123456789l",
+        first_retry_dir=1
     )
     y = p[1] + 10  # move down a little bit in case click to challenge page
     possibles = {'activity_menu': (1124, y)}
@@ -275,6 +289,11 @@ def explore_activity_challenge(self):
 
 
 def start_story(self):
+    rgb_possibles = {
+        "formation_edit2": (151, 387),
+        "formation_edit3": (151, 387),
+        "formation_edit4": (151, 387),
+    }
     img_possibles = {
         "activity_task-info": (940, 538),
         "normal_task_task-info": (940, 538),
@@ -293,7 +312,7 @@ def start_story(self):
         "activity_formation",
         "activity_self-formation",
     ]
-    res = picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     if res in ["formation_edit1", "activity_unit-formation", "activity_formation", "activity_self-formation"]:
         start_fight(self, 1)
         main_story.auto_fight(self)
@@ -370,9 +389,9 @@ def to_story_task_info(self, target_index, total_story):
         swipe_params=(907, 432, 907, 156, 0.1, 0.5),
         ocr_language='en-us',
         ocr_region_offsets=(-387, -6, 50, 28),
-        ocr_str_replace_func=None,
+        ocr_str_replace_func=ocr_str_replace_func,
         max_swipe_times=10,
-        ocr_candidates="0123456789"
+        ocr_candidates="0123456789l"
     )
     y = p[1]
     img_possibles = {'activity_menu': (1124, y)}

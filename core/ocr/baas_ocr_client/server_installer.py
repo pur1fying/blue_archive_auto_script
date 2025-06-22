@@ -30,6 +30,7 @@ if arch not in branch:
     raise Exception("Unsupported machine architecture " + arch)
 branch = branch[arch]
 
+
 def check_git(logger):
     if not os.path.exists(SERVER_BIN_DIR + '/.git'):
         logger.info("Installing Ocr Server, please wait...")

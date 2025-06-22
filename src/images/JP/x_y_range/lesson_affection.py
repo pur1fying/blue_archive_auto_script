@@ -1,36 +1,5 @@
 prefix = "lesson"
 path = "lesson_affection"
 x_y_range = {
-    "Moe (Swimsuit)": [],
-    "Mashiro": [],
-    "Hasumi": [],
-    "Asuna (Bunny)": [],
-    "Mine": [],
-    "Ibuki": [],
-    "Sena": [],
-    "Tsubaki": [],
-    "Saten Ruiko": [],
-    "Ayane (Swimsuit)": [],
-    "Hoshino (Battle)": [],
-    "Kazusa": [],
-    "Utaha (Cheer Squad)": [],
-    "Fuuka (New Year)": [],
-    "Hibiki (Cheer Squad)": [],
-    "Ui (Swimsuit)": [],
-    "Hare": [],
-    "Miyu (Swimsuit)": [],
-    "Toki": [],
-    "Hanae (Christmas)": [],
-    "Hoshino": [],
-    "Hoshino (Swimsuit)": [],
-    "Koharu (Swimsuit)": [],
-    "Kanna": [],
-    "Moe": [],
-    "Shiroko Terror": [],
-    "Shizuko (Swimsuit)": [],
-    "Saki": [],
-    "Junko (New Year)": [],
-    "Chinatsu (Hot Spring)": [],
-    "Haruka": [],
-    "Airi": []
+
 }
