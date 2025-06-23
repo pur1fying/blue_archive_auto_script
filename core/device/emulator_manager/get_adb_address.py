@@ -27,13 +27,15 @@ def get_simulator_port(simulator_type : str, multi_instance : str):
     elif simulator_type == "mumu" or simulator_type == "mumu_global":
         def get_mumu_adb_info(multi_instance):
             import subprocess
-            cmd = f'{mumu12_control_api_backend(simulator_type,0,"get_manager_path")} adb -v {multi_instance}'
-            proc = subprocess.run(cmd, universal_newlines=True, capture_output=True, encoding="utf-8")
-            adb_info = json.loads(proc.stdout)
-            try:
-                return f"{adb_info['adb_host']}:{adb_info['adb_port']}"
-            except:
-                return f"127.0.0.1:{int(multi_instance)*32+16384}"
+            exe_path = mumu12_control_api_backend(simulator_type,0,"get_manager_path")
+            if exe_path:
+                cmd = f'{exe_path} adb -v {multi_instance}'
+                proc = subprocess.run(cmd, universal_newlines=True, capture_output=True, encoding="utf-8")
+                adb_info = json.loads(proc.stdout)
+                try:
+                    return f"{adb_info['adb_host']}:{adb_info['adb_port']}"
+                except:
+                    return f"127.0.0.1:{int(multi_instance)*32+16384}"
         if multi_instance == None:
             multi_instance = 0
         if int(multi_instance) <= 1536:
