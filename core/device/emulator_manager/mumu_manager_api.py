@@ -5,20 +5,22 @@ import subprocess
 
 def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="start"):
     if os.name == 'nt':
-        import winreg
+        try:
+            import winreg
         # 读取注册表中的键值
-        if simulator_type == "mumu":
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                                r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayer-12.0")
-        else:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                                r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal-12.0")
+            if simulator_type == "mumu":
+                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                    r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayer-12.0")
+            else:
+                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                    r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal-12.0")
 
-        icon_path, _ = winreg.QueryValueEx(key, "DisplayIcon")
-        install_path = os.path.join(icon_path, "..\\")
-        mumu_version, _ = winreg.QueryValueEx(key, "DisplayVersion")
-        winreg.CloseKey(key)
-
+            icon_path, _ = winreg.QueryValueEx(key, "DisplayIcon")
+            install_path = os.path.join(icon_path, "..\\")
+            mumu_version, _ = winreg.QueryValueEx(key, "DisplayVersion")
+            winreg.CloseKey(key)
+        except:
+            return None
         # 修改路径，使其指向MuMuManager.exe
         exe_path = os.path.join(os.path.dirname(icon_path.strip('"')), "MuMuManager.exe")
         def detect_major_version():
@@ -59,4 +61,4 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             except:
                 return "not_launched"
         else:
-            raise ValueError("NOT_SUPPORTED_OPERATION")
+            return None
