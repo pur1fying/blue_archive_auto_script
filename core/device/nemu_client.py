@@ -168,6 +168,7 @@ class NemuClient:
                 return
 
     def __init__(self, nemu_folder, instance_id, logger, display_id=0):
+        self.lib = None
         self._ev = asyncio.new_event_loop()
         self.nemu_folder = nemu_folder
         self.instance_id = instance_id
@@ -178,24 +179,23 @@ class NemuClient:
             ipc_dll = mumu12_api_backend('mumu','0',operation="get_nemu_client_path")
         except:
             ipc_dll = os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll'))
+        try:
+            self.lib = ctypes.CDLL(ipc_dll)
+        except OSError as e:
+            self.logger.error(e)
+            self.logger.error(f'ipc_dll={ipc_dll} exists, but cannot be loaded')
+        if not self.lib:
+            self.logger.error("NemuIpc requires MuMu12 version >= 3.8.13, please check your version.")
+            self.logger.error(f'None of the following path exists')
+            self.logger.error(f'  {ipc_dll}')
+            raise NemuIpcIncompatible("Please check your MuMu Player 12 version and install path in BAAS settings.")
+
         self.logger.info('NemuIpcImpl init')
         self.logger.info(f'nemu_folder = {nemu_folder}')
         self.logger.info(f'ipc_dll     = {ipc_dll}')
         self.logger.info(f'instance_id = {instance_id}')
         self.logger.info(f'display_id  = {display_id}')
 
-        try:
-            self.lib = ctypes.CDLL(ipc_dll)
-        except OSError as e:
-            self.logger.error(e.__str__())
-            # OSError: [WinError 126] 找不到指定的模块。
-            if not os.path.exists(ipc_dll):
-                raise NemuIpcIncompatible(
-                    f'ipc_dll={ipc_dll} does not exist, '
-                    f'NemuIpc requires MuMu12 version >= 3.8.13, please check your version')
-            else:
-                raise NemuIpcIncompatible(
-                    f'ipc_dll={ipc_dll} exists, but cannot be loaded')
         self.connect_id: int = 0
         self.width = 0
         self.height = 0
@@ -337,18 +337,6 @@ class NemuClient:
         cv2.flip(image, 0, dst=image)
         return image
 
-    def convert_xy(self, x, y):
-        """
-        Convert classic ADB coordinates to Nemu's
-        `self.height` must be updated before calling this method
-
-        Returns:
-            int, int
-        """
-        x, y = int(x), int(y)
-        x, y = self.height - y, x
-        return x, y
-
     def down(self, x, y):
         """
         Contact down, continuous contact down will be considered as swipe
@@ -357,8 +345,6 @@ class NemuClient:
             self.connect()
         if self.height == 0:
             self.get_resolution()
-
-        x, y = self.convert_xy(x, y)
 
         ret = self.ev_run_sync(
             self.lib.nemu_input_event_touch_down,
@@ -391,18 +377,21 @@ class NemuClient:
             Port from 16414 to 16418 -> 1
 
         Returns:
-            int: instance_id, or None if failed to predict
+             int: instance_id, or None if failed to predict
         """
         try:
             port = int(serial.split(':')[1])
         except (IndexError, ValueError):
             return None
-        index, offset = divmod(port - 16384 + 16, 32)
-        offset -= 16
-        if 0 <= index < 32 and offset in [-2, -1, 0, 1, 2]:
-            return index
-        else:
-            return None
+        if port >= 16384 and port < 16384 + 32 * 32:
+            index, offset = divmod(port - 16384 + 16, 32)
+            offset -= 16
+            if 0 <= index < 32 and offset in [-2, -1, 0, 1, 2]:
+                return index
+        if port >= 5555 and port < 5555 + 32:
+            index, offset = divmod(port - 5555, 2)
+            if 0 <= index < 32 and offset in [0, 1]:
+                return index
 
 
 if __name__ == '__main__':
