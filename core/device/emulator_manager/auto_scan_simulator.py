@@ -102,5 +102,5 @@ def auto_search_adb_address() -> List[str]:
             else:
                 adb_address = get_simulator_port(simulator, multi_instance)
             adb_addresses.append(adb_address)
-
-    return list(dict.fromkeys(adb_addresses))  # 使用字典去重
+    if adb_addresses:
+        return list(dict.fromkeys(adb_addresses))  # 使用字典去重
