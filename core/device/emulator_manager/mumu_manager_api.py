@@ -42,7 +42,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
         elif operation == "get_manager_path":
             return exe_path
         elif operation == "get_nemu_client_path":
-            if major_version == 5:
+            if major_version_number == 5:
                 return os.path.join(os.path.dirname(install_path.strip('"')), "nx_device", "12.0", "shell", "sdk", "external_renderer_ipc.dll")
             else:
                 return os.path.join(os.path.dirname(icon_path.strip('"')), "sdk", "external_renderer_ipc.dll")
