@@ -212,11 +212,14 @@ class SettingsFragment(ScrollArea):
         """ show restart tooltip """
         if time.time() - window.LAST_NOTICE_TIME < 0.1:
             return
-        notification.success(
-            self.tr('更新成功'),
-            self.tr('配置将在重新启动后生效'),
-            self.config
-        )
+        # Puzzling Error for config missing ...
+        # Now that the bug concerning #274 can't be represented, this is a simple fix.
+        if self.config is not None:
+            notification.success(
+                self.tr('更新成功'),
+                self.tr('配置将在重新启动后生效'),
+                self.config
+            )
         window.LAST_NOTICE_TIME = time.time()
 
     def __connectSignalToSlot(self):
