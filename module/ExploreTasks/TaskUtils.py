@@ -222,13 +222,15 @@ def handle_task_pop_ups(self, skip_first_screenshot=False):
 def get_formation_index(self):
     region = {
         'CN': (116, 542, 131, 570),
-        'Global': (116, 542, 131, 570),
+        'Global_zh-tw': (74, 542, 93, 570),
+        'Global_en-us': (116, 542, 131, 570),
+        'Global_ko-kr': (78, 542, 98, 570),
         'JP': (116, 542, 131, 570)
     }
     handle_task_pop_ups(self)
     ocr_res = self.ocr.get_region_res(
         baas=self,
-        region=region[self.server],
+        region=region[self.identifier],
         language="en-us",
         log_info="Formation Index",
         candidates="1234",
