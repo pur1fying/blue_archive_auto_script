@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import re
 
 
 def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="start"):
@@ -9,11 +10,20 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             import winreg
         # 读取注册表中的键值
             if simulator_type == "mumu":
-                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                                    r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayer-12.0")
+                try:
+                    key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayer-12.0")
+                except:
+                    key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayer")
             else:
-                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                                    r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal-12.0")
+                try:
+                    key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal-12.0")#predict of mumu5.0 global
+        
+                except:
+                    key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal")
 
             icon_path, _ = winreg.QueryValueEx(key, "DisplayIcon")
             install_path = os.path.join(icon_path, "..\\")

@@ -62,7 +62,9 @@ def auto_search_adb_address() -> List[str]:
         ],
         'mumu': [
             r'.*MuMuPlayer.exe\s+-v\s+(\w+).*',
-            r'.*MuMuPlayer.exe\s*'
+            r'.*MuMuPlayer.exe\s*',
+            r'.*MuMuNxDevice.exe\s+-v\s+(\w+).*',
+            r'.*MuMuNxDevice.exe\s*'
         ],
         'leidian': [
             r'.*dnplayer.exe\s+index=(\w+).*',
