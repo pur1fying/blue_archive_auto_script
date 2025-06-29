@@ -8,7 +8,7 @@ from .simulator_native import process_native_api
 SIMULATOR_LISTS: Dict[str, List[str]] = {
     'bluestacks_nxt': ['hd-player.exe'],
     'yeshen': ['nox.exe'],
-    'mumu': ['mumuplayer.exe'],
+    'mumu': ['mumuplayer.exe', 'mumunxdevice.exe'],
     'leidian': ['dnplayer.exe'],
     'xiaoyao_nat': ['memu.exe']
 }
@@ -62,7 +62,9 @@ def auto_search_adb_address() -> List[str]:
         ],
         'mumu': [
             r'.*MuMuPlayer.exe\s+-v\s+(\w+).*',
-            r'.*MuMuPlayer.exe\s*'
+            r'.*MuMuPlayer.exe\s*',
+            r'.*MuMuNxDevice.exe\s+-v\s+(\w+).*',
+            r'.*MuMuNxDevice.exe\s*'
         ],
         'leidian': [
             r'.*dnplayer.exe\s+index=(\w+).*',
@@ -102,5 +104,5 @@ def auto_search_adb_address() -> List[str]:
             else:
                 adb_address = get_simulator_port(simulator, multi_instance)
             adb_addresses.append(adb_address)
-
-    return list(dict.fromkeys(adb_addresses))  # 使用字典去重
+    if adb_addresses:
+        return list(dict.fromkeys(adb_addresses))  # 使用字典去重
