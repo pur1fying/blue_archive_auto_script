@@ -26,7 +26,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
                                         r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal")
 
             icon_path, _ = winreg.QueryValueEx(key, "DisplayIcon")
-            install_path = os.path.join(icon_path, "..\\")
+            install_path = os.path.dirname(icon_path)
             mumu_version, _ = winreg.QueryValueEx(key, "DisplayVersion")
             winreg.CloseKey(key)
         except:
