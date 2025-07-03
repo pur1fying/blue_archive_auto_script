@@ -19,4 +19,5 @@ x_y_range = {
     "episode-3-title": (363, 526, 655, 554),
     "episode-4-title": (436, 309, 644, 348),
     "episode-5-title": (511, 522, 735, 561),
+    "episode-6-title": (589, 309, 771, 348),
 }
