@@ -182,7 +182,7 @@ class NemuClient:
         try:
             self.lib = ctypes.CDLL(ipc_dll)
         except OSError as e:
-            self.logger.error(e)
+            self.logger.error(e.__str__())
             self.logger.error(f'ipc_dll={ipc_dll} exists, but cannot be loaded')
         if not self.lib:
             self.logger.error("NemuIpc requires MuMu12 version >= 3.8.13, please check your version.")
