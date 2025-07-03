@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import numpy as np
 
@@ -107,7 +109,9 @@ def swipe_get_y_diff(self, item_lines_y):
     tar_img = image.screenshot_cut(self, area)
     self.swipe(1246, 594, 1246, 447, duration=0.05, post_sleep_time=1)
     self.update_screenshot_array()
-    position = image.search_image_in_area(self, tar_img, area=(629 - 10, search_area_y_min, 1228 + 10, search_area_y_max), threshold=0.8)
+    position = image.search_image_in_area(self, tar_img,
+                                          area=(629 - 10, search_area_y_min, 1228 + 10, search_area_y_max),
+                                          threshold=0.8)
     if position is False:
         self.logger.warning("Swipe Failed.")
         raise
@@ -134,6 +138,7 @@ def buy(self, buy_list):
             if item_lines_y[i][0] - last_checked_y <= 10:
                 temp += item_lines_y[i][1]
                 continue
+            need_buy_list = []
             for j in range(0, item_lines_y[i][1]):
                 curr_idx = last_checked_idx + items[temp + j][0][0]
                 if not buy_list[curr_idx]:
@@ -142,8 +147,9 @@ def buy(self, buy_list):
                 if not items[temp + j][1]:
                     self.logger.warning("Item at [ " + str(curr_idx + 1) + " ] is not purchasable.")
                 else:
-                    ensure_choose(self, items[temp + j])
+                    need_buy_list.append(items[temp + j])
                 total_item -= 1
+            ensure_choose(self, need_buy_list)
             last_checked_idx += 4
             last_checked_y = item_lines_y[i][0]
         if total_item == 0:
@@ -154,15 +160,38 @@ def buy(self, buy_list):
         last_checked_y -= swipe_get_y_diff(self, item_lines_y)
 
 
-def ensure_choose(self, item):
-    if item[0][1] <= 252:
-        return
+def ensure_choose(self, items):
+    for item in items:
+        if item[0][1] <= 252:
+            items.remove(item)
     x = [653, 805, 959, 1114]
-    area = (x[item[0][0]] - 30, item[0][1] - 140, x[item[0][0]] + 20, item[0][1] - 71)
-    click_center = (x[item[0][0]] + 38, item[0][1] - 60)
-    while not image.search_in_area(self, "shop_item-chosen", area=area, threshold=0.8):
-        self.click(click_center[0], click_center[1], wait_over=True, duration=0.2)
+    areas = []
+    click_centers = []
+    unchecked = list(range(len(items)))
+
+    for item in items:
+        areas.append((x[item[0][0]] - 30, item[0][1] - 140, x[item[0][0]] + 20, item[0][1] - 71))
+        click_centers.append((x[item[0][0]] + 38, item[0][1] - 60))
+
+    last_click_t = 0
+    last_screenshot_t = time.time()
+    while len(unchecked) > 0:
+        clicked = False
+
+        for i in unchecked:
+            area = areas[i]
+            click_center = click_centers[i]
+            if not image.search_in_area(self, "shop_item-chosen", area=area, threshold=0.8):
+                # slow down click
+                if last_screenshot_t - last_click_t > 0.5:
+                    self.click(click_center[0], click_center[1], wait_over=True)
+                    clicked = True
+            else:
+                unchecked.remove(i)
+        if clicked:
+            last_click_t = time.time()
         self.update_screenshot_array()
+        last_screenshot_t = time.time()
 
 
 def get_item_position(self):

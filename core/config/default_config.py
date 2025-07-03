@@ -579,7 +579,7 @@ STATIC_DEFAULT_CONFIG = '''
 {
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {
-        "CN": [2, 3, 4, 5, 6],
+        "CN": [2, 3, 4, 5, 6, 7],
         "Global": [1, 2, 3, 4, 5, 6, 7, 8],
         "JP": [1, 2, 3, 4, 5, 6, 7, 8]
     },
@@ -3387,7 +3387,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "ElectronicNewYearsMarch",
         "Global": "SecretMidnightParty",
-        "JP": "iveAlive"
+        "JP": "JP_2025_06_25"
     },
     "dailyGameActivity": {
         "CN": null,
