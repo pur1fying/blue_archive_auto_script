@@ -1,9 +1,13 @@
 import json
 import time
 
+import cv2
+import imutils
+
 from core import image, picture, Baas_thread, color
-from core.image import swipe_search_target_str
+from core.image import match_template_CCOEFF_NORMED
 from module import main_story
+
 
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
@@ -159,14 +163,23 @@ def get_challenge_state(self, challenge_count=1) -> list[int]:
 
 
 def convert_team_config(self: Baas_thread) -> dict:
+    """
+    Convert the team configuration into a dictionary of attributes.
+
+    Returns:
+        dict: A dictionary with keys 'burst', 'pierce', 'mystic', and 'shock'.
+            Each key maps to a list of [column, row], where:
+                - column (int): 0 in side mode, or 1 to 4 in preset mode.
+                - row (int): Row index of the attribute position.
+    """
     employ_method = self.config.choose_team_method
-    teamConfig = {"burst": [], "pierce": [], "mystic": [], "shock": []}
-    teamData = self.config.side_team_attribute if employ_method == "side" else self.config.preset_team_attribute
-    for i, team in enumerate(teamData):
+    team_config = {"burst": [], "pierce": [], "mystic": [], "shock": []}
+    team_settings = self.config.side_team_attribute if employ_method == "side" else self.config.preset_team_attribute
+    for i, team in enumerate(team_settings):
         for j, attr in enumerate(team):
-            if attr in teamConfig:
-                teamConfig[attr].append([0 if employ_method == "side" else i + 1, j + 1])
-    return teamConfig
+            if attr in team_config:
+                team_config[attr].append([0 if employ_method == "side" else i + 1, j + 1])
+    return team_config
 
 
 # Functions related to executing tasks
@@ -414,11 +427,36 @@ def run_task_action(self, actions):
     self.set_screenshot_interval(self.config.screenshot_interval)
 
 
+def find_preset_button_y(baas_thread: Baas_thread, index: int) -> int:
+    template = cv2.imread("src/images/Global_zh-tw/normal_task/preset_column.png", cv2.IMREAD_UNCHANGED)
+    name_regions: list = []
+
+    for i in range(5):
+        baas_thread.update_screenshot_array()
+        screen = imutils.resize(baas_thread.latest_img_array, width=1280, height=720)
+        column_region = screen[194:398, 1145:1237]
+        _, max_loc, max_score = match_template_CCOEFF_NORMED(column_region, template, 0.8)
+        for y in range(max_loc[1] + 194, screen.shape[0] + 194 - 200, 191):
+            name_region = screen[y:y + 62, 50:370]
+            new_column = True
+            for existed_region in name_regions:
+                result, _, _ = match_template_CCOEFF_NORMED(existed_region, name_region, 0.8)
+                if result:
+                    new_column = False
+                    break
+            if new_column:
+                name_regions.append(name_region)
+                if len(name_regions) == index:
+                    return y + 120
+        baas_thread.swipe(145, 578, 145, 273, 1.0, 0.5)
+    return -1
+
+
 def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
     self.logger.info(f"Employ team method: {self.config.choose_team_method}.")
     attribute_type_fallbacks = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
 
-    employ_pos: list[list[int, int]] = []
+    employ_pos: list[list[int]] = []
 
     if self.config.choose_team_method == "order":
         # give employ pos a fallback value to let it employ formations by order(from 1-4)_
@@ -446,7 +484,7 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
             # switch to the next attribute available.
             cur_attribute = attribute
             while unit_available[cur_attribute] == unit_used[cur_attribute] \
-                    or (self.server == "CN" and cur_attribute == "shock"):
+                or (self.server == "CN" and cur_attribute == "shock"):
                 cur_attribute = attribute_type_fallbacks[cur_attribute]
 
             employ_pos.append(teamConfig[cur_attribute][unit_used[cur_attribute]])
@@ -498,22 +536,25 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
                     'JP': (-1103, 0, 16, 33)
                 }
 
-                presetButtonPos = swipe_search_target_str(
-                    self,
-                    "normal_task_formation-edit-preset-name",
-                    search_area=(1156, 201, 1229, 553),
-                    threshold=0.8,
-                    possible_strs=["1", "2", "3", "4", "5"],
-                    target_str_index=row - 1,
-                    swipe_params=(145, 578, 145, 273, 1.0, 0.5),
-                    ocr_language="en-us",
-                    ocr_region_offsets=offsets[self.server],
-                    ocr_str_replace_func=None,
-                    max_swipe_times=5,
-                    ocr_candidates="12345",
-                    ocr_filter_score=0.2
-                )
-                preset_y = presetButtonPos[1] + 76
+                # presetButtonPos = swipe_search_target_str(
+                #     self,
+                #     "normal_task_formation-edit-preset-name",
+                #     search_area=(1156, 201, 1229, 553),
+                #     threshold=0.8,
+                #     possible_strs=["1", "2", "3", "4", "5"],
+                #     target_str_index=row - 1,
+                #     swipe_params=(145, 578, 145, 273, 1.0, 0.5),
+                #     ocr_language="zh-cn",
+                #     ocr_region_offsets=offsets[self.server],
+                #     ocr_str_replace_func=None,
+                #     max_swipe_times=5,
+                #     ocr_candidates="12345",
+                #     ocr_filter_score=0.2
+                # )
+                #
+                # preset_y = presetButtonPos[1] + 76
+
+                preset_y = find_preset_button_y(self, row)
 
             # confirm employ
             img_reactions = {
