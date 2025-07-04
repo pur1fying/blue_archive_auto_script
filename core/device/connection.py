@@ -133,6 +133,8 @@ class Connection:
                     try:
                         temp = emulator_manager.autosearch()
                         for serial in temp:
+                            if serial is None:
+                                continue
                             if serial not in available:
                                 available.append(serial)
                                 self.logger.info(f"{len(available)} : [ {serial} ]")
