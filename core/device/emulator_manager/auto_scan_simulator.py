@@ -106,4 +106,3 @@ def auto_search_adb_address() -> List[str]:
             adb_addresses.append(adb_address)
     if adb_addresses:
         return list(dict.fromkeys(adb_addresses))  # 使用字典去重
-    return []
