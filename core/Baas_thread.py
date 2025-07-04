@@ -185,7 +185,7 @@ class Baas_thread:
 
     def convert_lnk_to_exe(self, lnk_path):
         """
-        判断program_addrsss是否为lnk文件，如果是则转换为exe文件地址存入config文件
+        Convert a Windows shortcut (.lnk) to the target executable path.
         """
         if lnk_path.endswith(".lnk"):
             try:
@@ -201,12 +201,11 @@ class Baas_thread:
 
     def extract_filename_and_extension(self):
         """
-        从可能包含启动参数的路径中提取文件名和扩展名
+        Extract the filename and extension from a file path, specifically for .exe and .lnk files.
         """
-        # 预定义特定的文件扩展名列表
+        # target specific extensions
         specific_extensions = [".exe", ".lnk"]
 
-        # 找到最后一个文件扩展名的位置
         last_extension_pos = -1
         for ext in specific_extensions:
             pos = self.file_path.lower().rfind(ext)
@@ -214,24 +213,21 @@ class Baas_thread:
                 last_extension_pos = pos
 
         if last_extension_pos == -1:
-            # 如果没有找到文件扩展名，返回整个输入
             return self.file_path.strip()
 
-        # 从文件扩展名的位置往前找到完整路径
-        end_of_path = last_extension_pos + len(specific_extensions[0])  # 加上扩展名的长度
+        end_of_path = last_extension_pos + len(specific_extensions[0])
         actual_path = self.file_path[:end_of_path]
 
-        # 获取文件名和扩展名
+        # get the file name with extension
         file_name_with_extension = os.path.basename(actual_path)
 
         return file_name_with_extension
 
     def check_process_running(self, process_name):
         """
-        检测指定名称的进程是否正在运行
+        Check if a process with the given name is running.
         """
         for proc in psutil.process_iter(['pid', 'name']):
-            # self.logger.debug(f"Checking if process {process_name} is running...")
             if proc.info['name'] == process_name:
                 return True
         return False

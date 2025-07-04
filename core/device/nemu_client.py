@@ -174,20 +174,29 @@ class NemuClient:
         self.instance_id = instance_id
         self.logger = logger
         self.display_id = display_id
-        try:
-            from core.device.emulator_manager import mumu12_api_backend
-            ipc_dll = mumu12_api_backend('mumu','0',operation="get_nemu_client_path")
-        except:
-            ipc_dll = os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll'))
-        try:
-            self.lib = ctypes.CDLL(ipc_dll)
-        except OSError as e:
-            self.logger.error(e.__str__())
-            self.logger.error(f'ipc_dll={ipc_dll} exists, but cannot be loaded')
+        # try to load dll from various pathAdd commentMore actions
+        list_dll = [
+            # MuMuPlayer12
+            os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll')),
+            # MuMuPlayer12 5.0
+            os.path.abspath(os.path.join(nemu_folder, './nx_device/12.0/shell/sdk/external_renderer_ipc.dll')),
+        ]
+        ipc_dll = ''
+        for ipc_dll in list_dll:
+            if not os.path.exists(ipc_dll):
+                continue
+            try:
+                self.lib = ctypes.CDLL(ipc_dll)
+                break
+            except OSError as e:
+                self.logger.error(e.__str__())
+                self.logger.error(f'ipc_dll={ipc_dll} exists, but cannot be loaded')
+                continue
         if not self.lib:
             self.logger.error("NemuIpc requires MuMu12 version >= 3.8.13, please check your version.")
             self.logger.error(f'None of the following path exists')
-            self.logger.error(f'  {ipc_dll}')
+            for path in list_dll:
+                self.logger.error(f'  {path}')
             raise NemuIpcIncompatible("Please check your MuMu Player 12 version and install path in BAAS settings.")
 
         self.logger.info('NemuIpcImpl init')
@@ -392,6 +401,15 @@ class NemuClient:
             index, offset = divmod(port - 5555, 2)
             if 0 <= index < 32 and offset in [0, 1]:
                 return index
+
+    @staticmethod
+    def get_possible_mumu12_folder():
+        from core.device.emulator_manager import mumu12_api_backend
+        try:
+            path = mumu12_api_backend("mumu", 0, operation="get_path")
+            return path
+        except Exception as e:
+            return None
 
 
 if __name__ == '__main__':
