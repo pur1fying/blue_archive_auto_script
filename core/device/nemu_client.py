@@ -174,7 +174,6 @@ class NemuClient:
         self.instance_id = instance_id
         self.logger = logger
         self.display_id = display_id
-
         # try to load dll from various pathAdd commentMore actions
         list_dll = [
             # MuMuPlayer12
@@ -190,7 +189,7 @@ class NemuClient:
                 self.lib = ctypes.CDLL(ipc_dll)
                 break
             except OSError as e:
-                self.logger.error(e)
+                self.logger.error(e.__str__())
                 self.logger.error(f'ipc_dll={ipc_dll} exists, but cannot be loaded')
                 continue
         if not self.lib:
