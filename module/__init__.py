@@ -27,3 +27,4 @@ from module import scrimmage
 from module import sweep_activity
 from module import tactical_challenge_shop
 from module import total_assault
+from module.activities import activity_updater
