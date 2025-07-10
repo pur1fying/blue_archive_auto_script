@@ -15,7 +15,7 @@
     ```
 3. 安装依赖
    ```bash
-    pip install -r requirements.txt
+    pip install -r requirements-linux.txt
     ```
    国内用户使用清华源加速
 

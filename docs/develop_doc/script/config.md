@@ -203,6 +203,13 @@
 
 # Cafe (咖啡厅)
 
+## `cafe_reward_affection_pat_round`
+
+- **type** : `int`
+- **range** : [4, 15]
+- **Description**: 摸头轮数, 轮数越高越不会漏摸
+
+
 ## `cafe_reward_invite1_criterion`
 
 - **type** : `str`

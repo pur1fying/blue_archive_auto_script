@@ -101,7 +101,7 @@ def check_user_config(dir_path='./default_config'):
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
-            return
+            return '官服'
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -110,11 +110,10 @@ def check_user_config(dir_path='./default_config'):
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
         return data['server']
     except Exception as e:
-        print(e)
         os.remove(path)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
-        return 'CN'
+        return '官服'
 
 
 def check_single_event(new_event, old_event):

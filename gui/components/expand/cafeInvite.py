@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
 from qfluentwidgets import ComboBox, LineEdit,  PushButton, SwitchButton
 
+from gui.util import notification
+from core.utils import delay
 from gui.util.translator import baasTranslator as bt
 
 
@@ -27,7 +29,7 @@ class Layout(QWidget):
     def _init_all_comps(self):
         self.cafe_reward_invite1_criterion = self.config.get('cafe_reward_invite1_criterion')
         self.cafe_reward_invite2_criterion = self.config.get('cafe_reward_invite2_criterion')
-
+        self.pat_round = self.config.get('cafe_reward_affection_pat_round')
         self.pat_styles = [bt.tr('ConfigTranslation', '拖动礼物')]
         self.student_name = []
 
@@ -45,6 +47,7 @@ class Layout(QWidget):
         self.create_cafe_mode_sel(1)
 
         # 初始化布局
+        self.layPatRound = QHBoxLayout()
         self.layPatStyle = QHBoxLayout()
         self.laySecondCafe = QHBoxLayout()
 
@@ -53,8 +56,6 @@ class Layout(QWidget):
             self.tr('是否领取奖励:'), 'cafe_reward_collect_hour_reward')
         self.layUseInvitationTicket = self.labeled_switchBtn_template(
             self.tr('是否使用邀请券:'), 'cafe_reward_use_invitation_ticket')
-        # self.layInviteLowestAffection = self.labeled_switchBtn_template(
-        #     self.tr('优先邀请券好感等级低的学生:'), 'cafe_reward_lowest_affection_first')
         self.layEnableExchangeStudent = self.labeled_switchBtn_template(
             self.tr('是否允许学生更换服饰:'), 'cafe_reward_allow_exchange_student')
 
@@ -66,8 +67,16 @@ class Layout(QWidget):
         self.layEnableDuplicateInvite = self.labeled_switchBtn_template(
             self.tr('是否允许重复邀请:'), 'cafe_reward_allow_duplicate_invite')
 
-        # 创建摸头方式选择
-        self.labelPatStyle = QLabel(self.tr('选择摸头方式：'))
+        # pat round
+        self.labelPatRound = QLabel(self.tr('摸头轮数 (轮数越高越不会漏摸): '))
+        self.inputPatRound = LineEdit()
+        self.inputPatRound.setFixedWidth(50)
+        self.inputPatRound.setText(str(self.pat_round))
+        self.layPatRound.addWidget(self.labelPatRound, 1, Qt.AlignLeft)
+        self.layPatRound.addWidget(self.inputPatRound, 0, Qt.AlignRight)
+
+        # pat method
+        self.labelPatStyle = QLabel(self.tr('选择摸头方式: '))
         self.inputPatStyle = ComboBox()
         self.pat_style = self.config.get('patStyle') or bt.tr('ConfigTranslation', '普通')
         self.inputPatStyle.addItems(self.pat_styles)
@@ -79,9 +88,9 @@ class Layout(QWidget):
         self.mainLayout.addSpacing(10)
         self.mainLayout.addLayout(self.layCollectReward)
         self.mainLayout.addLayout(self.layUseInvitationTicket)
-        # self.mainLayout.addLayout(self.layInviteLowestAffection)
         self.mainLayout.addLayout(self.layEnableExchangeStudent)
         self.mainLayout.addLayout(self.layEnableDuplicateInvite)
+        self.mainLayout.addLayout(self.layPatRound)
         self.mainLayout.addLayout(self.layPatStyle)
         self.mainLayout.setContentsMargins(20, 0, 20, 10)
         self.mainLayout.addLayout(self.laySecondCafe)
@@ -165,8 +174,19 @@ class Layout(QWidget):
         lineEdit.setText(','.join(favor_student))
 
     def __init_Signals_and_Slots(self):
+        self.inputPatRound.textChanged.connect(self.__accept_pat_round)
         self.inputPatStyle.currentTextChanged.connect(self.__accept_pat_style)
         self.second_switch.checkedChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
+
+    @delay(0.5)
+    def __accept_pat_round(self, text):
+        # str of 4 - 15
+        if text not in (str(i) for i in range(4, 16)):
+            notification.error("摸头轮数设置错误", "请设置为4-15之间的整数", self.config)
+        else:
+            self.pat_round = int(text)
+            self.config.set('cafe_reward_affection_pat_round', self.pat_round)
+            notification.success("摸头轮数设置成功", f"当前值为：{self.pat_round}", self.config)
 
     @staticmethod
     def check_valid_student_names(favor_student):
