@@ -69,6 +69,8 @@ os.environ["PDM_IGNORE_ACTIVE_VENV"] = "1"
 
 DEFAULT_SETTINGS = {
     "General": {
+        "mirrorc_cdk": "",
+        "current_version": "",
         "dev": False,
         "refresh": False,
         "launch": False,
@@ -885,6 +887,7 @@ def pre_check():
             check_pip()
         check_pth()
         check_env_patch()
+
     check_git()
     check_requirements()
     if __system__ == "Windows":
