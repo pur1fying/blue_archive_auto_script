@@ -18,7 +18,7 @@ REM Install required packages
 pip install -r requirements.installer.txt
 
 REM Build the executable file using PyInstaller
-pyinstaller -i ./logo.ico --name BlueArchiveAutoScript -F installer.py
+pyinstaller -i ./logo.ico --name BlueArchiveAutoScript -F --paths=. installer.py
 
 REM Move the generated file out of the temporary directory
 move .\dist\* .\
