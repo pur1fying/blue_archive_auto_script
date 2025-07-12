@@ -343,6 +343,21 @@ if not config_file.exists():
 with open(config_file, "rb") as file:
     config = TOML_Config(config_file)
 
+config_modified = False
+
+def insert_new_config(cfg, new):
+    global config_modified
+    for key, value in new.items():
+        if key not in cfg:
+            config_modified = True
+            cfg[key] = value
+        if isinstance(value, dict):
+            insert_new_config(cfg[key], value)
+
+insert_new_config(config.config, DEFAULT_SETTINGS)
+if config_modified:
+    config.save()
+
 G = eDict(config.get("General"))
 U = eDict(config.get("URLs"))
 P = eDict(config.get("Paths"))
@@ -896,7 +911,8 @@ def git_install_baas():
     temp_clone_path = BAAS_ROOT_PATH / "temp_clone"
 
     if temp_clone_path.exists():
-        shutil.rmtree(temp_clone_path)
+        logger.info("Removing temp_clone directory...")
+        shutil.rmtree(str(temp_clone_path), ignore_errors=False, onerror=Utils.on_rm_error)
 
     # Clone the repository using pygit2
     repo = clone_repo(
@@ -909,11 +925,10 @@ def git_install_baas():
     gc.collect()
 
     # Move the cloned repository to the desired location
-    for item in temp_clone_path.iterdir():
-        target_path = BAAS_ROOT_PATH / item.name
-        shutil.copy2(str(item), str(target_path))
+    Utils.copy_directory_structure(temp_clone_path, BAAS_ROOT_PATH)
+
     # Remove temporary clone directory
-    shutil.rmtree(str(temp_clone_path))
+    shutil.rmtree(str(temp_clone_path), ignore_errors=False, onerror=Utils.on_rm_error)
     logger.success("Git Install Success!")
 
 
