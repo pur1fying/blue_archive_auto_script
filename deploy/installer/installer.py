@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import stat
+import time
+
 import pygit2
 
 # ==================== Welcome Message ====================
@@ -55,9 +58,9 @@ from halo import Halo
 from loguru import logger
 
 from pygit2 import clone_repository, Repository, RemoteCallbacks, GIT_RESET_HARD, GitError
-from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 
-from core.config.toml_config import TOML_Config
+from toml_config import TOML_Config
+from mirrorc_update.mirrorc_updater import MirrorC_Updater
 
 __system__ = platform.system()
 __env__ = os.environ.copy()
@@ -164,6 +167,14 @@ get_remote_sha_methods = [
 
 
 class Utils:
+
+    @staticmethod
+    def on_rm_error(func, path, exc_info):
+        try:
+            os.chmod(path, stat.S_IWUSR)
+            func(path)
+        except Exception as e:
+            pass
 
     @staticmethod
     def mirrorc_api_get_latest_sha():
@@ -275,7 +286,8 @@ class Utils:
         with zipfile.ZipFile(zip_dir, "r") as zip_ref:
             # Unzip all files to the current directory
             zip_ref.extractall(path=out_dir)
-            logger.success(f"{zip_dir} unzip success, output files in {out_dir}")
+            logger.success(f"{zip_dir} unzip success.")
+            logger.success(f"output --> {out_dir}")
 
     @staticmethod
     def sudo(cmd, pwd):
@@ -865,10 +877,8 @@ def repair_broken_git_repo():
 
 
 def git_install_baas():
-    logger.info("Checking git installation...")
-
     logger.info("+--------------------------------+")
-    logger.info("|         INSTALL BAAS           |")
+    logger.info("|       GIT INSTALL BAAS         |")
     logger.info("+--------------------------------+")
     logger.info("Cloning the repository...")
 
@@ -890,23 +900,17 @@ def git_install_baas():
     # Move the cloned repository to the desired location
     for item in temp_clone_path.iterdir():
         target_path = BAAS_ROOT_PATH / item.name
-        if target_path.exists():
-            if target_path.is_dir():
-                shutil.rmtree(target_path)
-            else:
-                os.remove(target_path)
-        shutil.move(str(item), str(target_path))
-
+        shutil.copy2(str(item), str(target_path))
     # Remove temporary clone directory
     shutil.rmtree(str(temp_clone_path))
-    logger.success("Install success!")
+    logger.success("Git Install Success!")
 
 
 def git_update_baas():
     global local_sha
     global remote_sha
     logger.info("+--------------------------------+")
-    logger.info("|          UPDATE BAAS           |")
+    logger.info("|        GIT UPDATE BAAS         |")
     logger.info("+--------------------------------+")
     try:
         repo = Repository(str(BAAS_ROOT_PATH))
@@ -922,12 +926,12 @@ def git_update_baas():
         # Checkout to master (HEAD points to refs/heads/master)
         repo.checkout("refs/heads/master")
         # str(repo.references.get("refs/remotes/origin/master").target)
-        updated_local_sha = str(repo.head.target)
-        if updated_local_sha == remote_sha:
+        local_sha = str(repo.head.target)
+        if local_sha == remote_sha:
             spinner.succeed("Update completed.")
-            logger.success("Update success")
+            logger.success("Git Update Success")
         else:
-            spinner.fail("Update failed.")
+            spinner.fail("Git Update Failed.")
             logger.warning(
                 "Failed to update the source code, please check your network or for conflicting files"
             )
@@ -998,7 +1002,7 @@ def pre_check():
         check_pth()
         check_env_patch()
 
-    git_install_baas()
+    install_or_update_BAAS_repo_to_latest()
     check_requirements()
     if __system__ == "Windows":
         fix_exe_shebangs()
@@ -1009,7 +1013,7 @@ def get_update_type():
     global local_sha
     global remote_sha
     global update_type
-    local_sha = G.current_version
+    local_sha = G.current_BAAS_version
     if len(local_sha) == 0:
         if os.path.exists(BAAS_ROOT_PATH / ".git"):
             repo = Repository(str(BAAS_ROOT_PATH))
@@ -1029,37 +1033,136 @@ def get_update_type():
             return
 
     assert (len(local_sha) == 40)
-    mirrorc_inst.current_version = local_sha
-    logger.info(f"local_sha : {local_sha}")
+    mirrorc_inst.set_version(local_sha)
     remote_sha = Utils.get_remote_sha()
     assert (len(remote_sha) == 40)
+    logger.info(f"local_sha : {local_sha}")
     logger.info(f"remote_sha: {remote_sha}")
     if local_sha == remote_sha:
-        logger.info("No updates available.")
         update_type = "latest"
         return
     update_type = "incremental"
     return
 
 
-def install_or_update_repo_to_latest():
+def install_or_update_BAAS_repo_to_latest():
     if G.dev:
         return
 
-    global local_sha
-    global update_type
     get_update_type()
+
+    global update_type
     if update_type == "latest":
         logger.info("No Update Available.")
         return
 
+    if try_mirrorc_install_or_update():
+        return
+    try_git_install_or_update()
+
+def try_git_install_or_update():
+    global repo
+    global local_sha
+    if os.path.exists(BAAS_ROOT_PATH / ".git"):
+        git_update_baas()
+    else:
+        git_install_baas()
+        repo = Repository(str(BAAS_ROOT_PATH))
+        local_sha = str(repo.head.target)
+    config.set_and_save("General.current_BAAS_version", local_sha)
+
+
+
+def try_mirrorc_install_or_update():
+    if not (len(mirrorc_cdk) > 0):
+        return False
+
     global latest_mirrorc_return
+    global update_type
     if latest_mirrorc_return is None:
         latest_mirrorc_return = mirrorc_inst.get_latest_version(cdk=mirrorc_cdk)
-    if latest_mirrorc_return.has_url:
+    if not latest_mirrorc_return.has_url:
+        MirrorC_Updater.log_mirrorc_error(latest_mirrorc_return, logger)
+        return False
+    # timestamp to datetime
+    expired_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(latest_mirrorc_return.cdk_expired_time))
+    logger.success("CDK valid, expired time : " + expired_time_str)
+    if latest_mirrorc_return.latest_version_name == local_sha:
+        logger.info("No Update Available.")
+        return True
+    if update_type == "full":
+        mirrorc_install_baas()
+    elif update_type == "incremental":
+        mirrorc_update_baas()
 
+    if os.path.exists(BAAS_ROOT_PATH / ".git"):
+        logger.info("Removing [ .git ] directory...")
+        shutil.rmtree(BAAS_ROOT_PATH / ".git", ignore_errors=False, onerror=Utils.on_rm_error)
 
+    config.set_and_save("General.current_BAAS_version", latest_mirrorc_return.latest_version_name)
+    return True
 
+def mirrorc_install_baas():
+    logger.info("+--------------------------------+")
+    logger.info("|     MIRRORC INSTALL BAAS       |")
+    logger.info("+--------------------------------+")
+    # Download the repository zip file
+    global latest_mirrorc_return
+    file_MB = latest_mirrorc_return.file_size / (1024 * 1024)
+    logger.info("Downloading the repository zip, total = %.2f MB" % file_MB)
+    zip_path = Utils.download_file(
+        latest_mirrorc_return.download_url, P.TMP_PATH
+    )
+    logger.info("Unzipping the repository...")
+    Utils.unzip_file(zip_path, P.TMP_PATH)
+
+    logger.info("Moving unzipped files to BAAS root path...")
+    file_dir = P.TMP_PATH / "blue_archive_auto_script"
+    for item in file_dir.iterdir():
+        target_path = BAAS_ROOT_PATH / item.name
+        shutil.copy2(str(item), str(target_path))
+    logger.success("mirrorc install success!")
+
+def mirrorc_update_baas():
+    logger.info("+--------------------------------+")
+    logger.info("|      MIRRORC UPDATE BAAS       |")
+    logger.info("+--------------------------------+")
+
+    global latest_mirrorc_return
+
+    # wait for incremental update
+    if latest_mirrorc_return.update_type == "full":
+        logger.info("Current package is [ full ].")
+        logger.info("Waiting for [ incremental ] update package...")
+        max_retry = 10
+        for i in range(1, max_retry+1):
+            time.sleep(0.5)
+            logger.info(f"Retry : {i}/{max_retry}")
+            latest_mirrorc_return = mirrorc_inst.get_latest_version(cdk=mirrorc_cdk)
+            if latest_mirrorc_return.update_type == "incremental":
+                logger.success("Get Incremental Package")
+                break
+
+    if latest_mirrorc_return.update_type == "incremental":
+        logger.info("<<< Incremental Update >>>")
+        file_MB = latest_mirrorc_return.file_size / (1024 * 1024)
+        logger.info("Downloading the incremental zip, total = %.2f MB" % file_MB)
+        zip_path = Utils.download_file(
+            latest_mirrorc_return.download_url, P.TMP_PATH
+        )
+        logger.info("Unzipping the incremental update...")
+        Utils.unzip_file(zip_path, P.TMP_PATH)
+
+        MirrorC_Updater.apply_update(
+            P.TMP_PATH,
+            P.TMP_PATH / "changes.json",
+            BAAS_ROOT_PATH,
+            logger
+        )
+
+    if latest_mirrorc_return.update_type == "full":
+        logger.info("<<< Full Update >>>")
+        mirrorc_install_baas()
 
 if __name__ == "__main__":
     try:

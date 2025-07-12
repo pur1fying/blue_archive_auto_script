@@ -1,6 +1,15 @@
 import sys
 import platform
+from pathlib import Path
 
+
+def remove_first_dir(path_str):
+    path = Path(path_str)
+    parts = path.parts
+    if len(parts) > 1:
+        return Path(*parts[1:]).as_posix()
+    else:
+        return path_str
 
 def detect_system_info():
     raw_system = platform.system().lower()

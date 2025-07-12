@@ -1,10 +1,9 @@
 import json
 import shutil
 import requests
-from pathlib import Path
 
-from deploy.installer.mirrorc_update.utils import detect_system_info
-from deploy.installer.mirrorc_update.const import CdkState, MirrorCErrorCode, UpdateType
+from mirrorc_update.utils import detect_system_info, remove_first_dir
+from mirrorc_update.const import CdkState, MirrorCErrorCode
 
 
 class RequestReturn:
@@ -35,8 +34,8 @@ class RequestReturn:
         if self.has_url:
             self.sha256 = self.data.get("sha256")
             self.download_url = self.data.get("url")
-            self.update_type = UpdateType.FULL if self.data.get("update_type") == "full" else UpdateType.INCREMENTAL
-            self.file_size = self.data.get("file_size")
+            self.update_type = self.data.get("update_type")
+            self.file_size = self.data.get("filesize")
             self.cdk_expired_time = self.data.get("cdk_expired_time")
 
 
@@ -91,24 +90,29 @@ class MirrorC_Updater:
             self.params["os"] = MirrorC_Updater.os
             self.params["arch"] = MirrorC_Updater.arch
 
+    def set_version(self, version):
+        self.current_version = version
+        self.params["current_version"] = version
+
     def get_latest_version(self, cdk="", timeout=3.0):
         self.params["cdk"] = cdk
         response = requests.get(url=self.url, params=self.params, timeout=timeout)
         return RequestReturn(response.json())
 
     @staticmethod
-    def apply_update(self, unzip_dir, update_dir, logger):
+    def apply_update(source_dir, changes_json_path, target_dir, logger):
         try:
-            source_path = Path(unzip_dir)
-            if not source_path.exists() or not source_path.is_dir():
-                raise FileNotFoundError(f"Update source directory not found: {source_path}")
+            logger.info("Applying incremental update...")
+            if not source_dir.exists() or not source_dir.is_dir():
+                raise FileNotFoundError(f"Update source directory not found: {source_dir}")
 
-            changes_file = source_path / "changes.json"
-            with open(changes_file, 'r', encoding='utf-8') as f:
+            if not changes_json_path.exists() or not changes_json_path.is_file():
+                raise FileNotFoundError(f"Changes JSON file not found: {changes_json_path}")
+
+            with open(changes_json_path, 'r', encoding='utf-8') as f:
                 changes = json.load(f)
 
-            target_path = Path(update_dir)
-            target_path.mkdir(parents=True, exist_ok=True)
+            target_dir.mkdir(parents=True, exist_ok=True)
 
             # deleted
             deleted = changes.get("deleted", [])
@@ -118,11 +122,12 @@ class MirrorC_Updater:
                 logger.info(f"Deleted : [ {total} ]")
                 for file in deleted:
                     cnt += 1
-                    dest_file = target_path / file
+                    dest_file = target_dir / remove_first_dir(file)
                     if dest_file.exists():
                         if dest_file.is_file():
                             dest_file.unlink()
-                            logger.info(f"Deleting {cnt}/{total} : {file}")
+                            logger.success(f"Deleting {cnt}/{total}")
+                            logger.info(f"{file}")
                     else:
                         logger.warning(f"File not found for deletion: {file}")
             else:
@@ -136,14 +141,15 @@ class MirrorC_Updater:
                 cnt = 0
                 for file in added:
                     cnt += 1
-                    source_file = source_path / file
-                    dest_file = target_path / file
+                    source_file = source_dir / file
+                    dest_file = target_dir / remove_first_dir(file)
                     dest_file.parent.mkdir(parents=True, exist_ok=True)
                     if source_file.exists():
                         shutil.copy2(source_file, dest_file)
-                        logger.info(f"Adding {cnt}/{total} : {file}")
+                        logger.success(f"Adding {cnt}/{total}")
+                        logger.info(f"{file}")
                     else:
-                        logger.error(f"Source file not found for adding : {source_file}")
+                        logger.warning(f"Source file not found for adding : {source_file}")
             else:
                 logger.info("No Added File")
 
@@ -155,13 +161,15 @@ class MirrorC_Updater:
                 cnt = 0
                 for file in modified:
                     cnt += 1
-                    source_file = source_path / file
-                    dest_file = target_path / file
+                    source_file = source_dir / file
+                    dest_file = target_dir/ remove_first_dir(file)
+                    dest_file.parent.mkdir(parents=True, exist_ok=True)
                     if source_file.exists():
                         shutil.copy2(source_file, dest_file)
-                        logger.info(f"Modifying {cnt}/{total} : {file}")
+                        logger.success(f"Modifying {cnt}/{total}")
+                        logger.info(f"{file}")
                     else:
-                        logger.error(f"Source file not found for modification : {source_file}")
+                        logger.warning(f"Source file not found for modification : {source_file}")
             else:
                 logger.info("No Modified File")
 
@@ -171,3 +179,30 @@ class MirrorC_Updater:
         except Exception as e:
             logger.error(f"MirrorC Incremental Update failed : {str(e)}")
             return False
+
+    @staticmethod
+    def log_mirrorc_error(ret : RequestReturn, logger):
+        if ret.code == MirrorCErrorCode.KEY_INVALID.value:
+            logger.warning("Your CDK is invalid.")
+        elif ret.code == MirrorCErrorCode.KEY_EXPIRED.value:
+            logger.warning("Your CDK is expired.")
+        elif ret.code == MirrorCErrorCode.RESOURCE_QUOTA_EXHAUSTED.value:
+            logger.warning("CDK resource quota exhausted.")
+        elif ret.code == MirrorCErrorCode.KEY_MISMATCHED.value:
+            logger.warning("CDK is mismatched.")
+        elif ret.code == MirrorCErrorCode.KEY_BLOCKED.value:
+            logger.warning("CDK is blocked.")
+        elif ret.code == MirrorCErrorCode.UNDIVIDED.value:
+            logger.warning("Undivided error, message: " + ret.message)
+        elif ret.code < MirrorCErrorCode.SUCCESS.value:
+            logger.warning("Server internal error, code : " + str(ret.code) + ", message: " + ret.message)
+            logger.warning("This is a problem with mirrorc, not BAAS, please report to mirrorc support.")
+        if ret.code in [
+            MirrorCErrorCode.KEY_INVALID.value,
+            MirrorCErrorCode.KEY_EXPIRED.value,
+            MirrorCErrorCode.RESOURCE_QUOTA_EXHAUSTED.value,
+            MirrorCErrorCode.KEY_MISMATCHED.value,
+            MirrorCErrorCode.KEY_BLOCKED.value
+        ]:
+            logger.info("If you want to use mirrorc to update BAAS.")
+            logger.info("Please visit https://mirrorchyan.com/zh/get-start to get a valid CDK.")

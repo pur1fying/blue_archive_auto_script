@@ -1,9 +1,5 @@
 from enum import Enum, auto
 
-class UpdateType(Enum):
-    INCREMENTAL = auto()
-    FULL = auto()
-
 class CdkState(Enum):
     VALID = auto()
     INVALID = auto()
