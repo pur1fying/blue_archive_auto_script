@@ -293,6 +293,17 @@ class Utils:
     def sudo(cmd, pwd):
         os.system(f"echo {pwd} | sudo -S {cmd}")
 
+    @staticmethod
+    def copy_directory_structure(source: Path, target: Path):
+        target.mkdir(parents=True, exist_ok=True)
+        for item in source.iterdir():
+            relative_path = item.relative_to(source)
+            target_path = target / relative_path
+            if item.is_dir():
+                target_path.mkdir(exist_ok=True)
+                Utils.copy_directory_structure(item, target_path)
+            elif item.is_file():
+                shutil.copy2(item, target_path)
 
 # ==================== System check ====================
 if __system__ not in ["Windows", "Linux"]:
@@ -1116,10 +1127,8 @@ def mirrorc_install_baas():
 
     logger.info("Moving unzipped files to BAAS root path...")
     file_dir = P.TMP_PATH / "blue_archive_auto_script"
-    for item in file_dir.iterdir():
-        target_path = BAAS_ROOT_PATH / item.name
-        if item.is_file():
-            shutil.copy2(str(item), str(target_path))
+    Utils.copy_directory_structure(file_dir, BAAS_ROOT_PATH)
+
     logger.success("Mirrorc Install Success!")
 
 def mirrorc_update_baas():
