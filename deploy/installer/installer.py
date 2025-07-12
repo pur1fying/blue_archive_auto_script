@@ -1071,8 +1071,6 @@ def try_git_install_or_update():
         local_sha = str(repo.head.target)
     config.set_and_save("General.current_BAAS_version", local_sha)
 
-
-
 def try_mirrorc_install_or_update():
     if not (len(mirrorc_cdk) > 0):
         return False
@@ -1120,8 +1118,9 @@ def mirrorc_install_baas():
     file_dir = P.TMP_PATH / "blue_archive_auto_script"
     for item in file_dir.iterdir():
         target_path = BAAS_ROOT_PATH / item.name
-        shutil.copy2(str(item), str(target_path))
-    logger.success("mirrorc install success!")
+        if item.is_file():
+            shutil.copy2(str(item), str(target_path))
+    logger.success("Mirrorc Install Success!")
 
 def mirrorc_update_baas():
     logger.info("+--------------------------------+")
@@ -1159,6 +1158,7 @@ def mirrorc_update_baas():
             BAAS_ROOT_PATH,
             logger
         )
+        logger.success("Mirrorc Incremental Update Success!")
 
     if latest_mirrorc_return.update_type == "full":
         logger.info("<<< Full Update >>>")
