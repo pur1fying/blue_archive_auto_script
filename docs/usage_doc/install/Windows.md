@@ -17,8 +17,9 @@ BAAS提供以下三种安装包
    
 ### with_config安装包 (**mirror酱用户可选**)
    - ![with_config_installer.png](/assets/install/with_config_installer.png)
-   - **description**: .exe安装包 与 setup.toml (安装配置) 一起压缩的安装包 
-   - **operation**: 下载后解压, 修改setup.toml中的mirror酱cdk为你的cdk, 双击运行`BlueArchiveAutoScript.exe`即可
+   - **description**: .exe安装包, setup.toml (安装配置) 与三份运行配置(国服, 国际服, 日服) 一起压缩的安装包 
+   - **operation**: 下载后解压, 修改setup.toml中的Mirror酱cdk配置为你的cdk, 双击运行`BlueArchiveAutoScript.exe`即可
+   - **operation**: [图片教程](#如何使用cdk)
 
 ## 简易安装教程
 
@@ -27,7 +28,7 @@ BAAS提供以下三种安装包
 - [视频教程](https://www.acfun.cn/v/ac47360708_2)
 
 ## Mirror酱CDK
-为了改善更新体验，从[v1.4.0]()版本开始, **BAAS**正式接入Mirror酱更新服务
+为了改善更新体验，从[v1.4.0](https://github.com/pur1fying/blue_archive_auto_script/releases/tag/v1.4.0)版本开始, **BAAS**正式接入Mirror酱更新服务
 
 ### 什么是Mirror酱？
 - **description**: Mirror酱是一个第三方应用分发平台, 开源应用提供更新辅助服务, Mirror酱将为BAAS用户提供免费的更新检查服务以及**付费**的稳定更新服务. 
@@ -47,6 +48,12 @@ mirrorc_cdk = "你的CDK"
 ![mirrorc_install_success.png](/assets/install/mirrorc_install_success.png)
 - 成功使用Mirror酱更新
 ![mirrorc_update_success.png](/assets/install/mirrorc_update_success.png)
+
+::: warning
+请勿将setup.toml分享给陌生人, 否则你的cdk会被泄漏
+:::
+
+- **related config**: [mirrorc_cdk](/usage_doc/install/setup_config#mirrorc-cdk)
 
 ## 问题解答
 ### 确保安装路径没有中文
