@@ -863,7 +863,9 @@ def clone_repo(repo_url, local_path):
 
 
 def repair_broken_git_repo():
-    repo = None
+    global repo
+    del repo
+    # repo = None
     gc.collect()
 
     # Remove the existing .git directory
@@ -885,7 +887,8 @@ def repair_broken_git_repo():
     repo = clone_repo(U.REPO_URL_HTTP, str(temp_clone_path))
 
     # Release the occupation of the directory
-    repo = None
+    del repo  
+    # repo = None
     gc.collect()
 
     # Move the cloned repository to the desired location
@@ -921,7 +924,8 @@ def git_install_baas():
     )
 
     # Release the occupation of the directory
-    repo = None
+    del repo
+    # repo = None
     gc.collect()
 
     # Move the cloned repository to the desired location
@@ -935,6 +939,7 @@ def git_install_baas():
 def git_update_baas():
     global local_sha
     global remote_sha
+    global repo
     logger.info("+--------------------------------+")
     logger.info("|        GIT UPDATE BAAS         |")
     logger.info("+--------------------------------+")
@@ -964,6 +969,7 @@ def git_update_baas():
     except GitError as e:
         if "not owned by current user" in str(e):
             logger.error(f"Git repo ownership error: {e}")
+            if repo: del repo
             repair_broken_git_repo()
         else:
             logger.error(f"Unhandled Git error: {e}")
@@ -1048,7 +1054,8 @@ def get_update_type():
                 local_sha = str(repo.head.target)
             except Exception as e:
                 logger.error(f"Incorrect Key or corrupted repo: {e}. Remove [ .git ] folder and reinstall.")
-                repo = None
+                del repo
+                # repo = None
                 update_type = "full"
                 gc.collect()
                 shutil.rmtree(BAAS_ROOT_PATH / ".git")
