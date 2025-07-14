@@ -117,7 +117,7 @@ class HomeFragment(QFrame):
         self.startup_card.clicked.connect(self._start_clicked)
         # set a hash object name for this widget
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
-        self.setObjectName(self.object_name)
+        self.setObjectName(f"{self.object_name}.HomeFragment")
         if self.config.get('autostart'):
             self.startup_card.button.click()
 

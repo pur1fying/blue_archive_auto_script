@@ -181,7 +181,7 @@ class SettingsFragment(ScrollArea):
 
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
-        self.setObjectName(self.object_name)
+        self.setObjectName(f"{self.object_name}.SettingsFragment")
         self.__connectSignalToSlot()
 
     def __initLayout(self):

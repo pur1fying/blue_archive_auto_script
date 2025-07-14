@@ -430,6 +430,7 @@ class Window(MSFluentWindow):
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
+        from gui.fragments.glob import GlobalFragment
         QApplication.processEvents()
         self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
                           [ProcessFragment(parent=self, config=x) for x in self.config_dir_list],
@@ -440,6 +441,7 @@ class Window(MSFluentWindow):
         self.processInterface = self._sub_list[1][0]
         self.schedulerInterface = self._sub_list[2][0]
         self.settingInterface = self._sub_list[3][0]
+        self.globalInterface = GlobalFragment(parent=self)
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
         self.initNavigation()
@@ -475,7 +477,8 @@ class Window(MSFluentWindow):
             self.addSubInterface(self.homeInterface, FIF.HOME, self.tr('主页')),
             self.addSubInterface(self.processInterface, FIF.CALENDAR, self.tr('调度')),
             self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, self.tr('配置')),
-            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置'))
+            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置')),
+            self.addSubInterface(self.globalInterface, FIF.SETTING, self.tr('全局'))
         ]
 
         for ind, btn in enumerate(self.navi_btn_list):
@@ -533,11 +536,18 @@ class Window(MSFluentWindow):
     def onNavigationChanged(self, index: int):
         for ind, btn in enumerate(self.navi_btn_list):
             btn.setSelected(True if ind == index else False)
+        if index == 4:
+            self.globalInterface.lazy_init()
+            self.stackedWidget.setCurrentWidget(self.globalInterface, popOut=False)
+            return
         objectName = self.tabBar.currentTab().routeKey()
         col = [x.object_name for x in self._sub_list[0]].index(objectName)
         self.dispatchSubView(index, col)
 
     def onTabChanged(self, _: int):
+        obj_name = self.stackedWidget.currentWidget().objectName()
+        if obj_name.endswith("GlobalFragment"):
+            return
         self.__switchStatus = False
         objectName = self.tabBar.currentTab().routeKey()
         row = [x.isSelected for x in self.navi_btn_list].index(True)
