@@ -25,13 +25,12 @@ class SettingsFragment(ScrollArea):
         self.settingLabel = TitleLabel(self.scrollWidget)
         config.inject(self.settingLabel, self.tr(f"普通设置") + " {name}")
 
-        self.basicGroup = SettingCardGroup(
-            self.tr("基本"), self.scrollWidget)
+        self.basicGroup = SettingCardGroup(self.tr("基本"), self.scrollWidget)
 
         self.basicGroupItems = [
             SimpleSettingCard(
                 title=self.tr('应用相关设置'),
-                content=self.tr('选择你的服务器平台，设置你的端口（不知道端口请设置为0）'),
+                content=self.tr('选择你的游戏服务器, 设置你的模拟器序列号'),
                 sub_view=expand.__dict__['serverConfig'],
                 parent=self.basicGroup,
                 config=self.config

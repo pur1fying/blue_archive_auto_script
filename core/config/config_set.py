@@ -83,6 +83,9 @@ class ConfigSet:
     def get_signal(self, key):
         return self.signals.get(key)
 
+    def get_signals(self):
+        return self.signals
+
     def set_window(self, window):
         self.window = window
 

@@ -17,4 +17,5 @@ requests
 dulwich
 psutil
 tqdm
-
+tomli == 2.2.1
+tomli_w == 1.2.0

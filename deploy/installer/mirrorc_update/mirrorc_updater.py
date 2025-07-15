@@ -2,8 +2,8 @@ import json
 import shutil
 import requests
 
-from mirrorc_update.utils import detect_system_info, remove_first_dir
-from mirrorc_update.const import CdkState, MirrorCErrorCode
+from deploy.installer.mirrorc_update.utils import detect_system_info, remove_first_dir
+from deploy.installer.mirrorc_update.const import CdkState, MirrorCErrorCode
 
 
 class RequestReturn:

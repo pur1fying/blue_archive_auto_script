@@ -441,7 +441,7 @@ class Window(MSFluentWindow):
         self.processInterface = self._sub_list[1][0]
         self.schedulerInterface = self._sub_list[2][0]
         self.settingInterface = self._sub_list[3][0]
-        self.globalInterface = GlobalFragment(parent=self)
+        self.globalInterface = GlobalFragment(parent=self, config=self.config_dir_list[0])
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
         self.initNavigation()
@@ -478,7 +478,7 @@ class Window(MSFluentWindow):
             self.addSubInterface(self.processInterface, FIF.CALENDAR, self.tr('调度')),
             self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, self.tr('配置')),
             self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置')),
-            self.addSubInterface(self.globalInterface, FIF.SETTING, self.tr('全局'))
+            self.addSubInterface(self.globalInterface, FIF.UPDATE, self.tr('更新设置'))
         ]
 
         for ind, btn in enumerate(self.navi_btn_list):
