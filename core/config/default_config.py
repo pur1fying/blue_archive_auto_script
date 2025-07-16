@@ -3387,7 +3387,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "ElectronicNewYearsMarch",
         "Global": "SecretMidnightParty",
-        "JP": "iveAlive"
+        "JP": "JP_2025_06_25"
     },
     "dailyGameActivity": {
         "CN": null,

@@ -44,7 +44,6 @@ class HomeFragment(QFrame):
 
         title = self.tr("蔚蓝档案自动脚本") + ' {name}'
         self.banner_visible = self.config.get('bannerVisibility')
-        self.status_visible = self.config.get('statusVisibility')
         self.label = SubtitleLabel(self)
         config.inject(self.label, title)
         self.info = SubtitleLabel(self.tr('无任务'), self)
@@ -71,8 +70,6 @@ class HomeFragment(QFrame):
             self.tr('开始你的档案之旅') + ' - ' + self.tr("完成后") + f' {self.config.get("then")}',
             self
         )
-
-        # self.startup_card.set
 
         self.switch_assets = SwitchButton(self.startup_card, IndicatorPosition.RIGHT)
         self.switch_assets.setOnText(self.tr('资产显示：开'))
