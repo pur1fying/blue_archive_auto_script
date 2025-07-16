@@ -2,9 +2,14 @@ import json
 import shutil
 import requests
 
-from deploy.installer.mirrorc_update.utils import detect_system_info, remove_first_dir
-from deploy.installer.mirrorc_update.const import CdkState, MirrorCErrorCode
-
+try:
+    # import by BAAS
+    from deploy.installer.mirrorc_update.utils import detect_system_info, remove_first_dir
+    from deploy.installer.mirrorc_update.const import CdkState, MirrorCErrorCode
+except ImportError:
+    # import by deploy/installer/installer.py
+    from mirrorc_update.utils import detect_system_info, remove_first_dir
+    from mirrorc_update.const import CdkState, MirrorCErrorCode
 
 class RequestReturn:
     def __init__(self, response_json):

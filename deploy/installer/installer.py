@@ -184,7 +184,7 @@ class Utils:
         target_ref = f"refs/heads/{branch}"
         for ref in remote_refs:
             if ref["name"] == target_ref:
-                return ref["oid"]
+                return str(ref["oid"])
         return None
 
     @staticmethod
