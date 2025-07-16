@@ -896,6 +896,27 @@ def git_install_baas():
     shutil.rmtree(str(temp_clone_path), ignore_errors=False, onerror=Utils.on_rm_error)
     logger.success("Git Install Success!")
 
+def check_repo_url(_repo):
+    origin = _repo.remotes["origin"]
+    logger.info("<<< Repo Remote URL >>>")
+    logger.info(origin.url)
+    if origin.url != U.REPO_URL_HTTP:
+        logger.info("<<< Switch Remote Repo URL >>>")
+        logger.info(U.REPO_URL_HTTP)
+        _repo.remotes.delete("origin")
+        new_origin = _repo.remotes.create("origin", U.REPO_URL_HTTP)
+        for ref in list(_repo.references):
+            if ref.startswith("refs/remotes/origin/"):
+                _repo.references.delete(ref)
+        new_origin.fetch()
+        for branch in _repo.branches.local:
+            local_branch = _repo.lookup_branch(branch)
+            remote_branch_name = f"origin/{branch}"
+
+            if remote_branch_name in _repo.branches.remote:
+                remote_branch = _repo.lookup_branch(remote_branch_name, pygit2.GIT_BRANCH_REMOTE)
+                local_branch.upstream = remote_branch
+        logger.success("Remote repo url switched.")
 
 def git_update_baas():
     global local_sha
@@ -906,6 +927,7 @@ def git_update_baas():
     logger.info("+--------------------------------+")
     try:
         repo = Repository(str(BAAS_ROOT_PATH))
+        check_repo_url(repo)
         refresh_required = G.refresh
         if refresh_required:
             logger.info("You've selected dropping all changes for the project file.")
