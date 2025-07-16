@@ -435,7 +435,7 @@ def employ_units(self, choose_team_method: str, taskData: dict, teamConfig: dict
         total_available = sum([len(preset) for attribute, preset in teamConfig.items()])
 
         unit_need = len([attribute for attribute, info in taskData["start"] if attribute != "swipe"])
-        if total_available <= unit_need:
+        if total_available < unit_need:
             self.logger.error(
                 f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
             self.logger.warning("Try using 'order' method to employ team.")
