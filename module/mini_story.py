@@ -29,7 +29,7 @@ def implement(self):
         else:
             self.logger.info("Check Next page")
             self.click(1255, 357, duration=1.5, wait_over=True)
-            self.latest_img_array = self.get_screenshot_array()
+            self.update_screenshot_array()
 
 
 def check_6_region_status(self):
