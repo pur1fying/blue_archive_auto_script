@@ -20,7 +20,7 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]
             - The first element (bool): The verification result. Returns True if verification passes; otherwise, False.
             - The second element (str): The error message. Returns a detailed error message if verification fails; otherwise, an empty string.
     """
-    task = task.strip() # Remove leading and trailing spaces, and whitespaces
+    task = task.strip()  # Remove leading and trailing spaces, and whitespaces
     valid_chapter_range = self.static_config.explore_normal_task_region_range if isNormal \
         else self.static_config.explore_hard_task_region_range  # Get the valid chapter range based on the task type
     info = task.split('-')
@@ -164,7 +164,7 @@ def explore_normal_task(self):
                     ocr_region_offsets=(-396, -7, 60, 33),
                     ocr_str_replace_func=None,
                     max_swipe_times=3,
-                    ocr_candidates= "123456789-A" if region % 3 == 0 else "1234567890-",
+                    ocr_candidates="123456789-A" if region % 3 == 0 else "1234567890-",
                     ocr_filter_score=0.2,
                 )
                 if not to_mission_info(self, missionButtonPos[1]):
@@ -187,7 +187,7 @@ def explore_normal_task(self):
                 picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
 
                 # get preset unit
-                if not employ_units(self, taskData, teamConfig):
+                if not employ_units(self, self.config.choose_team_method, taskData, teamConfig):
                     self.logger.error(f"Skipping task {taskName} due to error.")
                     continue
 
