@@ -3,20 +3,30 @@ import sys
 
 from adbutils import adb
 from adbutils.errors import AdbTimeout, AdbError
+
 from core.exception import RequestHumanTakeOver
 
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
 class Connection:
 
     def __init__(self, Baas_instance):
-        self.activity = None
-        self.package = None
-        self.server = None
         self.Baas_thread = Baas_instance
         self.logger = Baas_instance.get_logger()
         self.config_set = Baas_instance.get_config()
         self.config = self.config_set.config
         self.static_config = self.config_set.static_config
+        self.server = None
+        if self.config.server == "Steam服":
+            self._is_android_device = False
+            self.server = "Global"
+            self._init_app_process()
+        else:
+            self._init_android_device()
+            self._is_android_device = True
+
+    def _init_android_device(self):
+        self.activity = None
+        self.package = None
         self.adbIP = self.config.adbIP
         self.adbPort = self.config.adbPort
         is_usb_or_emulator_device = (self.adbIP == "" or self.adbPort == "")
@@ -33,9 +43,27 @@ class Connection:
         self.check_serial()
         self.detect_device()
         self.adb_connect()
-
         self.detect_package()
         self.check_mumu_keep_alive()
+
+    def _init_app_process(self):
+        self.detect_app_window()
+
+    def detect_app_window(self):
+        self.logger.info("Detect App Process Window")
+
+        if sys.platform != 'win32':
+            self.logger.error("Steam server is only available on Windows platform. Please check your server config.")
+            raise RequestHumanTakeOver("Unsupported platform for Steam server.")
+        from core.device.window_capture.windows.window_info import win32_WindowInfo
+        self.logger.info(f"Process Name : {self.static_config.steam_app_process_name}")
+        self.app_process_window = win32_WindowInfo(self.static_config.steam_app_process_name)
+        if not self.app_process_window.is_valid_window():
+            self.logger.error(f"Didn't find process window, please check your game process is launched.")
+            raise RequestHumanTakeOver("App process window not found.")
+
+
+
 
     def check_serial(self):
         old = self.serial
@@ -355,3 +383,6 @@ class Connection:
         if pkg_name is None:
             pkg_name = self.get_current_package()
         d.app_stop(pkg_name)
+
+    def is_android_device(self):
+        return self._is_android_device

@@ -1,3 +1,5 @@
+import sys
+
 from core.device.screenshot.scrcpy import ScrcpyScreenshot
 from core.device.screenshot.nemu import NemuScreenshot
 from core.device.screenshot.adb import AdbScreenshot
@@ -21,18 +23,34 @@ class Screenshot:
     def init_screenshot_instance(self):
         method = self.config.get("screenshot_method")
         self.logger.info("Screenshot method : " + method)
-        if method == "nemu":
-            self.screenshot_instance = NemuScreenshot(self.connection)
-        elif method == "adb":
-            self.screenshot_instance = AdbScreenshot(self.connection)
-        elif method == "uiautomator2":
-            self.screenshot_instance = U2Screenshot(self.connection)
-        elif method == "scrcpy":
-            self.screenshot_instance = ScrcpyScreenshot(self.connection)
+
+        if self.Baas_instance.is_android_device:
+            if method == "nemu":
+                self.screenshot_instance = NemuScreenshot(self.connection)
+            elif method == "adb":
+                self.screenshot_instance = AdbScreenshot(self.connection)
+            elif method == "uiautomator2":
+                self.screenshot_instance = U2Screenshot(self.connection)
+            elif method == "scrcpy":
+                self.screenshot_instance = ScrcpyScreenshot(self.connection)
+        else:
+            if sys.platform == "win32":
+                from core.device.screenshot.pyautogui import PyautoguiScreenshot
+                from core.device.screenshot.mss import MssScreenshot
+                if method == "pyautogui":
+                    self.screenshot_instance = PyautoguiScreenshot(self.connection)
+                elif method == "mss":
+                    self.screenshot_instance = MssScreenshot(self.connection)
+
+        if self.screenshot_instance is None:
+            self.logger.error(f"Unsupported screenshot method: {method}, please check your config and select a valid screenshot method.")
+            raise ValueError("Invalid Screenshot Method")
 
     def screenshot(self):
         self.ensure_interval()
         image = self.screenshot_instance.screenshot()
+        if not self.Baas_instance.is_android_device:
+            self.Baas_instance.handle_resolution_dynamic_change()
         self.last_screenshot_time = time.time()
         return image
 
