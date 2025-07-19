@@ -69,13 +69,14 @@ def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, 
             raise FunctionCallTimeout("Co_detect function timeout reached.")
 
         # package check
-        if (current_time - feature_last_appear_time > check_pkg_interval
-            and current_time - last_check_pkg_time > check_pkg_interval):
-            last_check_pkg_time = current_time
-            pkgName = self.connection.get_current_package()
-            self.logger.info(f"Current package name: {pkgName}")
-            if pkgName != self.package_name:
-                raise PackageIncorrect(pkgName)
+        if self.is_android_device:
+            if (current_time - feature_last_appear_time > check_pkg_interval
+                and current_time - last_check_pkg_time > check_pkg_interval):
+                last_check_pkg_time = current_time
+                pkgName = self.connection.get_current_package()
+                self.logger.info(f"Current package name: {pkgName}")
+                if pkgName != self.package_name:
+                    raise PackageIncorrect(pkgName)
 
         # loading check
         color.wait_loading(self)

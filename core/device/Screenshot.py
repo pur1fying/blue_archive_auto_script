@@ -11,39 +11,41 @@ class Screenshot:
     def __init__(self, Baas_instance):
         self.screenshot_interval = None
         self.screenshot_instance = None
+        self.method = None
 
         self.Baas_instance = Baas_instance
         self.connection = Baas_instance.connection
-        self.config = Baas_instance.get_config()
+        self.config_set = Baas_instance.get_config()
+        self.config = self.config_set.config
         self.logger = Baas_instance.get_logger()
-        self.set_screenshot_interval(float(self.config.get("screenshot_interval")))
+        self.set_screenshot_interval(float(self.config.screenshot_interval))
         self.last_screenshot_time = time.time()
         self.init_screenshot_instance()
 
     def init_screenshot_instance(self):
-        method = self.config.get("screenshot_method")
-        self.logger.info("Screenshot method : " + method)
+        self.method = self.config.screenshot_method
+        self.logger.info("Screenshot method : " + self.method)
 
         if self.Baas_instance.is_android_device:
-            if method == "nemu":
+            if self.method == "nemu":
                 self.screenshot_instance = NemuScreenshot(self.connection)
-            elif method == "adb":
+            elif self.method == "adb":
                 self.screenshot_instance = AdbScreenshot(self.connection)
-            elif method == "uiautomator2":
+            elif self.method == "uiautomator2":
                 self.screenshot_instance = U2Screenshot(self.connection)
-            elif method == "scrcpy":
+            elif self.method == "scrcpy":
                 self.screenshot_instance = ScrcpyScreenshot(self.connection)
         else:
             if sys.platform == "win32":
                 from core.device.screenshot.pyautogui import PyautoguiScreenshot
                 from core.device.screenshot.mss import MssScreenshot
-                if method == "pyautogui":
+                if self.method == "pyautogui":
                     self.screenshot_instance = PyautoguiScreenshot(self.connection)
-                elif method == "mss":
+                elif self.method == "mss":
                     self.screenshot_instance = MssScreenshot(self.connection)
 
         if self.screenshot_instance is None:
-            self.logger.error(f"Unsupported screenshot method: {method}, please check your config and select a valid screenshot method.")
+            self.logger.error(f"Unsupported screenshot method: {self.method}, please check your config and select a valid screenshot method.")
             raise ValueError("Invalid Screenshot Method")
 
     def screenshot(self):

@@ -2,6 +2,8 @@ import time
 
 
 def implement(self):
+    if not self.is_android_device:
+        return True
     self.logger.info("KILL CURRENT UIAUTOMATOR2")
     self.u2.app_stop("com.github.uiautomator")
     self.u2.uiautomator.start()

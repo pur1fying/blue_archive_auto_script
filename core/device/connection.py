@@ -16,7 +16,7 @@ class Connection:
         self.config = self.config_set.config
         self.static_config = self.config_set.static_config
         self.server = None
-        if self.config.server == "Steam服":
+        if self.config.server == "Steam国际服":
             self._is_android_device = False
             self.server = "Global"
             self._init_app_process()
@@ -61,9 +61,6 @@ class Connection:
         if not self.app_process_window.is_valid_window():
             self.logger.error(f"Didn't find process window, please check your game process is launched.")
             raise RequestHumanTakeOver("App process window not found.")
-
-
-
 
     def check_serial(self):
         old = self.serial
