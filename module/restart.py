@@ -3,6 +3,8 @@ from datetime import datetime
 
 
 def implement(self):
+    if not self.is_android_device:
+        return True
     cur_package = self.u2.app_current()['package']
     if cur_package != self.package_name:
         if cur_package != self.package_name:

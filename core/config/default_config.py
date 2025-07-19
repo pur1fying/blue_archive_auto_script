@@ -578,6 +578,7 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "steam_app_process_name": "Blue Archive",
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {
         "CN": [2, 3, 4, 5, 6, 7],
@@ -591,8 +592,8 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "explore_normal_task_region_range": [4, 28],
     "explore_hard_task_region_range": [1, 28],
-    "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
-    "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
+    "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "mss", "pyautogui"],
+    "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "pyautogui"],
     "common_shop_price_list": {
         "CN": [
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书",500000,"creditpoints"],

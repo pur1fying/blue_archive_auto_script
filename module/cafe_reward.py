@@ -117,7 +117,10 @@ def gift_to_cafe(self):
 
 
 def interaction_for_cafe_solve_method3(self):
-    self.u2().pinch_in(percent=50, steps=30)
+    if self.is_android_device:
+        self.u2().pinch_in(percent=50, steps=30)
+    else:
+        self.control.scroll(640, 360, -3)
     self.swipe(709, 558, 709, 309, duration=0.2)
     max_times = self.config.cafe_reward_affection_pat_round
     self.logger.info("Pat Round : [ " + str(max_times) + " ]")
