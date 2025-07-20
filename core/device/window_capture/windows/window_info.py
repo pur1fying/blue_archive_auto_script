@@ -58,7 +58,7 @@ class win32_WindowInfo:
         self._init_region()
 
     def get_window_title(self):
-        return self._window.title
+        return self._window_title
 
     def get_window(self):
         return self._window

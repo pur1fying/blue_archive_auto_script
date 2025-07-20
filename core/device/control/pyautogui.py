@@ -22,6 +22,7 @@ class PyautoguiControl:
     def swipe(self, x1, y1, x2, y2, duration):
         self._ensure_window()
         x1, y1 = self._convert_screen_p_to_window_p(x1, y1)
+        x2, y2 = self._convert_screen_p_to_window_p(x2, y2)
         pyautogui.moveTo(x1, y1)
         pyautogui.dragTo(x2, y2, duration=duration)
 
@@ -43,9 +44,9 @@ class PyautoguiControl:
     def _ensure_window(self):
         if not self._window.activate_window():
             if self._window.get_window() is None:
-                self.logger.info(f"[PyAutoGUI Control] No active window found. Please check if your process [{self._window.get_window_title()}] is running.")
+                self.logger.error(f"[PyAutoGUI Control] No active window found. Please check if your process [{self._window.get_window_title()}] is running.")
                 raise PyautoguiControlError(f"App window not found")
-            self.logger.info(f"[PyAutoGUI Control] Failed to activate process [{self._window.get_window_title()}] window.")
+            self.logger.warning(f"[PyAutoGUI Control] Failed to activate process [{self._window.get_window_title()}] window.")
         self._window.update_region()
 
     @staticmethod

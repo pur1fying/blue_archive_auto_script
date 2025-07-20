@@ -972,7 +972,6 @@ class Baas_thread:
         _new = self.connection.app_process_window.get_resolution()
         if self.resolution[0] == _new[0] and self.resolution[1] == _new[1]:
             return
-        print(self.resolution, _new)
         self.logger.warning("Screen Resolution change detected, we don't recommend you to change screen resolution while running the script.")
 
         _new = self._wait_resolution_change_finish(_new,10, 0.3)
@@ -1014,7 +1013,7 @@ class Baas_thread:
 
 
     @staticmethod
-    def _accept_resolution(x, y, std_x=16, std_y=9, threshold=0.01):
+    def _accept_resolution(x, y, std_x=16, std_y=9, threshold=0.05):
         return abs(x / y - std_x / std_y) <= threshold
 
     def check_screen_ratio(self, width, height):
@@ -1023,7 +1022,7 @@ class Baas_thread:
         if screen_ratio == (16, 9):
             return
         self.logger.warning(f"Screen Ratio: {width}:{height} is not a precise 16:9 screen, we recommend you to use a precise 16:9 screen.")
-        if abs(width / height - 16 / 9) <= 0.01:
+        if self._accept_resolution(width, height, 16, 9, 0.05):
             self.logger.info(f"Screen Ratio close to 16:9. Accept it.")
             return
         self.logger.error(f"Invalid Screen Ratio: {width}:{height}, please adjust your screen resolution to 16:9.")

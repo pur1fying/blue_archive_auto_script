@@ -266,6 +266,8 @@ GAME_ONE_TIME_POP_UPS = {
         'main_page_item-expired-notice': (922, 159),
         'main_page_item-expiring-notice': (931, 132),
         'main_page_Failed-to-convert-errorResponse': (641, 511),
+        'main_page_Failed-to-receive-Platform-Steam-GetEntitlementsAsJsonArray': (641, 511),
+        'main_page_Failed-to-request-prices': (641, 511),
         'draw-card-point-exchange-to-stone-piece-notice': (933, 155)
     }
 }

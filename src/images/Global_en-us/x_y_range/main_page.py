@@ -23,4 +23,6 @@ x_y_range = {
     "item-expired-notice": (390, 145, 900, 300),
     "request-failed-notice": (440, 300, 850, 370),
     "Failed-to-convert-errorResponse": (419, 320, 862, 357),
+    "Failed-to-receive-Platform-Steam-GetEntitlementsAsJsonArray": (440, 275, 840, 390),
+    "Failed-to-request-prices": (440, 315, 840, 350)
 }

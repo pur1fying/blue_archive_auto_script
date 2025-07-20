@@ -16,9 +16,9 @@ class PyautoguiScreenshot:
     def _ensure_window(self):
         if not self._window.activate_window():
             if self._window.get_window() is None:
-                self.logger.info(f"[PyAutoGUI Screenshot] No active window found. Please check if your process [{self._window.get_window_title()}] is running.")
+                self.logger.error(f"[PyAutoGUI Screenshot] No active window found. Please check if your process [{self._window.get_window_title()}] is running.")
                 raise PyautoguiScreenshotError(f"App window not found")
-            self.logger.info(f"[PyAutoGUI Screenshot] Failed to activate process [{self._window.get_window_title()}] window.")
+            self.logger.warning(f"[PyAutoGUI Screenshot] Failed to activate process [{self._window.get_window_title()}] window.")
         self._window.update_region()
 
 class PyautoguiScreenshotError(Exception):
