@@ -8,9 +8,9 @@ from typing import Union
 
 from PyQt5.QtCore import Qt, QObject, QEvent, pyqtSignal
 from PyQt5.QtGui import QFont, QPainter, QColor, QIcon
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout, QWidget, QScrollArea
 from qfluentwidgets import (MessageBoxBase, TableWidget, CheckBox, LineEdit, SubtitleLabel, ImageLabel, FlowLayout,
-                            ComboBox, PushButton, ExpandSettingCard, FluentIcon as FIF)
+                            ComboBox, PushButton, ExpandSettingCard, FluentIcon as FIF, ScrollArea)
 from qfluentwidgets.window.fluent_window import FluentWindowBase, FluentTitleBar
 
 
@@ -202,8 +202,18 @@ class DialogSettingBox(MessageBoxBase):
         # Set the wrapper layout for the frame
         frame.setLayout(layout_wrapper)
 
+        scroll_area = ScrollArea()
+        scroll_area.setStyleSheet('''
+                background-color: transparent;
+                border: none;
+        ''')
+        scroll_area.setWidget(frame)
+        scroll_area.setFixedWidth(self.width()- 100)  # Set minimum width to the dialog width minus 20 pixels
+        scroll_area.setWidgetResizable(True)  # Make the scroll area resizable
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Disable horizontal scrollbar
+
         # Add the frame to the dialog's main layout
-        self.viewLayout.addWidget(frame)
+        self.viewLayout.addWidget(scroll_area)
 
 
 class FuncLabel(QLabel):

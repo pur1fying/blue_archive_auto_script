@@ -61,6 +61,7 @@ from pygit2 import clone_repository, Repository, RemoteCallbacks, GIT_RESET_HARD
 
 from toml_config import TOML_Config
 from mirrorc_update.mirrorc_updater import MirrorC_Updater
+from const import GetShaMethod, get_remote_sha_methods
 
 __system__ = platform.system()
 __env__ = os.environ.copy()
@@ -114,7 +115,6 @@ DEFAULT_SETTINGS = {
     },
 }
 
-REPO_BRANCH = "master"
 
 repo = None
 # local version
@@ -125,45 +125,6 @@ update_type = None
 mirrorc_cdk = None
 latest_mirrorc_return = None
 mirrorc_inst = MirrorC_Updater(app="BAAS_repo", current_version="")
-
-
-class GetShaMethod(Enum):
-    GITHUB_API = auto()
-    PYGIT2 = auto()
-    MIRRORC_API = auto()
-
-
-get_remote_sha_methods = [
-    {
-        "name": "github",
-        "method": GetShaMethod.GITHUB_API,
-        "owner": "pur1fying",
-        "repo": "blue_archive_auto_script",
-        "branch": REPO_BRANCH,
-    },
-    {
-        "name": "mirrorc",
-        "method": GetShaMethod.MIRRORC_API,
-    },
-    {
-        "name": "gitee",
-        "method": GetShaMethod.PYGIT2,
-        "url": "https://gitee.com/pur1fy/blue_archive_auto_script.git",
-        "branch": REPO_BRANCH,
-    },
-    {
-        "name": "gitcode",
-        "method": GetShaMethod.PYGIT2,
-        "url": "https://gitcode.com/m0_74686738/blue_archive_auto_script.git",
-        "branch": REPO_BRANCH,
-    },
-    {
-        "name": "tencent_c_coding",
-        "method": GetShaMethod.PYGIT2,
-        "url": "https://e.coding.net/g-jbio0266/baas/blue_archive_auto_script.git",
-        "branch": REPO_BRANCH,
-    }
-]
 
 
 class Utils:
@@ -223,7 +184,7 @@ class Utils:
         target_ref = f"refs/heads/{branch}"
         for ref in remote_refs:
             if ref["name"] == target_ref:
-                return ref["oid"]
+                return str(ref["oid"])
         return None
 
     @staticmethod
@@ -887,7 +848,7 @@ def repair_broken_git_repo():
     repo = clone_repo(U.REPO_URL_HTTP, str(temp_clone_path))
 
     # Release the occupation of the directory
-    del repo  
+    del repo
     # repo = None
     gc.collect()
 
@@ -935,6 +896,27 @@ def git_install_baas():
     shutil.rmtree(str(temp_clone_path), ignore_errors=False, onerror=Utils.on_rm_error)
     logger.success("Git Install Success!")
 
+def check_repo_url(_repo):
+    origin = _repo.remotes["origin"]
+    logger.info("<<< Repo Remote URL >>>")
+    logger.info(origin.url)
+    if origin.url != U.REPO_URL_HTTP:
+        logger.info("<<< Switch Remote Repo URL >>>")
+        logger.info(U.REPO_URL_HTTP)
+        _repo.remotes.delete("origin")
+        new_origin = _repo.remotes.create("origin", U.REPO_URL_HTTP)
+        for ref in list(_repo.references):
+            if ref.startswith("refs/remotes/origin/"):
+                _repo.references.delete(ref)
+        new_origin.fetch()
+        for branch in _repo.branches.local:
+            local_branch = _repo.lookup_branch(branch)
+            remote_branch_name = f"origin/{branch}"
+
+            if remote_branch_name in _repo.branches.remote:
+                remote_branch = _repo.lookup_branch(remote_branch_name, pygit2.GIT_BRANCH_REMOTE)
+                local_branch.upstream = remote_branch
+        logger.success("Remote repo url switched.")
 
 def git_update_baas():
     global local_sha
@@ -945,6 +927,7 @@ def git_update_baas():
     logger.info("+--------------------------------+")
     try:
         repo = Repository(str(BAAS_ROOT_PATH))
+        check_repo_url(repo)
         refresh_required = G.refresh
         if refresh_required:
             logger.info("You've selected dropping all changes for the project file.")

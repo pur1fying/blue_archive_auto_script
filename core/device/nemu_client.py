@@ -196,7 +196,7 @@ class NemuClient:
             self.logger.error("NemuIpc requires MuMu12 version >= 3.8.13, please check your version.")
             self.logger.error(f'None of the following path exists')
             for path in list_dll:
-                self.logger.error(f'  {path}')
+                self.logger.error(f'{path}')
             raise NemuIpcIncompatible("Please check your MuMu Player 12 version and install path in BAAS settings.")
 
         self.logger.info('NemuIpcImpl init')
