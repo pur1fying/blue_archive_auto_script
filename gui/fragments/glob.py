@@ -3,24 +3,25 @@ import time
 from hashlib import md5
 from random import random
 
-from PyQt5.QtWidgets import QFrame, QLabel, QWidget, QApplication
+from PyQt5.QtWidgets import QLabel, QWidget, QApplication
 from qfluentwidgets import SettingCardGroup, PushButton, VBoxLayout, ComboBox, ExpandLayout, TitleLabel, ScrollArea
 from PyQt5.QtCore import Qt
 
 from gui.components import expand
 from gui.util.notification import success
 from gui.components.template_card import SimpleSettingCard
-from window import Window
 from deploy.installer.toml_config import TOML_Config
 
 class GlobalFragment(ScrollArea):
 
-    def __init__(self, parent: Window = None, config = None):
+    def __init__(self, parent = None, config = None):
         super(GlobalFragment, self).__init__(parent=parent)
+
         self.config_set = config
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(f"{self.object_name}.GlobalFragment")
         self.__initialized__ = False
+        self._optimize_window()
 
     def lazy_init(self):
         if self.__initialized__:
@@ -32,6 +33,15 @@ class GlobalFragment(ScrollArea):
             return
 
         self.display_update_config()
+
+    def _optimize_window(self):
+        self.setStyleSheet('''
+            QScrollArea {
+                background-color: transparent;
+                border: none;
+            }
+        ''')
+        self.viewport().setStyleSheet("background-color: transparent;")
 
     def display_update_config(self):
         self.config = TOML_Config("setup.toml")

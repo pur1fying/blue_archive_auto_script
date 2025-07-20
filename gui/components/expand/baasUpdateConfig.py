@@ -285,6 +285,7 @@ class Layout(QWidget):
         if self._mirrorc_cdk != "":
             self._test_and_set_mirrorc_cdk_state(save=False)
 
+        # Questioning: Is it too short for this delay?
         @delay(0.6)
         def on_cdk_text_changed():
             self._test_and_set_mirrorc_cdk_state(save=True)
