@@ -18,7 +18,5 @@ dulwich
 psutil
 tqdm
 
-setuptools == 58.0.4
 PyAutoGUI == 0.9.54
 mss == 10.0.0
-setuptools == 80.9.0
