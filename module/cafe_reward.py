@@ -125,7 +125,7 @@ def gift_to_cafe(self):
 
 def zoom_out(self):
     if self.is_android_device:
-        self.u2().pinch_out(percent=50, steps=30)
+        self.u2().pinch_in(percent=50, steps=30)
     else:
         for _ in range(0, 15):
             self.control.scroll(640, 360, 10)
