@@ -96,24 +96,21 @@ def check_switch_config(dir_path='./default_config'):
         f.write(default_config.SWITCH_DEFAULT_CONFIG)
 
 
-def check_user_config(dir_path='./default_config'):
+def check_and_update_user_config(dir_path='./default_config'):
     path = './config/' + dir_path + '/config.json'
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
-            return '官服'
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         data = update_config_reserve_old(data, json.loads(default_config.DEFAULT_CONFIG))
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
-        return data['server']
-    except Exception as e:
+    except Exception:
         os.remove(path)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
-        return '官服'
 
 
 def check_single_event(new_event, old_event):
@@ -123,9 +120,11 @@ def check_single_event(new_event, old_event):
     return old_event
 
 
-def check_event_config(dir_path='./default_config', server="CN", enable_state="default"):
+def check_event_config(dir_path='./default_config', user_config = None):
     path = './config/' + dir_path + '/event.json'
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
+    server = user_config.server_mode
+    enable_state = user_config.config.new_event_enable_state
     if server != "CN":
         for i in range(0, len(default_event_config)):
             for j in range(0, len(default_event_config[i]['daily_reset'])):
@@ -178,16 +177,10 @@ def check_config(dir_path):
     for path in dir_path:
         if not os.path.exists('./config/' + path):
             os.mkdir('./config/' + path)
-        server = check_user_config(path)
-        if server == "官服" or server == "B服":
-            server = "CN"
-        elif server == "国际服" or "国际服青少年" or "韩国ONE" or "Steam国际服":
-            server = "Global"
-        elif server == "日服":
-            server = "JP"
+        check_and_update_user_config(path)
         config = ConfigSet(config_dir=path)
         config.update_create_quantity_entry()
-        check_event_config(path, server, config.get("new_event_enable_state"))
+        check_event_config(path, config)
         check_switch_config(path)
 
 
@@ -572,17 +565,21 @@ class Window(MSFluentWindow):
                                    config=self.config_dir_list[0])
                 return
             serial_name = str(int(datetime.datetime.now().timestamp()))
-            os.mkdir(f'./config/{serial_name}')
-            check_event_config(serial_name)
-            check_switch_config(serial_name)
+            config_dir = f'./config/{serial_name}'
+            os.mkdir(config_dir)
             data = json.loads(default_config.DEFAULT_CONFIG)
             data['name'] = text
-            with open(f'./config/{serial_name}/config.json', 'w', encoding='utf-8') as f:
+            user_config_path = f'{config_dir}/config.json'
+            with open(user_config_path, 'w', encoding='utf-8') as f:
                 f.write(json.dumps(data, ensure_ascii=False, indent=2))
+            _config = ConfigSet(config_dir=serial_name)
+
+            check_event_config(serial_name, _config)
+            check_switch_config(serial_name)
+
             from gui.fragments.home import HomeFragment
             from gui.fragments.switch import SwitchFragment
             from gui.fragments.settings import SettingsFragment
-            _config = ConfigSet(config_dir=serial_name)
             _config.add_signal("notify_signal", self.notify_signal)
             _config.set_window(self)
             _sub_list_ = [

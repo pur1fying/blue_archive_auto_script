@@ -871,7 +871,7 @@ def git_install_baas():
     logger.info("|       GIT INSTALL BAAS         |")
     logger.info("+--------------------------------+")
     logger.info("Cloning the repository...")
-
+    logger.info("Repo URL : " + U.REPO_URL_HTTP)
     temp_clone_path = BAAS_ROOT_PATH / "temp_clone"
 
     if temp_clone_path.exists():
@@ -896,27 +896,71 @@ def git_install_baas():
     shutil.rmtree(str(temp_clone_path), ignore_errors=False, onerror=Utils.on_rm_error)
     logger.success("Git Install Success!")
 
+
 def check_repo_url(_repo):
     origin = _repo.remotes["origin"]
     logger.info("<<< Repo Remote URL >>>")
     logger.info(origin.url)
+
     if origin.url != U.REPO_URL_HTTP:
-        logger.info("<<< Switch Remote Repo URL >>>")
-        logger.info(U.REPO_URL_HTTP)
-        _repo.remotes.delete("origin")
-        new_origin = _repo.remotes.create("origin", U.REPO_URL_HTTP)
-        for ref in list(_repo.references):
-            if ref.startswith("refs/remotes/origin/"):
-                _repo.references.delete(ref)
-        new_origin.fetch()
+        original_url = origin.url
+        upstream_backup = {}
         for branch in _repo.branches.local:
             local_branch = _repo.lookup_branch(branch)
-            remote_branch_name = f"origin/{branch}"
+            if local_branch.upstream:
+                upstream_backup[branch] = local_branch.upstream.name
 
-            if remote_branch_name in _repo.branches.remote:
-                remote_branch = _repo.lookup_branch(remote_branch_name, pygit2.GIT_BRANCH_REMOTE)
-                local_branch.upstream = remote_branch
-        logger.success("Remote repo url switched.")
+        try:
+            logger.info("<<< Switch Repo Remote URL >>>")
+            logger.info(U.REPO_URL_HTTP)
+            _repo.remotes.delete("origin")
+            new_origin = _repo.remotes.create("origin", U.REPO_URL_HTTP)
+            for ref in list(_repo.references):
+                if ref.startswith("refs/remotes/origin/"):
+                    _repo.references.delete(ref)
+            new_origin.fetch()
+            logger.info("Setting remote branches upstream...")
+            for branch in _repo.branches.local:
+                local_branch = _repo.lookup_branch(branch)
+                remote_branch_name = f"origin/{branch}"
+                if remote_branch_name in _repo.branches.remote:
+                    remote_branch = _repo.lookup_branch(
+                        remote_branch_name,
+                        pygit2.GIT_BRANCH_REMOTE
+                    )
+                    local_branch.upstream = remote_branch
+            logger.success("Remote repo url switched.")
+
+        except GitError as e:
+            logger.error(f"Failed to fetch from new origin: {e}")
+            logger.info("<<< Rolling back to original URL >>>")
+
+            try:
+                # 删除失败的新origin
+                _repo.remotes.delete("origin")
+
+                # 恢复原始远程
+                restored_origin = _repo.remotes.create("origin", original_url)
+
+                # 重新获取原始仓库数据
+                restored_origin.fetch()
+
+                # 恢复上游分支设置
+                for branch, upstream_ref in upstream_backup.items():
+                    local_branch = _repo.lookup_branch(branch)
+                    # 确保远程分支引用存在
+                    if upstream_ref in _repo.references:
+                        remote_branch = _repo.lookup_branch(
+                            upstream_ref.replace("refs/remotes/", ""),
+                            pygit2.GIT_BRANCH_REMOTE
+                        )
+                        local_branch.upstream = remote_branch
+
+                logger.success("Successfully reverted to original repository URL")
+
+            except Exception as rollback_error:
+                logger.critical(f"Critical error during rollback: {rollback_error}")
+                raise RuntimeError("Repository recovery failed") from rollback_error
 
 def git_update_baas():
     global local_sha

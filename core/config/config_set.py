@@ -42,12 +42,16 @@ class ConfigSet:
     def _init_config(self):
         with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
             self.config = Config(**json.load(f))
-        if self.config.server == '国服' or self.config.server == 'B服':
-            self.server_mode = 'CN'
-        elif self.config.server in ['国际服', '国际服青少年', '韩国ONE', 'Steam国际服']:
-            self.server_mode = 'Global'
-        elif self.config.server == '日服':
-            self.server_mode = 'JP'
+        self.server_mode = self.get_server_mode(self.config.server)
+
+    @staticmethod
+    def get_server_mode(server):
+        if server in ['官服', 'B服']:
+            return 'CN'
+        if server in ['国际服', '国际服青少年', '韩国ONE', 'Steam国际服']:
+            return 'Global'
+        if server in ['日服']:
+            return 'JP'
 
     def get(self, key, default=None):
         self._init_config()
