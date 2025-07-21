@@ -17,5 +17,9 @@ requests
 dulwich
 psutil
 tqdm
+
 tomli == 2.2.1
 tomli_w == 1.2.0
+
+PyAutoGUI == 0.9.54
+mss == 10.0.0

@@ -5,6 +5,7 @@ from core import image, picture, Baas_thread, color
 from core.image import swipe_search_target_str
 from module import main_story
 
+
 # Functions related to navigation or obtaining map data
 # 与导航或获取地图数据相关的函数
 def to_region(self, region: int, isNormal: bool) -> bool:
@@ -299,7 +300,7 @@ def execute_grid_task(self, taskData) -> bool:
     img_ends = "normal_task_task-wait-to-begin-feature"
     picture.co_detect(self, None, None, img_ends, img_reactions, True)
 
-    if not employ_units(self, taskData, convert_team_config(self)):
+    if not employ_units(self, self.config.choose_team_method, taskData, convert_team_config(self)):
         return False
 
     # start the mission
@@ -414,13 +415,13 @@ def run_task_action(self, actions):
     self.set_screenshot_interval(self.config.screenshot_interval)
 
 
-def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
-    self.logger.info(f"Employ team method: {self.config.choose_team_method}.")
+def employ_units(self, choose_team_method: str, taskData: dict, teamConfig: dict) -> bool:
+    self.logger.info(f"Employ team method: {choose_team_method}.")
     attribute_type_fallbacks = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
 
-    employ_pos: list[list[int, int]] = []
+    employ_pos: list[list[int]] = []
 
-    if self.config.choose_team_method == "order":
+    if choose_team_method == "order":
         # give employ pos a fallback value to let it employ formations by order(from 1-4)_
         employ_pos = [[0, 1], [0, 2], [0, 3], [0, 4]]
     else:
@@ -434,10 +435,11 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
         total_available = sum([len(preset) for attribute, preset in teamConfig.items()])
 
         unit_need = len([attribute for attribute, info in taskData["start"] if attribute != "swipe"])
-        if total_available <= unit_need:
+        if total_available < unit_need:
             self.logger.error(
                 f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
-            return False
+            self.logger.warning("Try using 'order' method to employ team.")
+            return employ_units(self, "order", taskData, teamConfig)
 
         for attribute, info in taskData["start"]:
             if attribute == "swipe":  # skip if it's a swipe command.
@@ -446,7 +448,7 @@ def employ_units(self, taskData: dict, teamConfig: dict) -> bool:
             # switch to the next attribute available.
             cur_attribute = attribute
             while unit_available[cur_attribute] == unit_used[cur_attribute] \
-                    or (self.server == "CN" and cur_attribute == "shock"):
+                or (self.server == "CN" and cur_attribute == "shock"):
                 cur_attribute = attribute_type_fallbacks[cur_attribute]
 
             employ_pos.append(teamConfig[cur_attribute][unit_used[cur_attribute]])

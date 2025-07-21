@@ -1,5 +1,6 @@
 import copy
 import json
+import math
 import os
 import subprocess
 import threading
@@ -180,9 +181,6 @@ class Baas_thread:
         if self.button_signal is not None:
             self.button_signal.emit("启动")
 
-    def init_emulator(self):
-        return self._init_emulator()
-
     def convert_lnk_to_exe(self, lnk_path):
         """
         Convert a Windows shortcut (.lnk) to the target executable path.
@@ -282,8 +280,8 @@ class Baas_thread:
         if not self.start_check_emulator_stat(self.emulator_start_stat, self.wait_time):
             raise Exception("Emulator start failed")
 
-    def _init_emulator(self) -> bool:
-        self.logger.info("--------------Init Emulator----------------")
+    def init_device(self) -> bool:
+        self.logger.info("--------------Init Device----------------")
         try:
             self.start_emulator()
         except Exception as e:
@@ -292,36 +290,53 @@ class Baas_thread:
             return False
         try:
             self.connection = Connection(self)
-            self.serial = self.connection.get_serial()
+            self.is_android_device = self.connection.is_android_device()
             self.server = self.connection.get_server()
-            self.package_name = self.connection.get_package_name()
             self.current_game_activity = self.static_config.current_game_activity[self.server]
-            self.activity_name = self.connection.get_activity_name()
-            self.screenshot = Screenshot(self)
 
+            if self.is_android_device:
+                self.serial = self.connection.get_serial()
+                self.package_name = self.connection.get_package_name()
+                self.activity_name = self.connection.get_activity_name()
+
+            self.screenshot = Screenshot(self)
             self.control = Control(self)
             self.set_screenshot_interval(self.config.screenshot_interval)
 
             self.check_resolution()
-            self.ocr_language = self.get_ocr_language()
+            self.get_ocr_language()
             self.identifier = self.server
             if self.server == "Global":
                 self.identifier += "_" + self.ocr_language
                 # dynamic init Global server ocr language
                 self.ocr.init_baas_model(self)
                 self.ocr.test_models([self.ocr_language], self.logger)
-            self.logger.info("--------Emulator Init Finished----------")
+            self.logger.info("--------Device Init Finished----------")
             return True
         except Exception as e:
             self.logger.error(e.__str__())
             self.logger.error("Emulator initialization failed")
             return False
 
-    def get_ocr_language(self) -> str:
+    def get_ocr_language(self):
         self.logger.info("Get OCR Language.")
-        lang = None
+        self.ocr_language = "None"
+
+        if self.is_android_device:
+            self._get_android_device_ocr_language()
+        else:
+            self._get_host_ocr_language()
+        self.logger.info("Ocr Language : " + self.ocr_language)
+
+    def _get_host_ocr_language(self):
+        path = os.path.join(os.getenv('LOCALAPPDATA'), '..', 'LocalLow', 'Nexon Games', 'Blue Archive', 'DeviceOption')
+        if not os.path.exists(path):
+            raise Exception("Local DeviceOption not found : " + path)
+        self._read_DeviceOption_ocr_language(path)
+
+    def _get_android_device_ocr_language(self):
         if self.server == "CN":
-            lang = "zh-cn"
+            self.ocr_language = "zh-cn"
         elif self.server == "Global":
             basic_path = self.u2._adb_device.shell(f"echo $EXTERNAL_STORAGE").strip()
             src = "/".join([
@@ -332,7 +347,6 @@ class Baas_thread:
                 "files",
                 "DeviceOption"
             ])
-            print(src)
             dst = os.path.basename(self.config_set.config_dir) + "_DeviceOption.json"
             # remove dst existing file
             if os.path.exists(dst):
@@ -345,22 +359,23 @@ class Baas_thread:
                 sync.pull_file(src, dst)
             else:
                 raise Exception("Global Server DeviceOption File not exist.")
-            supported_language_convert_dict = {
-                "Kr": "ko-kr",
-                "En": "en-us",
-                "Tw": "zh-tw",
-            }
-            with open(dst, "r") as f:
-                data = json.load(f)
-                game_lan = data["Language"]
-                if game_lan in supported_language_convert_dict:
-                    lang = supported_language_convert_dict[game_lan]
-                else:
-                    raise Exception("Global Server Invalid Language : " + game_lan + ".")
+            self._read_DeviceOption_ocr_language(dst)
         elif self.server == "JP":
-            lang = "ja-jp"
-        self.logger.info("Ocr Language : " + lang)
-        return lang
+            self.ocr_language = "ja-jp"
+
+    def _read_DeviceOption_ocr_language(self, _p):
+        supported_language_convert_dict = {
+            "Kr": "ko-kr",
+            "En": "en-us",
+            "Tw": "zh-tw",
+        }
+        with open(_p, "r") as f:
+            data = json.load(f)
+            game_lan = data["Language"]
+            if game_lan in supported_language_convert_dict:
+                self.ocr_language = supported_language_convert_dict[game_lan]
+            else:
+                raise Exception("Global Server Invalid Language : " + game_lan + ".")
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
@@ -803,7 +818,7 @@ class Baas_thread:
         self.flag_run = True
         init_funcs = [
             self.init_config,
-            self.init_emulator,
+            self.init_device,
             self.init_image_resource,
             self.init_rgb
         ]
@@ -839,8 +854,8 @@ class Baas_thread:
         last_refresh_hour = last_refresh.hour
         daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
         if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
-            ((hour < daily_reset and last_refresh_hour < daily_reset) or (
-                hour >= daily_reset and last_refresh_hour >= daily_reset)):
+                ((hour < daily_reset and last_refresh_hour < daily_reset) or (
+                        hour >= daily_reset and last_refresh_hour >= daily_reset)):
             return
         else:
             self.config.last_refresh_config_time = time.time()
@@ -939,19 +954,86 @@ class Baas_thread:
         subprocess.run(["shutdown", "-a"])
 
     def check_resolution(self):
+        if self.is_android_device:
+            self.resolution = self._get_android_device_resolution()
+        else:
+            self.resolution = self.connection.app_process_window.get_resolution()
+
+        self.logger.info("Screen Size  " + str(self.resolution))
+        self.check_screen_ratio(self.resolution[0], self.resolution[1])
+        if self.resolution[0] != 1280:
+            self.logger.warning("Screen Size is not 1280x720, we recommend you to use 1280x720.")
+        if self.ocr_img_pass_method == 0:
+            self.ocr.create_shared_memory(self, self.resolution[0] * self.resolution[1] * 3)
+        self.ratio = self.resolution[0] / 1280
+        self.logger.info("Screen Size Ratio: " + str(self.ratio))
+
+    def handle_resolution_dynamic_change(self):
+        _new = self.connection.app_process_window.get_resolution()
+        if self.resolution[0] == _new[0] and self.resolution[1] == _new[1]:
+            return
+        self.logger.warning("Screen Resolution change detected, we don't recommend you to change screen resolution while running the script.")
+
+        _new = self._wait_resolution_change_finish(_new,10, 0.3)
+        if self.resolution[0] == _new[0] and self.resolution[1] == _new[1]:
+            self.logger.info("Resolution unchanged.")
+            return
+
+        self.check_screen_ratio(_new[0], _new[1])
+        _new_ratio = _new[0] / 1280
+        self.logger.info(f"Screen Resolution changed {self.resolution[0]}x{self.resolution[1]} --> {_new[0]}x{_new[1]}")
+        self.logger.info(f"Screen Size Ratio changed {self.ratio} --> {_new_ratio}")
+
+        self.resolution = _new
+        self.ratio = _new_ratio
+
+        if self.ocr_img_pass_method == 0:
+            from core.ipc_manager import SharedMemory
+            shm = SharedMemory.get(self.shared_memory_name)
+            if shm.size < _new[0] * _new[1] * 3:
+                self.logger.warning(f"Current shared memory size {shm.size} maybe not enough, recreate shared memory.")
+                self.ocr.release_shared_memory(self.shared_memory_name)
+                self.ocr.create_shared_memory(self, _new[0] * _new[1] * 3)
+
+    def _wait_resolution_change_finish(self, last_res, static_cnt=10, interval=0.3):
+        self.logger.info("Wait Resolution Change Finish")
+        cnt = 0
+        latest_res = last_res
+        while 1:
+            if cnt >= static_cnt:
+                self.logger.info(f"Resolution change finished, current resolution: {latest_res[0]}x{latest_res[1]}")
+                return latest_res
+            _new = self.connection.app_process_window.get_resolution()
+            if _new[0] == latest_res[0] and _new[1] == latest_res[1]:
+                cnt += 1
+            else:
+                cnt = 0
+                latest_res = _new
+            time.sleep(interval)
+
+
+    @staticmethod
+    def _accept_resolution(x, y, std_x=16, std_y=9, threshold=0.05):
+        return abs(x / y - std_x / std_y) <= threshold
+
+    def check_screen_ratio(self, width, height):
+        gcd = math.gcd(width, height)
+        screen_ratio = width // gcd, height // gcd
+        if screen_ratio == (16, 9):
+            return
+        self.logger.warning(f"Screen Ratio: {width}:{height} is not a precise 16:9 screen, we recommend you to use a precise 16:9 screen.")
+        if self._accept_resolution(width, height, 16, 9, 0.05):
+            self.logger.info(f"Screen Ratio close to 16:9. Accept it.")
+            return
+        self.logger.error(f"Invalid Screen Ratio: {width}:{height}, please adjust your screen resolution to 16:9.")
+        raise Exception("Invalid Screen Ratio")
+
+    def _get_android_device_resolution(self):
         self.u2_client = U2Client.get_instance(self.serial)
         self.u2 = self.u2_client.get_connection()
         self.check_atx()
         self.last_refresh_u2_time = time.time()
-        temp = self.resolution_uiautomator2()
-        self.logger.info("Screen Size  " + str(temp))
-        if temp[0] != 1280 or temp[1] != 720:
-            self.logger.warning("Screen Size is not 1280x720, we recommend you to use 1280x720.")
-        if self.ocr_img_pass_method == 0:
-            self.ocr.create_shared_memory(self, temp[0] * temp[1] * 3)
-        width = temp[0]
-        self.ratio = width / 1280
-        self.logger.info("Screen Size Ratio: " + str(self.ratio))
+        return self.resolution_uiautomator2()
 
     def resolution_uiautomator2(self):
         for i in range(0, 3):

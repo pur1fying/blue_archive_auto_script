@@ -57,6 +57,7 @@ export default defineConfig({
             {text: '安装教程', link: '/usage_doc/install/choose_platform'},
             {text: '安装配置', link: '/usage_doc/install/setup_config'},
             {text: '配置', link: '/usage_doc/config'},
+            {text: 'Steam配置', link: '/usage_doc/steam_setting'},
             {text: '活动相关', link: '/usage_doc/activity'},
             {text: '常见问题', link: '/usage_doc/faq'},
             {text: '上报问题', link: '/usage_doc/report'},

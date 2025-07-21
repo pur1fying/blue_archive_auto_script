@@ -106,14 +106,24 @@ class BaasOcrClient:
         # chmod +x BAAS_ocr_server
         if sys.platform == "linux":
             subprocess.run(["chmod", "+x", self.exe_path])
-        self.server_process = subprocess.Popen(
-            self.exe_path,
-            cwd=self.server_folder_path,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
-            text=True
-        )
+        try:
+            self.server_process = subprocess.Popen(
+                self.exe_path,
+                cwd=self.server_folder_path,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+                text=True
+            )
+        except Exception:
+            self.server_process = subprocess.Popen(
+                [self.exe_path],
+                cwd=self.server_folder_path,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+                text=True
+            )
         # wait for server start
         for _ in range(0, 30):
             try:

@@ -36,10 +36,10 @@ GUI预览图：
   解压Release或qq交流群中的下载包，双击`BlueArchiveAutoScript.exe`安装环境，请耐心等待。
   安装完成后，BAAS 的ui界面将自动启动。同时，我们提供了pyinstaller可使用的打包脚本，您可以自
   行打包，具体内容在`deploy/installer`文件夹中。
-  [安装相关文档](https://blog.lzwi.fun/blue_archive_auto_script/usage_doc/install/choose_platform)
+  [安装相关文档](https://baas.wiki/usage_doc/install/choose_platform.html)
   
 ## 如何使用
-用户文档见[wiki](https://blog.lzwi.fun/blue_archive_auto_script/), 有详细的BAAS配置教程和使用方法
+用户文档见[wiki](https://baas.wiki/), 有详细的BAAS配置教程和使用方法
 
 ## 如何上报bug How to Report Bugs
 在提问题之前至少花费 5 分钟来思考和准备, 才会有人花费他的 5 分钟来帮助你。
@@ -74,6 +74,6 @@ GUI预览图：
 - **完善体力规划模块,使脚本可以在二/三倍活动掉落期间刷不同图，购买体力等，使刷体力更灵活可变**
 - **增加竞技场新赛季碎石挖矿功能**
 
-## [致谢名单](https://blog.lzwi.fun/blue_archive_auto_script/thanks)
+## [致谢名单](https://baas.wiki/thanks)
 
 ![Contributors](https://contrib.rocks/image?repo=pur1fying/blue_archive_auto_script)

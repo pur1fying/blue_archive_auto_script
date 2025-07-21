@@ -934,6 +934,12 @@ def git_update_baas():
 
         spinner.start("Pulling updates from the remote repository...")
 
+        # Fetch updates from the remote repository
+        remote = repo.remotes["origin"]
+        remote.fetch(callbacks=BAASGitCallbacks({"bar": None}))
+        del remote
+        gc.collect()
+
         # Reset local branch to remote
         repo.reset(repo.lookup_reference("refs/remotes/origin/master").target, GIT_RESET_HARD)
 

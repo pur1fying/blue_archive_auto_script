@@ -48,7 +48,7 @@ class Baas_ocr:
             region=region,
             language="zh-cn",
             log_info=log_info,
-            candidates="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+            candidates="",
             filter_score=filter_score
         )
         temp = ""
