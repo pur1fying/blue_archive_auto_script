@@ -3389,7 +3389,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": null,
         "Global": null,
-        "JP": "JP_2025_06_25"
+        "JP": "JP_2025_07_22"
     },
     "dailyGameActivity": {
         "CN": null,
