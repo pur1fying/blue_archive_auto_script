@@ -3444,7 +3444,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": null,
-        "Global": null,
+        "Global": "ElectronicNewYearsMarch",
         "JP": "JP_2025_07_22"
     },
     "dailyGameActivity": {
