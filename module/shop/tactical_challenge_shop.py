@@ -1,9 +1,8 @@
 import time
-
 import numpy as np
 
 from core import picture
-
+from module.shop.shop_utils import get_purchase_state, to_common_shop, goto_shop_by_name
 
 def implement(self):
     buy_list = np.array(self.config.TacticalChallengeShopList)
@@ -11,7 +10,13 @@ def implement(self):
         self.logger.info("Nothing to buy in tactical challenge shop.")
         return True
     self.to_main_page()
-    to_tactical_challenge_shop(self, skip_first_screenshot=True)
+    to_common_shop(self, True)
+    shop_name_idx = {
+        "CN": 5,
+        "Global": 5,
+        "JP": 6
+    }
+    goto_shop_by_name(self, shop_name_idx[self.server])
     tactical_challenge_assets = get_tactical_challenge_assets(self)
     price = self.static_config.tactical_challenge_shop_price_list[self.server]
     temp = []
@@ -66,15 +71,6 @@ def implement(self):
     return True
 
 
-def get_purchase_state(self):
-    img_ends = [
-        "shop_purchase-available",
-        "shop_purchase-unavailable",
-        "shop_refresh-button-appear",
-    ]
-    return picture.co_detect(self, None, None, img_ends, None, False)
-
-
 def confirm_refresh(self):
     img_possibles = {
         "shop_refresh-notice": (767, 468),
@@ -93,26 +89,6 @@ def to_shop_menu(self):
     }
     img_ends = "shop_menu"
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
-
-
-def to_tactical_challenge_shop(self, skip_first_screenshot=False):
-    tactical_challenge_x = {
-        'CN': 823,
-        'JP': 778,
-        'Global': 796
-    }
-    rgb_ends = "tactical_challenge_shop"
-    rgb_possibles = {
-        "main_page": (tactical_challenge_x[self.server], 653),
-        "reward_acquired": (640, 89),
-        "common_shop": (160, 531),
-    }
-    img_possibles = {
-        'main_page_full-notice': (887, 165),
-        "main_page_insufficient-inventory-space": (910, 138),
-    }
-    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
 
 
 def to_refresh(self):

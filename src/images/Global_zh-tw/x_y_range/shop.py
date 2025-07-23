@@ -11,4 +11,5 @@ x_y_range = {
     'purchase-available': (1121, 644, 1213, 678),
     'purchase-unavailable': (1121, 644, 1213, 678),
     'refresh-button-appear': (1102, 644, 1220, 678),
+    'list-type-name-feature': (0, 110, 23, 166)
 }

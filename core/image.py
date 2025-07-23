@@ -148,7 +148,6 @@ def get_image_all_appear_position(self, image_template_name, search_area=(0, 0, 
         ret.append((pt[0] + search_area[0], pt[1] + search_area[1]))
     return ret
 
-
 def resize_ss_image(self, area, interpolation=cv2.INTER_AREA):
     # resize screenshot to template image size(720 * 1280) according to ratio
     ss_img = screenshot_cut(self, area)
@@ -170,7 +169,8 @@ def swipe_search_target_str(
         max_swipe_times=3,
         ocr_candidates="",
         ocr_filter_score=0.2,
-        first_retry_dir=0
+        first_retry_dir=0,
+        deduplication_pixels=(5, 5)
 ):
     temp = len(swipe_params)
     if temp < 4:
@@ -214,7 +214,7 @@ def swipe_search_target_str(
                 self.swipe(*reversed_swipe_params)
             retry_swipe_dir ^= 1
             continue
-        all_positions = merge_nearby_coordinates(all_positions, 5, 5)
+        all_positions = merge_nearby_coordinates(all_positions, deduplication_pixels[0], deduplication_pixels[1])
         max_idx = -1  # impossible value
         min_idx = len(possible_strs)
         all_strs = []

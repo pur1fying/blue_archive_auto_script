@@ -1,11 +1,9 @@
 import time
 
-import cv2
 import numpy as np
 
-from core import color, picture
-from core import image
-from module.tactical_challenge_shop import get_purchase_state
+from core import color, picture, image
+from module.shop.shop_utils import get_purchase_state, to_common_shop
 
 
 def implement(self):
@@ -77,22 +75,6 @@ def implement(self):
                 to_common_shop(self)
 
     return True
-
-
-def to_common_shop(self, skip_first_screenshot=False):
-    rgb_ends = "common_shop"
-    rgb_possibles = {
-        "main_page": (799, 653),
-        "reward_acquired": (640, 89),
-        "tactical_challenge_shop": (157, 135)
-    }
-    img_possibles = {
-        "main_page_full-notice": (887, 165),
-        "main_page_insufficient-inventory-space": (910, 138),
-    }
-    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, skip_first_screenshot)
-
 
 def swipe_get_y_diff(self, item_lines_y):
     max_y = item_lines_y[len(item_lines_y) - 1][0]

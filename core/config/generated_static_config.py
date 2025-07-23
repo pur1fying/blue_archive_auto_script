@@ -13,6 +13,7 @@ class StaticConfig:
     explore_hard_task_region_range: list
     screenshot_methods: list
     control_methods: list
+    shop_type_list_names: dict
     common_shop_price_list: dict
     tactical_challenge_shop_price_list: dict
     create_default_priority: dict

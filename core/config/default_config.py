@@ -594,6 +594,62 @@ STATIC_DEFAULT_CONFIG = '''
     "explore_hard_task_region_range": [1, 28],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "mss", "pyautogui"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "pyautogui"],
+    "shop_type_list_names": {
+      "CN": [
+        "常规道具",
+        "神名精髓",
+        "神名精髓",
+        "总力战",
+        "大决战",
+        "战术对抗赛",
+        "综合战术测试",
+        "熟练证书",
+        "回收商店"
+      ],
+      "Global_en-us": [
+        "Normal",
+        "Eligma",
+        "Eligma",
+        "TotalAssault",
+        "GrandAssault",
+        "TacticalChallenge",
+        "JointFiringDrill",
+        "ExpertPermit"
+      ],
+
+      "Global_ko-kr": [
+        "일반",
+        "엘리그마",
+        "엘리그마",
+        "총력전",
+        "대결전",
+        "전술대회",
+        "종합전술시험",
+        "축련증서"
+      ],
+
+      "Global_zh-tw": [
+        "—般",
+        "神名文字碎片",
+        "神名文字碎片",
+        "總力戰",
+        "大決戰",
+        "戰術大賽",
+        "綜合戰術考試",
+        "精通證書"
+      ],
+      "JP": [
+        "通常アイテム",
+        "青輝石",
+        "カケラ(文字)",
+        "カケラ(その他)",
+        "総力戦",
+        "大決戦",
+        "戦術対抗戦",
+        "合同火力演習",
+        "熟達証書"
+      ]
+    },
     "common_shop_price_list": {
         "CN": [
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书",500000,"creditpoints"],
@@ -3346,7 +3402,7 @@ STATIC_DEFAULT_CONFIG = '''
           "Shanhaijing Main Special Zone",
           "Haruhabara Electric Town"
       ],
-        "Global_zh-tw": [
+      "Global_zh-tw": [
           "夏萊辦公室",
           "夏萊居住區",
           "格黑娜學園中央區",

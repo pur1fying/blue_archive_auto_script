@@ -28,12 +28,11 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
-from core.utils import Logger
 
 func_dict = {
     'group': module.group.implement,
     'momo_talk': module.momo_talk.implement,
-    'common_shop': module.common_shop.implement,
+    'common_shop': module.shop.common_shop.implement,
     'cafe_reward': module.cafe_reward.implement,
     'no1_cafe_invite': module.no1_cafe_invite.implement,
     'no2_cafe_invite': module.no2_cafe_invite.implement,
@@ -53,7 +52,7 @@ func_dict = {
     'hard_task': module.ExploreTasks.sweep_task.sweep_hard_task,
     'clear_special_task_power': module.clear_special_task_power.implement,
     'de_clothes': module.de_clothes.implement,
-    'tactical_challenge_shop': module.tactical_challenge_shop.implement,
+    'tactical_challenge_shop': module.shop.tactical_challenge_shop.implement,
     'collect_daily_power': module.collect_reward.implement,
     'total_assault': module.total_assault.implement,
     'restart': module.restart.implement,
