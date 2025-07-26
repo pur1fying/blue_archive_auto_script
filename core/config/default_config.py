@@ -287,6 +287,18 @@ EVENT_DEFAULT_CONFIG = """
     "disabled_time_range": [],
     "pre_task": [],
     "post_task": []
+  },
+  {
+    "enabled": true,
+    "priority": 19,
+    "interval": 0,
+    "daily_reset": [[10, 0, 1], [20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "领取pass奖励",
+    "func_name": "pass",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
   }
 ]
 """

@@ -26,3 +26,4 @@ from module import rewarded_task
 from module import scrimmage
 from module import sweep_activity
 from module import total_assault
+from module import collect_pass_reward

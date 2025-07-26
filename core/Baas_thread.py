@@ -64,6 +64,7 @@ func_dict = {
     'dailyGameActivity': module.dailyGameActivity.implement,
     'friend': module.friend.implement,
     'joint_firing_drill': module.joint_firing_drill.implement,
+    'pass': module.collect_pass_reward.implement
 }
 
 
@@ -608,6 +609,8 @@ class Baas_thread:
             'momo_talk_momotalk-peach': (1123, 122),
             'cafe_students-arrived': (922, 189),
             'cafe_quick-home': (1236, 31),
+            'pass_menu': (1247, 40),
+            'pass_mission-menu': (1247, 40),
             'group_sign-up-reward': (920, 159),
             'cafe_invitation-ticket': (835, 97),
             'lesson_lesson-information': (964, 117),
