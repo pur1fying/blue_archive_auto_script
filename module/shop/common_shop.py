@@ -250,8 +250,8 @@ def to_refresh(self):
         "shop_refresh-notice",
         "shop_refresh-unavailable-notice",
     ]
-    rgb_possibles = {"common_shop": [1160, 664]}
-    if picture.co_detect(self, None, rgb_possibles, img_ends, None, True) == "shop_refresh_guide":
+    img_possibles = {"shop_menu": (1160, 664)}
+    if picture.co_detect(self, None, None, img_ends, img_possibles, True) == "shop_refresh_guide":
         return False
     return True
 
