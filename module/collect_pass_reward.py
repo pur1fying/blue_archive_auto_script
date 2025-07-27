@@ -16,7 +16,9 @@ def implement(self):
 
 def collect_reward(self):
     img_possibles = {
-        "pass_collect-reward-available": (1206, 643)
+        "pass_collect-reward-available": (1206, 643),
+        'main_page_full-notice': (887, 165),
+        'main_page_insufficient-inventory-space': (908, 138)
     }
     rgb_possibles = {
         "reward_acquired": (777, 491),
