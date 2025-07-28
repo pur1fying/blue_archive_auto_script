@@ -502,6 +502,15 @@ DEFAULT_CONFIG = """
         "count": -1,
         "time": 0
     },
+    "_pass": {
+        "level": -1,
+        "max_level": 60,
+        "next_level_point": -1,
+        "next_level_point_required": -1,
+        "weekly_point": -1,
+        "max_weekly_point": -1,
+        "time": 0
+    },
     "assetsVisibility": true
 }
 """
