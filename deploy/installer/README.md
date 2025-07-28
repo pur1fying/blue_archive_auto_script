@@ -2,7 +2,7 @@
 
 **To use the installer, you need to have the following installed on your system:**
 
-- **Python 3.6 or higher**
+- **Python 3.6 or higher, recommendation is version 3.10.11**
 
 ## Maunal
 
