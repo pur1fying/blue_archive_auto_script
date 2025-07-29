@@ -112,6 +112,7 @@ def to_normal_event(self: Baas_thread, skip_first_screenshot=False):
         'normal_task_fight-confirm': (1168, 659),
         'normal_task_fight-complete-confirm': (1160, 666),
         'normal_task_reward-acquired-confirm': (800, 660),
+        "normal_task_task-A-info": (1128, 130)
     }
     img_reactions.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
