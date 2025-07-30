@@ -17,7 +17,7 @@ def implement(self):
     # collect reward
     to_page_pass_menu(self)
     collect_reward(self)
-    
+
     detect_statistics(self)
     return True
 
@@ -29,7 +29,7 @@ def collect_reward(self):
         'main_page_insufficient-inventory-space': (908, 138)
     }
     rgb_possibles = {
-        "reward_acquired": (777, 491),
+        "reward_acquired": (640, 100),
     }
     img_ends = "pass_collect-reward-unavailable"
     co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
@@ -49,7 +49,7 @@ def to_page_pass_menu(self):
     }
     img_ends = "pass_menu"
     rgb_possibles = {
-        "reward_acquired": (777, 491),
+        "reward_acquired": (640, 100),
     }
     co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
