@@ -4,10 +4,18 @@ import time
 import cv2
 
 from core import color, picture, image
+from core.geometry.parallelogram import Parallelogram
 from core.utils import build_possible_string_dict_and_length, most_similar_string
 
 
 def implement(self):
+    self.update_screenshot_array()
+    # for i in range(0, 9):
+    #     print(check_region_availability(self, i))
+    # cv2.imshow("test", self.latest_img_array)
+    # cv2.waitKey(0)
+    #
+    # exit(0)
     self.to_main_page()
     self.lesson_times = self.config.lesson_times
     region_name = self.static_config.lesson_region_name[self.identifier].copy()
@@ -38,7 +46,7 @@ def implement(self):
             continue
         tar_num = k
         times = self.lesson_times[k]
-        self.logger.info("begin schedule in [" + region_name[k] + "]")
+        self.logger.info("Begin schedule in [" + region_name[k] + "]")
         cur_num = to_lesson_region(self, tar_num, cur_num)
         for j in range(0, times):
             to_all_locations(self, True)
@@ -348,6 +356,13 @@ def get_lesson_relationship_counts(self):
 
 
 def get_lesson_each_region_status(self):
+    if self.server in ['CN', 'Global']:
+        return cn_global_get_lesson_each_region_status(self)
+    elif self.server == 'JP':
+        return jp_get_lesson_each_region_status(self)
+
+
+def cn_global_get_lesson_each_region_status(self):
     pd_lo = [[289, 204], [643, 204], [985, 204],
              [289, 359], [643, 359], [985, 359],
              [289, 511], [643, 511], [985, 511]]
@@ -365,6 +380,50 @@ def get_lesson_each_region_status(self):
         else:
             res.append("unknown")
     return res
+
+
+def jp_get_lesson_each_region_status(self):
+    pd_lo = [[289, 204], [643, 204], [985, 204],
+             [289, 359], [643, 359], [985, 359],
+             [289, 511], [643, 511], [985, 511]]
+    res = []
+    for i in range(0, 9):
+        if color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
+            res.append(check_region_availability(self, i))
+        # elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
+        #     res.append("lock")
+        elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,215):
+            res.append("no activity")
+        else:
+            res.append("unknown")
+    return res
+
+def check_region_availability(self, region_cnt):
+    k1 = 0
+    dx1 = 33
+    k2 = -5.3
+    dx2 = [9, 4]
+    region_start_p = [
+        (154, 328), (498, 328), (842, 328),
+        (154, 479), (498, 479), (842, 479),
+        (156, 605), (500, 605), (844, 605)
+    ]
+    dx2 = dx2[int(region_cnt / 6)]
+    start_p = region_start_p[region_cnt]
+    y_min, x_min_list, y_min_list = Parallelogram(start_p[0], start_p[1], k1, dx1, k2, dx2).pixels()
+
+    unavailable_max_pixel = 140
+    cnt = 0
+    for i in range(0, len(x_min_list)):
+        for j in range(x_min_list[i], y_min_list[i] + 1):
+            if not color.rgb_in_range(self, j, y_min + i, 0, unavailable_max_pixel, 0, unavailable_max_pixel, 0, unavailable_max_pixel):
+                # self.latest_img_array[y_min + i, j] = [255, 0, 0]  # mark unavailable area
+                cnt += 1
+                if cnt >= 50:
+                    return "available"
+
+    return "done"
+
 
 
 def out_lesson_status(self, res):

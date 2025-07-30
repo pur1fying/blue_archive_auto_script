@@ -1,3 +1,6 @@
+
+# Determinate a triangle by three vertexes in a screen
+
 class Triangle:
     def __init__(self, p):
         self.p = p
@@ -7,6 +10,10 @@ class Triangle:
         self.v0, self.v1, self.v2 = self.p
 
     def x_bounds(self):
+        """
+            Calculate the minimum and maximum x coordinates for each y coordinate
+        """
+
         y_cnt = self.v2[1] - self.v0[1] + 1
         x_min_list = [float('inf')] * y_cnt
         x_max_list = [float('-inf')] * y_cnt
@@ -38,7 +45,7 @@ class Triangle:
             x_left = self.v2[0]
             x_right = self.v2[0]
 
-            for y in range(self.v2[1], self.v1[1] - 1, -1):
+            for y in range(self.v2[1] - self.v0[1], self.v1[1] - 1 - self.v0[1], -1):
                 x_min_list[y] = min(x_min_list[y], round(x_left))
                 x_max_list[y] = max(x_max_list[y], round(x_right))
 
@@ -55,7 +62,7 @@ class Triangle:
         x_max_list[idx] = max(x_max_list[idx], max(v0[0], v1[0]))
 
 if __name__ == "__main__":
-    triangle = Triangle([(719, 1279), (360, 0), (0, 1279)])
+    triangle = Triangle([(0, 0), (100, 100), (100, -100)])
 
     x_min_list, x_max_list = triangle.x_bounds()
 
@@ -66,23 +73,21 @@ if __name__ == "__main__":
         min_x = x_min_list[i]
         max_x = x_max_list[i]
 
-        if min_x == float('inf') or max_x == float('-inf'):
-            continue
 
         print(f"{y:4d} | {min_x:6.2f} | {max_x:6.2f}")
 
-    # draw pixels with opencv
-    import cv2
-    import numpy as np
-    img = np.zeros((1280, 720, 3), dtype=np.uint8)
-    for y in range(len(x_min_list)):
-        min_x = x_min_list[y]
-        max_x = x_max_list[y]
-        if min_x == float('inf') or max_x == float('-inf'):
-            continue
-        for x in range(int(min_x), int(max_x) + 1):
-            img[y, x] = [255, 255, 255]  # white pixel
-
-    cv2.imshow("Triangle Pixels", img)
-    cv2.waitKey(0)
+    # # draw pixels with opencv
+    # import cv2
+    # import numpy as np
+    # img = np.zeros((1280, 720, 3), dtype=np.uint8)
+    # for y in range(len(x_min_list)):
+    #     min_x = x_min_list[y]
+    #     max_x = x_max_list[y]
+    #     if min_x == float('inf') or max_x == float('-inf'):
+    #         continue
+    #     for x in range(int(min_x), int(max_x) + 1):
+    #         img[y, x] = [255, 255, 255]  # white pixel
+    #
+    # cv2.imshow("Triangle Pixels", img)
+    # cv2.waitKey(0)
 
