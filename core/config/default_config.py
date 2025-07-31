@@ -3464,7 +3464,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "BaskingInTheBrillianceOfTheirSerenade",
         "Global": "ElectronicNewYearsMarch",
         "JP": "JP_2025_07_22"
     },
