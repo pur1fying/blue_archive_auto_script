@@ -745,17 +745,19 @@ class Baas_thread:
         try:
             ocr_res = int(ocr_res)
             _max = int(_max)
-            data = {
-                "count": ocr_res,
-                "max": _max,
-                "time": time.time()
-            }
-            self.config_set.set("ap", data)
-
-            return ocr_res
+            if ocr_res <= 999 and _max <= 999:
+                data = {
+                    "count": ocr_res,
+                    "max": _max,
+                    "time": time.time()
+                }
+                self.config_set.set("ap", data)
+                return ocr_res
         except ValueError:
-            self.logger.warning("Failed to get AP.")
-            return 999
+            pass
+
+        self.logger.warning("Failed to get AP.")
+        return 999
 
     def get_pyroxene(self, is_main_page=False):
         if is_main_page:
