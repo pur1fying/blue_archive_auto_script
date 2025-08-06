@@ -132,3 +132,10 @@ def calcTotalRGBDiff(rgb1, rgb2):
 
 def calcTotalRGBMeanABSDiff(img1, img2):
     return np.abs(img1 - img2).mean()
+
+def create_rgb_feature(self, name, pos_list, rgb_list):
+    self.rgb_feature[name] = [pos_list, rgb_list]
+
+def remove_rgb_feature(self, name):
+    if name in self.rgb_feature:
+        del self.rgb_feature[name]

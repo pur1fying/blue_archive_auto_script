@@ -1,14 +1,11 @@
 import json
 import os
-import time
 
-from core.ocr.baas_ocr_client.server_installer import check_git
-from core.utils import Logger
 from core.ocr import ocr
-from core.config.config_set import ConfigSet
+from core.utils import Logger
 from core.Baas_thread import Baas_thread
-from core import picture, color
-
+from core.config.config_set import ConfigSet
+from core.ocr.baas_ocr_client.server_installer import check_git
 
 class Main:
     def __init__(self, logger_signal=None, ocr_needed=None):

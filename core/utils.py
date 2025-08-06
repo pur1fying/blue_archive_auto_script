@@ -146,12 +146,15 @@ def build_possible_string_dict_and_length(st_list):
 def most_similar_string(s, possible_string_letter_dict, possible_string_length):
     """
         s : "pineapple"
-        possible_string_letter_dict : [{
-                                        "a": 1,
-                                        "e": 1,
-                                        "l": 1,
-                                        "p": 2,
-                                      }]
+        possible_string_letter_dict :
+        [
+            {
+                "a": 1,
+                "e": 1,
+                "l": 1,
+                "p": 2,
+            }
+        ]
         possible_string_length : [5]  apple
         acc = 1 + (1 - |2-1|) + 1 + 2 = 4 / 5 = 0.8
     """
@@ -214,7 +217,6 @@ def merge_nearby_coordinates(coords, abs_x=10, abs_y=10):
                 break
         if not found_group:
             groups.append([coord])
-
     return groups
 
 

@@ -28,12 +28,11 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
-from core.utils import Logger
 
 func_dict = {
     'group': module.group.implement,
     'momo_talk': module.momo_talk.implement,
-    'common_shop': module.common_shop.implement,
+    'common_shop': module.shop.common_shop.implement,
     'cafe_reward': module.cafe_reward.implement,
     'no1_cafe_invite': module.no1_cafe_invite.implement,
     'no2_cafe_invite': module.no2_cafe_invite.implement,
@@ -53,7 +52,7 @@ func_dict = {
     'hard_task': module.ExploreTasks.sweep_task.sweep_hard_task,
     'clear_special_task_power': module.clear_special_task_power.implement,
     'de_clothes': module.de_clothes.implement,
-    'tactical_challenge_shop': module.tactical_challenge_shop.implement,
+    'tactical_challenge_shop': module.shop.tactical_challenge_shop.implement,
     'collect_daily_power': module.collect_reward.implement,
     'total_assault': module.total_assault.implement,
     'restart': module.restart.implement,
@@ -65,6 +64,7 @@ func_dict = {
     'dailyGameActivity': module.dailyGameActivity.implement,
     'friend': module.friend.implement,
     'joint_firing_drill': module.joint_firing_drill.implement,
+    'pass': module.collect_pass_reward.implement
 }
 
 
@@ -609,6 +609,8 @@ class Baas_thread:
             'momo_talk_momotalk-peach': (1123, 122),
             'cafe_students-arrived': (922, 189),
             'cafe_quick-home': (1236, 31),
+            'pass_menu': (1247, 40),
+            'pass_mission-menu': (1247, 40),
             'group_sign-up-reward': (920, 159),
             'cafe_invitation-ticket': (835, 97),
             'lesson_lesson-information': (964, 117),

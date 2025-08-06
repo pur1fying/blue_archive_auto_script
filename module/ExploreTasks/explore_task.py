@@ -115,7 +115,7 @@ def explore_normal_task(self):
         - mission (int): The mission number.
         - taskDatas (dict): The task datas.
     """
-
+    self.to_main_page()
     for taskStr in str(self.config_set.config.explore_normal_task_list).split(','):
         result = validate_and_add_task(self, taskStr, tasklist, True)
         if not result[0]:
@@ -172,7 +172,7 @@ def explore_normal_task(self):
                     continue
 
             if not need_fight(self, taskDataName, True):
-                self.logger.warning(f"{taskDataName} is already finished,skip.")
+                self.logger.warning(f"{taskName} is already finished,skip.")
                 skip_navigate = True
                 continue
             skip_navigate = False
@@ -218,6 +218,7 @@ def explore_hard_task(self):
         - mission (int): The mission number.
         - taskDatas (dict): The task datas.
     """
+    self.to_main_page()
 
     for taskStr in str(self.config_set.config.explore_hard_task_list).split(','):
         result = validate_and_add_task(self, taskStr, tasklist, False)

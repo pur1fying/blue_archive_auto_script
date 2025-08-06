@@ -2,7 +2,7 @@ from module import arena
 from module import cafe_reward
 from module import clear_special_task_power
 from module import collect_reward
-from module import common_shop
+from module.shop import common_shop, tactical_challenge_shop
 from module import create
 from module import dailyGameActivity
 from module import de_clothes
@@ -25,5 +25,5 @@ from module import restart
 from module import rewarded_task
 from module import scrimmage
 from module import sweep_activity
-from module import tactical_challenge_shop
 from module import total_assault
+from module import collect_pass_reward

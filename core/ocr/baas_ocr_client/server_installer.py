@@ -1,3 +1,4 @@
+import shutil
 import sys
 import os
 from core.exception import OcrInternalError
@@ -33,23 +34,18 @@ branch = branch[arch]
 
 def check_git(logger):
     if not os.path.exists(SERVER_BIN_DIR + '/.git'):
-        logger.info("Installing Ocr Server, please wait...")
-        for i in range(1, 4):
-            try:
-                porcelain.clone(OCR_SERVER_PREBUILD_URL, SERVER_BIN_DIR, branch=branch)
-                break
-            except Exception as e:
-                if i == 3:
-                    raise OcrInternalError("Failed to install the BAAS_ocr_server. Please check your network")
-                logger.error(f"Failed to install BAAS_ocr_server, retrying... {i}")
-                logger.error(e.__str__())
-        logger.info("Ocr Server Install success.")
+        clone_repo(logger)
     else:
         logger.info("Ocr Server Update check.")
-        repo = Repo(SERVER_BIN_DIR)
-        # Get local SHA
-        local_sha = repo.head().decode('ascii')
-
+        try:
+            repo = Repo(SERVER_BIN_DIR)
+            # Get local SHA
+            local_sha = repo.head().decode('ascii')
+        except Exception:
+            logger.warning("Git Repo corrupted, remove .git folder and reinstall.")
+            shutil.rmtree(SERVER_BIN_DIR + '/.git')
+            clone_repo(logger)
+            return
         # Get remote SHA
         remote_refs = porcelain.ls_remote(OCR_SERVER_PREBUILD_URL)
         remote_sha = remote_refs.get(b'refs/heads/' + branch.encode('ascii')).decode('ascii')
@@ -78,3 +74,17 @@ def check_git(logger):
                 logger.info("Ocr Server Update success.")
             else:
                 logger.warning("Failed to update the BAAS_ocr_server, please check your network.")
+
+
+def clone_repo(logger):
+    logger.info("Installing Ocr Server, please hang on...")
+    for i in range(1, 4):
+        try:
+            porcelain.clone(OCR_SERVER_PREBUILD_URL, SERVER_BIN_DIR, branch=branch)
+            break
+        except Exception as e:
+            if i == 3:
+                raise OcrInternalError("Failed to install the BAAS_ocr_server. Please check your network")
+            logger.error(f"Failed to install BAAS_ocr_server, retrying... {i}")
+            logger.error(e.__str__())
+    logger.info("Ocr Server Install success.")

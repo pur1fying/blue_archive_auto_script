@@ -7,19 +7,19 @@
 BAAS提供以下三种安装包
 ### .exe安装包
    - ![exe_installer.png](/assets/install/exe_installer.png)
-    - **description**: `deploy/installer/installer.py` 打包出的安装包, 体积最小, 需要安装环境
+    - **description**: `deploy/installer/installer.py` 打包出的安装包, 体积最小, 需要安装python环境, clone仓库
     - **operation**: 下载后双击运行即可
 
 ### fulL_env的安装包 (**最为推荐下载**)
    - ![full_env_installer.png](/assets/install/full_env_installer.png)
-   - **description**: .exe安装包全部运行完毕后压缩后的安装包, 不需要安装环境, 自带三份配置(国服, 国际服, 日服), 
+   - **description**: .exe安装包全部运行完毕后压缩后的安装包, 不需要安装环境, 自带四份配置(国服, 国际服, 日服, Steam国际服), 
    - **operation**: 下载后解压, 双击运行`BlueArchiveAutoScript.exe`即可
    
 ### with_config安装包 (**mirror酱用户可选**)
    - ![with_config_installer.png](/assets/install/with_config_installer.png)
-   - **description**: .exe安装包, setup.toml (安装配置) 与三份运行配置(国服, 国际服, 日服) 一起压缩的安装包 
-   - **operation**: 下载后解压, 修改setup.toml中的Mirror酱cdk配置为你的cdk, 双击运行`BlueArchiveAutoScript.exe`即可
-   - **operation**: [图片教程](#如何使用cdk)
+   - **description**: .exe安装包 与 setup.toml (安装配置) 一起压缩的安装包 
+   - **description**: .exe安装包 , setup.toml (安装配置) , 和四份运行配置(国服, 国际服, 日服, Steam国际服)一起压缩的安装包 
+   - **operation**: 下载后解压, 用记事本打开`setup.toml`文件修改`mirrorc_cdk`为你的cdk, 双击运行`BlueArchiveAutoScript.exe`即可
 
 ## 简易安装教程
 

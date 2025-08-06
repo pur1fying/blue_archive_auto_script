@@ -985,20 +985,19 @@ def git_update_baas():
         gc.collect()
 
         # Reset local branch to remote
-        repo.reset(repo.lookup_reference("refs/remotes/origin/master").target, GIT_RESET_HARD)
+        repo.reset(repo.lookup_reference(f"refs/remotes/origin/{REPO_BRANCH}").target, GIT_RESET_HARD)
 
         # Checkout to master (HEAD points to refs/heads/master)
-        repo.checkout("refs/heads/master")
+        repo.checkout(f"refs/heads/{REPO_BRANCH}")
         # str(repo.references.get("refs/remotes/origin/master").target)
         local_sha = str(repo.head.target)
         if local_sha == remote_sha:
             spinner.succeed("Update completed.")
             logger.success("Git Update Success")
         else:
-            spinner.fail("Git Update Failed.")
-            logger.warning(
-                "Failed to update the source code, please check your network or for conflicting files"
-            )
+            spinner.fail("Failed to update the source code to latest version.")
+            logger.warning("Possible reason is your current update source haven't updated to latest.")
+            logger.warning("If you constantly encounter this issue, please try to use another update source like github.")
     except GitError as e:
         if "not owned by current user" in str(e):
             logger.error(f"Git repo ownership error: {e}")
