@@ -356,13 +356,13 @@ def get_lesson_relationship_counts(self):
 
 
 def get_lesson_each_region_status(self):
-    if self.server in ['CN', 'Global']:
-        return cn_global_get_lesson_each_region_status(self)
-    elif self.server == 'JP':
-        return jp_get_lesson_each_region_status(self)
+    if self.server in ['CN']:
+        return cn_get_lesson_each_region_status(self)
+    elif self.server in ['Global', 'JP']:
+        return global_jp_get_lesson_each_region_status(self)
 
 
-def cn_global_get_lesson_each_region_status(self):
+def cn_get_lesson_each_region_status(self):
     pd_lo = [[289, 204], [643, 204], [985, 204],
              [289, 359], [643, 359], [985, 359],
              [289, 511], [643, 511], [985, 511]]
@@ -382,7 +382,7 @@ def cn_global_get_lesson_each_region_status(self):
     return res
 
 
-def jp_get_lesson_each_region_status(self):
+def global_jp_get_lesson_each_region_status(self):
     pd_lo = [[289, 204], [643, 204], [985, 204],
              [289, 359], [643, 359], [985, 359],
              [289, 511], [643, 511], [985, 511]]
@@ -390,8 +390,8 @@ def jp_get_lesson_each_region_status(self):
     for i in range(0, 9):
         if color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
             res.append(check_region_availability(self, i))
-        # elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
-        #     res.append("lock")
+        elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
+            res.append("lock")
         elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,215):
             res.append("no activity")
         else:

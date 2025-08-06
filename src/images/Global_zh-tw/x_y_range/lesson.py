@@ -6,6 +6,6 @@ x_y_range = {
     'lesson-information': (563, 100, 715, 135),
     'all-locations': (563, 100, 715, 135),
     'lesson-report': (563, 125, 715, 150),
-    'purchase-lesson-ticket-menu': (530, 147, 750, 186),
-    'purchase-lesson-ticket-notice': (530, 162, 750, 201),
+    'purchase-lesson-ticket-menu': (530, 152, 750, 191),
+    'purchase-lesson-ticket-notice': (530, 167, 750, 206),
 }
