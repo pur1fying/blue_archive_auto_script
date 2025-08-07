@@ -3465,8 +3465,8 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "BaskingInTheBrillianceOfTheirSerenade",
-        "Global": "ElectronicNewYearsMarch",
-        "JP": "JP_2025_07_22"
+        "Global": "PandemicHazardAMiraclePancake",
+        "JP": "SayBing"
     },
     "dailyGameActivity": {
         "CN": null,
