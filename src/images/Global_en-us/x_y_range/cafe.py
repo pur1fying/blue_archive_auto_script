@@ -5,7 +5,7 @@ x_y_range = {
     '0.0': (1136, 655, 1210, 684),
     'students-arrived': (550, 240, 730, 269),
     'cafe-reward-status': (490, 132, 800, 174),
-    'invitation-ticket': (421, 78, 451, 111),
+    'invitation-ticket': (410, 78, 441, 111),
     'invitation-ticket-invalid': (397, 299, 880, 365),
     'quick-home': (1215, 5, 1255, 42),
     'invitation-ticket-order-name': (642, 138, 768, 165),
