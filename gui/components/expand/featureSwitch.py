@@ -10,7 +10,7 @@ from qfluentwidgets import CheckBox, TableWidget, PushButton, ComboBox, CaptionL
     SubtitleLabel
 
 from gui.components.expand.expandTemplate import TemplateLayoutV2
-from gui.util.customed_ui import ClickFocusLineEdit
+from gui.util.customized_ui import ClickFocusLineEdit
 from gui.util.translator import baasTranslator as bt
 
 

@@ -15,6 +15,7 @@ class TOML_Config:
             raise FileNotFoundError(f"TOML File [ '{config_path}' ] does not exist.")
         self.config = None
         self._init_config()
+        self.signals = None
 
     def _init_config(self):
         with open(self.config_path, 'rb') as f:
@@ -39,6 +40,16 @@ class TOML_Config:
             current = current[key]
         current[keys[-1]] = value
 
+    def contains(self, key):
+        keys = key.split('.')
+        current = self.config
+        for key in keys:
+            if isinstance(current, dict) and key in current:
+                current = current[key]
+            else:
+                return False
+        return True
+
     def set_and_save(self, key, value):
         self.set(key, value)
         self.save()
@@ -61,3 +72,15 @@ class TOML_Config:
     def save(self):
         with open(self.config_path, 'wb') as f:
             tomli_w.dump(self.config, f)
+
+    def add_signal(self, key, signal):
+        self.signals[key] = signal
+
+    def get_signal(self, key):
+        return self.signals.get(key)
+
+    def get_signals(self):
+        return self.signals
+
+    def set_signals(self, signals):
+        self.signals = signals
