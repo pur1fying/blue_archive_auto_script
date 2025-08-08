@@ -10,7 +10,7 @@ from qfluentwidgets import FluentIcon as FIF
 
 from core.utils import delay
 from gui.util.config_gui import configGui
-from gui.util.customed_ui import OutlineLabel, DialogSettingBox, BAASSettingCard
+from gui.util.customized_ui import OutlineLabel, DialogSettingBox, BAASSettingCard
 from gui.util.translator import baasTranslator as bt
 
 BANNER_IMAGE_DIR = 'gui/assets/banners'

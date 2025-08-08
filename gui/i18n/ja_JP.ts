@@ -4,67 +4,67 @@
 <context>
     <name>AssetsWidget</name>
     <message>
-        <location filename="../util/customed_ui.py" line="232"/>
+        <location filename="../util/customized_ui.py" line="232"/>
         <source>体力</source>
         <translation type="unfinished">物理的</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="238"/>
+        <location filename="../util/customized_ui.py" line="238"/>
         <source>信用点</source>
         <translation type="unfinished">クレジット</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="244"/>
+        <location filename="../util/customized_ui.py" line="244"/>
         <source>青辉石</source>
         <translation type="unfinished">青煇石</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="250"/>
+        <location filename="../util/customized_ui.py" line="250"/>
         <source>竞技币</source>
         <translation type="unfinished">アスレチックコイン</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="259"/>
+        <location filename="../util/customized_ui.py" line="259"/>
         <source>悬赏令</source>
         <translation type="unfinished">懸賞命令</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="265"/>
+        <location filename="../util/customized_ui.py" line="265"/>
         <source>拱心片</source>
         <translation type="unfinished">アーチピース</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="271"/>
+        <location filename="../util/customized_ui.py" line="271"/>
         <source>拱心石</source>
         <translation type="unfinished">キーストーン</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="451"/>
+        <location filename="../util/customized_ui.py" line="451"/>
         <source>{0}秒前</source>
         <translation type="unfinished">{0}秒前</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="453"/>
+        <location filename="../util/customized_ui.py" line="453"/>
         <source>{0}分钟前</source>
         <translation type="unfinished">{0}分前</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="455"/>
+        <location filename="../util/customized_ui.py" line="455"/>
         <source>{0}小时前</source>
         <translation type="unfinished">{0}時間前</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="457"/>
+        <location filename="../util/customized_ui.py" line="457"/>
         <source>{0}天前</source>
         <translation type="unfinished">{0}日前</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="459"/>
+        <location filename="../util/customized_ui.py" line="459"/>
         <source>{0}个月前</source>
         <translation type="unfinished">{0}ヶ月前</translation>
     </message>
     <message>
-        <location filename="../util/customed_ui.py" line="461"/>
+        <location filename="../util/customized_ui.py" line="461"/>
         <source>{0}年前</source>
         <translation type="unfinished">{0}年前</translation>
     </message>

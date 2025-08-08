@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QAbstractItemView, QTableWidgetItem, QHeaderView
 from dulwich.repo import Repo
 from qfluentwidgets import TableWidget
 
-from gui.util.customed_ui import PureWindow
+from gui.util.customized_ui import PureWindow
 
 
 class HistoryWindow(PureWindow):

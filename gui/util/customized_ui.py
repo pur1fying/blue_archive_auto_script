@@ -372,57 +372,59 @@ class AssetsWidget(QFrame):
 
     def _parse_config(self):
         # AP
-        original_ap = self.config.get('ap', 'Unknown')
-        if type(original_ap) == dict:
-            ap_value = original_ap.get('count', 'Unknown')
-            max_value = original_ap.get('max', 'Unknown')
-            ap_time = original_ap.get('time', '-')
-            ap_value = ap_value if ap_value != -1 else 'Unknown'
-            max_value = max_value if max_value != -1 else 'Unknown'
-            self.disp_config.get('ap')['value'] = f"{ap_value}/{max_value}"
-            self.disp_config.get('ap')['time'] = self._parse_time(ap_time)
+        try:
+            original_ap = self.config.get('ap', 'Unknown')
+            if type(original_ap) == dict:
+                ap_value = original_ap.get('count', 'Unknown')
+                max_value = original_ap.get('max', 'Unknown')
+                ap_time = original_ap.get('time', '-')
+                ap_value = ap_value if ap_value != -1 else 'Unknown'
+                max_value = max_value if max_value != -1 else 'Unknown'
+                self.disp_config.get('ap')['value'] = f"{ap_value}/{max_value}"
+                self.disp_config.get('ap')['time'] = self._parse_time(ap_time)
 
-        original_creditpoints = self.config.get('creditpoints', 'Unknown')
-        if type(original_creditpoints) == dict:
-            creditpoints_value = original_creditpoints.get('count', 'Unknown')
-            creditpoints_time = original_creditpoints.get('time', '-')
-            creditpoints_value = creditpoints_value if creditpoints_value != -1 else 'Unknown'
-            self.disp_config.get('creditpoints')['value'] = creditpoints_value
-            self.disp_config.get('creditpoints')['time'] = self._parse_time(creditpoints_time)
+            original_creditpoints = self.config.get('creditpoints', 'Unknown')
+            if type(original_creditpoints) == dict:
+                creditpoints_value = original_creditpoints.get('count', 'Unknown')
+                creditpoints_time = original_creditpoints.get('time', '-')
+                creditpoints_value = creditpoints_value if creditpoints_value != -1 else 'Unknown'
+                self.disp_config.get('creditpoints')['value'] = creditpoints_value
+                self.disp_config.get('creditpoints')['time'] = self._parse_time(creditpoints_time)
 
-        original_pyroxene = self.config.get('pyroxene', 'Unknown')
-        if type(original_pyroxene) == dict:
-            pyroxene_value = original_pyroxene.get('count', 'Unknown')
-            pyroxene_time = original_pyroxene.get('time', '-')
-            pyroxene_value = pyroxene_value if pyroxene_value != -1 else 'Unknown'
-            self.disp_config.get('pyroxene')['value'] = pyroxene_value
-            self.disp_config.get('pyroxene')['time'] = self._parse_time(pyroxene_time)
+            original_pyroxene = self.config.get('pyroxene', 'Unknown')
+            if type(original_pyroxene) == dict:
+                pyroxene_value = original_pyroxene.get('count', 'Unknown')
+                pyroxene_time = original_pyroxene.get('time', '-')
+                pyroxene_value = pyroxene_value if pyroxene_value != -1 else 'Unknown'
+                self.disp_config.get('pyroxene')['value'] = pyroxene_value
+                self.disp_config.get('pyroxene')['time'] = self._parse_time(pyroxene_time)
 
-        original_tactical_challenge_coin = self.config.get('tactical_challenge_coin', 'Unknown')
-        if type(original_tactical_challenge_coin) == dict:
-            tactical_challenge_coin_value = original_tactical_challenge_coin.get('count', 'Unknown')
-            tactical_challenge_coin_time = original_tactical_challenge_coin.get('time', '-')
-            tactical_challenge_coin_value = tactical_challenge_coin_value if tactical_challenge_coin_value != -1 else 'Unknown'
-            self.disp_config.get('tactical_challenge_coin')['value'] = tactical_challenge_coin_value
-            self.disp_config.get('tactical_challenge_coin')['time'] = self._parse_time(
-                tactical_challenge_coin_time)
+            original_tactical_challenge_coin = self.config.get('tactical_challenge_coin', 'Unknown')
+            if type(original_tactical_challenge_coin) == dict:
+                tactical_challenge_coin_value = original_tactical_challenge_coin.get('count', 'Unknown')
+                tactical_challenge_coin_time = original_tactical_challenge_coin.get('time', '-')
+                tactical_challenge_coin_value = tactical_challenge_coin_value if tactical_challenge_coin_value != -1 else 'Unknown'
+                self.disp_config.get('tactical_challenge_coin')['value'] = tactical_challenge_coin_value
+                self.disp_config.get('tactical_challenge_coin')['time'] = self._parse_time(
+                    tactical_challenge_coin_time)
 
-        original_bounty_coin = self.config.get('bounty_coin', 'Unknown')
-        if type(original_bounty_coin) == dict:
-            bounty_coin_value = original_bounty_coin.get('count', 'Unknown')
-            bounty_coin_time = original_bounty_coin.get('time', '-')
-            bounty_coin_value = bounty_coin_value if bounty_coin_value != -1 else 'Unknown'
-            self.disp_config.get('bounty_coin')['value'] = bounty_coin_value
-            self.disp_config.get('bounty_coin')['time'] = self._parse_time(bounty_coin_time)
+            original_bounty_coin = self.config.get('bounty_coin', 'Unknown')
+            if type(original_bounty_coin) == dict:
+                bounty_coin_value = original_bounty_coin.get('count', 'Unknown')
+                bounty_coin_time = original_bounty_coin.get('time', '-')
+                bounty_coin_value = bounty_coin_value if bounty_coin_value != -1 else 'Unknown'
+                self.disp_config.get('bounty_coin')['value'] = bounty_coin_value
+                self.disp_config.get('bounty_coin')['time'] = self._parse_time(bounty_coin_time)
 
-        original_keystone_piece = self.config.get('create_item_holding_quantity').get('Keystone-Piece', 'Unknown')
-        original_keystone_piece = original_keystone_piece if original_keystone_piece != -1 else 'Unknown'
-        original_keystone = self.config.get('create_item_holding_quantity').get('Keystone', 'Unknown')
-        original_keystone = original_keystone if original_keystone != -1 else 'Unknown'
-        self.disp_config.get('Keystone-Piece')['value'] = original_keystone_piece
-        self.disp_config.get('Keystone-Piece')['time'] = "/"
-        self.disp_config.get('Keystone')['value'] = original_keystone
-        self.disp_config.get('Keystone')['time'] = "/"
+            original_keystone_piece = self.config.get('create_item_holding_quantity').get('Keystone-Piece', 'Unknown')
+            original_keystone_piece = original_keystone_piece if original_keystone_piece != -1 else 'Unknown'
+            original_keystone = self.config.get('create_item_holding_quantity').get('Keystone', 'Unknown')
+            original_keystone = original_keystone if original_keystone != -1 else 'Unknown'
+            self.disp_config.get('Keystone-Piece')['value'] = original_keystone_piece
+            self.disp_config.get('Keystone-Piece')['time'] = "/"
+            self.disp_config.get('Keystone')['value'] = original_keystone
+            self.disp_config.get('Keystone')['time'] = "/"
+        except: return
 
     def _apply_config(self):
         self.patch_v_dict['ap'].setText(
