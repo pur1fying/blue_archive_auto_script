@@ -719,14 +719,14 @@ class Baas_thread:
         if is_main_page:
             region = {
                 'CN': (512, 25, 609, 52),
-                'Global': (512, 25, 609, 52),
+                'Global': (485, 23, 586, 54),
                 'JP': (485, 23, 586, 54)
             }
             region = region[self.server]
         else:
             region = {
                 'CN': (557, 10, 662, 40),
-                'Global': (557, 10, 662, 40),
+                'Global': (530, 10, 642, 40),
                 'JP': (530, 10, 642, 40)
             }
             region = region[self.server]
