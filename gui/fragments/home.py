@@ -12,7 +12,6 @@ from qfluentwidgets import FluentIcon as FIF, TextEdit, SwitchButton, IndicatorP
 from qfluentwidgets import (
     PrimaryPushSettingCard,
     SubtitleLabel,
-    setFont
 )
 
 from core.notification import notify
@@ -47,8 +46,6 @@ class HomeFragment(QFrame):
         self.label = SubtitleLabel(self)
         config.inject(self.label, title)
         self.info = SubtitleLabel(self.tr('无任务'), self)
-        setFont(self.label, 24)
-        setFont(self.info, 24)
 
         self.infoLayout.addWidget(self.label, 0, Qt.AlignLeft)
         self.infoLayout.addStretch(1)

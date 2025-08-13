@@ -21,7 +21,7 @@ from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
-from gui.util.config_gui import configGui
+from gui.util.config_gui import configGui, COLOR_THEME
 from core.config.config_set import ConfigSet
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
@@ -120,7 +120,7 @@ def check_single_event(new_event, old_event):
     return old_event
 
 
-def check_event_config(dir_path='./default_config', user_config = None):
+def check_event_config(dir_path='./default_config', user_config=None):
     path = './config/' + dir_path + '/event.json'
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
     server = user_config.server_mode
@@ -308,7 +308,6 @@ class BAASTabBar(TabBar):
 class BAASLangAltButton(TransparentToolButton):
     def __init__(self, parent):
         super().__init__(parent)
-        self.setIcon(FIF.LANGUAGE.icon())
         configGui.language.valueChanged.connect(self._onLangChanged)
 
         self.setToolTip(self.tr('语言设置'))
@@ -359,14 +358,16 @@ class BAASTitleBar(MSFluentTitleBar):
 
         self.langButton = BAASLangAltButton(self)
 
-        self.historyButton = TransparentToolButton(FIF.HISTORY.icon(), self)
+        self.historyButton = TransparentToolButton(self)
         self.historyButton.setToolTip(self.tr('更新日志'))
         self.historyButton.clicked.connect(self.onHistoryButtonClicked)
 
-        self.helpButton = TransparentToolButton(FIF.HELP.icon(), self)
+        self.helpButton = TransparentToolButton(self)
         self.helpButton.setToolTip(self.tr('帮助'))
         self.helpButton.clicked.connect(self.onHelpButtonClicked)
         # self.tabBar.tabCloseRequested.connect(self.tabRemoveRequest)
+
+        self._set_icon()
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
         self.hBoxLayout.setStretch(6, 0)
@@ -374,7 +375,15 @@ class BAASTitleBar(MSFluentTitleBar):
         self.hBoxLayout.insertWidget(6, self.historyButton, 0, alignment=Qt.AlignRight)
         self.hBoxLayout.insertWidget(7, self.helpButton, 0, alignment=Qt.AlignRight)
 
-        # self.hBoxLayout.insertSpacing(8, 20)
+        configGui.themeChanged.connect(self._set_icon)
+
+    def _set_icon(self):
+        self.historyButton.setIcon(FIF.HISTORY.icon(
+            color=COLOR_THEME[configGui.theme.value]['text']))
+        self.helpButton.setIcon(FIF.HELP.icon(
+            color=COLOR_THEME[configGui.theme.value]['text']))
+        self.langButton.setIcon(FIF.LANGUAGE.icon(
+            color=COLOR_THEME[configGui.theme.value]['text']))
 
     def canDrag(self, pos: QPoint):
         if not super().canDrag(pos):
