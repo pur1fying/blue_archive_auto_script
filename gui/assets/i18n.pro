@@ -8,6 +8,7 @@ SOURCES += \
     ../../gui/components/expand/expandTemplate.py \
     ../../gui/components/expand/exploreConfig.py \
     ../../gui/components/expand/featureSwitch.py \
+    ../../gui/components/expand/drillConfig.py \
     ../../gui/components/expand/friendWhiteList.py \
     ../../gui/components/expand/formationConfig.py \
     ../../gui/components/expand/mainlinePriority.py \
@@ -20,7 +21,8 @@ SOURCES += \
     ../../gui/components/expand/shopPriority.py \
     ../../gui/components/expand/sweepCountConfig.py \
     ../../gui/components/expand/totalForceFightPriority.py \
-    ../../gui/util/customed_ui.py \
+    ../../gui/components/expand/baasUpdateConfig.py \
+    ../../gui/util/customized_ui.py \
     ../../gui/components/dialog_panel.py \
     ../../gui/components/template_card.py \
     ../../gui/fragments/history.py \
@@ -28,6 +30,7 @@ SOURCES += \
     ../../gui/fragments/process.py \
     ../../gui/fragments/readme.py \
     ../../gui/fragments/settings.py \
+    ../../gui/fragments/glob.py \
     ../../gui/fragments/switch.py \
     ../../gui/util/config_translation.py \
     ../../window.py \
