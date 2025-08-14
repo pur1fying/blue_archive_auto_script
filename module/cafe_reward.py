@@ -70,19 +70,13 @@ def to_cafe(self, skip_first_screenshot=False):
 
 def to_no2_cafe(self):
     to_cafe(self)
-    if self.server == "JP" or self.server == "Global":
-        img_ends = "cafe_button-goto-no1-cafe"
-        img_possibles = {
-            "cafe_button-goto-no2-cafe": (118, 98),
-            "cafe_students-arrived": (922, 189),
-        }
-        picture.co_detect(self, None, None, img_ends, img_possibles, True)
-        return
-    img_ends = "cafe_at-no1-cafe"
-    img_possibles = {"cafe_menu": (118, 98)}
+    img_ends = "cafe_button-goto-no1-cafe"
+    img_possibles = {
+        "cafe_button-goto-no2-cafe": (118, 98),
+        "cafe_students-arrived": (922, 189),
+    }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    image.click_to_disappear(self, "cafe_at-no1-cafe", 240, 168)
-    to_cafe(self)
+    return
 
 
 def match(img):

@@ -45,14 +45,8 @@ def implement(self):
                 "shop_purchase-notice2",
             ]
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            purchase_location = {
-                'CN': (777, 491),
-                'Global': (754, 581),
-                'JP': (754, 581)
-            }
             img_possibles = {
-                "shop_purchase-notice1": purchase_location[self.server],
-                "shop_purchase-notice2": (767, 524),
+                "shop_purchase-notice1": (754, 581),
             }
             rgb_ends = "reward_acquired"
             img_ends = "main_page_full-notice"

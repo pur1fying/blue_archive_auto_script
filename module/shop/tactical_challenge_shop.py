@@ -41,13 +41,8 @@ def implement(self):
             }
             img_ends = "shop_purchase-notice1"
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            purchase_location = {
-                'CN': (777, 491),
-                'Global': (754, 581),
-                'JP': (754, 581)
-            }
             img_possibles = {
-                "shop_purchase-notice1": purchase_location[self.server],
+                "shop_purchase-notice1": (754, 581),
             }
             rgb_ends = "reward_acquired"
             img_ends = "main_page_full-notice"
@@ -110,14 +105,9 @@ def to_refresh(self):
 
 
 def get_tactical_challenge_assets(self):
-    tactical_challenge_assets_region = {
-        'CN': [907, 68, 1045, 98],
-        'Global': [751, 68, 884, 98],
-        'JP': [751, 68, 884, 98]
-    }
     ret = self.ocr.recognize_int(
         baas=self,
-        region=tactical_challenge_assets_region[self.server],
+        region=(751, 68, 884, 98),
         log_info="Tactical Challenge Assets"
     )
     data = {
