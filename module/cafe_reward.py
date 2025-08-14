@@ -221,14 +221,9 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_invitation-ticket',
         'cafe_invitation-ticket-invalid',
     ]
-    invitation_ticket_x = {
-        'CN': 838,
-        'Global': 887,
-        'JP': 887,
-    }
     img_possible = {
         'cafe_cafe-reward-status': (905, 159),
-        'cafe_menu': (invitation_ticket_x[self.server], 647),
+        'cafe_menu': (887, 647),
         'cafe_duplicate-invite-notice': (534, 497),
         'cafe_switch-clothes-notice': (534, 497),
         'cafe_duplicate-invite': (534, 497),
@@ -577,18 +572,12 @@ def is_english(char):
 
 
 def get_invitation_ticket_next_time(self):
-    region = {
-        'CN': (800, 584, 875, 608),
-        'Global': (850, 588, 926, 614),
-        'JP': (850, 588, 926, 614)
-    }
-    region = region[self.server]
     for i in range(0, 3):
         if i != 0:
             self.update_screenshot_array()
         res = self.ocr.get_region_res(
             baas=self,
-            region=region,
+            region=(850, 588, 926, 614),
             language='en-us',
             log_info='Invitation Ticket Next Time',
             candidates='0123456789:'
