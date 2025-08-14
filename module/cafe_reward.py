@@ -490,11 +490,12 @@ def collect(self):
 
 
 def get_invitation_ticket_status(self):
+    log = 'Invitation Ticket '
     if color.match_rgb_feature(self, "invitation_ticket_available_to_use"):
-        self.logger.info("Invite ticket available for use")
+        self.logger.info(log + " Available To Use")
         return True
     else:
-        self.logger.info("Invitation ticket unavailable")
+        self.logger.info(log + " Unavailable To Use")
         return False
 
 
