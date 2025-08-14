@@ -71,17 +71,10 @@ def change_sort(self, sort="unread"):
     img_reactions = {f"momo_talk_sort-{key}-chosen": p for key in keys}
     img_ends = f"momo_talk_sort-{sort}-chosen"
     picture.co_detect(self, None, None, img_ends, img_reactions, skip_first_screenshot=True)
-    # confirm
-    confirm_y = {
-        "CN": 426,
-        "Global": 475,
-        "JP": 475
-    }
-    confirm_y = confirm_y[self.server]
     image.click_until_template_disappear(
         self,
         "momo_talk_sort-menu",
-        461, confirm_y,
+        461, 475,
         0.8,
         20,
         True
