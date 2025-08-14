@@ -609,10 +609,10 @@ STATIC_DEFAULT_CONFIG = '''
     "max_region": {
         "CN": 24,
         "Global": 27,
-        "JP": 28
+        "JP": 29
     },
-    "explore_normal_task_region_range": [4, 28],
-    "explore_hard_task_region_range": [1, 28],
+    "explore_normal_task_region_range": [4, 29],
+    "explore_hard_task_region_range": [1, 29],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "mss", "pyautogui"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "pyautogui"],
     "shop_type_list_names": {
@@ -3522,7 +3522,8 @@ STATIC_DEFAULT_CONFIG = '''
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"],
         ["26-1", "好美"], ["26-2", "爱莉"], ["26-3", "瞬(小)"],
         ["27-1", "志美子"], ["27-2", "晴"], ["27-3", "千夏(温泉)"],
-        ["28-1", "朱莉"], ["28-2", "玛丽"], ["28-3", "美咲"]
+        ["28-1", "朱莉"], ["28-2", "玛丽"], ["28-3", "美咲"],
+        ["29-1", "芹娜"], ["29-2", "桐乃"], ["29-3", "日向"]
     ],
   "student_names": [
     {
