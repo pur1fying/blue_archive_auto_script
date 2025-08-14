@@ -607,7 +607,7 @@ STATIC_DEFAULT_CONFIG = '''
         "JP": [1, 2, 3, 4, 5, 6, 7, 8]
     },
     "max_region": {
-        "CN": 24,
+        "CN": 25,
         "Global": 27,
         "JP": 29
     },
@@ -3464,7 +3464,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "BaskingInTheBrillianceOfTheirSerenade",
+        "CN": "TheCathedralsMerryChristmas",
         "Global": "PandemicHazardAMiraclePancake",
         "JP": "SayBing"
     },
