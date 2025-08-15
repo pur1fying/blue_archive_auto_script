@@ -288,9 +288,9 @@ def change_order_type(self, order_type):
     to_revise_order_type(self)
     order_type_location = {
         'CN': {
-            "academy": (754, 267),
-            "affection": (529, 322),
-            "starred": (532, 263),
+            "academy": (531, 267),
+            "affection": (745, 267),
+            "starred": (531, 317),
         },
         'Global': {
             "name": (534, 256),
