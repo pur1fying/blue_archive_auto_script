@@ -12,11 +12,10 @@ from qfluentwidgets import FluentIcon as FIF, TextEdit, SwitchButton, IndicatorP
 from qfluentwidgets import (
     PrimaryPushSettingCard,
     SubtitleLabel,
-    setFont
 )
 
 from core.notification import notify
-from gui.util.customed_ui import AssetsWidget, FuncLabel
+from gui.util.customized_ui import AssetsWidget, FuncLabel
 from gui.util.translator import baasTranslator as bt
 from window import Window
 
@@ -47,8 +46,6 @@ class HomeFragment(QFrame):
         self.label = SubtitleLabel(self)
         config.inject(self.label, title)
         self.info = SubtitleLabel(self.tr('无任务'), self)
-        setFont(self.label, 24)
-        setFont(self.info, 24)
 
         self.infoLayout.addWidget(self.label, 0, Qt.AlignLeft)
         self.infoLayout.addStretch(1)
@@ -114,10 +111,18 @@ class HomeFragment(QFrame):
         self.main_thread_attach.exit_signal.connect(lambda x: sys.exit(x))
 
         config.add_signal('update_signal', self.main_thread_attach.update_signal)
+        self.hk_mgr = self.config.get_hotkey_manager()
+
+        self._init_hotkey(
+            key="hotkey_run",
+            default="Ctrl+Shift+R",
+            callback=self.startup_card.button.click
+        )
+
         self.startup_card.clicked.connect(self._start_clicked)
         # set a hash object name for this widget
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
-        self.setObjectName(self.object_name)
+        self.setObjectName(f"{self.object_name}.HomeFragment")
         if self.config.get('autostart'):
             self.startup_card.button.click()
 
@@ -207,6 +212,15 @@ class HomeFragment(QFrame):
 
     def update_content_then(self, option: str):
         self.startup_card.setContent(self.tr('开始你的档案之旅') + ' - ' + self.tr("完成后") + f' {option}')
+
+    def _init_hotkey(self, key: str, default: str, callback):
+        self.config.callbacks[key] = callback
+        if not self.config.has(key):
+            self.config.set(key, default)
+        bind_key = self.config.get(key, default)
+        self.hk_mgr.register(bind_key, callback)
+        self.hk_mgr.start()
+
 
     # def __init_starter(self):
     # if self._main_thread is None:

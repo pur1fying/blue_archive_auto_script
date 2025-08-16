@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
 from gui.components.template_card import BAASSettingCard
-from gui.util.customed_ui import LineWidget, TableManager
+from gui.util.customized_ui import LineWidget, TableManager
 
 
 class Layout(QWidget):

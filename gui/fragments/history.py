@@ -1,13 +1,15 @@
-import random
+from random import random
 import threading
+import time
 import traceback
 from datetime import datetime
+from hashlib import md5
 
 from PyQt5.QtWidgets import QAbstractItemView, QTableWidgetItem, QHeaderView
 from dulwich.repo import Repo
 from qfluentwidgets import TableWidget
 
-from gui.util.customed_ui import PureWindow
+from gui.util.customized_ui import PureWindow
 
 
 class HistoryWindow(PureWindow):
@@ -32,8 +34,9 @@ class HistoryWindow(PureWindow):
         self.setWidget(self.table_view)
 
         # Set object name for CSS styling
-        self.setObjectName('HistoryWindow' + random.randint(0, 100000).__str__())
-        self.table_view.setObjectName('HistoryTable' + random.randint(0, 100000).__str__())
+        self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
+        self.setObjectName(f'{self.object_name}.HistoryWindow')
+        self.table_view.setObjectName(f"{self.object_name}.HistoryTable")
 
     def fetch_update_info(self):
         repo_path = '.'  # 仓库路径，可根据需要修改

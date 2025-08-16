@@ -6,12 +6,15 @@ from datetime import datetime, timedelta
 
 from typing import Union
 
-from PyQt5.QtCore import Qt, QObject, QEvent, pyqtSignal
-from PyQt5.QtGui import QFont, QPainter, QColor, QIcon
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout, QWidget
+from PyQt5.QtCore import Qt, QObject, QEvent, pyqtSignal, QRectF
+from PyQt5.QtGui import QFont, QPainter, QColor, QIcon, QPixmap
+from PyQt5.QtSvg import QSvgRenderer
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout, QWidget, QScrollArea
 from qfluentwidgets import (MessageBoxBase, TableWidget, CheckBox, LineEdit, SubtitleLabel, ImageLabel, FlowLayout,
-                            ComboBox, PushButton, ExpandSettingCard, FluentIcon as FIF)
+                            ComboBox, PushButton, ExpandSettingCard, FluentIcon as FIF, ScrollArea)
 from qfluentwidgets.window.fluent_window import FluentWindowBase, FluentTitleBar
+
+from gui.util.config_gui import configGui, COLOR_THEME
 
 
 class BoundComponent(QObject):
@@ -122,13 +125,30 @@ class OutlineLabel(QLabel):
         super().__init__(text, parent)
         if args: self.init_args = args
         font_size = kwargs.get('font_size', 20)  # Retrieve font size from kwargs
-        font_family = kwargs.get('font_family', "Arial")  # Retrieve font family from kwargs
+        font_family = kwargs.get('font_family', "Microsoft YaHei")  # Retrieve font family from kwargs
         font_weight = kwargs.get('font_weight', QFont.Bold)  # Retrieve font weight from kwargs
-
         self.outline_color = kwargs.get('outline_color', QColor("white"))  # Retrieve outline color from kwargs
         self.text_color = kwargs.get('text_color', QColor("black"))  # Retrieve text color from kwargs
 
-        self.setFont(QFont(font_family, font_size, font_weight))
+        font_weight = {
+            QFont.Bold: 'bold',
+            QFont.Normal: 'normal',
+            QFont.Light: 'light',
+            QFont.Thin: 'thin',
+            QFont.Medium: 'medium',
+            QFont.DemiBold: 'demibold',
+            QFont.Black: 'black',
+        }[font_weight]
+
+        self.setStyleSheet("""
+            font-family: %(font_family)s;
+            font-size: %(font_size)dpx;
+            font-weight: %(font_weight)s;
+        """ % {
+            'font_family': font_family,
+            'font_size': font_size,
+            'font_weight': font_weight
+        })
         self.setAlignment(Qt.AlignCenter)  # Align text to the center
 
     def paintEvent(self, event):
@@ -202,8 +222,18 @@ class DialogSettingBox(MessageBoxBase):
         # Set the wrapper layout for the frame
         frame.setLayout(layout_wrapper)
 
+        scroll_area = ScrollArea()
+        scroll_area.setStyleSheet('''
+                background-color: transparent;
+                border: none;
+        ''')
+        scroll_area.setWidget(frame)
+        scroll_area.setFixedWidth(self.width() - 100)  # Set minimum width to the dialog width minus 20 pixels
+        scroll_area.setWidgetResizable(True)  # Make the scroll area resizable
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Disable horizontal scrollbar
+
         # Add the frame to the dialog's main layout
-        self.viewLayout.addWidget(frame)
+        self.viewLayout.addWidget(scroll_area)
 
 
 class FuncLabel(QLabel):
@@ -220,6 +250,8 @@ class FuncLabel(QLabel):
 
 
 class AssetsWidget(QFrame):
+    signal_update = pyqtSignal()
+
     def __init__(self, config, parent, **kwargs):
         super().__init__(parent)
         self.config = config
@@ -274,18 +306,36 @@ class AssetsWidget(QFrame):
                 "time": 'Unknown'
             }
         }
+        self._specialize_config()
         self._parse_config()
         self._apply_config_to_layout(self.disp_config)
+        self.signal_update.connect(self._apply_config)
+        configGui.themeChanged.connect(self.repaint_color)
+        self.repaint_color()
+
+    def _specialize_config(self):
+        if self.config.server_mode in ['JP']:
+            self.disp_config = {
+                **self.disp_config,
+                "_pass": {
+                    "name": self.tr("通行证"),
+                    'icon': 'gui/assets/icons/item_icon_pass.webp',
+                    'value': 'Unknown',
+                    "time": '-'
+                }
+            }
+
+    def repaint_color(self):
         self.setStyleSheet("""
             AssetsWidget {
-                background-color: rgba(255, 255, 255, 0.7);
+                background-color: %(background_color)s;
                 border-radius: 10px;
-                border: 2px dashed rgba(0, 0, 0, 0.4);
+                border: 2px dashed %(border_color)s;
             }
 
             QLabel {
-                font-size: %dpx;
-                line-height: %dpx;
+                font-size: %(line_height)dpx;
+                line-height: %(item_height)dpx;
                 border: none;
             }
 
@@ -297,7 +347,12 @@ class AssetsWidget(QFrame):
                  font-size: 14px;
                  height: 20px;
              }
-        """ % ((self.item_height - 10) // 2, self.item_height))
+        """ % {
+            'background_color': COLOR_THEME[configGui.theme.value]['background'],
+            'border_color': COLOR_THEME[configGui.theme.value]['border'],
+            'line_height': (self.item_height - 10) // 2,
+            'item_height': self.item_height
+        })
 
     def get_unit_layout(self, item_key, item_icon_path, item_name, item_value, item_time, parent=None):
 
@@ -338,8 +393,8 @@ class AssetsWidget(QFrame):
     def _apply_config_to_layout(self, disp_config):
 
         for ind, (item_key, v) in enumerate(self.disp_config.items()):
-                self.layout.addWidget(self.get_unit_layout(
-                    item_key, v['icon'], v['name'], v['value'], v['time'], self))
+            self.layout.addWidget(self.get_unit_layout(
+                item_key, v['icon'], v['name'], v['value'], v['time'], self))
 
         # for key, value in disp_config.items():
         #     line_widget = QWidget()
@@ -362,57 +417,78 @@ class AssetsWidget(QFrame):
 
     def _parse_config(self):
         # AP
-        original_ap = self.config.get('ap', 'Unknown')
-        if type(original_ap) == dict:
-            ap_value = original_ap.get('count', 'Unknown')
-            max_value = original_ap.get('max', 'Unknown')
-            ap_time = original_ap.get('time', '-')
-            ap_value = ap_value if ap_value != -1 else 'Unknown'
-            max_value = max_value if max_value != -1 else 'Unknown'
-            self.disp_config.get('ap')['value'] = f"{ap_value}/{max_value}"
-            self.disp_config.get('ap')['time'] = self._parse_time(ap_time)
+        try:
+            original_ap = self.config.get('ap', 'Unknown')
+            if type(original_ap) == dict:
+                ap_value = original_ap.get('count', 'Unknown')
+                max_value = original_ap.get('max', 'Unknown')
+                ap_time = original_ap.get('time', '-')
+                ap_value = ap_value if ap_value != -1 else 'Unknown'
+                max_value = max_value if max_value != -1 else 'Unknown'
+                self.disp_config.get('ap')['value'] = f"{ap_value}/{max_value}"
+                self.disp_config.get('ap')['time'] = self._parse_time(ap_time)
 
-        original_creditpoints = self.config.get('creditpoints', 'Unknown')
-        if type(original_creditpoints) == dict:
-            creditpoints_value = original_creditpoints.get('count', 'Unknown')
-            creditpoints_time = original_creditpoints.get('time', '-')
-            creditpoints_value = creditpoints_value if creditpoints_value != -1 else 'Unknown'
-            self.disp_config.get('creditpoints')['value'] = creditpoints_value
-            self.disp_config.get('creditpoints')['time'] = self._parse_time(creditpoints_time)
+            original_creditpoints = self.config.get('creditpoints', 'Unknown')
+            if type(original_creditpoints) == dict:
+                creditpoints_value = original_creditpoints.get('count', 'Unknown')
+                creditpoints_time = original_creditpoints.get('time', '-')
+                creditpoints_value = creditpoints_value if creditpoints_value != -1 else 'Unknown'
+                self.disp_config.get('creditpoints')['value'] = creditpoints_value
+                self.disp_config.get('creditpoints')['time'] = self._parse_time(creditpoints_time)
 
-        original_pyroxene = self.config.get('pyroxene', 'Unknown')
-        if type(original_pyroxene) == dict:
-            pyroxene_value = original_pyroxene.get('count', 'Unknown')
-            pyroxene_time = original_pyroxene.get('time', '-')
-            pyroxene_value = pyroxene_value if pyroxene_value != -1 else 'Unknown'
-            self.disp_config.get('pyroxene')['value'] = pyroxene_value
-            self.disp_config.get('pyroxene')['time'] = self._parse_time(pyroxene_time)
+            original_pyroxene = self.config.get('pyroxene', 'Unknown')
+            if type(original_pyroxene) == dict:
+                pyroxene_value = original_pyroxene.get('count', 'Unknown')
+                pyroxene_time = original_pyroxene.get('time', '-')
+                pyroxene_value = pyroxene_value if pyroxene_value != -1 else 'Unknown'
+                self.disp_config.get('pyroxene')['value'] = pyroxene_value
+                self.disp_config.get('pyroxene')['time'] = self._parse_time(pyroxene_time)
 
-        original_tactical_challenge_coin = self.config.get('tactical_challenge_coin', 'Unknown')
-        if type(original_tactical_challenge_coin) == dict:
-            tactical_challenge_coin_value = original_tactical_challenge_coin.get('count', 'Unknown')
-            tactical_challenge_coin_time = original_tactical_challenge_coin.get('time', '-')
-            tactical_challenge_coin_value = tactical_challenge_coin_value if tactical_challenge_coin_value != -1 else 'Unknown'
-            self.disp_config.get('tactical_challenge_coin')['value'] = tactical_challenge_coin_value
-            self.disp_config.get('tactical_challenge_coin')['time'] = self._parse_time(
-                tactical_challenge_coin_time)
+            original_tactical_challenge_coin = self.config.get('tactical_challenge_coin', 'Unknown')
+            if type(original_tactical_challenge_coin) == dict:
+                tactical_challenge_coin_value = original_tactical_challenge_coin.get('count', 'Unknown')
+                tactical_challenge_coin_time = original_tactical_challenge_coin.get('time', '-')
+                tactical_challenge_coin_value = tactical_challenge_coin_value if tactical_challenge_coin_value != -1 else 'Unknown'
+                self.disp_config.get('tactical_challenge_coin')['value'] = tactical_challenge_coin_value
+                self.disp_config.get('tactical_challenge_coin')['time'] = self._parse_time(
+                    tactical_challenge_coin_time)
 
-        original_bounty_coin = self.config.get('bounty_coin', 'Unknown')
-        if type(original_bounty_coin) == dict:
-            bounty_coin_value = original_bounty_coin.get('count', 'Unknown')
-            bounty_coin_time = original_bounty_coin.get('time', '-')
-            bounty_coin_value = bounty_coin_value if bounty_coin_value != -1 else 'Unknown'
-            self.disp_config.get('bounty_coin')['value'] = bounty_coin_value
-            self.disp_config.get('bounty_coin')['time'] = self._parse_time(bounty_coin_time)
+            original_bounty_coin = self.config.get('bounty_coin', 'Unknown')
+            if type(original_bounty_coin) == dict:
+                bounty_coin_value = original_bounty_coin.get('count', 'Unknown')
+                bounty_coin_time = original_bounty_coin.get('time', '-')
+                bounty_coin_value = bounty_coin_value if bounty_coin_value != -1 else 'Unknown'
+                self.disp_config.get('bounty_coin')['value'] = bounty_coin_value
+                self.disp_config.get('bounty_coin')['time'] = self._parse_time(bounty_coin_time)
 
-        original_keystone_piece = self.config.get('create_item_holding_quantity').get('Keystone-Piece', 'Unknown')
-        original_keystone_piece = original_keystone_piece if original_keystone_piece != -1 else 'Unknown'
-        original_keystone = self.config.get('create_item_holding_quantity').get('Keystone', 'Unknown')
-        original_keystone = original_keystone if original_keystone != -1 else 'Unknown'
-        self.disp_config.get('Keystone-Piece')['value'] = original_keystone_piece
-        self.disp_config.get('Keystone-Piece')['time'] = "/"
-        self.disp_config.get('Keystone')['value'] = original_keystone
-        self.disp_config.get('Keystone')['time'] = "/"
+            original_keystone_piece = self.config.get('create_item_holding_quantity').get('Keystone-Piece', 'Unknown')
+            original_keystone_piece = original_keystone_piece if original_keystone_piece != -1 else 'Unknown'
+            original_keystone = self.config.get('create_item_holding_quantity').get('Keystone', 'Unknown')
+            original_keystone = original_keystone if original_keystone != -1 else 'Unknown'
+
+            self.disp_config.get('Keystone-Piece')['value'] = original_keystone_piece
+            self.disp_config.get('Keystone-Piece')['time'] = "/"
+            self.disp_config.get('Keystone')['value'] = original_keystone
+            self.disp_config.get('Keystone')['time'] = "/"
+            if self.config.server_mode in ['JP']:
+                original_pass = self.config.get('_pass', 'Unknown')
+                if type(original_pass) == dict:
+                    pass_level = original_pass.get('level', '-')
+                    max_pass_level = original_pass.get('max_level', '-')
+                    pass_next_level_point = original_pass.get('next_level_point', '-')
+                    pass_next_level_point_required = original_pass.get('next_level_point_required', '-')
+                    pass_weekly_point = original_pass.get('weekly_point', '-')
+                    max_pass_weekly_point = original_pass.get('max_weekly_point', '-')
+
+                    pass_time = original_pass.get('time', '-')
+                    self.disp_config.get('_pass')['value'] = \
+                        (f"{pass_level}/{max_pass_level};"
+                         f"{pass_next_level_point}/{pass_next_level_point_required};"
+                         f"{pass_weekly_point}/{max_pass_weekly_point}")
+                    self.disp_config.get('_pass')['time'] = self._parse_time(pass_time)
+
+        except:
+            return
 
     def _apply_config(self):
         self.patch_v_dict['ap'].setText(
@@ -436,6 +512,11 @@ class AssetsWidget(QFrame):
             f"{self.disp_config.get('Keystone-Piece')['name']}: {self.disp_config.get('Keystone-Piece')['value']}")
         self.patch_v_dict['Keystone'].setText(
             f"{self.disp_config.get('Keystone')['name']}: {self.disp_config.get('Keystone')['value']}")
+
+        if self.config.server_mode in ['JP']:
+            self.patch_t_dict['_pass'].setText(self.disp_config.get('_pass')['time'])
+            self.patch_v_dict['_pass'].setText(
+                f"{self.disp_config.get('_pass')['name']}: {self.disp_config.get('_pass')['value']}")
 
     def _parse_time(self, timestamp: float) -> str:
         """
@@ -472,7 +553,7 @@ class AssetsWidget(QFrame):
         def __interval__(interval=1):
             while True:
                 self._parse_config()
-                # self._apply_config()
+                self.signal_update.emit()
                 time.sleep(interval)
 
         threading.Thread(target=__interval__, daemon=True).start()
@@ -721,3 +802,39 @@ class BAASSettingCard(ExpandSettingCard):
             if key in [Qt.Key_Up, Qt.Key_Down]:
                 return True
         return super().eventFilter(obj, event)
+
+
+class ColorSvgWidget(QLabel):
+    def __init__(self, svg_path, color="#000000", parent=None):
+        super().__init__(parent)
+        self._svg_path = svg_path
+        self._color = QColor(color)
+        self._renderer = QSvgRenderer(self._svg_path)
+        self.setScaledContents(True)  # 让 pixmap 随 QLabel 尺寸缩放
+        self._update_pixmap()
+
+    def setColor(self, color):
+        """动态设置颜色"""
+        self._color = QColor(color)
+        self._update_pixmap()
+
+    def _update_pixmap(self):
+        size = self._renderer.defaultSize()
+        if not size.isValid():
+            size = self.size() if self.size().isValid() else Qt.QSize(100, 100)
+
+        pixmap = QPixmap(size)
+        pixmap.fill(Qt.transparent)
+
+        painter = QPainter(pixmap)
+        self._renderer.render(painter)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        painter.fillRect(pixmap.rect(), self._color)
+        painter.end()
+
+        self.setPixmap(pixmap)
+
+    def resizeEvent(self, event):
+        """在 QLabel 缩放时重新生成图像"""
+        self._update_pixmap()
+        super().resizeEvent(event)

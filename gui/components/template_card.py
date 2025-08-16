@@ -3,36 +3,20 @@ import os
 
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtCore import pyqtProperty, QPropertyAnimation, pyqtSignal
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtGui import QPixmap, QFont, QPainter, QPainterPath
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGraphicsDropShadowEffect
 from qfluentwidgets import FluentIcon as FIF
 
 from core.utils import delay
-from gui.util.config_gui import configGui
-from gui.util.customed_ui import OutlineLabel, DialogSettingBox, BAASSettingCard
+from gui.util.config_gui import configGui, COLOR_THEME
+from gui.util.customized_ui import OutlineLabel, DialogSettingBox, BAASSettingCard
 from gui.util.translator import baasTranslator as bt
 
 BANNER_IMAGE_DIR = 'gui/assets/banners'
 
 
-
-
 class TemplateSettingCardForClick(QFrame):
-    COLOR_THEME = {
-        'Light': {
-            'background': '#ffffff',
-            'background_hover': '#e0f7fa',
-            'text': '#333333',
-            'outline': '#fff'
-        },
-        'Dark': {
-            'background': '#333333',
-            'background_hover': '#555555',
-            'text': '#fff',
-            'outline': '#333333'
-        }
-    }
 
     def __init__(self, title: str = '', content: str = '', parent=None,
                  sub_view=None, config=None, context=None, setting_name=''):
@@ -76,7 +60,7 @@ class TemplateSettingCardForClick(QFrame):
 
         # 设置标题
         self.title_label = OutlineLabel(self.title, parent=self,
-                                        font_size=15,
+                                        font_size=20,
                                         font_family='Microsoft YaHei',
                                         font_weight=QFont.Bold)
 
@@ -86,7 +70,7 @@ class TemplateSettingCardForClick(QFrame):
 
         # 设置简介
         self.content_label = OutlineLabel(self.content, parent=self,
-                                          font_size=10,
+                                          font_size=13,
                                           font_family='Microsoft YaHei',
                                           font_weight=QFont.Normal)
 
@@ -124,7 +108,7 @@ class TemplateSettingCardForClick(QFrame):
             QLabel {
                 background-color: transparent;
             }
-        """ % self.COLOR_THEME[configGui.theme.value]['background'])
+        """ % COLOR_THEME[configGui.theme.value]['background'])
 
         if self.card_display_type == 'withImage':
             self.content_label.setStyleSheet("""
@@ -134,13 +118,13 @@ class TemplateSettingCardForClick(QFrame):
             """)
 
         # 设置标题的样式
-        self.title_label.outline_color = QColor(self.COLOR_THEME[configGui.theme.value]['outline'])
-        self.title_label.text_color = QColor(self.COLOR_THEME[configGui.theme.value]['text'])
+        self.title_label.outline_color = QColor(COLOR_THEME[configGui.theme.value]['outline'])
+        self.title_label.text_color = QColor(COLOR_THEME[configGui.theme.value]['text'])
         self.title_label.update()
 
         # 设置简介的样式
-        self.content_label.outline_color = QColor(self.COLOR_THEME[configGui.theme.value]['outline'])
-        self.content_label.text_color = QColor(self.COLOR_THEME[configGui.theme.value]['text'])
+        self.content_label.outline_color = QColor(COLOR_THEME[configGui.theme.value]['outline'])
+        self.content_label.text_color = QColor(COLOR_THEME[configGui.theme.value]['text'])
         self.content_label.update()
 
     def _onThemeChange(self):
@@ -156,16 +140,16 @@ class TemplateSettingCardForClick(QFrame):
     def enterEvent(self, event):
         # 进入时使用动画渐变至 hover 背景色
         self.start_background_animation(
-            QColor(self.COLOR_THEME[configGui.theme.value]['background']),
-            QColor(self.COLOR_THEME[configGui.theme.value]['background_hover'])
+            QColor(COLOR_THEME[configGui.theme.value]['background']),
+            QColor(COLOR_THEME[configGui.theme.value]['background_hover'])
         )
         super().enterEvent(event)
 
     def leaveEvent(self, event):
         # 离开时使用动画渐变回默认背景色
         self.start_background_animation(
-            QColor(self.COLOR_THEME[configGui.theme.value]['background_hover']),
-            QColor(self.COLOR_THEME[configGui.theme.value]['background'])
+            QColor(COLOR_THEME[configGui.theme.value]['background_hover']),
+            QColor(COLOR_THEME[configGui.theme.value]['background'])
         )
         super().leaveEvent(event)
 
@@ -259,9 +243,22 @@ class TemplateSettingCard(BAASSettingCard):
             self.expand_view = self.sub_view.Layout(self, self.config, **self.kwargs)
         else:
             self.expand_view = self.sub_view.Layout(self, self.config)
+        self.repaint_all_children_labels()
         self.__initWidget()
         self.initiated = True
         super().toggleExpand()
+
+    def repaint_all_children_labels(self):
+
+        def recurse_widgets(widget):
+            for child in widget.children():
+                if isinstance(child, QLabel):
+                    palette = child.palette()
+                    palette.setColor(QPalette.WindowText, QColor(COLOR_THEME[configGui.theme.value]['text']))  # 绿色
+                    child.setPalette(palette)
+                recurse_widgets(child)
+
+        recurse_widgets(self.expand_view)
 
     @delay(0.2)
     def __async_emit_toggle_change_signal(self):
@@ -272,6 +269,12 @@ class TemplateSettingCard(BAASSettingCard):
         self.viewLayout.setSpacing(0)
         self.viewLayout.setAlignment(Qt.AlignTop)
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
+        self.setStyleSheet("""
+            QLabel{
+                font-family: 'Microsoft YaHei';
+                font-size: 15px;
+            }
+        """)
         # Initialize layout
         if self.expand_view is not None:
             self.viewLayout.addWidget(self.expand_view)
@@ -306,6 +309,7 @@ class SimpleSettingCard(BAASSettingCard):
             self.expand_view = self.sub_view.Layout(self, self.config, **self.kwargs)
         else:
             self.expand_view = self.sub_view.Layout(self, self.config)
+        self.repaint_all_children_labels()
         self.__initWidget()
         self.initiated = True
         super().toggleExpand()
@@ -315,6 +319,24 @@ class SimpleSettingCard(BAASSettingCard):
         self.viewLayout.setAlignment(Qt.AlignTop)
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
         # Initialize layout
+        self.setStyleSheet("""
+            QLabel{
+                font-family: 'Microsoft YaHei';
+                font-size: 14px;
+            }
+        """)
         self.viewLayout.addWidget(self.expand_view)
         self.expand_view.show()
         self._adjustViewSize()
+
+    def repaint_all_children_labels(self):
+
+        def recurse_widgets(widget):
+            for child in widget.children():
+                if isinstance(child, QLabel):
+                    palette = child.palette()
+                    palette.setColor(QPalette.WindowText, QColor(COLOR_THEME[configGui.theme.value]['text']))  # 绿色
+                    child.setPalette(palette)
+                recurse_widgets(child)
+
+        recurse_widgets(self.expand_view)
