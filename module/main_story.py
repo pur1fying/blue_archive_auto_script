@@ -245,7 +245,7 @@ def clear_current_plot(self, skip_first_screenshot=False):
     if res == "main_story_continue-plot":
         self.click(772, 516, wait_over=True)
         return clear_current_plot(self)
-    if res == "main_story_episode-cleared-feature" or res == "main_story_plot-index":
+    if res in ["main_story_episode-cleared-feature", "main_story_plot-index", "main_story_plot-not-open"]:
         return res
     if res == "normal_task_task-wait-to-begin-feature":
         stage_data = check_state_and_get_stage_data(self)

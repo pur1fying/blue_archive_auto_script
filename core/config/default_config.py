@@ -602,17 +602,17 @@ STATIC_DEFAULT_CONFIG = '''
     "steam_app_process_name": "Blue Archive",
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {
-        "CN": [2, 3, 4, 5, 6, 7],
+        "CN": [1, 2, 3, 4, 5, 6, 7],
         "Global": [1, 2, 3, 4, 5, 6, 7, 8],
         "JP": [1, 2, 3, 4, 5, 6, 7, 8]
     },
     "max_region": {
-        "CN": 24,
+        "CN": 25,
         "Global": 27,
-        "JP": 28
+        "JP": 29
     },
-    "explore_normal_task_region_range": [4, 28],
-    "explore_hard_task_region_range": [1, 28],
+    "explore_normal_task_region_range": [4, 29],
+    "explore_hard_task_region_range": [1, 29],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "mss", "pyautogui"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "pyautogui"],
     "shop_type_list_names": {
@@ -676,7 +676,8 @@ STATIC_DEFAULT_CONFIG = '''
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书",500000,"creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
-            ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 258000, "creditpoints"],
+            ["强化珠礼包A", 110000, "creditpoints"],["强化珠礼包B", 240000, "creditpoints"],["强化珠礼包C", 384000, "creditpoints"],["强化珠礼包D", 496000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ],
         "Global": [
@@ -698,10 +699,10 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "tactical_challenge_shop_price_list": {
         "CN": [
-            ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
-            ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
-            ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
-            ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
+            ["宫子神明文字x5", 50], ["静子神明文字x5",50], ["真白神明文字x5",50], ["纱绫神明文字x5",50],
+            ["风香神明文字x5",50], ["歌原神明文字x5",50], ["30AP", 15], ["60AP", 30],
+            ["初级经验书x5", 5], ["中级经验书x10", 25], ["高级经验书x3", 60], ["特级经验书x1", 100],
+            ["信用点x5k", 4], ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
         "Global": [
              ["宫子神明文字x5",50],["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],
@@ -3464,9 +3465,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "BaskingInTheBrillianceOfTheirSerenade",
-        "Global": "ElectronicNewYearsMarch",
-        "JP": "JP_2025_07_22"
+        "CN": "TheCathedralsMerryChristmas",
+        "Global": "PandemicHazardAMiraclePancake",
+        "JP": "SayBing"
     },
     "dailyGameActivity": {
         "CN": null,
@@ -3522,7 +3523,8 @@ STATIC_DEFAULT_CONFIG = '''
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"],
         ["26-1", "好美"], ["26-2", "爱莉"], ["26-3", "瞬(小)"],
         ["27-1", "志美子"], ["27-2", "晴"], ["27-3", "千夏(温泉)"],
-        ["28-1", "朱莉"], ["28-2", "玛丽"], ["28-3", "美咲"]
+        ["28-1", "朱莉"], ["28-2", "玛丽"], ["28-3", "美咲"],
+        ["29-1", "芹娜"], ["29-2", "桐乃"], ["29-3", "日向"]
     ],
   "student_names": [
     {

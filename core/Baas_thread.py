@@ -588,6 +588,7 @@ class Baas_thread:
             'main_page_login-feature': (640, 360),
             'main_page_relationship-rank-up': (640, 360),
             'main_page_full-notice': (887, 165),
+            'normal_task_task-info': (1126, 139),
             'normal_task_fight-confirm': (1168, 659),
             'normal_task_task-finish': (1038, 662),
             'normal_task_prize-confirm': (776, 655),
@@ -636,22 +637,16 @@ class Baas_thread:
             'CN': {
                 'main_page_news': (1142, 104),
                 'main_page_news2': (1142, 104),
-                'normal_task_task-info': (1126, 115),
-                "special_task_task-info": (1085, 141),
                 "main_page_net-work-unstable": (753, 500),
                 'main_page_fail-to-load-game-resources': (740, 437),
             },
             'JP': {
                 'main_page_news': (1142, 104),
-                'normal_task_task-info': (1126, 115),
-                "special_task_task-info": (1126, 141),
                 'main_page_attendance-reward': (642, 489),
                 'main_page_download-additional-resources': (769, 535),
             },
             'Global': {
                 'main_page_news': (1227, 56),
-                "special_task_task-info": (1126, 141),
-                'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),
                 'main_page_Failed-to-convert-errorResponse': (641, 511),
@@ -719,14 +714,14 @@ class Baas_thread:
         if is_main_page:
             region = {
                 'CN': (512, 25, 609, 52),
-                'Global': (512, 25, 609, 52),
+                'Global': (485, 23, 586, 54),
                 'JP': (485, 23, 586, 54)
             }
             region = region[self.server]
         else:
             region = {
                 'CN': (557, 10, 662, 40),
-                'Global': (557, 10, 662, 40),
+                'Global': (530, 10, 642, 40),
                 'JP': (530, 10, 642, 40)
             }
             region = region[self.server]

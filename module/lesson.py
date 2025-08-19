@@ -308,25 +308,25 @@ def get_lesson_relationship_counts(self):
         'CN': [(443, 290), (787, 290), (1132, 290),
                (443, 441), (787, 441), (1132, 441),
                (443, 591), (787, 591), (1132, 591)],
-        'Global': [(443, 290), (787, 290), (1132, 290),
-                   (443, 441), (787, 441), (1132, 441),
-                   (443, 591), (787, 591), (1132, 591)],
+        'Global': [(354, 271), (701, 271), (1043, 271),
+               (354, 422), (701, 422), (1043, 422),
+               (354, 574), (701, 574), (1043, 574)],
         'JP': [(354, 271), (701, 271), (1043, 271),
                (354, 422), (701, 422), (1043, 422),
                (354, 574), (701, 574), (1043, 574)]
     }
     dx = {
         'CN': 51,
-        'Global': 51,
+        'Global': 72,
         'JP': 72
     }
     rgb_range = {
         'CN': [245, 255, 108, 128, 134, 154],
-        'Global': [245, 255, 108, 128, 134, 154],
+        'Global': [223, 255, 164, 224, 190, 230],
         'JP': [223, 255, 164, 224, 190, 230]
     }
-    if self.server == "JP":
-        self.swipe(983, 588, 983, 466, duration=0.1, post_sleep_time=1.0)
+    if self.server in ['Global', 'JP']:
+        self.swipe(983, 588, 983, 466, duration=0.2 if self.is_android_device else 0.5, post_sleep_time=0.5)
         self.update_screenshot_array()
     rgb_range = rgb_range[self.server]
     position = position[self.server]
@@ -356,13 +356,13 @@ def get_lesson_relationship_counts(self):
 
 
 def get_lesson_each_region_status(self):
-    if self.server in ['CN', 'Global']:
-        return cn_global_get_lesson_each_region_status(self)
-    elif self.server == 'JP':
-        return jp_get_lesson_each_region_status(self)
+    if self.server in ['CN']:
+        return cn_get_lesson_each_region_status(self)
+    elif self.server in ['Global', 'JP']:
+        return global_jp_get_lesson_each_region_status(self)
 
 
-def cn_global_get_lesson_each_region_status(self):
+def cn_get_lesson_each_region_status(self):
     pd_lo = [[289, 204], [643, 204], [985, 204],
              [289, 359], [643, 359], [985, 359],
              [289, 511], [643, 511], [985, 511]]
@@ -382,7 +382,7 @@ def cn_global_get_lesson_each_region_status(self):
     return res
 
 
-def jp_get_lesson_each_region_status(self):
+def global_jp_get_lesson_each_region_status(self):
     pd_lo = [[289, 204], [643, 204], [985, 204],
              [289, 359], [643, 359], [985, 359],
              [289, 511], [643, 511], [985, 511]]
@@ -390,8 +390,8 @@ def jp_get_lesson_each_region_status(self):
     for i in range(0, 9):
         if color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
             res.append(check_region_availability(self, i))
-        # elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
-        #     res.append("lock")
+        elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
+            res.append("lock")
         elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,215):
             res.append("no activity")
         else:

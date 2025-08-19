@@ -45,14 +45,8 @@ def implement(self):
                 "shop_purchase-notice2",
             ]
             picture.co_detect(self, None, None, img_ends, img_possibles, True)
-            purchase_location = {
-                'CN': (777, 491),
-                'Global': (754, 581),
-                'JP': (754, 581)
-            }
             img_possibles = {
-                "shop_purchase-notice1": purchase_location[self.server],
-                "shop_purchase-notice2": (767, 524),
+                "shop_purchase-notice1": (754, 581),
             }
             rgb_ends = "reward_acquired"
             img_ends = "main_page_full-notice"
@@ -89,11 +83,13 @@ def swipe_get_y_diff(self, item_lines_y):
     search_area_y_max = template_y_max + 30
     area = (629, template_y_min, 1228, template_y_max)
     tar_img = image.screenshot_cut(self, area)
-    self.swipe(1246, 594, 1246, 447, duration=0.05, post_sleep_time=1)
+    self.swipe(1246, 594, 1246, 447, duration=0.05 if self.is_android_device else 0.5, post_sleep_time=1)
     self.update_screenshot_array()
-    position = image.search_image_in_area(self, tar_img,
+    position = image.search_image_in_area(self,
+                                          tar_img,
                                           area=(629 - 10, search_area_y_min, 1228 + 10, search_area_y_max),
-                                          threshold=0.8)
+                                          threshold=0.8
+                                          )
     if position is False:
         self.logger.warning("Swipe Failed.")
         raise
