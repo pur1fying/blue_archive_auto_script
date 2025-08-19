@@ -53,7 +53,7 @@ def sweep_hard_task(self: Baas_thread):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
             continue
 
-        button_y_coord = 300 if self.server == "CN" else 328
+        button_y_coord = 328
         if required_counts == "max":
             self.click(1085, button_y_coord, rate=1, wait_over=True)
         else:
@@ -125,7 +125,7 @@ def sweep_normal_task(self):
             self.logger.error(f"Skipping task {region}-{mission} since it's not available.")
             continue
 
-        button_y_coord = 300 if self.server == "CN" else 328
+        button_y_coord = 328
         if required_counts == "max":
             self.click(1085, button_y_coord, rate=1, wait_over=True)
         else:
