@@ -311,9 +311,9 @@ def get_lesson_relationship_counts(self):
         'Global': [(354, 271), (701, 271), (1043, 271),
                (354, 422), (701, 422), (1043, 422),
                (354, 574), (701, 574), (1043, 574)],
-        'JP': [(354, 271), (701, 271), (1043, 271),
-               (354, 422), (701, 422), (1043, 422),
-               (354, 574), (701, 574), (1043, 574)]
+        'JP': [(357, 295), (700, 295), (1043, 295),
+               (357, 445), (701, 445), (1043, 445),
+               (357, 598), (701, 598), (1043, 598)]
     }
     dx = {
         'CN': 51,
@@ -325,7 +325,7 @@ def get_lesson_relationship_counts(self):
         'Global': [223, 255, 164, 224, 190, 230],
         'JP': [223, 255, 164, 224, 190, 230]
     }
-    if self.server in ['Global', 'JP']:
+    if self.server in ['Global']:
         self.swipe(983, 588, 983, 466, duration=0.2 if self.is_android_device else 0.5, post_sleep_time=0.5)
         self.update_screenshot_array()
     rgb_range = rgb_range[self.server]
@@ -361,7 +361,6 @@ def get_lesson_each_region_status(self):
     elif self.server in ['Global', 'JP']:
         return global_jp_get_lesson_each_region_status(self)
 
-
 def cn_get_lesson_each_region_status(self):
     pd_lo = [[289, 204], [643, 204], [985, 204],
              [289, 359], [643, 359], [985, 359],
@@ -383,9 +382,13 @@ def cn_get_lesson_each_region_status(self):
 
 
 def global_jp_get_lesson_each_region_status(self):
-    pd_lo = [[289, 204], [643, 204], [985, 204],
-             [289, 359], [643, 359], [985, 359],
-             [289, 511], [643, 511], [985, 511]]
+    y_list = [204, 359, 511]
+    if self.server in ['JP']:
+        y_list = [238, 391, 543]
+
+    pd_lo = [[289,  y_list[0]], [643,  y_list[0]], [985,  y_list[0]],
+             [289,  y_list[1]], [643,  y_list[1]], [985,  y_list[1]],
+             [289,  y_list[2]], [643,  y_list[2]], [985,  y_list[2]]]
     res = []
     for i in range(0, 9):
         if color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
@@ -403,10 +406,13 @@ def check_region_availability(self, region_cnt):
     dx1 = 33
     k2 = -5.3
     dx2 = [9, 4]
+    y_list = [328, 479, 605]
+    if self.server in ['JP']:
+        y_list = [308, 459, 612]
     region_start_p = [
-        (154, 328), (498, 328), (842, 328),
-        (154, 479), (498, 479), (842, 479),
-        (156, 605), (500, 605), (844, 605)
+        (154, y_list[0]), (498, y_list[0]), (842, y_list[0]),
+        (154, y_list[1]), (498, y_list[1]), (842, y_list[1]),
+        (156, y_list[2]), (500, y_list[2]), (844, y_list[2])
     ]
     dx2 = dx2[int(region_cnt / 6)]
     start_p = region_start_p[region_cnt]
@@ -421,7 +427,6 @@ def check_region_availability(self, region_cnt):
                 cnt += 1
                 if cnt >= 50:
                     return "available"
-
     return "done"
 
 
