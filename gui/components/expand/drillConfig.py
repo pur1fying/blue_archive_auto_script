@@ -10,7 +10,6 @@ from PyQt5.QtCore import QObject
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
         DrillConfig = QObject()
-        # TODO: Add Descriptions
         configItems = [
             {
                 'label': DrillConfig.tr('是否在出击后扫荡所有测试挑战券'),
@@ -18,9 +17,6 @@ class Layout(TemplateLayout):
                 'key': 'drill_enable_sweep'
             }
         ]
-        super().__init__(parent=parent, configItems=configItems, config=config, context="DrillConfig")
-        self.config = config
-        self.vBoxLayout.addSpacing(10)
 
         drill_detail_config = [
             {
@@ -34,6 +30,10 @@ class Layout(TemplateLayout):
                 'selection': ['1', '2', '3', '4']
             }
         ]
+        super().__init__(parent=parent, configItems=configItems, config=config, context="DrillConfig")
+        self.config = config
+        self.vBoxLayout.addSpacing(10)
+
         for item in drill_detail_config:
             self.vBoxLayout.addLayout(self.create_split_selection(**item))
 

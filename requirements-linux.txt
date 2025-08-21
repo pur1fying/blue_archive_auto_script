@@ -9,3 +9,5 @@ uiautomator2 == 2.16.23
 opencv-python-headless
 PyQt-Fluent-Widgets
 psutil
+tomli == 2.2.1
+tomli_w == 1.2.0
