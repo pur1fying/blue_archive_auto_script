@@ -3467,7 +3467,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "TheCathedralsMerryChristmas",
         "Global": "PandemicHazardAMiraclePancake",
-        "JP": "SayBing"
+        "JP": "JP_2025_08_20"
     },
     "dailyGameActivity": {
         "CN": null,
