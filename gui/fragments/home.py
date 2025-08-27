@@ -1,14 +1,15 @@
-import json
 import sys
+import json
 import time
+from random import random
+from typing import Callable
 from hashlib import md5
 from json import JSONDecodeError
-from random import random
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel, QHBoxLayout
-from qfluentwidgets import FluentIcon as FIF, TextEdit, SwitchButton, IndicatorPosition
+from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel, QHBoxLayout, QWidget
+from qfluentwidgets import FluentIcon as FIF, TextEdit, SwitchButton, IndicatorPosition, PushButton
 from qfluentwidgets import (
     PrimaryPushSettingCard,
     SubtitleLabel,
@@ -18,6 +19,8 @@ from core.notification import notify
 from gui.util.customized_ui import AssetsWidget, FuncLabel
 from gui.util.translator import baasTranslator as bt
 from window import Window
+
+_Callback = Callable[[], None]
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
 HUMAN_TAKE_OVER_MESSAGE = "BAAS Exited, Reason : Human Take Over"
@@ -111,13 +114,41 @@ class HomeFragment(QFrame):
         self.main_thread_attach.exit_signal.connect(lambda x: sys.exit(x))
 
         config.add_signal('update_signal', self.main_thread_attach.update_signal)
-        self.hk_mgr = self.config.get_hotkey_manager()
+        if sys.platform == "win32":
+            from gui.util.hotkey_manager import GlobalHotkeyManager, HotkeyInputDialog
+            self.hk_callbacks = {}
+            self.hk_mgr = GlobalHotkeyManager(self)
+            self._init_hotkey(
+                key="hotkey_run",
+                default="Ctrl+Shift+R",
+                callback=self.startup_card.button.click
+            )
+            self.hotkey_widgets = {}
+            self.manager = config.get_hotkey_manager()
 
-        self._init_hotkey(
-            key="hotkey_run",
-            default="Ctrl+Shift+R",
-            callback=self.startup_card.button.click
-        )
+            ht_k = "hotkey_run"
+            self.hotkey_label = QLabel(self.tr("启停快捷键 ") + f"<b>{self.config.get(ht_k, 'Ctrl+Shift+R')}</b>")
+            self.hotkey_label.setAlignment(Qt.AlignCenter)
+
+            change_hotkey_btn = PushButton(text=self.tr("修改快捷键"))
+            change_hotkey_btn.clicked.connect(self._change_hotkey(ht_k))
+
+            hotkey_layout = QHBoxLayout()
+            hotkey_layout.setContentsMargins(0, 0, 0, 0)
+            hotkey_layout.setSpacing(5)
+            hotkey_layout.addWidget(self.hotkey_label)
+            hotkey_layout.addWidget(change_hotkey_btn)
+
+            hotkey_widget = QWidget()
+            hotkey_widget.setLayout(hotkey_layout)
+
+            self.startup_card.hBoxLayout.insertWidget(7, hotkey_widget, 0, Qt.AlignRight)
+            self._add_setting_row(
+                key=ht_k,
+                description=self.tr("启停快捷键"),
+                default_hotkey=config.get(ht_k, "Ctrl+Shift+R"),
+                callback=self.hk_callbacks.get(ht_k, lambda: None)
+            )
 
         self.startup_card.clicked.connect(self._start_clicked)
         # set a hash object name for this widget
@@ -126,21 +157,34 @@ class HomeFragment(QFrame):
         if self.config.get('autostart'):
             self.startup_card.button.click()
 
+    def _change_hotkey(self, key: str):
+        from gui.util.hotkey_manager import HotkeyInputDialog
+        """Handles the logic for changing a hotkey via the dialog."""
+        widgets = self.hotkey_widgets[key]
+        current_hotkey_str = widgets["hotkey_label"].text().replace("<b>", "").replace("</b>", "")
+        new_hotkey, ok = HotkeyInputDialog.get_hotkey(
+            self.config.get_window(),
+            current_hotkey_str,
+            self.manager
+        )
+        if ok and new_hotkey != current_hotkey_str:
+            widgets["hotkey_label"].setText(f"<b>{new_hotkey}</b>")
+            self.config.set(key, new_hotkey)
+
     def _change_assets_visibility(self, checked):
         self.config.set('assetsVisibility', checked)
         self.assets_status.show() if checked else self.assets_status.hide()
 
     def resizeEvent(self, event):
-        # 自动调整banner尺寸（保持比例）
+        # auto adjust banner size
         _s = self.banner.size().width() / 1920.0
         self.banner.setFixedHeight(min(int(_s * 450), 200))
-        # 重新设置banner图片以保持清晰度
         pixmap = QPixmap(MAIN_BANNER).scaled(
             self.banner.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
         self.banner.setPixmap(pixmap)
         self.banner.setScaledContents(True)
 
-    def call_update(self, data=None, parent=None):
+    def call_update(self, data=None):
         try:
             if self.event_map == {}:
                 with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
@@ -159,7 +203,6 @@ class HomeFragment(QFrame):
                     if _baas_thread_ is not None:
                         pass
                     else:
-                        print('BAAS Thread is None')
                         _main_thread_._init_script()
                         _baas_thread_ = _main_thread_.get_baas_thread()
 
@@ -214,7 +257,7 @@ class HomeFragment(QFrame):
         self.startup_card.setContent(self.tr('开始你的档案之旅') + ' - ' + self.tr("完成后") + f' {option}')
 
     def _init_hotkey(self, key: str, default: str, callback):
-        self.config.callbacks[key] = callback
+        self.hk_callbacks[key] = callback
         if not self.config.has(key):
             self.config.set(key, default)
         bind_key = self.config.get(key, default)
@@ -388,3 +431,5 @@ class MainThread(QThread):
 
     def get_baas_thread(self):
         return self._main_thread
+
+

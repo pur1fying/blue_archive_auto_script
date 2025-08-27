@@ -4,7 +4,6 @@ import re
 from core.config.generated_user_config import Config
 from core.config.generated_static_config import StaticConfig
 from gui.util.customized_ui import BoundComponent
-from gui.util.hotkey_manager import GlobalHotkeyManager
 from gui.util.translator import baasTranslator as bt
 from dataclasses import asdict
 
@@ -32,9 +31,7 @@ class ConfigSet:
         self.inject_config_list = []
         self.window = None
         self.main_thread = None
-        self.hk_manager = GlobalHotkeyManager()
         self.signals = {}
-        self.callbacks = {}
 
     @staticmethod
     def _init_static_config():
@@ -136,8 +133,3 @@ class ConfigSet:
             if entry not in self.config.create_item_holding_quantity:
                 self.config.create_item_holding_quantity[entry] = -1
         self.save()
-
-    def get_hotkey_manager(self):
-        if not self.hk_manager:
-            self.hk_manager = GlobalHotkeyManager()
-        return self.hk_manager
