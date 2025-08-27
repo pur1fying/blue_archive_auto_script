@@ -422,7 +422,7 @@ DEFAULT_CONFIG = """
     "emulatorMultiInstanceNumber": 0,
     "multiEmulatorName": "mumu",
     "manual_boss": false,
-    "choose_team_method": "preset",
+    "choose_team_method": "order",
     "side_team_attribute": [["Unused","Unused","Unused","Unused"]],
     "preset_team_attribute": [
         ["Unused","Unused","Unused","Unused","Unused"],
@@ -430,14 +430,6 @@ DEFAULT_CONFIG = """
         ["Unused","Unused","Unused","Unused","Unused"],
         ["Unused","Unused","Unused","Unused","Unused"]
     ],
-    "burst1": "1",
-    "burst2": "2",
-    "pierce1": "1",
-    "pierce2": "2",
-    "mystic1": "1",
-    "mystic2": "2",
-    "shock1": "2",
-    "shock2": "3",
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
     "TacticalChallengeShopRefreshTime": "0",

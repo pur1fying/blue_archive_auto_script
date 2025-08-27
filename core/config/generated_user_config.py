@@ -80,14 +80,6 @@ class Config:
     choose_team_method: str
     side_team_attribute: list
     preset_team_attribute: list
-    burst1: str
-    burst2: str
-    pierce1: str
-    pierce2: str
-    mystic1: str
-    mystic2: str
-    shock1: str
-    shock2: str
     activity_sweep_task_number: int
     activity_sweep_times: str
     TacticalChallengeShopRefreshTime: str
