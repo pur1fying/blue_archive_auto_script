@@ -70,19 +70,13 @@ def to_cafe(self, skip_first_screenshot=False):
 
 def to_no2_cafe(self):
     to_cafe(self)
-    if self.server == "JP" or self.server == "Global":
-        img_ends = "cafe_button-goto-no1-cafe"
-        img_possibles = {
-            "cafe_button-goto-no2-cafe": (118, 98),
-            "cafe_students-arrived": (922, 189),
-        }
-        picture.co_detect(self, None, None, img_ends, img_possibles, True)
-        return
-    img_ends = "cafe_at-no1-cafe"
-    img_possibles = {"cafe_menu": (118, 98)}
+    img_ends = "cafe_button-goto-no1-cafe"
+    img_possibles = {
+        "cafe_button-goto-no2-cafe": (118, 98),
+        "cafe_students-arrived": (922, 189),
+    }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    image.click_to_disappear(self, "cafe_at-no1-cafe", 240, 168)
-    to_cafe(self)
+    return
 
 
 def match(img):
@@ -227,14 +221,9 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_invitation-ticket',
         'cafe_invitation-ticket-invalid',
     ]
-    invitation_ticket_x = {
-        'CN': 838,
-        'Global': 887,
-        'JP': 887,
-    }
     img_possible = {
         'cafe_cafe-reward-status': (905, 159),
-        'cafe_menu': (invitation_ticket_x[self.server], 647),
+        'cafe_menu': (887, 647),
         'cafe_duplicate-invite-notice': (534, 497),
         'cafe_switch-clothes-notice': (534, 497),
         'cafe_duplicate-invite': (534, 497),
@@ -299,9 +288,9 @@ def change_order_type(self, order_type):
     to_revise_order_type(self)
     order_type_location = {
         'CN': {
-            "academy": (754, 267),
-            "affection": (529, 322),
-            "starred": (532, 263),
+            "academy": (531, 267),
+            "affection": (745, 267),
+            "starred": (531, 317),
         },
         'Global': {
             "name": (534, 256),
@@ -496,11 +485,12 @@ def collect(self):
 
 
 def get_invitation_ticket_status(self):
+    log = 'Invitation Ticket '
     if color.match_rgb_feature(self, "invitation_ticket_available_to_use"):
-        self.logger.info("Invite ticket available for use")
+        self.logger.info(log + " Available To Use")
         return True
     else:
-        self.logger.info("Invitation ticket unavailable")
+        self.logger.info(log + " Unavailable To Use")
         return False
 
 
@@ -582,18 +572,12 @@ def is_english(char):
 
 
 def get_invitation_ticket_next_time(self):
-    region = {
-        'CN': (800, 584, 875, 608),
-        'Global': (850, 588, 926, 614),
-        'JP': (850, 588, 926, 614)
-    }
-    region = region[self.server]
     for i in range(0, 3):
         if i != 0:
             self.update_screenshot_array()
         res = self.ocr.get_region_res(
             baas=self,
-            region=region,
+            region=(850, 588, 926, 614),
             language='en-us',
             log_info='Invitation Ticket Next Time',
             candidates='0123456789:'

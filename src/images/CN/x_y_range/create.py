@@ -24,46 +24,45 @@ x_y_range = {
 
     'sort-menu': (101, 196, 190, 226),
 
-    'sort-basic-chosen': (279, 163, 308, 190),
-    'sort-basic-not-chosen': (279, 163, 308, 190),
+    'sort-basic-chosen': (279, 163, 308, 205),
+    'sort-basic-not-chosen': (279, 163, 308, 205),
 
-    'sort-count-chosen': (517, 163, 544, 190),
-    'sort-count-not-chosen': (517, 163, 544, 190),
+    'sort-count-chosen': (517, 163, 544, 205),
+    'sort-count-not-chosen': (517, 163, 544, 205),
 
     'filter-menu': (101, 137, 190, 174),
 
+    'filter-Equipment-chosen': (263, 260, 321, 315),
+    'filter-Equipment-not-chosen': (263, 260, 321, 315),
+    'filter-Equipment-reset': (263, 260, 321, 315),
 
-    'filter-Equipment-chosen': (262, 242, 321, 296),
-    'filter-Equipment-not-chosen': (262, 242, 321, 296),
-    'filter-Equipment-reset': (262, 242, 321, 296),
+    'filter-Furniture-chosen': (499, 260, 556, 315),
+    'filter-Furniture-not-chosen': (499, 260, 556, 315),
+    'filter-Furniture-reset': (499, 260, 556, 315),
 
-    'filter-Furniture-chosen': (496, 242, 549, 296),
-    'filter-Furniture-not-chosen': (496, 242, 549, 296),
-    'filter-Furniture-reset': (496, 242, 549, 296),
+    'filter-Decoration-chosen': (734, 260, 788, 315),
+    'filter-Decoration-not-chosen': (734, 260, 788, 315),
+    'filter-Decoration-reset': (734, 260, 788, 315),
 
-    'filter-Decoration-chosen': (728, 242, 781, 296),
-    'filter-Decoration-not-chosen': (728, 242, 781, 296),
-    'filter-Decoration-reset': (728, 242, 781, 296),
+    'filter-Interior-chosen': (973, 260, 1026, 315),
+    'filter-Interior-not-chosen': (973, 260, 1026, 315),
+    'filter-Interior-reset': (973, 260, 1026, 315),
 
-    'filter-Interior-chosen': (960, 242, 1015, 296),
-    'filter-Interior-not-chosen': (960, 242, 1015, 296),
-    'filter-Interior-reset': (960, 242, 1015, 296),
+    'filter-Eleph-chosen': (263, 323, 321, 377),
+    'filter-Eleph-not-chosen': (263, 323, 321, 377),
+    'filter-Eleph-reset': (263, 323, 321, 377),
 
-    'filter-Eleph-chosen': (262, 300, 321, 350),
-    'filter-Eleph-not-chosen': (262, 300, 321, 350),
-    'filter-Eleph-reset': (262, 300, 321, 350),
+    'filter-Coin-chosen': (499, 323, 556, 377),
+    'filter-Coin-not-chosen': (499, 323, 556, 377),
+    'filter-Coin-reset': (499, 323, 556, 377),
 
-    'filter-Coin-chosen': (496, 300, 549, 350),
-    'filter-Coin-not-chosen': (496, 300, 549, 350),
-    'filter-Coin-reset': (496, 300, 549, 350),
+    'filter-Material-chosen': (734, 323, 788, 377),
+    'filter-Material-not-chosen': (734, 323, 788, 377),
+    'filter-Material-reset': (734, 323, 788, 377),
 
-    'filter-Material-chosen': (728, 300, 781, 350),
-    'filter-Material-not-chosen': (728, 300, 781, 350),
-    'filter-Material-reset': (728, 300, 781, 350),
-
-    'filter-Gift-chosen': (960, 300, 1015, 350),
-    'filter-Gift-not-chosen': (960, 300, 1015, 350),
-    'filter-Gift-reset': (960, 300, 1015, 350),
+    'filter-Gift-chosen': (973, 323, 1026, 377),
+    'filter-Gift-not-chosen': (973, 323, 1026, 377),
+    'filter-Gift-reset': (973, 323, 1026, 377),
 
     'material-list': (701, 78, 762, 129),
     'Eligma': (),  # 神名文字

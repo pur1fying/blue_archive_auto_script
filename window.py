@@ -76,18 +76,12 @@ def check_static_config():
             f.write(default_config.STATIC_DEFAULT_CONFIG)
             return
     try:
-        with open('./config/static.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        data = update_config_overwrite(data, json.loads(default_config.STATIC_DEFAULT_CONFIG))
         with open('./config/static.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(data, ensure_ascii=False, indent=2))
-        return
-    except Exception as e:
-        print(e)
+            f.write(default_config.STATIC_DEFAULT_CONFIG)
+    except Exception:
         os.remove('./config/static.json')
         with open('./config/static.json', 'w', encoding='utf-8') as f:
             f.write(default_config.STATIC_DEFAULT_CONFIG)
-        return
 
 
 def check_switch_config(dir_path='./default_config'):

@@ -136,14 +136,9 @@ def get_challenge_state(self, challenge_count=1) -> list[int]:
     """
 
     # to challenge menu
-    challenge_button_y = {
-        'CN': 272,
-        'Global': 302,
-        'JP': 302
-    }
     img_ends = 'normal_task_challenge-menu'
     img_possibles = {
-        "normal_task_challenge-button": (536, challenge_button_y[self.server]),
+        "normal_task_challenge-button": (536,302),
         "activity_quest-challenge-button": (319, 270)
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)

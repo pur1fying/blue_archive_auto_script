@@ -8,7 +8,7 @@ x_y_range = {
     'start-sweep-notice': (607, 144, 676, 176),  # 开始扫荡提示
     'sweep-complete': (601, 561, 682, 604),  # 扫荡完成
     'skip-sweep-complete': (597, 488, 684, 531),  # 跳过扫荡完成
-    'task-info': (578, 124, 702, 153),  # 任务信息弹窗
+    'task-info': (578, 90, 702, 143),  # 任务信息弹窗
     'fight-skip': (1111, 531, 1136, 556),  # 跳过战斗
     'auto-over': (1072, 589, 1094, 611),  # 回合自动结束
     'SUB': (360, 215, 401, 234),  # 支线任务
@@ -30,7 +30,7 @@ x_y_range = {
     "teleport-notice": (526, 309, 740, 351),
     'fight-pause': (594, 139, 681, 174),
     'retreat-notice': (469, 308, 796, 351),
-    'challenge-button': (481, 255, 584, 288),
+    'challenge-button': (481, 288, 584, 316),
     'challenge-menu': (592, 171, 677, 212),
     'challenge1-finished': (395, 330, 434, 366),
     'challenge1-unfinished': (395, 330, 434, 366),
@@ -39,7 +39,7 @@ x_y_range = {
     'formation-menu': (101, 1, 250, 45),
     'formation-preset': (558, 79, 768, 129),
     'formation-edit-preset-name': (1184, 219, 1211, 252),
-    # 'formation-set-confirm': (500, 79, 776, 125),
+    'formation-set-confirm': (500, 79, 776, 125),
     'task-A-info': (576, 117, 704, 170),
     'enter-task-button': (1087, 219, 1156, 261),
     "region-unavailable-right": (1213, 333, 1276, 420),
