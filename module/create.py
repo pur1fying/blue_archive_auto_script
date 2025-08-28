@@ -542,7 +542,7 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
 
 class CreateItemCheckState:
     # During a full phase of item creation. This class is used for information transfer and store checked item state
-    possible_x = [710, 851, 992, 1133]
+    possible_x = [717, 851, 992, 1133]
     level_weight = {
         "primary": 1,
         "normal": 2,

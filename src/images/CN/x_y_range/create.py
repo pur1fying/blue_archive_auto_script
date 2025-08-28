@@ -132,10 +132,10 @@ x_y_range = {
     'Damaged-Ancient-Battery': (719, 168, 814, 223),          # 磨损的巴格达电池
     'Intact-Ancient-Battery': (854, 168, 960, 223),           # 完整的巴格达电池
 
-    # 'Golden-Fleece': (993, 168, 1092, 223),
-    # 'Golden-Yarn': (1130, 168, 1229, 223),
-    # 'Golden-Wool': (719, 168, 814, 223),
-    # 'Golden-Dress': (854, 168, 960, 223),
+    'Golden-Fleece': (993, 163, 1074, 215),
+    'Golden-Yarn': (1130, 163, 1220, 215),
+    'Golden-Wool': (719, 163, 802, 215),
+    'Golden-Dress': (854, 163, 940, 215),
 
     'Okiku-Doll-Piece': (993, 168, 1092, 223),
     'Broken-Okiku-Doll': (1130, 168, 1229, 223),
@@ -152,20 +152,20 @@ x_y_range = {
     'Damaged-Atlantis-Medal': (719, 168, 814, 223),
     'Intact-Atlantis-Medal': (854, 168, 960, 223),
 
-    'Roman-Dodecahedron-Piece': (),
-    'Broken-Roman-Dodecahedron': (),
-    'Repaired-Roman-Dodecahedron': (),
-    'Intact-Roman-Dodecahedron': (),
+    'Roman-Dodecahedron-Piece': (993, 163, 1074, 215),
+    'Broken-Roman-Dodecahedron': (1130, 163, 1220, 215),
+    'Repaired-Roman-Dodecahedron': (719, 163, 802, 215),
+    'Intact-Roman-Dodecahedron': (854, 163, 940, 215),
 
-    'Quimbaya-Relic-Piece': (),
-    'Broken-Quimbaya-Relic': (),
-    'Repaired-Quimbaya-Relic': (),
-    'Intact-Quimbaya-Relic': (),
+    'Quimbaya-Relic-Piece': (993, 163, 1074, 215),
+    'Broken-Quimbaya-Relic': (1130, 163, 1220, 215),
+    'Repaired-Quimbaya-Relic': (719, 163, 802, 215),
+    'Intact-Quimbaya-Relic': (854, 163, 940, 215),
 
-    'Istanbul-Rocket-Piece': (),
-    'Broken-Istanbul-Rocket': (),
-    'Repaired-Istanbul-Rocket': (),
-    'Intact-Istanbul-Rocket': (),
+    'Istanbul-Rocket-Piece': (993, 163, 1074, 215),
+    'Broken-Istanbul-Rocket': (1130, 163, 1220, 215),
+    'Repaired-Istanbul-Rocket': (719, 163, 802, 215),
+    'Intact-Istanbul-Rocket': (854, 163, 940, 215),
 
     'Winnipesaukee-Stone-Piece': (993, 168, 1092, 223),        # 温尼珀索基湖神秘石碎片
     'Broken-Winnipesaukee-Stone': (1130, 168, 1229, 223),       # 破碎的温尼珀索基湖神秘石
