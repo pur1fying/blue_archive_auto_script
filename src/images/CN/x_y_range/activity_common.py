@@ -31,6 +31,7 @@ x_y_range = {
 
     'challenge-not-chosen-0': (1094, 89, 1149, 127),
     'challenge-chosen-0': (1094, 89, 1149, 127),
+    "self-formation": (102, 7, 250, 38),
     "formation": (102, 7, 250, 38),
     'task-no-goals': (352, 387, 519, 411)
 }
