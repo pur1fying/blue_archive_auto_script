@@ -98,3 +98,4 @@ class Config:
     bounty_coin: dict
     _pass: dict
     assetsVisibility: bool
+    hotkey_run: str

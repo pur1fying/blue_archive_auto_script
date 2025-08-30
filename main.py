@@ -29,7 +29,8 @@ class Main:
             check_git(self.logger)
         except Exception as e:
             self.logger.error("OCR Update Failed.")
-            self.logger.error(e.__str__())
+            import traceback
+            self.logger.error(traceback.format_exc())
             self.logger.info("Try to Start OCR Server Without Update.")
 
         try:

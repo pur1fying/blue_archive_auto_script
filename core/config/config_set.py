@@ -3,7 +3,7 @@ import os
 import re
 from core.config.generated_user_config import Config
 from core.config.generated_static_config import StaticConfig
-from gui.util.customed_ui import BoundComponent
+from gui.util.customized_ui import BoundComponent
 from gui.util.translator import baasTranslator as bt
 from dataclasses import asdict
 
@@ -42,17 +42,25 @@ class ConfigSet:
     def _init_config(self):
         with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
             self.config = Config(**json.load(f))
-        if self.config.server == '国服' or self.config.server == 'B服':
-            self.server_mode = 'CN'
-        elif self.config.server in ['国际服', '国际服青少年', '韩国ONE', 'Steam国际服']:
-            self.server_mode = 'Global'
-        elif self.config.server == '日服':
-            self.server_mode = 'JP'
+        self.server_mode = self.get_server_mode(self.config.server)
+
+    @staticmethod
+    def get_server_mode(server):
+        if server in ['官服', 'B服']:
+            return 'CN'
+        if server in ['国际服', '国际服青少年', '韩国ONE', 'Steam国际服']:
+            return 'Global'
+        if server in ['日服']:
+            return 'JP'
 
     def get(self, key, default=None):
         self._init_config()
         value = getattr(self.config, key, default)
         return bt.tr('ConfigTranslation', value)
+
+    def has(self, key):
+        self._init_config()
+        return hasattr(self.config, key)
 
     def set(self, key, value):
         self._init_config()
@@ -82,6 +90,9 @@ class ConfigSet:
 
     def get_signal(self, key):
         return self.signals.get(key)
+
+    def get_signals(self):
+        return self.signals
 
     def set_window(self, window):
         self.window = window

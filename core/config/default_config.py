@@ -503,7 +503,8 @@ DEFAULT_CONFIG = """
         "max_weekly_point": -1,
         "time": 0
     },
-    "assetsVisibility": true
+    "assetsVisibility": true,
+    "hotkey_run": "Ctrl+Shift+R"
 }
 """
 
