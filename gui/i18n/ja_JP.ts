@@ -77,7 +77,7 @@
 <context>
     <name>BAASLangAltButton</name>
     <message>
-        <location filename="../../window.py" line="313"/>
+        <location filename="../../window.py" line="307"/>
         <source>语言设置</source>
         <translation>言語設定</translation>
     </message>
@@ -85,7 +85,7 @@
 <context>
     <name>BAASTabItem</name>
     <message>
-        <location filename="../../window.py" line="256"/>
+        <location filename="../../window.py" line="250"/>
         <source>重命名</source>
         <translation>名前の変更</translation>
     </message>
@@ -93,12 +93,12 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="366"/>
+        <location filename="../../window.py" line="360"/>
         <source>帮助</source>
         <translation>ヘルプ</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="362"/>
+        <location filename="../../window.py" line="356"/>
         <source>更新日志</source>
         <translation>変更履歴</translation>
     </message>
@@ -768,49 +768,54 @@
 <context>
     <name>HomeFragment</name>
     <message>
-        <location filename="../fragments/home.py" line="44"/>
+        <location filename="../fragments/home.py" line="49"/>
         <source>蔚蓝档案自动脚本</source>
         <translation>ブルアカ 自動スクリプト</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="48"/>
+        <location filename="../fragments/home.py" line="53"/>
         <source>无任务</source>
         <translation>タスクなし</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="63"/>
+        <location filename="../fragments/home.py" line="68"/>
         <source>启动</source>
         <translation>起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="63"/>
+        <location filename="../fragments/home.py" line="68"/>
         <source>档案，启动</source>
         <translation>ブルアカ、起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="214"/>
+        <location filename="../fragments/home.py" line="257"/>
         <source>开始你的档案之旅</source>
         <translation>アーカイブの旅を始めましょう</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="156"/>
+        <location filename="../fragments/home.py" line="200"/>
         <source>正在运行：</source>
         <translation>実行中：</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="214"/>
+        <location filename="../fragments/home.py" line="257"/>
         <source>完成后</source>
         <translation>完了したら</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="72"/>
+        <location filename="../fragments/home.py" line="77"/>
         <source>资产显示：开</source>
         <translation>資産表示：開</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="73"/>
+        <location filename="../fragments/home.py" line="78"/>
         <source>资产显示：关</source>
         <translation>資産表示：関</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="130"/>
+        <source>启停快捷键</source>
+        <translation type="unfinished">起動/停止のショートカットキー</translation>
     </message>
 </context>
 <context>
@@ -1209,7 +1214,7 @@
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
 nemu の使用が推奨され、nemu を使用している場合は、「エミュレータ
  アドレス」を MuMu エミュレータ パスに正確に設定してくださいMuMuPlayer.exe</translation>
@@ -1733,97 +1738,97 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="380"/>
+        <location filename="../fragments/home.py" line="423"/>
         <source>停止</source>
         <translation>止める</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="386"/>
+        <location filename="../fragments/home.py" line="429"/>
         <source>启动</source>
         <translation>起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="294"/>
+        <location filename="../fragments/home.py" line="337"/>
         <source>困难图推图已完成</source>
         <translation>ハードステージがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="387"/>
+        <location filename="../fragments/home.py" line="430"/>
         <source>无任务</source>
         <translation>タスクなし</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="302"/>
+        <location filename="../fragments/home.py" line="345"/>
         <source>普通关推图</source>
         <translation>普通ステージをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="306"/>
+        <location filename="../fragments/home.py" line="349"/>
         <source>普通图推图已完成</source>
         <translation>普通ステージがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="315"/>
+        <location filename="../fragments/home.py" line="358"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>アンチハーモニーが成功しました。BAを再起動してリソースをダウンロードしてください</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="319"/>
+        <location filename="../fragments/home.py" line="362"/>
         <source>自动主线剧情</source>
         <translation>本編プロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="323"/>
+        <location filename="../fragments/home.py" line="366"/>
         <source>主线剧情已完成</source>
         <translation>本編プロットがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="331"/>
+        <location filename="../fragments/home.py" line="374"/>
         <source>自动小组剧情</source>
         <translation>グループプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="335"/>
+        <location filename="../fragments/home.py" line="378"/>
         <source>小组剧情已完成</source>
         <translation>グループストーリーがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="344"/>
+        <location filename="../fragments/home.py" line="387"/>
         <source>自动支线剧情</source>
         <translation>サブプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="347"/>
+        <location filename="../fragments/home.py" line="390"/>
         <source>支线剧情已完成</source>
         <translation>サブストーリーがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="356"/>
+        <location filename="../fragments/home.py" line="399"/>
         <source>自动活动剧情</source>
         <translation>イベントプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="359"/>
+        <location filename="../fragments/home.py" line="402"/>
         <source>活动剧情已完成</source>
         <translation>イベントプロットがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="368"/>
+        <location filename="../fragments/home.py" line="411"/>
         <source>自动活动任务</source>
         <translation>イベントタスクをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="371"/>
+        <location filename="../fragments/home.py" line="414"/>
         <source>活动任务已完成</source>
         <translation>イベントタスクがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="379"/>
+        <location filename="../fragments/home.py" line="422"/>
         <source>自动活动挑战</source>
         <translation>イベント挑戦をクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="383"/>
+        <location filename="../fragments/home.py" line="426"/>
         <source>活动挑战推图已完成</source>
         <translation>イベントチャレンジがクリアしました</translation>
     </message>
@@ -1839,19 +1844,14 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>OtherConfig</name>
     <message>
-        <location filename="../components/expand/otherConfig.py" line="17"/>
+        <location filename="../components/expand/otherConfig.py" line="10"/>
         <source>一键反和谐</source>
         <translation>アンチハーモニーをする</translation>
     </message>
     <message>
-        <location filename="../components/expand/otherConfig.py" line="23"/>
+        <location filename="../components/expand/otherConfig.py" line="16"/>
         <source>显示首页头图（下次启动时生效）</source>
         <translation>ホームヘッダー画像を表示するのか(次回の起動時に有効)</translation>
-    </message>
-    <message>
-        <location filename="../components/expand/otherConfig.py" line="36"/>
-        <source>启停快捷键</source>
-        <translation>起動/停止のショートカットキー</translation>
     </message>
 </context>
 <context>
@@ -1936,7 +1936,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>RenameDialogBox</name>
     <message>
-        <location filename="../../window.py" line="205"/>
+        <location filename="../../window.py" line="199"/>
         <source>配置详情</source>
         <translation>構成の詳細</translation>
     </message>
@@ -1944,22 +1944,22 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>RenameDialogContext</name>
     <message>
-        <location filename="../../window.py" line="212"/>
+        <location filename="../../window.py" line="206"/>
         <source>原来的配置名称</source>
         <translation>元の構成の名前</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="218"/>
+        <location filename="../../window.py" line="212"/>
         <source>修改后的配置名称</source>
         <translation>変更された構成の名前</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="241"/>
+        <location filename="../../window.py" line="235"/>
         <source>确定</source>
         <translation>決定</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="242"/>
+        <location filename="../../window.py" line="236"/>
         <source>取消</source>
         <translation>キャンセル</translation>
     </message>
@@ -2330,42 +2330,42 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="479"/>
+        <location filename="../../window.py" line="473"/>
         <source>主页</source>
         <translation>ホーム</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="480"/>
+        <location filename="../../window.py" line="474"/>
         <source>调度</source>
         <translation>スケジュール</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="481"/>
+        <location filename="../../window.py" line="475"/>
         <source>配置</source>
         <translation>構成</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="482"/>
+        <location filename="../../window.py" line="476"/>
         <source>设置</source>
         <translation>設定</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="572"/>
+        <location filename="../../window.py" line="566"/>
         <source>设置失败</source>
         <translation>セットアップ失敗</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="608"/>
+        <location filename="../../window.py" line="602"/>
         <source>是否要删除配置：</source>
         <translation>設定を削除しますか：</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="609"/>
+        <location filename="../../window.py" line="603"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>変更を完了するには、確認後に BAAS を再起動する必要があります。</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="483"/>
+        <location filename="../../window.py" line="477"/>
         <source>更新设置</source>
         <translation>更新設定</translation>
     </message>
@@ -2373,7 +2373,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>bt</name>
     <message>
-        <location filename="../../window.py" line="227"/>
+        <location filename="../../window.py" line="221"/>
         <source>ConfigTranslation</source>
         <translation>構成の翻訳</translation>
     </message>
@@ -2395,12 +2395,12 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>実行</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="181"/>
+        <location filename="../fragments/home.py" line="224"/>
         <source>MainThread</source>
         <translation>メイン・トレッド</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="183"/>
+        <location filename="../fragments/home.py" line="226"/>
         <source>MainThread</source>
         <comment>停止</comment>
         <translation>メイン・トレッド</translation>
@@ -2427,7 +2427,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="522"/>
+        <location filename="../../window.py" line="516"/>
         <source>帮助</source>
         <translation>ヘルプ</translation>
     </message>

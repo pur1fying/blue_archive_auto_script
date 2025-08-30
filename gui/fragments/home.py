@@ -20,7 +20,9 @@ from gui.util.customized_ui import AssetsWidget, FuncLabel
 from gui.util.translator import baasTranslator as bt
 from window import Window
 
-_Callback = Callable[[], None]
+if sys.platform == "win32":
+    from gui.util.hotkey_manager import GlobalHotkeyManager, HotkeyInputDialog
+    _Callback = Callable[[], None]
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
 HUMAN_TAKE_OVER_MESSAGE = "BAAS Exited, Reason : Human Take Over"
@@ -115,40 +117,39 @@ class HomeFragment(QFrame):
 
         config.add_signal('update_signal', self.main_thread_attach.update_signal)
         if sys.platform == "win32":
-            from gui.util.hotkey_manager import GlobalHotkeyManager, HotkeyInputDialog
             self.hk_callbacks = {}
             self.hk_mgr = GlobalHotkeyManager(self)
+            self.hotkey_widgets = {}
             self._init_hotkey(
                 key="hotkey_run",
                 default="Ctrl+Shift+R",
                 callback=self.startup_card.button.click
             )
-            self.hotkey_widgets = {}
-            self.manager = config.get_hotkey_manager()
 
             ht_k = "hotkey_run"
-            self.hotkey_label = QLabel(self.tr("启停快捷键 ") + f"<b>{self.config.get(ht_k, 'Ctrl+Shift+R')}</b>")
-            self.hotkey_label.setAlignment(Qt.AlignCenter)
-
-            change_hotkey_btn = PushButton(text=self.tr("修改快捷键"))
-            change_hotkey_btn.clicked.connect(self._change_hotkey(ht_k))
+            self.hotkey_desc_label = QLabel(self.tr("启停快捷键"))
+            self.hotkey_push_button = PushButton(text=self.config.get(ht_k, 'Ctrl+Shift+R'))
+            font = self.hotkey_push_button.font()
+            font.setBold(True)
+            self.hotkey_push_button.setFont(font)
 
             hotkey_layout = QHBoxLayout()
+
             hotkey_layout.setContentsMargins(0, 0, 0, 0)
-            hotkey_layout.setSpacing(5)
-            hotkey_layout.addWidget(self.hotkey_label)
-            hotkey_layout.addWidget(change_hotkey_btn)
+            hotkey_layout.addWidget(self.hotkey_desc_label)
+            hotkey_layout.addStretch()
+            hotkey_layout.addWidget(self.hotkey_push_button)
 
-            hotkey_widget = QWidget()
-            hotkey_widget.setLayout(hotkey_layout)
+            container = QWidget()
+            container.setLayout(hotkey_layout)
 
-            self.startup_card.hBoxLayout.insertWidget(7, hotkey_widget, 0, Qt.AlignRight)
-            self._add_setting_row(
-                key=ht_k,
-                description=self.tr("启停快捷键"),
-                default_hotkey=config.get(ht_k, "Ctrl+Shift+R"),
-                callback=self.hk_callbacks.get(ht_k, lambda: None)
-            )
+            self.startup_card.hBoxLayout.insertWidget(7, container, 0, Qt.AlignRight)
+            self.hotkey_widgets[ht_k] = {
+                "hotkey_push_button": self.hotkey_push_button,
+                "callback": self.hk_callbacks.get(ht_k, lambda: None)
+            }
+            self.hotkey_push_button.clicked.connect(lambda _: self._change_hotkey(ht_k))
+
 
         self.startup_card.clicked.connect(self._start_clicked)
         # set a hash object name for this widget
@@ -158,17 +159,16 @@ class HomeFragment(QFrame):
             self.startup_card.button.click()
 
     def _change_hotkey(self, key: str):
-        from gui.util.hotkey_manager import HotkeyInputDialog
         """Handles the logic for changing a hotkey via the dialog."""
         widgets = self.hotkey_widgets[key]
-        current_hotkey_str = widgets["hotkey_label"].text().replace("<b>", "").replace("</b>", "")
+        current_hotkey_str = widgets["hotkey_push_button"].text().replace("<b>", "").replace("</b>", "")
         new_hotkey, ok = HotkeyInputDialog.get_hotkey(
             self.config.get_window(),
             current_hotkey_str,
-            self.manager
+            self.hk_mgr
         )
         if ok and new_hotkey != current_hotkey_str:
-            widgets["hotkey_label"].setText(f"<b>{new_hotkey}</b>")
+            widgets["hotkey_push_button"].setText(new_hotkey)
             self.config.set(key, new_hotkey)
 
     def _change_assets_visibility(self, checked):

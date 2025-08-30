@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
@@ -77,7 +76,7 @@
 <context>
     <name>BAASLangAltButton</name>
     <message>
-        <location filename="../../window.py" line="313"/>
+        <location filename="../../window.py" line="307"/>
         <source>语言设置</source>
         <translation>언어 설정</translation>
     </message>
@@ -85,7 +84,7 @@
 <context>
     <name>BAASTabItem</name>
     <message>
-        <location filename="../../window.py" line="256"/>
+        <location filename="../../window.py" line="250"/>
         <source>重命名</source>
         <translation>이름 바꾸기</translation>
     </message>
@@ -93,12 +92,12 @@
 <context>
     <name>BAASTitleBar</name>
     <message>
-        <location filename="../../window.py" line="366"/>
+        <location filename="../../window.py" line="360"/>
         <source>帮助</source>
         <translation>돕다</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="362"/>
+        <location filename="../../window.py" line="356"/>
         <source>更新日志</source>
         <translation>업데이트 이력</translation>
     </message>
@@ -769,49 +768,54 @@
 <context>
     <name>HomeFragment</name>
     <message>
-        <location filename="../fragments/home.py" line="44"/>
+        <location filename="../fragments/home.py" line="49"/>
         <source>蔚蓝档案自动脚本</source>
         <translation>파란기록물 자동 운전 프로그람 --</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="48"/>
+        <location filename="../fragments/home.py" line="53"/>
         <source>无任务</source>
         <translation>일 없습네다</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="63"/>
+        <location filename="../fragments/home.py" line="68"/>
         <source>启动</source>
         <translation>시작</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="63"/>
+        <location filename="../fragments/home.py" line="68"/>
         <source>档案，启动</source>
         <translation>파란 기록물 자동운전 시작</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="214"/>
+        <location filename="../fragments/home.py" line="257"/>
         <source>开始你的档案之旅</source>
         <translation>로동 시작</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="156"/>
+        <location filename="../fragments/home.py" line="200"/>
         <source>正在运行：</source>
         <translation>작동중 :</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="214"/>
+        <location filename="../fragments/home.py" line="257"/>
         <source>完成后</source>
         <translation>완료되면</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="72"/>
+        <location filename="../fragments/home.py" line="77"/>
         <source>资产显示：开</source>
         <translation>자산 표시: 켜짐</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="73"/>
+        <location filename="../fragments/home.py" line="78"/>
         <source>资产显示：关</source>
         <translation>자산 표시: 꺼짐</translation>
+    </message>
+    <message>
+        <location filename="../fragments/home.py" line="130"/>
+        <source>启停快捷键</source>
+        <translation type="unfinished">시작-정지 단축키</translation>
     </message>
 </context>
 <context>
@@ -964,15 +968,15 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="21"/>
-        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>일반 스테이지 소탕 횟수
-(예: &quot;1-1-1,1-2-3&quot;은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
+(예: "1-1-1,1-2-3"은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="24"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회),
-구분은 쉼표로, 일본 서버와 해외 서버는 &apos;max&apos;로 입력할 수 있습니다:</translation>
+구분은 쉼표로, 일본 서버와 해외 서버는 'max'로 입력할 수 있습니다:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="131"/>
@@ -1213,10 +1217,10 @@
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
-nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬레이터 
-주소&apos;를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
+nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이터 
+주소'를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="26"/>
@@ -1737,97 +1741,97 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="380"/>
+        <location filename="../fragments/home.py" line="423"/>
         <source>停止</source>
         <translation>중지</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="386"/>
+        <location filename="../fragments/home.py" line="429"/>
         <source>启动</source>
         <translation>시작</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="294"/>
+        <location filename="../fragments/home.py" line="337"/>
         <source>困难图推图已完成</source>
         <translation>하드 스테이지 임무 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="387"/>
+        <location filename="../fragments/home.py" line="430"/>
         <source>无任务</source>
         <translation>일 없습네다</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="302"/>
+        <location filename="../fragments/home.py" line="345"/>
         <source>普通关推图</source>
         <translation>일반 관습 푸시 맵</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="306"/>
+        <location filename="../fragments/home.py" line="349"/>
         <source>普通图推图已完成</source>
         <translation>일반 스테이지 임무 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="315"/>
+        <location filename="../fragments/home.py" line="358"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>안티 하모니가 성공적으로 완료되었습니다. BA를 재실행하여 리소스를 다운로드하세요</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="319"/>
+        <location filename="../fragments/home.py" line="362"/>
         <source>自动主线剧情</source>
         <translation>메인 스토리</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="323"/>
+        <location filename="../fragments/home.py" line="366"/>
         <source>主线剧情已完成</source>
         <translation>메인 스토리 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="331"/>
+        <location filename="../fragments/home.py" line="374"/>
         <source>自动小组剧情</source>
         <translation>그룹 스토리</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="335"/>
+        <location filename="../fragments/home.py" line="378"/>
         <source>小组剧情已完成</source>
         <translation>그룹 스토리 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="344"/>
+        <location filename="../fragments/home.py" line="387"/>
         <source>自动支线剧情</source>
         <translation>미니 스토리</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="347"/>
+        <location filename="../fragments/home.py" line="390"/>
         <source>支线剧情已完成</source>
         <translation>미니 스토리 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="356"/>
+        <location filename="../fragments/home.py" line="399"/>
         <source>自动活动剧情</source>
         <translation>이벤트 스토리 클리어</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="359"/>
+        <location filename="../fragments/home.py" line="402"/>
         <source>活动剧情已完成</source>
         <translation>이벤트 스토리 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="368"/>
+        <location filename="../fragments/home.py" line="411"/>
         <source>自动活动任务</source>
         <translation>이벤트 퀘스트 클리어</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="371"/>
+        <location filename="../fragments/home.py" line="414"/>
         <source>活动任务已完成</source>
         <translation>이벤트 퀘스트 클리어 완료</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="379"/>
+        <location filename="../fragments/home.py" line="422"/>
         <source>自动活动挑战</source>
         <translation>클리어 이벤트 챌린지</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="383"/>
+        <location filename="../fragments/home.py" line="426"/>
         <source>活动挑战推图已完成</source>
         <translation>챌린지 이벤트 클리어 완료</translation>
     </message>
@@ -1843,21 +1847,16 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
 <context>
     <name>OtherConfig</name>
     <message>
-        <location filename="../components/expand/otherConfig.py" line="17"/>
+        <location filename="../components/expand/otherConfig.py" line="10"/>
         <source>一键反和谐</source>
         <translation>원클릭 안티 하모니</translation>
     </message>
     <message>
-        <location filename="../components/expand/otherConfig.py" line="23"/>
+        <location filename="../components/expand/otherConfig.py" line="16"/>
         <source>显示首页头图（下次启动时生效）</source>
         <translation>홈페이지 헤더 이미지 표시(다음 시작 시 적용)</translation>
     </message>
-    <message>
-        <location filename="../components/expand/otherConfig.py" line="36"/>
-        <source>启停快捷键</source>
-        <translation>시작-정지 단축키</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>ProceedPlot</name>
     <message>
@@ -1940,7 +1939,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
 <context>
     <name>RenameDialogBox</name>
     <message>
-        <location filename="../../window.py" line="205"/>
+        <location filename="../../window.py" line="199"/>
         <source>配置详情</source>
         <translation>구성 세부 사항</translation>
     </message>
@@ -1948,22 +1947,22 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
 <context>
     <name>RenameDialogContext</name>
     <message>
-        <location filename="../../window.py" line="212"/>
+        <location filename="../../window.py" line="206"/>
         <source>原来的配置名称</source>
         <translation>원래 구성의 이름입니다</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="218"/>
+        <location filename="../../window.py" line="212"/>
         <source>修改后的配置名称</source>
         <translation>수정된 구성의 이름입니다</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="241"/>
+        <location filename="../../window.py" line="235"/>
         <source>确定</source>
         <translation>확실한가요</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="242"/>
+        <location filename="../../window.py" line="236"/>
         <source>取消</source>
         <translation>취소</translation>
     </message>
@@ -2334,42 +2333,42 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="479"/>
+        <location filename="../../window.py" line="473"/>
         <source>主页</source>
         <translation>홈페이지</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="480"/>
+        <location filename="../../window.py" line="474"/>
         <source>调度</source>
         <translation>일정</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="481"/>
+        <location filename="../../window.py" line="475"/>
         <source>配置</source>
         <translation>구성</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="482"/>
+        <location filename="../../window.py" line="476"/>
         <source>设置</source>
         <translation>설정</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="572"/>
+        <location filename="../../window.py" line="566"/>
         <source>设置失败</source>
         <translation>설정이 실패했습니다</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="608"/>
+        <location filename="../../window.py" line="602"/>
         <source>是否要删除配置：</source>
         <translation>프로파일을 삭제하시겠습네까? :</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="609"/>
+        <location filename="../../window.py" line="603"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>확인 후 설정을 적용하려면 BAA를 다시 시작해야합니다.</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="483"/>
+        <location filename="../../window.py" line="477"/>
         <source>更新设置</source>
         <translation>업데이트 설정</translation>
     </message>
@@ -2377,7 +2376,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
 <context>
     <name>bt</name>
     <message>
-        <location filename="../../window.py" line="227"/>
+        <location filename="../../window.py" line="221"/>
         <source>ConfigTranslation</source>
         <translation>구성 변환</translation>
     </message>
@@ -2399,12 +2398,12 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
         <translation>템플릿 레이아웃</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="181"/>
+        <location filename="../fragments/home.py" line="224"/>
         <source>MainThread</source>
         <translation>메인스레드</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="183"/>
+        <location filename="../fragments/home.py" line="226"/>
         <source>MainThread</source>
         <comment>停止</comment>
         <translation>메인스레드</translation>
@@ -2431,7 +2430,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="522"/>
+        <location filename="../../window.py" line="516"/>
         <source>帮助</source>
         <translation>돕다</translation>
     </message>
