@@ -781,7 +781,7 @@ class Baas_thread:
 
     def get_creditpoints(self, is_main_page=False):
         if is_main_page:
-            region = (699, 25, 819, 52)
+            region = (671, 20, 819, 52)
         else:
             region = (769, 10, 912, 40)
         ocr_res = self.ocr.get_region_res(
