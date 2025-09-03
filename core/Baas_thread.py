@@ -12,7 +12,6 @@ from datetime import datetime
 import cv2
 import numpy as np
 import psutil
-import requests
 
 import module.ExploreTasks.explore_task
 from core import position, picture, utils
@@ -22,7 +21,6 @@ from core.device.Control import Control
 from core.device.Screenshot import Screenshot
 from core.device.connection import Connection
 from core.device.emulator_manager import process_api
-from core.device.uiautomator2_client import BAAS_U2_Initer, __atx_agent_version__
 from core.device.uiautomator2_client import U2Client
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
@@ -376,27 +374,6 @@ class Baas_thread:
                 self.ocr_language = supported_language_convert_dict[game_lan]
             else:
                 raise Exception("Global Server Invalid Language : " + game_lan + ".")
-
-    def check_atx(self):
-        self.logger.info("--------------Check ATX install ----------------")
-        _d = self.u2._wait_for_device()
-        if not _d:
-            raise RuntimeError("USB device %s is offline " + self.serial)
-        self.logger.info("Device [ " + self.serial + " ] is online.")
-
-        version_url = self.u2.path2url("/version")
-        try:
-            version = requests.get(version_url, timeout=3).text
-            if version != __atx_agent_version__:
-                raise EnvironmentError("atx-agent need upgrade")
-        except (requests.RequestException, EnvironmentError):
-            self.set_up_atx_agent()
-        self.wait_uiautomator_start()
-        self.logger.info("Uiautomator2 service started.")
-
-    def set_up_atx_agent(self):
-        init = BAAS_U2_Initer(self.u2._adb_device, self.logger)
-        init.install()
 
     def send(self, msg, task=None):
         if msg == "start":
@@ -853,8 +830,8 @@ class Baas_thread:
         last_refresh_hour = last_refresh.hour
         daily_reset = 4 - (self.server == 'JP' or self.server == 'Global')
         if now.day == last_refresh.day and now.year == last_refresh.year and now.month == last_refresh.month and \
-                ((hour < daily_reset and last_refresh_hour < daily_reset) or (
-                        hour >= daily_reset and last_refresh_hour >= daily_reset)):
+            ((hour < daily_reset and last_refresh_hour < daily_reset) or (
+                hour >= daily_reset and last_refresh_hour >= daily_reset)):
             return
         else:
             self.config.last_refresh_config_time = time.time()
@@ -971,9 +948,10 @@ class Baas_thread:
         _new = self.connection.app_process_window.get_resolution()
         if self.resolution[0] == _new[0] and self.resolution[1] == _new[1]:
             return
-        self.logger.warning("Screen Resolution change detected, we don't recommend you to change screen resolution while running the script.")
+        self.logger.warning(
+            "Screen Resolution change detected, we don't recommend you to change screen resolution while running the script.")
 
-        _new = self._wait_resolution_change_finish(_new,10, 0.3)
+        _new = self._wait_resolution_change_finish(_new, 10, 0.3)
         if self.resolution[0] == _new[0] and self.resolution[1] == _new[1]:
             self.logger.info("Resolution unchanged.")
             return
@@ -1010,7 +988,6 @@ class Baas_thread:
                 latest_res = _new
             time.sleep(interval)
 
-
     @staticmethod
     def _accept_resolution(x, y, std_x=16, std_y=9, threshold=0.05):
         return abs(x / y - std_x / std_y) <= threshold
@@ -1020,7 +997,8 @@ class Baas_thread:
         screen_ratio = width // gcd, height // gcd
         if screen_ratio == (16, 9):
             return
-        self.logger.warning(f"Screen Ratio: {width}:{height} is not a precise 16:9 screen, we recommend you to use a precise 16:9 screen.")
+        self.logger.warning(
+            f"Screen Ratio: {width}:{height} is not a precise 16:9 screen, we recommend you to use a precise 16:9 screen.")
         if self._accept_resolution(width, height, 16, 9, 0.05):
             self.logger.info(f"Screen Ratio close to 16:9. Accept it.")
             return
@@ -1030,15 +1008,13 @@ class Baas_thread:
     def _get_android_device_resolution(self):
         self.u2_client = U2Client.get_instance(self.serial)
         self.u2 = self.u2_client.get_connection()
-        self.check_atx()
         self.last_refresh_u2_time = time.time()
         return self.resolution_uiautomator2()
 
     def resolution_uiautomator2(self):
         for i in range(0, 3):
             try:
-                info = self.u2.http.get('/info').json()
-                w, h = info['display']['width'], info['display']['height']
+                w, h = self.u2.info['displayWidth'], self.u2.info['displayHeight']
                 if w < h:
                     w, h = h, w
                 return w, h
@@ -1050,17 +1026,3 @@ class Baas_thread:
         self.get_ap(True)
         self.get_creditpoints(True)
         self.get_pyroxene(True)
-
-
-if __name__ == '__main__':
-    print(os.path.exists(
-        "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.1_linux_386\\atx-agent"))
-    # "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.0_linux_386\\atx-agent"
-    import uiautomator2
-
-    u2 = uiautomator2.connect("127.0.0.1:16512")
-    from core.utils import Logger
-
-    logger = Logger(None)
-    init = BAAS_U2_Initer(u2._adb_device, logger)
-    init.uninstall()
