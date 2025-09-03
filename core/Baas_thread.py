@@ -783,7 +783,7 @@ class Baas_thread:
         if is_main_page:
             region = (699, 25, 819, 52)
         else:
-            region = (769, 10, 896, 40)
+            region = (769, 10, 912, 40)
         ocr_res = self.ocr.get_region_res(
             self,
             region,
