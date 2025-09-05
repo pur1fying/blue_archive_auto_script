@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
@@ -968,9 +969,9 @@
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="21"/>
-        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
         <translation>일반 스테이지 소탕 횟수
-(예: "1-1-1,1-2-3"은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
+(예: &quot;1-1-1,1-2-3&quot;은 1-1 스테이지를 한 번 소탕 후 1-2 스테이지를 세 번 소탕한다는 뜻):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="24"/>
@@ -1856,7 +1857,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
         <source>显示首页头图（下次启动时生效）</source>
         <translation>홈페이지 헤더 이미지 표시(다음 시작 시 적용)</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>ProceedPlot</name>
     <message>

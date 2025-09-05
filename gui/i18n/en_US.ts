@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US" sourcelanguage="zh_CN">
 <context>
@@ -914,8 +913,8 @@ Use positive number for below and negative for above:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="21"/>
-        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
-        <translation>Normal stage and number of sweeps(e.g. &quot;1-1-1,1-2-3&quot; means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
+        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <translation>Normal stage and number of sweeps(e.g. "1-1-1,1-2-3" means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="24"/>
@@ -1157,7 +1156,7 @@ For JP or Global server, you can use 'max':</translation>
         <location filename="../components/expand/scriptConfig.py" line="18"/>
         <source>这些功能在运行多个实例时可能无法按预期工作。涉及模拟器的操作将遵循“模拟器启动设置”中的设置。</source>
         <translation>These features may not work as expected when running multiple instances.
-Operations involving the emulator will follow the settings in &quot;Emulator Startup Settings.</translation>
+Operations involving the emulator will follow the settings in "Emulator Startup Settings.</translation>
     </message>
     <message>
         <location filename="../components/expand/friendWhiteList.py" line="68"/>

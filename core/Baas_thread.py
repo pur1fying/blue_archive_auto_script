@@ -64,7 +64,8 @@ func_dict = {
     'dailyGameActivity': module.dailyGameActivity.implement,
     'friend': module.friend.implement,
     'joint_firing_drill': module.joint_firing_drill.implement,
-    'pass': module.collect_pass_reward.implement
+    'pass': module.collect_pass_reward.implement,
+    'collect_daily_free_power': module.collect_daily_free_power.implement
 }
 
 

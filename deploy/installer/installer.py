@@ -61,7 +61,7 @@ from pygit2 import clone_repository, Repository, RemoteCallbacks, GIT_RESET_HARD
 
 from toml_config import TOML_Config
 from mirrorc_update.mirrorc_updater import MirrorC_Updater
-from const import GetShaMethod, get_remote_sha_methods
+from const import GetShaMethod, get_remote_sha_methods, REPO_BRANCH
 
 __system__ = platform.system()
 __env__ = os.environ.copy()
