@@ -55,7 +55,7 @@ class Connection:
         if sys.platform != 'win32':
             self.logger.error("Steam server is only available on Windows platform. Please check your server config.")
             raise RequestHumanTakeOver("Unsupported platform for Steam server.")
-        from core.device.window_capture.windows.window_info import win32_WindowInfo
+        from core.device.windows.window_info import win32_WindowInfo
         self.logger.info(f"Process Name : {self.static_config.steam_app_process_name}")
         self.app_process_window = win32_WindowInfo(self.static_config.steam_app_process_name)
         if not self.app_process_window.is_valid_window():

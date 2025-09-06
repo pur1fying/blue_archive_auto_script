@@ -1,9 +1,9 @@
 import sys
 
-from core.device.control.nemu import NemuControl
-from core.device.control.adb import AdbControl
-from core.device.control.uiautomator2 import U2Control
-from core.device.control.scrcpy import ScrcpyControl
+from core.device.emulator_manager.nemu import NemuControl
+from core.device.adb.adb import AdbControl
+from core.device.uiautomator2.uiautomator2 import U2Control
+from core.device.scrcpy.scrcpy import ScrcpyControl
 
 
 class Control:
@@ -33,7 +33,7 @@ class Control:
                 self.control_instance = ScrcpyControl(self.connection)
         else:
             if sys.platform == "win32":
-                from core.device.control.pyautogui import PyautoguiControl
+                from core.device.windows.pyautogui import PyautoguiControl
                 if self.method == "pyautogui":
                     self.control_instance = PyautoguiControl(self.connection)
 

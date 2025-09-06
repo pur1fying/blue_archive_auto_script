@@ -1,4 +1,4 @@
-from core.device.nemu_client import NemuClient, NemuIpcIncompatible, NemuIpcError
+from core.device.emulator_manager.nemu_client import NemuClient, NemuIpcIncompatible, NemuIpcError
 import time
 import numpy as np
 import os.path

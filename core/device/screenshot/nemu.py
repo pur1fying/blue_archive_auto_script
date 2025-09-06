@@ -1,5 +1,5 @@
 import os.path
-from core.device.nemu_client import NemuClient, NemuIpcIncompatible, NemuIpcError
+from core.device.emulator_manager.nemu_client import NemuClient, NemuIpcIncompatible, NemuIpcError
 
 
 class NemuScreenshot:

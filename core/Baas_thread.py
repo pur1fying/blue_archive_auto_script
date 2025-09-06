@@ -21,7 +21,7 @@ from core.device.Control import Control
 from core.device.Screenshot import Screenshot
 from core.device.connection import Connection
 from core.device.emulator_manager import process_api
-from core.device.uiautomator2_client import U2Client
+from core.device.uiautomator2.uiautomator2_client import U2Client
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
 from core.pushkit import push

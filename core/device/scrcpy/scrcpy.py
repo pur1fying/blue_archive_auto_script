@@ -1,4 +1,4 @@
-from core.device.scrcpy_client import ScrcpyClient
+from core.device.scrcpy.scrcpy_client import ScrcpyClient
 
 
 class ScrcpyControl:
