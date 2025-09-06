@@ -1,3 +1,5 @@
+import base64
+
 import cv2
 import numpy as np
 import uiautomator2 as u2
@@ -31,7 +33,17 @@ class U2Client:
         self.connection.swipe(x1, y1, x2, y2, duration)
 
     def screenshot(self):
-        return cv2.cvtColor(np.array(self.connection.screenshot()), cv2.COLOR_RGB2BGR)
+        # copied and modified from uiautomator2 source code
+        # original version do not support unadjusted screenshot
+        base64_data = self.connection.jsonrpc.takeScreenshot(1, 100)
+        # takeScreenshot may return None
+        if base64_data:
+            jpg_raw = base64.b64decode(base64_data)
+            img_array = np.frombuffer(jpg_raw, dtype=np.uint8)
+            img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+            return img
+        else:
+            return None
 
     def get_connection(self):
         return self.connection
