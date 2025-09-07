@@ -8,7 +8,6 @@ from .device_config import load_data as load_dict
 from .device_display import convert_display_name
 from .device_display import get_display_name as get_display_name_uuid
 from .get_start_command import get_executable_path_and_args as simulator_cmd
-from .mumu_manager_api import mumu12_control_api_backend as mumu12_api_backend
 from .preprocessing_name import preprocess_name
 from .simulator_api import get_adb_address, get_adb_address_by_uuid, get_simulator_commandline_uuid, get_simulator_uuid
 from .simulator_native import process_native_api

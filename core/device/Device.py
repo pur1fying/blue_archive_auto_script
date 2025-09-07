@@ -3,7 +3,7 @@ import time
 
 from core.device.adb.adb import AdbClient
 from core.device.scrcpy.scrcpy import ScrcpyClient
-from core.device.screenshot.nemu import NemuScreenshot
+from core.device.nemu.nemu import NemuClient
 from core.device.uiautomator2.uiautomator2 import U2Client
 
 
@@ -34,7 +34,7 @@ class Device:
 
         if self.Baas_instance.is_android_device:
             if self.screenshot_method == "nemu":
-                self.screenshot_instance = NemuScreenshot(self.connection)
+                self.screenshot_instance = NemuClient.get_instance(self.connection)
             elif self.screenshot_method == "adb":
                 self.screenshot_instance = AdbClient.get_instance(self.connection.serial)
             elif self.screenshot_method == "uiautomator2":
@@ -43,10 +43,10 @@ class Device:
                 self.screenshot_instance = ScrcpyClient.get_instance(self.connection.serial)
         else:
             if sys.platform == "win32":
-                from core.device.screenshot.pyautogui import PyautoguiScreenshot
+                from core.device.windows.pyautogui import PyautoguiClient
                 from core.device.windows.mss import MssScreenshot
                 if self.screenshot_method == "pyautogui":
-                    self.screenshot_instance = PyautoguiScreenshot(self.connection)
+                    self.screenshot_instance = PyautoguiClient(self.connection)
                 elif self.screenshot_method == "mss":
                     self.screenshot_instance = MssScreenshot(self.connection)
 
@@ -85,7 +85,7 @@ class Device:
 
         if self.Baas_instance.is_android_device:
             if self.control_method == "nemu":
-                self.control_instance = NemuControl(self.connection)
+                self.control_instance = NemuClient.get_instance(self.connection)
             elif self.control_method == "adb":
                 self.control_instance = AdbClient.get_instance(self.connection.serial)
             elif self.control_method == "uiautomator2":
@@ -94,9 +94,9 @@ class Device:
                 self.control_instance = ScrcpyClient.get_instance(self.connection.serial)
         else:
             if sys.platform == "win32":
-                from core.device.windows.pyautogui import PyautoguiControl
+                from core.device.windows.pyautogui import PyautoguiClient
                 if self.control_method == "pyautogui":
-                    self.control_instance = PyautoguiControl(self.connection)
+                    self.control_instance = PyautoguiClient(self.connection)
 
         if self.control_instance is None:
             self.logger.error(

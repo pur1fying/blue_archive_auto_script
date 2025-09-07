@@ -1,6 +1,6 @@
 import subprocess
 from .get_adb_address import get_simulator_port
-from .mumu_manager_api import mumu12_control_api_backend
+from core.device.emulator_manager.mumu_manager_api import mumu12_control_api_backend
 from .bluestacks_module import find_display_name, read_registry_key
 from .device_config import load_data
 

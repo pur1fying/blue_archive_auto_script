@@ -1,17 +1,23 @@
 import asyncio
-import os
 import ctypes
+import os
+import sys
 import time
 from functools import partial
-import sys
-import numpy as np
+
 import cv2
+import numpy as np
+
 
 class NemuIpcIncompatible(Exception):
     pass
 
 
 class NemuIpcError(Exception):
+    pass
+
+
+class NemuInvalidSerialError(Exception):
     pass
 
 
@@ -148,38 +154,58 @@ class CaptureNemuIpc(CaptureStd):
 
 
 class NemuClient:
-    connections = dict()
+    clients = dict()
 
     @staticmethod
-    def get_instance(nemu_folder, instance_id, logger):
-        for (k, v) in NemuClient.connections.items():
-            if v.nemu_folder == nemu_folder and v.instance_id == instance_id:
-                return v
-        key = nemu_folder + str(instance_id)
-        NemuClient.connections[key] = NemuClient(nemu_folder, instance_id, logger)
-        return NemuClient.connections[key]
+    def get_instance(conn):
+        if conn.serial not in NemuClient.clients:
+            return NemuClient.new_instance(conn)
+        return NemuClient.clients[conn.serial]
 
     @staticmethod
-    def release_instance(nemu_folder, instance_id):
-        for (k, v) in NemuClient.connections.items():
-            if v.nemu_folder == nemu_folder and v.instance_id == instance_id:
-                v.disconnect()
-                del NemuClient.connections[k]
-                return
+    def new_instance(conn):
+        try:
+            nemu_client = NemuClient(conn)
+            return nemu_client
+        except (NemuIpcIncompatible, NemuIpcError) as e:
+            conn.logger.warning(e.__str__())
+            conn.logger.info("Emulator info incorrect. Try to auto detect mumu player path.")
+            try:
+                nemu_client = NemuClient(conn, auto_detect=True)
+                return nemu_client
+            except (NemuIpcIncompatible, NemuIpcError) as e:
+                conn.logger.error(e.__str__())
+                raise Exception("Unable to init with auto detected path.")
+        except NemuInvalidSerialError:
+            conn.logger.error('Can\'t convert serial to instance id.')
+            raise NemuInvalidSerialError("Invalid serial. Unable to use Init.")
+        else:
+            conn.logger.error("MuMu Player 12 not found.")
+            raise Exception("Unable to use Init.")
 
-    def __init__(self, nemu_folder, instance_id, logger, display_id=0):
+    def __init__(self, conn, display_id=0, auto_detect=False):
         self.lib = None
         self._ev = asyncio.new_event_loop()
-        self.nemu_folder = nemu_folder
-        self.instance_id = instance_id
-        self.logger = logger
+        if auto_detect:
+            path = NemuClient.get_possible_mumu12_folder()
+            self.logger.info(f"Auto detect mumu player path: {str(path)}")
+            if path is not None:
+                self.config_set.set("program_address", path)
+                self.nemu_folder = os.path.dirname(path)
+        else:
+            self.nemu_folder = conn.config.program_address
+        self.nemu_folder = os.path.dirname(os.path.dirname(self.nemu_folder))  # C:/Program Files/Netease/MuMu Player 12
+        self.instance_id = NemuClient.serial_to_id(conn.serial)
+        if self.instance_id is None:
+            raise NemuInvalidSerialError("Invalid serial. Unable to use Init.")
+        self.logger = conn.logger
         self.display_id = display_id
         # try to load dll from various pathAdd commentMore actions
         list_dll = [
             # MuMuPlayer12
-            os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll')),
+            os.path.abspath(os.path.join(self.nemu_folder, './shell/sdk/external_renderer_ipc.dll')),
             # MuMuPlayer12 5.0
-            os.path.abspath(os.path.join(nemu_folder, './nx_device/12.0/shell/sdk/external_renderer_ipc.dll')),
+            os.path.abspath(os.path.join(self.nemu_folder, './nx_device/12.0/shell/sdk/external_renderer_ipc.dll')),
         ]
         ipc_dll = ''
         for ipc_dll in list_dll:
@@ -200,14 +226,15 @@ class NemuClient:
             raise NemuIpcIncompatible("Please check your MuMu Player 12 version and install path in BAAS settings.")
 
         self.logger.info('NemuIpcImpl init')
-        self.logger.info(f'nemu_folder = {nemu_folder}')
+        self.logger.info(f'nemu_folder = {self.nemu_folder}')
         self.logger.info(f'ipc_dll     = {ipc_dll}')
-        self.logger.info(f'instance_id = {instance_id}')
-        self.logger.info(f'display_id  = {display_id}')
+        self.logger.info(f'instance_id = {self.instance_id}')
+        self.logger.info(f'display_id  = {self.display_id}')
 
         self.connect_id: int = 0
         self.width = 0
         self.height = 0
+        NemuClient.clients[conn.serial] = self
 
     def connect(self):
         if self.connect_id > 0:
@@ -224,7 +251,7 @@ class NemuClient:
 
         self.connect_id = connect_id
 
-        NemuClient.connections[self.connect_id] = self
+        NemuClient.clients[self.connect_id] = self
         # logger.info(f'NemuIpc connected: {self.connect_id}')
 
     def disconnect(self):
@@ -309,42 +336,13 @@ class NemuClient:
 
         ret = self.ev_run_sync(
             self.lib.nemu_capture_display,
-            self.connect_id, self.display_id, 0, width_ptr, height_ptr, nullptr
+            self.connect_id, self.display_id, 0, width_ptr, height_ptr, nullptr,
+            timeout=10.0
         )
         if ret > 0:
             raise NemuIpcError('nemu_capture_display failed during get_resolution()')
         self.width = width_ptr.contents.value
         self.height = height_ptr.contents.value
-
-    def screenshot(self, timeout=0.15):
-        """
-        Returns:
-            np.ndarray: Image array in RGBA color space
-                Note that image is upside down
-        """
-        if self.connect_id == 0:
-            self.connect()
-
-        self.get_resolution()
-
-        width_ptr = ctypes.pointer(ctypes.c_int(self.width))
-        height_ptr = ctypes.pointer(ctypes.c_int(self.height))
-        length = self.width * self.height * 4
-        pixels_pointer = ctypes.pointer((ctypes.c_ubyte * length)())
-
-        ret = self.ev_run_sync(
-            self.lib.nemu_capture_display,
-            self.connect_id, self.display_id, length, width_ptr, height_ptr, pixels_pointer,
-            timeout=timeout,
-        )
-        if ret > 0:
-            raise NemuIpcError('nemu_capture_display failed during screenshot()')
-
-        # image = np.ctypeslib.as_array(pixels_pointer, shape=(self.height, self.width, 4))
-        image = np.ctypeslib.as_array(pixels_pointer.contents).reshape((self.height, self.width, 4))
-        image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGB)
-        cv2.flip(image, 0, dst=image)
-        return image
 
     def down(self, x, y):
         """
@@ -357,7 +355,8 @@ class NemuClient:
 
         ret = self.ev_run_sync(
             self.lib.nemu_input_event_touch_down,
-            self.connect_id, self.display_id, x, y
+            self.connect_id, self.display_id, x, y,
+            timeout=10.0
         )
         if ret > 0:
             raise NemuIpcError('nemu_input_event_touch_down failed')
@@ -371,7 +370,8 @@ class NemuClient:
 
         ret = self.ev_run_sync(
             self.lib.nemu_input_event_touch_up,
-            self.connect_id, self.display_id
+            self.connect_id, self.display_id,
+            timeout=10.0
         )
         if ret > 0:
             raise NemuIpcError('nemu_input_event_touch_up failed')
@@ -411,19 +411,141 @@ class NemuClient:
         except Exception as e:
             return None
 
+    # --------------------------------------------
+    # Screenshot functions
+    # --------------------------------------------
+    def screenshot(self):
+        """
+        Returns:
+            np.ndarray: Image array in RGBA color space
+                Note that image is upside down
+        """
+        if self.connect_id == 0:
+            self.connect()
 
-if __name__ == '__main__':
-    import cv2
-    import logging
+        self.get_resolution()
 
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+        width_ptr = ctypes.pointer(ctypes.c_int(self.width))
+        height_ptr = ctypes.pointer(ctypes.c_int(self.height))
+        length = self.width * self.height * 4
+        pixels_pointer = ctypes.pointer((ctypes.c_ubyte * length)())
 
-    nemu = NemuClient.get_instance("H:/MuMuPlayer-12.0", 0, logger)
-    while True:
-        t1 = time.time()
-        nemu.down(720, 360)
+        for i in range(3):
+            try:
+                ret = self.ev_run_sync(
+                    self.lib.nemu_capture_display,
+                    self.connect_id, self.display_id, length, width_ptr, height_ptr, pixels_pointer,
+                    timeout=10.0
+                )
+                if ret > 0:
+                    raise NemuIpcError('nemu_capture_display failed during screenshot()')
+                break
+            except TimeoutError:
+                self.logger.warning('nemu_capture_display timeout, retrying...')
+                if i == 2:
+                    raise TimeoutError("nemu_capture_display timeout 3 times.")
+
+        # image = np.ctypeslib.as_array(pixels_pointer, shape=(self.height, self.width, 4))
+        image = np.ctypeslib.as_array(pixels_pointer.contents).reshape((self.height, self.width, 4))
+        image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGB)
+        cv2.flip(image, 0, dst=image)
+        return image
+
+    # --------------------------------------------
+    # Control functions
+    # --------------------------------------------
+    def click(self, x, y):
+        self.down(x, y)
         time.sleep(0.015)
-        nemu.up()
-        print(f'{time.time() - t1:.3f}s')
-        time.sleep(1)
+        self.up()
+        time.sleep(0.035)
+
+    def swipe(self, x1, y1, x2, y2, duration):
+        points = insert_swipe(p0=(x1, y1), p3=(x2, y2))
+
+        for point in points:
+            self.down(*point)
+            time.sleep(0.010)
+
+        self.up()
+        time.sleep(0.050)
+
+    def long_click(self, x, y, duration):
+        self.down(x, y)
+        time.sleep(duration)
+        self.up()
+        time.sleep(0.050)
+
+
+def random_normal_distribution(a, b, n=5):
+    output = np.mean(np.random.uniform(a, b, size=n))
+    return output
+
+
+def insert_swipe(p0, p3, speed=15, min_distance=10):
+    """
+    Insert way point from start to end.
+    First generate a cubic bézier curve
+
+    Args:
+        p0: Start point.
+        p3: End point.
+        speed: Average move speed, pixels per 10ms.
+        min_distance:
+
+    Returns:
+        list[list[int]]: List of points.
+
+    Examples:
+        > insert_swipe((400, 400), (600, 600), speed=20)
+        [[400, 400], [406, 406], [416, 415], [429, 428], [444, 442], [462, 459], [481, 478], [504, 500], [527, 522],
+        [545, 540], [560, 557], [573, 570], [584, 582], [592, 590], [597, 596], [600, 600]]
+    """
+    p0 = np.array(p0)
+    p3 = np.array(p3)
+
+    # Random control points in Bézier curve
+    distance = np.linalg.norm(p3 - p0)
+    p1 = 2 / 3 * p0 + 1 / 3 * p3 + random_theta() * random_rho(distance * 0.1)
+    p2 = 1 / 3 * p0 + 2 / 3 * p3 + random_theta() * random_rho(distance * 0.1)
+
+    # Random `t` on Bézier curve, sparse in the middle, dense at start and end
+    segments = max(int(distance / speed) + 1, 5)
+    lower = random_normal_distribution(-85, -60)
+    upper = random_normal_distribution(80, 90)
+    theta = np.arange(lower + 0., upper + 0.0001, (upper - lower) / segments)
+    ts = np.sin(theta / 180 * np.pi)
+    ts = np.sign(ts) * abs(ts) ** 0.9
+    ts = (ts - min(ts)) / (max(ts) - min(ts))
+
+    # Generate cubic Bézier curve
+    points = []
+    prev = (-100, -100)
+    for t in ts:
+        point = p0 * (1 - t) ** 3 + 3 * p1 * t * (1 - t) ** 2 + 3 * p2 * t ** 2 * (1 - t) + p3 * t ** 3
+        point = point.astype(int).tolist()
+        if np.linalg.norm(np.subtract(point, prev)) < min_distance:
+            continue
+
+        points.append(point)
+        prev = point
+
+    # Delete nearing points
+    if len(points[1:]):
+        distance = np.linalg.norm(np.subtract(points[1:], points[0]), axis=1)
+        mask = np.append(True, distance > min_distance)
+        points = np.array(points)[mask].tolist()
+        if len(points) <= 1:
+            points = [p0, p3]
+    else:
+        points = [p0, p3]
+    return points
+
+
+def random_rho(dis):
+    return random_normal_distribution(-dis, dis)
+
+
+def random_theta():
+    theta = np.random.uniform(0, 2 * np.pi)
+    return np.array([np.sin(theta), np.cos(theta)])

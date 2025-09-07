@@ -2,17 +2,34 @@ import ctypes
 import time
 from functools import lru_cache
 
+import cv2
+import numpy as np
 import pyautogui
 
 
-def _init():
-    pyautogui.FAILSAFE = False
+class PyautoguiControlError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
 
-class PyautoguiControl:
+    def __str__(self):
+        return f"PyautoguiControlError: {self.message}"
+
+
+class PyautoguiScreenshotError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"PyautoguiScreenshotError: {self.message}"
+
+
+class PyautoguiClient:
     def __init__(self, conn):
         self._window = conn.app_process_window
         self.logger = conn.logger
-        _init()
+        pyautogui.FAILSAFE = False
 
     def click(self, x, y):
         self._ensure_window()
@@ -44,10 +61,17 @@ class PyautoguiControl:
     def _ensure_window(self):
         if not self._window.activate_window():
             if self._window.get_window() is None:
-                self.logger.error(f"[PyAutoGUI Control] No active window found. Please check if your process [{self._window.get_window_title()}] is running.")
+                self.logger.error(
+                    f"[PyAutoGUI Control] No active window found. Please check if your process [{self._window.get_window_title()}] is running.")
                 raise PyautoguiControlError(f"App window not found")
-            self.logger.warning(f"[PyAutoGUI Control] Failed to activate process [{self._window.get_window_title()}] window.")
+            self.logger.warning(
+                f"[PyAutoGUI Control] Failed to activate process [{self._window.get_window_title()}] window.")
         self._window.update_region()
+
+    def screenshot(self):
+        self._ensure_window()
+        screenshot_pil = pyautogui.screenshot().crop(self._window.get_region())
+        return cv2.cvtColor(np.array(screenshot_pil), cv2.COLOR_RGB2BGR)
 
     @staticmethod
     def _click(x, y, duration, is_primary=True):
@@ -60,19 +84,10 @@ class PyautoguiControl:
         else:
             pyautogui.click(x, y, button=btn)
 
+
 @lru_cache
 def get_mouse_sensitivity():
     user32 = ctypes.windll.user32
     speed = ctypes.c_int()
     user32.SystemParametersInfoA(0x0070, 0, ctypes.byref(speed), 0)
     return speed.value
-
-class PyautoguiControlError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
-        self.message = message
-
-    def __str__(self):
-        return f"PyautoguiControlError: {self.message}"
-
-

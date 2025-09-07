@@ -1,5 +1,5 @@
 import subprocess
-from .mumu_manager_api import mumu12_control_api_backend
+from core.device.emulator_manager.mumu_manager_api import mumu12_control_api_backend
 from .bluestacks_module import find_display_name, read_registry_key
 from .device_config import load_data
 from .simulator_native import process_native_api,get_pid_by_cmdline
@@ -17,7 +17,7 @@ def bst_read_registry_key(region):
         return value + 'HD-Player.exe'
     except FileNotFoundError:
         return None
-            
+
 def stop_simulator_classic(simulator_type, multi_instance=None):
     if simulator_type == "bluestacks_nxt":
         if multi_instance is None or multi_instance == "":
