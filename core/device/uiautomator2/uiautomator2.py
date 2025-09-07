@@ -50,3 +50,18 @@ class U2Client:
         else:
             # fallback to the screencap method
             return self.connection._dev.screenshot()
+
+
+class U2Screenshot:
+    def __init__(self, conn):
+        self.serial = conn.serial
+        self.u2 = U2Client.get_instance(self.serial)
+
+    def screenshot(self):
+        for i in range(5):
+            try:
+                screenshot = self.u2.screenshot()
+                if screenshot is not None:
+                    return screenshot
+            except Exception as e:
+                print(e)
