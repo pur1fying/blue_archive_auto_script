@@ -21,7 +21,7 @@ from core.device.Control import Control
 from core.device.Screenshot import Screenshot
 from core.device.connection import Connection
 from core.device.emulator_manager import process_api
-from core.device.uiautomator2.uiautomator2_client import U2Client
+from core.device.uiautomator2.uiautomator2 import U2Client
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
 from core.pushkit import push
@@ -1007,7 +1007,7 @@ class Baas_thread:
 
     def _get_android_device_resolution(self):
         self.u2_client = U2Client.get_instance(self.serial)
-        self.u2 = self.u2_client.get_connection()
+        self.u2 = self.u2_client.connection
         self.last_refresh_u2_time = time.time()
         return self.resolution_uiautomator2()
 

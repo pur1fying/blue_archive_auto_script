@@ -2,7 +2,7 @@ import sys
 
 from core.device.emulator_manager.nemu import NemuControl
 from core.device.adb.adb import AdbControl
-from core.device.uiautomator2.uiautomator2 import U2Control
+from core.device.uiautomator2.uiautomator2 import U2Client
 from core.device.scrcpy.scrcpy import ScrcpyControl
 
 
@@ -28,7 +28,7 @@ class Control:
             elif self.method == "adb":
                 self.control_instance = AdbControl(self.connection)
             elif self.method == "uiautomator2":
-                self.control_instance = U2Control(self.connection)
+                self.control_instance = U2Client(self.connection.serial)
             elif self.method == "scrcpy":
                 self.control_instance = ScrcpyControl(self.connection)
         else:

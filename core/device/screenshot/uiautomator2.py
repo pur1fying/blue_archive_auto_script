@@ -1,4 +1,4 @@
-from core.device.uiautomator2.uiautomator2_client import U2Client
+from core.device.uiautomator2.uiautomator2 import U2Client
 
 
 class U2Screenshot:
