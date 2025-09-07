@@ -4,7 +4,7 @@ numpy < 2.0
 av == 12.0.0
 imgaug
 win11toast
-adbutils == 2.2.1
+adbutils == 2.9.3
 uiautomator2 == 3.4.0
 opencv-python == 4.8.1.78
 
