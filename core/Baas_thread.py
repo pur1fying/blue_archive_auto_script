@@ -782,9 +782,18 @@ class Baas_thread:
 
     def get_creditpoints(self, is_main_page=False):
         if is_main_page:
-            region = (671, 20, 819, 52)
+            region = {
+                'CN': (699, 20, 832, 52),
+                'JP': (671, 20, 819, 52),
+                'Global': (671, 20, 819, 52)
+            }
         else:
-            region = (769, 10, 912, 40)
+            region = {
+                'CN': (769, 10, 908, 40),
+                'JP': (741, 10, 912, 40),
+                'Global': (741, 10, 912, 40)
+            }
+        region = region[self.server]
         ocr_res = self.ocr.get_region_res(
             self,
             region,
