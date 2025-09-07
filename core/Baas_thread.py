@@ -17,7 +17,7 @@ import module.ExploreTasks.explore_task
 from core import position, picture, utils
 from core.config.config_set import ConfigSet
 from core.device import emulator_manager
-from core.device.Device import Device
+from core.device.device import Device
 from core.device.connection import Connection
 from core.device.emulator_manager import process_api
 from core.device.uiautomator2.uiautomator2 import U2Client
