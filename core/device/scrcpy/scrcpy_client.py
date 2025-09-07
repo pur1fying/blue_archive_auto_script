@@ -119,22 +119,3 @@ class ScrcpyClient:
             points.append((int(x1 + dx * i), int(y1 + dy * i)))
         points.append((x2, y2))
         return points
-
-
-if __name__ == '__main__':
-    client = ScrcpyClient.get_instance("127.0.0.1:16384")
-    t_start = time.time()
-    frame_cnt = 0
-    while True:
-        # img = client.screenshot()
-        # frame_cnt += 1
-        # if time.time() - t_start > 1:
-        #     print("fps:", frame_cnt)
-        #     frame_cnt = 0
-        #     t_start = time.time()
-        # cv2.imshow("img", img)
-        # cv2.waitKey(1)
-        t1 = time.time()
-        client.swipe(100, 100, 100, 720, 0.05)
-        print(time.time() - t1)
-        time.sleep(1)
