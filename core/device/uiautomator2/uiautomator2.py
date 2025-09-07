@@ -14,11 +14,6 @@ class U2Client:
             U2Client.clients[serial] = U2Client(serial)
         return U2Client.clients[serial]
 
-    @staticmethod
-    def release_instance(serial):
-        if serial in U2Client.clients:
-            del U2Client.clients[serial]
-
     def __init__(self, serial):
         self.serial = serial
         if ":" in serial:
@@ -50,18 +45,3 @@ class U2Client:
         else:
             # fallback to the screencap method
             return self.connection._dev.screenshot()
-
-
-class U2Screenshot:
-    def __init__(self, conn):
-        self.serial = conn.serial
-        self.u2 = U2Client.get_instance(self.serial)
-
-    def screenshot(self):
-        for i in range(5):
-            try:
-                screenshot = self.u2.screenshot()
-                if screenshot is not None:
-                    return screenshot
-            except Exception as e:
-                print(e)
