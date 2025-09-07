@@ -86,6 +86,18 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
+    "priority": 2,
+    "interval": 0,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "收集免费购买体力",
+    "func_name": "collect_daily_free_power",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
+  },
+  {
+    "enabled": true,
     "priority": 3,
     "interval": 0,
     "daily_reset": [[20, 0, 0]],
@@ -3484,7 +3496,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "FromOpera0068WithLove",
         "Global": "PandemicHazardAMiraclePancake",
-        "JP": "JP_2025_08_20"
+        "JP": "ShesideOutside"
     },
     "dailyGameActivity": {
         "CN": null,

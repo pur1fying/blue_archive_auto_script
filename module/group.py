@@ -7,7 +7,8 @@ def implement(self):
     if res == 'group_sign-up-reward':
         self.logger.info('GET 10 AP')
     elif res == 'group_join-club':
-        self.logger.warning('NOT in a club')
+        self.logger.warning('Not in a club.')
+        self.logger.warning('Join a club to get daily 10 AP reward.')
     return True
 
 

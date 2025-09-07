@@ -9,12 +9,22 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from module.main_story import set_acc_and_auto
 
 
-def co_detect(self: Baas_thread, rgb_ends: typing.Union[list[str], str] = None, rgb_reactions: dict = None,
-              img_ends: typing.Union[list, str, tuple] = None, img_reactions: dict = None,
-              skip_first_screenshot=False,
-              tentative_click=False, tentative_x=1238, tentative_y=45, max_fail_cnt=10,
-              pop_ups_rgb_reactions: dict = None, pop_ups_img_reactions: dict = None,
-              time_out=600, check_pkg_interval=20):
+def co_detect(
+            self: Baas_thread,
+            rgb_ends: typing.Union[list[str], str] = None,
+            rgb_reactions: dict = None,
+            img_ends: typing.Union[list, str, tuple] = None,
+            img_reactions: dict = None,
+            skip_first_screenshot=False,
+            tentative_click=False,
+            tentative_x=1238,
+            tentative_y=45,
+            max_fail_cnt=10,
+            pop_ups_rgb_reactions: dict = None,
+            pop_ups_img_reactions: dict = None,
+            time_out=600,
+            check_pkg_interval=20
+    ):
     """
         Detects specific RGB or image features on the screen and performs actions based on the detection.
 
