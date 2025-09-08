@@ -5,6 +5,7 @@ from core.device.adb.adb import AdbClient
 from core.device.nemu.nemu import NemuClient
 from core.device.scrcpy.scrcpy import ScrcpyClient
 from core.device.uiautomator2.uiautomator2 import U2Client
+from core.device.openstf.minicap import MinicapClient
 from core.device.windows.mss import MssScreenshot
 from core.device.windows.pyautogui import PyautoguiClient
 
@@ -37,6 +38,8 @@ class Screenshot:
                 self.screenshot_instance = U2Client.get_instance(self.connection.serial)
             elif self.screenshot_method == "scrcpy":
                 self.screenshot_instance = ScrcpyClient.get_instance(self.connection.serial)
+            elif self.screenshot_method == "minicap":
+                self.screenshot_instance = MinicapClient.get_instance(self.connection.serial)
         else:
             if sys.platform == "win32":
                 if self.screenshot_method == "pyautogui":
