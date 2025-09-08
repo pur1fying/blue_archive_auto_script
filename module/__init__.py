@@ -20,7 +20,6 @@ from module import mini_story
 from module import momo_talk
 from module import no1_cafe_invite
 from module import no2_cafe_invite
-from module import refresh_uiautomator2
 from module import restart
 from module import rewarded_task
 from module import scrimmage

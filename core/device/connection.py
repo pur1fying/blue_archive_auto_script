@@ -6,6 +6,7 @@ from adbutils.errors import AdbTimeout, AdbError
 
 from core.exception import RequestHumanTakeOver
 
+
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
 class Connection:
 
@@ -48,6 +49,14 @@ class Connection:
 
     def _init_app_process(self):
         self.detect_app_window()
+
+    def _get_android_device_resolution(self) -> tuple[int, int]:
+        adb_connection = adb.device(self.serial)
+        result = adb_connection.shell("wm size")
+        # Output example: "Physical size: 1080x1920"
+        _, size_str = result.strip().split(": ")
+        width, height = map(int, size_str.split("x"))
+        return width, height
 
     def detect_app_window(self):
         self.logger.info("Detect App Process Window")
@@ -136,7 +145,7 @@ class Connection:
                 self.logger.info("Auto device detection found only one device, using it")
                 self.set_serial(available[0])
             elif n_available == 2 and (available[0] == "127.0.0.1:16384" and available[1] == "127.0.0.1:7555") or \
-                    (available[0] == "127.0.0.1:7555" and available[1] == "127.0.0.1:16384"):
+                (available[0] == "127.0.0.1:7555" and available[1] == "127.0.0.1:16384"):
                 self.logger.info("Find Same MuMu12 Device, using it")
                 self.set_serial("127.0.0.1:16384")
             else:
