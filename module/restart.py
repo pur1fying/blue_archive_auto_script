@@ -5,7 +5,7 @@ from datetime import datetime
 def implement(self):
     if not self.is_android_device:
         return True
-    cur_package = self.u2.app_current()['package']
+    cur_package = self.connection.get_current_package()
     if cur_package != self.package_name:
         if cur_package != self.package_name:
             self.logger.warning("APP NOT RUNNING current package: " + cur_package)
@@ -15,7 +15,7 @@ def implement(self):
     if check_need_restart(self):
         self.logger.info("current package: " + cur_package)
         self.logger.info("--STOP CURRENT BLUE ARCHIVE--")
-        self.u2.app_stop(self.package_name)
+        self.connection.stop_app(self.package_name)
         time.sleep(2)
         start(self)
         return True
@@ -27,7 +27,7 @@ def start(self):
     activity_name = self.activity_name
     if self.server == 'CN':
         activity_name = None
-    self.u2.app_start(self.package_name, activity_name)
+    self.connection.start_app(self.package_name, activity_name)
     time.sleep(1)
     if self.server == 'Global':
         self.to_main_page()
