@@ -300,5 +300,3 @@ class Client:
     def is_alive(self):
         return self.alive
 
-if __name__ == "__main__":
-    print(Client.get_scrcpy_jar_path())

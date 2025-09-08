@@ -6,6 +6,7 @@ from adbutils.errors import AdbTimeout, AdbError
 
 from core.exception import RequestHumanTakeOver
 
+
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
 class Connection:
 
@@ -49,13 +50,21 @@ class Connection:
     def _init_app_process(self):
         self.detect_app_window()
 
+    def _get_android_device_resolution(self) -> tuple[int, int]:
+        adb_connection = adb.device(self.serial)
+        result = adb_connection.shell("wm size")
+        # Output example: "Physical size: 1920x1080"
+        _, size_str = result.strip().split(": ")
+        width, height = map(int, size_str.split("x"))
+        return max(height, width), min(height, width)
+
     def detect_app_window(self):
         self.logger.info("Detect App Process Window")
 
         if sys.platform != 'win32':
             self.logger.error("Steam server is only available on Windows platform. Please check your server config.")
             raise RequestHumanTakeOver("Unsupported platform for Steam server.")
-        from core.device.window_capture.windows.window_info import win32_WindowInfo
+        from core.device.windows.window_info import win32_WindowInfo
         self.logger.info(f"Process Name : {self.static_config.steam_app_process_name}")
         self.app_process_window = win32_WindowInfo(self.static_config.steam_app_process_name)
         if not self.app_process_window.is_valid_window():
@@ -136,7 +145,7 @@ class Connection:
                 self.logger.info("Auto device detection found only one device, using it")
                 self.set_serial(available[0])
             elif n_available == 2 and (available[0] == "127.0.0.1:16384" and available[1] == "127.0.0.1:7555") or \
-                    (available[0] == "127.0.0.1:7555" and available[1] == "127.0.0.1:16384"):
+                (available[0] == "127.0.0.1:7555" and available[1] == "127.0.0.1:16384"):
                 self.logger.info("Find Same MuMu12 Device, using it")
                 self.set_serial("127.0.0.1:16384")
             else:
@@ -383,3 +392,11 @@ class Connection:
 
     def is_android_device(self):
         return self._is_android_device
+
+    def start_app(self, package_name, activity_name):
+        d = adb.device(self.serial)
+        d.app_start(package_name, activity_name)
+
+    def stop_app(self, package_name):
+        d = adb.device(self.serial)
+        d.app_stop(package_name)

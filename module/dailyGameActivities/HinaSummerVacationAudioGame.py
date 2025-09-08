@@ -2,7 +2,7 @@ import time
 
 from core import picture
 from core.color import rgb_in_range
-from core.device.screenshot.nemu import NemuScreenshot
+from core.device.nemu.nemu import NemuScreenshot
 from module.activities.PresidentHinasSummerVacation import to_activity
 
 midy = 302
