@@ -98,7 +98,6 @@ class Baas_thread:
         self.static_config = ConfigSet.static_config
         self.ocr = None
         self.logger = utils.Logger(logger_signal)
-        self.last_refresh_u2_time = 0
         self.latest_img_array = None
         self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
         self.button_signal = button_signal
@@ -402,8 +401,6 @@ class Baas_thread:
                 if nextTask:
                     self.task_finish_to_main_page = True
                     self.daily_config_refresh()
-                    if time.time() - self.last_refresh_u2_time > 10800:
-                        self.solve('refresh_uiautomator2')
                     self.genScheduleLog(nextTask)
 
                     task_with_log_info = []
