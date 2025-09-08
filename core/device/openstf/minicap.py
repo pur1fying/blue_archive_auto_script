@@ -1,6 +1,8 @@
 import os
 import socket
-import threading
+import struct
+import cv2
+import numpy as np
 
 from adbutils import adb
 from adbutils._device import AdbDevice
@@ -26,7 +28,7 @@ class MinicapClient:
     def __init__(self, serial: str):
         self.serial = serial
         self.adb_connection = adb.device(self.serial)
-        self.minicap_process_thread = None
+        self.minicap_process_connection = None
         self.minicap_port = -1
         self.minicap_socket = None
 
@@ -34,14 +36,17 @@ class MinicapClient:
         MinicapClient.clients[serial] = self
 
     def screenshot(self):
-        frame_len_data = minicap_socket.recv(4)
-        if len(frame_len_data) != 4:
-            raise Exception("Failed to read frame length")
-        frame_len = struct.unpack("<I", frame_len_data)[0]
+        frame_size = 0
+        while True:
+            frame_size_bytes = self.minicap_socket.recv(4)
+            if len(frame_size_bytes) < 4:
+                continue
+            frame_size = struct.unpack("<I", frame_size_bytes)[0]
+            break
 
         frame_data = b''
-        while len(frame_data) < frame_len:
-            chunk = socket_conn.recv(frame_len - len(frame_data))
+        while len(frame_data) < frame_size:
+            chunk = self.minicap_socket.recv(frame_size - len(frame_data))
             if not chunk:
                 break
             frame_data += chunk
@@ -83,21 +88,18 @@ class MinicapClient:
         # -----------------------------------------
         width, height = MinicapClient._get_display_info(self.adb_connection)
         verify_msg = self.adb_connection.shell(
-            f"LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/minicap -P {height}x{width}@1280x720/0 -t")
+            f"LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/minicap -P {height}x{width}@{height}x{width}/0 -t")
         if verify_msg.splitlines()[-1] == "OK":
             try:
-                self.minicap_process_thread = threading.Thread(
-                    target=lambda: self.adb_connection.shell(
-                        f"LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/minicap -P {height}x{width}@1280x720/0",
-                        stream=True
-                    ),
-                    daemon=True
-                )
-                self.minicap_process_thread.start()
+                self.minicap_process_connection = self.adb_connection.shell(
+                    f"LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/minicap -P {height}x{width}@{height}x{width}/0",
+                    stream=True
+                ) # the connection must be stored to keep minicap running (avoid being released by garbage collection)
                 self.minicap_port = MinicapClient._find_available_port()
                 self.adb_connection.forward(f"tcp:{self.minicap_port}", "localabstract:minicap")
                 self.minicap_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.minicap_socket.connect(("localhost", self.minicap_port))
+                self.minicap_socket.recv(24)  # Read and discard banner
             except Exception as e:
                 raise MinicapStartupError(f"Failed to start minicap: {e}")
         else:
