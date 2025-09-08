@@ -2,32 +2,28 @@ import sys
 import time
 
 from core.device.adb.adb import AdbClient
-from core.device.scrcpy.scrcpy import ScrcpyClient
 from core.device.nemu.nemu import NemuClient
+from core.device.scrcpy.scrcpy import ScrcpyClient
 from core.device.uiautomator2.uiautomator2 import U2Client
+from core.device.windows.mss import MssScreenshot
+from core.device.windows.pyautogui import PyautoguiClient
 
 
-class Device:
+class Screenshot:
     def __init__(self, Baas_instance):
         self.screenshot_interval = None
         self.screenshot_instance = None
-        self.control_instance = None
         self.screenshot_method = None
 
         self.Baas_instance = Baas_instance
         self.connection = Baas_instance.connection
-        self.config_set = Baas_instance.get_config()
-        self.config = self.config_set.config
+        self.config = self.Baas_instance.get_config().config
         self.logger = Baas_instance.get_logger()
         self.set_screenshot_interval(float(self.config.screenshot_interval))
         self.last_screenshot_time = time.time()
 
         self.init_screenshot_instance()
-        self.init_control_instance()
 
-    # --------------------------------------------
-    # Screenshot Methods
-    # --------------------------------------------
     def init_screenshot_instance(self):
         self.screenshot_method = self.config.screenshot_method
         self.logger.info("Screenshot method : " + self.screenshot_method)
@@ -43,8 +39,6 @@ class Device:
                 self.screenshot_instance = ScrcpyClient.get_instance(self.connection.serial)
         else:
             if sys.platform == "win32":
-                from core.device.windows.pyautogui import PyautoguiClient
-                from core.device.windows.mss import MssScreenshot
                 if self.screenshot_method == "pyautogui":
                     self.screenshot_instance = PyautoguiClient(self.connection)
                 elif self.screenshot_method == "mss":
@@ -74,43 +68,3 @@ class Device:
         self.logger.info("screenshot_interval set to " + str(interval))
         self.screenshot_interval = interval
         return interval
-
-
-    # --------------------------------------------
-    # Control Methods
-    # --------------------------------------------
-    def init_control_instance(self):
-        self.control_method = self.config.control_method
-        self.logger.info("Control method : " + self.control_method)
-
-        if self.Baas_instance.is_android_device:
-            if self.control_method == "nemu":
-                self.control_instance = NemuClient.get_instance(self.connection)
-            elif self.control_method == "adb":
-                self.control_instance = AdbClient.get_instance(self.connection.serial)
-            elif self.control_method == "uiautomator2":
-                self.control_instance = U2Client.get_instance(self.connection.serial)
-            elif self.control_method == "scrcpy":
-                self.control_instance = ScrcpyClient.get_instance(self.connection.serial)
-        else:
-            if sys.platform == "win32":
-                from core.device.windows.pyautogui import PyautoguiClient
-                if self.control_method == "pyautogui":
-                    self.control_instance = PyautoguiClient(self.connection)
-
-        if self.control_instance is None:
-            self.logger.error(
-                f"Unsupported control method: {self.control_method}, please check your config and select a valid control method.")
-            raise ValueError("Invalid Control Method")
-
-    def click(self, x, y):
-        self.control_instance.click(x, y)
-
-    def swipe(self, x1, y1, x2, y2, duration):
-        self.control_instance.swipe(x1, y1, x2, y2, duration)
-
-    def long_click(self, x, y, duration):
-        self.control_instance.long_click(x, y, duration)
-
-    def scroll(self, x, y, clicks):
-        self.control_instance.scroll(x, y, clicks)

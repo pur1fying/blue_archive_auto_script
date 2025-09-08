@@ -17,8 +17,9 @@ import module.ExploreTasks.explore_task
 from core import position, picture, utils
 from core.config.config_set import ConfigSet
 from core.device import emulator_manager
-from core.device.device import Device
 from core.device.connection import Connection
+from core.device.control import Control
+from core.device.screenshot import Screenshot
 from core.device.emulator_manager import process_api
 from core.device.uiautomator2.uiautomator2 import U2Client
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
@@ -128,7 +129,7 @@ class Baas_thread:
     def click(self, x, y, count=1, rate=0, duration=0, wait_over=False):
         if not self.flag_run:
             raise RequestHumanTakeOver
-        if self.control.screenshot_method == "nemu":
+        if self.screenshot.screenshot_method == "nemu":
             self.click_thread(x, y, count, rate, duration)
             return
         click_ = threading.Thread(target=self.click_thread, args=(x, y, count, rate, duration))
@@ -297,7 +298,8 @@ class Baas_thread:
                 self.package_name = self.connection.get_package_name()
                 self.activity_name = self.connection.get_activity_name()
 
-            self.screenshot = self.control = Device(self)
+            self.control = Control(self)
+            self.screenshot = Screenshot(self)
             self.set_screenshot_interval(self.config.screenshot_interval)
 
             self.check_resolution()
