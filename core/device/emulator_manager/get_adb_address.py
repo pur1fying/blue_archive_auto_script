@@ -1,6 +1,6 @@
 import json
 
-from .mumu_manager_api import mumu12_control_api_backend
+from core.device.emulator_manager.mumu_manager_api import mumu12_control_api_backend
 ### adb_port_scanner ###
 from .bluestacks_module import get_bluestacks_nxt_adb_port
 
