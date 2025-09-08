@@ -266,10 +266,6 @@ class NemuClient:
         # logger.info(f'NemuIpc disconnected: {self.connect_id}')
         self.connect_id = 0
 
-    def reconnect(self):
-        self.disconnect()
-        self.connect()
-
     def __enter__(self):
         self.connect()
         return self
