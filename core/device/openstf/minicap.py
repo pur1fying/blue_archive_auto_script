@@ -28,7 +28,7 @@ class MinicapClient:
         self.adb_connection = adb.device(self.serial)
         self.minicap_process_thread = None
         self.minicap_port = -1
-        self.minicap_socket: socket.socket = None
+        self.minicap_socket = None
 
         self._start_minicap(force_reinstall=True)
         MinicapClient.clients[serial] = self
