@@ -88,11 +88,11 @@ class MinicapClient:
         # -----------------------------------------
         width, height = MinicapClient._get_display_info(self.adb_connection)
         verify_msg = self.adb_connection.shell(
-            f"LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/minicap -P {height}x{width}@{height}x{width}/0 -t")
+            f"LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/minicap -P {width}x{height}@{width}x{height}/0 -t")
         if verify_msg.splitlines()[-1] == "OK":
             try:
                 self.minicap_process_connection = self.adb_connection.shell(
-                    f"LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/minicap -P {height}x{width}@{height}x{width}/0",
+                    f"LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/minicap -P {width}x{height}@{width}x{height}/0",
                     stream=True
                 ) # the connection must be stored to keep minicap running (avoid being released by garbage collection)
                 self.minicap_port = MinicapClient._find_available_port()
@@ -119,7 +119,7 @@ class MinicapClient:
     @staticmethod
     def _get_display_info(adb_connection: AdbDevice) -> tuple[int, int]:
         result = adb_connection.shell("wm size")
-        # Output example: "Physical size: 1080x1920"
+        # Output example: "Physical size: 1920x1080"
         _, size_str = result.strip().split(": ")
         width, height = map(int, size_str.split("x"))
         return width, height
