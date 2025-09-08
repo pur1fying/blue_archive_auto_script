@@ -56,7 +56,7 @@ class Connection:
         # Output example: "Physical size: 1080x1920"
         _, size_str = result.strip().split(": ")
         width, height = map(int, size_str.split("x"))
-        return width, height
+        return height, width
 
     def detect_app_window(self):
         self.logger.info("Detect App Process Window")
