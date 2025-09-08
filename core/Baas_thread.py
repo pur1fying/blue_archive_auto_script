@@ -54,7 +54,6 @@ func_dict = {
     'collect_daily_power': module.collect_reward.implement,
     'total_assault': module.total_assault.implement,
     'restart': module.restart.implement,
-    'refresh_uiautomator2': module.refresh_uiautomator2.implement,
     'activity_sweep': module.sweep_activity.implement,
     'explore_activity_story': module.explore_activity_story.implement,
     'explore_activity_challenge': module.explore_activity_challenge.implement,
@@ -821,18 +820,6 @@ class Baas_thread:
     def set_screenshot_interval(self, interval):
         self.screenshot_interval = self.screenshot.set_screenshot_interval(interval)
 
-    def wait_uiautomator_start(self):
-        for i in range(0, 10):
-            try:
-                self.u2.uiautomator.start()
-                while not self.u2.uiautomator.running():
-                    time.sleep(0.1)
-                self.latest_img_array = cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
-                return
-            except Exception as e:
-                print(e)
-                self.u2.uiautomator.start()
-
     def daily_config_refresh(self):
         now = datetime.now()
         hour = now.hour
@@ -941,7 +928,7 @@ class Baas_thread:
 
     def check_resolution(self):
         if self.is_android_device:
-            self.resolution = self._get_android_device_resolution()
+            self.resolution = self.connection._get_android_device_resolution()
         else:
             self.resolution = self.connection.app_process_window.get_resolution()
 
@@ -1014,23 +1001,6 @@ class Baas_thread:
             return
         self.logger.error(f"Invalid Screen Ratio: {width}:{height}, please adjust your screen resolution to 16:9.")
         raise Exception("Invalid Screen Ratio")
-
-    def _get_android_device_resolution(self):
-        self.u2_client = U2Client.get_instance(self.serial)
-        self.u2 = self.u2_client.connection
-        self.last_refresh_u2_time = time.time()
-        return self.resolution_uiautomator2()
-
-    def resolution_uiautomator2(self):
-        for i in range(0, 3):
-            try:
-                w, h = self.u2.info['displayWidth'], self.u2.info['displayHeight']
-                if w < h:
-                    w, h = h, w
-                return w, h
-            except Exception as e:
-                print(e)
-                time.sleep(1)
 
     def main_page_update_data(self):
         self.get_ap(True)
