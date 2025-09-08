@@ -53,10 +53,10 @@ class Connection:
     def _get_android_device_resolution(self) -> tuple[int, int]:
         adb_connection = adb.device(self.serial)
         result = adb_connection.shell("wm size")
-        # Output example: "Physical size: 1080x1920"
+        # Output example: "Physical size: 1920x1080"
         _, size_str = result.strip().split(": ")
         width, height = map(int, size_str.split("x"))
-        return height, width
+        return max(height, width), min(height, width)
 
     def detect_app_window(self):
         self.logger.info("Detect App Process Window")
@@ -400,13 +400,3 @@ class Connection:
     def stop_app(self, package_name):
         d = adb.device(self.serial)
         d.app_stop(package_name)
-
-
-    def start_app(self, package_name, activity_name):
-        d = adb.device(self.serial)
-        d.app_start(package_name, activity_name)
-
-    def stop_app(self, package_name):
-        d = adb.device(self.serial)
-        d.app_stop(package_name)
-
