@@ -392,3 +392,21 @@ class Connection:
 
     def is_android_device(self):
         return self._is_android_device
+
+    def start_app(self, package_name, activity_name):
+        d = adb.device(self.serial)
+        d.app_start(package_name, activity_name)
+
+    def stop_app(self, package_name):
+        d = adb.device(self.serial)
+        d.app_stop(package_name)
+
+
+    def start_app(self, package_name, activity_name):
+        d = adb.device(self.serial)
+        d.app_start(package_name, activity_name)
+
+    def stop_app(self, package_name):
+        d = adb.device(self.serial)
+        d.app_stop(package_name)
+
