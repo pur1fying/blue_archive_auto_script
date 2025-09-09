@@ -310,8 +310,8 @@ def update_activity_schaledb():
     return activities
 
 
-def update_activity(baas_thread):
-    baas_thread.logger.info("Updating activity...")
+def update_activity():
+    print("Updating activity...")
     # activities = update_activity_gamekee_api()
     activities = update_activity_schaledb()
     print(json.dumps(activities, ensure_ascii=False))
