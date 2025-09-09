@@ -500,38 +500,43 @@ def update_activity_schaledb(localization="en"):
 
 
 def update_activity():
-    print("Updating activity...")
+    print("> Updating activity...")
     gamekee_response = update_activity_gamekee_api()
-    print("Gamekee API Response: \n" + json.dumps(gamekee_response, ensure_ascii=False))
+    print("### [Gamekee API](https://www.gamekee.com/v1/activity/query) Response: \n```json\n" + json.dumps(
+        gamekee_response, ensure_ascii=False) + "\n```")
     bawiki_response = update_activity_bawiki()
-    print("BAWiki Response: \n" + json.dumps(bawiki_response, ensure_ascii=False))
+    print("### [Blue Archive Wiki](https://bluearchive.wiki/wiki/Main_Page) Response: \n```json\n" + json.dumps(
+        bawiki_response, ensure_ascii=False) + "\n```")
     schaledb_response = update_activity_schaledb()
-    print("SchaleDB Response: \n" + json.dumps(schaledb_response, ensure_ascii=False))
+    print("### [SchaleDB](https://schaledb.com/home) Response: \n```json\n" + json.dumps(
+        schaledb_response, ensure_ascii=False) + "\n```")
 
     # For final result, we prefer BAWiki > SchaleDB > Gamekee API
     final_result = _unify_table(bawiki_response, schaledb_response, FULL_RESULT_FORMAT)
     final_result = _unify_table(final_result, gamekee_response, FULL_RESULT_FORMAT)
 
-    print("Final Merged Result: \n" + json.dumps(final_result, ensure_ascii=False))
+    print("### Final Merged Result: \n```json\n" + json.dumps(final_result, ensure_ascii=False, indent=4) + "\n```\n")
     return final_result
 
 
 if __name__ == "__main__":
-    final_result = update_activity()
+    with open("activity_update_log.md", "w", encoding="utf-8") as output:
+        sys.stdout = output
+        final_result = update_activity()
 
-    # determine if any data is updated
-    if os.path.exists("activity.json"):
-        with open(os.path.abspath("activity.json"), "r", encoding="utf-8") as f:
-            original_data = json.load(f)
-            original_data.pop("last_update_time")  # remove last_update_time for comparison
-            if original_data == final_result:
-                print("No changes detected in activity data. Exiting without updating the file.")
-                sys.exit(1)
+        # determine if any data is updated
+        if os.path.exists("activity.json"):
+            with open(os.path.abspath("activity.json"), "r", encoding="utf-8") as f:
+                original_data = json.load(f)
+                original_data.pop("last_update_time")  # remove last_update_time for comparison
+                if original_data == final_result:
+                    print("> No changes detected in activity data. Exiting without updating the file.")
+                    sys.exit(1)
 
-    final_result["last_update_time"] = int(time.time())
-    ordered_keys = ["last_update_time", "JP", "Global", "CN"]
-    ordered_result = OrderedDict((k, final_result[k]) for k in ordered_keys if k in final_result)
-    with open("tmp_activity.json", "w", encoding="utf-8") as f:
-        json.dump(ordered_result, f, ensure_ascii=False, indent=4)
-    print("Activity data has been updated and saved to tmp_activity.json")
-    sys.exit(0)
+        final_result["last_update_time"] = int(time.time())
+        ordered_keys = ["last_update_time", "JP", "Global", "CN"]
+        ordered_result = OrderedDict((k, final_result[k]) for k in ordered_keys if k in final_result)
+        with open("tmp_activity.json", "w", encoding="utf-8") as f:
+            json.dump(ordered_result, f, ensure_ascii=False, indent=4)
+        print("> Activity data has been updated and saved.")
+        sys.exit(0)
