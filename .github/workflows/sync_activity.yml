@@ -1,0 +1,35 @@
+name: Regularly sync game's activities
+
+on:
+  schedule:
+    - cron: '30 20 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+
+jobs:
+  sync-activities:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout activities repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            module/activities/
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r module/activities/requirements-activity-updater.txt
+      - name: List files for debugging
+        run: ls -R module/activities/
+      - name: Run activity updater
+        run: python3 module/activities/activity_updater.py
+
+
