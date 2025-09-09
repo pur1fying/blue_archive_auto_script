@@ -5,6 +5,7 @@ import re
 import sys
 import time
 from collections import OrderedDict
+from contextlib import redirect_stdout, redirect_stderr
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -520,24 +521,27 @@ def update_activity():
 
 
 if __name__ == "__main__":
-    with open("activity_update_log.md", "w", encoding="utf-8") as output:
-        # sys.stdout = output
-        # sys.stderr = output
-        final_result = update_activity()
+    log_path = os.path.join(os.path.dirname(__file__), "activity_update_log.md")
+    activity_json_path = os.path.join(os.path.dirname(__file__), "activity.json")
+    tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp_activity.json")
 
-        # determine if any data is updated
-        if os.path.exists("activity.json"):
-            with open(os.path.abspath("activity.json"), "r", encoding="utf-8") as f:
-                original_data = json.load(f)
-                original_data.pop("last_update_time")  # remove last_update_time for comparison
-                if original_data == final_result:
-                    print("> No changes detected in activity data. Exiting without updating the file.")
-                    sys.exit(1)
+    with open(log_path, "w", encoding="utf-8") as output:
+        with redirect_stdout(output), redirect_stderr(output):
+            final_result = update_activity()
 
-        final_result["last_update_time"] = int(time.time())
-        ordered_keys = ["last_update_time", "JP", "Global", "CN"]
-        ordered_result = OrderedDict((k, final_result[k]) for k in ordered_keys if k in final_result)
-        with open("tmp_activity.json", "w", encoding="utf-8") as f:
-            json.dump(ordered_result, f, ensure_ascii=False, indent=4)
-        print("> Activity data has been updated and saved.")
-        sys.exit(0)
+            # determine if any data is updated
+            if os.path.exists(activity_json_path):
+                with open(os.path.abspath(activity_json_path), "r", encoding="utf-8") as f:
+                    original_data = json.load(f)
+                    original_data.pop("last_update_time")  # remove last_update_time for comparison
+                    if original_data == final_result:
+                        print("> No changes detected in activity data. Exiting without updating the file.")
+                        sys.exit(1)
+
+            final_result["last_update_time"] = int(time.time())
+            ordered_keys = ["last_update_time", "JP", "Global", "CN"]
+            ordered_result = OrderedDict((k, final_result[k]) for k in ordered_keys if k in final_result)
+            with open(tmp_json_path, "w", encoding="utf-8") as f:
+                json.dump(ordered_result, f, ensure_ascii=False, indent=4)
+            print("> Activity data has been updated and saved.")
+            sys.exit(0)
