@@ -62,7 +62,8 @@ func_dict = {
     'dailyGameActivity': module.dailyGameActivity.implement,
     'friend': module.friend.implement,
     'joint_firing_drill': module.joint_firing_drill.implement,
-    'pass': module.collect_pass_reward.implement
+    'pass': module.collect_pass_reward.implement,
+    'collect_daily_free_power': module.collect_daily_free_power.implement
 }
 
 
@@ -758,9 +759,18 @@ class Baas_thread:
 
     def get_creditpoints(self, is_main_page=False):
         if is_main_page:
-            region = (699, 25, 819, 52)
+            region = {
+                'CN': (699, 20, 832, 52),
+                'JP': (671, 20, 819, 52),
+                'Global': (671, 20, 819, 52)
+            }
         else:
-            region = (769, 10, 896, 40)
+            region = {
+                'CN': (769, 10, 908, 40),
+                'JP': (741, 10, 912, 40),
+                'Global': (741, 10, 912, 40)
+            }
+        region = region[self.server]
         ocr_res = self.ocr.get_region_res(
             self,
             region,
