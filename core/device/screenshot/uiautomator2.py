@@ -9,6 +9,8 @@ class U2Screenshot:
     def screenshot(self):
         for i in range(5):
             try:
-                return self.u2.screenshot()
+                screenshot = self.u2.screenshot()
+                if screenshot is not None:
+                    return screenshot
             except Exception as e:
                 print(e)

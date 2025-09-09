@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class StaticConfig:
+    steam_app_process_name: str
     main_story_final_episode_num: int
     main_story_available_episodes: dict
     max_region: dict
@@ -12,6 +13,7 @@ class StaticConfig:
     explore_hard_task_region_range: list
     screenshot_methods: list
     control_methods: list
+    shop_type_list_names: dict
     common_shop_price_list: dict
     tactical_challenge_shop_price_list: dict
     create_default_priority: dict

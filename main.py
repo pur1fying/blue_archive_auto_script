@@ -1,12 +1,11 @@
 import json
 import os
 
+from core.ocr import ocr
+from core.utils import Logger
 from core.Baas_thread import Baas_thread
 from core.config.config_set import ConfigSet
-from core.ocr import ocr
 from core.ocr.baas_ocr_client.server_installer import check_git
-from core.utils import Logger
-
 
 class Main:
     def __init__(self, logger_signal=None, ocr_needed=None):
@@ -30,7 +29,8 @@ class Main:
             check_git(self.logger)
         except Exception as e:
             self.logger.error("OCR Update Failed.")
-            self.logger.error(e.__str__())
+            import traceback
+            self.logger.error(traceback.format_exc())
             self.logger.info("Try to Start OCR Server Without Update.")
 
         try:
@@ -42,13 +42,13 @@ class Main:
             return False
 
     def get_thread(
-        self,
-        config,
-        name="1",
-        logger_signal=None,
-        button_signal=None,
-        update_signal=None,
-        exit_signal=None
+            self,
+            config,
+            name="1",
+            logger_signal=None,
+            button_signal=None,
+            update_signal=None,
+            exit_signal=None
     ):
         t = Baas_thread(config, logger_signal, button_signal, update_signal, exit_signal)
         t.set_ocr(self.ocr)
@@ -115,9 +115,9 @@ class Main:
 
 
 if __name__ == '__main__':
-    ocr_needed = ["en-us", "zh-cn", "zh-cn_v3", "ko-kr", "zh-tw", "ru-ru", "ja-jp"]
+    ocr_needed = ["en-us"]
     INSTANCE = Main(ocr_needed=ocr_needed)
-    config = ConfigSet(config_dir="default_config")
+    config = ConfigSet(config_dir="1708232489")
     bThread = Baas_thread(config, None, None, None)
     bThread.set_ocr(INSTANCE.ocr)
     bThread.init_all_data()
@@ -140,11 +140,11 @@ if __name__ == '__main__':
     # bThread.solve("tactical_challenge_shop")
     # bThread.solve("explore_activity_mission")
     # bThread.solve("explore_activity_story")
-    # bThread.solve("common_shop")
+    bThread.solve("common_shop")
     # bThread.solve("total_assault")
     # bThread.solve("cafe_reward")
     # bThread.solve("momo_talk")
-    bThread.solve("explore_normal_task")
+    # bThread.solve("explore_normal_task")
     # bThread.solve("explore_hard_task")
     # bThread.solve("normal_task")
     # bThread.solve("hard_task")
@@ -162,7 +162,4 @@ if __name__ == '__main__':
     # bThread.solve("create")
     # bThread.solve("dailyGameActivity")
     # bThread.solve("friend")
-    # bThread.solve("joint_firing_drill")
-    # bThread.solve("storage_check")
-    # bThread.solve("update_activity")
-    pass
+    bThread.solve("joint_firing_drill")

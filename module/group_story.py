@@ -7,7 +7,7 @@ def implement(self):
     self.to_main_page()
     to_group_story(self, True)
     time.sleep(1)
-    self.latest_img_array = self.get_screenshot_array()
+    self.update_screenshot_array()
     while self.flag_run:
         need_check_next_page = judge_need_check_next_page(self)
         region_status = check_6_region_status(self)
@@ -29,7 +29,7 @@ def implement(self):
         else:
             self.logger.info("Check Next page")
             self.click(1255, 357, duration=1.5, wait_over=True)
-            self.latest_img_array = self.get_screenshot_array()
+            self.update_screenshot_array()
 
 
 def to_group_story(self, skip_first_screenshot=False):

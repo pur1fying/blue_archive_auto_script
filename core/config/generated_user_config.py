@@ -46,6 +46,7 @@ class Config:
     push_after_completion: bool
     push_json: str
     push_serverchan: str
+    cafe_reward_affection_pat_round: int
     cafe_reward_lowest_affection_first: bool
     cafe_reward_invite1_criterion: str
     favorStudent1: list
@@ -79,14 +80,6 @@ class Config:
     choose_team_method: str
     side_team_attribute: list
     preset_team_attribute: list
-    burst1: str
-    burst2: str
-    pierce1: str
-    pierce2: str
-    mystic1: str
-    mystic2: str
-    shock1: str
-    shock2: str
     activity_sweep_task_number: int
     activity_sweep_times: str
     TacticalChallengeShopRefreshTime: str
@@ -103,4 +96,6 @@ class Config:
     pyroxene: dict
     tactical_challenge_coin: dict
     bounty_coin: dict
+    _pass: dict
     assetsVisibility: bool
+    hotkey_run: str

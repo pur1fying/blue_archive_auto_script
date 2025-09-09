@@ -1,6 +1,7 @@
-from PyQt5.QtCore import QObject
-from .expandTemplate import TemplateLayout
 
+from PyQt5.QtCore import QObject
+
+from .expandTemplate import TemplateLayout
 
 class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
@@ -20,6 +21,7 @@ class Layout(TemplateLayout):
         ]
 
         super().__init__(parent=parent, configItems=configItems, config=config, context="OtherConfig")
+        self.config = config
 
     def fhx(self):
         self.config.get_main_thread().start_fhx()

@@ -3,7 +3,7 @@ path = "normal_task"
 x_y_range = {
     'charge-challenge-counts': (495, 348, 599, 381),  # 购买挑战次数
     'unlock-notice': (607, 144, 676, 176),  # 解锁提示
-    'start-sweep-notice': (607, 144, 676, 176),  # 开始扫荡提示
+    'start-sweep-notice': (607, 149, 676, 180),  # 开始扫荡提示
     'sweep-complete': (601, 561, 682, 604),  # 扫荡完成
     'skip-sweep-complete': (597, 488, 684, 531),  # 跳过扫荡完成
     'task-info': (578, 90, 702, 153),  # 任务信息弹窗

@@ -1,12 +1,9 @@
+import json
+import socket
 import os.path
 
-import cv2
-
 from core.exception import OcrInternalError
-
-import json
 from core.ocr.baas_ocr_client import Client
-from core.ocr.baas_ocr_client.server_installer import check_git
 
 
 class Baas_ocr:
@@ -48,7 +45,7 @@ class Baas_ocr:
             region=region,
             language="zh-cn",
             log_info=log_info,
-            candidates="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+            candidates="",
             filter_score=filter_score
         )
         temp = ""
@@ -86,13 +83,48 @@ class Baas_ocr:
         img = img[int(area[1] * ratio):int(area[3] * ratio), int(area[0] * ratio):int(area[2] * ratio)]
         return img
 
+    @staticmethod
+    def is_port_free(port: int, host: str = "127.0.0.1") -> bool:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind((host, port))
+                return True
+            except OSError:
+                return False
+
     def _init_client(self, ocr_needed):
         ocr_needed = self.unique_language(ocr_needed)
         self.client = Client.BaasOcrClient()
+        self._detect_usable_port()
         self.client.start_server()
         self.enable_thread_pool(4)
         self.init_model(ocr_needed)
         self.test_models(ocr_needed)
+
+    def _detect_usable_port(self):
+        port = self.client.config.port
+        if self.is_port_free(port):
+            return
+        self.logger.warning(f"Ocr Port {port} is occupied, try to find usable port.")
+        base = 1145
+        for i in range(1000):
+            _p = base + i
+            if self.is_port_free(_p):
+                self.logger.info(f"Port: {_p}")
+                self._set_port(_p)
+                return
+
+            _p = base - i
+            if self.is_port_free(_p):
+                self.logger.info(f"Port: {_p}")
+                self._set_port(_p)
+                return
+        raise OcrInternalError("Cannot find a free port.")
+
+    def _set_port(self, p):
+        self.client.config.config["ocr"]["server"]["port"] = p
+        self.client.config.save()
+        self.client.config.init_url()
 
     def enable_thread_pool(self, count=4):
         self.logger.info("Ocr Enable Thread Pool.")

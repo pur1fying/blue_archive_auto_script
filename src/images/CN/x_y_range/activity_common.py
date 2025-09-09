@@ -20,13 +20,18 @@ x_y_range = {
     'mission-enter-task-button': (1093, 174, 1166, 222),
 
     'story-not-chosen-0': (725, 89, 805, 127),
+    'story-not-chosen-1': (785, 89, 842, 127),
     'story-chosen-0': (725, 89, 805, 127),
+    'story-chosen-1': (785, 89, 842, 127),
 
     'mission-not-chosen-0': (916, 89, 976, 127),
+    'mission-not-chosen-1': (1043, 89, 1099, 127),
     'mission-chosen-0': (916, 89, 976, 127),
+    'mission-chosen-1': (1043, 89, 1099, 127),
 
     'challenge-not-chosen-0': (1094, 89, 1149, 127),
     'challenge-chosen-0': (1094, 89, 1149, 127),
+    "self-formation": (102, 7, 250, 38),
     "formation": (102, 7, 250, 38),
     'task-no-goals': (352, 387, 519, 411)
 }

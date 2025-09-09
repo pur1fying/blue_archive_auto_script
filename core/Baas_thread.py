@@ -1,5 +1,6 @@
 import copy
 import json
+import math
 import os
 import subprocess
 import threading
@@ -11,7 +12,6 @@ from datetime import datetime
 import cv2
 import numpy as np
 import psutil
-import requests
 
 import module.ExploreTasks.explore_task
 from core import position, picture, utils
@@ -21,18 +21,16 @@ from core.device.Control import Control
 from core.device.Screenshot import Screenshot
 from core.device.connection import Connection
 from core.device.emulator_manager import process_api
-from core.device.uiautomator2_client import BAAS_U2_Initer, __atx_agent_version__
 from core.device.uiautomator2_client import U2Client
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect, LogTraceback
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
-from core.utils import Logger
 
 func_dict = {
     'group': module.group.implement,
     'momo_talk': module.momo_talk.implement,
-    'common_shop': module.common_shop.implement,
+    'common_shop': module.shop.common_shop.implement,
     'cafe_reward': module.cafe_reward.implement,
     'no1_cafe_invite': module.no1_cafe_invite.implement,
     'no2_cafe_invite': module.no2_cafe_invite.implement,
@@ -52,7 +50,7 @@ func_dict = {
     'hard_task': module.ExploreTasks.sweep_task.sweep_hard_task,
     'clear_special_task_power': module.clear_special_task_power.implement,
     'de_clothes': module.de_clothes.implement,
-    'tactical_challenge_shop': module.tactical_challenge_shop.implement,
+    'tactical_challenge_shop': module.shop.tactical_challenge_shop.implement,
     'collect_daily_power': module.collect_reward.implement,
     'total_assault': module.total_assault.implement,
     'restart': module.restart.implement,
@@ -64,7 +62,7 @@ func_dict = {
     'dailyGameActivity': module.dailyGameActivity.implement,
     'friend': module.friend.implement,
     'joint_firing_drill': module.joint_firing_drill.implement,
-    "update_activity": module.activities.activity_updater.update_activity,
+    'pass': module.collect_pass_reward.implement
 }
 
 
@@ -181,12 +179,9 @@ class Baas_thread:
         if self.button_signal is not None:
             self.button_signal.emit("启动")
 
-    def init_emulator(self):
-        return self._init_emulator()
-
     def convert_lnk_to_exe(self, lnk_path):
         """
-        判断program_addrsss是否为lnk文件，如果是则转换为exe文件地址存入config文件
+        Convert a Windows shortcut (.lnk) to the target executable path.
         """
         if lnk_path.endswith(".lnk"):
             try:
@@ -202,12 +197,11 @@ class Baas_thread:
 
     def extract_filename_and_extension(self):
         """
-        从可能包含启动参数的路径中提取文件名和扩展名
+        Extract the filename and extension from a file path, specifically for .exe and .lnk files.
         """
-        # 预定义特定的文件扩展名列表
+        # target specific extensions
         specific_extensions = [".exe", ".lnk"]
 
-        # 找到最后一个文件扩展名的位置
         last_extension_pos = -1
         for ext in specific_extensions:
             pos = self.file_path.lower().rfind(ext)
@@ -215,24 +209,21 @@ class Baas_thread:
                 last_extension_pos = pos
 
         if last_extension_pos == -1:
-            # 如果没有找到文件扩展名，返回整个输入
             return self.file_path.strip()
 
-        # 从文件扩展名的位置往前找到完整路径
-        end_of_path = last_extension_pos + len(specific_extensions[0])  # 加上扩展名的长度
+        end_of_path = last_extension_pos + len(specific_extensions[0])
         actual_path = self.file_path[:end_of_path]
 
-        # 获取文件名和扩展名
+        # get the file name with extension
         file_name_with_extension = os.path.basename(actual_path)
 
         return file_name_with_extension
 
     def check_process_running(self, process_name):
         """
-        检测指定名称的进程是否正在运行
+        Check if a process with the given name is running.
         """
         for proc in psutil.process_iter(['pid', 'name']):
-            # self.logger.debug(f"Checking if process {process_name} is running...")
             if proc.info['name'] == process_name:
                 return True
         return False
@@ -287,8 +278,8 @@ class Baas_thread:
         if not self.start_check_emulator_stat(self.emulator_start_stat, self.wait_time):
             raise Exception("Emulator start failed")
 
-    def _init_emulator(self) -> bool:
-        self.logger.info("--------------Init Emulator----------------")
+    def init_device(self) -> bool:
+        self.logger.info("--------------Init Device----------------")
         try:
             self.start_emulator()
         except Exception as e:
@@ -297,36 +288,53 @@ class Baas_thread:
             return False
         try:
             self.connection = Connection(self)
-            self.serial = self.connection.get_serial()
+            self.is_android_device = self.connection.is_android_device()
             self.server = self.connection.get_server()
-            self.package_name = self.connection.get_package_name()
             self.current_game_activity = self.static_config.current_game_activity[self.server]
-            self.activity_name = self.connection.get_activity_name()
-            self.screenshot = Screenshot(self)
 
+            if self.is_android_device:
+                self.serial = self.connection.get_serial()
+                self.package_name = self.connection.get_package_name()
+                self.activity_name = self.connection.get_activity_name()
+
+            self.screenshot = Screenshot(self)
             self.control = Control(self)
             self.set_screenshot_interval(self.config.screenshot_interval)
 
             self.check_resolution()
-            self.ocr_language = self.get_ocr_language()
+            self.get_ocr_language()
             self.identifier = self.server
             if self.server == "Global":
                 self.identifier += "_" + self.ocr_language
                 # dynamic init Global server ocr language
                 self.ocr.init_baas_model(self)
                 self.ocr.test_models([self.ocr_language], self.logger)
-            self.logger.info("--------Emulator Init Finished----------")
+            self.logger.info("--------Device Init Finished----------")
             return True
         except Exception as e:
             self.logger.error(e.__str__())
             self.logger.error("Emulator initialization failed")
             return False
 
-    def get_ocr_language(self) -> str:
+    def get_ocr_language(self):
         self.logger.info("Get OCR Language.")
-        lang = None
+        self.ocr_language = "None"
+
+        if self.is_android_device:
+            self._get_android_device_ocr_language()
+        else:
+            self._get_host_ocr_language()
+        self.logger.info("Ocr Language : " + self.ocr_language)
+
+    def _get_host_ocr_language(self):
+        path = os.path.join(os.getenv('LOCALAPPDATA'), '..', 'LocalLow', 'Nexon Games', 'Blue Archive', 'DeviceOption')
+        if not os.path.exists(path):
+            raise Exception("Local DeviceOption not found : " + path)
+        self._read_DeviceOption_ocr_language(path)
+
+    def _get_android_device_ocr_language(self):
         if self.server == "CN":
-            lang = "zh-cn"
+            self.ocr_language = "zh-cn"
         elif self.server == "Global":
             basic_path = self.u2._adb_device.shell(f"echo $EXTERNAL_STORAGE").strip()
             src = "/".join([
@@ -337,7 +345,6 @@ class Baas_thread:
                 "files",
                 "DeviceOption"
             ])
-            print(src)
             dst = os.path.basename(self.config_set.config_dir) + "_DeviceOption.json"
             # remove dst existing file
             if os.path.exists(dst):
@@ -350,43 +357,23 @@ class Baas_thread:
                 sync.pull_file(src, dst)
             else:
                 raise Exception("Global Server DeviceOption File not exist.")
-            supported_language_convert_dict = {
-                "Kr": "ko-kr",
-                "En": "en-us",
-                "Tw": "zh-tw",
-            }
-            with open(dst, "r") as f:
-                data = json.load(f)
-                game_lan = data["Language"]
-                if game_lan in supported_language_convert_dict:
-                    lang = supported_language_convert_dict[game_lan]
-                else:
-                    raise Exception("Global Server Invalid Language : " + game_lan + ".")
+            self._read_DeviceOption_ocr_language(dst)
         elif self.server == "JP":
-            lang = "ja-jp"
-        self.logger.info("Ocr Language : " + lang)
-        return lang
+            self.ocr_language = "ja-jp"
 
-    def check_atx(self):
-        self.logger.info("--------------Check ATX install ----------------")
-        _d = self.u2._wait_for_device()
-        if not _d:
-            raise RuntimeError("USB device %s is offline " + self.serial)
-        self.logger.info("Device [ " + self.serial + " ] is online.")
-
-        version_url = self.u2.path2url("/version")
-        try:
-            version = requests.get(version_url, timeout=3).text
-            if version != __atx_agent_version__:
-                raise EnvironmentError("atx-agent need upgrade")
-        except (requests.RequestException, EnvironmentError):
-            self.set_up_atx_agent()
-        self.wait_uiautomator_start()
-        self.logger.info("Uiautomator2 service started.")
-
-    def set_up_atx_agent(self):
-        init = BAAS_U2_Initer(self.u2._adb_device, self.logger)
-        init.install()
+    def _read_DeviceOption_ocr_language(self, _p):
+        supported_language_convert_dict = {
+            "Kr": "ko-kr",
+            "En": "en-us",
+            "Tw": "zh-tw",
+        }
+        with open(_p, "r") as f:
+            data = json.load(f)
+            game_lan = data["Language"]
+            if game_lan in supported_language_convert_dict:
+                self.ocr_language = supported_language_convert_dict[game_lan]
+            else:
+                raise Exception("Global Server Invalid Language : " + game_lan + ".")
 
     def send(self, msg, task=None):
         if msg == "start":
@@ -578,6 +565,7 @@ class Baas_thread:
             'main_page_login-feature': (640, 360),
             'main_page_relationship-rank-up': (640, 360),
             'main_page_full-notice': (887, 165),
+            'normal_task_task-info': (1126, 139),
             'normal_task_fight-confirm': (1168, 659),
             'normal_task_task-finish': (1038, 662),
             'normal_task_prize-confirm': (776, 655),
@@ -599,6 +587,8 @@ class Baas_thread:
             'momo_talk_momotalk-peach': (1123, 122),
             'cafe_students-arrived': (922, 189),
             'cafe_quick-home': (1236, 31),
+            'pass_menu': (1247, 40),
+            'pass_mission-menu': (1247, 40),
             'group_sign-up-reward': (920, 159),
             'cafe_invitation-ticket': (835, 97),
             'lesson_lesson-information': (964, 117),
@@ -624,22 +614,16 @@ class Baas_thread:
             'CN': {
                 'main_page_news': (1142, 104),
                 'main_page_news2': (1142, 104),
-                'normal_task_task-info': (1126, 115),
-                "special_task_task-info": (1085, 141),
                 "main_page_net-work-unstable": (753, 500),
                 'main_page_fail-to-load-game-resources': (740, 437),
             },
             'JP': {
                 'main_page_news': (1142, 104),
-                'normal_task_task-info': (1126, 115),
-                "special_task_task-info": (1126, 141),
                 'main_page_attendance-reward': (642, 489),
                 'main_page_download-additional-resources': (769, 535),
             },
             'Global': {
                 'main_page_news': (1227, 56),
-                "special_task_task-info": (1126, 141),
-                'normal_task_task-info': (1126, 139),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),
                 'main_page_Failed-to-convert-errorResponse': (641, 511),
@@ -707,14 +691,14 @@ class Baas_thread:
         if is_main_page:
             region = {
                 'CN': (512, 25, 609, 52),
-                'Global': (512, 25, 609, 52),
+                'Global': (485, 23, 586, 54),
                 'JP': (485, 23, 586, 54)
             }
             region = region[self.server]
         else:
             region = {
                 'CN': (557, 10, 662, 40),
-                'Global': (557, 10, 662, 40),
+                'Global': (530, 10, 642, 40),
                 'JP': (530, 10, 642, 40)
             }
             region = region[self.server]
@@ -733,17 +717,19 @@ class Baas_thread:
         try:
             ocr_res = int(ocr_res)
             _max = int(_max)
-            data = {
-                "count": ocr_res,
-                "max": _max,
-                "time": time.time()
-            }
-            self.config_set.set("ap", data)
-
-            return ocr_res
+            if ocr_res <= 999 and _max <= 999:
+                data = {
+                    "count": ocr_res,
+                    "max": _max,
+                    "time": time.time()
+                }
+                self.config_set.set("ap", data)
+                return ocr_res
         except ValueError:
-            self.logger.warning("Failed to get AP.")
-            return 999
+            pass
+
+        self.logger.warning("Failed to get AP.")
+        return 999
 
     def get_pyroxene(self, is_main_page=False):
         if is_main_page:
@@ -808,7 +794,7 @@ class Baas_thread:
         self.flag_run = True
         init_funcs = [
             self.init_config,
-            self.init_emulator,
+            self.init_device,
             self.init_image_resource,
             self.init_rgb
         ]
@@ -944,25 +930,91 @@ class Baas_thread:
         subprocess.run(["shutdown", "-a"])
 
     def check_resolution(self):
-        self.u2_client = U2Client.get_instance(self.serial)
-        self.u2 = self.u2_client.get_connection()
-        self.check_atx()
-        self.last_refresh_u2_time = time.time()
-        temp = self.resolution_uiautomator2()
-        self.logger.info("Screen Size  " + str(temp))
-        if temp[0] != 1280 or temp[1] != 720:
+        if self.is_android_device:
+            self.resolution = self._get_android_device_resolution()
+        else:
+            self.resolution = self.connection.app_process_window.get_resolution()
+
+        self.logger.info("Screen Size  " + str(self.resolution))
+        self.check_screen_ratio(self.resolution[0], self.resolution[1])
+        if self.resolution[0] != 1280:
             self.logger.warning("Screen Size is not 1280x720, we recommend you to use 1280x720.")
         if self.ocr_img_pass_method == 0:
-            self.ocr.create_shared_memory(self, temp[0] * temp[1] * 3)
-        width = temp[0]
-        self.ratio = width / 1280
+            self.ocr.create_shared_memory(self, self.resolution[0] * self.resolution[1] * 3)
+        self.ratio = self.resolution[0] / 1280
         self.logger.info("Screen Size Ratio: " + str(self.ratio))
+
+    def handle_resolution_dynamic_change(self):
+        _new = self.connection.app_process_window.get_resolution()
+        if self.resolution[0] == _new[0] and self.resolution[1] == _new[1]:
+            return
+        self.logger.warning(
+            "Screen Resolution change detected, we don't recommend you to change screen resolution while running the script.")
+
+        _new = self._wait_resolution_change_finish(_new, 10, 0.3)
+        if self.resolution[0] == _new[0] and self.resolution[1] == _new[1]:
+            self.logger.info("Resolution unchanged.")
+            return
+
+        self.check_screen_ratio(_new[0], _new[1])
+        _new_ratio = _new[0] / 1280
+        self.logger.info(f"Screen Resolution changed {self.resolution[0]}x{self.resolution[1]} --> {_new[0]}x{_new[1]}")
+        self.logger.info(f"Screen Size Ratio changed {self.ratio} --> {_new_ratio}")
+
+        self.resolution = _new
+        self.ratio = _new_ratio
+
+        if self.ocr_img_pass_method == 0:
+            from core.ipc_manager import SharedMemory
+            shm = SharedMemory.get(self.shared_memory_name)
+            if shm.size < _new[0] * _new[1] * 3:
+                self.logger.warning(f"Current shared memory size {shm.size} maybe not enough, recreate shared memory.")
+                self.ocr.release_shared_memory(self.shared_memory_name)
+                self.ocr.create_shared_memory(self, _new[0] * _new[1] * 3)
+
+    def _wait_resolution_change_finish(self, last_res, static_cnt=10, interval=0.3):
+        self.logger.info("Wait Resolution Change Finish")
+        cnt = 0
+        latest_res = last_res
+        while 1:
+            if cnt >= static_cnt:
+                self.logger.info(f"Resolution change finished, current resolution: {latest_res[0]}x{latest_res[1]}")
+                return latest_res
+            _new = self.connection.app_process_window.get_resolution()
+            if _new[0] == latest_res[0] and _new[1] == latest_res[1]:
+                cnt += 1
+            else:
+                cnt = 0
+                latest_res = _new
+            time.sleep(interval)
+
+    @staticmethod
+    def _accept_resolution(x, y, std_x=16, std_y=9, threshold=0.05):
+        return abs(x / y - std_x / std_y) <= threshold
+
+    def check_screen_ratio(self, width, height):
+        gcd = math.gcd(width, height)
+        screen_ratio = width // gcd, height // gcd
+        if screen_ratio == (16, 9):
+            return
+        self.logger.warning(
+            f"Screen Ratio: {width}:{height} is not a precise 16:9 screen, we recommend you to use a precise 16:9 screen.")
+        if self._accept_resolution(width, height, 16, 9, 0.05):
+            self.logger.info(f"Screen Ratio close to 16:9. Accept it.")
+            return
+        self.logger.error(f"Invalid Screen Ratio: {width}:{height}, please adjust your screen resolution to 16:9.")
+        raise Exception("Invalid Screen Ratio")
+
+    def _get_android_device_resolution(self):
+        self.u2_client = U2Client.get_instance(self.serial)
+        self.u2 = self.u2_client.get_connection()
+        self.last_refresh_u2_time = time.time()
+        return self.resolution_uiautomator2()
 
     def resolution_uiautomator2(self):
         for i in range(0, 3):
             try:
-                info = self.u2.http.get('/info').json()
-                w, h = info['display']['width'], info['display']['height']
+                w, h = self.u2.info['displayWidth'], self.u2.info['displayHeight']
                 if w < h:
                     w, h = h, w
                 return w, h
@@ -974,17 +1026,3 @@ class Baas_thread:
         self.get_ap(True)
         self.get_creditpoints(True)
         self.get_pyroxene(True)
-
-
-if __name__ == '__main__':
-    print(os.path.exists(
-        "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.1_linux_386\\atx-agent"))
-    # "D:\\github\\bass\\blue_archive_auto_script\\src\\atx_app\\atx-agent_0.10.0_linux_386\\atx-agent"
-    import uiautomator2
-
-    u2 = uiautomator2.connect("127.0.0.1:16512")
-    from core.utils import Logger
-
-    logger = Logger(None)
-    init = BAAS_U2_Initer(u2._adb_device, logger)
-    init.uninstall()

@@ -85,7 +85,7 @@ class NemuControl:
         self.logger = conn.logger
         self.serial = conn.serial
 
-        self.nemu_folder = self.config_set.get("program_address")
+        self.nemu_folder = self.config.program_address
         self.nemu_folder = os.path.dirname(self.nemu_folder)
         self.nemu_folder = os.path.dirname(self.nemu_folder)    # C:/Program Files/Netease/MuMu Player 12
         self.instance_id = NemuClient.serial_to_id(self.serial)
@@ -98,10 +98,7 @@ class NemuControl:
                 path = NemuClient.get_possible_mumu12_folder()
                 self.logger.info(f"Auto detect mumu player path: {str(path)}")
                 if path is not None:
-                    self.logger.info(f"Set new config program_address.")
-                    self.config_set.set("program_address", path)
                     self.nemu_folder = os.path.dirname(path)
-                    self.nemu_folder = os.path.dirname(self.nemu_folder)
                     try:
                         self.nemu_client = NemuClient.get_instance(self.nemu_folder, self.instance_id, self.logger)
                     except (NemuIpcIncompatible, NemuIpcError) as e:

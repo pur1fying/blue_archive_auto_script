@@ -34,10 +34,10 @@ def warning(label: str, msg: str, config: ConfigSet, duration: int = 800) -> Non
     }))
 
 
-def _success(label: str, msg: str, info_widget: QWidget, duration: int = 800) -> None:
+def _success(label: str, msg: str, info_widget: QWidget, duration: int = 800, customized=False) -> None:
     InfoBar(
         icon=InfoBarIcon.SUCCESS,
-        title=f'{label}设置成功',
+        title=f'{label}{"设置成功" if not customized else ""}',
         content=f'{msg}',
         orient=Qt.Vertical,
         position=InfoBarPosition.BOTTOM_RIGHT,
@@ -46,10 +46,10 @@ def _success(label: str, msg: str, info_widget: QWidget, duration: int = 800) ->
     ).show()
 
 
-def _error(label: str, msg: str, info_widget: QWidget, duration: int = 800) -> None:
+def _error(label: str, msg: str, info_widget: QWidget, duration: int = 800, customized=False) -> None:
     InfoBar(
         icon=InfoBarIcon.ERROR,
-        title=f'{label}设置失败',
+        title=f'{label}{"设置失败" if not customized else ""}',
         content=f'{msg}',
         orient=Qt.Vertical,
         position=InfoBarPosition.BOTTOM_RIGHT,

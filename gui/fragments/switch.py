@@ -1,6 +1,6 @@
 import json
-import threading
 import time
+import threading
 from datetime import datetime
 from hashlib import md5
 from random import random
@@ -65,7 +65,7 @@ class SwitchFragment(ScrollArea):
 
         # Generate a unique object name for the instance.
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
-        self.setObjectName(self.object_name)
+        self.setObjectName(f"{self.object_name}.SwitchFragment")
 
     # def _change_status(self, event_name: str, event_enabled: str) -> None:
     #     self._read_config()  # 读取配置文件并更新_event_config列表

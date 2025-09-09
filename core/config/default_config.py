@@ -287,6 +287,18 @@ EVENT_DEFAULT_CONFIG = """
     "disabled_time_range": [],
     "pre_task": [],
     "post_task": []
+  },
+  {
+    "enabled": true,
+    "priority": 19,
+    "interval": 0,
+    "daily_reset": [[10, 0, 1], [20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "领取pass奖励",
+    "func_name": "pass",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
   }
 ]
 """
@@ -357,6 +369,7 @@ DEFAULT_CONFIG = """
     "push_after_completion":false,
     "push_json":"",
     "push_serverchan":"",
+    "cafe_reward_affection_pat_round": 4,
     "cafe_reward_lowest_affection_first": true,
     "cafe_reward_invite1_criterion" : "starred",
     "favorStudent1": [
@@ -409,7 +422,7 @@ DEFAULT_CONFIG = """
     "emulatorMultiInstanceNumber": 0,
     "multiEmulatorName": "mumu",
     "manual_boss": false,
-    "choose_team_method": "preset",
+    "choose_team_method": "order",
     "side_team_attribute": [["Unused","Unused","Unused","Unused"]],
     "preset_team_attribute": [
         ["Unused","Unused","Unused","Unused","Unused"],
@@ -417,14 +430,6 @@ DEFAULT_CONFIG = """
         ["Unused","Unused","Unused","Unused","Unused"],
         ["Unused","Unused","Unused","Unused","Unused"]
     ],
-    "burst1": "1",
-    "burst2": "2",
-    "pierce1": "1",
-    "pierce2": "2",
-    "mystic1": "1",
-    "mystic2": "2",
-    "shock1": "2",
-    "shock2": "3",
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
     "TacticalChallengeShopRefreshTime": "0",
@@ -489,7 +494,17 @@ DEFAULT_CONFIG = """
         "count": -1,
         "time": 0
     },
-    "assetsVisibility": true
+    "_pass": {
+        "level": -1,
+        "max_level": 60,
+        "next_level_point": -1,
+        "next_level_point_required": -1,
+        "weekly_point": -1,
+        "max_weekly_point": -1,
+        "time": 0
+    },
+    "assetsVisibility": true,
+    "hotkey_run": "Ctrl+Shift+R"
 }
 """
 
@@ -577,27 +592,85 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
+    "steam_app_process_name": "Blue Archive",
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {
-        "CN": [2, 3, 4, 5, 6],
+        "CN": [1, 2, 3, 4, 5, 6, 7],
         "Global": [1, 2, 3, 4, 5, 6, 7, 8],
         "JP": [1, 2, 3, 4, 5, 6, 7, 8]
     },
     "max_region": {
-        "CN": 24,
+        "CN": 25,
         "Global": 27,
-        "JP": 28
+        "JP": 29
     },
-    "explore_normal_task_region_range": [4, 28],
-    "explore_hard_task_region_range": [1, 28],
-    "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
-    "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy"],
+    "explore_normal_task_region_range": [4, 29],
+    "explore_hard_task_region_range": [1, 29],
+    "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "mss", "pyautogui"],
+    "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "pyautogui"],
+    "shop_type_list_names": {
+      "CN": [
+        "常规道具",
+        "神名精髓",
+        "神名精髓",
+        "总力战",
+        "大决战",
+        "战术对抗赛",
+        "综合战术测试",
+        "熟练证书",
+        "回收商店"
+      ],
+      "Global_en-us": [
+        "Normal",
+        "Eligma",
+        "Eligma",
+        "TotalAssault",
+        "GrandAssault",
+        "TacticalChallenge",
+        "JointFiringDrill",
+        "ExpertPermit"
+      ],
+
+      "Global_ko-kr": [
+        "일반",
+        "엘리그마",
+        "엘리그마",
+        "총력전",
+        "대결전",
+        "전술대회",
+        "종합전술시험",
+        "축련증서"
+      ],
+
+      "Global_zh-tw": [
+        "—般",
+        "神名文字碎片",
+        "神名文字碎片",
+        "總力戰",
+        "大決戰",
+        "戰術大賽",
+        "綜合戰術考試",
+        "精通證書"
+      ],
+      "JP": [
+        "通常アイテム",
+        "青輝石",
+        "カケラ(文字)",
+        "カケラ(その他)",
+        "総力戦",
+        "大決戦",
+        "戦術対抗戦",
+        "合同火力演習",
+        "熟達証書"
+      ]
+    },
     "common_shop_price_list": {
         "CN": [
             ["初级经验书", 12500, "creditpoints"],["中级经验书", 125000, "creditpoints"],["高级经验书", 300000, "creditpoints"],["特级经验书",500000,"creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
             ["初级经验珠", 10000, "creditpoints"],["中级经验珠", 40000, "creditpoints"],["高级经验珠", 96000, "creditpoints"],["特级经验珠", 128000, "creditpoints"],
-            ["初级经验珠", 20000, "creditpoints"],["中级经验珠", 80000, "creditpoints"],["高级经验珠", 192000, "creditpoints"],["特级经验珠", 258000, "creditpoints"],
+            ["强化珠礼包A", 110000, "creditpoints"],["强化珠礼包B", 240000, "creditpoints"],["强化珠礼包C", 384000, "creditpoints"],["强化珠礼包D", 496000, "creditpoints"],
+            ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],
             ["随机初级神秘古物", 8000, "creditpoints"],["随机初级神秘古物", 8000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"],["随机中级神秘古物", 25000, "creditpoints"]
         ],
         "Global": [
@@ -619,10 +692,10 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "tactical_challenge_shop_price_list": {
         "CN": [
-            ["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],["风香神明文字x5",50],
-            ["歌原神明文字x5",50],["30AP", 15],["60AP", 30], ["初级经验书x5", 5],
-            ["中级经验书x10", 25],["高级经验书x3", 60],["特级经验书x1", 100],["信用点x5k", 4],
-            ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
+            ["宫子神明文字x5", 50], ["静子神明文字x5",50], ["真白神明文字x5",50], ["纱绫神明文字x5",50],
+            ["风香神明文字x5",50], ["歌原神明文字x5",50], ["30AP", 15], ["60AP", 30],
+            ["初级经验书x5", 5], ["中级经验书x10", 25], ["高级经验书x3", 60], ["特级经验书x1", 100],
+            ["信用点x5k", 4], ["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
         "Global": [
              ["宫子神明文字x5",50],["静子神明文字x5",50],["真白神明文字x5",50],["纱绫神明文字x5",50],
@@ -1302,10 +1375,34 @@ STATIC_DEFAULT_CONFIG = '''
             "Broken-Ancient-Battery",
             "Damaged-Ancient-Battery",
             "Intact-Ancient-Battery",
+            "Golden-Fleece",
+            "Golden-Yarn",
+            "Golden-Wool",
+            "Golden-Dress",
+            "Okiku-Doll-Piece",
+            "Broken-Okiku-Doll",
+            "Repaired-Okiku-Doll",
+            "Intact-Okiku-Doll",
             "Disco-Colgante-Piece",
             "Broken-Disco-Colgante",
             "Repaired-Disco-Colgante",
             "Intact-Disco-Colgante",
+            "Atlantis-Medal-Piece",
+            "Broken-Atlantis-Medal",
+            "Damaged-Atlantis-Medal",
+            "Intact-Atlantis-Medal",
+            "Roman-Dodecahedron-Piece",
+            "Broken-Roman-Dodecahedron",
+            "Repaired-Roman-Dodecahedron",
+            "Intact-Roman-Dodecahedron",
+            "Quimbaya-Relic-Piece",
+            "Broken-Quimbaya-Relic",
+            "Repaired-Quimbaya-Relic",
+            "Intact-Quimbaya-Relic",
+            "Istanbul-Rocket-Piece",
+            "Broken-Istanbul-Rocket",
+            "Repaired-Istanbul-Rocket",
+            "Intact-Istanbul-Rocket",
             "Winnipesaukee-Stone-Piece",
             "Broken-Winnipesaukee-Stone",
             "Damage-Winnipesaukee-Stone",
@@ -3344,7 +3441,7 @@ STATIC_DEFAULT_CONFIG = '''
           "Shanhaijing Main Special Zone",
           "Haruhabara Electric Town"
       ],
-        "Global_zh-tw": [
+      "Global_zh-tw": [
           "夏萊辦公室",
           "夏萊居住區",
           "格黑娜學園中央區",
@@ -3385,9 +3482,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "ElectronicNewYearsMarch",
-        "Global": "SecretMidnightParty",
-        "JP": "JP_2025_06_25"
+        "CN": "FromOpera0068WithLove",
+        "Global": "PandemicHazardAMiraclePancake",
+        "JP": "JP_2025_08_20"
     },
     "dailyGameActivity": {
         "CN": null,
@@ -3443,7 +3540,8 @@ STATIC_DEFAULT_CONFIG = '''
         ["25-1", "遥香"] , ["25-2", "绫音"] , ["25-3", "纱绫(私服)"],
         ["26-1", "好美"], ["26-2", "爱莉"], ["26-3", "瞬(小)"],
         ["27-1", "志美子"], ["27-2", "晴"], ["27-3", "千夏(温泉)"],
-        ["28-1", "朱莉"], ["28-2", "玛丽"], ["28-3", "美咲"]
+        ["28-1", "朱莉"], ["28-2", "玛丽"], ["28-3", "美咲"],
+        ["29-1", "芹娜"], ["29-2", "桐乃"], ["29-3", "日向"]
     ],
   "student_names": [
     {

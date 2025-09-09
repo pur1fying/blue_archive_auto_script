@@ -1,4 +1,7 @@
-import random
+from random import random
+import time
+from hashlib import md5
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QVBoxLayout
 from qfluentwidgets import FluentIcon as FIF, FluentWindow, TextEdit
@@ -10,8 +13,8 @@ from gui.util.translator import baasTranslator as bt
 class ReadMeInterface(QFrame):
     def __init__(self, content: str):
         super().__init__()
-        self.setObjectName('ReadMeInterface' + random.randint(0, 100000).__str__())
-        self.setStyleSheet('QFrame#ReadMeInterface{background: white}')
+        self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
+        self.setObjectName(f"{self.object_name}.ReadMeInterface")
         self.content = content
         self.textEdit = TextEdit()
         self.textEdit.setReadOnly(True)
@@ -42,6 +45,7 @@ class ReadMeWindow(FluentWindow):
         directory = f'./src/descriptions/{bt.stringLang}'
         if os.path.isdir(directory):
             return directory
+
 
 if __name__ == '__main__':
     import sys

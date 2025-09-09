@@ -44,15 +44,14 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]
             mission = 6
             pass
         else:
-            return False, f"Invalid task mission: {t}"
+            return False, f"Invalid task type: {t}"
 
     region_data = get_stage_data(region, isNormal)
     if isNormal:
-        max_mission = 5 if region % 3 != 0 else 6
+        maxMission = 6 if region % 3 != 0 else 7
     else:
-        max_mission = 3
-    mission_list = [mission] if mission != -1 else range(1, max_mission + 1)
-    for i in mission_list:
+        maxMission = 4
+    for i in range(1, maxMission) if mission == -1 else [mission]:
         # For normal tasks:
         # if mission is specified, then add mission only ,otherwise add 1~5,
         # if the region has -A mission, then add -6
@@ -116,8 +115,7 @@ def explore_normal_task(self):
         - mission (int): The mission number.
         - taskDatas (dict): The task datas.
     """
-
-    # Validate the tasks and print the valid task list
+    self.to_main_page()
     for taskStr in str(self.config_set.config.explore_normal_task_list).split(','):
         result = validate_and_add_task(self, taskStr, tasklist, True)
         if not result[0]:
@@ -132,7 +130,7 @@ def explore_normal_task(self):
     if len(tasklist) == 0:
         return False
 
-    team_config = convert_team_config(self)
+    teamConfig = convert_team_config(self)
 
     for task in tasklist:
         region, mission = task[0], task[1]
@@ -158,6 +156,7 @@ def explore_normal_task(self):
                     self=self,
                     name="normal_task_enter-task-button",
                     search_area=(1055, 191, 1201, 632),
+                    threshold=0.8,
                     possible_strs=fullMissionList,
                     target_str_index=mission - 1,
                     swipe_params=(917, 552, 917, 220, 0.2, 1.0),
@@ -173,12 +172,13 @@ def explore_normal_task(self):
                     continue
 
             if not need_fight(self, taskDataName, True):
-                self.logger.warning(f"{taskDataName} is already finished,skip.")
+                self.logger.warning(f"{taskName} is already finished,skip.")
                 skip_navigate = True
                 continue
             skip_navigate = False
 
-            if mission == 6:
+            # TODO: sub mission must be broken :D
+            if mission == 6 or mission == 'sub':
                 # to formation menu
                 img_reactions = {
                     'normal_task_task-A-info': (946, 540)
@@ -187,7 +187,7 @@ def explore_normal_task(self):
                 picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
 
                 # get preset unit
-                if not employ_units(self, taskData, team_config):
+                if not employ_units(self, self.config.choose_team_method, taskData, teamConfig):
                     self.logger.error(f"Skipping task {taskName} due to error.")
                     continue
 
@@ -218,6 +218,7 @@ def explore_hard_task(self):
         - mission (int): The mission number.
         - taskDatas (dict): The task datas.
     """
+    self.to_main_page()
 
     for taskStr in str(self.config_set.config.explore_hard_task_list).split(','):
         result = validate_and_add_task(self, taskStr, tasklist, False)

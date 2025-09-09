@@ -1,12 +1,13 @@
-import sys
-import time
-import cv2
-import requests
 import os
-import subprocess
-import datetime
-import shutil
+import cv2
+import sys
 import json
+import time
+import shutil
+import datetime
+import requests
+import subprocess
+
 from core.ipc_manager import SharedMemory
 from core.exception import SharedMemoryError, OcrInternalError
 
@@ -20,6 +21,7 @@ class ServerConfig:
         self.server_is_remote = False
         self.base_url = None
         self.__init_config()
+        self.init_url()
 
     def __init_config(self):
         if not os.path.exists(self.config_path):
@@ -30,13 +32,18 @@ class ServerConfig:
             shutil.copy(default_config_file_path, self.config_path)
         with open(self.config_path, "r") as f:
             self.config = json.load(f)
-            self.host = self.config["ocr"]["server"]["host"]
-            self.port = self.config["ocr"]["server"]["port"]
-            self.base_url = f"http://{self.host}:{self.port}"
-            # check is remote
-            if self.host != "localhost" and self.host != "127.0.0.1":
-                self.server_is_remote = True
 
+    def init_url(self):
+        self.host = self.config["ocr"]["server"]["host"]
+        self.port = self.config["ocr"]["server"]["port"]
+        self.base_url = f"http://{self.host}:{self.port}"
+        # check is remote
+        if self.host != "localhost" and self.host != "127.0.0.1":
+            self.server_is_remote = True
+
+    def save(self):
+        with open(self.config_path, "w") as f:
+            json.dump(self.config, f, indent=4)
 
 class BaasOcrClient:
     server_folder_path = os.path.join(os.path.dirname(__file__), "bin")
@@ -46,7 +53,6 @@ class BaasOcrClient:
 
     def __init__(self):
         self.exe_path = os.path.join(self.server_folder_path, self.executable_name)
-
         if not os.path.exists(self.exe_path):
             raise Exception("Didn't find ocr server executable.")
         self.config = ServerConfig()
@@ -106,14 +112,24 @@ class BaasOcrClient:
         # chmod +x BAAS_ocr_server
         if sys.platform == "linux":
             subprocess.run(["chmod", "+x", self.exe_path])
-        self.server_process = subprocess.Popen(
-            self.exe_path,
-            cwd=self.server_folder_path,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
-            text=True
-        )
+        try:
+            self.server_process = subprocess.Popen(
+                self.exe_path,
+                cwd=self.server_folder_path,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+                text=True
+            )
+        except Exception:
+            self.server_process = subprocess.Popen(
+                [self.exe_path],
+                cwd=self.server_folder_path,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+                text=True
+            )
         # wait for server start
         for _ in range(0, 30):
             try:

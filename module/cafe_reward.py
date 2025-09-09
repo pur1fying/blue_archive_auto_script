@@ -1,7 +1,10 @@
-import threading
-import time
 import cv2
+import time
+import queue
+import threading
+
 import numpy as np
+
 from core import image, color, picture
 from core.utils import merge_nearby_coordinates
 from statistics import median
@@ -67,19 +70,13 @@ def to_cafe(self, skip_first_screenshot=False):
 
 def to_no2_cafe(self):
     to_cafe(self)
-    if self.server == "JP" or self.server == "Global":
-        img_ends = "cafe_button-goto-no1-cafe"
-        img_possibles = {
-            "cafe_button-goto-no2-cafe": (118, 98),
-            "cafe_students-arrived": (922, 189),
-        }
-        picture.co_detect(self, None, None, img_ends, img_possibles, True)
-        return
-    img_ends = "cafe_at-no1-cafe"
-    img_possibles = {"cafe_menu": (118, 98)}
+    img_ends = "cafe_button-goto-no1-cafe"
+    img_possibles = {
+        "cafe_button-goto-no2-cafe": (118, 98),
+        "cafe_students-arrived": (922, 189),
+    }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
-    image.click_to_disappear(self, "cafe_at-no1-cafe", 240, 168)
-    to_cafe(self)
+    return
 
 
 def match(img):
@@ -102,10 +99,15 @@ def cafe_to_gift(self):
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
 
 
-def shot(self, delay):
+def screenshot_thread(self, delay):
+    if not self.is_android_device:
+        delay += 0.1
     time.sleep(delay)
-    self.latest_img_array = self.u2_get_screenshot()
-
+    if self.is_android_device:
+        self.latest_img_array = self.u2_get_screenshot()
+    else:
+        self.update_screenshot_array()
+        cv2.imwrite("cafe_reward_shot.png", self.latest_img_array)
 
 def gift_to_cafe(self):
     img_possibles = {
@@ -115,71 +117,98 @@ def gift_to_cafe(self):
     rgb_ends = "cafe"
     picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
 
+def zoom_out(self):
+    if self.is_android_device:
+        self.u2().pinch_in(percent=50, steps=30)
+    else:
+        for _ in range(0, 15):
+            self.control.scroll(640, 360, 10)
+    duration = 0.2 if self.is_android_device else 0.5
+    self.swipe(709, 558, 709, 309, duration=duration)
+
+def swipe_gift_thread(self, duration, ret_queue):
+    start_t = time.time()
+    self.swipe(131, 660, 1280, 660, duration=duration)
+    ret_queue.put(round(time.time() - start_t, 3))
+
+def swipe_gift_and_screenshot(self):
+    shotDelay = self.config.cafe_reward_interaction_shot_delay
+    if self.is_android_device:
+        t1 = threading.Thread(target=screenshot_thread, args=(self, shotDelay))
+        t1.start()
+        start_t = time.time()
+        self.u2_swipe(131, 660, 1280, 660, duration=0.5)
+        return round(time.time() - start_t, 3)
+    else:
+        q = queue.Queue()
+        t1 = threading.Thread(target=swipe_gift_thread, args=(self, 1, q))
+        t1.start()
+        time.sleep(shotDelay + 0.1)
+        self.update_screenshot_array()
+        t1.join()
+        return q.get()
+
+def find_student_position(self):
+    swipe_t = swipe_gift_and_screenshot(self)
+    img = cv2.resize(self.latest_img_array, (1280, 720), interpolation=cv2.INTER_AREA)
+    res = match(img)
+    if not res:
+        self.logger.info("No interaction found")
+        if swipe_t < self.config.cafe_reward_interaction_shot_delay + 0.3:
+            self.logger.warning(
+                "Swipe duration : [ " + str(swipe_t) + "] should be a bit larger than shot delay : ""[ " +
+                str(self.config.cafe_reward_interaction_shot_delay) + " ]")
+            self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
+            if swipe_t > 0.4:
+                self.logger.info("Adjusting shot delay to [ " + str(swipe_t - 0.3) + " ], and retry")
+                self.config.cafe_reward_interaction_shot_delay = swipe_t - 0.3
+                self.config_set.set("cafe_reward_interaction_shot_delay",
+                                    self.config.cafe_reward_interaction_shot_delay)
+        time.sleep(1)
+    gift_to_cafe(self)
+    index = 0
+    while index < len(res):
+        if res[index][0] > 1174 and res[index][1] < 134:
+            res.pop(index)
+        else:
+            index += 1
+    if res:
+        res.sort(key=lambda x: x[0])
+        temp = 0
+        while temp < len(res):
+            if temp == len(res) - 1:
+                break
+            tt = temp + 1
+            pop_f = False
+            while abs(res[temp][0] - res[tt][0]) <= 10:
+                if abs(res[temp][1] - res[tt][1]) <= 10:
+                    res.pop(tt)
+                    pop_f = True
+                    if tt > len(res) - 1:
+                        break
+                else:
+                    tt = tt + 1
+                    if tt > len(res) - 1:
+                        break
+            if not pop_f:
+                temp += 1
+            else:
+                continue
+        return res
+    return []
 
 def interaction_for_cafe_solve_method3(self):
-    self.u2().pinch_in(percent=50, steps=30)
-    self.swipe(709, 558, 709, 309, duration=0.2)
-    max_times = 4
+    zoom_out(self)
+    max_times = self.config.cafe_reward_affection_pat_round
+    self.logger.info("Pat Round : [ " + str(max_times) + " ]")
     for i in range(0, max_times):
         cafe_to_gift(self)
-        shotDelay = self.config.cafe_reward_interaction_shot_delay
-        t1 = threading.Thread(target=shot, args=(self, shotDelay))
-        t1.start()
-        startT = time.time()
-        self.u2_swipe(131, 660, 1280, 660, duration=0.5)
-        swipeT = time.time() - startT
-        swipeT = round(swipeT, 3)
-        t1.join()
-        img = cv2.resize(self.latest_img_array, (1280, 720), interpolation=cv2.INTER_AREA)
-        res = match(img)
-        if not res:
-            self.logger.info("No interaction found")
-            if swipeT < self.config.cafe_reward_interaction_shot_delay + 0.3:
-                self.logger.warning(
-                    "Swipe duration : [ " + str(swipeT) + "] should be a bit larger than shot delay : ""[ " + str(
-                        shotDelay) + " ]")
-                self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
-                if swipeT > 0.4:
-                    self.logger.info("Adjusting shot delay to [ " + str(swipeT - 0.3) + " ], and retry")
-                    self.config.cafe_reward_interaction_shot_delay = swipeT - 0.3
-                    self.config_set.set("cafe_reward_interaction_shot_delay",
-                                        self.config.cafe_reward_interaction_shot_delay)
-            time.sleep(1)
+        res = find_student_position(self)
+        if len(res) == 0:
             continue
-        gift_to_cafe(self)
-        index = 0
-        while index < len(res):
-            if res[index][0] > 1174 and res[index][1] < 134:
-                res.pop(index)
-            else:
-                index += 1
-        if res:
-            res.sort(key=lambda x: x[0])
-            temp = 0
-            while temp < len(res):
-                if temp == len(res) - 1:
-                    break
-                tt = temp + 1
-                pop_f = False
-                while abs(res[temp][0] - res[tt][0]) <= 10:
-                    if abs(res[temp][1] - res[tt][1]) <= 10:
-                        res.pop(tt)
-                        pop_f = True
-                        if tt > len(res) - 1:
-                            break
-                    else:
-                        tt = tt + 1
-                        if tt > len(res) - 1:
-                            break
-                if not pop_f:
-                    temp += 1
-                else:
-                    continue
-
-            self.logger.info("totally find " + str(len(res)) + " interactions")
-            for j in range(0, len(res)):
-                self.click(res[j][0], min(res[j][1], 591), wait_over=True)
-
+        self.logger.info("Find " + str(len(res)) + " interactions")
+        for j in range(0, len(res)):
+            self.click(res[j][0], min(res[j][1], 591), wait_over=True)
         if i != max_times - 1:
             time.sleep(2)
             to_cafe(self)
@@ -192,14 +221,9 @@ def to_invitation_ticket(self, skip_first_screenshot=False):
         'cafe_invitation-ticket',
         'cafe_invitation-ticket-invalid',
     ]
-    invitation_ticket_x = {
-        'CN': 838,
-        'Global': 887,
-        'JP': 887,
-    }
     img_possible = {
         'cafe_cafe-reward-status': (905, 159),
-        'cafe_menu': (invitation_ticket_x[self.server], 647),
+        'cafe_menu': (887, 647),
         'cafe_duplicate-invite-notice': (534, 497),
         'cafe_switch-clothes-notice': (534, 497),
         'cafe_duplicate-invite': (534, 497),
@@ -264,9 +288,9 @@ def change_order_type(self, order_type):
     to_revise_order_type(self)
     order_type_location = {
         'CN': {
-            "academy": (754, 267),
-            "affection": (529, 322),
-            "starred": (532, 263),
+            "academy": (531, 267),
+            "affection": (745, 267),
+            "starred": (531, 317),
         },
         'Global': {
             "name": (534, 256),
@@ -461,11 +485,12 @@ def collect(self):
 
 
 def get_invitation_ticket_status(self):
+    log = 'Invitation Ticket '
     if color.match_rgb_feature(self, "invitation_ticket_available_to_use"):
-        self.logger.info("Invite ticket available for use")
+        self.logger.info(log + " Available To Use")
         return True
     else:
-        self.logger.info("Invitation ticket unavailable")
+        self.logger.info(log + " Unavailable To Use")
         return False
 
 
@@ -547,18 +572,12 @@ def is_english(char):
 
 
 def get_invitation_ticket_next_time(self):
-    region = {
-        'CN': (800, 584, 875, 608),
-        'Global': (850, 588, 926, 614),
-        'JP': (850, 588, 926, 614)
-    }
-    region = region[self.server]
     for i in range(0, 3):
         if i != 0:
             self.update_screenshot_array()
         res = self.ocr.get_region_res(
             baas=self,
-            region=region,
+            region=(850, 588, 926, 614),
             language='en-us',
             log_info='Invitation Ticket Next Time',
             candidates='0123456789:'

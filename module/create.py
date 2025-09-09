@@ -370,19 +370,9 @@ def set_display_setting_filter_list(self, filter_list):
 
 def filter_list_ensure_choose(self, filter_list):
     filter_type_list = self.static_config.create_filter_type_list
-    start_position = {
-        'CN': (293, 273),
-        'Global': (291, 294),
-        'JP': (291, 294)
-    }
+    start_position = (291, 294)
     dx = 235
-    dy = {
-        'CN': 56,
-        'Global': 65,
-        'JP': 65
-    }
-    start_position = start_position[self.server]
-    dy = dy[self.server]
+    dy = 65
     curr_position = start_position
     for i in range(0, len(filter_list)):
         if i == 4:
@@ -552,7 +542,7 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
 
 class CreateItemCheckState:
     # During a full phase of item creation. This class is used for information transfer and store checked item state
-    possible_x = [710, 851, 992, 1133]
+    possible_x = [717, 851, 992, 1133]
     level_weight = {
         "primary": 1,
         "normal": 2,

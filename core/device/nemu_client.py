@@ -174,7 +174,6 @@ class NemuClient:
         self.instance_id = instance_id
         self.logger = logger
         self.display_id = display_id
-
         # try to load dll from various pathAdd commentMore actions
         list_dll = [
             # MuMuPlayer12
@@ -190,14 +189,14 @@ class NemuClient:
                 self.lib = ctypes.CDLL(ipc_dll)
                 break
             except OSError as e:
-                self.logger.error(e)
+                self.logger.error(e.__str__())
                 self.logger.error(f'ipc_dll={ipc_dll} exists, but cannot be loaded')
                 continue
         if not self.lib:
             self.logger.error("NemuIpc requires MuMu12 version >= 3.8.13, please check your version.")
             self.logger.error(f'None of the following path exists')
             for path in list_dll:
-                self.logger.error(f'  {path}')
+                self.logger.error(f'{path}')
             raise NemuIpcIncompatible("Please check your MuMu Player 12 version and install path in BAAS settings.")
 
         self.logger.info('NemuIpcImpl init')

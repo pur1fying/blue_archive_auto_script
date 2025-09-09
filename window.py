@@ -21,7 +21,7 @@ from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
-from gui.util.config_gui import configGui
+from gui.util.config_gui import configGui, COLOR_THEME
 from core.config.config_set import ConfigSet
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
@@ -76,18 +76,12 @@ def check_static_config():
             f.write(default_config.STATIC_DEFAULT_CONFIG)
             return
     try:
-        with open('./config/static.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        data = update_config_overwrite(data, json.loads(default_config.STATIC_DEFAULT_CONFIG))
         with open('./config/static.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(data, ensure_ascii=False, indent=2))
-        return
-    except Exception as e:
-        print(e)
+            f.write(default_config.STATIC_DEFAULT_CONFIG)
+    except Exception:
         os.remove('./config/static.json')
         with open('./config/static.json', 'w', encoding='utf-8') as f:
             f.write(default_config.STATIC_DEFAULT_CONFIG)
-        return
 
 
 def check_switch_config(dir_path='./default_config'):
@@ -96,25 +90,21 @@ def check_switch_config(dir_path='./default_config'):
         f.write(default_config.SWITCH_DEFAULT_CONFIG)
 
 
-def check_user_config(dir_path='./default_config'):
+def check_and_update_user_config(dir_path='./default_config'):
     path = './config/' + dir_path + '/config.json'
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
-            return
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         data = update_config_reserve_old(data, json.loads(default_config.DEFAULT_CONFIG))
         with open(path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
-        return data['server']
-    except Exception as e:
-        print(e)
+    except Exception:
         os.remove(path)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(default_config.DEFAULT_CONFIG)
-        return 'CN'
 
 
 def check_single_event(new_event, old_event):
@@ -124,9 +114,11 @@ def check_single_event(new_event, old_event):
     return old_event
 
 
-def check_event_config(dir_path='./default_config', server="CN", enable_state="default"):
+def check_event_config(dir_path='./default_config', user_config=None):
     path = './config/' + dir_path + '/event.json'
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
+    server = user_config.server_mode
+    enable_state = user_config.config.new_event_enable_state
     if server != "CN":
         for i in range(0, len(default_event_config)):
             for j in range(0, len(default_event_config[i]['daily_reset'])):
@@ -179,16 +171,10 @@ def check_config(dir_path):
     for path in dir_path:
         if not os.path.exists('./config/' + path):
             os.mkdir('./config/' + path)
-        server = check_user_config(path)
-        if server == "官服" or server == "B服":
-            server = "CN"
-        elif server == "国际服" or "国际服青少年" or "韩国ONE":
-            server = "Global"
-        elif server == "日服":
-            server = "JP"
+        check_and_update_user_config(path)
         config = ConfigSet(config_dir=path)
         config.update_create_quantity_entry()
-        check_event_config(path, server, config.get("new_event_enable_state"))
+        check_event_config(path, config)
         check_switch_config(path)
 
 
@@ -316,7 +302,6 @@ class BAASTabBar(TabBar):
 class BAASLangAltButton(TransparentToolButton):
     def __init__(self, parent):
         super().__init__(parent)
-        self.setIcon(FIF.LANGUAGE.icon())
         configGui.language.valueChanged.connect(self._onLangChanged)
 
         self.setToolTip(self.tr('语言设置'))
@@ -367,14 +352,16 @@ class BAASTitleBar(MSFluentTitleBar):
 
         self.langButton = BAASLangAltButton(self)
 
-        self.historyButton = TransparentToolButton(FIF.HISTORY.icon(), self)
+        self.historyButton = TransparentToolButton(self)
         self.historyButton.setToolTip(self.tr('更新日志'))
         self.historyButton.clicked.connect(self.onHistoryButtonClicked)
 
-        self.helpButton = TransparentToolButton(FIF.HELP.icon(), self)
+        self.helpButton = TransparentToolButton(self)
         self.helpButton.setToolTip(self.tr('帮助'))
         self.helpButton.clicked.connect(self.onHelpButtonClicked)
         # self.tabBar.tabCloseRequested.connect(self.tabRemoveRequest)
+
+        self._set_icon()
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
         self.hBoxLayout.setStretch(6, 0)
@@ -382,7 +369,15 @@ class BAASTitleBar(MSFluentTitleBar):
         self.hBoxLayout.insertWidget(6, self.historyButton, 0, alignment=Qt.AlignRight)
         self.hBoxLayout.insertWidget(7, self.helpButton, 0, alignment=Qt.AlignRight)
 
-        # self.hBoxLayout.insertSpacing(8, 20)
+        configGui.themeChanged.connect(self._set_icon)
+
+    def _set_icon(self):
+        self.historyButton.setIcon(FIF.HISTORY.icon(
+            color=COLOR_THEME[configGui.theme.value]['text']))
+        self.helpButton.setIcon(FIF.HELP.icon(
+            color=COLOR_THEME[configGui.theme.value]['text']))
+        self.langButton.setIcon(FIF.LANGUAGE.icon(
+            color=COLOR_THEME[configGui.theme.value]['text']))
 
     def canDrag(self, pos: QPoint):
         if not super().canDrag(pos):
@@ -431,6 +426,7 @@ class Window(MSFluentWindow):
         from gui.fragments.home import HomeFragment
         from gui.fragments.switch import SwitchFragment
         from gui.fragments.settings import SettingsFragment
+        from gui.fragments.glob import GlobalFragment
         QApplication.processEvents()
         self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
                           [ProcessFragment(parent=self, config=x) for x in self.config_dir_list],
@@ -441,6 +437,7 @@ class Window(MSFluentWindow):
         self.processInterface = self._sub_list[1][0]
         self.schedulerInterface = self._sub_list[2][0]
         self.settingInterface = self._sub_list[3][0]
+        self.globalInterface = GlobalFragment(parent=self, config=self.config_dir_list[0])
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
         self.initNavigation()
@@ -476,7 +473,8 @@ class Window(MSFluentWindow):
             self.addSubInterface(self.homeInterface, FIF.HOME, self.tr('主页')),
             self.addSubInterface(self.processInterface, FIF.CALENDAR, self.tr('调度')),
             self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, self.tr('配置')),
-            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置'))
+            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置')),
+            self.addSubInterface(self.globalInterface, FIF.UPDATE, self.tr('更新设置'))
         ]
 
         for ind, btn in enumerate(self.navi_btn_list):
@@ -534,11 +532,18 @@ class Window(MSFluentWindow):
     def onNavigationChanged(self, index: int):
         for ind, btn in enumerate(self.navi_btn_list):
             btn.setSelected(True if ind == index else False)
+        if index == 4:
+            self.globalInterface.lazy_init()
+            self.stackedWidget.setCurrentWidget(self.globalInterface, popOut=False)
+            return
         objectName = self.tabBar.currentTab().routeKey()
         col = [x.object_name for x in self._sub_list[0]].index(objectName)
         self.dispatchSubView(index, col)
 
     def onTabChanged(self, _: int):
+        obj_name = self.stackedWidget.currentWidget().objectName()
+        if obj_name.endswith("GlobalFragment"):
+            return
         self.__switchStatus = False
         objectName = self.tabBar.currentTab().routeKey()
         row = [x.isSelected for x in self.navi_btn_list].index(True)
@@ -563,17 +568,21 @@ class Window(MSFluentWindow):
                                    config=self.config_dir_list[0])
                 return
             serial_name = str(int(datetime.datetime.now().timestamp()))
-            os.mkdir(f'./config/{serial_name}')
-            check_event_config(serial_name)
-            check_switch_config(serial_name)
+            config_dir = f'./config/{serial_name}'
+            os.mkdir(config_dir)
             data = json.loads(default_config.DEFAULT_CONFIG)
             data['name'] = text
-            with open(f'./config/{serial_name}/config.json', 'w', encoding='utf-8') as f:
+            user_config_path = f'{config_dir}/config.json'
+            with open(user_config_path, 'w', encoding='utf-8') as f:
                 f.write(json.dumps(data, ensure_ascii=False, indent=2))
+            _config = ConfigSet(config_dir=serial_name)
+
+            check_event_config(serial_name, _config)
+            check_switch_config(serial_name)
+
             from gui.fragments.home import HomeFragment
             from gui.fragments.switch import SwitchFragment
             from gui.fragments.settings import SettingsFragment
-            _config = ConfigSet(config_dir=serial_name)
             _config.add_signal("notify_signal", self.notify_signal)
             _config.set_window(self)
             _sub_list_ = [

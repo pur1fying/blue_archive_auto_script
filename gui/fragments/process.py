@@ -94,7 +94,7 @@ class ProcessFragment(ScrollArea):
         t_daemon.start()
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
-        self.setObjectName(self.object_name)
+        self.setObjectName(f"{self.object_name}.ProcessFragment")
 
     def refresh_status(self):
         while True:

@@ -17,7 +17,7 @@ def implement(self):
 
 def to_joint_firing_menu(self):
     drill_position = {
-        "CN": (1112, 452),
+        "CN": (1002, 439),
         "Global": (1002, 439),
         "JP": (901, 577)
     }
