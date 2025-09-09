@@ -1,4 +1,4 @@
-name: Regularly sync game's activities
+name: sync_game_activity
 
 on:
   schedule:
