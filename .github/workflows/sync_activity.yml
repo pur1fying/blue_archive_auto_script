@@ -31,5 +31,27 @@ jobs:
         run: ls -R module/activities/
       - name: Run activity updater
         run: python3 module/activities/activity_updater.py
-
-
+      - name: Copy updated activity.json if changed
+        if: success() # Only upload and create PR if any new updates to the existing activity data
+        run: cp module/activities/tmp_activity.json module/activities/activity.json
+      - name: Upload update log as artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: activity-update-log
+          path: module/activities/activity_update_log.md
+      - name: Set the output log as PR body
+        if: success()
+        id: pr_body
+        run: |
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat module/activities/activity_update_log.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Create Pull Request if updated
+        if: success()
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore(activity): sync activity.json (auto-update by workflow)"
+          title: "CI/sync activity.json (auto-update by workflow)"
+          body: "${{ steps.pr_body.outputs.body }}"
+          branch: "auto-sync-activity"
