@@ -316,3 +316,7 @@ def update_activity():
     activities = update_activity_schaledb()
     print(json.dumps(activities, ensure_ascii=False))
     return True
+
+
+if __name__ == "__main__":
+    update_activity()
