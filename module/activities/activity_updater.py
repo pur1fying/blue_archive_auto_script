@@ -1,7 +1,10 @@
 import copy
 import json
+import os
 import re
+import sys
 import time
+from collections import OrderedDict
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -135,6 +138,25 @@ def _download_json(url):
         print(f"Failed to fetch data from {url}, error code: {response.status_code}")
         return None
     return response.json()
+
+
+def _unify_table(table_high_prio: dict, table_low_prio: dict, template_table: dict):
+    result = {}
+    for key in template_table.keys():
+        if key in table_high_prio:
+            if key in table_low_prio:
+                if table_high_prio[key] is None and table_low_prio[key] is not None:
+                    result[key] = table_low_prio[key]
+                elif type(template_table[key]) == dict:
+                    result[key] = _unify_table(table_high_prio[key], table_low_prio[key], template_table[key])
+                else:
+                    result[key] = table_high_prio[key]
+            else:
+                result[key] = table_high_prio[key]
+        else:
+            if key in table_low_prio:
+                result[key] = table_low_prio[key]
+    return result
 
 
 def update_activity_gamekee_api():
@@ -456,7 +478,7 @@ def update_activity_schaledb(localization="en"):
                     "end_time": str(end_time)
                 }
             elif raid_type == "EliminateRaid":
-                result[server]["Raids"]["grand_assault"] ={
+                result[server]["Raids"]["grand_assault"] = {
                     "name": raid_names_dict[id],
                     "begin_time": str(start_time),
                     "end_time": str(end_time)
@@ -485,8 +507,31 @@ def update_activity():
     print("BAWiki Response: \n" + json.dumps(bawiki_response, ensure_ascii=False))
     schaledb_response = update_activity_schaledb()
     print("SchaleDB Response: \n" + json.dumps(schaledb_response, ensure_ascii=False))
-    return True
+
+    # For final result, we prefer BAWiki > SchaleDB > Gamekee API
+    final_result = _unify_table(bawiki_response, schaledb_response, FULL_RESULT_FORMAT)
+    final_result = _unify_table(final_result, gamekee_response, FULL_RESULT_FORMAT)
+
+    print("Final Merged Result: \n" + json.dumps(final_result, ensure_ascii=False))
+    return final_result
 
 
 if __name__ == "__main__":
-    update_activity()
+    final_result = update_activity()
+
+    # determine if any data is updated
+    if os.path.exists("activity.json"):
+        with open(os.path.abspath("activity.json"), "r", encoding="utf-8") as f:
+            original_data = json.load(f)
+            original_data.pop("last_update_time")  # remove last_update_time for comparison
+            if original_data == final_result:
+                print("No changes detected in activity data. Exiting without updating the file.")
+                sys.exit(1)
+
+    final_result["last_update_time"] = int(time.time())
+    ordered_keys = ["last_update_time", "JP", "Global", "CN"]
+    ordered_result = OrderedDict((k, final_result[k]) for k in ordered_keys if k in final_result)
+    with open("tmp_activity.json", "w", encoding="utf-8") as f:
+        json.dump(ordered_result, f, ensure_ascii=False, indent=4)
+    print("Activity data has been updated and saved to tmp_activity.json")
+    sys.exit(0)
