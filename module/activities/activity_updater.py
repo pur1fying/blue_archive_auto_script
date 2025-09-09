@@ -521,7 +521,8 @@ def update_activity():
 
 if __name__ == "__main__":
     with open("activity_update_log.md", "w", encoding="utf-8") as output:
-        sys.stdout = output
+        # sys.stdout = output
+        # sys.stderr = output
         final_result = update_activity()
 
         # determine if any data is updated

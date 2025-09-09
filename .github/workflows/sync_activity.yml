@@ -29,15 +29,14 @@ jobs:
           pip install -r module/activities/requirements-activity-updater.txt
       - name: Run activity updater
         run: python3 module/activities/activity_updater.py
-      - name: Copy updated activity.json if changed
-        if: success() # Only upload and create PR if any new updates to the existing activity data
-        run: cp module/activities/tmp_activity.json module/activities/activity.json
       - name: Upload update log as artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: activity-update-log
           path: module/activities/activity_update_log.md
+      - name: Copy updated activity.json if changed
+        if: success() # Only upload and create PR if any new updates to the existing activity data
+        run: cp module/activities/tmp_activity.json module/activities/activity.json
       - name: Set the output log as PR body
         if: success()
         id: pr_body
