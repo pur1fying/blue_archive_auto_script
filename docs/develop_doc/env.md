@@ -14,7 +14,7 @@ git clone https://github.com/pur1fying/blue_archive_auto_script.git
 
 下面将详尽叙述可选的几种配置环境的方法，以下方法任选其一即可
 我们推荐使用IDE自带的虚拟环境功能，快速创建和管理虚拟环境
-(例如 Pycharm 的 [Virtualenv](https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html) 功能)
+(例如 [使用 Pycharm 快速配置虚拟环境](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html))
 同时，也可以使用下面的方案来手动创建和管理虚拟环境
 
 
