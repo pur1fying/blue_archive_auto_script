@@ -536,7 +536,7 @@ if __name__ == "__main__":
                     original_data.pop("last_update_time")  # remove last_update_time for comparison
                     if original_data == final_result:
                         print("> No changes detected in activity data. Exiting without updating the file.")
-                        sys.exit(1)
+                        sys.exit(0)
 
             final_result["last_update_time"] = int(time.time())
             ordered_keys = ["last_update_time", "JP", "Global", "CN"]
@@ -544,4 +544,3 @@ if __name__ == "__main__":
             with open(tmp_json_path, "w", encoding="utf-8") as f:
                 json.dump(ordered_result, f, ensure_ascii=False, indent=4)
             print("> Activity data has been updated and saved.")
-            sys.exit(0)
