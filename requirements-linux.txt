@@ -1,13 +1,13 @@
 lmdb
-PyQt5
+PyQt5 == 5.15.11
 numpy < 2.0
 av == 12.0.0
 imgaug
 dulwich
 adbutils == 2.2.1
 uiautomator2 == 2.16.23
-opencv-python-headless
-PyQt-Fluent-Widgets
+opencv-python == 4.8.1.78
+PyQt-Fluent-Widgets == 1.2.0
 psutil
 tomli == 2.2.1
 tomli_w == 1.2.0
