@@ -1,5 +1,5 @@
 {
-    "last_update_time": 1757456342,
+    "last_update_time": 1757484854,
     "JP": {
         "Events": {
             "name": "Sheside outside",
@@ -8,7 +8,12 @@
         },
         "Raids": {
             "total_assault": null,
-            "grand_assault": null,
+            "grand_assault": {
+                "Stages": "",
+                "name": "Decagrammaton: Chesed (Grand Assault)",
+                "begin_time": "1757469600",
+                "end_time": "1758049140"
+            },
             "limit_break_assault": {
                 "name": "Decagrammaton: Chokmah (Limit Break Raid)",
                 "begin_time": "1755741600",
