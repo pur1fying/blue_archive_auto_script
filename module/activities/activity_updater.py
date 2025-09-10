@@ -313,6 +313,7 @@ def update_activity_bawiki():
             "Start date": "begin_time",
             "End date": "end_time",
             "Season": None,
+            "Stages": None,
             "Notes": None
         })
     Global_grand_assault = _table_transform(
@@ -322,6 +323,7 @@ def update_activity_bawiki():
             "Start date": "begin_time",
             "End date": "end_time",
             "Season": None,
+            "Stages": None,
             "Notes": None
         })
 
