@@ -1,5 +1,5 @@
 {
-    "last_update_time": 1757484854,
+    "last_update_time": 1757604596,
     "JP": {
         "Events": {
             "name": "Sheside outside",
@@ -9,7 +9,6 @@
         "Raids": {
             "total_assault": null,
             "grand_assault": {
-                "Stages": "",
                 "name": "Decagrammaton: Chesed (Grand Assault)",
                 "begin_time": "1757469600",
                 "end_time": "1758049140"
@@ -64,9 +63,9 @@
     "CN": {
         "Events": [
             {
-                "name": "From Opera 0068 with Love!",
-                "begin_time": "1756360800",
-                "end_time": "1757570400"
+                "name": "New Year's Aperitif ~One-and-Done Match~",
+                "begin_time": "1757570400",
+                "end_time": "1758780000"
             }
         ],
         "Raids": {
@@ -74,16 +73,16 @@
             "grand_assault": null,
             "limit_break_assault": null,
             "joint_firing_drill": {
-                "name": "综合战术测试 · 射击 · 轻装甲",
+                "name": "Defense Drill",
                 "begin_time": "1757311200",
-                "end_time": "1757879940"
+                "end_time": "1757880000"
             }
         },
         "Rewards": {
             "commissions_rewards": 1,
             "scrimmage_rewards": 1,
-            "bounty_hunts_rewards": 1,
-            "schedule_rewards": 1,
+            "bounty_hunts_rewards": 2,
+            "schedule_rewards": 2,
             "normal_mission_rewards": 1,
             "hard_mission_rewards": 1,
             "level_exp_rewards": 1
