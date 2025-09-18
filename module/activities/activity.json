@@ -1,18 +1,10 @@
 {
-    "last_update_time": 1757604596,
+    "last_update_time": 1758227944,
     "JP": {
-        "Events": {
-            "name": "Sheside outside",
-            "begin_time": "1756864800",
-            "end_time": "1758074400"
-        },
+        "Events": [],
         "Raids": {
             "total_assault": null,
-            "grand_assault": {
-                "name": "Decagrammaton: Chesed (Grand Assault)",
-                "begin_time": "1757469600",
-                "end_time": "1758049140"
-            },
+            "grand_assault": null,
             "limit_break_assault": {
                 "name": "Decagrammaton: Chokmah (Limit Break Raid)",
                 "begin_time": "1755741600",
@@ -21,42 +13,38 @@
             "joint_firing_drill": null
         },
         "Rewards": {
-            "commissions_rewards": 1,
+            "commissions_rewards": 2,
             "scrimmage_rewards": 1,
             "bounty_hunts_rewards": 1,
             "schedule_rewards": 1,
             "normal_mission_rewards": 1,
-            "hard_mission_rewards": 2,
+            "hard_mission_rewards": 1,
             "level_exp_rewards": 1
         }
     },
     "Global": {
-        "Events": {
-            "name": "From Opera 0068 with Love!",
-            "begin_time": "1757383200",
-            "end_time": "1757988000"
-        },
+        "Events": [],
         "Raids": {
             "total_assault": null,
-            "grand_assault": null,
+            "grand_assault": {
+                "name": "Decagrammaton: Chesed (Grand Assault)",
+                "begin_time": "1757988000",
+                "end_time": "1758567540"
+            },
             "limit_break_assault": {
                 "name": "Celestial Pantheon: The Fury of Set (Limit Break Raid)",
                 "begin_time": "1756260000",
                 "end_time": "1758567540"
             },
-            "joint_firing_drill": {
-                "name": "Assault Exercise",
-                "begin_time": "1757383200",
-                "end_time": "1757962740"
-            }
+            "joint_firing_drill": null
         },
         "Rewards": {
             "commissions_rewards": 1,
-            "scrimmage_rewards": 2,
+            "scrimmage_rewards": 1,
             "bounty_hunts_rewards": 1,
-            "schedule_rewards": 1,
-            "normal_mission_rewards": 1,
-            "hard_mission_rewards": 2,
+            "schedule_rewards": 2,
+            "normal_mission_rewards": 2,
+            "hard_mission_rewards": 1,
             "level_exp_rewards": 1
         }
     },
@@ -72,18 +60,14 @@
             "total_assault": null,
             "grand_assault": null,
             "limit_break_assault": null,
-            "joint_firing_drill": {
-                "name": "Defense Drill",
-                "begin_time": "1757311200",
-                "end_time": "1757880000"
-            }
+            "joint_firing_drill": null
         },
         "Rewards": {
             "commissions_rewards": 1,
             "scrimmage_rewards": 1,
-            "bounty_hunts_rewards": 2,
-            "schedule_rewards": 2,
-            "normal_mission_rewards": 1,
+            "bounty_hunts_rewards": 1,
+            "schedule_rewards": 1,
+            "normal_mission_rewards": 2,
             "hard_mission_rewards": 1,
             "level_exp_rewards": 1
         }
