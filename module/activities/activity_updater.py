@@ -46,69 +46,92 @@ FULL_RESULT_FORMAT = {
     "CN": copy.deepcopy(BASIC_RESULT_FORMAT)
 }
 
+DEFAULT_HEADER_MAP = {
+    "Name (EN)": "name",
+    "Name (JP)": None,
+    "Raid name": "name",
+    "Start Date": "begin_time",
+    "End Date": "end_time",
+    "Period": None,
+    "Notes": None,
+    "Season": None,
+    "Stages": None,
+    "Challenge": None,
+    "Special Rules": None,
+    "": None,
+}
 
-def _fetch_activity_table(html, xpath: str):
+
+def _fetch_activity_table(html, xpath: str, header_map: dict = None, force_list: bool = False):
     activities = []
-    event_schedules = html.xpath(xpath)
-    event_trs = event_schedules[0].xpath('.//tr')
+
+    # Locate the table using the provided XPath
+    try:
+        event_schedules = html.xpath(xpath)[0]
+    except IndexError:
+        raise KeyError("No event table found with the provided XPath.")
+
+    event_trs = event_schedules.xpath('.//tr')
     if len(event_trs) < 1:
         raise KeyError("No event data found.")
-    keys = [''.join(th.itertext()).strip() for th in event_trs[0]]
-    start_date_index = keys.index('Start date') if 'Start date' in keys else -1
-    end_date_index = keys.index('End date') if 'End date' in keys else -1
-    period_index = keys.index('Period') if 'Period' in keys else -1
-    empty_index = keys.index('') if '' in keys else -1
+
+    # Extract table headers
+    headers = [''.join(th.itertext()).strip() for th in event_trs[0]]
+
+    start_date_index = headers.index('Start date') if 'Start date' in headers else -1
+    end_date_index = headers.index('End date') if 'End date' in headers else -1
+    period_index = headers.index('Period') if 'Period' in headers else -1
     for event_tr in event_trs[1:]:
-        values = [''.join(item.itertext()).strip() for item in event_tr]  # Remaining columns are the <th>
-        if len(values) < 3:
-            raise KeyError("Not enough columns in the event data.")
+        values = [''.join(item.itertext()).strip() for item in event_tr]
+
+        # If there's a start and end date column, convert them to epoch time
         if start_date_index != -1 and end_date_index != -1:
-            # convert to epoch time
-            start_date = _to_epoch_time(values[start_date_index])
-            end_date = _to_epoch_time(values[end_date_index])
-            values[start_date_index] = str(start_date)
-            values[end_date_index] = str(end_date)
+            start_time, end_time = _to_epoch_time(values[start_date_index]), _to_epoch_time(values[end_date_index])
+
+            # Skip events that are not active
             current_time = int(time.time())
-            if current_time < start_date or current_time > end_date:
-                # Skip events that are not active
+            if current_time < start_time or current_time > end_time:
                 continue
+
+            values[start_date_index], values[end_date_index] = str(start_time), str(end_time)
         if period_index != -1:
             dates = values[period_index].split(' ~ ')
-            start_date = _to_epoch_time(dates[0])
-            end_date = _to_epoch_time(dates[1])
+            if len(dates) != 2:
+                raise KeyError("Period column does not contain valid start and end dates.")
+            start_time, end_time = _to_epoch_time(dates[0]), _to_epoch_time(dates[1])
+
+            # Skip events that are not active
             current_time = int(time.time())
-            if current_time < start_date or current_time > end_date:
-                # Skip events that are not active
+            if current_time < start_time or current_time > end_time:
                 continue
-            keys.pop(period_index)
-            keys.append("Start date")
-            keys.append("End date")
-            values.pop(period_index)
-            values.append(str(start_date))
-            values.append(str(end_date))
-        if empty_index != -1:
-            keys.pop(empty_index)
-            values.pop(empty_index)
-        activities.append(dict(zip(keys, values)))
 
-    # Sort activities by end date
-    activities.sort(key=lambda x: x[keys[2]], reverse=True)
-    return activities
+            # Manually add begin_time and end_time columns
+            headers += ["begin_time", "end_time"]
+            values += [str(start_time), str(end_time)]
 
-
-def _table_transform(table: list, key_map: dict):
-    for row in table:
-        for old_key, new_key in key_map.items():
-            if old_key in row:
-                if new_key is None:
-                    row.pop(old_key)
+        # update the table with key_map settings
+        if header_map is None:
+            header_map = {}
+        header_map.update(DEFAULT_HEADER_MAP)
+        pop_list = []
+        for i in range(len(headers)):
+            if headers[i] in header_map:
+                if header_map[headers[i]] is not None:
+                    headers[i] = header_map[headers[i]]
                 else:
-                    row[new_key] = row.pop(old_key)
-    if len(table) == 0:
-        return None
-    elif len(table) == 1:
-        return table[0]
-    return table
+                    pop_list.insert(0, i)
+        for idx in pop_list:
+            headers.pop(idx)
+            values.pop(idx)
+        activities.append(dict(zip(headers, values)))
+    # Sort activities by end date
+    activities.sort(key=lambda x: x[headers[2]], reverse=True)
+    if not force_list:
+        if len(activities) == 0:
+            return None
+        elif len(activities) == 1:
+            return activities[0]
+    return activities
 
 
 def _to_epoch_time(s: str) -> int:
@@ -161,18 +184,16 @@ def _unify_table(table_high_prio: dict, table_low_prio: dict, template_table: di
 
 
 def update_activity_gamekee_api():
-    api_url = "https://www.gamekee.com/v1/activity/query"
-    Params = {
-        "active_at": int(time.time())
-    }
     response = requests.get(
-        url=api_url,
+        url="https://www.gamekee.com/v1/activity/query",
         headers=HEADERS,
-        params=Params
+        params={
+            "active_at": int(time.time())
+        }
     )
     if response.status_code != 200 or response.json()["code"] != 0:
         print(f"Failed to fetch activity data, error code: {response.status_code} | {response.json()['code']}")
-        return
+        return None
 
     pub_area_translator = {"日服": "JP", "国际服": "Global", "国服": "CN"}
     result = copy.deepcopy(FULL_RESULT_FORMAT)
@@ -185,36 +206,23 @@ def update_activity_gamekee_api():
             continue
         pub_area = pub_area_translator[activity["pub_area"]]
         title = activity["title"]
+
+        regularized_activity = {
+            "name": title,
+            "begin_time": str(activity["begin_at"]),
+            "end_time": str(activity["end_at"])
+        }
+
         if title.startswith("[活动]"):
-            result[pub_area]["Events"].append({
-                "name": title.replace("[活动]", "").strip(),
-                "begin_time": str(activity["begin_at"]),
-                "end_time": str(activity["end_at"])
-            })
+            result[pub_area]["Events"].append(regularized_activity)
         elif title.startswith("总力战"):
-            result[pub_area]["Raids"]["total_assault"] = {
-                "name": title,
-                "begin_time": str(activity["begin_at"]),
-                "end_time": str(activity["end_at"])
-            }
+            result[pub_area]["Raids"]["total_assault"] = regularized_activity
         elif title.startswith("大决战"):
-            result[pub_area]["Raids"]["grand_assault"] = {
-                "name": title,
-                "begin_time": str(activity["begin_at"]),
-                "end_time": str(activity["end_at"])
-            }
+            result[pub_area]["Raids"]["grand_assault"] = regularized_activity
         elif title.startswith("制约解除决战"):
-            result[pub_area]["Raids"]["limit_break_assault"] = {
-                "name": title,
-                "begin_time": str(activity["begin_at"]),
-                "end_time": str(activity["end_at"])
-            }
+            result[pub_area]["Raids"]["limit_break_assault"] = regularized_activity
         elif "演习" in title or "战术" in title or "考试" in title:
-            result[pub_area]["Raids"]["joint_firing_drill"] = {
-                "name": title,
-                "begin_time": str(activity["begin_at"]),
-                "end_time": str(activity["end_at"])
-            }
+            result[pub_area]["Raids"]["joint_firing_drill"] = regularized_activity
         else:
             if "特别依赖" in title or "特殊任务" in title or "特别委托" in title:
                 result[pub_area]["Rewards"]["commissions_rewards"] = int(title[-2])
@@ -248,26 +256,14 @@ def update_activity_bawiki():
         headers=HEADERS,
     )
     events_html = etree.HTML(events_response.content.decode('utf-8'), parser=etree.HTMLParser(encoding='utf-8'))
-    JP_event_schedules = _table_transform(
-        _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version"]/table'),
-        {
-            "Name (EN)": "name",
-            "Name (JP)": None,
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Notes": None
-        })
-    Global_event_schedules = _table_transform(
-        _fetch_activity_table(events_html, '//*[@id="tabber-Global_version"]/table'),
-        {
-            "Name (EN)": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Notes": None
-        })
+    JP_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version"]/table',
+                                               force_list=True)
+    Global_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Global_version"]/table',
+                                                   force_list=True)
     # JP_mini_events = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version_2"]/table')
     # Global_mini_events = _fetch_activity_table(events_html, '//*[@id="tabber-Global_version_2"]/table')
-    reward_campaigns = _fetch_activity_table(events_html, '//h1[@id="Reward_campaigns"]/following::table[1]')
+    reward_campaigns = _fetch_activity_table(events_html, '//h1[@id="Reward_campaigns"]/following::table[1]',
+                                             force_list=True)
 
     # ------------------------------------------------------------------------
     # Fetch total assaults from its page
@@ -278,24 +274,8 @@ def update_activity_bawiki():
     )
     total_assault_html = etree.HTML(total_assault_response.content.decode('utf-8'),
                                     parser=etree.HTMLParser(encoding='utf-8'))
-    JP_total_assault = _table_transform(
-        _fetch_activity_table(total_assault_html, '//*[@id="tabber-JP"]/table'),
-        {
-            "Raid name": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Season": None,
-            "Notes": None
-        })
-    Global_total_assault = _table_transform(
-        _fetch_activity_table(total_assault_html, '//*[@id="tabber-Global"]/table'),
-        {
-            "Raid name": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Season": None,
-            "Notes": None
-        })
+    JP_total_assault = _fetch_activity_table(total_assault_html, '//*[@id="tabber-JP"]/table')
+    Global_total_assault = _fetch_activity_table(total_assault_html, '//*[@id="tabber-Global"]/table')
 
     # ------------------------------------------------------------------------
     # Fetch grand assaults from its page
@@ -306,26 +286,8 @@ def update_activity_bawiki():
     )
     grand_assault_html = etree.HTML(grand_assault_response.content.decode('utf-8'),
                                     parser=etree.HTMLParser(encoding='utf-8'))
-    JP_grand_assault = _table_transform(
-        _fetch_activity_table(grand_assault_html, '//*[@id="tabber-JP"]/table'),
-        {
-            "Raid name": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Season": None,
-            "Stages": None,
-            "Notes": None
-        })
-    Global_grand_assault = _table_transform(
-        _fetch_activity_table(grand_assault_html, '//*[@id="tabber-Global"]/table'),
-        {
-            "Raid name": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Season": None,
-            "Stages": None,
-            "Notes": None
-        })
+    JP_grand_assault = _fetch_activity_table(grand_assault_html, '//*[@id="tabber-JP"]/table')
+    Global_grand_assault = _fetch_activity_table(grand_assault_html, '//*[@id="tabber-Global"]/table')
 
     # ------------------------------------------------------------------------
     # Fetch limit break assaults from its page
@@ -336,26 +298,8 @@ def update_activity_bawiki():
     )
     limit_break_assault_html = etree.HTML(limit_break_assault_response.content.decode('utf-8'),
                                           parser=etree.HTMLParser(encoding='utf-8'))
-    JP_limit_break_assault = _table_transform(
-        _fetch_activity_table(limit_break_assault_html, '//*[@id="tabber-JP"]/table'),
-        {
-            "Raid name": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Challenge": None,
-            "Season": None,
-            "Notes": None
-        })
-    Global_limit_break_assault = _table_transform(
-        _fetch_activity_table(limit_break_assault_html, '//*[@id="tabber-Global"]/table'),
-        {
-            "Raid name": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Challenge": None,
-            "Season": None,
-            "Notes": None
-        })
+    JP_limit_break_assault = _fetch_activity_table(limit_break_assault_html, '//*[@id="tabber-JP"]/table')
+    Global_limit_break_assault = _fetch_activity_table(limit_break_assault_html, '//*[@id="tabber-Global"]/table')
 
     # ------------------------------------------------------------------------
     # Fetch joint firing drills from its page
@@ -366,23 +310,9 @@ def update_activity_bawiki():
     )
     joint_firing_drill_html = etree.HTML(joint_firing_drill_response.content.decode('utf-8'),
                                          parser=etree.HTMLParser(encoding='utf-8'))
-    JP_joint_firing_drill = _table_transform(
-        _fetch_activity_table(joint_firing_drill_html, '//*[@id="tabber-Japanese_version"]/table'),
-        {
-            "Name": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Special Rules": None
-        })
+    JP_joint_firing_drill = _fetch_activity_table(joint_firing_drill_html, '//*[@id="tabber-Japanese_version"]/table')
 
-    Global_joint_firing_drill = _table_transform(
-        _fetch_activity_table(joint_firing_drill_html, '//*[@id="tabber-Global_version"]/table'),
-        {
-            "Name": "name",
-            "Start date": "begin_time",
-            "End date": "end_time",
-            "Special Rules": None
-        })
+    Global_joint_firing_drill = _fetch_activity_table(joint_firing_drill_html, '//*[@id="tabber-Global_version"]/table')
 
     result = copy.deepcopy(FULL_RESULT_FORMAT)
     result.pop("CN")  # BAWiki does not offer CN server's activity data
