@@ -348,6 +348,7 @@ DEFAULT_CONFIG = """
     "emulator_wait_time": "180",
     "ArenaLevelDiff": 0,
     "ArenaComponentNumber": 1,
+    "ArenaStopFightWhenRank1": false,
     "maxArenaRefreshTimes": 10,
     "createPriority_phase1": "",
     "createPriority_phase2": "",

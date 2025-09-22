@@ -15,6 +15,7 @@ class Config:
     emulator_wait_time: str
     ArenaLevelDiff: int
     ArenaComponentNumber: int
+    ArenaStopFightWhenRank1: bool
     maxArenaRefreshTimes: int
     createPriority_phase1: str
     createPriority_phase2: str
