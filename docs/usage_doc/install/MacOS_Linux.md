@@ -13,7 +13,14 @@
     conda create -n baas_env python=3.9.21
     conda activate baas_env
     ```
-3. 安装依赖
+3. 克隆仓库
+    ```
+    git pull https://github.com/pur1fying/blue_archive_auto_script.git
+    ```    
+4. **进入安装目录**
+    ```bash
+    cd blue_archive_auto_script
+5. 安装依赖
    ```bash
     pip install -r requirements-linux.txt
     ```
@@ -23,7 +30,7 @@
     pip install -r requirements-linux.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
     ```
 
-4. 启动
+6. 启动
    ```bash
     python window.py
     ```
