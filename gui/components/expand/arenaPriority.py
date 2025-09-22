@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
-from qfluentwidgets import LineEdit, ComboBox, PushButton
+from qfluentwidgets import LineEdit, ComboBox, PushButton, CheckBox
 
 from gui.util import notification
 
@@ -13,18 +13,25 @@ class Layout(QWidget):
         self.setFixedHeight(150)
         self.info_widget = self.parent()
         self.hBoxLayout = QVBoxLayout(self)
+        self.lay_0 = QHBoxLayout()
         self.lay_1 = QHBoxLayout()
         self.lay_2 = QHBoxLayout()
         self.lay_3 = QHBoxLayout()
+        self.label_0 = QLabel(self.tr('在排名为第一时不进行战斗'), self)
         self.label_1 = QLabel(self.tr('输入你需要对手比你低几级，高几级则填负数：'), self)
         self.label_2 = QLabel(self.tr('输入你最多需要刷新几次：'), self)
         self.label_3 = QLabel(self.tr('自定义对手的编号：'), self)
+        self.input_0 = CheckBox(self)
         self.input_1 = LineEdit(self)
         self.input_2 = LineEdit(self)
         self.input_3 = ComboBox(self)
+
         self.accept_1 = PushButton(self.tr('确定'), self)
         self.accept_2 = PushButton(self.tr('确定'), self)
         self.accept_3 = PushButton(self.tr('确定'), self)
+
+        self.stop_fight_if_first = self.config.get('ArenaStopFightWhenRank1')
+        self.input_0.setChecked(self.stop_fight_if_first)
 
         self.level_diff = self.config.get('ArenaLevelDiff')
         validator_1 = QIntValidator(-50, 50)
@@ -41,9 +48,13 @@ class Layout(QWidget):
         self.input_3.addItems([str(i) for i in range(1, 4)])
         self.input_3.setCurrentIndex(int(self.arena_component_number) - 1)
 
+        self.input_0.stateChanged.connect(self.__accept_0)
         self.accept_1.clicked.connect(self.__accept_1)
         self.accept_2.clicked.connect(self.__accept_2)
         self.accept_3.clicked.connect(self.__accept_3)
+
+        self.lay_0.addWidget(self.label_0, 20, Qt.AlignLeft)
+        self.lay_0.addWidget(self.input_0, 0, Qt.AlignRight)
 
         self.lay_1.addWidget(self.label_1, 20, Qt.AlignLeft)
         self.lay_1.addWidget(self.input_1, 0, Qt.AlignRight)
@@ -61,9 +72,15 @@ class Layout(QWidget):
         self.hBoxLayout.addSpacing(16)
         self.hBoxLayout.setAlignment(Qt.AlignCenter)
 
+        self.hBoxLayout.addLayout(self.lay_0)
         self.hBoxLayout.addLayout(self.lay_1)
         self.hBoxLayout.addLayout(self.lay_2)
         self.hBoxLayout.addLayout(self.lay_3)
+
+    def __accept_0(self, _=None):
+        self.stop_fight_if_first = self.input_0.isChecked()
+        self.config.set('ArenaStopFightWhenRank1', self.stop_fight_if_first)
+        notification.success(self.tr('设置成功'), f'{self.tr("在排名为第一时不进行战斗：")}{self.stop_fight_if_first}', self.config)
 
     def __accept_1(self):
         self.level_diff = int(self.input_1.text())

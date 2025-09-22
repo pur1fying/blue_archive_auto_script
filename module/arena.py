@@ -12,7 +12,7 @@ def implement(self):
     else:
         self.logger.info("Ticket: " + str(tickets))
         if self.config.ArenaStopFightWhenRank1:
-            rank_region = (133, 287, 333, 335),
+            rank_region = (133, 287, 333, 335)
             rank = self.ocr.recognize_int(self, rank_region, "Arena Rank", 0.5)
             if rank == 1:
                 self.logger.info("Current Rank is 1, Stop Fighting in Arena.")
