@@ -1,5 +1,5 @@
 {
-    "last_update_time": 1758227944,
+    "last_update_time": 1758573526,
     "JP": {
         "Events": [],
         "Raids": {
@@ -26,24 +26,16 @@
         "Events": [],
         "Raids": {
             "total_assault": null,
-            "grand_assault": {
-                "name": "Decagrammaton: Chesed (Grand Assault)",
-                "begin_time": "1757988000",
-                "end_time": "1758567540"
-            },
-            "limit_break_assault": {
-                "name": "Celestial Pantheon: The Fury of Set (Limit Break Raid)",
-                "begin_time": "1756260000",
-                "end_time": "1758567540"
-            },
+            "grand_assault": null,
+            "limit_break_assault": null,
             "joint_firing_drill": null
         },
         "Rewards": {
             "commissions_rewards": 1,
             "scrimmage_rewards": 1,
-            "bounty_hunts_rewards": 1,
-            "schedule_rewards": 2,
-            "normal_mission_rewards": 2,
+            "bounty_hunts_rewards": 2,
+            "schedule_rewards": 1,
+            "normal_mission_rewards": 1,
             "hard_mission_rewards": 1,
             "level_exp_rewards": 1
         }
@@ -67,8 +59,8 @@
             "scrimmage_rewards": 1,
             "bounty_hunts_rewards": 1,
             "schedule_rewards": 1,
-            "normal_mission_rewards": 2,
-            "hard_mission_rewards": 1,
+            "normal_mission_rewards": 1,
+            "hard_mission_rewards": 2,
             "level_exp_rewards": 1
         }
     }
