@@ -1,10 +1,45 @@
-from PyQt5.QtCore import Qt, QTranslator, QLocale
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
-from qfluentwidgets import LineEdit, CheckBox, PushButton
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QGridLayout
+from qfluentwidgets import LineEdit, PushButton
 
 from core.utils import delay
 from gui.util import notification
+
+
+class StateButton(PushButton):
+    """一个可切换状态的小按钮，行为类似 CheckBox"""
+
+    def __init__(self, parent=None, checked=False):
+        super().__init__(parent=parent)  # 不传 text，避免触发递归
+        self.setText("")  # 手动清空
+        self.setCheckable(True)
+        self.setChecked(checked)
+        self.setFixedSize(24, 24)
+        self.update_style()
+        self.toggled.connect(self.update_style)
+
+    def update_style(self):
+        if self.isChecked():
+            self.setText("✔")
+            self.setStyleSheet("""
+                PushButton {
+                    background-color: #0078d7;
+                    color: white;
+                    border: 1px solid #005a9e;
+                    border-radius: 4px;
+                }
+            """)
+        else:
+            self.setText("")
+            self.setStyleSheet("""
+                PushButton {
+                    background-color: white;
+                    color: black;
+                    border: 1px solid gray;
+                    border-radius: 4px;
+                }
+            """)
 
 
 class Layout(QWidget):
@@ -24,6 +59,8 @@ class Layout(QWidget):
 
         self.vBoxLayout = QVBoxLayout(self)
         self.lesson_enableFavorStudent_check_box_description = QLabel(self.tr('优先做指定学生存在的日程'), self)
+        # 保留顶部的 CheckBox
+        from qfluentwidgets import CheckBox
         self.lesson_enableFavorStudent_check_box = CheckBox('', self)
         self.lesson_enableFavorStudent_check_box.setChecked(self.config.get('lesson_enableInviteFavorStudent'))
 
@@ -35,17 +72,17 @@ class Layout(QWidget):
         self.relationship_check_box_description = QLabel(self.tr('优先做好感等级多的日程'), self)
         self.relationship_check_box = CheckBox('', self)
         self.relationship_check_box.setChecked(self.config.get('lesson_relationship_first'))
-        self.hBoxLayout = QHBoxLayout()
+
         self.check_box_for_lesson_levels = []
         self.lesson_time_input = []
         int_validator = QIntValidator(0, 99, self)
         self.vBoxLayout.setSpacing(7)
-        for i in range(0, len(self.lesson_names)):
+
+        for i in range(len(self.lesson_names)):
             self.check_box_for_lesson_levels.append([])
-            for j in range(0, 4):
-                self.check_box_for_lesson_levels[i].append(CheckBox(self))
-                if self.item_levels[j] in self.needed_levels[i]:
-                    self.check_box_for_lesson_levels[i][j].setChecked(True)
+            for j in range(4):
+                btn = StateButton(self, checked=(self.item_levels[j] in self.needed_levels[i]))
+                self.check_box_for_lesson_levels[i].append(btn)
             itm = LineEdit(self)
             itm.setFixedHeight(30)
             self.lesson_time_input.append(itm)
@@ -62,22 +99,22 @@ class Layout(QWidget):
             self.config.set('lesson_times', self.priority_list)
         if len(self.needed_levels) != len(self.lesson_names):
             temp = []
-            for i in range(0, len(self.lesson_names)):
+            for _ in range(len(self.lesson_names)):
                 temp.append(self.item_levels)
             self.needed_levels = temp
             self.config.set('lesson_each_region_object_priority', self.needed_levels)
 
-
     def Slot_for_accept_favor_student(self):
         res = self.lesson_favorStudent_LineEdit.text().split('>')
         self.config.set('lesson_favorStudent', res)
-        return notification.success(self.tr('指定学生(填写指南见wiki)'), f'{self.tr("指定学生设置成功为:")}{res}', self.config)
+        return notification.success(self.tr('指定学生(填写指南见wiki)'), f'{self.tr("指定学生设置成功为:")}{res}',
+                                    self.config)
 
     def Slot_for_lesson_level_change(self):
         res = []
-        for i in range(0, len(self.lesson_names)):
+        for i in range(len(self.lesson_names)):
             temp = []
-            for j in range(0, 4):
+            for j in range(4):
                 if self.check_box_for_lesson_levels[i][j].isChecked():
                     temp.append(self.item_levels[j])
             res.append(temp)
@@ -87,29 +124,71 @@ class Layout(QWidget):
     @delay(1)
     def Slot_for_lesson_time_change(self, _):
         res = []
-        for i in range(0, len(self.lesson_names)):
+        for i in range(len(self.lesson_names)):
             res.append(int(self.lesson_time_input[i].text()))
         self.priority_list = res
         self.config.set('lesson_times', self.priority_list)
-        return notification.success(self.tr('日程次数'), f'{self.tr("日程次数设置成功为:")}{self.priority_list}', self.config)
+        return notification.success(self.tr('日程次数'), f'{self.tr("日程次数设置成功为:")}{self.priority_list}',
+                                    self.config)
 
     def __init_Signals_and_Slots(self):
         self.lesson_enableFavorStudent_check_box.stateChanged.connect(self.Slot_for_enableFavorStudent_check_box)
         self.accept_favor_student.clicked.connect(self.Slot_for_accept_favor_student)
         self.relationship_check_box.stateChanged.connect(self.Slot_for_relationship_check_box)
-        for i in range(0, len(self.lesson_names)):
-            for j in range(0, 4):
-                self.check_box_for_lesson_levels[i][j].stateChanged.connect(self.Slot_for_lesson_level_change)
+        for i in range(len(self.lesson_names)):
+            for j in range(4):
+                self.check_box_for_lesson_levels[i][j].toggled.connect(self.Slot_for_lesson_level_change)
             self.lesson_time_input[i].textChanged.connect(self.Slot_for_lesson_time_change)
 
     def __init_layouts(self):
+        # 顶部三个配置项
         self.__init_enableFavorStudent_check_box_layout()
         self.__init_favorite_student_layout()
         self.__init_relationship_check_box_layout()
-        self.__init_region_name_layout()
-        self.__init_lesson_level_layout()
-        self.__init_lesson_times_layout()
-        self.vBoxLayout.addLayout(self.hBoxLayout)
+
+        # 表格布局
+        self.tableLayout = QGridLayout()
+        self.tableLayout.setSpacing(10)
+
+        # 表头
+        label_region = QLabel(self.tr("区域名称"), self)
+        font = label_region.font()
+        font.setBold(True)
+        label_region.setFont(font)
+        self.tableLayout.addWidget(label_region, 0, 0, Qt.AlignLeft)
+
+        name = [self.tr("初级"), self.tr("普通"), self.tr("高级"), self.tr("特级")]
+        for i, n in enumerate(name):
+            label = QLabel(n, self)
+            f = label.font()
+            f.setBold(True)
+            label.setFont(f)
+            self.tableLayout.addWidget(label, 0, i + 1, Qt.AlignCenter)
+
+        head_times = QLabel(self.tr("日程次数"), self)
+        f2 = head_times.font()
+        f2.setBold(True)
+        head_times.setFont(f2)
+        self.tableLayout.addWidget(head_times, 0, 5, Qt.AlignRight)
+
+        # 每一行数据
+        for row, region_name in enumerate(self.lesson_names, start=1):
+            self.tableLayout.addWidget(QLabel(region_name, self), row, 0, Qt.AlignLeft)
+
+            # 四个小按钮
+            for col in range(4):
+                wrapper = QHBoxLayout()
+                wrapper.addStretch()
+                wrapper.addWidget(self.check_box_for_lesson_levels[row - 1][col])
+                wrapper.addStretch()
+                self.tableLayout.addLayout(wrapper, row, col + 1)
+
+            wrapper_input = QHBoxLayout()
+            wrapper_input.addStretch()
+            wrapper_input.addWidget(self.lesson_time_input[row - 1], 0, Qt.AlignRight)
+            self.tableLayout.addLayout(wrapper_input, row, 5)
+
+        self.vBoxLayout.addLayout(self.tableLayout)
 
     def __init_enableFavorStudent_check_box_layout(self):
         temp = QHBoxLayout()
@@ -129,31 +208,6 @@ class Layout(QWidget):
         temp.addWidget(self.relationship_check_box_description)
         temp.addWidget(self.relationship_check_box)
         self.vBoxLayout.addLayout(temp)
-
-    def __init_region_name_layout(self):
-        temp = QVBoxLayout()
-        temp.addWidget(QLabel(self.tr("区域名称"), self), 0, Qt.AlignLeft)
-        for i in range(0, len(self.lesson_names)):
-            temp.addWidget(QLabel(self.lesson_names[i], self), 0, Qt.AlignLeft)
-        self.hBoxLayout.addLayout(temp)
-
-    def __init_lesson_level_layout(self):
-        name = [self.tr("初级"), self.tr("普通"), self.tr("高级"), self.tr("特级")]
-        for i in range(0, 4):
-            temp = QVBoxLayout()
-            temp.setContentsMargins(0, 5, 0, 5)
-            temp.setSpacing(15)
-            temp.addWidget(QLabel(name[i], self), 0, Qt.AlignLeft)
-            for j in range(0, len(self.lesson_names)):
-                temp.addWidget(self.check_box_for_lesson_levels[j][i], 0, Qt.AlignLeft)
-            self.hBoxLayout.addLayout(temp)
-
-    def __init_lesson_times_layout(self):
-        temp = QVBoxLayout()
-        temp.addWidget(QLabel(self.tr("日程次数"), self), 0, Qt.AlignLeft)
-        for i in range(0, len(self.lesson_names)):
-            temp.addWidget(self.lesson_time_input[i], 0, Qt.AlignLeft)
-        self.hBoxLayout.addLayout(temp)
 
     def Slot_for_relationship_check_box(self, state):
         self.config.set('lesson_relationship_first', state == Qt.Checked)
