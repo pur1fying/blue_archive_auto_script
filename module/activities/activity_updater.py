@@ -1,11 +1,12 @@
 import copy
+import difflib
 import json
+import logging
 import os
 import re
 import sys
 import time
 from collections import OrderedDict
-from contextlib import redirect_stdout, redirect_stderr
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -154,14 +155,17 @@ def _to_epoch_time(s: str) -> int:
 
 
 def _download_json(url):
-    response = requests.get(
-        url=url,
-        headers=HEADERS,
-    )
-    if response.status_code != 200:
-        print(f"Failed to fetch data from {url}, error code: {response.status_code}")
-        return None
-    return response.json()
+    logger = logging.getLogger("activity_updater")
+    for i in range(4):
+        response = requests.get(
+            url=url,
+            headers=HEADERS,
+        )
+        if response.status_code != 200:
+            logger.error(f"Failed to fetch data from {url}, error code: {response.status_code},retry {i + 1}/3")
+            continue
+        return response.json()
+    raise ValueError(f"Failed to fetch data from {url}")
 
 
 def _unify_table(table_high_prio: dict, table_low_prio: dict, template_table: dict):
@@ -350,7 +354,7 @@ def update_activity_schaledb(localization="en"):
     config_json = _download_json("https://schaledb.com/data/config.min.json")
 
     localization_dict = {
-        "Events":{},
+        "Events": {},
         "Raid": {},
         "EliminateRaid": {},
         "MultiFloorRaid": {},
@@ -430,46 +434,73 @@ def update_activity_schaledb(localization="en"):
 
 
 def update_activity():
-    print("> Updating activity...")
-    gamekee_response = update_activity_gamekee_api()
-    print("### [Gamekee API](https://www.gamekee.com/v1/activity/query) Response: \n```json\n" + json.dumps(
-        gamekee_response, ensure_ascii=False) + "\n```")
-    bawiki_response = update_activity_bawiki()
-    print("### [Blue Archive Wiki](https://bluearchive.wiki/wiki/Main_Page) Response: \n```json\n" + json.dumps(
-        bawiki_response, ensure_ascii=False) + "\n```")
-    schaledb_response = update_activity_schaledb()
-    print("### [SchaleDB](https://schaledb.com/home) Response: \n```json\n" + json.dumps(
-        schaledb_response, ensure_ascii=False) + "\n```")
+    logger = logging.getLogger("activity_updater")
+    try:
+        logger.info("Retrieving activity data from Gamekee API...")
+        gamekee_response = update_activity_gamekee_api()
+        logger.info("Gamekee API Response:\n%s", json.dumps(gamekee_response, ensure_ascii=False, indent=4))
 
-    # For final result, we prefer BAWiki > SchaleDB > Gamekee API
-    final_result = _unify_table(bawiki_response, schaledb_response, FULL_RESULT_FORMAT)
-    final_result = _unify_table(final_result, gamekee_response, FULL_RESULT_FORMAT)
+        logger.info("Retrieving activity data from Blue Archive Wiki...")
+        bawiki_response = update_activity_bawiki()
+        logger.info("Blue Archive Wiki Response:\n%s", json.dumps(bawiki_response, ensure_ascii=False, indent=4))
 
-    print("### Final Merged Result: \n```json\n" + json.dumps(final_result, ensure_ascii=False, indent=4) + "\n```\n")
-    return final_result
+        logger.info("Retrieving activity data from SchaleDB...")
+        schaledb_response = update_activity_schaledb()
+        logger.info("SchaleDB Response:\n%s", json.dumps(schaledb_response, ensure_ascii=False, indent=4))
+
+        # For final result, we prefer BAWiki > SchaleDB > Gamekee API
+        logger.info("Merging activity data...")
+        final_result = _unify_table(bawiki_response, schaledb_response, FULL_RESULT_FORMAT)
+        final_result = _unify_table(final_result, gamekee_response, FULL_RESULT_FORMAT)
+
+        logger.info("Final Result:\n%s", json.dumps(final_result, ensure_ascii=False, indent=4))
+        return final_result
+    except Exception as e:
+        logger.error(f"An error occurred during the activity update process: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    log_path = os.path.join(os.path.dirname(__file__), "activity_update_log.md")
+    logger = logging.getLogger("activity_updater")
+    logger.setLevel(logging.DEBUG)
+    log_formatter = logging.Formatter('<%(asctime)s> [%(levelname)s] <%(message)s>', datefmt='%Y-%m-%d %H:%M:%S')
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(log_formatter)
+    logger.addHandler(console_handler)
+
     activity_json_path = os.path.join(os.path.dirname(__file__), "activity.json")
     tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp_activity.json")
+    pr_body_md_path = os.path.join(os.path.dirname(__file__), "activity_update_log.md")
 
-    with open(log_path, "w", encoding="utf-8") as output:
-        with redirect_stdout(output), redirect_stderr(output):
-            final_result = update_activity()
+    logger.info("Starting activity information retrieval and merging process...")
+    final_result = update_activity()
+    logger.info("Activity information retrieval and merging process completed.")
+    # determine if any data is updated
+    if os.path.exists(activity_json_path):
+        with open(activity_json_path, "r", encoding="utf-8") as f:
+            original_data = json.load(f)
+            original_data.pop("last_update_time")  # remove last_update_time for comparison
+            if original_data == final_result:
+                logger.info("No updates in activity data, exiting...")
+                sys.exit(0)
+    logger.info("Changes detected in activity data, updating activity.json...")
+    final_result["last_update_time"] = int(time.time())
+    ordered_keys = ["last_update_time", "JP", "Global", "CN"]
+    ordered_result = OrderedDict((k, final_result[k]) for k in ordered_keys if k in final_result)
+    with open(tmp_json_path, "w", encoding="utf-8") as f:
+        json.dump(ordered_result, f, ensure_ascii=False, indent=4)
+    logger.info("Updated data written to temporary file tmp_activity.json.")
 
-            # determine if any data is updated
-            if os.path.exists(activity_json_path):
-                with open(os.path.abspath(activity_json_path), "r", encoding="utf-8") as f:
-                    original_data = json.load(f)
-                    original_data.pop("last_update_time")  # remove last_update_time for comparison
-                    if original_data == final_result:
-                        print("> No changes detected in activity data. Exiting without updating the file.")
-                        sys.exit(0)
+    # generating pr body markdown
+    with open(pr_body_md_path, "w", encoding="utf-8") as f:
+        f.write("### Detected a change in activity data, details as follows:\n\n")
+        with open('activity.json', 'r', encoding='utf-8') as f1, open('tmp_activity.json', 'r', encoding='utf-8') as f2:
+            old_data, new_data = f1.readlines(), f2.readlines()
 
-            final_result["last_update_time"] = int(time.time())
-            ordered_keys = ["last_update_time", "JP", "Global", "CN"]
-            ordered_result = OrderedDict((k, final_result[k]) for k in ordered_keys if k in final_result)
-            with open(tmp_json_path, "w", encoding="utf-8") as f:
-                json.dump(ordered_result, f, ensure_ascii=False, indent=4)
-            print("> Activity data has been updated and saved.")
+        diff = difflib.unified_diff(old_data, new_data)
+        f.write("```diff\n")
+        f.writelines(diff)
+        f.write("\n```\n")
+        f.write("> All data are up-to-date. Requesting a review.\n")
+        f.write(f"\n> Last update time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    logger.info("Pull request body markdown generated at activity_update_log.md.")
