@@ -1,19 +1,15 @@
 {
-    "last_update_time": 1758641860,
+    "last_update_time": 1758659959,
     "JP": {
         "Events": [],
         "Raids": {
             "total_assault": null,
             "grand_assault": null,
-            "limit_break_assault": {
-                "name": "Decagrammaton: Chokmah (Limit Break Raid)",
-                "begin_time": "1755741600",
-                "end_time": "1758653940"
-            },
+            "limit_break_assault": null,
             "joint_firing_drill": null
         },
         "Rewards": {
-            "commissions_rewards": 2,
+            "commissions_rewards": 1,
             "scrimmage_rewards": 1,
             "bounty_hunts_rewards": 1,
             "schedule_rewards": 1,
