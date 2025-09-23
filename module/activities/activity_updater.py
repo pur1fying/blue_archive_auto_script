@@ -494,7 +494,7 @@ if __name__ == "__main__":
     # generating pr body markdown
     with open(pr_body_md_path, "w", encoding="utf-8") as f:
         f.write("### Detected a change in activity data, details as follows:\n\n")
-        with open('activity.json', 'r', encoding='utf-8') as f1, open('tmp_activity.json', 'r', encoding='utf-8') as f2:
+        with open(tmp_json_path, 'r', encoding='utf-8') as f1, open(activity_json_path, 'r', encoding='utf-8') as f2:
             old_data, new_data = f1.readlines(), f2.readlines()
 
         diff = difflib.unified_diff(old_data, new_data)
