@@ -502,5 +502,7 @@ if __name__ == "__main__":
         f.writelines(diff)
         f.write("\n```\n")
         f.write("> All data are up-to-date. Requesting a review.\n")
+        repo_owner = os.environ.get('GITHUB_REPOSITORY_OWNER', 'repository-owner')
+        f.write(f"\n> **Repository Owner**: @{repo_owner}\n")
         f.write(f"\n> Last update time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     logger.info("Pull request body markdown generated at activity_update_log.md.")

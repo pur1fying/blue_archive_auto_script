@@ -29,6 +29,8 @@ jobs:
           pip install -r module/activities/requirements-activity-updater.txt
       - name: Run activity updater
         run: python3 module/activities/activity_updater.py
+        env:
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
       - name: Upload update log as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -53,3 +55,5 @@ jobs:
           title: "CI/sync activity.json (auto-update by workflow)"
           body: "${{ steps.pr_body.outputs.body }}"
           branch: "auto-sync-activity"
+          reviewers: |
+            ${{ github.repository_owner }}
