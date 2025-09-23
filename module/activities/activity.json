@@ -1,5 +1,5 @@
 {
-    "last_update_time": 1758573526,
+    "last_update_time": 1758641860,
     "JP": {
         "Events": [],
         "Raids": {
@@ -23,7 +23,13 @@
         }
     },
     "Global": {
-        "Events": [],
+        "Events": [
+            {
+                "name": "Highlander Railroad Runaway Incident: And Then The Train Disappeared",
+                "Start date": "1758592800",
+                "End date": "1759802400"
+            }
+        ],
         "Raids": {
             "total_assault": null,
             "grand_assault": null,
