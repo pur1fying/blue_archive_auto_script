@@ -207,22 +207,22 @@ def update_activity_gamekee_api():
         pub_area = pub_area_translator[activity["pub_area"]]
         title = activity["title"]
 
-        regularized_activity = {
+        activity_info = {
             "name": title,
             "begin_time": str(activity["begin_at"]),
             "end_time": str(activity["end_at"])
         }
 
         if title.startswith("[活动]"):
-            result[pub_area]["Events"].append(regularized_activity)
+            result[pub_area]["Events"].append(activity_info)
         elif title.startswith("总力战"):
-            result[pub_area]["Raids"]["total_assault"] = regularized_activity
+            result[pub_area]["Raids"]["total_assault"] = activity_info
         elif title.startswith("大决战"):
-            result[pub_area]["Raids"]["grand_assault"] = regularized_activity
+            result[pub_area]["Raids"]["grand_assault"] = activity_info
         elif title.startswith("制约解除决战"):
-            result[pub_area]["Raids"]["limit_break_assault"] = regularized_activity
+            result[pub_area]["Raids"]["limit_break_assault"] = activity_info
         elif "演习" in title or "战术" in title or "考试" in title:
-            result[pub_area]["Raids"]["joint_firing_drill"] = regularized_activity
+            result[pub_area]["Raids"]["joint_firing_drill"] = activity_info
         else:
             if "特别依赖" in title or "特殊任务" in title or "特别委托" in title:
                 result[pub_area]["Rewards"]["commissions_rewards"] = int(title[-2])
@@ -253,7 +253,7 @@ def update_activity_bawiki():
     # ------------------------------------------------------------------------
     events_response = requests.get(
         url=events_url,
-        headers=HEADERS,
+        headers=HEADERS
     )
     events_html = etree.HTML(events_response.content.decode('utf-8'), parser=etree.HTMLParser(encoding='utf-8'))
     JP_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version"]/table',
@@ -270,7 +270,7 @@ def update_activity_bawiki():
     # ------------------------------------------------------------------------
     total_assault_response = requests.get(
         url=total_assault_url,
-        headers=HEADERS,
+        headers=HEADERS
     )
     total_assault_html = etree.HTML(total_assault_response.content.decode('utf-8'),
                                     parser=etree.HTMLParser(encoding='utf-8'))
@@ -282,7 +282,7 @@ def update_activity_bawiki():
     # ------------------------------------------------------------------------
     grand_assault_response = requests.get(
         url=grand_assault_url,
-        headers=HEADERS,
+        headers=HEADERS
     )
     grand_assault_html = etree.HTML(grand_assault_response.content.decode('utf-8'),
                                     parser=etree.HTMLParser(encoding='utf-8'))
@@ -294,7 +294,7 @@ def update_activity_bawiki():
     # ------------------------------------------------------------------------
     limit_break_assault_response = requests.get(
         url=limit_break_assault_url,
-        headers=HEADERS,
+        headers=HEADERS
     )
     limit_break_assault_html = etree.HTML(limit_break_assault_response.content.decode('utf-8'),
                                           parser=etree.HTMLParser(encoding='utf-8'))
@@ -306,7 +306,7 @@ def update_activity_bawiki():
     # ------------------------------------------------------------------------
     joint_firing_drill_response = requests.get(
         url=joint_firing_drill_url,
-        headers=HEADERS,
+        headers=HEADERS
     )
     joint_firing_drill_html = etree.HTML(joint_firing_drill_response.content.decode('utf-8'),
                                          parser=etree.HTMLParser(encoding='utf-8'))
@@ -349,85 +349,82 @@ def update_activity_schaledb(localization="en"):
     localization_json = _download_json(f"https://schaledb.com/data/{localization}/localization.min.json")
     config_json = _download_json("https://schaledb.com/data/config.min.json")
 
+    localization_dict = {
+        "Events":{},
+        "Raid": {},
+        "EliminateRaid": {},
+        "MultiFloorRaid": {},
+        "TimeAttack": {}
+    }
+    raid_type_translator = {
+        "Raid": "total_assault",
+        "EliminateRaid": "grand_assault",
+        "MultiFloorRaid": "limit_break_assault",
+        "TimeAttack": "joint_firing_drill"
+    }
+    pub_area_translator = {"Jp": "JP", "Global": "Global", "Cn": "CN"}
+
+    ##########################################
+    # prepare localization dict
+    ##########################################
+
     # get event name from localization
-    event_localization_dict = localization_json["EventName"]
+    localization_dict["Events"] = localization_json["EventName"]
 
-    # total assault
-    raid_names_dict = {}
-    for raid in raids_json["Raid"]:
-        raid_id = raid["Id"]
-        raid_name = raid["Name"]
-        raid_names_dict[raid_id] = raid_name
+    # total assault, grand assault, limit break assault has the same structure
+    # total assault and grand assault share the same data source
+    for type in ["Raid", "MultiFloorRaid"]:
+        for event in raids_json[type]:
+            raid_id = event["Id"]
+            raid_name = event["Name"]
+            localization_dict[type][raid_id] = raid_name
+    localization_dict["EliminateRaid"] = localization_dict["Raid"]
 
-    # limit time assault
-    limit_time_assault_dict = {}
-    for limit_time_assault in raids_json["MultiFloorRaid"]:
-        id = limit_time_assault["Id"]
-        name = limit_time_assault["Name"]
-        limit_time_assault_dict[id] = name
-
-    # joint firing drill
-    joint_firing_drill_dict = {}
     for joint_firing_drill in raids_json["TimeAttack"]:
         id = joint_firing_drill["Id"]
         joint_firing_drill_type = joint_firing_drill["DungeonType"]
         name = localization_json["TimeAttackStage"][joint_firing_drill_type]
-        joint_firing_drill_dict[id] = name
+        localization_dict["TimeAttack"][id] = name
 
+    ##########################################
+    # generate result table
+    ##########################################
     result = copy.deepcopy(FULL_RESULT_FORMAT)
     # SchaleDB does not offer reward campaigns data
     result["JP"].pop("Rewards")
     result["Global"].pop("Rewards")
     result["CN"].pop("Rewards")
 
-    pub_area_translator = {"Jp": "JP", "Global": "Global", "Cn": "CN"}
     for server_config in config_json["Regions"]:
         server = pub_area_translator[server_config["Name"]]
         for event in server_config["CurrentEvents"]:
             id = str(event["event"])
+
+            # often SchaleDB mark 10 prefix as a rerun event, we only keep the last 3 digits for localization
             if len(id) > 3:
                 id = id[-3:]
-            start = event["start"]
-            end = event["end"]
-            if start <= time.time() <= end:
-                name = event_localization_dict[id]
+            begin_time = event["start"]
+            end_time = event["end"]
+            if begin_time <= time.time() <= end_time:
                 result[server]["Events"].append({
-                    "name": name,
-                    "begin_time": str(start),
-                    "end_time": str(end)
+                    "name": localization_dict["Events"][id],
+                    "begin_time": str(begin_time),
+                    "end_time": str(end_time)
                 })
-        for raid in server_config["CurrentRaid"]:
-            raid_type = raid["type"]
-            id = raid["raid"]
-            start_time = raid["start"]
-            end_time = raid["end"]
+        for event in server_config["CurrentRaid"]:
+            raid_type = event["type"]
+            id = event["raid"]
+            start_time = event["start"]
+            end_time = event["end"]
             current_time = time.time()
             if current_time < start_time or current_time > end_time:
                 continue
-            if raid_type == "Raid":
-                result[server]["Raids"]["total_assault"] = {
-                    "name": raid_names_dict[id],
-                    "begin_time": str(start_time),
-                    "end_time": str(end_time)
-                }
-            elif raid_type == "EliminateRaid":
-                result[server]["Raids"]["grand_assault"] = {
-                    "name": raid_names_dict[id],
-                    "begin_time": str(start_time),
-                    "end_time": str(end_time)
-                }
-            elif raid_type == "MultiFloorRaid":
-                result[server]["Raids"]["limit_break_assault"] = {
-                    "name": limit_time_assault_dict[id],
-                    "begin_time": str(start_time),
-                    "end_time": str(end_time)
-                }
-            elif raid_type == "TimeAttack":
-                result[server]["Raids"]["joint_firing_drill"] = {
-                    "name": joint_firing_drill_dict[id],
-                    "begin_time": str(start_time),
-                    "end_time": str(end_time)
-                }
+
+            result[server]["Raids"][raid_type_translator[raid_type]] = {
+                "name": localization_dict[raid_type][id],
+                "begin_time": str(start_time),
+                "end_time": str(end_time)
+            }
 
     return result
 
