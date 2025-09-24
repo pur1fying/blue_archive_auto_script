@@ -640,7 +640,7 @@ if __name__ == "__main__":
             os.remove(stages_path)
         if ordered_result[server]["Event"] is not None and "stages" in ordered_result[server]["Event"]:
             stages = ordered_result[server]["Event"].pop("stages")
-            ordered_result[server]["Event"]["stages_file"] = f"activity_data/{server}_event_stages.json"
+            ordered_result[server]["Event"]["stages_file"] = f"module/activities/activity_data/{server}_event_stages.json"
             with open(stages_path, "w", encoding="utf-8") as f:
                 json.dump(stages, f, ensure_ascii=False, indent=4)
             logger.info(f"Stage data for {server} server has been saved to {stages_path}.")
