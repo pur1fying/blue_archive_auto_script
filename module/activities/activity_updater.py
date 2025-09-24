@@ -610,6 +610,12 @@ if __name__ == "__main__":
     tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp/tmp_activity.json")
     pr_body_md_path = os.path.join(os.path.dirname(__file__), "tmp/activity_update_log.md")
 
+    # mkdir if no tmp or activity_data folder
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), "tmp")):
+        os.makedirs(os.path.join(os.path.dirname(__file__), "tmp"))
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), "activity_data")):
+        os.makedirs(os.path.join(os.path.dirname(__file__), "activity_data"))
+
     logger.info("Starting activity information retrieval and merging process...")
     final_result = update_activity()
     logger.info("Activity information retrieval and merging process completed.")
