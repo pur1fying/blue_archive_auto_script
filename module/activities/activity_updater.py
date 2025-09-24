@@ -468,8 +468,8 @@ if __name__ == "__main__":
     logger.addHandler(console_handler)
 
     activity_json_path = os.path.join(os.path.dirname(__file__), "activity.json")
-    tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp_activity.json")
-    pr_body_md_path = os.path.join(os.path.dirname(__file__), "activity_update_log.md")
+    tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp/tmp_activity.json")
+    pr_body_md_path = os.path.join(os.path.dirname(__file__), "tmp/activity_update_log.md")
 
     logger.info("Starting activity information retrieval and merging process...")
     final_result = update_activity()

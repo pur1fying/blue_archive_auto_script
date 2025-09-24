@@ -31,24 +31,19 @@ jobs:
         run: python3 module/activities/activity_updater.py
         env:
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-      - name: Upload update log as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: activity-update-log
-          path: module/activities/activity_update_log.md
       - name: Copy updated activity.json if changed
-        if: success() && (hashFiles('module/activities/tmp_activity.json') != '')
+        if: success() && (hashFiles('module/activities/tmp/tmp_activity.json') != '')
         # Only upload and create PR if any new updates to the existing activity data
-        run: cp module/activities/tmp_activity.json module/activities/activity.json
+        run: cp module/activities/tmp/tmp_activity.json module/activities/activity.json
       - name: Set the output log as PR body
-        if: success() && (hashFiles('module/activities/tmp_activity.json') != '')
+        if: success() && (hashFiles('module/activities/tmp/tmp_activity.json') != '')
         id: pr_body
         run: |
           echo "body<<EOF" >> $GITHUB_OUTPUT
-          cat module/activities/activity_update_log.md >> $GITHUB_OUTPUT
+          cat module/activities/tmp/activity_update_log.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Create Pull Request if updated
-        if: success() && (hashFiles('module/activities/tmp_activity.json') != '')
+        if: success() && (hashFiles('module/activities/tmp/tmp_activity.json') != '')
         uses: peter-evans/create-pull-request@v7
         with:
           commit-message: "chore(activity): sync activity.json (auto-update by workflow)"
