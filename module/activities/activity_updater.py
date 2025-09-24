@@ -494,7 +494,7 @@ if __name__ == "__main__":
     # generating pr body markdown
     with open(pr_body_md_path, "w", encoding="utf-8") as f:
         f.write("### Detected a change in activity data, details as follows:\n\n")
-        with open('activity.json', 'r', encoding='utf-8') as f1, open('tmp_activity.json', 'r', encoding='utf-8') as f2:
+        with open(activity_json_path, 'r', encoding='utf-8') as f1, open(tmp_json_path, 'r', encoding='utf-8') as f2:
             old_data, new_data = f1.readlines(), f2.readlines()
 
         diff = difflib.unified_diff(old_data, new_data)
@@ -502,5 +502,7 @@ if __name__ == "__main__":
         f.writelines(diff)
         f.write("\n```\n")
         f.write("> All data are up-to-date. Requesting a review.\n")
+        repo_owner = os.environ.get('GITHUB_REPOSITORY_OWNER', 'repository-owner')
+        f.write(f"\n> **Repository Owner**: @{repo_owner}\n")
         f.write(f"\n> Last update time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     logger.info("Pull request body markdown generated at activity_update_log.md.")
