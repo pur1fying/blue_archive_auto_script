@@ -363,7 +363,7 @@ def update_activity_bawiki():
             _fetch_stage_table(events_html, f"//a[text()='{event_en_name}']"))
     if Global_event_schedules is not None:
         event_en_name = Global_event_schedules["name"]
-        Global_event_schedules["bawiki_info_link"],Global_event_schedules["stages"] = (
+        Global_event_schedules["bawiki_info_link"], Global_event_schedules["stages"] = (
             _fetch_stage_table(events_html, f"//a[text()='{event_en_name}']"))
 
     # JP_mini_events = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version_2"]/table')
@@ -589,9 +589,9 @@ def update_activity():
     schaledb_response = update_activity_schaledb()
     logger.info("SchaleDB Response:\n%s", json.dumps(schaledb_response, ensure_ascii=False, indent=4))
 
-    # For final result, we prefer BAWiki > SchaleDB > Gamekee API
+    # For final result, we prefer SchaleDB > BAWiki > Gamekee AP
     logger.info("Merging activity data...")
-    final_result = _unify_table(bawiki_response, schaledb_response, FULL_RESULT_FORMAT)
+    final_result = _unify_table(schaledb_response, bawiki_response, FULL_RESULT_FORMAT)
     final_result = _unify_table(final_result, gamekee_response, FULL_RESULT_FORMAT)
 
     logger.info("Final Result:\n%s", json.dumps(final_result, ensure_ascii=False, indent=4))
