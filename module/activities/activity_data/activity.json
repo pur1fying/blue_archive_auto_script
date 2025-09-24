@@ -1,0 +1,77 @@
+{
+    "last_update_time": 1758725593,
+    "JP": {
+        "Event": {
+            "name": "[活动]为了谁的艺术～虚伪装饰的绘画与美学的去向～",
+            "begin_time": "1758679200",
+            "end_time": "1759888740"
+        },
+        "Raids": {
+            "total_assault": null,
+            "grand_assault": null,
+            "limit_break_assault": null,
+            "joint_firing_drill": null
+        },
+        "Rewards": {
+            "commissions_rewards": 1,
+            "scrimmage_rewards": 1,
+            "bounty_hunts_rewards": 1,
+            "schedule_rewards": 1,
+            "normal_mission_rewards": 1,
+            "hard_mission_rewards": 1,
+            "level_exp_rewards": 1
+        }
+    },
+    "Global": {
+        "Event": {
+            "name": "Highlander Railroad Runaway Incident: And Then The Train Disappeared",
+            "begin_time": "1758592800",
+            "end_time": "1759802400",
+            "bawiki_info_link": "https://bluearchive.wiki/wiki/Highlander_Railroad_Runaway_Incident_%E3%80%9C_And_Then_The_Train_Was_Gone_%E3%80%9C",
+            "stages_file": "activity_data/Global_event_stages.json"
+        },
+        "Raids": {
+            "total_assault": null,
+            "grand_assault": null,
+            "limit_break_assault": {
+                "name": "Decagrammaton: Tiphareth (Limit Break Raid)",
+                "begin_time": "1758679200",
+                "end_time": "1760986740"
+            },
+            "joint_firing_drill": null
+        },
+        "Rewards": {
+            "commissions_rewards": 1,
+            "scrimmage_rewards": 1,
+            "bounty_hunts_rewards": 2,
+            "schedule_rewards": 1,
+            "normal_mission_rewards": 1,
+            "hard_mission_rewards": 1,
+            "level_exp_rewards": 1
+        }
+    },
+    "CN": {
+        "Event": {
+            "name": "New Year's Aperitif ~One-and-Done Match~",
+            "schaledb_id": "820",
+            "begin_time": "1757570400",
+            "end_time": "1758780000",
+            "stages_file": "activity_data/CN_event_stages.json"
+        },
+        "Raids": {
+            "total_assault": null,
+            "grand_assault": null,
+            "limit_break_assault": null,
+            "joint_firing_drill": null
+        },
+        "Rewards": {
+            "commissions_rewards": 1,
+            "scrimmage_rewards": 1,
+            "bounty_hunts_rewards": 1,
+            "schedule_rewards": 1,
+            "normal_mission_rewards": 1,
+            "hard_mission_rewards": 2,
+            "level_exp_rewards": 1
+        }
+    }
+}
