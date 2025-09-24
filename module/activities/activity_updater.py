@@ -51,8 +51,8 @@ DEFAULT_HEADER_MAP = {
     "Name (EN)": "name",
     "Name (JP)": None,
     "Raid name": "name",
-    "Start Date": "begin_time",
-    "End Date": "end_time",
+    "Start date": "begin_time",
+    "End date": "end_time",
     "Period": None,
     "Notes": None,
     "Season": None,
@@ -63,8 +63,22 @@ DEFAULT_HEADER_MAP = {
 }
 
 
-def _fetch_activity_table(html, xpath: str, header_map: dict = None, force_list: bool = False):
-    activities = []
+def _extract_text(html_element):
+    # this function is similar to element.itertext() function
+    # but this function considers <br> as \n while itertext() ignores it
+    parts = []
+    for node in html_element.iter():
+        if node.tag == "br":
+            parts.append("\n")
+        if node.text:
+            parts.append(node.text)
+        if node.tail:
+            parts.append(node.tail)
+    return "".join(parts).strip()
+
+
+def _fetch_activity_table(html, xpath: str, custom_header_map: dict = None, force_list: bool = False):
+    table = []
 
     # Locate the table using the provided XPath
     try:
@@ -77,13 +91,55 @@ def _fetch_activity_table(html, xpath: str, header_map: dict = None, force_list:
         raise KeyError("No event data found.")
 
     # Extract table headers
-    headers = [''.join(th.itertext()).strip() for th in event_trs[0]]
+    data_start_idx = 1
+    total_column = 0
+    row_count = []
+    headers = []
+    for header in event_trs[0].xpath('.//th'):
+        rowspan = int(header.get("rowspan", 1))
+        colspan = int(header.get("colspan", 1))
+        data_start_idx = max(data_start_idx, rowspan)
+        total_column += colspan
+        for _ in range(colspan):
+            row_count.append(rowspan)
+            headers.append(''.join(header.itertext()).strip())
+
+    if data_start_idx != 1:
+        # handle multi-row header
+        for i in range(1, len(event_trs)):
+            j = 0
+            for header in event_trs[i].xpath('.//th'):
+                while row_count[j] > i:
+                    # already filled a header
+                    j += 1
+                for _ in range(int(header.get("colspan", 1))):
+                    headers[j] += f"-{header.itertext().__next__().strip()}"
+                    row_count[j] += int(header.get("rowspan", 1))
+                    j += 1
 
     start_date_index = headers.index('Start date') if 'Start date' in headers else -1
     end_date_index = headers.index('End date') if 'End date' in headers else -1
     period_index = headers.index('Period') if 'Period' in headers else -1
-    for event_tr in event_trs[1:]:
-        values = [''.join(item.itertext()).strip() for item in event_tr]
+
+    # update the table with key_map settings
+    if custom_header_map is None:
+        custom_header_map = {}
+    header_map = copy.deepcopy(DEFAULT_HEADER_MAP)
+    header_map.update(custom_header_map)
+
+    # generatre pop list to pop needless items
+    pop_list = []
+    for i in range(len(headers)):
+        if headers[i] in header_map:
+            if header_map[headers[i]] is not None:
+                headers[i] = header_map[headers[i]]
+            else:
+                pop_list.insert(0, i)
+    for idx in pop_list:
+        headers.pop(idx)
+
+    for event_tr in event_trs[data_start_idx:]:
+        values = [_extract_text(item) for item in event_tr]
 
         # If there's a start and end date column, convert them to epoch time
         if start_date_index != -1 and end_date_index != -1:
@@ -110,29 +166,60 @@ def _fetch_activity_table(html, xpath: str, header_map: dict = None, force_list:
             headers += ["begin_time", "end_time"]
             values += [str(start_time), str(end_time)]
 
-        # update the table with key_map settings
-        if header_map is None:
-            header_map = {}
-        header_map.update(DEFAULT_HEADER_MAP)
-        pop_list = []
-        for i in range(len(headers)):
-            if headers[i] in header_map:
-                if header_map[headers[i]] is not None:
-                    headers[i] = header_map[headers[i]]
-                else:
-                    pop_list.insert(0, i)
+        # pop needless items
         for idx in pop_list:
-            headers.pop(idx)
             values.pop(idx)
-        activities.append(dict(zip(headers, values)))
-    # Sort activities by end date
-    activities.sort(key=lambda x: x[headers[2]], reverse=True)
+        table.append(dict(zip(headers, values)))
+
+    # if the table has end date value,sort table by end date
+    if end_date_index != -1:
+        table.sort(key=lambda x: int(x.get("end_time", 0)), reverse=True)
+    elif "stage_index" in headers:
+        # otherwise if the table has stage_index value,sort table by stage_index
+        table.sort(key=lambda x: int(x.get("stage_index", 0)))
+
     if not force_list:
-        if len(activities) == 0:
+        if len(table) == 0:
             return None
-        elif len(activities) == 1:
-            return activities[0]
-    return activities
+        elif len(table) == 1:
+            return table[0]
+    return table
+
+
+def _fetch_stage_table(html, xpath: str):
+    basic_url = "https://bluearchive.wiki"
+    try:
+        a_element = html.xpath(xpath)[0]
+    except IndexError:
+        raise KeyError("No a_element found with the provided XPath.")
+    event_info_link = basic_url + a_element.get("href")
+    event_info_response = requests.get(
+        url=event_info_link,
+        headers=HEADERS
+    )
+    event_info_html = etree.HTML(event_info_response.content.decode('utf-8'), parser=etree.HTMLParser(encoding='utf-8'))
+    stage_info = _fetch_activity_table(event_info_html, '//h3[@id="Quest_Stages"]/following::table[1]',
+                                       {
+                                           "": "stage_index",
+                                           "Stage": "stage_name",
+                                           "Level": None,
+                                           "Entry cost": "entry_cost",
+                                           "Environment": None,
+                                           "Enemy armor": "armor_type",
+                                           "Star objectives": None,
+                                           "Rewards-FirstClear": None,
+                                           "Rewards-ThreeStar": None,
+                                           "Rewards-Event": None,
+                                           "Rewards-Default": None,
+                                           "Rewards-Rare": None
+                                       })
+
+    # translate all enemy armor type
+    armor_type_translator = {"Light": "burst", "Heavy": "pierce", "Special": "mystic", "Elastic": "shock"}
+    for stage in stage_info:
+        stage["armor_type"] = armor_type_translator[stage["armor_type"].split("\n")[0]]
+        # we only take the first armor type and see it as main type
+    return event_info_link, stage_info
 
 
 def _to_epoch_time(s: str) -> int:
@@ -262,6 +349,23 @@ def update_activity_bawiki():
     events_html = etree.HTML(events_response.content.decode('utf-8'), parser=etree.HTMLParser(encoding='utf-8'))
     JP_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version"]/table')
     Global_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Global_version"]/table')
+
+    # we assume the return type is always dict or None
+    assert type(JP_event_schedules) == dict or JP_event_schedules is None
+    assert type(Global_event_schedules) == dict or Global_event_schedules is None
+
+    ##################################################
+    # if any event is ongoing, download stage data
+    ##################################################
+    if JP_event_schedules is not None:
+        event_en_name = JP_event_schedules["name"]
+        JP_event_schedules["bawiki_info_link"], JP_event_schedules["stages"] = (
+            _fetch_stage_table(events_html, f"//a[text()='{event_en_name}']"))
+    if Global_event_schedules is not None:
+        event_en_name = Global_event_schedules["name"]
+        Global_event_schedules["bawiki_info_link"],Global_event_schedules["stages"] = (
+            _fetch_stage_table(events_html, f"//a[text()='{event_en_name}']"))
+
     # JP_mini_events = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version_2"]/table')
     # Global_mini_events = _fetch_activity_table(events_html, '//*[@id="tabber-Global_version_2"]/table')
     reward_campaigns = _fetch_activity_table(events_html, '//h1[@id="Reward_campaigns"]/following::table[1]',
@@ -365,6 +469,7 @@ def update_activity_schaledb(localization="en"):
         "TimeAttack": "joint_firing_drill"
     }
     pub_area_translator = {"Jp": "JP", "Global": "Global", "Cn": "CN"}
+    armor_type_translator = {1: "burst", 2: "pierce", 3: "mystic", 4: "shock"}
 
     ##########################################
     # prepare localization dict
@@ -383,10 +488,10 @@ def update_activity_schaledb(localization="en"):
     localization_dict["EliminateRaid"] = localization_dict["Raid"]
 
     for joint_firing_drill in raids_json["TimeAttack"]:
-        id = joint_firing_drill["Id"]
+        event_id = joint_firing_drill["Id"]
         joint_firing_drill_type = joint_firing_drill["DungeonType"]
         name = localization_json["TimeAttackStage"][joint_firing_drill_type]
-        localization_dict["TimeAttack"][id] = name
+        localization_dict["TimeAttack"][event_id] = name
 
     ##########################################
     # generate result table
@@ -400,23 +505,23 @@ def update_activity_schaledb(localization="en"):
     for server_config in config_json["Regions"]:
         server = pub_area_translator[server_config["Name"]]
         for event in server_config["CurrentEvents"]:
-            id = str(event["event"])
+            event_id = str(event["event"])
 
             # often SchaleDB mark 10 prefix as a rerun event, we only keep the last 3 digits for localization
-            if len(id) > 3:
-                id = id[-3:]
+            if len(event_id) > 3:
+                event_id = event_id[-3:]
             begin_time = event["start"]
             end_time = event["end"]
             if begin_time <= time.time() <= end_time:
                 result[server]["Event"] = {
-                    "name": localization_dict["Events"][id],
-                    "schaledb_id": id,
+                    "name": localization_dict["Events"][event_id],
+                    "schaledb_id": event_id,
                     "begin_time": str(begin_time),
                     "end_time": str(end_time)
                 }
         for event in server_config["CurrentRaid"]:
             raid_type = event["type"]
-            id = event["raid"]
+            raid_id = event["raid"]
             start_time = event["start"]
             end_time = event["end"]
             current_time = time.time()
@@ -424,11 +529,48 @@ def update_activity_schaledb(localization="en"):
                 continue
 
             result[server]["Raids"][raid_type_translator[raid_type]] = {
-                "name": localization_dict[raid_type][id],
+                "name": localization_dict[raid_type][raid_id],
                 "begin_time": str(start_time),
                 "end_time": str(end_time)
             }
 
+        ############################################################
+        # Download stage data if there's an event id specified
+        ############################################################
+
+        if result[server]["Event"] is not None and "schaledb_id" in result[server]["Event"]:
+            event_stage_list = []
+            event_id = result[server]["Event"]["schaledb_id"]
+            for stage_id, stage_data in events_json["Stages"].items():
+                if stage_id.startswith(event_id):
+                    difficulty = stage_data["Difficulty"]
+                    if difficulty != 1:
+                        # Currently we only save task data of normal difficulty
+                        # Known difficulties:
+                        # 1: Normal
+                        # 2: Challenge
+                        continue
+                    stage_index = stage_data["Stage"]
+                    stage_name = stage_data["Name"]
+
+                    # stage_data["ArmorType"] is a list and indicates any possible armor type of enemy
+                    # we only keep the first armor type for simplicity
+                    armor_type = armor_type_translator[stage_data["ArmorTypes"][0]]
+
+                    # stage_data["EntryCost"](list):each item(list) [0] is the cost type, [1] is the cost amount
+                    # here type is always AP so we only keep the amount
+                    entry_cost = stage_data["EntryCost"][0][1]
+                    event_stage_list.append({
+                        "stage_index": stage_index,
+                        "stage_name": stage_name,
+                        "entry_cost": entry_cost,
+                        "armor_type": armor_type
+                    })
+                # sort stages by stage_index
+                event_stage_list.sort(key=lambda x: x["stage_index"])
+
+            # save stage data to result
+            result[server]["Event"]["stages"] = event_stage_list
     return result
 
 
