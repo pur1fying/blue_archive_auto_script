@@ -46,7 +46,7 @@ jobs:
         if: success() && (hashFiles('module/activities/tmp/tmp_activity.json') != '')
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: "chore(activity): sync activity.json (auto-update by workflow)"
+          commit-message: "ci(activities): sync activity.json (auto-update by workflow)"
           title: "CI/sync activity.json (auto-update by workflow)"
           body: "${{ steps.pr_body.outputs.body }}"
           branch: "auto-sync-activity"
