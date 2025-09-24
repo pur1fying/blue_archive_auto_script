@@ -576,29 +576,26 @@ def update_activity_schaledb(localization="en"):
 
 def update_activity():
     logger = logging.getLogger("activity_updater")
-    try:
-        logger.info("Retrieving activity data from Gamekee API...")
-        gamekee_response = update_activity_gamekee_api()
-        logger.info("Gamekee API Response:\n%s", json.dumps(gamekee_response, ensure_ascii=False, indent=4))
 
-        logger.info("Retrieving activity data from Blue Archive Wiki...")
-        bawiki_response = update_activity_bawiki()
-        logger.info("Blue Archive Wiki Response:\n%s", json.dumps(bawiki_response, ensure_ascii=False, indent=4))
+    logger.info("Retrieving activity data from Gamekee API...")
+    gamekee_response = update_activity_gamekee_api()
+    logger.info("Gamekee API Response:\n%s", json.dumps(gamekee_response, ensure_ascii=False, indent=4))
 
-        logger.info("Retrieving activity data from SchaleDB...")
-        schaledb_response = update_activity_schaledb()
-        logger.info("SchaleDB Response:\n%s", json.dumps(schaledb_response, ensure_ascii=False, indent=4))
+    logger.info("Retrieving activity data from Blue Archive Wiki...")
+    bawiki_response = update_activity_bawiki()
+    logger.info("Blue Archive Wiki Response:\n%s", json.dumps(bawiki_response, ensure_ascii=False, indent=4))
 
-        # For final result, we prefer BAWiki > SchaleDB > Gamekee API
-        logger.info("Merging activity data...")
-        final_result = _unify_table(bawiki_response, schaledb_response, FULL_RESULT_FORMAT)
-        final_result = _unify_table(final_result, gamekee_response, FULL_RESULT_FORMAT)
+    logger.info("Retrieving activity data from SchaleDB...")
+    schaledb_response = update_activity_schaledb()
+    logger.info("SchaleDB Response:\n%s", json.dumps(schaledb_response, ensure_ascii=False, indent=4))
 
-        logger.info("Final Result:\n%s", json.dumps(final_result, ensure_ascii=False, indent=4))
-        return final_result
-    except Exception as e:
-        logger.error(f"An error occurred during the activity update process: {e}")
-        sys.exit(1)
+    # For final result, we prefer BAWiki > SchaleDB > Gamekee API
+    logger.info("Merging activity data...")
+    final_result = _unify_table(bawiki_response, schaledb_response, FULL_RESULT_FORMAT)
+    final_result = _unify_table(final_result, gamekee_response, FULL_RESULT_FORMAT)
+
+    logger.info("Final Result:\n%s", json.dumps(final_result, ensure_ascii=False, indent=4))
+    return final_result
 
 
 if __name__ == "__main__":
