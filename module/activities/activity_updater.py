@@ -606,9 +606,9 @@ if __name__ == "__main__":
     console_handler.setFormatter(log_formatter)
     logger.addHandler(console_handler)
 
-    activity_json_path = os.path.join(os.path.dirname(__file__), "activity_data\\activity.json")
-    tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp\\tmp_activity.json")
-    pr_body_md_path = os.path.join(os.path.dirname(__file__), "tmp\\activity_update_log.md")
+    activity_json_path = os.path.join(os.path.dirname(__file__), "activity_data/activity.json")
+    tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp/tmp_activity.json")
+    pr_body_md_path = os.path.join(os.path.dirname(__file__), "tmp/activity_update_log.md")
 
     logger.info("Starting activity information retrieval and merging process...")
     final_result = update_activity()
@@ -629,7 +629,7 @@ if __name__ == "__main__":
     # save stage data in a dedicated file
     for server in ["CN", "Global", "JP"]:
         # remove previous stage data file if exists
-        stages_path = os.path.join(os.path.dirname(__file__), f"activity_data\\{server}_event_stages.json")
+        stages_path = os.path.join(os.path.dirname(__file__), f"activity_data/{server}_event_stages.json")
         if os.path.exists(stages_path):
             os.remove(stages_path)
         if ordered_result[server]["Event"] is not None and "stages" in ordered_result[server]["Event"]:
