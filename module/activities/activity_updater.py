@@ -606,9 +606,9 @@ if __name__ == "__main__":
     console_handler.setFormatter(log_formatter)
     logger.addHandler(console_handler)
 
-    activity_json_path = os.path.join(os.path.dirname(__file__), "activity_data/activity.json")
-    tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp/tmp_activity.json")
-    pr_body_md_path = os.path.join(os.path.dirname(__file__), "tmp/activity_update_log.md")
+    activity_json_path = os.path.join(os.path.dirname(__file__), "activity_data\\activity.json")
+    tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp\\tmp_activity.json")
+    pr_body_md_path = os.path.join(os.path.dirname(__file__), "tmp\\activity_update_log.md")
 
     logger.info("Starting activity information retrieval and merging process...")
     final_result = update_activity()
@@ -625,6 +625,20 @@ if __name__ == "__main__":
     final_result["last_update_time"] = int(time.time())
     ordered_keys = ["last_update_time", "JP", "Global", "CN"]
     ordered_result = OrderedDict((k, final_result[k]) for k in ordered_keys if k in final_result)
+
+    # save stage data in a dedicated file
+    for server in ["CN", "Global", "JP"]:
+        # remove previous stage data file if exists
+        stages_path = os.path.join(os.path.dirname(__file__), f"activity_data\\{server}_event_stages.json")
+        if os.path.exists(stages_path):
+            os.remove(stages_path)
+        if ordered_result[server]["Event"] is not None and "stages" in ordered_result[server]["Event"]:
+            stages = ordered_result[server]["Event"].pop("stages")
+            ordered_result[server]["Event"]["stages_file"] = f"activity_data/{server}_event_stages.json"
+            with open(stages_path, "w", encoding="utf-8") as f:
+                json.dump(stages, f, ensure_ascii=False, indent=4)
+            logger.info(f"Stage data for {server} server has been saved to {stages_path}.")
+
     with open(tmp_json_path, "w", encoding="utf-8") as f:
         json.dump(ordered_result, f, ensure_ascii=False, indent=4)
     logger.info("Updated data written to temporary file tmp_activity.json.")
@@ -632,9 +646,12 @@ if __name__ == "__main__":
     # generating pr body markdown
     with open(pr_body_md_path, "w", encoding="utf-8") as f:
         f.write("### Detected a change in activity data, details as follows:\n\n")
-        with open(activity_json_path, 'r', encoding='utf-8') as f1, open(tmp_json_path, 'r', encoding='utf-8') as f2:
-            old_data, new_data = f1.readlines(), f2.readlines()
-
+        if os.path.exists(activity_json_path):
+            with open(activity_json_path, 'r', encoding='utf-8') as f1, open(tmp_json_path, 'r', encoding='utf-8') as f2:
+                old_data, new_data = f1.readlines(), f2.readlines()
+        else:
+            with open(tmp_json_path, 'r', encoding='utf-8') as f2:
+                old_data, new_data = "", f2.readlines()
         diff = difflib.unified_diff(old_data, new_data)
         f.write("```diff\n")
         f.writelines(diff)

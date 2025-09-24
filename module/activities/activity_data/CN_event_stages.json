@@ -1,0 +1,74 @@
+[
+    {
+        "stage_index": 1,
+        "stage_name": "Pleasant Walk, 1st St.",
+        "entry_cost": 10,
+        "armor_type": "pierce"
+    },
+    {
+        "stage_index": 2,
+        "stage_name": "Pleasant Walk, 3rd St.",
+        "entry_cost": 10,
+        "armor_type": "pierce"
+    },
+    {
+        "stage_index": 3,
+        "stage_name": "Gourmet Road Building 249",
+        "entry_cost": 10,
+        "armor_type": "burst"
+    },
+    {
+        "stage_index": 4,
+        "stage_name": "Back of Gourmet Road Building 249",
+        "entry_cost": 10,
+        "armor_type": "burst"
+    },
+    {
+        "stage_index": 5,
+        "stage_name": "Favorite Foods Street, 4th Ave.",
+        "entry_cost": 15,
+        "armor_type": "pierce"
+    },
+    {
+        "stage_index": 6,
+        "stage_name": "Favorite Foods Street, 7th Ave.",
+        "entry_cost": 15,
+        "armor_type": "pierce"
+    },
+    {
+        "stage_index": 7,
+        "stage_name": "Red Pinwheel Road 2-4",
+        "entry_cost": 15,
+        "armor_type": "burst"
+    },
+    {
+        "stage_index": 8,
+        "stage_name": "Road in Front of Donut Shop",
+        "entry_cost": 15,
+        "armor_type": "burst"
+    },
+    {
+        "stage_index": 9,
+        "stage_name": "West Pelican Bakery Street",
+        "entry_cost": 20,
+        "armor_type": "pierce"
+    },
+    {
+        "stage_index": 10,
+        "stage_name": "East Horizon Tree Street",
+        "entry_cost": 20,
+        "armor_type": "pierce"
+    },
+    {
+        "stage_index": 11,
+        "stage_name": "Commercial District 8-2",
+        "entry_cost": 20,
+        "armor_type": "burst"
+    },
+    {
+        "stage_index": 12,
+        "stage_name": "Snack Street North Road",
+        "entry_cost": 20,
+        "armor_type": "burst"
+    }
+]
