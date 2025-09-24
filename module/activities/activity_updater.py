@@ -606,7 +606,7 @@ if __name__ == "__main__":
     console_handler.setFormatter(log_formatter)
     logger.addHandler(console_handler)
 
-    activity_json_path = os.path.join(os.path.dirname(__file__), "activity.json")
+    activity_json_path = os.path.join(os.path.dirname(__file__), "activity_data/activity.json")
     tmp_json_path = os.path.join(os.path.dirname(__file__), "tmp/tmp_activity.json")
     pr_body_md_path = os.path.join(os.path.dirname(__file__), "tmp/activity_update_log.md")
 
