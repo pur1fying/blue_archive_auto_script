@@ -23,7 +23,7 @@ HEADERS = {
 }
 
 BASIC_RESULT_FORMAT = {
-    "Events": [],
+    "Event": None,
     "Raids": {
         "total_assault": None,
         "grand_assault": None,
@@ -218,7 +218,7 @@ def update_activity_gamekee_api():
         }
 
         if title.startswith("[活动]"):
-            result[pub_area]["Events"].append(activity_info)
+            result[pub_area]["Event"] = activity_info
         elif title.startswith("总力战"):
             result[pub_area]["Raids"]["total_assault"] = activity_info
         elif title.startswith("大决战"):
@@ -260,10 +260,8 @@ def update_activity_bawiki():
         headers=HEADERS
     )
     events_html = etree.HTML(events_response.content.decode('utf-8'), parser=etree.HTMLParser(encoding='utf-8'))
-    JP_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version"]/table',
-                                               force_list=True)
-    Global_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Global_version"]/table',
-                                                   force_list=True)
+    JP_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version"]/table')
+    Global_event_schedules = _fetch_activity_table(events_html, '//*[@id="tabber-Global_version"]/table')
     # JP_mini_events = _fetch_activity_table(events_html, '//*[@id="tabber-Japanese_version_2"]/table')
     # Global_mini_events = _fetch_activity_table(events_html, '//*[@id="tabber-Global_version_2"]/table')
     reward_campaigns = _fetch_activity_table(events_html, '//h1[@id="Reward_campaigns"]/following::table[1]',
@@ -337,10 +335,10 @@ def update_activity_bawiki():
             result["JP"]["Rewards"]["hard_mission_rewards"] = 2 if "Double" in name else 3
         elif "level EXP" in name:
             result["JP"]["Rewards"]["level_exp_rewards"] = 2 if "Double" in name else 3
-    result["JP"]["Events"], result["JP"]["Raids"]["total_assault"], result["JP"]["Raids"]["grand_assault"], \
+    result["JP"]["Event"], result["JP"]["Raids"]["total_assault"], result["JP"]["Raids"]["grand_assault"], \
         result["JP"]["Raids"]["limit_break_assault"], result["JP"]["Raids"]["joint_firing_drill"] = \
         JP_event_schedules, JP_total_assault, JP_grand_assault, JP_limit_break_assault, JP_joint_firing_drill
-    result["Global"]["Events"], result["Global"]["Raids"]["total_assault"], result["Global"]["Raids"]["grand_assault"], \
+    result["Global"]["Event"], result["Global"]["Raids"]["total_assault"], result["Global"]["Raids"]["grand_assault"], \
         result["Global"]["Raids"]["limit_break_assault"], result["Global"]["Raids"]["joint_firing_drill"] = \
         Global_event_schedules, Global_total_assault, Global_grand_assault, Global_limit_break_assault, \
             Global_joint_firing_drill
@@ -410,11 +408,12 @@ def update_activity_schaledb(localization="en"):
             begin_time = event["start"]
             end_time = event["end"]
             if begin_time <= time.time() <= end_time:
-                result[server]["Events"].append({
+                result[server]["Event"] = {
                     "name": localization_dict["Events"][id],
+                    "schaledb_id": id,
                     "begin_time": str(begin_time),
                     "end_time": str(end_time)
-                })
+                }
         for event in server_config["CurrentRaid"]:
             raid_type = event["type"]
             id = event["raid"]
