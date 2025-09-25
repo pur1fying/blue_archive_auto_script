@@ -1,3 +1,5 @@
+import json
+import os
 from math import ceil
 
 import numpy as np
@@ -6,7 +8,6 @@ from PyQt5.QtWidgets import QLabel, QHBoxLayout, QHeaderView, QTableWidgetItem
 from qfluentwidgets import TableWidget
 
 from .expandTemplate import TemplateLayout
-from gui.util.translator import baasTranslator as bt
 
 
 class Layout(TemplateLayout):
@@ -23,12 +24,7 @@ class Layout(TemplateLayout):
                 'label': EventMapConfig.tr('推任务'),
                 'type': 'button',
                 'selection': self.activity_mission
-            },
-            {
-                'label': EventMapConfig.tr('推挑战'),
-                'type': 'button',
-                'selection': self.activity_challenge
-            },
+            }
         ]
 
         self.main_thread = config.get_main_thread()
@@ -65,7 +61,7 @@ class Layout(TemplateLayout):
 
                 tableView = TableWidget(self)
                 tableView.setWordWrap(False)
-                tableView.setRowCount(ceil(len(total_list)/4))
+                tableView.setRowCount(ceil(len(total_list) / 4))
                 tableView.setColumnCount(4)
                 tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
                 tableView.setHorizontalHeaderLabels(
@@ -101,58 +97,24 @@ class Layout(TemplateLayout):
         threading.Thread(target=self.main_thread.start_explore_activity_challenge).start()
 
     def gen_event_formation_attr(self):
-        current_event = self.config.static_config.current_game_activity[self.config.server_mode]
-        if current_event is None:
+        if os.path.exists("module/activities/activity_data/activity.json"):
+            with open("module/activities/activity_data/activity.json", "r", encoding="utf-8") as f:
+                activity_data = json.load(f)
+        else:
             return None
-        import json
-        try:
-            file_path = f"src/explore_task_data/activities/{current_event}.json"
-            with open(file_path, "r") as f:
-                stage_data = json.load(f)
-        except FileNotFoundError:
+        current_event = activity_data[self.config.server_mode]["Event"]
+        if (current_event is None) or ("stages_file" not in current_event):
             return None
-        ret = dict(activity_name=current_event, story=dict(), mission=dict(), challenge=dict())
-        en2cn = {
-            "story": self.tr("故事"),
-            "mission": self.tr("任务"),
-            "challenge": self.tr("挑战"),
+        with open(current_event["stages_file"], "r") as f:
+            stage_data = json.load(f)
+
+        result = {
+            "activity_name": current_event["name"],
+            "story": {},
+            "mission": {}
         }
-        for key, value in stage_data.items():
-            if key == "story" or key == "mission" or key == "challenge":
-                for i in range(len(value)):
-                    ret[key][en2cn[key] + str(i + 1)] = formation_attr_to_cn(value[i])
-                continue
-            tp = None
-            if key.startswith("story"):
-                tp = "story"
-            elif key.startswith("mission"):
-                tp = "mission"
-            elif key.startswith("challenge"):
-                tp = "challenge"
-            if tp is None:
-                continue
-            pos = key.find("_")
-            if pos == -1:
-                continue
-            number = key[len(tp):pos]
-            name = en2cn[tp] + number
-            if "sss" in key:
-                name += self.tr("三星")
-            if "task" in key:
-                name += self.tr("成就任务")
-            team = ""
-            for s in value['start']:
-                temp = bt.tr('ConfigTranslation', formation_attr_to_cn(s[0]))
-                if temp is not None:
-                    team += temp + " "
-            if team.endswith(" "):
-                team = team[:-1]
-            ret[tp][name] = team
-        return ret
+        attribute_translator = {"burst": "爆发", "pierce": "贯穿", "mystic": "神秘", "shock": "振动"}
+        for i in range(len(stage_data)):
+            result["mission"][stage_data[i]["stage_name"]] = attribute_translator[stage_data[i]["armor_type"]]
+        return result
 
-
-def formation_attr_to_cn(attr):
-    attrMap = {"burst": "爆发", "pierce": "贯穿", "mystic": "神秘", "shock": "振动"}
-    if attr not in attrMap:
-        return None
-    return attrMap[attr]

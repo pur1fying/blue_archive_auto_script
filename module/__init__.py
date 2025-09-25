@@ -6,9 +6,6 @@ from module.shop import common_shop, tactical_challenge_shop
 from module import create
 from module import dailyGameActivity
 from module import de_clothes
-from module import explore_activity_challenge
-from module import explore_activity_mission
-from module import explore_activity_story
 from module import friend
 from module import group
 from module import group_story

@@ -14,6 +14,7 @@ import numpy as np
 import psutil
 
 import module.ExploreTasks.explore_task
+import module.activities
 from core import position, picture, utils
 from core.config.config_set import ConfigSet
 from core.device import emulator_manager
@@ -56,9 +57,8 @@ func_dict = {
     'restart': module.restart.implement,
     'refresh_uiautomator2': module.refresh_uiautomator2.implement,
     'activity_sweep': module.sweep_activity.implement,
-    'explore_activity_story': module.explore_activity_story.implement,
-    'explore_activity_challenge': module.explore_activity_challenge.implement,
-    'explore_activity_mission': module.explore_activity_mission.implement,
+    'explore_activity_story': module.activities.activity_utils.explore_activity_story,
+    'explore_activity_mission': module.activities.activity_utils.explore_activity_mission,
     'dailyGameActivity': module.dailyGameActivity.implement,
     'friend': module.friend.implement,
     'joint_firing_drill': module.joint_firing_drill.implement,
@@ -291,7 +291,12 @@ class Baas_thread:
             self.connection = Connection(self)
             self.is_android_device = self.connection.is_android_device()
             self.server = self.connection.get_server()
-            self.current_game_activity = self.static_config.current_game_activity[self.server]
+
+            if os.path.exists("module/activities/activity_data/activity.json"):
+                with open("module/activities/activity_data/activity.json","r",encoding="utf-8") as f:
+                    activity_data = json.load(f)
+            if activity_data[self.server]["Event"] is not None:
+                self.current_game_activity = activity_data[self.server]["Event"]
 
             if self.is_android_device:
                 self.serial = self.connection.get_serial()
@@ -631,14 +636,15 @@ class Baas_thread:
             }
         }
         img_reactions.update(**update[self.server])
-        rgb_possibles = {
+        rgb_reactions = {
             'relationship_rank_up': (640, 360),
             'area_rank_up': (640, 100),
             'level_up': (640, 200),
             'reward_acquired': (640, 100),
             # "fighting_feature": (1226, 51)
         }
-        picture.co_detect(self, ["main_page"], rgb_possibles, None, img_reactions, skip_first_screenshot,
+        picture.co_detect(self, ["main_page"], rgb_reactions=rgb_reactions,
+                          img_reactions=img_reactions, skip_first_screenshot=skip_first_screenshot,
                           tentative_click=True)
 
     def init_image_resource(self):
