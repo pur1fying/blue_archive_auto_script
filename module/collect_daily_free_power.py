@@ -1,5 +1,3 @@
-import time
-
 from core import picture
 from core.picture import GAME_ONE_TIME_POP_UPS
 
@@ -51,19 +49,42 @@ def to_purchase_pyroxenes_menu(self):
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
 
 def to_purchase_type(self, tp):
-    p = {
+    # position when " limited " exist
+    p_1 = {
         "limited": (488, 186),
         "pyroxenes": (750, 186),
         "package": (1000, 186)
     }
-    p = p[tp]
-    img_ends = f"main_page_purchase-pyroxenes-{tp}-selected"
-    img_possibles = {
-        "main_page_purchase-pyroxenes-limited-selected": p,
-        "main_page_purchase-pyroxenes-pyroxenes-selected": p,
-        "main_page_purchase-pyroxenes-package-selected":p,
+    p_1 = p_1[tp]
+    # position when " limited " not exist
+    p_2 = {
+        "pyroxenes": (590, 186),
+        "package": (996, 186)
     }
-    img_possibles.pop(img_ends)
+    p_2 = p_2[tp]
+    img_ends = {
+        "limited": [
+            "main_page_purchase-pyroxenes-limited-selected"
+        ],
+        "pyroxenes": [
+            "main_page_purchase-pyroxenes-pyroxenes-selected-1",
+            "main_page_purchase-pyroxenes-pyroxenes-selected-2"
+        ],
+        "package": [
+            "main_page_purchase-pyroxenes-package-selected-1",
+            "main_page_purchase-pyroxenes-package-selected-2"
+        ]
+    }
+    img_ends = img_ends[tp]
+    img_possibles = {
+        "main_page_purchase-pyroxenes-limited-selected": p_1,
+        "main_page_purchase-pyroxenes-pyroxenes-selected-1": p_1,
+        "main_page_purchase-pyroxenes-package-selected-1":p_1,
+        "main_page_purchase-pyroxenes-pyroxenes-selected-2": p_2,
+        "main_page_purchase-pyroxenes-package-selected-2": p_2
+    }
+    for img_end in img_ends:
+        img_possibles.pop(img_end, None)
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
 def detect_free_power_availability(self):
