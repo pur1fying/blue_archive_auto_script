@@ -1,15 +1,21 @@
 {
-    "last_update_time": 1758725593,
+    "last_update_time": 1758777543,
     "JP": {
         "Event": {
-            "name": "[活动]为了谁的艺术～虚伪装饰的绘画与美学的去向～",
+            "name": "Art for Whom? ～Art Forgery and the Pursuit of Beauty～",
             "begin_time": "1758679200",
-            "end_time": "1759888740"
+            "end_time": "1760493600",
+            "bawiki_info_link": "https://bluearchive.wiki/wiki/Art_for_Whom%3F_%EF%BD%9EArt_Forgery_and_the_Pursuit_of_Beauty%EF%BD%9E",
+            "stages_file": "module/activities/activity_data/JP_event_stages.json"
         },
         "Raids": {
             "total_assault": null,
             "grand_assault": null,
-            "limit_break_assault": null,
+            "limit_break_assault": {
+                "name": "Celestial Pantheon: The Fury of Set (Limit Break Raid)",
+                "begin_time": "1758765600",
+                "end_time": "1761073140"
+            },
             "joint_firing_drill": null
         },
         "Rewards": {
@@ -28,7 +34,7 @@
             "begin_time": "1758592800",
             "end_time": "1759802400",
             "bawiki_info_link": "https://bluearchive.wiki/wiki/Highlander_Railroad_Runaway_Incident_%E3%80%9C_And_Then_The_Train_Was_Gone_%E3%80%9C",
-            "stages_file": "activity_data/Global_event_stages.json"
+            "stages_file": "module/activities/activity_data/Global_event_stages.json"
         },
         "Raids": {
             "total_assault": null,
@@ -56,7 +62,7 @@
             "schaledb_id": "820",
             "begin_time": "1757570400",
             "end_time": "1758780000",
-            "stages_file": "activity_data/CN_event_stages.json"
+            "stages_file": "module/activities/activity_data/CN_event_stages.json"
         },
         "Raids": {
             "total_assault": null,
@@ -65,12 +71,12 @@
             "joint_firing_drill": null
         },
         "Rewards": {
-            "commissions_rewards": 1,
+            "commissions_rewards": 3,
             "scrimmage_rewards": 1,
             "bounty_hunts_rewards": 1,
             "schedule_rewards": 1,
             "normal_mission_rewards": 1,
-            "hard_mission_rewards": 2,
+            "hard_mission_rewards": 1,
             "level_exp_rewards": 1
         }
     }
