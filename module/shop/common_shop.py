@@ -5,6 +5,11 @@ import numpy as np
 from core import color, picture, image
 from module.shop.shop_utils import get_purchase_state, to_common_shop
 
+COMMON_SHOP_ITEM_ROW_X = {
+    'CN': [653, 805, 959, 1114],
+    'Global': [653, 805, 959, 1114],
+    'JP': [650, 800, 950, 1100]
+}
 
 def implement(self):
     buy_list = np.array(self.config.CommonShopList)
@@ -83,7 +88,7 @@ def swipe_get_y_diff(self, item_lines_y):
     search_area_y_max = template_y_max + 30
     area = (629, template_y_min, 1228, template_y_max)
     tar_img = image.screenshot_cut(self, area)
-    self.swipe(1246, 594, 1246, 447, duration=0.05 if self.is_android_device else 0.5, post_sleep_time=1)
+    self.swipe(616, 594, 616, 447, duration=0.05 if self.is_android_device else 0.5, post_sleep_time=1)
     self.update_screenshot_array()
     position = image.search_image_in_area(self,
                                           tar_img,
@@ -128,7 +133,8 @@ def buy(self, buy_list):
                     need_buy_list.append(items[temp + j])
                 total_item -= 1
             ensure_choose(self, need_buy_list)
-            last_checked_idx += 4
+            temp += item_lines_y[i][1]
+            last_checked_idx += item_lines_y[i][1]
             last_checked_y = item_lines_y[i][0]
         if total_item == 0:
             self.logger.info("All Required Items Bought.")
@@ -142,7 +148,7 @@ def ensure_choose(self, items):
     for item in items:
         if item[0][1] <= 252:
             items.remove(item)
-    x = [653, 805, 959, 1114]
+    x = COMMON_SHOP_ITEM_ROW_X[self.server]
     areas = []
     click_centers = []
     unchecked = list(range(len(items)))
@@ -173,7 +179,7 @@ def ensure_choose(self, items):
 
 
 def get_item_position(self):
-    x = [653, 805, 959, 1114]
+    x = COMMON_SHOP_ITEM_ROW_X[self.server]
     y_end = 560
     recorded_y = []  # (y, num) means line y has num items
     state = []  # every item : ((idx of this line, y), purchasable, currency_type)
