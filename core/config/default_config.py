@@ -1316,7 +1316,8 @@ STATIC_DEFAULT_CONFIG = '''
       }
     },
     "create_each_phase_weight" : [0, 10, 40, 40],
-    "create_filter_type_list": [
+    "create_filter_type_list": {
+      "CN":[
         "Equipment",
         "Furniture",
         "Decoration",
@@ -1325,7 +1326,31 @@ STATIC_DEFAULT_CONFIG = '''
         "Coin",
         "Material",
         "Gift"
-    ],
+      ],
+      "Global":[
+        "Equipment",
+        "Furniture",
+        "Decoration",
+        "Interior",
+        "Eleph",
+        "Coin",
+        "Material",
+        "Gift"
+      ],
+      "JP":[
+        "Equipment",
+        "Furniture",
+        "Decoration",
+        "Interior",
+        "Eleph",
+        "Coin",
+        "Material",
+        "Disk",
+        "Note",
+        "Gift",
+        "Special"
+      ]
+    },
     "create_item_order": {
       "CN": {
         "basic": {
@@ -1760,7 +1785,10 @@ STATIC_DEFAULT_CONFIG = '''
             "Intact-Winnipesaukee-Stone",
             "Physical-Education-Workbook",
             "Shooting-Workbook",
-            "Hygiene-Workbook",
+            "Hygiene-Workbook"
+          ],
+          "Gift": [],
+          "Disk": [
             "Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)",
             "Normal-Tactical-Training-Blu-ray-(Hyakkiyako)",
             "Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)",
@@ -1796,7 +1824,9 @@ STATIC_DEFAULT_CONFIG = '''
             "Beginner-Tactical-Training-Blu-ray-(Valkyrie)",
             "Normal-Tactical-Training-Blu-ray-(Valkyrie)",
             "Advanced-Tactical-Training-Blu-ray-(Valkyrie)",
-            "Superior-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Superior-Tactical-Training-Blu-ray-(Valkyrie)"
+          ],
+          "Note": [
             "Beginner-Tech-Notes-(Hyakkiyako)",
             "Normal-Tech-Notes-(Hyakkiyako)",
             "Advanced-Tech-Notes-(Hyakkiyako)",
@@ -1833,8 +1863,7 @@ STATIC_DEFAULT_CONFIG = '''
             "Normal-Tech-Notes-(Valkyrie)",
             "Advanced-Tech-Notes-(Valkyrie)",
             "Superior-Tech-Notes-(Valkyrie)"
-          ],
-          "Gift": []
+          ]
         }
       }
     },

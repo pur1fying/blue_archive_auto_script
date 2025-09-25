@@ -180,11 +180,21 @@ def get_display_setting(self, phase):
         return filter_list, sort_type, sort_direction
     """
     if phase == 1:
-        return [1, 1, 1, 1, 1, 1, 1, 1], "basic", "up"
+        filter_list = {
+            "CN": [1, 1, 1, 1, 1, 1, 1, 1],
+            "Global": [1, 1, 1, 1, 1, 1, 1, 1],
+            "JP": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+        }
+        return filter_list[self.server], "basic", "up"
+    filter_list = {
+        "CN": [0, 0, 0, 0, 0, 0, 1, 0],
+        "Global": [0, 0, 0, 0, 0, 0, 1, 0],
+        "JP": [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1]
+    }
     if phase == 2:
-        return [0, 0, 0, 0, 0, 0, 1, 0], "count", "down"
+        return filter_list[self.server], "count", "down"
     if phase == 3:
-        return [0, 0, 0, 0, 0, 0, 1, 0], "count", "down"
+        return filter_list[self.server], "count", "down"
 
 
 def create_phase(self, phase):
@@ -362,21 +372,21 @@ def set_display_setting(self, filter_list=None, sort_type=None, sort_direction=N
 def set_display_setting_filter_list(self, filter_list):
     to_filter_menu(self)
     self.logger.info("Set Filter List: ")
-    self.logger.info(str(filter_list[0:4]))
-    self.logger.info(str(filter_list[4:8]))
+    for i in range(0, len(filter_list), 4):
+        self.logger.info(str(filter_list[i:i+4]))
     filter_list_ensure_choose(self, filter_list)
     confirm_filter(self)
 
 
 def filter_list_ensure_choose(self, filter_list):
-    filter_type_list = self.static_config.create_filter_type_list
+    filter_type_list = self.static_config.create_filter_type_list[self.server]
     start_position = (291, 294)
     dx = 235
     dy = 65
     curr_position = start_position
     for i in range(0, len(filter_list)):
-        if i == 4:
-            curr_position = (start_position[0], start_position[1] + dy)
+        if i == 4 or i == 8:
+            curr_position = (start_position[0], curr_position[1] + dy)
         else:
             if i != 0:
                 curr_position = (curr_position[0] + dx, curr_position[1])
@@ -495,13 +505,13 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     self.logger.info("Build Item Order List.")
     self.logger.info("Phase : " + str(phase))
     self.logger.info("Filter List : ")
-    self.logger.info(str(filter_list[0:4]))
-    self.logger.info(str(filter_list[4:8]))
+    for i in range(0, len(filter_list), 4):
+        self.logger.info(str(filter_list[i:i+4]))
     self.logger.info("Sort Type : " + sort_type)
     self.logger.info("Sort Direction : " + sort_direction)
     result = []
-    filter_type_list = self.static_config.create_filter_type_list
-    if filter_list[6]:
+    filter_type_list = self.static_config.create_filter_type_list[self.server]
+    if (self.server in ['CN', 'Global'] and filter_list[6]) or (self.server in ['JP'] and filter_list[10]):
         # when material is chosen key stone will be displayed at the top
         # CN server phase 3 key stone is not allowed to be chosen
         temp = self.static_config.create_item_order[self.server]["basic"]["Special"]
