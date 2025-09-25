@@ -3524,9 +3524,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "NewYearsAperitifOneAndDoneMatch",
+        "CN": null,
         "Global": "PandemicHazardAMiraclePancake",
-        "JP": "ShesideOutside"
+        "JP": "JP_2025_09_24"
     },
     "dailyGameActivity": {
         "CN": null,
