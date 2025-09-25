@@ -1,5 +1,5 @@
 {
-    "last_update_time": 1758777543,
+    "last_update_time": 1758832704,
     "JP": {
         "Event": {
             "name": "Art for Whom? ～Art Forgery and the Pursuit of Beauty～",
@@ -57,15 +57,13 @@
         }
     },
     "CN": {
-        "Event": {
-            "name": "New Year's Aperitif ~One-and-Done Match~",
-            "schaledb_id": "820",
-            "begin_time": "1757570400",
-            "end_time": "1758780000",
-            "stages_file": "module/activities/activity_data/CN_event_stages.json"
-        },
+        "Event": null,
         "Raids": {
-            "total_assault": null,
+            "total_assault": {
+                "name": "总力战：霍德（街区战）",
+                "begin_time": "1758780000",
+                "end_time": "1759348740"
+            },
             "grand_assault": null,
             "limit_break_assault": null,
             "joint_firing_drill": null
