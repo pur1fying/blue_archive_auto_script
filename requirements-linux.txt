@@ -11,3 +11,4 @@ PyQt-Fluent-Widgets
 psutil
 tomli == 2.2.1
 tomli_w == 1.2.0
+coredumpy

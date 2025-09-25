@@ -24,7 +24,9 @@ dependencies = [
     "tomli_w == 1.2.0",
     "PyAutoGUI == 0.9.54",
     "mss==10.0.0",
-    "tzdata"
+    "tzdata",
+    "pyqt5-stubs==5.15.6.0",
+    "coredumpy>=0.4.3",
 ]
 requires-python = ">=3.9"
 readme = "README.md"

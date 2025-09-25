@@ -6,12 +6,15 @@ import os
 import re
 import sys
 import time
+import coredumpy
 from collections import OrderedDict
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import requests
 from lxml import etree
+
+coredumpy.patch_except(directory='./dumps')
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 "

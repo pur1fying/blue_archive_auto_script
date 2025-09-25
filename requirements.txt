@@ -8,6 +8,7 @@ adbutils == 2.9.3
 uiautomator2 == 3.4.0
 opencv-python == 4.8.1.78
 lxml
+coredumpy
 
 PyQt-Fluent-Widgets == 1.2.0
 # gevent
