@@ -1,20 +1,20 @@
 {
-    "last_update_time": 1758832704,
+    "last_update_time": 1758919109,
     "JP": {
         "Event": {
-            "name": "Art for Whom? ～Art Forgery and the Pursuit of Beauty～",
+            "name": "誰が為の芸術～偽飾の絵画と美学の行方～",
+            "schaledb_id": "850",
             "begin_time": "1758679200",
             "end_time": "1760493600",
-            "bawiki_info_link": "https://bluearchive.wiki/wiki/Art_for_Whom%3F_%EF%BD%9EArt_Forgery_and_the_Pursuit_of_Beauty%EF%BD%9E",
             "stages_file": "module/activities/activity_data/JP_event_stages.json"
         },
         "Raids": {
             "total_assault": null,
             "grand_assault": null,
             "limit_break_assault": {
-                "name": "Celestial Pantheon: The Fury of Set (Limit Break Raid)",
+                "name": "The Fury of Set",
                 "begin_time": "1758765600",
-                "end_time": "1761073140"
+                "end_time": "1761073200"
             },
             "joint_firing_drill": null
         },
@@ -30,19 +30,19 @@
     },
     "Global": {
         "Event": {
-            "name": "Highlander Railroad Runaway Incident: And Then The Train Disappeared",
+            "name": "Highlander Railroad Runaway Incident: And the Train Disappeared",
+            "schaledb_id": "846",
             "begin_time": "1758592800",
             "end_time": "1759802400",
-            "bawiki_info_link": "https://bluearchive.wiki/wiki/Highlander_Railroad_Runaway_Incident_%E3%80%9C_And_Then_The_Train_Was_Gone_%E3%80%9C",
             "stages_file": "module/activities/activity_data/Global_event_stages.json"
         },
         "Raids": {
             "total_assault": null,
             "grand_assault": null,
             "limit_break_assault": {
-                "name": "Decagrammaton: Tiphareth (Limit Break Raid)",
+                "name": "Tiphareth",
                 "begin_time": "1758679200",
-                "end_time": "1760986740"
+                "end_time": "1760986800"
             },
             "joint_firing_drill": null
         },
@@ -60,9 +60,9 @@
         "Event": null,
         "Raids": {
             "total_assault": {
-                "name": "总力战：霍德（街区战）",
+                "name": "Hod",
                 "begin_time": "1758780000",
-                "end_time": "1759348740"
+                "end_time": "1759348800"
             },
             "grand_assault": null,
             "limit_break_assault": null,

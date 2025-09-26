@@ -1,74 +1,74 @@
 [
     {
-        "stage_index": "1",
-        "stage_name": "Quest 1",
-        "entry_cost": "10",
+        "stage_index": 1,
+        "stage_name": "ワイルドハント・本館広場",
+        "entry_cost": 10,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "2",
-        "stage_name": "Quest 2",
-        "entry_cost": "10",
+        "stage_index": 2,
+        "stage_name": "ワイルドハント・第1寮棟",
+        "entry_cost": 10,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "3",
-        "stage_name": "Quest 3",
-        "entry_cost": "10",
+        "stage_index": 3,
+        "stage_name": "ワイルドハント・正門通り",
+        "entry_cost": 10,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "4",
-        "stage_name": "Quest 4",
-        "entry_cost": "10",
+        "stage_index": 4,
+        "stage_name": "ワイルドハント・本館表通り",
+        "entry_cost": 10,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "5",
-        "stage_name": "Quest 5",
-        "entry_cost": "15",
+        "stage_index": 5,
+        "stage_name": "ワイルドハント・美術品商店街の入口",
+        "entry_cost": 15,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "6",
-        "stage_name": "Quest 6",
-        "entry_cost": "15",
+        "stage_index": 6,
+        "stage_name": "ワイルドハント・美術品商店街の裏道",
+        "entry_cost": 15,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "7",
-        "stage_name": "Quest 7",
-        "entry_cost": "15",
+        "stage_index": 7,
+        "stage_name": "ワイルドハント・第3歩道橋の北端",
+        "entry_cost": 15,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "8",
-        "stage_name": "Quest 8",
-        "entry_cost": "15",
+        "stage_index": 8,
+        "stage_name": "ワイルドハント・第3歩道橋の南端",
+        "entry_cost": 15,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "9",
-        "stage_name": "Quest 9",
-        "entry_cost": "20",
+        "stage_index": 9,
+        "stage_name": "ワイルドハント・彫刻公園の入口",
+        "entry_cost": 20,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "10",
-        "stage_name": "Quest 10",
-        "entry_cost": "20",
+        "stage_index": 10,
+        "stage_name": "ワイルドハント・彫刻公園の奥",
+        "entry_cost": 20,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "11",
-        "stage_name": "Quest 11",
-        "entry_cost": "20",
+        "stage_index": 11,
+        "stage_name": "廃材処理場進入路",
+        "entry_cost": 20,
         "armor_type": "mystic"
     },
     {
-        "stage_index": "12",
-        "stage_name": "Quest 12",
-        "entry_cost": "20",
+        "stage_index": 12,
+        "stage_name": "ワイルドハント・第7排水路",
+        "entry_cost": 20,
         "armor_type": "mystic"
     }
 ]

@@ -1,74 +1,74 @@
 [
     {
-        "stage_index": "1",
-        "stage_name": "Quest 1",
-        "entry_cost": "10",
+        "stage_index": 1,
+        "stage_name": "Frontier Vehicle Repair Shop",
+        "entry_cost": 10,
         "armor_type": "shock"
     },
     {
-        "stage_index": "2",
-        "stage_name": "Quest 2",
-        "entry_cost": "10",
+        "stage_index": 2,
+        "stage_name": "Frontier Station 11 Exit 5",
+        "entry_cost": 10,
         "armor_type": "burst"
     },
     {
-        "stage_index": "3",
-        "stage_name": "Quest 3",
-        "entry_cost": "10",
+        "stage_index": 3,
+        "stage_name": "Frontier Express Freight Train",
+        "entry_cost": 10,
         "armor_type": "burst"
     },
     {
-        "stage_index": "4",
-        "stage_name": "Quest 4",
-        "entry_cost": "10",
+        "stage_index": 4,
+        "stage_name": "Silver Line Freight Rally Point",
+        "entry_cost": 10,
         "armor_type": "shock"
     },
     {
-        "stage_index": "5",
-        "stage_name": "Quest 5",
-        "entry_cost": "15",
+        "stage_index": 5,
+        "stage_name": "Gold Line Freight Forwarding Hub",
+        "entry_cost": 15,
         "armor_type": "shock"
     },
     {
-        "stage_index": "6",
-        "stage_name": "Quest 6",
-        "entry_cost": "15",
+        "stage_index": 6,
+        "stage_name": "Gold Line Station 23 Transfer Platform",
+        "entry_cost": 15,
         "armor_type": "burst"
     },
     {
-        "stage_index": "7",
-        "stage_name": "Quest 7",
-        "entry_cost": "15",
+        "stage_index": 7,
+        "stage_name": "Green Line Transit Train Upper Level",
+        "entry_cost": 15,
         "armor_type": "burst"
     },
     {
-        "stage_index": "8",
-        "stage_name": "Quest 8",
-        "entry_cost": "15",
+        "stage_index": 8,
+        "stage_name": "Blue Line Intersection Hub",
+        "entry_cost": 15,
         "armor_type": "shock"
     },
     {
-        "stage_index": "9",
-        "stage_name": "Quest 9",
-        "entry_cost": "20",
+        "stage_index": 9,
+        "stage_name": "Blue Line Freight Station 14",
+        "entry_cost": 20,
         "armor_type": "shock"
     },
     {
-        "stage_index": "10",
-        "stage_name": "Quest 10",
-        "entry_cost": "20",
+        "stage_index": 10,
+        "stage_name": "Route 11 Express Platform",
+        "entry_cost": 20,
         "armor_type": "burst"
     },
     {
-        "stage_index": "11",
-        "stage_name": "Quest 11",
-        "entry_cost": "20",
+        "stage_index": 11,
+        "stage_name": "Red Line Express Freight Train",
+        "entry_cost": 20,
         "armor_type": "burst"
     },
     {
-        "stage_index": "12",
-        "stage_name": "Quest 12",
-        "entry_cost": "20",
+        "stage_index": 12,
+        "stage_name": "Central Freight Forwarding Base",
+        "entry_cost": 20,
         "armor_type": "shock"
     }
 ]
