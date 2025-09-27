@@ -14,7 +14,7 @@ from .encryption import AuthenticationError, CipherBox, HandshakeSession, Handsh
 from .messages import (
     CommandMessage,
     SyncPatchMessage,
-    SyncPullMessage
+    SyncPullMessage, ProviderRequest
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -157,7 +157,8 @@ async def websocket_provider(websocket: WebSocket) -> None:
     try:
         _, cipher = await _perform_handshake(websocket)
         history = context.log_manager.get_history()
-        await websocket.send_text(cipher.encrypt_json({"type": "logs_full", "entries": history}))
+        scopes = context.log_manager.get_scopes()
+        await websocket.send_text(cipher.encrypt_json({"type": "logs_full", "scopes": scopes, "entries": history}))
         await websocket.send_text(cipher.encrypt_json({"type": "status", "status": context.runtime.current_status()}))
         log_queue = await context.log_manager.subscribe()
         status_queue = await context.runtime.subscribe_status()
@@ -168,7 +169,7 @@ async def websocket_provider(websocket: WebSocket) -> None:
             message = cipher.decrypt_json(encrypted)
             req_type = message.get("type")
             if req_type == "static_request":
-                # req = ProviderRequest(**message)
+                ProviderRequest(**message)
                 snapshot = await context.config_manager.get_static_snapshot()
                 await websocket.send_text(
                     cipher.encrypt_json(
@@ -255,3 +256,4 @@ async def websocket_receiver(websocket: WebSocket) -> None:
         pass
     except Exception as exc:
         await websocket.close(code=1011, reason=str(exc))
+

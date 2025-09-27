@@ -4,7 +4,7 @@ import asyncio
 import threading
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 from core.Baas_thread import Baas_thread
 from core.config.config_set import ConfigSet
@@ -37,7 +37,7 @@ class _SignalHook:
 class ServiceRuntime:
     """Coordinates Baas_thread lifecycle and exposes async-friendly APIs."""
 
-    def __init__(self, project_root: Path, loop: Union[asyncio.AbstractEventLoop, None] = None) -> None:
+    def __init__(self, project_root: Path, loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
         self._project_root = project_root
         self._loop = loop
         self._status_bus = BroadcastChannel(loop)
@@ -52,13 +52,13 @@ class ServiceRuntime:
             "timestamp": time.time(),
         }
         self._lock = asyncio.Lock()
-        self._main: Union[Main, None] = None
-        self._baas: Union[Baas_thread, None] = None
-        self._baas_thread: Union[threading.Thread, None] = None
+        self._main: Optional[Main] = None
+        self._baas: Optional[Baas_thread] = None
+        self._baas_thread: Optional[threading.Thread] = None
         self._active_config_id: Optional[str] = None
-        self._button_signal: Union[_SignalHook, None] = None
-        self._update_signal: Union[_SignalHook, None] = None
-        self._exit_signal: Union[_SignalHook, None] = None
+        self._button_signal: Optional[_SignalHook] = None
+        self._update_signal: Optional[_SignalHook] = None
+        self._exit_signal: Optional[_SignalHook] = None
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         self._loop = loop
@@ -72,10 +72,13 @@ class ServiceRuntime:
         assert self._main is not None
         return self._main.logger.log_collector
 
-    def get_baas_log_queue(self):
-        if self._baas is None:
-            return None
-        return self._baas.logger.log_collector
+    def get_baas_log_queue(self) -> Tuple[Optional[Any], Optional[str]]:
+        if self._baas is None or self._active_config_id is None:
+            return None, None
+        return self._baas.logger.log_collector, f"config:{self._active_config_id}"
+
+    def get_active_config_id(self) -> Optional[str]:
+        return self._active_config_id
 
     def current_status(self) -> Dict[str, Any]:
         with self._status_lock:

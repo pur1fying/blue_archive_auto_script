@@ -30,7 +30,7 @@ class ServiceContext:
 
         await self.runtime.ensure_ready()  # ensures OCR server is ready
         main_queue = self.runtime.get_main_log_queue()
-        self.log_manager.register_queue(main_queue)
+        self.log_manager.register_queue(main_queue, scope="global")
         self.log_manager.start()
 
         self._fs_task = asyncio.create_task(self.config_manager.watch_filesystem(), name="config-fs-watch")
@@ -44,7 +44,6 @@ class ServiceContext:
         self.log_manager.stop()
 
     def ensure_runtime_logger_attached(self) -> None:
-        queue = self.runtime.get_baas_log_queue()
-        if queue is not None:
-            self.log_manager.register_queue(queue)
-
+        queue, scope = self.runtime.get_baas_log_queue()
+        if queue is not None and scope is not None:
+            self.log_manager.register_queue(queue, scope=scope)
