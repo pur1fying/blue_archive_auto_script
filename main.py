@@ -8,10 +8,10 @@ from core.config.config_set import ConfigSet
 from core.ocr.baas_ocr_client.server_installer import check_git
 
 class Main:
-    def __init__(self, logger_signal=None, ocr_needed=None):
+    def __init__(self, logger_signal=None, ocr_needed=None, **kwargs):
         self.ocr_needed = ocr_needed
         self.ocr = None
-        self.logger = Logger(logger_signal)
+        self.logger = Logger(logger_signal, jsonify=kwargs.get("jsonify", True))
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.logger.info(self.project_dir)
         self.init_all_data()

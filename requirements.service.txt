@@ -1,0 +1,24 @@
+lmdb
+numpy < 2.0
+imgaug
+adbutils == 2.2.1
+uiautomator2 == 2.16.23
+opencv-python == 4.8.1.78
+
+#windows installer auto build
+pyinstaller
+requests
+dulwich
+psutil
+tqdm
+
+tomli == 2.2.1
+tomli_w == 1.2.0
+
+PyAutoGUI == 0.9.54
+mss == 10.0.0
+
+# Service Components
+fastapi
+uvicorn[standard]
+cryptography

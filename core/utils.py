@@ -3,7 +3,7 @@ import sys
 import threading
 from typing import Union
 from datetime import datetime, timedelta, timezone
-
+import queue
 
 def delay(wait=1):
     def decorator(func):
@@ -35,13 +35,15 @@ class Logger:
     Logger class for logging
     """
 
-    def __init__(self, logger_signal):
+    def __init__(self, logger_signal, jsonify=False):
         """
         :param logger_signal: Logger Box signal
         """
         # Init logger box signal, logs and logger
         # logger box signal is used to output log to logger box
         self.logs = ""
+        self.jsonify = jsonify
+        self.log_collector = queue.Queue()
         self.logger_signal = logger_signal
         self.logger = logging.getLogger("BAAS_Logger")
         formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
@@ -63,8 +65,6 @@ class Logger:
             self.logger_signal.emit(message)
             return
 
-        while len(logging.root.handlers) > 0:
-            logging.root.handlers.pop()
         # Status Text: INFO, WARNING, ERROR, CRITICAL
         status = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
         # Status Color: Blue, Orange, Red, Purple
@@ -73,6 +73,18 @@ class Logger:
         statusHtml = [
             f'<b style="color:{_color};">{status}</b>'
             for _color, status in zip(statusColor, status)]
+        
+        if self.jsonify:
+            self.log_collector.put({
+                "time": datetime.now(),
+                "level": level,
+                "message": message
+            })
+            print(f'{status[level - 1].replace("&nbsp;", "")} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
+            return
+
+        while len(logging.root.handlers) > 0:
+            logging.root.handlers.pop()
         # If logger box is not None, output log to logger box
         # else output log to console
         if self.logger_signal is not None:
