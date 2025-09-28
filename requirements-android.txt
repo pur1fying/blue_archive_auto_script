@@ -1,0 +1,22 @@
+# Runtime
+# (For achieve purpose, not used. Runtime dependencies are listed in buildozer.spec instead)
+# (You may need these if you want hinting in IDE)
+
+# adbutils == 2.2.1
+# uiautomator2 == 2.16.23
+# opencv-python == 4.8.1.78
+# requests
+# psutil
+# packaging
+# tomli == 2.2.1
+# tomli_w == 1.2.0
+# pyside6-fluent-widgets==1.2.0
+# qtpy>=2.4.3
+# darkdetect>=0.8.0
+# pysidesix-frameless-window>=0.7.3
+
+# Development
+# aqtinstall==3.3.0 # Qt downloader. Not used if you perfer pre-built qt wheels instead of compiling from source.
+buildozer==1.5.0
+pyside6==6.7.3 # Contains .so files which will be used in buildozer
+Jinja2==3 # For configuration files generation
