@@ -44,9 +44,7 @@ class ServiceRuntime:
         self._status_lock = threading.Lock()
         self._status: Dict[str, Any] = {
             "running": False,
-            "flag_run": False,
             "config_id": None,
-            "button": None,
             "current_task": None,
             "waiting_tasks": [],
             "timestamp": time.time(),
@@ -56,9 +54,9 @@ class ServiceRuntime:
         self._baas: Optional[Baas_thread] = None
         self._baas_thread: Optional[threading.Thread] = None
         self._active_config_id: Optional[str] = None
-        self._button_signal: Optional[_SignalHook] = None
         self._update_signal: Optional[_SignalHook] = None
         self._exit_signal: Optional[_SignalHook] = None
+        self.all_data_initialized:bool = False
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         self._loop = loop
@@ -71,6 +69,14 @@ class ServiceRuntime:
         self._ensure_main_sync()
         assert self._main is not None
         return self._main.logger.log_collector
+
+    def init_all_data(self):
+        assert self._main is not None
+        self._main.init_all_data()
+        self._status_bus.publish_threadsafe({
+            "all_data_initialized": True
+        })
+        self.all_data_initialized = True
 
     def get_baas_log_queue(self) -> Tuple[Optional[Any], Optional[str]]:
         if self._baas is None or self._active_config_id is None:
@@ -98,7 +104,7 @@ class ServiceRuntime:
     def _ensure_main_sync(self) -> None:
         if self._main is not None:
             return
-        self._main = Main(ocr_needed=["en-us", "zh-cn"], jsonify=True)
+        self._main = Main(ocr_needed=["en-us", "zh-cn"], jsonify=True, lazy_data=True)
 
     async def _ensure_main(self) -> None:
         await asyncio.get_running_loop().run_in_executor(None, self._ensure_main_sync)
@@ -110,20 +116,19 @@ class ServiceRuntime:
         self._ensure_main_sync()
         assert self._main is not None
         config = ConfigSet(config_dir=config_id)
-        self._button_signal = _SignalHook(self._handle_button_signal)
         self._update_signal = _SignalHook(self._handle_update_signal)
         self._exit_signal = _SignalHook(self._handle_exit_signal)
         self._baas = Baas_thread(
             config,
             None,
-            self._button_signal,
+            None,
             self._update_signal,
             self._exit_signal,
             jsonify=True,
         )
         self._baas.set_ocr(self._main.ocr)
         self._active_config_id = config_id
-        self._update_status(config_id=config_id, flag_run=False, running=False)
+        self._update_status(config_id=config_id, running=False)
 
     async def start_scheduler(self, config_id: str) -> Dict[str, Any]:
         loop = asyncio.get_running_loop()
@@ -143,7 +148,7 @@ class ServiceRuntime:
                 daemon=True,
             )
             self._baas_thread.start()
-            self._update_status(running=True, flag_run=True)
+            self._update_status(running=True)
             return {"status": "started", "config_id": self._active_config_id}
 
     async def stop_scheduler(self) -> Dict[str, Any]:
@@ -155,7 +160,7 @@ class ServiceRuntime:
             self._baas_thread = None
         if thread and thread.is_alive():
             thread.join(timeout=10.0)
-        self._update_status(running=False, flag_run=False)
+        self._update_status(running=False)
         return {"status": "stopped", "config_id": self._active_config_id}
 
     async def solve_task(self, task_name: str) -> Dict[str, Any]:
@@ -180,8 +185,6 @@ class ServiceRuntime:
     # ------------------------------------------------------------------
     # signal handlers
     # ------------------------------------------------------------------
-    def _handle_button_signal(self, payload: Any) -> None:
-        self._update_status(button=payload)
 
     def _handle_update_signal(self, payload: Any) -> None:
         if isinstance(payload, list) and payload:
@@ -193,7 +196,7 @@ class ServiceRuntime:
         self._update_status(current_task=current, waiting_tasks=waiting)
 
     def _handle_exit_signal(self, payload: Any) -> None:
-        self._update_status(running=False, flag_run=False, exit_code=payload)
+        self._update_status(running=False, exit_code=payload)
 
     def _update_status(self, **changes: Any) -> None:
         with self._status_lock:

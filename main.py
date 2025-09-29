@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from core.ocr import ocr
 from core.utils import Logger
@@ -14,7 +15,8 @@ class Main:
         self.logger = Logger(logger_signal, jsonify=kwargs.get("jsonify", True))
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.logger.info(self.project_dir)
-        self.init_all_data()
+        if not kwargs.get("lazy_data", False):
+            self.init_all_data()
         self.threads = {}
 
     def init_all_data(self):

@@ -6,7 +6,7 @@ import hmac
 import json
 import secrets
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Union
 
 from cryptography.fernet import Fernet, InvalidToken
 
@@ -31,7 +31,7 @@ class HandshakeSession:
         if not shared_secret:
             raise AuthenticationError("Shared secret is not configured")
         self._shared_secret = shared_secret.encode("utf-8")
-        self._challenge_bytes: bytes | None = None
+        self._challenge_bytes: Union[bytes, None] = None
 
     def issue_challenge(self) -> HandshakeChallenge:
         self._challenge_bytes = secrets.token_bytes(32)
@@ -64,6 +64,8 @@ class CipherBox:
     def decrypt_json(self, token: str) -> dict[str, Any]:
         try:
             data = self._fernet.decrypt(token.encode("utf-8"))
+            
         except InvalidToken as exc:
+            print("INVALID")
             raise AuthenticationError("Encrypted payload could not be authenticated") from exc
         return json.loads(data.decode("utf-8"))

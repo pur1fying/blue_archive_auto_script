@@ -3627,14 +3627,6 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
-      "CN_name": "星野(临战)",
-      "CN_implementation": false,
-      "Global_name": "Hoshino (Battle)",
-      "Global_implementation": false,
-      "JP_name": "ホシノ(臨戦)",
-      "JP_implementation": true
-    },
-    {
       "CN_name": "萌绘(泳装)",
       "CN_implementation": false,
       "Global_name": "Moe (Swimsuit)",

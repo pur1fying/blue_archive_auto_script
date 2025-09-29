@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import threading
 from contextlib import suppress
 from pathlib import Path
 from typing import Optional
@@ -34,6 +35,8 @@ class ServiceContext:
         self.log_manager.start()
 
         self._fs_task = asyncio.create_task(self.config_manager.watch_filesystem(), name="config-fs-watch")
+        threading.Thread(target=self.runtime.init_all_data).start()
+
 
     async def shutdown(self) -> None:
         if self._fs_task:
