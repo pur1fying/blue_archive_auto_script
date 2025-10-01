@@ -22,7 +22,6 @@ lxml==6.0.2
 packaging==20.9
 pillow==11.3.0
 progress==1.6.1
-psutil==7.1.0
 py==1.11.0
 pyelftools==0.32
 pyparsing==3.2.5

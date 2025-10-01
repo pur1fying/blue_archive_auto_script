@@ -5,34 +5,39 @@ from core.exception import OcrInternalError
 from dulwich import porcelain
 from dulwich.repo import Repo
 import platform
+from core.utils import is_android
 
-if sys.platform not in ['win32', 'linux', 'darwin']:
-    raise Exception("Ocr Unsupported platform " + sys.platform)
+if not is_android():
+    if sys.platform not in ['win32', 'linux', 'darwin']:
+        raise Exception("Ocr Unsupported platform " + sys.platform)
 
-OCR_SERVER_PREBUILD_URL = "https://gitee.com/pur1fy/baas_-cpp_prebuild.git"
+    OCR_SERVER_PREBUILD_URL = "https://gitee.com/pur1fy/baas_-cpp_prebuild.git"
 
-SERVER_INSTALLER_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
-SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
+    SERVER_INSTALLER_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
+    SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
 
-branch = {
-    'win32': {
-        'amd64': 'windows-x64',
-    },
-    'linux': {
-        'x86_64': 'linux-x64',
-    },
-    'darwin': {
-        'arm64': 'macos-arm64',
-    },
-}
-branch = branch[sys.platform]
-arch = platform.machine().lower()
-if arch not in branch:
-    raise Exception("Unsupported machine architecture " + arch)
-branch = branch[arch]
+    branch = {
+        'win32': {
+            'amd64': 'windows-x64',
+        },
+        'linux': {
+            'x86_64': 'linux-x64',
+        },
+        'darwin': {
+            'arm64': 'macos-arm64',
+        },
+    }
+    branch = branch[sys.platform]
+    arch = platform.machine().lower()
+    if arch not in branch:
+        raise Exception("Unsupported machine architecture " + arch)
+    branch = branch[arch]
 
 
 def check_git(logger):
+    if is_android():
+        logger.info("Skip git check on Android")
+        return
     if not os.path.exists(SERVER_BIN_DIR + '/.git'):
         clone_repo(logger)
     else:
@@ -77,6 +82,9 @@ def check_git(logger):
 
 
 def clone_repo(logger):
+    if is_android():
+        logger.info("Skip git clone on Android")
+        return
     logger.info("Installing Ocr Server, please hang on...")
     for i in range(1, 4):
         try:
