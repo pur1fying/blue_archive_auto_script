@@ -205,8 +205,8 @@ async def websocket_provider(websocket: WebSocket) -> None:
             context.runtime.unsubscribe_status(status_queue)
 
 
-@app.websocket("/ws/receiver")
-async def websocket_receiver(websocket: WebSocket) -> None:
+@app.websocket("/ws/trigger")
+async def websocket_trigger(websocket: WebSocket) -> None:
     try:
         _, cipher = await _perform_handshake(websocket)
         while True:

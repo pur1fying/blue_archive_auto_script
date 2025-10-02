@@ -3,8 +3,6 @@ import os
 import re
 from core.config.generated_user_config import Config
 from core.config.generated_static_config import StaticConfig
-from gui.util.customized_ui import BoundComponent
-from gui.util.translator import baasTranslator as bt
 from dataclasses import asdict
 
 
@@ -54,6 +52,7 @@ class ConfigSet:
             return 'JP'
 
     def get(self, key, default=None):
+        from gui.util.translator import baasTranslator as bt
         self._init_config()
         value = getattr(self.config, key, default)
         return bt.tr('ConfigTranslation', value)
@@ -63,6 +62,7 @@ class ConfigSet:
         return hasattr(self.config, key)
 
     def set(self, key, value):
+        from gui.util.translator import baasTranslator as bt
         self._init_config()
         value = bt.undo(value)
         setattr(self.config, key, value)
@@ -114,6 +114,7 @@ class ConfigSet:
         :param attribute: Attribute to inject (default is setText)
         :return: BoundComponent, which can be ignored
         """
+        from gui.util.customized_ui import BoundComponent
         bounded = BoundComponent(component, string_rule, self, attribute)
         self.inject_config_list.extend(re.findall(r'{(.*?)}', string_rule))
         self.inject_comp_list.append(bounded)
