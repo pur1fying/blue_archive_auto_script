@@ -60,7 +60,10 @@ def start_sweep(self):
         "normal_task_sweep-complete",
         "normal_task_skip-sweep-complete"
     ]
-    img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
+    img_possibles = {
+        "normal_task_start-sweep-notice": (765, 501),
+        "main_page_full-notice": (887, 165)
+    }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
     return "sweep_complete"
 
