@@ -6,6 +6,8 @@
 :::
 ### 模拟器设置
 - 分辨率: 我们极力推荐你使用**1280x720**尺寸
+- 如果你使用MuMu模拟器, 务必在模拟器设置中关闭**后台保活**
+    - ![mumu_background_keep_alive](/assets/config/mumu_background_keep_alive.png)
 
 ### 游戏内设置
 - 记忆大厅：请勿选取亚子，爱露, 若藻等角色, 推荐**关闭记忆大厅**
