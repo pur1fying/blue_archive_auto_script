@@ -1,0 +1,92 @@
+name: 脚本运行问题报告 ( Script Bug Report )
+description: 脚本运行卡死 / 非预期行为 / 报错
+title: "[Script Bug]: "
+labels: ["问题修复", "脚本运行问题"]
+assignees:
+  - pur1fying
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 请根据提示提交相关材料
+
+  - type: checkboxes
+    id: script_version
+    attributes:
+      label: BAAS版本是否为最新 ( BAAS Version )
+      description: 在报告问题前, 请检查BAAS版本是否更新到最新, [查询方式](https://baas.wiki/usage_doc/update.html#%E5%A6%82%E4%BD%95%E6%9F%A5%E8%AF%A2%E5%BD%93%E5%89%8D%E7%89%88%E6%9C%AC)
+      options:
+        - label: 是, 我已经确认BAAS版本为最新
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operating_system
+    attributes:
+      label: 操作系统 ( OS )
+      description: 请选择您使用的操作系统
+      options:
+        - Windows
+        - macOS
+        - Linux
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: game_environment
+    attributes:
+      label: 游戏运行环境 ( Game Environment )
+      description: 模拟器 (注明模拟器类型和版本) / 真机 / Steam
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug_description
+    attributes:
+      label: 错误描述 ( Bug Description )
+      description: 你提供的信息越详细, 越能帮助我们快速定位问题
+      placeholder: |
+        请详细描述：
+        1. 遇到的具体问题现象
+        2. 出现问题前的操作步骤
+        3. 问题是否稳定复现
+    validations:
+      required: true
+
+  - type: textarea
+    id: error_logs
+    attributes:
+      label: 报错日志 / 截图 / 录屏 ( Related Log )
+      description: |
+        请提供以下材料之一或多个：
+        - 脚本运行时的报错日志
+        - 问题出现的模拟器无损截图
+        - 问题录屏
+      placeholder: |
+        请在此处粘贴错误日志, 上传截图 / 录屏
+    validations:
+      required: true
+
+  - type: textarea
+    id: script_config
+    attributes:
+      label: 脚本配置文件 ( Script Config )
+      description: |
+        请上传或粘贴您的脚本配置文件内容（[查询配置文件方法](https://baas.wiki/usage_doc/report.html#%E5%A6%82%E4%BD%95%E6%9F%A5%E8%AF%A2%E5%AF%B9%E5%BA%94%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6)）
+      placeholder: |
+        请上传配置文件 / 截图 / 粘贴配置文件内容
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_info
+    attributes:
+      label: 补充信息 ( Additional Info )
+      description: 可能有助于解决问题的信息
+      placeholder: |
+        例如：
+        - 尝试过的解决方法
+        - 其他相关设置
+    validations:
+      required: false
