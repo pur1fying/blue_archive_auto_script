@@ -1,5 +1,5 @@
 {
-    "last_update_time": 1758919109,
+    "last_update_time": 1759696582,
     "JP": {
         "Event": {
             "name": "誰が為の芸術～偽飾の絵画と美学の行方～",
@@ -9,7 +9,11 @@
             "stages_file": "module/activities/activity_data/JP_event_stages.json"
         },
         "Raids": {
-            "total_assault": null,
+            "total_assault": {
+                "name": "Geburah",
+                "begin_time": "1759284000",
+                "end_time": "1759863600"
+            },
             "grand_assault": null,
             "limit_break_assault": {
                 "name": "The Fury of Set",
@@ -37,7 +41,11 @@
             "stages_file": "module/activities/activity_data/Global_event_stages.json"
         },
         "Raids": {
-            "total_assault": null,
+            "total_assault": {
+                "name": "Gregorius",
+                "begin_time": "1759197600",
+                "end_time": "1759777200"
+            },
             "grand_assault": null,
             "limit_break_assault": {
                 "name": "Tiphareth",
@@ -49,9 +57,9 @@
         "Rewards": {
             "commissions_rewards": 1,
             "scrimmage_rewards": 1,
-            "bounty_hunts_rewards": 2,
+            "bounty_hunts_rewards": 1,
             "schedule_rewards": 1,
-            "normal_mission_rewards": 1,
+            "normal_mission_rewards": 2,
             "hard_mission_rewards": 1,
             "level_exp_rewards": 1
         }
@@ -59,19 +67,19 @@
     "CN": {
         "Event": null,
         "Raids": {
-            "total_assault": {
-                "name": "Hod",
-                "begin_time": "1758780000",
-                "end_time": "1759348800"
-            },
+            "total_assault": null,
             "grand_assault": null,
             "limit_break_assault": null,
-            "joint_firing_drill": null
+            "joint_firing_drill": {
+                "name": "Escort Drill",
+                "begin_time": "1759384800",
+                "end_time": "1759953600"
+            }
         },
         "Rewards": {
-            "commissions_rewards": 3,
+            "commissions_rewards": 1,
             "scrimmage_rewards": 1,
-            "bounty_hunts_rewards": 1,
+            "bounty_hunts_rewards": 3,
             "schedule_rewards": 1,
             "normal_mission_rewards": 1,
             "hard_mission_rewards": 1,
