@@ -14,13 +14,21 @@ android.allow_backup = True
 android.minapi = 24
 android.ndk_path = {{ android_ndk_path }}
 android.sdk_path = {{ android_sdk_path }}
+p4a.url = https://github.com/XcantloadX/python-for-android.git
 p4a.bootstrap = qt
 p4a.local_recipes = {{ local_recipes_path }}
 p4a.branch = develop
-android.permissions = android.permission.WRITE_EXTERNAL_STORAGE, android.permission.INTERNET
+android.permissions = android.permission.WRITE_EXTERNAL_STORAGE, android.permission.INTERNET, android.permission.INTERACT_ACROSS_USERS_FULL
 android.add_jars = {{ jars_path }}
 p4a.extra_args = --qt-libs=Core,Gui,Widgets --load-local-libs=plugins_platforms_qtforandroid --init-classes=
 icon.filename = {{ icon_path }}
+
+######### Shizuku #########
+android.gradle_dependencies = dev.rikka.shizuku:api:13.1.5,dev.rikka.shizuku:provider:13.1.5
+android.enable_androidx = True
+p4a.hook = {{ p4a_hook_path }}
+android.no-byte-compile-python = True
+
 
 [buildozer]
 log_level = 2

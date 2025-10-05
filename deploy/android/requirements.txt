@@ -1,4 +1,5 @@
 python3
+pyjnius
 shiboken6
 PySide6
 numpy

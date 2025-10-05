@@ -79,7 +79,8 @@ def configure():
         'requirements': ','.join(requirements),
         'icon_path': proj_path(ICON_PATH),
         'bin_dir': proj_path(BIN_DIR),
-        'jars_path': ','.join([proj_path(path) for path in JARS_PATH])
+        'jars_path': ','.join([proj_path(path) for path in JARS_PATH]),
+        'p4a_hook_path': self_path('p4a_hook.py')
     })
     
     # Ensure build directory exists before downloading wheels and generating recipes

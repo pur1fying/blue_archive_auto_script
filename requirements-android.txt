@@ -14,6 +14,7 @@
 # qtpy>=2.4.3
 # darkdetect>=0.8.0
 # pysidesix-frameless-window>=0.7.3
+pyjnius
 
 # Development
 # aqtinstall==3.3.0 # Qt downloader. Not used if you perfer pre-built qt wheels instead of compiling from source.
