@@ -4,6 +4,7 @@ shiboken6
 PySide6
 numpy
 opencv
+debugpy
 adbutils==2.2.1
 apkutils2==1.0.0
 cached-property==1.5.2
