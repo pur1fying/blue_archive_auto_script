@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Union, Any, NamedTuple
 from jnius import autoclass, PythonJavaClass
 from jnius import java_method # type: ignore
 
-from .util import main_activity, show_toast
+from .util import main_activity
 if TYPE_CHECKING:
     from core import Baas_thread
 
@@ -13,6 +13,17 @@ class CommandResult(NamedTuple):
     exitCode: int
     stdout: str
     stderr: str
+
+
+class FsStatResult(NamedTuple):
+    exists: bool
+    isDir: bool
+    size: int
+    mtime: int
+    mode: int
+    uid: int
+    gid: int
+
 
 _listeners = set()
 _stream_callbacks = set()
@@ -30,8 +41,11 @@ IUserService = autoclass('org.baas.boa.IUserService')
 IUserService_Stub = autoclass('org.baas.boa.IUserService$Stub')
 UserService = autoclass('org.baas.boa.UserService')
 ComponentName = autoclass('android.content.ComponentName')
-IStreamCallback = autoclass('org.baas.boa.IStreamCallback')
 _ListenerInterfaceClass = autoclass('rikka.shizuku.Shizuku$OnRequestPermissionResultListener')
+# These are required, otherwise you will get 'java.lang.NoClassDefFoundError: org.baas.boa.xxx'
+autoclass('org.baas.boa.CommandResult')
+autoclass('org.baas.boa.FsReadResult')
+autoclass('org.baas.boa.FsStat')
 
 def is_available() -> bool:
     """Check if Shizuku class is available.
@@ -70,20 +84,18 @@ def check_permission() -> bool:
 def request_permission(activity=None, request_code: int = PERMISSION_CODE_DEFAULT):
     """Request Shizuku permission dynamically.
 
-    - If already authorized, show "Permission already granted".
-    - If Shizuku version is too old (pre v11), show that dynamic requests are not supported.
+    - If already authorized, return immediately.
+    - If Shizuku version is too old (pre v11), return immediately.
     - Otherwise, initiate permission request.
 
     Args:
-        activity: The activity context for showing toast messages.
+        activity: The activity context.
         request_code (int): The request code for the permission request.
     """
     if check_permission():
-        show_toast('已拥有权限', activity)
         return
 
     if is_pre_v11():
-        show_toast('当前shizuku版本不支持动态申请', activity)
         return
 
     Shizuku.requestPermission(int(request_code))
@@ -210,7 +222,6 @@ class ShizukuClient:
         if Shizuku.checkSelfPermission() != 0: # 0 is PERMISSION_GRANTED
             self.logger.warning("ShizukuClient: Shizuku permission not granted. Requesting...")
             Shizuku.requestPermission(0) # 0 is a request code
-            self.show_toast("Please grant Shizuku permission.")
             return False
 
         self.logger.info("ShizukuClient: Binding Shizuku user service...")
@@ -251,7 +262,6 @@ class ShizukuClient:
         """
         if not self.i_user_service:
             self.logger.error("ShizukuClient: Service not connected.")
-            self.show_toast("Service not connected.")
             return False, "Error: Service not connected."
         try:
             self.logger.info(f"ShizukuClient: Executing command: {command}")
@@ -264,11 +274,10 @@ class ShizukuClient:
             self.logger.info(f"ShizukuClient: Result: {result}")
             return True, result
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             self.logger.error(f"ShizukuClient: Command execution failed: {e}")
             return False, f"Error: {e}"
-            
-    def show_toast(self, text):
-        show_toast(text, self.context)
 
     class _StreamCallback(PythonJavaClass):
         __javainterfaces__ = ['org/baas/boa/IStreamCallback']
@@ -318,7 +327,6 @@ class ShizukuClient:
         """
         if not self.i_user_service:
             self.logger.error("ShizukuClient: Service not connected.")
-            self.show_toast("Service not connected.")
             return False
         try:
             cb = ShizukuClient._StreamCallback(on_stdout, on_stderr, on_done)
@@ -326,7 +334,8 @@ class ShizukuClient:
             self.i_user_service.execStream(command, cb)
             return True
         except Exception as e:
-            self.logger.error(f"ShizukuClient: exec_stream failed: {e}")
+            self.logger.error(f"ShizukuClient: exec_stream failed")
+            self.logger.error(e)
             return False
 
     def fs_stat(self, path: str):
@@ -336,8 +345,7 @@ class ShizukuClient:
             path (str): The file or directory path.
 
         Returns:
-            dict or None: A dictionary containing file statistics if successful, None otherwise.
-                The dictionary contains keys: 'exists', 'isDir', 'size', 'mtime', 'mode', 'uid', 'gid'.
+            FsStatResult or None: A FsStatResult object containing file statistics if successful, None otherwise.
         """
         if not self.i_user_service:
             return None
@@ -345,15 +353,15 @@ class ShizukuClient:
             st = self.i_user_service.fsStat(path)
             if not st:
                 return None
-            return {
-                'exists': bool(st.exists),
-                'isDir': bool(st.isDir),
-                'size': int(st.size or 0),
-                'mtime': int(st.mtime or 0),
-                'mode': st.mode,
-                'uid': st.uid,
-                'gid': st.gid,
-            }
+            return FsStatResult(
+                exists=bool(st.exists),
+                isDir=bool(st.isDir),
+                size=int(st.size or 0),
+                mtime=int(st.mtime or 0),
+                mode=st.mode,
+                uid=st.uid,
+                gid=st.gid,
+            )
         except Exception as e:
             self.logger.error(f"fs_stat error: {e}")
             return None
@@ -421,11 +429,30 @@ class ShizukuClient:
         if not self.i_user_service:
             return False
         try:
+            # Binder 对单次事务有大小限制，统一按二进制分块写入（base64 包裹）
+            BIN_CHUNK_BYTES = 256 * 1024  # 256KB 原始二进制，base64 后约 ~342KB
+
             if isinstance(data, (bytes, bytearray)):
-                payload = 'b64:' + base64.b64encode(bytes(data)).decode('ascii')
+                bytes_data = bytes(data)
             else:
-                payload = str(data)
-            self.i_user_service.fsWrite(path, payload, bool(append))
+                # 将任意可写入的数据转为 UTF-8 字节
+                bytes_data = str(data).encode('utf-8')
+
+            total_len = len(bytes_data)
+            if total_len <= BIN_CHUNK_BYTES:
+                payload = 'b64:' + base64.b64encode(bytes_data).decode('ascii')
+                self.i_user_service.fsWrite(path, payload, bool(append))
+                return True
+
+            # 分块写入：首块使用传入的 append，其余强制追加
+            first_append = bool(append)
+            offset = 0
+            while offset < total_len:
+                chunk = bytes_data[offset:offset + BIN_CHUNK_BYTES]
+                payload = 'b64:' + base64.b64encode(chunk).decode('ascii')
+                self.i_user_service.fsWrite(path, payload, first_append)
+                first_append = True
+                offset += len(chunk)
             return True
         except Exception as e:
             self.logger.error(f"fs_write error: {e}")

@@ -3,7 +3,9 @@ title = Baas on Android
 package.name = boa
 package.domain = top.qwq123
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,qml,js,json,txt
+source.include_exts = py,png,jpg,kv,atlas,qml,js,json,txt,apk
+source.exclude_patterns = deploy,boa-*.apk
+android.whitelist = *.apk
 version = 0.1
 # NOTE: requirements 列表不可以写成多行，否则构建时会因为 bug 出错
 requirements = {{ requirements }}

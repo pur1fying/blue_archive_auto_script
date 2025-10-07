@@ -5,6 +5,8 @@ PySide6
 numpy
 opencv
 debugpy
+git+https://github.com/XcantloadX/pyadbserver.git
+typing_extensions
 adbutils==2.2.1
 apkutils2==1.0.0
 cached-property==1.5.2
