@@ -626,6 +626,11 @@ class CreateItemCheckState:
                 (self.select_levels, "primary_normal_advanced_superior"),
                 None
             ],
+            "keystone": [
+                None,
+                self.select_keystone,
+                self.select_keystone,
+            ]
         }
 
     def next_possible_item_name(self):
@@ -711,6 +716,20 @@ class CreateItemCheckState:
         for name in self.now_exist_item_info:
             if select_item(self.baas, self, name, self.weight_sum):
                 return True
+        return False
+
+    def select_keystone(self):
+        weight_sum = [
+            None,
+            None,
+            20,
+            50,
+        ]
+        weight_sum = weight_sum[self.phase] # KeyStone weight-sum is different from material
+        for name in self.now_exist_item_info:
+            if name == 'Keystone' or name == 'Keystone-Piece':
+                if select_item(self.baas, self, name, weight_sum):
+                    return True
         return False
 
     def select_levels(self, level_str):

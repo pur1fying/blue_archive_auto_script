@@ -113,9 +113,25 @@ class SwitchFragment(ScrollArea):
 
     def _create_config_update(self):
         valid_methods = [
-            ['default'],
-            ['primary', 'normal', 'primary_normal', 'advanced', 'superior','advanced_superior','primary_normal_advanced_superior'],
-            ['advanced', 'superior', 'advanced_superior']
+            [
+                'default'
+            ],
+            [
+                'primary',
+                'normal',
+                'primary_normal',
+                'advanced',
+                'superior',
+                'advanced_superior',
+                'primary_normal_advanced_superior',
+                'keystone'
+            ],
+            [
+                'advanced',
+                'superior',
+                'advanced_superior',
+                'keystone'
+            ]
         ]
         for phase in range(1, 4):
             cfg_key_name = 'createPriority_phase' + str(phase)
