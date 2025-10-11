@@ -47,6 +47,5 @@ class ServiceContext:
         self.log_manager.stop()
 
     def ensure_runtime_logger_attached(self) -> None:
-        queue, scope = self.runtime.get_baas_log_queue()
-        if queue is not None and scope is not None:
+        for queue, scope in self.runtime.get_log_sources():
             self.log_manager.register_queue(queue, scope=scope)

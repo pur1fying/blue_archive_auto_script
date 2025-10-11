@@ -10,19 +10,22 @@ from typing import Any, Dict, Union
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 
 from .context import ServiceContext
-from .encryption import AuthenticationError, CipherBox, HandshakeSession, HandshakeResponse
+from .encryption import AuthenticationError, CipherBox, HandshakeResponse, HandshakeSession
 from .messages import (
     CommandMessage,
+    ProviderRequest,
     SyncPatchMessage,
-    SyncPullMessage, ProviderRequest
+    SyncPullMessage,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+context = ServiceContext(PROJECT_ROOT)
+
+_SHARED_SECRET: Union[str, None] = None
 
 
 def _load_shared_secret() -> str:
-    # secret = os.getenv("BAAS_SERVICE_SECRET")
-    secret = "FOSL"
+    secret = os.getenv("BAAS_SERVICE_SECRET")
     if secret:
         return secret
     fallback = PROJECT_ROOT / "config" / "service.secret"
@@ -43,15 +46,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="BAAS Service Mode", lifespan=lifespan)
-context = ServiceContext(PROJECT_ROOT)
-
-_SHARED_SECRET: Union[str, None] = None
 
 
 @app.get("/health")
 async def health() -> Dict[str, Any]:
-    status = context.runtime.current_status()
-    return {"ok": True, "status": status}
+    statuses = context.runtime.current_status()
+    return {"ok": True, "statuses": statuses}
 
 
 async def _perform_handshake(websocket: WebSocket) -> tuple[HandshakeSession, CipherBox]:
@@ -68,13 +68,12 @@ async def _perform_handshake(websocket: WebSocket) -> tuple[HandshakeSession, Ci
     return session, session.build_cipher()
 
 
-async def _sync_sender(websocket: WebSocket, cipher, queue: asyncio.Queue) -> None:
+async def _sync_sender(websocket: WebSocket, cipher: CipherBox, queue: asyncio.Queue) -> None:
     try:
         while True:
             payload = dict(await queue.get())
             payload.setdefault("direction", "push")
-            encrypted = cipher.encrypt_json(payload)
-            await websocket.send_text(encrypted)
+            await websocket.send_text(cipher.encrypt_json(payload))
     except asyncio.CancelledError:
         pass
 
@@ -104,14 +103,14 @@ async def websocket_sync(websocket: WebSocket) -> None:
                 await websocket.send_text(cipher.encrypt_json(response))
             elif msg_type == "patch":
                 data = SyncPatchMessage(**message)
-                snapshot = await context.config_manager.apply_patch(
+                await context.config_manager.apply_patch(
                     data.resource, data.resource_id, data.ops, data.timestamp, origin="frontend"
                 )
                 response = {
                     "type": "patch_ack",
                     "resource": data.resource,
                     "resource_id": data.resource_id,
-                    "timestamp": snapshot.timestamp,
+                    "timestamp": data.timestamp,
                 }
                 await websocket.send_text(cipher.encrypt_json(response))
             elif msg_type == "list":
@@ -129,6 +128,8 @@ async def websocket_sync(websocket: WebSocket) -> None:
     except WebSocketDisconnect:
         pass
     except Exception as exc:
+        import traceback
+        traceback.print_exc()
         await websocket.close(code=1011, reason=str(exc))
     finally:
         if sender_task:
@@ -139,12 +140,14 @@ async def websocket_sync(websocket: WebSocket) -> None:
             context.config_manager.unsubscribe_updates(queue)
 
 
-async def _provider_sender(websocket: WebSocket, cipher, queue: asyncio.Queue, envelope_type: str) -> None:
+async def _provider_sender(websocket: WebSocket, cipher: CipherBox, queue: asyncio.Queue, envelope_type: str) -> None:
     try:
         while True:
             payload = await queue.get()
-            response = {"type": envelope_type, envelope_type: payload} if envelope_type == "status" else {
-                "type": envelope_type, "entry": payload}
+            if envelope_type == "status":
+                response = {"type": envelope_type, "status": payload}
+            else:
+                response = {"type": envelope_type, "entry": payload}
             await websocket.send_text(cipher.encrypt_json(response))
     except asyncio.CancelledError:
         pass
@@ -217,21 +220,29 @@ async def websocket_trigger(websocket: WebSocket) -> None:
             try:
                 if cmd.command == "start_scheduler":
                     if not cmd.config_id:
-                        raise ValueError("config_id is required")
-                    result = await context.runtime.start_scheduler(cmd.config_id)
-                    context.ensure_runtime_logger_attached()
+                        raise ValueError("config_id is required for start_scheduler")
+                    result = await context.runtime.start_scheduler(cmd.config_id,
+                                                                   set_log=context.ensure_runtime_logger_attached)
                     response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "stop_scheduler":
-                    result = await context.runtime.stop_scheduler()
+                    if not cmd.config_id:
+                        raise ValueError("config_id is required for stop_scheduler")
+                    result = await context.runtime.stop_scheduler(cmd.config_id)
                     response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "solve":
+                    if not cmd.config_id:
+                        raise ValueError("config_id is required for solve")
                     task = cmd.payload.get("task")
                     if not task:
                         raise ValueError("task is required for solve command")
-                    result = await context.runtime.solve_task(task)
+                    result = await context.runtime.solve_task(cmd.config_id, task,
+                                                              set_log=context.ensure_runtime_logger_attached)
                     response_payload = {"status": "ok", "data": result}
                 elif cmd.command.startswith("start_"):
-                    result = await context.runtime.solve_task(cmd.command)
+                    if not cmd.config_id:
+                        raise ValueError(f"config_id is required for command '{cmd.command}'")
+                    result = await context.runtime.solve_task(cmd.config_id, cmd.command,
+                                                              set_log=context.ensure_runtime_logger_attached)
                     response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "detect_adb":
                     result = await context.runtime.detect_adb()
@@ -248,7 +259,7 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                         "type": "command_response",
                         "command": cmd.command,
                         **response_payload,
-                        "timestamp": time.time(),
+                        "timestamp": cmd.timestamp,
                     }
                 )
             )
@@ -258,3 +269,50 @@ async def websocket_trigger(websocket: WebSocket) -> None:
         pass
     except Exception as exc:
         await websocket.close(code=1011, reason=str(exc))
+
+
+async def _heartbeat_sender(websocket: WebSocket, cipher: CipherBox, interval: float) -> None:
+    try:
+        while True:
+            payload = {
+                "type": "heartbeat",
+                "timestamp": time.time(),
+                "statuses": context.runtime.current_status(),
+            }
+            await websocket.send_text(cipher.encrypt_json(payload))
+            await asyncio.sleep(interval)
+    except asyncio.CancelledError:
+        pass
+
+
+async def _heartbeat_receiver(websocket: WebSocket, cipher: CipherBox) -> None:
+    try:
+        while True:
+            encrypted = await websocket.receive_text()
+            message = cipher.decrypt_json(encrypted)
+            if message.get("type") == "ping":
+                await websocket.send_text(cipher.encrypt_json({"type": "pong", "timestamp": time.time()}))
+    except asyncio.CancelledError:
+        pass
+
+
+@app.websocket("/ws/heartbeat")
+async def websocket_heartbeat(websocket: WebSocket) -> None:
+    sender_task = receiver_task = None
+    try:
+        _, cipher = await _perform_handshake(websocket)
+        sender_task = asyncio.create_task(_heartbeat_sender(websocket, cipher, 3.0))
+        receiver_task = asyncio.create_task(_heartbeat_receiver(websocket, cipher))
+        await asyncio.gather(sender_task, receiver_task)
+    except (AuthenticationError, HTTPException) as exc:
+        await websocket.close(code=4401, reason=str(exc))
+    except WebSocketDisconnect:
+        pass
+    except Exception as exc:
+        await websocket.close(code=1011, reason=str(exc))
+    finally:
+        for task in (sender_task, receiver_task):
+            if task:
+                task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await task

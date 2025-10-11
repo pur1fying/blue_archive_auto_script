@@ -52,22 +52,32 @@ class ConfigSet:
             return 'JP'
 
     def get(self, key, default=None):
-        from gui.util.translator import baasTranslator as bt
-        self._init_config()
-        value = getattr(self.config, key, default)
-        return bt.tr('ConfigTranslation', value)
+        try:
+            from gui.util.translator import baasTranslator as bt
+            self._init_config()
+            value = getattr(self.config, key, default)
+            return bt.tr('ConfigTranslation', value)
+        except ModuleNotFoundError:
+            self._init_config()
+            return getattr(self.config, key, default)
 
     def has(self, key):
         self._init_config()
         return hasattr(self.config, key)
 
     def set(self, key, value):
-        from gui.util.translator import baasTranslator as bt
-        self._init_config()
-        value = bt.undo(value)
-        setattr(self.config, key, value)
-        self.save()
-        self.dynamic_update(key)
+        try:
+            from gui.util.translator import baasTranslator as bt
+            self._init_config()
+            value = bt.undo(value)
+            setattr(self.config, key, value)
+            self.save()
+            self.dynamic_update(key)
+        except ModuleNotFoundError:
+            self._init_config()
+            setattr(self.config, key, value)
+            self.save()
+            self.dynamic_update(key)
 
     def update(self, key, value):
         self.set(key, value)

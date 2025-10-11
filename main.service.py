@@ -6,6 +6,38 @@ import uvicorn
 DEFAULT_HOST = os.getenv("BAAS_SERVICE_HOST", "127.0.0.1")
 DEFAULT_PORT = int(os.getenv("BAAS_SERVICE_PORT", "8190"))
 
+import logging, re
+
+ANSI_ESCAPE = re.compile(r'\x1b\[([0-9;]*[mGKH])')
+
+STATUS_TERMINAL = {
+    logging.INFO: "   INFO",
+    logging.WARNING: " WARNING",
+    logging.ERROR: "   ERROR",
+    logging.CRITICAL: "CRITICAL",
+}
+
+class PlainFormatter(logging.Formatter):
+    def format(self, record):
+        # 先用父类格式化
+        level = STATUS_TERMINAL.get(record.levelno, "   INFO")
+        log_fmt = f"{level} | %(asctime)s | %(message)s"
+        formatter = logging.Formatter(log_fmt, "%Y-%m-%d %H:%M:%S")
+        output = formatter.format(record)
+
+        # 去掉 ANSI 转义序列
+        return ANSI_ESCAPE.sub('', output)
+
+
+handler = logging.StreamHandler()
+handler.setFormatter(PlainFormatter())
+
+root = logging.getLogger()
+root.setLevel(logging.INFO)
+root.handlers = [handler]
+
+
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Start BAAS service mode backend")
@@ -24,6 +56,7 @@ def main() -> None:
         port=args.port,
         reload=args.reload,
         log_level=args.log_level,
+        log_config=None
     )
     server = uvicorn.Server(config)
     server.run()
@@ -31,4 +64,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

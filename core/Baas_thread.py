@@ -693,6 +693,9 @@ class Baas_thread:
         except Exception as e:
             self.logger.error("Config initialization failed")
             self.logger.error(e.__str__())
+
+            import traceback
+            traceback.print_exc()
             return False
 
     def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):

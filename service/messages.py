@@ -57,4 +57,4 @@ class SyncPushPayload(BaseModel):
     resource_id: Optional[str] = None
     timestamp: float
     ops: List[PatchOperation]
-    origin: Literal["backend", "filesystem"] = "backend"
+    origin: Literal["backend", "filesystem", "frontend"] = "backend"
