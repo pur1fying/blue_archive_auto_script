@@ -13,6 +13,7 @@ from core.device import emulator_manager
 from main import Main
 
 from .broadcast import BroadcastChannel
+from .utils import *
 
 _TASK_ALIAS = {
     "start_hard_task": "explore_hard_task",
@@ -256,6 +257,21 @@ class ServiceRuntime:
         adb_res = await loop.run_in_executor(None, emulator_manager.autosearch)
         print(adb_res)
         return adb_res
+
+    async def valid_cdk(self, cdk):
+        loop = asyncio.get_running_loop()
+        cdk_res = await loop.run_in_executor(None, validate_cdk, cdk)
+        return cdk_res
+
+    async def test_all_sha(self):
+        loop = asyncio.get_running_loop()
+        all_sha_res = await loop.run_in_executor(None, test_all_repo_sha)
+        return all_sha_res
+
+    async def check_for_update(self):
+        loop = asyncio.get_running_loop()
+        all_update_res = await loop.run_in_executor(None, check_for_update)
+        return all_update_res
 
     # ------------------------------------------------------------------
     # signal handlers

@@ -247,6 +247,15 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                 elif cmd.command == "detect_adb":
                     result = await context.runtime.detect_adb()
                     response_payload = {"status": "ok", "data": {"addresses": result}}
+                elif cmd.command == "valid_cdk":
+                    result = await context.runtime.valid_cdk(cmd.payload["cdk"])
+                    response_payload = {"status": "ok", "data": result}
+                elif cmd.command == "test_all_sha":
+                    result = await context.runtime.test_all_sha()
+                    response_payload = {"status": "ok", "data": result}
+                elif cmd.command == "check_for_update":
+                    result = await context.runtime.check_for_update()
+                    response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "status":
                     response_payload = {"status": "ok", "data": context.runtime.current_status()}
                 else:
