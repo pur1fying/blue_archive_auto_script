@@ -230,13 +230,26 @@ class ServiceRuntime:
         if needs_init:
             await loop.run_in_executor(None, baas.init_all_data)
 
-        def _call() -> bool:
-            return bool(baas.send("solve", task_name))
+        def _call() -> None:
+            try:
+                self._update_status(config_id, running=True, flag_run=True, exit_code=None, current_task=task_name,
+                                    waiting_tasks=[])
+                baas.flag_run = True
+                baas.send("solve", task_name)
+            finally:
+                session.thread = None
+                self._update_status(config_id, running=False, flag_run=session.baas.flag_run, current_task=None,
+                                    waiting_tasks=[])
 
-        result = await loop.run_in_executor(None, _call)
-        self._update_status(config_id, running=True, flag_run=True, exit_code=None, current_task=task_name,
-                            waiting_tasks=[])
-        return {"status": "ok", "task": task_name, "result": result}
+        thread = threading.Thread(
+            target=_call,
+            name=f"baas-solver-{task_name}-{config_id}",
+            daemon=True,
+        )
+        session.thread = thread
+        thread.start()
+
+        return {"status": "ok", "task": task_name, "result": 0}
 
     async def detect_adb(self) -> List[str]:
         loop = asyncio.get_running_loop()
@@ -253,7 +266,7 @@ class ServiceRuntime:
     def _handle_update_signal(self, config_id: str, payload: Any) -> None:
         if isinstance(payload, list) and payload:
             current = payload[0]
-            waiting = list(payload[1:])
+            waiting = [item for item in payload if item != current]
         else:
             current = None
             waiting = []
