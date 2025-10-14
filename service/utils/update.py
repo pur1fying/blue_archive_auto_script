@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import dulwich.porcelain
@@ -132,29 +133,42 @@ def _format_expired_time(timestamp_value: Optional[float]) -> Tuple[Optional[flo
 
 def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
     """Validate a MirrorC CDK and return structured status information."""
-    updater = MirrorC_Updater(app="BAAS_repo", current_version="")
-    try:
-        ret = updater.get_latest_version(cdk=cdk, timeout=timeout)
-    except requests.RequestException as exc:
-        return {
-            "success": False,
-            "code": None,
-            "message": str(exc),
-            "latest_version": None,
-            "expires_at": None,
-            "expires_at_iso": None,
-            "mirrorc_message": None,
-        }
-    except Exception as exc:  # pragma: no cover - unexpected error
-        return {
-            "success": False,
-            "code": None,
-            "message": str(exc),
-            "latest_version": None,
-            "expires_at": None,
-            "expires_at_iso": None,
-            "mirrorc_message": None,
-        }
+    if cdk != "":
+        updater = MirrorC_Updater(app="BAAS_repo", current_version="")
+        try:
+            ret = updater.get_latest_version(cdk=cdk, timeout=timeout)
+        except requests.RequestException as exc:
+            data, path_setup_toml = read_setup_toml()
+            data["General"]["mirrorc_cdk"] = ""
+            write_setup_toml(data, path_setup_toml)
+            return {
+                "success": False,
+                "code": None,
+                "message": str(exc),
+                "latest_version": None,
+                "expires_at": None,
+                "expires_at_iso": None,
+                "mirrorc_message": None,
+            }
+        except Exception as exc:  # pragma: no cover - unexpected error
+            data, path_setup_toml = read_setup_toml()
+            data["General"]["mirrorc_cdk"] = ""
+            write_setup_toml(data, path_setup_toml)
+            return {
+                "success": False,
+                "code": None,
+                "message": str(exc),
+                "latest_version": None,
+                "expires_at": None,
+                "expires_at_iso": None,
+                "mirrorc_message": None,
+            }
+    else:
+        ret = SimpleNamespace(
+            code=MirrorCErrorCode.KEY_INVALID.value,
+            message="CDK invalid.",
+            latest_version_name=None
+        )
 
     code = ret.code
     expires_ts = getattr(ret, "cdk_expired_time", None)
@@ -172,6 +186,10 @@ def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
     }
     message = base_messages.get(code, f"MirrorC returned code {code}.")
 
+    data, path_setup_toml = read_setup_toml()
+    data["General"]["mirrorc_cdk"] = cdk if code == MirrorCErrorCode.SUCCESS.value else ""
+    write_setup_toml(data, path_setup_toml)
+
     return {
         "success": code == MirrorCErrorCode.SUCCESS.value,
         "code": code,
@@ -185,13 +203,7 @@ def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
 
 def get_local_version(setup_path: Optional[Path] = None) -> tuple[VersionInfo, dict]:
     """Read version information from setup.toml."""
-    path = setup_path or (Path.cwd() / "setup.toml")
-    if not path.exists():
-        with path.open("wb") as file:
-            tomli_w.dump(DEFAULT_SETTINGS, file)
-
-    with path.open("rb") as fp:
-        data = tomllib.load(fp)
+    data, path = read_setup_toml(setup_path)
 
     general_section = data.get("General", {})
     version_value = general_section.get("current_BAAS_version")
@@ -206,6 +218,27 @@ def get_local_version(setup_path: Optional[Path] = None) -> tuple[VersionInfo, d
         except Exception:
             version_value = ""
     return VersionInfo(version=version_value, source="setup.toml", path=path), data
+
+
+def read_setup_toml(setup_path: Union[Path, None] = None) -> tuple[dict[str, Any], Union[Path, None]]:
+    path = setup_path or (Path.cwd() / "setup.toml")
+    if not path.exists():
+        with path.open("wb") as file:
+            tomli_w.dump(DEFAULT_SETTINGS, file)
+
+    with path.open("rb") as fp:
+        data = tomllib.load(fp)
+    return data, path
+
+
+def write_setup_toml(content: dict, setup_path: Union[Path, None] = None) -> None:
+    path = setup_path or (Path.cwd() / "setup.toml")
+    if not path.exists():
+        with path.open("wb") as file:
+            tomli_w.dump(DEFAULT_SETTINGS, file)
+
+    with path.open("wb") as fp:
+        tomli_w.dump(content, fp)
 
 
 def _select_remote_record(
@@ -264,9 +297,17 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
         return {}
 
 
+def update_setup_toml(content) -> None:
+    data, path = read_setup_toml()
+    # TODO: Implement related functions
+
+
 __all__ = [
     "check_for_update",
     "test_all_repo_sha",
+    "update_setup_toml",
     "validate_cdk",
     "VersionInfo",
+    "read_setup_toml",
+    "write_setup_toml"
 ]

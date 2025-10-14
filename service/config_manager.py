@@ -10,6 +10,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 from .broadcast import BroadcastChannel
 from .diff import PatchConflictError, apply_patch, diff_documents
 from .messages import PatchOperation, SyncPushPayload
+from .utils import read_setup_toml, write_setup_toml
 
 ResourceKey = Tuple[str, Optional[str]]
 
@@ -18,6 +19,18 @@ ResourceKey = Tuple[str, Optional[str]]
 class ResourceSnapshot:
     data: Any
     timestamp: float
+
+
+REPO_URL_CHECK_UPDATE_METHOD_MAPPING = {
+    "https://github.com/pur1fying/blue_archive_auto_script.git": "github",
+    "https://gitee.com/pur1fy/blue_archive_auto_script.git": "gitee",
+    "https://gitcode.com/m0_74686738/blue_archive_auto_script.git": "gitcode",
+    "https://e.coding.net/g-jbio0266/baas/blue_archive_auto_script.git": "tencent_c_coding"
+}
+
+REPO_URL_CHECK_UPDATE_METHOD_MAPPING_REV = {
+    v: k for k, v in REPO_URL_CHECK_UPDATE_METHOD_MAPPING.items()
+}
 
 
 class ConfigManager:
@@ -32,6 +45,7 @@ class ConfigManager:
         self._update_bus = BroadcastChannel(loop)
         self._loop = loop
         self._gui_full: Union[Dict[str, Any], None] = None
+        self._setup_toml: Union[Dict[str, Any], None] = None
         self._poll_interval = 1.0
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
@@ -50,6 +64,8 @@ class ConfigManager:
             return self._config_root / "gui.json"
         if resource == "static":
             return self._config_root / "static.json"
+        if resource == "setup_toml":
+            return self._root / "setup.toml"
         raise ValueError(f"Unsupported resource '{resource}'")
 
     def list_config_ids(self) -> List[str]:
@@ -86,6 +102,36 @@ class ConfigManager:
             },
         }
 
+    def _project_setup_toml(self, full_setup_toml: Dict[str, Any]) -> Dict[str, Any]:
+        config_URLs = full_setup_toml.get("URLs", {})
+        config_General = full_setup_toml.get("General", {})
+        return {
+            "updateMethod": REPO_URL_CHECK_UPDATE_METHOD_MAPPING.get(config_URLs.get("REPO_URL_HTTP")),
+            "shaMethod": config_General.get("get_remote_sha_method"),
+            "mirrorcCdk": config_General.get("mirrorc_cdk")
+        }
+
+    def _merge_setup_toml(self, projection: Dict[str, Any]) -> Dict[str, Any]:
+        if self._setup_toml is None:
+            self._setup_toml = {}
+        merged = json.loads(json.dumps(self._setup_toml))
+        merged.setdefault("General", {})
+        merged.setdefault("URLs", {})
+        merged.setdefault("Paths", {})
+
+        shaMethod: Optional[str] = projection.get("shaMethod", None)
+        updateMethod: Optional[str] = projection.get("updateMethod", None)
+        mirrorcCdk: Optional[str] = projection.get("mirrorcCdk", None)
+        if shaMethod is not None:
+            merged["General"]["get_remote_sha_method"] = shaMethod
+        if updateMethod is not None:
+            merged["URLs"]["REPO_URL_HTTP"] = REPO_URL_CHECK_UPDATE_METHOD_MAPPING_REV[updateMethod]
+        if mirrorcCdk is not None:
+            merged["General"]["mirrorc_cdk"] = mirrorcCdk
+
+        self._setup_toml = merged
+        return merged
+
     def _merge_gui(self, projection: Dict[str, Any]) -> Dict[str, Any]:
         if self._gui_full is None:
             self._gui_full = {}
@@ -105,11 +151,19 @@ class ConfigManager:
 
     def _load_from_disk(self, resource: str, resource_id: Optional[str]) -> ResourceSnapshot:
         path = self._file_path(resource, resource_id)
-        with path.open("r", encoding="utf-8") as fp:
-            data = json.load(fp)
+        data = None
+        if resource == "setup_toml":
+            data, _ = read_setup_toml()
+        else:
+            with path.open("r", encoding="utf-8") as fp:
+                data = json.load(fp)
         if resource == "gui":
             self._gui_full = data
             projection = self._project_gui(data)
+            data_to_store = projection
+        elif resource == "setup_toml":
+            self._setup_toml = data
+            projection = self._project_setup_toml(data)
             data_to_store = projection
         else:
             data_to_store = data
@@ -158,15 +212,25 @@ class ConfigManager:
                 if not isinstance(updated, dict):
                     raise PatchConflictError("GUI patch must result in a mapping document")
                 full_gui = self._merge_gui(updated)
+            elif resource == "setup_toml":
+                if not isinstance(updated, dict):
+                    raise PatchConflictError("Setup patch must result in a mapping document")
+                full_setup_toml = self._merge_setup_toml(updated)
             else:
                 full_gui = updated
 
             path = self._file_path(resource, resource_id)
             if resource == "gui":
                 to_dump = full_gui
+            elif resource == "setup_toml":
+                to_dump = full_setup_toml
             else:
                 to_dump = updated
-            self._write_json(path, to_dump, resource)
+
+            if resource == "setup_toml":
+                write_setup_toml(to_dump)
+            else:
+                self._write_json(path, to_dump, resource)
 
             new_timestamp = max(timestamp, time.time(), path.stat().st_mtime)
             new_snapshot = ResourceSnapshot(data=updated, timestamp=new_timestamp)
@@ -198,10 +262,47 @@ class ConfigManager:
     # disk scanning
     # ------------------------------------------------------------------
     async def scan_once(self) -> None:
-        for config_id in self.list_config_ids():
+        current_ids = set(self.list_config_ids())
+        previous_ids = set(self._known_config_ids) if hasattr(self, "_known_config_ids") else set()
+
+        for added in current_ids - previous_ids:
+            await self._notify_config_added(added)
+
+        for removed in previous_ids - current_ids:
+            await self._notify_config_removed(removed)
+
+        self._known_config_ids = current_ids
+
+        for config_id in current_ids:
             await self._check_resource("config", config_id)
             await self._check_resource("event", config_id)
+
         await self._check_resource("gui", None)
+
+    async def _notify_config_added(self, config_id: str):
+        payload = SyncPushPayload(
+            resource="config",
+            resource_id=config_id,
+            timestamp=time.time(),
+            ops=[PatchOperation(op="add", path="", value={})],
+            origin="filesystem",
+        )
+        await self._update_bus.publish(payload.model_dump())
+
+    async def _notify_config_removed(self, config_id: str):
+        payload = SyncPushPayload(
+            resource="config",
+            resource_id=config_id,
+            timestamp=time.time(),
+            ops=[PatchOperation(op="remove", path="", value=None)],
+            origin="filesystem",
+        )
+        # 清理缓存
+        self._mtimes.pop(("config", config_id), None)
+        self._mtimes.pop(("event", config_id), None)
+        self._snapshots.pop(("config", config_id), None)
+        self._snapshots.pop(("event", config_id), None)
+        await self._update_bus.publish(payload.model_dump())
 
     async def _check_resource(self, resource: str, resource_id: Optional[str]) -> None:
         key = (resource, resource_id)
@@ -231,7 +332,7 @@ class ConfigManager:
             ops=[PatchOperation(**op) for op in ops],
             origin="filesystem",
         )
-        await self._update_bus.publish(payload.dict())
+        await self._update_bus.publish(payload.model_dump())
 
     async def watch_filesystem(self) -> None:
         if self._loop is None:
@@ -240,5 +341,3 @@ class ConfigManager:
         while True:
             await self.scan_once()
             await asyncio.sleep(self._poll_interval)
-
-

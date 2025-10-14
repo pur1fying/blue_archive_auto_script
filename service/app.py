@@ -244,6 +244,19 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                     result = await context.runtime.solve_task(cmd.config_id, cmd.command,
                                                               set_log=context.ensure_runtime_logger_attached)
                     response_payload = {"status": "ok", "data": result}
+                elif cmd.command.startswith("add_config"):
+                    name = cmd.payload.get("name")
+                    server = cmd.payload.get("server")
+                    if not server or not name:
+                        raise ValueError("server and name are required for add_config")
+                    result = await context.runtime.add_config(name, server)
+                    response_payload = {"status": "ok", "data": result}
+                elif cmd.command.startswith("remove_config"):
+                    id = cmd.payload.get("id")
+                    if not id:
+                        raise ValueError("id is required for remove_config")
+                    result = await context.runtime.remove_config(id)
+                    response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "detect_adb":
                     result = await context.runtime.detect_adb()
                     response_payload = {"status": "ok", "data": {"addresses": result}}
@@ -254,6 +267,9 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                     result = await context.runtime.test_all_sha()
                     response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "check_for_update":
+                    result = await context.runtime.check_for_update()
+                    response_payload = {"status": "ok", "data": result}
+                elif cmd.command == "update_setup_toml":
                     result = await context.runtime.check_for_update()
                     response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "status":
@@ -285,12 +301,15 @@ async def _heartbeat_sender(websocket: WebSocket, cipher: CipherBox, interval: f
         while True:
             payload = {
                 "type": "heartbeat",
-                "timestamp": time.time(),
-                "statuses": context.runtime.current_status(),
+                "timestamp": time.time()
             }
             await websocket.send_text(cipher.encrypt_json(payload))
             await asyncio.sleep(interval)
     except asyncio.CancelledError:
+        pass
+    except WebSocketDisconnect:
+        pass
+    except RuntimeError:
         pass
 
 
@@ -302,6 +321,8 @@ async def _heartbeat_receiver(websocket: WebSocket, cipher: CipherBox) -> None:
             if message.get("type") == "ping":
                 await websocket.send_text(cipher.encrypt_json({"type": "pong", "timestamp": time.time()}))
     except asyncio.CancelledError:
+        pass
+    except WebSocketDisconnect:
         pass
 
 

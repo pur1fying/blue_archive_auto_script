@@ -19,14 +19,14 @@ class PatchOperation(BaseModel):
 
 class SyncPullMessage(BaseModel):
     type: Literal["pull"]
-    resource: Literal["config", "event", "gui", "static"]
+    resource: Literal["config", "event", "gui", "static", "setup_toml"]
     resource_id: Optional[str] = None
     include_diff_baseline: bool = Field(default=False, description="Whether to return baseline timestamp")
 
 
 class SyncPatchMessage(BaseModel):
     type: Literal["patch"]
-    resource: Literal["config", "event", "gui"]
+    resource: Literal["config", "event", "gui", "setup_toml"]
     resource_id: Optional[str] = None
     timestamp: float
     ops: List[PatchOperation]
@@ -53,7 +53,7 @@ class HandshakeResponse(BaseModel):
 
 class SyncPushPayload(BaseModel):
     type: Literal["patch"] = "patch"
-    resource: Literal["config", "event", "gui"]
+    resource: Literal["config", "event", "gui", "setup_toml"]
     resource_id: Optional[str] = None
     timestamp: float
     ops: List[PatchOperation]
