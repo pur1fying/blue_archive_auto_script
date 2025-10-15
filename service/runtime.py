@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import datetime
-import json
-import os
 import shutil
 import threading
 import time
@@ -12,11 +10,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from core.Baas_thread import Baas_thread
-from core.config import default_config
 from core.config.config_set import ConfigSet
 from core.device import emulator_manager
 from main import Main
-
 from .broadcast import BroadcastChannel
 from .utils import *
 
@@ -31,66 +27,6 @@ _TASK_ALIAS = {
     "start_explore_activity_mission": "explore_activity_mission",
     "start_explore_activity_challenge": "explore_activity_challenge",
 }
-
-
-def check_switch_config(dir_path='./default_config'):
-    path = './config/' + dir_path + '/switch.json'
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write(default_config.SWITCH_DEFAULT_CONFIG)
-
-
-def check_single_event(new_event, old_event):
-    for key in new_event:
-        if key not in old_event:
-            old_event[key] = new_event[key]
-    return old_event
-
-
-def check_event_config(dir_path='./default_config', user_config=None):
-    path = './config/' + dir_path + '/event.json'
-    default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
-    server = user_config.server_mode
-    enable_state = user_config.config.new_event_enable_state
-    if server != "CN":
-        for i in range(0, len(default_event_config)):
-            for j in range(0, len(default_event_config[i]['daily_reset'])):
-                default_event_config[i]['daily_reset'][j][0] = default_event_config[i]['daily_reset'][j][0] - 1
-    if not os.path.exists(path):
-        with open(path, 'w', encoding='utf-8') as f:
-            with open("error.log", 'w+', encoding='utf-8') as errorfile:
-                errorfile.write("path not exist" + '\n' + dir_path + '\n' + datetime.datetime.now().strftime(
-                    '%Y-%m-%d %H:%M:%S') + '\n')
-            f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
-        return
-    try:
-        with open(path, 'r', encoding='utf-8') as f:  # 检查是否有新的配置项
-            data = json.load(f)
-        for i in range(0, len(default_event_config)):
-            exist = False
-            for j in range(0, len(data)):
-                if data[j]['func_name'] == default_event_config[i]['func_name']:
-                    for k in range(0, len(data[i]['daily_reset'])):
-                        if len(data[j]['daily_reset'][k]) != 3:
-                            data[j]['daily_reset'][k] = [0, 0, 0]
-                    data[j] = check_single_event(default_event_config[i], data[j])
-                    exist = True
-                    break
-            if not exist:
-                temp = default_event_config[i]
-                if enable_state == "on":
-                    temp['enabled'] = True
-                elif enable_state == "off":
-                    temp['enabled'] = False
-                data.insert(i, temp)
-
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write(json.dumps(data, ensure_ascii=False, indent=2))
-    except Exception as e:
-        with open("error.log", 'w+', encoding='utf-8') as f:
-            f.write(str(e) + '\n' + dir_path + '\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write(json.dumps(default_event_config, ensure_ascii=False, indent=2))
-        return
 
 
 class _SignalHook:
@@ -159,11 +95,13 @@ class ServiceRuntime:
 
     def init_all_data(self):
         assert self._main is not None
-        self._main.init_all_data()
-        self._status_bus.publish_threadsafe({
-            "all_data_initialized": True
-        })
-        self.all_data_initialized = True
+        status = self._main.init_all_data()
+        if status:
+            self._status_bus.publish_threadsafe({
+                "all_data_initialized": True
+            })
+            self.all_data_initialized = True
+
 
     def get_log_sources(self) -> List[Tuple[Any, str]]:
         sources: List[Tuple[Any, str]] = []
@@ -345,17 +283,7 @@ class ServiceRuntime:
 
     async def add_config(self, name, server):
         serial_name = str(int(datetime.datetime.now().timestamp()))
-        config_dir = f'./config/{serial_name}'
-        os.mkdir(config_dir)
-        data = json.loads(default_config.DEFAULT_CONFIG)
-        data['name'] = name
-        data['server'] = server
-        user_config_path = f'{config_dir}/config.json'
-        with open(user_config_path, 'w', encoding='utf-8') as f:
-            f.write(json.dumps(data, ensure_ascii=False, indent=2))
-        _config = ConfigSet(config_dir=serial_name)
-        check_event_config(serial_name, _config)
-        check_switch_config(serial_name)
+        check_config(serial_name, name=name, server=server)
         return {
             "serial": serial_name
         }

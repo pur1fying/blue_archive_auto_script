@@ -22,9 +22,10 @@ class Main:
     def init_all_data(self):
         if not self.init_ocr():
             self.logger.error("Ocr Init Incomplete Please restart .")
-            return
+            return False
         self.init_static_config()
         self.logger.info("-- All Data Initialization Complete Script ready--")
+        return True
 
     def init_ocr(self):
         try:
