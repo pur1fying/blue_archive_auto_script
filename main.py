@@ -12,7 +12,7 @@ class Main:
     def __init__(self, logger_signal=None, ocr_needed=None, **kwargs):
         self.ocr_needed = ocr_needed
         self.ocr = None
-        self.logger = Logger(logger_signal, jsonify=kwargs.get("jsonify", True))
+        self.logger = Logger(logger_signal, jsonify=kwargs.get("jsonify", False))
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.logger.info(self.project_dir)
         if not kwargs.get("lazy_data", False):

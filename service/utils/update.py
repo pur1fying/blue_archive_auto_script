@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import binascii
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -8,7 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import dulwich.porcelain
+import pygit2
 import requests
 import tomli_w
 
@@ -69,28 +68,18 @@ def _mirrorc_api_get_latest_sha(timeout: float) -> Tuple[bool, str]:
         return False, str(exc)
 
 
-def _dulwich_get_latest_sha(config: Dict[str, Any]) -> Tuple[bool, str]:
+def _pygit2_get_latest_sha(config: Dict[str, Any]) -> Tuple[bool, str]:
     url = config["url"]
     branch = config["branch"]
     target_ref = f"refs/heads/{branch}"
     try:
-        remote_refs = dulwich.porcelain.ls_remote(url)
-        for ref_name, sha in remote_refs.items():
-            decoded_ref = ref_name.decode("utf-8")
-            if decoded_ref == target_ref:
-                if len(sha) == 20:
-                    return True, binascii.hexlify(sha).decode("utf-8")
-                try:
-                    hex_str = sha.decode("utf-8")
-                    if len(hex_str) == 40:
-                        return True, hex_str
-                except Exception:
-                    pass
-                return True, binascii.hexlify(sha[:20]).decode("utf-8")
-        ref = f"refs/heads/{branch}"
-        sha = remote_refs[ref.encode("utf-8")]
-        return True, binascii.hexlify(sha[:20]).decode("utf-8")
-    except Exception as exc:  # pragma: no cover - network errors
+        git = pygit2.Repository(".")
+        remote = git.remotes.create_anonymous(url)
+        for head in remote.ls_remotes():
+            if head.get("name") == target_ref:
+                return True, str(head.get("oid"))
+        return False, f"Branch '{branch}' not found at {url}"
+    except Exception as exc:
         return False, str(exc)
 
 
@@ -111,7 +100,7 @@ def test_repo_sha(config: dict[str, Union[str, GetShaMethod]], timeout: float) -
     elif method == GetShaMethod.MIRRORC_API:
         success, value = _mirrorc_api_get_latest_sha(timeout)
     else:
-        success, value = _dulwich_get_latest_sha(config)
+        success, value = _pygit2_get_latest_sha(config)
     elapsed = time.perf_counter() - start
     result: RepositoryResult = {
         "name": config.get("name"),
@@ -201,17 +190,15 @@ def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
     }
 
 
-def get_local_version(setup_path: Optional[Path] = None) -> tuple[VersionInfo, dict]:
-    """Read version information from setup.toml."""
+def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo", Dict[str, Any]]:
     data, path = read_setup_toml(setup_path)
-
     general_section = data.get("General", {})
     version_value = general_section.get("current_BAAS_version")
-
     if not version_value:
         try:
-            _repo = dulwich.repo.Repo(Path.cwd())
-            version_value = _repo.head().decode("utf-8")
+            repo = pygit2.Repository(Path.cwd())
+            commit = repo.revparse_single("HEAD")
+            version_value = str(commit.id)
             data.setdefault("General", {})["current_BAAS_version"] = version_value
             with path.open("wb") as file:
                 tomli_w.dump(data, file)
@@ -267,7 +254,7 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
     try:
         local_info, setup_toml = get_local_version()
 
-        method_name = setup_toml.get("get_remote_sha_method", None)
+        method_name = setup_toml.setdefault("General", {}).get("get_remote_sha_method", None)
         if not method_name:
             repo_results = test_all_repo_sha(timeout=timeout)
             method_name = _select_remote_record(local_info.version, repo_results).get("name")

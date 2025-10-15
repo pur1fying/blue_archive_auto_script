@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -111,6 +112,73 @@ class ConfigManager:
             "mirrorcCdk": config_General.get("mirrorc_cdk")
         }
 
+    @staticmethod
+    def gen_event_formation_attr(data: dict) -> Union[dict, None]:
+        result = {}
+        BASE_DIR: str = "src/explore_task_data/activities"
+        for server_mode in ["CN", "JP", "Global"]:
+            current_event = data["current_game_activity"][server_mode]
+            if current_event is None:
+                result[server_mode] = None
+                continue
+
+            file_path = os.path.join(BASE_DIR, f"{current_event}.json")
+
+            if not os.path.exists(file_path):
+                result[server_mode] = None
+                return None
+
+            with open(file_path, "r", encoding="utf-8") as f:
+                stage_data = json.load(f)
+
+            ret = dict(activity_name=current_event, story=dict(), mission=dict(), challenge=dict())
+            en2cn = {
+                "story": "故事",
+                "mission": "任务",
+                "challenge": "挑战",
+            }
+
+            for key, value in stage_data.items():
+                # 直接三大类的列表结构
+                if key in ("story", "mission", "challenge"):
+                    for i, v in enumerate(value, start=1):
+                        ret[key][f"{en2cn[key]}{i}"] = v
+                    continue
+
+                # 其他带编号结构
+                tp = None
+                if key.startswith("story"):
+                    tp = "story"
+                elif key.startswith("mission"):
+                    tp = "mission"
+                elif key.startswith("challenge"):
+                    tp = "challenge"
+                if tp is None:
+                    continue
+
+                pos = key.find("_")
+                if pos == -1:
+                    continue
+
+                number = key[len(tp):pos]
+                name = f"{en2cn[tp]}{number}"
+                if "sss" in key:
+                    name += "三星"
+                if "task" in key:
+                    name += "成就任务"
+
+                # 队伍信息
+                team = ""
+                for s in value.get("start", []):
+                    temp = s[0]
+                    if temp:
+                        team += temp + " "
+                if team.endswith(" "):
+                    team = team[:-1]
+                ret[tp][name] = team
+            result[server_mode] = ret
+        return result
+
     def _merge_setup_toml(self, projection: Dict[str, Any]) -> Dict[str, Any]:
         if self._setup_toml is None:
             self._setup_toml = {}
@@ -167,6 +235,11 @@ class ConfigManager:
             data_to_store = projection
         else:
             data_to_store = data
+
+        if resource == "static":
+            event = self.gen_event_formation_attr(data_to_store)
+            data_to_store["current_game_activity"] = event
+
         timestamp = path.stat().st_mtime
         snapshot = ResourceSnapshot(data=data_to_store, timestamp=timestamp)
         self._snapshots[(resource, resource_id)] = snapshot
@@ -183,6 +256,7 @@ class ConfigManager:
 
     async def get_static_snapshot(self) -> ResourceSnapshot:
         snapshot = await self.get_snapshot("static", None)
+
         return snapshot
 
     # ------------------------------------------------------------------
@@ -197,6 +271,7 @@ class ConfigManager:
         origin: str = "backend",
     ) -> ResourceSnapshot:
         key = (resource, resource_id)
+
         async with self._lock:
             snapshot = self._snapshots.get(key)
             if snapshot is None:

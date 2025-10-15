@@ -8,7 +8,6 @@ opencv-python == 4.8.1.78
 #windows installer auto build
 pyinstaller
 requests
-dulwich
 psutil
 tqdm
 
@@ -22,3 +21,4 @@ mss == 10.0.0
 fastapi
 uvicorn[standard]
 cryptography
+pygit2

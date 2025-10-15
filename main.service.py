@@ -19,13 +19,11 @@ STATUS_TERMINAL = {
 
 class PlainFormatter(logging.Formatter):
     def format(self, record):
-        # 先用父类格式化
         level = STATUS_TERMINAL.get(record.levelno, "   INFO")
         log_fmt = f"{level} | %(asctime)s | %(message)s"
         formatter = logging.Formatter(log_fmt, "%Y-%m-%d %H:%M:%S")
         output = formatter.format(record)
 
-        # 去掉 ANSI 转义序列
         return ANSI_ESCAPE.sub('', output)
 
 
