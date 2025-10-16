@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 from qfluentwidgets import ComboBox, SwitchButton, PushButton, LineEdit, SpinBox
 
 from core.utils import delay
+from gui.components.dialog_panel import CreateErrorInfoMessageBox
 from gui.util import notification
 from core.config.config_set import ConfigSet
 from gui.util.translator import baasTranslator as bt
@@ -77,7 +78,18 @@ class TemplateLayout(QWidget):
                 inputComponent = ComboBox(self)
                 cfg.selection = [bt.tr(context, x) for x in cfg.selection] if context else cfg.selection
                 inputComponent.addItems(cfg.selection)
-                inputComponent.setCurrentIndex(cfg.selection.index(str(self.config.get(currentKey))))
+                selected_element = str(self.config.get(currentKey))
+                if selected_element not in cfg.selection:
+                    selected_element = bt.undo(selected_element)
+                if selected_element in cfg.selection:
+                    inputComponent.setCurrentIndex(cfg.selection.index(selected_element))
+                else:
+                    CreateErrorInfoMessageBox(self.config.get_window(), "Unknown Error", f'There could be \
+                                              some i18n-related error with Config -> {currentKey}, please \
+                                              report it to the dev team on Github, thanks!<br/> For detailed \
+                                              infomation, selection -> {str(cfg.selection)} and current -> \
+                                              {selected_element}').exec_()
+                    inputComponent.setCurrentIndex(0)
                 inputComponent.currentIndexChanged.connect(
                     partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'button':

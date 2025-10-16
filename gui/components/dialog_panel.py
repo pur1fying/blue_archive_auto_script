@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QUrl
-from qfluentwidgets import MessageBoxBase, SubtitleLabel, LineEdit
+from qfluentwidgets import MessageBoxBase, SubtitleLabel, LineEdit, BodyLabel
 
 
 class CreateSettingMessageBox(MessageBoxBase):
@@ -29,3 +29,17 @@ class CreateSettingMessageBox(MessageBoxBase):
 
     def _validateUrl(self, text):
         self.yesButton.setEnabled(QUrl(text).isValid())
+
+
+class CreateErrorInfoMessageBox(MessageBoxBase):
+    def __init__(self, parent=None, info_title="", info_message=""):
+        super().__init__(parent)
+        self.titleLabel = SubtitleLabel(info_title, self)
+        self.messageLabel = BodyLabel(info_message, self)
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.messageLabel)
+
+        self.yesButton.setText(self.tr('确定'))
+        self.cancelButton.setText(self.tr('取消'))
+        self.widget.setMinimumWidth(350)

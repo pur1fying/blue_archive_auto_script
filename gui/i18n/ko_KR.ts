@@ -417,22 +417,22 @@
         <translation>일섭</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>拖动礼物</source>
         <translation>선물 드래그</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="116"/>
+        <location filename="../util/config_translation.py" line="117"/>
         <source>MuMu模拟器</source>
         <translation>뮤뮤 앱플레이어</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="118"/>
+        <location filename="../util/config_translation.py" line="119"/>
         <source>蓝叠模拟器</source>
         <translation>블루스택</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="119"/>
+        <location filename="../util/config_translation.py" line="120"/>
         <source>蓝叠国际版</source>
         <translation>블루스택 CN</translation>
     </message>
@@ -452,52 +452,52 @@
         <translation>미야코 갓 텍스트 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="117"/>
+        <location filename="../util/config_translation.py" line="118"/>
         <source>MuMu模拟器全球版</source>
         <translation>MuMu 에뮬레이터 글로벌 버전</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="122"/>
+        <location filename="../util/config_translation.py" line="123"/>
         <source>无动作</source>
         <translation>조치 없음</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="123"/>
+        <location filename="../util/config_translation.py" line="124"/>
         <source>退出 Baas</source>
         <translation>Baas 종료</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="124"/>
+        <location filename="../util/config_translation.py" line="125"/>
         <source>退出 模拟器</source>
         <translation>에뮬레이터를 종료합니다</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="125"/>
+        <location filename="../util/config_translation.py" line="126"/>
         <source>退出 Baas 和 模拟器</source>
         <translation>BaaS 및 시뮬레이터 종료</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="126"/>
+        <location filename="../util/config_translation.py" line="127"/>
         <source>关机</source>
         <translation>종료</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="129"/>
+        <location filename="../util/config_translation.py" line="130"/>
         <source>贯穿</source>
         <translation>내내</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="130"/>
+        <location filename="../util/config_translation.py" line="131"/>
         <source>爆发</source>
         <translation>돋다</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="131"/>
+        <location filename="../util/config_translation.py" line="132"/>
         <source>神秘</source>
         <translation>신비한</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="132"/>
+        <location filename="../util/config_translation.py" line="133"/>
         <source>振动</source>
         <translation>진동</translation>
     </message>
@@ -507,17 +507,17 @@
         <translation>정기적인 친구 정리에 보관해야 하는 친구 코드를 설정하세요</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="135"/>
+        <location filename="../util/config_translation.py" line="136"/>
         <source>开</source>
         <translation>열다</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="136"/>
+        <location filename="../util/config_translation.py" line="137"/>
         <source>关</source>
         <translation>닫다</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="137"/>
+        <location filename="../util/config_translation.py" line="138"/>
         <source>默认</source>
         <translation>기본값</translation>
     </message>
@@ -535,6 +535,24 @@
         <location filename="../util/config_translation.py" line="75"/>
         <source>帮助你自动打战术综合测试</source>
         <translation>전술 종합 테스트를 자동으로 수행할 수 있도록 도와줍니다</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="111"/>
+        <source>Steam国际服</source>
+        <translation>Steam 국제 서버</translation>
+    </message>
+</context>
+<context>
+    <name>CreateErrorInfoMessageBox</name>
+    <message>
+        <location filename="../components/dialog_panel.py" line="43"/>
+        <source>确定</source>
+        <translation>확신하는</translation>
+    </message>
+    <message>
+        <location filename="../components/dialog_panel.py" line="44"/>
+        <source>取消</source>
+        <translation>취소</translation>
     </message>
 </context>
 <context>
@@ -816,19 +834,19 @@
     <message>
         <location filename="../fragments/home.py" line="130"/>
         <source>启停快捷键</source>
-        <translation type="unfinished">시작-정지 단축키</translation>
+        <translation>시작-정지 단축키</translation>
     </message>
 </context>
 <context>
     <name>Layout</name>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="19"/>
+        <location filename="../components/expand/arenaPriority.py" line="21"/>
         <source>输入你需要对手比你低几级，高几级则填负数：</source>
         <translation>상대가 몇 위 아래 또는 그 위에 있어야 하는지 입력합니다.
 아래에는 양수를 사용하고 위에는 음수를 사용합니다:</translation>
     </message>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="20"/>
+        <location filename="../components/expand/arenaPriority.py" line="22"/>
         <source>输入你最多需要刷新几次：</source>
         <translation>최대 새로 고침 횟수:</translation>
     </message>
@@ -977,7 +995,7 @@
         <location filename="../components/expand/mainlinePriority.py" line="24"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>하드 스테이지 설정은 위와 동일하지만(참고: 최대 횟수는 3회),
-구분은 쉼표로, 일본 서버와 해외 서버는 'max'로 입력할 수 있습니다:</translation>
+구분은 쉼표로, 일본 서버와 해외 서버는 &apos;max&apos;로 입력할 수 있습니다:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="131"/>
@@ -995,37 +1013,37 @@
         <translation>설정 실패</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="35"/>
+        <location filename="../components/expand/schedulePriority.py" line="72"/>
         <source>优先做好感等级多的日程</source>
         <translation>인연도가 높은 스케쥴을 우선합니다</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="153"/>
+        <location filename="../components/expand/schedulePriority.py" line="168"/>
         <source>日程次数</source>
         <translation>티켓 수</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="135"/>
+        <location filename="../components/expand/schedulePriority.py" line="154"/>
         <source>区域名称</source>
         <translation>지역 이름</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="141"/>
+        <location filename="../components/expand/schedulePriority.py" line="160"/>
         <source>初级</source>
         <translation>기초</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="141"/>
+        <location filename="../components/expand/schedulePriority.py" line="160"/>
         <source>普通</source>
         <translation>일반</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="141"/>
+        <location filename="../components/expand/schedulePriority.py" line="160"/>
         <source>高级</source>
         <translation>상급</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="141"/>
+        <location filename="../components/expand/schedulePriority.py" line="160"/>
         <source>特级</source>
         <translation>최상급</translation>
     </message>
@@ -1201,7 +1219,7 @@
         <translation>삭제하다</translation>
     </message>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="21"/>
+        <location filename="../components/expand/arenaPriority.py" line="23"/>
         <source>自定义对手的编号：</source>
         <translation>상대방의 번호를 사용자 정의하십시오:</translation>
     </message>
@@ -1218,10 +1236,10 @@
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
-nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이터 
-주소'를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
+nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬레이터 
+주소&apos;를 MuMu 에뮬레이터 경로로 정확하게 설정해MuMuPlayer.exe</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="26"/>
@@ -1309,17 +1327,17 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
         <translation>화이트 + 블루 소재</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="234"/>
+        <location filename="../components/expand/createPriority.py" line="235"/>
         <source>金色材料</source>
         <translation>골드 소재</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="235"/>
+        <location filename="../components/expand/createPriority.py" line="236"/>
         <source>紫色材料</source>
         <translation>퍼플 소재</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="236"/>
+        <location filename="../components/expand/createPriority.py" line="237"/>
         <source>金色+紫色材料</source>
         <translation>골드 + 퍼플 소재</translation>
     </message>
@@ -1329,47 +1347,47 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
         <translation>화이트 + 블루 + 골드 + 퍼플 소재</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="245"/>
+        <location filename="../components/expand/createPriority.py" line="247"/>
         <source>材料选择</source>
         <translation>재료 선택</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="264"/>
+        <location filename="../components/expand/createPriority.py" line="266"/>
         <source>一键设置推荐优先级</source>
         <translation>한 번의 클릭으로 추천 우선 순위 설정</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="267"/>
+        <location filename="../components/expand/createPriority.py" line="269"/>
         <source>选择学生</source>
         <translation>학생을 선택합니다</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="310"/>
+        <location filename="../components/expand/createPriority.py" line="312"/>
         <source>制造优先级</source>
         <translation>제조 우선 순위</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="324"/>
+        <location filename="../components/expand/createPriority.py" line="326"/>
         <source>修改成功</source>
         <translation>수정에 성공했습니다</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="324"/>
+        <location filename="../components/expand/createPriority.py" line="326"/>
         <source>推荐制造优先级</source>
         <translation>제조 우선 순위 권장</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="26"/>
+        <location filename="../components/expand/schedulePriority.py" line="61"/>
         <source>优先做指定学生存在的日程</source>
         <translation>학생의 출석을 지정하는 일정에 우선 순위가 부여됩니다</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="30"/>
+        <location filename="../components/expand/schedulePriority.py" line="67"/>
         <source>指定学生</source>
         <translation>학생 배정</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="74"/>
+        <location filename="../components/expand/schedulePriority.py" line="110"/>
         <source>指定学生(填写指南见wiki)</source>
         <translation>학생 배정(채우는 방법에 대한 지침은 wiki 참조)</translation>
     </message>
@@ -1737,6 +1755,16 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
         <location filename="../components/expand/baasUpdateConfig.py" line="632"/>
         <source>检测到新版本，重启程序即可自动更新</source>
         <translation>새 버전이 감지되면 프로그램을 다시 시작하여 자동으로 업데이트하십시오</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/arenaPriority.py" line="20"/>
+        <source>在排名为第一时不进行战斗</source>
+        <translation>1위일 때 싸우지 마세요</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/createPriority.py" line="238"/>
+        <source>制造石</source>
+        <translation>공예석</translation>
     </message>
 </context>
 <context>
@@ -2300,7 +2328,7 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 '에뮬레이
         <translation>CommPhil 굴레이션 세트</translation>
     </message>
     <message>
-        <location filename="../fragments/switch.py" line="226"/>
+        <location filename="../fragments/switch.py" line="242"/>
         <source>Features</source>
         <translation>페처스</translation>
     </message>

@@ -108,6 +108,7 @@ class ConfigTranslation(QObject):
             self.tr('国际服青少年'): '国际服青少年',
             self.tr('韩国ONE'): '韩国ONE',
             self.tr('日服'): '日服',
+            self.tr('Steam国际服'): 'Steam国际服',
 
             # patstyles combobox
             self.tr('拖动礼物'): '拖动礼物',
