@@ -5,7 +5,7 @@ import queue
 import threading
 from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from .broadcast import BroadcastChannel
 
@@ -26,9 +26,11 @@ class LogManager:
         self._history_lock = threading.Lock()
         self._history_all: List[Dict[str, Any]] = []
         self._history_per_scope: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
-        self._stop_event = threading.Event()
-        self._workers: List[threading.Thread] = []
         self._sources: Dict[queue.Queue, str] = {}
+        self._queue_tasks: Dict[queue.Queue, asyncio.Task] = {}
+        self._sentinels: Dict[queue.Queue, object] = {}
+        self._active_tasks: Set[asyncio.Task] = set()
+        self._running = False
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         self._loop = loop
@@ -38,53 +40,78 @@ class LogManager:
         if log_queue in self._sources:
             return
         self._sources[log_queue] = scope
-        if self._workers:
-            worker = threading.Thread(
-                target=self._pump,
-                args=(log_queue, scope),
-                name=f"log-pump-{len(self._workers)}",
-                daemon=True,
-            )
-            worker.start()
-            self._workers.append(worker)
+        sentinel = object()
+        self._sentinels[log_queue] = sentinel
+        if self._running and self._loop is not None:
+            task = self._loop.create_task(self._pump_async(log_queue, scope, sentinel), name=f"log-pump-{scope}")
+            self._queue_tasks[log_queue] = task
+            self._active_tasks.add(task)
+            task.add_done_callback(self._make_cleanup(log_queue))
 
     def unregister_queue(self, log_queue: queue.Queue) -> None:
-        # Queues are long lived; we keep workers alive for simplicity.
-        # This method exists for API completeness so callers can drop references.
-        self._sources.pop(log_queue, None)
-
-    def start(self) -> None:
-        if self._workers:
+        scope = self._sources.pop(log_queue, None)
+        if scope is None:
             return
-        self._stop_event.clear()
-        for idx, (src, scope) in enumerate(self._sources.items()):
-            worker = threading.Thread(
-                target=self._pump,
-                args=(src, scope),
-                name=f"log-pump-{idx}",
-                daemon=True,
-            )
-            worker.start()
-            self._workers.append(worker)
-
-    def stop(self) -> None:
-        self._stop_event.set()
-        for worker in self._workers:
-            worker.join(timeout=1.0)
-        self._workers.clear()
-
-    def _pump(self, source: queue.Queue, scope: str) -> None:
-        while not self._stop_event.is_set():
+        task = self._queue_tasks.pop(log_queue, None)
+        sentinel = self._sentinels.pop(log_queue, None)
+        if task is not None and sentinel is not None:
             try:
-                record = source.get(timeout=0.5)
-            except queue.Empty:
-                continue
+                log_queue.put_nowait(sentinel)
+            except queue.Full:
+                # Queues provided by the logger are unbounded; ignore if full.
+                pass
+
+    async def start(self) -> None:
+        if self._running:
+            return
+        if self._loop is None:
+            raise RuntimeError("LogManager loop is not configured")
+        self._running = True
+        for idx, (src, scope) in enumerate(self._sources.items()):
+            sentinel = self._sentinels.setdefault(src, object())
+            task = self._loop.create_task(
+                self._pump_async(src, scope, sentinel),
+                name=f"log-pump-{idx}",
+            )
+            self._queue_tasks[src] = task
+            self._active_tasks.add(task)
+            task.add_done_callback(self._make_cleanup(src))
+
+    async def stop(self) -> None:
+        if not self._running:
+            return
+        self._running = False
+        tasks = list(self._active_tasks)
+        for queue_obj, sentinel in list(self._sentinels.items()):
+            try:
+                queue_obj.put_nowait(sentinel)
+            except queue.Full:
+                # Queues provided by the logger are unbounded; ignore if full.
+                pass
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+        self._queue_tasks.clear()
+        self._active_tasks.clear()
+        self._sentinels.clear()
+
+    def _make_cleanup(self, queue_obj: queue.Queue):
+        def _cleanup(task: asyncio.Task) -> None:
+            self._active_tasks.discard(task)
+            self._queue_tasks.pop(queue_obj, None)
+            self._sentinels.pop(queue_obj, None)
+
+        return _cleanup
+
+    async def _pump_async(self, source: queue.Queue, scope: str, sentinel: object) -> None:
+        while True:
+            record = await asyncio.to_thread(source.get)
+            if record is sentinel:
+                break
             entry = self._normalize_record(record, scope)
             with self._history_lock:
                 self._history_all.append(entry)
                 self._history_per_scope[scope].append(entry)
-            if self._loop:
-                self._broadcast.publish_threadsafe(entry)
+            await self._broadcast.publish(entry)
 
     def _normalize_record(self, record: Dict[str, Any], scope: str) -> Dict[str, Any]:
         timestamp = record.get("time")

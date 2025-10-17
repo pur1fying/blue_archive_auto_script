@@ -163,8 +163,10 @@ async def websocket_provider(websocket: WebSocket) -> None:
         scopes = context.log_manager.get_scopes()
         await websocket.send_text(cipher.encrypt_json({"type": "logs_full", "scopes": scopes, "entries": history}))
         await websocket.send_text(cipher.encrypt_json({"type": "status", "status": context.runtime.current_status()}))
-        if context.runtime.all_data_initialized:
-            await websocket.send_text(cipher.encrypt_json({"type": "status", "status": {"all_data_initialized": True}}))
+        if context.runtime.is_all_data_initialized:
+            await websocket.send_text(
+                cipher.encrypt_json({"type": "status", "status": {"is_all_data_initialized": True}})
+            )
         log_queue = await context.log_manager.subscribe()
         status_queue = await context.runtime.subscribe_status()
         log_task = asyncio.create_task(_provider_sender(websocket, cipher, log_queue, "log"))

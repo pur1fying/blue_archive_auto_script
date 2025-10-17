@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import AliasChoices, BaseModel, Field, field_validator
 
 
 class PatchOperation(BaseModel):
@@ -21,7 +21,11 @@ class SyncPullMessage(BaseModel):
     type: Literal["pull"]
     resource: Literal["config", "event", "gui", "static", "setup_toml"]
     resource_id: Optional[str] = None
-    include_diff_baseline: bool = Field(default=False, description="Whether to return baseline timestamp")
+    is_include_diff_baseline: bool = Field(
+        default=False,
+        description="Whether to return baseline timestamp",
+        validation_alias=AliasChoices("is_include_diff_baseline", "include_diff_baseline"),
+    )
 
 
 class SyncPatchMessage(BaseModel):

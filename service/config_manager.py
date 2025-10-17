@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
+from watchfiles import Change, awatch
+
 from .broadcast import BroadcastChannel
 from .diff import PatchConflictError, apply_patch, diff_documents
 from .messages import PatchOperation, SyncPushPayload
@@ -47,7 +49,6 @@ class ConfigManager:
         self._loop = loop
         self._gui_full: Union[Dict[str, Any], None] = None
         self._setup_toml: Union[Dict[str, Any], None] = None
-        self._poll_interval = 1.0
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         self._loop = loop
@@ -413,6 +414,66 @@ class ConfigManager:
         if self._loop is None:
             self._loop = asyncio.get_running_loop()
             self._update_bus.set_loop(self._loop)
-        while True:
+
+        await self.scan_once()
+
+        try:
+            async for changes in awatch(self._root, recursive=True):
+                await self._handle_watch_batch(changes)
+        except asyncio.CancelledError:
+            raise
+
+    async def _handle_watch_batch(self, changes: Iterable[tuple[Change, str]]) -> None:
+        resource_changes: set[ResourceKey] = set()
+        rescan_configs = False
+        for change, raw_path in changes:
+            path = Path(raw_path)
+            if path.name == "setup.toml" and path.parent == self._root:
+                resource_changes.add(("setup_toml", None))
+                continue
+            if path == self._config_root or self._config_root in path.parents:
+                needs_rescan, resource_key = self._classify_config_change(change, path)
+                rescan_configs = rescan_configs or needs_rescan
+                if resource_key is not None:
+                    resource_changes.add(resource_key)
+        if rescan_configs:
             await self.scan_once()
-            await asyncio.sleep(self._poll_interval)
+        for resource, resource_id in resource_changes:
+            await self._check_resource(resource, resource_id)
+
+    def _classify_config_change(
+        self,
+        change: Change,
+        path: Path,
+    ) -> tuple[bool, Optional[ResourceKey]]:
+        try:
+            relative_parts = path.relative_to(self._config_root).parts
+        except ValueError:
+            return False, None
+
+        if not relative_parts:
+            return True, None
+
+        if len(relative_parts) == 1:
+            name = relative_parts[0]
+            if name == "gui.json":
+                return False, ("gui", None)
+            if name == "static.json":
+                return False, ("static", None)
+            if change != Change.modified:
+                return True, None
+            return False, None
+
+        if len(relative_parts) == 2:
+            config_id, filename = relative_parts
+            if filename == "config.json":
+                return change != Change.modified, ("config", config_id)
+            if filename == "event.json":
+                return change != Change.modified, ("event", config_id)
+            if change != Change.modified:
+                return True, None
+            return False, None
+
+        if change != Change.modified:
+            return True, None
+        return False, None

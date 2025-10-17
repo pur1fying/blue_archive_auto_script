@@ -41,7 +41,7 @@ def _default_status(config_id: str) -> Dict[str, Any]:
     return {
         "config_id": config_id,
         "running": False,
-        "flag_run": False,
+        "is_flag_run": False,
         "button": None,
         "current_task": None,
         "waiting_tasks": [],
@@ -79,7 +79,7 @@ class ServiceRuntime:
         self._active_config_id: Optional[str] = None
         self._update_signal: Optional[_SignalHook] = None
         self._exit_signal: Optional[_SignalHook] = None
-        self.all_data_initialized: bool = False
+        self.is_all_data_initialized: bool = False
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         self._loop = loop
@@ -98,9 +98,9 @@ class ServiceRuntime:
         status = self._main.init_all_data()
         if status:
             self._status_bus.publish_threadsafe({
-                "all_data_initialized": True
+                "is_all_data_initialized": True
             })
-            self.all_data_initialized = True
+            self.is_all_data_initialized = True
 
 
     def get_log_sources(self) -> List[Tuple[Any, str]]:
@@ -189,7 +189,7 @@ class ServiceRuntime:
                     session.baas.send("start")
                 finally:
                     session.thread = None
-                    self._update_status(config_id, running=False, flag_run=session.baas.flag_run, current_task=None,
+                    self._update_status(config_id, running=False, is_flag_run=session.baas.flag_run, current_task=None,
                                         waiting_tasks=[])
 
             thread = threading.Thread(
@@ -199,7 +199,7 @@ class ServiceRuntime:
             )
             session.thread = thread
             thread.start()
-            self._update_status(config_id, running=True, flag_run=True, exit_code=None, current_task=None,
+            self._update_status(config_id, running=True, is_flag_run=True, exit_code=None, current_task=None,
                                 waiting_tasks=[])
             return {"status": "started", "config_id": config_id}
 
@@ -209,14 +209,14 @@ class ServiceRuntime:
             if session is None:
                 return {"status": "unknown-config", "config_id": config_id}
             if not session.thread:
-                self._update_status(config_id, running=False, flag_run=False, current_task=None, waiting_tasks=[])
+                self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
                 return {"status": "stopped", "config_id": config_id}
             session.baas.send("stop")
             thread = session.thread
             session.thread = None
         if thread and thread.is_alive():
             thread.join(timeout=10.0)
-        self._update_status(config_id, running=False, flag_run=False, current_task=None, waiting_tasks=[])
+        self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
         return {"status": "stopped", "config_id": config_id}
 
     async def solve_task(self, config_id: str, task_name: str, set_log=None) -> Dict[str, Any]:
@@ -236,13 +236,13 @@ class ServiceRuntime:
 
         def _call() -> None:
             try:
-                self._update_status(config_id, running=True, flag_run=True, exit_code=None, current_task=task_name,
+                self._update_status(config_id, running=True, is_flag_run=True, exit_code=None, current_task=task_name,
                                     waiting_tasks=[])
                 baas.flag_run = True
                 baas.send("solve", task_name)
             finally:
                 session.thread = None
-                self._update_status(config_id, running=False, flag_run=session.baas.flag_run, current_task=None,
+                self._update_status(config_id, running=False, is_flag_run=session.baas.flag_run, current_task=None,
                                     waiting_tasks=[])
 
         thread = threading.Thread(
@@ -308,7 +308,7 @@ class ServiceRuntime:
         self._update_status(config_id, current_task=current, waiting_tasks=waiting)
 
     def _handle_exit_signal(self, config_id: str, payload: Any) -> None:
-        self._update_status(config_id, running=False, flag_run=False, exit_code=payload)
+        self._update_status(config_id, running=False, is_flag_run=False, exit_code=payload)
 
     def _update_status(self, config_id: str, **changes: Any) -> None:
         with self._status_lock:

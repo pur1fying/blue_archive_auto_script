@@ -22,3 +22,4 @@ fastapi
 uvicorn[standard]
 cryptography
 pygit2
+watchfiles
