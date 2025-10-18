@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import asyncio
 import datetime
 import shutil
@@ -95,13 +96,13 @@ class ServiceRuntime:
 
     def init_all_data(self):
         assert self._main is not None
+        self._ensure_config()
         status = self._main.init_all_data()
         if status:
             self._status_bus.publish_threadsafe({
                 "is_all_data_initialized": True
             })
             self.is_all_data_initialized = True
-
 
     def get_log_sources(self) -> List[Tuple[Any, str]]:
         sources: List[Tuple[Any, str]] = []
@@ -134,6 +135,18 @@ class ServiceRuntime:
 
     async def _ensure_main(self) -> None:
         await asyncio.get_running_loop().run_in_executor(None, self._ensure_main_sync)
+
+    @staticmethod
+    def _ensure_config() -> None:
+        config_dir_list = []
+        for _dir_ in os.listdir('./config'):
+            if os.path.isdir(f'./config/{_dir_}'):
+                files = os.listdir(f'./config/{_dir_}')
+                if 'config.json' in files:
+                    check_config(_dir_)
+        if len(config_dir_list) == 0:
+            check_config('default_config')
+
 
     async def ensure_ready(self) -> None:
         await self._ensure_main()
@@ -255,39 +268,39 @@ class ServiceRuntime:
 
         return {"status": "ok", "task": task_name, "result": 0}
 
-    async def detect_adb(self) -> List[str]:
+    @staticmethod
+    async def detect_adb() -> List[str]:
         loop = asyncio.get_running_loop()
         adb_res = await loop.run_in_executor(None, emulator_manager.autosearch)
-        print(adb_res)
         return adb_res
 
-    async def valid_cdk(self, cdk):
+    @staticmethod
+    async def valid_cdk(cdk):
         loop = asyncio.get_running_loop()
         cdk_res = await loop.run_in_executor(None, validate_cdk, cdk)
         return cdk_res
 
-    async def test_all_sha(self):
+    @staticmethod
+    async def test_all_sha():
         loop = asyncio.get_running_loop()
         all_sha_res = await loop.run_in_executor(None, test_all_repo_sha)
         return all_sha_res
 
-    async def check_for_update(self):
+    @staticmethod
+    async def check_for_update():
         loop = asyncio.get_running_loop()
         all_update_res = await loop.run_in_executor(None, check_for_update)
         return all_update_res
 
-    async def update_setup_toml(self):
-        loop = asyncio.get_running_loop()
-        all_update_res = await loop.run_in_executor(None, update_setup_toml)
-        return all_update_res
-
-    async def add_config(self, name, server):
+    @staticmethod
+    async def add_config(name, server):
         serial_name = str(int(datetime.datetime.now().timestamp()))
         check_config(serial_name, name=name, server=server)
         return {
             "serial": serial_name
         }
 
+    @staticmethod
     async def remove_config(self, _id):
         shutil.rmtree(f'./config/{_id}')
         return {}

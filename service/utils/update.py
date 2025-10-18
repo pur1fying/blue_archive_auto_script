@@ -284,15 +284,9 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
         return {}
 
 
-def update_setup_toml(content) -> None:
-    data, path = read_setup_toml()
-    # TODO: Implement related functions
-
-
 __all__ = [
     "check_for_update",
     "test_all_repo_sha",
-    "update_setup_toml",
     "validate_cdk",
     "VersionInfo",
     "read_setup_toml",

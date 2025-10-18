@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import asyncio
 import os
+import secrets
 import time
 from pathlib import Path
 from typing import Any, Dict, Union
@@ -31,7 +32,10 @@ def _load_shared_secret() -> str:
     fallback = PROJECT_ROOT / "config" / "service.secret"
     if fallback.exists():
         return fallback.read_text(encoding="utf-8").strip()
-    raise RuntimeError("Shared secret not configured. Set BAAS_SERVICE_SECRET or config/service.secret")
+    (PROJECT_ROOT / "config").mkdir(exist_ok=True)
+    token = secrets.token_hex(16)
+    fallback.write_bytes(token.encode("utf-8"))
+    return token
 
 
 @contextlib.asynccontextmanager

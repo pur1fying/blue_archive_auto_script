@@ -1,6 +1,6 @@
 import json
 import os
-import time
+import traceback
 
 from core.ocr import ocr
 from core.utils import Logger
@@ -73,7 +73,7 @@ class Main:
             return True
         except Exception as e:
             self.logger.error("Static Config initialization failed")
-            self.logger.error(e.__str__())
+            self.logger.error(traceback.format_exc())
             return False
 
     def operate_dict(self, dic):
