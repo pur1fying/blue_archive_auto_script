@@ -3524,7 +3524,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": null,
+        "CN": "LivelyandBusily",
         "Global": "PandemicHazardAMiraclePancake",
         "JP": "JP_2025_10_22"
     },
