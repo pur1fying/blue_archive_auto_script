@@ -3524,9 +3524,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "iveAlive",
+        "CN": null,
         "Global": "PandemicHazardAMiraclePancake",
-        "JP": "JP_2025_09_24"
+        "JP": "JP_2025_10_22"
     },
     "dailyGameActivity": {
         "CN": null,
