@@ -1,6 +1,7 @@
 import logging
 import sys
 import threading
+import platform
 from typing import Union
 from datetime import datetime, timedelta, timezone
 
@@ -245,3 +246,5 @@ def get_nearest_hour(target_hour):
     nearest_time = (now + timedelta(hours=hour_delta)).replace(minute=0, second=0, microsecond=0)
     return nearest_time
 
+def is_android():
+    return platform.system() == 'Android' or hasattr(sys, 'getandroidapilevel')

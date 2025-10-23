@@ -4,9 +4,10 @@ import os.path
 
 from core.exception import OcrInternalError
 from core.ocr.baas_ocr_client import Client
+from core.utils import is_android
 
 
-class Baas_ocr:
+class _Baas_ocr:
 
     def __init__(self, logger, ocr_needed=None):
         self.logger = logger
@@ -259,3 +260,171 @@ class Baas_ocr:
             if lang not in ret:
                 ret.append(lang)
         return ret
+
+# mock for android
+class _Baas_ocr_mock_client:
+    def __init__(self):
+        # Mock config
+        class MockConfig:
+            def __init__(self):
+                self.port = 1145
+                self.config = {"ocr": {"server": {"port": self.port}}}
+
+            def save(self):
+                pass
+
+            def init_url(self):
+                pass
+
+        self.config = MockConfig()
+
+    def start_server(self):
+        pass
+
+    def enable_thread_pool(self, count=4):
+        # Mock response
+        class MockResponse:
+            status_code = 200
+            text = ""
+
+        return MockResponse()
+
+    def create_shared_memory(self, name, size):
+        pass
+
+    def release_shared_memory(self, name):
+        pass
+
+    def init_model(self, language: list[str], gpu_id=-1, num_thread=4, EnableCpuMemoryArena=False):
+        class MockResponse:
+            status_code = 200
+            text = '{"time": 0}'
+
+        return MockResponse()
+
+    def ocr_for_single_line(self, language: str, origin_image=None, candidates: str = "", pass_method: int = 1,
+                            local_path: str = "", shared_memory_name: str = ""):
+        class MockResponse:
+            status_code = 200
+            text = '{"text": "mock_text", "char_scores": [1.0] * len("mock_text"), "time": 0}'
+
+        return MockResponse()
+
+    def ocr(self, language: str, origin_image=None, candidates: str = "", pass_method: int = 1, local_path: str = "",
+            ret_options: int = 0b100, shared_memory_name: str = ""):
+        class MockResponse:
+            status_code = 200
+            text = '{"text": "mock_text", "time": 0}'
+
+        return MockResponse()
+
+
+class _Baas_ocr_mock_android:
+    def __init__(self, logger, ocr_needed=None):
+        self.logger = logger
+        self.client = None
+        self._init_client(ocr_needed)
+
+    def _init_client(self, ocr_needed):
+        self.client = _Baas_ocr_mock_client()
+
+    def recognize_int(self, baas, region, log_info="", filter_score=0.2) -> int:
+        self.logger.info(f"Mock recognize_int for {log_info}")
+        return 12345
+
+    def get_region_pure_english(self, baas, region, log_info="", filter_score=0.2):
+        self.logger.info(f"Mock get_region_pure_english for {log_info}")
+        return "mockEnglish"
+
+    def get_region_pure_chinese(self, baas, region, log_info="", filter_score=0.2):
+        self.logger.info(f"Mock get_region_pure_chinese for {log_info}")
+        return "mock中文"
+
+    def get_region_res(self, baas, region, language='zh-cn', log_info="", candidates="", filter_score=0.2):
+        self.logger.info(f"Mock get_region_res for {log_info}")
+        return "mock_text"
+
+    def get_region_raw_res(self, img, region, language='CN', ratio=1.0, candidates=""):
+        self.logger.info(f"Mock get_region_raw_res")
+        return '{"text": "mock_text", "time": 0}'
+
+    @staticmethod
+    def is_chinese_char(char):
+        return 0x4e00 <= ord(char) <= 0x9fff
+
+    @staticmethod
+    def get_area_img(img, area, ratio=1.0):
+        img = img[int(area[1] * ratio):int(area[3] * ratio), int(area[0] * ratio):int(area[2] * ratio)]
+        return img
+
+    def enable_thread_pool(self, count=4):
+        self.logger.info("Mock Ocr Enable Thread Pool.")
+
+    def create_shared_memory(self, baas, size):
+        baas.logger.info("Mock Ocr Create Shared Memory [ " + baas.shared_memory_name + " ]")
+
+    def release_shared_memory(self, name):
+        self.logger.info("Mock Ocr Release Shared Memory [ " + name + " ]")
+
+    def init_baas_model(self, baas, gpu_id=-1, num_thread=4, EnableCpuMemoryArena=False):
+        logger = baas.logger
+        logger.info("Mock Ocr Init Model.")
+
+    def init_model(self, language: list[str], gpu_id=-1, num_thread=4, EnableCpuMemoryArena=False):
+        self.logger.info("Mock Ocr Init Model.")
+
+    def test_models(self, language: list[str], _logger=None):
+        if _logger is None:
+            logger = self.logger
+        else:
+            logger = _logger
+        logger.info("Mock Test Ocr.")
+
+    def ocr_for_single_line(self,
+                            language: str,
+                            log_info="",
+                            origin_image=None,
+                            candidates: str = "",
+                            pass_method: int = 1,
+                            local_path: str = "",
+                            shared_memory_name: str = "",
+                            _logger=None,
+                            filter_score=0.2
+                            ):
+        if _logger is None:
+            logger = self.logger
+        else:
+            logger = _logger
+        logger.info(f"Mock Ocr {log_info} : mock_text | Time : 0ms")
+        return "mock_text"
+
+    def ocr(self,
+            language: str,
+            origin_image=None,
+            candidates: str = "",
+            pass_method: int = 1,
+            local_path: str = "",
+            ret_options: int = 0b100,
+            shared_memory_name: str = "",
+            _logger=None
+            ):
+        if _logger is None:
+            logger = self.logger
+        else:
+            logger = _logger
+        return '{"text": "mock_text", "time": 0}'
+
+    @staticmethod
+    def unique_language(ocr_needed):
+        ret = []
+        if ocr_needed is None:
+            return ret
+        for lang in ocr_needed:
+            if lang not in ret:
+                ret.append(lang)
+        return ret
+
+if is_android():
+    Baas_ocr = _Baas_ocr_mock_android
+else:
+    Baas_ocr = _Baas_ocr
