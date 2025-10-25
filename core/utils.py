@@ -1,6 +1,7 @@
 import logging
 import sys
 import threading
+import os
 from typing import Union
 from datetime import datetime, timedelta, timezone
 
@@ -49,6 +50,33 @@ class Logger:
         handler1.setFormatter(formatter)
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(handler1)
+        
+        # 创建日志目录
+        self.log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "log")
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir)
+        
+        # 创建文件处理器
+        self.file_handler = None
+        self._setup_file_handler()
+    
+    def _setup_file_handler(self):
+        """
+        设置文件处理器，用于将日志输出到本地文件
+        """
+        # 获取当前日期作为文件名
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        log_file = os.path.join(self.log_dir, f"{current_date}.txt")
+        
+        # 如果已有文件处理器，先移除
+        if self.file_handler and self.file_handler in self.logger.handlers:
+            self.logger.removeHandler(self.file_handler)
+        
+        # 创建新的文件处理器
+        self.file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
+        self.file_handler.setFormatter(formatter)
+        self.logger.addHandler(self.file_handler)
 
     def __out__(self, message: str, level: int = 1, raw_print=False) -> None:
         """
@@ -57,10 +85,19 @@ class Logger:
         :param level: log level
         :return: None
         """
+        # 检查日期是否变更，如果变更则更新文件处理器
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        log_file = os.path.join(self.log_dir, f"{current_date}.txt")
+        if not os.path.exists(log_file) or (self.file_handler and self.file_handler.baseFilename != log_file):
+            self._setup_file_handler()
+            
         # If raw_print is True, output log to logger box
         if raw_print:
             self.logs += message
             self.logger_signal.emit(message)
+            # 将原始消息写入日志文件
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(message.replace('<br>', '\n').replace('&nbsp;', ' ') + '\n')
             return
 
         while len(logging.root.handlers) > 0:
@@ -76,16 +113,28 @@ class Logger:
         # If logger box is not None, output log to logger box
         # else output log to console
         if self.logger_signal is not None:
-            message = message.replace('\n', '<br>').replace(' ', '&nbsp;')
+            message_html = message.replace('\n', '<br>').replace(' ', '&nbsp;')
             adding = (f'''
                     <div style="font-family: Consolas, monospace;color:{statusColor[level - 1]};">
-                        {statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}
+                        {statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message_html}
                     </div>
                         ''')
             self.logs += adding
             self.logger_signal.emit(adding)
+            
+            # 将纯文本消息写入日志文件
+            log_level_names = ['INFO', 'WARNING', 'ERROR', 'CRITICAL']
+            log_message = f"{log_level_names[level-1]:8s} | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(log_message + '\n')
         else:
             print(f'{statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
+            
+            # 将纯文本消息写入日志文件
+            log_level_names = ['INFO', 'WARNING', 'ERROR', 'CRITICAL']
+            log_message = f"{log_level_names[level-1]:8s} | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(log_message + '\n')
 
     def info(self, message: str) -> None:
         """
