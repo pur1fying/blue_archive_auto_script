@@ -18,7 +18,7 @@ class StaticConfig:
     tactical_challenge_shop_price_list: dict
     create_default_priority: dict
     create_each_phase_weight: list
-    create_filter_type_list: list
+    create_filter_type_list: dict
     create_item_order: dict
     create_phase2_recommended_priority: dict
     create_material_information: dict

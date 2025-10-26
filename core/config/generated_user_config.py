@@ -78,6 +78,7 @@ class Config:
     emulatorMultiInstanceNumber: int
     multiEmulatorName: str
     manual_boss: bool
+    explore_task_use_simple_mode: bool
     choose_team_method: str
     side_team_attribute: list
     preset_team_attribute: list

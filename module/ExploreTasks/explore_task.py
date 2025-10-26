@@ -98,9 +98,25 @@ def need_fight(self, taskDataName: str, isNormal: bool):
         return True
 
     # challenge check
-    if isNormal or "task" in taskDataName:
-        return get_challenge_state(self, 1)[0] != 1
+    if not self.config.explore_task_use_simple_mode:  # simple mode has no challenge
+        if isNormal or "task" in taskDataName:
+            return get_challenge_state(self, 1)[0] != 1
     return False
+
+
+def set_explore_task_mode(self):
+    st = "simple" if self.config.explore_task_use_simple_mode else "grid"
+    self.logger.info("Set Explore Task Mode : [ " + st + " ]")
+
+    mode = f"explore-task-{st}-mode"
+    rgb_possibles = {
+        "explore-task-grid-mode": (1120, 187),
+        "explore-task-simple-mode": (611, 178)
+    }
+    rgb_ends = mode
+    rgb_possibles.pop(mode)
+    picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
+
 
 
 def explore_normal_task(self):
@@ -171,6 +187,8 @@ def explore_normal_task(self):
                     self.logger.error(f"Skipping task {taskName} since it's not available.")
                     continue
 
+            if not (mission == 6 or mission == 'sub'):
+                set_explore_task_mode(self)
             if not need_fight(self, taskDataName, True):
                 self.logger.warning(f"{taskName} is already finished,skip.")
                 skip_navigate = True
@@ -188,7 +206,21 @@ def explore_normal_task(self):
 
                 # get preset unit
                 if not employ_units(self, self.config.choose_team_method, taskData, teamConfig):
-                    self.logger.error(f"Skipping task {taskName} due to error.")
+                    self.logger.error(f"Skipping task {taskName} due to employ team error.")
+                    continue
+
+                main_story.auto_fight(self)
+            elif self.config.explore_task_use_simple_mode:
+                # to formation menu
+                img_reactions = {
+                    'normal_task_task-info': (946, 540)
+                }
+                img_ends = "normal_task_formation-menu"
+                picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
+
+                # get preset unit
+                if not employ_units(self, self.config.choose_team_method, extract_first_team(taskData), teamConfig):
+                    self.logger.error(f"Skipping task {taskName} due to employ team error.")
                     continue
 
                 main_story.auto_fight(self)
@@ -196,7 +228,6 @@ def explore_normal_task(self):
                 if not execute_grid_task(self, taskData):
                     self.logger.error(f"Skipping task {taskName} due to error.")
                     continue
-
                 main_story.auto_fight(self)
                 if self.config.manual_boss:
                     self.click(1235, 41)
@@ -205,6 +236,11 @@ def explore_normal_task(self):
             to_normal_event(self, True)
     return True
 
+# We only need the first team for simple mode
+def extract_first_team(taskData):
+    for attribute, _ in taskData["start"]:
+        if attribute in ["burst", "pierce", "mystic", "shock"]:
+            return {"start": [[attribute, [0, 0]]]}
 
 def explore_hard_task(self):
     """
@@ -248,15 +284,33 @@ def explore_hard_task(self):
                     self.logger.error(f"Skipping task {taskName} since it's not available.")
                     continue
 
+            set_explore_task_mode(self)
+
             if not need_fight(self, taskDataName, False):
                 self.logger.warning(f"H{taskDataName} is already finished,skip.")
                 skip_navigate = True
                 continue
             skip_navigate = False
 
-            if not execute_grid_task(self, taskData):
-                self.logger.error(f"Skipping task {taskName} due to error.")
-                continue
+            if self.config.explore_task_use_simple_mode:
+                # to formation menu
+                img_reactions = {
+                    "normal_task_task-info": (946, 540)
+                }
+                img_ends = "normal_task_formation-menu"
+                picture.co_detect(self, img_ends=img_ends, img_reactions=img_reactions, skip_first_screenshot=True)
+
+                # get preset unit
+                teamConfig = convert_team_config(self)
+                if not employ_units(self, self.config.choose_team_method, extract_first_team(taskData), teamConfig):
+                    self.logger.error(f"Skipping task {taskName} due to employ team error.")
+                    continue
+
+                main_story.auto_fight(self)
+            else:
+                if not execute_grid_task(self, taskData):
+                    self.logger.error(f"Skipping task {taskName} due to error.")
+                    continue
 
             main_story.auto_fight(self)
             if self.config.manual_boss:
