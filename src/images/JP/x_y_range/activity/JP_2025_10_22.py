@@ -1,5 +1,5 @@
 prefix = "activity"
-path = "activity/LivelyandBusily"
+path = "activity/JP_2025_10_22"
 x_y_range = {
     'enter1': (1180, 180, 1202, 200),
     'enter2': (96, 140, 116, 150),

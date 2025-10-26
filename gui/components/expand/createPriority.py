@@ -229,11 +229,13 @@ class Layout(QWidget):
                     'superior': self.tr('紫色材料'),
                     'advanced_superior': self.tr('金色+紫色材料'),
                     'primary_normal_advanced_superior': self.tr('白色+蓝色+金色+紫色材料'),
+                    'keystone': self.tr('制造石')
                 },
                 {
                     'advanced': self.tr('金色材料'),
                     'superior': self.tr('紫色材料'),
                     'advanced_superior': self.tr('金色+紫色材料'),
+                    'keystone': self.tr('制造石')
                 }
             ]
             __dict_for_create_method = __dict_for_create_method[phase - 1]

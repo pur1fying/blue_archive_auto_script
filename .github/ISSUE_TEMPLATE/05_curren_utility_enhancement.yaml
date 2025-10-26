@@ -1,0 +1,41 @@
+name: 功能改进 ( Feature Enhancement )
+description: 为现有功能提出改进建议
+title: "[Enhancement Request]: "
+labels: ["功能请求", "功能改进"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 功能改进建议
+        感谢您使用BAAS脚本并提出改进建议！请详细描述您的需求，帮助我们更好地优化功能。
+
+  - type: textarea
+    id: current_issue
+    attributes:
+      label: 当前功能存在的问题
+      description: 请详细描述当前功能的问题或可优化的地方
+    validations:
+      required: true
+
+  - type: textarea
+    id: enhancement_suggestion
+    attributes:
+      label: 改进建议
+      description: 请具体描述您希望的改进方案
+      placeholder: |
+        请详细说明您预期的功能表现
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: 补充信息
+      description: 请提供任何其他相关信息
+      placeholder: |
+        例如：
+        - 实现改进的具体方案 / 其他项目参考 
+        - 是否愿意参与代码编写 / 测试
+        - 其他建议或想法
+    validations:
+      required: false

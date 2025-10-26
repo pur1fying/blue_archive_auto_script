@@ -5,16 +5,16 @@
 在提问题前, 请先:
 
 1. 检查**BAAS**的更新，确认使用的是最新版。([如何更新](/usage_doc/update.md))
-2. 检查以下配置是否为推荐配置
+2. 检查模拟器 / 游戏设置 是否为[推荐配置](/usage_doc/config#如何使用)
 3. 这个问题是否以前出现过，我是否能自己尝试解决。
    - [常见安装问题](/usage_doc/install/Windows#问题解答)
    - [常见使用问题](/usage_doc/faq)
-   - [查询github issue](https://github.com/pur1fying/blue_archive_auto_script/issues)
+   - [查询github issue是否有同样的解决方法](https://github.com/pur1fying/blue_archive_auto_script/issues)
 4. 我现在是否每次运行都出现这个问题, 或它的发生是否遵循一定规律。
 5. 我该提供哪些信息来让其他人帮我解决问题。
 6. 在qq群内发色图或许更能吸引他人帮你解决问题。
 
-:::warning
+:::info
 上报问题前务必准备好完整日志与相关截图
 
 我们也推荐你直接录制完整视频, 注意视频应该让模拟器和**BAAS**同框.
@@ -32,3 +32,9 @@
 ### 3.我设置了XXX配置但是没有打! / 我没设置XXX但是打了!：
 1. 仔细阅读配置说明，查看是否正确理解该怎么填写。
 2. 配置截图与程序日志截图。 
+
+
+## 如何查询对应配置文件
+1. **BAAS**配置文件存放在config目录下, config目录下每一个文件夹对应一个配置
+2. 打开文件夹, 找到config.json文件, 用文本编辑器打开, name的值与GUI显示的名称对应
+  - ![find_config.png](/assets/report/find_config.png)

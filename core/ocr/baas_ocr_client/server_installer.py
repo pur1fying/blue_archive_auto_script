@@ -1,5 +1,17 @@
+import sys, io
+
+# ================================
+# Check the std::in and std::out Status before
+# dulwich-related crashes, for dulwich will
+# connect to the io, while the io is unset
+# by the built window app.
+
+if sys.stdin is None:
+    sys.stdin = io.TextIOWrapper(io.BytesIO())
+    sys.stdout = io.TextIOWrapper(io.BytesIO())
+# ================================
+
 import shutil
-import sys
 import os
 import platform
 import pygit2
