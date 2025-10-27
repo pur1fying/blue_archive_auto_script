@@ -1,0 +1,35 @@
+{
+    "name": "Baas for Android Dev Container",
+    "build": {
+        "dockerfile": "../deploy/android/dockerfile",
+        "context": ".."
+    },
+    // "overrideCommand": false,
+    "remoteUser": "vscode",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "tamasfe.even-better-toml"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "../.venv/bin/python",
+                "python.analysis.typeCheckingMode": "basic",
+                "python.terminal.activateEnvironment": true
+            }
+        }
+    },
+    "containerEnv": {
+        "PYTHONUNBUFFERED": "1",
+        "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+        "PIP_NO_CACHE_DIR": "false"
+    },
+    // "mounts": [
+    //     "source=~/.pyside6-android-deploy,target=${containerWorkspaceFolder}/.pyside6-android-deploy,type=bind,consistency=cached"
+    // ],
+    "postCreateCommand": "bash deploy/android/setup_devcontainer.sh",
+    "runArgs": [
+        "--network=host"
+    ]
+}
