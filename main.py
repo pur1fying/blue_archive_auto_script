@@ -38,7 +38,7 @@ class Main:
             self.ocr.client.start_server()
             return True
         except Exception as e:
-            self.logger.error(e.__str__())
+            self.logger.error(e)
             return False
 
     def get_thread(
