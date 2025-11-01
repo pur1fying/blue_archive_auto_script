@@ -301,7 +301,7 @@ class ServiceRuntime:
         }
 
     @staticmethod
-    async def remove_config(self, _id):
+    async def remove_config(_id):
         shutil.rmtree(f'./config/{_id}')
         return {}
 
