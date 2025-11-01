@@ -435,6 +435,7 @@ DEFAULT_CONFIG = """
     "emulatorMultiInstanceNumber": 0,
     "multiEmulatorName": "mumu",
     "manual_boss": false,
+    "explore_task_use_simple_mode": false,
     "choose_team_method": "order",
     "side_team_attribute": [["Unused","Unused","Unused","Unused"]],
     "preset_team_attribute": [
