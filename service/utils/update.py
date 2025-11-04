@@ -190,21 +190,24 @@ def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
     }
 
 
-def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo", Dict[str, Any]]:
+def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo", Dict[str, Any], str]:
     data, path = read_setup_toml(setup_path)
     general_section = data.get("General", {})
     version_value = general_section.get("current_BAAS_version")
-    if not version_value:
-        try:
-            repo = pygit2.Repository(Path.cwd())
+    try:
+        repo = pygit2.Repository(Path.cwd())
+        _branch = repo.head.shorthand
+        if not version_value:
             commit = repo.revparse_single("HEAD")
             version_value = str(commit.id)
             data.setdefault("General", {})["current_BAAS_version"] = version_value
             with path.open("wb") as file:
                 tomli_w.dump(data, file)
-        except Exception:
-            version_value = ""
-    return VersionInfo(version=version_value, source="setup.toml", path=path), data
+    except Exception:
+        version_value = ""
+        _branch = "master"
+
+    return VersionInfo(version=version_value, source="setup.toml", path=path), data, _branch
 
 
 def read_setup_toml(setup_path: Union[Path, None] = None) -> tuple[dict[str, Any], Union[Path, None]]:
@@ -252,8 +255,7 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
     structured response that can be consumed by service endpoints.
     """
     try:
-        local_info, setup_toml = get_local_version()
-
+        local_info, setup_toml, _branch = get_local_version()
         method_name = setup_toml.setdefault("General", {}).get("get_remote_sha_method", None)
         if not method_name:
             repo_results = test_all_repo_sha(timeout=timeout)
@@ -261,6 +263,10 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
             setup_toml.setdefault("General", {})["get_remote_sha_method"] = method_name
             with local_info.path.open("wb") as file:
                 tomli_w.dump(setup_toml, file)
+
+        for ind, x in enumerate(get_remote_sha_methods):
+            if "branch" in x:
+                get_remote_sha_methods[ind]["branch"] = _branch
 
         method_config = list(filter(lambda x: x.get('name') == method_name, get_remote_sha_methods))[0]
         repo_result = test_repo_sha(method_config, timeout=timeout)
