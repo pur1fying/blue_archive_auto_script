@@ -3525,7 +3525,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "LivelyandBusily",
+        "CN": "WarningOfWhiteChalkWhereAestheticsResideInTheMansionOfDeception",
         "Global": "PandemicHazardAMiraclePancake",
         "JP": "JP_2025_10_22"
     },
