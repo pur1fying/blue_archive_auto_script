@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, Union
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from starlette.middleware.cors import CORSMiddleware
 
 from .context import ServiceContext
 from .encryption import AuthenticationError, CipherBox, HandshakeResponse, HandshakeSession
@@ -50,6 +51,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="BAAS Service Mode", lifespan=lifespan)
+
+# Allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health")
