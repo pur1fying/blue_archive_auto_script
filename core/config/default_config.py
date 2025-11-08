@@ -3521,7 +3521,8 @@ STATIC_DEFAULT_CONFIG = '''
           "百鬼夜行中心部",
           "D.U.シラトリ区",
           "山海経中央特区",
-          "春葉原"
+          "春葉原",
+          "ワイルドハント総台芸術地区"
         ]
     },
     "current_game_activity": {
