@@ -3528,7 +3528,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "WarningOfWhiteChalkWhereAestheticsResideInTheMansionOfDeception",
         "Global": "PandemicHazardAMiraclePancake",
-        "JP": "JP_2025_10_22"
+        "JP": "Moonlight Dream"
     },
     "dailyGameActivity": {
         "CN": null,
