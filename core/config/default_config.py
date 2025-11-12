@@ -615,7 +615,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "max_region": {
         "CN": 26,
-        "Global": 27,
+        "Global": 28,
         "JP": 29
     },
     "explore_normal_task_region_range": [4, 29],
