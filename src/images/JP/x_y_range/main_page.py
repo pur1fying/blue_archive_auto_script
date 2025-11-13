@@ -12,7 +12,7 @@ x_y_range = {
     'back-arrow': (37, 20, 80, 57),
     'download-additional-resources': (474, 100, 808, 143),
     'full-notice': (400, 280, 880, 390),
-    'net-work-unstable': (400, 280, 880, 390),
+    'net-work-unstable': (405, 269, 875, 337),
     'draw-card-point-exchange-to-stone-piece-notice': (378, 220, 892, 291),
 
     'purchase-pyroxenes-menu': (565, 97, 717, 128),
