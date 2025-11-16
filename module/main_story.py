@@ -85,7 +85,7 @@ def get_auto(self) -> int:
     return -1
 
 
-def set_acc_and_auto(self):
+def set_acc(self):
     # set acceleration phase to 3
     current_acceleration = get_acceleration(self)
     if current_acceleration == -1:
@@ -96,13 +96,19 @@ def set_acc_and_auto(self):
         self.click(1215, 625, wait_over=True, count=3 - current_acceleration)
     self.logger.info("Current acceleration phase: " + str(get_acceleration(self)))
 
+def set_auto(self):
     auto_phase = get_auto(self)
     if auto_phase == -1:
         self.logger.warning("Unable to detect auto status.")
-    elif auto_phase == 0:
-        self.click(1215, 677, wait_over=True)
+        return
     self.logger.info("Auto mode toggled:" + ("yes" if auto_phase else "no"))
+    if auto_phase == 0:
+        self.logger.info("Turn On Auto.")
+        self.click(1215, 677, wait_over=True)
 
+def set_acc_and_auto(self):
+    set_acc(self)
+    set_auto(self)
 
 def enter_battle(self):
     self.logger.info("Entering battle.")
