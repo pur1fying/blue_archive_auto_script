@@ -7,7 +7,6 @@ from module import main_story
 
 
 # Functions related to navigation or obtaining map data
-# 与导航或获取地图数据相关的函数
 def to_region(self, region: int, isNormal: bool) -> bool:
     ocr_area = [122, 178, 163, 208]
     curRegion = self.ocr.recognize_int(
@@ -166,8 +165,6 @@ def convert_team_config(self: Baas_thread) -> dict:
     return teamConfig
 
 
-# Functions related to executing tasks
-# 与执行任务相关的函数
 def retreat(self):
     rgb_reactions = {"fighting_feature": (1226, 51)}
     img_reactions = {
@@ -280,9 +277,7 @@ def confirm_teleport(self):
     picture.co_detect(self, None, None, img_ends, img_reactions, True)
 
 
-# Functions related to task loops
-# 与任务循环相关的函数
-
+# walk grid
 def execute_grid_task(self, taskData) -> bool:
     # enter the mission
     img_reactions = {
@@ -335,7 +330,6 @@ def run_task_action(self, actions):
             time.sleep(action['pre-wait'])
 
         # turn off skip fight mode to handle retreat
-        # 关闭自动战斗来处理撤退
         if 'retreat' in action:
             set_skip_status(self, False)
         wait_loading = False
@@ -346,7 +340,6 @@ def run_task_action(self, actions):
             if "teleport" in operation:
                 confirm_teleport(self)
         elif operation.startswith("exchange"):
-            # 切换队伍
             # Switch formation
             description += f"Switch formation"
             current_formation = switch_formation(self, current_formation)
@@ -359,7 +352,6 @@ def run_task_action(self, actions):
             description += "\n"
         elif operation == 'end-turn':
             # End this turn
-            # 结束回合
             description += "End Turn"
             end_turn(self)
             if i != len(actions) - 1:
@@ -371,8 +363,7 @@ def run_task_action(self, actions):
             description += "\n"
 
         elif operation == 'choose_and_change':
-            # exchange the formation
-            # 交换两条队伍
+            # Exchange two formation
             description += f"Exchange formation @ ({position[0]}, {position[1]})\n"
             self.click(position[0], position[1], wait_over=True, duration=0.3)
             self.click(position[0] - 100, position[1], wait_over=True, duration=1)
@@ -382,8 +373,7 @@ def run_task_action(self, actions):
         self.logger.info(description)
 
         if 'retreat' in action:
-            # handle retreat
-            # 处理撤退
+            # Handle retreat
             description += f"Retreating fight {action['retreat'][1:]}\n"
             fight_counts = action['retreat'][0]
             for current_fight_index in range(0, fight_counts):

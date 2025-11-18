@@ -27,7 +27,7 @@ class ServerConfig:
         if not os.path.exists(self.config_path):
             default_config_file_path = os.path.join(BaasOcrClient.server_folder_path, "resource", "global_setting.json")
             if not os.path.exists(default_config_file_path):
-                raise Exception("Didn't find default config file.")
+                raise FileNotFoundError("Didn't find default config file.")
             os.mkdir(os.path.dirname(self.config_path))
             shutil.copy(default_config_file_path, self.config_path)
         with open(self.config_path, "r") as f:
@@ -54,7 +54,7 @@ class BaasOcrClient:
     def __init__(self):
         self.exe_path = os.path.join(self.server_folder_path, self.executable_name)
         if not os.path.exists(self.exe_path):
-            raise Exception("Didn't find ocr server executable.")
+            raise FileNotFoundError("Didn't find ocr server executable.")
         self.config = ServerConfig()
         self.server_process = None
         self.clear_log()

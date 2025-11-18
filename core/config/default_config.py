@@ -435,6 +435,7 @@ DEFAULT_CONFIG = """
     "emulatorMultiInstanceNumber": 0,
     "multiEmulatorName": "mumu",
     "manual_boss": false,
+    "explore_task_use_simple_mode": false,
     "choose_team_method": "order",
     "side_team_attribute": [["Unused","Unused","Unused","Unused"]],
     "preset_team_attribute": [
@@ -613,8 +614,8 @@ STATIC_DEFAULT_CONFIG = '''
         "JP": [1, 2, 3, 4, 5, 6, 7, 8, 9]
     },
     "max_region": {
-        "CN": 25,
-        "Global": 27,
+        "CN": 26,
+        "Global": 28,
         "JP": 29
     },
     "explore_normal_task_region_range": [4, 29],
@@ -3520,13 +3521,14 @@ STATIC_DEFAULT_CONFIG = '''
           "百鬼夜行中心部",
           "D.U.シラトリ区",
           "山海経中央特区",
-          "春葉原"
+          "春葉原",
+          "ワイルドハント総台芸術地区"
         ]
     },
     "current_game_activity": {
-        "CN": "LivelyandBusily",
+        "CN": "WarningOfWhiteChalkWhereAestheticsResideInTheMansionOfDeception",
         "Global": "PandemicHazardAMiraclePancake",
-        "JP": "JP_2025_10_22"
+        "JP": "Moonlight Dream"
     },
     "dailyGameActivity": {
         "CN": null,

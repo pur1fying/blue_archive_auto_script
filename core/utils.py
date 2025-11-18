@@ -125,10 +125,16 @@ class Logger:
 
     def error(self, message: Union[str, Exception]) -> None:
         """
-        :param message: log message
+        :param message: log message or Exception object
 
         Output error log
         """
+        if isinstance(message, BaseException):
+            exc_message = str(message)
+            formatted_message = f"{type(message).__name__}: {exc_message}" if exc_message else type(message).__name__
+            self.__out__(formatted_message, 3)
+            return
+        
         self.__out__(message, 3)
 
     def critical(self, message: str) -> None:
