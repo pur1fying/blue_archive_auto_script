@@ -23,5 +23,5 @@ x_y_range = {
     'purchase-pyroxenes-package-selected-2': (776, 167, 888, 195),
     'purchase-pyroxenes-daily-free-purchasable': (353, 457, 414, 518),
     'purchase-pyroxenes-daily-free-non-purchasable': (353, 457, 414, 518),
-    'purchase-pyroxenes-confirm-purchase-notice': (565, 90, 717, 125),
+    'purchase-pyroxenes-confirm-purchase-notice': (565, 90, 717, 125)
 }
