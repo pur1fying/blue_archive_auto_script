@@ -3,6 +3,19 @@ import sys
 import threading
 from typing import Union
 from datetime import datetime, timedelta, timezone
+import queue
+
+# Status Text: INFO, WARNING, ERROR, CRITICAL
+STATUS_TERMINAL = ['   INFO', ' WARNING', '   ERROR', 'CRITICAL']
+STATUS_HTML = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
+
+# Status Color: Blue, Orange, Red, Purple
+STATUS_COLOR = ['#2d8cf0', '#f90', '#ed3f14', '#3e0480']
+
+# Status HTML: <b style="color:$color">status</b>
+STATUS_HTML_EMB = [
+    f'<b style="color:{_color};">{status}</b>'
+    for _color, status in zip(STATUS_COLOR, STATUS_HTML)]
 
 
 def delay(wait=1):
@@ -25,23 +38,28 @@ def delay(wait=1):
 
     return decorator
 
+
 def detach(func):
     def wrapper(*args, **kwargs):
         threading.Thread(target=func, args=args[:-1], kwargs=kwargs).start()
+
     return wrapper
+
 
 class Logger:
     """
     Logger class for logging
     """
 
-    def __init__(self, logger_signal):
+    def __init__(self, logger_signal, jsonify=False):
         """
         :param logger_signal: Logger Box signal
         """
         # Init logger box signal, logs and logger
         # logger box signal is used to output log to logger box
         self.logs = ""
+        self.jsonify = jsonify
+        self.log_collector = queue.Queue()
         self.logger_signal = logger_signal
         self.logger = logging.getLogger("BAAS_Logger")
         formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
@@ -63,29 +81,31 @@ class Logger:
             self.logger_signal.emit(message)
             return
 
+        if self.jsonify:
+            self.log_collector.put({
+                "time": datetime.now(),
+                "level": level,
+                "message": message
+            })
+            print(
+                f'{STATUS_TERMINAL[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
+            return
+
         while len(logging.root.handlers) > 0:
             logging.root.handlers.pop()
-        # Status Text: INFO, WARNING, ERROR, CRITICAL
-        status = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
-        # Status Color: Blue, Orange, Red, Purple
-        statusColor = ['#2d8cf0', '#f90', '#ed3f14', '#3e0480']
-        # Status HTML: <b style="color:$color">status</b>
-        statusHtml = [
-            f'<b style="color:{_color};">{status}</b>'
-            for _color, status in zip(statusColor, status)]
         # If logger box is not None, output log to logger box
         # else output log to console
         if self.logger_signal is not None:
             message = message.replace('\n', '<br>').replace(' ', '&nbsp;')
             adding = (f'''
-                    <div style="font-family: Consolas, monospace;color:{statusColor[level - 1]};">
-                        {statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}
+                    <div style="font-family: Consolas, monospace;color:{STATUS_COLOR[level - 1]};">
+                        {STATUS_HTML_EMB[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}
                     </div>
                         ''')
             self.logs += adding
             self.logger_signal.emit(adding)
         else:
-            print(f'{statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
+            print(f'{STATUS_HTML_EMB[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
 
     def info(self, message: str) -> None:
         """
@@ -232,6 +252,7 @@ def is_nearby_group(coord, group, abs_x=10, abs_y=10):
             return True
     return False
 
+
 def get_nearest_hour(target_hour):
     now = datetime.now(timezone.utc)
     current_hour = now.hour
@@ -241,7 +262,7 @@ def get_nearest_hour(target_hour):
             hour_delta = diff - 24
         else:
             hour_delta = diff
-    else:   # target_hour < current_hour
+    else:  # target_hour < current_hour
         diff = current_hour - target_hour
         if diff > 12:
             hour_delta = 24 - diff
@@ -250,4 +271,3 @@ def get_nearest_hour(target_hour):
 
     nearest_time = (now + timedelta(hours=hour_delta)).replace(minute=0, second=0, microsecond=0)
     return nearest_time
-
