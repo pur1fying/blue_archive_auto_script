@@ -1,6 +1,7 @@
 # =========================== #
 #         Core Utils          #
 numpy < 2.0                   #
+setuptools                    #
 adbutils == 2.2.1             #
 uiautomator2 == 2.16.23       #
 opencv-python == 4.8.1.78     #
