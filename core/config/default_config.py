@@ -338,7 +338,7 @@ DISPLAY_DEFAULT_CONFIG = """
 
 DEFAULT_CONFIG = """
 {
-    "name": "New Config",
+    "name": "新的配置",
     "purchase_arena_ticket_times": "0",
     "screenshot_interval": "0.3",
     "autostart": false,
@@ -3618,6 +3618,14 @@ STATIC_DEFAULT_CONFIG = '''
       "Global_name": "Shiroko Terror",
       "Global_implementation": false,
       "JP_name": "シロコ＊テラー",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "星野(临战)",
+      "CN_implementation": false,
+      "Global_name": "Hoshino (Battle)",
+      "Global_implementation": false,
+      "JP_name": "ホシノ(臨戦)",
       "JP_implementation": true
     },
     {
