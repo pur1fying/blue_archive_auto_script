@@ -1,49 +1,6 @@
 import os
 import tomli_w
 
-DEFAULT_SETTINGS = {
-    "General": {
-        "mirrorc_cdk": "",
-        "current_BAAS_version": "",
-        "current_BAAS_Cpp_version": "",
-        "get_remote_sha_method": "",
-        "dev": False,
-        "refresh": False,
-        "launch": False,
-        "force_launch": False,
-        "internal_launch": False,
-        "no_build": True,
-        "debug": False,
-        "use_dynamic_update": False,
-        "source_list": [
-            "https://pypi.tuna.tsinghua.edu.cn/simple",
-            "https://mirrors.ustc.edu.cn/pypi/web/simple",
-            "https://mirrors.aliyun.com/pypi/simple",
-            "https://pypi.doubanio.com/simple",
-            "https://mirrors.huaweicloud.com/repository/pypi/simple",
-            "https://mirrors.cloud.tencent.com/pypi/simple",
-            "https://mirrors.163.com/pypi/simple",
-            "https://pypi.python.org/simple",
-            "https://pypi.org/simple",
-        ],
-        "package_manager": "pip",
-        "runtime_path": "default",
-        "linux_pwd": "",
-    },
-    "URLs": {
-        "REPO_URL_HTTP": "https://gitee.com/pur1fy/blue_archive_auto_script.git",
-        "GET_PIP_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py",
-        "GET_UPX_URL": "https://ghp.ci/https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-win64.zip",
-        "GET_ENV_PATCH_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/env_patch.zip",
-        "GET_PYTHON_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip",
-    },
-    "Paths": {
-        "BAAS_ROOT_PATH": "",
-        "TMP_PATH": "tmp",
-        "TOOL_KIT_PATH": "toolkit",
-    },
-}
-
 try:
     import tomllib
 except ModuleNotFoundError:

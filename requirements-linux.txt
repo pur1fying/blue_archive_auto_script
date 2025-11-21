@@ -3,7 +3,7 @@ PyQt5 == 5.15.11
 numpy < 2.0
 av == 12.0.0
 imgaug
-pygit2
+dulwich
 adbutils == 2.2.1
 uiautomator2 == 2.16.23
 opencv-python == 4.8.1.78

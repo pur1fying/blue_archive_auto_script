@@ -1,6 +1,5 @@
 import json
 import os
-import traceback
 
 from core.ocr import ocr
 from core.utils import Logger
@@ -9,23 +8,21 @@ from core.config.config_set import ConfigSet
 from core.ocr.baas_ocr_client.server_installer import check_git
 
 class Main:
-    def __init__(self, logger_signal=None, ocr_needed=None, **kwargs):
+    def __init__(self, logger_signal=None, ocr_needed=None):
         self.ocr_needed = ocr_needed
         self.ocr = None
-        self.logger = Logger(logger_signal, jsonify=kwargs.get("jsonify", False))
+        self.logger = Logger(logger_signal)
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.logger.info(self.project_dir)
-        if not kwargs.get("lazy_data", False):
-            self.init_all_data()
+        self.init_all_data()
         self.threads = {}
 
     def init_all_data(self):
         if not self.init_ocr():
             self.logger.error("Ocr Init Incomplete Please restart .")
-            return False
+            return
         self.init_static_config()
         self.logger.info("-- All Data Initialization Complete Script ready--")
-        return True
 
     def init_ocr(self):
         try:
@@ -73,7 +70,7 @@ class Main:
             return True
         except Exception as e:
             self.logger.error("Static Config initialization failed")
-            self.logger.error(traceback.format_exc())
+            self.logger.error(e.__str__())
             return False
 
     def operate_dict(self, dic):
