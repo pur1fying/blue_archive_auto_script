@@ -14,7 +14,7 @@ PyQt-Fluent-Widgets == 1.2.0
 #windows installer auto build
 pyinstaller
 requests
-pygit2
+dulwich
 psutil
 tqdm
 

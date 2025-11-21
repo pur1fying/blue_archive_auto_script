@@ -1,11 +1,9 @@
 import binascii
-import tempfile
 import threading
 import time
 import webbrowser
-from pathlib import Path
 
-import pygit2
+import dulwich
 import requests
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QColor
@@ -37,7 +35,7 @@ class TestGetRemoteShaMethodWorker(QThread):
         elif self.method == GetShaMethod.MIRRORC_API:
             success, sha_value = self.mirrorc_api_get_latest_sha()
         elif self.method == GetShaMethod.PYGIT2:
-            success, sha_value = self.pygit2_get_latest_sha(self.config)
+            success, sha_value = self.dulwich_get_latest_sha(self.config)
         else:
             success = False
             sha_value = self.tr("未知方法")
@@ -73,53 +71,31 @@ class TestGetRemoteShaMethodWorker(QThread):
             return False, str(e)
 
     @staticmethod
-    def pygit2_get_latest_sha(data):
+    def dulwich_get_latest_sha(data):
         url = data["url"]
         branch = data["branch"]
         target_ref = f"refs/heads/{branch}"
 
         try:
-            # 创建一个临时 bare 仓库
-            tmpdir = tempfile.mkdtemp(prefix="pygit2-remote-")
-            repo = pygit2.init_repository(tmpdir, bare=True)
-
-            # 添加远程仓库
-            try:
-                remote = repo.remotes["origin"]
-            except KeyError:
-                remote = repo.remotes.create("origin", url)
-
-            # 拉取远程引用（不下载对象）
-            remote.fetch()  # 轻量 fetch，默认不会 checkout
-
-            # 获取远程引用表
-            remote_refs = remote.ls_remotes()
-
-            # 遍历匹配分支引用
-            for ref_name, oid in remote_refs:
-                decoded_ref = ref_name
+            remote_refs = dulwich.porcelain.ls_remote(url)
+            for ref_name, sha in remote_refs.items():
+                decoded_ref = ref_name.decode("utf-8")
                 if decoded_ref == target_ref:
-                    sha = str(oid)
-                    return True, sha
-
-            # 如果没找到直接尝试 refs/remotes/origin/<branch>
-            ref_full = f"refs/remotes/origin/{branch}"
-            if ref_full in repo.references:
-                oid = repo.references[ref_full].target
-                sha = str(oid)
-                return True, sha
-
-            return False, f"Branch '{branch}' not found in remote."
-
+                    if len(sha) == 20:
+                        return True, binascii.hexlify(sha).decode("utf-8")
+                    try:
+                        hex_str = sha.decode("utf-8")
+                        if len(hex_str) == 40:
+                            return True, hex_str
+                    except:
+                        pass
+                    return True, binascii.hexlify(sha[:20]).decode("utf-8")
+            ref = f"refs/heads/{branch}",
+            sha = remote_refs[ref.encode("utf-8")]
+            return True, binascii.hexlify(sha[:20]).decode("utf-8")
         except Exception as e:
             return False, str(e)
-        finally:
-            # 删除临时目录
-            try:
-                import shutil
-                shutil.rmtree(tmpdir)
-            except Exception:
-                pass
+
 
 class MirrorCCDKTestThread(QThread):
     finished = pyqtSignal(RequestReturn, bool)
@@ -373,14 +349,10 @@ class Layout(QWidget):
     def _get_local_version(self):
         self._BAAS_local_version_sha = self.config.get("General.current_BAAS_version", None)
         method = "setup.toml"
-
         if not self._BAAS_local_version_sha:
             try:
-                repo_path = Path.cwd()
-                repo = pygit2.Repository(repo_path)
-                self._repo = repo
-
-                self._BAAS_local_version_sha = str(repo.head.target)
+                self._repo = dulwich.repo.Repo(".")
+                self._BAAS_local_version_sha = self._repo.head().decode("utf-8")
                 method = ".git"
             except Exception:
                 method = None
@@ -388,13 +360,7 @@ class Layout(QWidget):
         if self._BAAS_local_version_sha:
             sha_display = self._BAAS_local_version_sha
             self._BAAS_local_version_label.setText(sha_display)
-
-            if method == "setup.toml":
-                method_text = f"({self.tr('从 setup.toml 读取')})"
-            elif method == ".git":
-                method_text = f"({self.tr('从 .git 读取')})"
-            else:
-                method_text = ""
+            method_text = f"({self.tr('从 setup.toml 读取')})" if method == "setup.toml" else f"({self.tr('从 .git 读取')})"
             self._BAAS_local_version_method_label.setText(method_text)
         else:
             self._BAAS_local_version_label.setText(self.tr("无法获取"))
@@ -615,7 +581,7 @@ class Layout(QWidget):
                         method_type = config["method"]
                         is_ok, sha = (TestGetRemoteShaMethodWorker.github_api_get_latest_sha(config)
                                       if method_type == GetShaMethod.GITHUB_API
-                                      else TestGetRemoteShaMethodWorker.pygit2_get_latest_sha(config))
+                                      else TestGetRemoteShaMethodWorker.dulwich_get_latest_sha(config))
                         if is_ok:
                             self._BAAS_remote_version_sha = sha
                             self._BAAS_remote_version_get_method = "git"
