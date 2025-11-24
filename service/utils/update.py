@@ -192,17 +192,14 @@ def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
 
 def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo", Dict[str, Any], str]:
     data, path = read_setup_toml(setup_path)
-    general_section = data.get("General", {})
-    version_value = general_section.get("current_BAAS_version")
     try:
         repo = pygit2.Repository(Path.cwd())
         _branch = repo.head.shorthand
-        if not version_value:
-            commit = repo.revparse_single("HEAD")
-            version_value = str(commit.id)
-            data.setdefault("General", {})["current_BAAS_version"] = version_value
-            with path.open("wb") as file:
-                tomli_w.dump(data, file)
+        commit = repo.revparse_single("HEAD")
+        version_value = str(commit.id)
+        data.setdefault("General", {})["current_BAAS_version"] = version_value
+        with path.open("wb") as file:
+            tomli_w.dump(data, file)
     except Exception:
         version_value = ""
         _branch = "master"
