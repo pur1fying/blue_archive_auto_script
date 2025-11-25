@@ -29,9 +29,9 @@ x_y_range = {
     'purchase-pyroxenes-menu': (515, 97, 767, 128),
     'purchase-pyroxenes-limited-selected': (307, 167, 459, 195),
     'purchase-pyroxenes-pyroxenes-selected-1': (580, 167, 697, 195),
-    # 'purchase-pyroxenes-pyroxenes-selected-2': (408, 167, 482, 195),
+    'purchase-pyroxenes-pyroxenes-selected-2': (390, 167, 500, 195),
     'purchase-pyroxenes-package-selected-1': (841, 167, 954, 195),
-    # 'purchase-pyroxenes-package-selected-2': (776, 167, 888, 195),
+    'purchase-pyroxenes-package-selected-2': (776, 167, 888, 195),
     'purchase-pyroxenes-daily-free-purchasable': (323, 457, 444, 518),
     'purchase-pyroxenes-daily-free-non-purchasable': (353, 457, 414, 518),
     'purchase-pyroxenes-confirm-purchase-notice': (525, 70, 747, 125)
