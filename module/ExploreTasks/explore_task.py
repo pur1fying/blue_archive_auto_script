@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from core import color, image, picture
 from module import main_story
 from module.ExploreTasks.TaskUtils import to_mission_info, execute_grid_task, get_challenge_state, \
     employ_units, get_stage_data, convert_team_config, to_region, to_hard_event, to_normal_event
 
+if TYPE_CHECKING:
+    from core.Baas_thread import Baas_thread
 
-def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]],
+
+def validate_and_add_task(self: Baas_thread, task: str, tasklist: list[tuple[int, int, dict]],
                           isNormal: bool) -> tuple[bool, str]:
     """
     Verifies the task information and returns the results.
@@ -63,7 +70,7 @@ def validate_and_add_task(self, task: str, tasklist: list[tuple[int, int, dict]]
     return True, ""
 
 
-def need_fight(self, taskDataName: str, isNormal: bool):
+def need_fight(self: Baas_thread, taskDataName: str, isNormal: bool):
     """
     Determines if a fight is needed based on the given task parameters.
 
@@ -104,7 +111,7 @@ def need_fight(self, taskDataName: str, isNormal: bool):
     return False
 
 
-def set_explore_task_mode(self):
+def set_explore_task_mode(self: Baas_thread):
     st = "simple" if self.config.explore_task_use_simple_mode else "grid"
     self.logger.info("Set Explore Task Mode : [ " + st + " ]")
 
@@ -118,8 +125,7 @@ def set_explore_task_mode(self):
     picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
 
 
-
-def explore_normal_task(self):
+def explore_normal_task(self: Baas_thread):
     """
         Implement the logic for exploring normal tasks.
     """
@@ -236,13 +242,15 @@ def explore_normal_task(self):
             to_normal_event(self, True)
     return True
 
+
 # We only need the first team for simple mode
 def extract_first_team(taskData):
     for attribute, _ in taskData["start"]:
         if attribute in ["burst", "pierce", "mystic", "shock"]:
             return {"start": [[attribute, [0, 0]]]}
 
-def explore_hard_task(self):
+
+def explore_hard_task(self: Baas_thread):
     """
     Implement the logic for exploring hard tasks.
     """

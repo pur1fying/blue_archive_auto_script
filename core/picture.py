@@ -1,30 +1,34 @@
+from __future__ import annotations
+
 import time
 import typing
+from typing import TYPE_CHECKING
 
-import cv2
-
-from core import color, image, Baas_thread
+from core import color, image
 from core.color import match_rgb_feature
 from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageIncorrect
 from module.main_story import set_acc_and_auto
 
+if TYPE_CHECKING:
+    from core.Baas_thread import Baas_thread
+
 
 def co_detect(
-            self: Baas_thread,
-            rgb_ends: typing.Union[list[str], str] = None,
-            rgb_reactions: dict = None,
-            img_ends: typing.Union[list, str, tuple] = None,
-            img_reactions: dict = None,
-            skip_first_screenshot=False,
-            tentative_click=False,
-            tentative_x=1238,
-            tentative_y=45,
-            max_fail_cnt=10,
-            pop_ups_rgb_reactions: dict = None,
-            pop_ups_img_reactions: dict = None,
-            time_out=600,
-            check_pkg_interval=20
-    ):
+    self: Baas_thread,
+    rgb_ends: typing.Union[list[str], str] = None,
+    rgb_reactions: dict = None,
+    img_ends: typing.Union[list, str, tuple] = None,
+    img_reactions: dict = None,
+    skip_first_screenshot=False,
+    tentative_click=False,
+    tentative_x=1238,
+    tentative_y=45,
+    max_fail_cnt=10,
+    pop_ups_rgb_reactions: dict = None,
+    pop_ups_img_reactions: dict = None,
+    time_out=600,
+    check_pkg_interval=20
+):
     """
         Detects specific RGB or image features on the screen and performs actions based on the detection.
 
@@ -233,10 +237,10 @@ def choose_buff(self):
 
 
 def match_img_feature(
-        self: Baas_thread,
-        img_feature: typing.Union[tuple, str],
-        threshold: float = 0.8,
-        rgb_diff: int = 20
+    self: Baas_thread,
+    img_feature: typing.Union[tuple, str],
+    threshold: float = 0.8,
+    rgb_diff: int = 20
 ) -> bool:
     if type(img_feature) is tuple:
         image_name = img_feature[0]
@@ -248,7 +252,6 @@ def match_img_feature(
     else:
         image_name = img_feature
     return image.compare_image(self, image_name, threshold, rgb_diff)
-
 
 
 def match_any_img_feature(self: Baas_thread, featureList: list[typing.Union[tuple, str]]) -> bool:
