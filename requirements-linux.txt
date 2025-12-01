@@ -11,3 +11,4 @@ PyQt-Fluent-Widgets == 1.2.0
 psutil
 tomli == 2.2.1
 tomli_w == 1.2.0
+rich>=14.2.0

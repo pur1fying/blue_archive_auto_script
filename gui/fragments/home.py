@@ -1,12 +1,15 @@
-import sys
+import html
 import json
+import sys
 import time
-from random import random
-from typing import Callable
+import traceback
+from datetime import datetime
 from hashlib import md5
 from json import JSONDecodeError
+from random import random
+from typing import Callable
 
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel, QHBoxLayout, QWidget
 from qfluentwidgets import FluentIcon as FIF, TextEdit, SwitchButton, IndicatorPosition, PushButton
@@ -22,6 +25,7 @@ from window import Window
 
 if sys.platform == "win32":
     from gui.util.hotkey_manager import GlobalHotkeyManager, HotkeyInputDialog
+
     _Callback = Callable[[], None]
 
 MAIN_BANNER = 'gui/assets/banner_home_bg.png'
@@ -111,7 +115,7 @@ class HomeFragment(QFrame):
         self.main_thread_attach = MainThread(self.config)
         self.config.set_main_thread(self.main_thread_attach)
         self.main_thread_attach.button_signal.connect(self.set_button_state)
-        self.main_thread_attach.logger_signal.connect(self.logger_box.append)
+        self.main_thread_attach.logger_signal.connect(self.on_log_received)
         self.main_thread_attach.update_signal.connect(self.call_update)
         self.main_thread_attach.exit_signal.connect(lambda x: sys.exit(x))
 
@@ -150,13 +154,45 @@ class HomeFragment(QFrame):
             }
             self.hotkey_push_button.clicked.connect(lambda _: self._change_hotkey(ht_k))
 
-
         self.startup_card.clicked.connect(self._start_clicked)
         # set a hash object name for this widget
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(f"{self.object_name}.HomeFragment")
         if self.config.get('autostart'):
             self.startup_card.button.click()
+
+    @pyqtSlot(int, str)
+    def on_log_received(self, level: int, message: str) -> None:
+        """
+         Slot handler for receiving log messages from the logger signal.
+
+         Formats log messages with HTML styling including colored status indicators,
+         timestamps, and appropriate color coding before displaying in the logger box.
+
+         Args:
+             level: Log level (1=INFO, 2=WARNING, 3=ERROR, 4=CRITICAL)
+             message: The log message to display
+         """
+        try:
+            # Level Text: INFO, WARNING, ERROR, CRITICAL
+            levels_str = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
+            # Level Color: Blue, Orange, Red, Purple
+            levels_color = ['#2d8cf0', '#ff9900', '#ed3f14', '#3e0480']
+            # Status HTML: <b style="color:$color">status</b>
+            status_html = [
+                f'<b style="color:{_color};">{status}</b>'
+                for _color, status in zip(levels_color, levels_str)]
+            message = html.escape(message)  # additional escape to prevent XSS injection
+            message = message.replace('\n', '<br>').replace(' ', '&nbsp;')
+            adding = (f'''
+                                <div style="font-family: Consolas, monospace;color:{levels_color[level - 1]};">
+                                    {status_html[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}
+                                </div>
+                                    ''')
+            self.logger_box.append(adding)
+        except Exception as e:
+            print(f"Error when printing to log box: {e}")
+            traceback.print_exc()
 
     def _change_hotkey(self, key: str):
         """Handles the logic for changing a hotkey via the dialog."""
@@ -264,7 +300,6 @@ class HomeFragment(QFrame):
         self.hk_mgr.register(bind_key, callback)
         self.hk_mgr.start()
 
-
     # def __init_starter(self):
     # if self._main_thread is None:
     #     from main import Main
@@ -284,7 +319,7 @@ class HomeFragment(QFrame):
 
 class MainThread(QThread):
     button_signal = pyqtSignal(str)
-    logger_signal = pyqtSignal(str)
+    logger_signal = pyqtSignal(int, str)
     update_signal = pyqtSignal(list)
     exit_signal = pyqtSignal(int)
 
@@ -431,5 +466,3 @@ class MainThread(QThread):
 
     def get_baas_thread(self):
         return self._main_thread
-
-
