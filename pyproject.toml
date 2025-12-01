@@ -23,8 +23,8 @@ dependencies = [
     "tomli == 2.2.1",
     "tomli_w == 1.2.0",
     "PyAutoGUI == 0.9.54",
-    "mss==10.0.0",
-    "rich>=14.2.0"
+    "mss == 10.0.0",
+    "rich >= 14.2.0"
 ]
 requires-python = ">=3.9"
 readme = "README.md"
