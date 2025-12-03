@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 import time
 import typing
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from core import Baas_thread
+if TYPE_CHECKING:
+    from core.Baas_thread import Baas_thread
 
 
 def wait_loading(self: Baas_thread) -> None:
@@ -133,8 +137,10 @@ def calcTotalRGBDiff(rgb1, rgb2):
 def calcTotalRGBMeanABSDiff(img1, img2):
     return np.abs(img1 - img2).mean()
 
+
 def create_rgb_feature(self, name, pos_list, rgb_list):
     self.rgb_feature[name] = [pos_list, rgb_list]
+
 
 def remove_rgb_feature(self, name):
     if name in self.rgb_feature:
