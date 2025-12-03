@@ -1,21 +1,13 @@
 import logging
 import sys
 import threading
-from typing import Union
 from datetime import datetime, timedelta, timezone
-import queue
+from typing import Union
 
-# Status Text: INFO, WARNING, ERROR, CRITICAL
-STATUS_TERMINAL = ['   INFO', ' WARNING', '   ERROR', 'CRITICAL']
-STATUS_HTML = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
+from rich.console import Console
+from rich.markup import escape
 
-# Status Color: Blue, Orange, Red, Purple
-STATUS_COLOR = ['#2d8cf0', '#f90', '#ed3f14', '#3e0480']
-
-# Status HTML: <b style="color:$color">status</b>
-STATUS_HTML_EMB = [
-    f'<b style="color:{_color};">{status}</b>'
-    for _color, status in zip(STATUS_COLOR, STATUS_HTML)]
+console = Console()
 
 
 def delay(wait=1):
@@ -53,14 +45,19 @@ class Logger:
 
     def __init__(self, logger_signal, jsonify=False):
         """
-        :param logger_signal: Logger Box signal
+        :param logger_signal: Logger signal broadcasts log level and log message
         """
-        # Init logger box signal, logs and logger
-        # logger box signal is used to output log to logger box
+        # Init logger signal, logs and logger,
+        # logger signal is used to output log to logger box or other output
         self.logs = ""
         self.jsonify = jsonify
         self.log_collector = queue.Queue()
         self.logger_signal = logger_signal
+        if not self.logger_signal:
+            # if the logger signal is not configured, we use rich traceback then
+            # to better display error messages in console
+            from rich.traceback import install
+            install(show_locals=True)
         self.logger = logging.getLogger("BAAS_Logger")
         formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
         handler1 = logging.StreamHandler(stream=sys.stdout)
@@ -72,13 +69,17 @@ class Logger:
         """
         Output log
         :param message: log message
-        :param level: log level
+        :param level: log level(1: INFO, 2: WARNING, 3: ERROR, 4: CRITICAL)
         :return: None
         """
         # If raw_print is True, output log to logger box
+        if level < 1 or level > 4:
+            raise ValueError("Invalid log level")
+
         if raw_print:
             self.logs += message
-            self.logger_signal.emit(message)
+            if self.logger_signal:
+                self.logger_signal.emit(level, message)
             return
 
         if self.jsonify:
@@ -93,19 +94,19 @@ class Logger:
 
         while len(logging.root.handlers) > 0:
             logging.root.handlers.pop()
-        # If logger box is not None, output log to logger box
+
+        levels_str = ["INFO", "WARNING", "ERROR", "CRITICAL"]
+        # If logger signal is not None, output log to logger signal
         # else output log to console
+        levels_color = ["#2d8cf0", "#ff9900", "#ed3f14", "#3e0480"]
         if self.logger_signal is not None:
-            message = message.replace('\n', '<br>').replace(' ', '&nbsp;')
-            adding = (f'''
-                    <div style="font-family: Consolas, monospace;color:{STATUS_COLOR[level - 1]};">
-                        {STATUS_HTML_EMB[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}
-                    </div>
-                        ''')
-            self.logs += adding
-            self.logger_signal.emit(adding)
+            self.logs += f"{levels_str[level - 1]} | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
+            self.logger_signal.emit(level, message)
         else:
-            print(f'{STATUS_HTML_EMB[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
+            console.print(f'[{levels_color[level - 1]}]'
+                          f'{levels_str[level - 1]} |'
+                          f' {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} |'
+                          f' {escape(message)}[/]', soft_wrap=True)
 
     def info(self, message: str) -> None:
         """
@@ -134,7 +135,7 @@ class Logger:
             formatted_message = f"{type(message).__name__}: {exc_message}" if exc_message else type(message).__name__
             self.__out__(formatted_message, 3)
             return
-        
+
         self.__out__(message, 3)
 
     def critical(self, message: str) -> None:
