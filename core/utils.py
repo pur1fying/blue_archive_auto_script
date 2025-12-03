@@ -9,6 +9,7 @@ from rich.console import Console
 
 console = Console()
 
+levels_str = ["INFO", "WARNING", "ERROR", "CRITICAL"]
 
 def delay(wait=1):
     def decorator(func):
