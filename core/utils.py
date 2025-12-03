@@ -43,13 +43,15 @@ class Logger:
     Logger class for logging
     """
 
-    def __init__(self, logger_signal):
+    def __init__(self, logger_signal, jsonify=False):
         """
         :param logger_signal: Logger signal broadcasts log level and log message
         """
         # Init logger signal, logs and logger,
         # logger signal is used to output log to logger box or other output
         self.logs = ""
+        self.jsonify = jsonify
+        self.log_collector = queue.Queue()
         self.logger_signal = logger_signal
         if not self.logger_signal:
             # if the logger signal is not configured, we use rich traceback then
@@ -78,6 +80,16 @@ class Logger:
             self.logs += message
             if self.logger_signal:
                 self.logger_signal.emit(level, message)
+            return
+
+        if self.jsonify:
+            self.log_collector.put({
+                "time": datetime.now(),
+                "level": level,
+                "message": message
+            })
+            print(
+                f'{STATUS_TERMINAL[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
             return
 
         while len(logging.root.handlers) > 0:
