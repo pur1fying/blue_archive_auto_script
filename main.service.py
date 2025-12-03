@@ -1,40 +1,10 @@
 import argparse
 import os
-
 import uvicorn
+from service import set_log_format
 
 DEFAULT_HOST = os.getenv("BAAS_SERVICE_HOST", "127.0.0.1")
 DEFAULT_PORT = int(os.getenv("BAAS_SERVICE_PORT", "8190"))
-
-import logging, re
-
-ANSI_ESCAPE = re.compile(r'\x1b\[([0-9;]*[mGKH])')
-
-STATUS_TERMINAL = {
-    logging.INFO: "   INFO",
-    logging.WARNING: " WARNING",
-    logging.ERROR: "   ERROR",
-    logging.CRITICAL: "CRITICAL",
-}
-
-class PlainFormatter(logging.Formatter):
-    def format(self, record):
-        level = STATUS_TERMINAL.get(record.levelno, "   INFO")
-        log_fmt = f"{level} | %(asctime)s | %(message)s"
-        formatter = logging.Formatter(log_fmt, "%Y-%m-%d %H:%M:%S")
-        output = formatter.format(record)
-
-        return ANSI_ESCAPE.sub('', output)
-
-
-handler = logging.StreamHandler()
-handler.setFormatter(PlainFormatter())
-
-root = logging.getLogger()
-root.setLevel(logging.INFO)
-root.handlers = [handler]
-
-
 
 
 def parse_args() -> argparse.Namespace:
@@ -47,6 +17,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    set_log_format()
     args = parse_args()
     config = uvicorn.Config(
         "service.app:app",

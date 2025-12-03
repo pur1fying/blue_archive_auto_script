@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import time
 from dataclasses import dataclass
@@ -424,10 +425,32 @@ class ConfigManager:
             raise
 
     async def _handle_watch_batch(self, changes: Iterable[tuple[Change, str]]) -> None:
+        watch_dirs = [
+            self._config_root,
+        ]
+
+        watch_files = [
+            self._root / "setup.toml",
+        ]
+
         resource_changes: set[ResourceKey] = set()
         rescan_configs = False
         for change, raw_path in changes:
             path = Path(raw_path)
+
+            in_watch_dir = any(path == d or d in path.parents for d in watch_dirs)
+            in_watch_file = any(path == f for f in watch_files)
+
+            if not (in_watch_dir or in_watch_file):
+                continue
+
+            try:
+                rel_path = path.relative_to(self._root)
+            except ValueError:
+                rel_path = path
+
+            logging.info(f"{change.name}: {rel_path.as_posix()}")
+
             if path.name == "setup.toml" and path.parent == self._root:
                 resource_changes.add(("setup_toml", None))
                 continue
