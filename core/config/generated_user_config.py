@@ -89,6 +89,9 @@ class Config:
     CommonShopRefreshTime: str
     CommonShopList: list
     clear_friend_white_list: list
+    clear_friend_level_limit: int
+    clear_friend_last_login_time_days: int
+    clear_friend_last_total_assault_rank_limit: int
     drill_difficulty_list: list
     drill_fight_formation_list: list
     drill_enable_sweep: bool

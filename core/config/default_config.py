@@ -483,6 +483,9 @@ DEFAULT_CONFIG = """
         0
     ],
     "clear_friend_white_list": [],
+    "clear_friend_level_limit": -1,
+    "clear_friend_last_login_time_days": -1,
+    "clear_friend_last_total_assault_rank_limit": -1,
     "drill_difficulty_list": [1,1,1],
     "drill_fight_formation_list": [1,2,3],
     "drill_enable_sweep": true,
