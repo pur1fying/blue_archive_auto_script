@@ -3529,7 +3529,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
+        "CN": "WarningOfWhiteChalkWhereAestheticsResideInTheMansionOfDeception",
         "Global": "PandemicHazardAMiraclePancake",
         "JP": "Moonlight Dream"
     },
