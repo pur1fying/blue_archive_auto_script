@@ -182,13 +182,15 @@ def retreat(self):
                       skip_first_screenshot=True)
 
 
-def set_skip_status(self, status: bool) -> None:
+def set_skip_and_auto_status(self, skip_status: bool, auto_status: bool) -> None:
+    self.logger.info(f"Set Skip : {skip_status}")
+    self.logger.info(f"Set Auto  : {auto_status}")
     while self.flag_run:
         finish_adjustment = True
-        if image.compare_image(self, 'normal_task_fight-skip') != status:
+        if image.compare_image(self, 'normal_task_fight-skip') != skip_status:
             finish_adjustment = False
             self.click(1194, 547, wait_over=True, duration=0.5)
-        if image.compare_image(self, 'normal_task_auto-over') != status:
+        if image.compare_image(self, 'normal_task_auto-over') != auto_status:
             finish_adjustment = False
             self.click(1194, 600, wait_over=True, duration=0.5)
         if finish_adjustment:
@@ -312,7 +314,7 @@ def execute_grid_task(self, taskData) -> bool:
 
     wait_over(self)
     handle_task_pop_ups(self, True)
-    set_skip_status(self, True)
+    set_skip_and_auto_status(self, True, True)
     run_task_action(self, taskData['action'])
     return True
 
@@ -337,7 +339,7 @@ def run_task_action(self, actions):
 
         # turn off skip fight mode to handle retreat
         if 'retreat' in action:
-            set_skip_status(self, False)
+            set_skip_and_auto_status(self, False, True)
         wait_loading = False
 
         if operation.startswith('click'):
@@ -387,7 +389,7 @@ def run_task_action(self, actions):
                 if current_fight_index + 1 in action['retreat'][1:]:
                     retreat(self)
                 handle_task_pop_ups(self, False)
-            set_skip_status(self, True)
+            set_skip_and_auto_status(self, True, True)
 
         if 'ec' in action:
             while self.flag_run and get_formation_index(self) == current_formation:
