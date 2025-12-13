@@ -3526,7 +3526,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "ACertainScientificRecordOfYouth",
+        "CN": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
         "Global": "PandemicHazardAMiraclePancake",
         "JP": "SerenadePromenade"
     },
