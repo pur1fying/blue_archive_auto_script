@@ -176,7 +176,7 @@ def explore_activity_mission(self):
         if last_target_task == total_mission and res == "sss":
             self.logger.info("All MISSION SSS")
             return True
-        start_story(self, self.stage_data["mission"][
+        start_mission(self, self.stage_data["mission"][
             last_target_task - 1])  # self.stage_data["mission"][last_target_task-1] str of attribute
         to_activity(self, "story", True)
         to_activity(self, "mission", True)
@@ -230,8 +230,7 @@ def explore_activity_story(self):
         if last_target_task == total_story and res == "sss":
             self.logger.info("All STORY SSS")
             return True
-        start_story(self, self.stage_data["mission"][
-            last_target_task - 1])  # self.stage_data["mission"][last_target_task-1] str of attribute
+        start_story(self)
         to_activity(self, "mission", True)
         to_activity(self, "story", True)
 
@@ -286,7 +285,7 @@ def explore_activity_challenge(self):
         to_activity(self, "challenge", True)
 
 
-def start_story(self, attribute_str: str):
+def start_mission(self, attribute_str: str):
     rgb_possibles = {
     }
     img_possibles = {
@@ -329,6 +328,40 @@ def start_story(self, attribute_str: str):
     employ_units(self, self.config.choose_team_method, fake_task_data, convert_team_config(self))
     start_fight(self, 1)
     main_story.auto_fight(self)
+    return
+
+def start_story(self):
+    rgb_possibles = {
+        "formation_edit2": (151, 387),
+        "formation_edit3": (151, 387),
+        "formation_edit4": (151, 387),
+    }
+    img_possibles = {
+        "activity_task-info": (940, 538),
+        "normal_task_task-info": (940, 538),
+        "plot_menu": (1205, 34),
+        "plot_skip-plot-button": (1213, 116),
+        "plot_skip-plot-notice": (766, 520),
+        "main_story_episode-info": (629, 518),
+        "story-fight-success-confirm": (1117, 639, 1219, 687)
+    }
+    rgb_ends = [
+        "formation_edit1",
+        "reward_acquired"
+    ]
+    img_ends = [
+        "activity_unit-formation",
+        "activity_formation",
+        "activity_self-formation",
+    ]
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
+    if res in ["formation_edit1", "activity_unit-formation", "activity_formation", "activity_self-formation"]:
+        start_fight(self, 1)
+        main_story.auto_fight(self)
+    elif res == "reward_acquired":
+        pass
+    if res == "reward_acquired":
+        return
     return
 
 
