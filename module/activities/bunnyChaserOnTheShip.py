@@ -2,7 +2,7 @@ import time
 
 from core import color, picture
 from module import main_story
-from module.ExploreTasks.TaskUtils import execute_grid_task
+from module.explore_tasks.task_utils import execute_grid_task
 from module.activities.activity_utils import get_stage_data, preprocess_activity_region, preprocess_activity_sweep_times
 
 

@@ -14,7 +14,7 @@ import numpy as np
 import psutil
 import requests
 
-import module.ExploreTasks.explore_task
+import module.explore_tasks.explore_task
 from core import position, picture, utils
 from core.config.config_set import ConfigSet
 from core.device import emulator_manager
@@ -40,16 +40,16 @@ func_dict = {
     'rewarded_task': module.rewarded_task.implement,
     'arena': module.arena.implement,
     'create': module.create.implement,
-    'explore_normal_task': module.ExploreTasks.explore_task.explore_normal_task,
-    'explore_hard_task': module.ExploreTasks.explore_task.explore_hard_task,
+    'explore_normal_task': module.explore_tasks.explore_task.explore_normal_task,
+    'explore_hard_task': module.explore_tasks.explore_task.explore_hard_task,
     'mail': module.mail.implement,
     'main_story': module.main_story.implement,
     'group_story': module.group_story.implement,
     'mini_story': module.mini_story.implement,
     'scrimmage': module.scrimmage.implement,
     'collect_reward': module.collect_reward.implement,
-    'normal_task': module.ExploreTasks.sweep_task.sweep_normal_task,
-    'hard_task': module.ExploreTasks.sweep_task.sweep_hard_task,
+    'normal_task': module.explore_tasks.sweep_task.sweep_normal_task,
+    'hard_task': module.explore_tasks.sweep_task.sweep_hard_task,
     'clear_special_task_power': module.clear_special_task_power.implement,
     'de_clothes': module.de_clothes.implement,
     'tactical_challenge_shop': module.shop.tactical_challenge_shop.implement,
@@ -880,7 +880,7 @@ class Baas_thread:
         self.config_set.config.alreadyCreateTime = 0
 
     def refresh_common_tasks(self):
-        from module.ExploreTasks.sweep_task import read_task
+        from module.explore_tasks.sweep_task import read_task
         temp = self.config.mainlinePriority
         self.config.unfinished_normal_tasks = []
         if type(temp) is str:
@@ -893,7 +893,7 @@ class Baas_thread:
         self.config_set.set("unfinished_normal_tasks", self.config.unfinished_normal_tasks)
 
     def refresh_hard_tasks(self):
-        from module.ExploreTasks.sweep_task import read_task
+        from module.explore_tasks.sweep_task import read_task
         self.config.unfinished_hard_tasks = []
         temp = self.config.hardPriority
         if type(temp) is str:

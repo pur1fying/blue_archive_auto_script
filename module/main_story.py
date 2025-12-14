@@ -2,7 +2,7 @@ import json
 import os
 
 from core import color, picture, image
-from module.ExploreTasks.TaskUtils import execute_grid_task
+from module.explore_tasks.task_utils import execute_grid_task
 
 
 def implement(self):
