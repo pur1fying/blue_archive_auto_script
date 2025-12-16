@@ -10,6 +10,7 @@ from typing import Any, Dict, Union
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
 
 from .context import ServiceContext
 from .encryption import AuthenticationError, CipherBox, HandshakeResponse, HandshakeSession
@@ -362,3 +363,5 @@ async def websocket_heartbeat(websocket: WebSocket) -> None:
                 task.cancel()
                 with contextlib.suppress(asyncio.CancelledError):
                     await task
+
+app.mount("/", StaticFiles(directory="service/dist", html=True), name="static")
