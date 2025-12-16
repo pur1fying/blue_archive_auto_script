@@ -490,7 +490,9 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
 
                 offsets = {
                     'CN': (-1103, 0, 16, 33),
-                    'Global': (-1048, -4, 20, 36),
+                    'Global_en-us': (-1048, -4, 20, 36),
+                    'Global_ko-kr': (-1105, -4, 20, 36),
+                    'Global_zh-tw': (-1105, -4, 20, 36),
                     'JP': (-1103, 0, 16, 33)
                 }
 
@@ -503,7 +505,7 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
                     target_str_index=row - 1,
                     swipe_params=(145, 578, 145, 273, 1.0, 0.5),
                     ocr_language="en-us",
-                    ocr_region_offsets=offsets[self.server],
+                    ocr_region_offsets=offsets[self.identifier],
                     ocr_str_replace_func=None,
                     max_swipe_times=5,
                     ocr_candidates="12345",
