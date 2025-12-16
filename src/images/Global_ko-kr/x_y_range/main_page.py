@@ -7,7 +7,7 @@ x_y_range = {
     'insufficient-inventory-space': (464, 391, 810, 453),
     'login-store': (551, 145, 730, 182),
     'login-feature': (40, 625, 96, 649),
-    'news': (50, 102, 96, 144),
+    'news': (38, 85, 70, 114),
     'daily-attendance': (540, 90, 1100, 174),
     'skip-notice': (589, 309, 701, 353),
     'full-notice': (407, 282, 873, 381),
