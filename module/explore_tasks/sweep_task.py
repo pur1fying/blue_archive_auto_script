@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from core import picture, image
 from core.color import check_sweep_availability
 from core.config.config_set import ConfigSet
-from module.ExploreTasks.TaskUtils import to_hard_event, to_mission_info, to_region, to_normal_event
+from module.explore_tasks.task_utils import to_hard_event, to_mission_info, to_region, to_normal_event
 
 if TYPE_CHECKING:
     from core.Baas_thread import Baas_thread

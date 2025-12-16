@@ -1,11 +1,11 @@
 import unittest
 
-import module.ExploreTasks.TaskUtils
+import module.explore_tasks.task_utils
 from main import Main
-from module.ExploreTasks.TaskUtils import to_mission_info, to_region, execute_grid_task
-from module.ExploreTasks.explore_task import validate_and_add_task
+from module.explore_tasks.task_utils import to_mission_info, to_region, execute_grid_task
+from module.explore_tasks.explore_task import validate_and_add_task
 from module import main_story
-from module.ExploreTasks import normal_task, sweep_task
+from module.explore_tasks import normal_task, sweep_task
 from core.Baas_thread import Baas_thread
 from core.config.config_set import ConfigSet
 
