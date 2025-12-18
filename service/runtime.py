@@ -301,6 +301,12 @@ class ServiceRuntime:
         }
 
     @staticmethod
+    async def update_to_latest():
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, update_to_latest, None)
+        return {"status": "updated"}
+
+    @staticmethod
     async def remove_config(_id):
         shutil.rmtree(f'./config/{_id}')
         return {}

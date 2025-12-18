@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import time
+import pygit2
+import shutil
+import subprocess
+from pathlib import Path
+from typing import Union, List, Tuple
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional
+from pygit2.enums import ResetMode
 
-import pygit2
 import requests
 import tomli_w
 
@@ -21,7 +25,101 @@ from deploy.installer.mirrorc_update.const import MirrorCErrorCode
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 from deploy.installer.toml_config import DEFAULT_SETTINGS
 
+from ._update import update_repo_to_latest
+
 RepositoryResult = Dict[str, Any]
+
+
+class GitOperationHandler:
+    """
+    Encapsulates Git operations.
+    Priority:
+    1. If system 'git' executable exists, use it for read operations (ls-remote, rev-parse).
+    2. If not, fall back to 'pygit2'.
+    3. For critical state changes like rollback, 'pygit2' is preferred/enforced.
+    """
+
+    def __init__(self, repo_path: Union[str, Path] = "."):
+        self.repo_path = Path(repo_path)
+        self.git_executable = None and shutil.which("git")
+
+    def _run_git_cmd(self, args: List[str]) -> str:
+        """Helper to run system git commands."""
+        if not self.git_executable:
+            raise FileNotFoundError("Git executable not found.")
+
+        # Ensure we run in the correct directory
+        result = subprocess.run(
+            [self.git_executable, *args],
+            cwd=self.repo_path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout.strip()
+
+    def get_remote_latest_sha(self, url: str, branch: str) -> str:
+        """
+        Get the SHA of a remote branch.
+        Uses `git ls-remote` if available, otherwise uses pygit2 anonymous remote.
+        """
+        if self.git_executable:
+            try:
+                # Command: git ls-remote <url> refs/heads/<branch>
+                # Output format: <SHA>\trefs/heads/<branch>
+                ref = f"refs/heads/{branch}"
+                output = self._run_git_cmd(["ls-remote", url, ref])
+                if output:
+                    return output.split()[0]
+                raise ValueError(f"Branch '{branch}' not found at {url} (System Git)")
+            except (subprocess.CalledProcessError, IndexError, ValueError) as e:
+                # If system git fails, try fallback or just raise
+                raise RuntimeError(f"System git failed: {e}")
+
+        # Fallback to pygit2
+        repo = pygit2.Repository(self.repo_path)
+        # Create anonymous remote to avoid modifying config
+        remote = repo.remotes.create_anonymous(url)
+        target_ref = f"refs/heads/{branch}"
+        for head in remote.ls_remotes():
+            if head.get("name") == target_ref:
+                return str(head.get("oid"))
+        raise ValueError(f"Branch '{branch}' not found at {url} (pygit2)")
+
+    def get_local_head_info(self) -> Tuple[str, str]:
+        """
+        Get the current local SHA and branch name.
+        Returns: (sha, branch_name)
+        """
+        if self.git_executable:
+            try:
+                # Get SHA: git rev-parse HEAD
+                sha = self._run_git_cmd(["rev-parse", "HEAD"])
+
+                # Get Branch: git rev-parse --abbrev-ref HEAD
+                # Note: Returns "HEAD" if detached
+                branch = self._run_git_cmd(["rev-parse", "--abbrev-ref", "HEAD"])
+                return sha, branch
+            except subprocess.CalledProcessError:
+                # Likely empty repo or error
+                raise RuntimeError("Failed to retrieve local git info via system git.")
+
+        # Fallback to pygit2
+        repo = pygit2.Repository(self.repo_path)
+        sha = str(repo.revparse_single("HEAD").id)
+        branch = repo.head.shorthand
+        return sha, branch
+
+    def rollback(self, target_sha: str):
+        """
+        Rollback the repository to a specific SHA.
+        Per requirements, this strictly uses pygit2.
+        """
+        repo = pygit2.Repository(self.repo_path)
+        # Logic for rollback using pygit2 (e.g., reset --hard)
+        # This is a placeholder for where the rollback logic would go.
+        commit = repo.revparse_single(target_sha)
+        repo.reset(commit.id, ResetMode.HARD)
 
 
 @dataclass
@@ -68,17 +166,19 @@ def _mirrorc_api_get_latest_sha(timeout: float) -> Tuple[bool, str]:
         return False, str(exc)
 
 
-def _pygit2_get_latest_sha(config: Dict[str, Any]) -> Tuple[bool, str]:
+def _git_wrapper_get_latest_sha(config: Dict[str, Any]) -> Tuple[bool, str]:
+    """
+    Replaces the direct pygit2 call.
+    Uses GitOperationHandler to determine whether to use system git or pygit2.
+    """
     url = config["url"]
     branch = config["branch"]
-    target_ref = f"refs/heads/{branch}"
+
+    git_ops = GitOperationHandler(Path.cwd())
+
     try:
-        git = pygit2.Repository(".")
-        remote = git.remotes.create_anonymous(url)
-        for head in remote.ls_remotes():
-            if head.get("name") == target_ref:
-                return True, str(head.get("oid"))
-        return False, f"Branch '{branch}' not found at {url}"
+        sha = git_ops.get_remote_latest_sha(url, branch)
+        return True, sha
     except Exception as exc:
         return False, str(exc)
 
@@ -100,7 +200,8 @@ def test_repo_sha(config: dict[str, Union[str, GetShaMethod]], timeout: float) -
     elif method == GetShaMethod.MIRRORC_API:
         success, value = _mirrorc_api_get_latest_sha(timeout)
     else:
-        success, value = _pygit2_get_latest_sha(config)
+        # Renamed to indicate it uses the wrapper logic
+        success, value = _git_wrapper_get_latest_sha(config)
     elapsed = time.perf_counter() - start
     result: RepositoryResult = {
         "name": config.get("name"),
@@ -192,11 +293,12 @@ def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
 
 def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo", Dict[str, Any], str]:
     data, path = read_setup_toml(setup_path)
+
+    # Use GitOperationHandler to abstract system git vs pygit2
+    git_ops = GitOperationHandler(Path.cwd())
+
     try:
-        repo = pygit2.Repository(Path.cwd())
-        _branch = repo.head.shorthand
-        commit = repo.revparse_single("HEAD")
-        version_value = str(commit.id)
+        version_value, _branch = git_ops.get_local_head_info()
         data.setdefault("General", {})["current_BAAS_version"] = version_value
         with path.open("wb") as file:
             tomli_w.dump(data, file)
@@ -287,11 +389,6 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
         return {}
 
 
-__all__ = [
-    "check_for_update",
-    "test_all_repo_sha",
-    "validate_cdk",
-    "VersionInfo",
-    "read_setup_toml",
-    "write_setup_toml"
-]
+def update_to_latest(setup_path: Union[Path, None] = None):
+    data, path = read_setup_toml(setup_path)
+    update_repo_to_latest(data, path)

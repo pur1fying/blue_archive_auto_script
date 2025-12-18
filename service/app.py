@@ -10,6 +10,7 @@ from typing import Any, Dict, Union
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
 
 from .context import ServiceContext
 from .encryption import AuthenticationError, CipherBox, HandshakeResponse, HandshakeSession
@@ -288,6 +289,9 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                 elif cmd.command == "update_setup_toml":
                     result = await context.runtime.check_for_update()
                     response_payload = {"status": "ok", "data": result}
+                elif cmd.command == "update_to_latest":
+                    result = await context.runtime.update_to_latest()
+                    response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "status":
                     response_payload = {"status": "ok", "data": context.runtime.current_status()}
                 else:
@@ -362,3 +366,5 @@ async def websocket_heartbeat(websocket: WebSocket) -> None:
                 task.cancel()
                 with contextlib.suppress(asyncio.CancelledError):
                     await task
+
+app.mount("/", StaticFiles(directory="service/dist", html=True), name="static")

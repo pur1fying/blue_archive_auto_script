@@ -7,6 +7,16 @@ DEFAULT_HOST = os.getenv("BAAS_SERVICE_HOST", "127.0.0.1")
 DEFAULT_PORT = int(os.getenv("BAAS_SERVICE_PORT", "8190"))
 
 
+def save_pid(pid):
+    with open(".pid", "w") as f:
+        f.write(str(pid))
+
+
+def delete_pid_file():
+    if os.path.exists(".pid"):
+        os.remove(".pid")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Start BAAS service mode backend")
     parser.add_argument("--host", default=DEFAULT_HOST, help="Host to bind (default: %(default)s)")
@@ -17,18 +27,22 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    set_log_format()
-    args = parse_args()
-    config = uvicorn.Config(
-        "service.app:app",
-        host=args.host,
-        port=args.port,
-        reload=args.reload,
-        log_level=args.log_level,
-        log_config=None
-    )
-    server = uvicorn.Server(config)
-    server.run()
+    try:
+        set_log_format()
+        args = parse_args()
+        config = uvicorn.Config(
+            "service.app:app",
+            host=args.host,
+            port=args.port,
+            reload=args.reload,
+            log_level=args.log_level,
+            log_config=None
+        )
+        server = uvicorn.Server(config)
+        save_pid(os.getpid())
+        server.run()
+    finally:
+        delete_pid_file()
 
 
 if __name__ == "__main__":
