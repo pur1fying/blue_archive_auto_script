@@ -8,5 +8,6 @@ __all__ = [
     "validate_cdk",
     "read_setup_toml",
     "write_setup_toml",
-    "check_config"
+    "check_config",
+    "update_to_latest"
 ]
