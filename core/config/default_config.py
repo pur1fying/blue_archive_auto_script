@@ -3526,7 +3526,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
+        "CN": "MoonlightDreams",
         "Global": "ThePromiseOfTheSummerSky",
         "JP": "SerenadePromenade"
     },

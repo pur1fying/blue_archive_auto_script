@@ -120,7 +120,7 @@ class Main:
 if __name__ == '__main__':
     ocr_needed = ["en-us"]
     INSTANCE = Main(ocr_needed=ocr_needed)
-    config = ConfigSet(config_dir="default_config")
+    config = ConfigSet(config_dir="global")
     bThread = Baas_thread(config, None, None, None)
     bThread.set_ocr(INSTANCE.ocr)
     bThread.init_all_data()
