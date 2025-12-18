@@ -47,6 +47,7 @@ import psutil
 import pygit2
 import requests
 import tomli_w
+import threading
 from alive_progress import alive_bar
 from easydict import EasyDict as eDict
 from halo import Halo
@@ -98,6 +99,28 @@ logger.info("Official QQ Group: 658302636")
 
 
 # ==================== Class Definitions ====================
+
+class DotPrinter:
+    def __init__(self, interval: float = 0.5, char: str = "."):
+        self.interval = interval
+        self.char = char
+        self._stop = threading.Event()
+        self._thread = threading.Thread(
+            target=self._run,
+            daemon=True,
+        )
+
+    def _run(self):
+        while not self._stop.wait(self.interval):
+            print(self.char, end="", flush=True)
+
+    def start(self):
+        self._thread.start()
+
+    def stop(self):
+        self._stop.set()
+        self._thread.join()
+        print()
 
 class GlobalConfig:
     """
@@ -258,8 +281,10 @@ class GitOperationHandler:
         self.remote_url = remote_url
         self.git_executable = shutil.which("git")
         self.git_dir = repo_path / ".git"
+        self.printer = DotPrinter(interval=0.5)
 
     def _run_git_cmd(self, args: List[str], cwd: Optional[Path] = None) -> str:
+        self.printer.start()
         """Executes a system git command."""
         if not self.git_executable:
             raise RuntimeError("System git not found.")
@@ -281,8 +306,10 @@ class GitOperationHandler:
                 check=True,
                 env=env
             )
+            self.printer.stop()
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
+            self.printer.stop()
             raise RuntimeError(f"Git command failed: {e.stderr}")
 
     def is_valid_repo(self) -> bool:
@@ -407,7 +434,7 @@ class GitOperationHandler:
         self.repo_path.mkdir(parents=True, exist_ok=True)
 
         # Create a temporary directory to clone the repo
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.TemporaryDirectory(dir=self.repo_path) as temp_dir:
             temp_repo_path = Path(temp_dir)
 
             if self.git_executable:
@@ -422,6 +449,8 @@ class GitOperationHandler:
                                         callbacks=callbacks)
                 callbacks.spinner.stop()
                 logger.success("Clone successful (PyGit2).")
+
+            gc.collect()
 
             # Move the content from the temp directory to the actual target directory
             for item in temp_repo_path.iterdir():
@@ -440,6 +469,7 @@ class GitOperationHandler:
                 self._run_git_cmd(["reset", "--hard", f"origin/{branch}"])
                 self._run_git_cmd(["checkout", branch])
                 logger.success("Update successful (System Git).")
+                gc.collect()
                 return
             except Exception as e:
                 logger.error(f"System Git update failed: {e}. Falling back to PyGit2.")
@@ -453,6 +483,7 @@ class GitOperationHandler:
             repo.reset(remote_master_ref.target, ResetMode.HARD)
             repo.checkout(f"refs/heads/{branch}")
             logger.success("Update successful (PyGit2).")
+            gc.collect()
         except Exception as e:
             raise RuntimeError(f"Update failed: {e}")
 
@@ -485,7 +516,7 @@ class GitOperationHandler:
         logger.warning("Repository is corrupted. Initiating repair...")
 
         # Use a temp directory for safe cloning
-        with tempfile.TemporaryDirectory() as tmp_dir:
+        with tempfile.TemporaryDirectory(dir=self.repo_path) as tmp_dir:
             temp_path = Path(tmp_dir) / "temp_repo"
             temp_path.mkdir()
 
@@ -559,7 +590,7 @@ class EnvironmentManager:
         assert __system__ == "Windows"
         if not os.path.exists(self.baas_root / ".env/Scripts/pip.exe"):
             logger.warning("Pip is not installed, trying to install pip...")
-            with tempfile.TemporaryDirectory() as temp_dir:
+            with tempfile.TemporaryDirectory(dir=self.baas_root) as temp_dir:
                 temp_path = Path(temp_dir) / "temp_pip"
                 filepath = FileSystemUtils.download_file(self.cfg.URLs.GET_PIP_URL, temp_path)
                 subprocess.run([self.baas_root / ".env/python.exe", filepath])
@@ -586,7 +617,7 @@ class EnvironmentManager:
         if os.path.exists(self.baas_root / ".env/Lib/site-packages/Polygon"):
             return
         logger.info("Downloading env patch...")
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.TemporaryDirectory(dir=self.baas_root) as temp_dir:
             temp_path = Path(temp_dir) / "temp_repo"
             filepath = FileSystemUtils.download_file(self.cfg.URLs.GET_ENV_PATCH_URL, temp_path)
             FileSystemUtils.unzip_file(filepath, self.baas_root / ".env")
@@ -603,7 +634,7 @@ class EnvironmentManager:
             python_path = self.baas_root / ".env/python.exe"
             if not python_path.exists():
                 logger.info("Downloading embedded Python...")
-                with tempfile.TemporaryDirectory() as temp_dir:
+                with tempfile.TemporaryDirectory(dir=self.baas_root) as temp_dir:
                     zip_path = FileSystemUtils.download_file(self.cfg.URLs.GET_PYTHON_URL, temp_dir)
                     FileSystemUtils.unzip_file(zip_path, self.baas_root / ".env")
         elif __system__ == "Linux":
@@ -830,7 +861,7 @@ class UpdateOrchestrator:
         # Download the repository zip file
         file_length = latest_mirrorc_return.file_size / (1024 * 1024)
         logger.info("Downloading the repository zip, total = %.2f MB" % file_length)
-        with tempfile.TemporaryDirectory() as tmp_dir:
+        with tempfile.TemporaryDirectory(dir=self.cfg.Paths.BAAS_ROOT_PATH) as tmp_dir:
             zip_path = FileSystemUtils.download_file(
                 latest_mirrorc_return.download_url, tmp_dir
             )
@@ -866,7 +897,7 @@ class UpdateOrchestrator:
             file_length = latest_mirrorc_return.file_size / (1024 * 1024)
             logger.info("Downloading the incremental zip, total = %.2f MB" % file_length)
 
-            with tempfile.TemporaryDirectory() as tmp_dir:
+            with tempfile.TemporaryDirectory(dir=self.cfg.Paths.BAAS_ROOT_PATH) as tmp_dir:
                 zip_path = FileSystemUtils.download_file(
                     latest_mirrorc_return.download_url, tmp_dir
                 )
@@ -934,7 +965,7 @@ class AppLauncher:
 
                 logger.info("Checking UPX installation.")
                 if not os.path.exists("toolkit/upx-4.2.4-win64/upx.exe"):
-                    with tempfile.TemporaryDirectory() as tmpdir:
+                    with tempfile.TemporaryDirectory(dir=self.baas_root) as tmpdir:
                         temp_path = Path(tmpdir)
                         filepath = FileSystemUtils.download_file(self.cfg.URLs.GET_UPX_URL, temp_path)
                         FileSystemUtils.unzip_file(filepath, self.cfg.Paths.TOOL_KIT_PATH)
@@ -973,7 +1004,7 @@ class AppLauncher:
 
     def dynamic_update_installer(self) -> None:
         # Define paths for the installer and Python interpreter
-        installer_path = Path(self.cfg.Paths.BAAS_ROOT_PATH )/ "deploy/installer/installer.py"
+        installer_path = Path(self.cfg.Paths.BAAS_ROOT_PATH) / "deploy/installer/installer.py"
 
         # Use platform-independent way to determine Python executable
         if __system__ == "Windows":
