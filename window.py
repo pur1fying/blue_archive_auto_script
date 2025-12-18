@@ -463,7 +463,8 @@ class Window(MSFluentWindow):
                 self._sub_list[0][i].main_thread_attach.Main = self.main_class
         except Exception as e:
             from core.utils import Logger
-            Logger(self._sub_list[0][0].main_thread_attach.logger_signal).error(e.__str__())
+            import traceback
+            Logger(self._sub_list[0][0].main_thread_attach.logger_signal).error(traceback.format_exc())
 
     def call_update(self):
         self.schedulerInterface.update_settings()

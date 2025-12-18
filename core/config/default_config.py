@@ -3527,7 +3527,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
-        "Global": "PandemicHazardAMiraclePancake",
+        "Global": "ThePromiseOfTheSummerSky",
         "JP": "SerenadePromenade"
     },
     "dailyGameActivity": {

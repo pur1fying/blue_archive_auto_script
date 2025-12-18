@@ -1,11 +1,5 @@
-import json
-import time
-
-from core import color, picture
-from core.image import compare_image, swipe_search_target_str
-from module import main_story
-from module.ExploreTasks.TaskUtils import execute_grid_task
-
+from core.image import compare_image
+from module.explore_tasks.task_utils import *
 
 
 # korean 11 will be recognized as ll
@@ -182,10 +176,10 @@ def explore_activity_mission(self):
         if last_target_task == total_mission and res == "sss":
             self.logger.info("All MISSION SSS")
             return True
-        start_story(self)
+        start_mission(self, self.stage_data["mission"][
+            last_target_task - 1])  # self.stage_data["mission"][last_target_task-1] str of attribute
         to_activity(self, "story", True)
         to_activity(self, "mission", True)
-
 
 
 def to_mission_task_info(self, target_index, total_mission):
@@ -291,6 +285,51 @@ def explore_activity_challenge(self):
         to_activity(self, "challenge", True)
 
 
+def start_mission(self, attribute_str: str):
+    rgb_possibles = {
+    }
+    img_possibles = {
+        "activity_task-info": (940, 538),
+        "normal_task_task-info": (940, 538),
+        "plot_menu": (1205, 34),
+        "plot_skip-plot-button": (1213, 116),
+        "plot_skip-plot-notice": (766, 520),
+        "main_story_episode-info": (629, 518),
+        "story-fight-success-confirm": (1117, 639, 1219, 687)
+    }
+    rgb_ends = [
+        "formation_edit1",
+        "formation_edit2",
+        "formation_edit3",
+        "formation_edit4",
+        "reward_acquired"
+    ]
+    img_ends = [
+        "activity_unit-formation",
+        "activity_formation",
+        "activity_self-formation",
+    ]
+    res = picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
+    if res == "reward_acquired":
+        return
+
+    # we are not refactoring employ_units function for now, so we fake a task_data here
+    fake_task_data = {
+        "start": [
+            [
+                attribute_str,
+                [
+                    0,
+                    0
+                ]
+            ]
+        ]
+    }
+    employ_units(self, self.config.choose_team_method, fake_task_data, convert_team_config(self))
+    start_fight(self, 1)
+    main_story.auto_fight(self)
+    return
+
 def start_story(self):
     rgb_possibles = {
         "formation_edit2": (151, 387),
@@ -321,6 +360,8 @@ def start_story(self):
         main_story.auto_fight(self)
     elif res == "reward_acquired":
         pass
+    if res == "reward_acquired":
+        return
     return
 
 
