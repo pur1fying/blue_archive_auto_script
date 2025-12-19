@@ -4,6 +4,8 @@
 import os
 import jinja2
 import shutil
+import typer
+import subprocess
 
 ANDROID_SDK_PATH = './.pyside6_android_deploy/android-sdk'
 ANDROID_NDK_PATH = './.pyside6_android_deploy/android-ndk/android-ndk-r26b'
@@ -16,6 +18,7 @@ JARS_PATH = [
 ]
 PYSIDE6_WHEEL_URL = 'https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.9.2-6.9.2-cp311-cp311-android_aarch64.whl'
 SHIBOKEN6_WHEEL_URL = 'https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.9.0-6.9.0-cp311-cp311-android_aarch64.whl'
+GRADLE_WRAPPER = '.buildozer/android/platform/build-arm64-v8a/dists/boa/gradlew'
 
 def cwd_path(path: str):
     return os.path.abspath(os.path.join(os.getcwd(), path))
@@ -64,7 +67,7 @@ def render(src: str, dst: str, ctx: dict):
     else:
         raise FileNotFoundError(f'{src} not found')
 
-def configure():
+def _configure():
     log('Reading requirements...')
     with open(self_path('requirements.txt'), 'r') as f:
         requirements = f.read()
@@ -108,11 +111,51 @@ def configure():
         'shiboken6_wheel_path': shiboken6_path
     })
 
-def build():
+def _build():
     os.environ['ANDROIDSDK'] = proj_path(ANDROID_SDK_PATH)
     os.environ['ANDROIDNDK'] = proj_path(ANDROID_NDK_PATH)
     os.system(f'buildozer android debug')
 
-if __name__ == '__main__':
+
+# Typer CLI
+app = typer.Typer(help="Build helper for Android deployment")
+
+@app.command()
+def configure():
+    """Generate buildozer spec, download wheels and generate recipes."""
+    _configure()
+
+@app.command()
+def build():
+    """Run the build step (calls buildozer)."""
+    _build()
+
+
+@app.command()
+def gradle():
+    """Run the Gradle wrapper `gradlew build` for the Android distribution."""
+    gradle_path = proj_path(GRADLE_WRAPPER)
+    if not os.path.exists(gradle_path):
+        raise FileNotFoundError(f'Gradle wrapper not found: {gradle_path}')
+    # Ensure it's executable
+    try:
+        st = os.stat(gradle_path).st_mode
+        os.chmod(gradle_path, st | 0o111)
+    except Exception:
+        # If chmod fails, continue and try to run anyway
+        pass
+    log(f'Running gradle wrapper: {gradle_path} build')
+    # Run gradle in its directory
+    cwd = os.path.dirname(gradle_path) or proj_path('.')
+    result = subprocess.run([gradle_path, 'build'], cwd=cwd)
+    if result.returncode != 0:
+        raise SystemExit(result.returncode)
+
+@app.command("all")
+def all_cmd():
+    """Run configure then build."""
     configure()
     build()
+
+if __name__ == '__main__':
+    app()

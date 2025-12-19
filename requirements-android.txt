@@ -5,6 +5,7 @@
 # You will need these if you want code completion or debugging, 
 # otherwise no need to install them.
 -r requirements-linux.txt
+typer
 
 # Packaging
 # aqtinstall==3.3.0 # Qt downloader. Not used if you perfer pre-built qt wheels instead of compiling from source.
