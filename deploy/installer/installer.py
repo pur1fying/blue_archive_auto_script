@@ -343,7 +343,10 @@ class GitOperationHandler:
                 (i for i, item in enumerate(get_remote_sha_methods) \
                  if item.get("name") == cfg.General.get_remote_sha_method), None)
             if index is not None:
-                sha = self.get_remote_sha_once(get_remote_sha_methods[index], mirrorc)
+                sha = self.get_remote_sha_once(get_remote_sha_methods[index], mirrorc={
+                    "inst": mirrorc,
+                    "cdk": cfg.General.mirrorc_cdk,
+                })
                 if sha is not None:
                     return sha
                 get_remote_sha_methods.pop(index)
