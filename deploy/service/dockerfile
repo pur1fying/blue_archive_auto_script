@@ -1,4 +1,4 @@
-FROM debian:trixie
+FROM debian:trixie-slim
 
 WORKDIR /app
 
@@ -6,8 +6,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     libgl1 \
-    python3 \
-    python3-venv \
     libglib2.0-0 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
@@ -26,7 +24,8 @@ RUN uv venv /opt/venv --python 3.9.0 \
     && uv pip compile /tmp/requirements.service.txt \
         -o /tmp/requirements.service.lock \
     && uv pip sync /tmp/requirements.service.lock \
-    && rm -rf /tmp/*
+    && rm -rf /tmp/* \
+    && rm -rf /root/.cache
 
 RUN update-ca-certificates
 
