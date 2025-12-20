@@ -82,6 +82,7 @@ fi
 if [ ! -f shiboken6-*.whl ]; then
     echo "shiboken6 wheels not found, downloading..."
     wget https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.9.0-6.9.0-cp311-cp311-android_aarch64.whl
+fi
 cd ..
 
 ########## Setup RapidOCR ##########
@@ -92,3 +93,7 @@ wget -O rapidocr.aar https://github.com/RapidAI/RapidOcrAndroidOnnx/releases/dow
 cd ..
 
 echo "Environment setup complete."
+
+########## Setup ADB ##########
+# Prioritize IPv4 over IPv6 for ADB connection
+sudo sed -i 's/#precedence ::ffff:0:0\/96  100/precedence ::ffff:0:0\/96  100/' /etc/gai.conf

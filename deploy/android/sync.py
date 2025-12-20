@@ -6,23 +6,39 @@ import platform
 import shutil
 import tempfile
 import argparse
-from pathlib import Path
+import fnmatch
 
 # ================= CONFIGURATION =================
 PACKAGE_NAME = "top.qwq123.boa"
 INTERNAL_SUB_DIR = "files/app" # 相对于 /data/data/top.qwq123.boa/
 TEMP_DIR = "/data/local/tmp/"
 
-# 新增：忽略列表 (文件夹名)
-# 任何路径片段中包含这些名称的文件都会被完全忽略 (不推送，也不删除)
-IGNORE_DIRS = {
-    "__pycache__", 
-    "_python_bundle",
-    "p4a_env_vars.txt",
-    "sitecustomize.py",
-    "private.version",
-    "libpybundle.version"
-}
+# --- 1. 白名单 (SYNC_WHITELIST) ---
+# 只有匹配这些规则的文件才会被扫描和同步。
+# 语法参考 gitignore：
+# - "dir/"       : 匹配目录及其子内容
+# - "*.py"       : 匹配后缀
+# - "path/to/f"  : 匹配具体文件
+SYNC_WHITELIST = [
+    "/core/",
+    # "/core/Baas_thread.py",
+    "/main.py",
+    "/window.py",
+]
+
+# --- 2. 黑名单 (SYNC_BLACKLIST) ---
+# 任何匹配这些规则的文件都会被强制排除。
+# (既不会被推送到手机，远程存在的也不会被删除，视为“隐形”文件)
+SYNC_BLACKLIST = [
+    "__pycache__/",
+    "*.pyc",
+    ".git/",
+    ".github/",
+    "tests/",
+    "*.log",
+    ".DS_Store",
+    "/core/ocr/baas_ocr_client/bin/"
+]
 # =================================================
 
 def get_adb_command():
@@ -34,19 +50,56 @@ def get_adb_command():
 
 ADB_CMD = get_adb_command()
 
-def should_ignore(path_str):
+def match_path(path, patterns):
     """
-    检查路径是否包含需要忽略的文件夹。
-    path_str: 相对路径 (例如 core/ocr/__pycache__/cache.pyc)
+    检查路径是否匹配给定的模式列表。
+    支持以 "/" 开头锚定根目录，支持以 "/" 结尾匹配目录及其子内容。
     """
-    # 统一分隔符
-    p = path_str.replace("\\", "/")
-    parts = p.split("/")
-    
-    # 如果路径中的任何一部分在忽略列表中，返回 True
-    # 使用 set intersection 进行快速判断
-    if set(parts).intersection(IGNORE_DIRS):
-        return True
+    # 统一路径分隔符为 Linux 风格
+    path = path.replace("\\", "/")
+    path_parts = path.split("/")
+    filename = os.path.basename(path)
+
+    for pat in patterns:
+        if not pat or pat.startswith('#'): continue
+        
+        # === 情况 A: 根目录锚定 (以 / 开头) ===
+        if pat.startswith("/"):
+            # 去掉开头的 /，变成 "core/" 或 "main.py"
+            clean_pat = pat[1:]
+            
+            # 1. 如果是目录规则 (例如 "/core/")
+            if clean_pat.endswith("/"):
+                # 逻辑：只要当前文件路径是以 "core/" 开头的，
+                # 无论它多深 (例如 core/sub/a.py)，startswith 都会返回 True
+                if path.startswith(clean_pat):
+                    return True
+            
+            # 2. 如果是文件规则 (例如 "/main.py")
+            else:
+                # 精确全路径匹配
+                if path == clean_pat:
+                    return True
+                # 或者处理通配符 (例如 "/build/*.txt")
+                if fnmatch.fnmatch(path, clean_pat):
+                    return True
+        
+        # === 情况 B: 宽松匹配 (不以 / 开头) ===
+        else:
+            # 1. 目录匹配 (例如 "assets/") -> 匹配任意深度的 assets 文件夹
+            if pat.endswith("/"):
+                clean_pat = pat.rstrip("/")
+                if clean_pat in path_parts:
+                    return True
+            
+            # 2. 普通文件/通配符匹配 (例如 "*.py")
+            else:
+                if "/" in pat:
+                    if fnmatch.fnmatch(path, pat):
+                        return True
+                else:
+                    if fnmatch.fnmatch(filename, pat):
+                        return True
     return False
 
 def human_readable_size(size, decimal_places=2):
@@ -84,11 +137,11 @@ def check_run_as_access():
         sys.exit(1)
 
 def get_local_files():
-    """Get all local files (Main repo + Submodules) {relative_path: mtime(int)}."""
-    print("[1/6] Scanning local git files (including submodules)...")
+    """Get all local files filtered by inline whitelist and blacklist."""
+    print("[1/6] Scanning local git files and filtering...")
     files_map = {}
 
-    # 1. Main repo
+    # 1. Main repo (Git files)
     cmd_main = ["git", "ls-files", "-c", "-o", "--exclude-standard"]
     out_main = run_cmd_capture(cmd_main)
     
@@ -105,10 +158,15 @@ def get_local_files():
         f = f.strip()
         if not f: continue
         
-        # === IGNORE CHECK ===
-        if should_ignore(f):
+        # === 核心过滤逻辑 ===
+        # 1. 必须在白名单中
+        if not match_path(f, SYNC_WHITELIST):
             continue
-        # ====================
+        
+        # 2. 必须不在黑名单中
+        if match_path(f, SYNC_BLACKLIST):
+            continue
+        # ===================
 
         if os.path.exists(f) and os.path.isfile(f):
             files_map[f] = int(os.path.getmtime(f))
@@ -136,11 +194,19 @@ def get_remote_files():
             if path.startswith("./"): path = path[2:]
             clean_path = path.replace("\\", "/")
             
-            # === IGNORE CHECK ===
-            # 如果远程文件在忽略列表中，我们也假装没看见它（这样就不会触发删除逻辑）
-            if should_ignore(clean_path):
+            # === [FIX] 远程文件过滤逻辑修正 ===
+            
+            # 1. 必须不在黑名单中 (保持原逻辑：保护黑名单文件不被操作)
+            if match_path(clean_path, SYNC_BLACKLIST):
                 continue
-            # ====================
+
+            # 2. [新增] 必须在白名单中
+            # 如果远程文件根本不在白名单范围内（例如 build/ 产物），我们假装没看见它。
+            # 这样它就不会进入 remote_map，从而不会触发“本地无此文件 -> 删除”的逻辑。
+            if not match_path(clean_path, SYNC_WHITELIST):
+                continue
+            
+            # ===============================
             
             try:
                 remote_map[clean_path] = int(float(mtime))
@@ -209,13 +275,18 @@ def print_changes(to_push, to_delete):
 def sync(dry_run=False):
     check_run_as_access()
     
+    if not SYNC_WHITELIST:
+        print("[!] Warning: SYNC_WHITELIST is empty. No files will be synced.")
+    
+    # 1. Get filtered local and remote files
     local_map = get_local_files()
     remote_map = get_remote_files()
     
     to_push = []
     to_delete = []
     
-    # Diff Logic
+    # 2. Diff Logic
+    # PUSH
     for f_path, l_mtime in local_map.items():
         remote_path = f_path.replace("\\", "/") 
         if remote_path not in remote_map:
@@ -225,6 +296,9 @@ def sync(dry_run=False):
             if l_mtime != r_mtime:
                 to_push.append(f_path)
 
+    # DELETE
+    # remote_map 现在只包含“白名单内”且“非黑名单”的文件
+    # 如果它在 remote_map 中，但在 local_map 中找不到，说明它在本地被删除了（或者是旧的残留文件），应该删除。
     local_paths_linux = set(p.replace("\\", "/") for p in local_map.keys())
     for r_path in remote_map.keys():
         if r_path not in local_paths_linux:
@@ -251,6 +325,7 @@ def sync(dry_run=False):
         tar_tmp_path = f"{TEMP_DIR}{tar_name}"
         
         try:
+            # -T takes the file list
             run_cmd_capture(["tar", "-cf", tar_name, "-T", tmp_list_path])
             tar_size = os.path.getsize(tar_name)
             readable_size = human_readable_size(tar_size)
@@ -278,7 +353,7 @@ def sync(dry_run=False):
     print("\n[√] Sync Complete!")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Sync local Git files to Android App Data via ADB run-as")
+    parser = argparse.ArgumentParser(description="Sync whitelist-based local files to Android App Data")
     parser.add_argument("--dry-run", action="store_true", help="List changes without executing them")
     args = parser.parse_args()
 

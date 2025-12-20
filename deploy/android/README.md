@@ -22,10 +22,16 @@ buildozer android debug
 ```
 
 ## Install
-```powershell
-# On you host machine
-docker cp <container_id>:/workspaces/baas_on_android/boa-0.1-arm64-v8a-debug.apk .
-adb install boa-0.1-arm64-v8a-debug.apk
+For Docker/Devcontainer users, adb has already beed set up correctly. 
+Simply start adb server on Windows side and connect to target device. 
+Then adb commands start to will on the Linux side.
+
+```shell
+# Windows
+adb devices
+
+# Docker
+adb install ./boa-0.1-arm64-v8a-debug.apk
 ```
 
 ## Debugging
@@ -41,33 +47,9 @@ Or you can install Android Studio to get a better experience.
 ### Debug Python Code
 To debug the Python code, you need VSCode and Python extension.
 
-1. Add the following configuration to `.vscode/launch.json`:
-```json
-{
-    "name": "Attach to BoA",
-    "type": "debugpy",
-    "request": "attach",
-    "connect": {
-        "host": "host.docker.internal", // or "localhost" if you are not using Docker
-        "port": 5678
-    },
-    "pathMappings": [
-        {
-            "localRoot": "${workspaceFolder}",
-            "remoteRoot": "."
-        },
-        {
-            "localRoot": "${workspaceFolder}/.venv/lib/python3.9/site-packages",
-            "remoteRoot": "${workspaceFolder}/.buildozer/android/platform/build-arm64-v8a/build/python-installs/boa/arm64-v8a/"
-        },
-        {
-            "localRoot": "/usr/local/lib/python3.9/",
-            "remoteRoot": "${workspaceFolder}/.buildozer/android/platform/build-arm64-v8a/build/other_builds/python3/arm64-v8a__ndk_target_24/python3/Lib/"
-        }
-    ],
-    "justMyCode": false
-},
-```
+> **NOTE**: PyCharm is not tested.
+
+1. First build and install BoA
 
 2. Add the following code at the very beginning of `main.py`:
 ```python
@@ -80,18 +62,10 @@ debugpy.wait_for_client() # Comment this line if you don't want to block here
 
 3. Set breakpoints in VSCode. You can also set breakpoints using code:
 ```python
-import debugpy
-debugpy.breakpoint()
+breakpoint()
 ```
 
-4. Forward the port 5678 to your development machine:
-```bash
-adb forward tcp:5678 tcp:5678
-```
-
-5. Start the application on your device.
-
-6. Start debugging using `Attach to BoA` configuration.
+4. Start debugging using `Sync and Start BoA` configuration, or `Attach to BoA` if you want push files and start BoA manually.
 
 ### Debug Java Code
 1. Android Studio -> File -> Profile or Debug APK

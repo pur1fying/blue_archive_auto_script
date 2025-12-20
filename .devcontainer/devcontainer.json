@@ -23,7 +23,8 @@
     "containerEnv": {
         "PYTHONUNBUFFERED": "1",
         "PIP_DISABLE_PIP_VERSION_CHECK": "1",
-        "PIP_NO_CACHE_DIR": "false"
+        "PIP_NO_CACHE_DIR": "false",
+        "ADB_SERVER_SOCKET": "tcp:host.docker.internal:5037"
     },
     // "mounts": [
     //     "source=~/.pyside6-android-deploy,target=${containerWorkspaceFolder}/.pyside6-android-deploy,type=bind,consistency=cached"
