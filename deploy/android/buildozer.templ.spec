@@ -24,10 +24,12 @@ android.permissions = android.permission.WRITE_EXTERNAL_STORAGE, android.permiss
 android.add_jars = {{ jars_path }}
 p4a.extra_args = --qt-libs=Core,Gui,Widgets --load-local-libs=plugins_platforms_qtforandroid --init-classes=
 icon.filename = {{ icon_path }}
+android.enable_androidx = True
+android.entrypoint = org.baas.boa.MainActivity
 
 ######### Shizuku #########
-android.gradle_dependencies = dev.rikka.shizuku:api:13.1.5,dev.rikka.shizuku:provider:13.1.5
-android.enable_androidx = True
+android.gradle_dependencies = dev.rikka.shizuku:api:13.1.5,dev.rikka.shizuku:provider:13.1.5,androidx.core:core:1.6.0
+# ps: androidx is not required by shizuku
 p4a.hook = {{ p4a_hook_path }}
 android.no-byte-compile-python = True
 
