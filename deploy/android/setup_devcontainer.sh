@@ -84,4 +84,11 @@ if [ ! -f shiboken6-*.whl ]; then
     wget https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.9.0-6.9.0-cp311-cp311-android_aarch64.whl
 cd ..
 
+########## Setup RapidOCR ##########
+echo Downloading RapidOCR aar library...
+mkdir -p build
+cd build
+wget -O rapidocr.aar https://github.com/RapidAI/RapidOcrAndroidOnnx/releases/download/1.3.0/OcrLibrary-1.3.0-release.aar
+cd ..
+
 echo "Environment setup complete."

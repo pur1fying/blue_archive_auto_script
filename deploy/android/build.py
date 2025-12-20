@@ -6,6 +6,7 @@ import jinja2
 import shutil
 import typer
 import subprocess
+from typing import List
 
 ANDROID_SDK_PATH = './.pyside6_android_deploy/android-sdk'
 ANDROID_NDK_PATH = './.pyside6_android_deploy/android-ndk/android-ndk-r26b'
@@ -19,6 +20,8 @@ JARS_PATH = [
 PYSIDE6_WHEEL_URL = 'https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.9.2-6.9.2-cp311-cp311-android_aarch64.whl'
 SHIBOKEN6_WHEEL_URL = 'https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.9.0-6.9.0-cp311-cp311-android_aarch64.whl'
 GRADLE_WRAPPER = '.buildozer/android/platform/build-arm64-v8a/dists/boa/gradlew'
+RAPIDOCR_AAR_PATH = './build/rapidocr.aar'
+RAPIDOCR_DIR_PATH = './build'
 
 def cwd_path(path: str):
     return os.path.abspath(os.path.join(os.getcwd(), path))
@@ -83,7 +86,9 @@ def _configure():
         'icon_path': proj_path(ICON_PATH),
         'bin_dir': proj_path(BIN_DIR),
         'jars_path': ','.join([proj_path(path) for path in JARS_PATH]),
-        'p4a_hook_path': self_path('p4a_hook.py')
+        'p4a_hook_path': self_path('p4a_hook.py'),
+        'rapidocr_aar_path': proj_path(RAPIDOCR_AAR_PATH),
+        'rapidocr_dir_path': proj_path(RAPIDOCR_DIR_PATH),
     })
     
     # Ensure build directory exists before downloading wheels and generating recipes
@@ -132,8 +137,15 @@ def build():
 
 
 @app.command()
-def gradle():
-    """Run the Gradle wrapper `gradlew build` for the Android distribution."""
+def gradle(args: List[str] = typer.Argument(None, help="Arguments passed to gradlew")):
+    """Run the Gradle wrapper for the Android distribution.
+
+    Any arguments after the command are passed directly to the `gradlew` wrapper.
+    If no arguments are provided, `build` is used.
+    Examples:
+      python deploy/android/build.py gradle clean build
+      python deploy/android/build.py gradle assembleRelease
+    """
     gradle_path = proj_path(GRADLE_WRAPPER)
     if not os.path.exists(gradle_path):
         raise FileNotFoundError(f'Gradle wrapper not found: {gradle_path}')
@@ -142,14 +154,21 @@ def gradle():
         st = os.stat(gradle_path).st_mode
         os.chmod(gradle_path, st | 0o111)
     except Exception:
-        # If chmod fails, continue and try to run anyway
         pass
-    log(f'Running gradle wrapper: {gradle_path} build')
-    # Run gradle in its directory
+    # Build command: default to 'build' when no args provided
+    cmd = [gradle_path] + (list(args) if args else ['build'])
+    log(f'Running gradle wrapper: {" ".join(cmd)}')
     cwd = os.path.dirname(gradle_path) or proj_path('.')
-    result = subprocess.run([gradle_path, 'build'], cwd=cwd)
+    result = subprocess.run(cmd, cwd=cwd)
     if result.returncode != 0:
         raise SystemExit(result.returncode)
+
+    # copy output if exists
+    output = '.buildozer/android/platform/build-arm64-v8a/dists/boa/build/outputs/apk/debug/boa-debug.apk'
+    if os.path.exists(output):
+        dst = proj_path('./boa-debug.apk')
+        log(f'Copying APK to {dst}')
+        shutil.copy(output, dst)
 
 @app.command("all")
 def all_cmd():
