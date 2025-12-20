@@ -28,7 +28,7 @@ android.enable_androidx = True
 android.entrypoint = org.baas.boa.MainActivity
 
 ######### Shizuku #########
-android.gradle_dependencies = dev.rikka.shizuku:api:13.1.5,dev.rikka.shizuku:provider:13.1.5,androidx.core:core:1.6.0
+android.gradle_dependencies = dev.rikka.shizuku:api:13.1.5,dev.rikka.shizuku:provider:13.1.5,androidx.core:core:1.6.0,org.jetbrains.kotlin:kotlin-stdlib:1.9.22
 # ps: androidx is not required by shizuku
 p4a.hook = {{ p4a_hook_path }}
 android.no-byte-compile-python = True
