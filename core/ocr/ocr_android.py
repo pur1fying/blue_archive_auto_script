@@ -7,12 +7,9 @@ from core.utils import is_android
 from .ocr_pc import _Baas_ocr
 
 if is_android():
-    PythonActivity = autoclass('org.kivy.android.PythonActivity')
-    Bitmap = autoclass('android.graphics.Bitmap')
-    BitmapConfig = autoclass('android.graphics.Bitmap$Config')
-    ByteBuffer = autoclass('java.nio.ByteBuffer')
-    OcrEngine = autoclass('com.benjaminwan.ocrlibrary.OcrEngine')
-
+    from core.android.classes import Bitmap, BitmapConfig, ByteBuffer, OcrEngine
+    from core.android.util import main_activity
+    MainActivityIns = main_activity()
 
 
 class _FakeClient:
@@ -35,10 +32,7 @@ class _Baas_ocr_android:
         self._init_engine()
 
     def _init_engine(self):
-        activity = PythonActivity.mActivity
-        context = cast('android.content.Context', activity)
-        self.ocr_engine = OcrEngine(context)
-        self.logger.info("Android RapidOCR initialized.")
+        return OcrEngine(MainActivityIns)
 
     def recognize_int(self, baas, region, log_info="", filter_score=0.2) -> int:
         res = self.get_region_res(baas, region, log_info=log_info, filter_score=filter_score)

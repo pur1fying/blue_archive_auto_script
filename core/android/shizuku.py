@@ -1,10 +1,15 @@
 import base64
 from typing import TYPE_CHECKING, Union, Any, NamedTuple
 
-from jnius import autoclass, PythonJavaClass
+from jnius import PythonJavaClass
 from jnius import java_method # type: ignore
 
 from .util import main_activity
+from .classes import (
+    Shizuku, Shizuku_UserServiceArgs, ShizukuBinderWrapper, SystemServiceHelper,
+    String, PackageManager, IUserService, IUserService_Stub, UserService,
+    ComponentName, ListenerInterfaceClass
+)
 if TYPE_CHECKING:
     from core import Baas_thread
 
@@ -31,21 +36,6 @@ PERMISSION_CODE_DEFAULT = 1024
 _LISTENER_IFACE = 'rikka.shizuku.Shizuku$OnRequestPermissionResultListener'
 _LISTENER_IFACE_JNI = _LISTENER_IFACE.replace('.', '/')
 
-Shizuku = autoclass('rikka.shizuku.Shizuku')
-Shizuku_UserServiceArgs = autoclass('rikka.shizuku.Shizuku$UserServiceArgs')
-ShizukuBinderWrapper = autoclass('rikka.shizuku.ShizukuBinderWrapper')
-SystemServiceHelper = autoclass('rikka.shizuku.SystemServiceHelper')
-String = autoclass('java.lang.String')
-PackageManager = autoclass('android.content.pm.PackageManager')
-IUserService = autoclass('org.baas.boa.IUserService')
-IUserService_Stub = autoclass('org.baas.boa.IUserService$Stub')
-UserService = autoclass('org.baas.boa.UserService')
-ComponentName = autoclass('android.content.ComponentName')
-_ListenerInterfaceClass = autoclass('rikka.shizuku.Shizuku$OnRequestPermissionResultListener')
-# These are required, otherwise you will get 'java.lang.NoClassDefFoundError: org.baas.boa.xxx'
-autoclass('org.baas.boa.CommandResult')
-autoclass('org.baas.boa.FsReadResult')
-autoclass('org.baas.boa.FsStat')
 
 def is_available() -> bool:
     """Check if Shizuku class is available.
