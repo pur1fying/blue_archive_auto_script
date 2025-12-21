@@ -21,8 +21,9 @@ TEMP_DIR = "/data/local/tmp/"
 # - "path/to/f"  : 匹配具体文件
 SYNC_WHITELIST = [
     "/core/",
-    # "/core/Baas_thread.py",
+    "/gui/",
     "/main.py",
+    "/android_main.py",
     "/window.py",
 ]
 

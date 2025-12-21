@@ -4,7 +4,21 @@
         {
             "label": "prepare-android-debug",
             "type": "shell",
-            "command": "python3 ./deploy/android/sync.py && adb forward tcp:5678 tcp:5678 && adb shell am force-stop top.qwq123.boa && adb shell am start -n top.qwq123.boa/org.baas.boa.MainActivity",
+            "command": "python3 ./deploy/android/sync.py && adb forward tcp:5678 tcp:5678 && adb shell am force-stop top.qwq123.boa && adb shell am start -n top.qwq123.boa/org.baas.boa.MainActivity && sleep 1",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "BoA: Sync Files",
+            "type": "shell",
+            "command": "python3 ./deploy/android/sync.py",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,

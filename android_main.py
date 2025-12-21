@@ -1,8 +1,7 @@
 import debugpy
 debugpy.listen(5678, in_process_debug_adapter=True)
-# print("Waiting for debugger attach...")
+print("Waiting for debugger attach...")
 # debugpy.wait_for_client()
-# breakpoint()
 
 # Setup Shizuku and ADB
 import core.android.classes # Load classes early
@@ -96,19 +95,23 @@ import qtpy
 import qtpy.QtCore
 import qtpy.QtGui
 import qtpy.QtWidgets
+from qtpy.QtWidgets import QTableWidget
 
+QTableWidget.update
 
 def monkey_patch(cls: Type, attr_name: str) -> Callable[[Callable], Callable]:
     """
     一个用于简化猴子补丁类方法的装饰器。
 
     用法:
+    ```python
     @monkey_patch(MyClass, 'my_method')
     def my_patched_method(original_method, self, *args, **kwargs):
         # 执行一些操作
         result = original_method(self, *args, **kwargs)
         # 执行另一些操作
         return result
+    ```
     """
     def decorator(patch_func: Callable) -> Callable:
         original_func = getattr(cls, attr_name)
@@ -206,6 +209,16 @@ def patch_init(__init__, self, *args, **kwargs):
             return original_onNavigationChanged(p_args[0])
 
         self.onNavigationChanged = patched_onNavigationChanged
+
+@monkey_patch(QTableWidget, 'update')
+def patch_QTableWidget_update(update, self, *args, **kwargs):
+    # 如果没有传入参数，说明调用者想要的是 QWidget.update() (重绘整个控件)
+    if not args and not kwargs:
+        # 显式调用基类 QWidget 的 update 方法，避开 PySide6 的重载歧义
+        return qtpy.QtWidgets.QWidget.update(self)
+    
+    # 如果有参数 (例如 QModelIndex)，则调用原始方法 (即 QAbstractItemView.update(index))
+    return update(self, *args, **kwargs)
 
 # import sys
 # import debugpy

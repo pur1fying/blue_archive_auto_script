@@ -1,5 +1,5 @@
 # Android Deployment
-This directory contains the deployment script for Android.
+This directory contains the deployment script and Android wrapper for BaasOnAndroid.
 
 ## Setup
 You'll need a Linux environment to build BaasOnAndroid. MacOS is not tested. 
@@ -9,8 +9,32 @@ You'll need a Linux environment to build BaasOnAndroid. MacOS is not tested.
 
 Building includes 3 stages:
 ```
-(PySide Android setup // onetime) -> BoA -> PythonForAndroid -> Gradle
-(pyside-deploy-android downloads qt deps and generates recipes -> copy these file and save to git) -> Generate buildozer.spec -> ( Install & build python deps -> Compile Python source code -> Collect pyd and resource files -> Generate Android project -> patch build.gradle[done by hook of BoA] ) -> Build Java
+graph TD
+    %% One-time Setup Section
+    subgraph Setup [One-time Setup]
+        A[PySide Android Setup] --> B[BoA]
+        B --> C[PythonForAndroid]
+        C --> D[Gradle]
+    end
+
+    %% Deployment Process Section
+    subgraph Deployment [pyside-deploy-android Process]
+        E[Download Qt deps & Generate Recipes] --> F[Copy files & Save to Git]
+        F --> G[Generate buildozer.spec]
+        
+        subgraph BuildSteps [Internal Build Loop]
+            H1[Install & Build Python deps] --> H2[Compile Python Source Code]
+            H2 --> H3[Collect .pyd & Resource Files]
+            H3 --> H4[Generate Android Project]
+            H4 --> H5[Patch build.gradle <br/>'done by hook of BoA']
+        end
+        
+        G --> H1
+        H5 --> I[Build Java]
+    end
+
+    %% Connection between Setup and Deployment
+    D -.-> E
 ```
 
 ```shell

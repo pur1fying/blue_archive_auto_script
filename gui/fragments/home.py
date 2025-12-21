@@ -63,7 +63,8 @@ class HomeFragment(QFrame):
             self.banner.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
         self.banner.setPixmap(pixmap)
         self.banner.setScaledContents(True)
-        self.banner.setVisible(self.banner_visible)
+        # HACK: 
+        self.banner.setVisible(False)
 
         self.startup_card = PrimaryPushSettingCard(
             self.tr('启动'),
@@ -97,8 +98,10 @@ class HomeFragment(QFrame):
         self.assets_status = AssetsWidget(config, self)
         handler_for_logger.addWidget(self.assets_status)
         self.assets_status.start_patch()
+        from core.utils import is_android
 
-        self.assets_status.show() if self.config.get("assetsVisibility") else self.assets_status.hide()
+        # HACK: 
+        self.assets_status.show() if not is_android() and self.config.get("assetsVisibility") else self.assets_status.hide()
 
         self.column_2.addLayout(handler_for_logger)
         self.column_2.addWidget(self.logger_box)

@@ -58,10 +58,20 @@ class Logger:
         :param level: log level
         :return: None
         """
+        # Keep original message for additional sinks (e.g. logcat)
+        raw_message = message
+
         # If raw_print is True, output log to logger box
         if raw_print:
             self.logs += message
             self.logger_signal.emit(message)
+            # also send to logcat if on Android
+            try:
+                if is_android():
+                    from core.android.log import logcat
+                    logcat(str(raw_message), level='INFO')
+            except Exception:
+                pass
             return
 
         while len(logging.root.handlers) > 0:
@@ -87,6 +97,16 @@ class Logger:
             self.logger_signal.emit(adding)
         else:
             print(f'{statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
+
+        # If running on Android, also send a plain-text copy to logcat
+        try:
+            if is_android():
+                from core.android.log import logcat
+                level_map = {1: 'INFO', 2: 'WARNING', 3: 'ERROR', 4: 'CRITICAL'}
+                logcat(str(raw_message), level=level_map.get(level, 'INFO'))
+        except Exception:
+            # Do not let logcat failures affect normal logging
+            pass
 
     def info(self, message: str) -> None:
         """

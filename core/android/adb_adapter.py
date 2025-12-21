@@ -169,6 +169,15 @@ class ShizukuShellService(LocalShellService):
         await session._flush()
         return NOOP(action=ResponseAction.CLOSE)
 
+class HostService2(HostService):
+    @route('host:connect:<serial>')
+    async def host_connect_serial(self, serial: str):
+        return OK(data=b'1', action=ResponseAction.KEEP_ALIVE)
+    
+    @route('host:transport:<serial>')
+    async def host_transport_serial(self, serial: str):
+        return OK(action=ResponseAction.KEEP_ALIVE)
+
 async def server_main(shizuku: 'ShizukuClient', logger: 'Baas_thread.Logger'):
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
     logging.getLogger("pyadbserver").setLevel(logging.DEBUG)
@@ -183,7 +192,7 @@ async def server_main(shizuku: 'ShizukuClient', logger: 'Baas_thread.Logger'):
         port=ADB_PORT,
         app=app,
     )
-    app.register(HostService(server, ds))
+    app.register(HostService2(server, ds))
     app.register(SyncV1Service(ShizukuFileSystem(shizuku, logger)))
     app.register(ShizukuShellService(shizuku, logger))
     app.register(ForwardService())
