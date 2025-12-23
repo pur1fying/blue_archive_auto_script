@@ -1,9 +1,15 @@
-from copy import deepcopy
+from __future__ import annotations
 
-from core import picture, Baas_thread, image
+from copy import deepcopy
+from typing import TYPE_CHECKING
+
+from core import picture, image
 from core.color import check_sweep_availability
 from core.config.config_set import ConfigSet
-from module.ExploreTasks.TaskUtils import to_hard_event, to_mission_info, to_region, to_normal_event
+from module.explore_tasks.task_utils import to_hard_event, to_mission_info, to_region, to_normal_event
+
+if TYPE_CHECKING:
+    from core.Baas_thread import Baas_thread
 
 
 def print_task_list(self: Baas_thread, tasklist: list[list], title: str, isNormal: bool) -> None:
@@ -73,7 +79,7 @@ def sweep_hard_task(self: Baas_thread):
     return True
 
 
-def sweep_normal_task(self):
+def sweep_normal_task(self: Baas_thread):
     self.to_main_page(skip_first_screenshot=True)
     current_ap = self.get_ap(True)
     tasklist = deepcopy(self.config.unfinished_normal_tasks)
@@ -163,7 +169,11 @@ def start_sweep(self: Baas_thread, skip_first_screenshot: bool = False) -> str:
         "normal_task_skip-sweep-complete",
         "normal_task_sweep-complete",
     ]
-    img_possibles = {"normal_task_start-sweep-notice": (765, 501)}
+    img_possibles = {
+        "normal_task_start-sweep-notice": (765, 501),
+        # issue 397
+        "main_page_full-notice": (887, 165)
+    }
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
     return "sweep_complete"
 

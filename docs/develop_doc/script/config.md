@@ -307,6 +307,7 @@
     | `"superior"`                         | 使用数量最多的紫色材料          |
     | `"advanced_superior"`                | 使用数量最多的金色或紫色材料       |
     | `"primary_normal_advanced_superior"` | 使用数量最多的白色、蓝色、金色或紫色材料 |
+    | `"keystone"`                         | 使用制造石                |
 
 ## `createPriority_phase3`
 
@@ -324,6 +325,7 @@
     | `"advanced"`                         | 使用数量最多的金色材料          |
     | `"superior"`                         | 使用数量最多的紫色材料          |
     | `"advanced_superior"`                | 使用数量最多的金色或紫色材料       |
+    | `"keystone"`                         | 使用制造石                |
 
 ## `create_item_holding_quantity`
 

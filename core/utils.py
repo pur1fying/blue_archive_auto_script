@@ -4,6 +4,12 @@ import threading
 import platform
 from typing import Union
 from datetime import datetime, timedelta, timezone
+from typing import Union
+
+from rich.console import Console
+from rich.markup import escape
+
+console = Console()
 
 
 def delay(wait=1):
@@ -26,10 +32,13 @@ def delay(wait=1):
 
     return decorator
 
+
 def detach(func):
     def wrapper(*args, **kwargs):
         threading.Thread(target=func, args=args[:-1], kwargs=kwargs).start()
+
     return wrapper
+
 
 class Logger:
     """
@@ -38,12 +47,17 @@ class Logger:
 
     def __init__(self, logger_signal):
         """
-        :param logger_signal: Logger Box signal
+        :param logger_signal: Logger signal broadcasts log level and log message
         """
-        # Init logger box signal, logs and logger
-        # logger box signal is used to output log to logger box
+        # Init logger signal, logs and logger,
+        # logger signal is used to output log to logger box or other output
         self.logs = ""
         self.logger_signal = logger_signal
+        if not self.logger_signal:
+            # if the logger signal is not configured, we use rich traceback then
+            # to better display error messages in console
+            from rich.traceback import install
+            install(show_locals=True)
         self.logger = logging.getLogger("BAAS_Logger")
         formatter = logging.Formatter("%(levelname)8s |%(asctime)20s | %(message)s ")
         handler1 = logging.StreamHandler(stream=sys.stdout)
@@ -55,16 +69,20 @@ class Logger:
         """
         Output log
         :param message: log message
-        :param level: log level
+        :param level: log level(1: INFO, 2: WARNING, 3: ERROR, 4: CRITICAL)
         :return: None
         """
         # Keep original message for additional sinks (e.g. logcat)
         raw_message = message
 
         # If raw_print is True, output log to logger box
+        if level < 1 or level > 4:
+            raise ValueError("Invalid log level")
+
         if raw_print:
             self.logs += message
-            self.logger_signal.emit(message)
+            if self.logger_signal:
+                self.logger_signal.emit(level, message)
             # also send to logcat if on Android
             try:
                 if is_android():
@@ -76,27 +94,29 @@ class Logger:
 
         while len(logging.root.handlers) > 0:
             logging.root.handlers.pop()
-        # Status Text: INFO, WARNING, ERROR, CRITICAL
-        status = ['&nbsp;&nbsp;&nbsp;&nbsp;INFO', '&nbsp;WARNING', '&nbsp;&nbsp;&nbsp;ERROR', 'CRITICAL']
-        # Status Color: Blue, Orange, Red, Purple
-        statusColor = ['#2d8cf0', '#f90', '#ed3f14', '#3e0480']
-        # Status HTML: <b style="color:$color">status</b>
-        statusHtml = [
-            f'<b style="color:{_color};">{status}</b>'
-            for _color, status in zip(statusColor, status)]
-        # If logger box is not None, output log to logger box
+
+        levels_str = ["INFO", "WARNING", "ERROR", "CRITICAL"]
+        # If logger signal is not None, output log to logger signal
         # else output log to console
+        levels_color = ["#2d8cf0", "#ff9900", "#ed3f14", "#3e0480"]
         if self.logger_signal is not None:
-            message = message.replace('\n', '<br>').replace(' ', '&nbsp;')
-            adding = (f'''
-                    <div style="font-family: Consolas, monospace;color:{statusColor[level - 1]};">
-                        {statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}
-                    </div>
-                        ''')
-            self.logs += adding
-            self.logger_signal.emit(adding)
+            self.logs += f"{levels_str[level - 1]} | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
+            self.logger_signal.emit(level, message)
         else:
-            print(f'{statusHtml[level - 1]} | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | {message}')
+            console.print(f'[{levels_color[level - 1]}]'
+                          f'{levels_str[level - 1]} |'
+                          f' {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} |'
+                          f' {escape(message)}[/]', soft_wrap=True)
+
+        # If running on Android, also send a plain-text copy to logcat
+        try:
+            if is_android():
+                from core.android.log import logcat
+                level_map = {1: 'INFO', 2: 'WARNING', 3: 'ERROR', 4: 'CRITICAL'}
+                logcat(str(raw_message), level=level_map.get(level, 'INFO'))
+        except Exception:
+            # Do not let logcat failures affect normal logging
+            pass
 
         # If running on Android, also send a plain-text copy to logcat
         try:
@@ -126,10 +146,16 @@ class Logger:
 
     def error(self, message: Union[str, Exception]) -> None:
         """
-        :param message: log message
+        :param message: log message or Exception object
 
         Output error log
         """
+        if isinstance(message, BaseException):
+            exc_message = str(message)
+            formatted_message = f"{type(message).__name__}: {exc_message}" if exc_message else type(message).__name__
+            self.__out__(formatted_message, 3)
+            return
+
         self.__out__(message, 3)
 
     def critical(self, message: str) -> None:
@@ -247,6 +273,7 @@ def is_nearby_group(coord, group, abs_x=10, abs_y=10):
             return True
     return False
 
+
 def get_nearest_hour(target_hour):
     now = datetime.now(timezone.utc)
     current_hour = now.hour
@@ -256,7 +283,7 @@ def get_nearest_hour(target_hour):
             hour_delta = diff - 24
         else:
             hour_delta = diff
-    else:   # target_hour < current_hour
+    else:  # target_hour < current_hour
         diff = current_hour - target_hour
         if diff > 12:
             hour_delta = 24 - diff

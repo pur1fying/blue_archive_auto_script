@@ -554,7 +554,7 @@ class Layout(QWidget):
     def _detect_update_method_thread(self):
         self._update_method = None
         # 1. 优先检查有效的MirrorC
-        if self._mirrorc_update_available:
+        if self._mirrorc_update_available and len(self._mirrorc_cdk) > 0:
             if self._cdk_test_thread and not self._cdk_test_thread.is_finished:
                 self._cdk_test_thread.wait()  # 等待当前测试完成
 

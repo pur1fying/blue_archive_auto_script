@@ -16,6 +16,12 @@ class Layout(TemplateLayout):
                 'tip': ExploreConfig.tr('普通图独有配置，进入关卡后暂停等待手操')
             },
             {
+                'label': ExploreConfig.tr('使用简易模式推图'),
+                'key': 'explore_task_use_simple_mode',
+                'type': 'switch',
+                'tip': ExploreConfig.tr('简易模式只需要一支成形队伍, 角色较少时建议使用(默认使用第一支队伍)')
+            },
+            {
                 'label': ExploreConfig.tr('普通图推图设置'),
                 'key': 'explore_normal_task_list',
                 'type': 'text__action',

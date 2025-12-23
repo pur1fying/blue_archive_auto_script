@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US" sourcelanguage="zh_CN">
 <context>
@@ -291,7 +292,7 @@ make sure to do it before starting the script.</translation>
         <translation>JP</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="113"/>
+        <location filename="../util/config_translation.py" line="114"/>
         <source>拖动礼物</source>
         <translation>Drag the gift</translation>
     </message>
@@ -348,27 +349,27 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../util/config_translation.py" line="91"/>
         <source>静子神明文字x5</source>
-        <translation>Shizuko's Eleph</translation>
+        <translation>Shizuko&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="92"/>
         <source>真白神明文字x5</source>
-        <translation>Mashiro's Eleph</translation>
+        <translation>Mashiro&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="93"/>
         <source>纱绫神明文字x5</source>
-        <translation>Saya's Eleph</translation>
+        <translation>Saya&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="94"/>
         <source>风香神明文字x5</source>
-        <translation>Fuuka's Eleph</translation>
+        <translation>Fuuka&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="95"/>
         <source>歌原神明文字x5</source>
-        <translation>Utaha's Eleph</translation>
+        <translation>Utaha&apos;s Eleph</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="96"/>
@@ -411,17 +412,17 @@ make sure to do it before starting the script.</translation>
         <translation>No Task</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="116"/>
+        <location filename="../util/config_translation.py" line="117"/>
         <source>MuMu模拟器</source>
         <translation>MuMu Player CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="118"/>
+        <location filename="../util/config_translation.py" line="119"/>
         <source>蓝叠模拟器</source>
         <translation>BlueStacks CN</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="119"/>
+        <location filename="../util/config_translation.py" line="120"/>
         <source>蓝叠国际版</source>
         <translation>BlueStacks</translation>
     </message>
@@ -446,57 +447,57 @@ make sure to do it before starting the script.</translation>
         <translation>KR One</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="122"/>
+        <location filename="../util/config_translation.py" line="123"/>
         <source>无动作</source>
         <translation>Do Nothing</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="123"/>
+        <location filename="../util/config_translation.py" line="124"/>
         <source>退出 Baas</source>
         <translation>Exit Baas</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="124"/>
+        <location filename="../util/config_translation.py" line="125"/>
         <source>退出 模拟器</source>
         <translation>Exit Emulator</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="125"/>
+        <location filename="../util/config_translation.py" line="126"/>
         <source>退出 Baas 和 模拟器</source>
         <translation>Exit Baas and Emulator</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="126"/>
+        <location filename="../util/config_translation.py" line="127"/>
         <source>关机</source>
         <translation>Shutdown</translation>
     </message>
     <message>
         <location filename="../util/config_translation.py" line="90"/>
         <source>宫子神明文字x5</source>
-        <translation>Miyako's Eleph</translation>
+        <translation>Miyako&apos;s Eleph</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="117"/>
+        <location filename="../util/config_translation.py" line="118"/>
         <source>MuMu模拟器全球版</source>
         <translation>Mumu Player Global</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="129"/>
+        <location filename="../util/config_translation.py" line="130"/>
         <source>贯穿</source>
         <translation>Piercing</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="130"/>
+        <location filename="../util/config_translation.py" line="131"/>
         <source>爆发</source>
         <translation>Explosive</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="131"/>
+        <location filename="../util/config_translation.py" line="132"/>
         <source>神秘</source>
         <translation>Mystic</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="132"/>
+        <location filename="../util/config_translation.py" line="133"/>
         <source>振动</source>
         <translation>Sonic</translation>
     </message>
@@ -506,17 +507,17 @@ make sure to do it before starting the script.</translation>
         <translation>Set the friend code that you need to keep in the regular friend cleanup</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="135"/>
+        <location filename="../util/config_translation.py" line="136"/>
         <source>开</source>
         <translation>open</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="136"/>
+        <location filename="../util/config_translation.py" line="137"/>
         <source>关</source>
         <translation>close</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="137"/>
+        <location filename="../util/config_translation.py" line="138"/>
         <source>默认</source>
         <translation>default</translation>
     </message>
@@ -534,6 +535,24 @@ make sure to do it before starting the script.</translation>
         <location filename="../util/config_translation.py" line="75"/>
         <source>帮助你自动打战术综合测试</source>
         <translation>Help you automatically play tactical comprehensive tests</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="111"/>
+        <source>Steam国际服</source>
+        <translation>Steam server</translation>
+    </message>
+</context>
+<context>
+    <name>CreateErrorInfoMessageBox</name>
+    <message>
+        <location filename="../components/dialog_panel.py" line="43"/>
+        <source>确定</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location filename="../components/dialog_panel.py" line="44"/>
+        <source>取消</source>
+        <translation>Cancel</translation>
     </message>
 </context>
 <context>
@@ -815,19 +834,19 @@ make sure to do it before starting the script.</translation>
     <message>
         <location filename="../fragments/home.py" line="130"/>
         <source>启停快捷键</source>
-        <translation type="unfinished">Start-stop shortcut</translation>
+        <translation>Start-stop shortcut</translation>
     </message>
 </context>
 <context>
     <name>Layout</name>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="19"/>
+        <location filename="../components/expand/arenaPriority.py" line="21"/>
         <source>输入你需要对手比你低几级，高几级则填负数：</source>
         <translation>Enter how many ranks below or above you need the opponent to be.
 Use positive number for below and negative for above:</translation>
     </message>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="20"/>
+        <location filename="../components/expand/arenaPriority.py" line="22"/>
         <source>输入你最多需要刷新几次：</source>
         <translation>Enter how many times you need to refresh:</translation>
     </message>
@@ -913,14 +932,14 @@ Use positive number for below and negative for above:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="21"/>
-        <source>普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：</source>
-        <translation>Normal stage and number of sweeps(e.g. "1-1-1,1-2-3" means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
+        <source>普通关卡与次数（如&quot;1-1-1,1-2-3&quot;表示关卡1-1打一次，然后关卡1-2打三次）：</source>
+        <translation>Normal stage and number of sweeps(e.g. &quot;1-1-1,1-2-3&quot; means that stage 1-1 is swept once, then stage 1-2 is swept three times):</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="24"/>
         <source>困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：</source>
         <translation>Set hard stages as above, with a maximum of 3 sweeps. Use commas for separation.
-For JP or Global server, you can use 'max':</translation>
+For JP or Global server, you can use &apos;max&apos;:</translation>
     </message>
     <message>
         <location filename="../components/expand/mainlinePriority.py" line="131"/>
@@ -933,37 +952,37 @@ For JP or Global server, you can use 'max':</translation>
         <translation>爱丽丝宝贝</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="35"/>
+        <location filename="../components/expand/schedulePriority.py" line="72"/>
         <source>优先做好感等级多的日程</source>
         <translation>Prioritize lessons with higher affection levels</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="153"/>
+        <location filename="../components/expand/schedulePriority.py" line="168"/>
         <source>日程次数</source>
         <translation>Number of tickets</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="135"/>
+        <location filename="../components/expand/schedulePriority.py" line="154"/>
         <source>区域名称</source>
         <translation>Location</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="141"/>
+        <location filename="../components/expand/schedulePriority.py" line="160"/>
         <source>初级</source>
         <translation>Novice</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="141"/>
+        <location filename="../components/expand/schedulePriority.py" line="160"/>
         <source>普通</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="141"/>
+        <location filename="../components/expand/schedulePriority.py" line="160"/>
         <source>高级</source>
         <translation>Advanced</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="141"/>
+        <location filename="../components/expand/schedulePriority.py" line="160"/>
         <source>特级</source>
         <translation>Superior</translation>
     </message>
@@ -1156,7 +1175,7 @@ For JP or Global server, you can use 'max':</translation>
         <location filename="../components/expand/scriptConfig.py" line="18"/>
         <source>这些功能在运行多个实例时可能无法按预期工作。涉及模拟器的操作将遵循“模拟器启动设置”中的设置。</source>
         <translation>These features may not work as expected when running multiple instances.
-Operations involving the emulator will follow the settings in "Emulator Startup Settings.</translation>
+Operations involving the emulator will follow the settings in &quot;Emulator Startup Settings.</translation>
     </message>
     <message>
         <location filename="../components/expand/friendWhiteList.py" line="68"/>
@@ -1199,9 +1218,9 @@ Operations involving the emulator will follow the settings in "Emulator Startup 
         <translation>Delete</translation>
     </message>
     <message>
-        <location filename="../components/expand/arenaPriority.py" line="21"/>
+        <location filename="../components/expand/arenaPriority.py" line="23"/>
         <source>自定义对手的编号：</source>
-        <translation>Customize your opponent's number:</translation>
+        <translation>Customize your opponent&apos;s number:</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="118"/>
@@ -1216,10 +1235,10 @@ Operations involving the emulator will follow the settings in "Emulator Startup 
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>Speed nemu &gt;&gt; uiautomator2 ≈ adb, 
 It is recommended to use nemu and if you are using nemu, please 
-set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
+set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuMuPlayer.exe</translation>
     </message>
     <message>
         <location filename="../components/expand/scriptConfig.py" line="26"/>
@@ -1307,17 +1326,17 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
         <translation>White + blue material</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="234"/>
+        <location filename="../components/expand/createPriority.py" line="235"/>
         <source>金色材料</source>
         <translation>Gold material</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="235"/>
+        <location filename="../components/expand/createPriority.py" line="236"/>
         <source>紫色材料</source>
         <translation>Purple material</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="236"/>
+        <location filename="../components/expand/createPriority.py" line="237"/>
         <source>金色+紫色材料</source>
         <translation>Gold + purple material</translation>
     </message>
@@ -1327,47 +1346,47 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
         <translation>White + Blue + Gold + Purple Material</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="245"/>
+        <location filename="../components/expand/createPriority.py" line="247"/>
         <source>材料选择</source>
         <translation>Material selection</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="264"/>
+        <location filename="../components/expand/createPriority.py" line="266"/>
         <source>一键设置推荐优先级</source>
         <translation>Set recommendation priority with one click</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="267"/>
+        <location filename="../components/expand/createPriority.py" line="269"/>
         <source>选择学生</source>
         <translation>Select Student</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="310"/>
+        <location filename="../components/expand/createPriority.py" line="312"/>
         <source>制造优先级</source>
         <translation>Manufacturing priority</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="324"/>
+        <location filename="../components/expand/createPriority.py" line="326"/>
         <source>修改成功</source>
         <translation>Modified</translation>
     </message>
     <message>
-        <location filename="../components/expand/createPriority.py" line="324"/>
+        <location filename="../components/expand/createPriority.py" line="326"/>
         <source>推荐制造优先级</source>
         <translation>Recommend manufacturing priorities</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="26"/>
+        <location filename="../components/expand/schedulePriority.py" line="61"/>
         <source>优先做指定学生存在的日程</source>
         <translation>Priority is given to the schedule that specifies the presence of the student</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="30"/>
+        <location filename="../components/expand/schedulePriority.py" line="67"/>
         <source>指定学生</source>
         <translation>Specify Student</translation>
     </message>
     <message>
-        <location filename="../components/expand/schedulePriority.py" line="74"/>
+        <location filename="../components/expand/schedulePriority.py" line="110"/>
         <source>指定学生(填写指南见wiki)</source>
         <translation>Specify Student (See wiki for guidelines on how to fill in)</translation>
     </message>
@@ -1735,6 +1754,16 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
         <location filename="../components/expand/baasUpdateConfig.py" line="632"/>
         <source>检测到新版本，重启程序即可自动更新</source>
         <translation>When a new version is detected, restart the program to update automatically</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/arenaPriority.py" line="20"/>
+        <source>在排名为第一时不进行战斗</source>
+        <translation>Do not fight when ranked first</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/createPriority.py" line="238"/>
+        <source>制造石</source>
+        <translation>Crafting stone</translation>
     </message>
 </context>
 <context>
@@ -2164,7 +2193,7 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
     <message>
         <location filename="../fragments/settings.py" line="130"/>
         <source>更改应用的主题颜色</source>
-        <translation>Change the app's theme color</translation>
+        <translation>Change the app&apos;s theme color</translation>
     </message>
     <message>
         <location filename="../fragments/settings.py" line="137"/>
@@ -2298,7 +2327,7 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
         <translation>CommPhil Gulation Setins</translation>
     </message>
     <message>
-        <location filename="../fragments/switch.py" line="226"/>
+        <location filename="../fragments/switch.py" line="242"/>
         <source>Features</source>
         <translation>Fetures</translation>
     </message>

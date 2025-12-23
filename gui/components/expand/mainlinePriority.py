@@ -89,7 +89,7 @@ class Layout(QWidget):
 
     def __accept_main(self):
         try:
-            from module.ExploreTasks.sweep_task import read_task
+            from module.explore_tasks.sweep_task import read_task
             input_content = self.input.text().replace(" ", "").replace("，", ",")
             if input_content == "":
                 self.config.set('mainlinePriority', "")
@@ -109,7 +109,7 @@ class Layout(QWidget):
 
     def __accept_hard(self):
         try:
-            from module.ExploreTasks.sweep_task import read_task
+            from module.explore_tasks.sweep_task import read_task
             input_content = self.input_hard.text().replace(" ", "").replace("，", ",")
             if input_content == "":
                 self.config.set('hardPriority', "")

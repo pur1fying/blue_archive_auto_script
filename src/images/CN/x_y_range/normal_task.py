@@ -28,7 +28,7 @@ x_y_range = {
     'task-wait-to-begin-feature': (99, 6, 163, 42),
     'present': (572, 185, 704, 225),
     "teleport-notice": (526, 309, 740, 351),
-    'fight-pause': (594, 139, 681, 174),
+    'fight-pause': (594, 119, 681, 164),
     'retreat-notice': (469, 308, 796, 351),
     'challenge-button': (481, 288, 584, 316),
     'challenge-menu': (592, 171, 677, 212),

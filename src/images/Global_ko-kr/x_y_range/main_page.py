@@ -7,7 +7,7 @@ x_y_range = {
     'insufficient-inventory-space': (464, 391, 810, 453),
     'login-store': (551, 145, 730, 182),
     'login-feature': (40, 625, 96, 649),
-    'news': (50, 102, 96, 144),
+    'news': (38, 85, 70, 114),
     'daily-attendance': (540, 90, 1100, 174),
     'skip-notice': (589, 309, 701, 353),
     'full-notice': (407, 282, 873, 381),
@@ -25,4 +25,14 @@ x_y_range = {
     # "item-expired-notice": (390, 145, 900, 300),
     # "request-failed-notice": (440, 300, 850, 370),
     # "Failed-to-convert-errorResponse": (419, 320, 862, 357),
+
+    'purchase-pyroxenes-menu': (565, 97, 717, 128),
+    'purchase-pyroxenes-limited-selected': (337, 167, 429, 195),
+    'purchase-pyroxenes-pyroxenes-selected-1': (600, 167, 677, 195),
+    'purchase-pyroxenes-pyroxenes-selected-2': (408, 167, 482, 195),
+    'purchase-pyroxenes-package-selected-1': (841, 167, 954, 195),
+    'purchase-pyroxenes-package-selected-2': (776, 167, 888, 195),
+    'purchase-pyroxenes-daily-free-purchasable': (353, 457, 414, 518),
+    'purchase-pyroxenes-daily-free-non-purchasable': (353, 457, 414, 518),
+    'purchase-pyroxenes-confirm-purchase-notice': (565, 70, 717, 125)
 }

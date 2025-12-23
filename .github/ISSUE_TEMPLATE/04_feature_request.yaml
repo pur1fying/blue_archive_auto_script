@@ -1,0 +1,19 @@
+name: 功能请求 ( Feature Request )
+description: 为这个项目提出一个新的想法或功能
+title: "[Feature Request]: "
+labels: ["功能请求"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你使用BAAS, 并花时间提出功能请求
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: "功能描述"
+      description: "请尽可能详细地描述你想要的功能"
+    validations:
+      required: true
+
+
