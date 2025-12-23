@@ -132,7 +132,7 @@ class ShizukuShellService(LocalShellService):
             return NOOP(action=ResponseAction.CLOSE)
 
         loop = asyncio.get_running_loop()
-        success, result = await loop.run_in_executor(None, self.shizuku.execute_command, cmd)
+        success, result = await loop.run_in_executor(None, self.shizuku.execute_command, ["/system/bin/sh", "-c", cmd])
         if not success:
             error_msg = str(result)
             if use_protocol:

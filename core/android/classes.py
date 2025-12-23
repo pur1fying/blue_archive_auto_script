@@ -23,6 +23,7 @@ Shizuku_UserServiceArgs = autoclass('rikka.shizuku.Shizuku$UserServiceArgs')
 ShizukuBinderWrapper = autoclass('rikka.shizuku.ShizukuBinderWrapper')
 SystemServiceHelper = autoclass('rikka.shizuku.SystemServiceHelper')
 ListenerInterfaceClass = autoclass('rikka.shizuku.Shizuku$OnRequestPermissionResultListener')
+JavaArray = autoclass('java.lang.reflect.Array')
 
 MainActivity = autoclass('org.baas.boa.MainActivity')
 IUserService = autoclass('org.baas.boa.IUserService')

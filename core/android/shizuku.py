@@ -6,10 +6,10 @@ from jnius import java_method # type: ignore
 
 from .util import main_activity
 from .classes import (
-    Shizuku, Shizuku_UserServiceArgs, ShizukuBinderWrapper, SystemServiceHelper,
-    String, PackageManager, IUserService, IUserService_Stub, UserService,
-    ComponentName, ListenerInterfaceClass
+    Shizuku, Shizuku_UserServiceArgs, String,
+    PackageManager, IUserService_Stub, ComponentName, JavaArray
 )
+
 if TYPE_CHECKING:
     from core import Baas_thread
 
@@ -36,6 +36,21 @@ PERMISSION_CODE_DEFAULT = 1024
 _LISTENER_IFACE = 'rikka.shizuku.Shizuku$OnRequestPermissionResultListener'
 _LISTENER_IFACE_JNI = _LISTENER_IFACE.replace('.', '/')
 
+
+def to_java_str_array(seq):
+    """Convert a Python sequence to a java.lang.String[] using `String` and `JavaArray`.
+
+    Args:
+        seq: iterable of items convertible to str
+
+    Returns:
+        A Java array of `java.lang.String` instances.
+    """
+    seq = list(seq)
+    arr = JavaArray.newInstance(String, len(seq))
+    for i, item in enumerate(seq):
+        arr[i] = String(str(item))
+    return arr
 
 def is_available() -> bool:
     """Check if Shizuku class is available.
@@ -254,8 +269,13 @@ class ShizukuClient:
             self.logger.error("ShizukuClient: Service not connected.")
             return False, "Error: Service not connected."
         try:
-            self.logger.info(f"ShizukuClient: Executing command: {command}")
-            res = self.i_user_service.exec(command)
+            if isinstance(command, (list, tuple)):
+                args = to_java_str_array(command)
+            else:
+                args = to_java_str_array(["/system/bin/sh", "-c", command])
+
+            self.logger.info(f"ShizukuClient: Executing command (as java String[]): {args}")
+            res = self.i_user_service.exec(args)
             result = CommandResult(
                 exitCode=int(res.exitCode),
                 stdout=str(res.stdout or ''),
@@ -321,7 +341,13 @@ class ShizukuClient:
         try:
             cb = ShizukuClient._StreamCallback(on_stdout, on_stderr, on_done)
             _stream_callbacks.add(cb)
-            self.i_user_service.execStream(command, cb)
+
+            if isinstance(command, (list, tuple)):
+                args = to_java_str_array(command)
+            else:
+                args = to_java_str_array(["/system/bin/sh", "-c", command])
+
+            self.i_user_service.execStream(args, cb)
             return True
         except Exception as e:
             self.logger.error(f"ShizukuClient: exec_stream failed")

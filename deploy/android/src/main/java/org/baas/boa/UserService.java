@@ -30,7 +30,7 @@ public class UserService extends IUserService.Stub {
     }
 
     @Override
-    public CommandResult exec(String command) throws RemoteException {
+    public CommandResult exec(String[] command) throws RemoteException {
         final StringBuilder out = new StringBuilder();
         final StringBuilder err = new StringBuilder();
         int exit = -1;
@@ -69,7 +69,7 @@ public class UserService extends IUserService.Stub {
     }
 
     @Override
-    public void execStream(String command, IStreamCallback callback) throws RemoteException {
+    public void execStream(String[] command, IStreamCallback callback) throws RemoteException {
         new Thread(() -> {
             int exit = -1;
             try {
@@ -242,7 +242,7 @@ public class UserService extends IUserService.Stub {
     @Override
     public void pmInstall(String apkPath) throws RemoteException {
         String cmd = "pm install -r \"" + apkPath.replace("\"", "\\\"") + "\"";
-        CommandResult res = exec(cmd);
+        CommandResult res = exec(new String[]{"/system/bin/sh", "-c", cmd});
         String out = (res.stdout == null ? "" : res.stdout);
         String err = (res.stderr == null ? "" : res.stderr);
         boolean ok = (out.toLowerCase().contains("success") || err.toLowerCase().contains("success"));
@@ -252,7 +252,7 @@ public class UserService extends IUserService.Stub {
     @Override
     public void pmUninstall(String packageName) throws RemoteException {
         String cmd = "pm uninstall " + packageName;
-        CommandResult res = exec(cmd);
+        CommandResult res = exec(new String[]{"/system/bin/sh", "-c", cmd});
         String out = (res.stdout == null ? "" : res.stdout);
         String err = (res.stderr == null ? "" : res.stderr);
         boolean ok = (out.toLowerCase().contains("success") || err.toLowerCase().contains("success"));

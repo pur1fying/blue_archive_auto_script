@@ -19,12 +19,12 @@ interface IUserService {
     /**
      * 执行命令
      */
-    CommandResult exec(String command) = 2;
+    CommandResult exec(in String[] command) = 2;
 
     /**
      * 以流式输出方式执行命令
      */
-    void execStream(String command, IStreamCallback callback) = 3;
+    void execStream(in String[] command, IStreamCallback callback) = 3;
 
     // ========= 文件系统 =========
     FsStat fsStat(String path) = 10;
