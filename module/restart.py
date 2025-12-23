@@ -1,6 +1,8 @@
 import time
 from datetime import datetime
 
+from core.utils import is_android
+
 
 def implement(self):
     if not self.is_android_device:

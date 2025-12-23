@@ -2,6 +2,7 @@ import copy
 import json
 import math
 import os
+import re
 import subprocess
 import threading
 import time
@@ -313,7 +314,7 @@ class Baas_thread:
             try:
                 if utils.is_android():
                     self._setup_boa()
-            except:
+            except Exception:
                 self.logger.warning("BoA setup failed")
                 raise
             self.get_ocr_language()
@@ -484,6 +485,13 @@ class Baas_thread:
         except Exception as e:
             self.logger.error(traceback.format_exc())
             return
+        finally:
+            # Ensure BoA overlay/display settings are cleaned up when the thread exits.
+            try:
+                if utils.is_android() and self.u2 is not None:
+                    self._clean_boa()
+            except Exception as e:
+                self.logger.warning("BoA cleanup failed: " + str(e))
 
     def genScheduleLog(self, task):
         self.logger.info("Scheduler : {")
