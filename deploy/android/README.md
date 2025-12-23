@@ -42,7 +42,8 @@ graph TD
 sh ./deploy/android/setup_devcontainer.sh
 source .venv/bin/activate
 # Build
-buildozer android debug
+python deploy/android/build.py all
+# python deploy/android/build.py gradle clean assembleDebug # Build Android only
 ```
 
 ## Install
