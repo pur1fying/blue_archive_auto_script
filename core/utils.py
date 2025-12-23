@@ -6,11 +6,16 @@ from typing import Union
 from datetime import datetime, timedelta, timezone
 from typing import Union
 
-from rich.console import Console
-from rich.markup import escape
+def is_android():
+    return platform.system() == 'Android' or hasattr(sys, 'getandroidapilevel')
 
-console = Console()
+if not is_android():
+    from rich.console import Console
+    from rich.markup import escape
 
+    console = Console()
+else:
+    console = None
 
 def delay(wait=1):
     def decorator(func):
@@ -53,7 +58,7 @@ class Logger:
         # logger signal is used to output log to logger box or other output
         self.logs = ""
         self.logger_signal = logger_signal
-        if not self.logger_signal:
+        if not self.logger_signal and not is_android():
             # if the logger signal is not configured, we use rich traceback then
             # to better display error messages in console
             from rich.traceback import install
@@ -102,7 +107,7 @@ class Logger:
         if self.logger_signal is not None:
             self.logs += f"{levels_str[level - 1]} | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
             self.logger_signal.emit(level, message)
-        else:
+        elif not is_android():
             console.print(f'[{levels_color[level - 1]}]'
                           f'{levels_str[level - 1]} |'
                           f' {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} |'
@@ -292,6 +297,3 @@ def get_nearest_hour(target_hour):
 
     nearest_time = (now + timedelta(hours=hour_delta)).replace(minute=0, second=0, microsecond=0)
     return nearest_time
-
-def is_android():
-    return platform.system() == 'Android' or hasattr(sys, 'getandroidapilevel')
