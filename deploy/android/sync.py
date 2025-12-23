@@ -22,6 +22,8 @@ TEMP_DIR = "/data/local/tmp/"
 SYNC_WHITELIST = [
     "/core/",
     "/gui/",
+    "/module/",
+    "/src/",
     "/main.py",
     "/android_main.py",
     "/window.py",
