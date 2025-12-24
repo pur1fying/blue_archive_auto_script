@@ -220,56 +220,6 @@ def patch_QTableWidget_update(update, self, *args, **kwargs):
     # 如果有参数 (例如 QModelIndex)，则调用原始方法 (即 QAbstractItemView.update(index))
     return update(self, *args, **kwargs)
 
-# import sys
-# import debugpy
-# debugpy.listen(5678, in_process_debug_adapter=True)
-# # print("Waiting for debugger attach...")
-# # debugpy.wait_for_client()
-
-# from core.android.shizuku import add_request_permission_result_listener, request_permission, check_permission
-# from core.android import patch_adb, ShizukuClient
-# from core.utils import Logger
-# logger = Logger(None)
-# shizuku = ShizukuClient(logger)
-# request_permission()
-# shizuku.connect()
-# patch_adb(shizuku, logger)
-
-# import time
-# time.sleep(3)
-
-# import uiautomator2 as u2
-# from core.device.uiautomator2_client import BAAS_U2_Initer
-# d = u2.connect('baas')
-# # d._force_reset_uiautomator_v2()
-# # init = BAAS_U2_Initer(d._adb_device, logger)
-# # init.install()
-
-# print('Swipe')
-# d.screenshot()
-# d.swipe(0.5, 0, 0.5, 0.7, 3)
-# print('Swipe End')
-
-# time.sleep(5)
-# 1. 获取必要的 Java 类
-# from jnius import autoclass
-
-# JString = autoclass('java.lang.String')
-# JRuntimeException = autoclass('java.lang.RuntimeException')
-# JThread = autoclass('java.lang.Thread')
-
-# # 2. 创建一个 Java 异常对象
-# j_exception = JRuntimeException(JString('456'))
-
-# # 3. 获取当前线程
-# current_thread = JThread.currentThread()
-
-# # 4. 获取我们在 ExtendedPythonActivity 中注册的 Handler
-# handler = current_thread.getUncaughtExceptionHandler()
-
-# # 5. 直接把异常“塞”给 Handler，触发跳转页面
-# handler.uncaughtException(current_thread, j_exception)
-
 if __name__ == '__main__':
     sys.path.append('./')
     pwd = os.path.dirname(__file__)
