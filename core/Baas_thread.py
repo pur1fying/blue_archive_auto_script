@@ -29,6 +29,10 @@ from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
 
+if utils.is_android():
+    from core.android.screen import extract_virtual_displays
+
+
 func_dict = {
     'group': module.group.implement,
     'momo_talk': module.momo_talk.implement,
@@ -113,6 +117,7 @@ class Baas_thread:
         self.screenshot = None
         self.ocr_img_pass_method = None
         self.shared_memory_name = None
+        self.target_display = None
 
     def set_ocr(self, ocr):
         self.ocr = ocr
@@ -305,6 +310,12 @@ class Baas_thread:
             self.set_screenshot_interval(self.config.screenshot_interval)
 
             self.check_resolution()
+            try:
+                if utils.is_android():
+                    self._setup_boa()
+            except:
+                self.logger.warning("BoA setup failed")
+                raise
             self.get_ocr_language()
             self.identifier = self.server
             if self.server == "Global":
@@ -1045,12 +1056,30 @@ class Baas_thread:
         # TODO: 
         # Set device resolution for BoA
         if utils.is_android():
-            self.u2.shell("wm size 720x1280")
+            # self.u2.shell("wm size 720x1280")
             # it seems that u2 returns old resolution even after changing resolution
             # but screenshot is not affected
             # so we just return 1280x720 here
             return (1280, 720)
         return self.resolution_uiautomator2()
+
+    def _setup_boa(self):
+        # create a virtual display
+        # ref: https://github.com/Genymobile/scrcpy/issues/1887#issuecomment-817520017
+        # TODO: further tests for overlay_display_devices on DIFFERENT DEVICES are needed
+        self.u2.shell("settings put global overlay_display_devices 1280x720/240")
+        time.sleep(1)
+        # get display id
+        display_info = self.u2.shell("dumpsys SurfaceFlinger") # to get stable id
+        self.target_display = extract_virtual_displays(display_info.output)
+        if not self.target_display:
+            raise Exception("Failed to create virtual display for BoA.")
+        self.control.set_display_id(self.target_display.logical_id)
+        self.screenshot.set_display_id(self.target_display.stable_id)
+    
+    def _clean_boa(self):
+        # remove virtual display
+        self.u2.shell('settings put global overlay_display_devices ""')
 
     def resolution_uiautomator2(self):
         for i in range(0, 3):

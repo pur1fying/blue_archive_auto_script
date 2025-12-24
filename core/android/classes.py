@@ -17,6 +17,8 @@ BitmapConfig = autoclass('android.graphics.Bitmap$Config')
 PackageManager = autoclass('android.content.pm.PackageManager')
 
 OcrEngine = autoclass('com.benjaminwan.ocrlibrary.OcrEngine')
+OcrResult = autoclass('com.benjaminwan.ocrlibrary.OcrResult')
+TextBlock = autoclass('com.benjaminwan.ocrlibrary.TextBlock')
 
 Shizuku = autoclass('rikka.shizuku.Shizuku')
 Shizuku_UserServiceArgs = autoclass('rikka.shizuku.Shizuku$UserServiceArgs')

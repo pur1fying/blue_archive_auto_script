@@ -7,6 +7,16 @@ class AdbControl:
     def __init__(self, conn):
         self.serial = conn.serial
         self.adb = adb.device(self.serial)
+        self.display_id = None
+
+    def set_display_id(self, display_id):
+        self.display_id = display_id
+
+    def _build_input_cmd(self, action_cmd: str) -> str:
+        if self.display_id:
+            return f"input -d {self.display_id} {action_cmd}"
+        else:
+            return f"input {action_cmd}"
 
     def click(self, x, y):
         start_t = time.time()
