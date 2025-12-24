@@ -85,10 +85,17 @@ class Layout(TemplateLayout):
     def _commit_port_change(self, x):
         addr = x.text()
         if addr.find(':') != -1:
+            ip = x.text().split(':')[0]
             port = x.text().split(':')[1]
             port_sig_str = json.dumps({
                 "name": "adbPort",
                 "value": port
             })
             self.patch_signal.emit(port_sig_str)
+            ip_sig_str = json.dumps({
+                "name": "adbIP",
+                "value": ip
+            })
+            self.patch_signal.emit(ip_sig_str)
+            self.config.set('adbIP', ip)
             self.config.set('adbPort', port)
