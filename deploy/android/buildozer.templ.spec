@@ -17,9 +17,10 @@ android.minapi = 24
 android.ndk_path = {{ android_ndk_path }}
 android.sdk_path = {{ android_sdk_path }}
 p4a.url = https://github.com/XcantloadX/python-for-android.git
+p4a.branch = develop
+p4a.commit = e05b63b47dbd9bc8da54228c28d5cc7fea822672
 p4a.bootstrap = qt
 p4a.local_recipes = {{ local_recipes_path }}
-p4a.branch = develop
 android.permissions = android.permission.WRITE_EXTERNAL_STORAGE, android.permission.INTERNET, android.permission.INTERACT_ACROSS_USERS_FULL
 android.add_jars = {{ jars_path }}
 p4a.extra_args = --qt-libs=Core,Gui,Widgets --load-local-libs=plugins_platforms_qtforandroid --init-classes=
