@@ -1,5 +1,10 @@
 # Blue Archive Auto Script
 ![Python](https://img.shields.io/badge/-Python-000000?style=flat&logo=python)
+![C++](https://img.shields.io/badge/C%2B%2B-blue?logo=c%2B%2B)
+![GitHub stars](https://img.shields.io/github/stars/pur1fying/blue_archive_auto_script?style=social)
+![star](https://atomgit.com/m0_74686738/blue_archive_auto_script/star/badge.svg)
+![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-purple)
+
 
 **BAAS**,一个带GUI的蔚蓝档案（全服支持），为屏幕分辨率为 16:9 (1280x720 最佳) 运行的场景而设计 最终目的是接管一切蔚蓝档案任务 实现完全自动化
 
