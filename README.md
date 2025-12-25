@@ -10,9 +10,9 @@
 
 GUI预览图：
 
-<img src="https://github.com/pur1fying/blue_archive_auto_script/blob/master/docs/assets/ui.png" alt="gui" width="50%">
-<img src="https://github.com/pur1fying/blue_archive_auto_script/blob/master/docs/assets/ui2.png" alt="gui" width="50%">
-<img src="https://github.com/pur1fying/blue_archive_auto_script/blob/master/docs/assets/ui3.png" alt="gui" width="50%">
+<img src="docs/assets/ui.png" alt="gui" width="50%">
+<img src="docs/assets/ui2.png" alt="gui" width="50%">
+<img src="docs/assets/ui3.png" alt="gui" width="50%">
 
 ## 功能 Features
 - **角色好感度**: 咖啡厅一日8摸, 日程自动找指定学生, 每日最大限度提升好感度
