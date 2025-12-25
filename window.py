@@ -10,7 +10,7 @@ from typing import Union
 
 from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer
 from PyQt5.QtGui import QIcon, QColor
-from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QAbstractScrollArea, QScroller, QScrollerProperties
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
     MSFluentTitleBar, MessageBox, TransparentToolButton, FluentIconBase, TabItem, \
     RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
@@ -25,6 +25,7 @@ from gui.util.config_gui import configGui, COLOR_THEME
 from core.config.config_set import ConfigSet
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
+from core.utils import is_android
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
 # sys.stdout = open('output.log', 'w+', encoding='utf-8')
@@ -446,6 +447,8 @@ class Window(MSFluentWindow):
         # SingleShot is used to speed up the initialization process
         # self.init_main_class()
         QTimer.singleShot(100, self.init_main_class)
+        if is_android():
+            self.init_touch_scrolling()
 
     def init_main_class(self, ):
         threading.Thread(target=self.init_main_class_thread).start()
@@ -507,6 +510,19 @@ class Window(MSFluentWindow):
         self.setTitleBar(BAASTitleBar(self))
         self.setWindowIcon(QIcon(ICON_DIR))
         self.setWindowTitle('BlueArchiveAutoScript')
+
+    def init_touch_scrolling(self):
+        scroll_areas = self.findChildren(QAbstractScrollArea)
+        
+        for area in scroll_areas:
+            QScroller.grabGesture(
+                area.viewport(), 
+                QScroller.TouchGesture
+            )
+            
+            props = QScroller.scroller(area.viewport()).scrollerProperties()
+            props.setScrollMetric(QScrollerProperties.DecelerationFactor, 0.5) # 减速因子
+            QScroller.scroller(area.viewport()).setScrollerProperties(props)
 
     def closeEvent(self, event):
         super().closeEvent(event)
@@ -631,7 +647,10 @@ def start():
 
     app = QApplication(sys.argv)
     w = Window()
-    w.show()
+    if is_android():
+        w.showFullScreen()
+    else:    
+        w.show()
     app.exec_()
 
 

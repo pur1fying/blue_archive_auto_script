@@ -1,14 +1,21 @@
 import logging
 import sys
 import threading
+import platform
+from typing import Union
 from datetime import datetime, timedelta, timezone
 from typing import Union
 
-from rich.console import Console
-from rich.markup import escape
+def is_android():
+    return platform.system() == 'Android' or hasattr(sys, 'getandroidapilevel')
 
-console = Console()
+if not is_android():
+    from rich.console import Console
+    from rich.markup import escape
 
+    console = Console()
+else:
+    console = None
 
 def delay(wait=1):
     def decorator(func):
@@ -51,7 +58,7 @@ class Logger:
         # logger signal is used to output log to logger box or other output
         self.logs = ""
         self.logger_signal = logger_signal
-        if not self.logger_signal:
+        if not self.logger_signal and not is_android():
             # if the logger signal is not configured, we use rich traceback then
             # to better display error messages in console
             from rich.traceback import install
@@ -70,6 +77,9 @@ class Logger:
         :param level: log level(1: INFO, 2: WARNING, 3: ERROR, 4: CRITICAL)
         :return: None
         """
+        # Keep original message for additional sinks (e.g. logcat)
+        raw_message = message
+
         # If raw_print is True, output log to logger box
         if level < 1 or level > 4:
             raise ValueError("Invalid log level")
@@ -78,6 +88,13 @@ class Logger:
             self.logs += message
             if self.logger_signal:
                 self.logger_signal.emit(level, message)
+            # also send to logcat if on Android
+            try:
+                if is_android():
+                    from core.android.log import logcat
+                    logcat(str(raw_message), level='INFO')
+            except Exception:
+                pass
             return
 
         while len(logging.root.handlers) > 0:
@@ -90,11 +107,31 @@ class Logger:
         if self.logger_signal is not None:
             self.logs += f"{levels_str[level - 1]} | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
             self.logger_signal.emit(level, message)
-        else:
+        elif not is_android():
             console.print(f'[{levels_color[level - 1]}]'
                           f'{levels_str[level - 1]} |'
                           f' {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} |'
                           f' {escape(message)}[/]', soft_wrap=True)
+
+        # If running on Android, also send a plain-text copy to logcat
+        try:
+            if is_android():
+                from core.android.log import logcat
+                level_map = {1: 'INFO', 2: 'WARNING', 3: 'ERROR', 4: 'CRITICAL'}
+                logcat(str(raw_message), level=level_map.get(level, 'INFO'))
+        except Exception:
+            # Do not let logcat failures affect normal logging
+            pass
+
+        # If running on Android, also send a plain-text copy to logcat
+        try:
+            if is_android():
+                from core.android.log import logcat
+                level_map = {1: 'INFO', 2: 'WARNING', 3: 'ERROR', 4: 'CRITICAL'}
+                logcat(str(raw_message), level=level_map.get(level, 'INFO'))
+        except Exception:
+            # Do not let logcat failures affect normal logging
+            pass
 
     def info(self, message: str) -> None:
         """
