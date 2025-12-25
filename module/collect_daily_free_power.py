@@ -23,16 +23,16 @@ def collect_daily_free_power(self):
     img_possibles = {
         "main_page_purchase-pyroxenes-menu": (385, 479),
         "main_page_purchase-pyroxenes-confirm-purchase-notice": (749, 571),
-        'main_page_full-notice': (887, 165)
     }
+    img_ends = "main_page_full-notice"
     rgb_ends = "reward_acquired"
-    picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
-
+    picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, skip_first_screenshot=True)
     self.logger.info("Get 10 AP")
 
 def return_to_main_page(self):
     img_possibles = {
-        "main_page_purchase-pyroxenes-menu": (1011, 114)
+        "main_page_purchase-pyroxenes-menu": (1011, 114),
+        "main_page_full-notice": (887, 165)
     }
     rgb_possibles = {
         "reward_acquired": (640, 180)
