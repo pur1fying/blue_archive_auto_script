@@ -22,7 +22,8 @@ def collect_daily_free_power(self):
 
     img_possibles = {
         "main_page_purchase-pyroxenes-menu": (385, 479),
-        "main_page_purchase-pyroxenes-confirm-purchase-notice": (749, 571)
+        "main_page_purchase-pyroxenes-confirm-purchase-notice": (749, 571),
+        'main_page_full-notice': (887, 165)
     }
     rgb_ends = "reward_acquired"
     picture.co_detect(self, rgb_ends, None, None, img_possibles, skip_first_screenshot=True)
