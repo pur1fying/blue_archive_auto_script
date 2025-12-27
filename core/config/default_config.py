@@ -3528,7 +3528,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "MoonlightDreams",
         "Global": "ThePromiseOfTheSummerSky",
-        "JP": "SerenadePromenade"
+        "JP": "anUnconcealedHeart_2"
     },
     "dailyGameActivity": {
         "CN": null,
