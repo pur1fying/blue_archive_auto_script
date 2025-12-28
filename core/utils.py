@@ -262,7 +262,7 @@ def get_nearest_hour(target_hour):
     return nearest_time
 
 
-def purchase_ticket_times_to_int(value, maxx):
+def purchase_ticket_times_to_int(value, maxx=12):
     """
         Convert config like purchase_xxx_ticket_times to int
         Note : Origin value may be string.

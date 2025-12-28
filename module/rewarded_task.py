@@ -10,8 +10,7 @@ def implement(self):
         return True
 
     self.to_main_page()
-    buy_ticket_times = max(0, purchase_ticket_times_to_int(self.config.purchase_rewarded_task_ticket_times))
-    buy_ticket_times = min(buy_ticket_times, 12)
+    buy_ticket_times = purchase_ticket_times_to_int(self.config.purchase_rewarded_task_ticket_times, 12)
     if buy_ticket_times > 0:
         to_choose_bounty(self, True)
         purchase_bounty_ticket(self, buy_ticket_times)
