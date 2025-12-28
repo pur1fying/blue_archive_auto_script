@@ -2,7 +2,7 @@ import time
 
 from core import color, picture
 from module.clear_special_task_power import get_task_count
-
+from core.utils import purchase_ticket_times_to_int
 
 def implement(self):
     count = get_task_count(self, "rewarded_task", 3)
@@ -10,7 +10,7 @@ def implement(self):
         return True
 
     self.to_main_page()
-    buy_ticket_times = max(0, self.config.purchase_rewarded_task_ticket_times)
+    buy_ticket_times = max(0, purchase_ticket_times_to_int(self.config.purchase_rewarded_task_ticket_times))
     buy_ticket_times = min(buy_ticket_times, 12)
     if buy_ticket_times > 0:
         to_choose_bounty(self, True)
@@ -199,3 +199,4 @@ def purchase_bounty_ticket(self, times):
         "rewarded_task_purchase-bounty-ticket-notice": (766, 507),
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=False)
+

@@ -5,7 +5,7 @@ import cv2
 
 from core import color, picture, image
 from core.geometry.parallelogram import Parallelogram
-from core.utils import build_possible_string_dict_and_length, most_similar_string
+from core.utils import build_possible_string_dict_and_length, most_similar_string, purchase_ticket_times_to_int
 
 
 def implement(self):
@@ -23,8 +23,7 @@ def implement(self):
         region_name[i] = pre_process_lesson_name(self, region_name[i])
 
     self.lesson_letter_dict, self.lesson_region_name_len = build_possible_string_dict_and_length(region_name)
-
-    purchase_ticket_times = min(self.config.purchase_lesson_ticket_times, 4)
+    purchase_ticket_times = purchase_ticket_times_to_int(self.config.purchase_lesson_ticket_times, 4)
     to_lesson_location_select(self, True)
     if purchase_ticket_times > 0:
         self.logger.info("Purchase lesson ticket times :" + str(purchase_ticket_times))
