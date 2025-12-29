@@ -97,13 +97,12 @@ def request_permission(activity=None, request_code: int = PERMISSION_CODE_DEFAUL
         activity: The activity context.
         request_code (int): The request code for the permission request.
     """
-    if check_permission():
-        return
-
-    if is_pre_v11():
-        return
-
-    Shizuku.requestPermission(int(request_code))
+    try:
+        from .classes import MainActivity
+        MainActivity.requestShizukuPermission()
+    except Exception:
+        # Defer all error handling to Java side; avoid crashing Python entry.
+        pass
 
 
 class _PermissionResultListener(PythonJavaClass):
@@ -224,9 +223,12 @@ class ShizukuClient:
             return False
 
         # 检查 Shizuku 权限
-        if Shizuku.checkSelfPermission() != 0: # 0 is PERMISSION_GRANTED
-            self.logger.warning("ShizukuClient: Shizuku permission not granted. Requesting...")
-            Shizuku.requestPermission(0) # 0 is a request code
+        try:
+            if not check_permission():
+                self.logger.warning("ShizukuClient: Shizuku permission not granted. Waiting for grant.")
+                return False
+        except Exception as e:
+            self.logger.error(f"ShizukuClient: Failed to check permission: {e}")
             return False
 
         self.logger.info("ShizukuClient: Binding Shizuku user service...")
