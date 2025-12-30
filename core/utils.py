@@ -267,3 +267,28 @@ def get_nearest_hour(target_hour):
 
     nearest_time = (now + timedelta(hours=hour_delta)).replace(minute=0, second=0, microsecond=0)
     return nearest_time
+
+
+def purchase_ticket_times_to_int(value, maxx=12):
+    """
+        Convert config like purchase_xxx_ticket_times to int
+        Note : Origin value may be string.
+
+        Args:
+            value: Config value
+            maxx: Max value
+        Returns:
+            int: Converted int value
+    """
+    if type(value) is int:
+        pass
+    if type(value) is str:
+        try:
+            value =  int(value)
+        except ValueError:
+            value = 0
+
+    # purchase ticket time always over 0
+    value = max(0, value)
+    value = min(value, maxx)
+    return value

@@ -1,6 +1,7 @@
 import time
 
 from core import color, picture
+from core.utils import purchase_ticket_times_to_int
 from module.clear_special_task_power import get_task_count
 
 
@@ -11,8 +12,7 @@ def implement(self):
 
     self.to_main_page()
     scrimmage_area_name = ["Trinity", "Gehenna", "Millennium"]
-    buy_ticket_times = min(self.config.purchase_scrimmage_ticket_times, 12)  # ** 购买悬赏委托券的次数
-    buy_ticket_times = max(buy_ticket_times, 0)
+    buy_ticket_times = purchase_ticket_times_to_int(self.config.purchase_scrimmage_ticket_times, 12)
     if buy_ticket_times > 0 and self.server != "CN":
         to_choose_scrimmage(self, True)
         purchase_scrimmage_ticket(self, buy_ticket_times)
