@@ -1,0 +1,43 @@
+FROM debian:trixie-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    libgl1 \
+    libglib2.0-0 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+ENV PATH="/root/.local/bin:/root/.cargo/bin:$PATH"
+
+RUN uv python install 3.9.0
+
+# ---- Python dependency layer (cache-friendly) ----
+COPY requirements.service.txt /tmp/requirements.service.txt
+
+RUN uv venv /opt/venv --python 3.9.0 \
+    && . /opt/venv/bin/activate \
+    && uv pip compile /tmp/requirements.service.txt \
+        -o /tmp/requirements.service.lock \
+    && uv pip sync /tmp/requirements.service.lock \
+    && rm -rf /tmp/* \
+    && rm -rf /root/.cache
+
+RUN update-ca-certificates
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+# ---- Runtime scripts ----
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# ---- Runtime configuration ----
+VOLUME ["/app"]
+
+EXPOSE 8190
+
+CMD ["/entrypoint.sh"]
