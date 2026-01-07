@@ -617,8 +617,8 @@ STATIC_DEFAULT_CONFIG = '''
         "JP": [1, 2, 3, 4, 5, 6, 7, 8, 9]
     },
     "max_region": {
-        "CN": 25,
-        "Global": 27,
+        "CN": 26,
+        "Global": 28,
         "JP": 29
     },
     "explore_normal_task_region_range": [4, 29],
@@ -3529,9 +3529,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "WarningOfWhiteChalkWhereAestheticsResideInTheMansionOfDeception",
-        "Global": "PandemicHazardAMiraclePancake",
-        "JP": "Moonlight Dream"
+        "CN": "MoonlightDreams",
+        "Global": "ThePromiseOfTheSummerSky",
+        "JP": "anUnconcealedHeart_2"
     },
     "dailyGameActivity": {
         "CN": null,

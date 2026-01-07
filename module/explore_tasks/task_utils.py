@@ -1,43 +1,49 @@
+from __future__ import annotations
+
 import json
 import time
+from typing import TYPE_CHECKING
 
-from core import image, picture, Baas_thread, color
+from core import image, picture, color
 from core.image import swipe_search_target_str
 from module import main_story
 
+if TYPE_CHECKING:
+    from core.Baas_thread import Baas_thread
+
 
 # Functions related to navigation or obtaining map data
-def to_region(self, region: int, isNormal: bool) -> bool:
+def to_region(self, region: int, is_normal: bool) -> bool:
     ocr_area = [122, 178, 163, 208]
-    curRegion = self.ocr.recognize_int(
+    cur_region = self.ocr.recognize_int(
         baas=self,
         region=ocr_area,
         log_info="Region Num",
         filter_score=0.2
     )
-    self.logger.info("Current Region : " + str(curRegion))
-    while curRegion != region and self.flag_run:
-        if curRegion > region:
+    self.logger.info("Current Region : " + str(cur_region))
+    while cur_region != region and self.flag_run:
+        if cur_region > region:
             if picture.match_img_feature(self, "normal_task_region-unavailable-left"):
                 # region locked or not available
                 return False
-            self.click(40, 360, count=curRegion - region, rate=0.1, wait_over=True, duration=0.5)
+            self.click(40, 360, count=cur_region - region, rate=0.1, wait_over=True, duration=0.5)
         else:
             if picture.match_img_feature(self, "normal_task_region-unavailable-right"):
                 # region locked or not available
                 return False
-            self.click(1245, 360, count=region - curRegion, rate=0.1, wait_over=True, duration=0.5)
-        if isNormal:
+            self.click(1245, 360, count=region - cur_region, rate=0.1, wait_over=True, duration=0.5)
+        if is_normal:
             to_normal_event(self)
         else:
             to_hard_event(self)
-        curRegion = self.ocr.recognize_int(
+        cur_region = self.ocr.recognize_int(
             baas=self,
             region=ocr_area,
             log_info="Region Num",
             filter_score=0.2
         )
-        self.logger.info("Current Region : " + str(curRegion))
+        self.logger.info("Current Region : " + str(cur_region))
     return True
 
 
@@ -117,8 +123,8 @@ def to_normal_event(self: Baas_thread, skip_first_screenshot=False):
     picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, skip_first_screenshot)
 
 
-def get_stage_data(region, isNormal):
-    t = "normal_task" if isNormal else "hard_task"
+def get_stage_data(region, is_normal):
+    t = "normal_task" if is_normal else "hard_task"
     data_path = f"src/explore_task_data/{t}/{t}_{region}.json"
     with open(data_path, 'r') as f:
         stage_data = json.load(f)
@@ -137,7 +143,7 @@ def get_challenge_state(self, challenge_count=1) -> list[int]:
     # to challenge menu
     img_ends = 'normal_task_challenge-menu'
     img_possibles = {
-        "normal_task_challenge-button": (536,302),
+        "normal_task_challenge-button": (536, 302),
         "activity_quest-challenge-button": (319, 270)
     }
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
@@ -156,13 +162,13 @@ def get_challenge_state(self, challenge_count=1) -> list[int]:
 
 def convert_team_config(self: Baas_thread) -> dict:
     employ_method = self.config.choose_team_method
-    teamConfig = {"burst": [], "pierce": [], "mystic": [], "shock": []}
+    team_config = {"burst": [], "pierce": [], "mystic": [], "shock": []}
     teamData = self.config.side_team_attribute if employ_method == "side" else self.config.preset_team_attribute
     for i, team in enumerate(teamData):
         for j, attr in enumerate(team):
-            if attr in teamConfig:
-                teamConfig[attr].append([0 if employ_method == "side" else i + 1, j + 1])
-    return teamConfig
+            if attr in team_config:
+                team_config[attr].append([0 if employ_method == "side" else i + 1, j + 1])
+    return team_config
 
 
 def retreat(self):
@@ -176,13 +182,15 @@ def retreat(self):
                       skip_first_screenshot=True)
 
 
-def set_skip_status(self, status: bool) -> None:
+def set_skip_and_auto_status(self, skip_status: bool, auto_status: bool) -> None:
+    self.logger.info(f"Set Skip : {skip_status}")
+    self.logger.info(f"Set Auto  : {auto_status}")
     while self.flag_run:
         finish_adjustment = True
-        if image.compare_image(self, 'normal_task_fight-skip') != status:
+        if image.compare_image(self, 'normal_task_fight-skip') != skip_status:
             finish_adjustment = False
             self.click(1194, 547, wait_over=True, duration=0.5)
-        if image.compare_image(self, 'normal_task_auto-over') != status:
+        if image.compare_image(self, 'normal_task_auto-over') != auto_status:
             finish_adjustment = False
             self.click(1194, 600, wait_over=True, duration=0.5)
         if finish_adjustment:
@@ -306,7 +314,7 @@ def execute_grid_task(self, taskData) -> bool:
 
     wait_over(self)
     handle_task_pop_ups(self, True)
-    set_skip_status(self, True)
+    set_skip_and_auto_status(self, True, True)
     run_task_action(self, taskData['action'])
     return True
 
@@ -331,7 +339,7 @@ def run_task_action(self, actions):
 
         # turn off skip fight mode to handle retreat
         if 'retreat' in action:
-            set_skip_status(self, False)
+            set_skip_and_auto_status(self, False, True)
         wait_loading = False
 
         if operation.startswith('click'):
@@ -381,7 +389,7 @@ def run_task_action(self, actions):
                 if current_fight_index + 1 in action['retreat'][1:]:
                     retreat(self)
                 handle_task_pop_ups(self, False)
-            set_skip_status(self, True)
+            set_skip_and_auto_status(self, True, True)
 
         if 'ec' in action:
             while self.flag_run and get_formation_index(self) == current_formation:
@@ -401,7 +409,7 @@ def run_task_action(self, actions):
     self.set_screenshot_interval(self.config.screenshot_interval)
 
 
-def employ_units(self, choose_team_method: str, taskData: dict, teamConfig: dict) -> bool:
+def employ_units(self, choose_team_method: str, task_data: dict, team_config: dict) -> bool:
     self.logger.info(f"Employ team method: {choose_team_method}.")
     attribute_type_fallbacks = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
 
@@ -412,22 +420,22 @@ def employ_units(self, choose_team_method: str, taskData: dict, teamConfig: dict
         employ_pos = [[0, 1], [0, 2], [0, 3], [0, 4]]
     else:
         # Number of units available for each attribute: burst, pierce, mystic, shock
-        unit_available = {attribute: len(preset) for attribute, preset in teamConfig.items()}
+        unit_available = {attribute: len(preset) for attribute, preset in team_config.items()}
 
         # Number of units used for each attribute: burst, pierce, mystic, shock
-        unit_used = {attribute: 0 for attribute, count in teamConfig.items()}
+        unit_used = {attribute: 0 for attribute, count in team_config.items()}
 
         # Number of units available in total
-        total_available = sum([len(preset) for attribute, preset in teamConfig.items()])
+        total_available = sum([len(preset) for attribute, preset in team_config.items()])
 
-        unit_need = len([attribute for attribute, info in taskData["start"] if attribute != "swipe"])
+        unit_need = len([attribute for attribute, info in task_data["start"] if attribute != "swipe"])
         if total_available < unit_need:
             self.logger.error(
                 f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
             self.logger.warning("Try using 'order' method to employ team.")
-            return employ_units(self, "order", taskData, teamConfig)
+            return employ_units(self, "order", task_data, team_config)
 
-        for attribute, info in taskData["start"]:
+        for attribute, info in task_data["start"]:
             if attribute == "swipe":  # skip if it's a swipe command.
                 continue
 
@@ -437,11 +445,11 @@ def employ_units(self, choose_team_method: str, taskData: dict, teamConfig: dict
                 or (self.server == "CN" and cur_attribute == "shock"):
                 cur_attribute = attribute_type_fallbacks[cur_attribute]
 
-            employ_pos.append(teamConfig[cur_attribute][unit_used[cur_attribute]])
+            employ_pos.append(team_config[cur_attribute][unit_used[cur_attribute]])
             unit_used[cur_attribute] += 1
 
     employed = 0
-    for command, info in taskData["start"]:
+    for command, info in task_data["start"]:
         if command == "swipe":
             time.sleep(1)
             self.u2_swipe(info[0], info[1], info[2], info[3], duration=info[4], post_sleep_time=1)
@@ -482,7 +490,9 @@ def employ_units(self, choose_team_method: str, taskData: dict, teamConfig: dict
 
                 offsets = {
                     'CN': (-1103, 0, 16, 33),
-                    'Global': (-1048, -4, 20, 36),
+                    'Global_en-us': (-1048, -4, 20, 36),
+                    'Global_ko-kr': (-1105, -4, 20, 36),
+                    'Global_zh-tw': (-1105, -4, 20, 36),
                     'JP': (-1103, 0, 16, 33)
                 }
 
@@ -495,7 +505,7 @@ def employ_units(self, choose_team_method: str, taskData: dict, teamConfig: dict
                     target_str_index=row - 1,
                     swipe_params=(145, 578, 145, 273, 1.0, 0.5),
                     ocr_language="en-us",
-                    ocr_region_offsets=offsets[self.server],
+                    ocr_region_offsets=offsets[self.identifier],
                     ocr_str_replace_func=None,
                     max_swipe_times=5,
                     ocr_candidates="12345",
