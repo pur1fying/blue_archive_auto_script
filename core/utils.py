@@ -67,7 +67,7 @@ class Logger:
             self.logger_signal.emit(message)
             # also send to logcat if on Android
             try:
-                if is_android():
+                if host_platform_is_android:
                     from core.android.log import logcat
                     logcat(str(raw_message), level='INFO')
             except Exception:
@@ -100,7 +100,7 @@ class Logger:
 
         # If running on Android, also send a plain-text copy to logcat
         try:
-            if is_android():
+            if host_platform_is_android:
                 from core.android.log import logcat
                 level_map = {1: 'INFO', 2: 'WARNING', 3: 'ERROR', 4: 'CRITICAL'}
                 logcat(str(raw_message), level=level_map.get(level, 'INFO'))
@@ -266,5 +266,4 @@ def get_nearest_hour(target_hour):
     nearest_time = (now + timedelta(hours=hour_delta)).replace(minute=0, second=0, microsecond=0)
     return nearest_time
 
-def is_android():
-    return platform.system() == 'Android' or hasattr(sys, 'getandroidapilevel')
+host_platform_is_android = platform.system() == 'Android' or hasattr(sys, 'getandroidapilevel')

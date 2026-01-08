@@ -1042,9 +1042,9 @@ class Baas_thread:
         self.u2 = self.u2_client.get_connection()
         self.check_atx()
         self.last_refresh_u2_time = time.time()
-        # TODO: 
+        # TODO:
         # Set device resolution for BoA
-        if utils.is_android():
+        if utils.host_platform_is_android:
             self.u2.shell("wm size 720x1280")
             # it seems that u2 returns old resolution even after changing resolution
             # but screenshot is not affected

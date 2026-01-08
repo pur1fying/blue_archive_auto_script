@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 import os
-from core.utils import is_android
+from core.utils import host_platform_is_android
 from core.exception import SharedMemoryError
-if is_android():
+
+if host_platform_is_android:
     shared_memory = None
 else:
     from multiprocessing import shared_memory
