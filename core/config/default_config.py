@@ -382,6 +382,7 @@ DEFAULT_CONFIG = """
     "push_after_completion":false,
     "push_json":"",
     "push_serverchan":"",
+    "push_feishu": "",
     "cafe_reward_affection_pat_round": 4,
     "cafe_reward_lowest_affection_first": true,
     "cafe_reward_invite1_criterion" : "starred",

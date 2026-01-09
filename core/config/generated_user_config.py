@@ -47,6 +47,7 @@ class Config:
     push_after_completion: bool
     push_json: str
     push_serverchan: str
+    push_feishu: str
     cafe_reward_affection_pat_round: int
     cafe_reward_lowest_affection_first: bool
     cafe_reward_invite1_criterion: str
