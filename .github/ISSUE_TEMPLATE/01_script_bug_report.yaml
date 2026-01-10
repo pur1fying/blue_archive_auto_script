@@ -69,7 +69,7 @@ body:
       required: true
 
   - type: markdown
-    id: security_alter
+    id: security_alert
     attributes:
       value: |
         > [!WARNING]
