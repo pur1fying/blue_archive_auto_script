@@ -13,3 +13,4 @@ typer
 buildozer==1.5.0
 pyside6==6.7.3 # Contains .so files which will be used in buildozer
 Jinja2==3 # For configuration files generation
+cython
