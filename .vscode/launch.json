@@ -1,0 +1,57 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to BoA",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "host.docker.internal",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "."
+                },
+                {
+                    "localRoot": "${workspaceFolder}/.venv/lib/python3.9/site-packages",
+                    "remoteRoot": "${workspaceFolder}/.buildozer/android/platform/build-arm64-v8a/build/python-installs/boa/arm64-v8a/"
+                },
+                {
+                    "localRoot": "/usr/local/lib/python3.9/",
+                    "remoteRoot": "${workspaceFolder}/.buildozer/android/platform/build-arm64-v8a/build/other_builds/python3/arm64-v8a__ndk_target_24/python3/Lib/"
+                }
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Sync and Start BoA",
+            "type": "debugpy",
+            "request": "attach",
+            "preLaunchTask": "prepare-android-debug",
+            "connect": {
+                "host": "host.docker.internal",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "."
+                },
+                {
+                    "localRoot": "${workspaceFolder}/.venv/lib/python3.9/site-packages",
+                    "remoteRoot": "${workspaceFolder}/.buildozer/android/platform/build-arm64-v8a/build/python-installs/boa/arm64-v8a/"
+                },
+                {
+                    "localRoot": "/usr/local/lib/python3.9/",
+                    "remoteRoot": "${workspaceFolder}/.buildozer/android/platform/build-arm64-v8a/build/other_builds/python3/arm64-v8a__ndk_target_24/python3/Lib/"
+                }
+            ],
+            "justMyCode": false
+        }
+    ]
+}
