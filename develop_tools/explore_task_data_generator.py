@@ -22,6 +22,7 @@ def get_stage_name():
     return stage_name
 
 
+
 def get_team_info():
     char2attr = {
         "b": "burst",
@@ -29,7 +30,6 @@ def get_team_info():
         "m": "mystic",
         "s": "shock",
     }
-
     print("Please enter the team count : ")
     teamLeft = int(get_input())
     teams = []

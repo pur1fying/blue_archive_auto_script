@@ -617,10 +617,10 @@ STATIC_DEFAULT_CONFIG = '''
     "max_region": {
         "CN": 26,
         "Global": 28,
-        "JP": 29
+        "JP": 30
     },
-    "explore_normal_task_region_range": [4, 29],
-    "explore_hard_task_region_range": [1, 29],
+    "explore_normal_task_region_range": [4, 30],
+    "explore_hard_task_region_range": [1, 30],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "mss", "pyautogui"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "pyautogui"],
     "shop_type_list_names": {
