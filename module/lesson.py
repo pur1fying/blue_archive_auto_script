@@ -307,9 +307,9 @@ def get_lesson_relationship_counts(self):
         'CN': [(443, 290), (787, 290), (1132, 290),
                (443, 441), (787, 441), (1132, 441),
                (443, 591), (787, 591), (1132, 591)],
-        'Global': [(354, 271), (701, 271), (1043, 271),
-               (354, 422), (701, 422), (1043, 422),
-               (354, 574), (701, 574), (1043, 574)],
+        'Global': [(357, 295), (700, 295), (1043, 295),
+               (357, 445), (701, 445), (1043, 445),
+               (357, 598), (701, 598), (1043, 598)],
         'JP': [(357, 295), (700, 295), (1043, 295),
                (357, 445), (701, 445), (1043, 445),
                (357, 598), (701, 598), (1043, 598)]
@@ -324,9 +324,6 @@ def get_lesson_relationship_counts(self):
         'Global': [223, 255, 164, 224, 190, 230],
         'JP': [223, 255, 164, 224, 190, 230]
     }
-    if self.server in ['Global']:
-        self.swipe(983, 588, 983, 466, duration=0.2 if self.is_android_device else 0.5, post_sleep_time=0.5)
-        self.update_screenshot_array()
     rgb_range = rgb_range[self.server]
     position = position[self.server]
     dx = dx[self.server]
@@ -381,9 +378,7 @@ def cn_get_lesson_each_region_status(self):
 
 
 def global_jp_get_lesson_each_region_status(self):
-    y_list = [204, 359, 511]
-    if self.server in ['JP']:
-        y_list = [238, 391, 543]
+    y_list = [238, 391, 543]
 
     pd_lo = [[289,  y_list[0]], [643,  y_list[0]], [985,  y_list[0]],
              [289,  y_list[1]], [643,  y_list[1]], [985,  y_list[1]],
@@ -405,9 +400,7 @@ def check_region_availability(self, region_cnt):
     dx1 = 33
     k2 = -5.3
     dx2 = [9, 4]
-    y_list = [328, 479, 605]
-    if self.server in ['JP']:
-        y_list = [308, 459, 612]
+    y_list = [308, 459, 612]
     region_start_p = [
         (154, y_list[0]), (498, y_list[0]), (842, y_list[0]),
         (154, y_list[1]), (498, y_list[1]), (842, y_list[1]),
