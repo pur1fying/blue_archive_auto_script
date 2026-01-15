@@ -182,13 +182,13 @@ def get_display_setting(self, phase):
     if phase == 1:
         filter_list = {
             "CN": [1, 1, 1, 1, 1, 1, 1, 1],
-            "Global": [1, 1, 1, 1, 1, 1, 1, 1],
+            "Global": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             "JP": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
         }
         return filter_list[self.server], "basic", "up"
     filter_list = {
         "CN": [0, 0, 0, 0, 0, 0, 1, 0],
-        "Global": [0, 0, 0, 0, 0, 0, 1, 0],
+        "Global": [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1],
         "JP": [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1]
     }
     if phase == 2:
@@ -511,7 +511,7 @@ def item_order_list_builder(self, phase, filter_list, sort_type, sort_direction)
     self.logger.info("Sort Direction : " + sort_direction)
     result = []
     filter_type_list = self.static_config.create_filter_type_list[self.server]
-    if (self.server in ['CN', 'Global'] and filter_list[6]) or (self.server in ['JP'] and filter_list[10]):
+    if (self.server in ['CN'] and filter_list[6]) or (self.server in ['JP', 'Global'] and filter_list[10]):
         # when material is chosen key stone will be displayed at the top
         # CN server phase 3 key stone is not allowed to be chosen
         temp = self.static_config.create_item_order[self.server]["basic"]["Special"]

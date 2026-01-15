@@ -60,9 +60,21 @@ x_y_range = {
     'filter-Material-not-chosen': (734, 323, 788, 377),
     'filter-Material-reset': (734, 323, 788, 377),
 
-    'filter-Gift-chosen': (973, 323, 1026, 377),
-    'filter-Gift-not-chosen': (973, 323, 1026, 377),
-    'filter-Gift-reset': (973, 323, 1026, 377),
+    'filter-Disk-chosen': (973, 323, 1026, 377),
+    'filter-Disk-not-chosen': (973, 323, 1026, 377),
+    'filter-Disk-reset': (973, 323, 1026, 377),
+
+    'filter-Note-chosen': (263, 392, 321, 441),
+    'filter-Note-not-chosen': (263, 392, 321, 441),
+    'filter-Note-reset': (263, 392, 321, 441),
+
+    'filter-Gift-chosen': (499, 392, 556, 441),
+    'filter-Gift-not-chosen': (499, 392, 556, 441),
+    'filter-Gift-reset': (499, 392, 556, 441),
+
+    'filter-Special-chosen': (734, 392, 788, 441),
+    'filter-Special-not-chosen': (734, 392, 788, 441),
+    'filter-Special-reset': (734, 392, 788, 441),
 
     'material-list': (701, 78, 762, 129),
     'Eligma': (),  # 神名文字

@@ -726,6 +726,12 @@
 - **description**: 填写ServerChan提供的SendKey
 - **note**: [serverChan文档](https://sct.ftqq.com/)
 
+## `push_feishu`
+
+- **type** : `str`
+- **description**: 飞书Webhook地址
+- **note**: [飞书Webhook文档](https://www.feishu.cn/hc/zh-CN/articles/807992406756-webhook-%E8%A7%A6%E5%8F%91%E5%99%A8)
+
 ## `last_refresh_config_time`
 
 - **type** : `float`

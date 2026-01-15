@@ -7,7 +7,7 @@ from module.shop.shop_utils import get_purchase_state, to_common_shop
 
 COMMON_SHOP_ITEM_ROW_X = {
     'CN': [653, 805, 959, 1114],
-    'Global': [653, 805, 959, 1114],
+    'Global': [650, 800, 950, 1100],
     'JP': [650, 800, 950, 1100]
 }
 

@@ -382,6 +382,7 @@ DEFAULT_CONFIG = """
     "push_after_completion":false,
     "push_json":"",
     "push_serverchan":"",
+    "push_feishu": "",
     "cafe_reward_affection_pat_round": 4,
     "cafe_reward_lowest_affection_first": true,
     "cafe_reward_invite1_criterion" : "starred",
@@ -619,10 +620,10 @@ STATIC_DEFAULT_CONFIG = '''
     "max_region": {
         "CN": 26,
         "Global": 28,
-        "JP": 29
+        "JP": 30
     },
-    "explore_normal_task_region_range": [4, 29],
-    "explore_hard_task_region_range": [1, 29],
+    "explore_normal_task_region_range": [4, 30],
+    "explore_hard_task_region_range": [1, 30],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "mss", "pyautogui"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "pyautogui"],
     "shop_type_list_names": {
@@ -1339,7 +1340,10 @@ STATIC_DEFAULT_CONFIG = '''
         "Eleph",
         "Coin",
         "Material",
-        "Gift"
+        "Disk",
+        "Note",
+        "Gift",
+        "Special"
       ],
       "JP":[
         "Equipment",
@@ -1618,6 +1622,12 @@ STATIC_DEFAULT_CONFIG = '''
             "Broken-Winnipesaukee-Stone",
             "Damage-Winnipesaukee-Stone",
             "Intact-Winnipesaukee-Stone",
+            "Physical-Education-Workbook",
+            "Shooting-Workbook",
+            "Hygiene-Workbook"
+          ],
+          "Gift": [],
+          "Disk": [
             "Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)",
             "Normal-Tactical-Training-Blu-ray-(Hyakkiyako)",
             "Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)",
@@ -1653,7 +1663,9 @@ STATIC_DEFAULT_CONFIG = '''
             "Beginner-Tactical-Training-Blu-ray-(Valkyrie)",
             "Normal-Tactical-Training-Blu-ray-(Valkyrie)",
             "Advanced-Tactical-Training-Blu-ray-(Valkyrie)",
-            "Superior-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Superior-Tactical-Training-Blu-ray-(Valkyrie)"
+          ],
+          "Note": [
             "Beginner-Tech-Notes-(Hyakkiyako)",
             "Normal-Tech-Notes-(Hyakkiyako)",
             "Advanced-Tech-Notes-(Hyakkiyako)",
@@ -1690,8 +1702,7 @@ STATIC_DEFAULT_CONFIG = '''
             "Normal-Tech-Notes-(Valkyrie)",
             "Advanced-Tech-Notes-(Valkyrie)",
             "Superior-Tech-Notes-(Valkyrie)"
-          ],
-          "Gift": []
+          ]
         }
       },
       "JP": {
@@ -3529,7 +3540,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "MoonlightDreams",
+        "CN": "SayBing",
         "Global": "ThePromiseOfTheSummerSky",
         "JP": "anUnconcealedHeart_2"
     },

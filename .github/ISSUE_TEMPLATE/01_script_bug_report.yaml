@@ -68,6 +68,24 @@ body:
     validations:
       required: true
 
+  - type: markdown
+    id: security_alert
+    attributes:
+      value: |
+        > [!WARNING]
+        > **敏感信息提示 / Security Alert**
+        > 
+        > 假如您正在使用或曾经使用过 **[推送](https://baas.wiki/usage_doc/config.html#%E6%8E%A8%E9%80%81%E8%AE%BE%E7%BD%AE)** 功能
+        > If you are using or have used the **[Push Notification](https://baas.wiki/usage_doc/config.html#%E6%8E%A8%E9%80%81%E8%AE%BE%E7%BD%AE)** feature
+        > 
+        > 在粘贴配置文件前，请务必检查并 **手动删除 / 打码** 其中的敏感信息
+        > Please **redact** sensitive info before pasting
+        > 
+        > 请特别注意以下字段 / Pay attention to
+        > - `"push_json": "..."`
+        > - `"push_serverchan": "..."`
+        > - `"push_feishu": "..."`
+
   - type: textarea
     id: script_config
     attributes:

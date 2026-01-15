@@ -20,7 +20,7 @@ x_y_range = {
     'duplicate-invite': (400, 230, 888, 415),
     'invitation-ticket-order-up': (827, 138, 841, 164),
     'invitation-ticket-order-down': (827, 138, 841, 164),
-    'confirm-invite': (603, 139, 675, 177),
+    'confirm-invite': (603, 145, 675, 180),
     'switch-clothes-notice': (570, 150, 710, 189),
     'duplicate-invite-notice': (400, 160, 888, 270),
     'button-goto-no1-cafe': (89, 91, 106, 115),
