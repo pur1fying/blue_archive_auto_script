@@ -1,0 +1,11 @@
+
+services:
+  baas-docker:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "8190:8190"
+    volumes:
+      - ./app:/app
+    restart: always
