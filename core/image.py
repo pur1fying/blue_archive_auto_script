@@ -276,3 +276,32 @@ def swipe_search_target_str(
         else:
             self.swipe(*reversed_swipe_params)
         retry_swipe_dir ^= 1
+
+def check_geometry_pixels(img, geometry, color_range, threshold=50):
+    """
+    Check if the pixels in the geometry are within the color range.
+
+    Returns:
+        True if no more than threshold pixels are outside the color range, False otherwise.
+    """
+    y_min, x_min_list, x_max_list = geometry.pixels()
+
+    cnt = 0
+
+    r_min, r_max, g_min, g_max, b_min, b_max = color_range
+
+    for i in range(len(x_min_list)):
+        y = y_min + i
+        x0 = x_min_list[i]
+        x1 = x_max_list[i] + 1
+        row = img[y, x0:x1]
+        valid = (
+            (row[:, 0] >= r_min) & (row[:, 0] <= r_max) &
+            (row[:, 1] >= g_min) & (row[:, 1] <= g_max) &
+            (row[:, 2] >= b_min) & (row[:, 2] <= b_max)
+        )
+        cnt += np.count_nonzero(~valid)
+        if cnt >= threshold:
+            return False
+
+    return True

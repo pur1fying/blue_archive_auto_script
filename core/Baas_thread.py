@@ -65,7 +65,8 @@ func_dict = {
     'friend': module.friend.implement,
     'joint_firing_drill': module.joint_firing_drill.implement,
     'pass': module.collect_pass_reward.implement,
-    'collect_daily_free_power': module.collect_daily_free_power.implement
+    'collect_daily_free_power': module.collect_daily_free_power.implement,
+    'final_restriction_rls': module.final_restriction_rls.implement,
 }
 
 

@@ -71,8 +71,7 @@ class Baas_ocr:
 
     def get_region_raw_res(self, img, region, language='CN', ratio=1.0, candidates=""):
         img = self.get_area_img(img, region, ratio)
-        res = self.ocr(language, img, candidates, 1)
-        return res
+        return self.ocr(language, img, candidates, 1)
 
     @staticmethod
     def is_chinese_char(char):
@@ -247,7 +246,7 @@ class Baas_ocr:
             shared_memory_name
         )
         if response.status_code == 200:
-            return response.text
+            return json.loads(response.text)
         else:
             logger.error("Ocr Error: " + response.text)
             raise OcrInternalError("Ocr Error: " + response.text)

@@ -230,6 +230,18 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
+    "priority": 13,
+    "interval": 0,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "无限制决战",
+    "func_name": "final_restriction_rls",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
+  },
+  {
+    "enabled": true,
     "priority": 14,
     "interval": 0,
     "daily_reset": [[20, 0, 0]],
