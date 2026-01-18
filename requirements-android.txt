@@ -1,0 +1,16 @@
+# Runtime
+# Runtime dependencies are listed in deploy/android/requirements.txt instead.
+
+# Development
+# You will need these if you want code completion or debugging, 
+# otherwise no need to install them.
+-r requirements-linux.txt
+qtpy
+typer
+
+# Packaging
+# aqtinstall==3.3.0 # Qt downloader. Not used if you perfer pre-built qt wheels instead of compiling from source.
+buildozer==1.5.0
+pyside6==6.7.3 # Contains .so files which will be used in buildozer
+Jinja2==3 # For configuration files generation
+cython
