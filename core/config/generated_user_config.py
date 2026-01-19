@@ -86,6 +86,9 @@ class Config:
     activity_sweep_task_number: int
     activity_sweep_times: str
     TacticalChallengeShopRefreshTime: str
+    final_restriction_rls_employ_formation_method: str
+    final_restriction_rls_employ_formation_copy_clear_unit_max_unavailable_student_count: int
+    final_restriction_rls_employ_formation_copy_clear_unit_max_refresh_count: int
     TacticalChallengeShopList: list
     CommonShopRefreshTime: str
     CommonShopList: list
@@ -103,5 +106,6 @@ class Config:
     tactical_challenge_coin: dict
     bounty_coin: dict
     _pass: dict
+    final_restriction_rls: dict
     assetsVisibility: bool
     hotkey_run: str

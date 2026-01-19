@@ -460,6 +460,9 @@ DEFAULT_CONFIG = """
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
     "TacticalChallengeShopRefreshTime": "0",
+    "final_restriction_rls_employ_formation_method": "default",
+    "final_restriction_rls_employ_formation_copy_clear_unit_max_unavailable_student_count": 0,
+    "final_restriction_rls_employ_formation_copy_clear_unit_max_refresh_count": 10,
     "TacticalChallengeShopList": [
         0,
         0,
@@ -532,6 +535,13 @@ DEFAULT_CONFIG = """
         "weekly_point": -1,
         "max_weekly_point": -1,
         "time": 0
+    },
+    "final_restriction_rls": {
+        "open": "",
+        "next_open_time": -1,
+        "start_time": -1,
+        "end_time": -1,
+        "passed_stage": -1
     },
     "assetsVisibility": true,
     "hotkey_run": "Ctrl+Shift+R"
