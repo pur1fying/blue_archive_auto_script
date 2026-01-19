@@ -3538,7 +3538,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "SayBing",
-        "Global": "ThePromiseOfTheSummerSky",
+        "Global": "WeAretheOccultResearchSociety",
         "JP": "anUnconcealedHeart_2"
     },
     "dailyGameActivity": {
