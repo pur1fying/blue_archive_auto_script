@@ -1,6 +1,8 @@
 import json
 import os
 
+import cv2
+
 from core.ocr import ocr
 from core.utils import Logger
 from core.Baas_thread import Baas_thread
@@ -38,6 +40,7 @@ class Main:
             self.ocr.client.start_server()
             return True
         except Exception as e:
+
             self.logger.error(e)
             return False
 
@@ -121,6 +124,8 @@ if __name__ == '__main__':
     bThread = Baas_thread(config, None, None, None)
     bThread.set_ocr(INSTANCE.ocr)
     bThread.init_all_data()
+    bThread.update_screenshot_array()
+    # cv2.imwrite("image.png", bThread.latest_img_array)
     # tt.update_screenshot_array()
     # for i in range(0, 10):
     #     tt.ocr.get_region_res(tt, (1005, 94, 1240, 129), "ko-kr", "lesson region name")
@@ -138,7 +143,7 @@ if __name__ == '__main__':
     # bThread.solve("explore_activity_challenge")
     # bThread.solve("activity_sweep")
     # bThread.solve("tactical_challenge_shop")
-    bThread.solve("explore_activity_mission")
+    # bThread.solve("explore_activity_mission")
     # bThread.solve("explore_activity_story")
     # bThread.solve("common_shop")
     # bThread.solve("total_assault")
@@ -163,3 +168,4 @@ if __name__ == '__main__':
     # bThread.solve("dailyGameActivity")
     # bThread.solve("friend")
     # bThread.solve("joint_firing_drill")
+    bThread.solve("final_restriction_rls")

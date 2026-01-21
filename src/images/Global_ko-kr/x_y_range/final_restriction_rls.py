@@ -20,5 +20,7 @@ x_y_range = {
     "formation-overwrite-success-notice": (424, 317, 842, 354),
     "copy-clear-unit-student-unavailable-notice": (395, 300, 866, 370),
 
-    "best-record": (550, 134, 730, 172)
+    "best-record": (550, 134, 730, 172),
+    "reward-details": (532, 90, 749, 124)
+
 }
