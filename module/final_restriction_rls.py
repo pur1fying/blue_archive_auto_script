@@ -30,8 +30,32 @@ def implement(self):
         else:
             push_stage(self, curr_stage)
     else:
-        pass
+        detect_battle_next_open_time(self)
     return True
+
+def detect_battle_next_open_time(self):
+    self.logger.info("Detect Battle Next Open Time")
+    ocr_region = (221, 653, 274, 680)
+    text = self.ocr.get_region_res(
+        self,
+        ocr_region,
+        "en-us",
+        "Final Restriction Rls Battle Next Open Time",
+        "0123456789/"
+    )
+    fmt = {
+        "CN": "%Y/%m/%d",
+        "Global": "%Y/%m-%d",
+        "JP": "%Y/%m/%d"
+    }[self.server]
+    now = datetime.now()
+    year = now.year
+    next_open = datetime.strptime(f"{year}/{text.strip()}", fmt)
+    next_open = next_open.replace(hour=10 if self.server in ["JP", "Global"] else 11)
+    if next_open < now:
+        next_open = next_open.replace(year=year + 1)
+    self.logger.info(f"Next Open Time : {next_open}")
+    set_final_restriction_rls_config_info(self, "next_open_time", next_open.timestamp())
 
 def detect_battle_open_time(self):
     self.logger.info("Detect Battle Open Time")
@@ -42,8 +66,14 @@ def detect_battle_open_time(self):
         ocr_region,
         "en-us",
         "Final Restriction Rls Battle Open Time",
-        "0123456789/:~ "
+        "0123456789/:~- "
     )
+
+    fmt = {
+        "CN": "%Y/%m/%d %H:%M",
+        "Global": "%Y/%m-%d %H:%M",
+        "JP": "%Y/%m/%d %H:%M"
+    }[self.server]
 
     now = datetime.now()
     year = now.year
@@ -52,8 +82,8 @@ def detect_battle_open_time(self):
     start_str = start_str.strip()
     end_str = end_str.strip()
 
-    start = datetime.strptime(f"{year}/{start_str}", "%Y/%m/%d %H:%M")
-    end   = datetime.strptime(f"{year}/{end_str}", "%Y/%m/%d %H:%M")
+    start = datetime.strptime(f"{year}/{start_str}", fmt)
+    end   = datetime.strptime(f"{year}/{end_str}", fmt)
 
     if end < start:
         if now >= start:
@@ -72,11 +102,16 @@ def push_stage(self, start):
         Push final restriction rls to the highest stage
     """
     index = get_next_max_stage_index(start)
+    _need_select_stage = True
     while index is not None:
         stage_index = FINAL_RESTRICTION_RLS_MAX_STAGE_LIST[index]
         self.logger.info(f"<<< Stage {stage_index} >>>")
         to_page_select_stage(self)
-        select_stage(self, index)
+        if _need_select_stage:
+            select_stage(self, index)
+            _need_select_stage = False
+        else:
+            to_page_select_accurate_stage(self)
         if not select_accurate_stage(self, stage_index, index):
             return
         if complete_battle(self):
@@ -139,6 +174,9 @@ def enter_battle(self):
         "final_restriction_rls_button-enter-stage": (1134, 650),
         "final_restriction_rls_formation-menu": (1175, 665),
         "main_page_skip-notice": (769, 503),
+        'plot_menu': (1202, 37),
+        'plot_skip-plot-button': (1208, 116),
+        'plot_skip-plot-notice': (770, 519)
     }
     img_ends = [
         "normal_task_fail-confirm",
@@ -149,12 +187,15 @@ def enter_battle(self):
 
 def wait_battle_result(self):
     self.logger.info("Wait Battle Result")
+    rgb_possibles = {
+        "final-restriction-rls-fighting_feature": (-1, -1)
+    }
     img_ends = [
         "normal_task_fail-confirm",
         "normal_task_fight-confirm"
     ]
 
-    if co_detect(self, None, None, img_ends) == "normal_task_fail-confirm" :
+    if co_detect(self, None, rgb_possibles, img_ends) == "normal_task_fail-confirm" :
         return False
     return True
 
@@ -162,7 +203,7 @@ def select_and_copy_clear_unit(self):
     """
         Returns:
             0  : Successfully choose a team
-            1  : Failed to choose a team with passed characters, use default team
+            1  : Failed to choose a team with passed characters
             -1 : All team empty, skip this fight
     """
     self.logger.info("Select Clear Unit")
@@ -410,6 +451,7 @@ def to_page_select_stage(self):
 def select_stage(self, index):
     def replace_100(text):
         if text == "100":
+            text.replace(" ", "")
             return "100-"
         return text
 
@@ -422,15 +464,16 @@ def select_stage(self, index):
         swipe_params=(1035, 240, 525, 240, 1.0, 0.5),
         ocr_language="en-us",
         ocr_region_offsets=(-42, -151, 141, 39),
+        ocr_candidates="0123456789-",
         ocr_str_replace_func=replace_100,
         max_swipe_times=5
     )
     to_page_select_accurate_stage(self, ret[0])
 
-def to_page_select_accurate_stage(self, x=0):
+def to_page_select_accurate_stage(self, x=None):
     img_end = "final_restriction_rls_button-enter-stage"
     rgb_possibles = {
-        "final-restriction-rls-select-stage": (x, 527)
+        "final-restriction-rls-select-stage": (x, 527) if x is not None else (-1, -1)
     }
     img_possibles = {
         "final_restriction_rls_clear-unit-menu": (1104, 135),
@@ -476,10 +519,13 @@ def get_open_state(self):
 def get_highest_passed_stage(self):
     region = {
         "CN": (872, 433, 1197, 463),
-        "JP": (880, 433, 1197, 463)
+        "JP": (880, 433, 1197, 463),
+        "Global_ko-kr": (868, 408, 1095, 435),
+        "Global_en-us": (868, 408, 1095, 435),
+        "Global_zh-tw": (868, 408, 1095, 435)
     }
     region = region[self.identifier]
-    text = self.ocr.get_region_res(self, region, "en-us", "Final Restriction Rls Highest Passed Stage")
+    text = self.ocr.get_region_res(self, region, "en-us", "Final Restriction Rls Highest Passed Stage", "0123456789():.")
     ret = 0
     if text.find('(') != -1:
         text = text.split('(')[0].strip()
