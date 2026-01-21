@@ -253,7 +253,7 @@ def to_manufacture_store(self, skip_first_screenshot=False):
     crafting_x = {
         'CN': 680,
         'Global': 680,
-        'JP': 642,
+        'JP': 652,
     }
     rgb_possibles = {
         "main_page": (crafting_x[self.server], 650),

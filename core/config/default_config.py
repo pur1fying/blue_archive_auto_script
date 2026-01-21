@@ -607,7 +607,10 @@ SWITCH_DEFAULT_CONFIG = '''
 '''
 STATIC_DEFAULT_CONFIG = '''
 {
-    "steam_app_process_name": "Blue Archive",
+    "PC_app_process_name": {
+        "Global": "Blue Archive",
+        "JP": ["ブルーアーカイブ", "Blue Archive"]
+    },
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {
         "CN": [1, 2, 3, 4, 5, 6, 7],

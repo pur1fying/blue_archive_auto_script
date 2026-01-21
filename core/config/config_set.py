@@ -50,7 +50,7 @@ class ConfigSet:
             return 'CN'
         if server in ['国际服', '国际服青少年', '韩国ONE', 'Steam国际服']:
             return 'Global'
-        if server in ['日服']:
+        if server in ['日服', '日服PC端']:
             return 'JP'
 
     def get(self, key, default=None):

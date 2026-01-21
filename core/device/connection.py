@@ -16,9 +16,12 @@ class Connection:
         self.config = self.config_set.config
         self.static_config = self.config_set.static_config
         self.server = None
-        if self.config.server == "Steam国际服":
+        if self.config.server in ["Steam国际服", "日服PC端"]:
+            if self.config.server == "Steam国际服":
+                self.server = "Global"
+            elif self.config.server == "日服PC端":
+                self.server = "JP"
             self._is_android_device = False
-            self.server = "Global"
             self._init_app_process()
         else:
             self._init_android_device()
@@ -56,8 +59,9 @@ class Connection:
             self.logger.error("Steam server is only available on Windows platform. Please check your server config.")
             raise RequestHumanTakeOver("Unsupported platform for Steam server.")
         from core.device.window_capture.windows.window_info import win32_WindowInfo
-        self.logger.info(f"Process Name : {self.static_config.steam_app_process_name}")
-        self.app_process_window = win32_WindowInfo(self.static_config.steam_app_process_name)
+        process_names = self.static_config.PC_app_process_name[self.server]
+        self.logger.info(f"Possible Window Process Name : {process_names}")
+        self.app_process_window = win32_WindowInfo(process_names)
         if not self.app_process_window.is_valid_window():
             self.logger.error(f"Didn't find process window, please check your game process is launched.")
             raise RequestHumanTakeOver("App process window not found.")
