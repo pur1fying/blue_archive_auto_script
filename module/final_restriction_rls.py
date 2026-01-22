@@ -1,7 +1,8 @@
 import time
 import numpy as np
-from math import floor
-from datetime import datetime
+from math import floor, ceil
+from datetime import datetime, timedelta
+
 
 from core.image import search_in_area, resize_ss_image, check_geometry_pixels, swipe_search_target_str
 from core.color import rgb_in_range
@@ -24,13 +25,16 @@ def implement(self):
     open_ = True if get_open_state(self) == "Open" else False
     curr_stage = get_highest_passed_stage(self)
     if open_ :
-        detect_battle_open_time(self)
+        _next = detect_battle_open_time(self) + timedelta(minutes=1)
         if curr_stage == FINAL_RESTRICTION_RLS_MAX_STAGE:
             self.logger.info("Already Passed Highest Stage, Quit")
         else:
             push_stage(self, curr_stage)
     else:
-        detect_battle_next_open_time(self)
+        _next = detect_battle_next_open_time(self)
+
+    now = datetime.now()
+    self.next_time = ceil((_next - now).total_seconds())
     return True
 
 def detect_battle_next_open_time(self):
@@ -58,6 +62,7 @@ def detect_battle_next_open_time(self):
         next_open = next_open.replace(year=year + 1)
     self.logger.info(f"Next Open Time : {next_open}")
     set_final_restriction_rls_config_info(self, "next_open_time", next_open.timestamp())
+    return next_open
 
 def detect_battle_open_time(self):
     self.logger.info("Detect Battle Open Time")
@@ -106,6 +111,7 @@ def detect_battle_open_time(self):
 
     set_final_restriction_rls_config_info(self, "start_time", start.timestamp())
     set_final_restriction_rls_config_info(self, "end_time", end.timestamp())
+    return end
 
 def push_stage(self, start):
     """
@@ -548,7 +554,7 @@ def get_highest_passed_stage(self):
         "Global_zh-tw": (538, 549, 725, 575),
         "JP": (535, 549, 725, 575),
     }[self.identifier]
-    text = self.ocr.get_region_res(self, region, "en-us", "Final Restriction Rls Highest Passed Stage", "0123456789():.")
+    text = self.ocr.get_region_res(self, region, "en-us", "Final Restriction Rls Highest Passed Stage", "0123456789():.",filter_score=0.8)
     ret = 0
     if text.find('(') != -1:
         text = text.split('(')[0].strip()
