@@ -3540,7 +3540,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "SayBing",
+        "CN": "GakumanDoujinshiTheFinalEpisodeSoughtByTwoPeople",
         "Global": "WeAretheOccultResearchSociety",
         "JP": "anUnconcealedHeart_2"
     },
