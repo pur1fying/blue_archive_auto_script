@@ -609,7 +609,7 @@ STATIC_DEFAULT_CONFIG = '''
 {
     "PC_app_process_name": {
         "Global": "Blue Archive",
-        "JP": ["ブルーアーカイブ", "Blue Archive"]
+        "JP": ["ブルーアーカイブ", "BlueArchive"]
     },
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {

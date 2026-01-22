@@ -37,8 +37,8 @@ class win32_WindowInfo:
                     return
         # search for window
         for title in self._possible_window_titles:
-            self._window = pyautogui.getWindowsWithTitle(self._window_title)
-            if self._window is not None:
+            self._window = pyautogui.getWindowsWithTitle(title)
+            if len(self._window) > 0:
                 self._window_title = title
                 break
         # ensure window title is fully matched
@@ -106,9 +106,10 @@ class win32_WindowInfo:
 
 if __name__ == "__main__":
     try:
-        window_info = win32_WindowInfo("ブルーアーカイブ")
+        window_info = win32_WindowInfo("BlueArchive")
         for i in range(10):
             print(window_info._window.isActive)
+            print(window_info.is_valid_window())
             time.sleep(1)
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
