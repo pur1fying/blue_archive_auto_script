@@ -42,6 +42,8 @@ class Connection:
             self.set_serial(self.serial)
         self.check_serial()
         self.detect_device()
+        # HACK: 
+        self.serial = 'baas'
         self.adb_connect()
         self.detect_package()
         self.check_mumu_keep_alive()

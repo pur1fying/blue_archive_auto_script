@@ -1,0 +1,36 @@
+# Patch for: pyside6-android-deploy
+# This patch fixes a bug caused by incorrect usage of lru_cache.
+
+--- a/.venv/lib/python3.9/site-packages/PySide6/scripts/android_deploy.py	2025-10-01 06:06:05.892239333 +0000
++++ b/.venv/lib/python3.9/site-packages/PySide6/scripts/android_deploy.py	2025-09-30 12:16:41.894541117 +0000
+@@ -1,3 +1,30 @@
++import functools
++import collections
++# monkey patch 以禁用 lru_cache，因为代码中不正确使用了 lru_cache，导致抛出异常
++def _lru_cache(maxsize=128, typed=False):
++    def decorating_function(user_function):
++        def wrapper(*args, **kwargs):
++            return user_function(*args, **kwargs)
++        def cache_clear():
++            pass
++        CacheInfo = collections.namedtuple('CacheInfo', 'hits misses maxsize currsize')
++        def cache_info():
++            return CacheInfo(0, 0, maxsize, 0)
++        def cache_parameters():
++            return {'maxsize': maxsize, 'typed': typed}
++        wrapper.cache_clear = cache_clear
++        wrapper.cache_info = cache_info
++        wrapper.cache_parameters = cache_parameters
++        wrapper.__wrapped__ = user_function
++        return functools.update_wrapper(wrapper, user_function)
++    if callable(maxsize) and typed is False:
++        user_function = maxsize
++        maxsize = None
++        return decorating_function(user_function)
++    return decorating_function
++
++functools.lru_cache = _lru_cache
++
+ # Copyright (C) 2023 The Qt Company Ltd.
+ # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+ 
