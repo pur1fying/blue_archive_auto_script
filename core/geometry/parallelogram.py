@@ -34,4 +34,3 @@ class Parallelogram:
 
         return y_min, x_bound_min, x_bound_max
 
-

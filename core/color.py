@@ -23,16 +23,19 @@ def wait_loading(self: Baas_thread) -> None:
 
 def rgb_in_range(self, x: int, y: int, r_min: int, r_max: int, g_min: int, g_max: int, b_min: int, b_max: int,
                  check_nearby=False, nearby_range=1):
-    if r_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][2] <= r_max and \
-        g_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][1] <= g_max and \
-        b_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][0] <= b_max:
+    if self.ratio != 1.0:
+        y = int(y * self.ratio)
+        x = int(x * self.ratio)
+    if r_min <= self.latest_img_array[y][x][2] <= r_max and \
+        g_min <= self.latest_img_array[y][x][1] <= g_max and \
+        b_min <= self.latest_img_array[y][x][0] <= b_max:
         return True
     if check_nearby:
         for i in range(nearby_range * -1, nearby_range + 1):
             for j in range(nearby_range * -1, nearby_range + 1):
-                if r_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][2] <= r_max and \
-                    g_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][1] <= g_max and \
-                    b_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][0] <= b_max:
+                if r_min <= self.latest_img_array[y + i][x + j][2] <= r_max and \
+                    g_min <= self.latest_img_array[y + i][x + j][1] <= g_max and \
+                    b_min <= self.latest_img_array[y + i][x + j][0] <= b_max:
                     return True
     return False
 
@@ -145,3 +148,4 @@ def create_rgb_feature(self, name, pos_list, rgb_list):
 def remove_rgb_feature(self, name):
     if name in self.rgb_feature:
         del self.rgb_feature[name]
+

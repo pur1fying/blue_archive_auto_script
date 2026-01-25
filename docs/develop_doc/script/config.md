@@ -567,6 +567,27 @@
 - **type** : `List[str]`
 - **description** : 自动删好友白名单, 每一项为好友码
 
+## `clear_friend_level_limit`
+
+- **type** : `int`
+- **description** : 自动清好友等级下限。  
+  好友等级**低于** `clear_friend_level_limit` 的将被清理。
+- **note** : 设为`-1`则不启用该条件
+
+## `clear_friend_last_login_time_days`
+
+- **type** : `int`
+- **description** : 自动清好友登录时间限制。  
+  好友**上次登录时间超过** `clear_friend_last_login_time_days` 天的将被清理。
+- **note** : 设为`-1`则不启用该条件
+
+## `clear_friend_last_total_assault_rank_limit`
+
+- **type** : `int`
+- **description** : 自动清好友总力战排名限制。  
+  好友**上次总力战排名在** `clear_friend_last_total_assault_rank_limit` 之外的将被清理。
+- **note** : 设为`-1`则不启用该条件
+
 ---
 <div style="margin-top: 100px;"></div>
 

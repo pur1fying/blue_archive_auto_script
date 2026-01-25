@@ -411,17 +411,15 @@ def invite_girl(self, no=1):
                 self,
                 'cafe_invite-student-button',
                 search_button_region,
-                threshold=0.8
+                0.8,
+                None,
+                (5, 5)
             )
             if len(all_position) == 0:
                 self.logger.warning("Can't Find Any Invite Student Button.")
                 break
-            all_position = merge_nearby_coordinates(all_position, 10, 10)
             detected_name = []
-            for pos in all_position:
-                x_coords = [coord[0] for coord in pos]
-                y_coords = [coord[1] for coord in pos]
-                p = (median(x_coords), median(y_coords))
+            for p in all_position:
                 ocr_region = (
                     p[0] + ocr_region_offsets[0],
                     p[1] + ocr_region_offsets[1],
