@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsm6 \
     libxext6 \
     libegl1 \
+    patchelf \
     ant \
     autoconf \
     automake \
@@ -51,6 +52,10 @@ RUN mkdir -p ${JAVA_HOME} && \
     curl -L "https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jdk/hotspot/normal/adoptium" | \
     tar -xz --strip-components=1 -C ${JAVA_HOME}
 ENV PATH=$JAVA_HOME/bin:$PATH
+
+# Preinstall build backends often needed by PEP517 sdists during p4a builds
+RUN python -m pip install --no-cache-dir --upgrade pip && \
+    python -m pip install --no-cache-dir scikit-build-core
 
 # Switch back to the default user
 USER vscode
