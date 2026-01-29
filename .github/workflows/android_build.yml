@@ -1,0 +1,70 @@
+name: Build BAAS Andoird apk
+on:
+    workflow_dispatch:
+      inputs:
+        create_release:
+          description: 'Create new release'
+          required: true
+          type: boolean
+    push:
+        branches:
+        - main
+    pull_request:
+        branches:
+        - main
+
+jobs:
+  BAAS-Android-apk:
+    env:
+      JAVA_HOME: /opt/java/openjdk-17
+    strategy:
+      matrix:
+        target_arch: [arm64-v8a, x86_64]
+    name: Build BAAS Android apk (${{ matrix.target_arch }})
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Clone Source Repo
+        id: checkout_main
+        uses: actions/checkout@v4
+        with:
+          repository: pur1fying/blue_archive_auto_script
+          ref: pur1fy_dev
+          fetch-depth: 0
+          path: "blue_archive_auto_script"
+
+      - name: Setup Python
+        id: setup_python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.9'
+
+      - name: Setup Environment
+        id: setup_env
+        working-directory: ./blue_archive_auto_script
+        run: |
+          sudo apt-get update && apt-get install -y --no-install-recommends ffmpeg libsm6 libxext6 libegl1 patchelf ant autoconf automake ccache lbzip2 libffi-dev libltdl-dev libtool libssl-dev patch pkg-config sudo unzip wget zip adb && rm -rf /var/lib/apt/lists/*
+          python -m pip install --no-cache-dir --upgrade pip
+          python -m pip install --no-cache-dir scikit-build-core
+          python -m pip install -r deploy/android/requirements-build.txt
+
+      - name: Setup Java 17
+        id: setup_java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Generate APK
+        id: build_apk
+        working-directory: ./blue_archive_auto_script
+        run: |
+          mkdir -p "${ANDROID_SDK_ROOT}/tools/"
+          cp -r ${ANDROID_SDK_ROOT}/cmdline-tools/latest/* ${ANDROID_SDK_ROOT}/tools/
+          python deploy/android/build.py all --arch ${{ matrix.target_arch }} --android-sdk-path "${ANDROID_SDK_ROOT}" --android-ndk-path "${ANDROID_NDK_ROOT}" --min-api=24
+
+      - name: Upload Artifacts
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/main' ) || github.event.inputs.create_release == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./blue_archive_auto_script/bin/*.apk
+          name: BAAS_Android_${{ matrix.target_arch }}
