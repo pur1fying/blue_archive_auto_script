@@ -34,10 +34,6 @@ android.gradle_dependencies = dev.rikka.shizuku:api:13.1.5,dev.rikka.shizuku:pro
 p4a.hook = {{ p4a_hook_path }}
 android.no-byte-compile-python = True
 
-######### RapidOCR #########
-android.add_aars = {{ rapidocr_aar_path }}
-android.add_gradle_repositories = flatDir { dirs '{{ rapidocr_dir_path }}' }
-
 [buildozer]
 log_level = 2
 warn_on_root = 1

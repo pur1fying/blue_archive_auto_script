@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 import org.kivy.android.PythonActivity;
 import org.baas.boa.crash.CustomCrashHandler;
-import com.benjaminwan.ocrlibrary.OcrEngine;
 import rikka.shizuku.Shizuku;
 
 public class MainActivity extends PythonActivity {

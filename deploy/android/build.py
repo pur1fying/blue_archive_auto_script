@@ -8,8 +8,8 @@ import typer
 import subprocess
 from typing import List
 
-ANDROID_SDK_PATH = './.pyside6_android_deploy/android-sdk'
-ANDROID_NDK_PATH = './.pyside6_android_deploy/android-ndk/android-ndk-r26b'
+ANDROID_SDK_PATH = '/usr/local/lib/android/sdk'
+ANDROID_NDK_PATH = '/usr/local/lib/android/sdk/ndk/27.3.13750724'
 ICON_PATH = 'gui/assets/logo.png'
 BIN_DIR = '.'
 BUILD_DIR = 'build'
@@ -20,8 +20,6 @@ JARS_PATH = [
 PYSIDE6_WHEEL_URL = 'https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.9.2-6.9.2-cp311-cp311-android_aarch64.whl'
 SHIBOKEN6_WHEEL_URL = 'https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.9.0-6.9.0-cp311-cp311-android_aarch64.whl'
 GRADLE_WRAPPER = '.buildozer/android/platform/build-arm64-v8a/dists/boa/gradlew'
-RAPIDOCR_AAR_PATH = './build/rapidocr.aar'
-RAPIDOCR_DIR_PATH = './build'
 
 def cwd_path(path: str):
     return os.path.abspath(os.path.join(os.getcwd(), path))
@@ -87,10 +85,8 @@ def _configure():
         'bin_dir': proj_path(BIN_DIR),
         'jars_path': ','.join([proj_path(path) for path in JARS_PATH]),
         'p4a_hook_path': self_path('p4a_hook.py'),
-        'rapidocr_aar_path': proj_path(RAPIDOCR_AAR_PATH),
-        'rapidocr_dir_path': proj_path(RAPIDOCR_DIR_PATH),
     })
-    
+
     # Ensure build directory exists before downloading wheels and generating recipes
     os.makedirs(build_path(''), exist_ok=True)
 
