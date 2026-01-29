@@ -4,7 +4,6 @@
 # Development
 # You will need these if you want code completion or debugging, 
 # otherwise no need to install them.
--r requirements-linux.txt
 qtpy
 typer
 
