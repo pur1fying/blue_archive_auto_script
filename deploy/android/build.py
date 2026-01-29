@@ -10,20 +10,19 @@ from typing import List
 
 ARCH_MAP = {
     'arm64-v8a': {
-        'p4a': 'arm64-v8a',
         'wheel': 'aarch64.whl',
     },
     'x86_64': {
-        'p4a': 'x86_64',
         'wheel': 'x86_64.whl',
-    },
+    }
 }
 
-DEFAULT_ARCH = 'arm64-v8a'
+ARCH = 'arm64-v8a'
 ANDROID_SDK_PATH = './.pyside6_android_deploy/android-sdk'
 ANDROID_NDK_PATH = './.pyside6_android_deploy/android-ndk/android-ndk-r26b'
 ICON_PATH = 'gui/assets/logo.png'
-BIN_DIR = '.'
+BIN_DIR = './bin'
+MIN_API = 24
 BUILD_DIR = 'build'
 JARS_PATH = [
     'deploy/android/jar/PySide6/jar/Qt6Android.jar',
@@ -81,10 +80,10 @@ def render(src: str, dst: str, ctx: dict):
         raise FileNotFoundError(f'{src} not found')
 
 
-def _configure(arch: str):
-    if arch not in ARCH_MAP:
-        raise typer.BadParameter(f'Unsupported arch: {arch}')
-    arch_cfg = ARCH_MAP[arch]
+def _configure():
+    if ARCH not in ARCH_MAP:
+        raise typer.BadParameter(f'Unsupported arch: {ARCH}')
+    arch_cfg = ARCH_MAP[ARCH]
     log('Reading requirements...')
     with open(self_path('requirements.txt'), 'r') as f:
         requirements = f.read()
@@ -96,12 +95,13 @@ def _configure(arch: str):
         'android_ndk_path': proj_path(ANDROID_NDK_PATH),
         'android_sdk_path': proj_path(ANDROID_SDK_PATH),
         'local_recipes_path': build_path('recipes'),
-        'requirements': ','.join(requirements),
+        'requirements': ', '.join(requirements),
         'icon_path': proj_path(ICON_PATH),
         'bin_dir': proj_path(BIN_DIR),
-        'jars_path': ','.join([proj_path(path) for path in JARS_PATH]),
+        'min_api': MIN_API,
+        'jars_path': ', '.join([proj_path(path) for path in JARS_PATH]),
         'p4a_hook_path': self_path('p4a_hook.py'),
-        'android_archs': arch_cfg['p4a']
+        'arch': ARCH
     })
 
     # Ensure build directory exists before downloading wheels and generating recipes
@@ -184,15 +184,20 @@ def gradle(args: List[str] = typer.Argument(None, help="Arguments passed to grad
 
 @app.command("all")
 def all_cmd(
-    arch: str = typer.Option(DEFAULT_ARCH, help="Android architecture (arm64-v8a, armeabi-v7a, x86_64)"),
+    arch: str = typer.Option(ARCH, help="Android architecture (arm64-v8a, armeabi-v7a, x86_64)"),
     android_sdk_path: str = typer.Option(ANDROID_SDK_PATH, help="Android SDK path"),
-    android_ndk_path: str = typer.Option(ANDROID_NDK_PATH, help="Android NDK path")
+    android_ndk_path: str = typer.Option(ANDROID_NDK_PATH, help="Android NDK path"),
+    bin_dir: str = typer.Option(BIN_DIR, help="Output apk directory"),
+    min_api: int = typer.Option(MIN_API, help="Minimum Android API level"),
 ):
     """Run configure then build."""
-    global ANDROID_SDK_PATH, ANDROID_NDK_PATH
+    global ANDROID_SDK_PATH, ANDROID_NDK_PATH, ARCH, BIN_DIR, MIN_API
+    ARCH = arch
     ANDROID_SDK_PATH = android_sdk_path
     ANDROID_NDK_PATH = android_ndk_path
-    _configure(arch=arch)
+    BIN_DIR = bin_dir
+    MIN_API = min_api
+    _configure()
     build()
 
 if __name__ == '__main__':

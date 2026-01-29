@@ -3,17 +3,17 @@ title = Baas on Android
 package.name = boa
 package.domain = top.qwq123
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,qml,js,json,txt,apk
-source.exclude_patterns = deploy,boa-*.apk
+source.include_exts = py, png, jpg, kv, atlas, qml, js, json, txt, apk
+source.exclude_patterns = deploy, boa-*.apk
 android.whitelist = *.apk
 version = 0.1
-# NOTE: requirements 列表不可以写成多行，否则构建时会因为 bug 出错
+# NOTE : requirements should be written in on line
 requirements = {{ requirements }}
 orientation = landscape
 fullscreen = 1
-android.archs = arm64-v8a
+android.archs = {{ arch }}
 android.allow_backup = True
-android.minapi = 24
+android.minapi = {{ min_api }}
 android.ndk_path = {{ android_ndk_path }}
 android.sdk_path = {{ android_sdk_path }}
 p4a.url = https://github.com/XcantloadX/python-for-android.git
