@@ -337,6 +337,7 @@ def start_story(self):
         "formation_edit4": (151, 387),
     }
     img_possibles = {
+        "main_page_get-character": (640, 360),
         "activity_task-info": (940, 538),
         "normal_task_task-info": (940, 538),
         "plot_menu": (1205, 34),
