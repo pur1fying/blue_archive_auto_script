@@ -1,11 +1,11 @@
 prefix = "main_page"
 path = "main_page"
 x_y_range = {
-    'bus': (107, 9, 190, 36),  # 业务区
-    'home-feature': (1203, 24, 1240, 60),  # 右上角菜单(作为主页标志)
-    'quick-home': (1215, 5, 1255, 42),  # 快速回到首页,右上
-    # 'login-feature': (1105, 601, 1142, 640),  # 登录界面
-    'skip-notice': (509, 309, 761, 353),  # 跳过公告
+    'bus': (107, 9, 190, 36),
+    'home-feature': (1203, 24, 1240, 60),
+    'quick-home': (1215, 5, 1255, 42),
+    # 'login-feature': (1105, 601, 1142, 640),
+    'skip-notice': (509, 309, 761, 353),
     'insufficient-inventory-space': (344, 391, 894, 453),
     'daily-attendance': (540, 90, 1100, 174),
     'news': (250, 85, 328, 117),

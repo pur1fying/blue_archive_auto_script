@@ -10,7 +10,7 @@ x_y_range = {
     'login-feature': (40, 625, 96, 649),
     'news': (50, 102, 96, 144),
     'daily-attendance': (540, 90, 1100, 174),
-    'skip-notice': (589, 309, 701, 353),
+    'skip-notice': (570, 309, 701, 353),
     'full-notice': (397, 294, 871, 370),
     'back-arrow': (37, 20, 80, 57),
     "enter-existing-fight": (516, 293, 755, 370),

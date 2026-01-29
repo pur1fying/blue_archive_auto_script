@@ -5,6 +5,7 @@ import cv2
 
 from core import color, picture, image
 from core.geometry.parallelogram import Parallelogram
+from core.image import resize_ss_image, check_geometry_pixels
 from core.utils import build_possible_string_dict_and_length, most_similar_string, purchase_ticket_times_to_int
 
 
@@ -384,9 +385,12 @@ def global_jp_get_lesson_each_region_status(self):
              [289,  y_list[1]], [643,  y_list[1]], [985,  y_list[1]],
              [289,  y_list[2]], [643,  y_list[2]], [985,  y_list[2]]]
     res = []
+
+    img_resized = resize_ss_image(self, (0, 0, 1280, 720))
+
     for i in range(0, 9):
         if color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
-            res.append(check_region_availability(self, i))
+            res.append(check_region_availability(i, img_resized))
         elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
             res.append("lock")
         elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,215):
@@ -395,7 +399,7 @@ def global_jp_get_lesson_each_region_status(self):
             res.append("unknown")
     return res
 
-def check_region_availability(self, region_cnt):
+def check_region_availability(region_cnt, img):
     k1 = 0
     dx1 = 33
     k2 = -5.3
@@ -408,19 +412,12 @@ def check_region_availability(self, region_cnt):
     ]
     dx2 = dx2[int(region_cnt / 6)]
     start_p = region_start_p[region_cnt]
-    y_min, x_min_list, y_min_list = Parallelogram(start_p[0], start_p[1], k1, dx1, k2, dx2).pixels()
+    para = Parallelogram(start_p[0], start_p[1], k1, dx1, k2, dx2)
 
-    unavailable_max_pixel = 140
-    cnt = 0
-    for i in range(0, len(x_min_list)):
-        for j in range(x_min_list[i], y_min_list[i] + 1):
-            if not color.rgb_in_range(self, j, y_min + i, 0, unavailable_max_pixel, 0, unavailable_max_pixel, 0, unavailable_max_pixel):
-                # self.latest_img_array[y_min + i, j] = [255, 0, 0]  # mark unavailable area
-                cnt += 1
-                if cnt >= 50:
-                    return "available"
-    return "done"
-
+    pixel_threshold = 140
+    if check_geometry_pixels(img, para, (0, pixel_threshold, 0, pixel_threshold, 0, pixel_threshold), 50):
+        return "done"
+    return "available"
 
 
 def out_lesson_status(self, res):

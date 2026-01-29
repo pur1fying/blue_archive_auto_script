@@ -230,6 +230,18 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
+    "priority": 13,
+    "interval": 0,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "无限制决战",
+    "func_name": "final_restriction_rls",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
+  },
+  {
+    "enabled": true,
     "priority": 14,
     "interval": 0,
     "daily_reset": [[20, 0, 0]],
@@ -448,6 +460,9 @@ DEFAULT_CONFIG = """
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
     "TacticalChallengeShopRefreshTime": "0",
+    "final_restriction_rls_employ_formation_method": "default",
+    "final_restriction_rls_employ_formation_copy_clear_unit_max_unavailable_student_count": 0,
+    "final_restriction_rls_employ_formation_copy_clear_unit_max_refresh_count": 10,
     "TacticalChallengeShopList": [
         0,
         0,
@@ -484,6 +499,9 @@ DEFAULT_CONFIG = """
         0
     ],
     "clear_friend_white_list": [],
+    "clear_friend_level_limit": -1,
+    "clear_friend_last_login_time_days": -1,
+    "clear_friend_last_total_assault_rank_limit": -1,
     "drill_difficulty_list": [1,1,1],
     "drill_fight_formation_list": [1,2,3],
     "drill_enable_sweep": true,
@@ -517,6 +535,13 @@ DEFAULT_CONFIG = """
         "weekly_point": -1,
         "max_weekly_point": -1,
         "time": 0
+    },
+    "final_restriction_rls": {
+        "open": "",
+        "next_open_time": -1,
+        "start_time": -1,
+        "end_time": -1,
+        "passed_stage": -1
     },
     "assetsVisibility": true,
     "hotkey_run": "Ctrl+Shift+R"
