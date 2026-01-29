@@ -3541,7 +3541,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "ShesideOutside",
-        "Global": "WeAretheOccultResearchSociety",
+        "Global": "ShesideOutside",
         "JP": "anUnconcealedHeart_2"
     },
     "dailyGameActivity": {

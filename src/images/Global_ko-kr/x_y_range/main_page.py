@@ -1,6 +1,7 @@
 prefix = "main_page"
 path = "main_page"
 x_y_range = {
+    'get-character': (800, 183, 1094, 219),
     'bus': (107, 9, 150, 40),
     'home-feature': (1203, 24, 1240, 60),
     'quick-home': (1215, 5, 1255, 42),
