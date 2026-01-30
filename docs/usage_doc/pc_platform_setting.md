@@ -1,11 +1,18 @@
 ## PC端用户配置
 
+### Windows设置
+1. 必须关闭HDR显示 
+    ![turn_off_hdr.png](/assets/pc_platform/turn_off_hdr.png)
+
 ### **BAAS**设置
-1. 在模拟器设置中, 选择服务器为 `Steam国际服` 或 `日服PC端`
+1. 启动脚本时如果有点击日志, 但是无反应的情况, 以`管理员权限`重启**BAAS**
+    - 相关issue: [#450](https://github.com/pur1fying/blue_archive_auto_script/issues/450) [#455](https://github.com/pur1fying/blue_archive_auto_script/issues/455)
+    - ![run_baas_as_admin.png](/assets/pc_platform/run_baas_as_admin.png)
+2. 在模拟器设置中, 选择服务器为 `Steam国际服` 或 `日服PC端`
     ![steam_server_setting.png](/assets/pc_platform/BAAS_setting_game_server_steam_global_or_JP_pc.png)
-2. 在脚本设置中, 选择截图方式为 `mss` 或 `pyautogui`
+3. 在脚本设置中, 选择截图方式为 `mss` 或 `pyautogui`
     ![steam_screenshot_setting.png](/assets/pc_platform/BAAS_setting_screenshot_method_mss_or_pyautogui.png)
-3. 在脚本设置中, 选择控制方式为 `pyautogui`
+4. 在脚本设置中, 选择控制方式为 `pyautogui`
     ![steam_control_setting.png](/assets/pc_platform/BAAS_setting_control_method_pyautogui.png)
 
 ### 游戏内设置
