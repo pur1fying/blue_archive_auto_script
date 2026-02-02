@@ -24,6 +24,11 @@ class Layout(TemplateLayout):
                 'label': PushConfig.tr('ServerChan推送'),
                 'type': 'text',
                 'key': 'push_serverchan'
+            },
+            {
+                'label': PushConfig.tr('飞书推送'),
+                'type': 'text',
+                'key': 'push_feishu'
             }
         ]
 

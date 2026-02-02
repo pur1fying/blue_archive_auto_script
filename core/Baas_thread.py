@@ -322,11 +322,13 @@ class Baas_thread:
     def get_ocr_language(self):
         self.logger.info("Get OCR Language.")
         self.ocr_language = "None"
-
         if self.is_android_device:
             self._get_android_device_ocr_language()
-        else:
-            self._get_host_ocr_language()
+        else: # pc platform
+            if self.server == "JP":
+                self.ocr_language = "ja-jp"
+            elif self.server == "Global":
+                self._get_host_ocr_language()
         self.logger.info("Ocr Language : " + self.ocr_language)
 
     def _get_host_ocr_language(self):

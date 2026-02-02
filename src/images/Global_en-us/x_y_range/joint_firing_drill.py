@@ -3,21 +3,22 @@ path = 'joint_firing_drill'
 x_y_range = {
     "select-drill-menu": (97, 6, 312, 61),
 
-    # "Assault-open": (),
+    "Assault-fighting": (74, 199, 179, 221),
+    "Assault-open": (74, 234, 170, 257),
     "Assault-lock": (1035, 226, 1181, 321),
     # "Assault-next": (),
 
     # "Defense-open": (),
-    # "Defense-lock": (),
-    "Defense-next": (648, 268, 781, 307),
+    "Defense-lock": (649, 255, 792, 289),
+    # "Defense-next": (),
 
-    "Shooting-fighting": (186, 299, 204, 323),
-    "Shooting-open": (96, 162, 190, 181),
+    # "Shooting-fighting": (186, 299, 204, 323),
+    # "Shooting-open": (96, 162, 190, 181),
     # "Shooting-lock": (),
-    # "Shooting-next": (),
+    "Shooting-next": (1019, 162, 1118, 185),
 
     "Season-Record": (30, 581, 208, 606),
-    "drill-information": (503, 138, 773, 178),
+    "drill-information": (513, 138, 764, 178),
     "start-drill-notice": (441, 322, 825, 393),
     "drill-finish": (577, 109, 705, 147),
 

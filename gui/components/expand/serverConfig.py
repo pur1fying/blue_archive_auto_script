@@ -30,7 +30,8 @@ class Layout(TemplateLayout):
                     ServerConfig.tr('国际服青少年'),
                     ServerConfig.tr('韩国ONE'),
                     ServerConfig.tr('日服'),
-                    ServerConfig.tr('Steam国际服'),
+                    ServerConfig.tr('日服PC端'),
+                    ServerConfig.tr('Steam国际服')
                 ]
             },
             {

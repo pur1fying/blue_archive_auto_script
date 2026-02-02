@@ -73,7 +73,8 @@ def to_purchase_type(self, tp):
         ],
         "package": [
             "main_page_purchase-pyroxenes-package-selected-1",
-            "main_page_purchase-pyroxenes-package-selected-2"
+            "main_page_purchase-pyroxenes-package-selected-2",
+            "main_page_purchase-pyroxenes-package-selected-3"
         ]
     }
     img_ends = img_ends[tp]

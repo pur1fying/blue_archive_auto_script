@@ -5,8 +5,12 @@ from ctypes.wintypes import RECT
 import pyautogui
 
 class win32_WindowInfo:
-    def __init__(self, window_title):
-        self._window_title = window_title
+    def __init__(self, possible_window_title):
+        if type(possible_window_title) is str:
+            self._possible_window_titles = [possible_window_title]
+        else:
+            self._possible_window_titles = possible_window_title
+        self._window_title = ""
         self._window = None
         self._hwnd = None
         self._region = None
@@ -23,6 +27,7 @@ class win32_WindowInfo:
         return ctypes.windll.user32.IsWindow(self._hwnd)
 
     def _init_window(self):
+        # check if current window is still valid
         if self._window is not None and self.is_valid_window():
             length = ctypes.windll.user32.GetWindowTextLengthW(self._hwnd)
             if length > 0:
@@ -30,7 +35,12 @@ class win32_WindowInfo:
                 ctypes.windll.user32.GetWindowTextW(self._hwnd, buffer, length + 1)
                 if buffer.value == self._window_title:
                     return
-        self._window = pyautogui.getWindowsWithTitle(self._window_title)
+        # search for window
+        for title in self._possible_window_titles:
+            self._window = pyautogui.getWindowsWithTitle(title)
+            if len(self._window) > 0:
+                self._window_title = title
+                break
         # ensure window title is fully matched
         for win in self._window:
             if win.title == self._window_title:
@@ -60,6 +70,9 @@ class win32_WindowInfo:
     def get_window_title(self):
         return self._window_title
 
+    def get_possible_window_titles(self):
+        return self._possible_window_titles
+
     def get_window(self):
         return self._window
 
@@ -80,6 +93,7 @@ class win32_WindowInfo:
             return self._try_activate_window()
         except Exception:
             return False
+
     def _try_activate_window(self):
         self._window.restore()
         self._window.activate()
@@ -92,9 +106,10 @@ class win32_WindowInfo:
 
 if __name__ == "__main__":
     try:
-        window_info = win32_WindowInfo("Clash for Windows")
+        window_info = win32_WindowInfo("BlueArchive")
         for i in range(10):
             print(window_info._window.isActive)
+            print(window_info.is_valid_window())
             time.sleep(1)
     except Exception as e:
         print(f"An unexpected error occurred: {e}")

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class StaticConfig:
-    steam_app_process_name: str
+    PC_app_process_name: dict
     main_story_final_episode_num: int
     main_story_available_episodes: dict
     max_region: dict

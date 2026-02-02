@@ -1,4 +1,6 @@
 from core import picture, image
+from core.color import match_rgb_feature
+from core.image import compare_rgb
 from module.main_story import auto_fight
 
 
@@ -89,7 +91,7 @@ def solve_drill(self, state):
         return
     if drill_state == "open" and drill_ticket > 0:
         drill_ticket -= 1
-        fight_one_drill(self)
+        fight_one_drill(self, True)
     if self.config.drill_enable_sweep and drill_ticket > 0:
         self.logger.info("Sweep drill.")
         sweep_drill(self, drill_name, drill_ticket)
@@ -108,9 +110,9 @@ def to_drill(self, drill_name):
             "Shooting": (1113, 343),
         },
         "Global": {
-            "Assault": (1113, 343),
+            "Assault": (166, 440),
             "Defense": (716, 396),
-            "Shooting": (182, 363),
+            "Shooting": (1113, 343),
         },
         "JP": {
             "Assault": (182, 363),
@@ -133,23 +135,26 @@ def to_drill(self, drill_name):
 def get_drill_ticket(self):
     region = {
         "CN": (938, 95, 975, 117),
-        "Global": (938, 95, 975, 117),
+        "Global_en-us": (938, 95, 975, 117),
+        "Global_zh-tw": (938, 95, 975, 117),
+        "Global_ko-kr": (928, 95, 975, 117),
         "JP": (938, 95, 975, 117),
     }
-    text = self.ocr.get_region_res(self, region[self.server], 'en-us', "Drill Ticket Count")
+    text = self.ocr.get_region_res(self, region[self.identifier], 'en-us', "Drill Ticket Count")
     if text[0] in ['0', '1', '2', '3', '4', '5']:
         return int(text[0])
     else:
-        self.logger.info("Drill Ticket Num Unknown.Assume Enough.")
+        self.logger.info("Drill Ticket Num Unknown. Assume Enough.")
         return 3
 
 
-def fight_one_drill(self):
-    self.logger.info("Start Drill.")
-    start_drill(self)
+def fight_one_drill(self, start=False, last=1):
+    if start:
+        start_drill(self)
+        last = 1
     difficulty = self.config.drill_difficulty_list
     formation_num = self.config.drill_fight_formation_list
-    for i in range(0, 3):
+    for i in range(last-1, 3):
         diff = difficulty[i]
         form_id = formation_num[i]
         self.logger.info("Fight drill [ " + str(difficulty[i]) + " ] with formation [ " + str(formation_num[i]) + " ].")
@@ -174,7 +179,7 @@ def to_drill_information(self, difficulty):
 
 
 def start_drill(self):
-    self.logger.info("Start drill.")
+    self.logger.info("Start Drill.")
     img_possibles = {
         "drill_Season-Record": (1148, 647),
     }
@@ -213,32 +218,19 @@ def enter_fight(self, i):
 
 def finish_existing_drill(self):
     self.logger.info("Finish existing drill.")
-    difficulty = self.config.drill_difficulty_list
-    formation_num = self.config.drill_fight_formation_list
-    last_unfinished_fight_number = 1
-    while last_unfinished_fight_number <= 2:
-        if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-unfinished"):
+    last = 1
+    while last <= 2:
+        if match_rgb_feature(self,  "drill_fight_" + str(last) + "_unfinished"):
+            self.logger.info("Drill [ " + str(last) + " ] unfinished. Continue fighting.")
             break
-        if image.compare_image(self, "drill_fight-" + str(last_unfinished_fight_number) + "-finished"):
-            last_unfinished_fight_number += 1
-            self.logger.info("Drill fight [ " + str(last_unfinished_fight_number) + " ] finished.")
+        if match_rgb_feature(self, "drill_fight_" + str(last) + "_finished"):
+            last += 1
+            self.logger.info("Drill fight [ " + str(last) + " ] finished.")
             continue
-        self.logger.info("Unknown drill fight [ " + str(last_unfinished_fight_number) + " ] state. Assume finished.")
-        last_unfinished_fight_number += 1
-
-    for i in range(last_unfinished_fight_number-1, 3):
-        diff = difficulty[i]
-        form_id = formation_num[i]
-        self.logger.info("Fight drill [ " + str(difficulty[i]) + " ] with formation [ " + str(formation_num[i]) + " ].")
-        to_drill_information(self, diff)
-        select_formation(self, form_id)
-        # TODO:: borrow character
-        enter_fight(self, form_id)
-        auto_fight(self, True)
-        if wait_drill_fight_finish(self) == "drill_drill-finish":
-            self.logger.info("Drill finish.")
-            to_joint_firing_menu(self)
-            return True
+        else:
+            self.logger.info("Unknown drill fight [ " + str(last) + " ] state. Assume not finished.")
+            break
+    fight_one_drill(self, False, last)
 
 
 def wait_drill_fight_finish(self):
