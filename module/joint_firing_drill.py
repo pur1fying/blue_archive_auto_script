@@ -150,7 +150,6 @@ def get_drill_ticket(self):
 
 def fight_one_drill(self, start=False, last=1):
     if start:
-        self.logger.info("Start Drill.")
         start_drill(self)
         last = 1
     difficulty = self.config.drill_difficulty_list
@@ -180,7 +179,7 @@ def to_drill_information(self, difficulty):
 
 
 def start_drill(self):
-    self.logger.info("Start drill.")
+    self.logger.info("Start Drill.")
     img_possibles = {
         "drill_Season-Record": (1148, 647),
     }
