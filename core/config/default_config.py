@@ -618,7 +618,7 @@ STATIC_DEFAULT_CONFIG = '''
         "JP": [1, 2, 3, 4, 5, 6, 7, 8, 9]
     },
     "max_region": {
-        "CN": 26,
+        "CN": 27,
         "Global": 28,
         "JP": 30
     },
