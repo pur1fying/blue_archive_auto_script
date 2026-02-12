@@ -17,39 +17,56 @@ from core.exception import OcrInternalError
 from dulwich import porcelain
 from dulwich.repo import Repo
 import platform
-from core.utils import is_android
+from core.utils import host_platform_is_android
 
-if not is_android():
+SERVER_INSTALLER_DIR_PATH = None
+SERVER_BIN_DIR = None
+OCR_SERVER_PREBUILD_URL = "https://gitee.com/pur1fy/baas_-cpp_prebuild.git"
+branch = {
+    'win32': {
+        'amd64': 'windows-x64',
+    },
+    'linux': {
+        'x86_64': 'linux-x64',
+    },
+    'darwin': {
+        'arm64': 'macos-arm64',
+    },
+    'android': {
+        'arm64-v8a': 'android-arm64-v8a',
+        'x86_64': 'android-x86_64',
+    }
+}
+
+android_arch = {
+    "aarch64": "arm64-v8a",
+    "x86_64": "x86_64",
+}
+
+if not host_platform_is_android():
     if sys.platform not in ['win32', 'linux', 'darwin']:
         raise Exception("Ocr Unsupported platform " + sys.platform)
-
-    OCR_SERVER_PREBUILD_URL = "https://gitee.com/pur1fy/baas_-cpp_prebuild.git"
-
     SERVER_INSTALLER_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
-    SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
-
-    branch = {
-        'win32': {
-            'amd64': 'windows-x64',
-        },
-        'linux': {
-            'x86_64': 'linux-x64',
-        },
-        'darwin': {
-            'arm64': 'macos-arm64',
-        },
-    }
     branch = branch[sys.platform]
     arch = platform.machine().lower()
-    if arch not in branch:
-        raise Exception("Unsupported machine architecture " + arch)
-    branch = branch[arch]
 
+# Android install config
+else:
+    branch = branch['android']
+    try:
+        from android.storage import app_storage_path
+        SERVER_INSTALLER_DIR_PATH = app_storage_path()
+    except Exception as e:
+        raise Exception("Failed to get Baas_ocr_server install path in android :" + e.__str__())
+    android_arch = android_arch[platform.machine().lower()]
+    arch = android_arch
+
+SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
+if arch not in branch:
+    raise Exception("Unsupported machine architecture " + arch)
+branch = branch[arch]
 
 def check_git(logger):
-    if is_android():
-        logger.info("Skip git check on Android")
-        return
     if not os.path.exists(SERVER_BIN_DIR + '/.git'):
         clone_repo(logger)
     else:
@@ -94,9 +111,6 @@ def check_git(logger):
 
 
 def clone_repo(logger):
-    if is_android():
-        logger.info("Skip git clone on Android")
-        return
     logger.info("Installing Ocr Server, please hang on...")
     for i in range(1, 4):
         try:

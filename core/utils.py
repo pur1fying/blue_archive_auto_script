@@ -4,15 +4,15 @@ import threading
 import platform
 from typing import Union
 from datetime import datetime, timedelta, timezone
-from typing import Union
 
-def is_android():
-    return platform.system() == 'Android' or hasattr(sys, 'getandroidapilevel')
+host_is_android = platform.system() == 'Android' or hasattr(sys, 'getandroidapilevel')
 
-if not is_android():
+def host_platform_is_android():
+    return host_is_android
+
+if not host_platform_is_android():
     from rich.console import Console
     from rich.markup import escape
-
     console = Console()
 else:
     console = None
@@ -58,7 +58,7 @@ class Logger:
         # logger signal is used to output log to logger box or other output
         self.logs = ""
         self.logger_signal = logger_signal
-        if not self.logger_signal and not is_android():
+        if not self.logger_signal and not host_platform_is_android():
             # if the logger signal is not configured, we use rich traceback then
             # to better display error messages in console
             from rich.traceback import install
@@ -90,7 +90,7 @@ class Logger:
                 self.logger_signal.emit(level, message)
             # also send to logcat if on Android
             try:
-                if is_android():
+                if host_platform_is_android():
                     from core.android.log import logcat
                     logcat(str(raw_message), level='INFO')
             except Exception:
@@ -107,7 +107,7 @@ class Logger:
         if self.logger_signal is not None:
             self.logs += f"{levels_str[level - 1]} | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
             self.logger_signal.emit(level, message)
-        elif not is_android():
+        elif not host_platform_is_android():
             console.print(f'[{levels_color[level - 1]}]'
                           f'{levels_str[level - 1]} |'
                           f' {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} |'
@@ -115,7 +115,7 @@ class Logger:
 
         # If running on Android, also send a plain-text copy to logcat
         try:
-            if is_android():
+            if host_platform_is_android():
                 from core.android.log import logcat
                 level_map = {1: 'INFO', 2: 'WARNING', 3: 'ERROR', 4: 'CRITICAL'}
                 logcat(str(raw_message), level=level_map.get(level, 'INFO'))
@@ -125,7 +125,7 @@ class Logger:
 
         # If running on Android, also send a plain-text copy to logcat
         try:
-            if is_android():
+            if host_platform_is_android():
                 from core.android.log import logcat
                 level_map = {1: 'INFO', 2: 'WARNING', 3: 'ERROR', 4: 'CRITICAL'}
                 logcat(str(raw_message), level=level_map.get(level, 'INFO'))

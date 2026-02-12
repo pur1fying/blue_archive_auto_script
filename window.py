@@ -25,7 +25,7 @@ from gui.util.config_gui import configGui, COLOR_THEME
 from core.config.config_set import ConfigSet
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
-from core.utils import is_android
+from core.utils import host_platform_is_android
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
 # sys.stdout = open('output.log', 'w+', encoding='utf-8')
@@ -447,7 +447,7 @@ class Window(MSFluentWindow):
         # SingleShot is used to speed up the initialization process
         # self.init_main_class()
         QTimer.singleShot(100, self.init_main_class)
-        if is_android():
+        if host_platform_is_android():
             self.init_touch_scrolling()
 
     def init_main_class(self, ):
@@ -513,13 +513,13 @@ class Window(MSFluentWindow):
 
     def init_touch_scrolling(self):
         scroll_areas = self.findChildren(QAbstractScrollArea)
-        
+
         for area in scroll_areas:
             QScroller.grabGesture(
-                area.viewport(), 
+                area.viewport(),
                 QScroller.TouchGesture
             )
-            
+
             props = QScroller.scroller(area.viewport()).scrollerProperties()
             props.setScrollMetric(QScrollerProperties.DecelerationFactor, 0.5) # 减速因子
             QScroller.scroller(area.viewport()).setScrollerProperties(props)
@@ -647,9 +647,9 @@ def start():
 
     app = QApplication(sys.argv)
     w = Window()
-    if is_android():
+    if host_platform_is_android():
         w.showFullScreen()
-    else:    
+    else:
         w.show()
     app.exec_()
 

@@ -11,7 +11,7 @@ from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, S
 from gui.components import expand
 from gui.util.style_sheet import StyleSheet
 from gui.util.translator import baasTranslator as bt
-from core.utils import is_android
+from core.utils import host_platform_is_android
 
 lock = threading.Lock()
 DISPLAY_CONFIG_PATH = './config/display.json'
@@ -83,7 +83,7 @@ class ProcessFragment(ScrollArea):
         self.VBoxLayout.addLayout(self.HBoxLayout)
         self.displayWidget.setLayout(self.VBoxLayout)
 
-        if is_android():
+        if host_platform_is_android():
             self.label_running.setVisible(False)
             self.on_status.setVisible(False)
             self.label_queuing.setVisible(False)

@@ -10,12 +10,14 @@ import subprocess
 
 from core.ipc_manager import SharedMemory
 from core.exception import SharedMemoryError, OcrInternalError
+from core.ocr.baas_ocr_client.server_installer import SERVER_BIN_DIR, android_arch
+from core.utils import host_platform_is_android
 
 
 class ServerConfig:
     def __init__(self):
         self.config = None
-        self.config_path = os.path.join(BaasOcrClient.server_folder_path, "config", "global_setting.json")
+        self.config_path = os.path.join(SERVER_BIN_DIR, "config", "global_setting.json")
         self.host = None
         self.port = None
         self.server_is_remote = False
@@ -25,7 +27,7 @@ class ServerConfig:
 
     def __init_config(self):
         if not os.path.exists(self.config_path):
-            default_config_file_path = os.path.join(BaasOcrClient.server_folder_path, "resource", "global_setting.json")
+            default_config_file_path = os.path.join(SERVER_BIN_DIR, "resource", "global_setting.json")
             if not os.path.exists(default_config_file_path):
                 raise FileNotFoundError("Didn't find default config file.")
             os.mkdir(os.path.dirname(self.config_path))
@@ -46,22 +48,34 @@ class ServerConfig:
             json.dump(self.config, f, indent=4)
 
 class BaasOcrClient:
-    server_folder_path = os.path.join(os.path.dirname(__file__), "bin")
-    executable_name = "BAAS_ocr_server"
-    if sys.platform == "win32":
-        executable_name += ".exe"
-
     def __init__(self):
-        self.exe_path = os.path.join(self.server_folder_path, self.executable_name)
-        if not os.path.exists(self.exe_path):
-            raise FileNotFoundError("Didn't find ocr server executable.")
+        # android start from dll
+        if host_platform_is_android():
+            import ctypes
+            self.dll_path = os.path.join(SERVER_BIN_DIR, "lib", android_arch)
+            if not os.path.exists(self.dll_path):
+                raise FileNotFoundError("Didn't find ocr server library dir. Expected at " + self.exe_path)
+            self.lib_cpp_shared = ctypes.CDLL(os.path.join(self.dll_path, "libcpp_shared.so"))
+            self.lib_onnx = ctypes.CDLL(os.path.join(self.dll_path, "libonnxruntime.so"))
+            self.lib_opencv = ctypes.CDLL(os.path.join(self.dll_path, "libopencv_java4.so"))
+            self.lib_baas_ocr_server = ctypes.CDLL(os.path.join(self.dll_path, "libBAAS_ocr_server.so"))
+
+        # win / linux / mac start as executable
+        else:
+            executable_name = "BAAS_ocr_server"
+            if sys.platform == "win32":
+                executable_name += ".exe"
+            self.exe_path = os.path.join(SERVER_BIN_DIR, executable_name)
+            if not os.path.exists(self.exe_path):
+                raise FileNotFoundError("Didn't find ocr server executable. Expected at " + self.exe_path)
         self.config = ServerConfig()
         self.server_process = None
         self.clear_log()
 
     # clear log since time_distance days ago
-    def clear_log(self, time_distance=7):
-        log_folder_path = os.path.join(self.server_folder_path, "output")
+    @staticmethod
+    def clear_log(time_distance=7):
+        log_folder_path = os.path.join(SERVER_BIN_DIR, "output")
         if not os.path.exists(log_folder_path):
             return
         for name in os.listdir(log_folder_path):
@@ -107,29 +121,10 @@ class BaasOcrClient:
         return requests.post(url)
 
     def start_server(self):
-        if self.server_process is not None:
-            return
-        # chmod +x BAAS_ocr_server
-        if sys.platform == "linux":
-            subprocess.run(["chmod", "+x", self.exe_path])
-        try:
-            self.server_process = subprocess.Popen(
-                self.exe_path,
-                cwd=self.server_folder_path,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
-                text=True
-            )
-        except Exception:
-            self.server_process = subprocess.Popen(
-                [self.exe_path],
-                cwd=self.server_folder_path,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
-                text=True
-            )
+        if host_platform_is_android():
+            self.start_server_android()
+        else:
+            self.start_server_normal()
         # wait for server start
         for _ in range(0, 30):
             try:
@@ -140,7 +135,44 @@ class BaasOcrClient:
                     raise RuntimeError("Fail to start ocr server. " + e.__str__())
                 time.sleep(0.1)
 
+    def start_server_android(self):
+        self.lib_baas_ocr_server.start_server(SERVER_BIN_DIR.encode("utf-8"))
+
+    def start_server_normal(self):
+        if self.server_process is not None:
+            return
+        # chmod +x BAAS_ocr_server
+        if sys.platform == "linux":
+            subprocess.run(["chmod", "+x", self.exe_path])
+        try:
+            self.server_process = subprocess.Popen(
+                self.exe_path,
+                cwd=SERVER_BIN_DIR,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+                text=True
+            )
+        except Exception:
+            self.server_process = subprocess.Popen(
+                [self.exe_path],
+                cwd=SERVER_BIN_DIR,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+                text=True
+            )
+
     def stop_server(self):
+        if host_platform_is_android():
+            self.stop_server_android()
+        else:
+            self.stop_server_normal()
+
+    def stop_server_android(self):
+        self.lib_baas_ocr_server.stop_server()
+
+    def stop_server_normal(self):
         self.server_process.stdin.write("exit\n")
         self.server_process.stdin.flush()
         return_code = self.server_process.wait(10)

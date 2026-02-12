@@ -30,7 +30,7 @@ from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
 
-if utils.is_android():
+if utils.host_platform_is_android():
     from core.android.screen import extract_virtual_displays
 
 
@@ -313,7 +313,7 @@ class Baas_thread:
 
             self.check_resolution()
             try:
-                if utils.is_android():
+                if utils.host_platform_is_android():
                     self._setup_boa()
             except Exception:
                 self.logger.warning("BoA setup failed")
@@ -489,7 +489,7 @@ class Baas_thread:
         finally:
             # Ensure BoA overlay/display settings are cleaned up when the thread exits.
             try:
-                if utils.is_android() and self.u2 is not None:
+                if utils.host_platform_is_android() and self.u2 is not None:
                     self._clean_boa()
             except Exception as e:
                 self.logger.warning("BoA cleanup failed: " + str(e))
@@ -1062,9 +1062,9 @@ class Baas_thread:
         self.u2 = self.u2_client.get_connection()
         self.check_atx()
         self.last_refresh_u2_time = time.time()
-        # TODO: 
+        # TODO:
         # Set device resolution for BoA
-        if utils.is_android():
+        if utils.host_platform_is_android():
             # self.u2.shell("wm size 720x1280")
             # it seems that u2 returns old resolution even after changing resolution
             # but screenshot is not affected
@@ -1085,7 +1085,7 @@ class Baas_thread:
             raise Exception("Failed to create virtual display for BoA.")
         self.control.set_display_id(self.target_display.logical_id)
         self.screenshot.set_display_id(self.target_display.stable_id)
-    
+
     def _clean_boa(self):
         # remove virtual display
         self.u2.shell('settings put global overlay_display_devices ""')

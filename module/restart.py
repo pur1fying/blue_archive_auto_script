@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 
-from core.utils import is_android
+from core.utils import host_platform_is_android
 
 
 def implement(self):
@@ -26,7 +26,7 @@ def implement(self):
 
 def start(self):
     self.logger.info("-- START BLUE ARCHIVE --")
-    if is_android():
+    if host_platform_is_android():
         self.u2.shell(f"am start --display {self.target_display.logical_id} -n {self.package_name}/{self.activity_name}")
     else:
         self.u2.app_start(self.package_name, self.activity_name)

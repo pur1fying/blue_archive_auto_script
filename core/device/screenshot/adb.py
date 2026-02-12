@@ -4,7 +4,7 @@ import numpy as np
 import socket
 import threading
 
-from core.utils import is_android
+from core.utils import host_platform_is_android
 
 
 class AdbScreenshot:
@@ -16,7 +16,7 @@ class AdbScreenshot:
         self.display_id = None
 
         # Create a localhost listener on a random free port
-        if is_android():
+        if host_platform_is_android():
             self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self._server.bind(('127.0.0.1', 0))
@@ -51,7 +51,7 @@ class AdbScreenshot:
                 pass
 
     def screenshot(self):
-        if is_android() and self.display_id:
+        if host_platform_is_android() and self.display_id:
             # Binder IPC on Android cannot pass data larger than 500 KB,
             # so we have to pipe the screenshot data through a socket.
             # Thus we have to use sh to pipe the output of screencap to nc.

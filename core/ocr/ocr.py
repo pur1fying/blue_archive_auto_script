@@ -4,6 +4,7 @@ import os.path
 
 from core.exception import OcrInternalError
 from core.ocr.baas_ocr_client import Client
+from core.ocr.baas_ocr_client.server_installer import SERVER_BIN_DIR
 
 
 class Baas_ocr:
@@ -179,7 +180,7 @@ class Baas_ocr:
         logger.info("Test Ocr.")
         for lang in language:
             path = os.path.join(
-                Client.BaasOcrClient.server_folder_path,
+                SERVER_BIN_DIR,
                 "resource",
                 "ocr_models",
                 "test_images",
