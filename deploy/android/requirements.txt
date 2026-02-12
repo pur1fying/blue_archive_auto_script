@@ -1,3 +1,4 @@
+kivy
 python3
 pyjnius
 shiboken6
