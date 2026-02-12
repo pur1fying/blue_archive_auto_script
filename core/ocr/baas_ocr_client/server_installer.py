@@ -45,7 +45,7 @@ android_arch = {
 
 if not host_platform_is_android():
     if sys.platform not in ['win32', 'linux', 'darwin']:
-        raise Exception("Ocr Unsupported platform " + sys.platform)
+        raise Exception("Ocr Unsupported platform : " + sys.platform)
     SERVER_INSTALLER_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
     branch = branch[sys.platform]
     arch = platform.machine().lower()
@@ -54,8 +54,10 @@ if not host_platform_is_android():
 else:
     branch = branch['android']
     try:
-        from android.storage import app_storage_path
-        SERVER_INSTALLER_DIR_PATH = app_storage_path()
+        from jnius import autoclass
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        activity = PythonActivity.mActivity
+        SERVER_INSTALLER_DIR_PATH = activity.getFilesDir().getAbsolutePath()
     except Exception as e:
         raise Exception("Failed to get Baas_ocr_server install path in android :" + e.__str__())
     android_arch = android_arch[platform.machine().lower()]
