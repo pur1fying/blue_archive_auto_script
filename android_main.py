@@ -1,10 +1,17 @@
-import debugpy
-debugpy.listen(5678, in_process_debug_adapter=True)
-print("Waiting for debugger attach...")
+# noqa: E402
+# ruff: noqa: E402
+"""
+This file is the entry point for the Android version of BAAS.
+"""
+
+# # Uncomment following lines to enable debugging with debugpy
+# import debugpy
+# debugpy.listen(5678, in_process_debug_adapter=True)
+# print("Waiting for debugger attach...")
 # debugpy.wait_for_client()
 
 # Setup Shizuku and ADB
-import core.android.classes # Load classes early
+import core.android.classes # Load classes early  # noqa: F401
 from core.android.util import main_activity
 Main = main_activity()
 
@@ -21,7 +28,7 @@ patch_adb(shizuku, logger)
 import sys
 import types
 
-# --- psutil mock for Android ---
+################### psutil mock ###################
 class Process:
     def __init__(self, pid=None):
         if pid is not None and not isinstance(pid, int):
@@ -71,19 +78,19 @@ class TimeoutExpired(Error):
     pass
 
 psutil_mock = types.ModuleType('psutil')
-psutil_mock.Process = Process
-psutil_mock.process_iter = process_iter
-psutil_mock.pid_exists = pid_exists
-psutil_mock.Error = Error
-psutil_mock.NoSuchProcess = NoSuchProcess
-psutil_mock.AccessDenied = AccessDenied
-psutil_mock.TimeoutExpired = TimeoutExpired
+psutil_mock.Process = Process # type: ignore
+psutil_mock.process_iter = process_iter # type: ignore
+psutil_mock.pid_exists = pid_exists # type: ignore
+psutil_mock.Error = Error # type: ignore
+psutil_mock.NoSuchProcess = NoSuchProcess # type: ignore
+psutil_mock.AccessDenied = AccessDenied # type: ignore
+psutil_mock.TimeoutExpired = TimeoutExpired # type: ignore
 
 sys.modules['psutil'] = psutil_mock
 sys.modules['psutil._psutil_linux'] = types.ModuleType('psutil._psutil_linux')
 
 
-###########################################
+################### Compatible Layer for Qt5 ###################
 
 import os
 import sys
@@ -144,6 +151,17 @@ qtpy.QtCore.QRegExp = qtpy.QtCore.QRegularExpression
 qtpy.QtCore.pyqtProperty = qtpy.QtCore.Property
 qtpy.QtCore.pyqtSlot = qtpy.QtCore.Slot
 qtpy.QtGui.QRegExpValidator = qtpy.QtGui.QRegularExpressionValidator
+
+@monkey_patch(qtpy.QtCore.QTranslator, 'translate')
+def patch_QTranslator_translate(translate, self, context, sourceText, disambiguation=None, n=-1):
+    if isinstance(context, (bytes, bytearray)):
+        context = context.decode('utf-8')
+    if isinstance(sourceText, (bytes, bytearray)):
+        sourceText = sourceText.decode('utf-8')
+    if isinstance(disambiguation, (bytes, bytearray)):
+        disambiguation = disambiguation.decode('utf-8')
+    return translate(self, context, sourceText, disambiguation, n)
+
 qtpy.QtWidgets.qApp = _app
 qtpy.QtWidgets.QApplication = PatchedQApplication
 qtpy.QtWidgets.QApplication.desktop = lambda: qtpy.QtGui.QGuiApplication.primaryScreen()
@@ -219,6 +237,10 @@ def patch_QTableWidget_update(update, self, *args, **kwargs):
     
     # 如果有参数 (例如 QModelIndex)，则调用原始方法 (即 QAbstractItemView.update(index))
     return update(self, *args, **kwargs)
+
+
+################### Entry ###################
+
 
 if __name__ == '__main__':
     sys.path.append('./')
