@@ -3483,7 +3483,8 @@ STATIC_DEFAULT_CONFIG = '''
           "红冬联邦学院",
           "百鬼夜行中心",
           "D.U.白鸟区",
-          "山海经中央特区"
+          "山海经中央特区",
+          "春叶原"
           ],
       "Global_en-us": [
           "Schale Office",
