@@ -230,6 +230,18 @@ EVENT_DEFAULT_CONFIG = """
   },
   {
     "enabled": true,
+    "priority": 13,
+    "interval": 0,
+    "daily_reset": [[20, 0, 0]],
+    "next_tick": 0,
+    "event_name": "无限制决战",
+    "func_name": "final_restriction_rls",
+    "disabled_time_range": [],
+    "pre_task": [],
+    "post_task": []
+  },
+  {
+    "enabled": true,
     "priority": 14,
     "interval": 0,
     "daily_reset": [[20, 0, 0]],
@@ -382,6 +394,7 @@ DEFAULT_CONFIG = """
     "push_after_completion":false,
     "push_json":"",
     "push_serverchan":"",
+    "push_feishu": "",
     "cafe_reward_affection_pat_round": 4,
     "cafe_reward_lowest_affection_first": true,
     "cafe_reward_invite1_criterion" : "starred",
@@ -447,6 +460,9 @@ DEFAULT_CONFIG = """
     "activity_sweep_task_number": 1,
     "activity_sweep_times": "0",
     "TacticalChallengeShopRefreshTime": "0",
+    "final_restriction_rls_employ_formation_method": "default",
+    "final_restriction_rls_employ_formation_copy_clear_unit_max_unavailable_student_count": 0,
+    "final_restriction_rls_employ_formation_copy_clear_unit_max_refresh_count": 10,
     "TacticalChallengeShopList": [
         0,
         0,
@@ -483,6 +499,9 @@ DEFAULT_CONFIG = """
         0
     ],
     "clear_friend_white_list": [],
+    "clear_friend_level_limit": -1,
+    "clear_friend_last_login_time_days": -1,
+    "clear_friend_last_total_assault_rank_limit": -1,
     "drill_difficulty_list": [1,1,1],
     "drill_fight_formation_list": [1,2,3],
     "drill_enable_sweep": true,
@@ -516,6 +535,13 @@ DEFAULT_CONFIG = """
         "weekly_point": -1,
         "max_weekly_point": -1,
         "time": 0
+    },
+    "final_restriction_rls": {
+        "open": "",
+        "next_open_time": -1,
+        "start_time": -1,
+        "end_time": -1,
+        "passed_stage": -1
     },
     "assetsVisibility": true,
     "hotkey_run": "Ctrl+Shift+R"
@@ -616,10 +642,10 @@ STATIC_DEFAULT_CONFIG = '''
     "max_region": {
         "CN": 26,
         "Global": 28,
-        "JP": 29
+        "JP": 30
     },
-    "explore_normal_task_region_range": [4, 29],
-    "explore_hard_task_region_range": [1, 29],
+    "explore_normal_task_region_range": [4, 30],
+    "explore_hard_task_region_range": [1, 30],
     "screenshot_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "mss", "pyautogui"],
     "control_methods" : ["adb", "nemu", "uiautomator2", "scrcpy", "pyautogui"],
     "shop_type_list_names": {
@@ -1336,7 +1362,10 @@ STATIC_DEFAULT_CONFIG = '''
         "Eleph",
         "Coin",
         "Material",
-        "Gift"
+        "Disk",
+        "Note",
+        "Gift",
+        "Special"
       ],
       "JP":[
         "Equipment",
@@ -1615,6 +1644,12 @@ STATIC_DEFAULT_CONFIG = '''
             "Broken-Winnipesaukee-Stone",
             "Damage-Winnipesaukee-Stone",
             "Intact-Winnipesaukee-Stone",
+            "Physical-Education-Workbook",
+            "Shooting-Workbook",
+            "Hygiene-Workbook"
+          ],
+          "Gift": [],
+          "Disk": [
             "Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)",
             "Normal-Tactical-Training-Blu-ray-(Hyakkiyako)",
             "Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)",
@@ -1650,7 +1685,9 @@ STATIC_DEFAULT_CONFIG = '''
             "Beginner-Tactical-Training-Blu-ray-(Valkyrie)",
             "Normal-Tactical-Training-Blu-ray-(Valkyrie)",
             "Advanced-Tactical-Training-Blu-ray-(Valkyrie)",
-            "Superior-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Superior-Tactical-Training-Blu-ray-(Valkyrie)"
+          ],
+          "Note": [
             "Beginner-Tech-Notes-(Hyakkiyako)",
             "Normal-Tech-Notes-(Hyakkiyako)",
             "Advanced-Tech-Notes-(Hyakkiyako)",
@@ -1687,8 +1724,7 @@ STATIC_DEFAULT_CONFIG = '''
             "Normal-Tech-Notes-(Valkyrie)",
             "Advanced-Tech-Notes-(Valkyrie)",
             "Superior-Tech-Notes-(Valkyrie)"
-          ],
-          "Gift": []
+          ]
         }
       },
       "JP": {
@@ -3526,9 +3562,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "MoonlightDreams",
+        "CN": "SayBing",
         "Global": "ThePromiseOfTheSummerSky",
-        "JP": "SerenadePromenade"
+        "JP": "anUnconcealedHeart_2"
     },
     "dailyGameActivity": {
         "CN": null,

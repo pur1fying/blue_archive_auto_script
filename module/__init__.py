@@ -28,3 +28,4 @@ from module import sweep_activity
 from module import total_assault
 from module import collect_pass_reward
 from module import collect_daily_free_power
+from module import final_restriction_rls

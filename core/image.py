@@ -25,8 +25,9 @@ def compare_image(self, name, threshold=0.8, rgb_diff=20):
     area = position.get_area(self.identifier, name)
     template_img = position.image_dic[self.identifier][name]
     ss_img = screenshot_cut(self, area)
-    if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
-        return False
+    if type(rgb_diff) is int:
+        if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
+            return False
     ss_img = cv2.resize(ss_img, (template_img.shape[1], template_img.shape[0]), interpolation=cv2.INTER_AREA)
     # ss_img and template_img have the same size, similarity is a float
     similarity = cv2.matchTemplate(ss_img, template_img, cv2.TM_CCOEFF_NORMED)[0][0]
@@ -35,7 +36,6 @@ def compare_image(self, name, threshold=0.8, rgb_diff=20):
 
 def getImageByName(self, name):
     return position.image_dic[self.identifier][name]
-
 
 def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=20, ret_max_val=False):
     # search image "name" in area, return upper left point of template image if found, else return False
@@ -54,12 +54,12 @@ def search_in_area(self, name, area=(0, 0, 1280, 720), threshold=0.8, rgb_diff=2
         else:
             return False
 
-    ss_img = img_cut(ss_img,
-                     (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
-    if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
-        if ret_max_val:
-            return False, 0  # rgb diff not match, assume not found
-        return False
+    if type(rgb_diff) == int:
+        matched_area = img_cut(ss_img, (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
+        if not compare_image_rgb(template_img, matched_area, rgb_diff=rgb_diff):
+            if ret_max_val:
+                return False, 0  # rgb diff not match, assume not found
+            return False
 
     if max_val < threshold and ret_max_val:
         return False, max_val
@@ -88,10 +88,11 @@ def search_image_in_area(self, image, area=(0, 0, 1280, 720), threshold=0.8, rgb
     _, max_val, _, max_loc = cv2.minMaxLoc(similarity)
     if max_val < threshold:
         return False
-    ss_img = img_cut(ss_img,
-                     (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
-    if not compare_image_rgb(template_img, ss_img, rgb_diff=rgb_diff):
-        return False
+
+    if type(rgb_diff) == int:
+        matched_area = img_cut(ss_img, (max_loc[0], max_loc[1], max_loc[0] + template_img.shape[1], max_loc[1] + template_img.shape[0]))
+        if not compare_image_rgb(template_img, matched_area, rgb_diff=rgb_diff):
+            return False
     upper_left = (int(max_loc[0] / self.ratio) + area[0], int(max_loc[1] / self.ratio) + area[1])
     return upper_left
 
@@ -135,7 +136,17 @@ def click_until_template_disappear(self, name, x, y, threshold=0.8, rgb_diff=20,
         self.update_screenshot_array()
 
 
-def get_image_all_appear_position(self, image_template_name, search_area=(0, 0, 1280, 720), threshold=0.8):
+def get_image_all_appear_position(
+    self,
+    image_template_name,
+    search_area=(0, 0, 1280, 720),
+    threshold=0.8,
+    rgb_diff=20,
+    deduplication_pixels = (5, 5)
+):
+    """
+        Get template image all appear position in search_area
+    """
     if image_template_name not in position.image_dic[self.identifier]:
         return []
     template_img = position.image_dic[self.identifier][image_template_name]  # template image
@@ -143,9 +154,17 @@ def get_image_all_appear_position(self, image_template_name, search_area=(0, 0, 
     similarity = cv2.matchTemplate(ss_img, template_img, cv2.TM_CCOEFF_NORMED)
     loc = np.where(similarity >= threshold)
     res = list(zip(*loc[::-1]))
+    res = merge_nearby_coordinates(res, deduplication_pixels[0], deduplication_pixels[1])
     ret = []
-    for pt in res:
-        ret.append((pt[0] + search_area[0], pt[1] + search_area[1]))
+    for pos in res:
+        x_coords = [coord[0] for coord in pos]
+        y_coords = [coord[1] for coord in pos]
+        p = (int(median(x_coords)), int(median(y_coords)))
+        if type(rgb_diff) is int:
+            matched_area = img_cut(ss_img, (p[0], p[1], p[0] + template_img.shape[1], p[1] + template_img.shape[0]))
+            if not compare_image_rgb(template_img, matched_area, rgb_diff):
+                continue
+        ret.append((p[0] + search_area[0], p[1] + search_area[1]))
     return ret
 
 def resize_ss_image(self, area, interpolation=cv2.INTER_AREA):
@@ -170,7 +189,8 @@ def swipe_search_target_str(
         ocr_candidates="",
         ocr_filter_score=0.2,
         first_retry_dir=0,
-        deduplication_pixels=(5, 5)
+        deduplication_pixels=(5, 5),
+        rgb_diff=20
 ):
     temp = len(swipe_params)
     if temp < 4:
@@ -205,7 +225,7 @@ def swipe_search_target_str(
     for time in range(max_swipe_times):
         if time != 0:  # skip first screenshot
             self.update_screenshot_array()
-        all_positions = get_image_all_appear_position(self, name, search_area, threshold)
+        all_positions = get_image_all_appear_position(self, name, search_area, threshold, rgb_diff, deduplication_pixels)
         if len(all_positions) == 0:
             self.logger.warning("Didn't find target image, try swipe.")
             if retry_swipe_dir == 0:
@@ -214,14 +234,10 @@ def swipe_search_target_str(
                 self.swipe(*reversed_swipe_params)
             retry_swipe_dir ^= 1
             continue
-        all_positions = merge_nearby_coordinates(all_positions, deduplication_pixels[0], deduplication_pixels[1])
         max_idx = -1  # impossible value
         min_idx = len(possible_strs)
         all_strs = []
-        for pos in all_positions:
-            x_coords = [coord[0] for coord in pos]
-            y_coords = [coord[1] for coord in pos]
-            p = (median(x_coords), median(y_coords))
+        for p in all_positions:
             ocr_region = (
                 p[0] + ocr_region_offsets[0],
                 p[1] + ocr_region_offsets[1],
@@ -276,3 +292,32 @@ def swipe_search_target_str(
         else:
             self.swipe(*reversed_swipe_params)
         retry_swipe_dir ^= 1
+
+def check_geometry_pixels(img, geometry, color_range, threshold=50):
+    """
+    Check if the pixels in the geometry are within the color range.
+
+    Returns:
+        True if no more than threshold pixels are outside the color range, False otherwise.
+    """
+    y_min, x_min_list, x_max_list = geometry.pixels()
+
+    cnt = 0
+
+    r_min, r_max, g_min, g_max, b_min, b_max = color_range
+
+    for i in range(len(x_min_list)):
+        y = y_min + i
+        x0 = x_min_list[i]
+        x1 = x_max_list[i] + 1
+        row = img[y, x0:x1]
+        valid = (
+            (row[:, 0] >= r_min) & (row[:, 0] <= r_max) &
+            (row[:, 1] >= g_min) & (row[:, 1] <= g_max) &
+            (row[:, 2] >= b_min) & (row[:, 2] <= b_max)
+        )
+        cnt += np.count_nonzero(~valid)
+        if cnt >= threshold:
+            return False
+
+    return True

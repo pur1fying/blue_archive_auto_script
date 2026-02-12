@@ -47,6 +47,7 @@ class Config:
     push_after_completion: bool
     push_json: str
     push_serverchan: str
+    push_feishu: str
     cafe_reward_affection_pat_round: int
     cafe_reward_lowest_affection_first: bool
     cafe_reward_invite1_criterion: str
@@ -85,10 +86,16 @@ class Config:
     activity_sweep_task_number: int
     activity_sweep_times: str
     TacticalChallengeShopRefreshTime: str
+    final_restriction_rls_employ_formation_method: str
+    final_restriction_rls_employ_formation_copy_clear_unit_max_unavailable_student_count: int
+    final_restriction_rls_employ_formation_copy_clear_unit_max_refresh_count: int
     TacticalChallengeShopList: list
     CommonShopRefreshTime: str
     CommonShopList: list
     clear_friend_white_list: list
+    clear_friend_level_limit: int
+    clear_friend_last_login_time_days: int
+    clear_friend_last_total_assault_rank_limit: int
     drill_difficulty_list: list
     drill_fight_formation_list: list
     drill_enable_sweep: bool
@@ -99,5 +106,6 @@ class Config:
     tactical_challenge_coin: dict
     bounty_coin: dict
     _pass: dict
+    final_restriction_rls: dict
     assetsVisibility: bool
     hotkey_run: str

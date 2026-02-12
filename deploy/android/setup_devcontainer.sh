@@ -85,13 +85,6 @@ if [ ! -f shiboken6-*.whl ]; then
 fi
 cd ..
 
-########## Setup RapidOCR ##########
-echo Downloading RapidOCR aar library...
-mkdir -p build
-cd build
-wget -O rapidocr.aar https://github.com/RapidAI/RapidOcrAndroidOnnx/releases/download/1.3.0/OcrLibrary-1.3.0-release.aar
-cd ..
-
 echo "Environment setup complete."
 
 ########## Setup ADB ##########
