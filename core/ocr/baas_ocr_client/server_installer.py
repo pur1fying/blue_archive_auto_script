@@ -44,10 +44,7 @@ branch = {
     }
 }
 
-android_arch = {
-    "aarch64": "arm64-v8a",
-    "x86_64": "x86_64",
-}
+arch = None
 
 if not host_platform_is_android():
     if sys.platform not in ['win32', 'linux', 'darwin']:
@@ -66,8 +63,12 @@ else:
         SERVER_INSTALLER_DIR_PATH = activity.getFilesDir().getAbsolutePath()
     except Exception as e:
         raise Exception("Failed to get Baas_ocr_server install path in android :" + e.__str__())
-    android_arch = android_arch[platform.machine().lower()]
-    arch = android_arch
+
+    Build = autoclass('android.os.Build')
+    if Build.SUPPORTED_ABIS and len(Build.SUPPORTED_ABIS) > 0:
+        arch = Build.SUPPORTED_ABIS[0]
+    else:
+        arch = Build.CPU_ABI
 
 SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
 if arch not in branch:
