@@ -63,8 +63,17 @@ else:
         SERVER_INSTALLER_DIR_PATH = activity.getFilesDir().getAbsolutePath()
     except Exception as e:
         raise Exception("Failed to get Baas_ocr_server install path in android :" + e.__str__())
-
-    arch = get_runtime_abi()
+    PythonActivity = autoclass('org.kivy.android.PythonActivity')
+    context = PythonActivity.mActivity.getApplicationContext()
+    native_lib_dir = context.getApplicationInfo().nativeLibraryDir
+    abi_dir = os.path.basename(native_lib_dir)
+    abi_map = {
+        'arm64': 'arm64-v8a',
+        'x86_64': 'x86_64',
+        'armeabi-v7a': 'armeabi-v7a',
+        'x86': 'x86',
+    }
+    arch = abi_map.get(abi_dir, abi_dir)
 
 SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
 if arch not in branch:
