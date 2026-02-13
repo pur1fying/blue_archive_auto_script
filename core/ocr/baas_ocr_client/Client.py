@@ -54,7 +54,7 @@ class BaasOcrClient:
             import ctypes
             self.dll_path = os.path.join(SERVER_BIN_DIR, "lib", arch)
             if not os.path.exists(self.dll_path):
-                raise FileNotFoundError("Didn't find ocr server library dir. Expected at " + self.exe_path)
+                raise FileNotFoundError("Didn't find ocr server library dir. Expected at " + self.dll_path)
             self.lib_cpp_shared = ctypes.CDLL(os.path.join(self.dll_path, "libc++_shared.so"), mode=ctypes.RTLD_GLOBAL)
             self.lib_onnx = ctypes.CDLL(os.path.join(self.dll_path, "libonnxruntime.so"))
             self.lib_opencv = ctypes.CDLL(os.path.join(self.dll_path, "libopencv_java4.so"))

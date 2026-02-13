@@ -17,6 +17,20 @@ if not host_platform_is_android():
 else:
     console = None
 
+def get_runtime_abi():
+    PythonActivity = autoclass('org.kivy.android.PythonActivity')
+    context = PythonActivity.mActivity.getApplicationContext()
+    native_lib_dir = context.getApplicationInfo().nativeLibraryDir
+    abi_dir = os.path.basename(native_lib_dir)
+    abi_map = {
+        'arm64': 'arm64-v8a',
+        'x86_64': 'x86_64',
+        'armeabi-v7a': 'armeabi-v7a',
+        'x86': 'x86',
+    }
+    return abi_map.get(abi_dir, abi_dir)
+
+
 def delay(wait=1):
     def decorator(func):
         timer = None  # type: Union[threading.Timer, None]

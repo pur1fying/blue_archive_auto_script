@@ -18,7 +18,7 @@ import platform
 from core.exception import OcrInternalError
 from dulwich import porcelain
 from dulwich.repo import Repo
-from core.utils import host_platform_is_android
+from core.utils import host_platform_is_android, get_runtime_abi
 
 # [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)
 if host_platform_is_android():
@@ -64,11 +64,7 @@ else:
     except Exception as e:
         raise Exception("Failed to get Baas_ocr_server install path in android :" + e.__str__())
 
-    Build = autoclass('android.os.Build')
-    if Build.SUPPORTED_ABIS and len(Build.SUPPORTED_ABIS) > 0:
-        arch = Build.SUPPORTED_ABIS[0]
-    else:
-        arch = Build.CPU_ABI
+    arch = get_runtime_abi()
 
 SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
 if arch not in branch:
