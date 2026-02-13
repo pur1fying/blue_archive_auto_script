@@ -10,7 +10,7 @@ import subprocess
 
 from core.ipc_manager import SharedMemory
 from core.exception import SharedMemoryError, OcrInternalError
-from core.ocr.baas_ocr_client.server_installer import SERVER_BIN_DIR, android_arch
+from core.ocr.baas_ocr_client.server_installer import SERVER_BIN_DIR, arch
 from core.utils import host_platform_is_android
 
 
@@ -52,7 +52,7 @@ class BaasOcrClient:
         # android start from dll
         if host_platform_is_android():
             import ctypes
-            self.dll_path = os.path.join(SERVER_BIN_DIR, "lib", android_arch)
+            self.dll_path = os.path.join(SERVER_BIN_DIR, "lib", arch)
             if not os.path.exists(self.dll_path):
                 raise FileNotFoundError("Didn't find ocr server library dir. Expected at " + self.exe_path)
             self.lib_cpp_shared = ctypes.CDLL(os.path.join(self.dll_path, "libc++_shared.so"))
