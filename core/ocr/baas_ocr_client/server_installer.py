@@ -11,13 +11,19 @@ if sys.stdin is None:
     sys.stdout = io.TextIOWrapper(io.BytesIO())
 # ================================
 
-import shutil
 import os
+import shutil
+import platform
+
 from core.exception import OcrInternalError
 from dulwich import porcelain
 from dulwich.repo import Repo
-import platform
 from core.utils import host_platform_is_android
+
+# [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)
+if host_platform_is_android():
+    import certifi
+    os.environ['SSL_CERT_FILE'] = certifi.where()
 
 SERVER_INSTALLER_DIR_PATH = None
 SERVER_BIN_DIR = None
