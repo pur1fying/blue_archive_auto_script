@@ -18,7 +18,7 @@ import platform
 from core.exception import OcrInternalError
 from dulwich import porcelain
 from dulwich.repo import Repo
-from core.utils import host_platform_is_android, get_runtime_abi
+from core.utils import host_platform_is_android
 
 # [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)
 if host_platform_is_android():
