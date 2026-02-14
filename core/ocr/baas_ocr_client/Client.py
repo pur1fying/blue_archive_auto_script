@@ -56,10 +56,24 @@ class BaasOcrClient:
             os.environ['LD_LIBRARY_PATH'] = self.dll_path + ':' + os.environ.get('LD_LIBRARY_PATH', '')
             if not os.path.exists(self.dll_path):
                 raise FileNotFoundError("Didn't find ocr server library dir. Expected at " + self.dll_path)
-            self.lib_cpp_shared = ctypes.CDLL("libc++_shared.so", mode=ctypes.RTLD_GLOBAL)
-            self.lib_onnx = ctypes.CDLL("libonnxruntime.so")
-            self.lib_opencv = ctypes.CDLL("libopencv_java4.so")
-            self.lib_baas_ocr_server = ctypes.CDLL("libBAAS_ocr_server.so")
+            from jnius import autoclass
+            def logcat(tag, msg):
+                try:
+                    Log = autoclass("android.util.Log")
+                    Log.i(tag, str(msg))
+                except Exception as e:
+                    print(f"[{tag}] {msg} ({e})")
+
+            def print_loaded_libcpp():
+                with open('/proc/self/maps', 'r') as f:
+                    for line in f:
+                            logcat("BAAS", "Loaded :" + str(line.split()[-1]))
+            print_loaded_libcpp()
+            self.lib_cpp_shared = ctypes.CDLL(os.path.join(self.dll_path, "libc++_shared.so"), mode=ctypes.RTLD_GLOBAL)
+
+            self.lib_onnx = ctypes.CDLL(os.path.join(self.dll_path, "libonnxruntime.so"))
+            self.lib_opencv = ctypes.CDLL(os.path.join(self.dll_path, "libopencv_java4.so"))
+            self.lib_baas_ocr_server = ctypes.CDLL(os.path.join(self.dll_path, "libBAAS_ocr_server.so"))
 
         # win / linux / mac start as executable
         else:
