@@ -65,15 +65,18 @@ class BaasOcrClient:
                     print(f"[{tag}] {msg} ({e})")
 
             def print_loaded_libcpp():
+                logcat("BAAS", "Loaded libraries : ")
                 with open('/proc/self/maps', 'r') as f:
                     for line in f:
-                            logcat("BAAS", "Loaded :" + str(line.split()[-1]))
+                        logcat("BAAS", "Loaded :" + str(line.split()[-1]))
+            logcat("BAAS", "LD_LIBRARY_PATH = " + os.environ['LD_LIBRARY_PATH'])
             print_loaded_libcpp()
-            self.lib_cpp_shared = ctypes.CDLL(os.path.join(self.dll_path, "libc++_shared.so"), mode=ctypes.RTLD_GLOBAL)
+            self.lib_cpp_shared = ctypes.CDLL("libc++_shared.so", mode=ctypes.RTLD_GLOBAL)
+            print_loaded_libcpp()
 
-            self.lib_onnx = ctypes.CDLL(os.path.join(self.dll_path, "libonnxruntime.so"))
-            self.lib_opencv = ctypes.CDLL(os.path.join(self.dll_path, "libopencv_java4.so"))
-            self.lib_baas_ocr_server = ctypes.CDLL(os.path.join(self.dll_path, "libBAAS_ocr_server.so"))
+            self.lib_onnx = ctypes.CDLL("libonnxruntime.so")
+            self.lib_opencv = ctypes.CDLL("libopencv_java4.so")
+            self.lib_baas_ocr_server = ctypes.CDLL("libBAAS_ocr_server.so")
 
         # win / linux / mac start as executable
         else:
