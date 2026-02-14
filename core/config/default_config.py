@@ -3541,7 +3541,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "ShesideOutside",
+        "CN": "FiveDustsFall",
         "Global": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
         "JP": "anUnconcealedHeart_2"
     },
