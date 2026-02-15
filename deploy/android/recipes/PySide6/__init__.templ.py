@@ -4,7 +4,7 @@
 import shutil
 import zipfile
 from pathlib import Path
-
+import os
 from pythonforandroid.logger import info
 from pythonforandroid.recipe import PythonRecipe
 
@@ -21,7 +21,13 @@ class PySideRecipe(PythonRecipe):
 
         info("Copying libc++_shared.so from SDK to be loaded on startup")
         libcpp_path = f"{self.ctx.ndk.sysroot_lib_dir}/{arch.command_prefix}/libc++_shared.so"
-        shutil.copyfile(libcpp_path, Path(self.ctx.get_libs_dir(arch.arch)) / "libc++_shared.so")
+        dest_path = Path(self.ctx.get_libs_dir(arch.arch)) / "libc++_shared.so"
+        shutil.copyfile(libcpp_path, dest_path)
+
+        file_size = os.path.getsize(dest_path)
+        info("Source : " + libcpp_path)
+        info("Dest   : " + str(dest_path))
+        info(f"Copied libc++_shared.so size: {file_size} bytes")
 
         info(f"Installing {self.name} into site-packages")
         with zipfile.ZipFile(self.wheel_path, "r") as zip_ref:
