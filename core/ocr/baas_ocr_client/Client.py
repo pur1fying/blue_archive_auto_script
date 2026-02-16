@@ -55,11 +55,11 @@ class BaasOcrClient:
             self.dll_path = os.path.join(SERVER_BIN_DIR, "lib", arch)
             if not os.path.exists(self.dll_path):
                 raise FileNotFoundError("Didn't find ocr server library dir. Expected at " + self.exe_path)
-            self.lib_cpp_shared = ctypes.CDLL(os.path.join(self.dll_path, "libc++_shared.so"), mode=ctypes.RTLD_GLOBAL)
+            self.lib_cpp_shared = ctypes.CDLL(os.path.join(self.dll_path, "libc++_shared.so"))
             self.lib_onnx = ctypes.CDLL(os.path.join(self.dll_path, "libonnxruntime.so"))
             self.lib_opencv = ctypes.CDLL(os.path.join(self.dll_path, "libopencv_java4.so"))
             self.lib_baas_ocr_server = ctypes.CDLL(os.path.join(self.dll_path, "libBAAS_ocr_server.so"))
-
+            self.started = False
         # win / linux / mac start as executable
         else:
             executable_name = "BAAS_ocr_server"
@@ -136,7 +136,10 @@ class BaasOcrClient:
                 time.sleep(0.1)
 
     def start_server_android(self):
+        if self.started:
+            return
         self.lib_baas_ocr_server.start_server(SERVER_BIN_DIR.encode("utf-8"))
+        self.started = True
 
     def start_server_normal(self):
         if self.server_process is not None:
