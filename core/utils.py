@@ -1,14 +1,15 @@
 import logging
 import sys
 import threading
+import queue
 from datetime import datetime, timedelta, timezone
 from typing import Union
 
 from rich.console import Console
-from rich.markup import escape
 
 console = Console()
 
+levels_str = ["INFO", "WARNING", "ERROR", "CRITICAL"]
 
 def delay(wait=1):
     def decorator(func):
@@ -43,13 +44,15 @@ class Logger:
     Logger class for logging
     """
 
-    def __init__(self, logger_signal):
+    def __init__(self, logger_signal, jsonify=False):
         """
         :param logger_signal: Logger signal broadcasts log level and log message
         """
         # Init logger signal, logs and logger,
         # logger signal is used to output log to logger box or other output
         self.logs = ""
+        self.jsonify = jsonify
+        self.log_collector = queue.Queue()
         self.logger_signal = logger_signal
         if not self.logger_signal:
             # if the logger signal is not configured, we use rich traceback then
@@ -80,21 +83,25 @@ class Logger:
                 self.logger_signal.emit(level, message)
             return
 
+        if self.jsonify:
+            self.log_collector.put({
+                "time": datetime.now(),
+                "level": level,
+                "message": message
+            })
+            logging.log((level + 1) * 10, message)
+            return
+
         while len(logging.root.handlers) > 0:
             logging.root.handlers.pop()
 
-        levels_str = ["INFO", "WARNING", "ERROR", "CRITICAL"]
         # If logger signal is not None, output log to logger signal
         # else output log to console
-        levels_color = ["#2d8cf0", "#ff9900", "#ed3f14", "#3e0480"]
         if self.logger_signal is not None:
             self.logs += f"{levels_str[level - 1]} | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
             self.logger_signal.emit(level, message)
         else:
-            console.print(f'[{levels_color[level - 1]}]'
-                          f'{levels_str[level - 1]} |'
-                          f' {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} |'
-                          f' {escape(message)}[/]', soft_wrap=True)
+            logging.log((level + 1) * 10, message)
 
     def info(self, message: str) -> None:
         """
