@@ -57,9 +57,11 @@ def to_activity(self, region=None, skip_first_screenshot=False):
         "mission": {
             "activity_mission-not-chosen-0": (1028, 91),
             "activity_mission-not-chosen-1": (1200, 91),
+            "activity_mission-not-chosen-2": (936, 91),
         },
         "challenge": {
-            "activity_challenge-not-chosen-0": (1200, 89)
+            "activity_challenge-not-chosen-0": (1200, 89),
+            "activity_challenge-not-chosen-1": (1200, 89)
         },
     }
 
@@ -71,9 +73,11 @@ def to_activity(self, region=None, skip_first_screenshot=False):
         "mission": [
             "activity_mission-chosen-0",
             "activity_mission-chosen-1",
+            "activity_mission-chosen-2",
         ],
         "challenge": [
             "activity_challenge-chosen-0",
+            "activity_challenge-chosen-1",
         ]
     }
     img_possibles = img_possibles[region]
@@ -176,9 +180,11 @@ def explore_activity_mission(self):
         if last_target_task == total_mission and res == "sss":
             self.logger.info("All MISSION SSS")
             return True
-        start_mission(self, self.stage_data["mission"][
-            last_target_task - 1])  # self.stage_data["mission"][last_target_task-1] str of attribute
-        to_activity(self, "story", True)
+        start_mission(self, self.stage_data["mission"][last_target_task - 1])  # self.stage_data["mission"][last_target_task-1] str of attribute
+        tar = "story"
+        if self.stage_data["total_story"] == 0:
+            tar = "challenge"
+        to_activity(self, tar, True)
         to_activity(self, "mission", True)
 
 
