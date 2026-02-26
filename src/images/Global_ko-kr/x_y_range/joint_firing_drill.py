@@ -5,15 +5,15 @@ x_y_range = {
 
     "Assault-fighting": (74, 199, 149, 221),
     "Assault-open": (74, 234, 149, 257),
-    # "Assault-lock": (1035, 226, 1181, 321),
+    "Assault-lock": (91, 300, 238, 334),
     # "Assault-next": (),
 
     # "Defense-open": (),
     "Defense-lock": (649, 255, 792, 289),
-    # "Defense-next": (648, 268, 781, 307),
+    "Defense-next": (680, 381, 747, 406),
 
-    # "Shooting-fighting": (186, 299, 204, 323),
-    # "Shooting-open": (96, 162, 190, 181),
+    "Shooting-fighting": (1018, 129, 1090, 149),
+    "Shooting-open": (1018, 161, 1090, 186),
     # "Shooting-lock": (),
     "Shooting-next": (1019, 162, 1098, 185),
 
