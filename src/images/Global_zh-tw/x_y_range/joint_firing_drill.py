@@ -19,7 +19,7 @@ x_y_range = {
 
     "Season-Record": (30, 581, 208, 606),
     "drill-information": (577, 138, 703, 178),
-    "start-drill-notice": (441, 302, 825, 410),
+    "start-drill-notice": (441, 322, 825, 390),
     "drill-finish": (577, 109, 705, 147),
 
     "sweep-menu": (600, 179, 670, 215),
