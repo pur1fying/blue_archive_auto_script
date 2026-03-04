@@ -3543,7 +3543,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "FiveDustsFall",
         "Global": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
-        "JP": "JP_2026_02_19"
+        "JP": "SecretMidnightParty"
     },
     "dailyGameActivity": {
         "CN": null,
