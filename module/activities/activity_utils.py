@@ -260,8 +260,8 @@ def explore_activity_challenge(self):
         "challenge2_task",
         "challenge2_sss_task",
         "challenge4_sss",
-        "challenge4_task"
-        "challenge4_sss_task",
+        "challenge4_task",
+        "challenge4_sss_task"
     ]
     stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
