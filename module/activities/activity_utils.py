@@ -258,11 +258,16 @@ def explore_activity_challenge(self):
     tasks = [
         "challenge2_sss",
         "challenge2_task",
+        "challenge2_sss_task",
         "challenge4_sss",
         "challenge4_task"
+        "challenge4_sss_task",
     ]
     stage_data = get_stage_data(self)
     for i in range(0, len(tasks)):
+        if not (tasks[i] in stage_data):
+            self.logger.info(f"Activity challenge data [ {tasks[i]} ] not exist, skip.")
+            continue
         data = tasks[i].split("_")
         task_number = int(data[0].replace("challenge", ""))
         to_challenge_task_info(self, task_number)
