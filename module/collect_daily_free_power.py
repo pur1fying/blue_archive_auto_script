@@ -83,7 +83,8 @@ def to_purchase_type(self, tp):
         "main_page_purchase-pyroxenes-pyroxenes-selected-1": p_1,
         "main_page_purchase-pyroxenes-package-selected-1":p_1,
         "main_page_purchase-pyroxenes-pyroxenes-selected-2": p_2,
-        "main_page_purchase-pyroxenes-package-selected-2": p_2
+        "main_page_purchase-pyroxenes-package-selected-2": p_2,
+        "main_page_purchase-pyroxenes-guide-selected-2": p_2
     }
     for img_end in img_ends:
         img_possibles.pop(img_end, None)
