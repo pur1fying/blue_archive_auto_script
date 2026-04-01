@@ -12,8 +12,6 @@ opencv-python == 4.8.1.78
 PyQt-Fluent-Widgets == 1.2.0
 # gevent
 
-#windows installer auto build
-pyinstaller
 requests
 dulwich
 psutil
@@ -22,6 +20,4 @@ tqdm
 tomli == 2.2.1
 tomli_w == 1.2.0
 
-PyAutoGUI == 0.9.54
-mss == 10.0.0
 rich >= 14.2.0
