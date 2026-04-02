@@ -3543,7 +3543,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "SerenadePromenade",
         "Global": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
-        "JP": "JP_2026_03_18"
+        "JP": "CodeBox"
     },
     "dailyGameActivity": {
         "CN": null,
