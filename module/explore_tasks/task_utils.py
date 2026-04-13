@@ -467,12 +467,11 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
                 y = loy[row - 1]
                 img_reactions = {
                     "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y] the entry of employ
-                }
-                rgb_reactions = {
                     "normal_task_formation-menu": (74, y)
+
                 }
                 rgb_ends = "formation_edit" + str(row)
-                picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, True)
+                picture.co_detect(self, rgb_ends, None, None, img_reactions, True)
             else:
                 # open formation menu -> preset menu -> choose column
                 img_reactions = {

@@ -56,6 +56,8 @@ def to_cafe(self, skip_first_screenshot=False):
         'main_page_full-notice': (887, 165),
         'main_page_insufficient-inventory-space': (908, 138),
         'cafe_duplicate-invite-notice': (534, 497),
+        'cafe_specified-visit': (983,  96),
+        'cafe_random-visit-notice': (886, 172),
         'cafe_switch-clothes-notice': (534, 497),
     }
     rgb_possibles = {
@@ -95,7 +97,11 @@ def cafe_to_gift(self):
     rgb_possibles = {"cafe": (163, 639)}
     rgb_ends = "gift"
     img_ends = "cafe_gift"
-    img_possibles = {'cafe_students-arrived': (922, 189)}
+    img_possibles = {
+        'cafe_students-arrived': (922, 189),
+        'cafe_specified-visit': (983, 96),
+        'cafe_random-visit-notice': (886, 172),
+    }
     picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
 
 

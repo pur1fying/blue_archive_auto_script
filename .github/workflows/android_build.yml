@@ -60,7 +60,7 @@ jobs:
         run: |
           mkdir -p "${ANDROID_SDK_ROOT}/tools/"
           cp -r ${ANDROID_SDK_ROOT}/cmdline-tools/latest/* ${ANDROID_SDK_ROOT}/tools/
-          python deploy/android/build.py all --arch ${{ matrix.target_arch }} --android-sdk-path "${ANDROID_SDK_ROOT}" --android-ndk-path "${ANDROID_NDK_ROOT}" --min-api=24
+          python deploy/android/build.py all --arch ${{ matrix.target_arch }} --android-sdk-path "${ANDROID_SDK_ROOT}" --android-ndk-path "${ANDROID_NDK_LATEST_HOME}" --min-api=24
 
       - name: Upload Artifacts
         if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/main' ) || github.event.inputs.create_release == 'true' }}

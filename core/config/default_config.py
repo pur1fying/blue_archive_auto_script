@@ -614,11 +614,11 @@ STATIC_DEFAULT_CONFIG = '''
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {
         "CN": [1, 2, 3, 4, 5, 6, 7],
-        "Global": [1, 2, 3, 4, 5, 6, 7, 8],
+        "Global": [1, 2, 3, 4, 5, 6, 7, 8, 9],
         "JP": [1, 2, 3, 4, 5, 6, 7, 8, 9]
     },
     "max_region": {
-        "CN": 26,
+        "CN": 27,
         "Global": 28,
         "JP": 30
     },
@@ -3483,7 +3483,8 @@ STATIC_DEFAULT_CONFIG = '''
           "红冬联邦学院",
           "百鬼夜行中心",
           "D.U.白鸟区",
-          "山海经中央特区"
+          "山海经中央特区",
+          "春叶原"
           ],
       "Global_en-us": [
           "Schale Office",
@@ -3540,9 +3541,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "ShesideOutside",
-        "Global": "ShesideOutside",
-        "JP": "anUnconcealedHeart_2"
+        "CN": "TripTrapTrain",
+        "Global": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
+        "JP": "CodeBox"
     },
     "dailyGameActivity": {
         "CN": null,

@@ -133,8 +133,9 @@ class BaasOcrClient:
         # wait for server start
         for _ in range(0, 30):
             try:
-                requests.get(self.config.base_url)
-                break
+                ret = requests.get(self.config.base_url)
+                if ret.status_code == 200:
+                    break
             except requests.exceptions.ConnectionError as e:
                 if _ == 29:
                     raise RuntimeError("Fail to start ocr server. " + e.__str__())
