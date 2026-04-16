@@ -3541,7 +3541,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "TripTrapTrain",
+        "CN": "SunlightGirlsNightSong",
         "Global": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
         "JP": "CodeBox"
     },
