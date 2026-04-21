@@ -3543,7 +3543,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "SunlightGirlsNightSong",
         "Global": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
-        "JP": "CodeBox"
+        "JP": "JP_2026_04_22"
     },
     "dailyGameActivity": {
         "CN": null,
