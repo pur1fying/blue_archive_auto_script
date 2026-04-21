@@ -143,12 +143,17 @@ def bounty_common_operation(self, a, b):
     self.update_screenshot_array()
     return one_detect(self, a, b)
 
+BOUNTY_BUTTON_Y = {
+    "CN": 431,
+    "Global": 431,
+    "JP": 378
+}
 
 def to_bounty(self, num, skip_first_screenshot=False):
     bounty_location_y = [0, 206, 309, 418]
     img_ends = "rewarded_task_level-list"
     img_possibles = {
-        "main_page_bus": (731, 431),
+        "main_page_bus": (731, BOUNTY_BUTTON_Y[self.server]),
         "rewarded_task_location-select": (992, bounty_location_y[num]),
         "rewarded_task_task-info": (1129, 141),
         "rewarded_task_help": (1014, 135),
@@ -167,7 +172,7 @@ def to_choose_bounty(self):
         "normal_task_start-sweep-notice": (887, 164),
         "rewarded_task_level-list": (57, 41),
         "rewarded_task_task-info": (1129, 141),
-        "main_page_bus": (731, 431),
+        "main_page_bus": (731, BOUNTY_BUTTON_Y[self.server]),
         "rewarded_task_help": (1014, 135),
         "rewarded_task_purchase-bounty-ticket-notice": (888, 163),
     }

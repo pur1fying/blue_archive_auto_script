@@ -718,14 +718,14 @@ class Baas_thread:
             region = {
                 'CN': (512, 25, 609, 52),
                 'Global': (485, 23, 586, 54),
-                'JP': (485, 23, 586, 54)
+                'JP': (536, 26, 619, 44)
             }
             region = region[self.server]
         else:
             region = {
                 'CN': (557, 10, 662, 40),
                 'Global': (530, 10, 642, 40),
-                'JP': (530, 10, 642, 40)
+                'JP': (502, 13, 612, 33)
             }
             region = region[self.server]
         ocr_res = self.ocr.get_region_res(
@@ -759,9 +759,18 @@ class Baas_thread:
 
     def get_pyroxene(self, is_main_page=False):
         if is_main_page:
-            region = (871, 25, 967, 52)
+            region = {
+                "CN": (871, 25, 967, 52),
+                "Global": (871, 25, 967, 52),
+                "JP": (897, 26, 1008, 44)
+            }
         else:
-            region = (961, 10, 1072, 40)
+            region = {
+                "CN": (961, 10, 1072, 40),
+                "Global": (961, 10, 1072, 40),
+                "JP": (932, 13, 1069, 33)
+            }
+        region = region[self.server]
         ocr_res = self.ocr.get_region_res(
             self,
             region,
@@ -786,14 +795,14 @@ class Baas_thread:
         if is_main_page:
             region = {
                 'CN': (699, 20, 832, 52),
-                'JP': (671, 20, 819, 52),
-                'Global': (671, 20, 819, 52)
+                'Global': (671, 20, 819, 52),
+                'JP': (700, 26, 847, 44)
             }
         else:
             region = {
                 'CN': (769, 10, 908, 40),
-                'JP': (741, 10, 912, 40),
-                'Global': (741, 10, 912, 40)
+                'Global': (741, 10, 912, 40),
+                'JP': (714, 13, 859, 33)
             }
         region = region[self.server]
         ocr_res = self.ocr.get_region_res(
