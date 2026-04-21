@@ -10,6 +10,8 @@ x_y_range = {
     'coin-type-creditpoints-bright': (637, 305, 682, 341),
     'coin-type-pyroxene-grey': (647, 311, 672, 341),
     'coin-type-creditpoints-grey': (637, 305, 682, 341),
+    'coin-type-tactical-coin-bright': (637, 305, 682, 341),
+    'coin-type-tactical-coin-grey': (637, 305, 682, 341),
     'purchase-available': (1121, 644, 1213, 678),
     'purchase-unavailable': (1121, 644, 1213, 678),
     'refresh-button-appear': (1102, 644, 1213, 678),
