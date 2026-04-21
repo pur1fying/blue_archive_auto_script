@@ -74,7 +74,6 @@ def to_hard_event(self, skip_first_screenshot=False):
         "level_up": (640, 200),
     }
     img_reactions = {
-        "main_page_home-feature": (1198, 580),
         "main_page_bus": (823, 261),
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
@@ -103,7 +102,6 @@ def to_normal_event(self: Baas_thread, skip_first_screenshot=False):
         "level_up": (640, 200),
     }
     img_reactions = {
-        "main_page_home-feature": (1198, 580),
         "main_page_bus": (823, 261),
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),

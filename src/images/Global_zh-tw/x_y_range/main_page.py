@@ -3,7 +3,6 @@ path = "main_page"
 x_y_range = {
     'get-character': (800, 183, 1094, 219),
     'bus': (107, 9, 170, 40),
-    'home-feature': (1203, 24, 1240, 60),
     'quick-home': (1215, 5, 1255, 42),
     'insufficient-inventory-space': (494, 391, 770, 453),
     'login-store': (551, 145, 730, 182),

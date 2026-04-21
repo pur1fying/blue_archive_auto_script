@@ -2,7 +2,6 @@ prefix = "main_page"
 path = "main_page"
 x_y_range = {
     'bus': (107, 9, 190, 36),  # 业务区
-    'home-feature': (1203, 24, 1240, 60),  # 右上角菜单(作为主页标志)
     'quick-home': (1215, 5, 1255, 42),  # 快速回到首页,右上
     # 'login-feature': (1105, 601, 1142, 640),  # 登录界面
     'skip-notice': (509, 309, 761, 353),  # 跳过公告
@@ -21,7 +20,6 @@ x_y_range = {
 
     'purchase-pyroxenes-pyroxenes-selected-1': (600, 167, 677, 195),
     'purchase-pyroxenes-pyroxenes-selected-2': (408, 167, 482, 195),
-
     # guide icon only appears in JP pc server currently
     'purchase-pyroxenes-guide-selected-2': (408, 167, 482, 195),
 

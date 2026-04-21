@@ -3,7 +3,6 @@ path = "main_page"
 x_y_range = {
     'student': (328, 654, 346, 663),
     'bus': (107, 9, 162, 36),
-    'home-feature': (1203, 24, 1240, 60),
     'quick-home': (1215, 5, 1255, 42),
     'login-feature': (1105, 601, 1142, 640),
     'news': (250, 85, 328, 117),

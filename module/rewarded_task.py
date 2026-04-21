@@ -12,7 +12,7 @@ def implement(self):
     self.to_main_page()
     buy_ticket_times = purchase_ticket_times_to_int(self.config.purchase_rewarded_task_ticket_times, 12)
     if buy_ticket_times > 0:
-        to_choose_bounty(self, True)
+        to_choose_bounty(self)
         purchase_bounty_ticket(self, buy_ticket_times)
 
     bounty_name = ["OVERPASS", "DESSERT RAILWAY", "CLASSROOM"]
@@ -21,7 +21,7 @@ def implement(self):
 
     for i in range(0, 3):
         if just_do_task:
-            to_choose_bounty(self, True)
+            to_choose_bounty(self)
         if count[i] == "max" or count[i] > 0:
             self.logger.info("Start bounty task: " + bounty_name[i] + " count : " + str(count[i]))
             just_do_task = True
@@ -148,7 +148,6 @@ def to_bounty(self, num, skip_first_screenshot=False):
     bounty_location_y = [0, 206, 309, 418]
     img_ends = "rewarded_task_level-list"
     img_possibles = {
-        "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
         "rewarded_task_location-select": (992, bounty_location_y[num]),
         "rewarded_task_task-info": (1129, 141),
@@ -156,26 +155,25 @@ def to_bounty(self, num, skip_first_screenshot=False):
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164)
     }
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
+    rgb_possibles = {"main_page": (1198, 580)}
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
-def to_choose_bounty(self, skip_first_screenshot=False):
+def to_choose_bounty(self):
     img_ends = "rewarded_task_location-select"
     img_possibles = {
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
         "rewarded_task_level-list": (57, 41),
         "rewarded_task_task-info": (1129, 141),
-        "main_page_home-feature": (1198, 580),
         "main_page_bus": (731, 431),
         "rewarded_task_help": (1014, 135),
         "rewarded_task_purchase-bounty-ticket-notice": (888, 163),
     }
-    rgb_ends = "choose_bounty"
     rgb_possibles = {"main_page": (1198, 580)}
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles,
-                      skip_first_screenshot=skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles,skip_first_screenshot=True)
 
 
 def to_purchase_bounty_ticket_menu(self):
