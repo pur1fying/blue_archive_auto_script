@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import os
 import asyncio
 import datetime
+import os
 import shutil
 import threading
 import time
@@ -10,22 +10,26 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from adbutils import adb
+
 from core.Baas_thread import Baas_thread
 from core.config.config_set import ConfigSet
 from core.device import emulator_manager
+from core.device.connection import Connection
 from main import Main
 from .broadcast import BroadcastChannel
+from .lib.scrcpy import ScrcpyClient
 from .utils import *
 
 _TASK_ALIAS = {
-    "start_hard_task": "explore_hard_task",
-    "start_normal_task": "explore_normal_task",
-    "start_fhx": "de_clothes",
-    "start_main_story": "main_story",
-    "start_group_story": "group_story",
-    "start_mini_story": "mini_story",
-    "start_explore_activity_story": "explore_activity_story",
-    "start_explore_activity_mission": "explore_activity_mission",
+    "start_hard_task"                 : "explore_hard_task",
+    "start_normal_task"               : "explore_normal_task",
+    "start_fhx"                       : "de_clothes",
+    "start_main_story"                : "main_story",
+    "start_group_story"               : "group_story",
+    "start_mini_story"                : "mini_story",
+    "start_explore_activity_story"    : "explore_activity_story",
+    "start_explore_activity_mission"  : "explore_activity_mission",
     "start_explore_activity_challenge": "explore_activity_challenge",
 }
 
@@ -40,14 +44,14 @@ class _SignalHook:
 
 def _default_status(config_id: str) -> Dict[str, Any]:
     return {
-        "config_id": config_id,
-        "running": False,
-        "is_flag_run": False,
-        "button": None,
-        "current_task": None,
+        "config_id"    : config_id,
+        "running"      : False,
+        "is_flag_run"  : False,
+        "button"       : None,
+        "current_task" : None,
         "waiting_tasks": [],
-        "exit_code": None,
-        "timestamp": time.time(),
+        "exit_code"    : None,
+        "timestamp"    : time.time(),
     }
 
 
@@ -59,6 +63,7 @@ class ConfigSession:
     button_signal: _SignalHook
     update_signal: _SignalHook
     exit_signal: _SignalHook
+    scrcpy_client: ScrcpyClient = None
     thread: Optional[threading.Thread] = None
     status: Dict[str, Any] = field(default_factory=dict)
 
@@ -134,7 +139,7 @@ class ServiceRuntime:
         self._main = Main(ocr_needed=["en-us", "zh-cn"], jsonify=True, lazy_data=True)
 
     async def _ensure_main(self) -> None:
-        await asyncio.get_running_loop().run_in_executor(None, self._ensure_main_sync)
+        await asyncio.get_running_loop().run_in_executor(None, self._ensure_main_sync)  # type: ignore
 
     @staticmethod
     def _ensure_config() -> None:
@@ -146,7 +151,6 @@ class ServiceRuntime:
                     check_config(_dir_)
         if len(config_dir_list) == 0:
             check_config('default_config')
-
 
     async def ensure_ready(self) -> None:
         await self._ensure_main()
@@ -186,6 +190,13 @@ class ServiceRuntime:
         self._publish_status(config_id)
         return session
 
+    async def get_session(self, config_id: str):
+        async with self._lock:
+            session = self._sessions.get(config_id)
+            if session is None:
+                session = self._get_or_create_session(config_id)
+        return session
+
     async def start_scheduler(self, config_id: str, set_log=None) -> Dict[str, Any]:
         loop = asyncio.get_running_loop()
         async with self._lock:
@@ -193,7 +204,7 @@ class ServiceRuntime:
             if set_log: set_log()
             if session.thread and session.thread.is_alive():
                 return {"status": "already-running", "config_id": config_id}
-            init_ok = await loop.run_in_executor(None, session.baas.init_all_data)
+            init_ok = await loop.run_in_executor(None, session.baas.init_all_data)  # type: ignore
             if not init_ok:
                 raise RuntimeError("Baas_thread initialization failed")
 
@@ -245,18 +256,30 @@ class ServiceRuntime:
             needs_init = session.baas.scheduler is None
 
         if needs_init:
-            await loop.run_in_executor(None, baas.init_all_data)
+            await loop.run_in_executor(None, baas.init_all_data)  # type: ignore
 
         def _call() -> None:
             try:
-                self._update_status(config_id, running=True, is_flag_run=True, exit_code=None, current_task=task_name,
-                                    waiting_tasks=[])
+                self._update_status(
+                    config_id,
+                    running=True,
+                    is_flag_run=True,
+                    exit_code=None,
+                    current_task=task_name,
+                    waiting_tasks=[]
+                )
                 baas.flag_run = True
                 baas.send("solve", task_name)
             finally:
                 session.thread = None
-                self._update_status(config_id, running=False, is_flag_run=session.baas.flag_run, current_task=None,
-                                    waiting_tasks=[])
+                assert session is not None
+                self._update_status(
+                    config_id,
+                    running=False,
+                    is_flag_run=session.baas.flag_run,
+                    current_task=None,
+                    waiting_tasks=[]
+                )
 
         thread = threading.Thread(
             target=_call,
@@ -268,28 +291,59 @@ class ServiceRuntime:
 
         return {"status": "ok", "task": task_name, "result": 0}
 
+    async def require_remote_(self, config_id: str) -> ScrcpyClient:
+        session = await self.get_session(config_id)
+        if session.scrcpy_client is not None:
+            return session.scrcpy_client
+        session = await self.get_session(config_id)
+        connection = Connection(session.baas)
+        connection = adb.device(connection.serial)
+        session.scrcpy_client = await ScrcpyClient(connection).init()
+        return session.scrcpy_client
+
+    # noinspection PyBroadException
+    async def control_device_(self, config_id: str, operation: Dict[str, Any]) -> Dict[str, Any]:
+        loop = asyncio.get_running_loop()
+        session = await self.get_session(config_id)
+
+        op_type = operation["type"]
+        op_data = operation["data"]
+        try:
+            await loop.run_in_executor(None, {
+                "click": lambda: session.scrcpy_client.control.touch(  # type: ignore
+                    op_data["x"], op_data["y"]
+                ),
+                "swipe": lambda: session.scrcpy_client.control.swipe(  # type: ignore
+                    op_data["fx"], op_data["fy"], op_data["tx"], op_data["ty"], op_data["dt"]
+                )
+            }[op_type])  # type: ignore
+
+            return {"status": "ok", "config_id": config_id, "result": 0}
+        except Exception:
+            return {"status": "fail", "config_id": config_id, "result": 1}
+
     @staticmethod
     async def detect_adb() -> List[str]:
         loop = asyncio.get_running_loop()
-        adb_res = await loop.run_in_executor(None, emulator_manager.autosearch)
+        adb_res = await loop.run_in_executor(None, emulator_manager.autosearch)  # type: ignore
         return adb_res
 
     @staticmethod
     async def valid_cdk(cdk):
         loop = asyncio.get_running_loop()
-        cdk_res = await loop.run_in_executor(None, validate_cdk, cdk)
+        cdk_res = await loop.run_in_executor(None, validate_cdk, cdk)  # type: ignore
         return cdk_res
 
     @staticmethod
     async def test_all_sha():
         loop = asyncio.get_running_loop()
-        all_sha_res = await loop.run_in_executor(None, test_all_repo_sha)
+        all_sha_res = await loop.run_in_executor(None, test_all_repo_sha)  # type: ignore
         return all_sha_res
 
     @staticmethod
     async def check_for_update():
         loop = asyncio.get_running_loop()
-        all_update_res = await loop.run_in_executor(None, check_for_update)
+        all_update_res = await loop.run_in_executor(None, check_for_update)  # type: ignore
         return all_update_res
 
     @staticmethod

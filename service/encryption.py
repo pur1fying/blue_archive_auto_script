@@ -64,8 +64,12 @@ class CipherBox:
     def decrypt_json(self, token: str) -> dict[str, Any]:
         try:
             data = self._fernet.decrypt(token.encode("utf-8"))
-            
         except InvalidToken as exc:
-            print("INVALID")
             raise AuthenticationError("Encrypted payload could not be authenticated") from exc
         return json.loads(data.decode("utf-8"))
+
+    def encrypt_bytes(self, data: bytes) -> str:
+        """
+        Encrypt raw bytes -> bytes (Fernet token, already base64-encoded internally).
+        """
+        return self._fernet.encrypt(data).decode("utf-8")

@@ -1,6 +1,7 @@
 # =========================== #
 #         Core Utils          #
 numpy < 2.0                   #
+av == 12.0.0                  #
 setuptools                    #
 adbutils == 2.2.1             #
 uiautomator2 == 2.16.23       #

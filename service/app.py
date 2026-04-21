@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import contextlib
 import asyncio
+import contextlib
 import os
 import secrets
 import time
+from contextlib import suppress
 from pathlib import Path
 from typing import Any, Dict, Union
 
@@ -14,6 +15,7 @@ from starlette.staticfiles import StaticFiles
 
 from .context import ServiceContext
 from .encryption import AuthenticationError, CipherBox, HandshakeResponse, HandshakeSession
+from .lib.scrcpy.const import EVENT_STREAM
 from .messages import (
     CommandMessage,
     ProviderRequest,
@@ -109,11 +111,11 @@ async def websocket_sync(websocket: WebSocket) -> None:
                 data = SyncPullMessage(**message)
                 snapshot = await context.config_manager.get_snapshot(data.resource, data.resource_id)
                 response = {
-                    "type": "snapshot",
-                    "resource": data.resource,
+                    "type"       : "snapshot",
+                    "resource"   : data.resource,
                     "resource_id": data.resource_id,
-                    "timestamp": snapshot.timestamp,
-                    "data": snapshot.data,
+                    "timestamp"  : snapshot.timestamp,
+                    "data"       : snapshot.data,
                 }
                 await websocket.send_text(cipher.encrypt_json(response))
             elif msg_type == "patch":
@@ -122,18 +124,18 @@ async def websocket_sync(websocket: WebSocket) -> None:
                     data.resource, data.resource_id, data.ops, data.timestamp, origin="frontend"
                 )
                 response = {
-                    "type": "patch_ack",
-                    "resource": data.resource,
+                    "type"       : "patch_ack",
+                    "resource"   : data.resource,
                     "resource_id": data.resource_id,
-                    "timestamp": data.timestamp,
+                    "timestamp"  : data.timestamp,
                 }
                 await websocket.send_text(cipher.encrypt_json(response))
             elif msg_type == "list":
                 snapshot = await context.config_manager.get_config_list()
                 response = {
-                    "type": "config_list",
+                    "type"     : "config_list",
                     "timestamp": snapshot.timestamp,
-                    "data": snapshot.data,
+                    "data"     : snapshot.data,
                 }
                 await websocket.send_text(cipher.encrypt_json(response))
             else:
@@ -196,9 +198,9 @@ async def websocket_provider(websocket: WebSocket) -> None:
                 await websocket.send_text(
                     cipher.encrypt_json(
                         {
-                            "type": "static_snapshot",
+                            "type"     : "static_snapshot",
                             "timestamp": snapshot.timestamp,
-                            "data": snapshot.data,
+                            "data"     : snapshot.data,
                         }
                     )
                 )
@@ -258,8 +260,11 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                 elif cmd.command.startswith("start_"):
                     if not cmd.config_id:
                         raise ValueError(f"config_id is required for command '{cmd.command}'")
-                    result = await context.runtime.solve_task(cmd.config_id, cmd.command,
-                                                              set_log=context.ensure_runtime_logger_attached)
+                    result = await context.runtime.solve_task(
+                        config_id=cmd.config_id,
+                        task_name=cmd.command,
+                        set_log=context.ensure_runtime_logger_attached
+                    )
                     response_payload = {"status": "ok", "data": result}
                 elif cmd.command.startswith("add_config"):
                     name = cmd.payload.get("name")
@@ -292,6 +297,15 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                 elif cmd.command == "update_to_latest":
                     result = await context.runtime.update_to_latest()
                     response_payload = {"status": "ok", "data": result}
+                elif cmd.command == "control_device":
+                    if not cmd.config_id:
+                        raise ValueError(f"config_id is required for command '{cmd.command}'")
+                    if not cmd.payload.get("operation"):
+                        raise ValueError(f"operation is required for command '{cmd.command}'")
+                    config_id = cmd.config_id
+                    operation = cmd.payload.get("operation")
+                    result = await context.runtime.control_device_(config_id, operation)
+                    response_payload = {"status": "ok", "data": result}
                 elif cmd.command == "status":
                     response_payload = {"status": "ok", "data": context.runtime.current_status()}
                 else:
@@ -301,8 +315,8 @@ async def websocket_trigger(websocket: WebSocket) -> None:
             await websocket.send_text(
                 cipher.encrypt_json(
                     {
-                        "type": "command_response",
-                        "command": cmd.command,
+                        "type"     : "command_response",
+                        "command"  : cmd.command,
                         **response_payload,
                         "timestamp": cmd.timestamp,
                     }
@@ -320,7 +334,7 @@ async def _heartbeat_sender(websocket: WebSocket, cipher: CipherBox, interval: f
     try:
         while True:
             payload = {
-                "type": "heartbeat",
+                "type"     : "heartbeat",
                 "timestamp": time.time()
             }
             await websocket.send_text(cipher.encrypt_json(payload))
@@ -366,5 +380,81 @@ async def websocket_heartbeat(websocket: WebSocket) -> None:
                 task.cancel()
                 with contextlib.suppress(asyncio.CancelledError):
                     await task
+
+
+@app.websocket("/ws/remote")
+async def websocket_remote(websocket: WebSocket) -> None:
+    listener = client = None
+    sender_task = None
+
+    try:
+        _, cipher = await _perform_handshake(websocket)
+        encrypted = await websocket.receive_text()
+        message = cipher.decrypt_json(encrypted)
+        config_id = message.get("config_id")
+        client = await context.runtime.require_remote_(config_id)
+
+        loop = asyncio.get_running_loop()
+        send_queue: asyncio.Queue[str | None] = asyncio.Queue(maxsize=8)
+
+        async def sender() -> None:
+            try:
+                while True:
+                    item = await send_queue.get()
+                    if item is None:
+                        break
+                    await websocket.send_text(item)
+            except WebSocketDisconnect:
+                pass
+            except Exception:
+                import traceback
+                traceback.print_exc()
+
+        sender_task = asyncio.create_task(sender())
+
+        def listener(encoded_stream: bytes) -> None:
+            try:
+                payload = cipher.encrypt_bytes(encoded_stream)
+
+                def _push() -> None:
+                    if send_queue.full():
+                        # 丢掉最旧帧，避免慢客户端把队列撑爆
+                        with suppress(asyncio.QueueEmpty):
+                            send_queue.get_nowait()
+                    with suppress(asyncio.QueueFull):
+                        send_queue.put_nowait(payload)
+
+                loop.call_soon_threadsafe(_push)  # type:ignore
+
+            except Exception:
+                import traceback
+                traceback.print_exc()
+
+        client.add_listener(EVENT_STREAM, listener)
+
+        if not client.alive:
+            await client.init()
+
+        await client.start(daemon_threaded=True)
+
+        while client.alive and client.has_listener(EVENT_STREAM, listener=listener):
+            await asyncio.sleep(1.0)
+
+    except Exception:
+        import traceback
+        traceback.print_exc()
+
+    finally:
+        if sender_task is not None:
+            with suppress(Exception):
+                await send_queue.put(None)   # type:ignore
+            with suppress(Exception):
+                await sender_task
+
+        if client is not None:
+            client.remove_listener(EVENT_STREAM, listener)  # type: ignore
+            if not client.any_listener(EVENT_STREAM):  # type: ignore
+                client.stop()  # type: ignore
+
 
 app.mount("/", StaticFiles(directory="service/dist", html=True), name="static")
