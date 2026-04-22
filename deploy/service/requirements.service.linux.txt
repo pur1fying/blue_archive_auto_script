@@ -35,4 +35,5 @@ uvicorn                       #
 websockets                    #
 watchfiles                    #
 cryptography                  #
+PyNaCl                        #
 # =========================== #

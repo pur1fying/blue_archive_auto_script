@@ -3,6 +3,7 @@ import inspect
 import socket
 import struct
 import threading
+import time
 from pathlib import Path
 from time import sleep
 from typing import Any, Callable, Optional, Tuple
@@ -10,10 +11,11 @@ from typing import Any, Callable, Optional, Tuple
 import numpy as np
 from adbutils import AdbConnection, AdbDevice, AdbError, Network
 
-from .codec import H264AnnexBFramer
+from .codec import H264AnnexBFramer, H264FMP4Framer
 from .const import (
     EVENT_DISCONNECT,
-    EVENT_STREAM,
+    EVENT_STREAM_ANNEXB,
+    EVENT_STREAM_FMP4,
     EVENT_INIT,
     LOCK_SCREEN_ORIENTATION_UNLOCKED,
 )
@@ -75,9 +77,9 @@ class ScrcpyClient:
         # Params
         self.flip = flip
         self.device = device
-        self.max_width = max_width
+        self.max_width = max_width #= 720
         self.bitrate = bitrate
-        self.max_fps = max_fps
+        self.max_fps = max_fps = 60
         self.block_frame = block_frame
         self.stay_awake = stay_awake
         self.lock_screen_orientation = lock_screen_orientation
@@ -85,8 +87,11 @@ class ScrcpyClient:
         self.encoder_name = encoder_name
         self.codec_name = codec_name
 
-        self.framer = H264AnnexBFramer(max_fps if max_fps > 0 else 30)
-        self.listeners = dict(frame=[], init=[], disconnect=[], stream=[])
+        self.framer = {
+            "AnnexB": H264AnnexBFramer(max_fps if max_fps > 0 else 30),
+            "fMP4"  : H264FMP4Framer(max_fps if max_fps > 0 else 30),
+        }
+        self.listeners = dict(frame=[], init=[], disconnect=[], stream_annexb=[], stream_fmp4=[])
 
         # User accessible
         self.last_frame: Optional[np.ndarray] = None
@@ -235,6 +240,7 @@ class ScrcpyClient:
         self.stream_loop_thread = None
 
     async def __stream_loop(self) -> None:
+        trace_1 = [0, 0]
         while self.alive:
             try:
                 if self.__video_socket is None:
@@ -244,8 +250,20 @@ class ScrcpyClient:
                 if raw_h264 == b"":
                     raise ConnectionError("Video stream is disconnected")
 
-                for to_send_content in self.framer.decode(raw_h264):
-                    await self.__send_to_listeners(EVENT_STREAM, to_send_content)
+                if self.any_listener(EVENT_STREAM_ANNEXB):
+                    perf_1 = time.perf_counter()
+                    for to_send_content in self.framer["AnnexB"].decode(raw_h264):
+                        await self.__send_to_listeners(EVENT_STREAM_ANNEXB, to_send_content)
+                    perf_2 = time.perf_counter()
+                    trace_1[0] = (trace_1[0] * trace_1[1] + perf_2 - perf_1) / (trace_1[1] + 1)
+                    trace_1[1] = trace_1[1] + 1
+
+                if trace_1[1] %100 == 0 :
+                    print("trace #1 => ", trace_1[0])
+                if self.any_listener(EVENT_STREAM_FMP4):
+                    for to_send_content in self.framer["fMP4"].decode(raw_h264):
+                        await self.__send_to_listeners(EVENT_STREAM_FMP4, to_send_content)
+
 
             except BlockingIOError:
                 await asyncio.sleep(0.01)
@@ -295,13 +313,11 @@ class ScrcpyClient:
         tasks = []
 
         for fun in list(self.listeners.get(cls, [])):
+            # noinspection PyBroadException
             try:
                 result = fun(*args, **kwargs)
-
                 if inspect.isawaitable(result):
-                    # 不直接 await，而是绑定到当前 loop
-                    tasks.append(loop.create_task(result))
-
+                    tasks.append(loop.create_task(result))  # type:ignore
             except Exception:
                 import traceback
                 traceback.print_exc()

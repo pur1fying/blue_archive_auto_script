@@ -6,6 +6,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Optional
 
+from .encryption import ServiceAuthManager
 from .config_manager import ConfigManager
 from .logging import LogManager
 from .runtime import ServiceRuntime
@@ -16,6 +17,7 @@ class ServiceContext:
 
     def __init__(self, project_root: Path) -> None:
         self.project_root = project_root
+        self.auth_manager = ServiceAuthManager(project_root)
         self.config_manager = ConfigManager(project_root)
         self.runtime = ServiceRuntime(project_root)
         self.log_manager = LogManager()

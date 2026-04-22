@@ -297,7 +297,8 @@ KEYCODE_KEYCODE_THUMBS_DOWN = 287
 # Event
 EVENT_INIT = "init"
 EVENT_FRAME = "frame"
-EVENT_STREAM = "stream"
+EVENT_STREAM_ANNEXB = "stream_annexb"
+EVENT_STREAM_FMP4 = "stream_fmp4"
 EVENT_DISCONNECT = "disconnect"
 
 # Type

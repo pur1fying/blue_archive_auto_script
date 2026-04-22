@@ -3,7 +3,7 @@ import os
 import uvicorn
 from service import set_log_format
 
-DEFAULT_HOST = os.getenv("BAAS_SERVICE_HOST", "127.0.0.1")
+DEFAULT_HOST = os.getenv("BAAS_SERVICE_HOST", "0.0.0.0")
 DEFAULT_PORT = int(os.getenv("BAAS_SERVICE_PORT", "8190"))
 
 
