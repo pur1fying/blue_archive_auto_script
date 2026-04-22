@@ -9,19 +9,26 @@ def implement(self):
     self.logger.info("Pushing Main Story.")
     self.main_story_stage_data = get_stage_data()
     self.to_main_page()
-    to_main_story(self, True)
+    to_main_story(self, True, "main")
     push_episode_list = process_regions(self, self.config.main_story_regions)
     if not push_episode_list:
         self.logger.warning("Use Default Push Episode List.")
         default_list = self.static_config.main_story_available_episodes
         push_episode_list = default_list[self.server]
-    for i in range(0, len(push_episode_list)):
-        current_episode = push_episode_list[i]
-        is_final = False
-        if current_episode == self.static_config.main_story_final_episode_num:
-            is_final = True
-        push_episode(self, current_episode, is_final)
+
+    for episode in push_episode_list:
+        push_episode(self, episode)
     return True
+
+def episode_stage(episode):
+    """
+        JP server added stage 2 : issue #475
+        We need to enter correct stage before pushing episode.
+    """
+    if episode in range(0, 10):
+        return 1
+    if episode in range(10, 13):
+        return 2
 
 
 def get_stage_data():
@@ -151,7 +158,7 @@ def check_episode(self):
     return "ALL_CLEAR"
 
 
-def to_episode(self, num):
+def to_episode(self, num, stage):
     """
         ensure goto required episode page, may not single swipe
     """
@@ -165,15 +172,14 @@ def to_episode(self, num):
         return picture.co_detect(self, None, None, img_ends, img_possibles, True)
     detect_episode_list = self.static_config.main_story_available_episodes[self.server].copy()
     detect_episode_list.remove(final_num)
+    detect_episode_list = [ep for ep in detect_episode_list if episode_stage(ep) == stage]
 
     wait_to_detect_list = detect_episode_list.copy()
-    last_detected_ep = False
-    last_detected_pos = False
 
     while self.flag_run:
         last_detected_ep, last_detected_pos = search_episode(self, wait_to_detect_list)
         if not last_detected_ep:
-            to_main_story(self, False)
+            to_main_story(self, False, "episode")
             continue
         if num in last_detected_ep:
             img_possibles = {
@@ -192,13 +198,13 @@ def to_episode(self, num):
                 x_start, x_end = x_end, x_start
                 wait_to_detect_list = detect_episode_list[detect_episode_list.index(_min) + 1:]
             self.swipe(x_start, 142, x_end, 142, 0.7, post_sleep_time=1)
-            to_main_story(self, False)
+            to_main_story(self, False, "episode")
     return True
 
 
 def search_episode(self, possible_list):
     self.logger.info("Search Episode " + str(possible_list))
-    regions = [[0, 293, 910, 362], [0, 506, 812, 588]]
+    regions = [[0, 303, 910, 348], [0, 513, 812, 555]]
     appeared_episodes = []
     position = []
     for i in range(0, len(possible_list)):
@@ -279,14 +285,18 @@ def auto_choose_formation(self, skip_first_screenshot=False, rgb_possibles=None,
     img_ends = "plot_self-formation"
     picture.co_detect(self, rgb_ends, None, img_ends, img_possibles, True)
 
-
-def push_episode(self, num, is_final=False):
+def push_episode(self, num):
+    is_final = False
+    if num == self.static_config.main_story_final_episode_num:
+        is_final = True
     if not is_final:
         self.logger.info("-- Pushing Episode " + str(num) + " --")
-        to_main_story(self, True)
+        to_main_story(self, True, "episode")
     else:
         self.logger.info("-- Pushing Final Episode --")
-    to_episode(self, num)
+    stage = episode_stage(num)
+    to_stage(self, stage)
+    to_episode(self, num, stage)
     episode_status = check_episode(self)
     while episode_status != "ALL_CLEAR":
         res = to_select_episode(self, episode_status, skip_first_screenshot=True)
@@ -300,8 +310,8 @@ def push_episode(self, num, is_final=False):
             else:
                 res = to_select_episode(self, episode_status, False)
         if not is_final:
-            to_main_story(self, True)
-        to_episode(self, num)
+            to_main_story(self, True, "episode")
+        to_episode(self, num, stage)
         episode_status = check_episode(self)
     if not is_final:
         self.logger.warning("-- Episode " + str(num) + " ALL Cleared --")
@@ -309,16 +319,15 @@ def push_episode(self, num, is_final=False):
         self.logger.warning("-- Final Episode ALL Cleared --")
 
 
-def to_main_story(self, skip_first_screenshot=False):
+def to_main_story(self, skip_first_screenshot=False, _from="main"):
     rgb_possibles = {
         'main_page': (1188, 575)
     }
     final_num = self.static_config.main_story_final_episode_num
     img_possibles = {
         "main_page_bus": (1098, 261),
-        "main_story_enter-main-story": (327, 510),
         "main_story_episode" + str(final_num): (149, 109),
-        "main_story_select-episode": (60, 36),
+        "main_story_select-episode": (327, 510) if _from == "main" else (60, 36),
     }
     img_ends = "main_story_menu"
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
@@ -361,6 +370,22 @@ def check_state_and_get_stage_data(self):
                     img_ends = "normal_task_task-wait-to-begin-feature"
                     picture.co_detect(self, None, None, img_ends, img_possibles, True)
                     return self.main_story_stage_data[filename[:-4]]
+
+
+def to_stage(self, stage):
+    if self.server not in ["JP"]:
+        return
+
+    all_stage = [1, 2]
+    img_ends =  f"main_story_stage-{stage}"
+    all_stage.remove(stage)
+    img_possibles = {
+        "main_story_episode6": (42, 84)
+    }
+    for stage in all_stage:
+        img_possibles[f"main_story_stage-{stage}"] = (173, 95)
+
+    picture.co_detect(self, None, None, img_ends, img_possibles, True)
 
 
 def process_regions(self, value):
