@@ -204,7 +204,7 @@ def to_episode(self, num, stage):
 
 def search_episode(self, possible_list):
     self.logger.info("Search Episode " + str(possible_list))
-    regions = [[0, 303, 910, 348], [0, 513, 812, 555]]
+    regions = [[0, 293, 910, 362], [0, 506, 812, 588]]
     appeared_episodes = []
     position = []
     for i in range(0, len(possible_list)):
@@ -326,6 +326,7 @@ def to_main_story(self, skip_first_screenshot=False, _from="main"):
     final_num = self.static_config.main_story_final_episode_num
     img_possibles = {
         "main_page_bus": (1098, 261),
+        "main_story_enter-main-story": (327, 510),
         "main_story_episode" + str(final_num): (149, 109),
         "main_story_select-episode": (327, 510) if _from == "main" else (60, 36),
     }
