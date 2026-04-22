@@ -2,7 +2,6 @@ prefix = 'main_story'
 path = 'main_story'
 x_y_range = {
     'episode-cleared-feature': (700, 143, 958, 177),
-    "enter-main-story": (327, 510, 558, 562),
     "select-episode": (100, 9, 190, 41),
 
     "menu": (1129, 108, 1279, 138),

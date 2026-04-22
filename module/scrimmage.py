@@ -113,25 +113,22 @@ def scrimmage_common_operation(self, a, b):
 
 def to_scrimmage(self, num, skip_first_screenshot=False):
     select_scrimmage_y = [0, 206, 309, 418]
-    rgb_possibles = {
-        "main_page": (1198, 580),
-    }
+    rgb_possibles = {"main_page": (1198, 580)}
     img_ends = "scrimmage_level-list"
     img_possibles = {
-        "main_page_home-feature": (1198, 580),
         "main_page_bus": (716, 599),
         "scrimmage_academy-select": (992, select_scrimmage_y[num]),
         "scrimmage_purchase-scrimmage-ticket-notice": (886, 162),
         "rewarded_task_help": (1014, 135),
         "scrimmage_task-info": (1129, 142),
     }
+    img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 
 def to_choose_scrimmage(self, skip_first_screenshot=False):
     img_ends = "scrimmage_academy-select"
     img_possibles = {
-        "main_page-home-feature": (1198, 580),
         "main_page-bus": (716, 599),
         "scrimmage_level-list": (59, 45),
         "normal_task_skip-sweep-complete": (643, 506),
@@ -141,8 +138,9 @@ def to_choose_scrimmage(self, skip_first_screenshot=False):
         "scrimmage_task-info": (1129, 142),
         "scrimmage_purchase-scrimmage-ticket": (886, 162),
     }
+    rgb_possibles = {"main_page": (1198, 580)}
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=skip_first_screenshot)
 
 
 def to_purchase_scrimmage_ticket_menu(self):

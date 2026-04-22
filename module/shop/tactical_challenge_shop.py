@@ -2,7 +2,8 @@ import time
 import numpy as np
 
 from core import picture
-from module.shop.shop_utils import get_purchase_state, to_common_shop, goto_shop_by_name
+from module.shop.shop_utils import get_purchase_state, to_common_shop, goto_shop_by_name, buy
+
 
 def implement(self):
     buy_list = np.array(self.config.TacticalChallengeShopList)
@@ -31,7 +32,7 @@ def implement(self):
         if asset_required > tactical_challenge_assets:
             self.logger.info("Inadequate Assets For Buying.")
             return True
-        buy(self, buy_list)
+        buy(self, buy_list, shop_type="tactical_challenge_shop")
 
         state = get_purchase_state(self)
         if state == "shop_purchase-available":
@@ -118,24 +119,3 @@ def get_tactical_challenge_assets(self):
     return ret
 
 
-def buy(self, buy_list):
-    buy_list_for_common_items = [[700, 204], [857, 204], [1000, 204], [1162, 204],
-                                 [700, 461], [857, 461], [1000, 461], [1162, 461]]
-    i = 0
-    length = len(buy_list)
-    while i < length:
-        if buy_list[i]:
-            self.click(buy_list_for_common_items[i % 8][0], buy_list_for_common_items[i % 8][1],
-                       wait_over=True, duration=0.1)
-        if i % 8 == 7:
-            if not buy_list[i + 1:].any():
-                break
-            if length - i > 0:
-                if length - i > 5:
-                    self.logger.info("SWIPE DOWNWARDS")
-                    self.swipe(932, 550, 932, 0, duration=0.5, post_sleep_time=0.3)
-                else:
-                    buy_list_for_common_items = buy_list_for_common_items[4:]
-                    self.logger.info("SWIPE DOWNWARDS")
-                    self.swipe(932, 275, 932, 0, duration=0.5, post_sleep_time=0.3)
-        i = i + 1
