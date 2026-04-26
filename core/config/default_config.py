@@ -3543,7 +3543,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "SunlightGirlsNightSong",
-        "Global": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
+        "Global": "SerenadePromenade",
         "JP": "JP_2026_04_22"
     },
     "dailyGameActivity": {
