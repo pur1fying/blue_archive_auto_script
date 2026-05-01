@@ -71,7 +71,7 @@ func_dict = {
 
 class Baas_thread:
 
-    def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
+    def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None, **kwargs):
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.project_dir = os.path.dirname(self.project_dir)
         self.u2_client = None
@@ -100,7 +100,7 @@ class Baas_thread:
         self.task_finish_to_main_page = False
         self.static_config = ConfigSet.static_config
         self.ocr = None
-        self.logger = utils.Logger(logger_signal)
+        self.logger = utils.Logger(logger_signal, jsonify=kwargs.get("jsonify", False))
         self.last_refresh_u2_time = 0
         self.latest_img_array = None
         self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
@@ -695,6 +695,9 @@ class Baas_thread:
         except Exception as e:
             self.logger.error("Config initialization failed")
             self.logger.error(e.__str__())
+
+            import traceback
+            traceback.print_exc()
             return False
 
     def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):
