@@ -3544,7 +3544,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "SecretMidnightParty",
         "Global": "anUnconcealedHeart_2",
-        "JP": "JP_2026_04_22"
+        "JP": "PlayBallAimforaGrandSlamHomeRun"
     },
     "dailyGameActivity": {
         "CN": null,
