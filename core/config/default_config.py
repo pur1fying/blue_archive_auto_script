@@ -3543,7 +3543,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "SecretMidnightParty",
-        "Global": "anUnconcealedHeart_2",
+        "Global": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
         "JP": "PlayBallAimforaGrandSlamHomeRun"
     },
     "dailyGameActivity": {
