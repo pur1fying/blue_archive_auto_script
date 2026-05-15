@@ -10,7 +10,7 @@ from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
-from starlette.staticfiles import StaticFiles
+# from starlette.staticfiles import StaticFiles
 
 from .context import ServiceContext
 from .encryption import (
@@ -23,7 +23,7 @@ from .encryption import (
     b64d,
     b64e,
 )
-from .lib.scrcpy.const import EVENT_STREAM_ANNEXB, EVENT_STREAM_FMP4
+from .lib.scrcpy import EVENT_STREAM
 from .messages import CommandMessage, ProviderRequest, SyncPatchMessage, SyncPullMessage
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -102,14 +102,14 @@ async def _finalize_control_auth(
     await websocket.send_json(
         preauth_channel.encrypt(
             {
-                "type"            : "auth_ok",
+                "type": "auth_ok",
                 "protocol_version": PROTOCOL_VERSION,
-                "session_id"      : session.session_id,
-                "resume_ticket"   : context.auth_manager.issue_resume_ticket(session),
-                "expires_at"      : session.expires_at,
-                "pwd_epoch"       : session.pwd_epoch,
-                "pwd_salt"        : context.auth_manager.password_state.as_public_dict()["pwd_salt"],
-                "argon2"          : context.auth_manager.password_state.as_public_dict()["argon2"],
+                "session_id": session.session_id,
+                "resume_ticket": context.auth_manager.issue_resume_ticket(session),
+                "expires_at": session.expires_at,
+                "pwd_epoch": session.pwd_epoch,
+                "pwd_salt": context.auth_manager.password_state.as_public_dict()["pwd_salt"],
+                "argon2": context.auth_manager.password_state.as_public_dict()["argon2"],
             }
         )
     )
@@ -146,7 +146,7 @@ async def _control_heartbeat_sender(
             await websocket.send_json(
                 control_channel.encrypt(
                     {
-                        "type"     : "heartbeat",
+                        "type": "heartbeat",
                         "timestamp": time.time(),
                     }
                 )
@@ -165,11 +165,11 @@ async def health() -> Dict[str, Any]:
     statuses = context.runtime.current_status()
     auth_state = context.auth_manager.password_state
     return {
-        "ok"      : True,
+        "ok": True,
         "statuses": statuses,
-        "auth"    : {
-            "initialized"           : auth_state.initialized,
-            "pwd_epoch"             : auth_state.pwd_epoch,
+        "auth": {
+            "initialized": auth_state.initialized,
+            "pwd_epoch": auth_state.pwd_epoch,
             "server_sign_public_key": context.auth_manager.server_public_key_b64(),
         },
     }
@@ -258,9 +258,9 @@ async def _perform_business_resume(
     await websocket.send_json(
         secure_channel.encrypt(
             {
-                "type"         : "resume_ok",
-                "session_id"   : session.session_id,
-                "pwd_epoch"    : session.pwd_epoch,
+                "type": "resume_ok",
+                "session_id": session.session_id,
+                "pwd_epoch": session.pwd_epoch,
                 "server_header": b64e(stream_box.tx_header),
             }
         )
@@ -302,11 +302,11 @@ async def websocket_sync(websocket: WebSocket) -> None:
                     websocket,
                     stream,
                     {
-                        "type"       : "snapshot",
-                        "resource"   : data.resource,
+                        "type": "snapshot",
+                        "resource": data.resource,
                         "resource_id": data.resource_id,
-                        "timestamp"  : snapshot.timestamp,
-                        "data"       : snapshot.data,
+                        "timestamp": snapshot.timestamp,
+                        "data": snapshot.data,
                     },
                 )
             elif msg_type == "patch":
@@ -322,10 +322,10 @@ async def websocket_sync(websocket: WebSocket) -> None:
                     websocket,
                     stream,
                     {
-                        "type"       : "patch_ack",
-                        "resource"   : data.resource,
+                        "type": "patch_ack",
+                        "resource": data.resource,
                         "resource_id": data.resource_id,
-                        "timestamp"  : data.timestamp,
+                        "timestamp": data.timestamp,
                     },
                 )
             elif msg_type == "list":
@@ -334,9 +334,9 @@ async def websocket_sync(websocket: WebSocket) -> None:
                     websocket,
                     stream,
                     {
-                        "type"     : "config_list",
+                        "type": "config_list",
                         "timestamp": snapshot.timestamp,
-                        "data"     : snapshot.data,
+                        "data": snapshot.data,
                     },
                 )
             else:
@@ -403,9 +403,9 @@ async def websocket_provider(websocket: WebSocket) -> None:
                     websocket,
                     stream,
                     {
-                        "type"     : "static_snapshot",
+                        "type": "static_snapshot",
                         "timestamp": snapshot.timestamp,
-                        "data"     : snapshot.data,
+                        "data": snapshot.data,
                     },
                 )
             elif req_type == "status_request":
@@ -524,8 +524,8 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                 websocket,
                 stream,
                 {
-                    "type"     : "command_response",
-                    "command"  : cmd.command,
+                    "type": "command_response",
+                    "command": cmd.command,
                     **response_payload,
                     "timestamp": cmd.timestamp,
                 },
@@ -545,23 +545,16 @@ async def websocket_remote(websocket: WebSocket) -> None:
     listener = client = None
     sender_task = None
     send_queue: asyncio.Queue[bytes | None] | None = None
-    EVENT_STREAM = None
-    MAPPING = {
-        "AnnexB": EVENT_STREAM_ANNEXB,
-        "fMP4"  : EVENT_STREAM_FMP4
-    }
+
     # noinspection PyBroadException
     try:
         _, stream = await _perform_business_resume(websocket, channel="remote")
         message = await _recv_stream_json(websocket, stream)
         config_id = message.get("config_id")
-        transfer_type = message.get("transfer_type")
-
-        EVENT_STREAM = MAPPING[transfer_type]  # type: ignore
+        to_encrypt = message.get("decrypt", True)
 
         client = await context.runtime.require_remote_(config_id)
 
-        loop = asyncio.get_running_loop()
         send_queue = asyncio.Queue(maxsize=8)
 
         async def sender() -> None:
@@ -576,33 +569,17 @@ async def websocket_remote(websocket: WebSocket) -> None:
 
         sender_task = asyncio.create_task(sender())
 
-        def listener(encoded_stream: bytes) -> None:
-            # noinspection PyBroadException
-            try:
-                payload = encoded_stream
-                # payload = stream.encrypt(encoded_stream)
-
-                def _push() -> None:
-                    assert send_queue is not None
-                    if send_queue.full():
-                        with suppress(asyncio.QueueEmpty):
-                            send_queue.get_nowait()
-                    with suppress(asyncio.QueueFull):
-                        send_queue.put_nowait(payload)
-
-                loop.call_soon_threadsafe(_push)  # type: ignore
-            except Exception:
-                import traceback
-                traceback.print_exc()
-
-        client.add_listener(EVENT_STREAM, listener)
+        client.set_proxy_callbacks(
+            ws_to_adb=lambda data: stream.decrypt(data),
+            adb_to_ws=lambda data: stream.encrypt(data) if to_encrypt else data,
+        )
 
         if not client.alive:
             await client.init()
 
-        await client.start(daemon_threaded=True)
+        await client.proxy_websocket(websocket)
 
-        while client.alive and client.has_listener(EVENT_STREAM, listener=listener):
+        while client.alive:
             await asyncio.sleep(1.0)
     except Exception:
         import traceback
@@ -621,7 +598,6 @@ async def websocket_remote(websocket: WebSocket) -> None:
             if (not client.any_listener(EVENT_STREAM_ANNEXB) and  # type: ignore
                 not client.any_listener(EVENT_STREAM_FMP4)):  # type: ignore
                 client.stop()  # type: ignore[union-attr]
-
 
 
 @app.websocket("/ws/remote_test")
@@ -629,65 +605,59 @@ async def websocket_remote_test(websocket: WebSocket) -> None:
     listener = client = None
     sender_task = None
     send_queue: asyncio.Queue[bytes | None] | None = None
-    EVENT_STREAM = None
-    MAPPING = {
-        "AnnexB": EVENT_STREAM_ANNEXB,
-        "fMP4"  : EVENT_STREAM_FMP4
-    }
+
     # noinspection PyBroadException
     try:
         await websocket.accept()
-        frame = await websocket.receive_text()
-        message = json.loads(frame)
-        config_id = message.get("config_id")
-        transfer_type = message.get("transfer_type")
-
-        EVENT_STREAM = MAPPING[transfer_type]  # type: ignore
+        # frame = await websocket.receive_text()
+        # message = json.loads(frame)
+        # config_id = message.get("config_id")
+        config_id = "default_config"
 
         client = await context.runtime.require_remote_(config_id)
 
-        loop = asyncio.get_running_loop()
+        # loop = asyncio.get_running_loop()
         send_queue = asyncio.Queue(maxsize=8)
 
-        async def sender() -> None:
-            try:
-                while True:
-                    item = await send_queue.get()  # type: ignore
-                    if item is None:
-                        break
-                    await websocket.send_bytes(item)
-            except WebSocketDisconnect:
-                pass
+        # async def sender() -> None:
+        #     try:
+        #         while True:
+        #             item = await send_queue.get()  # type: ignore
+        #             if item is None:
+        #                 break
+        #             await websocket.send_bytes(item)
+        #     except WebSocketDisconnect:
+        #         pass
+        #
+        # sender_task = asyncio.create_task(sender())
 
-        sender_task = asyncio.create_task(sender())
-
-        def listener(encoded_stream: bytes) -> None:
-            # noinspection PyBroadException
-            try:
-                payload = encoded_stream
-                # payload = stream.encrypt(encoded_stream)
-
-                def _push() -> None:
-                    assert send_queue is not None
-                    if send_queue.full():
-                        with suppress(asyncio.QueueEmpty):
-                            send_queue.get_nowait()
-                    with suppress(asyncio.QueueFull):
-                        send_queue.put_nowait(payload)
-
-                loop.call_soon_threadsafe(_push)  # type: ignore
-            except Exception:
-                import traceback
-                traceback.print_exc()
-
-        client.add_listener(EVENT_STREAM, listener)
+        # def listener(encoded_stream: bytes) -> None:
+        #     # noinspection PyBroadException
+        #     try:
+        #         payload = encoded_stream
+        #         # payload = stream.encrypt(encoded_stream)
+        #
+        #         def _push() -> None:
+        #             assert send_queue is not None
+        #             if send_queue.full():
+        #                 with suppress(asyncio.QueueEmpty):
+        #                     send_queue.get_nowait()
+        #             with suppress(asyncio.QueueFull):
+        #                 send_queue.put_nowait(payload)
+        #
+        #         loop.call_soon_threadsafe(_push)  # type: ignore
+        #     except Exception:
+        #         import traceback
+        #         traceback.print_exc()
+        #
+        # client.add_listener(EVENT_STREAM, listener)
 
         if not client.alive:
             await client.init()
 
-        await client.start(daemon_threaded=True)
+        await client.proxy_websocket(websocket)
 
-        while client.alive and client.has_listener(EVENT_STREAM, listener=listener):
+        while client.alive:
             await asyncio.sleep(1.0)
     except Exception:
         import traceback
@@ -706,6 +676,5 @@ async def websocket_remote_test(websocket: WebSocket) -> None:
             if (not client.any_listener(EVENT_STREAM_ANNEXB) and  # type: ignore
                 not client.any_listener(EVENT_STREAM_FMP4)):  # type: ignore
                 client.stop()  # type: ignore[union-attr]
-
-
-app.mount("/", StaticFiles(directory="service/dist", html=True), name="static")
+# TODO: Temporarily commented
+# app.mount("/", StaticFiles(directory="service/dist", html=True), name="static")
