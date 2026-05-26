@@ -977,7 +977,23 @@ class Baas_thread:
         if self.is_android_device:
             self.resolution = self._get_android_device_resolution()
         else:
-            self.resolution = self.connection.app_process_window.get_resolution()
+            app_window = self.connection.app_process_window
+            if app_window.is_fullscreen_or_maximized():
+                self.resolution = app_window.get_resolution(activate=False)
+                self.logger.warning("Window is fullscreen or maximized, skip auto resize to 1280x720.")
+            else:
+                self.resolution = app_window.get_resolution()
+            if self.resolution != (1280, 720):
+                if app_window.is_fullscreen_or_maximized():
+                    self.logger.warning("Screen Size is not 1280x720, but auto resize only works in windowed mode.")
+                else:
+                    self.logger.warning("Window client area is not 1280x720, resizing it to 1280x720.")
+                    success, final_resolution = app_window.resize_client_area(1280, 720)
+                    self.resolution = app_window.get_resolution()
+                    if success:
+                        self.logger.info("Window client area resized to 1280x720.")
+                    else:
+                        self.logger.warning(f"Failed to resize window client area to 1280x720, final size: {final_resolution}.")
 
         self.logger.info("Screen Size  " + str(self.resolution))
         self.check_screen_ratio(self.resolution[0], self.resolution[1])
