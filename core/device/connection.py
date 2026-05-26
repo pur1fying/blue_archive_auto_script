@@ -56,8 +56,8 @@ class Connection:
         self.logger.info("Detect App Process Window")
 
         if sys.platform != 'win32':
-            self.logger.error("Steam server is only available on Windows platform. Please check your server config.")
-            raise RequestHumanTakeOver("Unsupported platform for Steam server.")
+            self.logger.error("PC server is only available on Windows platform. Please check your server config.")
+            raise RequestHumanTakeOver("Unsupported platform for PC server.")
         from core.device.window_capture.windows.window_info import win32_WindowInfo
         process_names = self.static_config.PC_app_process_name[self.server]
         self.logger.info(f"Possible Window Process Name : {process_names}")
