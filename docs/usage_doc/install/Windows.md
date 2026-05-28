@@ -106,7 +106,6 @@ mirrorc_cdk = "你的CDK"
 
 > キラメイ 个人推荐：Gh-Proxy 加速与 7ed 加速
 
-
-3. 使用[Mirror酱更新](#mirror酱cdk) (需要购买CDK)
+2. 使用[Mirror酱更新](#mirror酱cdk) (需要购买CDK)
 
 - **原因:** 你可能被gitee拒绝服务
