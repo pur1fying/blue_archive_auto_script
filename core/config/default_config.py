@@ -3544,7 +3544,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "SecretMidnightParty",
         "Global": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
-        "JP": "PlayBallAimforaGrandSlamHomeRun"
+        "JP": "JP_2026_05_27"
     },
     "dailyGameActivity": {
         "CN": null,
