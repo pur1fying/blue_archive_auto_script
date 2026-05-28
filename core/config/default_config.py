@@ -3542,7 +3542,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "SecretMidnightParty",
+        "CN": "CodeBox",
         "Global": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
         "JP": "JP_2026_05_27"
     },
