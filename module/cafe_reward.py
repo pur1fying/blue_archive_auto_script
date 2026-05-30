@@ -165,7 +165,11 @@ def find_student_position(self):
                 "Swipe duration : [ " + str(swipe_t) + "] should be a bit larger than shot delay : ""[ " +
                 str(self.config.cafe_reward_interaction_shot_delay) + " ]")
             self.logger.warning("It's might be caused by your emulator fps, please adjust it to lower than 60")
-            if swipe_t > 0.4:
+            if self.config.cafe_reward_interaction_shot_delay > 10:
+                self.logger.info(f"Resetting shot delay from "
+                                    f"[ {self.config.cafe_reward_interaction_shot_delay} ] to 1.0")
+                self.config.cafe_reward_interaction_shot_delay = 1.0
+            elif swipe_t > 0.4:
                 self.logger.info("Adjusting shot delay to [ " + str(swipe_t - 0.3) + " ], and retry")
                 self.config.cafe_reward_interaction_shot_delay = swipe_t - 0.3
                 self.config_set.set("cafe_reward_interaction_shot_delay",
