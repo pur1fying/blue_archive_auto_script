@@ -118,6 +118,7 @@ class Scheduler:
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])  # sort by priority
 
         self._valid_task_queue = []
+        self._waitingTaskDisplayQueue = []
         for i in range(0, len(_valid_event)):
             self._waitingTaskDisplayQueue.append(_valid_event[i]['event_name'])
             thisTask = {
