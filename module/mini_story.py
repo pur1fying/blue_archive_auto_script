@@ -5,7 +5,7 @@ from core import color, picture, image
 
 def implement(self):
     self.to_main_page()
-    to_mini_story(self, True)
+    to_mini_story(self, "main")
     time.sleep(1)   # wait for the page to load, if not loaded, region status will be all false
     self.update_screenshot_array()
     while self.flag_run:
@@ -22,7 +22,7 @@ def implement(self):
                         continue
                     to_episode_info(self, res, True)
                     clear_current_plot(self, True)
-                to_mini_story(self, True)
+                to_mini_story(self, "episode")
         if not need_check_next_page:
             self.logger.info("ALL EPISODES CLEARED")
             return True
@@ -59,17 +59,16 @@ def check_6_region_status(self):
     return res
 
 
-def to_mini_story(self, skip_first_screenshot=False):
+def to_mini_story(self, _from="main"):
     rgb_possibles = {'main_page': (1196, 572)}
     img_ends = "mini_story_menu"
     img_possibles = {
         "main_page_bus": (1091, 260),
-        "mini_story_enter-mini-story": (742, 287),
-        "mini_story_select-episode": (56, 40),
+        "group_story_select-episode": (56, 40) if _from == "episode" else (742, 287),
         'mini_story_episode-info': (916, 162),
     }
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, True)
 
 
 def judge_need_check_next_page(self):

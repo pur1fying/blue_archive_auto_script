@@ -613,9 +613,9 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {
-        "CN": [1, 2, 3, 4, 5, 6, 7],
+        "CN": [1, 2, 3, 4, 5, 6, 7, 8],
         "Global": [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        "JP": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        "JP": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     },
     "max_region": {
         "CN": 27,
@@ -722,10 +722,11 @@ STATIC_DEFAULT_CONFIG = '''
              ["信用点x5k", 4],["信用点x5k", 20],["信用点x75k", 60],["信用点x125k", 10]
         ],
         "JP": [
-             ["宫子神明文字x5", 50],  ["静子神明文字x5",50],    ["真白神明文字x5",50],    ["纱绫神明文字x5",50],
-             ["风香神明文字x5",50],   ["歌原神明文字x5",50],    ["30AP", 15],           ["60AP", 30],
-             ["初级经验书x5", 5],     ["中级经验书x10", 25],    ["高级经验书x3", 60],    ["特级经验书x1", 100],
-             ["信用点x5k", 4],       ["信用点x5k", 20],       ["信用点x75k", 60],      ["信用点x125k", 100]
+             ["美游神明文字x5", 50],  ["宫子神明文字x5", 50],  ["静子神明文字x5",50],    ["真白神明文字x5",50],
+             ["纱绫神明文字x5",50],   ["风香神明文字x5",50],   ["歌原神明文字x5",50],    ["30AP", 15],
+             ["60AP", 30],          ["初级经验书x5", 5],     ["中级经验书x10", 25],    ["高级经验书x3", 60],
+             ["特级经验书x1", 100],   ["信用点x5k", 4],       ["信用点x5k", 20],       ["信用点x75k", 60],
+             ["信用点x125k", 100]
         ]
     },
     "create_default_priority": {
@@ -3541,9 +3542,9 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "TripTrapTrain",
+        "CN": "SunlightGirlsNightSong",
         "Global": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
-        "JP": "CodeBox"
+        "JP": "JP_2026_04_22"
     },
     "dailyGameActivity": {
         "CN": null,

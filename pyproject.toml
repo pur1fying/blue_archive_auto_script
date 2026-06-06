@@ -25,6 +25,7 @@ dependencies = [
     "PyAutoGUI == 0.9.54",
     "mss == 10.0.0",
     "rich >= 14.2.0",
+    "PyNaCl >= 1.6.1",
     "setuptools <= 80.10.2"
 ]
 requires-python = ">=3.9"

@@ -62,14 +62,14 @@ def to_commissions(self, num, skip_first_screenshot=False):
     commissions_y = [0, 206, 309]
     img_ends = 'special_task_level-list'
     img_possibles = {
-        "main_page_home-feature": (1198, 580),
         "main_page_bus": (724, 515),
         "special_task_request-select": (992, commissions_y[num]),
         "rewarded_task_help": (1014, 135),
         "special_task_task-info": (1129, 141),
     }
+    rgb_possibles = {"main_page": (1198, 580)}
     img_possibles.update(picture.GAME_ONE_TIME_POP_UPS[self.server])
-    picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot)
+    picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 
 def get_los(self):

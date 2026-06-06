@@ -204,7 +204,6 @@ def to_lesson_location_select(self, skip_first_screenshot=False):
     }
     img_ends = 'lesson_location-select'
     img_possibles = {
-        'main_page_home-feature': (210, 655),
         'lesson_purchase-lesson-ticket-notice': (920, 165),
         'lesson_purchase-lesson-ticket-menu': (920, 165),
     }
@@ -221,7 +220,6 @@ def to_select_location(self, skip_first_screenshot=False):
     img_ends = 'lesson_select-location'
     img_possibles = {
         'lesson_purchase-lesson-ticket-menu': (920, 165),
-        'main_page_home-feature': (211, 664),
         'lesson_location-select': (937, 186),
         'lesson_lesson-information': (964, 117),
         'lesson_all-locations': (1138, 117),

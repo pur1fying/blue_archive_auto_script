@@ -247,7 +247,9 @@ class Connection:
         elif server == '日服':
             self.server = 'JP'
         if not package_exist:
-            self.check_package_exist(server)
+            # TODO: For test, will be back in formal ver
+            # self.check_package_exist(server)
+            pass
         self.activity = self.static_config.activity_name[server]
         self.logger.info("Server : " + self.server)
 
