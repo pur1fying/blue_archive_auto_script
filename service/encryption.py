@@ -31,6 +31,7 @@ except ModuleNotFoundError:  # pragma: no cover - surfaced explicitly at runtime
 
 PROTOCOL_VERSION = 1
 SESSION_TTL_SECONDS = 60 * 60 * 12
+REMEMBER_TTL_SECONDS = int(os.getenv("BAAS_REMEMBER_TTL_SECONDS", str(60 * 60 * 24 * 180)))
 DEFAULT_SIGNING_SEED_B64 = "SWWTs4OxttQrw_o89jtIM1pj8lhJEomLzfUEbsHjJS4="
 DEFAULT_SERVER_SIGN_PUBLIC_KEY_B64 = "_GMKcfOCE-0_erXPJQRQv6mLiNBnT3tdHmAaXwWRis4="
 
@@ -87,7 +88,7 @@ def _session_nonce(seq: int) -> bytes:
     return seq.to_bytes(12, "big", signed=False)
 
 
-@dataclass(slots=True)
+@dataclass
 class PasswordState:
     initialized: bool = False
     pwd_epoch: int = 0
@@ -109,7 +110,7 @@ class PasswordState:
         }
 
 
-@dataclass(slots=True)
+@dataclass
 class ActiveSession:
     session_id: str
     created_at: float
@@ -120,7 +121,16 @@ class ActiveSession:
     control_queues: set[asyncio.Queue] = field(default_factory=set)
 
 
-@dataclass(slots=True)
+@dataclass
+class RememberedLogin:
+    token_id: str
+    token_hash: bytes
+    created_at: float
+    expires_at: float
+    pwd_epoch: int
+
+
+@dataclass
 class HandshakeContext:
     kind: str
     channel: str
@@ -224,9 +234,11 @@ class ServiceAuthManager:
         self._config_dir.mkdir(exist_ok=True)
         self._state_file = self._config_dir / "service_auth.json"
         self._ticket_file = self._config_dir / "service_ticket.key"
+        self._remembered_file = self._config_dir / "service_remembered_logins.json"
         self._signing_file = self._config_dir / "service_signing_key.bin"
         self._lock = threading.RLock()
         self._sessions: dict[str, ActiveSession] = {}
+        self._remembered_logins: dict[str, RememberedLogin] = {}
 
         self._password_state = self._load_password_state()
         self._signing_key = self._load_signing_key()
@@ -236,6 +248,7 @@ class ServiceAuthManager:
             env_name="BAAS_SERVICE_TICKET_KEY_B64",
             default_factory=lambda: secrets.token_bytes(32),
         )
+        self._remembered_logins = self._load_remembered_logins()
 
     @property
     def password_state(self) -> PasswordState:
@@ -357,6 +370,53 @@ class ServiceAuthManager:
         signature = hmac_sha256(self._ticket_key, payload)
         return f"{b64e(payload)}.{b64e(signature)}"
 
+    def verify_remember_proof(self, *, session_id: str, proof: bytes) -> ActiveSession:
+        session = self.get_session(session_id)
+        expected = hmac_sha256(
+            session.resume_secret,
+            canonical_dumps(
+                {
+                    "type": "remember_session",
+                    "session_id": session.session_id,
+                    "pwd_epoch": session.pwd_epoch,
+                }
+            ),
+        )
+        if not hmac.compare_digest(expected, proof):
+            raise AuthenticationError("Remember-session proof verification failed")
+        return session
+
+    def issue_remember_token(self, session: ActiveSession) -> tuple[str, float]:
+        token_id = uuid.uuid4().hex
+        token_secret = secrets.token_bytes(32)
+        now = time.time()
+        expires_at = now + REMEMBER_TTL_SECONDS
+        remembered = RememberedLogin(
+            token_id=token_id,
+            token_hash=self._remember_token_hash(token_id, token_secret),
+            created_at=now,
+            expires_at=expires_at,
+            pwd_epoch=session.pwd_epoch,
+        )
+        with self._lock:
+            self._prune_expired_remembered_locked(now)
+            self._remembered_logins[token_id] = remembered
+            self._save_remembered_logins()
+        return f"v1.{token_id}.{b64e(token_secret)}", expires_at
+
+    def resume_control_session(self, handshake: HandshakeContext, remember_token: str) -> tuple[ActiveSession, JsonChaChaChannel]:
+        remembered = self._verify_remember_token(remember_token)
+        if remembered.pwd_epoch != self._password_state.pwd_epoch:
+            raise AuthenticationError("Remembered login epoch is stale")
+        master_secret = secrets.token_bytes(32)
+        resume_secret = hkdf_sha256(master_secret, b"resume-secret", 32, handshake.transcript_hash)
+        session = self._new_session_from_secrets(
+            pwd_epoch=remembered.pwd_epoch,
+            master_secret=master_secret,
+            resume_secret=resume_secret,
+        )
+        return session, self._build_control_channel(session)
+
     def subscribe_control(self, session_id: str) -> asyncio.Queue:
         queue: asyncio.Queue = asyncio.Queue()
         with self._lock:
@@ -378,6 +438,8 @@ class ServiceAuthManager:
             next_epoch = session.pwd_epoch + 1
             self._password_state = self._password_state_for(password=new_password, epoch=next_epoch)
             self._save_password_state()
+            self._remembered_logins.clear()
+            self._save_remembered_logins()
             queues = self._collect_revocation_queues(reason=reason, pwd_epoch=next_epoch)
         await self._publish_queues(queues)
         return self._password_state
@@ -389,6 +451,8 @@ class ServiceAuthManager:
             next_epoch = max(self._password_state.pwd_epoch, 0) + 1
             self._password_state = self._password_state_for(password=new_password, epoch=next_epoch)
             self._save_password_state()
+            self._remembered_logins.clear()
+            self._save_remembered_logins()
             queues = self._collect_revocation_queues(reason=reason, pwd_epoch=next_epoch)
         await self._publish_queues(queues)
         return self._password_state
@@ -480,12 +544,19 @@ class ServiceAuthManager:
             handshake.transcript_hash,
         )
         resume_secret = hkdf_sha256(master_secret, b"resume-secret", 32, handshake.transcript_hash)
+        return self._new_session_from_secrets(
+            pwd_epoch=password_state.pwd_epoch,
+            master_secret=master_secret,
+            resume_secret=resume_secret,
+        )
+
+    def _new_session_from_secrets(self, *, pwd_epoch: int, master_secret: bytes, resume_secret: bytes) -> ActiveSession:
         now = time.time()
         session = ActiveSession(
             session_id=uuid.uuid4().hex,
             created_at=now,
             expires_at=now + SESSION_TTL_SECONDS,
-            pwd_epoch=password_state.pwd_epoch,
+            pwd_epoch=pwd_epoch,
             master_secret=master_secret,
             resume_secret=resume_secret,
         )
@@ -527,6 +598,50 @@ class ServiceAuthManager:
         if int(body.get("pwd_epoch", -1)) != session.pwd_epoch:
             raise AuthenticationError("Resume ticket epoch mismatch")
         return session
+
+    def _verify_remember_token(self, token: str) -> RememberedLogin:
+        try:
+            version, token_id, secret_b64 = token.split(".", 2)
+            token_secret = b64d(secret_b64)
+        except Exception as exc:  # noqa: BLE001 - normalized below
+            raise AuthenticationError("Malformed remember token") from exc
+        if version != "v1" or not token_id:
+            raise AuthenticationError("Unsupported remember token")
+        now = time.time()
+        with self._lock:
+            self._prune_expired_remembered_locked(now)
+            remembered = self._remembered_logins.get(token_id)
+            if remembered is None:
+                raise AuthenticationError("Unknown remembered login")
+            expected = self._remember_token_hash(token_id, token_secret)
+            if not hmac.compare_digest(expected, remembered.token_hash):
+                raise AuthenticationError("Remember token verification failed")
+            if remembered.expires_at < now:
+                self._remembered_logins.pop(token_id, None)
+                self._save_remembered_logins()
+                raise AuthenticationError("Remembered login has expired")
+            if remembered.pwd_epoch != self._password_state.pwd_epoch:
+                raise AuthenticationError("Remembered login epoch mismatch")
+            return remembered
+
+    def _remember_token_hash(self, token_id: str, token_secret: bytes) -> bytes:
+        return hmac_sha256(
+            self._ticket_key,
+            b"remember-token:" + token_id.encode("utf-8") + b":" + token_secret,
+        )
+
+    def _prune_expired_remembered_locked(self, now: float | None = None) -> None:
+        current = time.time() if now is None else now
+        expired = [
+            token_id
+            for token_id, remembered in self._remembered_logins.items()
+            if remembered.expires_at < current
+        ]
+        if not expired:
+            return
+        for token_id in expired:
+            self._remembered_logins.pop(token_id, None)
+        self._save_remembered_logins()
 
     def _auth_context(self, handshake: HandshakeContext, pwd_epoch: int) -> bytes:
         return hkdf_sha256(
@@ -599,6 +714,42 @@ class ServiceAuthManager:
             "pwd_hash": b64e(self._password_state.pwd_hash) if self._password_state.pwd_hash else None,
         }
         self._state_file.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+    def _load_remembered_logins(self) -> dict[str, RememberedLogin]:
+        if not self._remembered_file.exists():
+            return {}
+        payload = json.loads(self._remembered_file.read_text(encoding="utf-8"))
+        remembered: dict[str, RememberedLogin] = {}
+        for item in payload.get("logins", []):
+            token_id = str(item.get("token_id", ""))
+            if not token_id:
+                continue
+            remembered[token_id] = RememberedLogin(
+                token_id=token_id,
+                token_hash=b64d(item["token_hash"]),
+                created_at=float(item.get("created_at", 0)),
+                expires_at=float(item.get("expires_at", 0)),
+                pwd_epoch=int(item.get("pwd_epoch", 0)),
+            )
+        return remembered
+
+    def _save_remembered_logins(self) -> None:
+        payload = {
+            "logins": [
+                {
+                    "token_id": remembered.token_id,
+                    "token_hash": b64e(remembered.token_hash),
+                    "created_at": remembered.created_at,
+                    "expires_at": remembered.expires_at,
+                    "pwd_epoch": remembered.pwd_epoch,
+                }
+                for remembered in self._remembered_logins.values()
+            ]
+        }
+        self._remembered_file.write_text(
             json.dumps(payload, indent=2, ensure_ascii=False),
             encoding="utf-8",
         )

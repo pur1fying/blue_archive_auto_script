@@ -3,12 +3,14 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import json
+import os
 import time
 from contextlib import suppress
 from pathlib import Path
 from typing import Any, Dict
+from urllib.parse import urlparse
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, Response, WebSocket, WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
 # from starlette.staticfiles import StaticFiles
 
@@ -27,6 +29,8 @@ from .lib.scrcpy import EVENT_STREAM
 from .messages import CommandMessage, ProviderRequest, SyncPatchMessage, SyncPullMessage
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+REMEMBER_COOKIE_NAME = "baas_remember"
+REMEMBER_COOKIE_MAX_AGE = int(os.getenv("BAAS_REMEMBER_TTL_SECONDS", str(60 * 60 * 24 * 180)))
 context = ServiceContext(PROJECT_ROOT)
 
 
@@ -41,7 +45,10 @@ app = FastAPI(title="BAAS Service Mode", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,  # type: ignore
-    allow_origins=["*"],
+    allow_origin_regex=os.getenv(
+        "BAAS_SERVICE_CORS_ORIGIN_REGEX",
+        r"https?://(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})(:\d+)?",
+    ),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -50,6 +57,48 @@ app.add_middleware(
 
 def _json_bytes(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+def _is_allowed_origin(origin: str | None, host: str | None) -> bool:
+    if not origin:
+        return True
+    allowed = {item.strip() for item in os.getenv("BAAS_SERVICE_ALLOWED_ORIGINS", "").split(",") if item.strip()}
+    if origin in allowed:
+        return True
+    parsed = urlparse(origin)
+    origin_host = parsed.hostname
+    host_value = host or ""
+    if host_value.startswith("[") and "]" in host_value:
+        request_host = host_value[1:].split("]", 1)[0]
+    else:
+        request_host = host_value.split(":", 1)[0]
+    if origin_host in {"localhost", "127.0.0.1", "::1"}:
+        return True
+    return bool(origin_host and request_host and origin_host == request_host)
+
+
+def _cookie_secure(request: Request) -> bool:
+    forced = os.getenv("BAAS_REMEMBER_COOKIE_SECURE")
+    if forced is not None:
+        return forced.lower() in {"1", "true", "yes", "on"}
+    return request.url.scheme == "https"
+
+
+def _auth_ok_payload(session: ActiveSession, *, include_session_secrets: bool = False) -> dict[str, Any]:
+    payload = {
+        "type": "auth_ok",
+        "protocol_version": PROTOCOL_VERSION,
+        "session_id": session.session_id,
+        "resume_ticket": context.auth_manager.issue_resume_ticket(session),
+        "expires_at": session.expires_at,
+        "pwd_epoch": session.pwd_epoch,
+        "pwd_salt": context.auth_manager.password_state.as_public_dict()["pwd_salt"],
+        "argon2": context.auth_manager.password_state.as_public_dict()["argon2"],
+    }
+    if include_session_secrets:
+        payload["master_secret"] = b64e(session.master_secret)
+        payload["resume_secret"] = b64e(session.resume_secret)
+    return payload
 
 
 async def _send_stream_json(websocket: WebSocket, stream: SecretStreamBox, payload: dict[str, Any]) -> None:
@@ -64,6 +113,9 @@ async def _recv_stream_json(websocket: WebSocket, stream: SecretStreamBox) -> di
 
 async def _begin_server_hello(websocket: WebSocket, *, kind: str, channel: str) -> tuple[
     HandshakeContext, JsonChaChaChannel, dict[str, Any]]:
+    if not _is_allowed_origin(websocket.headers.get("origin"), websocket.headers.get("host")):
+        await websocket.close(code=4403, reason="Origin is not allowed")
+        raise AuthenticationError("Origin is not allowed")
     await websocket.accept()
     hello = await websocket.receive_json()
     handshake, response = context.auth_manager.issue_server_hello(hello, kind=kind, channel=channel)
@@ -86,6 +138,25 @@ async def _finalize_control_auth(
     preauth_channel: JsonChaChaChannel,
     request: dict[str, Any],
 ) -> tuple[ActiveSession, JsonChaChaChannel]:
+    include_session_secrets = False
+    if request.get("type") == "resume_control":
+        token = websocket.cookies.get(REMEMBER_COOKIE_NAME, "")
+        if token:
+            try:
+                session, control_channel = context.auth_manager.resume_control_session(handshake, token)
+                include_session_secrets = True
+            except AuthenticationError:
+                session = control_channel = None  # type: ignore[assignment]
+            else:
+                await websocket.send_json(
+                    preauth_channel.encrypt(
+                        _auth_ok_payload(session, include_session_secrets=include_session_secrets)
+                    )
+                )
+                return session, control_channel
+        await websocket.send_json(preauth_channel.encrypt({"type": "resume_unavailable"}))
+        request = preauth_channel.decrypt(await websocket.receive_json())
+
     if not context.auth_manager.password_state.initialized:
         if request.get("type") != "initialize":
             raise AuthenticationError("Initialization is required")
@@ -100,18 +171,7 @@ async def _finalize_control_auth(
             proof=_decode_control_auth_proof(request),
         )
     await websocket.send_json(
-        preauth_channel.encrypt(
-            {
-                "type": "auth_ok",
-                "protocol_version": PROTOCOL_VERSION,
-                "session_id": session.session_id,
-                "resume_ticket": context.auth_manager.issue_resume_ticket(session),
-                "expires_at": session.expires_at,
-                "pwd_epoch": session.pwd_epoch,
-                "pwd_salt": context.auth_manager.password_state.as_public_dict()["pwd_salt"],
-                "argon2": context.auth_manager.password_state.as_public_dict()["argon2"],
-            }
-        )
+        preauth_channel.encrypt(_auth_ok_payload(session, include_session_secrets=include_session_secrets))
     )
     return session, control_channel
 
@@ -158,6 +218,40 @@ async def _control_heartbeat_sender(
         pass
     except RuntimeError:
         pass
+
+
+@app.post("/auth/remember")
+async def remember_auth(request: Request, response: Response, payload: dict[str, Any]) -> Dict[str, Any]:
+    try:
+        session_id = str(payload.get("session_id", ""))
+        proof = b64d(str(payload.get("proof", "")))
+        session = context.auth_manager.verify_remember_proof(session_id=session_id, proof=proof)
+        token, expires_at = context.auth_manager.issue_remember_token(session)
+    except AuthenticationError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    max_age = max(0, min(REMEMBER_COOKIE_MAX_AGE, int(expires_at - time.time())))
+    response.set_cookie(
+        REMEMBER_COOKIE_NAME,
+        token,
+        max_age=max_age,
+        httponly=True,
+        secure=_cookie_secure(request),
+        samesite="lax",
+        path="/",
+    )
+    return {"ok": True, "expires_at": expires_at}
+
+
+@app.post("/auth/logout")
+async def logout_auth(request: Request, response: Response) -> Dict[str, Any]:
+    response.delete_cookie(
+        REMEMBER_COOKIE_NAME,
+        httponly=True,
+        secure=_cookie_secure(request),
+        samesite="lax",
+        path="/",
+    )
+    return {"ok": True}
 
 
 @app.get("/health")
