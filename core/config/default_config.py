@@ -3544,7 +3544,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "CodeBox",
         "Global": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
-        "JP": "JP_2026_05_27"
+        "JP": "AHundredYearsofOneFlowerLetsGetRealwithaWaterBattle"
     },
     "dailyGameActivity": {
         "CN": null,
