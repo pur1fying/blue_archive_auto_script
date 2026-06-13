@@ -47,7 +47,7 @@ app.add_middleware(
     CORSMiddleware,  # type: ignore
     allow_origin_regex=os.getenv(
         "BAAS_SERVICE_CORS_ORIGIN_REGEX",
-        r"https?://(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})(:\d+)?",
+        r"^https?://(localhost|tauri\.localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})(:\d+)?$",
     ),
     allow_credentials=True,
     allow_methods=["*"],
@@ -72,7 +72,7 @@ def _is_allowed_origin(origin: str | None, host: str | None) -> bool:
         request_host = host_value[1:].split("]", 1)[0]
     else:
         request_host = host_value.split(":", 1)[0]
-    if origin_host in {"localhost", "127.0.0.1", "::1"}:
+    if origin_host in {"localhost", "127.0.0.1", "::1", "tauri.localhost"}:
         return True
     return bool(origin_host and request_host and origin_host == request_host)
 
