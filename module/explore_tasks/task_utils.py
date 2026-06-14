@@ -439,8 +439,7 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
 
             # switch to the next attribute available.
             cur_attribute = attribute
-            while unit_available[cur_attribute] == unit_used[cur_attribute] \
-                or (self.server == "CN" and cur_attribute == "shock"):
+            while unit_available[cur_attribute] == unit_used[cur_attribute]:
                 cur_attribute = attribute_type_fallbacks[cur_attribute]
 
             employ_pos.append(team_config[cur_attribute][unit_used[cur_attribute]])

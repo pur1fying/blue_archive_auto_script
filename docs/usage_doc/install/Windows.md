@@ -93,6 +93,19 @@ mirrorc_cdk = "你的CDK"
 - **解决方法** 
 1. 打开**BAAS**安装目录下的setup.toml, 尝试修改[REPO_URL_HTTP](/usage_doc/install/setup_config#repo-url-http)为其他地址 (gitcode / github)
 ![setup_toml_REPO_URL_HTTP.png](/assets/install/setup_toml_REPO_URL_HTTP.png)
+
+此外，您也可以使用Github加速站点，即，将 `REPO_URL_HTTP` 的值替换成如下列表之一（你也可以自行寻找可用的加速站）：
+
+- Gh-Proxy IPV4加速：https://v4.gh-proxy.org/https://github.com/pur1fying/blue_archive_auto_script.git
+- Gh-Proxy IPV4/6加速：https://v6.gh-proxy.org/https://github.com/pur1fying/blue_archive_auto_script.git
+- Gh-Proxy CDN加速：https://cdn.gh-proxy.org/https://github.com/pur1fying/blue_archive_auto_script.git
+- Gh-Proxy 主站加速：https://gh-proxy.org/https://github.com/pur1fying/blue_archive_auto_script.git
+- 7ed 加速：https://gh.sevencdn.com/https://github.com/pur1fying/blue_archive_auto_script.git
+- GitClone 加速：https://gitclone.com/github.com/pur1fying/blue_archive_auto_script.git
+- GithubFast 加速：https://githubfast.com/pur1fying/blue_archive_auto_script.git
+
+> キラメイ 个人推荐：Gh-Proxy 加速与 7ed 加速
+
 2. 使用[Mirror酱更新](#mirror酱cdk) (需要购买CDK)
 
 - **原因:** 你可能被gitee拒绝服务
