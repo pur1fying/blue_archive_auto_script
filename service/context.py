@@ -6,9 +6,9 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Optional
 
-from .encryption import ServiceAuthManager
-from .config_manager import ConfigManager
-from .logging import LogManager
+from .auth import ServiceAuthManager
+from .conf.manager import ConfigManager
+from .utils.logging import LogManager
 from .runtime import ServiceRuntime
 
 
@@ -37,7 +37,7 @@ class ServiceContext:
         await self.log_manager.start()
 
         self._fs_task = asyncio.create_task(self.config_manager.watch_filesystem(), name="config-fs-watch")
-        threading.Thread(target=self.runtime.init_all_data).start()
+        threading.Thread(target=self.runtime.init_all_data, name="service-init-all-data", daemon=True).start()
 
 
     async def shutdown(self) -> None:

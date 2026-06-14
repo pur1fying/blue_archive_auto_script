@@ -15,17 +15,12 @@ from pygit2.enums import ResetMode
 import requests
 import tomli_w
 
-try:  # Python 3.11+
-    import tomllib  # type: ignore[import]
-except ModuleNotFoundError:  # pragma: no cover - Python < 3.11 fallback
-    import tomli as tomllib  # type: ignore[import]
-
 from deploy.installer.const import GetShaMethod, get_remote_sha_methods
 from deploy.installer.mirrorc_update.const import MirrorCErrorCode
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
-from deploy.installer.toml_config import DEFAULT_SETTINGS
 
-from ._update import update_repo_to_latest
+from service.update.repository import update_repo_to_latest
+from service.update.setup_io import read_setup_toml, write_setup_toml
 
 RepositoryResult = Dict[str, Any]
 
@@ -307,27 +302,6 @@ def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo",
         _branch = "master"
 
     return VersionInfo(version=version_value, source="setup.toml", path=path), data, _branch
-
-
-def read_setup_toml(setup_path: Union[Path, None] = None) -> tuple[dict[str, Any], Union[Path, None]]:
-    path = setup_path or (Path.cwd() / "setup.toml")
-    if not path.exists():
-        with path.open("wb") as file:
-            tomli_w.dump(DEFAULT_SETTINGS, file)
-
-    with path.open("rb") as fp:
-        data = tomllib.load(fp)
-    return data, path
-
-
-def write_setup_toml(content: dict, setup_path: Union[Path, None] = None) -> None:
-    path = setup_path or (Path.cwd() / "setup.toml")
-    if not path.exists():
-        with path.open("wb") as file:
-            tomli_w.dump(DEFAULT_SETTINGS, file)
-
-    with path.open("wb") as fp:
-        tomli_w.dump(content, fp)
 
 
 def _select_remote_record(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import datetime
 import os
 import shutil
@@ -8,18 +9,23 @@ import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
-from adbutils import adb
+from .conf import ConfigInitializer
+from .conf import resolve_config_dir
+from .utils.broadcast import BroadcastChannel
+from .update import (
+    check_for_update,
+    test_all_repo_sha,
+    update_to_latest,
+    validate_cdk,
+)
 
-from core.Baas_thread import Baas_thread
-from core.config.config_set import ConfigSet
-from core.device import emulator_manager
-from core.device.connection import Connection
-from main import Main
-from .broadcast import BroadcastChannel
-from .lib.scrcpy import ScrcpyClient
-from .utils import *
+if TYPE_CHECKING:
+    from core.Baas_thread import Baas_thread
+    from core.config.config_set import ConfigSet
+    from main import Main
+    from .remote.scrcpy import ScrcpyClient
 
 _TASK_ALIAS = {
     "start_hard_task"                 : "explore_hard_task",
@@ -32,6 +38,19 @@ _TASK_ALIAS = {
     "start_explore_activity_mission"  : "explore_activity_mission",
     "start_explore_activity_challenge": "explore_activity_challenge",
 }
+
+
+async def run_blocking(func, *args):
+    """Run a blocking callable in the default executor and return its result.
+
+    Args:
+        func: Synchronous callable to execute without blocking the event loop.
+        *args: Positional arguments forwarded to ``func``.
+
+    Returns:
+        The return value produced by ``func``.
+    """
+    return await asyncio.get_running_loop().run_in_executor(None, func, *args)
 
 
 class _SignalHook:
@@ -58,12 +77,12 @@ def _default_status(config_id: str) -> Dict[str, Any]:
 @dataclass
 class ConfigSession:
     config_id: str
-    config_set: ConfigSet
-    baas: Baas_thread
+    config_set: "ConfigSet"
+    baas: "Baas_thread"
     button_signal: _SignalHook
     update_signal: _SignalHook
     exit_signal: _SignalHook
-    scrcpy_client: ScrcpyClient = None
+    scrcpy_client: Optional["ScrcpyClient"] = None
     thread: Optional[threading.Thread] = None
     status: Dict[str, Any] = field(default_factory=dict)
 
@@ -79,8 +98,8 @@ class ServiceRuntime:
         self._sessions: Dict[str, ConfigSession] = {}
         self._statuses: Dict[str, Dict[str, Any]] = {}
         self._lock = asyncio.Lock()
-        self._main: Optional[Main] = None
-        self._baas: Optional[Baas_thread] = None
+        self._main: Optional["Main"] = None
+        self._baas: Optional["Baas_thread"] = None
         self._baas_thread: Optional[threading.Thread] = None
         self._active_config_id: Optional[str] = None
         self._update_signal: Optional[_SignalHook] = None
@@ -88,6 +107,11 @@ class ServiceRuntime:
         self.is_all_data_initialized: bool = False
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
+        """Attach the FastAPI event loop used for runtime status broadcasts.
+
+        Args:
+            loop: Running asyncio event loop.
+        """
         self._loop = loop
         self._status_bus.set_loop(loop)
 
@@ -95,11 +119,13 @@ class ServiceRuntime:
     # public utility accessors
     # ------------------------------------------------------------------
     def get_main_log_queue(self):
+        """Return the main BAAS logger queue, initializing `Main` if needed."""
         self._ensure_main_sync()
         assert self._main is not None
         return self._main.logger.log_collector
 
     def init_all_data(self):
+        """Initialize shared BAAS data and publish readiness when complete."""
         assert self._main is not None
         self._ensure_config()
         status = self._main.init_all_data()
@@ -110,24 +136,32 @@ class ServiceRuntime:
             self.is_all_data_initialized = True
 
     def get_log_sources(self) -> List[Tuple[Any, str]]:
+        """Return per-session logger queues with their provider scopes."""
         sources: List[Tuple[Any, str]] = []
         for session in self._sessions.values():
             sources.append((session.baas.logger.log_collector, f"config:{session.config_id}"))
         return sources
 
     def current_status(self) -> Dict[str, Dict[str, Any]]:
+        """Return a deep-copied snapshot of all runtime statuses."""
         with self._status_lock:
-            return {cid: dict(status) for cid, status in self._statuses.items()}
+            return copy.deepcopy(self._statuses)
 
     def list_sessions(self) -> List[str]:
         return list(self._sessions.keys())
 
     async def subscribe_status(self) -> asyncio.Queue:
+        """Subscribe to runtime status updates.
+
+        Returns:
+            Queue receiving status push dictionaries.
+        """
         if self._loop is None:
             raise RuntimeError("ServiceRuntime loop is not configured")
         return self._status_bus.subscribe()
 
     def unsubscribe_status(self, queue_obj: asyncio.Queue) -> None:
+        """Remove a status queue returned by `subscribe_status`."""
         self._status_bus.unsubscribe(queue_obj)
 
     # ------------------------------------------------------------------
@@ -136,29 +170,39 @@ class ServiceRuntime:
     def _ensure_main_sync(self) -> None:
         if self._main is not None:
             return
+        from main import Main
+
         self._main = Main(ocr_needed=["en-us", "zh-cn"], jsonify=True, lazy_data=True)
 
     async def _ensure_main(self) -> None:
-        await asyncio.get_running_loop().run_in_executor(None, self._ensure_main_sync)  # type: ignore
+        await run_blocking(self._ensure_main_sync)
 
-    @staticmethod
-    def _ensure_config() -> None:
+    def _ensure_config(self) -> None:
         config_dir_list = []
-        for _dir_ in os.listdir('./config'):
-            if os.path.isdir(f'./config/{_dir_}'):
-                files = os.listdir(f'./config/{_dir_}')
+        config_root = self._project_root / "config"
+        initializer = ConfigInitializer(self._project_root)
+        config_root.mkdir(exist_ok=True)
+        for _dir_ in os.listdir(config_root):
+            config_dir = config_root / _dir_
+            if config_dir.is_dir():
+                files = os.listdir(config_dir)
                 if 'config.json' in files:
-                    check_config(_dir_)
+                    initializer.check_config(_dir_)
+                    config_dir_list.append(_dir_)
         if len(config_dir_list) == 0:
-            check_config('default_config')
+            initializer.check_config('default_config')
 
     async def ensure_ready(self) -> None:
+        """Ensure lazy core `Main` initialization has completed."""
         await self._ensure_main()
 
     def _get_or_create_session(self, config_id: str) -> ConfigSession:
         session = self._sessions.get(config_id)
         if session is not None:
             return session
+        from core.Baas_thread import Baas_thread
+        from core.config.config_set import ConfigSet
+
         self._ensure_main_sync()
         assert self._main is not None
         config = ConfigSet(config_dir=config_id)
@@ -191,6 +235,14 @@ class ServiceRuntime:
         return session
 
     async def get_session(self, config_id: str):
+        """Return an existing config session or create one.
+
+        Args:
+            config_id: BAAS config directory id.
+
+        Returns:
+            ConfigSession bound to the config id.
+        """
         async with self._lock:
             session = self._sessions.get(config_id)
             if session is None:
@@ -198,13 +250,21 @@ class ServiceRuntime:
         return session
 
     async def start_scheduler(self, config_id: str, set_log=None) -> Dict[str, Any]:
-        loop = asyncio.get_running_loop()
+        """Start the scheduler thread for a config.
+
+        Args:
+            config_id: Target config id.
+            set_log: Optional callback used to register runtime log queues.
+
+        Returns:
+            Status payload consumed by `/ws/trigger`.
+        """
         async with self._lock:
             session = self._get_or_create_session(config_id)
             if set_log: set_log()
             if session.thread and session.thread.is_alive():
                 return {"status": "already-running", "config_id": config_id}
-            init_ok = await loop.run_in_executor(None, session.baas.init_all_data)  # type: ignore
+            init_ok = await run_blocking(session.baas.init_all_data)
             if not init_ok:
                 raise RuntimeError("Baas_thread initialization failed")
 
@@ -228,6 +288,7 @@ class ServiceRuntime:
             return {"status": "started", "config_id": config_id}
 
     async def stop_scheduler(self, config_id: str) -> Dict[str, Any]:
+        """Stop the scheduler thread for a config if it is running."""
         async with self._lock:
             session = self._sessions.get(config_id)
             if session is None:
@@ -244,9 +305,18 @@ class ServiceRuntime:
         return {"status": "stopped", "config_id": config_id}
 
     async def solve_task(self, config_id: str, task_name: str, set_log=None) -> Dict[str, Any]:
+        """Run one BAAS task in a daemon worker thread.
+
+        Args:
+            config_id: Target config id.
+            task_name: Task command or legacy start_* alias.
+            set_log: Optional callback used to register runtime log queues.
+
+        Returns:
+            Command result payload with normalized task name.
+        """
         if task_name in _TASK_ALIAS:
             task_name = _TASK_ALIAS[task_name]
-        loop = asyncio.get_running_loop()
         async with self._lock:
             session = self._sessions.get(config_id)
             if session is None:
@@ -256,7 +326,7 @@ class ServiceRuntime:
             needs_init = session.baas.scheduler is None
 
         if needs_init:
-            await loop.run_in_executor(None, baas.init_all_data)  # type: ignore
+            await run_blocking(baas.init_all_data)
 
         def _call() -> None:
             try:
@@ -291,7 +361,19 @@ class ServiceRuntime:
 
         return {"status": "ok", "task": task_name, "result": 0}
 
-    async def require_remote_(self, config_id: str) -> ScrcpyClient:
+    async def require_remote_(self, config_id: str) -> "ScrcpyClient":
+        """Return a cached or newly initialized scrcpy client for a config.
+
+        Args:
+            config_id: Target config id whose BAAS connection supplies the device serial.
+
+        Returns:
+            Initialized ScrcpyClient.
+        """
+        from adbutils import adb
+        from core.device.connection import Connection
+        from .remote.scrcpy import ScrcpyClient
+
         session = await self.get_session(config_id)
         if session.scrcpy_client is not None:
             return session.scrcpy_client
@@ -303,6 +385,15 @@ class ServiceRuntime:
 
     # noinspection PyBroadException
     async def control_device_(self, config_id: str, operation: Dict[str, Any]) -> Dict[str, Any]:
+        """Send a remote control operation to the scrcpy client.
+
+        Args:
+            config_id: Target config id.
+            operation: Operation dictionary with type and data fields.
+
+        Returns:
+            Structured success/failure payload.
+        """
         loop = asyncio.get_running_loop()
         session = await self.get_session(config_id)
 
@@ -324,45 +415,46 @@ class ServiceRuntime:
 
     @staticmethod
     async def detect_adb() -> List[str]:
-        loop = asyncio.get_running_loop()
-        adb_res = await loop.run_in_executor(None, emulator_manager.autosearch)  # type: ignore
+        from core.device import emulator_manager
+
+        adb_res = await run_blocking(emulator_manager.autosearch)
         return adb_res
 
     @staticmethod
     async def valid_cdk(cdk):
-        loop = asyncio.get_running_loop()
-        cdk_res = await loop.run_in_executor(None, validate_cdk, cdk)  # type: ignore
+        cdk_res = await run_blocking(validate_cdk, cdk)
         return cdk_res
 
     @staticmethod
     async def test_all_sha():
-        loop = asyncio.get_running_loop()
-        all_sha_res = await loop.run_in_executor(None, test_all_repo_sha)  # type: ignore
+        all_sha_res = await run_blocking(test_all_repo_sha)
         return all_sha_res
 
     @staticmethod
     async def check_for_update():
-        loop = asyncio.get_running_loop()
-        all_update_res = await loop.run_in_executor(None, check_for_update)  # type: ignore
+        all_update_res = await run_blocking(check_for_update)
         return all_update_res
 
-    @staticmethod
-    async def add_config(name, server):
+    async def add_config(self, name, server):
+        """Create a new config directory with generated timestamp id."""
         serial_name = str(int(datetime.datetime.now().timestamp()))
-        check_config(serial_name, name=name, server=server)
+        ConfigInitializer(self._project_root).check_config(serial_name, name=name, server=server)
         return {
             "serial": serial_name
         }
 
     @staticmethod
     async def update_to_latest():
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, update_to_latest, None)
+        await run_blocking(update_to_latest, None)
         return {"status": "updated"}
 
-    @staticmethod
-    async def remove_config(_id):
-        shutil.rmtree(f'./config/{_id}')
+    async def remove_config(self, _id):
+        """Remove a config directory after resolving it inside project config root."""
+        target = resolve_config_dir(self._project_root / "config", _id)
+        if target.exists():
+            if not target.is_dir():
+                raise ValueError(f"config path is not a directory: {_id}")
+            shutil.rmtree(target)
         return {}
 
     # ------------------------------------------------------------------

@@ -36,8 +36,7 @@ pyqt = [
 service = [
     "numpy < 2.0",
     "av == 12.0.0",
-    "setuptools; sys_platform == 'win32'",
-    "setuptools == 80.10.2; sys_platform == 'linux'",
+    "setuptools == 80.10.2",
     "adbutils == 2.2.1",
     "uiautomator2 == 2.16.23",
     "opencv-python == 4.8.1.78",
@@ -62,3 +61,11 @@ i18n = [
     "lxml",
     "translators",
 ]
+
+test = [
+    "pytest",
+    "httpx",
+]
+
+[tool.pytest.ini_options]
+addopts = "-p no:cacheprovider"

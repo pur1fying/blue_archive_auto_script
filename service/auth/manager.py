@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import base64
 import hashlib
 import hmac
 import json
@@ -10,220 +9,25 @@ import secrets
 import threading
 import time
 import uuid
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
-from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-try:
-    from nacl import bindings as sodium_bindings
-    from nacl import pwhash
-except ModuleNotFoundError:  # pragma: no cover - surfaced explicitly at runtime
-    sodium_bindings = None
-    pwhash = None
-
-
-PROTOCOL_VERSION = 1
-SESSION_TTL_SECONDS = 60 * 60 * 12
-REMEMBER_TTL_SECONDS = int(os.getenv("BAAS_REMEMBER_TTL_SECONDS", str(60 * 60 * 24 * 180)))
-DEFAULT_SIGNING_SEED_B64 = "SWWTs4OxttQrw_o89jtIM1pj8lhJEomLzfUEbsHjJS4="
-DEFAULT_SERVER_SIGN_PUBLIC_KEY_B64 = "_GMKcfOCE-0_erXPJQRQv6mLiNBnT3tdHmAaXwWRis4="
-
-ARGON2_SALT_BYTES = 16
-ARGON2_HASH_BYTES = 32
-ARGON2_OPSLIMIT = 3
-ARGON2_MEMLIMIT = 64 * 1024 * 1024
-
-
-class AuthenticationError(Exception):
-    """Raised when an authentication or session step fails."""
-
-
-def b64e(data: bytes) -> str:
-    return base64.urlsafe_b64encode(data).decode("ascii")
-
-
-def b64d(value: str) -> bytes:
-    return base64.urlsafe_b64decode(value.encode("ascii"))
-
-
-def canonical_dumps(payload: dict[str, Any]) -> bytes:
-    return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-
-
-def hkdf_sha256(key_material: bytes, info: bytes, length: int, salt: bytes | None = None) -> bytes:
-    return HKDF(
-        algorithm=hashes.SHA256(),
-        length=length,
-        salt=salt,
-        info=info,
-    ).derive(key_material)
-
-
-def hmac_sha256(key: bytes, data: bytes) -> bytes:
-    return hmac.new(key, data, hashlib.sha256).digest()
-
-
-def _argon2(password: str, salt: bytes) -> bytes:
-    if pwhash is None:
-        raise RuntimeError("PyNaCl is required for Argon2id password derivation")
-    return pwhash.argon2id.kdf(
-        ARGON2_HASH_BYTES,
-        password.encode("utf-8"),
-        salt,
-        opslimit=ARGON2_OPSLIMIT,
-        memlimit=ARGON2_MEMLIMIT,
-    )
-
-
-def _session_nonce(seq: int) -> bytes:
-    if seq < 0:
-        raise AuthenticationError("Sequence number underflow")
-    return seq.to_bytes(12, "big", signed=False)
-
-
-@dataclass
-class PasswordState:
-    initialized: bool = False
-    pwd_epoch: int = 0
-    pwd_salt: bytes | None = None
-    pwd_hash: bytes | None = None
-
-    def as_public_dict(self) -> dict[str, Any]:
-        return {
-            "initialized": self.initialized,
-            "pwd_epoch": self.pwd_epoch,
-            "pwd_salt": b64e(self.pwd_salt) if self.pwd_salt else None,
-            "argon2": {
-                "algorithm": "argon2id",
-                "opslimit": ARGON2_OPSLIMIT,
-                "memlimit": ARGON2_MEMLIMIT,
-                "salt_bytes": ARGON2_SALT_BYTES,
-                "hash_bytes": ARGON2_HASH_BYTES,
-            },
-        }
-
-
-@dataclass
-class ActiveSession:
-    session_id: str
-    created_at: float
-    expires_at: float
-    pwd_epoch: int
-    master_secret: bytes
-    resume_secret: bytes
-    control_queues: set[asyncio.Queue] = field(default_factory=set)
-
-
-@dataclass
-class RememberedLogin:
-    token_id: str
-    token_hash: bytes
-    created_at: float
-    expires_at: float
-    pwd_epoch: int
-
-
-@dataclass
-class HandshakeContext:
-    kind: str
-    channel: str
-    client_nonce: bytes
-    server_nonce: bytes
-    client_public_key: bytes
-    server_private_key: X25519PrivateKey
-    server_public_key: bytes
-    transcript: bytes
-    transcript_hash: bytes
-    shared_key: bytes
-    preauth_server_tx: bytes
-    preauth_server_rx: bytes
-
-
-class JsonChaChaChannel:
-    """Small framed JSON channel using direction-bound ChaCha20-Poly1305 keys."""
-
-    def __init__(self, *, tx_key: bytes, rx_key: bytes) -> None:
-        self._tx = ChaCha20Poly1305(tx_key)
-        self._rx = ChaCha20Poly1305(rx_key)
-        self._tx_seq = 0
-        self._rx_seq = 0
-
-    def encrypt(self, payload: dict[str, Any]) -> dict[str, Any]:
-        seq = self._tx_seq
-        self._tx_seq += 1
-        nonce = _session_nonce(seq)
-        aad = canonical_dumps({"seq": seq, "type": "secure"})
-        plaintext = canonical_dumps(payload)
-        ciphertext = self._tx.encrypt(nonce, plaintext, aad)
-        return {
-            "type": "secure",
-            "seq": seq,
-            "ciphertext": b64e(ciphertext),
-        }
-
-    def decrypt(self, message: dict[str, Any]) -> dict[str, Any]:
-        if message.get("type") != "secure":
-            raise AuthenticationError("Encrypted control frame expected")
-        seq = int(message["seq"])
-        if seq != self._rx_seq:
-            raise AuthenticationError("Control frame sequence mismatch")
-        self._rx_seq += 1
-        nonce = _session_nonce(seq)
-        aad = canonical_dumps({"seq": seq, "type": "secure"})
-        plaintext = self._rx.decrypt(nonce, b64d(message["ciphertext"]), aad)
-        return json.loads(plaintext.decode("utf-8"))
-
-    def set_rx_seq(self, seq: int) -> None:
-        self._rx_seq = seq
-
-
-class SecretStreamBox:
-    """Directional XChaCha20 secretstream state with context-bound AAD."""
-
-    def __init__(self, *, tx_key: bytes, rx_key: bytes, aad_prefix: bytes) -> None:
-        if sodium_bindings is None:
-            raise RuntimeError("PyNaCl is required for secretstream websocket transport")
-        self._aad_prefix = aad_prefix
-        self._tx_seq = 0
-        self._rx_seq = 0
-        self._tx_state = sodium_bindings.crypto_secretstream_xchacha20poly1305_state()
-        self._rx_state = sodium_bindings.crypto_secretstream_xchacha20poly1305_state()
-        self.tx_header = sodium_bindings.crypto_secretstream_xchacha20poly1305_init_push(self._tx_state, tx_key)
-        self._rx_key = rx_key
-
-    def init_pull(self, header: bytes) -> None:
-        sodium_bindings.crypto_secretstream_xchacha20poly1305_init_pull(self._rx_state, header, self._rx_key)
-
-    def encrypt(self, payload: bytes, *, final: bool = False) -> bytes:
-        tag = (
-            sodium_bindings.crypto_secretstream_xchacha20poly1305_TAG_FINAL
-            if final
-            else sodium_bindings.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE
-        )
-        aad = self._aad(self._tx_seq)
-        self._tx_seq += 1
-        return sodium_bindings.crypto_secretstream_xchacha20poly1305_push(self._tx_state, payload, aad, tag)
-
-    def decrypt(self, ciphertext: bytes) -> bytes:
-        aad = self._aad(self._rx_seq)
-        self._rx_seq += 1
-        plaintext, tag = sodium_bindings.crypto_secretstream_xchacha20poly1305_pull(self._rx_state, ciphertext, aad)
-        if tag not in (
-            sodium_bindings.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE,
-            sodium_bindings.crypto_secretstream_xchacha20poly1305_TAG_FINAL,
-        ):
-            raise AuthenticationError("Unexpected stream tag received")
-        return plaintext
-
-    def _aad(self, seq: int) -> bytes:
-        return self._aad_prefix + seq.to_bytes(8, "big", signed=False)
+from .channels import JsonChaChaChannel, SecretStreamBox
+from .constants import (
+    ARGON2_SALT_BYTES,
+    DEFAULT_SERVER_SIGN_PUBLIC_KEY_B64,
+    DEFAULT_SIGNING_SEED_B64,
+    REMEMBER_TTL_SECONDS,
+    SESSION_TTL_SECONDS, PROTOCOL_VERSION,
+)
+from .crypto import argon2, b64d, b64e, canonical_dumps, hkdf_sha256, hmac_sha256
+from .errors import AuthenticationError
+from .models import ActiveSession, HandshakeContext, PasswordState, RememberedLogin
 
 
 class ServiceAuthManager:
@@ -653,7 +457,7 @@ class ServiceAuthManager:
 
     def _password_state_for(self, *, password: str, epoch: int) -> PasswordState:
         salt = secrets.token_bytes(ARGON2_SALT_BYTES)
-        verifier = _argon2(password, salt)
+        verifier = argon2(password, salt)
         return PasswordState(
             initialized=True,
             pwd_epoch=epoch,

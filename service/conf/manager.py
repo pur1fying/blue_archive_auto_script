@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 import logging
 import os
@@ -11,12 +12,12 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from watchfiles import Change, awatch
 
-from .broadcast import BroadcastChannel
-from .diff import PatchConflictError, apply_patch, diff_documents
-from .messages import PatchOperation, SyncPushPayload
-from .utils import read_setup_toml, write_setup_toml
+from service.types import PatchOperation, SyncPushPayload
+from service.update import read_setup_toml, write_setup_toml
+from service.utils.broadcast import BroadcastChannel
+from service.utils.diff import PatchConflictError, apply_patch, diff_documents
 
-ResourceKey = Tuple[str, Optional[str]]
+from .resources import ResourceKey, ResourcePathResolver
 
 
 @dataclass
@@ -43,6 +44,7 @@ class ConfigManager:
     def __init__(self, project_root: Path, loop: asyncio.AbstractEventLoop | None = None) -> None:
         self._root = project_root
         self._config_root = self._root / "config"
+        self._paths = ResourcePathResolver(project_root)
         self._lock = asyncio.Lock()
         self._snapshots: Dict[ResourceKey, ResourceSnapshot] = {}
         self._mtimes: Dict[ResourceKey, float] = {}
@@ -52,6 +54,11 @@ class ConfigManager:
         self._setup_toml: Union[Dict[str, Any], None] = None
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
+        """Attach the event loop used for async broadcast delivery.
+
+        Args:
+            loop: Running asyncio event loop owned by FastAPI lifespan.
+        """
         self._loop = loop
         self._update_bus.set_loop(loop)
 
@@ -59,19 +66,14 @@ class ConfigManager:
     # basic filesystem helpers
     # ------------------------------------------------------------------
     def _file_path(self, resource: str, resource_id: Optional[str]) -> Path:
-        if resource in ("config", "event"):
-            if not resource_id:
-                raise ValueError(f"resource_id required for resource '{resource}'")
-            return self._config_root / resource_id / f"{resource}.json"
-        if resource == "gui":
-            return self._config_root / "gui.json"
-        if resource == "static":
-            return self._config_root / "static.json"
-        if resource == "setup_toml":
-            return self._root / "setup.toml"
-        raise ValueError(f"Unsupported resource '{resource}'")
+        return self._paths.file_path(resource, resource_id)
 
     def list_config_ids(self) -> List[str]:
+        """List config ids that have both `config.json` and `event.json`.
+
+        Returns:
+            Sorted config directory names under the project config root.
+        """
         ids: List[str] = []
         if not self._config_root.exists():
             return ids
@@ -85,9 +87,14 @@ class ConfigManager:
         return sorted(ids)
 
     async def get_config_list(self) -> ResourceSnapshot:
+        """Return the current config id list as a snapshot.
+
+        Returns:
+            ResourceSnapshot whose data is a list of config ids and whose timestamp is current time.
+        """
         async with self._lock:
             ids = self.list_config_ids()
-            return ResourceSnapshot(json.loads(json.dumps(ids)), time.time())
+            return ResourceSnapshot(copy.deepcopy(ids), time.time())
 
     # ------------------------------------------------------------------
     # snapshot helpers
@@ -184,7 +191,7 @@ class ConfigManager:
     def _merge_setup_toml(self, projection: Dict[str, Any]) -> Dict[str, Any]:
         if self._setup_toml is None:
             self._setup_toml = {}
-        merged = json.loads(json.dumps(self._setup_toml))
+        merged = copy.deepcopy(self._setup_toml)
         merged.setdefault("General", {})
         merged.setdefault("URLs", {})
         merged.setdefault("Paths", {})
@@ -205,7 +212,7 @@ class ConfigManager:
     def _merge_gui(self, projection: Dict[str, Any]) -> Dict[str, Any]:
         if self._gui_full is None:
             self._gui_full = {}
-        merged = json.loads(json.dumps(self._gui_full))  # deep copy via json
+        merged = copy.deepcopy(self._gui_full)
         merged.setdefault("MainWindow", {})
         merged.setdefault("QFluentWidgets", {})
         main_window = projection.get("MainWindow", {})
@@ -249,14 +256,24 @@ class ConfigManager:
         return snapshot
 
     async def get_snapshot(self, resource: str, resource_id: Optional[str]) -> ResourceSnapshot:
+        """Load or return a cached resource snapshot.
+
+        Args:
+            resource: Resource family, such as config, event, gui, static, or setup_toml.
+            resource_id: Config id for config/event resources; otherwise None.
+
+        Returns:
+            Deep-copied ResourceSnapshot safe for callers to mutate.
+        """
         key = (resource, resource_id)
         async with self._lock:
             snapshot = self._snapshots.get(key)
             if snapshot is None:
-                snapshot = self._load_from_disk(resource, resource_id)
-            return ResourceSnapshot(json.loads(json.dumps(snapshot.data)), snapshot.timestamp)
+                snapshot = await asyncio.to_thread(self._load_from_disk, resource, resource_id)
+            return ResourceSnapshot(copy.deepcopy(snapshot.data), snapshot.timestamp)
 
     async def get_static_snapshot(self) -> ResourceSnapshot:
+        """Return the static resource snapshot with computed activity metadata."""
         snapshot = await self.get_snapshot("static", None)
 
         return snapshot
@@ -272,16 +289,31 @@ class ConfigManager:
         timestamp: float,
         origin: str = "backend",
     ) -> ResourceSnapshot:
+        """Apply JSON Patch operations to a mutable resource and publish the change.
+
+        Args:
+            resource: Mutable resource family.
+            resource_id: Config id for config/event resources; otherwise None.
+            operations: PatchOperation instances or raw operation dictionaries.
+            timestamp: Client snapshot timestamp used for conflict detection.
+            origin: Source tag included in outbound sync pushes.
+
+        Returns:
+            Updated resource snapshot.
+
+        Raises:
+            PatchConflictError: If the patch is stale or cannot be applied.
+        """
         key = (resource, resource_id)
 
         async with self._lock:
             snapshot = self._snapshots.get(key)
             if snapshot is None:
-                snapshot = self._load_from_disk(resource, resource_id)
+                snapshot = await asyncio.to_thread(self._load_from_disk, resource, resource_id)
             elif timestamp < snapshot.timestamp:
                 raise PatchConflictError("Incoming patch is older than current snapshot")
 
-            current_data = json.loads(json.dumps(snapshot.data))
+            current_data = copy.deepcopy(snapshot.data)
             ops_payload = [op.model_dump() if isinstance(op, PatchOperation) else dict(op) for op in operations]
             updated = apply_patch(current_data, ops_payload)
 
@@ -305,9 +337,9 @@ class ConfigManager:
                 to_dump = updated
 
             if resource == "setup_toml":
-                write_setup_toml(to_dump)
+                await asyncio.to_thread(write_setup_toml, to_dump)
             else:
-                self._write_json(path, to_dump, resource)
+                await asyncio.to_thread(self._write_json, path, to_dump, resource)
 
             new_timestamp = max(timestamp, time.time(), path.stat().st_mtime)
             new_snapshot = ResourceSnapshot(data=updated, timestamp=new_timestamp)
@@ -320,7 +352,7 @@ class ConfigManager:
             ], origin=origin,
         )
         await self._update_bus.publish(payload.model_dump())
-        return ResourceSnapshot(json.loads(json.dumps(new_snapshot.data)), new_snapshot.timestamp)
+        return ResourceSnapshot(copy.deepcopy(new_snapshot.data), new_snapshot.timestamp)
 
     def _write_json(self, path: Path, data: Any, resource: str) -> None:
         indent = 4 if resource in ("config", "gui") else 2
@@ -328,17 +360,20 @@ class ConfigManager:
             json.dump(data, fp, indent=indent, ensure_ascii=False)
 
     async def subscribe_updates(self) -> asyncio.Queue:
+        """Subscribe to filesystem/backend/frontend config update messages."""
         if self._loop is None:
             raise RuntimeError("ConfigManager event loop not configured")
         return self._update_bus.subscribe()
 
     def unsubscribe_updates(self, queue: asyncio.Queue) -> None:
+        """Remove a queue previously returned by `subscribe_updates`."""
         self._update_bus.unsubscribe(queue)
 
     # ------------------------------------------------------------------
     # disk scanning
     # ------------------------------------------------------------------
     async def scan_once(self) -> None:
+        """Scan known config resources once and publish add/remove/resource diffs."""
         current_ids = set(self.list_config_ids())
         previous_ids = set(self._known_config_ids) if hasattr(self, "_known_config_ids") else set()
 
@@ -412,14 +447,20 @@ class ConfigManager:
         await self._update_bus.publish(payload.model_dump())
 
     async def watch_filesystem(self) -> None:
+        """Watch config files and setup.toml, publishing resource-level changes."""
         if self._loop is None:
             self._loop = asyncio.get_running_loop()
             self._update_bus.set_loop(self._loop)
 
         await self.scan_once()
+        self._config_root.mkdir(exist_ok=True)
+        watch_paths = [self._config_root]
+        setup_toml = self._root / "setup.toml"
+        if setup_toml.exists():
+            watch_paths.append(setup_toml)
 
         try:
-            async for changes in awatch(self._root, recursive=True):
+            async for changes in awatch(*watch_paths, recursive=True):
                 await self._handle_watch_batch(changes)
         except asyncio.CancelledError:
             raise

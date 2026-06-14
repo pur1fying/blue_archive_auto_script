@@ -12,8 +12,15 @@ from time import sleep
 from typing import Any, Callable, Optional
 
 import websockets
-from adbutils import AdbDevice, AdbError, AdbTimeout, ForwardItem
 from websockets import ClientConnection
+
+try:
+    from adbutils import AdbDevice, AdbError, AdbTimeout, ForwardItem
+except ModuleNotFoundError:  # pragma: no cover - remote control dependency is optional at import time
+    AdbDevice = Any  # type: ignore
+    AdbError = RuntimeError  # type: ignore
+    AdbTimeout = TimeoutError  # type: ignore
+    ForwardItem = Any  # type: ignore
 
 
 # ---------------------------------------------------------------------------
