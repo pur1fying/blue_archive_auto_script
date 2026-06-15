@@ -78,10 +78,12 @@ def test_setup_toml_io_round_trip():
     setup_path = root / "setup.toml"
     try:
         data, path = read_setup_toml(setup_path)
-        data.setdefault("General", {})["mirrorc_cdk"] = "abc"
+        data.setdefault("general", {})["mirrorc_cdk"] = "abc"
         write_setup_toml(data, path)
         loaded, _ = read_setup_toml(setup_path)
 
-        assert loaded["General"]["mirrorc_cdk"] == "abc"
+        assert loaded["general"]["mirrorc_cdk"] == "abc"
+        assert loaded["general"]["channel"] == "stable"
+        assert "General" not in loaded
     finally:
         _cleanup(root)

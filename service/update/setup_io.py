@@ -10,7 +10,7 @@ try:  # Python 3.11+
 except ModuleNotFoundError:  # pragma: no cover - Python < 3.11 fallback
     import tomli as tomllib  # type: ignore[import]
 
-from deploy.installer.toml_config import DEFAULT_SETTINGS
+from .setup_schema import CURRENT_DEFAULT_SETTINGS, migrate_to_current_schema
 
 
 def read_setup_toml(setup_path: Union[Path, None] = None) -> tuple[dict[str, Any], Union[Path, None]]:
@@ -25,10 +25,12 @@ def read_setup_toml(setup_path: Union[Path, None] = None) -> tuple[dict[str, Any
     path = setup_path or (Path.cwd() / "setup.toml")
     if not path.exists():
         with path.open("wb") as file:
-            tomli_w.dump(DEFAULT_SETTINGS, file)
+            tomli_w.dump(CURRENT_DEFAULT_SETTINGS, file)
 
     with path.open("rb") as fp:
-        data = tomllib.load(fp)
+        data = migrate_to_current_schema(tomllib.load(fp))
+    with path.open("wb") as file:
+        tomli_w.dump(data, file)
     return data, path
 
 
@@ -42,7 +44,7 @@ def write_setup_toml(content: dict, setup_path: Union[Path, None] = None) -> Non
     path = setup_path or (Path.cwd() / "setup.toml")
     if not path.exists():
         with path.open("wb") as file:
-            tomli_w.dump(DEFAULT_SETTINGS, file)
+            tomli_w.dump(CURRENT_DEFAULT_SETTINGS, file)
 
     with path.open("wb") as fp:
-        tomli_w.dump(content, fp)
+        tomli_w.dump(migrate_to_current_schema(content), fp)

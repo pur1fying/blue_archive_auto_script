@@ -12,9 +12,10 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from watchfiles import Change, awatch
 
-from deploy.installer.const import method_for_repo_url, normalize_update_channel, repo_url_for_method
+from deploy.installer.const import normalize_update_channel
 from service.types import PatchOperation, SyncPushPayload
 from service.update import read_setup_toml, write_setup_toml
+from service.update.setup_schema import legacy_repo_url, migrate_to_current_schema
 from service.utils.broadcast import BroadcastChannel
 from service.utils.diff import PatchConflictError, apply_patch, diff_documents
 
@@ -102,14 +103,14 @@ class ConfigManager:
         }
 
     def _project_setup_toml(self, full_setup_toml: Dict[str, Any]) -> Dict[str, Any]:
-        config_URLs = full_setup_toml.get("URLs", {})
-        config_General = full_setup_toml.get("General", {})
-        channel = normalize_update_channel(config_General.get("channel") or ("dev" if config_General.get("dev") else "stable"))
+        current = migrate_to_current_schema(full_setup_toml)
+        config_general = current.get("general", {})
         return {
-            "channel": channel,
-            "updateMethod": method_for_repo_url(config_URLs.get("REPO_URL_HTTP")) or "github",
-            "shaMethod": config_General.get("get_remote_sha_method"),
-            "mirrorcCdk": config_General.get("mirrorc_cdk")
+            "channel": config_general.get("channel", "stable"),
+            "updateMethod": config_general.get("get_remote_sha_method") or "github",
+            "repoUrl": legacy_repo_url(current),
+            "shaMethod": config_general.get("get_remote_sha_method"),
+            "mirrorcCdk": config_general.get("mirrorc_cdk")
         }
 
     @staticmethod
@@ -182,10 +183,8 @@ class ConfigManager:
     def _merge_setup_toml(self, projection: Dict[str, Any]) -> Dict[str, Any]:
         if self._setup_toml is None:
             self._setup_toml = {}
-        merged = copy.deepcopy(self._setup_toml)
-        merged.setdefault("General", {})
-        merged.setdefault("URLs", {})
-        merged.setdefault("Paths", {})
+        merged = migrate_to_current_schema(copy.deepcopy(self._setup_toml))
+        merged.setdefault("general", {})
 
         shaMethod: Optional[str] = projection.get("shaMethod", None)
         updateMethod: Optional[str] = projection.get("updateMethod", None)
@@ -193,17 +192,13 @@ class ConfigManager:
         channel: Optional[str] = projection.get("channel", None)
         if channel is not None:
             normalized_channel = normalize_update_channel(channel)
-            merged["General"]["channel"] = normalized_channel
-            merged["General"]["dev"] = normalized_channel == "dev"
+            merged["general"]["channel"] = normalized_channel
         if shaMethod is not None:
-            merged["General"]["get_remote_sha_method"] = shaMethod
+            merged["general"]["get_remote_sha_method"] = shaMethod
         if updateMethod is not None:
-            effective_channel = normalize_update_channel(merged["General"].get("channel"))
-            repo_url = repo_url_for_method(updateMethod, effective_channel)
-            if repo_url is not None:
-                merged["URLs"]["REPO_URL_HTTP"] = repo_url
+            merged["general"]["get_remote_sha_method"] = updateMethod
         if mirrorcCdk is not None:
-            merged["General"]["mirrorc_cdk"] = mirrorcCdk
+            merged["general"]["mirrorc_cdk"] = mirrorcCdk
 
         self._setup_toml = merged
         return merged

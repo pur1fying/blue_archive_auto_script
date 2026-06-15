@@ -22,6 +22,7 @@ from .update import (
     validate_cdk,
     write_setup_toml,
 )
+from .update.setup_schema import migrate_to_current_schema
 
 if TYPE_CHECKING:
     from core.Baas_thread import Baas_thread
@@ -449,20 +450,19 @@ class ServiceRuntime:
     @staticmethod
     async def update_setup_toml(payload: Dict[str, Any]) -> Dict[str, Any]:
         data, path = await run_blocking(read_setup_toml)
-        general = data.setdefault("General", {})
-        urls = data.setdefault("URLs", {})
+        data = migrate_to_current_schema(data)
+        general = data.setdefault("general", {})
         if "channel" in payload:
             channel = str(payload["channel"]).strip().lower()
             if channel not in {"stable", "dev"}:
                 raise ValueError(f"Unsupported update channel: {channel}")
             general["channel"] = channel
-            general["dev"] = channel == "dev"
         if "shaMethod" in payload:
             general["get_remote_sha_method"] = payload["shaMethod"]
+        if "updateMethod" in payload:
+            general["get_remote_sha_method"] = payload["updateMethod"]
         if "mirrorcCdk" in payload:
             general["mirrorc_cdk"] = payload["mirrorcCdk"]
-        if "repoUrl" in payload:
-            urls["REPO_URL_HTTP"] = payload["repoUrl"]
         await run_blocking(write_setup_toml, data, path)
         return {"status": "ok", "path": str(path), "data": data}
 

@@ -24,11 +24,11 @@ from deploy.installer.const import (
     GetShaMethod,
     REPO_BRANCH,
     get_remote_sha_methods_for_channel,
-    normalize_update_channel,
     repo_url_for_method,
 )
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 from deploy.installer.toml_config import DEFAULT_SETTINGS
+from service.update.setup_schema import legacy_runtime_view, migrate_to_current_schema, setup_channel
 
 
 # ==============================================================================
@@ -333,21 +333,20 @@ class UpdateManager:
     """
 
     def __init__(self, setup_data: Dict[str, Any], config_path: Path):
+        self.raw_data = migrate_to_current_schema(setup_data)
         # Convert dict to SimpleNamespace for dot-access compatibility
-        if isinstance(setup_data, dict):
-            self.data = json.loads(json.dumps(setup_data), object_hook=lambda d: SimpleNamespace(**d))
+        legacy_data = legacy_runtime_view(self.raw_data)
+        if isinstance(legacy_data, dict):
+            self.data = json.loads(json.dumps(legacy_data), object_hook=lambda d: SimpleNamespace(**d))
         else:
-            self.data = setup_data
+            self.data = legacy_data
 
         self.config_path = config_path
         self.root_path = Path(self.data.Paths.BAAS_ROOT_PATH)
         self.tmp_path = self.root_path / self.data.Paths.TMP_PATH
 
         self.git_ops = GitOperationHandler(self.root_path)
-        self.channel = normalize_update_channel(
-            getattr(self.data.General, "channel", None)
-            or ("dev" if getattr(self.data.General, "dev", False) else "stable")
-        )
+        self.channel = setup_channel(self.raw_data)
         self.mirrorc = MirrorC_Updater(app="BAAS_repo", current_version="", channel=self.channel)
 
         self.local_sha = ""
@@ -358,22 +357,30 @@ class UpdateManager:
 
     def save_config(self, key_path: str, value: Any) -> None:
         """Updates a specific key in the TOML config file."""
-        keys = key_path.split('.')
-        # Reload raw dict to ensure we don't lose data during simpleNamespace conversion
         if self.config_path.exists():
             with open(self.config_path, "rb") as f:
                 import tomli as tomllib
-                current_data = tomllib.load(f)
+                current_data = migrate_to_current_schema(tomllib.load(f))
         else:
-            current_data = DEFAULT_SETTINGS.copy()
+            current_data = migrate_to_current_schema(DEFAULT_SETTINGS)
 
-        # Navigate to key
+        key_map = {
+            "General.get_remote_sha_method": "general.get_remote_sha_method",
+            "General.current_BAAS_version": "general.current_baas_sha",
+            "General.channel": "general.channel",
+            "General.dev": None,
+            "URLs.REPO_URL_HTTP": None,
+        }
+        key_path = key_map.get(key_path, key_path)
+        if key_path is None:
+            return
+
+        keys = key_path.split('.')
         ref = current_data
         for k in keys[:-1]:
             ref = ref.setdefault(k, {})
         ref[keys[-1]] = value
 
-        # Write back
         with open(self.config_path, "wb") as f:
             tomli_w.dump(current_data, f)
 

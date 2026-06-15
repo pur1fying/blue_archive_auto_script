@@ -13,7 +13,6 @@ from typing import Any, Dict, Optional
 from pygit2.enums import ResetMode
 
 import requests
-import tomli_w
 
 from deploy.installer.const import GetShaMethod, get_remote_sha_methods_for_channel, normalize_update_channel
 from deploy.installer.mirrorc_update.const import MirrorCErrorCode
@@ -21,6 +20,7 @@ from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 
 from service.update.repository import update_repo_to_latest
 from service.update.setup_io import read_setup_toml, write_setup_toml
+from service.update.setup_schema import migrate_to_current_schema, setup_channel
 
 RepositoryResult = Dict[str, Any]
 
@@ -219,10 +219,7 @@ def _format_expired_time(timestamp_value: Optional[float]) -> Tuple[Optional[flo
 
 def _setup_channel(setup_path: Optional[Path] = None) -> Tuple[str, Dict[str, Any], Path]:
     data, path = read_setup_toml(setup_path)
-    general = data.setdefault("General", {})
-    channel = normalize_update_channel(general.get("channel") or ("dev" if general.get("dev") else "stable"))
-    general["channel"] = channel
-    general["dev"] = channel == "dev"
+    channel = setup_channel(data)
     return channel, data, path
 
 
@@ -235,7 +232,8 @@ def validate_cdk(cdk: str, timeout: float = 3.0, channel: Optional[str] = None) 
             ret = updater.get_latest_version(cdk=cdk, timeout=timeout)
         except requests.RequestException as exc:
             data, path_setup_toml = read_setup_toml()
-            data["General"]["mirrorc_cdk"] = ""
+            data = migrate_to_current_schema(data)
+            data["general"]["mirrorc_cdk"] = ""
             write_setup_toml(data, path_setup_toml)
             return {
                 "success": False,
@@ -248,7 +246,8 @@ def validate_cdk(cdk: str, timeout: float = 3.0, channel: Optional[str] = None) 
             }
         except Exception as exc:  # pragma: no cover - unexpected error
             data, path_setup_toml = read_setup_toml()
-            data["General"]["mirrorc_cdk"] = ""
+            data = migrate_to_current_schema(data)
+            data["general"]["mirrorc_cdk"] = ""
             write_setup_toml(data, path_setup_toml)
             return {
                 "success": False,
@@ -283,9 +282,9 @@ def validate_cdk(cdk: str, timeout: float = 3.0, channel: Optional[str] = None) 
     message = base_messages.get(code, f"MirrorC returned code {code}.")
 
     data, path_setup_toml = read_setup_toml()
-    data["General"]["mirrorc_cdk"] = cdk if code == MirrorCErrorCode.SUCCESS.value else ""
-    data["General"]["channel"] = channel
-    data["General"]["dev"] = channel == "dev"
+    data = migrate_to_current_schema(data)
+    data["general"]["mirrorc_cdk"] = cdk if code == MirrorCErrorCode.SUCCESS.value else ""
+    data["general"]["channel"] = channel
     write_setup_toml(data, path_setup_toml)
 
     return {
@@ -307,9 +306,9 @@ def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo",
 
     try:
         version_value, _branch = git_ops.get_local_head_info()
-        data.setdefault("General", {})["current_BAAS_version"] = version_value
-        with path.open("wb") as file:
-            tomli_w.dump(data, file)
+        data = migrate_to_current_schema(data)
+        data["general"]["current_baas_sha"] = version_value
+        write_setup_toml(data, path)
     except Exception:
         version_value = ""
         _branch = "master"
@@ -342,21 +341,17 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
     """
     try:
         local_info, setup_toml, _branch = get_local_version()
-        channel = normalize_update_channel(
-            setup_toml.setdefault("General", {}).get("channel")
-            or ("dev" if setup_toml.setdefault("General", {}).get("dev") else "stable")
-        )
-        setup_toml["General"]["channel"] = channel
-        setup_toml["General"]["dev"] = channel == "dev"
+        setup_toml = migrate_to_current_schema(setup_toml)
+        channel = setup_channel(setup_toml)
+        setup_toml["general"]["channel"] = channel
         repo_methods = get_remote_sha_methods_for_channel(channel)
-        method_name = setup_toml.setdefault("General", {}).get("get_remote_sha_method", None)
+        method_name = setup_toml["general"].get("get_remote_sha_method", None)
         if not method_name:
             repo_results = test_all_repo_sha(timeout=timeout, channel=channel)
             selected = _select_remote_record(local_info.version, repo_results)
             method_name = selected.get("name") if selected else "github"
-            setup_toml.setdefault("General", {})["get_remote_sha_method"] = method_name
-            with local_info.path.open("wb") as file:
-                tomli_w.dump(setup_toml, file)
+            setup_toml["general"]["get_remote_sha_method"] = method_name
+            write_setup_toml(setup_toml, local_info.path)
 
         for ind, x in enumerate(repo_methods):
             x["channel"] = channel
