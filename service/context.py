@@ -12,6 +12,15 @@ from .conf.manager import ConfigManager
 from .utils.logging import LogManager
 from .runtime import ServiceRuntime
 
+OCR_UPDATE_CHECK_ENV = "BAAS_SERVICE_OCR_UPDATE_CHECK"
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() not in {"0", "false", "no", "off"}
+
 
 class ServiceContext:
     """Aggregates long-lived service components."""
@@ -25,6 +34,7 @@ class ServiceContext:
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._fs_task: Optional[asyncio.Task] = None
         self._update_check_task: Optional[asyncio.Task] = None
+        self.need_ocr_update_check = _env_bool(OCR_UPDATE_CHECK_ENV, True)
 
     async def startup(self) -> None:
         loop = asyncio.get_running_loop()
@@ -43,7 +53,12 @@ class ServiceContext:
             self._periodic_update_check(),
             name="periodic-update-check",
         )
-        threading.Thread(target=self.runtime.init_all_data, name="service-init-all-data", daemon=True).start()
+        threading.Thread(
+            target=self.runtime.init_all_data,
+            kwargs={"need_ocr_update_check": self.need_ocr_update_check},
+            name="service-init-all-data",
+            daemon=True,
+        ).start()
 
 
     async def shutdown(self) -> None:

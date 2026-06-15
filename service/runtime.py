@@ -128,11 +128,11 @@ class ServiceRuntime:
         assert self._main is not None
         return self._main.logger.log_collector
 
-    def init_all_data(self):
+    def init_all_data(self, need_ocr_update_check=True):
         """Initialize shared BAAS data and publish readiness when complete."""
         assert self._main is not None
         self._ensure_config()
-        status = self._main.init_all_data()
+        status = self._main.init_all_data(need_ocr_update_check=need_ocr_update_check)
         if status:
             self._status_bus.publish_threadsafe({
                 "is_all_data_initialized": True

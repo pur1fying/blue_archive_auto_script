@@ -19,22 +19,23 @@ class Main:
             self.init_all_data()
         self.threads = {}
 
-    def init_all_data(self):
-        if not self.init_ocr():
+    def init_all_data(self, need_ocr_update_check=True):
+        if not self.init_ocr(need_ocr_update_check=need_ocr_update_check):
             self.logger.error("Ocr Init Incomplete Please restart .")
             return False
         self.init_static_config()
         self.logger.info("-- All Data Initialization Complete Script ready--")
         return True
 
-    def init_ocr(self):
-        try:
-            check_git(self.logger)
-        except Exception as e:
-            self.logger.error("OCR Update Failed.")
-            import traceback
-            self.logger.error(traceback.format_exc())
-            self.logger.info("Try to Start OCR Server Without Update.")
+    def init_ocr(self, need_ocr_update_check=True):
+        if need_ocr_update_check:
+            try:
+                check_git(self.logger)
+            except Exception as e:
+                self.logger.error("OCR Update Failed.")
+                import traceback
+                self.logger.error(traceback.format_exc())
+                self.logger.info("Try to Start OCR Server Without Update.")
 
         try:
             self.ocr = ocr.Baas_ocr(logger=self.logger, ocr_needed=self.ocr_needed)
