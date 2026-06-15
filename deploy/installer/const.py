@@ -77,12 +77,6 @@ CHANNEL_REPO_SHA_METHODS = {
             "url": "https://baas-cdn.kiramei.workers.dev/https://github.com/pur1fying/blue_archive_auto_script.git",
             "branch": REPO_BRANCH,
         },
-        {
-            "name": "tencent_c_coding",
-            "method": GetShaMethod.PYGIT2,
-            "url": "https://e.coding.net/g-jbio0266/baas/blue_archive_auto_script.git",
-            "branch": REPO_BRANCH,
-        },
     ],
     "dev": [
         {

@@ -346,6 +346,11 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
         setup_toml["general"]["channel"] = channel
         repo_methods = get_remote_sha_methods_for_channel(channel)
         method_name = setup_toml["general"].get("get_remote_sha_method", None)
+        method_names = {method.get("name") for method in repo_methods}
+        if method_name and method_name not in method_names:
+            method_name = "github"
+            setup_toml["general"]["get_remote_sha_method"] = method_name
+            write_setup_toml(setup_toml, local_info.path)
         if not method_name:
             repo_results = test_all_repo_sha(timeout=timeout, channel=channel)
             selected = _select_remote_record(local_info.version, repo_results)

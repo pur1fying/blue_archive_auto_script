@@ -87,3 +87,48 @@ def test_setup_toml_io_round_trip():
         assert "General" not in loaded
     finally:
         _cleanup(root)
+
+
+def test_setup_toml_reads_tauri_camel_case_paths():
+    root = _workspace_tmp()
+    setup_path = root / "setup.toml"
+    try:
+        setup_path.write_text(
+            """
+schema_version = 1
+
+[general]
+mirrorcCdk = "abc"
+channel = "dev"
+getRemoteShaMethod = "github"
+forceLaunch = true
+
+[paths]
+baasRootPath = "D:/BAAS"
+tmpPath = "cache"
+toolkitPath = "tools"
+
+[python]
+runtimePath = "C:/Python/python.exe"
+pythonVersion = "3.11.0"
+
+[repositories]
+mainSources = []
+cppSources = []
+""".strip(),
+            encoding="utf-8",
+        )
+
+        loaded, _ = read_setup_toml(setup_path)
+
+        assert loaded["general"]["mirrorc_cdk"] == "abc"
+        assert loaded["general"]["channel"] == "dev"
+        assert loaded["general"]["get_remote_sha_method"] == "github"
+        assert loaded["general"]["force_launch"] is True
+        assert loaded["paths"]["baas_root_path"] == "D:/BAAS"
+        assert loaded["paths"]["tmp_path"] == "cache"
+        assert loaded["paths"]["toolkit_path"] == "tools"
+        assert loaded["python"]["runtime_path"] == "C:/Python/python.exe"
+        assert loaded["python"]["python_version"] == "3.11.0"
+    finally:
+        _cleanup(root)
