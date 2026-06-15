@@ -15,10 +15,12 @@ from .conf import ConfigInitializer
 from .conf import resolve_config_dir
 from .utils.broadcast import BroadcastChannel
 from .update import (
+    read_setup_toml,
     check_for_update,
     test_all_repo_sha,
     update_to_latest,
     validate_cdk,
+    write_setup_toml,
 )
 
 if TYPE_CHECKING:
@@ -305,6 +307,14 @@ class ServiceRuntime:
         self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
         return {"status": "stopped", "config_id": config_id}
 
+    async def stop_all_tasks(self) -> Dict[str, Any]:
+        """Stop every running BAAS scheduler/solver session before installation work."""
+        config_ids = list(self._sessions.keys())
+        results = []
+        for config_id in config_ids:
+            results.append(await self.stop_scheduler(config_id))
+        return {"status": "stopped", "results": results}
+
     async def solve_task(self, config_id: str, task_name: str, set_log=None) -> Dict[str, Any]:
         """Run one BAAS task in a daemon worker thread.
 
@@ -422,19 +432,39 @@ class ServiceRuntime:
         return adb_res
 
     @staticmethod
-    async def valid_cdk(cdk):
-        cdk_res = await run_blocking(validate_cdk, cdk)
+    async def valid_cdk(cdk, channel=None):
+        cdk_res = await run_blocking(validate_cdk, cdk, 3.0, channel)
         return cdk_res
 
     @staticmethod
-    async def test_all_sha():
-        all_sha_res = await run_blocking(test_all_repo_sha)
+    async def test_all_sha(channel=None):
+        all_sha_res = await run_blocking(test_all_repo_sha, 3.0, channel)
         return all_sha_res
 
-    @staticmethod
-    async def check_for_update():
+    async def check_for_update(self):
         all_update_res = await run_blocking(check_for_update)
+        self.publish_version_update(all_update_res)
         return all_update_res
+
+    @staticmethod
+    async def update_setup_toml(payload: Dict[str, Any]) -> Dict[str, Any]:
+        data, path = await run_blocking(read_setup_toml)
+        general = data.setdefault("General", {})
+        urls = data.setdefault("URLs", {})
+        if "channel" in payload:
+            channel = str(payload["channel"]).strip().lower()
+            if channel not in {"stable", "dev"}:
+                raise ValueError(f"Unsupported update channel: {channel}")
+            general["channel"] = channel
+            general["dev"] = channel == "dev"
+        if "shaMethod" in payload:
+            general["get_remote_sha_method"] = payload["shaMethod"]
+        if "mirrorcCdk" in payload:
+            general["mirrorc_cdk"] = payload["mirrorcCdk"]
+        if "repoUrl" in payload:
+            urls["REPO_URL_HTTP"] = payload["repoUrl"]
+        await run_blocking(write_setup_toml, data, path)
+        return {"status": "ok", "path": str(path), "data": data}
 
     async def add_config(self, name, server):
         """Create a new config directory with generated timestamp id."""
@@ -444,10 +474,14 @@ class ServiceRuntime:
             "serial": serial_name
         }
 
-    @staticmethod
-    async def update_to_latest():
+    async def update_to_latest(self):
+        await self.stop_all_tasks()
         await run_blocking(update_to_latest, None)
         return {"status": "updated"}
+
+    def publish_version_update(self, payload: Dict[str, Any]) -> None:
+        if payload:
+            self._status_bus.publish_threadsafe({"version": payload})
 
     async def remove_config(self, _id):
         """Remove a config directory after resolving it inside project config root."""

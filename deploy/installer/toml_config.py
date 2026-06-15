@@ -7,6 +7,7 @@ DEFAULT_SETTINGS = {
         "current_BAAS_version": "",
         "current_BAAS_Cpp_version": "",
         "get_remote_sha_method": "",
+        "channel": "stable",
         "dev": False,
         "refresh": False,
         "launch": False,

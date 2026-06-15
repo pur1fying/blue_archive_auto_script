@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import threading
 from contextlib import suppress
 from pathlib import Path
@@ -23,6 +24,7 @@ class ServiceContext:
         self.log_manager = LogManager()
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._fs_task: Optional[asyncio.Task] = None
+        self._update_check_task: Optional[asyncio.Task] = None
 
     async def startup(self) -> None:
         loop = asyncio.get_running_loop()
@@ -37,6 +39,10 @@ class ServiceContext:
         await self.log_manager.start()
 
         self._fs_task = asyncio.create_task(self.config_manager.watch_filesystem(), name="config-fs-watch")
+        self._update_check_task = asyncio.create_task(
+            self._periodic_update_check(),
+            name="periodic-update-check",
+        )
         threading.Thread(target=self.runtime.init_all_data, name="service-init-all-data", daemon=True).start()
 
 
@@ -46,8 +52,22 @@ class ServiceContext:
             with suppress(asyncio.CancelledError):
                 await self._fs_task
             self._fs_task = None
+        if self._update_check_task:
+            self._update_check_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await self._update_check_task
+            self._update_check_task = None
         await self.log_manager.stop()
 
     def ensure_runtime_logger_attached(self) -> None:
         for queue, scope in self.runtime.get_log_sources():
             self.log_manager.register_queue(queue, scope=scope)
+
+    async def _periodic_update_check(self) -> None:
+        interval = max(300, int(os.getenv("BAAS_UPDATE_CHECK_INTERVAL_SECONDS", "1800")))
+        while True:
+            try:
+                await self.runtime.check_for_update()
+            except Exception:
+                pass
+            await asyncio.sleep(interval)

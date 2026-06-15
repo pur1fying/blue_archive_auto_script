@@ -8,6 +8,7 @@ from .checks import (
     test_repo_sha,
     update_to_latest,
     validate_cdk,
+    _setup_channel,
     write_setup_toml,
 )
 
@@ -21,5 +22,6 @@ __all__ = [
     "test_repo_sha",
     "update_to_latest",
     "validate_cdk",
+    "_setup_channel",
     "write_setup_toml",
 ]

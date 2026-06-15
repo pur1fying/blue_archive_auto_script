@@ -20,7 +20,13 @@ import tomli_w
 from pygit2.enums import ResetMode
 
 # External dependencies (assumed to exist based on context)
-from deploy.installer.const import GetShaMethod, get_remote_sha_methods, REPO_BRANCH
+from deploy.installer.const import (
+    GetShaMethod,
+    REPO_BRANCH,
+    get_remote_sha_methods_for_channel,
+    normalize_update_channel,
+    repo_url_for_method,
+)
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 from deploy.installer.toml_config import DEFAULT_SETTINGS
 
@@ -338,12 +344,17 @@ class UpdateManager:
         self.tmp_path = self.root_path / self.data.Paths.TMP_PATH
 
         self.git_ops = GitOperationHandler(self.root_path)
-        self.mirrorc = MirrorC_Updater(app="BAAS_repo", current_version="")
+        self.channel = normalize_update_channel(
+            getattr(self.data.General, "channel", None)
+            or ("dev" if getattr(self.data.General, "dev", False) else "stable")
+        )
+        self.mirrorc = MirrorC_Updater(app="BAAS_repo", current_version="", channel=self.channel)
 
         self.local_sha = ""
         self.remote_sha = ""
         self.update_type = "latest"  # 'latest', 'full', 'incremental'
         self.mirrorc_cdk = self.data.General.mirrorc_cdk
+        self.sha_methods = get_remote_sha_methods_for_channel(self.channel)
 
     def save_config(self, key_path: str, value: Any) -> None:
         """Updates a specific key in the TOML config file."""
@@ -411,13 +422,13 @@ class UpdateManager:
         # 1. Try saved method first
         saved_method_name = self.data.General.get_remote_sha_method
         if saved_method_name:
-            method_conf = next((m for m in get_remote_sha_methods if m["name"] == saved_method_name), None)
+            method_conf = next((m for m in self.sha_methods if m["name"] == saved_method_name), None)
             if method_conf:
                 sha = self._get_sha_from_method(method_conf)
                 if sha: return sha
 
         # 2. Try all methods
-        for method in get_remote_sha_methods:
+        for method in self.sha_methods:
             sha = self._get_sha_from_method(method)
             if sha:
                 logging.info(f"Setting default remote SHA method -> [ {method['name']} ]")
@@ -545,6 +556,12 @@ class UpdateManager:
         logging.info("+--------------------------------+")
 
         try:
+            repo_url = repo_url_for_method(self.data.General.get_remote_sha_method, self.channel)
+            if repo_url:
+                self.data.URLs.REPO_URL_HTTP = repo_url
+                self.save_config("URLs.REPO_URL_HTTP", repo_url)
+            self.save_config("General.channel", self.channel)
+            self.save_config("General.dev", self.channel == "dev")
             # 1. Check/Repair Repo
             if not self.git_ops.is_valid_repo():
                 self.git_ops.repair_repo(self.data.URLs.REPO_URL_HTTP)

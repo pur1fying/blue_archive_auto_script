@@ -15,7 +15,7 @@ from pygit2.enums import ResetMode
 import requests
 import tomli_w
 
-from deploy.installer.const import GetShaMethod, get_remote_sha_methods
+from deploy.installer.const import GetShaMethod, get_remote_sha_methods_for_channel, normalize_update_channel
 from deploy.installer.mirrorc_update.const import MirrorCErrorCode
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 
@@ -150,8 +150,8 @@ def _github_api_get_latest_sha(config: Dict[str, Any], timeout: float) -> Tuple[
         return False, str(exc)
 
 
-def _mirrorc_api_get_latest_sha(timeout: float) -> Tuple[bool, str]:
-    mirrorc_inst = MirrorC_Updater(app="BAAS_repo", current_version="")
+def _mirrorc_api_get_latest_sha(timeout: float, channel: str = "stable") -> Tuple[bool, str]:
+    mirrorc_inst = MirrorC_Updater(app="BAAS_repo", current_version="", channel=channel)
     try:
         ret = mirrorc_inst.get_latest_version(cdk="", timeout=timeout)
         if ret.has_data and ret.latest_version_name:
@@ -178,11 +178,12 @@ def _git_wrapper_get_latest_sha(config: Dict[str, Any]) -> Tuple[bool, str]:
         return False, str(exc)
 
 
-def test_all_repo_sha(timeout: float = 3.0) -> List[RepositoryResult]:
+def test_all_repo_sha(timeout: float = 3.0, channel: Optional[str] = None) -> List[RepositoryResult]:
     """Test every configured repository and return timing + SHA details."""
+    channel = normalize_update_channel(channel or _setup_channel()[0])
     results: List[RepositoryResult] = []
-    for config in get_remote_sha_methods:
-        result = test_repo_sha(config, timeout)
+    for config in get_remote_sha_methods_for_channel(channel):
+        result = test_repo_sha({**config, "channel": channel}, timeout)
         results.append(result)
     return results
 
@@ -193,7 +194,7 @@ def test_repo_sha(config: dict[str, Union[str, GetShaMethod]], timeout: float) -
     if method == GetShaMethod.GITHUB_API:
         success, value = _github_api_get_latest_sha(config, timeout)
     elif method == GetShaMethod.MIRRORC_API:
-        success, value = _mirrorc_api_get_latest_sha(timeout)
+        success, value = _mirrorc_api_get_latest_sha(timeout, str(config.get("channel") or _setup_channel()[0]))
     else:
         # Renamed to indicate it uses the wrapper logic
         success, value = _git_wrapper_get_latest_sha(config)
@@ -216,10 +217,20 @@ def _format_expired_time(timestamp_value: Optional[float]) -> Tuple[Optional[flo
     return timestamp_value, dt.isoformat()
 
 
-def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
+def _setup_channel(setup_path: Optional[Path] = None) -> Tuple[str, Dict[str, Any], Path]:
+    data, path = read_setup_toml(setup_path)
+    general = data.setdefault("General", {})
+    channel = normalize_update_channel(general.get("channel") or ("dev" if general.get("dev") else "stable"))
+    general["channel"] = channel
+    general["dev"] = channel == "dev"
+    return channel, data, path
+
+
+def validate_cdk(cdk: str, timeout: float = 3.0, channel: Optional[str] = None) -> Dict[str, Any]:
     """Validate a MirrorC CDK and return structured status information."""
+    channel = normalize_update_channel(channel or _setup_channel()[0])
     if cdk != "":
-        updater = MirrorC_Updater(app="BAAS_repo", current_version="")
+        updater = MirrorC_Updater(app="BAAS_repo", current_version="", channel=channel)
         try:
             ret = updater.get_latest_version(cdk=cdk, timeout=timeout)
         except requests.RequestException as exc:
@@ -273,6 +284,8 @@ def validate_cdk(cdk: str, timeout: float = 3.0) -> Dict[str, Any]:
 
     data, path_setup_toml = read_setup_toml()
     data["General"]["mirrorc_cdk"] = cdk if code == MirrorCErrorCode.SUCCESS.value else ""
+    data["General"]["channel"] = channel
+    data["General"]["dev"] = channel == "dev"
     write_setup_toml(data, path_setup_toml)
 
     return {
@@ -329,19 +342,28 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
     """
     try:
         local_info, setup_toml, _branch = get_local_version()
+        channel = normalize_update_channel(
+            setup_toml.setdefault("General", {}).get("channel")
+            or ("dev" if setup_toml.setdefault("General", {}).get("dev") else "stable")
+        )
+        setup_toml["General"]["channel"] = channel
+        setup_toml["General"]["dev"] = channel == "dev"
+        repo_methods = get_remote_sha_methods_for_channel(channel)
         method_name = setup_toml.setdefault("General", {}).get("get_remote_sha_method", None)
         if not method_name:
-            repo_results = test_all_repo_sha(timeout=timeout)
-            method_name = _select_remote_record(local_info.version, repo_results).get("name")
+            repo_results = test_all_repo_sha(timeout=timeout, channel=channel)
+            selected = _select_remote_record(local_info.version, repo_results)
+            method_name = selected.get("name") if selected else "github"
             setup_toml.setdefault("General", {})["get_remote_sha_method"] = method_name
             with local_info.path.open("wb") as file:
                 tomli_w.dump(setup_toml, file)
 
-        for ind, x in enumerate(get_remote_sha_methods):
+        for ind, x in enumerate(repo_methods):
+            x["channel"] = channel
             if "branch" in x:
-                get_remote_sha_methods[ind]["branch"] = _branch
+                repo_methods[ind]["branch"] = _branch
 
-        method_config = list(filter(lambda x: x.get('name') == method_name, get_remote_sha_methods))[0]
+        method_config = next((x for x in repo_methods if x.get('name') == method_name), repo_methods[0])
         repo_result = test_repo_sha(method_config, timeout=timeout)
         remote_version = repo_result.get("value") if repo_result else None
 
@@ -354,7 +376,9 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
         return {
             "local": local_info.version,
             "remote": remote_version,
-            "update_available": update_available
+            "update_available": update_available,
+            "channel": channel,
+            "method": method_config.get("name"),
         }
 
     except:

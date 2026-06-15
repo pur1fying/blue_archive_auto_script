@@ -12,6 +12,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from watchfiles import Change, awatch
 
+from deploy.installer.const import method_for_repo_url, normalize_update_channel, repo_url_for_method
 from service.types import PatchOperation, SyncPushPayload
 from service.update import read_setup_toml, write_setup_toml
 from service.utils.broadcast import BroadcastChannel
@@ -24,18 +25,6 @@ from .resources import ResourceKey, ResourcePathResolver
 class ResourceSnapshot:
     data: Any
     timestamp: float
-
-
-REPO_URL_CHECK_UPDATE_METHOD_MAPPING = {
-    "https://github.com/pur1fying/blue_archive_auto_script.git": "github",
-    "https://gitee.com/pur1fy/blue_archive_auto_script.git": "gitee",
-    "https://gitcode.com/m0_74686738/blue_archive_auto_script.git": "gitcode",
-    "https://e.coding.net/g-jbio0266/baas/blue_archive_auto_script.git": "tencent_c_coding"
-}
-
-REPO_URL_CHECK_UPDATE_METHOD_MAPPING_REV = {
-    v: k for k, v in REPO_URL_CHECK_UPDATE_METHOD_MAPPING.items()
-}
 
 
 class ConfigManager:
@@ -115,8 +104,10 @@ class ConfigManager:
     def _project_setup_toml(self, full_setup_toml: Dict[str, Any]) -> Dict[str, Any]:
         config_URLs = full_setup_toml.get("URLs", {})
         config_General = full_setup_toml.get("General", {})
+        channel = normalize_update_channel(config_General.get("channel") or ("dev" if config_General.get("dev") else "stable"))
         return {
-            "updateMethod": REPO_URL_CHECK_UPDATE_METHOD_MAPPING.get(config_URLs.get("REPO_URL_HTTP")),
+            "channel": channel,
+            "updateMethod": method_for_repo_url(config_URLs.get("REPO_URL_HTTP")) or "github",
             "shaMethod": config_General.get("get_remote_sha_method"),
             "mirrorcCdk": config_General.get("mirrorc_cdk")
         }
@@ -199,10 +190,18 @@ class ConfigManager:
         shaMethod: Optional[str] = projection.get("shaMethod", None)
         updateMethod: Optional[str] = projection.get("updateMethod", None)
         mirrorcCdk: Optional[str] = projection.get("mirrorcCdk", None)
+        channel: Optional[str] = projection.get("channel", None)
+        if channel is not None:
+            normalized_channel = normalize_update_channel(channel)
+            merged["General"]["channel"] = normalized_channel
+            merged["General"]["dev"] = normalized_channel == "dev"
         if shaMethod is not None:
             merged["General"]["get_remote_sha_method"] = shaMethod
         if updateMethod is not None:
-            merged["URLs"]["REPO_URL_HTTP"] = REPO_URL_CHECK_UPDATE_METHOD_MAPPING_REV[updateMethod]
+            effective_channel = normalize_update_channel(merged["General"].get("channel"))
+            repo_url = repo_url_for_method(updateMethod, effective_channel)
+            if repo_url is not None:
+                merged["URLs"]["REPO_URL_HTTP"] = repo_url
         if mirrorcCdk is not None:
             merged["General"]["mirrorc_cdk"] = mirrorcCdk
 

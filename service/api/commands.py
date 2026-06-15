@@ -71,23 +71,29 @@ async def execute_command(cmd: CommandMessage) -> Dict[str, Any]:
         return {"status": "ok", "data": {"addresses": result}}
 
     if cmd.command == "valid_cdk":
-        result = await context.runtime.valid_cdk(cmd.payload["cdk"])
+        result = await context.runtime.valid_cdk(cmd.payload["cdk"], cmd.payload.get("channel"))
         return {"status": "ok", "data": result}
 
     if cmd.command == "test_all_sha":
-        result = await context.runtime.test_all_sha()
+        result = await context.runtime.test_all_sha(cmd.payload.get("channel"))
         return {"status": "ok", "data": result}
 
     if cmd.command == "check_for_update":
+        if "channel" in cmd.payload:
+            await context.runtime.update_setup_toml({"channel": cmd.payload["channel"]})
         result = await context.runtime.check_for_update()
         return {"status": "ok", "data": result}
 
     if cmd.command == "update_setup_toml":
-        result = await context.runtime.check_for_update()
+        result = await context.runtime.update_setup_toml(cmd.payload)
         return {"status": "ok", "data": result}
 
     if cmd.command == "update_to_latest":
         result = await context.runtime.update_to_latest()
+        return {"status": "ok", "data": result}
+
+    if cmd.command == "stop_all_tasks":
+        result = await context.runtime.stop_all_tasks()
         return {"status": "ok", "data": result}
 
     if cmd.command == "control_device":
