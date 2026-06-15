@@ -104,6 +104,7 @@ class ServiceRuntime:
         self._active_config_id: Optional[str] = None
         self._update_signal: Optional[_SignalHook] = None
         self._exit_signal: Optional[_SignalHook] = None
+        self._event_map_inv: Dict[str, Dict[str, str]] = {}
         self.is_all_data_initialized: bool = False
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
@@ -464,9 +465,20 @@ class ServiceRuntime:
         self._update_status(config_id, button=payload)
 
     def _handle_update_signal(self, config_id: str, payload: Any) -> None:
+        if self._event_map_inv.get(config_id) is None:
+            self._event_map_inv.setdefault(config_id, {
+                v: k
+                for k, v in self._sessions[config_id].baas.scheduler.event_map.items()
+            })
+        _event_map_inv = self._event_map_inv[config_id]
         if isinstance(payload, list) and payload:
-            current = payload[0]
-            waiting = [item for item in payload if item != current]
+            current = _event_map_inv.get(payload[0], None)
+            waiting = [
+                value
+                for item in payload
+                if (value := _event_map_inv.get(item)) is not None
+                   and value != current
+            ]
         else:
             current = None
             waiting = []
