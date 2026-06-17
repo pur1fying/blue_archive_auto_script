@@ -3,6 +3,8 @@ name: Sync to CNB
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
 
 jobs:
   sync:
