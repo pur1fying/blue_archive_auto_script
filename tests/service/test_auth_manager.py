@@ -8,7 +8,15 @@ from pathlib import Path
 import pytest
 
 from service.auth import manager as auth_manager_module
-from service.auth import AuthenticationError, ServiceAuthManager, canonical_dumps, hmac_sha256
+from service.auth import (
+    AuthenticationError,
+    DEFAULT_SERVER_SIGN_PUBLIC_KEY_B64,
+    DEFAULT_SIGNING_SEED_B64,
+    ServiceAuthManager,
+    b64d,
+    canonical_dumps,
+    hmac_sha256,
+)
 
 
 def _workspace_tmp() -> Path:
@@ -41,6 +49,34 @@ def test_auth_manager_password_change_revokes_sessions(monkeypatch):
         assert queue.get_nowait()["type"] == "auth_revoked"
         with pytest.raises(AuthenticationError, match="Unknown or revoked"):
             manager.get_session(session.session_id)
+    finally:
+        _cleanup(root)
+
+
+def test_signing_key_defaults_to_frontend_pin(monkeypatch):
+    root = _workspace_tmp()
+    monkeypatch.delenv("BAAS_SERVICE_SIGN_SEED_B64", raising=False)
+    try:
+        manager = ServiceAuthManager(root)
+
+        assert manager.server_public_key_b64() == DEFAULT_SERVER_SIGN_PUBLIC_KEY_B64
+        assert (root / "config" / "service_signing_key.bin").read_bytes() == b64d(DEFAULT_SIGNING_SEED_B64)
+    finally:
+        _cleanup(root)
+
+
+def test_stale_signing_key_is_replaced_with_default(monkeypatch):
+    root = _workspace_tmp()
+    monkeypatch.delenv("BAAS_SERVICE_SIGN_SEED_B64", raising=False)
+    try:
+        signing_file = root / "config" / "service_signing_key.bin"
+        signing_file.parent.mkdir(parents=True, exist_ok=True)
+        signing_file.write_bytes(b"x" * 32)
+
+        manager = ServiceAuthManager(root)
+
+        assert manager.server_public_key_b64() == DEFAULT_SERVER_SIGN_PUBLIC_KEY_B64
+        assert signing_file.read_bytes() == b64d(DEFAULT_SIGNING_SEED_B64)
     finally:
         _cleanup(root)
 
