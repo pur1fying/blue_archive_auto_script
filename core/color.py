@@ -21,18 +21,36 @@ def wait_loading(self: Baas_thread) -> None:
     return
 
 
+def _get_rgb_at_index(self, row: int, col: int):
+    img = self.latest_img_array
+    if img is None or img.ndim < 3:
+        return None
+    h, w = img.shape[:2]
+    if not (0 <= row < h and 0 <= col < w):
+        return None
+    return img[row, col]
+
+
+def _pixel_in_rgb_range(pixel, r_min, r_max, g_min, g_max, b_min, b_max):
+    return (r_min <= pixel[2] <= r_max and
+            g_min <= pixel[1] <= g_max and
+            b_min <= pixel[0] <= b_max)
+
+
 def rgb_in_range(self, x: int, y: int, r_min: int, r_max: int, g_min: int, g_max: int, b_min: int, b_max: int,
                  check_nearby=False, nearby_range=1):
-    if r_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][2] <= r_max and \
-        g_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][1] <= g_max and \
-        b_min <= self.latest_img_array[int(y * self.ratio)][int(x * self.ratio)][0] <= b_max:
+    row = int(y * self.ratio)
+    col = int(x * self.ratio)
+    pixel = _get_rgb_at_index(self, row, col)
+    if pixel is None:
+        return False
+    if _pixel_in_rgb_range(pixel, r_min, r_max, g_min, g_max, b_min, b_max):
         return True
     if check_nearby:
         for i in range(nearby_range * -1, nearby_range + 1):
             for j in range(nearby_range * -1, nearby_range + 1):
-                if r_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][2] <= r_max and \
-                    g_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][1] <= g_max and \
-                    b_min <= self.latest_img_array[int(y * self.ratio) + i][int(x * self.ratio) + j][0] <= b_max:
+                pixel = _get_rgb_at_index(self, row + i, col + j)
+                if pixel is not None and _pixel_in_rgb_range(pixel, r_min, r_max, g_min, g_max, b_min, b_max):
                     return True
     return False
 
