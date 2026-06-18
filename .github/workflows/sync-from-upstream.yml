@@ -87,9 +87,7 @@ jobs:
               --base "${BASE_BRANCH}" \
               --head "${SYNC_BRANCH}" \
               --title "Sync upstream master" \
-              --body "Automated PR to sync changes from pur1fying/blue_archive_auto_script:master into Kiramei/baas-dev:master." \
-              --json url \
-              --jq '.url')"
+              --body "Automated PR to sync changes from pur1fying/blue_archive_auto_script:master into Kiramei/baas-dev:master.")"
 
             echo "Created sync PR: ${pr_url}"
           fi
