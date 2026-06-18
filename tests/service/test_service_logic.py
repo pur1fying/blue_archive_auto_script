@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import os
+import shutil
+import time
 from pathlib import Path
 
 from watchfiles import Change
@@ -49,3 +53,82 @@ def test_config_manager_classifies_config_files():
     assert manager._classify_config_change(Change.modified, gui_path) == (False, ("gui", None))
     assert manager._classify_config_change(Change.modified, static_path) == (False, ("static", None))
     assert manager._classify_config_change(Change.added, root / "config" / "new_config") == (True, None)
+
+
+def _write_config_pair(root: Path, config_id: str, name: str) -> Path:
+    config_dir = root / "config" / config_id
+    config_dir.mkdir(parents=True)
+    config_path = config_dir / "config.json"
+    config_path.write_text(json.dumps({"name": name, "server": "官服"}, ensure_ascii=False), encoding="utf-8")
+    (config_dir / "event.json").write_text("[]", encoding="utf-8")
+    return config_path
+
+
+def test_config_manager_initial_scan_publishes_config_add(tmp_path):
+    async def scenario():
+        _write_config_pair(tmp_path, "default_config", "Default")
+        manager = ConfigManager(tmp_path)
+        manager.set_loop(asyncio.get_running_loop())
+        queue = await manager.subscribe_updates()
+
+        await manager.scan_once()
+
+        return await queue.get()
+
+    payload = asyncio.run(scenario())
+
+    assert payload["type"] == "patch"
+    assert payload["resource"] == "config"
+    assert payload["resource_id"] == "default_config"
+    assert payload["ops"][0]["op"] == "add"
+
+
+def test_config_manager_scan_publishes_config_remove(tmp_path):
+    async def scenario():
+        _write_config_pair(tmp_path, "default_config", "Default")
+        manager = ConfigManager(tmp_path)
+        manager.set_loop(asyncio.get_running_loop())
+        queue = await manager.subscribe_updates()
+
+        await manager.scan_once()
+        await queue.get()
+        shutil.rmtree(tmp_path / "config" / "default_config")
+        await manager.scan_once()
+
+        return await queue.get()
+
+    payload = asyncio.run(scenario())
+
+    assert payload["type"] == "patch"
+    assert payload["resource"] == "config"
+    assert payload["resource_id"] == "default_config"
+    assert payload["ops"][0]["op"] == "remove"
+
+
+def test_config_manager_detects_manual_config_json_change(tmp_path):
+    async def scenario():
+        config_path = _write_config_pair(tmp_path, "default_config", "Before")
+        manager = ConfigManager(tmp_path)
+        manager.set_loop(asyncio.get_running_loop())
+        queue = await manager.subscribe_updates()
+
+        await manager.scan_once()
+        await queue.get()
+        await manager.get_snapshot("config", "default_config")
+
+        config_path.write_text(
+            json.dumps({"name": "After", "server": "官服"}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        future = time.time() + 2
+        os.utime(config_path, (future, future))
+
+        await manager._check_resource("config", "default_config")
+        return await queue.get()
+
+    payload = asyncio.run(scenario())
+
+    assert payload["type"] == "patch"
+    assert payload["resource"] == "config"
+    assert payload["resource_id"] == "default_config"
+    assert {"op": "replace", "path": "/name", "value": "After"} in payload["ops"]

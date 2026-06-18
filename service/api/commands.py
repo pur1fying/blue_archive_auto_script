@@ -57,6 +57,7 @@ async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = No
         if not server or not name:
             raise ValueError("server and name are required for add_config")
         result = await context.runtime.add_config(name, server)
+        await context.config_manager.scan_once()
         return {"status": "ok", "data": result}
 
     if cmd.command.startswith("remove_config"):
@@ -64,6 +65,7 @@ async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = No
         if not config_id:
             raise ValueError("id is required for remove_config")
         result = await context.runtime.remove_config(config_id)
+        await context.config_manager.scan_once()
         return {"status": "ok", "data": result}
 
     if cmd.command == "copy_config":
@@ -71,6 +73,7 @@ async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = No
         if not config_id:
             raise ValueError("id is required for copy_config")
         result = await context.runtime.copy_config(config_id)
+        await context.config_manager.scan_once()
         return {"status": "ok", "data": result}
 
     if cmd.command == "export_config":
@@ -85,6 +88,7 @@ async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = No
         if binary_payload is None:
             raise ValueError("binary archive payload is required for import_config")
         result = await context.runtime.import_config(binary_payload)
+        await context.config_manager.scan_once()
         return {"status": "ok", "data": result}
 
     if cmd.command == "detect_adb":

@@ -39,7 +39,7 @@ class ConfigManager:
         self._mtimes: Dict[ResourceKey, float] = {}
         self._update_bus = BroadcastChannel(loop)
         self._loop = loop
-        self._known_config_ids = None
+        self._known_config_ids: set[str] = set()
         self._gui_full: Union[Dict[str, Any], None] = None
         self._setup_toml: Union[Dict[str, Any], None] = None
 
@@ -376,7 +376,7 @@ class ConfigManager:
     async def scan_once(self) -> None:
         """Scan known config resources once and publish add/remove/resource diffs."""
         current_ids = set(self.list_config_ids())
-        previous_ids = set(self._known_config_ids) if hasattr(self, "_known_config_ids") else set()
+        previous_ids = set(self._known_config_ids)
 
         for added in current_ids - previous_ids:
             await self._notify_config_added(added)
