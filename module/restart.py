@@ -28,10 +28,7 @@ def start(self):
     if self.server == 'CN':
         activity_name = None
     self.u2.app_start(self.package_name, activity_name)
-    time.sleep(1)
-    if self.server in ('Global', 'CN', 'JP'):
-        self.to_main_page()
-        time.sleep(4)
+    self.to_main_page()
 
 
 def check_need_restart(self):
