@@ -332,6 +332,7 @@ class ServiceRuntime:
             Command result payload with normalized task name.
         """
         if task_name in _TASK_ALIAS:
+            _original_task_name = task_name
             task_name = _TASK_ALIAS[task_name]
         async with self._lock:
             session = self._sessions.get(config_id)
@@ -353,7 +354,7 @@ class ServiceRuntime:
                         running=True,
                         is_flag_run=True,
                         exit_code=None,
-                        current_task=task_name,
+                        current_task=_original_task_name,
                         waiting_tasks=[]
                     )
                     baas.flag_run = True
