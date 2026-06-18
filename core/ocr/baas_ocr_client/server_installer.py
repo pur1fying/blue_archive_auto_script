@@ -5,6 +5,7 @@ import os
 import platform
 import subprocess
 import time
+import tempfile
 from typing import Optional
 
 import pygit2
@@ -105,12 +106,13 @@ class OcrRepoManager:
 
         # Fallback to pygit2
         try:
-            repo = pygit2.Repository()
-            remote = repo.remotes.create_anonymous(self.remote_url)
-            target_ref_name = f"refs/heads/{self.branch}"
-            for head in remote.ls_remotes():
-                if head.get("name") == target_ref_name:
-                    return str(head.get("oid"))
+            with tempfile.TemporaryDirectory() as tmp:
+                repo = pygit2.init_repository(tmp, bare=True)
+                remote = repo.remotes.create_anonymous(self.remote_url)
+                target_ref_name = f"refs/heads/{self.branch}"
+                for head in remote.ls_remotes():
+                    if head.get("name") == target_ref_name:
+                        return str(head.get("oid"))
         except Exception as e:
             self.logger.error(f"pygit2 failed to get remote info: {e}")
             return None

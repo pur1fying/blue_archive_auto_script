@@ -21,7 +21,6 @@ from .channels import JsonChaChaChannel, SecretStreamBox
 from .constants import (
     ARGON2_SALT_BYTES,
     DEFAULT_SERVER_SIGN_PUBLIC_KEY_B64,
-    DEFAULT_SIGNING_SEED_B64,
     REMEMBER_TTL_SECONDS,
     SESSION_TTL_SECONDS, PROTOCOL_VERSION,
 )
@@ -46,7 +45,6 @@ class ServiceAuthManager:
 
         self._password_state = self._load_password_state()
         self._signing_key = self._load_signing_key()
-        self._verify_default_public_key()
         self._ticket_key = self._load_or_create_key(
             self._ticket_file,
             env_name="BAAS_SERVICE_TICKET_KEY_B64",
@@ -569,9 +567,14 @@ class ServiceAuthManager:
             return Ed25519PrivateKey.from_private_bytes(b64d(env_seed))
         if self._signing_file.exists():
             return Ed25519PrivateKey.from_private_bytes(self._signing_file.read_bytes())
-        seed = b64d(DEFAULT_SIGNING_SEED_B64)
+        private_key = Ed25519PrivateKey.generate()
+        seed = private_key.private_bytes(
+            serialization.Encoding.Raw,
+            serialization.PrivateFormat.Raw,
+            serialization.NoEncryption(),
+        )
         self._signing_file.write_bytes(seed)
-        return Ed25519PrivateKey.from_private_bytes(seed)
+        return private_key
 
     def _verify_default_public_key(self) -> None:
         public_key = self._signing_key.public_key().public_bytes(

@@ -115,11 +115,19 @@ class DotPrinter:
             print(self.char, end="", flush=True)
 
     def start(self):
+        if self._thread.is_alive():
+            return
+        self._stop.clear()
+        self._thread = threading.Thread(
+            target=self._run,
+            daemon=True,
+        )
         self._thread.start()
 
     def stop(self):
         self._stop.set()
-        self._thread.join()
+        if self._thread.is_alive():
+            self._thread.join()
         print()
 
 class GlobalConfig:
@@ -284,7 +292,6 @@ class GitOperationHandler:
         self.printer = DotPrinter(interval=0.5)
 
     def _run_git_cmd(self, args: List[str], cwd: Optional[Path] = None) -> str:
-        self.printer.start()
         """Executes a system git command."""
         if not self.git_executable:
             raise RuntimeError("System git not found.")
@@ -297,6 +304,8 @@ class GitOperationHandler:
         env = __env__.copy()
         env["GIT_TERMINAL_PROMPT"] = "0"
 
+        printer = DotPrinter(interval=0.5)
+        printer.start()
         try:
             result = subprocess.run(
                 [self.git_executable, *args],
@@ -306,11 +315,11 @@ class GitOperationHandler:
                 check=True,
                 env=env
             )
-            self.printer.stop()
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
-            self.printer.stop()
             raise RuntimeError(f"Git command failed: {e.stderr}")
+        finally:
+            printer.stop()
 
     def is_valid_repo(self) -> bool:
         """Checks if the directory is a valid git repository."""
@@ -817,8 +826,8 @@ class UpdateOrchestrator:
     def _get_mirror_update_type(self) -> str:
         local_sha = self.cfg.General.current_BAAS_version
         if len(local_sha) == 0:
-            if os.path.exists(self.cfg.Paths.BAAS_ROOT_PATH / ".git"):
-                repo = Repository(str(self.cfg.Paths.BAAS_ROOT_PATH))
+            if os.path.exists(self.cfg.baas_root / ".git"):
+                repo = Repository(str(self.cfg.baas_root))
                 # Get local SHA
                 try:
                     local_sha = str(repo.head.target)
@@ -826,7 +835,7 @@ class UpdateOrchestrator:
                     logger.error(f"Incorrect Key or corrupted repo: {e}. Remove [ .git ] folder and reinstall.")
                     del repo
                     gc.collect()
-                    shutil.rmtree(self.cfg.Paths.BAAS_ROOT_PATH / ".git")
+                    shutil.rmtree(self.cfg.baas_root / ".git")
                     return "full"
             else:
                 # first install
@@ -864,16 +873,16 @@ class UpdateOrchestrator:
         # Download the repository zip file
         file_length = latest_mirrorc_return.file_size / (1024 * 1024)
         logger.info("Downloading the repository zip, total = %.2f MB" % file_length)
-        with tempfile.TemporaryDirectory(dir=self.cfg.Paths.BAAS_ROOT_PATH) as tmp_dir:
+        with tempfile.TemporaryDirectory(dir=self.cfg.baas_root) as tmp_dir:
             zip_path = FileSystemUtils.download_file(
                 latest_mirrorc_return.download_url, tmp_dir
             )
             logger.info("Unzipping the repository...")
-            FileSystemUtils.unzip_file(zip_path, zip_path)
+            FileSystemUtils.unzip_file(zip_path, Path(tmp_dir))
 
             logger.info("Moving unzipped files to BAAS root path...")
             file_dir = Path(tmp_dir) / "blue_archive_auto_script"
-            FileSystemUtils.copy_directory_structure(file_dir, self.cfg.Paths.BAAS_ROOT_PATH)
+            FileSystemUtils.copy_directory_structure(file_dir, self.cfg.baas_root)
 
         logger.success("Mirrorc Install Success!")
 
@@ -900,17 +909,17 @@ class UpdateOrchestrator:
             file_length = latest_mirrorc_return.file_size / (1024 * 1024)
             logger.info("Downloading the incremental zip, total = %.2f MB" % file_length)
 
-            with tempfile.TemporaryDirectory(dir=self.cfg.Paths.BAAS_ROOT_PATH) as tmp_dir:
+            with tempfile.TemporaryDirectory(dir=self.cfg.baas_root) as tmp_dir:
                 zip_path = FileSystemUtils.download_file(
                     latest_mirrorc_return.download_url, tmp_dir
                 )
                 logger.info("Unzipping the incremental update...")
-                FileSystemUtils.unzip_file(zip_path, zip_path)
+                FileSystemUtils.unzip_file(zip_path, Path(tmp_dir))
 
                 MirrorC_Updater.apply_update(
                     tmp_dir,
                     Path(tmp_dir) / "changes.json",
-                    Path(self.cfg.Paths.BAAS_ROOT_PATH),
+                    self.cfg.baas_root,
                     logger
                 )
             logger.success("Mirrorc Incremental Update Success!")

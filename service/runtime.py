@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import copy
-import datetime
 import io
 import json
 import os
@@ -339,42 +338,44 @@ class ServiceRuntime:
             if session is None:
                 session = self._get_or_create_session(config_id)
             if set_log: set_log()
+            if session.thread and session.thread.is_alive():
+                return {"status": "already-running", "config_id": config_id}
             baas = session.baas
             needs_init = session.baas.scheduler is None
 
-        if needs_init:
-            await run_blocking(baas.init_all_data)
+            if needs_init:
+                await run_blocking(baas.init_all_data)
 
-        def _call() -> None:
-            try:
-                self._update_status(
-                    config_id,
-                    running=True,
-                    is_flag_run=True,
-                    exit_code=None,
-                    current_task=task_name,
-                    waiting_tasks=[]
-                )
-                baas.flag_run = True
-                baas.send("solve", task_name)
-            finally:
-                session.thread = None
-                assert session is not None
-                self._update_status(
-                    config_id,
-                    running=False,
-                    is_flag_run=session.baas.flag_run,
-                    current_task=None,
-                    waiting_tasks=[]
-                )
+            def _call() -> None:
+                try:
+                    self._update_status(
+                        config_id,
+                        running=True,
+                        is_flag_run=True,
+                        exit_code=None,
+                        current_task=task_name,
+                        waiting_tasks=[]
+                    )
+                    baas.flag_run = True
+                    baas.send("solve", task_name)
+                finally:
+                    session.thread = None
+                    assert session is not None
+                    self._update_status(
+                        config_id,
+                        running=False,
+                        is_flag_run=session.baas.flag_run,
+                        current_task=None,
+                        waiting_tasks=[]
+                    )
 
-        thread = threading.Thread(
-            target=_call,
-            name=f"baas-solver-{task_name}-{config_id}",
-            daemon=True,
-        )
-        session.thread = thread
-        thread.start()
+            thread = threading.Thread(
+                target=_call,
+                name=f"baas-solver-{task_name}-{config_id}",
+                daemon=True,
+            )
+            session.thread = thread
+            thread.start()
 
         return {"status": "ok", "task": task_name, "result": 0}
 
@@ -501,7 +502,7 @@ class ServiceRuntime:
 
     async def add_config(self, name, server):
         """Create a new config directory with generated timestamp id."""
-        serial_name = str(int(datetime.datetime.now().timestamp()))
+        serial_name = self._new_config_id()
         ConfigInitializer(self._project_root).check_config(serial_name, name=name, server=server)
         return {
             "serial": serial_name

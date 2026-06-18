@@ -114,7 +114,7 @@ class SyncPushPayload(BaseModel):
     """
 
     type: Literal["patch"] = "patch"
-    resource: Literal["config", "event", "gui", "setup_toml"]
+    resource: Literal["config", "event", "gui", "static", "setup_toml"]
     resource_id: Optional[str] = None
     timestamp: float
     ops: List[PatchOperation]

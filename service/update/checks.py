@@ -315,7 +315,8 @@ def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo",
         data["general"]["current_baas_sha"] = version_value
         write_setup_toml(data, path)
     except Exception:
-        version_value = ""
+        data = migrate_to_current_schema(data)
+        version_value = data["general"].get("current_baas_sha", "")
         _branch = "master"
 
     return VersionInfo(version=version_value, source="setup.toml", path=path), data, _branch

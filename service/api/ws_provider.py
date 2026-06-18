@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
@@ -19,7 +20,10 @@ async def provider_sender(
     stream: SecretStreamBox,
     queue: asyncio.Queue,
     envelope_type: str,
+    send_lock: Optional[asyncio.Lock] = None,
 ) -> None:
+    if send_lock is None:
+        send_lock = asyncio.Lock()
     try:
         while True:
             payload = await queue.get()
@@ -27,7 +31,8 @@ async def provider_sender(
                 response = {"type": envelope_type, "status": payload}
             else:
                 response = {"type": envelope_type, "entry": payload}
-            await send_stream_json(websocket, stream, response)
+            async with send_lock:
+                await send_stream_json(websocket, stream, response)
     except asyncio.CancelledError:
         pass
 
@@ -38,33 +43,39 @@ async def websocket_provider(websocket: WebSocket) -> None:
     log_task = status_task = None
     try:
         _, stream = await perform_business_resume(websocket, channel="provider")
+        send_lock = asyncio.Lock()
         history = context.log_manager.get_history()
         scopes = context.log_manager.get_scopes()
-        await send_stream_json(websocket, stream, {"type": "logs_full", "scopes": scopes, "entries": history})
-        await send_stream_json(websocket, stream, {"type": "status", "status": context.runtime.current_status()})
+        async with send_lock:
+            await send_stream_json(websocket, stream, {"type": "logs_full", "scopes": scopes, "entries": history})
+        async with send_lock:
+            await send_stream_json(websocket, stream, {"type": "status", "status": context.runtime.current_status()})
         if context.runtime.is_all_data_initialized:
-            await send_stream_json(websocket, stream, {"type": "status", "status": {"is_all_data_initialized": True}})
+            async with send_lock:
+                await send_stream_json(websocket, stream, {"type": "status", "status": {"is_all_data_initialized": True}})
         log_queue = await context.log_manager.subscribe()
         status_queue = await context.runtime.subscribe_status()
-        log_task = asyncio.create_task(provider_sender(websocket, stream, log_queue, "log"))
-        status_task = asyncio.create_task(provider_sender(websocket, stream, status_queue, "status"))
+        log_task = asyncio.create_task(provider_sender(websocket, stream, log_queue, "log", send_lock))
+        status_task = asyncio.create_task(provider_sender(websocket, stream, status_queue, "status", send_lock))
         while True:
             message = await recv_stream_json(websocket, stream)
             req_type = message.get("type")
             if req_type == "static_request":
                 ProviderRequest(**message)
                 snapshot = await context.config_manager.get_static_snapshot()
-                await send_stream_json(
-                    websocket,
-                    stream,
-                    {
-                        "type": "static_snapshot",
-                        "timestamp": snapshot.timestamp,
-                        "data": snapshot.data,
-                    },
-                )
+                async with send_lock:
+                    await send_stream_json(
+                        websocket,
+                        stream,
+                        {
+                            "type": "static_snapshot",
+                            "timestamp": snapshot.timestamp,
+                            "data": snapshot.data,
+                        },
+                    )
             elif req_type == "status_request":
-                await send_stream_json(websocket, stream, {"type": "status", "status": context.runtime.current_status()})
+                async with send_lock:
+                    await send_stream_json(websocket, stream, {"type": "status", "status": context.runtime.current_status()})
             else:
                 raise HTTPException(status_code=400, detail=f"Unsupported provider message: {req_type}")
     except (AuthenticationError, HTTPException) as exc:

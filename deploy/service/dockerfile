@@ -17,7 +17,7 @@ ENV PATH="/root/.local/bin:/root/.cargo/bin:$PATH"
 RUN uv python install 3.9.0
 
 # ---- Python dependency layer (cache-friendly) ----
-COPY requirements.service.txt /tmp/requirements.service.txt
+COPY requirements.service.linux.txt /tmp/requirements.service.txt
 
 RUN uv venv /opt/venv --python 3.9.0 \
     && . /opt/venv/bin/activate \

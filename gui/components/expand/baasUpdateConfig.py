@@ -96,10 +96,9 @@ class TestGetRemoteShaMethodWorker(QThread):
             remote_refs = remote.ls_remotes()
 
             # 遍历匹配分支引用
-            for ref_name, oid in remote_refs:
-                decoded_ref = ref_name
-                if decoded_ref == target_ref:
-                    sha = str(oid)
+            for ref in remote_refs:
+                if ref.get("name") == target_ref:
+                    sha = str(ref.get("oid"))
                     return True, sha
 
             # 如果没找到直接尝试 refs/remotes/origin/<branch>
