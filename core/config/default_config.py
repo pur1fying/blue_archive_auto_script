@@ -3542,7 +3542,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "CodeBox",
+        "CN": "ElectronicNewYearsMarch",
         "Global": "RyubuDoushuWhatsEnvisionedisOneSoleFuture",
         "JP": "AHundredYearsofOneFlowerLetsGetRealwithaWaterBattle"
     },

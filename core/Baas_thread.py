@@ -167,12 +167,40 @@ class Baas_thread:
                 time.sleep(duration)
 
     def u2_get_screenshot(self):
-        return cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+        img = cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+        return self.normalize_screenshot(img)
 
     def get_screenshot_array(self):
         if not self.flag_run:
             raise RequestHumanTakeOver
-        return self.screenshot.screenshot()
+        return self.normalize_screenshot(self.screenshot.screenshot())
+
+    def normalize_screenshot(self, img):
+        if img is None or img.ndim < 2:
+            return img
+        height, width = img.shape[:2]
+        if self.is_android_device and height > width:
+            self.logger.warning(
+                f"Portrait screenshot detected ({width}x{height}), rotating to landscape."
+            )
+            img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+            height, width = img.shape[:2]
+        if self.is_android_device:
+            self._sync_screenshot_resolution(width, height)
+        return img
+
+    def _sync_screenshot_resolution(self, width, height):
+        if not getattr(self, 'resolution', None):
+            return
+        if width < height or (width, height) == self.resolution:
+            return
+        self.logger.warning(
+            f"Screenshot size {width}x{height} differs from resolution "
+            f"{self.resolution[0]}x{self.resolution[1]}, syncing from screenshot."
+        )
+        self.resolution = (width, height)
+        self.ratio = width / 1280
+        self.logger.info(f"Screen Size Ratio synced: {self.ratio}")
 
     def update_screenshot_array(self):
         self.latest_img_array = self.get_screenshot_array()
@@ -864,7 +892,9 @@ class Baas_thread:
                 self.u2.uiautomator.start()
                 while not self.u2.uiautomator.running():
                     time.sleep(0.1)
-                self.latest_img_array = cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+                self.latest_img_array = self.normalize_screenshot(
+                    cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+                )
                 return
             except Exception as e:
                 print(e)
