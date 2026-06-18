@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import asyncio
+import io
+import json
 import shutil
 import sys
 import types
 import uuid
 from pathlib import Path
 from types import SimpleNamespace
+from zipfile import ZipFile
 
 import pytest
 
+import service.runtime as runtime_module
 from service.conf import ConfigPathError, ensure_safe_config_id, resolve_config_dir
 from service.runtime import ServiceRuntime
 from service.update.setup_io import read_setup_toml, write_setup_toml
@@ -24,6 +28,18 @@ def _workspace_tmp() -> Path:
 def _cleanup(path: Path) -> None:
     if path.exists():
         shutil.rmtree(path)
+
+
+def _write_config(root: Path, config_id: str, name: str, server: str = "官服") -> Path:
+    target = root / "config" / config_id
+    target.mkdir(parents=True)
+    (target / "config.json").write_text(
+        json.dumps({"name": name, "server": server}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    (target / "event.json").write_text("[]", encoding="utf-8")
+    (target / "switch.json").write_text("{}", encoding="utf-8")
+    return target
 
 
 def test_config_id_path_safety():
@@ -136,6 +152,50 @@ def test_runtime_remote_connection_skips_package_detection(monkeypatch):
         "device": "adb-device",
         "scrcpy_initialized": True,
     }
+
+
+def test_runtime_copy_config_assigns_new_id_and_copy_suffix(monkeypatch):
+    root = _workspace_tmp()
+    try:
+        _write_config(root, "source", "Alpha")
+        runtime = ServiceRuntime(root)
+        monkeypatch.setattr(runtime_module.ConfigInitializer, "check_config", lambda *args, **kwargs: None)
+
+        result = runtime._copy_config_sync("source")
+
+        copied = root / "config" / result["serial"]
+        assert copied.exists()
+        assert result["serial"] != "source"
+        assert json.loads((copied / "config.json").read_text(encoding="utf-8"))["name"] == "Alpha_copy"
+        assert (copied / "event.json").exists()
+    finally:
+        _cleanup(root)
+
+
+def test_runtime_import_config_replaces_same_name_with_new_id(monkeypatch):
+    root = _workspace_tmp()
+    try:
+        _write_config(root, "old", "Imported")
+        runtime = ServiceRuntime(root)
+        monkeypatch.setattr(runtime_module.ConfigInitializer, "check_config", lambda *args, **kwargs: None)
+
+        buffer = io.BytesIO()
+        with ZipFile(buffer, "w") as archive:
+            archive.writestr("config.json", json.dumps({"name": "Imported", "server": "日服"}))
+            archive.writestr("event.json", "[]")
+            archive.writestr("switch.json", "{}")
+
+        result = runtime._import_config_sync(buffer.getvalue())
+
+        assert result["serial"] != "old"
+        assert not (root / "config" / "old").exists()
+        imported = root / "config" / result["serial"]
+        assert imported.exists()
+        imported_config = json.loads((imported / "config.json").read_text(encoding="utf-8"))
+        assert imported_config["name"] == "Imported"
+        assert imported_config["server"] == "日服"
+    finally:
+        _cleanup(root)
 
 
 def test_setup_toml_io_round_trip():

@@ -13,7 +13,7 @@ def _require_config_id(cmd: CommandMessage) -> str:
     return cmd.config_id
 
 
-async def execute_command(cmd: CommandMessage) -> Dict[str, Any]:
+async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = None) -> Dict[str, Any]:
     if cmd.command == "start_scheduler":
         if not cmd.config_id:
             raise ValueError("config_id is required for start_scheduler")
@@ -64,6 +64,27 @@ async def execute_command(cmd: CommandMessage) -> Dict[str, Any]:
         if not config_id:
             raise ValueError("id is required for remove_config")
         result = await context.runtime.remove_config(config_id)
+        return {"status": "ok", "data": result}
+
+    if cmd.command == "copy_config":
+        config_id = cmd.payload.get("id")
+        if not config_id:
+            raise ValueError("id is required for copy_config")
+        result = await context.runtime.copy_config(config_id)
+        return {"status": "ok", "data": result}
+
+    if cmd.command == "export_config":
+        config_id = cmd.payload.get("id")
+        if not config_id:
+            raise ValueError("id is required for export_config")
+        result = await context.runtime.export_config(config_id)
+        content = result.pop("content")
+        return {"status": "ok", "data": result, "_binary": content}
+
+    if cmd.command == "import_config":
+        if binary_payload is None:
+            raise ValueError("binary archive payload is required for import_config")
+        result = await context.runtime.import_config(binary_payload)
         return {"status": "ok", "data": result}
 
     if cmd.command == "detect_adb":

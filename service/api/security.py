@@ -73,10 +73,19 @@ async def send_stream_json(websocket: WebSocket, stream: SecretStreamBox, payloa
     await websocket.send_bytes(stream.encrypt(json_bytes(payload)))
 
 
+async def send_stream_bytes(websocket: WebSocket, stream: SecretStreamBox, payload: bytes) -> None:
+    await websocket.send_bytes(stream.encrypt(payload))
+
+
 async def recv_stream_json(websocket: WebSocket, stream: SecretStreamBox) -> dict:
     frame = await websocket.receive_bytes()
     plaintext = stream.decrypt(frame)
     return json.loads(plaintext.decode("utf-8"))
+
+
+async def recv_stream_bytes(websocket: WebSocket, stream: SecretStreamBox) -> bytes:
+    frame = await websocket.receive_bytes()
+    return stream.decrypt(frame)
 
 
 async def begin_server_hello(

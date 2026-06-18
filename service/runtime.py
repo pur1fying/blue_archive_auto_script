@@ -3,12 +3,15 @@ from __future__ import annotations
 import asyncio
 import copy
 import datetime
+import io
+import json
 import os
 import shutil
 import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from .conf import ConfigInitializer
@@ -473,6 +476,157 @@ class ServiceRuntime:
         return {
             "serial": serial_name
         }
+
+    def _new_config_id(self) -> str:
+        config_root = self._project_root / "config"
+        while True:
+            config_id = str(int(time.time() * 1000))
+            if not (config_root / config_id).exists():
+                return config_id
+            time.sleep(0.001)
+
+    def _config_path(self, config_id: str) -> Path:
+        return resolve_config_dir(self._project_root / "config", config_id)
+
+    def _read_config_name(self, config_id: str) -> Optional[str]:
+        path = self._config_path(config_id) / "config.json"
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        name = data.get("name")
+        return str(name).strip() if name is not None else None
+
+    def _unique_config_name(self, base_name: str, *, exclude_id: Optional[str] = None) -> str:
+        existing = {
+            name
+            for config_id in self._list_config_ids_sync()
+            if config_id != exclude_id
+            for name in [self._read_config_name(config_id)]
+            if name
+        }
+        candidate = f"{base_name}_copy"
+        index = 2
+        while candidate in existing:
+            candidate = f"{base_name}_copy{index}"
+            index += 1
+        return candidate
+
+    def _list_config_ids_sync(self) -> List[str]:
+        config_root = self._project_root / "config"
+        if not config_root.exists():
+            return []
+        ids: List[str] = []
+        for child in config_root.iterdir():
+            if child.is_dir() and (child / "config.json").exists() and (child / "event.json").exists():
+                ids.append(child.name)
+        return sorted(ids)
+
+    def _copy_config_sync(self, source_id: str) -> Dict[str, Any]:
+        source = self._config_path(source_id)
+        if not source.is_dir():
+            raise ValueError(f"config not found: {source_id}")
+
+        target_id = self._new_config_id()
+        target = self._config_path(target_id)
+        shutil.copytree(source, target)
+
+        config_path = target / "config.json"
+        config_data = json.loads(config_path.read_text(encoding="utf-8"))
+        base_name = str(config_data.get("name") or source_id).strip() or source_id
+        config_data["name"] = self._unique_config_name(base_name, exclude_id=source_id)
+        config_path.write_text(json.dumps(config_data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        ConfigInitializer(self._project_root).check_config(target_id)
+        return {"serial": target_id, "name": config_data["name"]}
+
+    async def copy_config(self, config_id: str) -> Dict[str, Any]:
+        return await run_blocking(self._copy_config_sync, config_id)
+
+    def _export_config_sync(self, config_id: str) -> Dict[str, Any]:
+        source = self._config_path(config_id)
+        if not source.is_dir():
+            raise ValueError(f"config not found: {config_id}")
+        config_path = source / "config.json"
+        if not config_path.exists():
+            raise ValueError(f"config.json not found for config: {config_id}")
+
+        config_name = self._read_config_name(config_id) or config_id
+        safe_name = "".join(c if c not in '<>:"/\\|?*' else "_" for c in config_name).strip() or config_id
+        buffer = io.BytesIO()
+        with ZipFile(buffer, "w", ZIP_DEFLATED) as archive:
+            for path in sorted(source.rglob("*")):
+                if path.is_file():
+                    archive.write(path, path.relative_to(source).as_posix())
+        return {
+            "filename": f"{safe_name}.zip",
+            "content": buffer.getvalue(),
+        }
+
+    async def export_config(self, config_id: str) -> Dict[str, Any]:
+        return await run_blocking(self._export_config_sync, config_id)
+
+    @staticmethod
+    def _safe_zip_members(archive: ZipFile) -> List[str]:
+        members: List[str] = []
+        for info in archive.infolist():
+            name = info.filename.replace("\\", "/")
+            parts = [part for part in name.split("/") if part]
+            if not parts or any(part == ".." for part in parts):
+                raise ValueError(f"unsafe archive path: {info.filename}")
+            if Path(name).is_absolute():
+                raise ValueError(f"unsafe archive path: {info.filename}")
+            if not info.is_dir():
+                members.append(name)
+        return members
+
+    @staticmethod
+    def _archive_root_prefix(members: List[str]) -> str:
+        if "config.json" in members:
+            return ""
+        top_levels = {member.split("/", 1)[0] for member in members if "/" in member}
+        if len(top_levels) == 1:
+            prefix = next(iter(top_levels)) + "/"
+            if f"{prefix}config.json" in members:
+                return prefix
+        raise ValueError("archive must contain config.json")
+
+    def _import_config_sync(self, content: bytes) -> Dict[str, Any]:
+        try:
+            with ZipFile(io.BytesIO(content)) as archive:
+                members = self._safe_zip_members(archive)
+                prefix = self._archive_root_prefix(members)
+                config_member = f"{prefix}config.json"
+                config_data = json.loads(archive.read(config_member).decode("utf-8"))
+                config_name = str(config_data.get("name") or "").strip()
+                if not config_name:
+                    raise ValueError("imported config.json must contain name")
+
+                target_id = self._new_config_id()
+                target = self._config_path(target_id)
+                target.mkdir(parents=True)
+                for member in members:
+                    if not member.startswith(prefix):
+                        continue
+                    relative = member[len(prefix):]
+                    if not relative:
+                        continue
+                    target_file = target / Path(relative)
+                    target_file.parent.mkdir(parents=True, exist_ok=True)
+                    target_file.write_bytes(archive.read(member))
+        except BadZipFile as exc:
+            raise ValueError("invalid config archive") from exc
+        except json.JSONDecodeError as exc:
+            raise ValueError("invalid config.json in archive") from exc
+
+        ConfigInitializer(self._project_root).check_config(target_id)
+        for existing_id in self._list_config_ids_sync():
+            if existing_id != target_id and self._read_config_name(existing_id) == config_name:
+                shutil.rmtree(self._config_path(existing_id))
+        return {"serial": target_id, "name": config_name}
+
+    async def import_config(self, content: bytes) -> Dict[str, Any]:
+        return await run_blocking(self._import_config_sync, content)
 
     async def update_to_latest(self):
         await self.stop_all_tasks()
