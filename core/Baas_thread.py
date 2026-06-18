@@ -190,6 +190,8 @@ class Baas_thread:
         return img
 
     def _sync_screenshot_resolution(self, width, height):
+        if not getattr(self, 'resolution', None):
+            return
         if width < height or (width, height) == self.resolution:
             return
         self.logger.warning(
