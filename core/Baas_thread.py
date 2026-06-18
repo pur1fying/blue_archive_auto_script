@@ -173,7 +173,7 @@ class Baas_thread:
     def get_screenshot_array(self):
         if not self.flag_run:
             raise RequestHumanTakeOver
-        return self.screenshot.screenshot()
+        return self.normalize_screenshot(self.screenshot.screenshot())
 
     def normalize_screenshot(self, img):
         if img is None or img.ndim < 2:
@@ -203,7 +203,7 @@ class Baas_thread:
         self.logger.info(f"Screen Size Ratio synced: {self.ratio}")
 
     def update_screenshot_array(self):
-        self.latest_img_array = self.normalize_screenshot(self.get_screenshot_array())
+        self.latest_img_array = self.get_screenshot_array()
 
     def signal_stop(self):
         self.flag_run = False
