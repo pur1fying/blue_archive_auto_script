@@ -178,12 +178,17 @@ def _git_wrapper_get_latest_sha(config: Dict[str, Any]) -> Tuple[bool, str]:
         return False, str(exc)
 
 
+def repo_sha_test_configs(channel: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Return normalized repository SHA test configs for a channel."""
+    channel = normalize_update_channel(channel or _setup_channel()[0])
+    return [{**config, "channel": channel} for config in get_remote_sha_methods_for_channel(channel)]
+
+
 def test_all_repo_sha(timeout: float = 3.0, channel: Optional[str] = None) -> List[RepositoryResult]:
     """Test every configured repository and return timing + SHA details."""
-    channel = normalize_update_channel(channel or _setup_channel()[0])
     results: List[RepositoryResult] = []
-    for config in get_remote_sha_methods_for_channel(channel):
-        result = test_repo_sha({**config, "channel": channel}, timeout)
+    for config in repo_sha_test_configs(channel):
+        result = test_repo_sha(config, timeout)
         results.append(result)
     return results
 

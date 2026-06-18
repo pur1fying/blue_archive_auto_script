@@ -12,6 +12,8 @@ from watchfiles import Change
 from service.utils.broadcast import BroadcastChannel
 from service.conf.manager import ConfigManager
 from service.utils.diff import apply_patch, diff_documents
+from service import runtime as runtime_module
+from service.runtime import ServiceRuntime
 
 
 def test_apply_patch_and_diff_documents():
@@ -132,3 +134,34 @@ def test_config_manager_detects_manual_config_json_change(tmp_path):
     assert payload["resource"] == "config"
     assert payload["resource_id"] == "default_config"
     assert {"op": "replace", "path": "/name", "value": "After"} in payload["ops"]
+
+
+def test_service_runtime_streams_sha_results_by_completion(monkeypatch, tmp_path):
+    def fake_configs(channel):
+        return [
+            {"name": "slow", "method": "SLOW", "channel": channel},
+            {"name": "fast", "method": "FAST", "channel": channel},
+        ]
+
+    def fake_test_repo_sha(config, timeout):
+        time.sleep(0.05 if config["name"] == "slow" else 0.01)
+        return {
+            "name": config["name"],
+            "method": config["method"],
+            "duration": timeout,
+            "success": True,
+            "value": config["name"],
+            "error": None,
+        }
+
+    async def scenario():
+        runtime = ServiceRuntime(tmp_path)
+        results = []
+        async for result in runtime.test_all_sha_stream("stable"):
+            results.append(result["name"])
+        return results
+
+    monkeypatch.setattr(runtime_module, "repo_sha_test_configs", fake_configs)
+    monkeypatch.setattr(runtime_module, "test_repo_sha", fake_test_repo_sha)
+
+    assert asyncio.run(scenario()) == ["fast", "slow"]

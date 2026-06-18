@@ -19,8 +19,10 @@ from .conf import resolve_config_dir
 from .utils.broadcast import BroadcastChannel
 from .update import (
     read_setup_toml,
+    repo_sha_test_configs,
     check_for_update,
     test_all_repo_sha,
+    test_repo_sha,
     update_to_latest,
     validate_cdk,
     write_setup_toml,
@@ -444,6 +446,34 @@ class ServiceRuntime:
     async def test_all_sha(channel=None):
         all_sha_res = await run_blocking(test_all_repo_sha, 3.0, channel)
         return all_sha_res
+
+    @staticmethod
+    async def test_all_sha_stream(channel=None):
+        async def test_one(config: Dict[str, Any]) -> Dict[str, Any]:
+            try:
+                return await run_blocking(test_repo_sha, config, 3.0)
+            except Exception as exc:  # noqa: BLE001 - keep one failed source from stopping the stream
+                method = config.get("method")
+                return {
+                    "name"    : config.get("name"),
+                    "method"  : getattr(method, "name", str(method)),
+                    "duration": 0,
+                    "success" : False,
+                    "value"   : None,
+                    "error"   : str(exc),
+                }
+
+        tasks = [
+            asyncio.create_task(test_one(config))
+            for config in repo_sha_test_configs(channel)
+        ]
+        try:
+            for task in asyncio.as_completed(tasks):
+                yield await task
+        finally:
+            for task in tasks:
+                if not task.done():
+                    task.cancel()
 
     async def check_for_update(self):
         all_update_res = await run_blocking(check_for_update)
