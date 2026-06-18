@@ -9,7 +9,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from .conf import ConfigInitializer
 from .conf import resolve_config_dir
@@ -373,7 +373,7 @@ class ServiceRuntime:
 
         return {"status": "ok", "task": task_name, "result": 0}
 
-    async def require_remote_(self, config_id: str) -> "ScrcpyClient":
+    async def require_remote_(self, config_id: str) -> Union["ScrcpyClient", None]:
         """Return a cached or newly initialized scrcpy client for a config.
 
         Args:
@@ -390,7 +390,7 @@ class ServiceRuntime:
         if session.scrcpy_client is not None:
             return session.scrcpy_client
         session = await self.get_session(config_id)
-        connection = Connection(session.baas)
+        connection = Connection(session.baas, skip_package_detection=True)
         connection = adb.device(connection.serial)
         session.scrcpy_client = await ScrcpyClient(connection).init()
         return session.scrcpy_client

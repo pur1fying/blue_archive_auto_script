@@ -3,23 +3,22 @@ from __future__ import annotations
 import datetime
 import json
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Union
 
 from core.config import default_config
 from core.config.config_set import ConfigSet
-
 from .paths import ensure_safe_config_id, resolve_config_dir
 
 
 class ConfigInitializer:
     """Create and migrate BAAS config files under one project root."""
 
-    def __init__(self, project_root: Path | str = ".") -> None:
+    def __init__(self, project_root: Union[Path, str] = ".") -> None:
         self.project_root = Path(project_root)
         self.config_root = self.project_root / "config"
         self.error_log = self.project_root / "error.log"
 
-    def check_config(self, config_ids: str | Iterable[str], server=None, name=None) -> None:
+    def check_config(self, config_ids: Union[str, Iterable[str]], server=None, name=None) -> None:
         self.config_root.mkdir(exist_ok=True)
         self.check_static_config()
         ids = [config_ids] if isinstance(config_ids, str) else list(config_ids)
@@ -63,6 +62,8 @@ class ConfigInitializer:
                         temp["enabled"] = False
                     data.insert(index, temp)
                     continue
+                if not isinstance(existing, dict):
+                    raise TypeError("expected dict but found {} for existing".format(type(existing)))
                 for reset_index, reset in enumerate(existing["daily_reset"]):
                     if len(reset) != 3:
                         existing["daily_reset"][reset_index] = [0, 0, 0]
@@ -72,7 +73,7 @@ class ConfigInitializer:
             self._write_error(f"{exc}\n{config_id}")
             self._write_json(path, default_event_config, indent=2)
 
-    def delete_deprecated_config(self, file_name, config_id: str | None = None) -> None:
+    def delete_deprecated_config(self, file_name, config_id: Union[str, None] = None) -> None:
         names = [file_name] if isinstance(file_name, str) else list(file_name)
         base = self.config_root if config_id is None else resolve_config_dir(self.config_root, config_id)
         for name in names:

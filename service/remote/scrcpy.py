@@ -490,6 +490,9 @@ class ScrcpyClient:
             if not payload:
                 break
 
+            if isinstance(payload, str):
+                payload = payload.encode("utf-8")
+
             if self.on_adb_to_ws is not None:
                 result = self.on_adb_to_ws(payload)
                 if inspect.isawaitable(result):

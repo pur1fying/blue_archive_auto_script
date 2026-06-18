@@ -9,12 +9,13 @@ from core.exception import RequestHumanTakeOver
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
 class Connection:
 
-    def __init__(self, Baas_instance):
+    def __init__(self, Baas_instance, skip_package_detection=False):
         self.Baas_thread = Baas_instance
         self.logger = Baas_instance.get_logger()
         self.config_set = Baas_instance.get_config()
         self.config = self.config_set.config
         self.static_config = self.config_set.static_config
+        self.skip_package_detection = skip_package_detection
         self.server = None
         if self.config.server in ["Steam国际服", "日服PC端"]:
             if self.config.server == "Steam国际服":
@@ -46,7 +47,8 @@ class Connection:
         self.check_serial()
         self.detect_device()
         self.adb_connect()
-        self.detect_package()
+        if not self.skip_package_detection:
+            self.detect_package()
         self.check_mumu_keep_alive()
 
     def _init_app_process(self):

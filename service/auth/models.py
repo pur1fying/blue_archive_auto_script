@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
 
@@ -14,8 +14,8 @@ from .crypto import b64e
 class PasswordState:
     initialized: bool = False
     pwd_epoch: int = 0
-    pwd_salt: bytes | None = None
-    pwd_hash: bytes | None = None
+    pwd_salt: Optional[bytes] = None
+    pwd_hash: Optional[bytes] = None
 
     def as_public_dict(self) -> dict[str, Any]:
         return {

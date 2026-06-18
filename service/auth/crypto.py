@@ -4,7 +4,7 @@ import base64
 import hashlib
 import hmac
 import json
-from typing import Any
+from typing import Any, Optional
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
@@ -30,7 +30,7 @@ def canonical_dumps(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
-def hkdf_sha256(key_material: bytes, info: bytes, length: int, salt: bytes | None = None) -> bytes:
+def hkdf_sha256(key_material: bytes, info: bytes, length: int, salt: Optional[bytes] = None) -> bytes:
     return HKDF(
         algorithm=hashes.SHA256(),
         length=length,

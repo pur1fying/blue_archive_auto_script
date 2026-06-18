@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 import time
+from typing import Optional
 from urllib.parse import urlparse
 
 from fastapi import Request, WebSocket, WebSocketDisconnect
@@ -26,7 +27,7 @@ def json_bytes(payload: dict) -> bytes:
     return json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
-def is_allowed_origin(origin: str | None, host: str | None) -> bool:
+def is_allowed_origin(origin: Optional[str], host: Optional[str]) -> bool:
     if not origin:
         return True
     allowed = {item.strip() for item in os.getenv("BAAS_SERVICE_ALLOWED_ORIGINS", "").split(",") if item.strip()}
@@ -117,6 +118,7 @@ async def finalize_control_auth(
                 session, control_channel = context.auth_manager.resume_control_session(handshake, token)
                 include_session_secrets = True
             except AuthenticationError:
+                # noinspection PyUnusedLocal
                 session = control_channel = None  # type: ignore[assignment]
             else:
                 await websocket.send_json(

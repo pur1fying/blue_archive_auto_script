@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import time
 from contextlib import suppress
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
@@ -23,7 +24,7 @@ router = APIRouter()
 async def websocket_control(websocket: WebSocket) -> None:
     revoke_queue = None
     sender_task = heartbeat_task = None
-    session: ActiveSession | None = None
+    session: Optional[ActiveSession] = None
     try:
         handshake, preauth_channel, _ = await begin_server_hello(websocket, kind="control", channel="control")
         request = preauth_channel.decrypt(await websocket.receive_json())
@@ -33,6 +34,8 @@ async def websocket_control(websocket: WebSocket) -> None:
             preauth_channel=preauth_channel,
             request=request,
         )
+        if session is None:
+            raise ValueError("Session not found")
         revoke_queue = context.auth_manager.subscribe_control(session.session_id)
         sender_task = asyncio.create_task(
             control_sender(

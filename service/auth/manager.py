@@ -10,7 +10,7 @@ import threading
 import time
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
@@ -115,7 +115,7 @@ class ServiceAuthManager:
             kind=kind,
             channel=channel,
             client_nonce=client_nonce,
-            server_nonce=b64d(hello_core["server_nonce"]),
+            server_nonce=b64d(str(hello_core["server_nonce"])),
             client_public_key=client_public_bytes,
             server_private_key=server_private,
             server_public_key=server_public_bytes,
@@ -341,6 +341,8 @@ class ServiceAuthManager:
             self._sessions.pop(session_id, None)
 
     def _new_session(self, handshake: HandshakeContext, password_state: PasswordState) -> ActiveSession:
+        if not isinstance(password_state.pwd_hash, bytes):
+            raise AuthenticationError("Password hash is not bytes")
         master_secret = hkdf_sha256(
             handshake.shared_key + password_state.pwd_hash,
             b"master-secret",
@@ -368,7 +370,8 @@ class ServiceAuthManager:
             self._sessions[session.session_id] = session
         return session
 
-    def _build_control_channel(self, session: ActiveSession) -> JsonChaChaChannel:
+    @staticmethod
+    def _build_control_channel(session: ActiveSession) -> JsonChaChaChannel:
         transcript_salt = hashlib.sha256(session.session_id.encode("utf-8")).digest()
         return JsonChaChaChannel(
             tx_key=hkdf_sha256(session.master_secret, b"control:server-tx", 32, transcript_salt),
@@ -434,7 +437,7 @@ class ServiceAuthManager:
             b"remember-token:" + token_id.encode("utf-8") + b":" + token_secret,
         )
 
-    def _prune_expired_remembered_locked(self, now: float | None = None) -> None:
+    def _prune_expired_remembered_locked(self, now: Optional[float] = None) -> None:
         current = time.time() if now is None else now
         expired = [
             token_id
@@ -447,7 +450,8 @@ class ServiceAuthManager:
             self._remembered_logins.pop(token_id, None)
         self._save_remembered_logins()
 
-    def _auth_context(self, handshake: HandshakeContext, pwd_epoch: int) -> bytes:
+    @staticmethod
+    def _auth_context(handshake: HandshakeContext, pwd_epoch: int) -> bytes:
         return hkdf_sha256(
             handshake.shared_key,
             f"auth-proof:{pwd_epoch}".encode("utf-8"),
@@ -455,7 +459,8 @@ class ServiceAuthManager:
             handshake.transcript_hash,
         )
 
-    def _password_state_for(self, *, password: str, epoch: int) -> PasswordState:
+    @staticmethod
+    def _password_state_for(*, password: str, epoch: int) -> PasswordState:
         salt = secrets.token_bytes(ARGON2_SALT_BYTES)
         verifier = argon2(password, salt)
         return PasswordState(
@@ -582,7 +587,8 @@ class ServiceAuthManager:
                 "Provide a matching VITE_BAAS_SERVER_SIGN_PUBLIC_KEY_B64 when building the frontend."
             )
 
-    def _load_or_create_key(self, path: Path, *, env_name: str, default_factory) -> bytes:
+    @staticmethod
+    def _load_or_create_key(path: Path, *, env_name: str, default_factory) -> bytes:
         env_value = os.getenv(env_name)
         if env_value:
             return b64d(env_value)

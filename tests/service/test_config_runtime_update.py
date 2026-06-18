@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import shutil
+import sys
+import types
 import uuid
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -71,6 +74,68 @@ def test_runtime_remove_config_uses_project_root():
         assert not target.exists()
     finally:
         _cleanup(root)
+
+
+def test_runtime_remote_connection_skips_package_detection(monkeypatch):
+    calls = {}
+    session = SimpleNamespace(baas=object(), scrcpy_client=None)
+    runtime = ServiceRuntime(Path("project"))
+
+    async def fake_get_session(config_id):
+        calls["config_id"] = config_id
+        return session
+
+    class FakeConnection:
+        def __init__(self, baas, skip_package_detection=False):
+            calls["baas"] = baas
+            calls["skip_package_detection"] = skip_package_detection
+            self.serial = "127.0.0.1:5555"
+
+    class FakeAdb:
+        def device(self, serial):
+            calls["serial"] = serial
+            return "adb-device"
+
+    class FakeScrcpyClient:
+        def __init__(self, device):
+            calls["device"] = device
+
+        async def init(self):
+            calls["scrcpy_initialized"] = True
+            return "scrcpy-client"
+
+    fake_adbutils = types.ModuleType("adbutils")
+    fake_adbutils.adb = FakeAdb()
+    fake_adbutils.AdbDevice = object
+    fake_adbutils.AdbError = RuntimeError
+    fake_adbutils.AdbTimeout = TimeoutError
+    fake_adbutils.ForwardItem = object
+    fake_errors = types.ModuleType("adbutils.errors")
+    fake_errors.AdbError = RuntimeError
+    fake_errors.AdbTimeout = TimeoutError
+
+    monkeypatch.setitem(sys.modules, "adbutils", fake_adbutils)
+    monkeypatch.setitem(sys.modules, "adbutils.errors", fake_errors)
+
+    import core.device.connection as connection_module
+    import service.remote.scrcpy as scrcpy_module
+
+    monkeypatch.setattr(runtime, "get_session", fake_get_session)
+    monkeypatch.setattr(connection_module, "Connection", FakeConnection)
+    monkeypatch.setattr(scrcpy_module, "ScrcpyClient", FakeScrcpyClient)
+
+    client = asyncio.run(runtime.require_remote_("default_config"))
+
+    assert client == "scrcpy-client"
+    assert session.scrcpy_client == "scrcpy-client"
+    assert calls == {
+        "config_id": "default_config",
+        "baas": session.baas,
+        "skip_package_detection": True,
+        "serial": "127.0.0.1:5555",
+        "device": "adb-device",
+        "scrcpy_initialized": True,
+    }
 
 
 def test_setup_toml_io_round_trip():

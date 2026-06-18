@@ -8,7 +8,7 @@ import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from watchfiles import Change, awatch
 
@@ -18,7 +18,6 @@ from service.update import read_setup_toml, write_setup_toml
 from service.update.setup_schema import legacy_repo_url, migrate_to_current_schema
 from service.utils.broadcast import BroadcastChannel
 from service.utils.diff import PatchConflictError, apply_patch, diff_documents
-
 from .resources import ResourceKey, ResourcePathResolver
 
 
@@ -31,7 +30,7 @@ class ResourceSnapshot:
 class ConfigManager:
     """Manages persisted configuration resources with diff support."""
 
-    def __init__(self, project_root: Path, loop: asyncio.AbstractEventLoop | None = None) -> None:
+    def __init__(self, project_root: Path, loop: Union[asyncio.AbstractEventLoop, None] = None) -> None:
         self._root = project_root
         self._config_root = self._root / "config"
         self._paths = ResourcePathResolver(project_root)
@@ -40,6 +39,7 @@ class ConfigManager:
         self._mtimes: Dict[ResourceKey, float] = {}
         self._update_bus = BroadcastChannel(loop)
         self._loop = loop
+        self._known_config_ids = None
         self._gui_full: Union[Dict[str, Any], None] = None
         self._setup_toml: Union[Dict[str, Any], None] = None
 
@@ -89,11 +89,12 @@ class ConfigManager:
     # ------------------------------------------------------------------
     # snapshot helpers
     # ------------------------------------------------------------------
-    def _project_gui(self, full_gui: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def _project_gui(full_gui: Dict[str, Any]) -> Dict[str, Any]:
         main_window = full_gui.get("MainWindow", {})
         fluent = full_gui.get("QFluentWidgets", {})
         return {
-            "MainWindow": {
+            "MainWindow"    : {
                 "Language": main_window.get("Language"),
                 "DpiScale": main_window.get("DpiScale"),
             },
@@ -102,15 +103,16 @@ class ConfigManager:
             },
         }
 
-    def _project_setup_toml(self, full_setup_toml: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def _project_setup_toml(full_setup_toml: Dict[str, Any]) -> Dict[str, Any]:
         current = migrate_to_current_schema(full_setup_toml)
         config_general = current.get("general", {})
         return {
-            "channel": config_general.get("channel", "stable"),
+            "channel"     : config_general.get("channel", "stable"),
             "updateMethod": config_general.get("get_remote_sha_method") or "github",
-            "repoUrl": legacy_repo_url(current),
-            "shaMethod": config_general.get("get_remote_sha_method"),
-            "mirrorcCdk": config_general.get("mirrorc_cdk")
+            "repoUrl"     : legacy_repo_url(current),
+            "shaMethod"   : config_general.get("get_remote_sha_method"),
+            "mirrorcCdk"  : config_general.get("mirrorc_cdk")
         }
 
     @staticmethod
@@ -134,8 +136,8 @@ class ConfigManager:
 
             ret = dict(activity_name=current_event, story=dict(), mission=dict(), challenge=dict())
             en2cn = {
-                "story": "故事",
-                "mission": "任务",
+                "story"    : "故事",
+                "mission"  : "任务",
                 "challenge": "挑战",
             }
 
@@ -183,6 +185,8 @@ class ConfigManager:
     def _merge_setup_toml(self, projection: Dict[str, Any]) -> Dict[str, Any]:
         if self._setup_toml is None:
             self._setup_toml = {}
+        if self._setup_toml is None:
+            raise ValueError("_setup_toml is definitely not None")
         merged = migrate_to_current_schema(copy.deepcopy(self._setup_toml))
         merged.setdefault("general", {})
 
@@ -206,6 +210,8 @@ class ConfigManager:
     def _merge_gui(self, projection: Dict[str, Any]) -> Dict[str, Any]:
         if self._gui_full is None:
             self._gui_full = {}
+        if self._gui_full is None:
+            raise ValueError("_gui_full is definitely not None")
         merged = copy.deepcopy(self._gui_full)
         merged.setdefault("MainWindow", {})
         merged.setdefault("QFluentWidgets", {})
@@ -279,7 +285,7 @@ class ConfigManager:
         self,
         resource: str,
         resource_id: Optional[str],
-        operations: Iterable[PatchOperation | dict[str, Any]],
+        operations: Iterable[Union[PatchOperation, dict[str, Any]]],
         timestamp: float,
         origin: str = "backend",
     ) -> ResourceSnapshot:
@@ -348,7 +354,8 @@ class ConfigManager:
         await self._update_bus.publish(payload.model_dump())
         return ResourceSnapshot(copy.deepcopy(new_snapshot.data), new_snapshot.timestamp)
 
-    def _write_json(self, path: Path, data: Any, resource: str) -> None:
+    @staticmethod
+    def _write_json(path: Path, data: Any, resource: str) -> None:
         indent = 4 if resource in ("config", "gui") else 2
         with path.open("w", encoding="utf-8") as fp:
             json.dump(data, fp, indent=indent, ensure_ascii=False)
