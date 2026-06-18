@@ -26,10 +26,12 @@ jobs:
         with:
           fetch-depth: 0
           ref: master
+          persist-credentials: false
 
       - name: Create or update sync PR, then try auto-merge
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT || github.token }}
+          SYNC_TOKEN_KIND: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT != '' && 'pat' || 'github_token' }}
           EXPECTED_REPOSITORY: Kiramei/baas-dev
           UPSTREAM_REPO: pur1fying/blue_archive_auto_script
           UPSTREAM_BRANCH: master
@@ -49,8 +51,14 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git fetch upstream "${UPSTREAM_BRANCH}"
           git fetch origin "${BASE_BRANCH}"
+
+          if [ "${SYNC_TOKEN_KIND}" != "pat" ] && git diff --name-only "origin/${BASE_BRANCH}" "upstream/${UPSTREAM_BRANCH}" -- .github/workflows | grep -q .; then
+            echo "::error::Upstream contains workflow file changes, but UPSTREAM_TO_KIRAMEI_DEV_PAT is not configured. Add a PAT with repo and workflow scopes as this repository secret."
+            exit 1
+          fi
 
           # Skip if the fork base branch already contains the latest upstream branch.
           if git merge-base --is-ancestor "upstream/${UPSTREAM_BRANCH}" "origin/${BASE_BRANCH}"; then
