@@ -6,9 +6,9 @@ class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
         SweepCountConfig = QObject()
         sweep_label_description = {
-            'CN': SweepCountConfig.tr('<b>活动关卡：关卡号与剩余扫荡次数均以英文逗号分隔、按顺序配对。剩余次数跨次运行累计扣减，扣到 0 跳过该关卡；填 -1 表示该关卡最后扫且次数无限。</b>'),
-            'Global': SweepCountConfig.tr('<b>Activity stages: stage numbers and remaining sweep counts are comma-separated and paired in order. Remaining counts persist across runs and decrement each sweep; 0 skips a stage, -1 means sweep last with unlimited times.</b>'),
-            'JP': SweepCountConfig.tr('<b>活動ステージ：ステージ番号と残りスイープ回数はカンマ区切りで順に対応付けます。残り回数は実行ごとに減算され、0でそのステージをスキップ、-1は最後に無制限でスイープします。</b>'),
+            'CN': SweepCountConfig.tr('<b>活动关卡：关卡号与剩余扫荡次数以英文逗号分隔、按顺序配对（剩余次数跨次运行累计扣减，详见说明）</b>'),
+            'Global': SweepCountConfig.tr('<b>Activity stages: stage numbers and remaining sweep counts are comma-separated and paired in order (remaining counts persist across runs, see guide)</b>'),
+            'JP': SweepCountConfig.tr('<b>活動ステージ：ステージ番号と残りスイープ回数はカンマ区切りで順に対応付けます（残り回数は実行ごとに減算、説明を参照）</b>'),
         }
         configItems = [
             {

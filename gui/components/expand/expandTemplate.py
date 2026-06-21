@@ -129,6 +129,8 @@ class TemplateLayout(QWidget):
                 inputComponent.setMaximum(cfg.selection['max'])
             elif cfg.type == 'label':
                 inputComponent = QLabel(cfg.selection, self)
+                # 描述性长文本允许换行，避免撑宽整行把右侧输入框挤出可视区
+                labelComponent.setWordWrap(True)
             else:
                 raise ValueError(f'Unknown config type: {cfg.type}')
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
