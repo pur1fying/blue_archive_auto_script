@@ -87,11 +87,27 @@ def to_activity(self, region=None, skip_first_screenshot=False):
 
 # sweep
 def activity_sweep(self):
-    times = preprocess_activity_sweep_times(self.config.activity_sweep_times)
+    """
+    持久化"剩余扫荡次数"模型：
+    - activity_sweep_times 记录每个关卡还需扫荡的次数，跨多次运行累计扣减，扣到 0 则跳过该关卡。
+    - 某关卡配置为 -1 表示该关卡最后扫荡、且扫荡次数无限（按当前体力尽量扫），-1 永不扣减。
+    - 有限关卡在前（配置顺序），-1 关卡在后（配置顺序）。
+    - 每次 sweep_complete 后，按本次计划扫荡次数扣减并写回 config.json；inadequate_ap 视为 0 次成功，不扣减。
+    """
     number = preprocess_activity_region(self.config.activity_sweep_task_number)
+    times = preprocess_activity_sweep_remaining(self.config.activity_sweep_times)
     self.logger.info("activity sweep task number : " + str(number))
-    self.logger.info("activity sweep times : " + str(times))
-    if len(times) == 0:
+    self.logger.info("activity sweep remaining : " + str(times))
+    if len(number) == 0 or len(times) == 0:
+        return True
+    # 按配置顺序配对，构建 {关卡: 剩余次数}（重复关卡后者覆盖，罕见情况）
+    remaining_map = {}
+    for i in range(0, min(len(number), len(times))):
+        remaining_map[number[i]] = times[i]
+    # 有限次在前，-1(无限)在后，各组保持配置顺序
+    ordered = [(m, r) for m, r in remaining_map.items() if r != -1] + \
+              [(m, r) for m, r in remaining_map.items() if r == -1]
+    if len(ordered) == 0:
         return True
     self.to_main_page()
     to_activity(self, "mission", True)
@@ -99,38 +115,69 @@ def activity_sweep(self):
     self.stage_data = get_stage_data(self)
     sweep_one_time_ap = self.stage_data["sweep_ap_cost_mission"]
     total_mission = len(self.stage_data["mission"])
-    if len(times) == 1 and times[0] == -1:
-        times = [int(ap / sum(sweep_one_time_ap[num] for num in number))] * len(number)
-    for i in range(0, min(len(number), len(times))):
-        sweep_times = times[i]
-        if type(sweep_times) is float:
-            sweep_times = int(ap * sweep_times / sweep_one_time_ap[number[i]])
-        click_times = sweep_times - 1
-        duration = 1
-        if sweep_times > 50:
-            sweep_times = int(ap / sweep_one_time_ap[number[i]])
-            click_times = int(sweep_times / 2) + 1
-            duration = 0.3
-        if sweep_times <= 0:
+    last_idx = len(ordered) - 1
+    for idx in range(0, len(ordered)):
+        if not self.flag_run:
+            break
+        mission, remaining = ordered[idx]
+        if remaining != -1 and remaining <= 0:
+            continue
+        cost = sweep_one_time_ap[mission] if mission < len(sweep_one_time_ap) else 0
+        if cost <= 0:
+            self.logger.warning(f"mission {mission} ap cost invalid, skip")
+            continue
+        if remaining == -1:
+            planned = int(ap / cost)
+        else:
+            planned = min(remaining, int(ap / cost))
+        if planned <= 0:
             self.logger.warning("inadequate ap")
             continue
-        self.logger.info("Start sweep task " + str(number[i]) + " :" + str(sweep_times) + " times")
-        to_mission_task_info(self, number[i], total_mission)
+        click_times = planned - 1
+        duration = 1
+        if planned > 50:
+            click_times = int(planned / 2) + 1
+            duration = 0.3
+        remain_desc = "unlimited" if remaining == -1 else str(remaining)
+        self.logger.info("Start sweep task " + str(mission) + " :" + str(planned)
+                         + " times (remaining " + remain_desc + ")")
+        to_mission_task_info(self, mission, total_mission)
         res = color.check_sweep_availability(self)
         if res == "sss":
             self.click(1032, 299, count=click_times, duration=duration, wait_over=True)
             res = start_sweep(self, True)
             if res == "inadequate_ap":
                 self.logger.warning("inadequate ap")
+                _save_activity_sweep_remaining(self, number, remaining_map)
                 return True
             elif res == "sweep_complete":
-                self.logger.info("Current sweep task " + str(number[i]) + " :" + str(sweep_times) + " times complete")
-                if i != len(number) - 1:
+                self.logger.info("Current sweep task " + str(mission) + " :" + str(planned) + " times complete")
+                if remaining != -1:
+                    remaining_map[mission] = max(0, remaining - planned)
+                    _save_activity_sweep_remaining(self, number, remaining_map)
+                ap -= planned * cost  # 本地估算，供后续关卡计算
+                if idx != last_idx:
                     to_activity(self, "mission", True)
         elif res == "pass" or res == "no-pass":
             self.logger.warning("task not sss, sweep unavailable")
             continue
+    _save_activity_sweep_remaining(self, number, remaining_map)
     return True
+
+
+def _save_activity_sweep_remaining(self, number, remaining_map):
+    """
+    按 number 的原始顺序（去重）重建逗号分隔的剩余次数字符串，写回 config.json。
+    """
+    seen = set()
+    parts = []
+    for m in number:
+        if m in seen:
+            continue
+        seen.add(m)
+        parts.append(str(remaining_map.get(m, 0)))
+    new_val = ",".join(parts)
+    self.config_set.set("activity_sweep_times", new_val)
 
 
 def start_sweep(self, skip_first_screenshot=False):
@@ -568,3 +615,40 @@ def preprocess_activity_sweep_times(times):
                 temp = times[i].split("/")
                 times[i] = min(int(temp[0]) / int(temp[1]), 1.0)
         return times
+
+
+def preprocess_activity_sweep_remaining(times):
+    """
+    解析"每关卡剩余扫荡次数"配置，返回 list[int]，元素可为 -1。
+    - int -> [int]
+    - str -> 按 ',' 分割，每段 "-1" -> -1，否则 int(x)
+    - list -> 逐项转 int（保留 -1）
+    不再支持 float / 分数 / 单值铺满（旧语义由 preprocess_activity_sweep_times 保留供遗留模块使用）。
+    """
+    if type(times) is int:
+        return [times]
+    if type(times) is float:
+        return [int(times)]
+    if type(times) is str:
+        times = times.split(",")
+        result = []
+        for i in range(0, len(times)):
+            seg = times[i].strip()
+            if seg == "-1":
+                result.append(-1)
+            else:
+                result.append(int(seg))
+        return result
+    if type(times) is list:
+        result = []
+        for i in range(0, len(times)):
+            if type(times[i]) is int:
+                result.append(times[i])
+            else:
+                seg = str(times[i]).strip()
+                if seg == "-1":
+                    result.append(-1)
+                else:
+                    result.append(int(seg))
+        return result
+    return []

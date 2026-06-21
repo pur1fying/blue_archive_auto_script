@@ -6,9 +6,9 @@ class Layout(TemplateLayout):
     def __init__(self, parent=None, config=None):
         SweepCountConfig = QObject()
         sweep_label_description = {
-            'CN': SweepCountConfig.tr('<b>各区域扫荡次数以英文逗号分隔</b>'),
-            'Global': SweepCountConfig.tr('<b>各区域扫荡次数以英文逗号分隔，扫荡次数可以为max</b>'),
-            'JP': SweepCountConfig.tr('<b>各区域扫荡次数以英文逗号分隔，扫荡次数可以为max</b>'),
+            'CN': SweepCountConfig.tr('<b>活动关卡：关卡号与剩余扫荡次数均以英文逗号分隔、按顺序配对。剩余次数跨次运行累计扣减，扣到 0 跳过该关卡；填 -1 表示该关卡最后扫且次数无限。</b>'),
+            'Global': SweepCountConfig.tr('<b>Activity stages: stage numbers and remaining sweep counts are comma-separated and paired in order. Remaining counts persist across runs and decrement each sweep; 0 skips a stage, -1 means sweep last with unlimited times.</b>'),
+            'JP': SweepCountConfig.tr('<b>活動ステージ：ステージ番号と残りスイープ回数はカンマ区切りで順に対応付けます。残り回数は実行ごとに減算され、0でそのステージをスキップ、-1は最後に無制限でスイープします。</b>'),
         }
         configItems = [
             {
@@ -26,12 +26,12 @@ class Layout(TemplateLayout):
                 'key': 'scrimmage_times'
             },
             {
-                'label': SweepCountConfig.tr('活动关卡扫荡关卡'),
+                'label': SweepCountConfig.tr('活动关卡扫荡关卡（逗号分隔）'),
                 'type': 'text',
                 'key': 'activity_sweep_task_number'
             },
             {
-                'label': SweepCountConfig.tr('活动关卡扫荡次数'),
+                'label': SweepCountConfig.tr('活动关卡扫荡剩余次数（-1=无限且最后扫）'),
                 'type': 'text',
                 'key': 'activity_sweep_times'
             },

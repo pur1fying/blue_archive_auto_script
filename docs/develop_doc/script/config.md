@@ -548,14 +548,18 @@
 ## `activity_sweep_task_number`
 
 - **type** : `List[int]`
-- **description**: 活动图扫荡关卡列表(只记录关卡号)
+- **description**: 活动图扫荡关卡列表(只记录关卡号)，与 `activity_sweep_times` 按顺序一一配对
 - **note**: 详见[活动图扫荡填写说明](/usage_doc/config#活动图扫荡填写说明)
 
 ## `activity_sweep_times`
 
-- **type** : `List[int | float | str]`
-- **description**: 活动图扫荡次数列表(只记录次数)
-- **note**: 详见[活动图扫荡填写说明](/usage_doc/config#活动图扫荡填写说明)
+- **type** : `List[int]`（元素可为 `-1`）
+- **description**: 活动图每关卡<strong>剩余</strong>扫荡次数列表，与 `activity_sweep_task_number` 按顺序配对
+- **note**:
+  - 持久化预算模型：每次成功扫荡后按实际扫荡次数扣减并写回 `config.json`，跨多次运行累计；扣到 `0` 跳过该关卡。
+  - `-1` 表示该关卡最后扫荡、且次数无限（按当前体力尽量扫），`-1` 永不扣减。
+  - 不再支持旧的 float / 分数 / 单值铺满语义（遗留活动模块仍可用旧解析）。
+  - 详见[活动图扫荡填写说明](/usage_doc/config#活动图扫荡填写说明)
 
 ---
 <div style="margin-top: 100px;"></div>

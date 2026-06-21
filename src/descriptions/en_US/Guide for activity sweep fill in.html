@@ -2,24 +2,17 @@
  <head>
  </head>
  <body>
-<p>Guide for activity sweep fill in:</p>
-<p><span style="background-color: #f1c40f;"> <strong> Sweep One Quest</strong></span>:</p>
-<p>Sweep Quest Number : 1&nbsp;<strong>Integer </strong>in 1 - Maximum difficulty in current activity.&nbsp;</p>
-<p>Number of sweeps:</p>
-<p>1. <strong> Integer </strong> Means sweep times</p>
-<p>2. <strong> Decimal </strong> 0.5 indicates that the current AP*0.5 will be used to sweep the quest</p>
-<p>3. <strong> Score </strong> 1/3 = using current AP*(1/3) to sweep the quest</p>
-<p><span style="background-color: #f1c40f;"><strong>Sweep Multiple Quests. </strong> </span> :</p>
-<p>Use ',' to join multiple quests, which means sweep them in turn</p>
+<p>Guide for activity sweep fill in (remaining-count budget model):</p>
+<p>"Activity sweep stage" and "Activity sweep remaining count" are both comma-separated and <strong>paired in order</strong>.</p>
+<p>The remaining count records <strong>how many sweeps are still needed</strong> for each stage and <strong>persists across runs</strong>: each successful sweep decrements the actual swept count and writes it back; when it reaches <strong>0</strong> the stage is skipped.</p>
+<p>Use <strong>-1</strong> to mean the stage is <strong>swept last</strong> with <strong>unlimited times</strong> (sweep as much as current AP allows); -1 is never decremented.</p>
+<p>Actual sweeps per stage this run = min(remaining count, current AP / per-sweep AP cost); for -1 stages = current AP / per-sweep AP cost.</p>
+<p><span style="background-color: #f1c40f;"><strong>Sweep Multiple Stages</strong></span>:</p>
+<p>Stages and remaining counts are comma-separated and paired; all finite-count stages are swept first (in written order), then -1 stages.</p>
 <p>Example:</p>
-<p>Sweep Quset:</p>
-<p>9, 10, 11</p>
-<p>Number of sweeps:</p>
-<p>0.5, 3, 1/3</p>
-<p>AP: 999</p>
-<p>Means sweep in turn.</p>
-<p>Quest 9&nbsp; (999 * 0.5) / 20 = 25 times</p>
-<p>Quest 10&nbsp; 3 times</p>
-<p>Quest 11 (999 * 1/3) / 20 = 16 times</p>
+<p>Sweep stage: 9, 10, 11</p>
+<p>Remaining count: 25, 3, -1</p>
+<p>Means: sweep stage 9 (up to 25 times, decremented and saved), stage 10 (up to 3 times), then stage 11 last (unlimited, as much AP allows).</p>
+<p>On the next run, stages 9 and 10 continue from their remaining counts; stage 11 stays -1.</p>
 </body>
 </html>
