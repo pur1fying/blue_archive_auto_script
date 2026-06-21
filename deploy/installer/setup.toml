@@ -1,0 +1,53 @@
+# BAAS installer setup configuration
+#
+# 本文件用于让 exe 启动时的自动更新从【自己的 fork 仓库】拉取，
+# 而非默认的 gitee pur1fy 仓库，从而保留本地修改。
+#
+# 工作流：
+#   - exe 启动时若 setup.toml 不存在会用 DEFAULT_SETTINGS 生成（默认 pur1fy），
+#     所以务必在首次运行 exe 前把本文件放到 exe 所在目录。
+#   - 本文件已将 REPO_URL_HTTP 指向 fork、mirrorc_cdk 清空（强制走 Git 路径，
+#     避免 MirrorC 全量覆盖并删除 .git）。
+#   - 上游 pur1fying 的新内容由你手动 merge 进 fork 后 push，exe 下次启动即可同步。
+#
+# 部署注意：exe 实际读取的是【exe 同目录】下的 setup.toml，
+# 不是源码里的 deploy/installer/setup.toml。打包/部署时请把本文件复制到 exe 旁。
+
+[General]
+mirrorc_cdk = ""
+current_BAAS_version = ""
+current_BAAS_Cpp_version = ""
+get_remote_sha_method = ""
+dev = false
+refresh = false
+launch = false
+force_launch = false
+internal_launch = false
+no_build = true
+debug = false
+use_dynamic_update = false
+source_list = [
+    "https://pypi.tuna.tsinghua.edu.cn/simple",
+    "https://mirrors.ustc.edu.cn/pypi/web/simple",
+    "https://mirrors.aliyun.com/pypi/simple",
+    "https://mirrors.huaweicloud.com/repository/pypi/simple",
+    "https://mirrors.cloud.tencent.com/pypi/simple",
+    "https://pypi.python.org/simple",
+    "https://pypi.org/simple",
+]
+package_manager = "pip"
+runtime_path = "default"
+linux_pwd = ""
+
+[URLs]
+# 指向自己的 fork：exe 启动会 fetch + reset hard 到该仓库的 master
+REPO_URL_HTTP = "https://github.com/Huayuan-code/blue_archive_auto_script.git"
+GET_PIP_URL = "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py"
+GET_UPX_URL = "https://ghp.ci/https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-win64.zip"
+GET_ENV_PATCH_URL = "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/env_patch.zip"
+GET_PYTHON_URL = "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip"
+
+[Paths]
+BAAS_ROOT_PATH = ""
+TMP_PATH = "tmp"
+TOOL_KIT_PATH = "toolkit"
