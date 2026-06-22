@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 from .conf import ConfigInitializer
 from .conf import resolve_config_dir
 from .utils.broadcast import BroadcastChannel
+from .utils.timestamps import unix_timestamp_ms
 from .update import (
     read_setup_toml,
     repo_sha_test_configs,
@@ -77,7 +78,7 @@ def _default_status(config_id: str) -> Dict[str, Any]:
         "current_task" : None,
         "waiting_tasks": [],
         "exit_code"    : None,
-        "timestamp"    : time.time(),
+        "timestamp"    : unix_timestamp_ms(),
     }
 
 
@@ -711,7 +712,7 @@ class ServiceRuntime:
         with self._status_lock:
             status = self._statuses.setdefault(config_id, _default_status(config_id))
             status.update(changes)
-            status["timestamp"] = time.time()
+            status["timestamp"] = unix_timestamp_ms()
             snapshot = dict(status)
         self._publish_status(config_id, snapshot)
 

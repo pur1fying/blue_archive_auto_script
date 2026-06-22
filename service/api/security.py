@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-import time
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -19,6 +18,7 @@ from service.auth import (
     b64d,
     b64e,
 )
+from service.utils.timestamps import unix_timestamp_ms
 
 from .state import REMEMBER_COOKIE_NAME, context
 
@@ -189,7 +189,7 @@ async def control_heartbeat_sender(
                 control_channel.encrypt(
                     {
                         "type": "heartbeat",
-                        "timestamp": time.time(),
+                        "timestamp": unix_timestamp_ms(),
                     }
                 )
             )

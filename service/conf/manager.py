@@ -5,7 +5,6 @@ import copy
 import json
 import logging
 import os
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
@@ -18,6 +17,7 @@ from service.update import read_setup_toml, write_setup_toml
 from service.update.setup_schema import legacy_repo_url, migrate_to_current_schema
 from service.utils.broadcast import BroadcastChannel
 from service.utils.diff import PatchConflictError, apply_patch, diff_documents
+from service.utils.timestamps import file_mtime_ms, unix_timestamp_ms
 from .resources import ResourceKey, ResourcePathResolver
 
 
@@ -84,7 +84,7 @@ class ConfigManager:
         """
         async with self._lock:
             ids = self.list_config_ids()
-            return ResourceSnapshot(copy.deepcopy(ids), time.time())
+            return ResourceSnapshot(copy.deepcopy(ids), unix_timestamp_ms())
 
     # ------------------------------------------------------------------
     # snapshot helpers
@@ -249,7 +249,7 @@ class ConfigManager:
             event = self.gen_event_formation_attr(data_to_store)
             data_to_store["current_game_activity"] = event
 
-        timestamp = path.stat().st_mtime
+        timestamp = file_mtime_ms(path)
         snapshot = ResourceSnapshot(data=data_to_store, timestamp=timestamp)
         self._snapshots[(resource, resource_id)] = snapshot
         self._mtimes[(resource, resource_id)] = timestamp
@@ -341,7 +341,7 @@ class ConfigManager:
             else:
                 await asyncio.to_thread(self._write_json, path, to_dump, resource)
 
-            new_timestamp = max(timestamp, time.time(), path.stat().st_mtime)
+            new_timestamp = max(timestamp, unix_timestamp_ms(), file_mtime_ms(path))
             new_snapshot = ResourceSnapshot(data=updated, timestamp=new_timestamp)
             self._snapshots[key] = new_snapshot
             self._mtimes[key] = new_timestamp
@@ -396,7 +396,7 @@ class ConfigManager:
         payload = SyncPushPayload(
             resource="config",
             resource_id=config_id,
-            timestamp=time.time(),
+            timestamp=unix_timestamp_ms(),
             ops=[PatchOperation(op="add", path="", value={})],
             origin="filesystem",
         )
@@ -406,7 +406,7 @@ class ConfigManager:
         payload = SyncPushPayload(
             resource="config",
             resource_id=config_id,
-            timestamp=time.time(),
+            timestamp=unix_timestamp_ms(),
             ops=[PatchOperation(op="remove", path="", value=None)],
             origin="filesystem",
         )
@@ -422,7 +422,7 @@ class ConfigManager:
         path = self._file_path(resource, resource_id)
         if not path.exists():
             return
-        mtime = path.stat().st_mtime
+        mtime = file_mtime_ms(path)
         previous = self._mtimes.get(key)
         if previous is None:
             self._mtimes[key] = mtime

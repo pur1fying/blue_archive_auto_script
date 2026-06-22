@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import asyncio
-import time
 from contextlib import suppress
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
 from service.auth import ActiveSession, AuthenticationError
+from service.utils.timestamps import unix_timestamp_ms
 
 from .security import (
     begin_server_hello,
@@ -55,7 +55,7 @@ async def websocket_control(websocket: WebSocket) -> None:
             message = control_channel.decrypt(await websocket.receive_json())
             msg_type = message.get("type")
             if msg_type == "ping":
-                await websocket.send_json(control_channel.encrypt({"type": "pong", "timestamp": time.time()}))
+                await websocket.send_json(control_channel.encrypt({"type": "pong", "timestamp": unix_timestamp_ms()}))
             elif msg_type == "change_password":
                 new_password = str(message.get("new_password", ""))
                 await context.auth_manager.change_password(session_id=session.session_id, new_password=new_password)
