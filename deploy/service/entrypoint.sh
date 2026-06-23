@@ -7,7 +7,28 @@ BRANCH="master"
 
 cd "$APP_DIR"
 
-if [ ! -d ".git" ]; then
+setup_no_update() {
+    if [ ! -f "setup.toml" ]; then
+        return 1
+    fi
+    value="$(awk '
+        /^\[.*\]$/ { section=$0 }
+        (section == "[General]" || section == "[general]") {
+            line=$0
+            gsub(/[[:space:]]/, "", line)
+            split(line, parts, "=")
+            if (parts[1] == "no_update") {
+                print tolower(parts[2])
+                exit
+            }
+        }
+    ' setup.toml)"
+    [ "$value" = "true" ]
+}
+
+if setup_no_update; then
+    echo "[INFO] no_update is enabled. Skipping repository update."
+elif [ ! -d ".git" ]; then
     echo "[INFO] No git repository found. Cloning repository..."
     git clone "$REPO_URL" . \
         --branch "$BRANCH" \

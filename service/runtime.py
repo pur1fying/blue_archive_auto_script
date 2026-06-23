@@ -499,6 +499,10 @@ class ServiceRuntime:
             general["get_remote_sha_method"] = payload["updateMethod"]
         if "mirrorcCdk" in payload:
             general["mirrorc_cdk"] = payload["mirrorcCdk"]
+        if "noUpdate" in payload:
+            general["no_update"] = bool(payload["noUpdate"])
+        if "no_update" in payload:
+            general["no_update"] = bool(payload["no_update"])
         await run_blocking(write_setup_toml, data, path)
         return {"status": "ok", "path": str(path), "data": data}
 
@@ -663,7 +667,9 @@ class ServiceRuntime:
 
     async def update_to_latest(self):
         await self.stop_all_tasks()
-        await run_blocking(update_to_latest, None)
+        result = await run_blocking(update_to_latest, None)
+        if isinstance(result, dict) and result.get("status") == "skipped":
+            return result
         return {"status": "updated"}
 
     def publish_version_update(self, payload: Dict[str, Any]) -> None:

@@ -3,6 +3,10 @@ from __future__ import annotations
 import asyncio
 import os
 import threading
+try:
+    import tomllib  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover - Python < 3.11 fallback
+    import tomli as tomllib  # type: ignore[import]
 from contextlib import suppress
 from pathlib import Path
 from typing import Optional
@@ -22,6 +26,24 @@ def _env_bool(name: str, default: bool) -> bool:
     return value.strip().lower() not in {"0", "false", "no", "off"}
 
 
+def _setup_no_update(project_root: Path) -> bool:
+    setup_path = project_root / "setup.toml"
+    if not setup_path.exists():
+        return False
+    try:
+        with setup_path.open("rb") as file:
+            data = tomllib.load(file)
+    except Exception:
+        return False
+    general = data.get("general")
+    legacy_general = data.get("General")
+    if isinstance(general, dict) and isinstance(general.get("no_update"), bool):
+        return general["no_update"]
+    if isinstance(legacy_general, dict) and isinstance(legacy_general.get("no_update"), bool):
+        return legacy_general["no_update"]
+    return False
+
+
 class ServiceContext:
     """Aggregates long-lived service components."""
 
@@ -34,7 +56,7 @@ class ServiceContext:
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._fs_task: Optional[asyncio.Task] = None
         self._update_check_task: Optional[asyncio.Task] = None
-        self.need_ocr_update_check = _env_bool(OCR_UPDATE_CHECK_ENV, True)
+        self.need_ocr_update_check = _env_bool(OCR_UPDATE_CHECK_ENV, True) and not _setup_no_update(project_root)
 
     async def startup(self) -> None:
         loop = asyncio.get_running_loop()

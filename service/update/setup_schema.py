@@ -20,6 +20,7 @@ CURRENT_DEFAULT_SETTINGS: Dict[str, Any] = {
         "launch": False,
         "force_launch": False,
         "debug": False,
+        "no_update": False,
         "source_list": LEGACY_DEFAULT_SETTINGS["General"]["source_list"],
     },
     "paths": {
@@ -50,6 +51,13 @@ def _first_string(*values: Any) -> str:
     return ""
 
 
+def _first_bool(default: bool, *values: Any) -> bool:
+    for value in values:
+        if isinstance(value, bool):
+            return value
+    return default
+
+
 def setup_channel(data: Dict[str, Any]) -> str:
     general = _table(data, "general")
     legacy_general = _table(data, "General")
@@ -74,37 +82,63 @@ def migrate_to_current_schema(data: Dict[str, Any]) -> Dict[str, Any]:
 
     current_general = current["general"]
     current_general.update({key: value for key, value in general.items() if key in current_general})
-    current_general["mirrorc_cdk"] = _first_string(general.get("mirrorc_cdk"), legacy_general.get("mirrorc_cdk"))
+    current_general["mirrorc_cdk"] = _first_string(
+        general.get("mirrorc_cdk"),
+        general.get("mirrorcCdk"),
+        legacy_general.get("mirrorc_cdk"),
+    )
     current_general["channel"] = setup_channel(data)
     current_general["current_baas_sha"] = _first_string(
         general.get("current_baas_sha"),
+        general.get("currentBaasSha"),
         legacy_general.get("current_baas_sha"),
         legacy_general.get("current_baas_version"),
         legacy_general.get("current_BAAS_version"),
     )
     current_general["current_baas_cpp_sha"] = _first_string(
         general.get("current_baas_cpp_sha"),
+        general.get("currentBaasCppSha"),
         legacy_general.get("current_baas_cpp_sha"),
         legacy_general.get("current_baas_cpp_version"),
         legacy_general.get("current_BAAS_Cpp_version"),
     )
     current_general["get_remote_sha_method"] = _first_string(
         general.get("get_remote_sha_method"),
+        general.get("getRemoteShaMethod"),
         legacy_general.get("get_remote_sha_method"),
         method_for_repo_url(legacy_urls.get("REPO_URL_HTTP")),
     )
-    for bool_key in ("launch", "force_launch", "debug"):
-        current_general[bool_key] = bool(general.get(bool_key, legacy_general.get(bool_key, current_general[bool_key])))
-    source_list = general.get("source_list") or legacy_general.get("source_list")
+    current_general["launch"] = _first_bool(current_general["launch"], general.get("launch"), legacy_general.get("launch"))
+    current_general["force_launch"] = _first_bool(
+        current_general["force_launch"],
+        general.get("force_launch"),
+        general.get("forceLaunch"),
+        legacy_general.get("force_launch"),
+    )
+    current_general["debug"] = _first_bool(current_general["debug"], general.get("debug"), legacy_general.get("debug"))
+    current_general["no_update"] = _first_bool(
+        current_general["no_update"],
+        general.get("no_update"),
+        general.get("noUpdate"),
+        legacy_general.get("no_update"),
+    )
+    source_list = general.get("source_list") or general.get("sourceList") or legacy_general.get("source_list")
     if isinstance(source_list, list) and source_list:
         current_general["source_list"] = [str(item) for item in source_list]
 
     current_paths = current["paths"]
     current_paths.update({key: value for key, value in paths.items() if key in current_paths})
-    current_paths["baas_root_path"] = _first_string(paths.get("baas_root_path"), legacy_paths.get("BAAS_ROOT_PATH"))
-    current_paths["tmp_path"] = _first_string(paths.get("tmp_path"), legacy_paths.get("TMP_PATH")) or current_paths["tmp_path"]
+    current_paths["baas_root_path"] = _first_string(
+        paths.get("baas_root_path"),
+        paths.get("baasRootPath"),
+        legacy_paths.get("BAAS_ROOT_PATH"),
+    )
+    current_paths["tmp_path"] = (
+        _first_string(paths.get("tmp_path"), paths.get("tmpPath"), legacy_paths.get("TMP_PATH"))
+        or current_paths["tmp_path"]
+    )
     current_paths["toolkit_path"] = (
-        _first_string(paths.get("toolkit_path"), legacy_paths.get("TOOL_KIT_PATH"))
+        _first_string(paths.get("toolkit_path"), paths.get("toolkitPath"), legacy_paths.get("TOOL_KIT_PATH"))
         or current_paths["toolkit_path"]
     )
 
@@ -112,13 +146,22 @@ def migrate_to_current_schema(data: Dict[str, Any]) -> Dict[str, Any]:
     current_python.update({key: value for key, value in python.items() if key in current_python})
     current_python["runtime_path"] = _first_string(
         python.get("runtime_path"),
+        python.get("runtimePath"),
         legacy_general.get("runtime_path"),
     ) or current_python["runtime_path"]
+    current_python["python_version"] = (
+        _first_string(python.get("python_version"), python.get("pythonVersion"))
+        or current_python["python_version"]
+    )
 
     current_repositories = current["repositories"]
     current_repositories.update(
         {key: value for key, value in repositories.items() if key in current_repositories}
     )
+    if isinstance(repositories.get("mainSources"), list):
+        current_repositories["main_sources"] = repositories["mainSources"]
+    if isinstance(repositories.get("cppSources"), list):
+        current_repositories["cpp_sources"] = repositories["cppSources"]
     return current
 
 
@@ -149,6 +192,7 @@ def legacy_runtime_view(data: Dict[str, Any]) -> Dict[str, Any]:
             "no_build": True,
             "debug": general["debug"],
             "use_dynamic_update": False,
+            "no_update": general["no_update"],
             "source_list": general["source_list"],
             "package_manager": "pip",
             "runtime_path": python["runtime_path"],

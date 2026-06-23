@@ -348,6 +348,16 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
     try:
         local_info, setup_toml, _branch = get_local_version()
         setup_toml = migrate_to_current_schema(setup_toml)
+        if setup_toml["general"].get("no_update", False):
+            return {
+                "local": local_info.version,
+                "remote": local_info.version,
+                "update_available": False,
+                "skipped": True,
+                "reason": "no_update",
+                "channel": setup_channel(setup_toml),
+                "method": setup_toml["general"].get("get_remote_sha_method"),
+            }
         channel = setup_channel(setup_toml)
         setup_toml["general"]["channel"] = channel
         repo_methods = get_remote_sha_methods_for_channel(channel)
@@ -395,4 +405,7 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
 
 def update_to_latest(setup_path: Union[Path, None] = None):
     data, path = read_setup_toml(setup_path)
+    data = migrate_to_current_schema(data)
+    if data["general"].get("no_update", False):
+        return {"status": "skipped", "reason": "no_update"}
     update_repo_to_latest(data, path)
