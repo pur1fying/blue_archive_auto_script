@@ -28,7 +28,10 @@ async def websocket_trigger(websocket: WebSocket) -> None:
             response_payload: Dict[str, Any]
             if cmd.command == "test_all_sha_stream":
                 try:
-                    async for result in context.runtime.test_all_sha_stream(cmd.payload.get("channel")):
+                    async for result in context.runtime.test_all_sha_stream(
+                        cmd.payload.get("channel"),
+                        cmd.payload.get("timeout"),
+                    ):
                         await send_stream_json(
                             websocket,
                             stream,

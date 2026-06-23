@@ -47,6 +47,16 @@ _TASK_ALIAS = {
     "start_explore_activity_challenge": "explore_activity_challenge",
 }
 
+MAX_SHA_TEST_TIMEOUT = 10.0
+
+
+def _coerce_sha_test_timeout(timeout: Any = None) -> float:
+    try:
+        value = float(timeout)
+    except (TypeError, ValueError):
+        return MAX_SHA_TEST_TIMEOUT
+    return max(0.1, min(value, MAX_SHA_TEST_TIMEOUT))
+
 
 async def run_blocking(func, *args):
     """Run a blocking callable in the default executor and return its result.
@@ -446,15 +456,21 @@ class ServiceRuntime:
         return cdk_res
 
     @staticmethod
-    async def test_all_sha(channel=None):
-        all_sha_res = await run_blocking(test_all_repo_sha, 3.0, channel)
+    async def test_all_sha(channel=None, timeout=None):
+        all_sha_res = await run_blocking(
+            test_all_repo_sha,
+            _coerce_sha_test_timeout(timeout),
+            channel,
+        )
         return all_sha_res
 
     @staticmethod
-    async def test_all_sha_stream(channel=None):
+    async def test_all_sha_stream(channel=None, timeout=None):
+        request_timeout = _coerce_sha_test_timeout(timeout)
+
         async def test_one(config: Dict[str, Any]) -> Dict[str, Any]:
             try:
-                return await run_blocking(test_repo_sha, config, 3.0)
+                return await run_blocking(test_repo_sha, config, request_timeout)
             except Exception as exc:  # noqa: BLE001 - keep one failed source from stopping the stream
                 method = config.get("method")
                 return {

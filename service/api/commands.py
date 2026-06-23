@@ -100,7 +100,10 @@ async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = No
         return {"status": "ok", "data": result}
 
     if cmd.command == "test_all_sha":
-        result = await context.runtime.test_all_sha(cmd.payload.get("channel"))
+        result = await context.runtime.test_all_sha(
+            cmd.payload.get("channel"),
+            cmd.payload.get("timeout"),
+        )
         return {"status": "ok", "data": result}
 
     if cmd.command == "check_for_update":
