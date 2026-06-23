@@ -227,6 +227,7 @@ mirrorcCdk = "abc"
 channel = "dev"
 getRemoteShaMethod = "github"
 forceLaunch = true
+noUpdate = true
 
 [paths]
 baasRootPath = "D:/BAAS"
@@ -250,6 +251,7 @@ cppSources = []
         assert loaded["general"]["channel"] == "dev"
         assert loaded["general"]["get_remote_sha_method"] == "github"
         assert loaded["general"]["force_launch"] is True
+        assert loaded["general"]["no_update"] is True
         assert loaded["paths"]["baas_root_path"] == "D:/BAAS"
         assert loaded["paths"]["tmp_path"] == "cache"
         assert loaded["paths"]["toolkit_path"] == "tools"

@@ -157,11 +157,11 @@ def test_service_runtime_streams_sha_results_by_completion(monkeypatch, tmp_path
     async def scenario():
         runtime = ServiceRuntime(tmp_path)
         results = []
-        async for result in runtime.test_all_sha_stream("stable"):
-            results.append(result["name"])
+        async for result in runtime.test_all_sha_stream("stable", timeout=12):
+            results.append((result["name"], result["duration"]))
         return results
 
     monkeypatch.setattr(runtime_module, "repo_sha_test_configs", fake_configs)
     monkeypatch.setattr(runtime_module, "test_repo_sha", fake_test_repo_sha)
 
-    assert asyncio.run(scenario()) == ["fast", "slow"]
+    assert asyncio.run(scenario()) == [("fast", 10.0), ("slow", 10.0)]

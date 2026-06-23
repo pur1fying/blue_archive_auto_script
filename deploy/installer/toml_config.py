@@ -16,6 +16,7 @@ DEFAULT_SETTINGS = {
         "no_build": True,
         "debug": False,
         "use_dynamic_update": False,
+        "no_update": False,
         "source_list": [
             "https://pypi.tuna.tsinghua.edu.cn/simple",
             "https://mirrors.ustc.edu.cn/pypi/web/simple",
