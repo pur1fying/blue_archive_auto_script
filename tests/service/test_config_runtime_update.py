@@ -286,6 +286,30 @@ git_backend = "git2"
         _cleanup(root)
 
 
+def test_setup_toml_legacy_git_backend_overrides_current_auto():
+    root = _workspace_tmp()
+    setup_path = root / "setup.toml"
+    try:
+        setup_path.write_text(
+            """
+schema_version = 1
+
+[general]
+git_backend = "auto"
+
+[General]
+git_backend = "git2"
+""".strip(),
+            encoding="utf-8",
+        )
+
+        loaded, _ = read_setup_toml(setup_path)
+
+        assert loaded["general"]["git_backend"] == "git2"
+    finally:
+        _cleanup(root)
+
+
 def test_setup_toml_projection_preserves_git_backend():
     root = _workspace_tmp()
     try:

@@ -123,15 +123,17 @@ def migrate_to_current_schema(data: Dict[str, Any]) -> Dict[str, Any]:
         general.get("noUpdate"),
         legacy_general.get("no_update"),
     )
-    current_general["git_backend"] = (
-        _first_string(
-            general.get("git_backend"),
-            general.get("gitBackend"),
-            legacy_general.get("git_backend"),
-            legacy_general.get("gitBackend"),
-        )
-        or current_general["git_backend"]
+    git_backend = _first_string(general.get("git_backend"), general.get("gitBackend"))
+    legacy_git_backend = _first_string(
+        legacy_general.get("git_backend"),
+        legacy_general.get("gitBackend"),
     )
+    if git_backend and git_backend != "auto":
+        current_general["git_backend"] = git_backend
+    elif legacy_git_backend:
+        current_general["git_backend"] = legacy_git_backend
+    elif git_backend:
+        current_general["git_backend"] = git_backend
     source_list = general.get("source_list") or general.get("sourceList") or legacy_general.get("source_list")
     if isinstance(source_list, list) and source_list:
         current_general["source_list"] = [str(item) for item in source_list]
