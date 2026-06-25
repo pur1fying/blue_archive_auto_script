@@ -21,6 +21,7 @@ CURRENT_DEFAULT_SETTINGS: Dict[str, Any] = {
         "force_launch": False,
         "debug": False,
         "no_update": False,
+        "git_backend": "auto",
         "source_list": LEGACY_DEFAULT_SETTINGS["General"]["source_list"],
     },
     "paths": {
@@ -122,6 +123,10 @@ def migrate_to_current_schema(data: Dict[str, Any]) -> Dict[str, Any]:
         general.get("noUpdate"),
         legacy_general.get("no_update"),
     )
+    current_general["git_backend"] = (
+        _first_string(general.get("git_backend"), general.get("gitBackend"))
+        or current_general["git_backend"]
+    )
     source_list = general.get("source_list") or general.get("sourceList") or legacy_general.get("source_list")
     if isinstance(source_list, list) and source_list:
         current_general["source_list"] = [str(item) for item in source_list]
@@ -193,6 +198,7 @@ def legacy_runtime_view(data: Dict[str, Any]) -> Dict[str, Any]:
             "debug": general["debug"],
             "use_dynamic_update": False,
             "no_update": general["no_update"],
+            "git_backend": general["git_backend"],
             "source_list": general["source_list"],
             "package_manager": "pip",
             "runtime_path": python["runtime_path"],

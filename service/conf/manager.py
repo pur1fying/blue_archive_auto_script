@@ -112,7 +112,8 @@ class ConfigManager:
             "updateMethod": config_general.get("get_remote_sha_method") or "github",
             "repoUrl"     : legacy_repo_url(current),
             "shaMethod"   : config_general.get("get_remote_sha_method"),
-            "mirrorcCdk"  : config_general.get("mirrorc_cdk")
+            "mirrorcCdk"  : config_general.get("mirrorc_cdk"),
+            "gitBackend"  : config_general.get("git_backend", "auto"),
         }
 
     @staticmethod
@@ -193,6 +194,7 @@ class ConfigManager:
         shaMethod: Optional[str] = projection.get("shaMethod", None)
         updateMethod: Optional[str] = projection.get("updateMethod", None)
         mirrorcCdk: Optional[str] = projection.get("mirrorcCdk", None)
+        gitBackend: Optional[str] = projection.get("gitBackend", None)
         channel: Optional[str] = projection.get("channel", None)
         if channel is not None:
             normalized_channel = normalize_update_channel(channel)
@@ -203,6 +205,8 @@ class ConfigManager:
             merged["general"]["get_remote_sha_method"] = updateMethod
         if mirrorcCdk is not None:
             merged["general"]["mirrorc_cdk"] = mirrorcCdk
+        if gitBackend is not None:
+            merged["general"]["git_backend"] = gitBackend
 
         self._setup_toml = merged
         return merged

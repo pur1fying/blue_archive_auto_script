@@ -14,9 +14,11 @@ from zipfile import ZipFile
 import pytest
 
 import service.runtime as runtime_module
+from service.conf.manager import ConfigManager
 from service.conf import ConfigPathError, ensure_safe_config_id, resolve_config_dir
 from service.runtime import ServiceRuntime
 from service.update.setup_io import read_setup_toml, write_setup_toml
+from service.update.setup_schema import legacy_runtime_view
 
 
 def _workspace_tmp() -> Path:
@@ -209,6 +211,7 @@ def test_setup_toml_io_round_trip():
 
         assert loaded["general"]["mirrorc_cdk"] == "abc"
         assert loaded["general"]["channel"] == "stable"
+        assert loaded["general"]["git_backend"] == "auto"
         assert "General" not in loaded
     finally:
         _cleanup(root)
@@ -228,6 +231,7 @@ channel = "dev"
 getRemoteShaMethod = "github"
 forceLaunch = true
 noUpdate = true
+gitBackend = "git_cli"
 
 [paths]
 baasRootPath = "D:/BAAS"
@@ -252,10 +256,36 @@ cppSources = []
         assert loaded["general"]["get_remote_sha_method"] == "github"
         assert loaded["general"]["force_launch"] is True
         assert loaded["general"]["no_update"] is True
+        assert loaded["general"]["git_backend"] == "git_cli"
+        assert legacy_runtime_view(loaded)["General"]["git_backend"] == "git_cli"
         assert loaded["paths"]["baas_root_path"] == "D:/BAAS"
         assert loaded["paths"]["tmp_path"] == "cache"
         assert loaded["paths"]["toolkit_path"] == "tools"
         assert loaded["python"]["runtime_path"] == "C:/Python/python.exe"
         assert loaded["python"]["python_version"] == "3.11.0"
+    finally:
+        _cleanup(root)
+
+
+def test_setup_toml_projection_preserves_git_backend():
+    root = _workspace_tmp()
+    try:
+        manager = ConfigManager.__new__(ConfigManager)
+        manager._setup_toml = {
+            "general": {
+                "channel": "stable",
+                "get_remote_sha_method": "github",
+                "git_backend": "git2",
+            }
+        }
+
+        projection = manager._project_setup_toml(manager._setup_toml)
+        assert projection["gitBackend"] == "git2"
+
+        merged = manager._merge_setup_toml({**projection, "updateMethod": "gitee"})
+        assert merged["general"]["git_backend"] == "git2"
+
+        merged = manager._merge_setup_toml({**projection, "gitBackend": "git_cli"})
+        assert merged["general"]["git_backend"] == "git_cli"
     finally:
         _cleanup(root)

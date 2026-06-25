@@ -519,6 +519,10 @@ class ServiceRuntime:
             general["no_update"] = bool(payload["noUpdate"])
         if "no_update" in payload:
             general["no_update"] = bool(payload["no_update"])
+        if "gitBackend" in payload:
+            general["git_backend"] = str(payload["gitBackend"])
+        if "git_backend" in payload:
+            general["git_backend"] = str(payload["git_backend"])
         await run_blocking(write_setup_toml, data, path)
         return {"status": "ok", "path": str(path), "data": data}
 
