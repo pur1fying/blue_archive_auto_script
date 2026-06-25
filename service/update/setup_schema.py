@@ -124,7 +124,12 @@ def migrate_to_current_schema(data: Dict[str, Any]) -> Dict[str, Any]:
         legacy_general.get("no_update"),
     )
     current_general["git_backend"] = (
-        _first_string(general.get("git_backend"), general.get("gitBackend"))
+        _first_string(
+            general.get("git_backend"),
+            general.get("gitBackend"),
+            legacy_general.get("git_backend"),
+            legacy_general.get("gitBackend"),
+        )
         or current_general["git_backend"]
     )
     source_list = general.get("source_list") or general.get("sourceList") or legacy_general.get("source_list")

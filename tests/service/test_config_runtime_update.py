@@ -267,6 +267,25 @@ cppSources = []
         _cleanup(root)
 
 
+def test_setup_toml_reads_legacy_git_backend():
+    root = _workspace_tmp()
+    setup_path = root / "setup.toml"
+    try:
+        setup_path.write_text(
+            """
+[General]
+git_backend = "git2"
+""".strip(),
+            encoding="utf-8",
+        )
+
+        loaded, _ = read_setup_toml(setup_path)
+
+        assert loaded["general"]["git_backend"] == "git2"
+    finally:
+        _cleanup(root)
+
+
 def test_setup_toml_projection_preserves_git_backend():
     root = _workspace_tmp()
     try:
