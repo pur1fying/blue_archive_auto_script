@@ -136,6 +136,11 @@ class BaasOcrClient:
         if os.path.exists(target_root):
             shutil.rmtree(target_root, ignore_errors=True)
         shutil.copytree(source_root, target_root)
+        native_lib_dir = os.getenv("BAAS_ANDROID_NATIVE_LIBRARY_DIR", "").strip()
+        native_libcxx = os.path.join(native_lib_dir, "libc++_shared.so") if native_lib_dir else ""
+        target_libcxx = os.path.join(target_root, "lib", _android_library_abi_dir(), "libc++_shared.so")
+        if native_libcxx and os.path.exists(native_libcxx):
+            shutil.copy2(native_libcxx, target_libcxx)
         os.chmod(self._android_server_library_path(target_root), 0o755)
         return target_root
 
@@ -230,10 +235,9 @@ class BaasOcrClient:
         dependency_paths = []
         if native_lib_dir:
             dependency_paths.append(os.path.join(native_lib_dir, "libc++_shared.so"))
-        dependency_paths.extend(
-            os.path.join(lib_dir, name)
-            for name in ["libc++_shared.so", "libonnxruntime.so", "libopencv_java4.so"]
-        )
+        elif os.path.exists(os.path.join(lib_dir, "libc++_shared.so")):
+            dependency_paths.append(os.path.join(lib_dir, "libc++_shared.so"))
+        dependency_paths.extend(os.path.join(lib_dir, name) for name in ["libonnxruntime.so", "libopencv_java4.so"])
         loaded = set()
         for path in dependency_paths:
             if path in loaded:
