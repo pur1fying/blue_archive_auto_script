@@ -56,7 +56,8 @@ class ServiceContext:
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._fs_task: Optional[asyncio.Task] = None
         self._update_check_task: Optional[asyncio.Task] = None
-        self.need_ocr_update_check = _env_bool(OCR_UPDATE_CHECK_ENV, True) and not _setup_no_update(project_root)
+        self.no_update = _setup_no_update(project_root)
+        self.need_ocr_update_check = _env_bool(OCR_UPDATE_CHECK_ENV, True) and not self.no_update
 
     async def startup(self) -> None:
         loop = asyncio.get_running_loop()
@@ -71,10 +72,11 @@ class ServiceContext:
         await self.log_manager.start()
 
         self._fs_task = asyncio.create_task(self.config_manager.watch_filesystem(), name="config-fs-watch")
-        self._update_check_task = asyncio.create_task(
-            self._periodic_update_check(),
-            name="periodic-update-check",
-        )
+        if not self.no_update:
+            self._update_check_task = asyncio.create_task(
+                self._periodic_update_check(),
+                name="periodic-update-check",
+            )
         threading.Thread(
             target=self.runtime.init_all_data,
             kwargs={"need_ocr_update_check": self.need_ocr_update_check},

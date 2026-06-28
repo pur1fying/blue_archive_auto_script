@@ -2,10 +2,20 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import AliasChoices, BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 
-class PatchOperation(BaseModel):
+class ServiceBaseModel(BaseModel):
+    """Compatibility base for both Pydantic v1 and v2 runtimes."""
+
+    def model_dump(self, *args, **kwargs):
+        super_model_dump = getattr(super(), "model_dump", None)
+        if callable(super_model_dump):
+            return super_model_dump(*args, **kwargs)
+        return self.dict(*args, **kwargs)
+
+
+class PatchOperation(ServiceBaseModel):
     """JSON Patch operation sent over sync channels.
 
     Attributes:
@@ -18,14 +28,14 @@ class PatchOperation(BaseModel):
     path: str
     value: Union[Any, None] = None
 
-    @field_validator("path")
+    @validator("path")
     def validate_path(cls, value: str) -> str:
         if value != "" and not value.startswith("/"):
             raise ValueError("json-pointer paths must start with '/' or be empty")
         return value
 
 
-class SyncPullMessage(BaseModel):
+class SyncPullMessage(ServiceBaseModel):
     """Request a full resource snapshot from the sync websocket.
 
     Attributes:
@@ -41,11 +51,20 @@ class SyncPullMessage(BaseModel):
     is_include_diff_baseline: bool = Field(
         default=False,
         description="Whether to return baseline timestamp",
-        validation_alias=AliasChoices("is_include_diff_baseline", "include_diff_baseline"),
     )
 
+    @root_validator(pre=True)
+    def accept_legacy_include_diff_baseline(cls, values):
+        if (
+            isinstance(values, dict)
+            and "is_include_diff_baseline" not in values
+            and "include_diff_baseline" in values
+        ):
+            values["is_include_diff_baseline"] = values["include_diff_baseline"]
+        return values
 
-class SyncPatchMessage(BaseModel):
+
+class SyncPatchMessage(ServiceBaseModel):
     """Apply a patch to a mutable resource through the sync websocket.
 
     Attributes:
@@ -63,7 +82,7 @@ class SyncPatchMessage(BaseModel):
     ops: List[PatchOperation]
 
 
-class ProviderRequest(BaseModel):
+class ProviderRequest(ServiceBaseModel):
     """Request provider-side static or status data.
 
     Attributes:
@@ -75,7 +94,7 @@ class ProviderRequest(BaseModel):
     resource_id: Optional[str] = None
 
 
-class CommandMessage(BaseModel):
+class CommandMessage(ServiceBaseModel):
     """Command envelope accepted by `/ws/trigger`.
 
     Attributes:
@@ -93,7 +112,7 @@ class CommandMessage(BaseModel):
     payload: Dict[str, Any] = Field(default_factory=dict)
 
 
-class HandshakeResponse(BaseModel):
+class HandshakeResponse(ServiceBaseModel):
     """Legacy handshake response model retained for typed consumers."""
 
     type: Literal["handshake_response"]
@@ -101,7 +120,7 @@ class HandshakeResponse(BaseModel):
     timestamp: float
 
 
-class SyncPushPayload(BaseModel):
+class SyncPushPayload(ServiceBaseModel):
     """Backend-to-frontend sync push payload.
 
     Attributes:

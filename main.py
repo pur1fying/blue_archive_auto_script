@@ -21,8 +21,11 @@ class Main:
 
     def init_all_data(self, need_ocr_update_check=True):
         if not self.init_ocr(need_ocr_update_check=need_ocr_update_check):
-            self.logger.error("Ocr Init Incomplete Please restart .")
-            return False
+            if os.getenv("BAAS_ALLOW_MISSING_OCR", "").strip().lower() in {"1", "true", "yes", "on"}:
+                self.logger.warning("Ocr Init Incomplete. Continuing because missing OCR is allowed.")
+            else:
+                self.logger.error("Ocr Init Incomplete Please restart .")
+                return False
         self.init_static_config()
         self.logger.info("-- All Data Initialization Complete Script ready--")
         return True
