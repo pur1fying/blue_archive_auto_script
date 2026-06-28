@@ -234,9 +234,10 @@ class BaasOcrClient:
         lib_dir = os.path.dirname(self.exe_path)
         native_lib_dir = os.getenv("BAAS_ANDROID_NATIVE_LIBRARY_DIR", "").strip()
         dependency_paths = []
-        if native_lib_dir:
-            dependency_paths.append(os.path.join(native_lib_dir, "libc++_shared.so"))
-        elif os.path.exists(os.path.join(lib_dir, "libc++_shared.so")):
+        native_libcxx = os.path.join(native_lib_dir, "libc++_shared.so") if native_lib_dir else ""
+        if native_libcxx and os.path.exists(native_libcxx):
+            dependency_paths.append(native_libcxx)
+        if os.path.exists(os.path.join(lib_dir, "libc++_shared.so")):
             dependency_paths.append(os.path.join(lib_dir, "libc++_shared.so"))
         dependency_paths.extend(os.path.join(lib_dir, name) for name in ["libonnxruntime.so", "libopencv_java4.so"])
         loaded = set()
