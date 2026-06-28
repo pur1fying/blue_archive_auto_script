@@ -101,6 +101,7 @@ class BaasOcrClient:
             raise FileNotFoundError("Didn't find ocr server executable.")
         self.config = ServerConfig()
         self.server_process = None
+        self._android_dependency_libs = []
         self.clear_log()
 
     @staticmethod
@@ -243,7 +244,7 @@ class BaasOcrClient:
             if path in loaded:
                 continue
             if os.path.exists(path):
-                ctypes.CDLL(path, mode=ctypes.RTLD_GLOBAL)
+                self._android_dependency_libs.append(ctypes.CDLL(path, mode=ctypes.RTLD_GLOBAL))
                 loaded.add(path)
         server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
         server_lib.start_server.argtypes = []
@@ -277,6 +278,7 @@ class BaasOcrClient:
             self.server_process = None
             self._android_server_thread = None
             self._android_server_lib = None
+            self._android_dependency_libs = []
             return
         self.server_process.stdin.write("exit\n")
         self.server_process.stdin.flush()
