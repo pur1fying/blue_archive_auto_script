@@ -125,11 +125,13 @@ class BaasOcrClient:
         source_version = os.path.join(source_root, ".baas-ocr-prebuild-sha")
         target_version = os.path.join(target_root, ".baas-ocr-prebuild-sha")
         try:
-            source_sha = open(source_version, "r", encoding="utf-8").read().strip()
+            with open(source_version, "r", encoding="utf-8") as fp:
+                source_sha = fp.read().strip()
         except OSError:
             source_sha = ""
         try:
-            target_sha = open(target_version, "r", encoding="utf-8").read().strip()
+            with open(target_version, "r", encoding="utf-8") as fp:
+                target_sha = fp.read().strip()
         except OSError:
             target_sha = ""
 
@@ -275,13 +277,14 @@ class BaasOcrClient:
         except OSError:
             self._android_system_load(self.exe_path)
             server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
-        server_lib.start_server.argtypes = []
+        server_lib.start_server.argtypes = [ctypes.c_char_p]
         server_lib.start_server.restype = None
         server_lib.stop_server.argtypes = []
         server_lib.stop_server.restype = None
         self._android_server_lib = server_lib
+        server_root = os.fsencode(self.server_folder_path)
         self._android_server_thread = threading.Thread(
-            target=server_lib.start_server,
+            target=lambda: server_lib.start_server(server_root),
             name="baas-ocr-android-server",
             daemon=True,
         )
