@@ -72,7 +72,17 @@ def _is_android_runtime() -> bool:
     return os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}
 
 
-def _server_executable_path() -> str:
+def _android_library_abi_dir() -> str:
+    if TARGET_BRANCH == "android-arm64-v8a":
+        return "arm64-v8a"
+    if TARGET_BRANCH == "android-x86_64":
+        return "x86_64"
+    raise OcrInternalError(f"Unsupported Android OCR branch: {TARGET_BRANCH}")
+
+
+def _server_binary_path() -> str:
+    if TARGET_BRANCH.startswith("android-"):
+        return os.path.join(SERVER_BIN_DIR, "lib", _android_library_abi_dir(), "libBAAS_ocr_server.so")
     return os.path.join(SERVER_BIN_DIR, "BAAS_ocr_server.exe" if sys.platform == "win32" else "BAAS_ocr_server")
 
 
@@ -113,10 +123,10 @@ def _download_android_archive(branch: str, archive_path: str) -> str:
 
 
 def _find_android_archive_root(extract_root: str) -> str:
-    executable_name = os.path.basename(_server_executable_path())
+    library_name = "libBAAS_ocr_server.so"
     for current_root, _dirs, files in os.walk(extract_root):
-        if executable_name in files:
-            return current_root
+        if library_name in files and os.path.basename(current_root) == _android_library_abi_dir():
+            return os.path.dirname(os.path.dirname(current_root))
     candidates = [
         os.path.join(extract_root, name)
         for name in os.listdir(extract_root)
@@ -124,7 +134,7 @@ def _find_android_archive_root(extract_root: str) -> str:
     ]
     if len(candidates) == 1:
         return candidates[0]
-    raise OcrInternalError("Android OCR prebuild archive does not contain BAAS_ocr_server")
+    raise OcrInternalError("Android OCR prebuild archive does not contain libBAAS_ocr_server.so")
 
 
 def _install_android_prebuild(logger) -> None:
@@ -133,8 +143,8 @@ def _install_android_prebuild(logger) -> None:
 
     remote_sha = _get_android_remote_sha(TARGET_BRANCH)
     local_sha = _read_android_installed_sha()
-    executable_path = _server_executable_path()
-    if remote_sha and local_sha == remote_sha and os.path.exists(executable_path):
+    server_binary_path = _server_binary_path()
+    if remote_sha and local_sha == remote_sha and os.path.exists(server_binary_path):
         logger.info("Ocr Server No updates available.")
         return
 
@@ -151,10 +161,10 @@ def _install_android_prebuild(logger) -> None:
             shutil.rmtree(SERVER_BIN_DIR, ignore_errors=True)
         shutil.copytree(source_root, SERVER_BIN_DIR)
 
-    if os.path.exists(executable_path):
-        os.chmod(executable_path, os.stat(executable_path).st_mode | 0o755)
+    if os.path.exists(server_binary_path):
+        os.chmod(server_binary_path, os.stat(server_binary_path).st_mode | 0o755)
     else:
-        raise OcrInternalError("Android OCR prebuild did not install BAAS_ocr_server")
+        raise OcrInternalError("Android OCR prebuild did not install libBAAS_ocr_server.so")
 
     with open(ANDROID_VERSION_FILE, "w", encoding="utf-8") as fp:
         fp.write(remote_sha or source_url)

@@ -118,7 +118,9 @@ class Baas_thread:
         self.ocr = ocr
         ocr_client = getattr(self.ocr, "client", None)
         ocr_config = getattr(ocr_client, "config", None)
-        if ocr_config is not None and ocr_config.server_is_remote:
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            self.ocr_img_pass_method = 1
+        elif ocr_config is not None and ocr_config.server_is_remote:
             self.ocr_img_pass_method = 1
         else:
             self.ocr_img_pass_method = 0
