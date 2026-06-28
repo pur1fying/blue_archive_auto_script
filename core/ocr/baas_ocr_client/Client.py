@@ -73,6 +73,9 @@ def _android_library_abi_dir() -> str:
     raise RuntimeError("Unsupported Android OCR architecture.")
 
 
+ANDROID_LIBCXX_NAME = "libc++_baasxx.so"
+
+
 def _server_folder_path() -> str:
     base = os.path.dirname(__file__)
     android_branch = _android_ocr_branch()
@@ -140,10 +143,30 @@ class BaasOcrClient:
         native_lib_dir = os.getenv("BAAS_ANDROID_NATIVE_LIBRARY_DIR", "").strip()
         native_libcxx = os.path.join(native_lib_dir, "libc++_shared.so") if native_lib_dir else ""
         target_libcxx = os.path.join(target_root, "lib", _android_library_abi_dir(), "libc++_shared.so")
+        target_baas_libcxx = os.path.join(target_root, "lib", _android_library_abi_dir(), ANDROID_LIBCXX_NAME)
         if native_libcxx and os.path.exists(native_libcxx):
-            shutil.copy2(native_libcxx, target_libcxx)
+            shutil.copy2(native_libcxx, target_baas_libcxx)
+            self._replace_library_name(target_baas_libcxx, "libc++_shared.so", ANDROID_LIBCXX_NAME)
+            self._replace_library_name(self._android_server_library_path(target_root), "libc++_shared.so", ANDROID_LIBCXX_NAME)
+            try:
+                os.remove(target_libcxx)
+            except OSError:
+                pass
         os.chmod(self._android_server_library_path(target_root), 0o755)
         return target_root
+
+    @staticmethod
+    def _replace_library_name(path: str, old_name: str, new_name: str) -> None:
+        old = old_name.encode("utf-8")
+        new = new_name.encode("utf-8")
+        if len(old) != len(new):
+            raise ValueError("Replacement library name must have the same byte length.")
+        with open(path, "rb") as fp:
+            data = fp.read()
+        patched = data.replace(old, new)
+        if patched != data:
+            with open(path, "wb") as fp:
+                fp.write(patched)
 
     # clear log since time_distance days ago
     def clear_log(self, time_distance=7):
@@ -234,10 +257,10 @@ class BaasOcrClient:
         lib_dir = os.path.dirname(self.exe_path)
         native_lib_dir = os.getenv("BAAS_ANDROID_NATIVE_LIBRARY_DIR", "").strip()
         dependency_paths = []
-        native_libcxx = os.path.join(native_lib_dir, "libc++_shared.so") if native_lib_dir else ""
-        if native_libcxx and os.path.exists(native_libcxx):
-            dependency_paths.append(native_libcxx)
-        if os.path.exists(os.path.join(lib_dir, "libc++_shared.so")):
+        baas_libcxx = os.path.join(lib_dir, ANDROID_LIBCXX_NAME)
+        if os.path.exists(baas_libcxx):
+            dependency_paths.append(baas_libcxx)
+        elif os.path.exists(os.path.join(lib_dir, "libc++_shared.so")):
             dependency_paths.append(os.path.join(lib_dir, "libc++_shared.so"))
         dependency_paths.extend(os.path.join(lib_dir, name) for name in ["libonnxruntime.so", "libopencv_java4.so"])
         loaded = set()
