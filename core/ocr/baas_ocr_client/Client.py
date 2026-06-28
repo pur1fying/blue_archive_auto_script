@@ -275,7 +275,7 @@ class BaasOcrClient:
     def _android_system_load(path: str) -> None:
         from java import jclass
 
-        jclass("java.lang.System").load(path)
+        jclass("io.github.kiramei.baas_tauri.NativeLoader").load(path)
 
     def stop_server(self):
         if _is_android_runtime():
