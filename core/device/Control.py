@@ -1,4 +1,5 @@
 import sys
+import os
 
 from core.device.control.nemu import NemuControl
 from core.device.control.adb import AdbControl
@@ -20,6 +21,8 @@ class Control:
 
     def init_control_instance(self):
         self.method = self.config.control_method
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"} and self.Baas_instance.is_android_device:
+            self.method = "uiautomator2"
         self.logger.info("Control method : " + self.method)
 
         if self.Baas_instance.is_android_device:

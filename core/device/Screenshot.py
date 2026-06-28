@@ -1,4 +1,5 @@
 import sys
+import os
 
 from core.device.screenshot.scrcpy import ScrcpyScreenshot
 from core.device.screenshot.nemu import NemuScreenshot
@@ -24,6 +25,8 @@ class Screenshot:
 
     def init_screenshot_instance(self):
         self.method = self.config.screenshot_method
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"} and self.Baas_instance.is_android_device:
+            self.method = "uiautomator2"
         self.logger.info("Screenshot method : " + self.method)
 
         if self.Baas_instance.is_android_device:

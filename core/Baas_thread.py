@@ -376,6 +376,10 @@ class Baas_thread:
         if self.server == "CN":
             self.ocr_language = "zh-cn"
         elif self.server == "Global":
+            if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+                self.ocr_language = os.getenv("BAAS_ANDROID_GLOBAL_OCR_LANGUAGE", "en-us")
+                self.logger.warning("Android embedded mode cannot pull DeviceOption through adb; use " + self.ocr_language)
+                return
             basic_path = self.u2._adb_device.shell(f"echo $EXTERNAL_STORAGE").strip()
             src = "/".join([
                 basic_path,
@@ -417,6 +421,16 @@ class Baas_thread:
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            version_url = self.u2.path2url("/version")
+            try:
+                version = requests.get(version_url, timeout=3).text
+            except requests.RequestException as exc:
+                raise RuntimeError("Android embedded mode requires local uiautomator2 agent on 127.0.0.1:7912") from exc
+            self.logger.info("ATX agent version: [ " + version + " ].")
+            self.wait_uiautomator_start()
+            self.logger.info("Uiautomator2 service started.")
+            return
         _d = self.u2._wait_for_device()
         if not _d:
             raise RuntimeError("USB device %s is offline " + self.serial)

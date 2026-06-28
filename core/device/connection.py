@@ -8,6 +8,10 @@ from adbutils.errors import AdbTimeout, AdbError
 from core.exception import RequestHumanTakeOver
 
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
+def _is_android_embedded():
+    return os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}
+
+
 class Connection:
 
     def __init__(self, Baas_instance, skip_package_detection=False):
@@ -34,13 +38,13 @@ class Connection:
         self.package = None
         self.adbIP = self.config.adbIP
         self.adbPort = self.config.adbPort
-        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
-            serial = os.getenv("BAAS_ANDROID_ADB_SERIAL", "").strip()
-            if not serial and (not self.adbIP or self.adbIP == "auto") and (not self.adbPort or self.adbPort == "auto"):
-                serial = "127.0.0.1:5555"
-            if serial:
-                self.adbIP, self.adbPort = self._split_serial(serial)
-                self.serial = f"{self.adbIP}:{self.adbPort}"
+        if _is_android_embedded():
+            self.serial = os.getenv("BAAS_ANDROID_U2_SERIAL", "127.0.0.1:7912").strip() or "127.0.0.1:7912"
+            self.adbIP, self.adbPort = self._split_serial(self.serial)
+            self.logger.info("Android embedded mode detected; use local uiautomator2 agent.")
+            self.logger.info(f"Serial : {self.serial}")
+            self._resolve_configured_package()
+            return
         is_usb_or_emulator_device = (self.adbIP == "" or self.adbPort == "")
         if self.adbIP == "" and self.adbPort != "":
             self.serial = self.adbPort
@@ -58,6 +62,27 @@ class Connection:
         if not self.skip_package_detection:
             self.detect_package()
         self.check_mumu_keep_alive()
+
+    def _resolve_configured_package(self):
+        server = self.config.server
+        if server == "auto":
+            raise RequestHumanTakeOver("Android embedded mode requires an explicit game server.")
+        if server == '官服' or server == 'B服':
+            self.server = 'CN'
+        elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
+            self.server = 'Global'
+        elif server == '日服':
+            self.server = 'JP'
+        else:
+            raise RequestHumanTakeOver("Unsupported Android game server: " + str(server))
+
+        try:
+            self.package = self.static_config.package_name[server]
+            self.activity = self.static_config.activity_name[server]
+        except KeyError as exc:
+            raise RequestHumanTakeOver("Game package is not configured: " + str(server)) from exc
+        self.logger.info("Package : " + self.package)
+        self.logger.info("Server : " + self.server)
 
     def _init_app_process(self):
         self.detect_app_window()
