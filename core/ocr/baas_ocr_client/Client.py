@@ -5,8 +5,10 @@ import json
 import time
 import shutil
 import datetime
+import platform
 import requests
 import subprocess
+from typing import Optional
 
 from core.ipc_manager import SharedMemory
 from core.exception import SharedMemoryError, OcrInternalError
@@ -45,8 +47,27 @@ class ServerConfig:
         with open(self.config_path, "w") as f:
             json.dump(self.config, f, indent=4)
 
+def _android_ocr_branch() -> Optional[str]:
+    if os.getenv("BAAS_ANDROID", "").lower() not in {"1", "true", "yes", "on"}:
+        return None
+    arch = platform.machine().lower()
+    if arch in {"aarch64", "arm64"}:
+        return "android-arm64-v8a"
+    if arch in {"x86_64", "amd64"}:
+        return "android-x86_64"
+    return None
+
+
+def _server_folder_path() -> str:
+    base = os.path.dirname(__file__)
+    android_branch = _android_ocr_branch()
+    if android_branch:
+        return os.path.join(base, "bin-android", android_branch)
+    return os.path.join(base, "bin")
+
+
 class BaasOcrClient:
-    server_folder_path = os.path.join(os.path.dirname(__file__), "bin")
+    server_folder_path = _server_folder_path()
     executable_name = "BAAS_ocr_server"
     if sys.platform == "win32":
         executable_name += ".exe"

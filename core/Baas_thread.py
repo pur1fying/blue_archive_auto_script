@@ -116,7 +116,9 @@ class Baas_thread:
 
     def set_ocr(self, ocr):
         self.ocr = ocr
-        if self.ocr.client.config.server_is_remote:
+        ocr_client = getattr(self.ocr, "client", None)
+        ocr_config = getattr(ocr_client, "config", None)
+        if ocr_config is not None and ocr_config.server_is_remote:
             self.ocr_img_pass_method = 1
         else:
             self.ocr_img_pass_method = 0
@@ -304,6 +306,9 @@ class Baas_thread:
         return True
 
     def start_emulator(self):
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            self.logger.info("Android embedded mode detected; skip desktop emulator startup.")
+            return
         self.emulator_start_stat = self.config.open_emulator_stat
         self.wait_time = self.config.emulator_wait_time
         if not self.start_check_emulator_stat(self.emulator_start_stat, self.wait_time):

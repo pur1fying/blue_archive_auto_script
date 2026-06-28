@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ipaddress
+import os
 import time
 import re
 from html import escape
@@ -68,7 +70,8 @@ async def health() -> Dict[str, Any]:
 
 
 @router.post("/android/active-config")
-async def android_active_config(payload: dict[str, Any]) -> Dict[str, Any]:
+async def android_active_config(request: Request, payload: dict[str, Any]) -> Dict[str, Any]:
+    _require_android_loopback(request)
     config_id = str(payload.get("config_id") or "").strip()
     if not config_id:
         raise HTTPException(status_code=400, detail="config_id is required")
@@ -76,12 +79,17 @@ async def android_active_config(payload: dict[str, Any]) -> Dict[str, Any]:
 
 
 @router.post("/android/toggle")
-async def android_toggle() -> Dict[str, Any]:
-    return await context.runtime.toggle_android_active_config()
+async def android_toggle(request: Request) -> Dict[str, Any]:
+    _require_android_loopback(request)
+    try:
+        return await context.runtime.toggle_android_active_config()
+    except Exception as exc:
+        return {"status": "error", "type": exc.__class__.__name__, "error": str(exc)}
 
 
 @router.get("/android/wiki")
-async def android_wiki(path: str = "/docs/zh/") -> Dict[str, Any]:
+async def android_wiki(request: Request, path: str = "/docs/zh/") -> Dict[str, Any]:
+    _require_android_loopback(request)
     target = _resolve_wiki_target(path)
     try:
         response = requests.get(target, timeout=15)
@@ -92,7 +100,8 @@ async def android_wiki(path: str = "/docs/zh/") -> Dict[str, Any]:
 
 
 @router.get("/android/wiki/proxy")
-async def android_wiki_proxy(path: str = "/") -> Response:
+async def android_wiki_proxy(request: Request, path: str = "/") -> Response:
+    _require_android_loopback(request)
     target = _resolve_wiki_target(path, allow_assets=True)
     try:
         upstream = requests.get(target, timeout=15)
@@ -110,6 +119,19 @@ async def android_wiki_proxy(path: str = "/") -> Response:
 
     media_type = content_type.split(";", 1)[0] or "application/octet-stream"
     return Response(upstream.content, media_type=media_type)
+
+
+def _require_android_loopback(request: Request) -> None:
+    if os.environ.get("BAAS_ANDROID") != "1":
+        raise HTTPException(status_code=404, detail="Not found")
+    host = request.client.host if request.client else ""
+    try:
+        if ipaddress.ip_address(host).is_loopback:
+            return
+    except ValueError:
+        if host == "localhost":
+            return
+    raise HTTPException(status_code=404, detail="Not found")
 
 
 def _resolve_wiki_target(path: str, allow_assets: bool = False) -> str:
