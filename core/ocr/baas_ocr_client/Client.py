@@ -244,8 +244,10 @@ class BaasOcrClient:
             if path in loaded:
                 continue
             if os.path.exists(path):
+                self._android_system_load(path)
                 self._android_dependency_libs.append(ctypes.CDLL(path, mode=ctypes.RTLD_GLOBAL))
                 loaded.add(path)
+        self._android_system_load(self.exe_path)
         server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
         server_lib.start_server.argtypes = []
         server_lib.start_server.restype = None
@@ -268,6 +270,12 @@ class BaasOcrClient:
                 if _ == 99:
                     raise RuntimeError("Fail to start ocr server. " + e.__str__())
                 time.sleep(0.1)
+
+    @staticmethod
+    def _android_system_load(path: str) -> None:
+        from java import jclass
+
+        jclass("java.lang.System").load(path)
 
     def stop_server(self):
         if _is_android_runtime():
