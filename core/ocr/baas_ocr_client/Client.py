@@ -245,11 +245,13 @@ class BaasOcrClient:
             if path in loaded:
                 continue
             if os.path.exists(path):
-                self._android_system_load(path)
                 self._android_dependency_libs.append(ctypes.CDLL(path, mode=ctypes.RTLD_GLOBAL))
                 loaded.add(path)
-        self._android_system_load(self.exe_path)
-        server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
+        try:
+            server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
+        except OSError:
+            self._android_system_load(self.exe_path)
+            server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
         server_lib.start_server.argtypes = []
         server_lib.start_server.restype = None
         server_lib.stop_server.argtypes = []
