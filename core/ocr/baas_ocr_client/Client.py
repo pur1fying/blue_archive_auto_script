@@ -226,10 +226,21 @@ class BaasOcrClient:
 
     def _start_android_server(self):
         lib_dir = os.path.dirname(self.exe_path)
-        for name in ["libc++_shared.so", "libonnxruntime.so", "libopencv_java4.so"]:
-            path = os.path.join(lib_dir, name)
+        native_lib_dir = os.getenv("BAAS_ANDROID_NATIVE_LIBRARY_DIR", "").strip()
+        dependency_paths = []
+        if native_lib_dir:
+            dependency_paths.append(os.path.join(native_lib_dir, "libc++_shared.so"))
+        dependency_paths.extend(
+            os.path.join(lib_dir, name)
+            for name in ["libc++_shared.so", "libonnxruntime.so", "libopencv_java4.so"]
+        )
+        loaded = set()
+        for path in dependency_paths:
+            if path in loaded:
+                continue
             if os.path.exists(path):
                 ctypes.CDLL(path, mode=ctypes.RTLD_GLOBAL)
+                loaded.add(path)
         server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
         server_lib.start_server.argtypes = []
         server_lib.start_server.restype = None
