@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import time
+import os
 import pygit2
 import shutil
 import subprocess
+import tempfile
+import zipfile
 from pathlib import Path
 from typing import Union, List, Tuple
 from dataclasses import dataclass
@@ -346,6 +349,34 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
     structured response that can be consumed by service endpoints.
     """
     try:
+        if _is_android_runtime():
+            setup_toml, path = read_setup_toml()
+            setup_toml = migrate_to_current_schema(setup_toml)
+            local_version = setup_toml["general"].get("current_baas_sha", "")
+            if setup_toml["general"].get("no_update", False):
+                return {
+                    "local": local_version,
+                    "remote": local_version,
+                    "update_available": False,
+                    "skipped": True,
+                    "reason": "no_update",
+                    "channel": setup_channel(setup_toml),
+                    "method": "github",
+                }
+            channel = setup_channel(setup_toml)
+            source = _github_archive_config(channel)
+            success, remote_version = _github_api_get_latest_sha(source, timeout)
+            if not success:
+                remote_version = None
+            return {
+                "local": local_version,
+                "remote": remote_version,
+                "update_available": bool(local_version and remote_version and local_version != remote_version),
+                "channel": channel,
+                "method": "github",
+                "setup_path": str(path),
+            }
+
         local_info, setup_toml, _branch = get_local_version()
         setup_toml = migrate_to_current_schema(setup_toml)
         if setup_toml["general"].get("no_update", False):
@@ -403,7 +434,90 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
         return {}
 
 
+def _is_android_runtime() -> bool:
+    return os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}
+
+
+def _github_archive_config(channel: str) -> Dict[str, Any]:
+    methods = get_remote_sha_methods_for_channel(channel)
+    for method in methods:
+        if method.get("method") == GetShaMethod.GITHUB_API:
+            return method
+    raise RuntimeError(f"No GitHub API update source configured for channel: {channel}")
+
+
+def _copy_android_update_tree(source_root: Path, target_root: Path) -> None:
+    keep_names = {
+        "config",
+        "log",
+        "tmp",
+        ".git",
+        ".venv",
+        ".env",
+        "__pycache__",
+        ".pytest_cache",
+    }
+    for item in source_root.iterdir():
+        if item.name in keep_names:
+            continue
+        target = target_root / item.name
+        if item.is_dir():
+            if target.exists():
+                shutil.rmtree(target)
+            shutil.copytree(item, target, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"))
+        elif item.is_file() and item.name != "setup.toml":
+            shutil.copy2(item, target)
+
+
+def _android_update_to_latest(setup_path: Union[Path, None] = None) -> Dict[str, Any]:
+    data, path = read_setup_toml(setup_path)
+    data = migrate_to_current_schema(data)
+    if data["general"].get("no_update", False):
+        return {"status": "skipped", "reason": "no_update"}
+
+    channel = setup_channel(data)
+    source = _github_archive_config(channel)
+    owner = source["owner"]
+    repo = source["repo"]
+    branch = source["branch"]
+    ok, remote_sha = _github_api_get_latest_sha(source, 10.0)
+    if not ok or not remote_sha:
+        raise RuntimeError(f"Failed to fetch Android update SHA: {remote_sha}")
+
+    archive_url = f"https://codeload.github.com/{owner}/{repo}/zip/refs/heads/{branch}"
+    target_root = Path.cwd()
+    with tempfile.TemporaryDirectory(prefix="baas-android-update-") as tmp_dir:
+        tmp = Path(tmp_dir)
+        archive_path = tmp / "repo.zip"
+        response = requests.get(archive_url, stream=True, timeout=60)
+        response.raise_for_status()
+        with archive_path.open("wb") as fp:
+            for chunk in response.iter_content(chunk_size=1024 * 256):
+                if chunk:
+                    fp.write(chunk)
+        with zipfile.ZipFile(archive_path) as archive:
+            archive.extractall(tmp)
+        roots = [child for child in tmp.iterdir() if child.is_dir()]
+        if not roots:
+            raise RuntimeError("Downloaded Android update archive is empty")
+        _copy_android_update_tree(roots[0], target_root)
+
+    data["general"]["current_baas_sha"] = remote_sha
+    data["general"]["channel"] = channel
+    data["paths"]["baas_root_path"] = "."
+    write_setup_toml(data, path)
+    return {
+        "status": "updated",
+        "current": remote_sha,
+        "restart_required": True,
+        "method": "github-archive",
+        "channel": channel,
+    }
+
+
 def update_to_latest(setup_path: Union[Path, None] = None):
+    if _is_android_runtime():
+        return _android_update_to_latest(setup_path)
     data, path = read_setup_toml(setup_path)
     data = migrate_to_current_schema(data)
     if data["general"].get("no_update", False):

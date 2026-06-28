@@ -1,4 +1,5 @@
 import re
+import os
 import sys
 
 from adbutils import adb
@@ -33,6 +34,13 @@ class Connection:
         self.package = None
         self.adbIP = self.config.adbIP
         self.adbPort = self.config.adbPort
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            serial = os.getenv("BAAS_ANDROID_ADB_SERIAL", "").strip()
+            if not serial and (not self.adbIP or self.adbIP == "auto") and (not self.adbPort or self.adbPort == "auto"):
+                serial = "127.0.0.1:5555"
+            if serial:
+                self.adbIP, self.adbPort = self._split_serial(serial)
+                self.serial = f"{self.adbIP}:{self.adbPort}"
         is_usb_or_emulator_device = (self.adbIP == "" or self.adbPort == "")
         if self.adbIP == "" and self.adbPort != "":
             self.serial = self.adbPort
@@ -101,6 +109,15 @@ class Connection:
         # auto127.0.0.1:16384
         serial = serial.replace('auto127.0.0.1', '127.0.0.1').replace('autoemulator', 'emulator')
         return str(serial)
+
+    @staticmethod
+    def _split_serial(serial):
+        serial = Connection.revise_serial(serial)
+        try:
+            ip, port = serial.rsplit(':', 1)
+        except ValueError:
+            return serial, ""
+        return ip, port
 
     @staticmethod
     def serial_port(serial):

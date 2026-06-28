@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import time
 from typing import Any, Dict
+from urllib.parse import urljoin, urlparse
 
 from fastapi import APIRouter, HTTPException, Request, Response
+import requests
 
 from service.auth import AuthenticationError, b64d
 
@@ -60,3 +62,36 @@ async def health() -> Dict[str, Any]:
             "server_sign_public_key": context.auth_manager.server_public_key_b64(),
         },
     }
+
+
+@router.post("/android/active-config")
+async def android_active_config(payload: dict[str, Any]) -> Dict[str, Any]:
+    config_id = str(payload.get("config_id") or "").strip()
+    if not config_id:
+        raise HTTPException(status_code=400, detail="config_id is required")
+    return context.runtime.set_android_active_config(config_id)
+
+
+@router.post("/android/toggle")
+async def android_toggle() -> Dict[str, Any]:
+    return await context.runtime.toggle_android_active_config()
+
+
+@router.get("/android/wiki")
+async def android_wiki(path: str = "/docs/zh/") -> Dict[str, Any]:
+    parsed = urlparse(path)
+    if parsed.scheme or parsed.netloc:
+        if parsed.scheme != "https" or parsed.netloc != "baas.kiramei.cn":
+            raise HTTPException(status_code=400, detail="unsupported wiki host")
+        target = path
+    else:
+        normalized_path = "/" + path.lstrip("/")
+        if not normalized_path.startswith("/docs/"):
+            normalized_path = "/docs/zh/"
+        target = urljoin("https://baas.kiramei.cn", normalized_path)
+    try:
+        response = requests.get(target, timeout=15)
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return {"url": target, "html": response.text}

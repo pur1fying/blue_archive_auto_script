@@ -123,6 +123,7 @@ class ServiceRuntime:
         self._update_signal: Optional[_SignalHook] = None
         self._exit_signal: Optional[_SignalHook] = None
         self._event_map_inv: Dict[str, Dict[str, str]] = {}
+        self._android_active_config_id: Optional[str] = None
         self.is_all_data_initialized: bool = False
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
@@ -323,6 +324,24 @@ class ServiceRuntime:
         self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
         return {"status": "stopped", "config_id": config_id}
 
+    def set_android_active_config(self, config_id: str) -> Dict[str, Any]:
+        self._android_active_config_id = config_id
+        return {"status": "ok", "config_id": config_id}
+
+    async def toggle_android_active_config(self) -> Dict[str, Any]:
+        config_id = self._android_active_config_id
+        if not config_id:
+            config_ids = self._list_config_ids_sync()
+            config_id = config_ids[0] if config_ids else None
+        if not config_id:
+            return {"status": "no-config"}
+        running = bool(self.current_status().get(config_id, {}).get("running"))
+        if running:
+            result = await self.stop_scheduler(config_id)
+            return {"status": "stopped", "config_id": config_id, "data": result}
+        result = await self.start_scheduler(config_id)
+        return {"status": "started", "config_id": config_id, "data": result}
+
     async def stop_all_tasks(self) -> Dict[str, Any]:
         """Stop every running BAAS scheduler/solver session before installation work."""
         config_ids = list(self._sessions.keys())
@@ -400,6 +419,8 @@ class ServiceRuntime:
         Returns:
             Initialized ScrcpyClient.
         """
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            raise RuntimeError("Remote control is disabled on Android")
         from adbutils import adb
         from core.device.connection import Connection
         from .remote.scrcpy import ScrcpyClient
@@ -424,6 +445,8 @@ class ServiceRuntime:
         Returns:
             Structured success/failure payload.
         """
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            return {"status": "disabled", "config_id": config_id, "result": 1}
         loop = asyncio.get_running_loop()
         session = await self.get_session(config_id)
 
@@ -445,6 +468,12 @@ class ServiceRuntime:
 
     @staticmethod
     async def detect_adb() -> List[str]:
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            configured = os.getenv("BAAS_ANDROID_ADB_SERIAL", "").strip()
+            candidates = [configured] if configured else []
+            candidates.extend(["127.0.0.1:5555", "localhost:5555"])
+            return list(dict.fromkeys(item for item in candidates if item))
+
         from core.device import emulator_manager
 
         adb_res = await run_blocking(emulator_manager.autosearch)
@@ -688,7 +717,7 @@ class ServiceRuntime:
     async def update_to_latest(self):
         await self.stop_all_tasks()
         result = await run_blocking(update_to_latest, None)
-        if isinstance(result, dict) and result.get("status") == "skipped":
+        if isinstance(result, dict):
             return result
         return {"status": "updated"}
 
