@@ -51,6 +51,10 @@ _TASK_ALIAS = {
 MAX_SHA_TEST_TIMEOUT = 10.0
 
 
+def _is_android_runtime() -> bool:
+    return os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}
+
+
 def _coerce_sha_test_timeout(timeout: Any = None) -> float:
     try:
         value = float(timeout)
@@ -78,6 +82,68 @@ class _SignalHook:
 
     def emit(self, payload):  # noqa: ANN001 - Qt compatible signature
         self._callback(payload)
+
+
+class _AndroidDisplayResizeGuard:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._active_count = 0
+
+    @staticmethod
+    def _target_size() -> str:
+        return os.getenv("BAAS_ANDROID_WM_SIZE", "720x1280").strip() or "720x1280"
+
+    @staticmethod
+    def _serial() -> str:
+        return os.getenv("BAAS_ANDROID_U2_SERIAL", "127.0.0.1:7912").strip() or "127.0.0.1:7912"
+
+    @staticmethod
+    def _shell(command: str) -> Any:
+        import uiautomator2 as u2
+
+        serial = _AndroidDisplayResizeGuard._serial()
+        target = serial if serial.startswith(("http://", "https://")) else f"http://{serial}"
+        return u2.connect(target).shell(command)
+
+    def activate(self, logger=None) -> None:
+        if not _is_android_runtime():
+            return
+        with self._lock:
+            self._active_count += 1
+            if self._active_count != 1:
+                return
+        target_size = self._target_size()
+        try:
+            current = self._shell("wm size")
+            if logger is not None:
+                logger.info(f"Android display size before BAAS run: {current}")
+                logger.info(f"Set Android display size to {target_size}.")
+            self._shell(f"wm size {target_size}")
+        except Exception as exc:
+            with self._lock:
+                self._active_count = max(0, self._active_count - 1)
+            if logger is not None:
+                logger.error("Failed to set Android display size.")
+                logger.error(exc)
+            raise
+
+    def release(self, logger=None) -> None:
+        if not _is_android_runtime():
+            return
+        with self._lock:
+            if self._active_count <= 0:
+                return
+            self._active_count -= 1
+            if self._active_count != 0:
+                return
+        try:
+            if logger is not None:
+                logger.info("Reset Android display size after BAAS run.")
+            self._shell("wm size reset")
+        except Exception as exc:
+            if logger is not None:
+                logger.error("Failed to reset Android display size.")
+                logger.error(exc)
 
 
 def _default_status(config_id: str) -> Dict[str, Any]:
@@ -125,6 +191,7 @@ class ServiceRuntime:
         self._exit_signal: Optional[_SignalHook] = None
         self._event_map_inv: Dict[str, Dict[str, str]] = {}
         self._android_active_config_id: Optional[str] = None
+        self._android_display_guard = _AndroidDisplayResizeGuard()
         self.is_all_data_initialized: bool = False
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
@@ -285,14 +352,21 @@ class ServiceRuntime:
             if set_log: set_log()
             if session.thread and session.thread.is_alive():
                 return {"status": "already-running", "config_id": config_id}
-            init_ok = await run_blocking(session.baas.init_all_data)
+            await run_blocking(self._android_display_guard.activate, session.baas.logger)
+            try:
+                init_ok = await run_blocking(session.baas.init_all_data)
+            except Exception:
+                await run_blocking(self._android_display_guard.release, session.baas.logger)
+                raise
             if not init_ok:
+                await run_blocking(self._android_display_guard.release, session.baas.logger)
                 raise RuntimeError("Baas_thread initialization failed")
 
             def runner() -> None:
                 try:
                     session.baas.send("start")
                 finally:
+                    self._android_display_guard.release(session.baas.logger)
                     session.thread = None
                     self._update_status(config_id, running=False, is_flag_run=session.baas.flag_run, current_task=None,
                                         waiting_tasks=[])
@@ -376,7 +450,14 @@ class ServiceRuntime:
             needs_init = session.baas.scheduler is None
 
             if needs_init:
-                await run_blocking(baas.init_all_data)
+                await run_blocking(self._android_display_guard.activate, baas.logger)
+                try:
+                    await run_blocking(baas.init_all_data)
+                except Exception:
+                    await run_blocking(self._android_display_guard.release, baas.logger)
+                    raise
+            elif _is_android_runtime():
+                await run_blocking(self._android_display_guard.activate, baas.logger)
 
             def _call() -> None:
                 try:
@@ -391,6 +472,7 @@ class ServiceRuntime:
                     baas.flag_run = True
                     baas.send("solve", task_name)
                 finally:
+                    self._android_display_guard.release(baas.logger)
                     session.thread = None
                     assert session is not None
                     self._update_status(
