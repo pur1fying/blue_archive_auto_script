@@ -1,4 +1,5 @@
 import cv2
+import os
 import time
 import queue
 import threading
@@ -8,6 +9,19 @@ import numpy as np
 from core import image, color, picture
 from core.utils import merge_nearby_coordinates
 from statistics import median
+
+_happy_face_templates = None
+_happy_face_match_scale = 0.75
+_happy_face_match_roi = (0, 45, 1280, 555)
+
+
+def _resize_for_happy_face_match(img):
+    height, width = img.shape[:2]
+    size = (
+        max(1, int(round(width * _happy_face_match_scale))),
+        max(1, int(round(height * _happy_face_match_scale))),
+    )
+    return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
 
 def implement(self):
@@ -81,15 +95,82 @@ def to_no2_cafe(self):
     return
 
 
+def _get_happy_face_templates():
+    global _happy_face_templates
+    if _happy_face_templates is None:
+        templates = []
+        for i in range(1, 5):
+            template = cv2.imread("src/images/CN/cafe/happy_face" + str(i) + ".png")
+            if template is None:
+                templates.append(None)
+                continue
+            template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+            template = _resize_for_happy_face_match(template)
+            templates.append(template)
+        _happy_face_templates = templates
+    return _happy_face_templates
+
+
+def _dedupe_happy_face_points(points):
+    deduped = []
+    for x, y in sorted(points, key=lambda item: (item[1], item[0])):
+        if any(abs(x - px) <= 24 and abs(y - py) <= 24 for px, py in deduped):
+            continue
+        deduped.append([x, y])
+        if len(deduped) >= 32:
+            break
+    return deduped
+
+
+def _match_happy_faces_by_color(img):
+    roi_x0, roi_y0, roi_x1, roi_y1 = _happy_face_match_roi
+    search_img = img[roi_y0:roi_y1, roi_x0:roi_x1]
+    hsv = cv2.cvtColor(search_img, cv2.COLOR_BGR2HSV)
+    lower_red = cv2.inRange(hsv, np.array([0, 55, 120]), np.array([12, 255, 255]))
+    upper_red = cv2.inRange(hsv, np.array([160, 55, 120]), np.array([179, 255, 255]))
+    mask = cv2.bitwise_or(lower_red, upper_red)
+    count, _, stats, centers = cv2.connectedComponentsWithStats(mask, 8)
+    points = []
+    for i in range(1, count):
+        _, _, width, height, area = stats[i]
+        if not (8 <= area <= 500 and 4 <= width <= 40 and 4 <= height <= 40):
+            continue
+        cx, cy = centers[i]
+        points.append([int(roi_x0 + cx), int(roi_y0 + cy + 58)])
+    return _dedupe_happy_face_points(points)
+
+
 def match(img):
+    color_matches = _match_happy_faces_by_color(img)
+    if color_matches or os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+        return color_matches
+
     res = []
-    for i in range(1, 5):
-        template = cv2.imread("src/images/CN/cafe/happy_face" + str(i) + ".png")
-        result = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+    roi_x0, roi_y0, roi_x1, roi_y1 = _happy_face_match_roi
+    search_img = img[roi_y0:roi_y1, roi_x0:roi_x1]
+    search_img = cv2.cvtColor(search_img, cv2.COLOR_BGR2GRAY)
+    search_img = _resize_for_happy_face_match(search_img)
+    for template in _get_happy_face_templates():
+        if template is None:
+            continue
+        result = cv2.matchTemplate(search_img, template, cv2.TM_CCOEFF_NORMED)
         threshold = 0.75
-        locations = np.where(result >= threshold)
-        for pt in zip(*locations[::-1]):
-            res.append([int(pt[0] + template.shape[1] / 2), int(pt[1] + template.shape[0] / 2 + 58)])
+        suppress_x = max(20, template.shape[1])
+        suppress_y = max(20, template.shape[0])
+        for _ in range(16):
+            _, max_val, _, max_loc = cv2.minMaxLoc(result)
+            if max_val < threshold:
+                break
+            pt_x, pt_y = max_loc
+            res.append([
+                int(roi_x0 + (pt_x + template.shape[1] / 2) / _happy_face_match_scale),
+                int(roi_y0 + (pt_y + template.shape[0] / 2) / _happy_face_match_scale + 58),
+            ])
+            left = max(0, pt_x - suppress_x)
+            right = min(result.shape[1], pt_x + suppress_x + 1)
+            top = max(0, pt_y - suppress_y)
+            bottom = min(result.shape[0], pt_y + suppress_y + 1)
+            result[top:bottom, left:right] = -1
     return res
 
 
@@ -116,6 +197,11 @@ def screenshot_thread(self, delay):
         cv2.imwrite("cafe_reward_shot.png", self.latest_img_array)
 
 def gift_to_cafe(self):
+    if self.is_android_device:
+        self.click(1240, 574, wait_over=True)
+        picture.co_detect(self, "cafe", None, None, None, False, time_out=15)
+        return
+
     img_possibles = {
         'cafe_gift': (1240, 574),
     }
@@ -144,7 +230,9 @@ def swipe_gift_and_screenshot(self):
         t1.start()
         start_t = time.time()
         self.u2_swipe(131, 660, 1280, 660, duration=0.5)
-        return round(time.time() - start_t, 3)
+        swipe_t = round(time.time() - start_t, 3)
+        self.logger.info("Gift swipe duration : [ " + str(swipe_t) + " ]")
+        return swipe_t
     else:
         q = queue.Queue()
         t1 = threading.Thread(target=swipe_gift_thread, args=(self, 1, q))
@@ -156,8 +244,10 @@ def swipe_gift_and_screenshot(self):
 
 def find_student_position(self):
     swipe_t = swipe_gift_and_screenshot(self)
+    match_start_t = time.time()
     img = cv2.resize(self.latest_img_array, (1280, 720), interpolation=cv2.INTER_AREA)
     res = match(img)
+    self.logger.info("Cafe interaction match duration : [ " + str(round(time.time() - match_start_t, 3)) + " ], candidates : [ " + str(len(res)) + " ]")
     if not res:
         self.logger.info("No interaction found")
         if swipe_t < self.config.cafe_reward_interaction_shot_delay + 0.3:

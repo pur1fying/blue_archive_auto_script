@@ -369,6 +369,14 @@ class Connection:
 
     def get_current_package(self):
         self.logger.info("Get Current Package.")
+        if _is_android_embedded():
+            u2 = getattr(self.Baas_thread, "u2", None)
+            if u2 is None:
+                return ""
+            current = u2.app_current()
+            if isinstance(current, dict):
+                return current.get("package", "")
+            return getattr(current, "package", "") or ""
         for _ in range(3):
             d = adb.device(self.serial)
             try:

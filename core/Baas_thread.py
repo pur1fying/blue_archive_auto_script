@@ -422,9 +422,8 @@ class Baas_thread:
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
         if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
-            version_url = self.u2.path2url("/version")
             try:
-                version = requests.get(version_url, timeout=3).text
+                version = requests.get("http://127.0.0.1:7912/version", timeout=3).text
             except requests.RequestException as exc:
                 raise RuntimeError("Android embedded mode requires local uiautomator2 agent on 127.0.0.1:7912") from exc
             self.logger.info("ATX agent version: [ " + version + " ].")
@@ -761,7 +760,16 @@ class Baas_thread:
         if not self.flag_run:
             raise RequestHumanTakeOver
         self.logger.info(f"swipe from ( " + str(fx) + " , " + str(fy) + " ) --> ( " + str(tx) + " , " + str(ty) + " )")
-        self.u2.swipe(fx * self.ratio, fy * self.ratio, tx * self.ratio, ty * self.ratio, duration)
+        width, height = self.resolution if getattr(self, "resolution", None) else (1280, 720)
+        max_x = max(0, int(width) - 1)
+        max_y = max(0, int(height) - 1)
+        self.u2.swipe(
+            min(max_x, max(0, int(fx * self.ratio))),
+            min(max_y, max(0, int(fy * self.ratio))),
+            min(max_x, max(0, int(tx * self.ratio))),
+            min(max_y, max(0, int(ty * self.ratio))),
+            duration,
+        )
         if post_sleep_time > 0:
             time.sleep(post_sleep_time)
 
@@ -908,6 +916,21 @@ class Baas_thread:
         self.screenshot_interval = self.screenshot.set_screenshot_interval(interval)
 
     def wait_uiautomator_start(self):
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            for i in range(0, 10):
+                try:
+                    self.u2.uiautomator.start()
+                    while not self.u2.uiautomator.running():
+                        time.sleep(0.1)
+                    self.latest_img_array = self.normalize_screenshot(
+                        cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+                    )
+                    return
+                except Exception as e:
+                    print(e)
+                    time.sleep(0.3)
+            raise RuntimeError("Android embedded uiautomator2 agent is not responding")
+
         for i in range(0, 10):
             try:
                 self.u2.uiautomator.start()
