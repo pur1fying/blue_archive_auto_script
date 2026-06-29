@@ -94,9 +94,41 @@ def _server_binary_path() -> str:
     return os.path.join(SERVER_BIN_DIR, "BAAS_ocr_server.exe" if sys.platform == "win32" else "BAAS_ocr_server")
 
 
+def _android_internal_runtime_root() -> str:
+    internal_root = os.getenv("BAAS_ANDROID_INTERNAL_FILES_DIR", "").strip()
+    if not internal_root:
+        return ""
+    return os.path.join(internal_root, "ocr-runtime", TARGET_BRANCH)
+
+
+def _android_internal_binary_path() -> str:
+    runtime_root = _android_internal_runtime_root()
+    if not runtime_root:
+        return ""
+    return os.path.join(runtime_root, "lib", _android_library_abi_dir(), "libBAAS_ocr_server.so")
+
+
+def _android_internal_version_file() -> str:
+    runtime_root = _android_internal_runtime_root()
+    if not runtime_root:
+        return ""
+    return os.path.join(runtime_root, ".baas-ocr-prebuild-sha")
+
+
 def _read_android_installed_sha() -> str:
     try:
         with open(ANDROID_VERSION_FILE, "r", encoding="utf-8") as fp:
+            return fp.read().strip()
+    except OSError:
+        return ""
+
+
+def _read_android_internal_sha() -> str:
+    version_file = _android_internal_version_file()
+    if not version_file:
+        return ""
+    try:
+        with open(version_file, "r", encoding="utf-8") as fp:
             return fp.read().strip()
     except OSError:
         return ""
@@ -154,6 +186,14 @@ def _install_android_prebuild(logger) -> None:
     remote_sha = _get_android_remote_sha(TARGET_BRANCH)
     local_sha = _read_android_installed_sha()
     server_binary_path = _server_binary_path()
+    internal_sha = _read_android_internal_sha()
+    internal_binary_path = _android_internal_binary_path()
+    if remote_sha and internal_sha == remote_sha and os.path.exists(internal_binary_path):
+        logger.info("Android Ocr Server runtime already available.")
+        return
+    if not remote_sha and internal_sha and os.path.exists(internal_binary_path):
+        logger.warning("Android OCR remote SHA unavailable; using internal runtime prebuild.")
+        return
     if remote_sha and local_sha == remote_sha and os.path.exists(server_binary_path):
         logger.info("Ocr Server No updates available.")
         return

@@ -1135,6 +1135,9 @@ class Baas_thread:
         if screen_ratio == (16, 9):
             return
         self.logger.warning(f"Screen Ratio: {width}:{height} is not a precise 16:9 screen, we recommend you to use a precise 16:9 screen.")
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            self.logger.warning("Android embedded mode accepts non-16:9 device screens.")
+            return
         if self._accept_resolution(width, height, 16, 9, 0.05):
             self.logger.info(f"Screen Ratio close to 16:9. Accept it.")
             return

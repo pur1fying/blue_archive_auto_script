@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
-from typing import Union, List, Tuple
+from typing import Callable, Union, List, Tuple
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from types import SimpleNamespace
@@ -588,18 +588,29 @@ def _copy_android_update_tree(source_root: Path, target_root: Path) -> None:
             shutil.copy2(item, target)
 
 
-def _android_update_to_latest(setup_path: Union[Path, None] = None) -> Dict[str, Any]:
+def _android_update_to_latest(
+    setup_path: Union[Path, None] = None,
+    progress: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+) -> Dict[str, Any]:
+    def emit(stage: str, **payload: Any) -> None:
+        if progress:
+            progress(stage, payload)
+
+    emit("read_setup")
     data, path = read_setup_toml(setup_path)
     data = migrate_to_current_schema(data)
     if data["general"].get("no_update", False):
+        emit("skipped", reason="no_update")
         return {"status": "skipped", "reason": "no_update"}
 
     channel = setup_channel(data)
     github_source = _github_archive_config(channel)
     archive_source = _android_archive_config(data, channel)
+    emit("fetch_sha", channel=channel, method=archive_source.get("name") or "github")
     ok, remote_sha = _github_api_get_latest_sha(github_source, 10.0)
     if not ok or not remote_sha:
         raise RuntimeError(f"Failed to fetch Android update SHA: {remote_sha}")
+    emit("remote_sha", sha=remote_sha)
 
     archive_url = _github_archive_url_for_config(archive_source)
     if not archive_url:
@@ -608,23 +619,37 @@ def _android_update_to_latest(setup_path: Union[Path, None] = None) -> Dict[str,
     with tempfile.TemporaryDirectory(prefix="baas-android-update-") as tmp_dir:
         tmp = Path(tmp_dir)
         archive_path = tmp / "repo.zip"
+        emit("download_start", url=archive_url)
         response = requests.get(archive_url, stream=True, timeout=60)
         response.raise_for_status()
+        total_size = int(response.headers.get("content-length") or 0)
+        downloaded = 0
+        last_reported = 0
         with archive_path.open("wb") as fp:
             for chunk in response.iter_content(chunk_size=1024 * 256):
                 if chunk:
                     fp.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size and downloaded - last_reported >= 1024 * 1024:
+                        last_reported = downloaded
+                        emit("download_progress", downloaded=downloaded, total=total_size)
+        emit("download_done", downloaded=downloaded, total=total_size)
+        emit("extract_start")
         with zipfile.ZipFile(archive_path) as archive:
             archive.extractall(tmp)
         roots = [child for child in tmp.iterdir() if child.is_dir()]
         if not roots:
             raise RuntimeError("Downloaded Android update archive is empty")
+        emit("copy_start", source=str(roots[0]), target=str(target_root))
         _copy_android_update_tree(roots[0], target_root)
+        emit("copy_done")
 
     data["general"]["current_baas_sha"] = remote_sha
     data["general"]["channel"] = channel
     data["paths"]["baas_root_path"] = "."
+    emit("write_setup", path=str(path))
     write_setup_toml(data, path)
+    emit("done", sha=remote_sha)
     return {
         "status": "updated",
         "current": remote_sha,
@@ -634,11 +659,24 @@ def _android_update_to_latest(setup_path: Union[Path, None] = None) -> Dict[str,
     }
 
 
-def update_to_latest(setup_path: Union[Path, None] = None):
+def update_to_latest_with_progress(
+    setup_path: Union[Path, None] = None,
+    progress: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+):
     if _is_android_runtime():
-        return _android_update_to_latest(setup_path)
+        return _android_update_to_latest(setup_path, progress=progress)
+    if progress:
+        progress("update_start", {})
     data, path = read_setup_toml(setup_path)
     data = migrate_to_current_schema(data)
     if data["general"].get("no_update", False):
+        if progress:
+            progress("skipped", {"reason": "no_update"})
         return {"status": "skipped", "reason": "no_update"}
     update_repo_to_latest(data, path)
+    if progress:
+        progress("done", {})
+
+
+def update_to_latest(setup_path: Union[Path, None] = None):
+    return update_to_latest_with_progress(setup_path)

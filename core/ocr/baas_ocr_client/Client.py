@@ -113,30 +113,42 @@ class BaasOcrClient:
 
     def _prepare_android_runtime_folder(self) -> str:
         source_root = _server_folder_path()
-        source_binary = self._android_server_library_path(source_root)
-        if not os.path.exists(source_binary):
-            raise FileNotFoundError("Didn't find Android ocr server library.")
-
         internal_root = os.getenv("BAAS_ANDROID_INTERNAL_FILES_DIR", "").strip()
-        if not internal_root:
-            return source_root
-
-        target_root = os.path.join(internal_root, "ocr-runtime", _android_ocr_branch() or "android")
-        source_version = os.path.join(source_root, ".baas-ocr-prebuild-sha")
-        target_version = os.path.join(target_root, ".baas-ocr-prebuild-sha")
-        try:
-            with open(source_version, "r", encoding="utf-8") as fp:
-                source_sha = fp.read().strip()
-        except OSError:
-            source_sha = ""
+        target_root = os.path.join(internal_root, "ocr-runtime", _android_ocr_branch() or "android") if internal_root else ""
+        target_binary = self._android_server_library_path(target_root) if target_root else ""
+        target_version = os.path.join(target_root, ".baas-ocr-prebuild-sha") if target_root else ""
         try:
             with open(target_version, "r", encoding="utf-8") as fp:
                 target_sha = fp.read().strip()
         except OSError:
             target_sha = ""
+        if target_sha and target_binary and os.path.exists(target_binary):
+            source_version = os.path.join(source_root, ".baas-ocr-prebuild-sha")
+            try:
+                with open(source_version, "r", encoding="utf-8") as fp:
+                    source_sha = fp.read().strip()
+            except OSError:
+                source_sha = ""
+            if not source_sha or source_sha == target_sha:
+                return target_root
 
-        target_binary = self._android_server_library_path(target_root)
+        source_binary = self._android_server_library_path(source_root)
+        if not os.path.exists(source_binary):
+            raise FileNotFoundError("Didn't find Android ocr server library.")
+
+        if not internal_root:
+            return source_root
+
+        source_version = os.path.join(source_root, ".baas-ocr-prebuild-sha")
+        try:
+            with open(source_version, "r", encoding="utf-8") as fp:
+                source_sha = fp.read().strip()
+        except OSError:
+            source_sha = ""
+
         if source_sha and source_sha == target_sha and os.path.exists(target_binary):
+            return target_root
+        if not source_sha and target_sha and os.path.exists(target_binary):
             return target_root
 
         if os.path.exists(target_root):

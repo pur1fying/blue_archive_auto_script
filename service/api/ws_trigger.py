@@ -57,6 +57,34 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                     },
                 )
                 continue
+            if cmd.command == "update_to_latest_stream":
+                try:
+                    async for result in context.runtime.update_to_latest_stream():
+                        await send_stream_json(
+                            websocket,
+                            stream,
+                            {
+                                "type": "command_response",
+                                "command": cmd.command,
+                                "status": "ok",
+                                "data": result,
+                                "timestamp": cmd.timestamp,
+                            },
+                        )
+                    response_payload = {"status": "ok", "data": {"done": True}}
+                except Exception as inner_exc:  # noqa: BLE001 - returned to frontend
+                    response_payload = {"status": "error", "error": str(inner_exc), "data": {"done": True}}
+                await send_stream_json(
+                    websocket,
+                    stream,
+                    {
+                        "type": "command_response",
+                        "command": cmd.command,
+                        **response_payload,
+                        "timestamp": cmd.timestamp,
+                    },
+                )
+                continue
             try:
                 response_payload = await execute_command(cmd, binary_payload=binary_payload)
             except Exception as inner_exc:  # noqa: BLE001 - returned to frontend

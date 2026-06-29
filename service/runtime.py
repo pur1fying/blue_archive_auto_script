@@ -24,6 +24,7 @@ from .update import (
     test_all_repo_sha,
     test_repo_sha,
     update_to_latest,
+    update_to_latest_with_progress,
     validate_cdk,
     write_setup_toml,
 )
@@ -720,6 +721,31 @@ class ServiceRuntime:
         if isinstance(result, dict):
             return result
         return {"status": "updated"}
+
+    async def update_to_latest_stream(self):
+        await self.stop_all_tasks()
+        loop = asyncio.get_running_loop()
+        queue: asyncio.Queue[Dict[str, Any]] = asyncio.Queue()
+
+        def progress(stage: str, payload: Dict[str, Any]) -> None:
+            loop.call_soon_threadsafe(queue.put_nowait, {"type": "progress", "stage": stage, **payload})
+
+        def worker() -> None:
+            try:
+                result = update_to_latest_with_progress(None, progress=progress)
+                if not isinstance(result, dict):
+                    result = {"status": "updated"}
+                loop.call_soon_threadsafe(queue.put_nowait, {"type": "result", "result": result})
+            except Exception as exc:  # noqa: BLE001 - surfaced through stream response
+                loop.call_soon_threadsafe(queue.put_nowait, {"type": "error", "error": str(exc)})
+
+        thread = threading.Thread(target=worker, name="baas-update-stream", daemon=True)
+        thread.start()
+        while True:
+            event = await queue.get()
+            yield event
+            if event.get("type") in {"result", "error"}:
+                break
 
     def publish_version_update(self, payload: Dict[str, Any]) -> None:
         if payload:
