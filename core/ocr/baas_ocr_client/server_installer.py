@@ -32,6 +32,14 @@ if sys.platform not in ["win32", "linux", "darwin"]:
 
 OCR_SERVER_PREBUILD_URL = "https://gitee.com/pur1fy/baas_-cpp_prebuild.git"
 OCR_SERVER_PREBUILD_ARCHIVE_URLS = [
+    "https://baas-cdn.kiramei.workers.dev/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://codeload.github.com/pur1fying/BAAS_Cpp_prebuild/zip/refs/heads/{branch}",
+    "https://v4.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://v6.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://cdn.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://gh.sevencdn.com/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://githubfast.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
     "https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
 ]
 OCR_SERVER_PREBUILD_API_URL = "https://api.github.com/repos/pur1fying/BAAS_Cpp_prebuild/branches/{branch}"
@@ -105,12 +113,12 @@ def _get_android_remote_sha(branch: str) -> Optional[str]:
         return None
 
 
-def _download_android_archive(branch: str, archive_path: str) -> str:
+def _download_android_archive(branch: str, archive_path: str, logger=None) -> str:
     last_error: Optional[Exception] = None
     for template in OCR_SERVER_PREBUILD_ARCHIVE_URLS:
         url = template.format(branch=branch)
         try:
-            with requests.get(url, stream=True, timeout=90) as response:
+            with requests.get(url, stream=True, timeout=(8, 90)) as response:
                 response.raise_for_status()
                 with open(archive_path, "wb") as fp:
                     for chunk in response.iter_content(chunk_size=1024 * 256):
@@ -119,6 +127,8 @@ def _download_android_archive(branch: str, archive_path: str) -> str:
             return url
         except Exception as exc:
             last_error = exc
+            if logger is not None:
+                logger.warning(f"Failed to download Android OCR prebuild from {url}: {exc}")
     raise OcrInternalError(f"Failed to download Android OCR prebuild archive: {last_error}")
 
 
@@ -147,11 +157,14 @@ def _install_android_prebuild(logger) -> None:
     if remote_sha and local_sha == remote_sha and os.path.exists(server_binary_path):
         logger.info("Ocr Server No updates available.")
         return
+    if not remote_sha and local_sha and os.path.exists(server_binary_path):
+        logger.warning("Android OCR remote SHA unavailable; using installed prebuild.")
+        return
 
     logger.info(f"Installing Android Ocr Server prebuild for {TARGET_BRANCH}.")
     with tempfile.TemporaryDirectory(prefix="baas-ocr-android-") as tmp:
         archive_path = os.path.join(tmp, "ocr-prebuild.zip")
-        source_url = _download_android_archive(TARGET_BRANCH, archive_path)
+        source_url = _download_android_archive(TARGET_BRANCH, archive_path, logger)
         extract_root = os.path.join(tmp, "extract")
         os.makedirs(extract_root, exist_ok=True)
         with zipfile.ZipFile(archive_path) as archive:

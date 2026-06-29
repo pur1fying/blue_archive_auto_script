@@ -146,14 +146,12 @@ class BaasOcrClient:
         native_libcxx = os.path.join(native_lib_dir, "libc++_shared.so") if native_lib_dir else ""
         target_libcxx = os.path.join(target_root, "lib", _android_library_abi_dir(), "libc++_shared.so")
         target_baas_libcxx = os.path.join(target_root, "lib", _android_library_abi_dir(), ANDROID_LIBCXX_NAME)
-        if native_libcxx and os.path.exists(native_libcxx):
-            shutil.copy2(native_libcxx, target_baas_libcxx)
+        source_libcxx = native_libcxx if native_libcxx and os.path.exists(native_libcxx) else target_libcxx
+        if source_libcxx and os.path.exists(source_libcxx):
+            if os.path.abspath(source_libcxx) != os.path.abspath(target_baas_libcxx):
+                shutil.copy2(source_libcxx, target_baas_libcxx)
             self._replace_library_name(target_baas_libcxx, "libc++_shared.so", ANDROID_LIBCXX_NAME)
             self._replace_library_name(self._android_server_library_path(target_root), "libc++_shared.so", ANDROID_LIBCXX_NAME)
-            try:
-                os.remove(target_libcxx)
-            except OSError:
-                pass
         os.chmod(self._android_server_library_path(target_root), 0o755)
         return target_root
 
