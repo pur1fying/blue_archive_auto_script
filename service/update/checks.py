@@ -39,50 +39,63 @@ class GitOperationHandler:
 
     def __init__(self, repo_path: Union[str, Path] = "."):
         self.repo_path = Path(repo_path)
-        self.git_executable = None and shutil.which("git")
+        self.git_executable = shutil.which("git")
 
-    def _run_git_cmd(self, args: List[str]) -> str:
+    def _run_git_cmd(self, args: List[str], timeout: Optional[float] = None) -> str:
         """Helper to run system git commands."""
         if not self.git_executable:
             raise FileNotFoundError("Git executable not found.")
 
-        # Ensure we run in the correct directory
+        # Ensure we run in an existing directory. `ls-remote` does not require
+        # the current BAAS directory to be a Git repository.
+        cwd = self.repo_path if self.repo_path.exists() else Path.cwd()
+        env = os.environ.copy()
+        env["GIT_TERMINAL_PROMPT"] = "0"
         result = subprocess.run(
             [self.git_executable, *args],
-            cwd=self.repo_path,
+            cwd=cwd,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            timeout=timeout,
+            env=env,
         )
         return result.stdout.strip()
 
-    def get_remote_latest_sha(self, url: str, branch: str) -> str:
+    def get_remote_latest_sha(self, url: str, branch: str, timeout: Optional[float] = None) -> str:
         """
         Get the SHA of a remote branch.
         Uses `git ls-remote` if available, otherwise uses pygit2 anonymous remote.
         """
+        last_error: Optional[Exception] = None
         if self.git_executable:
             try:
                 # Command: git ls-remote <url> refs/heads/<branch>
                 # Output format: <SHA>\trefs/heads/<branch>
                 ref = f"refs/heads/{branch}"
-                output = self._run_git_cmd(["ls-remote", url, ref])
+                output = self._run_git_cmd(["ls-remote", url, ref], timeout=timeout)
                 if output:
                     return output.split()[0]
                 raise ValueError(f"Branch '{branch}' not found at {url} (System Git)")
-            except (subprocess.CalledProcessError, IndexError, ValueError) as e:
-                # If system git fails, try fallback or just raise
-                raise RuntimeError(f"System git failed: {e}")
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, IndexError, ValueError) as e:
+                last_error = e
 
-        # Fallback to pygit2
-        repo = pygit2.Repository(self.repo_path)
-        # Create anonymous remote to avoid modifying config
-        remote = repo.remotes.create_anonymous(url)
-        target_ref = f"refs/heads/{branch}"
-        for head in remote.ls_remotes():
-            if head.get("name") == target_ref:
-                return str(head.get("oid"))
-        raise ValueError(f"Branch '{branch}' not found at {url} (pygit2)")
+        # Fallback to pygit2 in a temporary bare repository. Android installs
+        # may be copied from an archive and have no .git directory, so using
+        # Path.cwd() as a Repository causes an immediate 0.000s local failure.
+        try:
+            with tempfile.TemporaryDirectory(prefix="baas-sha-test-") as tmp_dir:
+                repo = pygit2.init_repository(tmp_dir, bare=True)
+                remote = repo.remotes.create_anonymous(url)
+                target_ref = f"refs/heads/{branch}"
+                for head in remote.ls_remotes():
+                    if head.get("name") == target_ref:
+                        return str(head.get("oid"))
+        except Exception as exc:
+            last_error = exc
+
+        reason = f": {last_error}" if last_error else ""
+        raise ValueError(f"Branch '{branch}' not found at {url} (pygit2){reason}")
 
     def get_local_head_info(self) -> Tuple[str, str]:
         """
@@ -164,7 +177,7 @@ def _mirrorc_api_get_latest_sha(timeout: float, channel: str = "stable") -> Tupl
         return False, str(exc)
 
 
-def _git_wrapper_get_latest_sha(config: Dict[str, Any]) -> Tuple[bool, str]:
+def _git_wrapper_get_latest_sha(config: Dict[str, Any], timeout: Optional[float] = None) -> Tuple[bool, str]:
     """
     Replaces the direct pygit2 call.
     Uses GitOperationHandler to determine whether to use system git or pygit2.
@@ -175,7 +188,7 @@ def _git_wrapper_get_latest_sha(config: Dict[str, Any]) -> Tuple[bool, str]:
     git_ops = GitOperationHandler(Path.cwd())
 
     try:
-        sha = git_ops.get_remote_latest_sha(url, branch)
+        sha = git_ops.get_remote_latest_sha(url, branch, timeout=timeout)
         return True, sha
     except Exception as exc:
         return False, str(exc)
@@ -205,7 +218,7 @@ def test_repo_sha(config: dict[str, Union[str, GetShaMethod]], timeout: float) -
         success, value = _mirrorc_api_get_latest_sha(timeout, str(config.get("channel") or _setup_channel()[0]))
     else:
         # Renamed to indicate it uses the wrapper logic
-        success, value = _git_wrapper_get_latest_sha(config)
+        success, value = _git_wrapper_get_latest_sha(config, timeout)
     elapsed = time.perf_counter() - start
     result: RepositoryResult = {
         "name": config.get("name"),
