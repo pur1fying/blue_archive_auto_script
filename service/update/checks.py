@@ -630,7 +630,7 @@ def _android_update_to_latest(
                 if chunk:
                     fp.write(chunk)
                     downloaded += len(chunk)
-                    if total_size and downloaded - last_reported >= 1024 * 1024:
+                    if downloaded - last_reported >= 1024 * 1024:
                         last_reported = downloaded
                         emit("download_progress", downloaded=downloaded, total=total_size)
         emit("download_done", downloaded=downloaded, total=total_size)
