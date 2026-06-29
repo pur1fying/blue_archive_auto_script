@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import zipfile
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Union, List, Tuple
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -194,6 +195,99 @@ def _git_wrapper_get_latest_sha(config: Dict[str, Any], timeout: Optional[float]
         return False, str(exc)
 
 
+def _github_repo_from_url(url: str) -> Optional[Tuple[str, str]]:
+    lower_url = url.lower()
+    marker = "github.com/"
+    marker_index = lower_url.find(marker)
+    if marker_index >= 0:
+        tail = url[marker_index + len(marker):]
+    else:
+        parsed = urlparse(url)
+        if parsed.netloc.lower() != "githubfast.com":
+            return None
+        tail = parsed.path.lstrip("/")
+
+    tail = tail.split("?", 1)[0].split("#", 1)[0].strip("/")
+    parts = [part for part in tail.split("/") if part]
+    if len(parts) < 2:
+        return None
+    owner, repo = parts[0], parts[1]
+    if repo.endswith(".git"):
+        repo = repo[:-4]
+    return owner, repo
+
+
+def _github_archive_url_for_config(config: Dict[str, Any]) -> Optional[str]:
+    source_url = str(config.get("url") or "")
+    repo_parts = _github_repo_from_url(source_url)
+    if not repo_parts:
+        owner = config.get("owner")
+        repo = config.get("repo")
+        if not owner or not repo:
+            return None
+        repo_parts = (str(owner), str(repo))
+
+    owner, repo = repo_parts
+    branch = str(config.get("branch") or "master")
+    github_archive_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{branch}.zip"
+    parsed = urlparse(source_url)
+    host = parsed.netloc.lower()
+    scheme = parsed.scheme or "https"
+
+    if host in {"v4.gh-proxy.org", "v6.gh-proxy.org", "cdn.gh-proxy.org", "gh-proxy.org", "gh.sevencdn.com"}:
+        return f"{scheme}://{host}/{github_archive_url}"
+    if host == "githubfast.com":
+        return f"{scheme}://{host}/{owner}/{repo}/archive/refs/heads/{branch}.zip"
+    if host == "baas-cdn.kiramei.workers.dev":
+        return f"{scheme}://{host}/{github_archive_url}"
+    return f"https://codeload.github.com/{owner}/{repo}/zip/refs/heads/{branch}"
+
+
+def _probe_android_archive_url(archive_url: str, timeout: float) -> Tuple[bool, str]:
+    connect_timeout = min(max(float(timeout), 1.0), 8.0)
+    read_timeout = max(float(timeout), connect_timeout)
+    headers = {
+        "User-Agent": "BAAS-Android",
+        "Range": "bytes=0-0",
+    }
+    try:
+        with requests.get(
+            archive_url,
+            stream=True,
+            timeout=(connect_timeout, read_timeout),
+            headers=headers,
+        ) as response:
+            response.raise_for_status()
+            for chunk in response.iter_content(chunk_size=1):
+                if chunk:
+                    break
+        return True, ""
+    except requests.RequestException as exc:
+        return False, str(exc)
+
+
+def _android_http_get_latest_sha(config: Dict[str, Any], timeout: float) -> Tuple[bool, str]:
+    repo_parts = _github_repo_from_url(str(config.get("url") or ""))
+    archive_url = _github_archive_url_for_config(config)
+    if not repo_parts or not archive_url:
+        return _git_wrapper_get_latest_sha(config, timeout)
+
+    ok, error = _probe_android_archive_url(archive_url, timeout)
+    if not ok:
+        return False, error
+
+    owner, repo = repo_parts
+    github_config = {
+        "owner": owner,
+        "repo": repo,
+        "branch": str(config.get("branch") or "master"),
+    }
+    success, sha = _github_api_get_latest_sha(github_config, timeout)
+    if not success:
+        return False, f"Archive source reachable, but GitHub API SHA lookup failed: {sha}"
+    return True, sha
+
+
 def repo_sha_test_configs(channel: Optional[str] = None) -> List[Dict[str, Any]]:
     """Return normalized repository SHA test configs for a channel."""
     channel = normalize_update_channel(channel or _setup_channel()[0])
@@ -216,6 +310,8 @@ def test_repo_sha(config: dict[str, Union[str, GetShaMethod]], timeout: float) -
         success, value = _github_api_get_latest_sha(config, timeout)
     elif method == GetShaMethod.MIRRORC_API:
         success, value = _mirrorc_api_get_latest_sha(timeout, str(config.get("channel") or _setup_channel()[0]))
+    elif _is_android_runtime():
+        success, value = _android_http_get_latest_sha(config, timeout)
     else:
         # Renamed to indicate it uses the wrapper logic
         success, value = _git_wrapper_get_latest_sha(config, timeout)
@@ -459,6 +555,16 @@ def _github_archive_config(channel: str) -> Dict[str, Any]:
     raise RuntimeError(f"No GitHub API update source configured for channel: {channel}")
 
 
+def _android_archive_config(data: Dict[str, Any], channel: str) -> Dict[str, Any]:
+    methods = get_remote_sha_methods_for_channel(channel)
+    method_name = data.get("general", {}).get("get_remote_sha_method")
+    if method_name:
+        selected = next((method for method in methods if method.get("name") == method_name), None)
+        if selected and _github_archive_url_for_config(selected):
+            return selected
+    return _github_archive_config(channel)
+
+
 def _copy_android_update_tree(source_root: Path, target_root: Path) -> None:
     keep_names = {
         "config",
@@ -489,15 +595,15 @@ def _android_update_to_latest(setup_path: Union[Path, None] = None) -> Dict[str,
         return {"status": "skipped", "reason": "no_update"}
 
     channel = setup_channel(data)
-    source = _github_archive_config(channel)
-    owner = source["owner"]
-    repo = source["repo"]
-    branch = source["branch"]
-    ok, remote_sha = _github_api_get_latest_sha(source, 10.0)
+    github_source = _github_archive_config(channel)
+    archive_source = _android_archive_config(data, channel)
+    ok, remote_sha = _github_api_get_latest_sha(github_source, 10.0)
     if not ok or not remote_sha:
         raise RuntimeError(f"Failed to fetch Android update SHA: {remote_sha}")
 
-    archive_url = f"https://codeload.github.com/{owner}/{repo}/zip/refs/heads/{branch}"
+    archive_url = _github_archive_url_for_config(archive_source)
+    if not archive_url:
+        raise RuntimeError(f"Failed to resolve Android update archive URL for source: {archive_source.get('name')}")
     target_root = Path.cwd()
     with tempfile.TemporaryDirectory(prefix="baas-android-update-") as tmp_dir:
         tmp = Path(tmp_dir)
@@ -523,7 +629,7 @@ def _android_update_to_latest(setup_path: Union[Path, None] = None) -> Dict[str,
         "status": "updated",
         "current": remote_sha,
         "restart_required": True,
-        "method": "github-archive",
+        "method": archive_source.get("name") or "github-archive",
         "channel": channel,
     }
 
