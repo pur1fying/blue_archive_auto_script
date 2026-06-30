@@ -124,9 +124,8 @@ class _AndroidDisplayResizeGuard:
             with self._lock:
                 self._active_count = max(0, self._active_count - 1)
             if logger is not None:
-                logger.error("Failed to set Android display size.")
-                logger.error(exc)
-            raise
+                logger.warning("Failed to set Android display size; continue without resizing.")
+                logger.warning(exc)
 
     def release(self, logger=None) -> None:
         if not _is_android_runtime():

@@ -17,6 +17,14 @@ class _FakeDevice:
         return ""
 
 
+class _FakeLogger:
+    def __init__(self):
+        self.warnings = []
+
+    def warning(self, message):
+        self.warnings.append(message)
+
+
 def test_android_display_guard_is_noop_outside_android(monkeypatch):
     monkeypatch.delenv("BAAS_ANDROID", raising=False)
     guard = _AndroidDisplayResizeGuard()
@@ -63,3 +71,21 @@ def test_android_display_guard_uses_reference_count(monkeypatch):
     guard.release()
 
     assert calls == ["wm size", "wm size 800x1280", "wm size reset"]
+
+
+def test_android_display_guard_does_not_block_when_resize_fails(monkeypatch):
+    monkeypatch.setenv("BAAS_ANDROID", "1")
+
+    def fail_shell(_command):
+        raise RuntimeError("No adb exe could be found. Install adb on your system")
+
+    monkeypatch.setattr(_AndroidDisplayResizeGuard, "_shell", staticmethod(fail_shell))
+
+    logger = _FakeLogger()
+    guard = _AndroidDisplayResizeGuard()
+
+    guard.activate(logger)
+    guard.release(logger)
+
+    assert guard._active_count == 0
+    assert "continue without resizing" in logger.warnings[0]
