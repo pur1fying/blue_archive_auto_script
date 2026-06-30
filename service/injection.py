@@ -466,7 +466,6 @@ def _patch_device_modules() -> None:
 
 def _patch_cafe_reward() -> None:
     import cv2
-    import numpy as np
     import threading
     import time
     from module import cafe_reward
@@ -482,6 +481,7 @@ def _patch_cafe_reward() -> None:
     cafe_reward._happy_face_match_roi = (0, 45, 1280, 555)
 
     def _resize_for_happy_face_match(img):
+        """Resize cafe interaction images before matching to keep template search bounded."""
         height, width = img.shape[:2]
         size = (
             max(1, int(round(width * cafe_reward._happy_face_match_scale))),
@@ -490,6 +490,7 @@ def _patch_cafe_reward() -> None:
         return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
     def _get_happy_face_templates():
+        """Load and cache grayscale cafe interaction templates used by the injected matcher."""
         if cafe_reward._happy_face_templates is None:
             templates = []
             for i in range(1, 5):
@@ -504,6 +505,7 @@ def _patch_cafe_reward() -> None:
         return cafe_reward._happy_face_templates
 
     def _dedupe_happy_face_points(points):
+        """Merge nearby interaction candidates so one student head is clicked only once."""
         deduped = []
         for x, y in sorted(points, key=lambda item: (item[1], item[0])):
             if any(abs(x - px) <= 24 and abs(y - py) <= 24 for px, py in deduped):
@@ -513,28 +515,8 @@ def _patch_cafe_reward() -> None:
                 break
         return deduped
 
-    def _match_happy_faces_by_color(img):
-        roi_x0, roi_y0, roi_x1, roi_y1 = cafe_reward._happy_face_match_roi
-        search_img = img[roi_y0:roi_y1, roi_x0:roi_x1]
-        hsv = cv2.cvtColor(search_img, cv2.COLOR_BGR2HSV)
-        lower_red = cv2.inRange(hsv, np.array([0, 55, 120]), np.array([12, 255, 255]))
-        upper_red = cv2.inRange(hsv, np.array([160, 55, 120]), np.array([179, 255, 255]))
-        mask = cv2.bitwise_or(lower_red, upper_red)
-        count, _, stats, centers = cv2.connectedComponentsWithStats(mask, 8)
-        points = []
-        for i in range(1, count):
-            _, _, width, height, area = stats[i]
-            if not (8 <= area <= 500 and 4 <= width <= 40 and 4 <= height <= 40):
-                continue
-            cx, cy = centers[i]
-            points.append([int(roi_x0 + cx), int(roi_y0 + cy + 58)])
-        return _dedupe_happy_face_points(points)
-
     def match(img):
-        color_matches = _match_happy_faces_by_color(img)
-        if color_matches or _env_enabled("BAAS_ANDROID"):
-            return color_matches
-
+        """Find cafe interaction icons with template matching on every platform."""
         res = []
         roi_x0, roi_y0, roi_x1, roi_y1 = cafe_reward._happy_face_match_roi
         search_img = img[roi_y0:roi_y1, roi_x0:roi_x1]
@@ -561,10 +543,11 @@ def _patch_cafe_reward() -> None:
                 top = max(0, pt_y - suppress_y)
                 bottom = min(result.shape[0], pt_y + suppress_y + 1)
                 result[top:bottom, left:right] = -1
-        return res
+        return _dedupe_happy_face_points(res)
 
     @wraps(original_gift_to_cafe)
     def gift_to_cafe(self):
+        """Return from the gift screen quickly on Android without slow image co-detection."""
         if getattr(self, "is_android_device", False):
             self.click(1240, 574, wait_over=True)
             time.sleep(0.25)
@@ -573,6 +556,7 @@ def _patch_cafe_reward() -> None:
 
     @wraps(original_swipe_gift_and_screenshot)
     def swipe_gift_and_screenshot(self):
+        """Capture the cafe interaction frame while dragging gifts across the screen."""
         if not getattr(self, "is_android_device", False):
             return original_swipe_gift_and_screenshot(self)
         shot_delay = self.config.cafe_reward_interaction_shot_delay
@@ -589,6 +573,7 @@ def _patch_cafe_reward() -> None:
 
     @wraps(original_find_student_position)
     def find_student_position(self):
+        """Log cafe interaction matching duration and candidate count for diagnostics."""
         match_start_t = time.time()
         res = original_find_student_position(self)
         self.logger.info(

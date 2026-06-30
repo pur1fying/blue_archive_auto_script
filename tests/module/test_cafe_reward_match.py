@@ -53,19 +53,39 @@ def test_cafe_reward_match_is_bounded_on_broad_matches(monkeypatch):
     assert len(matches) <= 64
 
 
-def test_cafe_reward_match_android_skips_template_fallback(monkeypatch):
+def test_cafe_reward_match_android_uses_template_fallback(monkeypatch):
     monkeypatch.chdir(REPO_ROOT)
     monkeypatch.setenv("BAAS_ANDROID", "1")
     _install_cafe_injection()
 
-    image = np.full((720, 1280, 3), 255, dtype=np.uint8)
+    template_path = REPO_ROOT / "src" / "images" / "CN" / "cafe" / "happy_face2.png"
+    template = cv2.imread(str(template_path))
+    assert template is not None
+
+    image = np.full((720, 1280, 3), 40, dtype=np.uint8)
+    x, y = 420, 260
+    height, width = template.shape[:2]
+    image[y:y + height, x:x + width] = template
+
     start = time.perf_counter()
     matches = cafe_reward.match(image)
     elapsed = time.perf_counter() - start
 
-    assert elapsed < 0.2
-    assert matches == []
-    assert cafe_reward._happy_face_templates is None
+    assert elapsed < 1
+    assert cafe_reward._happy_face_templates is not None
+    assert any(abs(mx - (x + width / 2)) <= 4 and abs(my - (y + height / 2 + 58)) <= 4 for mx, my in matches)
+
+
+def test_cafe_reward_match_rejects_red_ui_noise(monkeypatch):
+    monkeypatch.chdir(REPO_ROOT)
+    monkeypatch.setenv("BAAS_ANDROID", "1")
+    _install_cafe_injection()
+
+    image = np.full((720, 1280, 3), 40, dtype=np.uint8)
+    cv2.rectangle(image, (80, 80), (115, 115), (0, 0, 255), -1)
+    cv2.rectangle(image, (1000, 90), (1030, 120), (0, 0, 255), -1)
+
+    assert cafe_reward.match(image) == []
 
 
 def test_android_gift_to_cafe_avoids_slow_detection(monkeypatch):
