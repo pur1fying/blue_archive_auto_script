@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from core.ocr.baas_ocr_client import Client
-from core.ocr.baas_ocr_client import server_installer
+from service import android_ocr_client as Client
+from service import android_ocr_installer as server_installer
 
 
 class _Logger:

@@ -5,6 +5,10 @@ import json
 from pathlib import Path
 from typing import Iterable, Union
 
+from service.injection import prepare_service_imports
+
+prepare_service_imports()
+
 from core.config import default_config
 from core.config.config_set import ConfigSet
 from .paths import ensure_safe_config_id, resolve_config_dir

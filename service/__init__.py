@@ -54,6 +54,10 @@ warnings.filterwarnings(
     category=UserWarning
 )
 
+from .injection import prepare_service_imports
+
+prepare_service_imports()
+
 from .app import app, context
 
 __all__ = ['app', 'context', 'set_log_format']
