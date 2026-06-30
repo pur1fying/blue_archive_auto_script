@@ -82,7 +82,9 @@ async def android_active_config(request: Request, payload: dict[str, Any]) -> Di
 async def android_toggle(request: Request) -> Dict[str, Any]:
     _require_android_loopback(request)
     try:
-        return await context.runtime.toggle_android_active_config()
+        return await context.runtime.toggle_android_active_config(
+            set_log=context.ensure_runtime_logger_attached
+        )
     except Exception as exc:
         return {"status": "error", "type": exc.__class__.__name__, "error": str(exc)}
 

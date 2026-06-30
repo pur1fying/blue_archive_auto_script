@@ -432,7 +432,8 @@ class ServiceRuntime:
         self._android_active_config_id = config_id
         return {"status": "ok", "config_id": config_id}
 
-    async def toggle_android_active_config(self) -> Dict[str, Any]:
+    async def toggle_android_active_config(self, set_log=None) -> Dict[str, Any]:
+        """Toggle the active Android config while preserving provider log wiring."""
         config_id = self._android_active_config_id
         if not config_id:
             config_ids = self._list_config_ids_sync()
@@ -443,7 +444,7 @@ class ServiceRuntime:
         if running:
             result = await self.stop_scheduler(config_id)
             return {"status": "stopped", "config_id": config_id, "data": result}
-        result = await self.start_scheduler(config_id)
+        result = await self.start_scheduler(config_id, set_log=set_log)
         return {"status": "started", "config_id": config_id, "data": result}
 
     async def stop_all_tasks(self) -> Dict[str, Any]:

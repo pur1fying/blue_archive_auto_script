@@ -80,6 +80,33 @@ def test_runtime_status_snapshot_is_deep_copy():
     assert runtime.current_status()["default_config"]["nested"]["running"] is False
 
 
+def test_android_toggle_passes_logger_hook_to_scheduler(monkeypatch):
+    runtime = ServiceRuntime(Path("project"))
+    calls = []
+
+    monkeypatch.setattr(runtime, "_list_config_ids_sync", lambda: ["default_config"])
+
+    async def fake_start_scheduler(config_id, set_log=None):
+        calls.append((config_id, set_log))
+        if set_log:
+            set_log()
+        return {"status": "started", "config_id": config_id}
+
+    logger_attached = {"value": False}
+    monkeypatch.setattr(runtime, "start_scheduler", fake_start_scheduler)
+
+    result = asyncio.run(
+        runtime.toggle_android_active_config(
+            set_log=lambda: logger_attached.__setitem__("value", True)
+        )
+    )
+
+    assert result["status"] == "started"
+    assert calls[0][0] == "default_config"
+    assert calls[0][1] is not None
+    assert logger_attached["value"] is True
+
+
 def test_runtime_remove_config_uses_project_root():
     root = _workspace_tmp()
     try:
