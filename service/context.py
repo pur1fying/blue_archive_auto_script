@@ -96,6 +96,8 @@ class ServiceContext:
             with suppress(asyncio.CancelledError):
                 await self._update_check_task
             self._update_check_task = None
+        with suppress(Exception):
+            await self.runtime.stop_all_tasks()
         await self.log_manager.stop()
 
     def ensure_runtime_logger_attached(self) -> None:

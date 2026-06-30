@@ -89,10 +89,11 @@ class _AndroidDisplayResizeGuard:
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._active_count = 0
+        self._restore_command = "wm size reset"
 
     @staticmethod
-    def _target_size() -> str:
-        return os.getenv("BAAS_ANDROID_WM_SIZE", "720x1280").strip() or "720x1280"
+    def _target_size() -> Optional[str]:
+        return os.getenv("BAAS_ANDROID_WM_SIZE", "").strip() or None
 
     @staticmethod
     def _serial() -> str:
@@ -109,11 +110,13 @@ class _AndroidDisplayResizeGuard:
     def activate(self, logger=None) -> None:
         if not _is_android_runtime():
             return
+        target_size = self._target_size()
+        if target_size is None:
+            return
         with self._lock:
             self._active_count += 1
             if self._active_count != 1:
                 return
-        target_size = self._target_size()
         try:
             current = self._shell("wm size")
             if logger is not None:
@@ -143,6 +146,20 @@ class _AndroidDisplayResizeGuard:
         except Exception as exc:
             if logger is not None:
                 logger.error("Failed to reset Android display size.")
+                logger.error(exc)
+
+    def force_restore(self, logger=None) -> None:
+        if not _is_android_runtime():
+            return
+        with self._lock:
+            self._active_count = 0
+        try:
+            if logger is not None:
+                logger.info("Force reset Android display size after BAAS run.")
+            self._shell(self._restore_command)
+        except Exception as exc:
+            if logger is not None:
+                logger.error("Failed to force reset Android display size.")
                 logger.error(exc)
 
 
@@ -391,18 +408,22 @@ class ServiceRuntime:
 
     async def stop_scheduler(self, config_id: str) -> Dict[str, Any]:
         """Stop the scheduler thread for a config if it is running."""
+        logger = None
         async with self._async_lock():
             session = self._sessions.get(config_id)
             if session is None:
                 return {"status": "unknown-config", "config_id": config_id}
+            logger = session.baas.logger
             if not session.thread:
                 self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
+                await run_blocking(self._android_display_guard.force_restore, logger)
                 return {"status": "stopped", "config_id": config_id}
             session.baas.send("stop")
             thread = session.thread
             session.thread = None
         if thread and thread.is_alive():
             thread.join(timeout=10.0)
+        await run_blocking(self._android_display_guard.force_restore, logger)
         self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
         return {"status": "stopped", "config_id": config_id}
 
@@ -430,6 +451,7 @@ class ServiceRuntime:
         results = []
         for config_id in config_ids:
             results.append(await self.stop_scheduler(config_id))
+        await run_blocking(self._android_display_guard.force_restore, None)
         return {"status": "stopped", "results": results}
 
     async def solve_task(self, config_id: str, task_name: str, set_log=None) -> Dict[str, Any]:
