@@ -182,7 +182,7 @@ class ServiceRuntime:
         self._status_lock = threading.Lock()
         self._sessions: Dict[str, ConfigSession] = {}
         self._statuses: Dict[str, Dict[str, Any]] = {}
-        self._lock = asyncio.Lock()
+        self._lock: Optional[asyncio.Lock] = None
         self._main: Optional["Main"] = None
         self._baas: Optional["Baas_thread"] = None
         self._baas_thread: Optional[threading.Thread] = None
@@ -202,6 +202,11 @@ class ServiceRuntime:
         """
         self._loop = loop
         self._status_bus.set_loop(loop)
+
+    def _async_lock(self) -> asyncio.Lock:
+        if self._lock is None:
+            self._lock = asyncio.Lock()
+        return self._lock
 
     # ------------------------------------------------------------------
     # public utility accessors
@@ -331,7 +336,7 @@ class ServiceRuntime:
         Returns:
             ConfigSession bound to the config id.
         """
-        async with self._lock:
+        async with self._async_lock():
             session = self._sessions.get(config_id)
             if session is None:
                 session = self._get_or_create_session(config_id)
@@ -347,7 +352,7 @@ class ServiceRuntime:
         Returns:
             Status payload consumed by `/ws/trigger`.
         """
-        async with self._lock:
+        async with self._async_lock():
             session = self._get_or_create_session(config_id)
             if set_log: set_log()
             if session.thread and session.thread.is_alive():
@@ -384,7 +389,7 @@ class ServiceRuntime:
 
     async def stop_scheduler(self, config_id: str) -> Dict[str, Any]:
         """Stop the scheduler thread for a config if it is running."""
-        async with self._lock:
+        async with self._async_lock():
             session = self._sessions.get(config_id)
             if session is None:
                 return {"status": "unknown-config", "config_id": config_id}
@@ -439,7 +444,7 @@ class ServiceRuntime:
         if task_name in _TASK_ALIAS:
             _original_task_name = task_name
             task_name = _TASK_ALIAS[task_name]
-        async with self._lock:
+        async with self._async_lock():
             session = self._sessions.get(config_id)
             if session is None:
                 session = self._get_or_create_session(config_id)

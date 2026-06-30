@@ -34,7 +34,7 @@ class ConfigManager:
         self._root = project_root
         self._config_root = self._root / "config"
         self._paths = ResourcePathResolver(project_root)
-        self._lock = asyncio.Lock()
+        self._lock: Optional[asyncio.Lock] = None
         self._snapshots: Dict[ResourceKey, ResourceSnapshot] = {}
         self._mtimes: Dict[ResourceKey, float] = {}
         self._update_bus = BroadcastChannel(loop)
@@ -51,6 +51,11 @@ class ConfigManager:
         """
         self._loop = loop
         self._update_bus.set_loop(loop)
+
+    def _async_lock(self) -> asyncio.Lock:
+        if self._lock is None:
+            self._lock = asyncio.Lock()
+        return self._lock
 
     # ------------------------------------------------------------------
     # basic filesystem helpers
@@ -82,7 +87,7 @@ class ConfigManager:
         Returns:
             ResourceSnapshot whose data is a list of config ids and whose timestamp is current time.
         """
-        async with self._lock:
+        async with self._async_lock():
             ids = self.list_config_ids()
             return ResourceSnapshot(copy.deepcopy(ids), unix_timestamp_ms())
 
@@ -270,7 +275,7 @@ class ConfigManager:
             Deep-copied ResourceSnapshot safe for callers to mutate.
         """
         key = (resource, resource_id)
-        async with self._lock:
+        async with self._async_lock():
             snapshot = self._snapshots.get(key)
             if snapshot is None:
                 snapshot = await asyncio.to_thread(self._load_from_disk, resource, resource_id)
@@ -310,7 +315,7 @@ class ConfigManager:
         """
         key = (resource, resource_id)
 
-        async with self._lock:
+        async with self._async_lock():
             snapshot = self._snapshots.get(key)
             if snapshot is None:
                 snapshot = await asyncio.to_thread(self._load_from_disk, resource, resource_id)
@@ -433,7 +438,7 @@ class ConfigManager:
             return
         if mtime <= previous:
             return
-        async with self._lock:
+        async with self._async_lock():
             old_snapshot = self._snapshots.get(key)
             fresh_snapshot = self._load_from_disk(resource, resource_id)
         if old_snapshot is None:
