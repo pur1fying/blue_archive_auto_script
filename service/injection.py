@@ -91,7 +91,7 @@ def _patch_logger() -> None:
         return
 
     original_init = logger_cls.__init__
-    original_log = logger_cls.log
+    original_log = getattr(logger_cls, "log", None)
 
     @wraps(original_init)
     def init(self, logger_signal, jsonify=False):
@@ -101,20 +101,21 @@ def _patch_logger() -> None:
             original_init(self, logger_signal)
         _ensure_logger_extensions(self, jsonify=jsonify)
 
-    @wraps(original_log)
-    def log(self, level, message):
-        _ensure_logger_extensions(self)
-        if getattr(self, "jsonify", False):
-            self.log_collector.put({
-                "time": datetime.now(),
-                "level": level,
-                "message": message,
-            })
-            return
-        return original_log(self, level, message)
-
     logger_cls.__init__ = init
-    logger_cls.log = log
+    if original_log is not None:
+        @wraps(original_log)
+        def log(self, level, message):
+            _ensure_logger_extensions(self)
+            if getattr(self, "jsonify", False):
+                self.log_collector.put({
+                    "time": datetime.now(),
+                    "level": level,
+                    "message": message,
+                })
+                return
+            return original_log(self, level, message)
+
+        logger_cls.log = log
     logger_cls._baas_service_injected = True
 
 
