@@ -60,3 +60,23 @@ def test_cafe_reward_match_android_skips_template_fallback(monkeypatch):
     assert elapsed < 0.2
     assert matches == []
     assert cafe_reward._happy_face_templates is None
+
+
+def test_android_gift_to_cafe_avoids_slow_detection(monkeypatch):
+    calls = []
+
+    class FakeBaas:
+        is_android_device = True
+
+        def click(self, *args, **kwargs):
+            calls.append(("click", args, kwargs))
+
+    def fail_detect(*_args, **_kwargs):
+        raise AssertionError("Android gift_to_cafe should not use co_detect")
+
+    monkeypatch.setattr(cafe_reward.picture, "co_detect", fail_detect)
+    monkeypatch.setattr(cafe_reward.time, "sleep", lambda _seconds: None)
+
+    cafe_reward.gift_to_cafe(FakeBaas())
+
+    assert calls == [("click", (1240, 574), {"wait_over": True})]

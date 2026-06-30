@@ -199,7 +199,7 @@ def screenshot_thread(self, delay):
 def gift_to_cafe(self):
     if self.is_android_device:
         self.click(1240, 574, wait_over=True)
-        picture.co_detect(self, "cafe", None, None, None, False, time_out=15)
+        time.sleep(0.25)
         return
 
     img_possibles = {
@@ -229,7 +229,8 @@ def swipe_gift_and_screenshot(self):
         t1 = threading.Thread(target=screenshot_thread, args=(self, shotDelay))
         t1.start()
         start_t = time.time()
-        self.u2_swipe(131, 660, 1280, 660, duration=0.5)
+        self.u2_swipe(131, 660, 1280, 660, duration=0.3)
+        t1.join(timeout=max(1.0, shotDelay + 1.0))
         swipe_t = round(time.time() - start_t, 3)
         self.logger.info("Gift swipe duration : [ " + str(swipe_t) + " ]")
         return swipe_t
