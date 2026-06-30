@@ -464,6 +464,149 @@ def _patch_device_modules() -> None:
         U2Client._baas_service_injected = True
 
 
+def _patch_cafe_reward() -> None:
+    import cv2
+    import numpy as np
+    import threading
+    import time
+    from module import cafe_reward
+
+    if getattr(cafe_reward, "_baas_service_injected", False):
+        return
+
+    original_gift_to_cafe = cafe_reward.gift_to_cafe
+    original_swipe_gift_and_screenshot = cafe_reward.swipe_gift_and_screenshot
+
+    cafe_reward._happy_face_templates = None
+    cafe_reward._happy_face_match_scale = 0.75
+    cafe_reward._happy_face_match_roi = (0, 45, 1280, 555)
+
+    def _resize_for_happy_face_match(img):
+        height, width = img.shape[:2]
+        size = (
+            max(1, int(round(width * cafe_reward._happy_face_match_scale))),
+            max(1, int(round(height * cafe_reward._happy_face_match_scale))),
+        )
+        return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
+
+    def _get_happy_face_templates():
+        if cafe_reward._happy_face_templates is None:
+            templates = []
+            for i in range(1, 5):
+                template = cv2.imread("src/images/CN/cafe/happy_face" + str(i) + ".png")
+                if template is None:
+                    templates.append(None)
+                    continue
+                template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+                template = _resize_for_happy_face_match(template)
+                templates.append(template)
+            cafe_reward._happy_face_templates = templates
+        return cafe_reward._happy_face_templates
+
+    def _dedupe_happy_face_points(points):
+        deduped = []
+        for x, y in sorted(points, key=lambda item: (item[1], item[0])):
+            if any(abs(x - px) <= 24 and abs(y - py) <= 24 for px, py in deduped):
+                continue
+            deduped.append([x, y])
+            if len(deduped) >= 32:
+                break
+        return deduped
+
+    def _match_happy_faces_by_color(img):
+        roi_x0, roi_y0, roi_x1, roi_y1 = cafe_reward._happy_face_match_roi
+        search_img = img[roi_y0:roi_y1, roi_x0:roi_x1]
+        hsv = cv2.cvtColor(search_img, cv2.COLOR_BGR2HSV)
+        lower_red = cv2.inRange(hsv, np.array([0, 55, 120]), np.array([12, 255, 255]))
+        upper_red = cv2.inRange(hsv, np.array([160, 55, 120]), np.array([179, 255, 255]))
+        mask = cv2.bitwise_or(lower_red, upper_red)
+        count, _, stats, centers = cv2.connectedComponentsWithStats(mask, 8)
+        points = []
+        for i in range(1, count):
+            _, _, width, height, area = stats[i]
+            if not (8 <= area <= 500 and 4 <= width <= 40 and 4 <= height <= 40):
+                continue
+            cx, cy = centers[i]
+            points.append([int(roi_x0 + cx), int(roi_y0 + cy + 58)])
+        return _dedupe_happy_face_points(points)
+
+    def match(img):
+        color_matches = _match_happy_faces_by_color(img)
+        if color_matches or _env_enabled("BAAS_ANDROID"):
+            return color_matches
+
+        res = []
+        roi_x0, roi_y0, roi_x1, roi_y1 = cafe_reward._happy_face_match_roi
+        search_img = img[roi_y0:roi_y1, roi_x0:roi_x1]
+        search_img = cv2.cvtColor(search_img, cv2.COLOR_BGR2GRAY)
+        search_img = _resize_for_happy_face_match(search_img)
+        for template in _get_happy_face_templates():
+            if template is None:
+                continue
+            result = cv2.matchTemplate(search_img, template, cv2.TM_CCOEFF_NORMED)
+            threshold = 0.75
+            suppress_x = max(20, template.shape[1])
+            suppress_y = max(20, template.shape[0])
+            for _ in range(16):
+                _, max_val, _, max_loc = cv2.minMaxLoc(result)
+                if max_val < threshold:
+                    break
+                pt_x, pt_y = max_loc
+                res.append([
+                    int(roi_x0 + (pt_x + template.shape[1] / 2) / cafe_reward._happy_face_match_scale),
+                    int(roi_y0 + (pt_y + template.shape[0] / 2) / cafe_reward._happy_face_match_scale + 58),
+                ])
+                left = max(0, pt_x - suppress_x)
+                right = min(result.shape[1], pt_x + suppress_x + 1)
+                top = max(0, pt_y - suppress_y)
+                bottom = min(result.shape[0], pt_y + suppress_y + 1)
+                result[top:bottom, left:right] = -1
+        return res
+
+    @wraps(original_gift_to_cafe)
+    def gift_to_cafe(self):
+        if getattr(self, "is_android_device", False):
+            self.click(1240, 574, wait_over=True)
+            time.sleep(0.25)
+            return
+        return original_gift_to_cafe(self)
+
+    @wraps(original_swipe_gift_and_screenshot)
+    def swipe_gift_and_screenshot(self):
+        if not getattr(self, "is_android_device", False):
+            return original_swipe_gift_and_screenshot(self)
+        shot_delay = self.config.cafe_reward_interaction_shot_delay
+        thread = threading.Thread(target=cafe_reward.screenshot_thread, args=(self, shot_delay))
+        thread.start()
+        start_t = time.time()
+        self.u2_swipe(131, 660, 1280, 660, duration=0.3)
+        thread.join(timeout=max(1.0, shot_delay + 1.0))
+        swipe_t = round(time.time() - start_t, 3)
+        self.logger.info("Gift swipe duration : [ " + str(swipe_t) + " ]")
+        return swipe_t
+
+    original_find_student_position = cafe_reward.find_student_position
+
+    @wraps(original_find_student_position)
+    def find_student_position(self):
+        match_start_t = time.time()
+        res = original_find_student_position(self)
+        self.logger.info(
+            "Cafe interaction total duration : [ "
+            + str(round(time.time() - match_start_t, 3))
+            + " ], candidates : [ "
+            + str(len(res))
+            + " ]"
+        )
+        return res
+
+    cafe_reward.match = match
+    cafe_reward.gift_to_cafe = gift_to_cafe
+    cafe_reward.swipe_gift_and_screenshot = swipe_gift_and_screenshot
+    cafe_reward.find_student_position = find_student_position
+    cafe_reward._baas_service_injected = True
+
+
 def apply_service_injections() -> None:
     global _APPLIED
     if _APPLIED:
@@ -474,4 +617,5 @@ def apply_service_injections() -> None:
     _patch_main()
     _patch_device_modules()
     _patch_baas_thread()
+    _patch_cafe_reward()
     _APPLIED = True

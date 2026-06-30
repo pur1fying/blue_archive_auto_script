@@ -1,5 +1,4 @@
 import re
-import os
 import sys
 
 from adbutils import adb
@@ -8,19 +7,14 @@ from adbutils.errors import AdbTimeout, AdbError
 from core.exception import RequestHumanTakeOver
 
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
-def _is_android_embedded():
-    return os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}
-
-
 class Connection:
 
-    def __init__(self, Baas_instance, skip_package_detection=False):
+    def __init__(self, Baas_instance):
         self.Baas_thread = Baas_instance
         self.logger = Baas_instance.get_logger()
         self.config_set = Baas_instance.get_config()
         self.config = self.config_set.config
         self.static_config = self.config_set.static_config
-        self.skip_package_detection = skip_package_detection
         self.server = None
         if self.config.server in ["Steam国际服", "日服PC端"]:
             if self.config.server == "Steam国际服":
@@ -38,13 +32,6 @@ class Connection:
         self.package = None
         self.adbIP = self.config.adbIP
         self.adbPort = self.config.adbPort
-        if _is_android_embedded():
-            self.serial = os.getenv("BAAS_ANDROID_U2_SERIAL", "127.0.0.1:7912").strip() or "127.0.0.1:7912"
-            self.adbIP, self.adbPort = self._split_serial(self.serial)
-            self.logger.info("Android embedded mode detected; use local uiautomator2 agent.")
-            self.logger.info(f"Serial : {self.serial}")
-            self._resolve_configured_package()
-            return
         is_usb_or_emulator_device = (self.adbIP == "" or self.adbPort == "")
         if self.adbIP == "" and self.adbPort != "":
             self.serial = self.adbPort
@@ -59,30 +46,8 @@ class Connection:
         self.check_serial()
         self.detect_device()
         self.adb_connect()
-        if not self.skip_package_detection:
-            self.detect_package()
+        self.detect_package()
         self.check_mumu_keep_alive()
-
-    def _resolve_configured_package(self):
-        server = self.config.server
-        if server == "auto":
-            raise RequestHumanTakeOver("Android embedded mode requires an explicit game server.")
-        if server == '官服' or server == 'B服':
-            self.server = 'CN'
-        elif server == '国际服' or server == '国际服青少年' or server == '韩国ONE':
-            self.server = 'Global'
-        elif server == '日服':
-            self.server = 'JP'
-        else:
-            raise RequestHumanTakeOver("Unsupported Android game server: " + str(server))
-
-        try:
-            self.package = self.static_config.package_name[server]
-            self.activity = self.static_config.activity_name[server]
-        except KeyError as exc:
-            raise RequestHumanTakeOver("Game package is not configured: " + str(server)) from exc
-        self.logger.info("Package : " + self.package)
-        self.logger.info("Server : " + self.server)
 
     def _init_app_process(self):
         self.detect_app_window()
@@ -134,15 +99,6 @@ class Connection:
         # auto127.0.0.1:16384
         serial = serial.replace('auto127.0.0.1', '127.0.0.1').replace('autoemulator', 'emulator')
         return str(serial)
-
-    @staticmethod
-    def _split_serial(serial):
-        serial = Connection.revise_serial(serial)
-        try:
-            ip, port = serial.rsplit(':', 1)
-        except ValueError:
-            return serial, ""
-        return ip, port
 
     @staticmethod
     def serial_port(serial):
@@ -369,14 +325,6 @@ class Connection:
 
     def get_current_package(self):
         self.logger.info("Get Current Package.")
-        if _is_android_embedded():
-            u2 = getattr(self.Baas_thread, "u2", None)
-            if u2 is None:
-                return ""
-            current = u2.app_current()
-            if isinstance(current, dict):
-                return current.get("package", "")
-            return getattr(current, "package", "") or ""
         for _ in range(3):
             d = adb.device(self.serial)
             try:

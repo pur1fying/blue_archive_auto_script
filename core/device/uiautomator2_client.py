@@ -19,9 +19,6 @@ class U2Client:
 
     def __init__(self, serial):
         self.serial = serial
-        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"} and not serial.startswith(("http://", "https://")):
-            self.connection = u2.connect("http://" + serial)
-            return
         if ":" in serial:
             self.connection = u2.connect(serial)
         else:

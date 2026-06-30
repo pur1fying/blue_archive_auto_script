@@ -71,7 +71,7 @@ func_dict = {
 
 class Baas_thread:
 
-    def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None, **kwargs):
+    def __init__(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None):
         self.project_dir = os.path.abspath(os.path.dirname(__file__))
         self.project_dir = os.path.dirname(self.project_dir)
         self.u2_client = None
@@ -100,7 +100,7 @@ class Baas_thread:
         self.task_finish_to_main_page = False
         self.static_config = ConfigSet.static_config
         self.ocr = None
-        self.logger = utils.Logger(logger_signal, jsonify=kwargs.get("jsonify", False))
+        self.logger = utils.Logger(logger_signal)
         self.last_refresh_u2_time = 0
         self.latest_img_array = None
         self.total_assault_difficulty_names = ["NORMAL", "HARD", "VERYHARD", "HARDCORE", "EXTREME", "INSANE", "TORMENT"]
@@ -116,11 +116,7 @@ class Baas_thread:
 
     def set_ocr(self, ocr):
         self.ocr = ocr
-        ocr_client = getattr(self.ocr, "client", None)
-        ocr_config = getattr(ocr_client, "config", None)
-        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
-            self.ocr_img_pass_method = 1
-        elif ocr_config is not None and ocr_config.server_is_remote:
+        if self.ocr.client.config.server_is_remote:
             self.ocr_img_pass_method = 1
         else:
             self.ocr_img_pass_method = 0
@@ -308,9 +304,6 @@ class Baas_thread:
         return True
 
     def start_emulator(self):
-        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
-            self.logger.info("Android embedded mode detected; skip desktop emulator startup.")
-            return
         self.emulator_start_stat = self.config.open_emulator_stat
         self.wait_time = self.config.emulator_wait_time
         if not self.start_check_emulator_stat(self.emulator_start_stat, self.wait_time):
@@ -376,10 +369,6 @@ class Baas_thread:
         if self.server == "CN":
             self.ocr_language = "zh-cn"
         elif self.server == "Global":
-            if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
-                self.ocr_language = os.getenv("BAAS_ANDROID_GLOBAL_OCR_LANGUAGE", "en-us")
-                self.logger.warning("Android embedded mode cannot pull DeviceOption through adb; use " + self.ocr_language)
-                return
             basic_path = self.u2._adb_device.shell(f"echo $EXTERNAL_STORAGE").strip()
             src = "/".join([
                 basic_path,
@@ -421,15 +410,6 @@ class Baas_thread:
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
-        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
-            try:
-                version = requests.get("http://127.0.0.1:7912/version", timeout=3).text
-            except requests.RequestException as exc:
-                raise RuntimeError("Android embedded mode requires local uiautomator2 agent on 127.0.0.1:7912") from exc
-            self.logger.info("ATX agent version: [ " + version + " ].")
-            self.wait_uiautomator_start()
-            self.logger.info("Uiautomator2 service started.")
-            return
         _d = self.u2._wait_for_device()
         if not _d:
             raise RuntimeError("USB device %s is offline " + self.serial)
@@ -743,9 +723,6 @@ class Baas_thread:
         except Exception as e:
             self.logger.error("Config initialization failed")
             self.logger.error(e.__str__())
-
-            import traceback
-            traceback.print_exc()
             return False
 
     def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):
@@ -760,16 +737,7 @@ class Baas_thread:
         if not self.flag_run:
             raise RequestHumanTakeOver
         self.logger.info(f"swipe from ( " + str(fx) + " , " + str(fy) + " ) --> ( " + str(tx) + " , " + str(ty) + " )")
-        width, height = self.resolution if getattr(self, "resolution", None) else (1280, 720)
-        max_x = max(0, int(width) - 1)
-        max_y = max(0, int(height) - 1)
-        self.u2.swipe(
-            min(max_x, max(0, int(fx * self.ratio))),
-            min(max_y, max(0, int(fy * self.ratio))),
-            min(max_x, max(0, int(tx * self.ratio))),
-            min(max_y, max(0, int(ty * self.ratio))),
-            duration,
-        )
+        self.u2.swipe(fx * self.ratio, fy * self.ratio, tx * self.ratio, ty * self.ratio, duration)
         if post_sleep_time > 0:
             time.sleep(post_sleep_time)
 
@@ -916,21 +884,6 @@ class Baas_thread:
         self.screenshot_interval = self.screenshot.set_screenshot_interval(interval)
 
     def wait_uiautomator_start(self):
-        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
-            for i in range(0, 10):
-                try:
-                    self.u2.uiautomator.start()
-                    while not self.u2.uiautomator.running():
-                        time.sleep(0.1)
-                    self.latest_img_array = self.normalize_screenshot(
-                        cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
-                    )
-                    return
-                except Exception as e:
-                    print(e)
-                    time.sleep(0.3)
-            raise RuntimeError("Android embedded uiautomator2 agent is not responding")
-
         for i in range(0, 10):
             try:
                 self.u2.uiautomator.start()
@@ -1135,9 +1088,6 @@ class Baas_thread:
         if screen_ratio == (16, 9):
             return
         self.logger.warning(f"Screen Ratio: {width}:{height} is not a precise 16:9 screen, we recommend you to use a precise 16:9 screen.")
-        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
-            self.logger.warning("Android embedded mode accepts non-16:9 device screens.")
-            return
         if self._accept_resolution(width, height, 16, 9, 0.05):
             self.logger.info(f"Screen Ratio close to 16:9. Accept it.")
             return

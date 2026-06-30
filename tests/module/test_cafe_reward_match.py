@@ -9,14 +9,20 @@ cv2 = pytest.importorskip("cv2")
 np = pytest.importorskip("numpy")
 
 from module import cafe_reward
+from service import injection
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _install_cafe_injection():
+    injection._patch_cafe_reward()
+    cafe_reward._happy_face_templates = None
+
+
 def test_cafe_reward_match_maps_scaled_roi_coordinates(monkeypatch):
     monkeypatch.chdir(REPO_ROOT)
-    cafe_reward._happy_face_templates = None
+    _install_cafe_injection()
 
     template_path = REPO_ROOT / "src" / "images" / "CN" / "cafe" / "happy_face1.png"
     template = cv2.imread(str(template_path))
@@ -36,7 +42,7 @@ def test_cafe_reward_match_maps_scaled_roi_coordinates(monkeypatch):
 
 def test_cafe_reward_match_is_bounded_on_broad_matches(monkeypatch):
     monkeypatch.chdir(REPO_ROOT)
-    cafe_reward._happy_face_templates = None
+    _install_cafe_injection()
 
     image = np.full((720, 1280, 3), 255, dtype=np.uint8)
     start = time.perf_counter()
@@ -50,7 +56,7 @@ def test_cafe_reward_match_is_bounded_on_broad_matches(monkeypatch):
 def test_cafe_reward_match_android_skips_template_fallback(monkeypatch):
     monkeypatch.chdir(REPO_ROOT)
     monkeypatch.setenv("BAAS_ANDROID", "1")
-    cafe_reward._happy_face_templates = None
+    _install_cafe_injection()
 
     image = np.full((720, 1280, 3), 255, dtype=np.uint8)
     start = time.perf_counter()
@@ -63,6 +69,7 @@ def test_cafe_reward_match_android_skips_template_fallback(monkeypatch):
 
 
 def test_android_gift_to_cafe_avoids_slow_detection(monkeypatch):
+    _install_cafe_injection()
     calls = []
 
     class FakeBaas:

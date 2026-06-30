@@ -1,12 +1,8 @@
 import cv2
 import numpy as np
 import os
+from multiprocessing import shared_memory
 from core.exception import SharedMemoryError
-
-try:
-    from multiprocessing import shared_memory
-except ModuleNotFoundError:
-    shared_memory = None
 
 
 class SharedMemory:
@@ -44,8 +40,6 @@ class SharedMemory:
         self._init()
 
     def _init(self):
-        if shared_memory is None:
-            raise SharedMemoryError("multiprocessing.shared_memory is not available in this Python runtime")
         self.shm = shared_memory.SharedMemory(create=False, name=self.name)
         if self.shm is None:
             raise SharedMemoryError(f"Shared memory {self.name} not found")

@@ -5,12 +5,8 @@ import json
 import time
 import shutil
 import datetime
-import platform
 import requests
 import subprocess
-import ctypes
-import threading
-from typing import Optional
 
 from core.ipc_manager import SharedMemory
 from core.exception import SharedMemoryError, OcrInternalError
@@ -49,136 +45,19 @@ class ServerConfig:
         with open(self.config_path, "w") as f:
             json.dump(self.config, f, indent=4)
 
-def _android_ocr_branch() -> Optional[str]:
-    if os.getenv("BAAS_ANDROID", "").lower() not in {"1", "true", "yes", "on"}:
-        return None
-    arch = platform.machine().lower()
-    if arch in {"aarch64", "arm64"}:
-        return "android-arm64-v8a"
-    if arch in {"x86_64", "amd64"}:
-        return "android-x86_64"
-    return None
-
-
-def _is_android_runtime() -> bool:
-    return os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}
-
-
-def _android_library_abi_dir() -> str:
-    android_branch = _android_ocr_branch()
-    if android_branch == "android-arm64-v8a":
-        return "arm64-v8a"
-    if android_branch == "android-x86_64":
-        return "x86_64"
-    raise RuntimeError("Unsupported Android OCR architecture.")
-
-
-ANDROID_LIBCXX_NAME = "libc++_baasxx.so"
-
-
-def _server_folder_path() -> str:
-    base = os.path.dirname(__file__)
-    android_branch = _android_ocr_branch()
-    if android_branch:
-        return os.path.join(base, "bin-android", android_branch)
-    return os.path.join(base, "bin")
-
-
 class BaasOcrClient:
-    server_folder_path = _server_folder_path()
+    server_folder_path = os.path.join(os.path.dirname(__file__), "bin")
     executable_name = "BAAS_ocr_server"
     if sys.platform == "win32":
         executable_name += ".exe"
 
     def __init__(self):
-        self._android_server_lib = None
-        self._android_server_thread = None
-        if _is_android_runtime():
-            self.server_folder_path = self._prepare_android_runtime_folder()
-            BaasOcrClient.server_folder_path = self.server_folder_path
-            self.executable_name = "libBAAS_ocr_server.so"
-            self.exe_path = self._android_server_library_path(self.server_folder_path)
-        else:
-            self.exe_path = os.path.join(self.server_folder_path, self.executable_name)
+        self.exe_path = os.path.join(self.server_folder_path, self.executable_name)
         if not os.path.exists(self.exe_path):
             raise FileNotFoundError("Didn't find ocr server executable.")
         self.config = ServerConfig()
         self.server_process = None
-        self._android_dependency_libs = []
         self.clear_log()
-
-    @staticmethod
-    def _android_server_library_path(root: str) -> str:
-        return os.path.join(root, "lib", _android_library_abi_dir(), "libBAAS_ocr_server.so")
-
-    def _prepare_android_runtime_folder(self) -> str:
-        source_root = _server_folder_path()
-        internal_root = os.getenv("BAAS_ANDROID_INTERNAL_FILES_DIR", "").strip()
-        target_root = os.path.join(internal_root, "ocr-runtime", _android_ocr_branch() or "android") if internal_root else ""
-        target_binary = self._android_server_library_path(target_root) if target_root else ""
-        target_version = os.path.join(target_root, ".baas-ocr-prebuild-sha") if target_root else ""
-        try:
-            with open(target_version, "r", encoding="utf-8") as fp:
-                target_sha = fp.read().strip()
-        except OSError:
-            target_sha = ""
-        if target_sha and target_binary and os.path.exists(target_binary):
-            source_version = os.path.join(source_root, ".baas-ocr-prebuild-sha")
-            try:
-                with open(source_version, "r", encoding="utf-8") as fp:
-                    source_sha = fp.read().strip()
-            except OSError:
-                source_sha = ""
-            if not source_sha or source_sha == target_sha:
-                return target_root
-
-        source_binary = self._android_server_library_path(source_root)
-        if not os.path.exists(source_binary):
-            raise FileNotFoundError("Didn't find Android ocr server library.")
-
-        if not internal_root:
-            return source_root
-
-        source_version = os.path.join(source_root, ".baas-ocr-prebuild-sha")
-        try:
-            with open(source_version, "r", encoding="utf-8") as fp:
-                source_sha = fp.read().strip()
-        except OSError:
-            source_sha = ""
-
-        if source_sha and source_sha == target_sha and os.path.exists(target_binary):
-            return target_root
-        if not source_sha and target_sha and os.path.exists(target_binary):
-            return target_root
-
-        if os.path.exists(target_root):
-            shutil.rmtree(target_root, ignore_errors=True)
-        shutil.copytree(source_root, target_root)
-        native_lib_dir = os.getenv("BAAS_ANDROID_NATIVE_LIBRARY_DIR", "").strip()
-        native_libcxx = os.path.join(native_lib_dir, "libc++_shared.so") if native_lib_dir else ""
-        target_libcxx = os.path.join(target_root, "lib", _android_library_abi_dir(), "libc++_shared.so")
-        target_baas_libcxx = os.path.join(target_root, "lib", _android_library_abi_dir(), ANDROID_LIBCXX_NAME)
-        source_libcxx = native_libcxx if native_libcxx and os.path.exists(native_libcxx) else target_libcxx
-        if source_libcxx and os.path.exists(source_libcxx):
-            if os.path.abspath(source_libcxx) != os.path.abspath(target_baas_libcxx):
-                shutil.copy2(source_libcxx, target_baas_libcxx)
-            self._replace_library_name(target_baas_libcxx, "libc++_shared.so", ANDROID_LIBCXX_NAME)
-            self._replace_library_name(self._android_server_library_path(target_root), "libc++_shared.so", ANDROID_LIBCXX_NAME)
-        os.chmod(self._android_server_library_path(target_root), 0o755)
-        return target_root
-
-    @staticmethod
-    def _replace_library_name(path: str, old_name: str, new_name: str) -> None:
-        old = old_name.encode("utf-8")
-        new = new_name.encode("utf-8")
-        if len(old) != len(new):
-            raise ValueError("Replacement library name must have the same byte length.")
-        with open(path, "rb") as fp:
-            data = fp.read()
-        patched = data.replace(old, new)
-        if patched != data:
-            with open(path, "wb") as fp:
-                fp.write(patched)
 
     # clear log since time_distance days ago
     def clear_log(self, time_distance=7):
@@ -230,9 +109,6 @@ class BaasOcrClient:
     def start_server(self):
         if self.server_process is not None:
             return
-        if _is_android_runtime():
-            self._start_android_server()
-            return
         # chmod +x BAAS_ocr_server
         if sys.platform == "linux":
             subprocess.run(["chmod", "+x", self.exe_path])
@@ -265,68 +141,7 @@ class BaasOcrClient:
                     raise RuntimeError("Fail to start ocr server. " + e.__str__())
                 time.sleep(0.1)
 
-    def _start_android_server(self):
-        lib_dir = os.path.dirname(self.exe_path)
-        native_lib_dir = os.getenv("BAAS_ANDROID_NATIVE_LIBRARY_DIR", "").strip()
-        dependency_paths = []
-        baas_libcxx = os.path.join(lib_dir, ANDROID_LIBCXX_NAME)
-        if os.path.exists(baas_libcxx):
-            dependency_paths.append(baas_libcxx)
-        elif os.path.exists(os.path.join(lib_dir, "libc++_shared.so")):
-            dependency_paths.append(os.path.join(lib_dir, "libc++_shared.so"))
-        dependency_paths.extend(os.path.join(lib_dir, name) for name in ["libonnxruntime.so", "libopencv_java4.so"])
-        loaded = set()
-        for path in dependency_paths:
-            if path in loaded:
-                continue
-            if os.path.exists(path):
-                self._android_dependency_libs.append(ctypes.CDLL(path, mode=ctypes.RTLD_GLOBAL))
-                loaded.add(path)
-        try:
-            server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
-        except OSError:
-            self._android_system_load(self.exe_path)
-            server_lib = ctypes.CDLL(self.exe_path, mode=ctypes.RTLD_GLOBAL)
-        server_lib.start_server.argtypes = [ctypes.c_char_p]
-        server_lib.start_server.restype = None
-        server_lib.stop_server.argtypes = []
-        server_lib.stop_server.restype = None
-        self._android_server_lib = server_lib
-        server_root = os.fsencode(self.server_folder_path)
-        self._android_server_thread = threading.Thread(
-            target=lambda: server_lib.start_server(server_root),
-            name="baas-ocr-android-server",
-            daemon=True,
-        )
-        self._android_server_thread.start()
-        self.server_process = self._android_server_thread
-        for _ in range(0, 100):
-            try:
-                ret = requests.get(self.config.base_url, timeout=1)
-                if ret.status_code == 200:
-                    break
-            except requests.exceptions.RequestException as e:
-                if _ == 99:
-                    raise RuntimeError("Fail to start ocr server. " + e.__str__())
-                time.sleep(0.1)
-
-    @staticmethod
-    def _android_system_load(path: str) -> None:
-        from java import jclass
-
-        jclass("io.github.kiramei.baas_tauri.NativeLoader").load(path)
-
     def stop_server(self):
-        if _is_android_runtime():
-            if self._android_server_lib is not None:
-                self._android_server_lib.stop_server()
-            if self._android_server_thread is not None:
-                self._android_server_thread.join(timeout=10)
-            self.server_process = None
-            self._android_server_thread = None
-            self._android_server_lib = None
-            self._android_dependency_libs = []
-            return
         self.server_process.stdin.write("exit\n")
         self.server_process.stdin.flush()
         return_code = self.server_process.wait(10)
