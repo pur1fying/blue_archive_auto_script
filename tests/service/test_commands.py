@@ -23,6 +23,10 @@ class _Runtime:
     async def detect_adb(self):
         return ["127.0.0.1:5555"]
 
+    async def restart_backend(self):
+        self.calls.append(("restart_backend",))
+        return {"status": "ok", "restarted": True}
+
 
 def _cmd(command: str, **kwargs) -> CommandMessage:
     return CommandMessage(type="command", command=command, timestamp=1.0, **kwargs)
@@ -55,6 +59,16 @@ def test_execute_detect_adb_envelope(monkeypatch):
     result = asyncio.run(commands.execute_command(_cmd("detect_adb")))
 
     assert result == {"status": "ok", "data": {"addresses": ["127.0.0.1:5555"]}}
+
+
+def test_execute_restart_backend_dispatches_to_runtime(monkeypatch):
+    runtime = _Runtime()
+    monkeypatch.setattr(commands, "context", SimpleNamespace(runtime=runtime))
+
+    result = asyncio.run(commands.execute_command(_cmd("restart_backend")))
+
+    assert result == {"status": "ok", "data": {"status": "ok", "restarted": True}}
+    assert runtime.calls == [("restart_backend",)]
 
 
 def test_execute_unsupported_command_raises(monkeypatch):

@@ -882,7 +882,13 @@ class ServiceRuntime:
 
         def restart_process() -> None:
             time.sleep(delay)
-            os._exit(0)
+            try:
+                from android_backend import bootstrap
+
+                bootstrap.restart()
+            except Exception:
+                self._android_restart_scheduled = False
+                raise
 
         threading.Thread(
             target=restart_process,
@@ -890,6 +896,16 @@ class ServiceRuntime:
             daemon=True,
         ).start()
         return True
+
+    async def restart_backend(self) -> Dict[str, Any]:
+        return await run_blocking(self._restart_backend_sync)
+
+    def _restart_backend_sync(self) -> Dict[str, Any]:
+        if not _is_android_runtime():
+            return {"status": "skipped", "reason": "restart_backend is only handled inside Android runtime"}
+        from android_backend import bootstrap
+
+        return {"status": "ok", "restarted": bool(bootstrap.restart())}
 
     async def remove_config(self, _id):
         """Remove a config directory after resolving it inside project config root."""

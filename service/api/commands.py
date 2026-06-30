@@ -120,6 +120,10 @@ async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = No
         result = await context.runtime.update_to_latest()
         return {"status": "ok", "data": result}
 
+    if cmd.command == "restart_backend":
+        result = await context.runtime.restart_backend()
+        return {"status": "ok", "data": result}
+
     if cmd.command == "stop_all_tasks":
         result = await context.runtime.stop_all_tasks()
         return {"status": "ok", "data": result}
