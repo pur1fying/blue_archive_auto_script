@@ -212,3 +212,64 @@ def test_service_runtime_streams_sha_results_by_completion(monkeypatch, tmp_path
     monkeypatch.setattr(runtime_module, "test_repo_sha", fake_test_repo_sha)
 
     assert asyncio.run(scenario()) == [("fast", 10.0), ("slow", 10.0)]
+
+
+def test_android_update_to_latest_schedules_backend_restart(monkeypatch, tmp_path):
+    scheduled = []
+
+    def fake_update(_setup_path):
+        return {"status": "updated", "restart_required": True, "current": "abc"}
+
+    async def fake_stop_all_tasks(self):
+        return {"status": "stopped"}
+
+    monkeypatch.setenv("BAAS_ANDROID", "1")
+    monkeypatch.setattr(runtime_module, "update_to_latest", fake_update)
+    monkeypatch.setattr(ServiceRuntime, "stop_all_tasks", fake_stop_all_tasks)
+    monkeypatch.setattr(
+        ServiceRuntime,
+        "_schedule_android_backend_restart",
+        lambda self, delay: scheduled.append(delay) or True,
+    )
+
+    runtime = ServiceRuntime(tmp_path)
+    result = asyncio.run(runtime.update_to_latest())
+
+    assert result["backend_restart_scheduled"] is True
+    assert result["backend_restart_delay_seconds"] == 2.0
+    assert scheduled == [2.0]
+
+
+def test_android_update_stream_schedules_backend_restart(monkeypatch, tmp_path):
+    scheduled = []
+
+    def fake_update_stream(_setup_path, progress=None):
+        if progress:
+            progress("done", {"sha": "abc"})
+        return {"status": "updated", "restart_required": True, "current": "abc"}
+
+    async def fake_stop_all_tasks(self):
+        return {"status": "stopped"}
+
+    async def scenario():
+        runtime = ServiceRuntime(tmp_path)
+        events = []
+        async for event in runtime.update_to_latest_stream():
+            events.append(event)
+        return events
+
+    monkeypatch.setenv("BAAS_ANDROID", "1")
+    monkeypatch.setattr(runtime_module, "update_to_latest_with_progress", fake_update_stream)
+    monkeypatch.setattr(ServiceRuntime, "stop_all_tasks", fake_stop_all_tasks)
+    monkeypatch.setattr(
+        ServiceRuntime,
+        "_schedule_android_backend_restart",
+        lambda self, delay: scheduled.append(delay) or True,
+    )
+
+    events = asyncio.run(scenario())
+
+    assert events[0]["type"] == "progress"
+    assert events[1]["type"] == "result"
+    assert events[1]["result"]["backend_restart_scheduled"] is True
+    assert scheduled == [2.0]

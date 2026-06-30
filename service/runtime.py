@@ -209,6 +209,7 @@ class ServiceRuntime:
         self._event_map_inv: Dict[str, Dict[str, str]] = {}
         self._android_active_config_id: Optional[str] = None
         self._android_display_guard = _AndroidDisplayResizeGuard()
+        self._android_restart_scheduled = False
         self.is_all_data_initialized: bool = False
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
@@ -830,7 +831,7 @@ class ServiceRuntime:
         await self.stop_all_tasks()
         result = await run_blocking(update_to_latest, None)
         if isinstance(result, dict):
-            return result
+            return self._with_android_backend_restart(result)
         return {"status": "updated"}
 
     async def update_to_latest_stream(self):
@@ -846,6 +847,7 @@ class ServiceRuntime:
                 result = update_to_latest_with_progress(None, progress=progress)
                 if not isinstance(result, dict):
                     result = {"status": "updated"}
+                result = self._with_android_backend_restart(result)
                 loop.call_soon_threadsafe(queue.put_nowait, {"type": "result", "result": result})
             except Exception as exc:  # noqa: BLE001 - surfaced through stream response
                 loop.call_soon_threadsafe(queue.put_nowait, {"type": "error", "error": str(exc)})
@@ -861,6 +863,33 @@ class ServiceRuntime:
     def publish_version_update(self, payload: Dict[str, Any]) -> None:
         if payload:
             self._status_bus.publish_threadsafe({"version": payload})
+
+    def _with_android_backend_restart(self, result: Dict[str, Any]) -> Dict[str, Any]:
+        if not (_is_android_runtime() and result.get("restart_required")):
+            return result
+        delay = max(0.5, float(os.getenv("BAAS_ANDROID_RESTART_DELAY_SECONDS", "2.0")))
+        scheduled = self._schedule_android_backend_restart(delay)
+        return {
+            **result,
+            "backend_restart_scheduled": scheduled,
+            "backend_restart_delay_seconds": delay,
+        }
+
+    def _schedule_android_backend_restart(self, delay: float) -> bool:
+        if self._android_restart_scheduled:
+            return False
+        self._android_restart_scheduled = True
+
+        def restart_process() -> None:
+            time.sleep(delay)
+            os._exit(0)
+
+        threading.Thread(
+            target=restart_process,
+            name="baas-android-backend-restart",
+            daemon=True,
+        ).start()
+        return True
 
     async def remove_config(self, _id):
         """Remove a config directory after resolving it inside project config root."""
