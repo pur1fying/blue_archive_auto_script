@@ -320,6 +320,7 @@ def _patch_baas_thread() -> None:
 
 def _patch_device_modules() -> None:
     _install_gui_stubs()
+    from service.android_local_device import ANDROID_LOCAL_METHOD, AndroidLocalControl, AndroidLocalScreenshot
     from core.device.connection import Connection
     from core.device.Control import Control
     from core.device.Screenshot import Screenshot
@@ -420,7 +421,11 @@ def _patch_device_modules() -> None:
         @wraps(original_control_init)
         def init_control_instance(self):
             if _env_enabled("BAAS_ANDROID") and self.Baas_instance.is_android_device:
-                self.config.control_method = "uiautomator2"
+                self.method = ANDROID_LOCAL_METHOD
+                self.config.control_method = ANDROID_LOCAL_METHOD
+                self.logger.info("Control method : " + self.method)
+                self.control_instance = AndroidLocalControl(self.connection)
+                return
             return original_control_init(self)
 
         Control.init_control_instance = init_control_instance
@@ -432,7 +437,11 @@ def _patch_device_modules() -> None:
         @wraps(original_screenshot_init)
         def init_screenshot_instance(self):
             if _env_enabled("BAAS_ANDROID") and self.Baas_instance.is_android_device:
-                self.config.screenshot_method = "uiautomator2"
+                self.method = ANDROID_LOCAL_METHOD
+                self.config.screenshot_method = ANDROID_LOCAL_METHOD
+                self.logger.info("Screenshot method : " + self.method)
+                self.screenshot_instance = AndroidLocalScreenshot(self.connection)
+                return
             return original_screenshot_init(self)
 
         Screenshot.init_screenshot_instance = init_screenshot_instance

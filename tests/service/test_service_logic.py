@@ -136,6 +136,53 @@ def test_config_manager_detects_manual_config_json_change(tmp_path):
     assert {"op": "replace", "path": "/name", "value": "After"} in payload["ops"]
 
 
+def test_android_config_snapshot_locks_local_device_methods(monkeypatch, tmp_path):
+    monkeypatch.setenv("BAAS_ANDROID", "1")
+    _write_config_pair(tmp_path, "default_config", "Default")
+    config_path = tmp_path / "config" / "default_config" / "config.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "name": "Default",
+                "server": "官服",
+                "control_method": "adb",
+                "screenshot_method": "scrcpy",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    manager = ConfigManager(tmp_path)
+    snapshot = asyncio.run(manager.get_snapshot("config", "default_config"))
+
+    assert snapshot.data["control_method"] == "android_local"
+    assert snapshot.data["screenshot_method"] == "android_local"
+
+
+def test_android_config_patch_cannot_change_local_device_methods(monkeypatch, tmp_path):
+    monkeypatch.setenv("BAAS_ANDROID", "1")
+    _write_config_pair(tmp_path, "default_config", "Default")
+    manager = ConfigManager(tmp_path)
+    snapshot = asyncio.run(manager.get_snapshot("config", "default_config"))
+
+    updated = asyncio.run(
+        manager.apply_patch(
+            "config",
+            "default_config",
+            [
+                {"op": "add", "path": "/control_method", "value": "adb"},
+                {"op": "add", "path": "/screenshot_method", "value": "scrcpy"},
+            ],
+            snapshot.timestamp,
+            origin="frontend",
+        )
+    )
+
+    assert updated.data["control_method"] == "android_local"
+    assert updated.data["screenshot_method"] == "android_local"
+
+
 def test_service_runtime_streams_sha_results_by_completion(monkeypatch, tmp_path):
     def fake_configs(channel):
         return [

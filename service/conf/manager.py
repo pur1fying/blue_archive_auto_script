@@ -13,6 +13,7 @@ from watchfiles import Change, awatch
 
 from deploy.installer.const import normalize_update_channel
 from service.types import PatchOperation, SyncPushPayload
+from service.android_modes import ANDROID_LOCAL_METHOD
 from service.update import read_setup_toml, write_setup_toml
 from service.update.setup_schema import legacy_repo_url, migrate_to_current_schema
 from service.utils.broadcast import BroadcastChannel
@@ -120,6 +121,17 @@ class ConfigManager:
             "mirrorcCdk"  : config_general.get("mirrorc_cdk"),
             "gitBackend"  : config_general.get("git_backend", "auto"),
         }
+
+    @staticmethod
+    def _normalize_android_config(data: Any) -> Any:
+        if os.getenv("BAAS_ANDROID", "").lower() not in {"1", "true", "yes", "on"}:
+            return data
+        if not isinstance(data, dict):
+            return data
+        normalized = copy.deepcopy(data)
+        normalized["control_method"] = ANDROID_LOCAL_METHOD
+        normalized["screenshot_method"] = ANDROID_LOCAL_METHOD
+        return normalized
 
     @staticmethod
     def gen_event_formation_attr(data: dict) -> Union[dict, None]:
@@ -254,6 +266,9 @@ class ConfigManager:
         else:
             data_to_store = data
 
+        if resource == "config":
+            data_to_store = self._normalize_android_config(data_to_store)
+
         if resource == "static":
             event = self.gen_event_formation_attr(data_to_store)
             data_to_store["current_game_activity"] = event
@@ -325,6 +340,8 @@ class ConfigManager:
             current_data = copy.deepcopy(snapshot.data)
             ops_payload = [op.model_dump() if isinstance(op, PatchOperation) else dict(op) for op in operations]
             updated = apply_patch(current_data, ops_payload)
+            if resource == "config":
+                updated = self._normalize_android_config(updated)
 
             if resource == "gui":
                 if not isinstance(updated, dict):
