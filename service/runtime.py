@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from .conf import ConfigInitializer
 from .conf import resolve_config_dir
+from .injection import apply_service_injections
 from .utils.broadcast import BroadcastChannel
 from .utils.timestamps import unix_timestamp_ms
 from .update import (
@@ -263,6 +264,7 @@ class ServiceRuntime:
     def _ensure_main_sync(self) -> None:
         if self._main is not None:
             return
+        apply_service_injections()
         from main import Main
 
         self._main = Main(ocr_needed=["en-us", "zh-cn"], jsonify=True, lazy_data=True)
@@ -293,6 +295,7 @@ class ServiceRuntime:
         session = self._sessions.get(config_id)
         if session is not None:
             return session
+        apply_service_injections()
         from core.Baas_thread import Baas_thread
         from core.config.config_set import ConfigSet
 
