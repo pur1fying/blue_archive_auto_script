@@ -15,7 +15,6 @@ concurrency:
 
 jobs:
   sync-pr-and-auto-merge:
-    # Run this job only in the fork repository.
     if: github.repository == 'Kiramei/baas-dev'
 
     runs-on: ubuntu-latest
@@ -40,7 +39,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Extra runtime guard in case this workflow is copied or modified incorrectly.
           if [ "${GITHUB_REPOSITORY}" != "${EXPECTED_REPOSITORY}" ]; then
             echo "This workflow is intended to run only in ${EXPECTED_REPOSITORY}."
             echo "Current repository: ${GITHUB_REPOSITORY}"
@@ -60,13 +58,11 @@ jobs:
             exit 1
           fi
 
-          # Skip if the fork base branch already contains the latest upstream branch.
           if git merge-base --is-ancestor "upstream/${UPSTREAM_BRANCH}" "origin/${BASE_BRANCH}"; then
             echo "fork ${BASE_BRANCH} already contains upstream/${UPSTREAM_BRANCH}. Nothing to do."
             exit 0
           fi
 
-          # Update only the temporary sync branch. Do not modify the base branch directly.
           git checkout -B "${SYNC_BRANCH}" "upstream/${UPSTREAM_BRANCH}"
           git push origin "HEAD:${SYNC_BRANCH}" --force-with-lease
 
@@ -92,8 +88,6 @@ jobs:
             echo "Created sync PR: ${pr_url}"
           fi
 
-          # Try to enable auto-merge or merge immediately if all requirements are already satisfied.
-          # If this fails, keep the PR open for manual review.
           set +e
           gh pr merge "${pr_url}" \
             --repo "${GITHUB_REPOSITORY}" \
@@ -102,14 +96,25 @@ jobs:
             --delete-branch
 
           merge_status=$?
+
+          if [ "${merge_status}" -ne 0 ]; then
+            echo "Auto-merge failed or unnecessary. Trying direct merge..."
+
+            gh pr merge "${pr_url}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --merge \
+              --delete-branch
+
+            merge_status=$?
+          fi
           set -e
 
           if [ "${merge_status}" -eq 0 ]; then
-            echo "Auto-merge enabled or PR merged: ${pr_url}"
+            echo "PR auto-merge enabled or merged: ${pr_url}"
           else
-            echo "Auto-merge failed. Leaving PR open for manual review: ${pr_url}"
+            echo "Auto-merge/direct merge failed. Leaving PR open: ${pr_url}"
 
             gh pr comment "${pr_url}" \
               --repo "${GITHUB_REPOSITORY}" \
-              --body "Auto-merge failed. Please review manually. Possible causes: merge conflicts, failing checks, branch protection rules, or auto-merge not enabled for this repository." || true
+              --body "Auto-merge/direct merge failed. Please review manually. Possible causes: conflicts, failing required checks, branch protection, or insufficient token permissions." || true
           fi
