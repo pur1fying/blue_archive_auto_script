@@ -16,8 +16,8 @@ from pygit2.enums import ResetMode
 
 # ================================
 # Check the std::in and std::out Status before
-# dulwich-related crashes, for dulwich will
-# connect to the io, while the io is unset
+# Git library calls may touch stdio while the packaged window app
+# leaves the streams unset.
 # by the built window app.
 
 if sys.stdin is None:

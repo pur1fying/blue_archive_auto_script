@@ -1,4 +1,6 @@
 from random import random
+import shutil
+import subprocess
 import threading
 import time
 import traceback
@@ -6,10 +8,65 @@ from datetime import datetime
 from hashlib import md5
 
 from PyQt5.QtWidgets import QAbstractItemView, QTableWidgetItem, QHeaderView
-from dulwich.repo import Repo
 from qfluentwidgets import TableWidget
 
 from gui.util.customized_ui import PureWindow
+
+
+def _read_history_with_git(repo_path):
+    """Read commit history with the system git executable."""
+    git_executable = shutil.which("git")
+    if not git_executable:
+        raise FileNotFoundError("System git not found")
+    result = subprocess.run(
+        [
+            git_executable,
+            "log",
+            "--date=format:%Y-%m-%d %H:%M:%S",
+            "--pretty=format:%h%x1f%an%x1f%ad%x1f%s%x1e",
+        ],
+        cwd=repo_path,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    entries = []
+    for raw_entry in result.stdout.split("\x1e"):
+        raw_entry = raw_entry.strip()
+        if not raw_entry:
+            continue
+        commit_id, author, commit_time, message = raw_entry.split("\x1f", 3)
+        entries.append({
+            'id': commit_id,
+            'author': author.strip(),
+            'date': commit_time,
+            'message': message.strip(),
+        })
+    return entries
+
+
+def _read_history_with_pygit2(repo_path):
+    """Read commit history with pygit2 when system git is unavailable."""
+    import pygit2
+
+    repo = pygit2.Repository(repo_path)
+    entries = []
+    for commit in repo.walk(repo.head.target, pygit2.GIT_SORT_TIME):
+        entries.append({
+            'id': str(commit.id)[:6],
+            'author': commit.author.name.strip(),
+            'date': datetime.fromtimestamp(commit.commit_time).strftime("%Y-%m-%d %H:%M:%S"),
+            'message': commit.message.strip(),
+        })
+    return entries
+
+
+def read_history_entries(repo_path):
+    """Read local commit history using system git first and pygit2 as fallback."""
+    try:
+        return _read_history_with_git(repo_path)
+    except Exception:
+        return _read_history_with_pygit2(repo_path)
 
 
 class HistoryWindow(PureWindow):
@@ -41,22 +98,7 @@ class HistoryWindow(PureWindow):
     def fetch_update_info(self):
         repo_path = '.'  # 仓库路径，可根据需要修改
         try:
-            repo = Repo(repo_path)
-            self.log_entries = []
-
-            for entry in repo.get_walker():
-                commit = entry.commit
-                commit_id = entry.commit.id.decode("utf-8")[:6]
-                author = commit.author.decode("utf-8").split('<')[0].strip()
-                commit_time = datetime.fromtimestamp(commit.commit_time).strftime("%Y-%m-%d %H:%M:%S")
-                message = commit.message.decode("utf-8").strip()
-
-                self.log_entries.append({
-                    'id': commit_id,
-                    'author': author,
-                    'date': commit_time,
-                    'message': message
-                })
+            self.log_entries = read_history_entries(repo_path)
 
             self.table_view.setRowCount(len(self.log_entries))
             for i, entry in enumerate(self.log_entries):

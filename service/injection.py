@@ -70,10 +70,9 @@ def _install_gui_stubs() -> None:
 def _install_android_ocr_modules() -> None:
     if not _env_enabled("BAAS_ANDROID"):
         return
-    from service import android_ocr_client, android_ocr_installer
+    from service import android_ocr_client
 
     sys.modules["core.ocr.baas_ocr_client.Client"] = android_ocr_client
-    sys.modules["core.ocr.baas_ocr_client.server_installer"] = android_ocr_installer
 
 
 def prepare_service_imports() -> None:
@@ -92,6 +91,7 @@ def _patch_logger() -> None:
 
     original_init = logger_cls.__init__
     original_log = getattr(logger_cls, "log", None)
+    original_out = getattr(logger_cls, "__out__", None)
 
     @wraps(original_init)
     def init(self, logger_signal, jsonify=False):
@@ -102,6 +102,20 @@ def _patch_logger() -> None:
         _ensure_logger_extensions(self, jsonify=jsonify)
 
     logger_cls.__init__ = init
+    if original_out is not None:
+        @wraps(original_out)
+        def out(self, message, level=1, raw_print=False):
+            _ensure_logger_extensions(self)
+            if getattr(self, "jsonify", False):
+                self.log_collector.put({
+                    "time": datetime.now(),
+                    "level": level,
+                    "message": str(message),
+                })
+                return
+            return original_out(self, message, level=level, raw_print=raw_print)
+
+        logger_cls.__out__ = out
     if original_log is not None:
         @wraps(original_log)
         def log(self, level, message):

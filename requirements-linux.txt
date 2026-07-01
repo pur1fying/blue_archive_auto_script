@@ -13,7 +13,6 @@ PyQt-Fluent-Widgets == 1.2.0
 # gevent
 
 requests
-dulwich
 psutil
 tqdm
 
