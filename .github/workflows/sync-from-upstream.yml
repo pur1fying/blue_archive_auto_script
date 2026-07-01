@@ -88,33 +88,35 @@ jobs:
             echo "Created sync PR: ${pr_url}"
           fi
 
-          set +e
-          gh pr merge "${pr_url}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --merge \
-            --auto \
-            --delete-branch
+          if gh api "repos/${GITHUB_REPOSITORY}/branches/${BASE_BRANCH}/protection" >/dev/null 2>&1; then
+            echo "${BASE_BRANCH} has branch protection. Enabling auto-merge..."
+            set +e
+            gh pr merge "${pr_url}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --merge \
+              --auto \
+              --delete-branch
 
-          merge_status=$?
-
-          if [ "${merge_status}" -ne 0 ]; then
-            echo "Auto-merge failed or unnecessary. Trying direct merge..."
-
+            merge_status=$?
+            set -e
+          else
+            echo "${BASE_BRANCH} has no branch protection. Merging directly..."
+            set +e
             gh pr merge "${pr_url}" \
               --repo "${GITHUB_REPOSITORY}" \
               --merge \
               --delete-branch
 
             merge_status=$?
+            set -e
           fi
-          set -e
 
           if [ "${merge_status}" -eq 0 ]; then
-            echo "PR auto-merge enabled or merged: ${pr_url}"
+            echo "PR auto-merge enabled or merged directly: ${pr_url}"
           else
-            echo "Auto-merge/direct merge failed. Leaving PR open: ${pr_url}"
+            echo "Merge failed. Leaving PR open: ${pr_url}"
 
             gh pr comment "${pr_url}" \
               --repo "${GITHUB_REPOSITORY}" \
-              --body "Auto-merge/direct merge failed. Please review manually. Possible causes: conflicts, failing required checks, branch protection, or insufficient token permissions." || true
+              --body "Merge failed. Please review manually. Possible causes: conflicts, failing required checks, branch protection, or insufficient token permissions." || true
           fi
