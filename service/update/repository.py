@@ -19,6 +19,26 @@ import requests
 import tomli_w
 from pygit2.enums import ResetMode
 
+# Per-command Git options keep background update checks from invoking GUI
+# credential helpers such as Git Credential Manager.
+NONINTERACTIVE_GIT_CONFIG = [
+    "-c", "credential.helper=",
+    "-c", "credential.interactive=never",
+    "-c", "core.askPass=echo",
+    "-c", "core.sshCommand=ssh -o BatchMode=yes",
+]
+
+
+def noninteractive_git_env(base_env: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    """Return a Git environment that fails fast instead of opening credential prompts."""
+    env = (base_env or os.environ).copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GCM_INTERACTIVE"] = "never"
+    env["GCM_MODAL_PROMPT"] = "0"
+    env["GIT_ASKPASS"] = "echo"
+    env["SSH_ASKPASS"] = "echo"
+    return env
+
 # External dependencies (assumed to exist based on context)
 from deploy.installer.const import (
     GetShaMethod,
@@ -137,13 +157,11 @@ class GitOperationHandler:
         if not target_cwd.exists():
             raise FileNotFoundError(f"Directory {target_cwd} does not exist.")
 
-        # Suppress password prompts
-        env = os.environ.copy()
-        env["GIT_TERMINAL_PROMPT"] = "0"
+        env = noninteractive_git_env()
 
         try:
             result = subprocess.run(
-                [self.git_executable, *args],
+                [self.git_executable, *NONINTERACTIVE_GIT_CONFIG, *args],
                 cwd=target_cwd,
                 capture_output=True,
                 text=True,

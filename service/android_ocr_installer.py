@@ -7,7 +7,7 @@ import subprocess
 import time
 import tempfile
 import zipfile
-from typing import Optional
+from typing import Dict, Optional
 
 import pygit2
 import requests
@@ -15,10 +15,8 @@ from pygit2 import Commit
 from pygit2.enums import ResetMode
 
 # ================================
-# Check the std::in and std::out Status before
-# Git library calls may touch stdio while the packaged window app
-# leaves the streams unset.
-# by the built window app.
+# Check stdio before Git libraries touch it; packaged window builds may leave
+# these streams unset.
 
 if sys.stdin is None:
     sys.stdin = io.TextIOWrapper(io.BytesIO())
@@ -74,6 +72,24 @@ SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, "bin-android", TARGET_B
     "android-"
 ) else os.path.join(SERVER_INSTALLER_DIR_PATH, "bin")
 ANDROID_VERSION_FILE = os.path.join(SERVER_BIN_DIR, ".baas-ocr-prebuild-sha")
+
+NONINTERACTIVE_GIT_CONFIG = [
+    "-c", "credential.helper=",
+    "-c", "credential.interactive=never",
+    "-c", "core.askPass=echo",
+    "-c", "core.sshCommand=ssh -o BatchMode=yes",
+]
+
+
+def noninteractive_git_env(base_env: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    """Return a Git environment that prevents GUI credential prompts."""
+    env = (base_env or os.environ).copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GCM_INTERACTIVE"] = "never"
+    env["GCM_MODAL_PROMPT"] = "0"
+    env["GIT_ASKPASS"] = "echo"
+    env["SSH_ASKPASS"] = "echo"
+    return env
 
 
 def _is_android_runtime() -> bool:
@@ -250,11 +266,12 @@ class OcrRepoManager:
             raise FileNotFoundError(f"Repo directory {target_cwd} does not exist")
 
         proc = subprocess.run(
-            [self.git_executable] + args,
+            [self.git_executable, *NONINTERACTIVE_GIT_CONFIG, *args],
             cwd=target_cwd,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            env=noninteractive_git_env(),
         )
         return proc.stdout.strip()
 

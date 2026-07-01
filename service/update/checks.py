@@ -28,6 +28,39 @@ from service.update.setup_schema import migrate_to_current_schema, setup_channel
 
 RepositoryResult = Dict[str, Any]
 
+NONINTERACTIVE_GIT_CONFIG = [
+    "-c", "credential.helper=",
+    "-c", "credential.interactive=never",
+    "-c", "core.askPass=echo",
+    "-c", "core.sshCommand=ssh -o BatchMode=yes",
+]
+
+
+def noninteractive_git_env(base_env: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    """Return a Git environment that prevents GUI credential prompts."""
+    env = (base_env or os.environ).copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GCM_INTERACTIVE"] = "never"
+    env["GCM_MODAL_PROMPT"] = "0"
+    env["GIT_ASKPASS"] = "echo"
+    env["SSH_ASKPASS"] = "echo"
+    return env
+
+
+def _is_noninteractive_auth_failure(exc: Exception) -> bool:
+    """Return true when Git failed because credentials cannot be requested."""
+    stderr = getattr(exc, "stderr", "") or ""
+    stdout = getattr(exc, "stdout", "") or ""
+    message = f"{stderr}\n{stdout}\n{exc}".lower()
+    auth_markers = (
+        "authentication failed",
+        "terminal prompts disabled",
+        "could not read username",
+        "credential",
+        "gcm",
+    )
+    return any(marker in message for marker in auth_markers)
+
 
 class GitOperationHandler:
     """
@@ -50,10 +83,9 @@ class GitOperationHandler:
         # Ensure we run in an existing directory. `ls-remote` does not require
         # the current BAAS directory to be a Git repository.
         cwd = self.repo_path if self.repo_path.exists() else Path.cwd()
-        env = os.environ.copy()
-        env["GIT_TERMINAL_PROMPT"] = "0"
+        env = noninteractive_git_env()
         result = subprocess.run(
-            [self.git_executable, *args],
+            [self.git_executable, *NONINTERACTIVE_GIT_CONFIG, *args],
             cwd=cwd,
             capture_output=True,
             text=True,
@@ -79,6 +111,8 @@ class GitOperationHandler:
                     return output.split()[0]
                 raise ValueError(f"Branch '{branch}' not found at {url} (System Git)")
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired, IndexError, ValueError) as e:
+                if _is_noninteractive_auth_failure(e):
+                    raise ValueError(f"Git authentication failed without prompting: {e}") from e
                 last_error = e
 
         # Fallback to pygit2 in a temporary bare repository. Android installs
@@ -291,7 +325,10 @@ def _android_http_get_latest_sha(config: Dict[str, Any], timeout: float) -> Tupl
 def repo_sha_test_configs(channel: Optional[str] = None) -> List[Dict[str, Any]]:
     """Return normalized repository SHA test configs for a channel."""
     channel = normalize_update_channel(channel or _setup_channel()[0])
-    return [{**config, "channel": channel} for config in get_remote_sha_methods_for_channel(channel)]
+    return [
+        {**config, "channel": channel, "order": index}
+        for index, config in enumerate(get_remote_sha_methods_for_channel(channel))
+    ]
 
 
 def test_all_repo_sha(timeout: float = 3.0, channel: Optional[str] = None) -> List[RepositoryResult]:
@@ -323,6 +360,7 @@ def test_repo_sha(config: dict[str, Union[str, GetShaMethod]], timeout: float) -
         "success": success,
         "value": value if success else None,
         "error": None if success else value,
+        "order": int(config.get("order", 0)) if success else -1,
     }
     return result
 
@@ -521,6 +559,28 @@ def check_for_update(timeout: float = 3.0) -> Dict[str, Any]:
 
         method_config = next((x for x in repo_methods if x.get('name') == method_name), repo_methods[0])
         repo_result = test_repo_sha(method_config, timeout=timeout)
+        if not repo_result.get("success"):
+            fallback_results = []
+            for candidate in repo_methods:
+                if candidate.get("name") == method_config.get("name"):
+                    continue
+                candidate_result = test_repo_sha(candidate, timeout=timeout)
+                fallback_results.append(candidate_result)
+                if candidate_result.get("success") and candidate_result.get("value"):
+                    method_config = candidate
+                    repo_result = candidate_result
+                    setup_toml["general"]["get_remote_sha_method"] = candidate.get("name")
+                    write_setup_toml(setup_toml, local_info.path)
+                    break
+            else:
+                selected = _select_remote_record(local_info.version, fallback_results)
+                if selected:
+                    selected_name = selected.get("name")
+                    method_config = next(
+                        (x for x in repo_methods if x.get("name") == selected_name),
+                        method_config,
+                    )
+                    repo_result = selected
         remote_version = repo_result.get("value") if repo_result else None
 
         update_available = (

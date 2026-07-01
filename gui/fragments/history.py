@@ -12,6 +12,26 @@ from qfluentwidgets import TableWidget
 
 from gui.util.customized_ui import PureWindow
 
+NONINTERACTIVE_GIT_CONFIG = [
+    "-c", "credential.helper=",
+    "-c", "credential.interactive=never",
+    "-c", "core.askPass=echo",
+    "-c", "core.sshCommand=ssh -o BatchMode=yes",
+]
+
+
+def _noninteractive_git_env():
+    """Return a Git environment that prevents GUI credential prompts."""
+    import os
+
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GCM_INTERACTIVE"] = "never"
+    env["GCM_MODAL_PROMPT"] = "0"
+    env["GIT_ASKPASS"] = "echo"
+    env["SSH_ASKPASS"] = "echo"
+    return env
+
 
 def _read_history_with_git(repo_path):
     """Read commit history with the system git executable."""
@@ -21,6 +41,7 @@ def _read_history_with_git(repo_path):
     result = subprocess.run(
         [
             git_executable,
+            *NONINTERACTIVE_GIT_CONFIG,
             "log",
             "--date=format:%Y-%m-%d %H:%M:%S",
             "--pretty=format:%h%x1f%an%x1f%ad%x1f%s%x1e",
@@ -29,6 +50,7 @@ def _read_history_with_git(repo_path):
         capture_output=True,
         text=True,
         check=True,
+        env=_noninteractive_git_env(),
     )
     entries = []
     for raw_entry in result.stdout.split("\x1e"):

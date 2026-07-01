@@ -74,6 +74,24 @@ if __system__ == "Windows":
 
 os.environ["PDM_IGNORE_ACTIVE_VENV"] = "1"
 
+NONINTERACTIVE_GIT_CONFIG = [
+    "-c", "credential.helper=",
+    "-c", "credential.interactive=never",
+    "-c", "core.askPass=echo",
+    "-c", "core.sshCommand=ssh -o BatchMode=yes",
+]
+
+
+def noninteractive_git_env(base_env: Optional[dict] = None) -> dict:
+    """Return a Git environment that prevents GUI credential prompts."""
+    env = (base_env or os.environ).copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GCM_INTERACTIVE"] = "never"
+    env["GCM_MODAL_PROMPT"] = "0"
+    env["GIT_ASKPASS"] = "echo"
+    env["SSH_ASKPASS"] = "echo"
+    return env
+
 # ==================== Logging Configuration ====================
 
 logger.remove()
@@ -300,15 +318,13 @@ class GitOperationHandler:
         if not target_cwd.exists():
             raise FileNotFoundError(f"Target directory {target_cwd} does not exist.")
 
-        # Disable interactive prompts
-        env = __env__.copy()
-        env["GIT_TERMINAL_PROMPT"] = "0"
+        env = noninteractive_git_env(__env__)
 
         printer = DotPrinter(interval=0.5)
         printer.start()
         try:
             result = subprocess.run(
-                [self.git_executable, *args],
+                [self.git_executable, *NONINTERACTIVE_GIT_CONFIG, *args],
                 cwd=target_cwd,
                 capture_output=True,
                 text=True,

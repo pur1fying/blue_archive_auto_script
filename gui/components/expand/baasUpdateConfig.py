@@ -1,5 +1,4 @@
 import binascii
-import tempfile
 import threading
 import time
 import webbrowser
@@ -20,6 +19,7 @@ from deploy.installer.mirrorc_update.const import MirrorCErrorCode
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater, RequestReturn
 from gui.util.config_gui import COLOR_THEME, configGui
 from gui.util.notification import success, error
+from service.update.checks import _git_wrapper_get_latest_sha
 
 
 class TestGetRemoteShaMethodWorker(QThread):
@@ -74,51 +74,7 @@ class TestGetRemoteShaMethodWorker(QThread):
 
     @staticmethod
     def pygit2_get_latest_sha(data):
-        url = data["url"]
-        branch = data["branch"]
-        target_ref = f"refs/heads/{branch}"
-
-        try:
-            # 创建一个临时 bare 仓库
-            tmpdir = tempfile.mkdtemp(prefix="pygit2-remote-")
-            repo = pygit2.init_repository(tmpdir, bare=True)
-
-            # 添加远程仓库
-            try:
-                remote = repo.remotes["origin"]
-            except KeyError:
-                remote = repo.remotes.create("origin", url)
-
-            # 拉取远程引用（不下载对象）
-            remote.fetch()  # 轻量 fetch，默认不会 checkout
-
-            # 获取远程引用表
-            remote_refs = remote.ls_remotes()
-
-            # 遍历匹配分支引用
-            for ref in remote_refs:
-                if ref.get("name") == target_ref:
-                    sha = str(ref.get("oid"))
-                    return True, sha
-
-            # 如果没找到直接尝试 refs/remotes/origin/<branch>
-            ref_full = f"refs/remotes/origin/{branch}"
-            if ref_full in repo.references:
-                oid = repo.references[ref_full].target
-                sha = str(oid)
-                return True, sha
-
-            return False, f"Branch '{branch}' not found in remote."
-
-        except Exception as e:
-            return False, str(e)
-        finally:
-            # 删除临时目录
-            try:
-                import shutil
-                shutil.rmtree(tmpdir)
-            except Exception:
-                pass
+        return _git_wrapper_get_latest_sha(data, timeout=3.0)
 
 class MirrorCCDKTestThread(QThread):
     finished = pyqtSignal(RequestReturn, bool)
