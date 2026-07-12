@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 
 import uvicorn
@@ -53,6 +54,13 @@ def main() -> None:
     try:
         set_log_format()
         args = parse_args()
+        logging.getLogger(__name__).info(
+            "Starting BAAS service host=%s port=%s reload=%s log_level=%s",
+            args.host,
+            args.port,
+            args.reload,
+            args.log_level,
+        )
         os.environ[OCR_UPDATE_CHECK_ENV] = "1" if args.ocr_update_check else "0"
         config = uvicorn.Config(
             "service.app:app",
@@ -66,6 +74,7 @@ def main() -> None:
         save_pid(os.getpid())
         server.run()
     finally:
+        logging.getLogger(__name__).info("BAAS service process exiting")
         delete_pid_file()
 
 

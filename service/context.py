@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import threading
 try:
@@ -15,6 +16,7 @@ from .auth import ServiceAuthManager
 from .conf.manager import ConfigManager
 from .utils.logging import LogManager
 from .runtime import ServiceRuntime
+from .system_logging import install_asyncio_exception_handler
 
 OCR_UPDATE_CHECK_ENV = "BAAS_SERVICE_OCR_UPDATE_CHECK"
 
@@ -61,6 +63,13 @@ class ServiceContext:
 
     async def startup(self) -> None:
         loop = asyncio.get_running_loop()
+        install_asyncio_exception_handler(loop)
+        logging.getLogger(__name__).info(
+            "Service context startup project_root=%s no_update=%s ocr_update_check=%s",
+            self.project_root,
+            self.no_update,
+            self.need_ocr_update_check,
+        )
         self._loop = loop
         self.config_manager.set_loop(loop)
         self.runtime.set_loop(loop)
@@ -86,6 +95,7 @@ class ServiceContext:
 
 
     async def shutdown(self) -> None:
+        logging.getLogger(__name__).info("Service context shutdown started")
         if self._fs_task:
             self._fs_task.cancel()
             with suppress(asyncio.CancelledError):
@@ -99,6 +109,7 @@ class ServiceContext:
         with suppress(Exception):
             await self.runtime.stop_all_tasks()
         await self.log_manager.stop()
+        logging.getLogger(__name__).info("Service context shutdown completed")
 
     def ensure_runtime_logger_attached(self) -> None:
         for queue, scope in self.runtime.get_log_sources():
@@ -110,5 +121,5 @@ class ServiceContext:
             try:
                 await self.runtime.check_for_update()
             except Exception:
-                pass
+                logging.getLogger(__name__).exception("Periodic update check failed")
             await asyncio.sleep(interval)

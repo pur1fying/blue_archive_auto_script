@@ -80,6 +80,17 @@ def test_runtime_status_snapshot_is_deep_copy():
     assert runtime.current_status()["default_config"]["nested"]["running"] is False
 
 
+def test_runtime_status_preserves_scheduler_run_mode_across_task_updates():
+    runtime = ServiceRuntime(Path("project"))
+
+    runtime._update_status("default_config", running=True, run_mode="scheduler")
+    runtime._update_status("default_config", current_task="arena", waiting_tasks=["lesson"])
+
+    status = runtime.current_status()["default_config"]
+    assert status["run_mode"] == "scheduler"
+    assert status["current_task"] == "arena"
+
+
 def test_android_toggle_passes_logger_hook_to_scheduler(monkeypatch):
     runtime = ServiceRuntime(Path("project"))
     calls = []

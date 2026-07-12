@@ -1,8 +1,11 @@
 def set_log_format():
     import logging
     from datetime import datetime
+    from pathlib import Path
     from rich.console import Console
     from rich.markup import escape
+
+    from .system_logging import configure_system_logging
 
     console = Console()
 
@@ -36,10 +39,12 @@ def set_log_format():
     # ----------- 使用 ----------
     handler = RichHandler()
     handler.setFormatter(RichFormatter())
+    handler.setLevel(logging.INFO)
 
     root = logging.getLogger()
-    root.setLevel(logging.INFO)
+    root.setLevel(logging.DEBUG)
     root.handlers = [handler]
+    configure_system_logging(Path.cwd())
 
     logging.getLogger("watchfiles").setLevel(logging.ERROR)
     logging.getLogger("watchfiles.main").setLevel(logging.ERROR)

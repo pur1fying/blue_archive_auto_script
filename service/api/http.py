@@ -12,6 +12,7 @@ from fastapi import APIRouter, HTTPException, Request, Response
 import requests
 
 from service.auth import AuthenticationError, b64d
+from service.system_logging import clear_system_logs, read_system_logs, system_log_files
 
 from .security import cookie_secure
 from .state import REMEMBER_COOKIE_MAX_AGE, REMEMBER_COOKIE_NAME, context
@@ -67,6 +68,32 @@ async def health() -> Dict[str, Any]:
             "server_sign_public_key": context.auth_manager.server_public_key_b64(),
         },
     }
+
+
+@router.get("/system/logs")
+async def system_logs(
+    request: Request,
+    limit: int = 2000,
+    level: str = "",
+    query: str = "",
+) -> Dict[str, Any]:
+    _require_loopback(request)
+    return {
+        "entries": read_system_logs(
+            context.project_root,
+            limit=max(1, min(limit, 10000)),
+            level=level or None,
+            query=query or None,
+        ),
+        "files": system_log_files(context.project_root),
+    }
+
+
+@router.post("/system/logs/clear")
+async def clear_logs(request: Request) -> Dict[str, Any]:
+    _require_loopback(request)
+    clear_system_logs(context.project_root)
+    return {"ok": True}
 
 
 @router.post("/android/active-config")
@@ -126,6 +153,10 @@ async def android_wiki_proxy(request: Request, path: str = "/") -> Response:
 def _require_android_loopback(request: Request) -> None:
     if os.environ.get("BAAS_ANDROID") != "1":
         raise HTTPException(status_code=404, detail="Not found")
+    _require_loopback(request)
+
+
+def _require_loopback(request: Request) -> None:
     host = request.client.host if request.client else ""
     try:
         if ipaddress.ip_address(host).is_loopback:

@@ -4,23 +4,26 @@ Reference URL: https://github.com/leng-yue/py-scrcpy-client
 """
 import asyncio
 import inspect
+import logging
 import shlex
 import socket
+import subprocess
 import threading
 from pathlib import Path
-from time import sleep
+from time import monotonic, sleep
 from typing import Any, Callable, Optional
 
 import websockets
 from websockets import ClientConnection
+from websockets.exceptions import WebSocketException
 
 try:
-    from adbutils import AdbDevice, AdbError, AdbTimeout, ForwardItem
+    from adbutils import AdbDevice, AdbError, ForwardItem, adb_path
 except ModuleNotFoundError:  # pragma: no cover - remote control dependency is optional at import time
     AdbDevice = Any  # type: ignore
     AdbError = RuntimeError  # type: ignore
-    AdbTimeout = TimeoutError  # type: ignore
     ForwardItem = Any  # type: ignore
+    adb_path = None  # type: ignore
 
 
 # ---------------------------------------------------------------------------
@@ -42,6 +45,10 @@ SCRCPY_TEMP_PATH = "/data/local/tmp"
 SCRCPY_SERVER_JAR_NAME = "scrcpy-server.jar"
 SCRCPY_REMOTE_JAR = f"{SCRCPY_TEMP_PATH}/{SCRCPY_SERVER_JAR_NAME}"
 SCRCPY_PID_FILE = f"{SCRCPY_TEMP_PATH}/ws_scrcpy.pid"
+SCRCPY_LOG_FILE = f"{SCRCPY_TEMP_PATH}/ws_scrcpy.log"
+SCRCPY_STARTUP_TIMEOUT_MS = 10000
+
+_logger = logging.getLogger("baas.service.remote")
 
 
 class ScrcpyClient:
@@ -100,6 +107,7 @@ class ScrcpyClient:
         assert codec_name in [None, "h264", "h265", "av1"]
 
         self.device = device
+        _logger.info("scrcpy client created serial=%s", getattr(device, "serial", "unknown"))
 
         # Kept for API compatibility. In web mode these are not used by this
         # Python proxy directly; the Android server and frontend protocol handle
@@ -122,6 +130,7 @@ class ScrcpyClient:
 
         self.alive = False
         self.__server_pid: Optional[int] = None
+        self.__server_process: Optional[subprocess.Popen] = None
 
         # adbutils create_connection(Network.TCP, port) returns socket.socket.
         self.__remote_socket: Optional[ClientConnection] = None
@@ -169,11 +178,13 @@ class ScrcpyClient:
             f"{SCRCPY_SERVER_TYPE} "
             f"{SCRCPY_LOG_LEVEL} "
             f"{SCRCPY_SERVER_PORT} "
-            f"{SCRCPY_LISTENS_ON_ALL_INTERFACES} "
-            "2>&1 > /dev/null"
+            f"{SCRCPY_LISTENS_ON_ALL_INTERFACES}"
         )
 
-        return f"CLASSPATH={SCRCPY_REMOTE_JAR} nohup app_process {args_string}"
+        return (
+            f"CLASSPATH={SCRCPY_REMOTE_JAR} app_process {args_string} "
+            f"> {SCRCPY_LOG_FILE} 2>&1"
+        )
 
     @staticmethod
     def get_free_tcp_port():
@@ -244,55 +255,45 @@ class ScrcpyClient:
         return None
 
     def __find_expected_server_pids(self) -> list[int]:
-        script = r"""
-            for p in /proc/[0-9]*; do
-              pid="${p##*/}"
-              first="$(tr '\0' '\n' < "$p/cmdline" 2>/dev/null | head -n 1)"
-              base="${first##*/}"
-
-              if [ "$base" = "app_process" ] || [ "$base" = "app_process64" ] || [ "$base" = "app_process32" ]; then
-                echo "$pid"
-              fi
-            done
-        """.strip()
-
         try:
-            output = self.__shell(script, timeout=3)
+            output = self.__shell("ps -A -o PID,ARGS", timeout=3)
         except Exception:
             return []
 
+        expected = (
+            f"{SCRCPY_SERVER_PACKAGE} {SCRCPY_SERVER_VERSION} "
+            f"{SCRCPY_SERVER_TYPE} {SCRCPY_LOG_LEVEL} "
+            f"{SCRCPY_SERVER_PORT} {SCRCPY_LISTENS_ON_ALL_INTERFACES}"
+        )
         pids: list[int] = []
-
         for line in output.splitlines():
-            line = line.strip()
-            if not line.isdigit():
+            parts = line.strip().split(maxsplit=1)
+            if len(parts) != 2 or not parts[0].isdigit() or expected not in parts[1]:
                 continue
+            pids.append(int(parts[0]))
 
-            pid = int(line)
-            if self.__is_expected_server_pid(pid):
-                pids.append(pid)
-
+        _logger.info(
+            "scrcpy process scan serial=%s pids=%s",
+            getattr(self.device, "serial", "unknown"),
+            pids,
+        )
         return pids
 
     def __wait_server_ready(self) -> int:
-        attempts = max(1, self.connection_timeout // 100)
+        startup_timeout = max(self.connection_timeout, SCRCPY_STARTUP_TIMEOUT_MS)
+        deadline = monotonic() + startup_timeout / 1000
 
-        for _ in range(attempts):
+        while monotonic() < deadline:
             pid = self.__read_valid_server_pid_file()
 
             if pid is not None:
                 self.__server_pid = pid
                 return pid
 
-            pids = self.__find_expected_server_pids()
-            if pids:
-                self.__server_pid = pids[0]
-                return pids[0]
-
             sleep(0.1)
 
         raise ConnectionError(
-            f"scrcpy-server did not become ready within {self.connection_timeout} ms"
+            f"scrcpy-server did not become ready within {startup_timeout} ms"
         )
 
     async def __deploy_server(self) -> None:
@@ -312,36 +313,29 @@ class ScrcpyClient:
         self.__shell(f"rm -f {shlex.quote(SCRCPY_PID_FILE)}", timeout=1)
 
         background_command = self.__build_server_command()
-
-        async def start_server() -> str:
-            try:
-                return await asyncio.to_thread(
-                    self.__shell,
-                    background_command,
-                    timeout=20.0,
-                )
-            except AdbTimeout:
-                return "pending"
-
-        async def wait_server_ready() -> int:
-            return await asyncio.to_thread(self.__wait_server_ready)
-
-        start_task = asyncio.create_task(start_server())
-        ready_task = asyncio.create_task(wait_server_ready())
-
-        done, pending = await asyncio.wait(
-            [start_task, ready_task],
-            return_when=asyncio.FIRST_COMPLETED,
+        _logger.info(
+            "starting scrcpy server serial=%s command=%s",
+            getattr(self.device, "serial", "unknown"),
+            background_command,
         )
+        if adb_path is None:
+            raise RuntimeError("adb executable is unavailable")
 
-        for task in pending:
-            task.cancel()
+        serial = getattr(self.device, "serial", None)
+        if not serial:
+            raise RuntimeError("ADB device serial is unavailable")
 
-        for task in pending:
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
+        self.__server_process = subprocess.Popen(
+            [adb_path(), "-s", serial, "shell", background_command],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        await asyncio.to_thread(self.__wait_server_ready)
+        # ws-scrcpy writes its PID before the WebSocket room is ready. An
+        # Upgrade sent in that gap leaves this old server rejecting clients.
+        await asyncio.sleep(1)
 
     # -----------------------------------------------------------------------
     # ADB TCP connection
@@ -349,16 +343,18 @@ class ScrcpyClient:
 
     async def __init_server_connection(self) -> None:
         last_error: Optional[Exception] = None
-        attempts = max(1, self.connection_timeout // 100)
+        startup_timeout = max(self.connection_timeout, SCRCPY_STARTUP_TIMEOUT_MS)
+        deadline = monotonic() + startup_timeout / 1000
 
-        for _ in range(attempts):
+        while monotonic() < deadline:
             try:
                 items_forward = self.device.forward_list()
                 remote = f"tcp:{SCRCPY_SERVER_PORT}"
 
                 def _filter_func(x: ForwardItem):
                     return (
-                        x.remote == remote
+                        x.serial == getattr(self.device, "serial", None)
+                        and x.remote == remote
                         and x.local.startswith("tcp:")
                     )
 
@@ -377,18 +373,20 @@ class ScrcpyClient:
                     max_size=None,
                     ping_interval=None,
                     ping_timeout=None,
+                    open_timeout=max(1, self.connection_timeout / 1000),
+                    close_timeout=1,
                 )
 
                 self.control_socket = self.__remote_socket
                 return
 
-            except AdbError as exc:
+            except (AdbError, OSError, WebSocketException) as exc:
                 last_error = exc
-                sleep(0.1)
+                await asyncio.sleep(0.1)
 
         raise ConnectionError(
             f"Failed to connect ws-scrcpy server at tcp:{SCRCPY_SERVER_PORT} "
-            f"within {self.connection_timeout} ms. Last error: {last_error}"
+            f"within {startup_timeout} ms. Last error: {last_error}"
         )
 
     # -----------------------------------------------------------------------
@@ -399,16 +397,19 @@ class ScrcpyClient:
         if self.alive:
             return self
 
-        try:
-            await self.__deploy_server()
-            await self.__init_server_connection()
-            self.alive = True
-            await self.__send_to_listeners(EVENT_INIT)
-            return self
-
-        except Exception:
-            await self.stop(kill_server=False)
-            raise
+        for attempt in range(2):
+            try:
+                await self.__deploy_server()
+                await self.__init_server_connection()
+                self.alive = True
+                await self.__send_to_listeners(EVENT_INIT)
+                return self
+            except Exception:
+                # A ws-scrcpy process may keep its PID after its WebSocket
+                # listener becomes unusable. Restart it once before failing.
+                await self.stop(kill_server=True)
+                if attempt == 1:
+                    raise
 
     async def start(self, daemon_threaded: bool = False) -> None:
         raise RuntimeError(
@@ -430,13 +431,28 @@ class ScrcpyClient:
 
         if kill_server:
             try:
+                pids = set(self.__find_expected_server_pids())
                 pid = self.__read_valid_server_pid_file()
                 if pid is not None:
+                    pids.add(pid)
+                for pid in pids:
                     self.__shell(f"kill {pid} >/dev/null 2>&1 || true", timeout=1)
 
                 self.__shell(f"rm -f {shlex.quote(SCRCPY_PID_FILE)}", timeout=1)
             except Exception:
                 pass
+
+        if self.__server_process is not None:
+            try:
+                if self.__server_process.poll() is None:
+                    self.__server_process.terminate()
+                    self.__server_process.wait(timeout=1)
+            except Exception:
+                try:
+                    self.__server_process.kill()
+                except Exception:
+                    pass
+            self.__server_process = None
 
         self.__server_pid = None
 

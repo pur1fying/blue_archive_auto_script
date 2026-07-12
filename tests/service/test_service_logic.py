@@ -57,6 +57,19 @@ def test_config_manager_classifies_config_files():
     assert manager._classify_config_change(Change.added, root / "config" / "new_config") == (True, None)
 
 
+def test_config_manager_ignores_runtime_log_directory(caplog, tmp_path):
+    async def scenario():
+        manager = ConfigManager(tmp_path)
+        manager.set_loop(asyncio.get_running_loop())
+        log_path = tmp_path / "config" / "logs" / "baas-service.jsonl"
+        await manager._handle_watch_batch([(Change.modified, str(log_path))])
+
+    caplog.set_level("INFO")
+    asyncio.run(scenario())
+
+    assert not any("baas-service.jsonl" in record.message for record in caplog.records)
+
+
 def _write_config_pair(root: Path, config_id: str, name: str) -> Path:
     config_dir = root / "config" / config_id
     config_dir.mkdir(parents=True)

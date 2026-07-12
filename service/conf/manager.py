@@ -503,8 +503,12 @@ class ConfigManager:
 
         resource_changes: set[ResourceKey] = set()
         rescan_configs = False
+        runtime_log_root = self._config_root / "logs"
         for change, raw_path in changes:
             path = Path(raw_path)
+
+            if path == runtime_log_root or runtime_log_root in path.parents:
+                continue
 
             in_watch_dir = any(path == d or d in path.parents for d in watch_dirs)
             in_watch_file = any(path == f for f in watch_files)

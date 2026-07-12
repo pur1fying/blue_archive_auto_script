@@ -172,6 +172,7 @@ def _default_status(config_id: str) -> Dict[str, Any]:
         "current_task" : None,
         "waiting_tasks": [],
         "exit_code"    : None,
+        "run_mode"     : None,
         "timestamp"    : unix_timestamp_ms(),
     }
 
@@ -402,9 +403,16 @@ class ServiceRuntime:
                 daemon=True,
             )
             session.thread = thread
+            self._update_status(
+                config_id,
+                running=True,
+                is_flag_run=True,
+                exit_code=None,
+                current_task=None,
+                waiting_tasks=[],
+                run_mode="scheduler",
+            )
             thread.start()
-            self._update_status(config_id, running=True, is_flag_run=True, exit_code=None, current_task=None,
-                                waiting_tasks=[])
             return {"status": "started", "config_id": config_id}
 
     async def stop_scheduler(self, config_id: str) -> Dict[str, Any]:
@@ -498,7 +506,8 @@ class ServiceRuntime:
                         is_flag_run=True,
                         exit_code=None,
                         current_task=_original_task_name,
-                        waiting_tasks=[]
+                        waiting_tasks=[],
+                        run_mode="single",
                     )
                     baas.flag_run = True
                     baas.send("solve", task_name)

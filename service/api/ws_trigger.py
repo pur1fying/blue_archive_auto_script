@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from contextlib import suppress
 from typing import Any, Dict
 
@@ -13,15 +14,19 @@ from .security import perform_business_resume, recv_stream_bytes, recv_stream_js
 from .state import context
 
 router = APIRouter()
+_logger = logging.getLogger(__name__)
 
 
 @router.websocket("/ws/trigger")
 async def websocket_trigger(websocket: WebSocket) -> None:
     try:
+        _logger.debug("Trigger websocket connection started")
         _, stream = await perform_business_resume(websocket, channel="trigger")
+        _logger.debug("Trigger websocket secure session resumed")
         while True:
             message = await recv_stream_json(websocket, stream)
             cmd = CommandMessage(**message)
+            _logger.debug("Trigger command received command=%s", cmd.command)
             binary_payload = None
             if cmd.command == "import_config" and cmd.payload.get("binary") is True:
                 binary_payload = await recv_stream_bytes(websocket, stream)
@@ -45,6 +50,7 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                         )
                     response_payload = {"status": "ok", "data": {"done": True}}
                 except Exception as inner_exc:  # noqa: BLE001 - returned to frontend
+                    _logger.exception("Streaming SHA test command failed: %s", inner_exc)
                     response_payload = {"status": "error", "error": str(inner_exc), "data": {"done": True}}
                 await send_stream_json(
                     websocket,
@@ -73,6 +79,7 @@ async def websocket_trigger(websocket: WebSocket) -> None:
                         )
                     response_payload = {"status": "ok", "data": {"done": True}}
                 except Exception as inner_exc:  # noqa: BLE001 - returned to frontend
+                    _logger.exception("Streaming update command failed: %s", inner_exc)
                     response_payload = {"status": "error", "error": str(inner_exc), "data": {"done": True}}
                 await send_stream_json(
                     websocket,
@@ -88,6 +95,7 @@ async def websocket_trigger(websocket: WebSocket) -> None:
             try:
                 response_payload = await execute_command(cmd, binary_payload=binary_payload)
             except Exception as inner_exc:  # noqa: BLE001 - returned to frontend
+                _logger.exception("Trigger command failed command=%s: %s", cmd.command, inner_exc)
                 response_payload = {"status": "error", "error": str(inner_exc)}
             binary_response = response_payload.pop("_binary", None)
             if binary_response is not None:
@@ -108,10 +116,14 @@ async def websocket_trigger(websocket: WebSocket) -> None:
             if binary_response is not None:
                 await send_stream_bytes(websocket, stream, binary_response)
     except (AuthenticationError, HTTPException) as exc:
+        _logger.warning("Trigger websocket authentication/protocol failure: %s", exc)
         with suppress(RuntimeError):
             await websocket.close(code=4401, reason=str(exc))
     except WebSocketDisconnect:
-        pass
+        _logger.debug("Trigger websocket disconnected")
     except Exception as exc:  # noqa: BLE001 - surfaced to caller
+        _logger.exception("Trigger websocket failed: %s", exc)
         with suppress(RuntimeError):
             await websocket.close(code=1011, reason=str(exc))
+    finally:
+        _logger.debug("Trigger websocket closed")
