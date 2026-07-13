@@ -4,6 +4,7 @@ import asyncio
 import json
 import sys
 import uuid
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -77,5 +78,48 @@ def test_named_pipe_channel_round_trip(monkeypatch):
             writer.close()
         finally:
             await server.close()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets are unavailable on Windows")
+def test_unix_pipe_channel_round_trip(monkeypatch):
+    class EchoHandler:
+        def __init__(self, context):
+            self.context = context
+
+        async def handle(self, endpoint):
+            message = await endpoint.recv_json()
+            binary = await endpoint.recv_bytes()
+            await endpoint.send_json({"echo": message, "size": len(binary)})
+            await endpoint.send_bytes(binary[::-1])
+
+    async def scenario():
+        monkeypatch.setitem(_HANDLERS, "test", EchoHandler)
+        socket_path = Path("/tmp") / f"baas-test-{uuid.uuid4().hex}.sock"
+        socket_path.write_text("stale", encoding="utf-8")
+        server = PipeTransportServer(str(socket_path), SimpleNamespace())
+        await server.start()
+        assert socket_path.exists()
+        try:
+            reader, writer = await asyncio.open_unix_connection(str(socket_path))
+            writer.write(encode_json({"type": "open", "channel": "test", "name": "smoke"}))
+            await writer.drain()
+            kind, payload = await _read_frame(reader)
+            assert kind == KIND_JSON
+            assert json.loads(payload) == {"type": "open_ok", "channel": "test"}
+
+            writer.write(encode_json({"value": 42}) + encode_frame(KIND_BYTES, b"abcdef"))
+            await writer.drain()
+            kind, payload = await _read_frame(reader)
+            assert kind == KIND_JSON
+            assert json.loads(payload) == {"echo": {"value": 42}, "size": 6}
+            assert await _read_frame(reader) == (KIND_BYTES, b"fedcba")
+            assert (await _read_frame(reader))[0] == KIND_CLOSE
+            writer.close()
+            await writer.wait_closed()
+        finally:
+            await server.close()
+        assert not socket_path.exists()
 
     asyncio.run(scenario())

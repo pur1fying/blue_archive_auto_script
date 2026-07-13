@@ -3,7 +3,9 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 from contextlib import suppress
+from pathlib import Path
 from typing import Any, Optional
 
 from service.channels import (
@@ -108,18 +110,38 @@ class PipeTransportServer:
         self.pipe_name = pipe_name
         self.service_context = service_context
         self._servers: list[Any] = []
+        self._unix_path: Optional[Path] = None
 
     async def start(self) -> None:
         loop = asyncio.get_running_loop()
-        start_serving_pipe = getattr(loop, "start_serving_pipe", None)
-        if start_serving_pipe is None:
-            raise RuntimeError("Named pipe transport requires the Windows Proactor event loop")
-        self._servers = await start_serving_pipe(
-            lambda: _PipeProtocol(self.service_context), self.pipe_name
+        if os.name == "nt":
+            start_serving_pipe = getattr(loop, "start_serving_pipe", None)
+            if start_serving_pipe is None:
+                raise RuntimeError("Named pipe transport requires the Windows Proactor event loop")
+            self._servers = await start_serving_pipe(
+                lambda: _PipeProtocol(self.service_context), self.pipe_name
+            )
+            _logger.info("Named pipe transport listening pipe=%s", self.pipe_name)
+            return
+
+        socket_path = Path(self.pipe_name)
+        socket_path.parent.mkdir(parents=True, exist_ok=True)
+        socket_path.unlink(missing_ok=True)
+        server = await loop.create_unix_server(
+            lambda: _PipeProtocol(self.service_context), path=str(socket_path)
         )
-        _logger.info("Named pipe transport listening pipe=%s", self.pipe_name)
+        os.chmod(socket_path, 0o600)
+        self._servers = [server]
+        self._unix_path = socket_path
+        _logger.info("Unix pipe transport listening path=%s", socket_path)
 
     async def close(self) -> None:
         for server in self._servers:
             server.close()
+            wait_closed = getattr(server, "wait_closed", None)
+            if wait_closed is not None:
+                await wait_closed()
         self._servers.clear()
+        if self._unix_path is not None:
+            self._unix_path.unlink(missing_ok=True)
+            self._unix_path = None
