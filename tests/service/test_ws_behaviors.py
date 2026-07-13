@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import asyncio
-from types import SimpleNamespace
-
-from service.api import ws_provider, ws_remote, ws_sync
+from service.api import ws_provider, ws_sync
+from service.channels import RemoteChannelHandler
+from service.transport import InMemoryChannelEndpoint
+from service.transport.websocket_endpoint import WebSocketChannelEndpoint
 
 
 class _Stream:
     def encrypt(self, payload: bytes) -> bytes:
-        return payload
+        return b"encrypted:" + payload
 
     def decrypt(self, payload: bytes) -> bytes:
         return payload
@@ -33,7 +34,7 @@ def test_sync_sender_preserves_push_envelope():
         await asyncio.gather(task, return_exceptions=True)
         return websocket.sent
 
-    assert asyncio.run(scenario()) == [b'{"type":"patch","direction":"push"}']
+    assert asyncio.run(scenario()) == [b'encrypted:{"type":"patch","direction":"push"}']
 
 
 def test_provider_sender_wraps_status_payload():
@@ -47,7 +48,19 @@ def test_provider_sender_wraps_status_payload():
         await asyncio.gather(task, return_exceptions=True)
         return websocket.sent
 
-    assert asyncio.run(scenario()) == [b'{"type":"status","status":{"running":false}}']
+    assert asyncio.run(scenario()) == [b'encrypted:{"type":"status","status":{"running":false}}']
+
+
+def test_websocket_endpoint_can_disable_binary_encryption_without_affecting_json():
+    async def scenario():
+        websocket = _WebSocket()
+        endpoint = WebSocketChannelEndpoint(websocket, _Stream())
+        endpoint.configure_binary_encryption(False)
+        await endpoint.send_bytes(b"video")
+        await endpoint.send_json({"type": "control"})
+        return websocket.sent
+
+    assert asyncio.run(scenario()) == [b"video", b'encrypted:{"type":"control"}']
 
 
 def test_remote_proxy_initializes_and_cleans_client(monkeypatch):
@@ -75,21 +88,17 @@ def test_remote_proxy_initializes_and_cleans_client(monkeypatch):
 
     client = FakeClient()
 
-    async def fake_resume(websocket, *, channel):
-        return SimpleNamespace(), _Stream()
-
-    async def fake_recv(websocket, stream):
-        return {"config_id": "default_config", "decrypt": True}
-
     async def fake_require_remote(config_id):
         assert config_id == "default_config"
         return client
 
-    monkeypatch.setattr(ws_remote, "perform_business_resume", fake_resume)
-    monkeypatch.setattr(ws_remote, "recv_stream_json", fake_recv)
-    monkeypatch.setattr(ws_remote, "context", SimpleNamespace(runtime=SimpleNamespace(require_remote_=fake_require_remote)))
+    async def scenario():
+        endpoint = InMemoryChannelEndpoint()
+        await endpoint.incoming.put({"config_id": "default_config", "decrypt": True})
+        context = type("Context", (), {"runtime": type("Runtime", (), {"require_remote_": staticmethod(fake_require_remote)})()})()
+        await RemoteChannelHandler(context).handle(endpoint)
 
-    asyncio.run(ws_remote.websocket_remote(SimpleNamespace()))
+    asyncio.run(scenario())
 
     assert client.initialized is True
     assert client.proxied is True
