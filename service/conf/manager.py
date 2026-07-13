@@ -108,6 +108,7 @@ class ConfigManager:
         current = migrate_to_current_schema(full_setup_toml)
         config_general = current.get("general", {})
         return {
+            "transport"   : config_general.get("transport", "websocket"),
             "channel"     : config_general.get("channel", "stable"),
             "updateMethod": config_general.get("get_remote_sha_method") or "github",
             "repoUrl"     : legacy_repo_url(current),
@@ -194,6 +195,11 @@ class ConfigManager:
         updateMethod: Optional[str] = projection.get("updateMethod", None)
         mirrorcCdk: Optional[str] = projection.get("mirrorcCdk", None)
         channel: Optional[str] = projection.get("channel", None)
+        transport: Optional[str] = projection.get("transport", None)
+        if transport is not None:
+            if transport not in ("websocket", "pipe"):
+                raise ValueError(f"Unsupported backend transport: {transport}")
+            merged["general"]["transport"] = transport
         if channel is not None:
             normalized_channel = normalize_update_channel(channel)
             merged["general"]["channel"] = normalized_channel

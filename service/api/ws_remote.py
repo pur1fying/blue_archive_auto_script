@@ -1,32 +1,31 @@
 from __future__ import annotations
 
+import logging
+from contextlib import suppress
+
 from fastapi import APIRouter, WebSocket
 
-from service.remote import ScrcpyProxySession
+from service.channels import RemoteChannelHandler
+from service.transport import ChannelClosed, WebSocketChannelEndpoint
 
-from .security import perform_business_resume, recv_stream_json
+from .security import perform_business_resume
 from .state import context
 
 router = APIRouter()
+_logger = logging.getLogger(__name__)
 
 
 @router.websocket("/ws/remote")
 async def websocket_remote(websocket: WebSocket) -> None:
-    proxy = None
-
     try:
+        _logger.info("Remote websocket accepted")
         _, stream = await perform_business_resume(websocket, channel="remote")
-        message = await recv_stream_json(websocket, stream)
-        config_id = message.get("config_id")
-        to_encrypt = message.get("decrypt", True)
-
-        client = await context.runtime.require_remote_(config_id)
-        proxy = ScrcpyProxySession(client, stream, encrypt_adb_to_ws=to_encrypt)
-        await proxy.run(websocket)
-    except Exception:
-        import traceback
-
-        traceback.print_exc()
+        await RemoteChannelHandler(context).handle(WebSocketChannelEndpoint(websocket, stream))
+    except ChannelClosed:
+        _logger.info("Remote websocket disconnected")
+    except Exception as exc:  # noqa: BLE001 - remote failures are scoped to this connection
+        _logger.exception("Remote websocket failed: %s", exc)
+        with suppress(Exception):
+            await websocket.close(code=1011, reason=f"remote: {type(exc).__name__}")
     finally:
-        if proxy is not None:
-            await proxy.close()
+        _logger.info("Remote websocket closed")
