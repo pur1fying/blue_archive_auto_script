@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 
 import uvicorn
@@ -32,6 +33,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port to bind (default: %(default)s)")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload (development only)")
     parser.add_argument("--log-level", default="info", help="Uvicorn log level")
+    parser.add_argument("--pipe-name", default="", help="Enable named-pipe transport at this path")
     ocr_update_check_default = _env_bool(OCR_UPDATE_CHECK_ENV, True)
     parser.add_argument(
         "--ocr-update-check",
@@ -53,7 +55,16 @@ def main() -> None:
     try:
         set_log_format()
         args = parse_args()
+        logging.getLogger(__name__).info(
+            "Starting BAAS service host=%s port=%s reload=%s log_level=%s",
+            args.host,
+            args.port,
+            args.reload,
+            args.log_level,
+        )
         os.environ[OCR_UPDATE_CHECK_ENV] = "1" if args.ocr_update_check else "0"
+        if args.pipe_name:
+            os.environ["BAAS_PIPE_NAME"] = args.pipe_name
         config = uvicorn.Config(
             "service.app:app",
             host=args.host,
@@ -66,6 +77,7 @@ def main() -> None:
         save_pid(os.getpid())
         server.run()
     finally:
+        logging.getLogger(__name__).info("BAAS service process exiting")
         delete_pid_file()
 
 
