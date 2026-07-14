@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import logging.handlers
+from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -13,6 +14,7 @@ from service.api import http
 from service.system_logging import (
     JsonLineFormatter,
     clear_system_logs,
+    configure_dependency_log_levels,
     read_system_logs,
     system_log_path,
 )
@@ -52,6 +54,34 @@ def test_json_formatter_keeps_diagnostic_context():
     assert payload["message"] == "failure detail"
     assert payload["line"] == 42
     assert payload["process"] > 0
+
+
+def test_dependency_debug_noise_is_suppressed_without_hiding_baas_debug():
+    stream = StringIO()
+    handler = logging.StreamHandler(stream)
+    handler.setLevel(logging.DEBUG)
+    root = logging.getLogger()
+    previous_root_level = root.level
+    dependency_loggers = [logging.getLogger("PIL"), logging.getLogger("urllib3")]
+    previous_dependency_levels = [logger.level for logger in dependency_loggers]
+    root.addHandler(handler)
+    try:
+        root.setLevel(logging.DEBUG)
+        configure_dependency_log_levels()
+
+        logging.getLogger("PIL.PngImagePlugin").debug("png chunk noise")
+        logging.getLogger("urllib3.connectionpool").debug("request noise")
+        logging.getLogger("baas.runtime").debug("runtime detail")
+
+        output = stream.getvalue()
+        assert "png chunk noise" not in output
+        assert "request noise" not in output
+        assert "runtime detail" in output
+    finally:
+        root.removeHandler(handler)
+        root.setLevel(previous_root_level)
+        for logger, level in zip(dependency_loggers, previous_dependency_levels):
+            logger.setLevel(level)
 
 
 def test_read_system_logs_merges_rotations_and_filters(tmp_path):
