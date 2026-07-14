@@ -33,6 +33,21 @@ class ScrcpyProxySession:
             await self.client.init()
         await self.client.proxy_websocket(websocket)
 
+    async def run_endpoint(self, endpoint) -> None:
+        """Proxy scrcpy bytes through a transport-neutral channel endpoint."""
+        self.client.set_proxy_callbacks(None, None)
+        if not self.client.alive:
+            await self.client.init()
+
+        class EndpointAdapter:
+            async def receive(self):
+                return {"bytes": await endpoint.recv_bytes()}
+
+            async def send_bytes(self, payload):
+                await endpoint.send_bytes(payload)
+
+        await self.client.proxy_websocket(EndpointAdapter())
+
     async def close(self) -> None:
         """Clear callbacks and stop the scrcpy client if the proxy is still alive."""
         self.client.set_proxy_callbacks(None, None)
