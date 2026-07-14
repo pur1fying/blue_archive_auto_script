@@ -6,9 +6,11 @@ import os
 import shutil
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 from watchfiles import Change
 
+from core.scheduler import Scheduler
 from service.utils.broadcast import BroadcastChannel
 from service.conf.manager import ConfigManager
 from service.utils.diff import apply_patch, diff_documents
@@ -40,6 +42,56 @@ def test_broadcast_channel_drops_oldest_when_subscriber_is_full():
         return await queue.get()
 
     assert asyncio.run(scenario()) == {"seq": 2}
+
+
+def _schedule_event(name: str, func_name: str, priority: int) -> dict:
+    return {
+        "event_name": name,
+        "func_name": func_name,
+        "enabled": True,
+        "next_tick": 0,
+        "priority": priority,
+        "pre_task": [],
+        "post_task": [],
+        "disabled_time_range": [],
+    }
+
+
+def test_scheduler_rebuilds_waiting_tasks_without_accumulating(tmp_path):
+    events = [
+        _schedule_event("Task A", "task_a", 1),
+        _schedule_event("Task B", "task_b", 2),
+    ]
+    (tmp_path / "event.json").write_text(json.dumps(events), encoding="utf-8")
+    emitted = []
+    scheduler = Scheduler(SimpleNamespace(emit=emitted.append), str(tmp_path))
+
+    scheduler.update_valid_task_queue()
+    scheduler.update_valid_task_queue()
+
+    assert scheduler.getWaitingTaskList() == ["Task A", "Task B"]
+    assert scheduler.heartbeat()["current_task"] == "task_a"
+    assert scheduler.getWaitingTaskList() == ["Task B"]
+    assert emitted[-1] == ["Task A", "Task B"]
+
+
+def test_runtime_normalizes_duplicate_waiting_tasks(tmp_path):
+    runtime = ServiceRuntime(tmp_path)
+    runtime._sessions["config"] = SimpleNamespace(
+        baas=SimpleNamespace(
+            scheduler=SimpleNamespace(event_map={"task_a": "Task A", "task_b": "Task B"})
+        )
+    )
+
+    runtime._handle_update_signal("config", ["Task A", "Task A", "Task B", "Task B"])
+    first = runtime.current_status()["config"]
+    runtime._handle_update_signal("config", ["Task B", "Task B"])
+    second = runtime.current_status()["config"]
+
+    assert first["current_task"] == "task_a"
+    assert first["waiting_tasks"] == ["task_b"]
+    assert second["current_task"] == "task_b"
+    assert second["waiting_tasks"] == []
 
 
 def test_config_manager_classifies_config_files():
