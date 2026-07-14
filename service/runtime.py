@@ -389,13 +389,24 @@ class ServiceRuntime:
                 raise RuntimeError("Baas_thread initialization failed")
 
             def runner() -> None:
+                failed = False
                 try:
-                    session.baas.send("start")
+                    failed = session.baas.send("start") is False
+                except BaseException:
+                    failed = True
+                    raise
                 finally:
                     self._android_display_guard.release(session.baas.logger)
                     session.thread = None
-                    self._update_status(config_id, running=False, is_flag_run=session.baas.flag_run, current_task=None,
-                                        waiting_tasks=[])
+                    changes = {"exit_code": 1} if failed else {}
+                    self._update_status(
+                        config_id,
+                        running=False,
+                        is_flag_run=session.baas.flag_run,
+                        current_task=None,
+                        waiting_tasks=[],
+                        **changes,
+                    )
 
             thread = threading.Thread(
                 target=runner,
@@ -499,6 +510,7 @@ class ServiceRuntime:
                 await run_blocking(self._android_display_guard.activate, baas.logger)
 
             def _call() -> None:
+                failed = False
                 try:
                     self._update_status(
                         config_id,
@@ -510,17 +522,22 @@ class ServiceRuntime:
                         run_mode="single",
                     )
                     baas.flag_run = True
-                    baas.send("solve", task_name)
+                    failed = baas.send("solve", task_name) is False
+                except BaseException:
+                    failed = True
+                    raise
                 finally:
                     self._android_display_guard.release(baas.logger)
                     session.thread = None
                     assert session is not None
+                    changes = {"exit_code": 1} if failed else {}
                     self._update_status(
                         config_id,
                         running=False,
                         is_flag_run=session.baas.flag_run,
                         current_task=None,
-                        waiting_tasks=[]
+                        waiting_tasks=[],
+                        **changes,
                     )
 
             thread = threading.Thread(

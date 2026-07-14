@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 from typing import Optional
 from urllib.parse import urlparse
@@ -21,6 +22,8 @@ from service.auth import (
 from service.utils.timestamps import unix_timestamp_ms
 
 from .state import REMEMBER_COOKIE_NAME, context
+
+_logger = logging.getLogger(__name__)
 
 
 def json_bytes(payload: dict) -> bytes:
@@ -122,6 +125,7 @@ async def finalize_control_auth(
     include_session_secrets = False
     if request.get("type") == "resume_control":
         token = websocket.cookies.get(REMEMBER_COOKIE_NAME, "")
+        _logger.debug("Control resume requested cookie_present=%s", bool(token))
         if token:
             try:
                 session, control_channel = context.auth_manager.resume_control_session(handshake, token)
@@ -137,7 +141,9 @@ async def finalize_control_auth(
                 )
                 return session, control_channel
         await websocket.send_json(preauth_channel.encrypt({"type": "resume_unavailable"}))
+        _logger.debug("Control resume unavailable; waiting for password proof")
         request = preauth_channel.decrypt(await websocket.receive_json())
+        _logger.debug("Control password request received type=%s", request.get("type"))
 
     if not context.auth_manager.password_state.initialized:
         if request.get("type") != "initialize":

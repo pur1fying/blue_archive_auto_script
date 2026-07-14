@@ -30,7 +30,9 @@ async def websocket_control(websocket: WebSocket) -> None:
     try:
         _logger.debug("Control websocket connection started")
         handshake, preauth_channel, _ = await begin_server_hello(websocket, kind="control", channel="control")
+        _logger.debug("Control websocket server hello completed")
         request = preauth_channel.decrypt(await websocket.receive_json())
+        _logger.debug("Control websocket preauth request received type=%s", request.get("type"))
         session, control_channel = await finalize_control_auth(
             websocket,
             handshake=handshake,

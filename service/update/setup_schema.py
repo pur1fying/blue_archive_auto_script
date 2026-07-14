@@ -12,6 +12,7 @@ CURRENT_SCHEMA_VERSION = 1
 CURRENT_DEFAULT_SETTINGS: Dict[str, Any] = {
     "schema_version": CURRENT_SCHEMA_VERSION,
     "general": {
+        "transport": "websocket",
         "mirrorc_cdk": "",
         "channel": "stable",
         "current_baas_sha": "",
@@ -82,6 +83,8 @@ def migrate_to_current_schema(data: Dict[str, Any]) -> Dict[str, Any]:
     current["schema_version"] = int(data.get("schema_version") or data.get("schemaVersion") or CURRENT_SCHEMA_VERSION)
 
     current_general = current["general"]
+    transport = str(general.get("transport", current_general["transport"]))
+    current_general["transport"] = transport if transport in ("websocket", "pipe") else "websocket"
     current_general.update({key: value for key, value in general.items() if key in current_general})
     current_general["mirrorc_cdk"] = _first_string(
         general.get("mirrorc_cdk"),
