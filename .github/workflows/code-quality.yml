@@ -1,4 +1,4 @@
-name: Service Transport Tests
+name: Code Quality
 
 on:
   pull_request:

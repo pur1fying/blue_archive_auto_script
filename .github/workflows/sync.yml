@@ -1,24 +1,70 @@
-name: Open PR and try auto-merge upstream master
+name: Repository Sync
 
 on:
+  push:
+    branches:
+      - master
   repository_dispatch:
-    types: [upstream-master-push]
+    types:
+      - upstream-master-push
   workflow_dispatch:
+    inputs:
+      operation:
+        description: Synchronization operation to run
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - upstream
+          - cnb
 
-permissions:
-  contents: write
-  pull-requests: write
-
-concurrency:
-  group: sync-upstream-master-pr
-  cancel-in-progress: false
+permissions: {}
 
 jobs:
-  sync-pr-and-auto-merge:
-    if: github.repository == 'Kiramei/baas-dev'
-
+  notify-fork:
+    name: Notify fork
+    if: github.event_name == 'push' && github.repository == 'pur1fying/blue_archive_auto_script'
     runs-on: ubuntu-latest
+    steps:
+      - name: Trigger fork sync PR
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT }}
+          EXPECTED_REPOSITORY: pur1fying/blue_archive_auto_script
+          FORK_REPO: Kiramei/baas-dev
+          EVENT_TYPE: upstream-master-push
+        run: |
+          set -euo pipefail
 
+          if [ "${GITHUB_REPOSITORY}" != "${EXPECTED_REPOSITORY}" ]; then
+            echo "This workflow is intended to run only in ${EXPECTED_REPOSITORY}."
+            echo "Current repository: ${GITHUB_REPOSITORY}"
+            exit 0
+          fi
+
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${FORK_REPO}/dispatches" \
+            -f event_type="${EVENT_TYPE}" \
+            -F client_payload[upstream_sha]="${GITHUB_SHA}" \
+            -F client_payload[upstream_ref]="${GITHUB_REF_NAME}"
+
+  sync-upstream:
+    name: Sync upstream through PR
+    if: >-
+      github.repository == 'Kiramei/baas-dev' &&
+      (github.event_name == 'repository_dispatch' ||
+       (github.event_name == 'workflow_dispatch' &&
+        (inputs.operation == 'all' || inputs.operation == 'upstream')))
+    permissions:
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: sync-upstream-master-pr
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout fork
         uses: actions/checkout@v4
@@ -84,7 +130,6 @@ jobs:
               --head "${SYNC_BRANCH}" \
               --title "Sync upstream master" \
               --body "Automated PR to sync changes from pur1fying/blue_archive_auto_script:master into Kiramei/baas-dev:master.")"
-
             echo "Created sync PR: ${pr_url}"
           fi
 
@@ -96,7 +141,6 @@ jobs:
               --merge \
               --auto \
               --delete-branch
-
             merge_status=$?
             set -e
           else
@@ -106,7 +150,6 @@ jobs:
               --repo "${GITHUB_REPOSITORY}" \
               --merge \
               --delete-branch
-
             merge_status=$?
             set -e
           fi
@@ -115,8 +158,37 @@ jobs:
             echo "PR auto-merge enabled or merged directly: ${pr_url}"
           else
             echo "Merge failed. Leaving PR open: ${pr_url}"
-
             gh pr comment "${pr_url}" \
               --repo "${GITHUB_REPOSITORY}" \
               --body "Merge failed. Please review manually. Possible causes: conflicts, failing required checks, branch protection, or insufficient token permissions." || true
           fi
+
+  sync-cnb:
+    name: Sync to CNB
+    if: >-
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' &&
+        (inputs.operation == 'all' || inputs.operation == 'cnb'))) &&
+      (github.repository == 'Kiramei/baas-dev' ||
+       github.repository == 'pur1fying/blue_archive_auto_script')
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync Dev
+        if: github.repository == 'Kiramei/baas-dev'
+        uses: ./.github/actions/sync-to-cnb
+        with:
+          target-url: https://cnb.cool/kiramei/baas-dev.git
+          password: ${{ secrets.CNB_SYNC_TOKEN }}
+
+      - name: Sync Stable
+        if: github.repository == 'pur1fying/blue_archive_auto_script'
+        uses: ./.github/actions/sync-to-cnb
+        with:
+          target-url: https://cnb.cool/pur1fying/blue_archive_auto_script.git
+          password: ${{ secrets.CNB_SYNC_TOKEN }}
