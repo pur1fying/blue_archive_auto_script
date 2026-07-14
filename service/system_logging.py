@@ -17,6 +17,10 @@ SYSTEM_LOG_FILE = "baas-service.jsonl"
 SYSTEM_LOG_MAX_BYTES = 10 * 1024 * 1024
 SYSTEM_LOG_BACKUP_COUNT = 5
 SYSTEM_LOG_HANDLER_MARKER = "_baas_system_log_handler"
+NOISY_DEPENDENCY_LOG_LEVELS = {
+    "PIL": logging.WARNING,
+    "urllib3": logging.WARNING,
+}
 _exception_hooks_installed = False
 
 
@@ -46,6 +50,12 @@ def system_log_path(project_root: Path) -> Path:
     return project_root / SYSTEM_LOG_DIR / SYSTEM_LOG_FILE
 
 
+def configure_dependency_log_levels() -> None:
+    """Keep high-frequency dependency diagnostics out of the system log."""
+    for logger_name, level in NOISY_DEPENDENCY_LOG_LEVELS.items():
+        logging.getLogger(logger_name).setLevel(level)
+
+
 def configure_system_logging(project_root: Path) -> Path:
     """Attach the persistent DEBUG handler and global exception hooks."""
     path = system_log_path(project_root)
@@ -53,6 +63,7 @@ def configure_system_logging(project_root: Path) -> Path:
 
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
+    configure_dependency_log_levels()
     for handler in root.handlers:
         if getattr(handler, SYSTEM_LOG_HANDLER_MARKER, False):
             return path

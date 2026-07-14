@@ -941,12 +941,14 @@ class ServiceRuntime:
         _event_map_inv = self._event_map_inv[config_id]
         if isinstance(payload, list) and payload:
             current = _event_map_inv.get(payload[0], None)
-            waiting = [
-                value
-                for item in payload
-                if (value := _event_map_inv.get(item)) is not None
-                   and value != current
-            ]
+            waiting = []
+            seen = {current} if current is not None else set()
+            for item in payload[1:]:
+                value = _event_map_inv.get(item)
+                if value is None or value in seen:
+                    continue
+                seen.add(value)
+                waiting.append(value)
         else:
             current = None
             waiting = []
