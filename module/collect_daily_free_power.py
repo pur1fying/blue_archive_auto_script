@@ -3,9 +3,6 @@ from core.picture import GAME_ONE_TIME_POP_UPS
 
 
 def implement(self):
-    if self.server in ["CN"]:
-        self.logger.info("Collect Daily Free Power is only available in JP and Global server.")
-        return True
     self.to_main_page()
     to_purchase_pyroxenes_menu(self)
     to_purchase_type(self, "package")
