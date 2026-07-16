@@ -302,9 +302,9 @@ def is_chinese_char(char):
 
 def get_lesson_relationship_counts(self):
     position = {
-        'CN': [(443, 290), (787, 290), (1132, 290),
-               (443, 441), (787, 441), (1132, 441),
-               (443, 591), (787, 591), (1132, 591)],
+        'CN': [(357, 295), (700, 295), (1043, 295),
+               (357, 445), (701, 445), (1043, 445),
+               (357, 598), (701, 598), (1043, 598)],
         'Global': [(357, 295), (700, 295), (1043, 295),
                (357, 445), (701, 445), (1043, 445),
                (357, 598), (701, 598), (1043, 598)],
@@ -313,12 +313,12 @@ def get_lesson_relationship_counts(self):
                (357, 598), (701, 598), (1043, 598)]
     }
     dx = {
-        'CN': 51,
+        'CN': 72,
         'Global': 72,
         'JP': 72
     }
     rgb_range = {
-        'CN': [245, 255, 108, 128, 134, 154],
+        'CN': [223, 255, 164, 224, 190, 230],
         'Global': [223, 255, 164, 224, 190, 230],
         'JP': [223, 255, 164, 224, 190, 230]
     }
@@ -350,32 +350,6 @@ def get_lesson_relationship_counts(self):
 
 
 def get_lesson_each_region_status(self):
-    if self.server in ['CN']:
-        return cn_get_lesson_each_region_status(self)
-    elif self.server in ['Global', 'JP']:
-        return global_jp_get_lesson_each_region_status(self)
-
-def cn_get_lesson_each_region_status(self):
-    pd_lo = [[289, 204], [643, 204], [985, 204],
-             [289, 359], [643, 359], [985, 359],
-             [289, 511], [643, 511], [985, 511]]
-    res = []
-    for i in range(0, 9):
-        if color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 250, 255, 250, 255, 250, 255):
-            res.append("available")
-        elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 230, 249, 230, 249, 230, 249):
-            res.append("done")
-        elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 31, 160, 31, 160, 31, 160):
-            res.append("lock")
-        elif color.rgb_in_range(self, pd_lo[i][0], pd_lo[i][1], 197, 217, 197, 217, 195,
-                                215):
-            res.append("no activity")
-        else:
-            res.append("unknown")
-    return res
-
-
-def global_jp_get_lesson_each_region_status(self):
     y_list = [238, 391, 543]
 
     pd_lo = [[289,  y_list[0]], [643,  y_list[0]], [985,  y_list[0]],
@@ -588,20 +562,12 @@ def invite_favor_student(self):
 
 
 def get_favor_student_detect_region(self, lesson_cnt):
-    if self.server in ['CN', 'Global']:
-        x_start = 285
-        y_start = 240
-        dx1 = 344
-        dy1 = 152
-        dx2 = 161
-        dy2 = 52
-    else:
-        x_start = 145
-        y_start = 232
-        dx1 = 344
-        dy1 = 152
-        dx2 = 225
-        dy2 = 68
+    x_start = 145
+    y_start = 232
+    dx1 = 344
+    dy1 = 152
+    dx2 = 225
+    dy2 = 68
 
     x1 = x_start + dx1 * (lesson_cnt % 3)
     y1 = y_start + dy1 * (lesson_cnt // 3)

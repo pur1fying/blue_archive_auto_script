@@ -2,24 +2,24 @@ prefix = "create"
 path = "create"
 x_y_range = {
     'crafting-list': (865, 156, 1073, 184),
-    'start-phase-1-grey': (1000, 630, 1240, 677),
-    'start-phase-1-bright': (1000, 630, 1240, 677),
-    'start-phase-2-grey': (1000, 630, 1240, 677),
-    'start-phase-2-bright': (1000, 630, 1240, 677),
-    'start-phase-3-grey': (1000, 630, 1240, 677),
-    'start-phase-3-bright': (1000, 630, 1240, 677),
+    'start-phase-1-grey': (1021, 642, 1185, 675),
+    'start-phase-1-bright': (1021, 642, 1185, 675),
+    'start-phase-2-grey': (1021, 642, 1185, 675),
+    'start-phase-2-bright': (1021, 642, 1185, 675),
+    'start-phase-3-grey': (1021, 642, 1185, 675),
+    'start-phase-3-bright': (1021, 642, 1185, 675),
 
     'phase-1-wait-to-check-node': (403, 91, 445, 129),
     'phase-2-wait-to-check-node': (166, 570, 184, 591),
     'phase-3-wait-to-check-node': (106, 56, 145, 97),
 
-    'select-node': (1000, 630, 1240, 677),
-    'start-crafting': (1000, 630, 1240, 677),
-    'start-crafting-notice': (451, 296, 854, 328),
+    'select-node': (1042, 642, 1162, 675),
+    'start-crafting': (1042, 642, 1162, 675),
+    'start-crafting-notice': (542, 299, 722, 331),
     'basic': (1063, 89, 1144, 114),
     'point-up': (1222, 90, 1246, 117),
     'point-down': (1222, 90, 1246, 117),
-    'complete-instantly': (448, 261, 790, 311),
+    'complete-instantly': (534, 252, 728, 287),
     'collect-all-rewards-grey': (1056, 598, 1184, 645),
 
     'sort-menu': (101, 196, 190, 226),
@@ -60,9 +60,21 @@ x_y_range = {
     'filter-Material-not-chosen': (734, 323, 788, 377),
     'filter-Material-reset': (734, 323, 788, 377),
 
-    'filter-Gift-chosen': (973, 323, 1026, 377),
-    'filter-Gift-not-chosen': (973, 323, 1026, 377),
-    'filter-Gift-reset': (973, 323, 1026, 377),
+    'filter-Disk-chosen': (973, 323, 1026, 377),
+    'filter-Disk-not-chosen': (973, 323, 1026, 377),
+    'filter-Disk-reset': (973, 323, 1026, 377),
+
+    'filter-Note-chosen': (263, 392, 321, 441),
+    'filter-Note-not-chosen': (263, 392, 321, 441),
+    'filter-Note-reset': (263, 392, 321, 441),
+
+    'filter-Gift-chosen': (499, 392, 556, 441),
+    'filter-Gift-not-chosen': (499, 392, 556, 441),
+    'filter-Gift-reset': (499, 392, 556, 441),
+
+    'filter-Special-chosen': (734, 392, 788, 441),
+    'filter-Special-not-chosen': (734, 392, 788, 441),
+    'filter-Special-reset': (734, 392, 788, 441),
 
     'material-list': (701, 78, 762, 129),
     'Eligma': (),  # 神名文字
