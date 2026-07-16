@@ -744,14 +744,14 @@ class Baas_thread:
     def get_ap(self, is_main_page=False):
         if is_main_page:
             region = {
-                'CN': (512, 25, 609, 52),
+                'CN': (485, 23, 586, 54),
                 'Global': (485, 23, 586, 54),
                 'JP': (536, 26, 619, 44)
             }
             region = region[self.server]
         else:
             region = {
-                'CN': (557, 10, 662, 40),
+                'CN': (530, 10, 642, 40),
                 'Global': (530, 10, 642, 40),
                 'JP': (502, 13, 612, 33)
             }
