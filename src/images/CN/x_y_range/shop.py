@@ -1,10 +1,10 @@
 prefix = "shop"
 path = "shop"
 x_y_range = {
-    'refresh-notice': (575, 270, 628, 302),
-    'refresh-unavailable-notice': (547, 315, 600, 350),
+    'refresh-notice': (549, 254, 602, 286),
+    'refresh-unavailable-notice': (546, 318, 599, 353),
     'menu': (100, 7, 262, 40),
-    'purchase-notice1': (512, 420, 752, 460),
+    'purchase-notice1': (512, 147, 752, 187),
     'item-chosen': (638, 195, 654, 214),
     'coin-type-pyroxene-bright': (647, 311, 672, 341),
     'coin-type-creditpoints-bright': (637, 305, 682, 341),
