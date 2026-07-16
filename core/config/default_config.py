@@ -1331,7 +1331,10 @@ STATIC_DEFAULT_CONFIG = '''
         "Eleph",
         "Coin",
         "Material",
-        "Gift"
+        "Disk",
+        "Note",
+        "Gift",
+        "Special"
       ],
       "Global":[
         "Equipment",
@@ -1453,7 +1456,9 @@ STATIC_DEFAULT_CONFIG = '''
             "Winnipesaukee-Stone-Piece",
             "Broken-Winnipesaukee-Stone",
             "Damage-Winnipesaukee-Stone",
-            "Intact-Winnipesaukee-Stone",
+            "Intact-Winnipesaukee-Stone"
+          ],
+          "Disk": [
             "Beginner-Tactical-Training-Blu-ray-(Hyakkiyako)",
             "Normal-Tactical-Training-Blu-ray-(Hyakkiyako)",
             "Advanced-Tactical-Training-Blu-ray-(Hyakkiyako)",
@@ -1489,7 +1494,9 @@ STATIC_DEFAULT_CONFIG = '''
             "Beginner-Tactical-Training-Blu-ray-(Valkyrie)",
             "Normal-Tactical-Training-Blu-ray-(Valkyrie)",
             "Advanced-Tactical-Training-Blu-ray-(Valkyrie)",
-            "Superior-Tactical-Training-Blu-ray-(Valkyrie)",
+            "Superior-Tactical-Training-Blu-ray-(Valkyrie)"
+          ],
+          "Note": [
             "Beginner-Tech-Notes-(Hyakkiyako)",
             "Normal-Tech-Notes-(Hyakkiyako)",
             "Advanced-Tech-Notes-(Hyakkiyako)",
