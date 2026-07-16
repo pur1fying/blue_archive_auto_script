@@ -49,7 +49,6 @@ def implement(self):
 
 def to_cafe(self, skip_first_screenshot=False):
     img_possibles = {
-        "cafe_gift": (1240, 577),
         'cafe_cafe-reward-status': (985, 159),
         'cafe_invitation-ticket': (835, 97),
         'cafe_students-arrived': (922, 189),
@@ -96,13 +95,12 @@ def match(img):
 def cafe_to_gift(self):
     rgb_possibles = {"cafe": (163, 639)}
     rgb_ends = "gift"
-    img_ends = "cafe_gift"
     img_possibles = {
         'cafe_students-arrived': (922, 189),
         'cafe_specified-visit': (983, 96),
         'cafe_random-visit-notice': (886, 172),
     }
-    picture.co_detect(self, rgb_ends, rgb_possibles, img_ends, img_possibles, True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
 
 
 def screenshot_thread(self, delay):
@@ -116,12 +114,9 @@ def screenshot_thread(self, delay):
         cv2.imwrite("cafe_reward_shot.png", self.latest_img_array)
 
 def gift_to_cafe(self):
-    img_possibles = {
-        'cafe_gift': (1240, 574),
-    }
     rgb_possibles = {"gift": (1240, 574)}
     rgb_ends = "cafe"
-    picture.co_detect(self, rgb_ends, rgb_possibles, None, img_possibles, True)
+    picture.co_detect(self, rgb_ends, rgb_possibles, None, None, True)
 
 def zoom_out(self):
     if self.is_android_device:
