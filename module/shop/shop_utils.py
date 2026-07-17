@@ -4,7 +4,7 @@ from core import picture, image, color
 from core.utils import build_possible_string_dict_and_length, most_similar_string
 
 SHOP_ITEM_ROW_X = {
-    'CN': [651, 801, 954, 1109],
+    'CN': [648, 799, 949, 1100],
     'Global': [650, 800, 950, 1100],
     'JP': [650, 800, 950, 1100]
 }
