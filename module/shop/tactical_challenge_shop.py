@@ -63,7 +63,13 @@ def implement(self):
                     self.logger.info("refresh Times inadequate")
                     return True
                 confirm_refresh(self)
-                tactical_challenge_assets = get_tactical_challenge_assets(self)
+                tactical_challenge_assets = wait_refresh_complete(
+                    self,
+                    tactical_challenge_assets,
+                    refresh_price[i]
+                )
+                if tactical_challenge_assets is None:
+                    return True
     return True
 
 
@@ -73,6 +79,29 @@ def confirm_refresh(self):
     }
     img_ends = "shop_menu"
     picture.co_detect(self, None, None, img_ends, img_possibles, True)
+
+
+def wait_refresh_complete(self, previous_assets, refresh_cost, timeout=10):
+    expected_assets = previous_assets - refresh_cost
+    latest_assets = previous_assets
+    deadline = time.monotonic() + timeout
+
+    while time.monotonic() < deadline:
+        self.update_screenshot_array()
+        latest_assets = get_tactical_challenge_assets(self)
+        if latest_assets == expected_assets:
+            self.logger.info(
+                "Tactical challenge shop refresh completed. "
+                f"Assets: {previous_assets} -> {latest_assets}"
+            )
+            return latest_assets
+
+    self.logger.error(
+        "Tactical challenge shop refresh did not complete in time. "
+        f"Previous assets: {previous_assets}, expected assets: {expected_assets}, "
+        f"last recognized assets: {latest_assets}"
+    )
+    return None
 
 
 def to_shop_menu(self):
