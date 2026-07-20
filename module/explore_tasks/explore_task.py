@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from core import color, image, picture
 from module import main_story
@@ -125,9 +125,16 @@ def set_explore_task_mode(self: Baas_thread):
     picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
 
 
-def explore_normal_task(self: Baas_thread):
+def explore_normal_task(self: Baas_thread, task_list: Optional[str] = None, force: bool = False):
     """
         Implement the logic for exploring normal tasks.
+
+        Args:
+            self: The BAAS thread.
+            task_list: Optional task list override used by the interactive explore
+                test. When omitted, the configured task list is used.
+            force: Execute the selected route even if the stage is already
+                complete. This is intended for interactive route testing only.
     """
 
     tasklist: list[tuple[int, int, dict]] = []
@@ -138,7 +145,9 @@ def explore_normal_task(self: Baas_thread):
         - taskDatas (dict): The task datas.
     """
     self.to_main_page()
-    for task_str in str(self.config_set.config.explore_normal_task_list).split(','):
+    if task_list is None:
+        task_list = self.config_set.config.explore_normal_task_list
+    for task_str in str(task_list).split(','):
         result = validate_and_add_task(self, task_str, tasklist, True)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (task_str, result[1]))
@@ -195,7 +204,7 @@ def explore_normal_task(self: Baas_thread):
 
             if not (mission == 6 or mission == 'sub'):
                 set_explore_task_mode(self)
-            if not need_fight(self, task_data_name, True):
+            if not force and not need_fight(self, task_data_name, True):
                 self.logger.warning(f"{task_name} is already finished,skip.")
                 skip_navigate = True
                 continue
@@ -250,9 +259,16 @@ def extract_first_team(taskData):
             return {"start": [[attribute, [0, 0]]]}
 
 
-def explore_hard_task(self: Baas_thread):
+def explore_hard_task(self: Baas_thread, task_list: Optional[str] = None, force: bool = False):
     """
     Implement the logic for exploring hard tasks.
+
+    Args:
+        self: The BAAS thread.
+        task_list: Optional task list override used by the interactive explore
+            test. When omitted, the configured task list is used.
+        force: Execute the selected route even if the stage is already
+            complete. This is intended for interactive route testing only.
     """
 
     tasklist: list[tuple[int, int, dict]] = []
@@ -264,7 +280,9 @@ def explore_hard_task(self: Baas_thread):
     """
     self.to_main_page()
 
-    for task_str in str(self.config_set.config.explore_hard_task_list).split(','):
+    if task_list is None:
+        task_list = self.config_set.config.explore_hard_task_list
+    for task_str in str(task_list).split(','):
         result = validate_and_add_task(self, task_str, tasklist, False)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (task_str, result[1]))
@@ -275,6 +293,8 @@ def explore_hard_task(self: Baas_thread):
         for task_data_name, task_data in task[2].items():
             self.logger.info(f"\t - {task_name}({task_data_name})")
     self.logger.info("}")
+    if len(tasklist) == 0:
+        return False
 
     for task in tasklist:
         region, mission = task[0], task[1]
@@ -294,7 +314,7 @@ def explore_hard_task(self: Baas_thread):
 
             set_explore_task_mode(self)
 
-            if not need_fight(self, task_data_name, False):
+            if not force and not need_fight(self, task_data_name, False):
                 self.logger.warning(f"H{task_data_name} is already finished,skip.")
                 skip_navigate = True
                 continue
@@ -314,7 +334,6 @@ def explore_hard_task(self: Baas_thread):
                     self.logger.error(f"Skipping task {task_name} due to employ team error.")
                     continue
 
-                main_story.auto_fight(self)
             else:
                 if not execute_grid_task(self, task_data):
                     self.logger.error(f"Skipping task {task_name} due to error.")
