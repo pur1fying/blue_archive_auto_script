@@ -1,72 +1,47 @@
+"""Interactive hard-stage route test.
+
+Run from the repository root with an emulator already running:
+
+    uv run --no-sync python -m unittest develop_tools.test.test_explore_hard_task
+
+The stages come from ``explore_hard_task_list`` in the selected config and are
+forced to run even when they have already been completed.
+"""
+
 import unittest
 
-import module.explore_tasks.task_utils
-from main import Main
-from module.explore_tasks.task_utils import to_mission_info, to_region, execute_grid_task
-from module.explore_tasks.explore_task import validate_and_add_task
-from module import main_story
-from module.explore_tasks import normal_task, sweep_task
-from core.Baas_thread import Baas_thread
 from core.config.config_set import ConfigSet
+from main import Main
+from module.explore_tasks.explore_task import explore_hard_task
+
+TEST_CONFIG_DIR = "cn"
 
 
-# run command
-# python -m unittest develop_tools/test/test_explore_hard_task.py
-
-class TestExploreNormalTask(unittest.TestCase):
+class TestExploreHardTask(unittest.TestCase):
     def setUp(self):
-        ocr_needed = ["Global", "NUM"]
-        self.main = Main(ocr_needed=ocr_needed)
+        self.main = Main(ocr_needed=["en-us"])
+        self.baas_thread = self.main.get_thread(
+            ConfigSet(config_dir=TEST_CONFIG_DIR),
+            name="explore-hard-test",
+        )
+        self.assertTrue(
+            self.baas_thread.init_all_data(),
+            f"Failed to initialize BAAS test config: {TEST_CONFIG_DIR}",
+        )
 
-        # revise config dir to test different device
-        conf = ConfigSet(config_dir="1708232489")
+    def tearDown(self):
+        self.baas_thread.flag_run = False
+        if self.main.ocr is not None:
+            self.main.ocr.client.stop_server()
 
-        self.baas_thread = Baas_thread(config=conf)
-        self.baas_thread.init_all_data()
-        self.baas_thread.ocr = self.main.ocr
+    def test_explore_hard_task(self):
+        self.assertTrue(
+            explore_hard_task(
+                self.baas_thread,
+                force=True,
+            )
+        )
 
-        # revise the task list to test different tasks
-        self.explore_hard_task_str = "1,2,3"
-        self.logger = self.baas_thread.logger
 
-    def test_explore_normal_task(self):
-        tasklist = []
-
-        for taskStr in str(self.explore_hard_task_str).split(","):
-            result = validate_and_add_task(self.baas_thread, taskStr, tasklist, False)
-            if not result[0]:
-                self.logger.warning("Invalid task '%s',reason=%s" % (taskStr, result[1]))
-                continue
-        self.logger.info("VALID TASK LIST {")
-        for task in tasklist:
-            taskName = str(task[0]) + "-" + (str(task[1]) if task[1] != 6 else "A")
-            for taskDataName, taskData in task[2].items():
-                self.logger.info(f"\t - {taskName}({taskDataName})")
-        self.logger.info("}")
-
-        for task in tasklist:
-            region = task[0]
-            mission = task[1]
-
-            # skip navigate to mission if previous task is already finished
-            for taskDataName, taskData in task[2].items():
-                taskName = str(region) + "-" + (str(mission) if mission != 6 else "A")
-                self.logger.info(f"--- Start exploring H{taskName}({taskDataName}) ---")
-
-                mission_los = [249, 363, 476]
-                module.ExploreTasks.TaskUtils.to_hard_event(self.baas_thread, True)
-                if not (to_region(self.baas_thread, region, False) and
-                        to_mission_info(self.baas_thread, mission_los[mission - 1])):
-                    self.logger.error(f"Skipping task {taskName} since it's not available.")
-                    continue
-
-                if not execute_grid_task(self.baas_thread, taskData):
-                    self.logger.error(f"Skipping task {taskName} due to error.")
-                    continue
-
-                main_story.auto_fight(self.baas_thread)
-
-                # skip unlocking animation by switching
-                module.ExploreTasks.TaskUtils.to_normal_event(self.baas_thread, True)
-                module.ExploreTasks.TaskUtils.to_hard_event(self.baas_thread, True)
-        return True
+if __name__ == "__main__":
+    unittest.main()
