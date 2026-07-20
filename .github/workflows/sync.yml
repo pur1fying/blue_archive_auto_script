@@ -1,0 +1,194 @@
+name: Repository Sync
+
+on:
+  push:
+    branches:
+      - master
+  repository_dispatch:
+    types:
+      - upstream-master-push
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Synchronization operation to run
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - upstream
+          - cnb
+
+permissions: {}
+
+jobs:
+  notify-fork:
+    name: Notify fork
+    if: github.event_name == 'push' && github.repository == 'pur1fying/blue_archive_auto_script'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger fork sync PR
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT }}
+          EXPECTED_REPOSITORY: pur1fying/blue_archive_auto_script
+          FORK_REPO: Kiramei/baas-dev
+          EVENT_TYPE: upstream-master-push
+        run: |
+          set -euo pipefail
+
+          if [ "${GITHUB_REPOSITORY}" != "${EXPECTED_REPOSITORY}" ]; then
+            echo "This workflow is intended to run only in ${EXPECTED_REPOSITORY}."
+            echo "Current repository: ${GITHUB_REPOSITORY}"
+            exit 0
+          fi
+
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${FORK_REPO}/dispatches" \
+            -f event_type="${EVENT_TYPE}" \
+            -F client_payload[upstream_sha]="${GITHUB_SHA}" \
+            -F client_payload[upstream_ref]="${GITHUB_REF_NAME}"
+
+  sync-upstream:
+    name: Sync upstream through PR
+    if: >-
+      github.repository == 'Kiramei/baas-dev' &&
+      (github.event_name == 'repository_dispatch' ||
+       (github.event_name == 'workflow_dispatch' &&
+        (inputs.operation == 'all' || inputs.operation == 'upstream')))
+    permissions:
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: sync-upstream-master-pr
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+          persist-credentials: false
+
+      - name: Create or update sync PR, then try auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT || github.token }}
+          SYNC_TOKEN_KIND: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT != '' && 'pat' || 'github_token' }}
+          EXPECTED_REPOSITORY: Kiramei/baas-dev
+          UPSTREAM_REPO: pur1fying/blue_archive_auto_script
+          UPSTREAM_BRANCH: master
+          BASE_BRANCH: master
+          SYNC_BRANCH: sync/upstream-master
+        run: |
+          set -euo pipefail
+
+          if [ "${GITHUB_REPOSITORY}" != "${EXPECTED_REPOSITORY}" ]; then
+            echo "This workflow is intended to run only in ${EXPECTED_REPOSITORY}."
+            echo "Current repository: ${GITHUB_REPOSITORY}"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch upstream "${UPSTREAM_BRANCH}"
+          git fetch origin "${BASE_BRANCH}"
+
+          if [ "${SYNC_TOKEN_KIND}" != "pat" ] && git diff --name-only "origin/${BASE_BRANCH}" "upstream/${UPSTREAM_BRANCH}" -- .github/workflows | grep -q .; then
+            echo "::error::Upstream contains workflow file changes, but UPSTREAM_TO_KIRAMEI_DEV_PAT is not configured. Add a PAT with repo and workflow scopes as this repository secret."
+            exit 1
+          fi
+
+          if git merge-base --is-ancestor "upstream/${UPSTREAM_BRANCH}" "origin/${BASE_BRANCH}"; then
+            echo "fork ${BASE_BRANCH} already contains upstream/${UPSTREAM_BRANCH}. Nothing to do."
+            exit 0
+          fi
+
+          git checkout -B "${SYNC_BRANCH}" "upstream/${UPSTREAM_BRANCH}"
+          git push origin "HEAD:${SYNC_BRANCH}" --force-with-lease
+
+          existing_pr_url="$(gh pr list \
+            --repo "${GITHUB_REPOSITORY}" \
+            --head "${SYNC_BRANCH}" \
+            --base "${BASE_BRANCH}" \
+            --state open \
+            --json url \
+            --jq '.[0].url // ""')"
+
+          if [ -n "${existing_pr_url}" ]; then
+            pr_url="${existing_pr_url}"
+            echo "Existing sync PR updated: ${pr_url}"
+          else
+            pr_url="$(gh pr create \
+              --repo "${GITHUB_REPOSITORY}" \
+              --base "${BASE_BRANCH}" \
+              --head "${SYNC_BRANCH}" \
+              --title "Sync upstream master" \
+              --body "Automated PR to sync changes from pur1fying/blue_archive_auto_script:master into Kiramei/baas-dev:master.")"
+            echo "Created sync PR: ${pr_url}"
+          fi
+
+          if gh api "repos/${GITHUB_REPOSITORY}/branches/${BASE_BRANCH}/protection" >/dev/null 2>&1; then
+            echo "${BASE_BRANCH} has branch protection. Enabling auto-merge..."
+            set +e
+            gh pr merge "${pr_url}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --merge \
+              --auto \
+              --delete-branch
+            merge_status=$?
+            set -e
+          else
+            echo "${BASE_BRANCH} has no branch protection. Merging directly..."
+            set +e
+            gh pr merge "${pr_url}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --merge \
+              --delete-branch
+            merge_status=$?
+            set -e
+          fi
+
+          if [ "${merge_status}" -eq 0 ]; then
+            echo "PR auto-merge enabled or merged directly: ${pr_url}"
+          else
+            echo "Merge failed. Leaving PR open: ${pr_url}"
+            gh pr comment "${pr_url}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --body "Merge failed. Please review manually. Possible causes: conflicts, failing required checks, branch protection, or insufficient token permissions." || true
+          fi
+
+  sync-cnb:
+    name: Sync to CNB
+    if: >-
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' &&
+        (inputs.operation == 'all' || inputs.operation == 'cnb'))) &&
+      (github.repository == 'Kiramei/baas-dev' ||
+       github.repository == 'pur1fying/blue_archive_auto_script')
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync Dev
+        if: github.repository == 'Kiramei/baas-dev'
+        uses: ./.github/actions/sync-to-cnb
+        with:
+          target-url: https://cnb.cool/kiramei/baas-dev.git
+          password: ${{ secrets.CNB_SYNC_TOKEN }}
+
+      - name: Sync Stable
+        if: github.repository == 'pur1fying/blue_archive_auto_script'
+        uses: ./.github/actions/sync-to-cnb
+        with:
+          target-url: https://cnb.cool/pur1fying/blue_archive_auto_script.git
+          password: ${{ secrets.CNB_SYNC_TOKEN }}
