@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from core import color, image, picture
 from module import main_story
@@ -125,14 +125,12 @@ def set_explore_task_mode(self: Baas_thread):
     picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
 
 
-def explore_normal_task(self: Baas_thread, task_list: Optional[str] = None, force: bool = False):
+def explore_normal_task(self: Baas_thread, force: bool = False):
     """
         Implement the logic for exploring normal tasks.
 
         Args:
             self: The BAAS thread.
-            task_list: Optional task list override used by the interactive explore
-                test. When omitted, the configured task list is used.
             force: Execute the selected route even if the stage is already
                 complete. This is intended for interactive route testing only.
     """
@@ -145,9 +143,7 @@ def explore_normal_task(self: Baas_thread, task_list: Optional[str] = None, forc
         - taskDatas (dict): The task datas.
     """
     self.to_main_page()
-    if task_list is None:
-        task_list = self.config_set.config.explore_normal_task_list
-    for task_str in str(task_list).split(','):
+    for task_str in str(self.config_set.config.explore_normal_task_list).split(','):
         result = validate_and_add_task(self, task_str, tasklist, True)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (task_str, result[1]))
@@ -259,14 +255,12 @@ def extract_first_team(taskData):
             return {"start": [[attribute, [0, 0]]]}
 
 
-def explore_hard_task(self: Baas_thread, task_list: Optional[str] = None, force: bool = False):
+def explore_hard_task(self: Baas_thread, force: bool = False):
     """
     Implement the logic for exploring hard tasks.
 
     Args:
         self: The BAAS thread.
-        task_list: Optional task list override used by the interactive explore
-            test. When omitted, the configured task list is used.
         force: Execute the selected route even if the stage is already
             complete. This is intended for interactive route testing only.
     """
@@ -280,9 +274,7 @@ def explore_hard_task(self: Baas_thread, task_list: Optional[str] = None, force:
     """
     self.to_main_page()
 
-    if task_list is None:
-        task_list = self.config_set.config.explore_hard_task_list
-    for task_str in str(task_list).split(','):
+    for task_str in str(self.config_set.config.explore_hard_task_list).split(','):
         result = validate_and_add_task(self, task_str, tasklist, False)
         if not result[0]:
             self.logger.warning("Invalid task '%s',reason=%s" % (task_str, result[1]))
