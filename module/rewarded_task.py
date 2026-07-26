@@ -40,7 +40,9 @@ def implement(self):
                 self.logger.warning("0 SWEEPABLE")
 
     self.logger.info("Rewarded Task Status : " + self.rewarded_task_status.__str__())
-    get_bounty_coin(self)
+    # bounty coin count is removed in page bounty
+    # get_bounty_coin(self)
+
     return True
 
 
