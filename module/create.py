@@ -965,7 +965,7 @@ def get_item_holding_quantity_region(x, y):
 
 
 def get_item_selected_quantity_region(x, y):
-    dx = 103
+    dx = 83
     dy = 25
     return x, y, x + dx, y + dy
 
