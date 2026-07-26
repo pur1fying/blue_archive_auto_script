@@ -17,7 +17,9 @@ class MssScreenshot:
     def _ensure_window(self):
         if not self._window.activate_window():
             if self._window.get_window() is None:
-                self.logger.error(f"[MSS Screenshot] No active window found. Please check if your process [{self._window.get_window_title()}] is running.")
+                self.logger.error(f"[MSS Screenshot] No active window found. Please check any of the process is running.")
+                for name in self._window.get_possible_window_titles():
+                    self.logger.error(f"{name}")
                 raise MssScreenshotError(f"App window not found")
             self.logger.warning(f"[MSS Screenshot] Failed to activate process [{self._window.get_window_title()}] window.")
         self._window.update_region()

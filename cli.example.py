@@ -48,14 +48,12 @@ async def arena_tasks(baas: Baas_thread):
 
 
 async def main():
-    main = Main(ocr_needed=["NUM", "Global", "JP"])  # 日服也必须要 Global，否则会崩溃
-    config = ConfigSet(config_dir="jp_kisaki")  # 修改为自己的配置目录名
+    main = Main(ocr_needed=["en-us", "zh-cn"])
+    config = ConfigSet(config_dir="default_config") # replace config_dir with your actual config directory under config folder
     baas = Baas_thread(config, None, None, None)
+    baas.set_ocr(main.ocr)
     baas.init_all_data()
-    baas.ocr = main.ocr  # type: ignore
 
-    # 竞技场每次战斗之间需要等待 1 分钟，因此使用单独任务组执行。
-    # asyncio 将会在等待期间自动执行其他任务，不浪费时间。
     await asyncio.gather(regular_tasks(baas), arena_tasks(baas))
 
 

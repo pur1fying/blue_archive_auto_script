@@ -125,9 +125,14 @@ def set_explore_task_mode(self: Baas_thread):
     picture.co_detect(self, rgb_ends, rgb_possibles, skip_first_screenshot=True)
 
 
-def explore_normal_task(self: Baas_thread):
+def explore_normal_task(self: Baas_thread, force: bool = False):
     """
         Implement the logic for exploring normal tasks.
+
+        Args:
+            self: The BAAS thread.
+            force: Execute the selected route even if the stage is already
+                complete. This is intended for interactive route testing only.
     """
 
     tasklist: list[tuple[int, int, dict]] = []
@@ -195,7 +200,7 @@ def explore_normal_task(self: Baas_thread):
 
             if not (mission == 6 or mission == 'sub'):
                 set_explore_task_mode(self)
-            if not need_fight(self, task_data_name, True):
+            if not force and not need_fight(self, task_data_name, True):
                 self.logger.warning(f"{task_name} is already finished,skip.")
                 skip_navigate = True
                 continue
@@ -250,9 +255,14 @@ def extract_first_team(taskData):
             return {"start": [[attribute, [0, 0]]]}
 
 
-def explore_hard_task(self: Baas_thread):
+def explore_hard_task(self: Baas_thread, force: bool = False):
     """
     Implement the logic for exploring hard tasks.
+
+    Args:
+        self: The BAAS thread.
+        force: Execute the selected route even if the stage is already
+            complete. This is intended for interactive route testing only.
     """
 
     tasklist: list[tuple[int, int, dict]] = []
@@ -275,6 +285,8 @@ def explore_hard_task(self: Baas_thread):
         for task_data_name, task_data in task[2].items():
             self.logger.info(f"\t - {task_name}({task_data_name})")
     self.logger.info("}")
+    if len(tasklist) == 0:
+        return False
 
     for task in tasklist:
         region, mission = task[0], task[1]
@@ -294,7 +306,7 @@ def explore_hard_task(self: Baas_thread):
 
             set_explore_task_mode(self)
 
-            if not need_fight(self, task_data_name, False):
+            if not force and not need_fight(self, task_data_name, False):
                 self.logger.warning(f"H{task_data_name} is already finished,skip.")
                 skip_navigate = True
                 continue
@@ -314,7 +326,6 @@ def explore_hard_task(self: Baas_thread):
                     self.logger.error(f"Skipping task {task_name} due to employ team error.")
                     continue
 
-                main_story.auto_fight(self)
             else:
                 if not execute_grid_task(self, task_data):
                     self.logger.error(f"Skipping task {task_name} due to error.")

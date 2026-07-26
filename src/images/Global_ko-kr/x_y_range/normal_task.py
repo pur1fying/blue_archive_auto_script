@@ -21,6 +21,7 @@ x_y_range = {
     'task-wait-to-begin-feature': (99, 6, 220, 42),
     'unlock-notice': (617, 144, 666, 176),
     "start-sweep-notice": (437, 477, 844, 525),
+    'hard-start-sweep-notice': (461, 479, 807, 518),
     "sweep-complete": (600, 561, 680, 604),
     "task-finish": (1000, 648, 1060, 678),
     'skip-sweep-complete': (597, 488, 684, 531),  # 跳过扫荡完成

@@ -223,10 +223,10 @@
                 "desc": "1 upper left"
             },
             {
-                "t": [
-                    "exchange",
-                    "choose_and_change"
-                ],
+              "t": "exchange"
+            },
+            {
+                "t": "choose_and_change",
                 "p": [
                     591,
                     286

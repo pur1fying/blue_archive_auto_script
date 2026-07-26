@@ -17,9 +17,13 @@ x_y_range = {
 
     'mission-not-chosen-0': (901, 89, 987, 127),
     'mission-not-chosen-1': (1033, 89, 1116, 127),
+    'mission-not-chosen-2': (771, 89, 850, 127),
     'mission-chosen-0': (901, 89, 987, 127),
     'mission-chosen-1': (1033, 89, 1116, 127),
+    'mission-chosen-2': (771, 89, 850, 127),
 
     'challenge-not-chosen-0': (1058, 89, 1181, 127),
-    'challenge-chosen-0': (1058, 89, 1181, 127)
+    'challenge-not-chosen-1': (1013, 89, 1136, 127),
+    'challenge-chosen-0': (1058, 89, 1181, 127),
+    'challenge-chosen-1': (1013, 89, 1136, 127)
 }

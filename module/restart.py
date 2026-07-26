@@ -29,11 +29,9 @@ def start(self):
     if host_platform_is_android():
         self.u2.shell(f"am start --display {self.target_display.logical_id} -n {self.package_name}/{self.activity_name}")
     else:
-        self.u2.app_start(self.package_name, self.activity_name)
-    time.sleep(1)
-    if self.server == 'Global':
-        self.to_main_page()
-        time.sleep(4)
+        activity_name = None if self.server == 'CN' else self.activity_name
+        self.u2.app_start(self.package_name, activity_name)
+    self.to_main_page()
 
 
 def check_need_restart(self):

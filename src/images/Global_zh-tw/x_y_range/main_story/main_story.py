@@ -2,7 +2,6 @@ prefix = 'main_story'
 path = 'main_story'
 x_y_range = {
     'episode-cleared-feature': (700, 143, 858, 177),
-    "enter-main-story": (387, 510, 558, 562),
     "select-episode": (100, 9, 165, 41),
     "get-new-search-data": (397, 403, 871, 436),
 
@@ -17,6 +16,7 @@ x_y_range = {
     "episode6": (57, 88, 215, 118),
     "episode7": (983, 248, 1268, 278),
     "episode8": (983, 248, 1268, 278),
+    "episode9": (983, 248, 1268, 278),
 
     "episode-info": (580, 145, 700, 174),
     "continue-plot": (576, 138, 704, 180),
@@ -28,4 +28,6 @@ x_y_range = {
     "episode-5-title": (127, 525, 351, 560),
     "episode-7-title": (290, 309, 462, 348),
     "episode-8-title": (495, 525, 680, 560),
+    "episode-9-title": (440, 525, 700, 560),
+
 }

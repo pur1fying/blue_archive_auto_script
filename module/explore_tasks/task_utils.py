@@ -74,7 +74,6 @@ def to_hard_event(self, skip_first_screenshot=False):
         "level_up": (640, 200),
     }
     img_reactions = {
-        "main_page_home-feature": (1198, 580),
         "main_page_bus": (823, 261),
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
@@ -103,7 +102,6 @@ def to_normal_event(self: Baas_thread, skip_first_screenshot=False):
         "level_up": (640, 200),
     }
     img_reactions = {
-        "main_page_home-feature": (1198, 580),
         "main_page_bus": (823, 261),
         "normal_task_sweep-complete": (643, 585),
         "normal_task_start-sweep-notice": (887, 164),
@@ -441,8 +439,7 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
 
             # switch to the next attribute available.
             cur_attribute = attribute
-            while unit_available[cur_attribute] == unit_used[cur_attribute] \
-                or (self.server == "CN" and cur_attribute == "shock"):
+            while unit_available[cur_attribute] == unit_used[cur_attribute]:
                 cur_attribute = attribute_type_fallbacks[cur_attribute]
 
             employ_pos.append(team_config[cur_attribute][unit_used[cur_attribute]])
@@ -467,12 +464,11 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
                 y = loy[row - 1]
                 img_reactions = {
                     "normal_task_task-wait-to-begin-feature": (info[0], info[1]),  # info:[x,y] the entry of employ
-                }
-                rgb_reactions = {
                     "normal_task_formation-menu": (74, y)
+
                 }
                 rgb_ends = "formation_edit" + str(row)
-                picture.co_detect(self, rgb_ends, rgb_reactions, None, img_reactions, True)
+                picture.co_detect(self, rgb_ends, None, None, img_reactions, True)
             else:
                 # open formation menu -> preset menu -> choose column
                 img_reactions = {

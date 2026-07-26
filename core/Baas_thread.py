@@ -174,12 +174,40 @@ class Baas_thread:
                 time.sleep(duration)
 
     def u2_get_screenshot(self):
-        return cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+        img = cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+        return self.normalize_screenshot(img)
 
     def get_screenshot_array(self):
         if not self.flag_run:
             raise RequestHumanTakeOver
-        return self.screenshot.screenshot()
+        return self.normalize_screenshot(self.screenshot.screenshot())
+
+    def normalize_screenshot(self, img):
+        if img is None or img.ndim < 2:
+            return img
+        height, width = img.shape[:2]
+        if self.is_android_device and height > width:
+            self.logger.warning(
+                f"Portrait screenshot detected ({width}x{height}), rotating to landscape."
+            )
+            img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+            height, width = img.shape[:2]
+        if self.is_android_device:
+            self._sync_screenshot_resolution(width, height)
+        return img
+
+    def _sync_screenshot_resolution(self, width, height):
+        if not getattr(self, 'resolution', None):
+            return
+        if width < height or (width, height) == self.resolution:
+            return
+        self.logger.warning(
+            f"Screenshot size {width}x{height} differs from resolution "
+            f"{self.resolution[0]}x{self.resolution[1]}, syncing from screenshot."
+        )
+        self.resolution = (width, height)
+        self.ratio = width / 1280
+        self.logger.info(f"Screen Size Ratio synced: {self.ratio}")
 
     def update_screenshot_array(self):
         self.latest_img_array = self.get_screenshot_array()
@@ -335,11 +363,13 @@ class Baas_thread:
     def get_ocr_language(self):
         self.logger.info("Get OCR Language.")
         self.ocr_language = "None"
-
         if self.is_android_device:
             self._get_android_device_ocr_language()
-        else:
-            self._get_host_ocr_language()
+        else: # pc platform
+            if self.server == "JP":
+                self.ocr_language = "ja-jp"
+            elif self.server == "Global":
+                self._get_host_ocr_language()
         self.logger.info("Ocr Language : " + self.ocr_language)
 
     def _get_host_ocr_language(self):
@@ -734,16 +764,16 @@ class Baas_thread:
     def get_ap(self, is_main_page=False):
         if is_main_page:
             region = {
-                'CN': (512, 25, 609, 52),
+                'CN': (485, 23, 586, 54),
                 'Global': (485, 23, 586, 54),
-                'JP': (485, 23, 586, 54)
+                'JP': (536, 26, 619, 44)
             }
             region = region[self.server]
         else:
             region = {
-                'CN': (557, 10, 662, 40),
+                'CN': (530, 10, 642, 40),
                 'Global': (530, 10, 642, 40),
-                'JP': (530, 10, 642, 40)
+                'JP': (502, 13, 612, 33)
             }
             region = region[self.server]
         ocr_res = self.ocr.get_region_res(
@@ -777,9 +807,18 @@ class Baas_thread:
 
     def get_pyroxene(self, is_main_page=False):
         if is_main_page:
-            region = (871, 25, 967, 52)
+            region = {
+                "CN": (871, 25, 967, 52),
+                "Global": (871, 25, 967, 52),
+                "JP": (897, 26, 1008, 44)
+            }
         else:
-            region = (961, 10, 1072, 40)
+            region = {
+                "CN": (965, 10, 1070, 40),
+                "Global": (961, 10, 1072, 40),
+                "JP": (932, 13, 1069, 33)
+            }
+        region = region[self.server]
         ocr_res = self.ocr.get_region_res(
             self,
             region,
@@ -804,14 +843,14 @@ class Baas_thread:
         if is_main_page:
             region = {
                 'CN': (699, 20, 832, 52),
-                'JP': (671, 20, 819, 52),
-                'Global': (671, 20, 819, 52)
+                'Global': (671, 20, 819, 52),
+                'JP': (700, 26, 847, 44)
             }
         else:
             region = {
-                'CN': (769, 10, 908, 40),
-                'JP': (741, 10, 912, 40),
-                'Global': (741, 10, 912, 40)
+                'CN': (745, 10, 912, 40),
+                'Global': (741, 10, 912, 40),
+                'JP': (714, 13, 859, 33)
             }
         region = region[self.server]
         ocr_res = self.ocr.get_region_res(
@@ -870,7 +909,9 @@ class Baas_thread:
                 self.u2.uiautomator.start()
                 while not self.u2.uiautomator.running():
                     time.sleep(0.1)
-                self.latest_img_array = cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+                self.latest_img_array = self.normalize_screenshot(
+                    cv2.cvtColor(np.array(self.u2.screenshot()), cv2.COLOR_RGB2BGR)
+                )
                 return
             except Exception as e:
                 print(e)
@@ -986,7 +1027,23 @@ class Baas_thread:
         if self.is_android_device:
             self.resolution = self._get_android_device_resolution()
         else:
-            self.resolution = self.connection.app_process_window.get_resolution()
+            app_window = self.connection.app_process_window
+            if app_window.is_fullscreen_or_maximized():
+                self.resolution = app_window.get_resolution(activate=False)
+                self.logger.warning("Window is fullscreen or maximized, skip auto resize to 1280x720.")
+            else:
+                self.resolution = app_window.get_resolution()
+            if self.resolution != (1280, 720):
+                if app_window.is_fullscreen_or_maximized():
+                    self.logger.warning("Screen Size is not 1280x720, but auto resize only works in windowed mode.")
+                else:
+                    self.logger.warning("Window client area is not 1280x720, resizing it to 1280x720.")
+                    success, final_resolution = app_window.resize_client_area(1280, 720)
+                    self.resolution = app_window.get_resolution()
+                    if success:
+                        self.logger.info("Window client area resized to 1280x720.")
+                    else:
+                        self.logger.warning(f"Failed to resize window client area to 1280x720, final size: {final_resolution}.")
 
         self.logger.info("Screen Size  " + str(self.resolution))
         self.check_screen_ratio(self.resolution[0], self.resolution[1])

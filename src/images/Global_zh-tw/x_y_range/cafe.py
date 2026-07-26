@@ -25,6 +25,8 @@ x_y_range = {
     'duplicate-invite-notice': (400, 154, 888, 270),
     'button-goto-no1-cafe': (153, 90, 164, 110),
     'button-goto-no2-cafe': (153, 90, 164, 110),
-    'invite-student-button': (740, 210, 827, 237)
+    'invite-student-button': (740, 210, 827, 237),
+    'specified-visit': (575, 70, 700, 112),
+    'random-visit-notice': (436, 304, 840, 340),
 }
 

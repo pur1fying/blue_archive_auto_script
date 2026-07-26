@@ -3,9 +3,6 @@ from core.picture import GAME_ONE_TIME_POP_UPS
 
 
 def implement(self):
-    if self.server in ["CN"]:
-        self.logger.info("Collect Daily Free Power is only available in JP and Global server.")
-        return True
     self.to_main_page()
     to_purchase_pyroxenes_menu(self)
     to_purchase_type(self, "package")
@@ -73,7 +70,8 @@ def to_purchase_type(self, tp):
         ],
         "package": [
             "main_page_purchase-pyroxenes-package-selected-1",
-            "main_page_purchase-pyroxenes-package-selected-2"
+            "main_page_purchase-pyroxenes-package-selected-2",
+            "main_page_purchase-pyroxenes-package-selected-3"
         ]
     }
     img_ends = img_ends[tp]
@@ -82,7 +80,8 @@ def to_purchase_type(self, tp):
         "main_page_purchase-pyroxenes-pyroxenes-selected-1": p_1,
         "main_page_purchase-pyroxenes-package-selected-1":p_1,
         "main_page_purchase-pyroxenes-pyroxenes-selected-2": p_2,
-        "main_page_purchase-pyroxenes-package-selected-2": p_2
+        "main_page_purchase-pyroxenes-package-selected-2": p_2,
+        "main_page_purchase-pyroxenes-guide-selected-2": p_2
     }
     for img_end in img_ends:
         img_possibles.pop(img_end, None)

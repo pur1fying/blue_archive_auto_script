@@ -2,8 +2,8 @@ prefix = "create"
 path = "create"
 x_y_range = {
     'crafting-list': (900, 158, 1012, 185),
-    'select-node': (1059, 630, 1184, 677),
-    'start-crafting': (1053, 630, 1180, 677),
+    'select-node': (1053, 643, 1153, 677),
+    'start-crafting': (1053, 643, 1153, 677),
     'start-crafting-notice': (470, 296, 804, 328),
 
     'point-up': (1222, 90, 1246, 117),
@@ -11,12 +11,12 @@ x_y_range = {
     'complete-instantly': (478, 261, 790, 311),
     'collect-all-rewards-grey': (1056, 598, 1184, 645),
 
-    'start-phase-1-grey': (1053, 630, 1174, 677),
-    'start-phase-1-bright': (1053, 630, 1174, 677),
-    'start-phase-2-grey': (1053, 630, 1174, 677),
-    'start-phase-2-bright': (1053, 630, 1174, 677),
-    'start-phase-3-grey': (1053, 630, 1174, 677),
-    'start-phase-3-bright': (1053, 630, 1174, 677),
+    'start-phase-1-grey': (1053, 643, 1153, 677),
+    'start-phase-1-bright': (1053, 643, 1153, 677),
+    'start-phase-2-grey': (1053, 643, 1153, 677),
+    'start-phase-2-bright': (1053, 643, 1153, 677),
+    'start-phase-3-grey': (1053, 643, 1153, 677),
+    'start-phase-3-bright': (1053, 643, 1153, 677),
 
     'phase-1-wait-to-check-node': (403, 91, 445, 129),
     'phase-2-wait-to-check-node': (166, 570, 184, 591),

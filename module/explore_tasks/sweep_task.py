@@ -155,7 +155,7 @@ def start_sweep(self: Baas_thread, skip_first_screenshot: bool = False) -> str:
     img_ends = [
         "purchase_ap_notice",
         "purchase_ap_notice-localized",
-        "normal_task_start-sweep-notice",
+        "normal_task_hard-start-sweep-notice",
         "normal_task_charge-challenge-counts",
     ]
     img_possibles = {"normal_task_task-info": (941, 411)}

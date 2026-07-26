@@ -6,6 +6,7 @@ x_y_range = {
     'start-sweep-notice': (607, 149, 676, 180),  # 开始扫荡提示
     'sweep-complete': (601, 561, 682, 604),  # 扫荡完成
     'skip-sweep-complete': (597, 488, 684, 531),  # 跳过扫荡完成
+    'hard-start-sweep-notice': (461, 479, 807, 518),
     'task-info': (578, 90, 702, 153),  # 任务信息弹窗
     'force-edit': (107, 9, 220, 36),  # 部队编辑界面
     'fight-skip': (1079, 535, 1096, 556),  # 跳过战斗
