@@ -51,6 +51,26 @@ class _WindowSignals(QObject):
     notify_signal = pyqtSignal(str)
 
 
+class _SmokeProcessFragment(process.ProcessFragment):
+    def __init__(self, parent, config, teardown_timers):
+        self._teardown_timers = teardown_timers
+        super().__init__(parent, config)
+
+    def closeEvent(self, event):
+        teardown_timer = None
+        if not self._teardown_timers:
+            teardown_timer = QTimer()
+            teardown_timer.setObjectName("smokeTeardownTimer")
+            teardown_timer.setInterval(60_000)
+            teardown_timer.start()
+            self._teardown_timers.append(teardown_timer)
+        try:
+            super().closeEvent(event)
+        finally:
+            if teardown_timer is not None:
+                teardown_timer.stop()
+
+
 def _record(func_name: str, event_name: str, priority: int) -> dict:
     return {
         "func_name": func_name,
@@ -159,14 +179,12 @@ def run_smoke() -> None:
         f"{QGuiApplication.platformName()!r}"
     )
 
-    baseline_top_levels = {
-        id(widget) for widget in QApplication.topLevelWidgets()
-    }
     original_qconfig = qconfig._cfg
     original_process_config = process.configGui
     original_feature_config = featureSwitch.configGui
     host = None
     fragment = None
+    teardown_timers = []
 
     with tempfile.TemporaryDirectory(prefix="baas-scheduler-graph-smoke-") as tmp:
         temp_root = Path(tmp)
@@ -199,16 +217,16 @@ def run_smoke() -> None:
         account.add_signal("update_signal", signals.update_signal)
         account.add_signal("notify_signal", signals.notify_signal)
         baseline_threads = set(threading.enumerate())
-        baseline_timer_identities = {
-            id(timer) for timer in _live_qtimers()
-        }
+        baseline_timers = _live_qtimers()
 
         try:
             host = QMainWindow()
             host.setObjectName("schedulerGraphSmokeHost")
             host.resize(1000, 760)
             account.set_window(host)
-            fragment = process.ProcessFragment(host, account)
+            fragment = _SmokeProcessFragment(
+                host, account, teardown_timers
+            )
             host.setCentralWidget(fragment)
             host.show()
             assert _wait_until(app, lambda: host.isVisible())
@@ -328,26 +346,60 @@ def run_smoke() -> None:
             print("PASS table sync and graph layout persistence")
 
             status_thread = fragment._status_thread
-            created_timers_by_identity = {
-                id(timer): timer
+            created_timers = [
+                timer
                 for timer in _live_qtimers()
-                if id(timer) not in baseline_timer_identities
-            }
+                if not any(
+                    timer is baseline_timer
+                    for baseline_timer in baseline_timers
+                )
+            ]
             for timer in host.findChildren(QTimer):
-                if id(timer) not in baseline_timer_identities:
-                    created_timers_by_identity[id(timer)] = timer
-            created_timers = list(created_timers_by_identity.values())
+                if (
+                    not any(
+                        timer is baseline_timer
+                        for baseline_timer in baseline_timers
+                    )
+                    and not any(
+                        timer is created_timer
+                        for created_timer in created_timers
+                    )
+                ):
+                    created_timers.append(timer)
+            assert teardown_timers == []
             fragment.close()
+            assert len(teardown_timers) == 1
             assert _wait_until(app, lambda: not status_thread.is_alive())
             assert not status_thread.is_alive()
             _close_and_delete(app, host)
             host = None
             fragment = None
+            for _ in range(3):
+                QCoreApplication.sendPostedEvents(
+                    None, QEvent.DeferredDelete
+                )
+                app.processEvents()
+                gc.collect()
+
+            post_teardown_timers = _live_qtimers()
+            new_post_teardown_timers = [
+                timer
+                for timer in post_teardown_timers
+                if not any(
+                    timer is baseline_timer
+                    for baseline_timer in baseline_timers
+                )
+            ]
+            teardown_timer = teardown_timers[0]
+            assert any(
+                timer is teardown_timer
+                for timer in new_post_teardown_timers
+            )
+            assert not teardown_timer.isActive()
             remaining_top_levels = [
                 widget
                 for widget in QApplication.topLevelWidgets()
-                if id(widget) not in baseline_top_levels
-                and not sip.isdeleted(widget)
+                if not sip.isdeleted(widget)
             ]
             assert remaining_top_levels == [], [
                 (
@@ -370,6 +422,16 @@ def run_smoke() -> None:
                 sip.isdeleted(timer) or not timer.isActive()
                 for timer in created_timers
             )
+            assert all(
+                sip.isdeleted(timer) or not timer.isActive()
+                for timer in new_post_teardown_timers
+            )
+            teardown_timer.deleteLater()
+            QCoreApplication.sendPostedEvents(
+                teardown_timer, QEvent.DeferredDelete
+            )
+            app.processEvents()
+            assert sip.isdeleted(teardown_timer)
             print(
                 "PASS fragment, Python threads, timers, and top-level "
                 "widgets stopped"
@@ -378,6 +440,12 @@ def run_smoke() -> None:
             if fragment is not None and not sip.isdeleted(fragment):
                 fragment.close()
             _close_and_delete(app, host)
+            for timer in teardown_timers:
+                if not sip.isdeleted(timer):
+                    timer.stop()
+                    timer.deleteLater()
+            QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+            app.processEvents()
             process.configGui = original_process_config
             featureSwitch.configGui = original_feature_config
             qconfig._cfg = original_qconfig
