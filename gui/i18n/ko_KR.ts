@@ -1941,6 +1941,79 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
         <source>当BAAS新增调度任务时的启用状态</source>
         <translation>BAAS에서 새로운 스케줄링 작업이 추가될 때의 활성 상태</translation>
     </message>
+    <message>
+        <location filename="../fragments/process.py" line="57"/>
+        <source>表格视图</source>
+        <translation>표 보기</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="59"/>
+        <source>图形视图</source>
+        <translation>그래프 보기</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="178"/>
+        <source>图形视图需要安装 NodeGraphQt</source>
+        <translation>그래프 보기를 사용하려면 NodeGraphQt를 설치해야 합니다</translation>
+    </message>
+</context>
+<context>
+    <name>SchedulerGraphView</name>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="27"/>
+        <source>前置任务</source>
+        <translation>선행 작업</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="28"/>
+        <source>作为前置任务</source>
+        <translation>선행 작업으로 사용</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="29"/>
+        <source>作为后置任务</source>
+        <translation>후속 작업으로 사용</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="30"/>
+        <source>后置任务</source>
+        <translation>후속 작업</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="158"/>
+        <source>启用</source>
+        <translation>활성화됨</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="159"/>
+        <source>下次执行时间</source>
+        <translation>다음 실행 시간</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="436"/>
+        <source>调度关系无效</source>
+        <translation>잘못된 스케줄러 관계</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="492"/>
+        <source>时间格式无效，请使用 YYYY-MM-DD HH:MM:SS</source>
+        <translation>시간 형식이 잘못되었습니다. YYYY-MM-DD HH:MM:SS 형식을 사용하세요</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="381"/>
+        <source>调度配置保存失败</source>
+        <translation>스케줄러 구성 저장에 실패했습니다</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="345"/>
+        <source>调度配置包含无法显示的任务关系</source>
+        <translation>스케줄러 구성에 표시할 수 없는 작업 관계가 포함되어 있습니다</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="345"/>
+        <source>调度配置中已存在循环依赖</source>
+        <translation>스케줄러 구성에 이미 순환 종속성이 있습니다</translation>
+    </message>
 </context>
 <context>
     <name>PushConfig</name>

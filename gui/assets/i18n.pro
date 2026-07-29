@@ -28,6 +28,7 @@ SOURCES += \
     ../../gui/fragments/history.py \
     ../../gui/fragments/home.py \
     ../../gui/fragments/process.py \
+    ../../gui/components/scheduler_graph.py \
     ../../gui/fragments/readme.py \
     ../../gui/fragments/settings.py \
     ../../gui/fragments/glob.py \

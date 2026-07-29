@@ -1940,6 +1940,79 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <source>当BAAS新增调度任务时的启用状态</source>
         <translation>The activation status when a new scheduling task is added in BAAS</translation>
     </message>
+    <message>
+        <location filename="../fragments/process.py" line="57"/>
+        <source>表格视图</source>
+        <translation>Table View</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="59"/>
+        <source>图形视图</source>
+        <translation>Graph View</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="178"/>
+        <source>图形视图需要安装 NodeGraphQt</source>
+        <translation>Graph View requires NodeGraphQt to be installed</translation>
+    </message>
+</context>
+<context>
+    <name>SchedulerGraphView</name>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="27"/>
+        <source>前置任务</source>
+        <translation>Prerequisite Task</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="28"/>
+        <source>作为前置任务</source>
+        <translation>Use as Prerequisite</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="29"/>
+        <source>作为后置任务</source>
+        <translation>Use as Dependent Task</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="30"/>
+        <source>后置任务</source>
+        <translation>Dependent Task</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="158"/>
+        <source>启用</source>
+        <translation>Enabled</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="159"/>
+        <source>下次执行时间</source>
+        <translation>Next Execution Time</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="436"/>
+        <source>调度关系无效</source>
+        <translation>Invalid Scheduler Relationship</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="492"/>
+        <source>时间格式无效，请使用 YYYY-MM-DD HH:MM:SS</source>
+        <translation>Invalid time format. Use YYYY-MM-DD HH:MM:SS</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="381"/>
+        <source>调度配置保存失败</source>
+        <translation>Failed to save scheduler configuration</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="345"/>
+        <source>调度配置包含无法显示的任务关系</source>
+        <translation>Scheduler configuration contains task relationships that cannot be displayed</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="345"/>
+        <source>调度配置中已存在循环依赖</source>
+        <translation>Scheduler configuration already contains a circular dependency</translation>
+    </message>
 </context>
 <context>
     <name>PushConfig</name>
