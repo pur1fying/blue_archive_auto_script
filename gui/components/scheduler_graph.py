@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-from typing import Callable, Iterator
+from typing import Callable, Iterator, Sequence
 
 from NodeGraphQt import BaseNode, NodeGraph, Port
 from NodeGraphQt.constants import PortTypeEnum
@@ -18,26 +19,79 @@ from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from gui.util.scheduler_graph_store import (
     InvalidRelationship,
-    InvalidTime,
+    SchedulerErrorCode,
     SchedulerEvent,
+    SchedulerGraphError,
     SchedulerGraphStore,
     SchedulerRelationship,
+    SchedulerWarning,
+    SchedulerWarningCode,
 )
 from gui.util.translator import baasTranslator as bt
 
 
-PRE_INPUT = "前置任务"
-PRE_OUTPUT = "作为前置任务"
-POST_INPUT = "作为后置任务"
-POST_OUTPUT = "后置任务"
-
 PRE_COLOR = (70, 155, 255)
 POST_COLOR = (255, 160, 70)
 
+_ERROR_TEMPLATES = {
+    SchedulerErrorCode.EVENT_CONFIG_READ_FAILED: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "无法读取调度事件配置。"
+    ),
+    SchedulerErrorCode.EVENT_CONFIG_INVALID_ROOT: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度事件配置的格式无效。"
+    ),
+    SchedulerErrorCode.EVENT_CONFIG_MISSING_FIELDS: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度事件配置缺少必需字段。"
+    ),
+    SchedulerErrorCode.EVENT_CONFIG_INVALID_FIELDS: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度事件配置包含无效字段值。"
+    ),
+    SchedulerErrorCode.EVENT_CONFIG_DUPLICATE_TASK: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度事件配置包含重复的任务标识“{func_name}”。"
+    ),
+    SchedulerErrorCode.INVALID_POSITIONS: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度图布局包含无效的节点坐标。"
+    ),
+    SchedulerErrorCode.UNKNOWN_TASK: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度任务“{func_name}”不存在于事件配置中。"
+    ),
+    SchedulerErrorCode.RELATIONSHIP_KIND_INVALID: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度关系类型“{kind}”无效。"
+    ),
+    SchedulerErrorCode.RELATIONSHIP_TASK_MISSING: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度关系引用了不存在的任务“{func_name}”。"
+    ),
+    SchedulerErrorCode.RELATIONSHIP_SELF_LINK: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度任务“{func_name}”不能依赖自身。"
+    ),
+    SchedulerErrorCode.RELATIONSHIP_DUPLICATE: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "任务“{owner_func}”与“{related_func}”之间已存在相同的调度关系。"
+    ),
+    SchedulerErrorCode.RELATIONSHIP_CYCLE: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "连接任务“{owner_func}”与“{related_func}”会形成循环依赖。"
+    ),
+    SchedulerErrorCode.PORT_TYPE_MISMATCH: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "只能连接或断开类型匹配的调度关系端口。"
+    ),
+    SchedulerErrorCode.INVALID_TIME: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "时间格式无效，请使用 YYYY-MM-DD HH:MM:SS。"
+    ),
+    SchedulerErrorCode.SAVE_FAILED: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度配置保存失败。"
+    ),
+    SchedulerErrorCode.GRAPH_LOAD_FAILED: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度图加载失败。"
+    ),
+}
 
-def _translate_scheduler_graph(source: str) -> str:
-    """Translate graph strings using the catalog's explicit runtime context."""
-    return QCoreApplication.translate("SchedulerGraphView", source)
+_WARNING_TEMPLATES = {
+    SchedulerWarningCode.UNKNOWN_DEPENDENCY: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "任务“{owner_func}”引用了未知的调度依赖“{related_func}”，该关系无法显示。"
+    ),
+    SchedulerWarningCode.EXISTING_CYCLE: lambda: QCoreApplication.translate(
+        "SchedulerGraphView", "调度配置中已存在循环依赖。"
+    ),
+}
 
 
 class _ImmutableNodeTextItem(NodeTextItem):
@@ -177,10 +231,18 @@ class SchedulerTaskNode(BaseNode):
         self._display_title: str | None = None
         self.create_property("func_name", "")
         self._port_labels = {
-            "pre_input": _translate_scheduler_graph(PRE_INPUT),
-            "pre_output": _translate_scheduler_graph(PRE_OUTPUT),
-            "post_input": _translate_scheduler_graph(POST_INPUT),
-            "post_output": _translate_scheduler_graph(POST_OUTPUT),
+            "pre_input": QCoreApplication.translate(
+                "SchedulerGraphView", "前置任务"
+            ),
+            "pre_output": QCoreApplication.translate(
+                "SchedulerGraphView", "作为前置任务"
+            ),
+            "post_input": QCoreApplication.translate(
+                "SchedulerGraphView", "作为后置任务"
+            ),
+            "post_output": QCoreApplication.translate(
+                "SchedulerGraphView", "后置任务"
+            ),
         }
 
         pre_input = self.add_input(
@@ -209,13 +271,17 @@ class SchedulerTaskNode(BaseNode):
             self._port_labels["post_input"], PortTypeEnum.IN.value, self.type_
         )
 
-        enabled_label = _translate_scheduler_graph("启用")
+        enabled_label = QCoreApplication.translate(
+            "SchedulerGraphView", "启用"
+        )
         self.add_checkbox(
             "enabled", label=enabled_label, text=enabled_label, state=False
         )
         self.add_text_input(
             "next_tick",
-            label=_translate_scheduler_graph("下次执行时间"),
+            label=QCoreApplication.translate(
+                "SchedulerGraphView", "下次执行时间"
+            ),
             text="",
         )
 
@@ -352,6 +418,16 @@ class FixedNodeGraph(NodeGraph):
         return None
 
 
+@dataclass
+class _SchedulerGraphState:
+    graph: FixedNodeGraph
+    nodes_by_func: dict[str, SchedulerTaskNode]
+    ports_by_func_role: dict[tuple[str, str], Port]
+    port_identities: dict[Port, tuple[str, str]]
+    persisted_enabled: dict[str, bool]
+    persisted_times: dict[str, str]
+
+
 class SchedulerGraphView(QWidget):
     data_changed = pyqtSignal()
     error_occurred = pyqtSignal(str)
@@ -371,7 +447,7 @@ class SchedulerGraphView(QWidget):
         self._persisted_enabled: dict[str, bool] = {}
         self._persisted_times: dict[str, str] = {}
         self._suppression_depth = 0
-        self._last_layout_error: str | None = None
+        self._last_layout_error: SchedulerGraphError | None = None
         self.graph: FixedNodeGraph | None = None
 
         self._layout = QVBoxLayout(self)
@@ -397,67 +473,104 @@ class SchedulerGraphView(QWidget):
             layout_error = self._last_layout_error
 
         try:
-            events = self._store.load_events()
-            relationships, warnings = self._store.load_relationships()
+            snapshot = self._store.load_snapshot()
         except Exception as exc:
-            self._show_error(exc)
+            self._show_error(
+                exc, fallback_code=SchedulerErrorCode.GRAPH_LOAD_FAILED
+            )
+            return
+
+        try:
+            replacement = self._build_graph_state(
+                snapshot.events,
+                snapshot.relationships,
+            )
+        except Exception as exc:
+            self._show_error(
+                exc, fallback_code=SchedulerErrorCode.GRAPH_LOAD_FAILED
+            )
             return
 
         old_graph = self.graph
-        old_widget = old_graph.widget if old_graph is not None else None
-
-        graph = FixedNodeGraph(parent=self)
-        graph.set_acyclic(False)
-        graph.register_node(SchedulerTaskNode)
-        graph.disable_context_menu(True)
-        graph.viewer().setAcceptDrops(False)
-        graph.port_connected.connect(self._on_port_connected)
-        graph.port_disconnected.connect(self._on_port_disconnected)
-
-        self.graph = graph
-        self._nodes_by_func = {}
-        self._ports_by_func_role = {}
-        self._port_identities = {}
-        self._persisted_enabled = {}
-        self._persisted_times = {}
-        self._layout.addWidget(graph.widget)
-
-        with self._suppress_graph_events():
-            with graph._controlled_node_construction():
-                self._create_nodes(events)
-            self._restore_or_arrange_positions()
-            self._draw_relationships(relationships)
-        graph.undo_stack().clear()
-
-        if old_graph is not None and old_widget is not None:
-            self._layout.removeWidget(old_widget)
-            old_widget.close()
-            old_widget.setParent(None)
-            old_widget.deleteLater()
-            old_graph.deleteLater()
+        self.graph = replacement.graph
+        self._nodes_by_func = replacement.nodes_by_func
+        self._ports_by_func_role = replacement.ports_by_func_role
+        self._port_identities = replacement.port_identities
+        self._persisted_enabled = replacement.persisted_enabled
+        self._persisted_times = replacement.persisted_times
+        self._layout.addWidget(replacement.graph.widget)
+        if old_graph is not None:
+            self._dispose_graph(old_graph)
 
         if layout_error is not None:
             warning_text = "\n".join(
-                self._translated_warning(warning) for warning in warnings
+                self._translated_warning(warning)
+                for warning in snapshot.warnings
             )
+            layout_error_text = self._translated_error(layout_error)
             message = (
-                f"{layout_error}\n{warning_text}"
+                f"{layout_error_text}\n{warning_text}"
                 if warning_text
-                else layout_error
+                else layout_error_text
             )
             self._message_label.setStyleSheet("color: #d13438;")
             self._message_label.setText(message)
             self._message_label.show()
             if warning_text:
                 self.warning_occurred.emit(warning_text)
-        elif warnings:
+        elif snapshot.warnings:
             self._show_warning(
                 "\n".join(
-                    self._translated_warning(warning) for warning in warnings
+                    self._translated_warning(warning)
+                    for warning in snapshot.warnings
                 )
             )
         else:
             self._clear_message()
+
+    def _build_graph_state(
+        self,
+        events: Sequence[SchedulerEvent],
+        relationships: Sequence[SchedulerRelationship],
+    ) -> _SchedulerGraphState:
+        graph = FixedNodeGraph(parent=self)
+        state = _SchedulerGraphState(
+            graph=graph,
+            nodes_by_func={},
+            ports_by_func_role={},
+            port_identities={},
+            persisted_enabled={},
+            persisted_times={},
+        )
+        try:
+            graph.set_acyclic(False)
+            graph.register_node(SchedulerTaskNode)
+            graph.disable_context_menu(True)
+            graph.viewer().setAcceptDrops(False)
+            graph.port_connected.connect(self._on_port_connected)
+            graph.port_disconnected.connect(self._on_port_disconnected)
+
+            with self._suppress_graph_events():
+                with graph._controlled_node_construction():
+                    self._create_nodes(events, state)
+                self._restore_or_arrange_positions(state)
+                self._draw_relationships(
+                    relationships, state.ports_by_func_role
+                )
+            graph.undo_stack().clear()
+        except BaseException:
+            self._dispose_graph(graph)
+            raise
+        return state
+
+    def _dispose_graph(self, graph: FixedNodeGraph) -> None:
+        widget = graph.widget
+        if self._layout.indexOf(widget) >= 0:
+            self._layout.removeWidget(widget)
+        widget.close()
+        widget.setParent(None)
+        widget.deleteLater()
+        graph.deleteLater()
 
     def save_layout(self) -> None:
         self._last_layout_error = None
@@ -470,18 +583,23 @@ class SchedulerGraphView(QWidget):
         try:
             self._store.save_positions(positions)
         except Exception as exc:
-            self._last_layout_error = str(exc) or exc.__class__.__name__
-            self._show_error(exc)
+            self._last_layout_error = self._structured_error(
+                exc, fallback_code=SchedulerErrorCode.SAVE_FAILED
+            )
+            self._show_error(self._last_layout_error)
 
     def hideEvent(self, event: QHideEvent) -> None:
         self.save_layout()
         super().hideEvent(event)
 
-    def _create_nodes(self, events: list[SchedulerEvent]) -> None:
-        assert self.graph is not None
+    def _create_nodes(
+        self,
+        events: Sequence[SchedulerEvent],
+        state: _SchedulerGraphState,
+    ) -> None:
         for event in events:
             title = bt.tr("ConfigTranslation", event.event_name)
-            node = self.graph.create_node(
+            node = state.graph.create_node(
                 SchedulerTaskNode.type_,
                 name=title,
                 selected=False,
@@ -495,14 +613,17 @@ class SchedulerGraphView(QWidget):
             node.set_property("enabled", event.enabled, push_undo=False)
             node.set_property("next_tick", time_text, push_undo=False)
 
-            self._nodes_by_func[event.func_name] = node
-            self._persisted_enabled[event.func_name] = event.enabled
-            self._persisted_times[event.func_name] = time_text
-            self._register_ports(event.func_name, node)
+            state.nodes_by_func[event.func_name] = node
+            state.persisted_enabled[event.func_name] = event.enabled
+            state.persisted_times[event.func_name] = time_text
+            self._register_ports(event.func_name, node, state)
             self._wire_embedded_widgets(event.func_name, node)
 
     def _register_ports(
-        self, func_name: str, node: SchedulerTaskNode
+        self,
+        func_name: str,
+        node: SchedulerTaskNode,
+        state: _SchedulerGraphState,
     ) -> None:
         ports = {
             "pre_input": node.inputs()[node.port_label("pre_input")],
@@ -511,8 +632,8 @@ class SchedulerGraphView(QWidget):
             "post_output": node.outputs()[node.port_label("post_output")],
         }
         for role, port in ports.items():
-            self._ports_by_func_role[(func_name, role)] = port
-            self._port_identities[port] = (func_name, role)
+            state.ports_by_func_role[(func_name, role)] = port
+            state.port_identities[port] = (func_name, role)
 
     def _wire_embedded_widgets(
         self, func_name: str, node: SchedulerTaskNode
@@ -526,28 +647,31 @@ class SchedulerGraphView(QWidget):
             partial(self._on_next_tick_finished, func_name, node, line_edit)
         )
 
-    def _restore_or_arrange_positions(self) -> None:
-        assert self.graph is not None
+    def _restore_or_arrange_positions(
+        self, state: _SchedulerGraphState
+    ) -> None:
         positions = self._store.load_positions()
         has_complete_layout = bool(positions) and all(
-            func_name in positions for func_name in self._nodes_by_func
+            func_name in positions for func_name in state.nodes_by_func
         )
         if has_complete_layout:
-            for func_name, node in self._nodes_by_func.items():
+            for func_name, node in state.nodes_by_func.items():
                 node.set_pos(*positions[func_name])
             return
-        self.graph.auto_layout_nodes()
+        state.graph.auto_layout_nodes()
 
     def _draw_relationships(
-        self, relationships: list[SchedulerRelationship]
+        self,
+        relationships: Sequence[SchedulerRelationship],
+        ports_by_func_role: dict[tuple[str, str], Port],
     ) -> None:
         for relationship in relationships:
             output_role = f"{relationship.kind}_output"
             input_role = f"{relationship.kind}_input"
-            output_port = self._ports_by_func_role[
+            output_port = ports_by_func_role[
                 (relationship.source_func, output_role)
             ]
-            input_port = self._ports_by_func_role[
+            input_port = ports_by_func_role[
                 (relationship.target_func, input_role)
             ]
             output_port.connect_to(
@@ -563,7 +687,9 @@ class SchedulerGraphView(QWidget):
         if relationship is None:
             self._rollback_connection(input_port, output_port, connected=False)
             self._show_error(
-                ValueError("Only matching scheduler relationship ports can connect.")
+                InvalidRelationship(
+                    SchedulerErrorCode.PORT_TYPE_MISMATCH
+                )
             )
             return
         kind, owner_func, related_func = relationship
@@ -584,8 +710,8 @@ class SchedulerGraphView(QWidget):
         if relationship is None:
             self._rollback_connection(input_port, output_port, connected=True)
             self._show_error(
-                ValueError(
-                    "Only matching scheduler relationship ports can disconnect."
+                InvalidRelationship(
+                    SchedulerErrorCode.PORT_TYPE_MISMATCH
                 )
             )
             return
@@ -706,37 +832,46 @@ class SchedulerGraphView(QWidget):
         finally:
             self._suppression_depth -= 1
 
-    def _show_error(self, error: Exception) -> None:
-        detail = str(error) or error.__class__.__name__
-        if isinstance(error, (InvalidRelationship, ValueError)):
-            category = _translate_scheduler_graph("调度关系无效")
-        elif isinstance(error, InvalidTime):
-            category = _translate_scheduler_graph(
-                "时间格式无效，请使用 YYYY-MM-DD HH:MM:SS"
+    @staticmethod
+    def _structured_error(
+        error: Exception,
+        *,
+        fallback_code: SchedulerErrorCode | None = None,
+    ) -> SchedulerGraphError:
+        if isinstance(error, SchedulerGraphError):
+            return error
+        if fallback_code is None:
+            fallback_code = (
+                SchedulerErrorCode.SAVE_FAILED
+                if isinstance(error, OSError)
+                else SchedulerErrorCode.GRAPH_LOAD_FAILED
             )
-        elif isinstance(error, OSError):
-            category = _translate_scheduler_graph("调度配置保存失败")
-        else:
-            category = None
-        message = f"{category}: {detail}" if category else detail
+        return SchedulerGraphError(fallback_code)
+
+    @staticmethod
+    def _translated_error(error: SchedulerGraphError) -> str:
+        template = _ERROR_TEMPLATES[error.code]()
+        return template.format(**error.parameters)
+
+    def _show_error(
+        self,
+        error: Exception,
+        *,
+        fallback_code: SchedulerErrorCode | None = None,
+    ) -> None:
+        structured_error = self._structured_error(
+            error, fallback_code=fallback_code
+        )
+        message = self._translated_error(structured_error)
         self._message_label.setStyleSheet("color: #d13438;")
         self._message_label.setText(message)
         self._message_label.show()
         self.error_occurred.emit(message)
 
     @staticmethod
-    def _translated_warning(message: str) -> str:
-        if message.startswith("Unknown scheduler dependency"):
-            category = _translate_scheduler_graph(
-                "调度配置包含无法显示的任务关系"
-            )
-            return f"{category}: {message}"
-        if message.startswith("Scheduler dependency cycle detected"):
-            category = _translate_scheduler_graph(
-                "调度配置中已存在循环依赖"
-            )
-            return f"{category}: {message}"
-        return message
+    def _translated_warning(warning: SchedulerWarning) -> str:
+        template = _WARNING_TEMPLATES[warning.code]()
+        return template.format(**warning.parameters)
 
     def _show_warning(self, message: str) -> None:
         self._message_label.setStyleSheet("color: #d99b00;")

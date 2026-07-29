@@ -32,11 +32,45 @@ REQUIRED_CONTEXT_SOURCES = {
     ("SchedulerGraphView", "作为后置任务"),
     ("SchedulerGraphView", "启用"),
     ("SchedulerGraphView", "下次执行时间"),
-    ("SchedulerGraphView", "调度关系无效"),
-    ("SchedulerGraphView", "时间格式无效，请使用 YYYY-MM-DD HH:MM:SS"),
-    ("SchedulerGraphView", "调度配置保存失败"),
-    ("SchedulerGraphView", "调度配置包含无法显示的任务关系"),
-    ("SchedulerGraphView", "调度配置中已存在循环依赖"),
+    ("SchedulerGraphView", "无法读取调度事件配置。"),
+    ("SchedulerGraphView", "调度事件配置的格式无效。"),
+    ("SchedulerGraphView", "调度事件配置缺少必需字段。"),
+    ("SchedulerGraphView", "调度事件配置包含无效字段值。"),
+    (
+        "SchedulerGraphView",
+        "调度事件配置包含重复的任务标识“{func_name}”。",
+    ),
+    ("SchedulerGraphView", "调度图布局包含无效的节点坐标。"),
+    (
+        "SchedulerGraphView",
+        "调度任务“{func_name}”不存在于事件配置中。",
+    ),
+    ("SchedulerGraphView", "调度关系类型“{kind}”无效。"),
+    (
+        "SchedulerGraphView",
+        "调度关系引用了不存在的任务“{func_name}”。",
+    ),
+    ("SchedulerGraphView", "调度任务“{func_name}”不能依赖自身。"),
+    (
+        "SchedulerGraphView",
+        "任务“{owner_func}”与“{related_func}”之间已存在相同的调度关系。",
+    ),
+    (
+        "SchedulerGraphView",
+        "连接任务“{owner_func}”与“{related_func}”会形成循环依赖。",
+    ),
+    ("SchedulerGraphView", "只能连接或断开类型匹配的调度关系端口。"),
+    (
+        "SchedulerGraphView",
+        "时间格式无效，请使用 YYYY-MM-DD HH:MM:SS。",
+    ),
+    ("SchedulerGraphView", "调度配置保存失败。"),
+    ("SchedulerGraphView", "调度图加载失败。"),
+    (
+        "SchedulerGraphView",
+        "任务“{owner_func}”引用了未知的调度依赖“{related_func}”，该关系无法显示。",
+    ),
+    ("SchedulerGraphView", "调度配置中已存在循环依赖。"),
 }
 EXPECTED = {
     "en_US": {
@@ -48,36 +82,103 @@ EXPECTED = {
         ),
         "enabled": "Enabled",
         "next_tick": "Next Execution Time",
-        "relationship": "Invalid Scheduler Relationship",
-        "time": "Invalid time format. Use YYYY-MM-DD HH:MM:SS",
-        "save": "Failed to save scheduler configuration",
-        "unavailable": (
-            "Scheduler configuration contains task relationships that "
-            "cannot be displayed"
+        "invalid_config": (
+            "Scheduler event configuration is missing required fields."
         ),
-        "cycle": "Scheduler configuration already contains a circular dependency",
+        "self_link": (
+            "Scheduler task “{func_name}” cannot depend on itself."
+        ),
+        "duplicate": (
+            "The same scheduler relationship between “{owner_func}” and "
+            "“{related_func}” already exists."
+        ),
+        "cycle_error": (
+            "Connecting tasks “{owner_func}” and “{related_func}” would "
+            "create a scheduler cycle."
+        ),
+        "missing_task": (
+            "Scheduler task “{func_name}” does not exist in the event "
+            "configuration."
+        ),
+        "time": "Invalid time format. Use YYYY-MM-DD HH:MM:SS.",
+        "save": "Failed to save scheduler configuration.",
+        "unknown_dependency": (
+            "Task “{owner_func}” references unknown scheduler dependency "
+            "“{related_func}”; this relationship cannot be displayed."
+        ),
+        "existing_cycle": (
+            "Scheduler configuration already contains a circular dependency."
+        ),
     },
     "ja_JP": {
         "ports": ("前提タスク", "後続タスクとして使用", "前提タスクとして使用", "後続タスク"),
         "enabled": "有効",
         "next_tick": "次回実行時刻",
-        "relationship": "スケジューラー関係が無効です",
-        "time": "時刻の形式が無効です。YYYY-MM-DD HH:MM:SS を使用してください",
-        "save": "スケジューラー設定の保存に失敗しました",
-        "unavailable": "スケジューラー設定には表示できないタスク関係が含まれています",
-        "cycle": "スケジューラー設定に循環依存が既に存在します",
+        "invalid_config": "スケジューラーイベント設定に必須フィールドがありません。",
+        "self_link": "スケジューラータスク「{func_name}」は自身に依存できません。",
+        "duplicate": (
+            "「{owner_func}」と「{related_func}」の間には同じ"
+            "スケジューラー関係が既に存在します。"
+        ),
+        "cycle_error": (
+            "タスク「{owner_func}」と「{related_func}」を接続すると"
+            "循環依存が発生します。"
+        ),
+        "missing_task": (
+            "スケジューラーイベント設定にタスク「{func_name}」が"
+            "存在しません。"
+        ),
+        "time": "時刻の形式が無効です。YYYY-MM-DD HH:MM:SS を使用してください。",
+        "save": "スケジューラー設定の保存に失敗しました。",
+        "unknown_dependency": (
+            "タスク「{owner_func}」は不明なスケジューラー依存先"
+            "「{related_func}」を参照しているため、この関係は表示できません。"
+        ),
+        "existing_cycle": "スケジューラー設定には循環依存が既に存在します。",
     },
     "ko_KR": {
         "ports": ("선행 작업", "후속 작업으로 사용", "선행 작업으로 사용", "후속 작업"),
         "enabled": "활성화됨",
         "next_tick": "다음 실행 시간",
-        "relationship": "잘못된 스케줄러 관계",
-        "time": "시간 형식이 잘못되었습니다. YYYY-MM-DD HH:MM:SS 형식을 사용하세요",
-        "save": "스케줄러 구성 저장에 실패했습니다",
-        "unavailable": "스케줄러 구성에 표시할 수 없는 작업 관계가 포함되어 있습니다",
-        "cycle": "스케줄러 구성에 이미 순환 종속성이 있습니다",
+        "invalid_config": "스케줄러 이벤트 구성에 필수 필드가 없습니다.",
+        "self_link": (
+            "스케줄러 작업 ‘{func_name}’에 자기 자신을 종속 작업으로 "
+            "지정할 수 없습니다."
+        ),
+        "duplicate": (
+            "‘{owner_func}’ 작업과 ‘{related_func}’ 작업 사이에 동일한 "
+            "스케줄러 관계가 이미 있습니다."
+        ),
+        "cycle_error": (
+            "‘{owner_func}’ 작업과 ‘{related_func}’ 작업을 연결하면 "
+            "순환 종속성이 생성됩니다."
+        ),
+        "missing_task": (
+            "스케줄러 이벤트 구성에서 ‘{func_name}’ 작업을 찾을 수 없습니다."
+        ),
+        "time": (
+            "시간 형식이 잘못되었습니다. YYYY-MM-DD HH:MM:SS 형식을 "
+            "사용하세요."
+        ),
+        "save": "스케줄러 구성을 저장하지 못했습니다.",
+        "unknown_dependency": (
+            "‘{owner_func}’ 작업에서 참조하는 스케줄러 종속성 "
+            "‘{related_func}’을 찾을 수 없어 이 관계를 표시할 수 없습니다."
+        ),
+        "existing_cycle": "스케줄러 구성에 이미 순환 종속성이 있습니다.",
     },
 }
+RAW_ENGLISH_DIAGNOSTICS = (
+    "Event record is missing scheduler fields.",
+    "A scheduler task cannot depend on itself.",
+    "The same dependency metadata already exists.",
+    "The dependency would close a scheduler cycle.",
+    "Unknown scheduler task",
+    "Time must use YYYY-MM-DD HH:MM:SS local time.",
+    "Unknown scheduler dependency",
+    "Scheduler dependency cycle detected",
+    "simulated",
+)
 
 
 def _catalog_messages(path: Path):
@@ -153,6 +254,12 @@ def _close_view(view, app):
     app.processEvents()
 
 
+def _assert_no_raw_english_diagnostic(locale, message):
+    if locale == "en_US":
+        return
+    assert all(text not in message for text in RAW_ENGLISH_DIAGNOSTICS)
+
+
 @pytest.mark.parametrize("locale", LOCALES)
 def test_scheduler_graph_qm_translates_rendered_port_and_embedded_labels(
     app, tmp_path, locale
@@ -195,8 +302,14 @@ def test_scheduler_graph_qm_categorizes_real_mutation_failures(
             )
             app.processEvents()
             assert len(errors) == 1
-            assert view._message_label.text().startswith(
-                EXPECTED[locale]["relationship"]
+            assert view._message_label.text() == EXPECTED[locale][
+                "cycle_error"
+            ].format(
+                owner_func="b",
+                related_func="a",
+            )
+            _assert_no_raw_english_diagnostic(
+                locale, view._message_label.text()
             )
 
             line_edit = view.node_for_func("a").get_widget(
@@ -206,8 +319,9 @@ def test_scheduler_graph_qm_categorizes_real_mutation_failures(
             line_edit.editingFinished.emit()
             app.processEvents()
             assert len(errors) == 2
-            assert view._message_label.text().startswith(
-                EXPECTED[locale]["time"]
+            assert view._message_label.text() == EXPECTED[locale]["time"]
+            _assert_no_raw_english_diagnostic(
+                locale, view._message_label.text()
             )
 
             blocked_path = tmp_path / "blocked-save-target"
@@ -215,11 +329,76 @@ def test_scheduler_graph_qm_categorizes_real_mutation_failures(
             view._store.graph_path = blocked_path
             view.save_layout()
             assert len(errors) == 3
-            assert view._message_label.text().startswith(
-                EXPECTED[locale]["save"]
+            assert view._message_label.text() == EXPECTED[locale]["save"]
+            _assert_no_raw_english_diagnostic(
+                locale, view._message_label.text()
             )
         finally:
             _close_view(view, app)
+
+
+@pytest.mark.parametrize("locale", LOCALES)
+def test_scheduler_graph_qm_translates_complete_structured_store_errors(
+    app, tmp_path, locale
+):
+    _write_events(
+        tmp_path,
+        [_record("a", "Task A"), _record("b", "Task B")],
+    )
+    with _installed_translator(app, locale):
+        view = SchedulerGraphView(tmp_path)
+        try:
+            errors = QSignalSpy(view.error_occurred)
+
+            view.port_for("a", "post_output").connect_to(
+                view.port_for("a", "post_input")
+            )
+            app.processEvents()
+            assert len(errors) == 1
+            assert view._message_label.text() == EXPECTED[locale][
+                "self_link"
+            ].format(func_name="a")
+
+            view.port_for("a", "post_output").connect_to(
+                view.port_for("b", "post_input")
+            )
+            with pytest.raises(Exception) as duplicate:
+                view._store.add_relationship("post", "a", "b")
+            view._show_error(duplicate.value)
+            assert len(errors) == 2
+            assert view._message_label.text() == EXPECTED[locale][
+                "duplicate"
+            ].format(owner_func="a", related_func="b")
+
+            with pytest.raises(Exception) as missing:
+                view._store.update_enabled("missing", False)
+            view._show_error(missing.value)
+            assert len(errors) == 3
+            assert view._message_label.text() == EXPECTED[locale][
+                "missing_task"
+            ].format(func_name="missing")
+
+            _assert_no_raw_english_diagnostic(
+                locale, "\n".join(str(item[0]) for item in errors)
+            )
+        finally:
+            _close_view(view, app)
+
+
+@pytest.mark.parametrize("locale", LOCALES)
+def test_scheduler_graph_qm_translates_complete_invalid_config_error(
+    app, tmp_path, locale
+):
+    _write_events(tmp_path, [{"func_name": "broken"}])
+
+    with _installed_translator(app, locale):
+        view = SchedulerGraphView(tmp_path)
+    try:
+        message = view._message_label.text()
+        assert message == EXPECTED[locale]["invalid_config"]
+        _assert_no_raw_english_diagnostic(locale, message)
+    finally:
+        _close_view(view, app)
 
 
 @pytest.mark.parametrize("locale", LOCALES)
@@ -237,8 +416,15 @@ def test_scheduler_graph_qm_categorizes_existing_configuration_warnings(
     with _installed_translator(app, locale):
         view = SchedulerGraphView(tmp_path)
     try:
-        unavailable, cycle = view._message_label.text().splitlines()
-        assert unavailable.startswith(EXPECTED[locale]["unavailable"])
-        assert cycle.startswith(EXPECTED[locale]["cycle"])
+        unknown_dependency, existing_cycle = (
+            view._message_label.text().splitlines()
+        )
+        assert unknown_dependency == EXPECTED[locale][
+            "unknown_dependency"
+        ].format(owner_func="a", related_func="missing")
+        assert existing_cycle == EXPECTED[locale]["existing_cycle"]
+        _assert_no_raw_english_diagnostic(
+            locale, view._message_label.text()
+        )
     finally:
         _close_view(view, app)

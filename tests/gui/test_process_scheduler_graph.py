@@ -1,4 +1,6 @@
+import gc
 import json
+import threading
 from datetime import datetime
 from pathlib import Path
 
@@ -426,6 +428,128 @@ def test_direct_deferred_delete_saves_latest_layout_without_touching_events(
     assert _read_events(config_dir) == event_records
     host.close()
     host.deleteLater()
+
+
+def test_parent_owned_destruction_joins_real_worker_without_late_update(
+    app, tmp_path, monkeypatch
+):
+    gui_config = _GuiConfig()
+    monkeypatch.setattr(process, "configGui", gui_config)
+    monkeypatch.setattr(featureSwitch, "configGui", gui_config)
+    config_dir = tmp_path / "parent-owned-worker"
+    _write_events(config_dir)
+    account = _AccountConfig(config_dir)
+    collected = threading.Event()
+    collection_threads = []
+    applied_updates = []
+
+    class _ObservedFragment(process.ProcessFragment):
+        def _collect_status(self):
+            collection_threads.append(threading.current_thread())
+            collected.set()
+            return "worker task", ("queued task",)
+
+        def _apply_status_update(self, current_task, task_list):
+            applied_updates.append((current_task, task_list))
+
+    host = QWidget()
+    fragment = _ObservedFragment(host, account)
+    account.window = host
+    status_thread = fragment._status_thread
+    try:
+        assert collected.wait(2)
+        assert collection_threads == [status_thread]
+        assert status_thread.is_alive()
+        assert applied_updates == []
+
+        host.deleteLater()
+        QCoreApplication.sendPostedEvents(host, QEvent.DeferredDelete)
+        app.processEvents()
+
+        assert sip.isdeleted(host)
+        assert sip.isdeleted(fragment)
+        assert not status_thread.is_alive()
+        assert applied_updates == []
+    finally:
+        fragment._status_stop.set()
+        status_thread.join(3)
+        if not sip.isdeleted(host):
+            host.close()
+            host.deleteLater()
+            QCoreApplication.sendPostedEvents(host, QEvent.DeferredDelete)
+        app.processEvents()
+
+
+@pytest.mark.parametrize("initially_enabled", [True, False])
+def test_lazy_graph_import_suppresses_gc_only_during_successful_import(
+    integration, app, monkeypatch, initially_enabled
+):
+    build, _gui_config, _started_threads = integration
+    fragment, _account, _config_dir = build()
+    original_gc_enabled = gc.isenabled()
+    real_collect = gc.collect
+    real_import = process.import_module
+    collect_states = []
+    import_states = []
+
+    def recording_collect():
+        collect_states.append(gc.isenabled())
+        return real_collect()
+
+    def recording_import(module_name):
+        import_states.append(gc.isenabled())
+        module = real_import(module_name)
+        gc.enable()
+        return module
+
+    monkeypatch.setattr(process.gc, "collect", recording_collect)
+    monkeypatch.setattr(process, "import_module", recording_import)
+    gc.enable() if initially_enabled else gc.disable()
+    try:
+        _click_graph(fragment, app)
+
+        assert fragment.graph_view is not None
+        assert import_states == [False]
+        assert collect_states == ([True] if initially_enabled else [])
+        assert gc.isenabled() is initially_enabled
+    finally:
+        gc.enable() if original_gc_enabled else gc.disable()
+
+
+@pytest.mark.parametrize("initially_enabled", [True, False])
+def test_lazy_graph_import_restores_gc_after_missing_dependency(
+    integration, app, monkeypatch, initially_enabled
+):
+    build, _gui_config, _started_threads = integration
+    fragment, _account, _config_dir = build()
+    original_gc_enabled = gc.isenabled()
+    real_collect = gc.collect
+    collect_states = []
+    import_states = []
+
+    def recording_collect():
+        collect_states.append(gc.isenabled())
+        return real_collect()
+
+    def unavailable(_module_name):
+        import_states.append(gc.isenabled())
+        gc.enable()
+        raise ModuleNotFoundError(
+            "No module named 'NodeGraphQt'", name="NodeGraphQt"
+        )
+
+    monkeypatch.setattr(process.gc, "collect", recording_collect)
+    monkeypatch.setattr(process, "import_module", unavailable)
+    gc.enable() if initially_enabled else gc.disable()
+    try:
+        _click_graph(fragment, app)
+
+        assert fragment.graph_view is None
+        assert import_states == [False]
+        assert collect_states == ([True] if initially_enabled else [])
+        assert gc.isenabled() is initially_enabled
+    finally:
+        gc.enable() if original_gc_enabled else gc.disable()
 
 
 def test_missing_nodegraphqt_reports_translated_error_and_table_stays_editable(

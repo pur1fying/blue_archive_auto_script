@@ -25,6 +25,7 @@ from gui.components.scheduler_graph import (
 )
 from gui.util.scheduler_graph_store import (
     InvalidRelationship,
+    SchedulerErrorCode,
     SchedulerGraphStore,
 )
 
@@ -158,6 +159,67 @@ def _build_view(config_dir, managed_views):
     view = SchedulerGraphView(config_dir, store_factory=store_factory)
     managed_views.append(view)
     return view, stores[0]
+
+
+def test_graph_builds_and_displays_legacy_finite_float_next_tick(
+    tmp_path, managed_views
+):
+    legacy_timestamp = DISPLAY_TIMESTAMP + 0.5
+    _write_events(
+        tmp_path,
+        [_record("a", "Task A", next_tick=legacy_timestamp)],
+    )
+
+    view, _store = _build_view(tmp_path, managed_views)
+
+    node = view.node_for_func("a")
+    assert node is not None
+    assert _widget(node, "next_tick").text() == DISPLAY_TIME
+    assert _read_events(tmp_path)[0]["next_tick"] == legacy_timestamp
+    assert isinstance(_read_events(tmp_path)[0]["next_tick"], float)
+
+
+def test_view_reload_uses_only_one_store_snapshot(
+    tmp_path, managed_views
+):
+    _write_events(
+        tmp_path,
+        [
+            _record("a", "Task A", post_task=["b"]),
+            _record("b", "Task B"),
+        ],
+    )
+    stores = []
+
+    class _SnapshotOnlyStore(SchedulerGraphStore):
+        def __init__(self, config_dir):
+            super().__init__(config_dir)
+            self.snapshot_calls = 0
+
+        def load_snapshot(self):
+            self.snapshot_calls += 1
+            return super().load_snapshot()
+
+        def load_events(self):
+            raise AssertionError("reload must not load events separately")
+
+        def load_relationships(self):
+            raise AssertionError(
+                "reload must not load relationships separately"
+            )
+
+    def store_factory(path):
+        store = _SnapshotOnlyStore(path)
+        stores.append(store)
+        return store
+
+    view = SchedulerGraphView(tmp_path, store_factory=store_factory)
+    managed_views.append(view)
+
+    assert stores[0].snapshot_calls == 1
+    assert {node.func_name for node in view.graph.all_nodes()} == {"a", "b"}
+    output_port, input_port = _ports(view, "post")
+    assert _is_connected(output_port, input_port)
 
 
 def _widget(node, property_name):
@@ -734,14 +796,29 @@ def test_disconnect_uses_exact_store_mapping_and_emits_data_changed(
 
 
 @pytest.mark.parametrize(
-    "failure",
+    ("failure", "expected_message"),
     [
-        InvalidRelationship("rejected relationship"),
-        OSError("simulated add write failure"),
+        (
+            InvalidRelationship(
+                SchedulerErrorCode.RELATIONSHIP_CYCLE,
+                owner_func="b",
+                related_func="a",
+            ),
+            "连接任务“b”与“a”会形成循环依赖。",
+        ),
+        (
+            OSError("simulated add write failure"),
+            "调度配置保存失败。",
+        ),
     ],
 )
 def test_failed_connect_rolls_back_only_new_relationship_and_reports_error(
-    app, tmp_path, managed_views, monkeypatch, failure
+    app,
+    tmp_path,
+    managed_views,
+    monkeypatch,
+    failure,
+    expected_message,
 ):
     _write_events(
         tmp_path,
@@ -767,19 +844,33 @@ def test_failed_connect_rolls_back_only_new_relationship_and_reports_error(
     assert _is_connected(post_output, post_input)
     assert view.graph.undo_stack().count() == 0
     assert len(errors) == 1
-    assert str(failure) in _message(view).text()
+    assert _message(view).text() == expected_message
     assert len(changed) == 0
 
 
 @pytest.mark.parametrize(
-    "failure",
+    ("failure", "expected_message"),
     [
-        InvalidRelationship("rejected removal"),
-        OSError("simulated remove write failure"),
+        (
+            InvalidRelationship(
+                SchedulerErrorCode.RELATIONSHIP_TASK_MISSING,
+                func_name="missing",
+            ),
+            "调度关系引用了不存在的任务“missing”。",
+        ),
+        (
+            OSError("simulated remove write failure"),
+            "调度配置保存失败。",
+        ),
     ],
 )
 def test_failed_disconnect_restores_only_removed_relationship_and_reports_error(
-    app, tmp_path, managed_views, monkeypatch, failure
+    app,
+    tmp_path,
+    managed_views,
+    monkeypatch,
+    failure,
+    expected_message,
 ):
     _write_events(
         tmp_path,
@@ -807,7 +898,7 @@ def test_failed_disconnect_restores_only_removed_relationship_and_reports_error(
     assert _is_connected(post_output, post_input)
     assert view.graph.undo_stack().count() == 0
     assert len(errors) == 1
-    assert str(failure) in _message(view).text()
+    assert _message(view).text() == expected_message
     assert len(changed) == 0
 
 
@@ -839,21 +930,28 @@ def test_checkbox_and_time_commit_only_on_deliberate_boundaries(
     )
 
 
-def test_invalid_time_restores_last_persisted_text_without_data_change(
-    app, config_dir, managed_views
+@pytest.mark.parametrize(
+    "edited_time",
+    ["not a scheduler time", "0001-01-01 00:00:00"],
+)
+def test_invalid_time_restores_last_persisted_text_with_localized_error(
+    app, config_dir, managed_views, edited_time
 ):
     view, _store = _build_view(config_dir, managed_views)
     line_edit = _widget(view.node_for_func("a"), "next_tick")
     errors = QSignalSpy(view.error_occurred)
     changed = QSignalSpy(view.data_changed)
 
-    line_edit.setText("not a scheduler time")
+    line_edit.setText(edited_time)
     line_edit.editingFinished.emit()
     app.processEvents()
 
     assert line_edit.text() == DISPLAY_TIME
     assert view.graph.undo_stack().count() == 0
     assert len(errors) == 1
+    assert _message(view).text() == (
+        "时间格式无效，请使用 YYYY-MM-DD HH:MM:SS。"
+    )
     assert len(changed) == 0
     assert _read_events(config_dir)[0]["next_tick"] == DISPLAY_TIMESTAMP
 
@@ -921,9 +1019,10 @@ def test_existing_cycle_and_unknown_dependency_warn_without_mutating_events(
 
     view, store = _build_view(tmp_path, managed_views)
 
-    message = _message(view).text().lower()
-    assert "cycle" in message
-    assert "unknown" in message
+    assert _message(view).text().splitlines() == [
+        "任务“a”引用了未知的调度依赖“unknown”，该关系无法显示。",
+        "调度配置中已存在循环依赖。",
+    ]
     assert not _message(view).isHidden()
     assert store.mutation_calls == []
     assert (tmp_path / "event.json").read_bytes() == before
@@ -945,6 +1044,59 @@ def test_saved_positions_load_and_round_trip_across_fresh_graph_instances(
     assert view.graph is not old_graph
     assert view.node_for_func("a").pos() == [123.5, 456.25]
     assert store.load_positions()["a"] == (123.5, 456.25)
+
+
+def test_invalid_snapshot_keeps_old_working_graph_installed(
+    config_dir, managed_views
+):
+    view, _store = _build_view(config_dir, managed_views)
+    old_graph = view.graph
+    old_widget = old_graph.widget
+    old_nodes = dict(view._nodes_by_func)
+    _write_events(config_dir, [{"func_name": "broken"}])
+
+    view.reload_from_disk()
+
+    assert view.graph is old_graph
+    assert view.graph.widget is old_widget
+    assert view._nodes_by_func == old_nodes
+    assert view._layout.indexOf(old_widget) >= 0
+    assert not sip.isdeleted(old_widget)
+    assert not _message(view).isHidden()
+
+
+def test_graph_construction_failure_disposes_candidate_and_keeps_old_state(
+    app, config_dir, managed_views, monkeypatch
+):
+    view, store = _build_view(config_dir, managed_views)
+    old_graph = view.graph
+    old_widget = old_graph.widget
+    old_nodes = dict(view._nodes_by_func)
+    candidate_widgets = []
+    real_graph_type = graph_module.FixedNodeGraph
+
+    def recording_graph(*args, **kwargs):
+        graph = real_graph_type(*args, **kwargs)
+        candidate_widgets.append(graph.widget)
+        return graph
+
+    def fail_layout_load():
+        raise RuntimeError("raw technical graph construction failure")
+
+    monkeypatch.setattr(graph_module, "FixedNodeGraph", recording_graph)
+    monkeypatch.setattr(store, "load_positions", fail_layout_load)
+
+    view.reload_from_disk()
+    _flush_deferred_deletes(app)
+
+    assert view.graph is old_graph
+    assert view.graph.widget is old_widget
+    assert view._nodes_by_func == old_nodes
+    assert view._layout.indexOf(old_widget) >= 0
+    assert not sip.isdeleted(old_widget)
+    assert len(candidate_widgets) == 1
+    assert sip.isdeleted(candidate_widgets[0])
+    assert not _message(view).isHidden()
 
 
 def test_hide_event_saves_current_node_coordinates(
@@ -1010,7 +1162,7 @@ def test_failed_layout_write_reports_error_and_leaves_graph_editable(
     assert view.node_for_func("a").pos() == [44.0, 55.0]
     assert _is_connected(output_port, input_port)
     assert len(errors) == 1
-    assert "simulated layout write failure" in _message(view).text()
+    assert _message(view).text() == "调度配置保存失败。"
 
 
 def test_failed_layout_write_before_reload_stays_visible_on_fresh_graph(
@@ -1029,4 +1181,4 @@ def test_failed_layout_write_before_reload_stays_visible_on_fresh_graph(
     assert view.graph is not old_graph
     assert len(view.graph.all_nodes()) == 3
     assert len(errors) == 1
-    assert "simulated reload layout failure" in _message(view).text()
+    assert _message(view).text() == "调度配置保存失败。"
