@@ -134,6 +134,13 @@ class SettingsFragment(ScrollArea):
             self.guiGroup
         )
         self.micaCard.setEnabled(isWin11())
+        self.minimizeToTrayCard = SwitchSettingCard(
+            FIF.MINIMIZE,
+            self.tr("最小化到托盘"),
+            self.tr("最小化窗口时隐藏到系统托盘"),
+            configGui.minimizeToTray,
+            self.guiGroup,
+        )
         self.themeCard = OptionsSettingCard(
             configGui.themeMode,
             FIF.BRUSH,
@@ -192,8 +199,9 @@ class SettingsFragment(ScrollArea):
         )
 
         self.guiGroupItems = [
-            self.languageCard, self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.modeCard,
-            self.modeCardType
+            self.languageCard, self.micaCard, self.minimizeToTrayCard,
+            self.themeCard, self.themeColorCard, self.zoomCard, self.modeCard,
+            self.modeCardType,
         ]
 
         self.__initLayout()

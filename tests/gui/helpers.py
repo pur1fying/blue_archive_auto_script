@@ -9,3 +9,11 @@ class FakeConfig:
     def set(self, key, value):
         self.values[key] = value
         self.writes.append((key, value))
+
+
+class SettingsConfig(FakeConfig):
+    def inject(self, component, text, attribute="setText"):
+        getattr(component, attribute)(text.replace("{name}", "Test"))
+
+    def get_window(self):
+        return None
