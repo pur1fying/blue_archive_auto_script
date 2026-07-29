@@ -21,17 +21,15 @@ def test_issue_528_entries_belong_to_dailies():
     assert final["tip"] == "设置编队方式及复制通关队伍限制"
 
     assert by_config["drillConfig"]["sort"] == 16
-    assert "friendClearConfig" not in by_config
 
 
 def test_issue_528_cards_are_not_built_by_settings(qapp):
     fragment = SettingsFragment(config=SettingsConfig({"name": "Test"}))
 
     assert not hasattr(fragment, "finalRestrictionRlsCard")
-    assert not hasattr(fragment, "friendClearConfigCard")
     assert all(
         getattr(card, "sub_view", None)
-        not in (expand.finalRestrictionRls, getattr(expand, "friendClearConfig", None))
+        is not expand.finalRestrictionRls
         for card in fragment.exploreGroupItems
     )
     assert fragment.minimizeToTrayCard in fragment.guiGroupItems
@@ -42,7 +40,7 @@ def test_widgets_round_trip_values_through_real_config_set(
 ):
     from core.config.config_set import ConfigSet
     from gui.components.expand.finalRestrictionRls import Layout as FinalLayout
-    from gui.components.expand.friendClearConfig import Layout as FriendLayout
+    from gui.components.expand.friendWhiteList import Layout as FriendLayout
 
     config_root = tmp_path / "config"
     account_root = config_root / "test"
@@ -65,6 +63,8 @@ def test_widgets_round_trip_values_through_real_config_set(
     friend_widget.level_limit_spin.setValue(80)
     friend_widget.last_login_days_spin.setValue(14)
     friend_widget.total_assault_rank_spin.setValue(100_000)
+    friend_widget.white_list.append("ABC1234")
+    config.set("clear_friend_white_list", friend_widget.white_list)
 
     saved = json.loads(
         (account_root / "config.json").read_text(encoding="utf-8")
@@ -90,3 +90,4 @@ def test_widgets_round_trip_values_through_real_config_set(
     assert saved["clear_friend_level_limit"] == 80
     assert saved["clear_friend_last_login_time_days"] == 14
     assert saved["clear_friend_last_total_assault_rank_limit"] == 100_000
+    assert saved["clear_friend_white_list"] == ["ABC1234"]

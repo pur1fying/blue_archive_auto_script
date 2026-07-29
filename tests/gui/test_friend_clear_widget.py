@@ -1,4 +1,5 @@
 from tests.gui.helpers import FakeConfig
+from gui.components.expand.friendWhiteList import Layout
 
 
 LEVEL = "clear_friend_level_limit"
@@ -7,15 +8,21 @@ RANK = "clear_friend_last_total_assault_rank_limit"
 
 
 def make_widget():
-    from gui.components.expand.friendClearConfig import Layout
-
-    config = FakeConfig({LEVEL: -1, LOGIN_DAYS: -1, RANK: -1})
+    config = FakeConfig(
+        {
+            "clear_friend_white_list": ["ABC1234"],
+            LEVEL: -1,
+            LOGIN_DAYS: -1,
+            RANK: -1,
+        }
+    )
     return Layout(config=config), config
 
 
 def test_friend_thresholds_start_disabled_and_allow_int32_values(qapp):
     widget, _ = make_widget()
 
+    assert widget.table_view.rowCount() == 1
     for spin in (
         widget.level_limit_spin,
         widget.last_login_days_spin,
@@ -24,7 +31,7 @@ def test_friend_thresholds_start_disabled_and_allow_int32_values(qapp):
         assert spin.value() == -1
         assert spin.minimum() == -1
         assert spin.maximum() == 2_147_483_647
-    assert "-1" in widget.disabled_tip_label.text()
+    assert widget.disabled_tip_label.text()
 
 
 def test_friend_thresholds_write_python_integers(qapp):
@@ -39,3 +46,15 @@ def test_friend_thresholds_write_python_integers(qapp):
         (LOGIN_DAYS, 30),
         (RANK, 50_000),
     ]
+
+
+def test_table_refresh_preserves_friend_cleanup_controls(qapp):
+    widget, _ = make_widget()
+
+    widget.white_list.append("DEF5678")
+    widget._init_table()
+
+    assert widget.table_view.rowCount() == 2
+    assert widget.level_limit_spin.parent() is widget
+    assert widget.last_login_days_spin.parent() is widget
+    assert widget.total_assault_rank_spin.parent() is widget

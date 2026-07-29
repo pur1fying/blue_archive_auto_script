@@ -2,9 +2,14 @@ from functools import partial
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QHeaderView
-from qfluentwidgets import LineEdit, TableWidget, PushButton
+from qfluentwidgets import LineEdit, TableWidget, PushButton, SpinBox
 
 from gui.util import notification
+
+
+LEVEL_KEY = "clear_friend_level_limit"
+LOGIN_DAYS_KEY = "clear_friend_last_login_time_days"
+RANK_KEY = "clear_friend_last_total_assault_rank_limit"
 
 
 class Layout(QWidget):
@@ -36,6 +41,44 @@ class Layout(QWidget):
         self.vBoxLayout.addLayout(self.to_add_lay)
 
         self._init_table()
+        self.vBoxLayout.addSpacing(16)
+
+        self.disabled_tip_label = QLabel(
+            self.tr("以下清理条件设为 -1 时表示禁用。"), self
+        )
+        self.level_limit_spin = SpinBox(self)
+        self.last_login_days_spin = SpinBox(self)
+        self.total_assault_rank_spin = SpinBox(self)
+        for spin, key in (
+            (self.level_limit_spin, LEVEL_KEY),
+            (self.last_login_days_spin, LOGIN_DAYS_KEY),
+            (self.total_assault_rank_spin, RANK_KEY),
+        ):
+            spin.setRange(-1, 2147483647)
+            spin.setValue(int(self.config.get(key)))
+            spin.valueChanged.connect(
+                lambda value, config_key=key: self.config.set(
+                    config_key, int(value)
+                )
+            )
+
+        self.vBoxLayout.addWidget(self.disabled_tip_label)
+        self._add_threshold_row(
+            self.tr("好友等级清理阈值"), self.level_limit_spin
+        )
+        self._add_threshold_row(
+            self.tr("最后登录天数阈值"), self.last_login_days_spin
+        )
+        self._add_threshold_row(
+            self.tr("上次总力战排名阈值"), self.total_assault_rank_spin
+        )
+
+    def _add_threshold_row(self, label, spin):
+        row = QHBoxLayout()
+        row.addWidget(QLabel(label, self), 0, Qt.AlignLeft)
+        row.addStretch(1)
+        row.addWidget(spin, 0, Qt.AlignRight)
+        self.vBoxLayout.addLayout(row)
 
     def __accept_add(self):
         self.to_add = self.to_add_input.text()
@@ -73,12 +116,6 @@ class Layout(QWidget):
         notification.success(self.tr('添加成功'), f'{self.tr("您添加的用户为：")}{self.to_add}', self.config)
 
     def _init_table(self):
-        # If the old table exists, delete the old table
-
-        if self.table_view is not None:
-            self.table_view.deleteLater()
-            self.vBoxLayout.removeItem(self.vBoxLayout.itemAt(3))
-
         tableView = TableWidget(self)
         tableView.setColumnCount(2)
         tableView.setRowCount(len(self.white_list))
@@ -94,10 +131,12 @@ class Layout(QWidget):
 
         tableView.setFixedHeight(200)
 
-        self.vBoxLayout.addWidget(tableView)
-        self.vBoxLayout.setContentsMargins(24, 0, 24, 0)
-        self.vBoxLayout.addSpacing(16)
-
+        old_table = self.table_view
+        if old_table is None:
+            self.vBoxLayout.addWidget(tableView)
+        else:
+            self.vBoxLayout.replaceWidget(old_table, tableView)
+            old_table.deleteLater()
         self.table_view = tableView
 
     def __accept_delete(self, item_index):
