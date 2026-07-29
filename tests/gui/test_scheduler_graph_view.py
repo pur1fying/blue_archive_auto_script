@@ -7,6 +7,7 @@ import NodeGraphQt
 import pytest
 from NodeGraphQt import BaseNode, NodeGraph, Port
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QTextCursor, QTextDocument
 from PyQt5.QtTest import QSignalSpy, QTest
 from PyQt5.QtWidgets import QApplication, QLabel
 
@@ -348,6 +349,60 @@ def test_duplicate_translations_keep_exact_locked_visible_titles(
     assert text_item.textInteractionFlags() == Qt.NoTextInteraction
     assert text_item.hasFocus() is False
     assert text_item.toPlainText() == "Same translated title"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "setPlainText",
+        "setHtml",
+        "setDocument",
+        "textCursor",
+        "document",
+    ],
+)
+def test_sealed_visible_title_rejects_public_text_item_mutation(
+    app, tmp_path, managed_views, monkeypatch, mutation
+):
+    _write_events(
+        tmp_path,
+        [
+            _record("stable_a", "First source name"),
+            _record("stable_b", "Second source name"),
+        ],
+    )
+    monkeypatch.setattr(
+        graph_module.bt,
+        "tr",
+        lambda context, text: "Same translated title",
+    )
+    view, _store = _build_view(tmp_path, managed_views)
+    node = view.node_for_func("stable_b")
+    text_item = node.view.text_item
+
+    if mutation == "setPlainText":
+        text_item.setPlainText("tampered")
+    elif mutation == "setHtml":
+        text_item.setHtml("<b>tampered</b>")
+    elif mutation == "setDocument":
+        text_item.setDocument(QTextDocument("tampered"))
+    elif mutation == "textCursor":
+        cursor = text_item.textCursor()
+        cursor.select(QTextCursor.Document)
+        cursor.insertText("tampered")
+        text_item.setTextCursor(cursor)
+    elif mutation == "document":
+        text_item.document().setPlainText("tampered")
+    else:
+        raise AssertionError(f"Unhandled text mutation: {mutation}")
+
+    assert text_item.toPlainText() == "Same translated title"
+    app.processEvents()
+    assert text_item.toPlainText() == "Same translated title"
+    node.update()
+    assert node.view.name == "Same translated title"
+    assert text_item.toPlainText() == "Same translated title"
+    assert node.func_name == "stable_b"
 
 
 def test_node_creation_ui_and_context_menus_are_disabled(
