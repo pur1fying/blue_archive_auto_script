@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import gc
 import json
 import os
 import shutil
 import sys
 import tempfile
+import threading
 import time
 from datetime import datetime
 from pathlib import Path
@@ -134,6 +136,17 @@ def _close_and_delete(app: QApplication, widget) -> None:
     app.processEvents()
 
 
+def _live_qtimers():
+    timers = []
+    for candidate in gc.get_objects():
+        try:
+            if isinstance(candidate, QTimer) and not sip.isdeleted(candidate):
+                timers.append(candidate)
+        except RuntimeError:
+            continue
+    return timers
+
+
 def run_smoke() -> None:
     if os.environ.get("QT_QPA_PLATFORM"):
         raise AssertionError(
@@ -185,6 +198,10 @@ def run_smoke() -> None:
         account = ConfigSet(str(account_dir))
         account.add_signal("update_signal", signals.update_signal)
         account.add_signal("notify_signal", signals.notify_signal)
+        baseline_threads = set(threading.enumerate())
+        baseline_timer_identities = {
+            id(timer) for timer in _live_qtimers()
+        }
 
         try:
             host = QMainWindow()
@@ -311,7 +328,15 @@ def run_smoke() -> None:
             print("PASS table sync and graph layout persistence")
 
             status_thread = fragment._status_thread
-            owned_timers = host.findChildren(QTimer)
+            created_timers_by_identity = {
+                id(timer): timer
+                for timer in _live_qtimers()
+                if id(timer) not in baseline_timer_identities
+            }
+            for timer in host.findChildren(QTimer):
+                if id(timer) not in baseline_timer_identities:
+                    created_timers_by_identity[id(timer)] = timer
+            created_timers = list(created_timers_by_identity.values())
             fragment.close()
             assert _wait_until(app, lambda: not status_thread.is_alive())
             assert not status_thread.is_alive()
@@ -332,11 +357,23 @@ def run_smoke() -> None:
                 )
                 for widget in remaining_top_levels
             ]
+            unexpected_threads = [
+                thread
+                for thread in threading.enumerate()
+                if thread not in baseline_threads
+            ]
+            assert unexpected_threads == [], [
+                (thread.name, thread.ident, thread.daemon)
+                for thread in unexpected_threads
+            ]
             assert all(
                 sip.isdeleted(timer) or not timer.isActive()
-                for timer in owned_timers
+                for timer in created_timers
             )
-            print("PASS fragment, refresh work, and top-level widgets stopped")
+            print(
+                "PASS fragment, Python threads, timers, and top-level "
+                "widgets stopped"
+            )
         finally:
             if fragment is not None and not sip.isdeleted(fragment):
                 fragment.close()

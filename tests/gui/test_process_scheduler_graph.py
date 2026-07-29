@@ -172,6 +172,7 @@ def integration(app, tmp_path, monkeypatch):
             continue
         fragment.close()
         fragment.deleteLater()
+        QCoreApplication.sendPostedEvents(fragment, QEvent.DeferredDelete)
     app.processEvents()
 
 

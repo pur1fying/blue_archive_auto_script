@@ -1,11 +1,13 @@
+import gc
 import threading
 import time
 from hashlib import md5
 from importlib import import_module
 from random import random
+from weakref import ref
 
 from PyQt5 import sip
-from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtCore import QEvent, QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QAbstractItemView, QHBoxLayout, QListWidgetItem,
                              QStackedWidget, QVBoxLayout, QWidget)
 from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
@@ -19,6 +21,10 @@ from gui.util.translator import baasTranslator as bt
 
 lock = threading.Lock()
 DISPLAY_CONFIG_PATH = './config/display.json'
+
+
+class _StatusUpdateEmitter(QObject):
+    updated = pyqtSignal(object, object)
 
 
 class ProcessFragment(ScrollArea):
@@ -109,31 +115,76 @@ class ProcessFragment(ScrollArea):
         self.baas_thread = None
         self.config = config
         self._status_stop = threading.Event()
+        self._status_updates_enabled = True
+        self._status_emitter = _StatusUpdateEmitter(self)
+        fragment_ref = ref(self)
+
+        def apply_status_update(current_task, task_list):
+            fragment = fragment_ref()
+            if fragment is not None:
+                fragment._apply_status_update(current_task, task_list)
+
+        self._status_update_slot = apply_status_update
+        self._status_emitter.updated.connect(
+            self._status_update_slot, type=Qt.QueuedConnection)
+        self._status_connection_active = True
         self._status_thread = threading.Thread(
-            target=self.refresh_status, daemon=True)
+            target=self._run_status_refresh,
+            args=(ref(self),),
+            daemon=True,
+        )
         self._status_thread.start()
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(f"{self.object_name}.ProcessFragment")
 
+    @staticmethod
+    def _run_status_refresh(fragment_ref):
+        fragment = fragment_ref()
+        if fragment is not None:
+            fragment.refresh_status()
+
     def refresh_status(self):
         while not self._status_stop.is_set():
-            if self.baas_thread is not None:
-                crt_task = self.baas_thread.scheduler.getCurrentTaskName()
-                task_list = self.baas_thread.scheduler.getWaitingTaskList()
+            current_task, task_list = self._collect_status()
+            if self._status_stop.is_set():
+                break
+            self._status_emitter.updated.emit(current_task, task_list)
+            if self._status_stop.wait(2):
+                break
 
-                crt_task = crt_task if crt_task else self.tr("暂无正在执行的任务")
-                task_list = [bt.tr('ConfigTranslation', task) for task in task_list] if task_list else [
-                    self.tr("暂无队列中的任务")]
-                self.on_status.setText(bt.tr('ConfigTranslation', crt_task))
+    def _collect_status(self):
+        baas_thread = self.baas_thread
+        if baas_thread is None:
+            main_thread = self.config.get_main_thread()
+            baas_thread = (
+                main_thread.get_baas_thread() if main_thread else None)
+            self.baas_thread = baas_thread
+        if baas_thread is None:
+            return None, ()
 
-                self._set_queue_items(task_list)
-            else:
-                self.on_status.setText(self.tr("暂无正在执行的任务"))
-                self._set_queue_items([self.tr("暂无队列中的任务")])
-                main_thread = self.config.get_main_thread()
-                self.baas_thread = main_thread.get_baas_thread() if main_thread else None
-            self._status_stop.wait(2)
+        current_task = baas_thread.scheduler.getCurrentTaskName()
+        task_list = baas_thread.scheduler.getWaitingTaskList()
+        return current_task, tuple(task_list or ())
+
+    def _apply_status_update(self, current_task, task_list):
+        if (
+            self._status_stop.is_set()
+            or not self._status_updates_enabled
+        ):
+            return
+        current_text = (
+            bt.tr('ConfigTranslation', current_task)
+            if current_task
+            else self.tr("暂无正在执行的任务")
+        )
+        queue_items = (
+            [bt.tr('ConfigTranslation', task) for task in task_list]
+            if task_list
+            else [self.tr("暂无队列中的任务")]
+        )
+        self.on_status.setText(current_text)
+        self._set_queue_items(queue_items)
 
     def _scheduler_state_changed(self, index):
         configGui.set(
@@ -164,6 +215,8 @@ class ProcessFragment(ScrollArea):
             return
         try:
             if self.graph_view is None:
+                # Avoid cyclic PyQt wrapper collection while Qt.py initializes.
+                gc.collect()
                 graph_module = import_module(
                     "gui.components.scheduler_graph")
                 self.graph_view = graph_module.SchedulerGraphView(
@@ -213,12 +266,17 @@ class ProcessFragment(ScrollArea):
         super().hideEvent(event)
 
     def _stop_status_refresh(self) -> None:
+        self._status_updates_enabled = False
         self._status_stop.set()
         if (
             self._status_thread.is_alive()
             and threading.current_thread() is not self._status_thread
         ):
-            self._status_thread.join(timeout=1)
+            self._status_thread.join()
+        if self._status_connection_active:
+            self._status_emitter.updated.disconnect(
+                self._status_update_slot)
+            self._status_connection_active = False
 
     @staticmethod
     def _create_queue_item(text):
