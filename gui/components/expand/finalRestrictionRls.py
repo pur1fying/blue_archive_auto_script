@@ -12,10 +12,7 @@ REFRESH_KEY = (
     "final_restriction_rls_employ_formation_"
     "copy_clear_unit_max_refresh_count"
 )
-METHODS = (
-    ("default", "使用当前编队"),
-    ("copy_clear_unit", "复制通关队伍"),
-)
+METHOD_VALUES = ("default", "copy_clear_unit")
 
 
 class Layout(QWidget):
@@ -24,13 +21,17 @@ class Layout(QWidget):
         self.config = config
 
         self.formation_method_combo = ComboBox(self)
-        for _, label in METHODS:
-            self.formation_method_combo.addItem(self.tr(label))
+        method_labels = (
+            self.tr("使用当前编队"),
+            self.tr("复制通关队伍"),
+        )
+        self.formation_method_combo.addItems(method_labels)
 
         stored_method = str(config.get(METHOD_KEY))
-        raw_methods = [raw for raw, _ in METHODS]
         self.formation_method_combo.setCurrentIndex(
-            raw_methods.index(stored_method) if stored_method in raw_methods else 0
+            METHOD_VALUES.index(stored_method)
+            if stored_method in METHOD_VALUES
+            else 0
         )
 
         self.max_unavailable_spin = SpinBox(self)
@@ -56,19 +57,19 @@ class Layout(QWidget):
         self.v_box_layout.addSpacing(16)
         self.v_box_layout.setAlignment(Qt.AlignCenter)
         for label, control in (
-            ("编队方式", self.formation_method_combo),
-            ("最多允许不可用学生数", self.max_unavailable_spin),
-            ("通关队伍最大刷新次数", self.max_refresh_spin),
+            (self.tr("编队方式"), self.formation_method_combo),
+            (self.tr("最多允许不可用学生数"), self.max_unavailable_spin),
+            (self.tr("通关队伍最大刷新次数"), self.max_refresh_spin),
         ):
             row = QHBoxLayout()
-            row.addWidget(QLabel(self.tr(label), self), 0, Qt.AlignLeft)
+            row.addWidget(QLabel(label, self), 0, Qt.AlignLeft)
             row.addStretch(1)
             row.addWidget(control, 0, Qt.AlignRight)
             self.v_box_layout.addLayout(row)
         self.v_box_layout.setContentsMargins(20, 0, 20, 20)
 
     def _on_method_changed(self, index):
-        raw_method = METHODS[index][0]
+        raw_method = METHOD_VALUES[index]
         self.config.set(METHOD_KEY, raw_method)
         self._update_copy_controls(raw_method)
 
