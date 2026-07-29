@@ -9,6 +9,8 @@ def test_minimize_to_tray_defaults_false_and_persists_to_gui_json(tmp_path):
 
     path = tmp_path / "gui.json"
     config = ConfigGui()
+    assert config.minimizeToTray.defaultValue is False
+    config.set(config.minimizeToTray, config.minimizeToTray.defaultValue, save=False)
     qconfig.load(path, config)
 
     assert config.get(config.minimizeToTray) is False
