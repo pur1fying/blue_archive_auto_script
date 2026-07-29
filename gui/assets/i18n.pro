@@ -9,6 +9,7 @@ SOURCES += \
     ../../gui/components/expand/exploreConfig.py \
     ../../gui/components/expand/featureSwitch.py \
     ../../gui/components/expand/drillConfig.py \
+    ../../gui/components/expand/finalRestrictionRls.py \
     ../../gui/components/expand/friendWhiteList.py \
     ../../gui/components/expand/formationConfig.py \
     ../../gui/components/expand/mainlinePriority.py \
@@ -33,6 +34,7 @@ SOURCES += \
     ../../gui/fragments/glob.py \
     ../../gui/fragments/switch.py \
     ../../gui/util/config_translation.py \
+    ../../gui/util/tray.py \
     ../../window.py \
 
 TRANSLATIONS += ../../gui/i18n/en_US.ts \
