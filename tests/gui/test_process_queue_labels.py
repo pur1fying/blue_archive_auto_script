@@ -72,6 +72,11 @@ class _JoinRecordingThread(threading.Thread):
         return super().join(timeout)
 
 
+class _DormantThread(threading.Thread):
+    def start(self):
+        pass
+
+
 def _wait_until(app, predicate, timeout=3):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -213,6 +218,56 @@ def test_close_waits_for_blocked_worker_and_prevents_late_widget_updates(
         release_helper.join(timeout=3)
         if not sip.isdeleted(widget):
             widget.close()
+
+
+def test_deferred_delete_discards_real_queued_status_payload(
+    app, monkeypatch
+):
+    monkeypatch.setattr(
+        process.expand.__dict__["featureSwitch"], "Layout",
+        lambda config: process.QWidget())
+    thread_api = SimpleNamespace(
+        Event=threading.Event,
+        Thread=_DormantThread,
+        current_thread=threading.current_thread,
+    )
+    monkeypatch.setattr(process, "threading", thread_api)
+    widget = _ThreadTrackingFragment(None, _AccountConfig())
+    gui_thread_id = threading.get_ident()
+    emitted_payloads = []
+
+    def record_emit(current_task, task_list):
+        emitted_payloads.append(
+            (current_task, task_list, threading.get_ident())
+        )
+
+    widget._status_emitter.updated.connect(
+        record_emit, type=Qt.DirectConnection)
+    emit_thread = threading.Thread(
+        target=lambda: widget._status_emitter.updated.emit(
+            "queued current", ("queued next",)
+        ),
+        name="queued-status-emitter",
+    )
+    emit_thread.start()
+    emit_thread.join(timeout=3)
+
+    assert not emit_thread.is_alive()
+    assert emitted_payloads == [
+        ("queued current", ("queued next",), emit_thread.ident)
+    ]
+    assert emit_thread.ident != gui_thread_id
+    assert widget.applied_update_threads == []
+    assert widget.queue_update_threads == []
+
+    widget.deleteLater()
+    QCoreApplication.sendPostedEvents(widget, QEvent.DeferredDelete)
+    assert sip.isdeleted(widget)
+    QCoreApplication.sendPostedEvents(None, QEvent.MetaCall)
+    app.processEvents()
+
+    assert widget.applied_update_threads == []
+    assert widget.queue_update_threads == []
 
 
 def test_status_worker_can_request_its_own_stop_without_self_join(
