@@ -6,10 +6,11 @@ from pathlib import Path
 import NodeGraphQt
 import pytest
 from NodeGraphQt import BaseNode, NodeGraph, Port
-from PyQt5.QtCore import Qt
+from PyQt5 import sip
+from PyQt5.QtCore import QCoreApplication, QEvent, Qt
 from PyQt5.QtGui import QImage, QPainter, QTextCursor, QTextDocument
 from PyQt5.QtTest import QSignalSpy, QTest
-from PyQt5.QtWidgets import QApplication, QGraphicsTextItem, QLabel
+from PyQt5.QtWidgets import QApplication, QGraphicsTextItem, QLabel, QMenu
 
 import gui
 
@@ -165,6 +166,47 @@ def _widget(node, property_name):
 
 def _message(view):
     return view.findChild(QLabel, "schedulerGraphMessage")
+
+
+def _flush_deferred_deletes(app):
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    app.processEvents()
+
+
+def test_reload_and_delete_release_only_owned_search_menus(app, config_dir):
+    unrelated_menu = QMenu()
+    view = SchedulerGraphView(config_dir)
+    owned_menus = []
+    try:
+        first_menu = view.graph.viewer()._search_widget
+        owned_menus.append(first_menu)
+
+        view.reload_from_disk()
+        _flush_deferred_deletes(app)
+
+        assert sip.isdeleted(first_menu)
+        assert not sip.isdeleted(unrelated_menu)
+
+        second_menu = view.graph.viewer()._search_widget
+        owned_menus.append(second_menu)
+        view.close()
+        view.deleteLater()
+        _flush_deferred_deletes(app)
+
+        assert sip.isdeleted(second_menu)
+        assert not sip.isdeleted(unrelated_menu)
+    finally:
+        if not sip.isdeleted(view):
+            view.close()
+            view.deleteLater()
+        for menu in owned_menus:
+            if not sip.isdeleted(menu):
+                menu.close()
+                menu.deleteLater()
+        if not sip.isdeleted(unrelated_menu):
+            unrelated_menu.close()
+            unrelated_menu.deleteLater()
+        _flush_deferred_deletes(app)
 
 
 def _ports(view, kind, source_func="a", target_func="b"):

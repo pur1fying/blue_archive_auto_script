@@ -248,6 +248,13 @@ class FixedNodeGraph(NodeGraph):
         self._construction_depth = 0
         self._construction_scope_used = False
         super().__init__(parent=parent, **kwargs)
+        # NodeGraphQt 0.6.44 leaves this popup unparented, so each graph
+        # generation otherwise leaks its search menu after teardown.
+        search_widget = self.viewer()._search_widget
+        if search_widget.parent() is None:
+            search_widget.setParent(
+                self.viewer(), search_widget.windowFlags()
+            )
 
     @contextmanager
     def _controlled_node_construction(self) -> Iterator[None]:
@@ -399,7 +406,7 @@ class SchedulerGraphView(QWidget):
         old_graph = self.graph
         old_widget = old_graph.widget if old_graph is not None else None
 
-        graph = FixedNodeGraph()
+        graph = FixedNodeGraph(parent=self)
         graph.set_acyclic(False)
         graph.register_node(SchedulerTaskNode)
         graph.disable_context_menu(True)
