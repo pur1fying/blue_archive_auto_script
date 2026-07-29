@@ -57,8 +57,21 @@ class TrayController(QObject):
             or not self.window.isMinimized()
         ):
             return False
-        QTimer.singleShot(0, self.window.hide)
+        if not self.tray_icon.isVisible():
+            self.tray_icon.show()
+        if not self.tray_icon.isVisible():
+            return False
+        QTimer.singleShot(0, self._hide_minimized_window)
         return True
+
+    def _hide_minimized_window(self):
+        if (
+            self._enabled
+            and self._tray_available()
+            and self.tray_icon.isVisible()
+            and self.window.isMinimized()
+        ):
+            self.window.hide()
 
     def _on_activated(self, reason):
         if reason == QSystemTrayIcon.Trigger:

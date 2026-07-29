@@ -26,6 +26,12 @@ def main():
             app = QApplication.instance() or QApplication([])
 
             import window as window_module
+            from gui.components.expand.finalRestrictionRls import (
+                Layout as FinalRestrictionLayout,
+            )
+            from gui.components.expand.friendClearConfig import (
+                Layout as FriendClearLayout,
+            )
             from gui.util.config_gui import configGui
 
             config_gui = configGui
@@ -35,6 +41,12 @@ def main():
             QTest.qWait(100)
             assert window.isVisible()
             assert hasattr(window, "tray_controller")
+
+            account_config = window.config_dir_list[0]
+            final_editor = FinalRestrictionLayout(window, account_config)
+            friend_editor = FriendClearLayout(window, account_config)
+            assert final_editor.formation_method_combo.count() == 2
+            assert friend_editor.level_limit_spin.minimum() == -1
 
             configGui.set(configGui.minimizeToTray, True)
             assert QSystemTrayIcon.isSystemTrayAvailable()

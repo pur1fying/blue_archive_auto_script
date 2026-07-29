@@ -33,14 +33,14 @@ def test_window_minimize_uses_real_tray_controller(
                 window_module.Window, "isMinimized", lambda self: True
             )
             window.changeEvent(QEvent(QEvent.WindowStateChange))
-        QTest.qWait(50)
-        assert not window.isVisible()
+            QTest.qWait(50)
+            assert not window.isVisible()
 
         window.tray_controller.show_window()
         assert window.isVisible()
         assert not window.isMinimized()
 
-        window.close()
+        assert window.close() is True
         qapp.processEvents()
         assert not window.isVisible()
     finally:

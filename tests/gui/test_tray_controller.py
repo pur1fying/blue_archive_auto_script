@@ -53,6 +53,42 @@ def test_unavailable_tray_never_hides_window(qapp):
     assert not controller.tray_icon.isVisible()
 
 
+def test_tray_becoming_available_shows_icon_before_hiding(qapp):
+    availability = {"value": False}
+    window = QWidget()
+    from gui.util.tray import TrayController
+
+    controller = TrayController(
+        window,
+        icon=QIcon(),
+        tray_available=lambda: availability["value"],
+    )
+    controller.set_enabled(True)
+    window.show()
+    window.showMinimized()
+
+    availability["value"] = True
+    assert controller.handle_window_state_change() is True
+    assert controller.tray_icon.isVisible()
+    QTest.qWait(20)
+    assert not window.isVisible()
+
+
+def test_disabling_cancels_a_deferred_hide(qapp):
+    window = QWidget()
+    controller, _ = make_controller(window)
+    controller.set_enabled(True)
+    window.show()
+    window.showMinimized()
+
+    assert controller.handle_window_state_change() is True
+    controller.set_enabled(False)
+    QTest.qWait(20)
+
+    assert window.isVisible()
+    assert not controller.tray_icon.isVisible()
+
+
 def test_toggle_show_hide_and_disable_restore_window(qapp):
     window = QWidget()
     controller, _ = make_controller(window)
