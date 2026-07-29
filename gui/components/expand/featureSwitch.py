@@ -160,9 +160,7 @@ class Layout(QWidget):
     def _read_config(self):
         with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
             s = f.read()
-            if s == '':
-                return
-            self._event_config = json.loads(s)
+            self._event_config = json.loads(s) if s else []
 
     def _save_config(self):
         with open(self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
@@ -248,6 +246,17 @@ class Layout(QWidget):
         # Add table to layout
         self.vBox.addWidget(self.tableView)
 
+    def reload_from_disk(self) -> None:
+        """Reload scheduler records and rebuild the table in persisted order."""
+        self._read_config()
+        saved_sort_mode = configGui.get(configGui.schedulerSortMode)
+        saved_index = self._sort_modes.index(saved_sort_mode)
+        if self.op_3.currentIndex() != saved_index:
+            self.op_3.blockSignals(True)
+            self.op_3.setCurrentIndex(saved_index)
+            self.op_3.blockSignals(False)
+        self._sort()
+
     def _update_config(self):
         for i in range(len(self.enable_list)):
             dic = {
@@ -261,7 +270,7 @@ class Layout(QWidget):
         self._save_config()
 
     def _update_detail(self, index):
-        top_window = self.parent().parent().parent().parent().parent().parent()
+        top_window = self.config.get_window()
         dic = {
             'event_name': self._crt_order_config[index]['event_name'],
             'priority': self._crt_order_config[index]['priority'],
@@ -306,14 +315,17 @@ class Layout(QWidget):
 
     def get_next_tick(self, time_str):
         try:
-            return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S.%f').timestamp()
+            return int(datetime.strptime(
+                time_str, '%Y-%m-%d %H:%M:%S.%f').timestamp())
         except Exception:
             try:
-                return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S').timestamp()
+                return int(datetime.strptime(
+                    time_str, '%Y-%m-%d %H:%M:%S').timestamp())
             except Exception:
                 # traceback.print_exc()
                 print("Time format error Or Time is not set. Use 0 as default.")
-                return datetime.strptime("2021-2-4 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
+                return int(datetime.strptime(
+                    "2021-2-4 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp())
 
     def _refresh_time(self):
         # abstract from self._event_config

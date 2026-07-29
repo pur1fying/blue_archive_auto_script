@@ -1,15 +1,17 @@
 import threading
 import time
 from hashlib import md5
+from importlib import import_module
 from random import random
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QAbstractItemView, QHBoxLayout, QListWidgetItem,
-                             QVBoxLayout, QWidget)
+                             QStackedWidget, QVBoxLayout, QWidget)
 from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
-                            ToolTipPosition, ToolTipFilter)
+                            SegmentedWidget, ToolTipPosition, ToolTipFilter)
 
 from gui.components import expand
+from gui.util import notification
 from gui.util.config_gui import configGui
 from gui.util.style_sheet import StyleSheet
 from gui.util.translator import baasTranslator as bt
@@ -27,7 +29,7 @@ class ProcessFragment(ScrollArea):
         self.settingLabel = TitleLabel(self.tr("调度状态"), self)
         # Scheduler switch
         self.titleLineLayout = QHBoxLayout()
-        _scheduler_selector_layout = QHBoxLayout()
+        self.scheduler_controls_layout = QHBoxLayout()
         _scheduler_selector_label = SubtitleLabel(self.tr("调度状态"), self)
         _scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
         _scheduler_selector_label.installEventFilter(ToolTipFilter(_scheduler_selector_label, position=ToolTipPosition.TOP))
@@ -46,11 +48,19 @@ class ProcessFragment(ScrollArea):
             self._scheduler_state_changed)
         configGui.schedulerNewEventEnableState.valueChanged.connect(
             self._sync_scheduler_state)
-        _scheduler_selector_layout.addWidget(_scheduler_selector_label)
-        _scheduler_selector_layout.addWidget(self.scheduler_selector)
+        self.scheduler_controls_layout.addWidget(_scheduler_selector_label)
+        self.scheduler_controls_layout.addWidget(self.scheduler_selector)
+
+        self.view_selector = SegmentedWidget(self)
+        self.table_view_button = self.view_selector.addItem(
+            "table", self.tr("表格视图"), self.show_table_view)
+        self.graph_view_button = self.view_selector.addItem(
+            "graph", self.tr("图形视图"), self.show_graph_view)
+        self.view_selector.setCurrentItem("table")
+        self.scheduler_controls_layout.addWidget(self.view_selector)
 
         self.titleLineLayout.addWidget(self.settingLabel, 1, Qt.AlignLeft)
-        self.titleLineLayout.addLayout(_scheduler_selector_layout, 0)
+        self.titleLineLayout.addLayout(self.scheduler_controls_layout, 0)
 
         # Process display
         self.VBoxWrapperLayout = QVBoxLayout()
@@ -83,16 +93,21 @@ class ProcessFragment(ScrollArea):
         self.VBoxLayout.addLayout(self.HBoxLayout)
         self.displayWidget.setLayout(self.VBoxLayout)
 
-        feature_panel = expand.__dict__['featureSwitch'].Layout(config=config)
+        self.table_view = expand.__dict__['featureSwitch'].Layout(config=config)
+        self.graph_view = None
+        self._table_stale = False
+        self.editor_stack = QStackedWidget(self)
+        self.editor_stack.addWidget(self.table_view)
         self.VBoxWrapperLayout.addWidget(self.displayWidget)
-        self.VBoxWrapperLayout.addWidget(feature_panel)
+        self.VBoxWrapperLayout.addWidget(self.editor_stack)
 
         self.processWidget.setLayout(self.VBoxWrapperLayout)
 
         self.baas_thread = None
         self.config = config
-        t_daemon = threading.Thread(target=self.refresh_status, daemon=True)
-        t_daemon.start()
+        self._status_thread = threading.Thread(
+            target=self.refresh_status, daemon=True)
+        self._status_thread.start()
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(f"{self.object_name}.ProcessFragment")
@@ -128,6 +143,58 @@ class ProcessFragment(ScrollArea):
         self.scheduler_selector.blockSignals(True)
         self.scheduler_selector.setCurrentIndex(index)
         self.scheduler_selector.blockSignals(False)
+
+    def show_table_view(self) -> None:
+        self.view_selector.setCurrentItem("table")
+        if self.editor_stack.currentWidget() is self.table_view:
+            return
+        if self.graph_view is not None:
+            self.graph_view.save_layout()
+        self.editor_stack.setCurrentWidget(self.table_view)
+        self.table_view.reload_from_disk()
+        self._table_stale = False
+
+    def show_graph_view(self) -> None:
+        if self.editor_stack.currentWidget() is self.graph_view:
+            self.view_selector.setCurrentItem("graph")
+            return
+        try:
+            if self.graph_view is None:
+                graph_module = import_module(
+                    "gui.components.scheduler_graph")
+                self.graph_view = graph_module.SchedulerGraphView(
+                    self.config.config_dir, parent=self.editor_stack)
+                self.graph_view.data_changed.connect(
+                    self._on_graph_data_changed)
+                self.editor_stack.addWidget(self.graph_view)
+            self.graph_view.reload_from_disk()
+        except ModuleNotFoundError as error:
+            if error.name is None or not error.name.startswith("NodeGraphQt"):
+                raise
+            self.view_selector.setCurrentItem("table")
+            notification.error(
+                self.tr("图形视图"),
+                self.tr("图形视图需要安装 NodeGraphQt"),
+                self.config,
+                duration=4000,
+            )
+            return
+        self.editor_stack.setCurrentWidget(self.graph_view)
+        self.view_selector.setCurrentItem("graph")
+
+    def _on_graph_data_changed(self) -> None:
+        self._table_stale = True
+        if self.editor_stack.currentWidget() is self.table_view:
+            self.table_view.reload_from_disk()
+            self._table_stale = False
+
+    def _save_graph_layout(self) -> None:
+        if self.graph_view is not None:
+            self.graph_view.save_layout()
+
+    def hideEvent(self, event):
+        self._save_graph_layout()
+        super().hideEvent(event)
 
     @staticmethod
     def _create_queue_item(text):
