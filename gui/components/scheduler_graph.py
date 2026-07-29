@@ -11,6 +11,7 @@ from typing import Callable, Iterator
 from NodeGraphQt import BaseNode, NodeGraph, Port
 from NodeGraphQt.constants import PortTypeEnum
 from NodeGraphQt.qgraphics.node_base import NodeItem
+from NodeGraphQt.qgraphics.node_text_item import NodeTextItem
 from PyQt5.QtCore import QSignalBlocker, QTimer, pyqtSignal
 from PyQt5.QtGui import QHideEvent
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
@@ -32,12 +33,68 @@ PRE_COLOR = (70, 155, 255)
 POST_COLOR = (255, 160, 70)
 
 
+class _ImmutableNodeTextItem(NodeTextItem):
+    """Node title item that permits text changes only until it is sealed."""
+
+    def __init__(self, text, parent=None):
+        self._sealed_text: str | None = None
+        self._restoring_text = False
+        super().__init__(text, parent)
+
+    def _seal_text(self, text: str) -> None:
+        if self._sealed_text is not None:
+            self._restore_sealed_text()
+            return
+        self._sealed_text = text
+        self._restore_sealed_text()
+        self.document().contentsChanged.connect(self._restore_sealed_text)
+
+    def setPlainText(self, text: str) -> None:
+        super().setPlainText(
+            self._sealed_text if self._sealed_text is not None else text
+        )
+
+    def setHtml(self, html: str) -> None:
+        if self._sealed_text is not None:
+            self._restore_sealed_text()
+            return
+        super().setHtml(html)
+
+    def setDocument(self, document) -> None:
+        if self._sealed_text is not None:
+            self._restore_sealed_text()
+            return
+        super().setDocument(document)
+
+    def setTextCursor(self, cursor) -> None:
+        if self._sealed_text is not None:
+            self._restore_sealed_text()
+            return
+        super().setTextCursor(cursor)
+
+    def _restore_sealed_text(self) -> None:
+        if (
+            self._sealed_text is None
+            or self._restoring_text
+            or self.toPlainText() == self._sealed_text
+        ):
+            return
+        self._restoring_text = True
+        try:
+            super().setPlainText(self._sealed_text)
+        finally:
+            self._restoring_text = False
+
+
 class _SchedulerTaskNodeItem(NodeItem):
     """Node graphics item whose installed display title cannot be replaced."""
 
     def __init__(self, name="node", parent=None):
         self._immutable_display_title: str | None = None
         super().__init__(name=name, parent=parent)
+        original_text_item = self._text_item
+        self._text_item = _ImmutableNodeTextItem(self.name, self)
+        original_text_item.setParentItem(None)
 
     @property
     def name(self):
@@ -48,9 +105,13 @@ class _SchedulerTaskNodeItem(NodeItem):
         title = self._immutable_display_title
         NodeItem.name.fset(self, title if title is not None else name)
 
-    def set_immutable_display_title(self, title: str) -> None:
+    def _set_immutable_display_title(self, title: str) -> None:
+        if self._immutable_display_title is not None:
+            self.name = self._immutable_display_title
+            return
         self.name = title
         self._immutable_display_title = title
+        self._text_item._seal_text(title)
 
 
 class SchedulerTaskNode(BaseNode):
@@ -97,10 +158,13 @@ class SchedulerTaskNode(BaseNode):
             return None
         return super().set_property(name, value, push_undo=push_undo)
 
-    def set_display_title(self, title: str) -> None:
+    def _set_display_title(self, title: str) -> None:
         """Install an exact, immutable title independent of the model name."""
+        if self._display_title is not None:
+            self.view.name = self._display_title
+            return
         self._display_title = title
-        self.view.set_immutable_display_title(title)
+        self.view._set_immutable_display_title(title)
         self.view.text_item.set_editable(False)
         self.view.text_item.set_locked(True)
 
@@ -340,7 +404,7 @@ class SchedulerGraphView(QWidget):
                 selected=False,
                 push_undo=False,
             )
-            node.set_display_title(title)
+            node._set_display_title(title)
             node.set_property("func_name", event.func_name, push_undo=False)
             time_text = datetime.fromtimestamp(event.next_tick).strftime(
                 "%Y-%m-%d %H:%M:%S"
