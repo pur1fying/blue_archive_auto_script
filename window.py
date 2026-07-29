@@ -118,7 +118,7 @@ def check_event_config(dir_path='./default_config', user_config=None):
     path = './config/' + dir_path + '/event.json'
     default_event_config = json.loads(default_config.EVENT_DEFAULT_CONFIG)
     server = user_config.server_mode
-    enable_state = user_config.config.new_event_enable_state
+    enable_state = configGui.get(configGui.schedulerNewEventEnableState)
     if server != "CN":
         for i in range(0, len(default_event_config)):
             for j in range(0, len(default_event_config[i]['daily_reset'])):

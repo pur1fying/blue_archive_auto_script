@@ -4,11 +4,13 @@ from hashlib import md5
 from random import random
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import (QAbstractItemView, QHBoxLayout, QListWidgetItem,
+                             QVBoxLayout, QWidget)
 from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
                             ToolTipPosition, ToolTipFilter)
 
 from gui.components import expand
+from gui.util.config_gui import configGui
 from gui.util.style_sheet import StyleSheet
 from gui.util.translator import baasTranslator as bt
 
@@ -25,28 +27,25 @@ class ProcessFragment(ScrollArea):
         self.settingLabel = TitleLabel(self.tr("调度状态"), self)
         # Scheduler switch
         self.titleLineLayout = QHBoxLayout()
-        _scheduler_selector = config.get('new_event_enable_state')
         _scheduler_selector_layout = QHBoxLayout()
         _scheduler_selector_label = SubtitleLabel(self.tr("调度状态"), self)
         _scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
         _scheduler_selector_label.installEventFilter(ToolTipFilter(_scheduler_selector_label, position=ToolTipPosition.TOP))
 
-        __dict__for_scheduler_selector = {
-            '开': 'on',
-            '关': 'off',
-            '默认': 'default',
-        }
-        __reverse_dict__for_scheduler_selector = {v: k for k, v in __dict__for_scheduler_selector.items()}
-        _raw_scheduler_selector = __reverse_dict__for_scheduler_selector[_scheduler_selector]
+        self._scheduler_states = ("default", "on", "off")
         self.scheduler_selector = ComboBox(self)
         self.scheduler_selector.addItems([
+            bt.tr('ConfigTranslation', '默认'),
             bt.tr('ConfigTranslation', '开'),
             bt.tr('ConfigTranslation', '关'),
-            bt.tr('ConfigTranslation', '默认'),
         ])
-        self.scheduler_selector.setCurrentText(bt.tr('ConfigTranslation', _raw_scheduler_selector))
-        self.scheduler_selector.currentTextChanged.connect(
-            lambda x: config.set('new_event_enable_state', __dict__for_scheduler_selector[bt.undo(x)]))
+        self.scheduler_selector.setCurrentIndex(
+            self._scheduler_states.index(
+                configGui.get(configGui.schedulerNewEventEnableState)))
+        self.scheduler_selector.currentIndexChanged.connect(
+            self._scheduler_state_changed)
+        configGui.schedulerNewEventEnableState.valueChanged.connect(
+            self._sync_scheduler_state)
         _scheduler_selector_layout.addWidget(_scheduler_selector_label)
         _scheduler_selector_layout.addWidget(self.scheduler_selector)
 
@@ -70,6 +69,8 @@ class ProcessFragment(ScrollArea):
 
         self.vBox2 = QVBoxLayout()
         self.listWidget = ListWidget(self)
+        self.listWidget.setSelectionMode(QAbstractItemView.NoSelection)
+        self.listWidget.setFocusPolicy(Qt.NoFocus)
         self.label_queuing = SubtitleLabel(self.tr("任务队列"), self)
 
         self.vBox2.addWidget(self.label_queuing)
@@ -107,15 +108,39 @@ class ProcessFragment(ScrollArea):
                     self.tr("暂无队列中的任务")]
                 self.on_status.setText(bt.tr('ConfigTranslation', crt_task))
 
-                self.listWidget.clear()
-                self.listWidget.addItems(task_list)
+                self._set_queue_items(task_list)
             else:
                 self.on_status.setText(self.tr("暂无正在执行的任务"))
-                self.listWidget.clear()
-                self.listWidget.addItems([self.tr("暂无队列中的任务")])
+                self._set_queue_items([self.tr("暂无队列中的任务")])
                 main_thread = self.config.get_main_thread()
                 self.baas_thread = main_thread.get_baas_thread() if main_thread else None
             time.sleep(2)
+
+    def _scheduler_state_changed(self, index):
+        configGui.set(
+            configGui.schedulerNewEventEnableState,
+            self._scheduler_states[index])
+
+    def _sync_scheduler_state(self, state):
+        index = self._scheduler_states.index(state)
+        if self.scheduler_selector.currentIndex() == index:
+            return
+        self.scheduler_selector.blockSignals(True)
+        self.scheduler_selector.setCurrentIndex(index)
+        self.scheduler_selector.blockSignals(False)
+
+    @staticmethod
+    def _create_queue_item(text):
+        item = QListWidgetItem(text)
+        item.setFlags(Qt.ItemIsEnabled)
+        return item
+
+    def _set_queue_items(self, task_list):
+        self.listWidget.clear()
+        for task in task_list:
+            self.listWidget.addItem(self._create_queue_item(task))
+        self.listWidget.clearSelection()
+        self.listWidget.setCurrentRow(-1)
 
     def __initLayout(self):
         # self.expandLayout.setSpacing(28)

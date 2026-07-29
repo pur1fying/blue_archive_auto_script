@@ -94,6 +94,14 @@ class ConfigGui(QConfig):
         "MainWindow", "configLoadType", "Card", OptionsValidator(["Card", "List"]), restart=True)
     cardDisplayType = OptionsConfigItem(
         "MainWindow", "cardDisplayType", "withImage", OptionsValidator(["withImage", "plainText"]), restart=True)
+    schedulerNewEventEnableState = OptionsConfigItem(
+        "Scheduler", "NewEventEnableState", "default",
+        OptionsValidator(["default", "on", "off"])
+    )
+    schedulerSortMode = OptionsConfigItem(
+        "Scheduler", "SortMode", "priority",
+        OptionsValidator(["priority", "next_tick"])
+    )
 
 
 configGui = ConfigGui()

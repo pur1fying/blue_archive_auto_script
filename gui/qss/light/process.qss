@@ -11,3 +11,31 @@
     padding: 10px;
     border-radius: 10px;
 }
+
+#listWidget::item {
+    background-color: transparent;
+    color: inherit;
+    border: none;
+    outline: none;
+}
+
+#listWidget::item:hover {
+    background-color: transparent;
+    color: inherit;
+    border: none;
+    outline: none;
+}
+
+#listWidget::item:selected {
+    background-color: transparent;
+    color: inherit;
+    border: none;
+    outline: none;
+}
+
+#listWidget::item:selected:active {
+    background-color: transparent;
+    color: inherit;
+    border: none;
+    outline: none;
+}

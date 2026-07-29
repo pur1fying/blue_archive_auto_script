@@ -11,6 +11,7 @@ from qfluentwidgets import CheckBox, TableWidget, PushButton, ComboBox, CaptionL
 
 from gui.components.expand.expandTemplate import TemplateLayoutV2
 from gui.util.customized_ui import ClickFocusLineEdit
+from gui.util.config_gui import configGui
 from gui.util.translator import baasTranslator as bt
 
 
@@ -75,11 +76,13 @@ class Layout(QWidget):
         self._event_config = None
         self._read_config()
         assert self._event_config is not None
-        self._crt_order_config = self._event_config
+        self._sort_modes = ("priority", "next_tick")
+        saved_sort_mode = configGui.get(configGui.schedulerSortMode)
+        self._crt_order_config = self._sorted_events(saved_sort_mode)
         self.config.get_signal('update_signal').connect(self._refresh_time)
 
         self.boxes, self.qLabels, self.times, self.check_boxes, self.config_buttons = [], [], [], [], []
-        self._init_components(self._event_config)
+        self._init_components(self._crt_order_config)
 
         self.vBox = QVBoxLayout(self)
         self.option_layout = QHBoxLayout()
@@ -97,8 +100,8 @@ class Layout(QWidget):
         self.label_3 = CaptionLabel(self.tr('排序方式：'), self)
         self.op_3 = ComboBox(self)
         self.op_3.addItems([self.tr('默认排序'), self.tr('按下次执行时间排序')])
-
-        self.op_3.currentIndexChanged.connect(self._sort)
+        self.op_3.setCurrentIndex(self._sort_modes.index(saved_sort_mode))
+        self.op_3.currentIndexChanged.connect(self._sort_preference_changed)
         self.option_layout.addWidget(self.label_3)
         self.option_layout.addWidget(self.op_3)
 
@@ -120,6 +123,7 @@ class Layout(QWidget):
             self.tableView.setCellWidget(i, 3, self.config_buttons[i])
         self.vBox.addLayout(self.option_layout)
         self.vBox.addWidget(self.tableView)
+        configGui.schedulerSortMode.valueChanged.connect(self._sync_sort_mode)
 
     def _init_components(self, config_list):
         self.enable_list = [item['enabled'] for item in config_list]
@@ -164,10 +168,34 @@ class Layout(QWidget):
         with open(self.config.config_dir + '/event.json', 'w', encoding='utf-8') as f:
             json.dump(self._event_config, f, ensure_ascii=False, indent=2)
 
-    def _sort(self):
+    def _sorted_events(self, mode):
         temp = deepcopy(self._event_config)
+        if mode == "priority":
+            temp.sort(key=lambda x: x['priority'])
+        elif mode == "next_tick":
+            temp.sort(key=lambda x: (not x['enabled'], x['next_tick']))
+        return temp
+
+    def _sort_preference_changed(self, index):
+        mode = self._sort_modes[index]
+        if configGui.get(configGui.schedulerSortMode) == mode:
+            self._sort()
+            return
+        configGui.set(configGui.schedulerSortMode, mode)
+
+    def _sync_sort_mode(self, mode):
+        index = self._sort_modes.index(mode)
+        if self.op_3.currentIndex() != index:
+            self.op_3.blockSignals(True)
+            self.op_3.setCurrentIndex(index)
+            self.op_3.blockSignals(False)
+        self._sort()
+
+    def _sort(self):
+        mode = self._sort_modes[self.op_3.currentIndex()]
+        temp = self._sorted_events(mode)
         # clear original components
-        self.qLabels, self.times, self.check_boxes = [], [], []
+        self.boxes, self.qLabels, self.times, self.check_boxes, self.config_buttons = [], [], [], [], []
         self.tableView.clearContents()
         self.vBox.removeWidget(self.tableView)
         self.tableView.deleteLater()
@@ -180,12 +208,10 @@ class Layout(QWidget):
         self.tableView.setHorizontalHeaderLabels(
             [self.tr('事件'), self.tr('下次刷新时间'), self.tr('启用'), self.tr('更多配置')])
 
-        # mode 0: default, mode 1: by next_tick
-        if self.op_3.currentIndex() == 0:
-            temp.sort(key=lambda x: x['priority'])
-        elif self.op_3.currentIndex() == 1:
-            temp.sort(key=lambda x: (not x['enabled'], x['next_tick']))
         self._crt_order_config = temp
+        self.enable_list = [item['enabled'] for item in temp]
+        self.labels = [item['event_name'] for item in temp]
+        self.next_ticks = [item['next_tick'] for item in temp]
         # Add components to table
         for ind, unit in enumerate(temp):
             t_ccs = CaptionLabel(bt.tr('ConfigTranslation', unit['event_name']))
