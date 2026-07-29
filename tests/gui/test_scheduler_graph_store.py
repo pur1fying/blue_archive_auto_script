@@ -1,9 +1,15 @@
 import json
+import math
 import sys
 from datetime import datetime
 from pathlib import Path
 
 import pytest
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.9 and 3.10 use the project dependency.
+    import tomli as tomllib
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "gui" / "util"))
 
@@ -54,8 +60,17 @@ def config_dir(tmp_path):
 
 def test_dependency_manifests_pin_nodegraphqt_exactly():
     root = Path(__file__).resolve().parents[2]
-    assert "NodeGraphQt == 0.6.44" in (root / "requirements.txt").read_text(encoding="utf-8")
-    assert '"NodeGraphQt == 0.6.44"' in (root / "pyproject.toml").read_text(encoding="utf-8")
+    pin = "NodeGraphQt == 0.6.44"
+    requirements = [
+        line.strip()
+        for line in (root / "requirements.txt").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    pyproject = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
+    dependencies = pyproject["project"]["dependencies"]
+
+    assert [item for item in requirements if item.lower().startswith("nodegraphqt")] == [pin]
+    assert [item for item in dependencies if item.lower().startswith("nodegraphqt")] == [pin]
 
 
 def test_load_events_returns_immutable_values_without_json_containers(config_dir):
@@ -241,6 +256,31 @@ def test_malformed_layout_falls_back_to_empty_positions(config_dir):
     (config_dir / "scheduler_graph.json").write_text('{"version": 1, "positions": []}', encoding="utf-8")
 
     assert SchedulerGraphStore(config_dir).load_positions() == {}
+
+
+@pytest.mark.parametrize("coordinate", [math.nan, math.inf, -math.inf])
+def test_layout_with_nonfinite_coordinates_falls_back_to_empty_positions(config_dir, coordinate):
+    (config_dir / "scheduler_graph.json").write_text(
+        json.dumps({"version": 1, "positions": {"a": [coordinate, 2.0]}}),
+        encoding="utf-8",
+    )
+
+    assert SchedulerGraphStore(config_dir).load_positions() == {}
+
+
+@pytest.mark.parametrize("coordinate", [math.nan, math.inf, -math.inf])
+def test_save_positions_rejects_nonfinite_coordinates_without_replacing_prior_layout(config_dir, coordinate):
+    store = SchedulerGraphStore(config_dir)
+    store.save_positions({"a": (120.0, 240.0)})
+    before = (config_dir / "scheduler_graph.json").read_text(encoding="utf-8")
+
+    with pytest.raises(InvalidEventConfig):
+        store.save_positions({"a": (coordinate, 240.0)})
+
+    after = (config_dir / "scheduler_graph.json").read_text(encoding="utf-8")
+    assert after == before
+    assert "NaN" not in after
+    assert "Infinity" not in after
 
 
 def test_atomic_write_failure_leaves_existing_file_intact_and_removes_temp_file(config_dir, monkeypatch):

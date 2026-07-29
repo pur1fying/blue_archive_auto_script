@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import uuid
 from dataclasses import dataclass
@@ -173,7 +174,12 @@ class SchedulerGraphStore:
                 not isinstance(func_name, str)
                 or not isinstance(position, list)
                 or len(position) != 2
-                or any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in position)
+                or any(
+                    isinstance(value, bool)
+                    or not isinstance(value, (int, float))
+                    or not math.isfinite(value)
+                    for value in position
+                )
             ):
                 return {}
             result[func_name] = (float(position[0]), float(position[1]))
@@ -186,7 +192,12 @@ class SchedulerGraphStore:
                 not isinstance(func_name, str)
                 or not isinstance(position, tuple)
                 or len(position) != 2
-                or any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in position)
+                or any(
+                    isinstance(value, bool)
+                    or not isinstance(value, (int, float))
+                    or not math.isfinite(value)
+                    for value in position
+                )
             ):
                 raise InvalidEventConfig("Positions must map task names to numeric x/y tuples.")
             serialized[func_name] = [float(position[0]), float(position[1])]
