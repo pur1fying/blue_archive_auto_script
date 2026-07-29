@@ -77,6 +77,47 @@ class _DormantThread(threading.Thread):
         pass
 
 
+def _build_dormant_tracking_fragment(monkeypatch):
+    monkeypatch.setattr(
+        process.expand.__dict__["featureSwitch"], "Layout",
+        lambda config: process.QWidget())
+    thread_api = SimpleNamespace(
+        Event=threading.Event,
+        Thread=_DormantThread,
+        current_thread=threading.current_thread,
+    )
+    monkeypatch.setattr(process, "threading", thread_api)
+    return _ThreadTrackingFragment(None, _AccountConfig())
+
+
+def _enqueue_real_status_payload(widget, current_task, task_list):
+    emitted_payloads = []
+
+    def record_emit(emitted_task, emitted_list):
+        emitted_payloads.append(
+            (emitted_task, emitted_list, threading.get_ident())
+        )
+
+    widget._status_emitter.updated.connect(
+        record_emit, type=Qt.DirectConnection)
+    emit_thread = threading.Thread(
+        target=lambda: widget._status_emitter.updated.emit(
+            current_task, task_list
+        ),
+        name="queued-status-emitter",
+    )
+    emit_thread.start()
+    emit_thread.join(timeout=3)
+
+    assert not emit_thread.is_alive()
+    assert emitted_payloads == [
+        (current_task, task_list, emit_thread.ident)
+    ]
+    assert emit_thread.ident != threading.get_ident()
+    assert widget.applied_update_threads == []
+    assert widget.queue_update_threads == []
+
+
 def _wait_until(app, predicate, timeout=3):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -223,42 +264,10 @@ def test_close_waits_for_blocked_worker_and_prevents_late_widget_updates(
 def test_deferred_delete_discards_real_queued_status_payload(
     app, monkeypatch
 ):
-    monkeypatch.setattr(
-        process.expand.__dict__["featureSwitch"], "Layout",
-        lambda config: process.QWidget())
-    thread_api = SimpleNamespace(
-        Event=threading.Event,
-        Thread=_DormantThread,
-        current_thread=threading.current_thread,
+    widget = _build_dormant_tracking_fragment(monkeypatch)
+    _enqueue_real_status_payload(
+        widget, "queued current", ("queued next",)
     )
-    monkeypatch.setattr(process, "threading", thread_api)
-    widget = _ThreadTrackingFragment(None, _AccountConfig())
-    gui_thread_id = threading.get_ident()
-    emitted_payloads = []
-
-    def record_emit(current_task, task_list):
-        emitted_payloads.append(
-            (current_task, task_list, threading.get_ident())
-        )
-
-    widget._status_emitter.updated.connect(
-        record_emit, type=Qt.DirectConnection)
-    emit_thread = threading.Thread(
-        target=lambda: widget._status_emitter.updated.emit(
-            "queued current", ("queued next",)
-        ),
-        name="queued-status-emitter",
-    )
-    emit_thread.start()
-    emit_thread.join(timeout=3)
-
-    assert not emit_thread.is_alive()
-    assert emitted_payloads == [
-        ("queued current", ("queued next",), emit_thread.ident)
-    ]
-    assert emit_thread.ident != gui_thread_id
-    assert widget.applied_update_threads == []
-    assert widget.queue_update_threads == []
 
     widget.deleteLater()
     QCoreApplication.sendPostedEvents(widget, QEvent.DeferredDelete)
@@ -268,6 +277,59 @@ def test_deferred_delete_discards_real_queued_status_payload(
 
     assert widget.applied_update_threads == []
     assert widget.queue_update_threads == []
+
+
+def test_status_update_guard_blocks_connected_queued_payload(
+    app, monkeypatch
+):
+    widget = _build_dormant_tracking_fragment(monkeypatch)
+    initial_status = widget.on_status.text()
+    try:
+        _enqueue_real_status_payload(
+            widget, "guarded current", ("guarded next",)
+        )
+        widget._status_updates_enabled = False
+
+        QCoreApplication.sendPostedEvents(None, QEvent.MetaCall)
+        app.processEvents()
+
+        assert widget.applied_update_threads == [threading.get_ident()]
+        assert widget.queue_update_threads == []
+        assert widget.on_status.text() == initial_status
+        assert widget.listWidget.count() == 0
+    finally:
+        widget.deleteLater()
+        QCoreApplication.sendPostedEvents(widget, QEvent.DeferredDelete)
+        app.processEvents()
+
+
+def test_status_update_disconnect_drops_payload_with_guard_enabled(
+    app, monkeypatch
+):
+    widget = _build_dormant_tracking_fragment(monkeypatch)
+    initial_status = widget.on_status.text()
+    try:
+        _enqueue_real_status_payload(
+            widget, "disconnected current", ("disconnected next",)
+        )
+        assert widget._status_updates_enabled
+        assert not widget._status_stop.is_set()
+        widget._status_emitter.updated.disconnect(
+            widget._status_update_slot
+        )
+        widget._status_connection_active = False
+
+        QCoreApplication.sendPostedEvents(None, QEvent.MetaCall)
+        app.processEvents()
+
+        assert widget.applied_update_threads == []
+        assert widget.queue_update_threads == []
+        assert widget.on_status.text() == initial_status
+        assert widget.listWidget.count() == 0
+    finally:
+        widget.deleteLater()
+        QCoreApplication.sendPostedEvents(widget, QEvent.DeferredDelete)
+        app.processEvents()
 
 
 def test_status_worker_can_request_its_own_stop_without_self_join(
