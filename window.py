@@ -8,7 +8,7 @@ import threading
 from functools import partial
 from typing import Union
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer
+from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer, QEvent
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
@@ -22,6 +22,7 @@ from gui.fragments.process import ProcessFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
 from gui.util.config_gui import configGui, COLOR_THEME
+from gui.util.tray import TrayController
 from core.config.config_set import ConfigSet
 from gui.util.language import Language
 from gui.util.translator import baasTranslator as bt
@@ -393,6 +394,13 @@ class Window(MSFluentWindow):
         super().__init__(*args, **kwargs)
         self.main_class = None
         self.initWindow()
+        self.tray_controller = TrayController(self, self.windowIcon())
+        self.tray_controller.set_enabled(
+            configGui.get(configGui.minimizeToTray)
+        )
+        configGui.minimizeToTray.valueChanged.connect(
+            self.tray_controller.set_enabled
+        )
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
         self.tabBar = self.titleBar.tabBar
@@ -510,6 +518,14 @@ class Window(MSFluentWindow):
 
     def closeEvent(self, event):
         super().closeEvent(event)
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+        if (
+            event.type() == QEvent.WindowStateChange
+            and hasattr(self, "tray_controller")
+        ):
+            self.tray_controller.handle_window_state_change()
 
     @staticmethod
     def showHelpModal():
