@@ -82,6 +82,8 @@ class ProcessFragment(ScrollArea):
         self.listWidget = ListWidget(self)
         self.listWidget.setSelectionMode(QAbstractItemView.NoSelection)
         self.listWidget.setFocusPolicy(Qt.NoFocus)
+        self.listWidget.itemClicked.connect(
+            self._clear_queue_interaction_state)
         self.label_queuing = SubtitleLabel(self.tr("任务队列"), self)
 
         self.vBox2.addWidget(self.label_queuing)
@@ -106,6 +108,7 @@ class ProcessFragment(ScrollArea):
 
         self.baas_thread = None
         self.config = config
+        self._status_stop = threading.Event()
         self._status_thread = threading.Thread(
             target=self.refresh_status, daemon=True)
         self._status_thread.start()
@@ -114,7 +117,7 @@ class ProcessFragment(ScrollArea):
         self.setObjectName(f"{self.object_name}.ProcessFragment")
 
     def refresh_status(self):
-        while True:
+        while not self._status_stop.is_set():
             if self.baas_thread is not None:
                 crt_task = self.baas_thread.scheduler.getCurrentTaskName()
                 task_list = self.baas_thread.scheduler.getWaitingTaskList()
@@ -130,7 +133,7 @@ class ProcessFragment(ScrollArea):
                 self._set_queue_items([self.tr("暂无队列中的任务")])
                 main_thread = self.config.get_main_thread()
                 self.baas_thread = main_thread.get_baas_thread() if main_thread else None
-            time.sleep(2)
+            self._status_stop.wait(2)
 
     def _scheduler_state_changed(self, index):
         configGui.set(
@@ -196,12 +199,26 @@ class ProcessFragment(ScrollArea):
 
     def event(self, event):
         if event.type() == QEvent.DeferredDelete:
+            self._stop_status_refresh()
             self._save_graph_layout()
         return super().event(event)
+
+    def closeEvent(self, event):
+        self._stop_status_refresh()
+        self._save_graph_layout()
+        super().closeEvent(event)
 
     def hideEvent(self, event):
         self._save_graph_layout()
         super().hideEvent(event)
+
+    def _stop_status_refresh(self) -> None:
+        self._status_stop.set()
+        if (
+            self._status_thread.is_alive()
+            and threading.current_thread() is not self._status_thread
+        ):
+            self._status_thread.join(timeout=1)
 
     @staticmethod
     def _create_queue_item(text):
@@ -209,12 +226,15 @@ class ProcessFragment(ScrollArea):
         item.setFlags(Qt.ItemIsEnabled)
         return item
 
+    def _clear_queue_interaction_state(self, _item=None):
+        self.listWidget.clearSelection()
+        self.listWidget.setCurrentRow(-1)
+
     def _set_queue_items(self, task_list):
         self.listWidget.clear()
         for task in task_list:
             self.listWidget.addItem(self._create_queue_item(task))
-        self.listWidget.clearSelection()
-        self.listWidget.setCurrentRow(-1)
+        self._clear_queue_interaction_state()
 
     def __initLayout(self):
         # self.expandLayout.setSpacing(28)

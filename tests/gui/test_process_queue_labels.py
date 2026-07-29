@@ -1,4 +1,5 @@
 import re
+import time
 from pathlib import Path
 
 import pytest
@@ -60,6 +61,7 @@ def test_queue_hover_and_click_never_select_rows(fragment, app):
     QTest.mouseClick(fragment.listWidget.viewport(), Qt.LeftButton, pos=point)
     app.processEvents()
 
+    assert fragment.listWidget.currentItem() is None
     assert fragment.listWidget.selectedItems() == []
 
 
@@ -72,6 +74,26 @@ def test_queue_refresh_does_not_retain_a_current_row(fragment):
 
     assert fragment.listWidget.currentItem() is None
     assert fragment.listWidget.selectedItems() == []
+
+
+def test_closing_fragment_stops_background_status_refresh(app, monkeypatch):
+    monkeypatch.setattr(
+        process.expand.__dict__["featureSwitch"], "Layout",
+        lambda config: process.QWidget())
+    widget = process.ProcessFragment(None, _AccountConfig())
+    widget.resize(700, 400)
+    widget.show()
+    app.processEvents()
+    status_thread = widget._status_thread
+    assert status_thread.is_alive()
+
+    widget.close()
+    deadline = time.monotonic() + 3
+    while status_thread.is_alive() and time.monotonic() < deadline:
+        app.processEvents()
+        QTest.qWait(20)
+
+    assert not status_thread.is_alive()
 
 
 def _item_rule(qss, selector):
