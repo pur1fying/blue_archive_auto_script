@@ -30,7 +30,7 @@ def main():
                 Layout as FinalRestrictionLayout,
             )
             from gui.components.expand.friendWhiteList import (
-                Layout as FriendClearLayout,
+                Layout as FriendLayout,
             )
             from gui.util.config_gui import configGui
 
@@ -42,11 +42,28 @@ def main():
             assert window.isVisible()
             assert hasattr(window, "tray_controller")
 
+            for _ in range(10):
+                if window.schedulerInterface._setting_cards:
+                    break
+                QTest.qWait(100)
+            setting_names = {
+                card.setting_name
+                for card in window.schedulerInterface._setting_cards
+            }
+            assert "friendWhiteList" in setting_names
+            assert "finalRestrictionRls" in setting_names
+            assert "friendClearConfig" not in setting_names
+            assert not hasattr(window.settingInterface, "finalRestrictionRlsCard")
+            assert not hasattr(window.settingInterface, "friendClearConfigCard")
+
             account_config = window.config_dir_list[0]
             final_editor = FinalRestrictionLayout(window, account_config)
-            friend_editor = FriendClearLayout(window, account_config)
+            friend_editor = FriendLayout(window, account_config)
             assert final_editor.formation_method_combo.count() == 2
-            assert friend_editor.level_limit_spin.minimum() == -1
+            assert friend_editor.level_limit_spin is not None
+            assert friend_editor.last_login_days_spin is not None
+            assert friend_editor.total_assault_rank_spin is not None
+            assert friend_editor.table_view is not None
 
             configGui.set(configGui.minimizeToTray, True)
             assert QSystemTrayIcon.isSystemTrayAvailable()
@@ -81,3 +98,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("Legacy GUI smoke passed")
