@@ -29,7 +29,7 @@ def main():
             from gui.components.expand.finalRestrictionRls import (
                 Layout as FinalRestrictionLayout,
             )
-            from gui.components.expand.friendClearConfig import (
+            from gui.components.expand.friendWhiteList import (
                 Layout as FriendClearLayout,
             )
             from gui.util.config_gui import configGui
