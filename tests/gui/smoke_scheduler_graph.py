@@ -396,18 +396,14 @@ def run_smoke() -> None:
                 for timer in new_post_teardown_timers
             )
             assert not teardown_timer.isActive()
-            remaining_top_levels = [
-                widget
-                for widget in QApplication.topLevelWidgets()
-                if not sip.isdeleted(widget)
-            ]
-            assert remaining_top_levels == [], [
+            raw_top_levels = QApplication.topLevelWidgets()
+            assert raw_top_levels == [], [
                 (
                     widget.__class__.__name__,
                     widget.objectName(),
                     widget.isVisible(),
                 )
-                for widget in remaining_top_levels
+                for widget in raw_top_levels
             ]
             unexpected_threads = [
                 thread
