@@ -226,6 +226,29 @@ def test_nodegraphqt_characterization_matches_pinned_0644(
     )
 
 
+@pytest.mark.parametrize(
+    "method_name",
+    [
+        "create_node",
+        "add_node",
+        "delete_node",
+        "remove_node",
+        "delete_nodes",
+        "cut_nodes",
+        "paste_nodes",
+        "duplicate_nodes",
+        "clear_session",
+        "deserialize_session",
+        "load_session",
+        "import_session",
+    ],
+)
+def test_fixed_membership_overrides_match_nodegraphqt_signatures(method_name):
+    assert inspect.signature(getattr(FixedNodeGraph, method_name)) == (
+        inspect.signature(getattr(NodeGraph, method_name))
+    )
+
+
 def test_construction_maps_fixed_tasks_widgets_and_typed_ports(
     config_dir, managed_views, monkeypatch
 ):
@@ -264,6 +287,69 @@ def test_construction_maps_fixed_tasks_widgets_and_typed_ports(
     assert store.mutation_calls == []
 
 
+def test_duplicate_translations_keep_exact_locked_visible_titles(
+    app, tmp_path, managed_views, monkeypatch
+):
+    _write_events(
+        tmp_path,
+        [
+            _record("stable_a", "First source name"),
+            _record("stable_b", "Second source name"),
+        ],
+    )
+    monkeypatch.setattr(
+        graph_module.bt,
+        "tr",
+        lambda context, text: "Same translated title",
+    )
+
+    view, _store = _build_view(tmp_path, managed_views)
+    view.resize(900, 600)
+    view.show()
+    app.processEvents()
+    first = view.node_for_func("stable_a")
+    second = view.node_for_func("stable_b")
+
+    assert first.name() != second.name()
+    assert first.view.name == "Same translated title"
+    assert second.view.name == "Same translated title"
+    assert first.view.text_item.toPlainText() == "Same translated title"
+    assert second.view.text_item.toPlainText() == "Same translated title"
+
+    first.set_name("direct rename")
+    view.graph.viewer().node_name_changed.emit(
+        second.id, "viewer signal rename"
+    )
+    app.processEvents()
+
+    assert first.view.name == "Same translated title"
+    assert second.view.name == "Same translated title"
+    assert first.func_name == "stable_a"
+    assert second.func_name == "stable_b"
+
+    second.view.name = "graphics item rename"
+    assert second.view.name == "Same translated title"
+    assert second.view.text_item.toPlainText() == "Same translated title"
+    second.update()
+    assert second.view.name == "Same translated title"
+    assert second.view.text_item.toPlainText() == "Same translated title"
+
+    text_item = first.view.text_item
+    title_pos = view.graph.viewer().mapFromScene(
+        text_item.sceneBoundingRect().center()
+    )
+    QTest.mouseDClick(
+        view.graph.viewer().viewport(),
+        Qt.LeftButton,
+        pos=title_pos,
+    )
+    app.processEvents()
+
+    assert text_item.textInteractionFlags() == Qt.NoTextInteraction
+    assert text_item.hasFocus() is False
+    assert text_item.toPlainText() == "Same translated title"
+
+
 def test_node_creation_ui_and_context_menus_are_disabled(
     app, config_dir, managed_views
 ):
@@ -279,6 +365,87 @@ def test_node_creation_ui_and_context_menus_are_disabled(
     view.graph.toggle_node_search()
     app.processEvents()
     assert view.graph.viewer()._search_widget.isHidden()
+
+    before = tuple(view.graph.all_nodes())
+    view.graph.viewer().search_triggered.emit(
+        SchedulerTaskNode.type_, (10.0, 20.0)
+    )
+    assert tuple(view.graph.all_nodes()) == before
+
+
+@pytest.mark.parametrize(
+    "entrypoint",
+    [
+        "create_node",
+        "add_node",
+        "delete_node",
+        "remove_node",
+        "delete_nodes",
+        "cut_nodes",
+        "paste_nodes",
+        "duplicate_nodes",
+        "clear_session",
+        "deserialize_session",
+        "load_session",
+        "import_session",
+    ],
+)
+def test_every_public_structural_entrypoint_preserves_fixed_membership(
+    config_dir, managed_views, tmp_path, entrypoint
+):
+    view, _store = _build_view(config_dir, managed_views)
+    graph = view.graph
+    original_nodes = tuple(graph.all_nodes())
+    node = original_nodes[0]
+    session_data = graph.serialize_session()
+    session_path = tmp_path / "scheduler.nodegraph"
+    session_path.write_text(
+        json.dumps(session_data, default=list), encoding="utf-8"
+    )
+
+    if entrypoint == "create_node":
+        graph.create_node(SchedulerTaskNode.type_, name="injected")
+    elif entrypoint == "add_node":
+        graph.add_node(SchedulerTaskNode(), selected=False)
+    elif entrypoint == "delete_node":
+        graph.delete_node(node, push_undo=False)
+    elif entrypoint == "remove_node":
+        graph.remove_node(node, push_undo=False)
+    elif entrypoint == "delete_nodes":
+        graph.delete_nodes(list(original_nodes), push_undo=False)
+    elif entrypoint == "cut_nodes":
+        graph.cut_nodes([node])
+    elif entrypoint == "paste_nodes":
+        assert graph.copy_nodes([node]) is True
+        graph.paste_nodes()
+    elif entrypoint == "duplicate_nodes":
+        graph.duplicate_nodes([node])
+    elif entrypoint == "clear_session":
+        graph.clear_session()
+    elif entrypoint == "deserialize_session":
+        graph.deserialize_session(session_data)
+    elif entrypoint == "load_session":
+        graph.load_session(str(session_path))
+    elif entrypoint == "import_session":
+        graph.import_session(str(session_path))
+    else:
+        raise AssertionError(f"Unhandled entry point: {entrypoint}")
+
+    assert tuple(graph.all_nodes()) == original_nodes
+
+
+def test_internal_construction_scope_cannot_be_reopened_after_loading(
+    config_dir, managed_views
+):
+    view, _store = _build_view(config_dir, managed_views)
+    graph = view.graph
+    original_nodes = tuple(graph.all_nodes())
+
+    with pytest.raises(RuntimeError, match="already been used"):
+        with graph._controlled_node_construction():
+            graph.create_node(SchedulerTaskNode.type_, name="injected")
+
+    assert tuple(graph.all_nodes()) == original_nodes
 
 
 def test_cross_role_ports_reject_visual_connection_without_store_mutation(
