@@ -1,15 +1,7 @@
 import json
 
 from core.config.default_config import DEFAULT_CONFIG, STATIC_DEFAULT_CONFIG
-from tests.gui.helpers import FakeConfig
-
-
-class SettingsConfig(FakeConfig):
-    def inject(self, component, text, attribute="setText"):
-        getattr(component, attribute)(text.replace("{name}", "Test"))
-
-    def get_window(self):
-        return None
+from tests.gui.helpers import SettingsConfig
 
 
 def test_settings_page_exposes_both_issue_528_cards(qapp):
