@@ -39,46 +39,93 @@ class _ImmutableNodeTextItem(NodeTextItem):
     def __init__(self, text, parent=None):
         self._sealed_text: str | None = None
         self._restoring_text = False
+        self._observed_document = None
         super().__init__(text, parent)
 
     def _seal_text(self, text: str) -> None:
         if self._sealed_text is not None:
-            self._restore_sealed_text()
+            self._reconcile_sealed_document()
             return
         self._sealed_text = text
-        self._restore_sealed_text()
-        self.document().contentsChanged.connect(self._restore_sealed_text)
+        self._reconcile_sealed_document()
 
     def setPlainText(self, text: str) -> None:
-        super().setPlainText(
-            self._sealed_text if self._sealed_text is not None else text
-        )
+        if self._sealed_text is not None:
+            self._reconcile_sealed_document()
+            return
+        super().setPlainText(text)
 
     def setHtml(self, html: str) -> None:
         if self._sealed_text is not None:
-            self._restore_sealed_text()
+            self._reconcile_sealed_document()
             return
         super().setHtml(html)
 
     def setDocument(self, document) -> None:
         if self._sealed_text is not None:
-            self._restore_sealed_text()
+            self._reconcile_sealed_document()
             return
         super().setDocument(document)
 
     def setTextCursor(self, cursor) -> None:
         if self._sealed_text is not None:
-            self._restore_sealed_text()
+            self._reconcile_sealed_document()
             return
         super().setTextCursor(cursor)
 
-    def _restore_sealed_text(self) -> None:
-        if (
-            self._sealed_text is None
-            or self._restoring_text
-            or self.toPlainText() == self._sealed_text
-        ):
+    def document(self):
+        self._reconcile_sealed_document()
+        return super().document()
+
+    def toPlainText(self) -> str:
+        self._reconcile_sealed_document()
+        return super().toPlainText()
+
+    def toHtml(self) -> str:
+        self._reconcile_sealed_document()
+        return super().toHtml()
+
+    def textCursor(self):
+        self._reconcile_sealed_document()
+        return super().textCursor()
+
+    def boundingRect(self):
+        self._reconcile_sealed_document()
+        return super().boundingRect()
+
+    def shape(self):
+        self._reconcile_sealed_document()
+        return super().shape()
+
+    def contains(self, point):
+        self._reconcile_sealed_document()
+        return super().contains(point)
+
+    def paint(self, painter, option, widget=None) -> None:
+        self._reconcile_sealed_document()
+        super().paint(painter, option, widget)
+
+    def _reconcile_sealed_document(self) -> None:
+        if self._sealed_text is None or self._restoring_text:
             return
+
+        current_document = super().document()
+        if current_document is not self._observed_document:
+            if self._observed_document is not None:
+                try:
+                    self._observed_document.contentsChanged.disconnect(
+                        self._reconcile_sealed_document
+                    )
+                except (RuntimeError, TypeError):
+                    pass
+            current_document.contentsChanged.connect(
+                self._reconcile_sealed_document
+            )
+            self._observed_document = current_document
+
+        if super().toPlainText() == self._sealed_text:
+            return
+
         self._restoring_text = True
         try:
             super().setPlainText(self._sealed_text)
