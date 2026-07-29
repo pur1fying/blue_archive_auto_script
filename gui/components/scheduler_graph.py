@@ -12,11 +12,13 @@ from NodeGraphQt import BaseNode, NodeGraph, Port
 from NodeGraphQt.constants import PortTypeEnum
 from NodeGraphQt.qgraphics.node_base import NodeItem
 from NodeGraphQt.qgraphics.node_text_item import NodeTextItem
-from PyQt5.QtCore import QSignalBlocker, QTimer, pyqtSignal
+from PyQt5.QtCore import QCoreApplication, QSignalBlocker, QTimer, pyqtSignal
 from PyQt5.QtGui import QHideEvent
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from gui.util.scheduler_graph_store import (
+    InvalidRelationship,
+    InvalidTime,
     SchedulerEvent,
     SchedulerGraphStore,
     SchedulerRelationship,
@@ -31,6 +33,11 @@ POST_OUTPUT = "后置任务"
 
 PRE_COLOR = (70, 155, 255)
 POST_COLOR = (255, 160, 70)
+
+
+def _translate_scheduler_graph(source: str) -> str:
+    """Translate graph strings using the catalog's explicit runtime context."""
+    return QCoreApplication.translate("SchedulerGraphView", source)
 
 
 class _ImmutableNodeTextItem(NodeTextItem):
@@ -169,35 +176,48 @@ class SchedulerTaskNode(BaseNode):
         super().__init__(qgraphics_item=_SchedulerTaskNodeItem)
         self._display_title: str | None = None
         self.create_property("func_name", "")
+        self._port_labels = {
+            "pre_input": _translate_scheduler_graph(PRE_INPUT),
+            "pre_output": _translate_scheduler_graph(PRE_OUTPUT),
+            "post_input": _translate_scheduler_graph(POST_INPUT),
+            "post_output": _translate_scheduler_graph(POST_OUTPUT),
+        }
 
         pre_input = self.add_input(
-            PRE_INPUT, multi_input=True, color=PRE_COLOR
+            self._port_labels["pre_input"], multi_input=True, color=PRE_COLOR
         )
         post_input = self.add_input(
-            POST_INPUT, multi_input=True, color=POST_COLOR
+            self._port_labels["post_input"], multi_input=True, color=POST_COLOR
         )
         pre_output = self.add_output(
-            PRE_OUTPUT, multi_output=True, color=PRE_COLOR
+            self._port_labels["pre_output"], multi_output=True, color=PRE_COLOR
         )
         post_output = self.add_output(
-            POST_OUTPUT, multi_output=True, color=POST_COLOR
+            self._port_labels["post_output"], multi_output=True, color=POST_COLOR
         )
 
         pre_input.add_accept_port_type(
-            PRE_OUTPUT, PortTypeEnum.OUT.value, self.type_
+            self._port_labels["pre_output"], PortTypeEnum.OUT.value, self.type_
         )
         pre_output.add_accept_port_type(
-            PRE_INPUT, PortTypeEnum.IN.value, self.type_
+            self._port_labels["pre_input"], PortTypeEnum.IN.value, self.type_
         )
         post_input.add_accept_port_type(
-            POST_OUTPUT, PortTypeEnum.OUT.value, self.type_
+            self._port_labels["post_output"], PortTypeEnum.OUT.value, self.type_
         )
         post_output.add_accept_port_type(
-            POST_INPUT, PortTypeEnum.IN.value, self.type_
+            self._port_labels["post_input"], PortTypeEnum.IN.value, self.type_
         )
 
-        self.add_checkbox("enabled", text="enabled", state=False)
-        self.add_text_input("next_tick", text="")
+        enabled_label = _translate_scheduler_graph("启用")
+        self.add_checkbox(
+            "enabled", label=enabled_label, text=enabled_label, state=False
+        )
+        self.add_text_input(
+            "next_tick",
+            label=_translate_scheduler_graph("下次执行时间"),
+            text="",
+        )
 
     def set_property(self, name, value, push_undo=True):
         if name == "name" and self._display_title is not None:
@@ -214,6 +234,9 @@ class SchedulerTaskNode(BaseNode):
         self.view._set_immutable_display_title(title)
         self.view.text_item.set_editable(False)
         self.view.text_item.set_locked(True)
+
+    def port_label(self, role: str) -> str:
+        return self._port_labels[role]
 
     @property
     def func_name(self) -> str:
@@ -407,7 +430,9 @@ class SchedulerGraphView(QWidget):
             old_graph.deleteLater()
 
         if layout_error is not None:
-            warning_text = "\n".join(warnings)
+            warning_text = "\n".join(
+                self._translated_warning(warning) for warning in warnings
+            )
             message = (
                 f"{layout_error}\n{warning_text}"
                 if warning_text
@@ -419,7 +444,11 @@ class SchedulerGraphView(QWidget):
             if warning_text:
                 self.warning_occurred.emit(warning_text)
         elif warnings:
-            self._show_warning("\n".join(warnings))
+            self._show_warning(
+                "\n".join(
+                    self._translated_warning(warning) for warning in warnings
+                )
+            )
         else:
             self._clear_message()
 
@@ -469,10 +498,10 @@ class SchedulerGraphView(QWidget):
         self, func_name: str, node: SchedulerTaskNode
     ) -> None:
         ports = {
-            "pre_input": node.inputs()[PRE_INPUT],
-            "post_input": node.inputs()[POST_INPUT],
-            "pre_output": node.outputs()[PRE_OUTPUT],
-            "post_output": node.outputs()[POST_OUTPUT],
+            "pre_input": node.inputs()[node.port_label("pre_input")],
+            "post_input": node.inputs()[node.port_label("post_input")],
+            "pre_output": node.outputs()[node.port_label("pre_output")],
+            "post_output": node.outputs()[node.port_label("post_output")],
         }
         for role, port in ports.items():
             self._ports_by_func_role[(func_name, role)] = port
@@ -671,11 +700,36 @@ class SchedulerGraphView(QWidget):
             self._suppression_depth -= 1
 
     def _show_error(self, error: Exception) -> None:
-        message = str(error) or error.__class__.__name__
+        detail = str(error) or error.__class__.__name__
+        if isinstance(error, (InvalidRelationship, ValueError)):
+            category = _translate_scheduler_graph("调度关系无效")
+        elif isinstance(error, InvalidTime):
+            category = _translate_scheduler_graph(
+                "时间格式无效，请使用 YYYY-MM-DD HH:MM:SS"
+            )
+        elif isinstance(error, OSError):
+            category = _translate_scheduler_graph("调度配置保存失败")
+        else:
+            category = None
+        message = f"{category}: {detail}" if category else detail
         self._message_label.setStyleSheet("color: #d13438;")
         self._message_label.setText(message)
         self._message_label.show()
         self.error_occurred.emit(message)
+
+    @staticmethod
+    def _translated_warning(message: str) -> str:
+        if message.startswith("Unknown scheduler dependency"):
+            category = _translate_scheduler_graph(
+                "调度配置包含无法显示的任务关系"
+            )
+            return f"{category}: {message}"
+        if message.startswith("Scheduler dependency cycle detected"):
+            category = _translate_scheduler_graph(
+                "调度配置中已存在循环依赖"
+            )
+            return f"{category}: {message}"
+        return message
 
     def _show_warning(self, message: str) -> None:
         self._message_label.setStyleSheet("color: #d99b00;")

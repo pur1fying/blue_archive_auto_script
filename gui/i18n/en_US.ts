@@ -1966,7 +1966,7 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
     <message>
         <location filename="../components/scheduler_graph.py" line="28"/>
         <source>作为前置任务</source>
-        <translation>Use as Prerequisite</translation>
+        <translation>Use as a Prerequisite Task</translation>
     </message>
     <message>
         <location filename="../components/scheduler_graph.py" line="29"/>
