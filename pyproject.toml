@@ -6,6 +6,7 @@ authors = [{ name = "pur1fying", email = "2274916027@qq.com" }]
 dependencies = [
     "lmdb",
     "pyqt5==5.15.11",
+    "NodeGraphQt == 0.6.44",
     "pyqt5-qt5==5.15.2",
     "numpy < 2.0",
     "av == 12.0.0",
