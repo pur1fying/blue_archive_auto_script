@@ -3,9 +3,10 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5 import sip
+from PyQt5.QtCore import QCoreApplication, QEvent, QObject, pyqtSignal
 from PyQt5.QtTest import QSignalSpy
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QWidget
 
 import gui
 
@@ -152,11 +153,11 @@ def integration(app, tmp_path, monkeypatch):
 
     fragments = []
 
-    def build(name="account", records=None):
+    def build(name="account", records=None, parent=None):
         config_dir = tmp_path / name
         _write_events(config_dir, records)
         account = _AccountConfig(config_dir)
-        fragment = process.ProcessFragment(None, account)
+        fragment = process.ProcessFragment(parent, account)
         account.window = fragment
         fragment.resize(900, 700)
         fragment.show()
@@ -167,6 +168,8 @@ def integration(app, tmp_path, monkeypatch):
     yield build, gui_config, started_threads
 
     for fragment in fragments:
+        if sip.isdeleted(fragment):
+            continue
         fragment.close()
         fragment.deleteLater()
     app.processEvents()
@@ -394,6 +397,34 @@ def test_fragment_lifecycle_saves_positions_without_touching_event_json(
     )["positions"]
     assert positions["a"] == [11.0, 22.0]
     assert (config_dir / "event.json").read_bytes() == before
+
+
+def test_direct_deferred_delete_saves_latest_layout_without_touching_events(
+    integration, app
+):
+    build, _gui_config, _started_threads = integration
+    host = QWidget()
+    host.resize(900, 700)
+    host.show()
+    fragment, _account, config_dir = build(parent=host)
+    _click_graph(fragment, app)
+    fragment.graph_view.node_for_func("a").set_pos(777.5, -333.25)
+    event_bytes = (config_dir / "event.json").read_bytes()
+    event_records = _read_events(config_dir)
+
+    fragment.deleteLater()
+    QCoreApplication.sendPostedEvents(fragment, QEvent.DeferredDelete)
+    app.processEvents()
+
+    assert sip.isdeleted(fragment)
+    positions = json.loads(
+        (config_dir / "scheduler_graph.json").read_text(encoding="utf-8")
+    )["positions"]
+    assert positions["a"] == [777.5, -333.25]
+    assert (config_dir / "event.json").read_bytes() == event_bytes
+    assert _read_events(config_dir) == event_records
+    host.close()
+    host.deleteLater()
 
 
 def test_missing_nodegraphqt_reports_translated_error_and_table_stays_editable(
