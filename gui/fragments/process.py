@@ -4,7 +4,8 @@ from hashlib import md5
 from importlib import import_module
 from random import random
 
-from PyQt5.QtCore import Qt
+from PyQt5 import sip
+from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtWidgets import (QAbstractItemView, QHBoxLayout, QListWidgetItem,
                              QStackedWidget, QVBoxLayout, QWidget)
 from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
@@ -189,8 +190,14 @@ class ProcessFragment(ScrollArea):
             self._table_stale = False
 
     def _save_graph_layout(self) -> None:
-        if self.graph_view is not None:
-            self.graph_view.save_layout()
+        graph_view = getattr(self, "graph_view", None)
+        if graph_view is not None and not sip.isdeleted(graph_view):
+            graph_view.save_layout()
+
+    def event(self, event):
+        if event.type() == QEvent.DeferredDelete:
+            self._save_graph_layout()
+        return super().event(event)
 
     def hideEvent(self, event):
         self._save_graph_layout()
