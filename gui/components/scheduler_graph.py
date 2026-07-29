@@ -10,6 +10,7 @@ from typing import Callable, Iterator
 
 from NodeGraphQt import BaseNode, NodeGraph, Port
 from NodeGraphQt.constants import PortTypeEnum
+from NodeGraphQt.qgraphics.node_base import NodeItem
 from PyQt5.QtCore import QSignalBlocker, QTimer, pyqtSignal
 from PyQt5.QtGui import QHideEvent
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
@@ -31,12 +32,34 @@ PRE_COLOR = (70, 155, 255)
 POST_COLOR = (255, 160, 70)
 
 
+class _SchedulerTaskNodeItem(NodeItem):
+    """Node graphics item whose installed display title cannot be replaced."""
+
+    def __init__(self, name="node", parent=None):
+        self._immutable_display_title: str | None = None
+        super().__init__(name=name, parent=parent)
+
+    @property
+    def name(self):
+        return NodeItem.name.fget(self)
+
+    @name.setter
+    def name(self, name=""):
+        title = self._immutable_display_title
+        NodeItem.name.fset(self, title if title is not None else name)
+
+    def set_immutable_display_title(self, title: str) -> None:
+        self.name = title
+        self._immutable_display_title = title
+
+
 class SchedulerTaskNode(BaseNode):
     __identifier__ = "baas.scheduler"
     NODE_NAME = "Scheduler Task"
 
     def __init__(self):
-        super().__init__()
+        super().__init__(qgraphics_item=_SchedulerTaskNodeItem)
+        self._display_title: str | None = None
         self.create_property("func_name", "")
 
         pre_input = self.add_input(
@@ -68,13 +91,119 @@ class SchedulerTaskNode(BaseNode):
         self.add_checkbox("enabled", text="enabled", state=False)
         self.add_text_input("next_tick", text="")
 
+    def set_property(self, name, value, push_undo=True):
+        if name == "name" and self._display_title is not None:
+            self.view.name = self._display_title
+            return None
+        return super().set_property(name, value, push_undo=push_undo)
+
+    def set_display_title(self, title: str) -> None:
+        """Install an exact, immutable title independent of the model name."""
+        self._display_title = title
+        self.view.set_immutable_display_title(title)
+        self.view.text_item.set_editable(False)
+        self.view.text_item.set_locked(True)
+
     @property
     def func_name(self) -> str:
         return self.get_property("func_name")
 
 
 class FixedNodeGraph(NodeGraph):
+    def __init__(self, parent=None, **kwargs):
+        self._construction_depth = 0
+        self._construction_scope_used = False
+        super().__init__(parent=parent, **kwargs)
+
+    @contextmanager
+    def _controlled_node_construction(self) -> Iterator[None]:
+        """Allow the owning view to build the fixed node set."""
+        if self._construction_scope_used:
+            raise RuntimeError("fixed-node construction scope has already been used")
+        self._construction_scope_used = True
+        self._construction_depth += 1
+        try:
+            yield
+        finally:
+            self._construction_depth -= 1
+
+    @property
+    def _node_construction_allowed(self) -> bool:
+        return self._construction_depth > 0
+
+    def create_node(
+        self,
+        node_type,
+        name=None,
+        selected=True,
+        color=None,
+        text_color=None,
+        pos=None,
+        push_undo=True,
+    ):
+        if not self._node_construction_allowed:
+            return None
+        return super().create_node(
+            node_type,
+            name=name,
+            selected=selected,
+            color=color,
+            text_color=text_color,
+            pos=pos,
+            push_undo=push_undo,
+        )
+
+    def add_node(
+        self,
+        node,
+        pos=None,
+        selected=True,
+        push_undo=True,
+        inherite_graph_style=True,
+    ):
+        if not self._node_construction_allowed:
+            return None
+        return super().add_node(
+            node,
+            pos=pos,
+            selected=selected,
+            push_undo=push_undo,
+            inherite_graph_style=inherite_graph_style,
+        )
+
+    def delete_node(self, node, push_undo=True):
+        return None
+
+    def remove_node(self, node, push_undo=True):
+        return None
+
     def delete_nodes(self, nodes, push_undo=True):
+        return None
+
+    def cut_nodes(self, nodes=None):
+        return None
+
+    def paste_nodes(self, adjust_graph_style=True):
+        return []
+
+    def duplicate_nodes(self, nodes):
+        return []
+
+    def clear_session(self):
+        return None
+
+    def deserialize_session(
+        self,
+        layout_data,
+        clear_session=True,
+        clear_undo_stack=True,
+    ):
+        return None
+
+    def load_session(self, file_path):
+        return None
+
+    def import_session(self, file_path, clear_undo_stack=True):
         return None
 
     def toggle_node_search(self):
@@ -153,7 +282,8 @@ class SchedulerGraphView(QWidget):
         self._layout.addWidget(graph.widget)
 
         with self._suppress_graph_events():
-            self._create_nodes(events)
+            with graph._controlled_node_construction():
+                self._create_nodes(events)
             self._restore_or_arrange_positions()
             self._draw_relationships(relationships)
         graph.undo_stack().clear()
@@ -210,6 +340,7 @@ class SchedulerGraphView(QWidget):
                 selected=False,
                 push_undo=False,
             )
+            node.set_display_title(title)
             node.set_property("func_name", event.func_name, push_undo=False)
             time_text = datetime.fromtimestamp(event.next_tick).strftime(
                 "%Y-%m-%d %H:%M:%S"
