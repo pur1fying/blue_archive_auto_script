@@ -1,19 +1,40 @@
 import json
 
-from core.config.default_config import DEFAULT_CONFIG, STATIC_DEFAULT_CONFIG
+from core.config.default_config import DEFAULT_CONFIG, STATIC_DEFAULT_CONFIG, SWITCH_DEFAULT_CONFIG
+from gui.components import expand
+from gui.fragments.settings import SettingsFragment
 from tests.gui.helpers import SettingsConfig
 
 
-def test_settings_page_exposes_both_issue_528_cards(qapp):
-    from gui.components import expand
-    from gui.fragments.settings import SettingsFragment
+def test_issue_528_entries_belong_to_dailies():
+    entries = json.loads(SWITCH_DEFAULT_CONFIG)
+    by_config = {entry["config"]: entry for entry in entries}
 
+    friend = by_config["friendWhiteList"]
+    assert friend["sort"] == 15
+    assert friend["name"] == "好友清理设置"
+    assert friend["tip"] == "设置好友清理条件及需要保留的好友码"
+
+    final = by_config["finalRestrictionRls"]
+    assert final["sort"] == 17
+    assert final["name"] == "无限制决战"
+    assert final["tip"] == "设置编队方式及复制通关队伍限制"
+
+    assert by_config["drillConfig"]["sort"] == 16
+    assert "friendClearConfig" not in by_config
+
+
+def test_issue_528_cards_are_not_built_by_settings(qapp):
     fragment = SettingsFragment(config=SettingsConfig({"name": "Test"}))
 
-    assert fragment.finalRestrictionRlsCard in fragment.exploreGroupItems
-    assert fragment.friendClearConfigCard in fragment.exploreGroupItems
-    assert fragment.finalRestrictionRlsCard.sub_view is expand.finalRestrictionRls
-    assert fragment.friendClearConfigCard.sub_view is expand.friendClearConfig
+    assert not hasattr(fragment, "finalRestrictionRlsCard")
+    assert not hasattr(fragment, "friendClearConfigCard")
+    assert all(
+        getattr(card, "sub_view", None)
+        not in (expand.finalRestrictionRls, getattr(expand, "friendClearConfig", None))
+        for card in fragment.exploreGroupItems
+    )
+    assert fragment.minimizeToTrayCard in fragment.guiGroupItems
 
 
 def test_widgets_round_trip_values_through_real_config_set(

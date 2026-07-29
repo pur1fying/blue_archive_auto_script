@@ -56,21 +56,6 @@ class SettingsFragment(ScrollArea):
         self.exploreGroup = SettingCardGroup(
             self.tr("相关设置"), self.scrollWidget)
 
-        self.finalRestrictionRlsCard = SimpleSettingCard(
-            title=self.tr("无限制决战"),
-            content=self.tr("设置编队方式及复制通关队伍限制"),
-            sub_view=expand.finalRestrictionRls,
-            parent=self.exploreGroup,
-            config=self.config,
-        )
-        self.friendClearConfigCard = SimpleSettingCard(
-            title=self.tr("好友清理"),
-            content=self.tr("设置好友等级、登录天数和总力战排名阈值"),
-            sub_view=expand.friendClearConfig,
-            parent=self.exploreGroup,
-            config=self.config,
-        )
-
         self.exploreGroupItems = [
             SimpleSettingCard(
                 title=self.tr('编队配置'),
@@ -119,8 +104,6 @@ class SettingsFragment(ScrollArea):
                 parent=self.exploreGroup,
                 config=self.config
             ),
-            self.finalRestrictionRlsCard,
-            self.friendClearConfigCard,
         ]
 
         self.guiGroup = SettingCardGroup(
