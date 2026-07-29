@@ -7,9 +7,9 @@ import NodeGraphQt
 import pytest
 from NodeGraphQt import BaseNode, NodeGraph, Port
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QTextCursor, QTextDocument
+from PyQt5.QtGui import QImage, QPainter, QTextCursor, QTextDocument
 from PyQt5.QtTest import QSignalSpy, QTest
-from PyQt5.QtWidgets import QApplication, QLabel
+from PyQt5.QtWidgets import QApplication, QGraphicsTextItem, QLabel
 
 import gui
 
@@ -402,6 +402,116 @@ def test_sealed_visible_title_rejects_public_text_item_mutation(
     node.update()
     assert node.view.name == "Same translated title"
     assert text_item.toPlainText() == "Same translated title"
+    assert node.func_name == "stable_b"
+
+
+def test_unbound_document_replacement_reconciles_on_update_and_render(
+    app, tmp_path, managed_views, monkeypatch
+):
+    _write_events(
+        tmp_path,
+        [
+            _record("stable_a", "First source name"),
+            _record("stable_b", "Second source name"),
+        ],
+    )
+    monkeypatch.setattr(
+        graph_module.bt,
+        "tr",
+        lambda context, text: "Same translated title",
+    )
+    view, _store = _build_view(tmp_path, managed_views)
+    node = view.node_for_func("stable_b")
+    text_item = node.view.text_item
+    original_bounds = text_item.boundingRect()
+
+    def render_scene():
+        image = QImage(900, 600, QImage.Format_ARGB32)
+        image.fill(Qt.transparent)
+        painter = QPainter(image)
+        try:
+            view.graph.viewer().scene().render(painter)
+        finally:
+            painter.end()
+
+    update_document = QTextDocument("tampered before update")
+    QGraphicsTextItem.setDocument(text_item, update_document)
+    assert QGraphicsTextItem.toPlainText(text_item) == (
+        "tampered before update"
+    )
+
+    node.update()
+    render_scene()
+    app.processEvents()
+
+    assert QGraphicsTextItem.toPlainText(text_item) == (
+        "Same translated title"
+    )
+    assert text_item.boundingRect() == original_bounds
+    assert node.view.name == "Same translated title"
+    update_document.setPlainText("tampered after update")
+    assert QGraphicsTextItem.toPlainText(text_item) == (
+        "Same translated title"
+    )
+
+    render_document = QTextDocument("tampered before render")
+    QGraphicsTextItem.setDocument(text_item, render_document)
+    assert QGraphicsTextItem.toPlainText(text_item) == (
+        "tampered before render"
+    )
+
+    render_scene()
+    app.processEvents()
+
+    assert QGraphicsTextItem.toPlainText(text_item) == (
+        "Same translated title"
+    )
+    assert text_item.boundingRect() == original_bounds
+    render_document.setPlainText("tampered after render")
+    assert QGraphicsTextItem.toPlainText(text_item) == (
+        "Same translated title"
+    )
+    assert node.func_name == "stable_b"
+
+
+@pytest.mark.parametrize("read_path", ["toHtml", "textCursor"])
+def test_unbound_document_replacement_reconciles_on_all_text_reads(
+    tmp_path, managed_views, monkeypatch, read_path
+):
+    _write_events(
+        tmp_path,
+        [
+            _record("stable_a", "First source name"),
+            _record("stable_b", "Second source name"),
+        ],
+    )
+    monkeypatch.setattr(
+        graph_module.bt,
+        "tr",
+        lambda context, text: "Same translated title",
+    )
+    view, _store = _build_view(tmp_path, managed_views)
+    node = view.node_for_func("stable_b")
+    text_item = node.view.text_item
+    replacement_document = QTextDocument("tampered")
+    QGraphicsTextItem.setDocument(text_item, replacement_document)
+
+    if read_path == "toHtml":
+        read_text = text_item.toHtml()
+        assert "Same translated title" in read_text
+    elif read_path == "textCursor":
+        read_text = text_item.textCursor().document().toPlainText()
+        assert read_text == "Same translated title"
+    else:
+        raise AssertionError(f"Unhandled text read: {read_path}")
+
+    assert QGraphicsTextItem.toPlainText(text_item) == (
+        "Same translated title"
+    )
+    replacement_document.setPlainText("tampered after read")
+    assert QGraphicsTextItem.toPlainText(text_item) == (
+        "Same translated title"
+    )
     assert node.func_name == "stable_b"
 
 
