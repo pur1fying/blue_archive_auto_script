@@ -36,7 +36,6 @@ from qfluentwidgets import qconfig
 
 from core.config.config_set import ConfigSet
 from gui.components.expand import featureSwitch
-from gui.components.scheduler_graph import SchedulerTaskNode
 from gui.fragments import process
 from gui.util.config_gui import ConfigGui
 
@@ -53,22 +52,19 @@ class _WindowSignals(QObject):
 
 class _SmokeProcessFragment(process.ProcessFragment):
     def __init__(self, parent, config, teardown_timers):
-        self._teardown_timers = teardown_timers
         super().__init__(parent, config)
 
-    def closeEvent(self, event):
-        teardown_timer = None
-        if not self._teardown_timers:
+        def record_destroyed_teardown(*_args):
+            if teardown_timers:
+                return
             teardown_timer = QTimer()
             teardown_timer.setObjectName("smokeTeardownTimer")
             teardown_timer.setInterval(60_000)
             teardown_timer.start()
-            self._teardown_timers.append(teardown_timer)
-        try:
-            super().closeEvent(event)
-        finally:
-            if teardown_timer is not None:
-                teardown_timer.stop()
+            teardown_timers.append(teardown_timer)
+            teardown_timer.stop()
+
+        self.destroyed.connect(record_destroyed_teardown)
 
 
 def _record(func_name: str, event_name: str, priority: int) -> dict:
@@ -249,8 +245,12 @@ def run_smoke() -> None:
             print("PASS exact Scheduler gui.json preferences persisted")
 
             assert fragment.graph_view is None
+            assert "gui.components.scheduler_graph" not in sys.modules
+            assert "NodeGraphQt" not in sys.modules
             fragment.graph_view_button.click()
             app.processEvents()
+            assert "gui.components.scheduler_graph" in sys.modules
+            assert "NodeGraphQt" in sys.modules
             graph_view = fragment.graph_view
             assert graph_view is not None
             assert fragment.editor_stack.currentWidget() is graph_view
@@ -259,8 +259,9 @@ def run_smoke() -> None:
             assert {
                 node.get_property("func_name") for node in nodes
             } == {"a", "b", "c"}
+            registered_node_type = graph_view.node_for_func("a").type_
             assert graph_view.graph.create_node(
-                SchedulerTaskNode.type_, name="not allowed"
+                registered_node_type, name="not allowed"
             ) is None
             assert len(graph_view.graph.all_nodes()) == 3
 
@@ -300,6 +301,46 @@ def run_smoke() -> None:
             assert _event(event_path, "a")["post_task"] == []
             assert _event(event_path, "c")["pre_task"] == []
             print("PASS pre and post relationships persist independently")
+
+            a_pre_output.disconnect_from(b_pre_input)
+            assert _wait_until(
+                app, lambda: not _connected(a_pre_output, b_pre_input)
+            )
+            assert _connected(b_post_output, c_post_input)
+            assert _event(event_path, "b")["pre_task"] == []
+            assert _event(event_path, "b")["post_task"] == ["c"]
+            assert _event(event_path, "a")["post_task"] == []
+            assert _event(event_path, "c")["pre_task"] == []
+            print("PASS pre disconnect preserves post relationship")
+
+            a_pre_output.connect_to(b_pre_input)
+            assert _wait_until(
+                app,
+                lambda: (
+                    _connected(a_pre_output, b_pre_input)
+                    and _event(event_path, "b")["pre_task"] == ["a"]
+                ),
+            )
+            b_post_output.disconnect_from(c_post_input)
+            assert _wait_until(
+                app, lambda: not _connected(b_post_output, c_post_input)
+            )
+            assert _connected(a_pre_output, b_pre_input)
+            assert _event(event_path, "b")["pre_task"] == ["a"]
+            assert _event(event_path, "b")["post_task"] == []
+            assert _event(event_path, "a")["post_task"] == []
+            assert _event(event_path, "c")["pre_task"] == []
+            print("PASS post disconnect preserves pre relationship")
+
+            b_post_output.connect_to(c_post_input)
+            assert _wait_until(
+                app,
+                lambda: (
+                    _connected(b_post_output, c_post_input)
+                    and _event(event_path, "b")["post_task"] == ["c"]
+                ),
+            )
+            assert _connected(a_pre_output, b_pre_input)
 
             before_rejected_edges = event_path.read_bytes()
             a_post_output = graph_view.port_for("a", "post_output")
@@ -367,11 +408,10 @@ def run_smoke() -> None:
                 ):
                     created_timers.append(timer)
             assert teardown_timers == []
-            fragment.close()
+            _close_and_delete(app, host)
             assert len(teardown_timers) == 1
             assert _wait_until(app, lambda: not status_thread.is_alive())
             assert not status_thread.is_alive()
-            _close_and_delete(app, host)
             host = None
             fragment = None
             for _ in range(3):
@@ -433,8 +473,6 @@ def run_smoke() -> None:
                 "widgets stopped"
             )
         finally:
-            if fragment is not None and not sip.isdeleted(fragment):
-                fragment.close()
             _close_and_delete(app, host)
             for timer in teardown_timers:
                 if not sip.isdeleted(timer):

@@ -27,6 +27,32 @@ class _StatusUpdateEmitter(QObject):
     updated = pyqtSignal(object, object)
 
 
+class _StatusRefreshResources:
+    """Own worker cleanup without retaining the fragment wrapper."""
+
+    def __init__(self, stop_event, emitter, update_slot):
+        self.stop_event = stop_event
+        self.emitter = emitter
+        self.update_slot = update_slot
+        self.thread = None
+        self.connection_active = True
+
+    def stop(self, *_destroyed_args) -> None:
+        self.stop_event.set()
+        if (
+            self.thread is not None
+            and self.thread.is_alive()
+            and threading.current_thread() is not self.thread
+        ):
+            self.thread.join()
+        if self.connection_active:
+            try:
+                self.emitter.updated.disconnect(self.update_slot)
+            except (RuntimeError, TypeError):
+                pass
+            self.connection_active = False
+
+
 class ProcessFragment(ScrollArea):
     def __init__(self, parent, config):
         super().__init__(parent=parent)
@@ -128,30 +154,41 @@ class ProcessFragment(ScrollArea):
         self._status_emitter.updated.connect(
             self._status_update_slot, type=Qt.QueuedConnection)
         self._status_connection_active = True
+        self._status_resources = _StatusRefreshResources(
+            self._status_stop,
+            self._status_emitter,
+            self._status_update_slot,
+        )
         self._status_thread = threading.Thread(
             target=self._run_status_refresh,
-            args=(ref(self),),
+            args=(fragment_ref, self._status_stop),
             daemon=True,
         )
+        self._status_resources.thread = self._status_thread
+        self.destroyed.connect(self._status_resources.stop)
         self._status_thread.start()
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(f"{self.object_name}.ProcessFragment")
 
     @staticmethod
-    def _run_status_refresh(fragment_ref):
-        fragment = fragment_ref()
-        if fragment is not None:
-            fragment.refresh_status()
+    def _run_status_refresh(fragment_ref, stop_event):
+        while not stop_event.is_set():
+            fragment = fragment_ref()
+            if fragment is None:
+                break
+            current_task, task_list = fragment._collect_status()
+            emitter = fragment._status_emitter
+            del fragment
+            if stop_event.is_set():
+                break
+            emitter.updated.emit(current_task, task_list)
+            del emitter
+            if stop_event.wait(2):
+                break
 
     def refresh_status(self):
-        while not self._status_stop.is_set():
-            current_task, task_list = self._collect_status()
-            if self._status_stop.is_set():
-                break
-            self._status_emitter.updated.emit(current_task, task_list)
-            if self._status_stop.wait(2):
-                break
+        self._run_status_refresh(ref(self), self._status_stop)
 
     def _collect_status(self):
         baas_thread = self.baas_thread
@@ -216,9 +253,18 @@ class ProcessFragment(ScrollArea):
         try:
             if self.graph_view is None:
                 # Avoid cyclic PyQt wrapper collection while Qt.py initializes.
-                gc.collect()
-                graph_module = import_module(
-                    "gui.components.scheduler_graph")
+                gc_was_enabled = gc.isenabled()
+                if gc_was_enabled:
+                    gc.collect()
+                    gc.disable()
+                try:
+                    graph_module = import_module(
+                        "gui.components.scheduler_graph")
+                finally:
+                    if gc_was_enabled:
+                        gc.enable()
+                    else:
+                        gc.disable()
                 self.graph_view = graph_module.SchedulerGraphView(
                     self.config.config_dir, parent=self.editor_stack)
                 self.graph_view.data_changed.connect(
@@ -267,16 +313,10 @@ class ProcessFragment(ScrollArea):
 
     def _stop_status_refresh(self) -> None:
         self._status_updates_enabled = False
-        self._status_stop.set()
-        if (
-            self._status_thread.is_alive()
-            and threading.current_thread() is not self._status_thread
-        ):
-            self._status_thread.join()
-        if self._status_connection_active:
-            self._status_emitter.updated.disconnect(
-                self._status_update_slot)
-            self._status_connection_active = False
+        self._status_resources.stop()
+        self._status_connection_active = (
+            self._status_resources.connection_active
+        )
 
     @staticmethod
     def _create_queue_item(text):

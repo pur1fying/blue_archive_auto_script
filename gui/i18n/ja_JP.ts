@@ -416,22 +416,22 @@
         <translation>日本</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="114"/>
+        <location filename="../util/config_translation.py" line="115"/>
         <source>拖动礼物</source>
         <translation>ギフトドラッグ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="117"/>
+        <location filename="../util/config_translation.py" line="118"/>
         <source>MuMu模拟器</source>
         <translation>MuMuエミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="119"/>
+        <location filename="../util/config_translation.py" line="120"/>
         <source>蓝叠模拟器</source>
         <translation>Blue Stack「中国」シミュレータ</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="120"/>
+        <location filename="../util/config_translation.py" line="121"/>
         <source>蓝叠国际版</source>
         <translation>Blue Stack「国際」シミュレータ</translation>
     </message>
@@ -451,52 +451,52 @@
         <translation>宫子神明文字 x5</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="123"/>
+        <location filename="../util/config_translation.py" line="124"/>
         <source>无动作</source>
         <translation>アクションなし</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="124"/>
+        <location filename="../util/config_translation.py" line="125"/>
         <source>退出 Baas</source>
         <translation>バース出口</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="125"/>
+        <location filename="../util/config_translation.py" line="126"/>
         <source>退出 模拟器</source>
         <translation>エミュレータを終了します</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="126"/>
+        <location filename="../util/config_translation.py" line="127"/>
         <source>退出 Baas 和 模拟器</source>
         <translation>BaasとSimulatorを終了します</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="127"/>
+        <location filename="../util/config_translation.py" line="128"/>
         <source>关机</source>
         <translation>シャットダウン</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="118"/>
+        <location filename="../util/config_translation.py" line="119"/>
         <source>MuMu模拟器全球版</source>
         <translation>MuMuエミュレータグローバル版</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="130"/>
+        <location filename="../util/config_translation.py" line="131"/>
         <source>贯穿</source>
         <translation>貫通</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="131"/>
+        <location filename="../util/config_translation.py" line="132"/>
         <source>爆发</source>
         <translation>爆発</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="132"/>
+        <location filename="../util/config_translation.py" line="133"/>
         <source>神秘</source>
         <translation>神秘</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="133"/>
+        <location filename="../util/config_translation.py" line="134"/>
         <source>振动</source>
         <translation>振動</translation>
     </message>
@@ -506,17 +506,17 @@
         <translation>定期的なフレンドクリーンアップで保持する必要があるフレンドコードを設定します</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="136"/>
+        <location filename="../util/config_translation.py" line="137"/>
         <source>开</source>
         <translation>開く</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="137"/>
+        <location filename="../util/config_translation.py" line="138"/>
         <source>关</source>
         <translation>閉める</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="138"/>
+        <location filename="../util/config_translation.py" line="139"/>
         <source>默认</source>
         <translation>デフォルト</translation>
     </message>
@@ -536,9 +536,14 @@
         <translation>あなたが戦術の総合テストを自動的に行う</translation>
     </message>
     <message>
-        <location filename="../util/config_translation.py" line="111"/>
+        <location filename="../util/config_translation.py" line="112"/>
         <source>Steam国际服</source>
         <translation>Steam 版</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="111"/>
+        <source>日服PC端</source>
+        <translation>日本版PCクライアント</translation>
     </message>
 </context>
 <context>
@@ -580,52 +585,52 @@
 <context>
     <name>DetailSettingMessageBox</name>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="20"/>
+        <location filename="../components/expand/featureSwitch.py" line="21"/>
         <source>配置详情</source>
         <translation>構成の詳細</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="29"/>
+        <location filename="../components/expand/featureSwitch.py" line="30"/>
         <source>优先级</source>
         <translation>優先権</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="34"/>
+        <location filename="../components/expand/featureSwitch.py" line="35"/>
         <source>执行间隔</source>
         <translation>実行間隔</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="39"/>
+        <location filename="../components/expand/featureSwitch.py" line="40"/>
         <source>每日重置</source>
         <translation>毎日のリセット</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="44"/>
+        <location filename="../components/expand/featureSwitch.py" line="45"/>
         <source>禁用时间段</source>
         <translation>無効期間</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="49"/>
+        <location filename="../components/expand/featureSwitch.py" line="50"/>
         <source>前置任务</source>
         <translation>前提のタスク</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="55"/>
+        <location filename="../components/expand/featureSwitch.py" line="56"/>
         <source>后置任务</source>
         <translation>ポストタスク</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="66"/>
+        <location filename="../components/expand/featureSwitch.py" line="67"/>
         <source>确定</source>
         <translation>決定</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="67"/>
+        <location filename="../components/expand/featureSwitch.py" line="68"/>
         <source>取消</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="23"/>
+        <location filename="../components/expand/featureSwitch.py" line="24"/>
         <source>事件名称</source>
         <translation>イベントの名前</translation>
     </message>
@@ -697,24 +702,34 @@
         <translation>普通モード特有の設定で、ステージに入った後は一時停止して手動操作を待ちます</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="19"/>
+        <location filename="../components/expand/exploreConfig.py" line="25"/>
         <source>普通图推图设置</source>
         <translation>普通任務の清掃設定</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="22"/>
+        <location filename="../components/expand/exploreConfig.py" line="28"/>
         <source>请填写要推的图,填写方式见-普通图自动推图说明-</source>
         <translation>戦闘任務を記入して。記入方法は「普通の画像自動操作の説明」をご覧ください―</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="27"/>
+        <location filename="../components/expand/exploreConfig.py" line="33"/>
         <source>困难图推图设置</source>
         <translation>ハード任務の清掃設定</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="30"/>
+        <location filename="../components/expand/exploreConfig.py" line="36"/>
         <source>困难图队伍属性和普通图相同(见普通图推图设置)，请按照帮助中说明选择推困难图关卡并按对应图设置队伍</source>
         <translation>難しい任務のチーム属性は通常のと同じです（通常の清掃設定を参照）。ヘルプに記載されている通り、難しいマップのステージを選択し、対応する任務設定に従ってチームを編成しよ</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="19"/>
+        <source>使用简易模式推图</source>
+        <translation>簡易モードでステージを攻略</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/exploreConfig.py" line="22"/>
+        <source>简易模式只需要一支成形队伍, 角色较少时建议使用(默认使用第一支队伍)</source>
+        <translation>簡易モードでは育成済みの部隊が1つだけ必要です。所持キャラクターが少ない場合におすすめです（デフォルトでは第1部隊を使用します）</translation>
     </message>
 </context>
 <context>
@@ -786,52 +801,52 @@
 <context>
     <name>HomeFragment</name>
     <message>
-        <location filename="../fragments/home.py" line="49"/>
+        <location filename="../fragments/home.py" line="53"/>
         <source>蔚蓝档案自动脚本</source>
         <translation>ブルアカ 自動スクリプト</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="53"/>
+        <location filename="../fragments/home.py" line="57"/>
         <source>无任务</source>
         <translation>タスクなし</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="68"/>
+        <location filename="../fragments/home.py" line="72"/>
         <source>启动</source>
         <translation>起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="68"/>
+        <location filename="../fragments/home.py" line="72"/>
         <source>档案，启动</source>
         <translation>ブルアカ、起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="257"/>
+        <location filename="../fragments/home.py" line="293"/>
         <source>开始你的档案之旅</source>
         <translation>アーカイブの旅を始めましょう</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="200"/>
+        <location filename="../fragments/home.py" line="236"/>
         <source>正在运行：</source>
         <translation>実行中：</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="257"/>
+        <location filename="../fragments/home.py" line="293"/>
         <source>完成后</source>
         <translation>完了したら</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="77"/>
+        <location filename="../fragments/home.py" line="81"/>
         <source>资产显示：开</source>
         <translation>資産表示：開</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="78"/>
+        <location filename="../fragments/home.py" line="82"/>
         <source>资产显示：关</source>
         <translation>資産表示：関</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="130"/>
+        <location filename="../fragments/home.py" line="134"/>
         <source>启停快捷键</source>
         <translation>起動/停止のショートカットキー</translation>
     </message>
@@ -919,62 +934,62 @@
         <translation>マルチアカウント</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="47"/>
+        <location filename="../components/expand/exploreConfig.py" line="53"/>
         <source>普通关推图</source>
         <translation>通常のステージのクリア</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="86"/>
+        <location filename="../components/expand/featureSwitch.py" line="89"/>
         <source>全部(不)启用</source>
         <translation>すべて有効(無効)</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="92"/>
+        <location filename="../components/expand/featureSwitch.py" line="95"/>
         <source>刷新执行时间</source>
         <translation>更新実行時間</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="97"/>
+        <location filename="../components/expand/featureSwitch.py" line="100"/>
         <source>排序方式：</source>
         <translation>並び替え:</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="99"/>
+        <location filename="../components/expand/featureSwitch.py" line="102"/>
         <source>默认排序</source>
         <translation>デフォルトの並べ替え</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="99"/>
+        <location filename="../components/expand/featureSwitch.py" line="102"/>
         <source>按下次执行时间排序</source>
         <translation>最終実行時刻で並べ替え</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="180"/>
+        <location filename="../components/expand/featureSwitch.py" line="206"/>
         <source>事件</source>
         <translation>アクティビティ</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="180"/>
+        <location filename="../components/expand/featureSwitch.py" line="206"/>
         <source>下次刷新时间</source>
         <translation>次回の更新時刻</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="180"/>
+        <location filename="../components/expand/featureSwitch.py" line="206"/>
         <source>启用</source>
         <translation>エネーブル</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="180"/>
+        <location filename="../components/expand/featureSwitch.py" line="206"/>
         <source>更多配置</source>
         <translation>その他の構成</translation>
     </message>
     <message>
-        <location filename="../components/expand/featureSwitch.py" line="212"/>
+        <location filename="../components/expand/featureSwitch.py" line="236"/>
         <source>详细配置</source>
         <translation>詳細な設定</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="40"/>
+        <location filename="../components/expand/exploreConfig.py" line="46"/>
         <source>困难关推图</source>
         <translation>ハードステージをクリア</translation>
     </message>
@@ -1049,17 +1064,17 @@
         <translation>スクリーンショットの間隔</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="60"/>
+        <location filename="../components/expand/serverConfig.py" line="61"/>
         <source>ADB地址(点击选择)</source>
         <translation>ADBアドレス(クリックして選択)</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="75"/>
+        <location filename="../components/expand/serverConfig.py" line="76"/>
         <source>自动查询模拟器失败！请尝试手动输入端口</source>
         <translation>エミュレーターは見つからない。 ポートを手動で入力してください</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="83"/>
+        <location filename="../components/expand/serverConfig.py" line="84"/>
         <source>adb地址获取失败</source>
         <translation>adbアドレスを取得できませんでした</translation>
     </message>
@@ -1232,7 +1247,7 @@
     <message>
         <location filename="../components/expand/scriptConfig.py" line="24"/>
         <source>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
-推荐使用nemu并且如果使用nemu, 请设置&apos;模拟器地址&apos;为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
+推荐使用nemu并且如果使用nemu, 请设置'模拟器地址'为你MuMu模拟器路径, 精确到MuMuPlayer.exe</source>
         <translation>速度 nemu &gt;&gt; uiautomator2 ≈ adb, 
 nemu の使用が推奨され、nemu を使用している場合は、「エミュレータ
  アドレス」を MuMu エミュレータ パスに正確に設定してくださいMuMuPlayer.exe</translation>
@@ -1398,12 +1413,12 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>頭を撫でる方法を選択: </translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="40"/>
+        <location filename="../components/expand/exploreConfig.py" line="46"/>
         <source>正在推困难关</source>
         <translation>ハード任務を攻略してる</translation>
     </message>
     <message>
-        <location filename="../components/expand/exploreConfig.py" line="47"/>
+        <location filename="../components/expand/exploreConfig.py" line="53"/>
         <source>正在推普通关</source>
         <translation>普通任務を攻略してる</translation>
     </message>
@@ -1766,97 +1781,97 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>MainThread</name>
     <message>
-        <location filename="../fragments/home.py" line="423"/>
+        <location filename="../fragments/home.py" line="458"/>
         <source>停止</source>
         <translation>止める</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="429"/>
+        <location filename="../fragments/home.py" line="464"/>
         <source>启动</source>
         <translation>起動</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="337"/>
+        <location filename="../fragments/home.py" line="372"/>
         <source>困难图推图已完成</source>
         <translation>ハードステージがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="430"/>
+        <location filename="../fragments/home.py" line="465"/>
         <source>无任务</source>
         <translation>タスクなし</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="345"/>
+        <location filename="../fragments/home.py" line="380"/>
         <source>普通关推图</source>
         <translation>普通ステージをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="349"/>
+        <location filename="../fragments/home.py" line="384"/>
         <source>普通图推图已完成</source>
         <translation>普通ステージがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="358"/>
+        <location filename="../fragments/home.py" line="393"/>
         <source>反和谐成功，请重启BA下载资源</source>
         <translation>アンチハーモニーが成功しました。BAを再起動してリソースをダウンロードしてください</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="362"/>
+        <location filename="../fragments/home.py" line="397"/>
         <source>自动主线剧情</source>
         <translation>本編プロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="366"/>
+        <location filename="../fragments/home.py" line="401"/>
         <source>主线剧情已完成</source>
         <translation>本編プロットがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="374"/>
+        <location filename="../fragments/home.py" line="409"/>
         <source>自动小组剧情</source>
         <translation>グループプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="378"/>
+        <location filename="../fragments/home.py" line="413"/>
         <source>小组剧情已完成</source>
         <translation>グループストーリーがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="387"/>
+        <location filename="../fragments/home.py" line="422"/>
         <source>自动支线剧情</source>
         <translation>サブプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="390"/>
+        <location filename="../fragments/home.py" line="425"/>
         <source>支线剧情已完成</source>
         <translation>サブストーリーがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="399"/>
+        <location filename="../fragments/home.py" line="434"/>
         <source>自动活动剧情</source>
         <translation>イベントプロットをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="402"/>
+        <location filename="../fragments/home.py" line="437"/>
         <source>活动剧情已完成</source>
         <translation>イベントプロットがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="411"/>
+        <location filename="../fragments/home.py" line="446"/>
         <source>自动活动任务</source>
         <translation>イベントタスクをクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="414"/>
+        <location filename="../fragments/home.py" line="449"/>
         <source>活动任务已完成</source>
         <translation>イベントタスクがクリアしました</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="422"/>
+        <location filename="../fragments/home.py" line="457"/>
         <source>自动活动挑战</source>
         <translation>イベント挑戦をクリアする</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="426"/>
+        <location filename="../fragments/home.py" line="461"/>
         <source>活动挑战推图已完成</source>
         <translation>イベントチャレンジがクリアしました</translation>
     </message>
@@ -1908,107 +1923,49 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="30"/>
+        <location filename="../fragments/process.py" line="66"/>
         <source>调度状态</source>
         <translation>スケジュールステータス</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="62"/>
+        <location filename="../fragments/process.py" line="104"/>
         <source>执行中</source>
         <translation>実行中</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="113"/>
+        <location filename="../fragments/process.py" line="213"/>
         <source>暂无正在执行的任务</source>
         <translation>進行中のタスクはない</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="73"/>
+        <location filename="../fragments/process.py" line="119"/>
         <source>任务队列</source>
         <translation>タスク隊列</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="115"/>
+        <location filename="../fragments/process.py" line="218"/>
         <source>暂无队列中的任务</source>
         <translation>隊列にタスクがない</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="31"/>
+        <location filename="../fragments/process.py" line="67"/>
         <source>当BAAS新增调度任务时的启用状态</source>
         <translation>BAASで新しいスケジューリングタスクが追加された際の有効状態</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="57"/>
+        <location filename="../fragments/process.py" line="88"/>
         <source>表格视图</source>
         <translation>表形式ビュー</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="59"/>
+        <location filename="../fragments/process.py" line="276"/>
         <source>图形视图</source>
         <translation>グラフビュー</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="178"/>
+        <location filename="../fragments/process.py" line="276"/>
         <source>图形视图需要安装 NodeGraphQt</source>
         <translation>グラフビューには NodeGraphQt のインストールが必要です</translation>
-    </message>
-</context>
-<context>
-    <name>SchedulerGraphView</name>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="27"/>
-        <source>前置任务</source>
-        <translation>前提タスク</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="28"/>
-        <source>作为前置任务</source>
-        <translation>前提タスクとして使用</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="29"/>
-        <source>作为后置任务</source>
-        <translation>後続タスクとして使用</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="30"/>
-        <source>后置任务</source>
-        <translation>後続タスク</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="158"/>
-        <source>启用</source>
-        <translation>有効</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="159"/>
-        <source>下次执行时间</source>
-        <translation>次回実行時刻</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="436"/>
-        <source>调度关系无效</source>
-        <translation>スケジューラー関係が無効です</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="492"/>
-        <source>时间格式无效，请使用 YYYY-MM-DD HH:MM:SS</source>
-        <translation>時刻の形式が無効です。YYYY-MM-DD HH:MM:SS を使用してください</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="381"/>
-        <source>调度配置保存失败</source>
-        <translation>スケジューラー設定の保存に失敗しました</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="345"/>
-        <source>调度配置包含无法显示的任务关系</source>
-        <translation>スケジューラー設定には表示できないタスク関係が含まれています</translation>
-    </message>
-    <message>
-        <location filename="../components/scheduler_graph.py" line="345"/>
-        <source>调度配置中已存在循环依赖</source>
-        <translation>スケジューラー設定に循環依存が既に存在します</translation>
     </message>
 </context>
 <context>
@@ -2032,6 +1989,11 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <location filename="../components/expand/pushConfig.py" line="24"/>
         <source>ServerChan推送</source>
         <translation>「ServerChan」配信</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/pushConfig.py" line="29"/>
+        <source>飞书推送</source>
+        <translation>Feishu通知</translation>
     </message>
 </context>
 <context>
@@ -2066,6 +2028,154 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
     </message>
 </context>
 <context>
+    <name>SchedulerGraphView</name>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="234"/>
+        <source>前置任务</source>
+        <translation>前提タスク</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="237"/>
+        <source>作为前置任务</source>
+        <translation>前提タスクとして使用</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="240"/>
+        <source>作为后置任务</source>
+        <translation>後続タスクとして使用</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="243"/>
+        <source>后置任务</source>
+        <translation>後続タスク</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="274"/>
+        <source>启用</source>
+        <translation>有効</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="280"/>
+        <source>下次执行时间</source>
+        <translation>次回実行時刻</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="436"/>
+        <source>调度关系无效</source>
+        <translation type="obsolete">スケジューラー関係が無効です</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="492"/>
+        <source>时间格式无效，请使用 YYYY-MM-DD HH:MM:SS</source>
+        <translation type="obsolete">時刻の形式が無効です。YYYY-MM-DD HH:MM:SS を使用してください</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="381"/>
+        <source>调度配置保存失败</source>
+        <translation type="obsolete">スケジューラー設定の保存に失敗しました</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="345"/>
+        <source>调度配置包含无法显示的任务关系</source>
+        <translation type="obsolete">スケジューラー設定には表示できないタスク関係が含まれています</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="345"/>
+        <source>调度配置中已存在循环依赖</source>
+        <translation type="obsolete">スケジューラー設定に循環依存が既に存在します</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="37"/>
+        <source>无法读取调度事件配置。</source>
+        <translation>スケジューラーイベント設定を読み込めませんでした。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="40"/>
+        <source>调度事件配置的格式无效。</source>
+        <translation>スケジューラーイベント設定の形式が無効です。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="43"/>
+        <source>调度事件配置缺少必需字段。</source>
+        <translation>スケジューラーイベント設定に必須フィールドがありません。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="46"/>
+        <source>调度事件配置包含无效字段值。</source>
+        <translation>スケジューラーイベント設定に無効なフィールド値が含まれています。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="52"/>
+        <source>调度图布局包含无效的节点坐标。</source>
+        <translation>スケジューラーグラフのレイアウトに無効なノード座標が含まれています。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="58"/>
+        <source>调度关系类型“{kind}”无效。</source>
+        <translation>スケジューラー関係の種類「{kind}」は無効です。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="64"/>
+        <source>调度任务“{func_name}”不能依赖自身。</source>
+        <translation>スケジューラータスク「{func_name}」は自身に依存できません。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="73"/>
+        <source>只能连接或断开类型匹配的调度关系端口。</source>
+        <translation>種類が一致するスケジューラー関係ポートのみ接続または切断できます。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="79"/>
+        <source>调度配置保存失败。</source>
+        <translation>スケジューラー設定の保存に失敗しました。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="82"/>
+        <source>调度图加载失败。</source>
+        <translation>スケジューラーグラフの読み込みに失敗しました。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="91"/>
+        <source>调度配置中已存在循环依赖。</source>
+        <translation>スケジューラー設定には循環依存が既に存在します。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="49"/>
+        <source>调度事件配置包含重复的任务标识“{func_name}”。</source>
+        <translation>スケジューラーイベント設定に重複したタスク識別子「{func_name}」があります。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="55"/>
+        <source>调度任务“{func_name}”不存在于事件配置中。</source>
+        <translation>スケジューラーイベント設定にタスク「{func_name}」が存在しません。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="61"/>
+        <source>调度关系引用了不存在的任务“{func_name}”。</source>
+        <translation>スケジューラー関係が存在しないタスク「{func_name}」を参照しています。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="67"/>
+        <source>任务“{owner_func}”与“{related_func}”之间已存在相同的调度关系。</source>
+        <translation>「{owner_func}」と「{related_func}」の間には同じスケジューラー関係が既に存在します。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="70"/>
+        <source>连接任务“{owner_func}”与“{related_func}”会形成循环依赖。</source>
+        <translation>タスク「{owner_func}」と「{related_func}」を接続すると循環依存が発生します。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="76"/>
+        <source>时间格式无效，请使用 YYYY-MM-DD HH:MM:SS。</source>
+        <translation>時刻の形式が無効です。YYYY-MM-DD HH:MM:SS を使用してください。</translation>
+    </message>
+    <message>
+        <location filename="../components/scheduler_graph.py" line="88"/>
+        <source>任务“{owner_func}”引用了未知的调度依赖“{related_func}”，该关系无法显示。</source>
+        <translation>タスク「{owner_func}」は不明なスケジューラー依存先「{related_func}」を参照しているため、この関係は表示できません。</translation>
+    </message>
+</context>
+<context>
     <name>ServerConfig</name>
     <message>
         <location filename="../components/expand/serverConfig.py" line="23"/>
@@ -2093,12 +2203,12 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>日本</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="42"/>
+        <location filename="../components/expand/serverConfig.py" line="43"/>
         <source>请填写您的adb端口号</source>
         <translation>ADBポート番号を入力してください</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="47"/>
+        <location filename="../components/expand/serverConfig.py" line="48"/>
         <source>检测adb地址(检测目前开启的模拟器adb地址)</source>
         <translation>ADB アドレスの検出 (現在有効なエミュレータの ADB アドレスを確認してください)</translation>
     </message>
@@ -2113,14 +2223,19 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>韓国One</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="37"/>
+        <location filename="../components/expand/serverConfig.py" line="38"/>
         <source>请填写您adb的IP地址</source>
         <translation>adbのIPアドレスを入力してください</translation>
     </message>
     <message>
-        <location filename="../components/expand/serverConfig.py" line="33"/>
+        <location filename="../components/expand/serverConfig.py" line="34"/>
         <source>Steam国际服</source>
         <translation>Steam 版</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/serverConfig.py" line="33"/>
+        <source>日服PC端</source>
+        <translation>日本版PCクライアント</translation>
     </message>
 </context>
 <context>
@@ -2405,17 +2520,17 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>TemplateLayout</name>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="109"/>
+        <location filename="../components/expand/expandTemplate.py" line="121"/>
         <source>执行</source>
         <translation>実行する</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="94"/>
+        <location filename="../components/expand/expandTemplate.py" line="106"/>
         <source>确定</source>
         <translation>確認</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="139"/>
+        <location filename="../components/expand/expandTemplate.py" line="151"/>
         <source>设置成功</source>
         <translation>セットアップ成功</translation>
     </message>
@@ -2431,42 +2546,42 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../window.py" line="473"/>
+        <location filename="../../window.py" line="474"/>
         <source>主页</source>
         <translation>ホーム</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="474"/>
+        <location filename="../../window.py" line="475"/>
         <source>调度</source>
         <translation>スケジュール</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="475"/>
+        <location filename="../../window.py" line="476"/>
         <source>配置</source>
         <translation>構成</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="476"/>
+        <location filename="../../window.py" line="477"/>
         <source>设置</source>
         <translation>設定</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="566"/>
+        <location filename="../../window.py" line="567"/>
         <source>设置失败</source>
         <translation>セットアップ失敗</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="602"/>
+        <location filename="../../window.py" line="603"/>
         <source>是否要删除配置：</source>
         <translation>設定を削除しますか：</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="603"/>
+        <location filename="../../window.py" line="604"/>
         <source>你需要在确认后重启BAAS以完成更改。</source>
         <translation>変更を完了するには、確認後に BAAS を再起動する必要があります。</translation>
     </message>
     <message>
-        <location filename="../../window.py" line="477"/>
+        <location filename="../../window.py" line="478"/>
         <source>更新设置</source>
         <translation>更新設定</translation>
     </message>
@@ -2491,35 +2606,35 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>普通</translation>
     </message>
     <message>
-        <location filename="../components/expand/expandTemplate.py" line="85"/>
+        <location filename="../components/expand/expandTemplate.py" line="97"/>
         <source>TemplateLayout</source>
         <translation>実行</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="224"/>
+        <location filename="../fragments/home.py" line="260"/>
         <source>MainThread</source>
         <translation>メイン・トレッド</translation>
     </message>
     <message>
-        <location filename="../fragments/home.py" line="226"/>
+        <location filename="../fragments/home.py" line="262"/>
         <source>MainThread</source>
         <comment>停止</comment>
         <translation>メイン・トレッド</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="42"/>
+        <location filename="../fragments/process.py" line="72"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
         <translation>オン</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="42"/>
+        <location filename="../fragments/process.py" line="72"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
         <translation>オフ</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="42"/>
+        <location filename="../fragments/process.py" line="72"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
         <translation>デフォルト</translation>
@@ -2528,7 +2643,7 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>helpModal</name>
     <message>
-        <location filename="../../window.py" line="516"/>
+        <location filename="../../window.py" line="517"/>
         <source>帮助</source>
         <translation>ヘルプ</translation>
     </message>
