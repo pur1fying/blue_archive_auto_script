@@ -1,3 +1,4 @@
+import json
 import sys
 
 from PyQt5.QtCore import QLocale, pyqtSignal
@@ -94,10 +95,6 @@ class ConfigGui(QConfig):
         "MainWindow", "configLoadType", "Card", OptionsValidator(["Card", "List"]), restart=True)
     cardDisplayType = OptionsConfigItem(
         "MainWindow", "cardDisplayType", "withImage", OptionsValidator(["withImage", "plainText"]), restart=True)
-    schedulerNewEventEnableState = OptionsConfigItem(
-        "Scheduler", "NewEventEnableState", "default",
-        OptionsValidator(["default", "on", "off"])
-    )
     schedulerSortMode = OptionsConfigItem(
         "Scheduler", "SortMode", "priority",
         OptionsValidator(["priority", "next_tick"])
@@ -106,5 +103,25 @@ class ConfigGui(QConfig):
 
 configGui = ConfigGui()
 
-qconfig.load('config/gui.json', configGui)
+
+def load_gui_config(path, config):
+    """Load GUI preferences and discard the retired scheduler state."""
+    has_deprecated_scheduler_state = False
+    try:
+        with open(path, "r", encoding="utf-8") as config_file:
+            payload = json.load(config_file)
+        scheduler = payload.get("Scheduler", {})
+        has_deprecated_scheduler_state = (
+            isinstance(scheduler, dict)
+            and "NewEventEnableState" in scheduler
+        )
+    except (OSError, TypeError, json.JSONDecodeError):
+        pass
+
+    qconfig.load(path, config)
+    if has_deprecated_scheduler_state:
+        qconfig.save()
+
+
+load_gui_config('config/gui.json', configGui)
 setThemeColor(configGui.themeColor.value)

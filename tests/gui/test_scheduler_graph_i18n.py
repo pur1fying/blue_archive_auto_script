@@ -23,9 +23,10 @@ LOCALES = ("en_US", "ja_JP", "ko_KR")
 DISPLAY_TIME = "2024-02-03 04:05:06"
 DISPLAY_TIMESTAMP = int(datetime(2024, 2, 3, 4, 5, 6).timestamp())
 REQUIRED_CONTEXT_SOURCES = {
-    ("ProcessFragment", "表格视图"),
     ("ProcessFragment", "图形视图"),
     ("ProcessFragment", "图形视图需要安装 NodeGraphQt"),
+    ("ProcessFragment", "切换到图形视图"),
+    ("ProcessFragment", "切换到表格视图"),
     ("SchedulerGraphView", "前置任务"),
     ("SchedulerGraphView", "作为前置任务"),
     ("SchedulerGraphView", "后置任务"),

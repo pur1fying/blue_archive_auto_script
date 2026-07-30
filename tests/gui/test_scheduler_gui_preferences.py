@@ -14,6 +14,7 @@ gui.__path__.append(str(PROJECT_ROOT / "gui"))
 
 from gui.components.expand import featureSwitch
 from gui.fragments import process
+from gui.util import config_gui as config_gui_module
 from gui.util.config_gui import ConfigGui
 import window
 
@@ -27,19 +28,19 @@ def app():
 def gui_config(tmp_path, monkeypatch):
     config_path = tmp_path / "gui.json"
     original_config = qconfig._cfg
-    original_values = {
-        "new_event_state": getattr(ConfigGui, "schedulerNewEventEnableState", None),
-        "sort_mode": getattr(ConfigGui, "schedulerSortMode", None),
-    }
+    original_sort_mode = ConfigGui.schedulerSortMode.value
 
     def load(payload=None):
         if payload is not None:
             config_path.write_text(json.dumps(payload), encoding="utf-8")
-        for item_name in ("schedulerNewEventEnableState", "schedulerSortMode"):
-            item = getattr(ConfigGui, item_name)
-            item.value = item.defaultValue
+        ConfigGui.schedulerSortMode.value = (
+            ConfigGui.schedulerSortMode.defaultValue
+        )
         config = ConfigGui()
-        qconfig.load(config_path, config)
+        load_gui_config = getattr(
+            config_gui_module, "load_gui_config", qconfig.load
+        )
+        load_gui_config(config_path, config)
         monkeypatch.setattr(process, "configGui", config, raising=False)
         monkeypatch.setattr(featureSwitch, "configGui", config, raising=False)
         monkeypatch.setattr(window, "configGui", config, raising=False)
@@ -48,44 +49,50 @@ def gui_config(tmp_path, monkeypatch):
     yield load, config_path
 
     qconfig._cfg = original_config
-    for key, item in original_values.items():
-        if item is not None:
-            item.value = item.defaultValue
+    ConfigGui.schedulerSortMode.value = original_sort_mode
 
 
-def test_scheduler_preferences_round_trip_independently(gui_config):
+def test_loading_gui_config_removes_deprecated_scheduler_state(gui_config):
     load, config_path = gui_config
-    config = load({})
 
-    config.set(config.schedulerNewEventEnableState, "off")
-    persisted = json.loads(config_path.read_text(encoding="utf-8"))
-    assert persisted["Scheduler"] == {
-        "NewEventEnableState": "off",
-        "SortMode": "priority",
-    }
+    load({
+        "Scheduler": {
+            "NewEventEnableState": "off",
+            "SortMode": "next_tick",
+        }
+    })
+
+    assert json.loads(config_path.read_text(encoding="utf-8"))[
+        "Scheduler"
+    ] == {"SortMode": "next_tick"}
+
+
+def test_scheduler_sort_mode_round_trips_without_gui_scheduler_state(
+        gui_config):
+    load, config_path = gui_config
+    config = load({
+        "Scheduler": {
+            "NewEventEnableState": "off",
+            "SortMode": "priority",
+        }
+    })
 
     config.set(config.schedulerSortMode, "next_tick")
     persisted = json.loads(config_path.read_text(encoding="utf-8"))
-    assert persisted["Scheduler"] == {
-        "NewEventEnableState": "off",
-        "SortMode": "next_tick",
-    }
+    assert persisted["Scheduler"] == {"SortMode": "next_tick"}
 
     reconstructed = load()
-    assert reconstructed.get(reconstructed.schedulerNewEventEnableState) == "off"
     assert reconstructed.get(reconstructed.schedulerSortMode) == "next_tick"
 
 
-def test_invalid_scheduler_preferences_fall_back_to_defaults(gui_config):
+def test_invalid_scheduler_sort_mode_falls_back_to_default(gui_config):
     load, _ = gui_config
     config = load({
         "Scheduler": {
-            "NewEventEnableState": "sometimes",
             "SortMode": "alphabetical",
         }
     })
 
-    assert config.get(config.schedulerNewEventEnableState) == "default"
     assert config.get(config.schedulerSortMode) == "priority"
 
 
@@ -108,12 +115,11 @@ class _AccountConfig:
         return None
 
 
-def test_scheduler_combo_restores_global_value_and_only_writes_gui_json(
+def test_scheduler_combo_restores_and_writes_account_value_only(
         app, gui_config, tmp_path, monkeypatch):
     load, config_path = gui_config
     load({
         "Scheduler": {
-            "NewEventEnableState": "off",
             "SortMode": "priority",
         }
     })
@@ -134,15 +140,15 @@ def test_scheduler_combo_restores_global_value_and_only_writes_gui_json(
         lambda config: process.QWidget())
 
     fragment = process.ProcessFragment(None, account)
-    assert fragment.scheduler_selector.currentIndex() == 2
+    assert fragment.scheduler_selector.currentIndex() == 0
 
     fragment.scheduler_selector._onItemClicked(1)
     app.processEvents()
 
     persisted = json.loads(config_path.read_text(encoding="utf-8"))
-    assert persisted["Scheduler"]["NewEventEnableState"] == "on"
-    assert account.legacy_state == "on"
-    assert account.set_calls == []
+    assert persisted["Scheduler"] == {"SortMode": "priority"}
+    assert account.legacy_state == "off"
+    assert account.set_calls == [("new_event_enable_state", "off")]
     assert account_json.read_bytes() == account_before
     assert event_json.read_bytes() == event_before
     fragment.close()
@@ -156,16 +162,11 @@ def test_scheduler_combo_restores_global_value_and_only_writes_gui_json(
         ("off", True, False),
     ],
 )
-def test_check_event_config_uses_global_new_event_preference(
+def test_check_event_config_uses_account_new_event_preference(
         gui_config, tmp_path, monkeypatch, preference, default_enabled,
         expected_enabled):
     load, _ = gui_config
-    config = load({
-        "Scheduler": {
-            "NewEventEnableState": preference,
-            "SortMode": "priority",
-        }
-    })
+    load({"Scheduler": {"SortMode": "priority"}})
     monkeypatch.chdir(tmp_path)
     account_dir = Path("config") / "account"
     account_dir.mkdir(parents=True)
@@ -186,11 +187,9 @@ def test_check_event_config_uses_global_new_event_preference(
     monkeypatch.setattr(
         window.default_config, "EVENT_DEFAULT_CONFIG",
         json.dumps([existing, added]))
-    monkeypatch.setattr(window, "configGui", config)
     user_config = SimpleNamespace(
         server_mode="CN",
-        config=SimpleNamespace(new_event_enable_state=(
-            "off" if preference != "off" else "on")),
+        config=SimpleNamespace(new_event_enable_state=preference),
     )
 
     window.check_event_config("account", user_config)
@@ -247,7 +246,6 @@ def test_sort_combo_applies_persisted_mode_on_first_construction(
     load, _ = gui_config
     load({
         "Scheduler": {
-            "NewEventEnableState": "default",
             "SortMode": "next_tick",
         }
     })
@@ -263,7 +261,6 @@ def test_sort_change_updates_an_already_open_account_fragment(
     load, config_path = gui_config
     load({
         "Scheduler": {
-            "NewEventEnableState": "default",
             "SortMode": "priority",
         }
     })
