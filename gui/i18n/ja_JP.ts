@@ -1923,49 +1923,59 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="66"/>
+        <location filename="../fragments/process.py" line="90"/>
         <source>调度状态</source>
         <translation>スケジュールステータス</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="104"/>
+        <location filename="../fragments/process.py" line="126"/>
         <source>执行中</source>
         <translation>実行中</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="213"/>
+        <location filename="../fragments/process.py" line="235"/>
         <source>暂无正在执行的任务</source>
         <translation>進行中のタスクはない</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="119"/>
+        <location filename="../fragments/process.py" line="141"/>
         <source>任务队列</source>
         <translation>タスク隊列</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="218"/>
+        <location filename="../fragments/process.py" line="240"/>
         <source>暂无队列中的任务</source>
         <translation>隊列にタスクがない</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="67"/>
+        <location filename="../fragments/process.py" line="91"/>
         <source>当BAAS新增调度任务时的启用状态</source>
         <translation>BAASで新しいスケジューリングタスクが追加された際の有効状態</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="88"/>
         <source>表格视图</source>
-        <translation>表形式ビュー</translation>
+        <translation type="obsolete">表形式ビュー</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="276"/>
+        <location filename="../fragments/process.py" line="309"/>
         <source>图形视图</source>
         <translation>グラフビュー</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="276"/>
+        <location filename="../fragments/process.py" line="309"/>
         <source>图形视图需要安装 NodeGraphQt</source>
         <translation>グラフビューには NodeGraphQt のインストールが必要です</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="256"/>
+        <source>切换到图形视图</source>
+        <translation>グラフビューに切り替える</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="259"/>
+        <source>切换到表格视图</source>
+        <translation>表形式ビューに切り替える</translation>
     </message>
 </context>
 <context>
@@ -2622,19 +2632,19 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
         <translation>メイン・トレッド</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="72"/>
+        <location filename="../fragments/process.py" line="96"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
         <translation>オン</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="72"/>
+        <location filename="../fragments/process.py" line="96"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
         <translation>オフ</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="72"/>
+        <location filename="../fragments/process.py" line="96"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
         <translation>デフォルト</translation>

@@ -234,20 +234,20 @@ def run_smoke() -> None:
             _assert_queue_is_neutral(fragment, app)
             print("PASS queue rows remain neutral after hover and click")
 
-            fragment.scheduler_selector._onItemClicked(1)
+            fragment.scheduler_selector._onItemClicked(0)
             fragment.table_view.op_3._onItemClicked(1)
             app.processEvents()
             scheduler_preferences = _read_json(gui_path)["Scheduler"]
-            assert scheduler_preferences == {
-                "NewEventEnableState": "on",
-                "SortMode": "next_tick",
-            }
-            print("PASS exact Scheduler gui.json preferences persisted")
+            assert scheduler_preferences == {"SortMode": "next_tick"}
+            assert _read_json(
+                account_dir / "config.json"
+            )["new_event_enable_state"] == "on"
+            print("PASS account scheduler state and GUI sort persisted")
 
             assert fragment.graph_view is None
             assert "gui.components.scheduler_graph" not in sys.modules
             assert "NodeGraphQt" not in sys.modules
-            fragment.graph_view_button.click()
+            fragment.view_toggle_button.click()
             app.processEvents()
             assert "gui.components.scheduler_graph" in sys.modules
             assert "NodeGraphQt" in sys.modules
@@ -363,7 +363,7 @@ def run_smoke() -> None:
 
             graph_view.node_for_func("a").set_pos(135.5, -42.25)
             graph_view.node_for_func("b").set_pos(-88.0, 901.25)
-            fragment.table_view_button.click()
+            fragment.view_toggle_button.click()
             app.processEvents()
             assert fragment.editor_stack.currentWidget() is fragment.table_view
             row_a = _table_row(fragment, "Smoke Task A")

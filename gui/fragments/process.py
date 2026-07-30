@@ -1,6 +1,7 @@
 import gc
 import threading
 import time
+from enum import Enum
 from hashlib import md5
 from importlib import import_module
 from random import random
@@ -10,8 +11,21 @@ from PyQt5 import sip
 from PyQt5.QtCore import QEvent, QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QAbstractItemView, QHBoxLayout, QListWidgetItem,
                              QStackedWidget, QVBoxLayout, QWidget)
-from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
-                            SegmentedWidget, ToolTipPosition, ToolTipFilter)
+from qfluentwidgets import (
+    ComboBox,
+    FluentIcon as FIF,
+    FluentIconBase,
+    ListWidget,
+    ScrollArea,
+    StrongBodyLabel,
+    SubtitleLabel,
+    Theme,
+    TitleLabel,
+    ToolTipFilter,
+    ToolTipPosition,
+    TransparentToolButton,
+    getIconColor,
+)
 
 from gui.components import expand
 from gui.util import notification
@@ -21,6 +35,16 @@ from gui.util.translator import baasTranslator as bt
 
 lock = threading.Lock()
 DISPLAY_CONFIG_PATH = './config/display.json'
+
+
+class SchedulerViewIcon(FluentIconBase, Enum):
+    NODES_CONNECTED = "nodes_connected_regular"
+
+    def path(self, theme=Theme.AUTO):
+        return (
+            "gui/assets/icons/"
+            f"{self.value}_{getIconColor(theme)}.svg"
+        )
 
 
 class _StatusUpdateEmitter(QObject):
@@ -67,30 +91,28 @@ class ProcessFragment(ScrollArea):
         _scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
         _scheduler_selector_label.installEventFilter(ToolTipFilter(_scheduler_selector_label, position=ToolTipPosition.TOP))
 
-        self._scheduler_states = ("default", "on", "off")
+        self._scheduler_states = ("on", "off", "default")
         self.scheduler_selector = ComboBox(self)
         self.scheduler_selector.addItems([
-            bt.tr('ConfigTranslation', '默认'),
             bt.tr('ConfigTranslation', '开'),
             bt.tr('ConfigTranslation', '关'),
+            bt.tr('ConfigTranslation', '默认'),
         ])
         self.scheduler_selector.setCurrentIndex(
             self._scheduler_states.index(
-                configGui.get(configGui.schedulerNewEventEnableState)))
+                config.get("new_event_enable_state")))
         self.scheduler_selector.currentIndexChanged.connect(
             self._scheduler_state_changed)
-        configGui.schedulerNewEventEnableState.valueChanged.connect(
-            self._sync_scheduler_state)
         self.scheduler_controls_layout.addWidget(_scheduler_selector_label)
         self.scheduler_controls_layout.addWidget(self.scheduler_selector)
 
-        self.view_selector = SegmentedWidget(self)
-        self.table_view_button = self.view_selector.addItem(
-            "table", self.tr("表格视图"), self.show_table_view)
-        self.graph_view_button = self.view_selector.addItem(
-            "graph", self.tr("图形视图"), self.show_graph_view)
-        self.view_selector.setCurrentItem("table")
-        self.scheduler_controls_layout.addWidget(self.view_selector)
+        self.view_toggle_button = TransparentToolButton(
+            SchedulerViewIcon.NODES_CONNECTED, self
+        )
+        self.view_toggle_button.setFixedSize(36, 36)
+        self.view_toggle_button.clicked.connect(self.toggle_view)
+        self._set_view_toggle_target("graph")
+        self.scheduler_controls_layout.addWidget(self.view_toggle_button)
 
         self.titleLineLayout.addWidget(self.settingLabel, 1, Qt.AlignLeft)
         self.titleLineLayout.addLayout(self.scheduler_controls_layout, 0)
@@ -224,20 +246,29 @@ class ProcessFragment(ScrollArea):
         self._set_queue_items(queue_items)
 
     def _scheduler_state_changed(self, index):
-        configGui.set(
-            configGui.schedulerNewEventEnableState,
-            self._scheduler_states[index])
+        self.config.set(
+            "new_event_enable_state", self._scheduler_states[index]
+        )
 
-    def _sync_scheduler_state(self, state):
-        index = self._scheduler_states.index(state)
-        if self.scheduler_selector.currentIndex() == index:
-            return
-        self.scheduler_selector.blockSignals(True)
-        self.scheduler_selector.setCurrentIndex(index)
-        self.scheduler_selector.blockSignals(False)
+    def _set_view_toggle_target(self, target) -> None:
+        if target == "graph":
+            icon = SchedulerViewIcon.NODES_CONNECTED
+            tooltip = self.tr("切换到图形视图")
+        else:
+            icon = FIF.TILES
+            tooltip = self.tr("切换到表格视图")
+        self.view_toggle_button.setIcon(icon)
+        self.view_toggle_button.setToolTip(tooltip)
+        self.view_toggle_button.setAccessibleName(tooltip)
+
+    def toggle_view(self) -> None:
+        if self.editor_stack.currentWidget() is self.table_view:
+            self.show_graph_view()
+        else:
+            self.show_table_view()
 
     def show_table_view(self) -> None:
-        self.view_selector.setCurrentItem("table")
+        self._set_view_toggle_target("graph")
         if self.editor_stack.currentWidget() is self.table_view:
             return
         if self.graph_view is not None:
@@ -248,7 +279,7 @@ class ProcessFragment(ScrollArea):
 
     def show_graph_view(self) -> None:
         if self.editor_stack.currentWidget() is self.graph_view:
-            self.view_selector.setCurrentItem("graph")
+            self._set_view_toggle_target("table")
             return
         try:
             if self.graph_view is None:
@@ -274,7 +305,7 @@ class ProcessFragment(ScrollArea):
         except ModuleNotFoundError as error:
             if error.name is None or not error.name.startswith("NodeGraphQt"):
                 raise
-            self.view_selector.setCurrentItem("table")
+            self._set_view_toggle_target("graph")
             notification.error(
                 self.tr("图形视图"),
                 self.tr("图形视图需要安装 NodeGraphQt"),
@@ -283,7 +314,7 @@ class ProcessFragment(ScrollArea):
             )
             return
         self.editor_stack.setCurrentWidget(self.graph_view)
-        self.view_selector.setCurrentItem("graph")
+        self._set_view_toggle_target("table")
 
     def _on_graph_data_changed(self) -> None:
         self._table_stale = True

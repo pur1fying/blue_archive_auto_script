@@ -7,8 +7,10 @@ from pathlib import Path
 import pytest
 from PyQt5 import sip
 from PyQt5.QtCore import QCoreApplication, QEvent, QObject, pyqtSignal
+from PyQt5.QtGui import QIcon
 from PyQt5.QtTest import QSignalSpy
 from PyQt5.QtWidgets import QApplication, QWidget
+from qfluentwidgets import FluentIcon as FIF, Theme
 
 import gui
 
@@ -20,6 +22,20 @@ from gui.fragments import process
 
 
 INITIAL_TIMESTAMP = int(datetime(2024, 2, 3, 4, 5, 6).timestamp())
+NODES_CONNECTED_ICON = (
+    PROJECT_ROOT
+    / "gui"
+    / "assets"
+    / "icons"
+    / "nodes_connected_regular_black.svg"
+)
+NODES_CONNECTED_DARK_ICON = (
+    PROJECT_ROOT
+    / "gui"
+    / "assets"
+    / "icons"
+    / "nodes_connected_regular_white.svg"
+)
 
 
 class _ConfigItem(QObject):
@@ -28,10 +44,8 @@ class _ConfigItem(QObject):
 
 class _GuiConfig:
     def __init__(self):
-        self.schedulerNewEventEnableState = _ConfigItem()
         self.schedulerSortMode = _ConfigItem()
         self._values = {
-            self.schedulerNewEventEnableState: "default",
             self.schedulerSortMode: "priority",
         }
 
@@ -51,10 +65,22 @@ class _AccountSignals(QObject):
 
 
 class _AccountConfig:
-    def __init__(self, config_dir):
+    def __init__(self, config_dir, scheduler_state="default"):
         self.config_dir = str(config_dir)
         self.signals = _AccountSignals()
         self.window = None
+        self.scheduler_state = scheduler_state
+        self.set_calls = []
+
+    def get(self, key, default=None):
+        if key == "new_event_enable_state":
+            return self.scheduler_state
+        return default
+
+    def set(self, key, value):
+        assert key == "new_event_enable_state"
+        self.scheduler_state = value
+        self.set_calls.append((key, value))
 
     def get_signal(self, key):
         return getattr(self.signals, key)
@@ -125,13 +151,17 @@ def _graph_widget(fragment, func_name, property_name):
     )
 
 
+def _icon_image(icon):
+    return icon.pixmap(24, 24).toImage()
+
+
 def _click_graph(fragment, app):
-    fragment.graph_view_button.click()
+    fragment.view_toggle_button.click()
     app.processEvents()
 
 
 def _click_table(fragment, app):
-    fragment.table_view_button.click()
+    fragment.view_toggle_button.click()
     app.processEvents()
 
 
@@ -155,10 +185,15 @@ def integration(app, tmp_path, monkeypatch):
 
     fragments = []
 
-    def build(name="account", records=None, parent=None):
+    def build(
+        name="account",
+        records=None,
+        parent=None,
+        scheduler_state="default",
+    ):
         config_dir = tmp_path / name
         _write_events(config_dir, records)
-        account = _AccountConfig(config_dir)
+        account = _AccountConfig(config_dir, scheduler_state)
         fragment = process.ProcessFragment(parent, account)
         account.window = fragment
         fragment.resize(900, 700)
@@ -198,9 +233,47 @@ def test_default_page_keeps_status_and_queue_outside_table_editor_stack(
         fragment.scheduler_selector
     ) >= 0
     assert fragment.scheduler_controls_layout.indexOf(
-        fragment.view_selector
+        fragment.view_toggle_button
     ) >= 0
+    assert fragment.view_toggle_button.text() == ""
+    assert fragment.view_toggle_button.toolTip() == fragment.tr(
+        "切换到图形视图"
+    )
+    assert fragment.view_toggle_button.accessibleName() == fragment.tr(
+        "切换到图形视图"
+    )
+    assert NODES_CONNECTED_ICON.is_file()
+    assert not fragment.view_toggle_button.icon().isNull()
+    assert not QIcon(str(NODES_CONNECTED_ICON)).isNull()
+    assert (
+        _icon_image(fragment.view_toggle_button.icon())
+        == _icon_image(QIcon(str(NODES_CONNECTED_ICON)))
+    )
     assert len(started_threads) == 1
+
+
+def test_scheduler_selector_is_account_scoped(integration, app):
+    build, _gui_config, _started_threads = integration
+    first, first_account, _ = build(
+        name="first", scheduler_state="on"
+    )
+    second, second_account, _ = build(
+        name="second", scheduler_state="off"
+    )
+
+    assert first.scheduler_selector.currentIndex() == 0
+    assert second.scheduler_selector.currentIndex() == 1
+
+    first.scheduler_selector._onItemClicked(2)
+    app.processEvents()
+
+    assert first_account.scheduler_state == "default"
+    assert first_account.set_calls == [
+        ("new_event_enable_state", "default")
+    ]
+    assert second_account.scheduler_state == "off"
+    assert second_account.set_calls == []
+    assert second.scheduler_selector.currentIndex() == 1
 
 
 def test_title_toggle_switches_only_the_lower_editor_and_reuses_fragment(
@@ -218,12 +291,41 @@ def test_title_toggle_switches_only_the_lower_editor_and_reuses_fragment(
     assert id(fragment.table_view) == table_identity
     assert fragment.editor_stack.currentIndex() == 1
     assert fragment.editor_stack.widget(1) is fragment.graph_view
+    assert fragment.view_toggle_button.text() == ""
+    assert fragment.view_toggle_button.toolTip() == fragment.tr(
+        "切换到表格视图"
+    )
+    assert fragment.view_toggle_button.accessibleName() == fragment.tr(
+        "切换到表格视图"
+    )
+    assert (
+        _icon_image(fragment.view_toggle_button.icon())
+        == _icon_image(FIF.TILES.icon())
+    )
 
     _click_table(fragment, app)
 
     assert fragment.editor_stack.currentIndex() == 0
     assert fragment.editor_stack.widget(0) is fragment.table_view
+    assert fragment.view_toggle_button.toolTip() == fragment.tr(
+        "切换到图形视图"
+    )
+    assert (
+        _icon_image(fragment.view_toggle_button.icon())
+        == _icon_image(QIcon(str(NODES_CONNECTED_ICON)))
+    )
     assert started_threads == [status_thread]
+
+
+def test_nodes_connected_icon_has_light_and_dark_theme_assets():
+    assert NODES_CONNECTED_ICON.is_file()
+    assert NODES_CONNECTED_DARK_ICON.is_file()
+    assert not process.SchedulerViewIcon.NODES_CONNECTED.icon(
+        Theme.LIGHT
+    ).isNull()
+    assert not process.SchedulerViewIcon.NODES_CONNECTED.icon(
+        Theme.DARK
+    ).isNull()
 
 
 def test_table_reload_from_disk_is_idempotent_and_reapplies_persisted_sort(
@@ -571,8 +673,13 @@ def test_missing_nodegraphqt_reports_translated_error_and_table_stays_editable(
     assert fragment.editor_stack.currentIndex() == 0
     assert fragment.editor_stack.count() == 1
     assert fragment.graph_view is None
-    assert fragment.table_view_button.isSelected is True
-    assert fragment.graph_view_button.isSelected is False
+    assert fragment.view_toggle_button.toolTip() == fragment.tr(
+        "切换到图形视图"
+    )
+    assert (
+        _icon_image(fragment.view_toggle_button.icon())
+        == _icon_image(QIcon(str(NODES_CONNECTED_ICON)))
+    )
     assert len(notices) == 1
     payload = json.loads(notices[0][0])
     assert payload["msg"] == fragment.tr(

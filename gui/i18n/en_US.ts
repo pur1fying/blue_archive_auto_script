@@ -1926,49 +1926,59 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
 <context>
     <name>ProcessFragment</name>
     <message>
-        <location filename="../fragments/process.py" line="66"/>
+        <location filename="../fragments/process.py" line="90"/>
         <source>调度状态</source>
         <translation>Scheduling Status</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="104"/>
+        <location filename="../fragments/process.py" line="126"/>
         <source>执行中</source>
         <translation>Executing</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="213"/>
+        <location filename="../fragments/process.py" line="235"/>
         <source>暂无正在执行的任务</source>
         <translation>No active tasks</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="218"/>
+        <location filename="../fragments/process.py" line="240"/>
         <source>暂无队列中的任务</source>
         <translation>There are no tasks in the queue</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="119"/>
+        <location filename="../fragments/process.py" line="141"/>
         <source>任务队列</source>
         <translation>Task Queue</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="67"/>
+        <location filename="../fragments/process.py" line="91"/>
         <source>当BAAS新增调度任务时的启用状态</source>
         <translation>The activation status when a new scheduling task is added in BAAS</translation>
     </message>
     <message>
         <location filename="../fragments/process.py" line="88"/>
         <source>表格视图</source>
-        <translation>Table View</translation>
+        <translation type="obsolete">Table View</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="276"/>
+        <location filename="../fragments/process.py" line="309"/>
         <source>图形视图</source>
         <translation>Graph View</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="276"/>
+        <location filename="../fragments/process.py" line="309"/>
         <source>图形视图需要安装 NodeGraphQt</source>
         <translation>Graph View requires NodeGraphQt to be installed</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="256"/>
+        <source>切换到图形视图</source>
+        <translation>Switch to Graph View</translation>
+    </message>
+    <message>
+        <location filename="../fragments/process.py" line="259"/>
+        <source>切换到表格视图</source>
+        <translation>Switch to Table View</translation>
     </message>
 </context>
 <context>
@@ -2625,19 +2635,19 @@ set the 'emulator address' to your MuMu emulator path, accurate to MuMuPlayer.ex
         <translation>MainThread</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="72"/>
+        <location filename="../fragments/process.py" line="96"/>
         <source>ConfigTranslation</source>
         <comment>开</comment>
         <translation>On</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="72"/>
+        <location filename="../fragments/process.py" line="96"/>
         <source>ConfigTranslation</source>
         <comment>关</comment>
         <translation>Off</translation>
     </message>
     <message>
-        <location filename="../fragments/process.py" line="72"/>
+        <location filename="../fragments/process.py" line="96"/>
         <source>ConfigTranslation</source>
         <comment>默认</comment>
         <translation>Default</translation>
