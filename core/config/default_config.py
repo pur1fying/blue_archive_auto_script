@@ -3549,7 +3549,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "PlayBallAimforaGrandSlamHomeRun",
+        "CN": "HighlanderRailroadExplosionIncident",
         "Global": "SecretMidnightParty",
         "JP": "HighlanderRailroadExplosionIncident"
     },
