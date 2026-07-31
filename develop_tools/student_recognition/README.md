@@ -13,15 +13,15 @@ python -m venv .training-venv
 
 The locator annotations describe five checked-in new-UI screenshots and contain
 all 81 manually labelled avatar instances: 71 affection-eligible portraits and
-10 plain portraits across 72 identities. Per-image card indices support both
+10 plain portraits across 74 identities. Per-image card indices support both
 the seven-card and eight-card layouts without inventing a card in an empty grid
 slot. Each screenshot is held out as one complete cross-validation fold, so its
 augmented variants never enter that fold's encoder training set or prototype
-gallery. After thresholds and verified identities are selected from the grouped
-folds, the deliverable encoder is trained once more with all labelled
-screenshots. That final target-domain fit repeats the real target portraits
-three times for 105 epochs; the exported gallery still contains at most three
-distinct source prototypes per student and does not store augmented duplicates.
+gallery. The grouped result is a diagnostic rather than an independent external
+validation claim. The deliverable encoder is trained once more with all labelled
+screenshots, using identity-balanced sampling: every one of the 265 identities
+contributes three augmented draws per epoch regardless of raw source count. The
+exported gallery contains at most three distinct source prototypes per student.
 
 The encoder seed library is checked in under `data/` and is never loaded by the
 normal application runtime. `historical_portraits/` contains 177 distinct Git
@@ -37,9 +37,11 @@ training pixels. Hoshino (Battle) and Shun (Swimsuit) each have two illustration
 in the montage; their first form is selected and the second form is explicitly
 excluded in the manifest.
 
-Low-confidence identities are rejected by both cosine similarity and the
-top-one/top-two margin. Add current-UI labels and recalibrate those thresholds
-before marking additional students as verified.
+Runtime selection ranks all 265 identities globally. A pink portrait whose
+Top-1 name matches the configured target is selectable at cosine similarity
+0.60 or above. Top-1/Top-2 margin and source-support status are logged for
+diagnostics but are not click gates. Plain/gray portraits are recognized and
+reported but can never trigger a lesson-card click.
 
 The training catalog is always loaded from `STATIC_DEFAULT_CONFIG`, not the
 generated and ignored `config/static.json`. It contains 265 unique students and
@@ -51,3 +53,11 @@ portrait can never select a lesson card by itself.
 `training_data.py` validates every source checksum and exposes the historical
 and montage portraits to the training script. Loading it does not augment data,
 write model files or start training.
+
+Training writes candidates under `.training-runs/student_recognition/`. The
+production ONNX files and gallery are replaced only after OpenCV replay, click,
+gray-blocking, scaling, CPU and resource-size checks all pass. The committed
+`validation_report.json` lists all 65 students and 71 pink instances that pass
+the five-fixture click test, plus all 10 blocked gray instances. Those checks are
+training-fixture replay and must not be described as independent validation of
+all 265 students.

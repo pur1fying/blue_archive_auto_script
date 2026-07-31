@@ -36,7 +36,7 @@ class StudentPrediction:
     accepted: bool
     eligible: bool = False
     bbox: Optional[BoundingBox] = None
-    support_status: str = "unsupported"
+    support_status: str = "no_prototype"
 
 
 @dataclass

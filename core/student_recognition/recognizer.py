@@ -11,7 +11,7 @@ from core.student_recognition.types import BoundingBox, StudentPrediction
 
 
 class StudentRecognizer:
-    """ONNX embedding inference with prototype-gallery rejection."""
+    """ONNX embedding inference with global Top-1 prototype ranking."""
 
     def __init__(self, catalog: StudentCatalog, model_dir: Optional[Path] = None):
         self.catalog = catalog
@@ -22,8 +22,8 @@ class StudentRecognizer:
         self.metadata = {
             "input_width": 96,
             "input_height": 96,
-            "similarity_threshold": 0.82,
-            "margin_threshold": 0.06,
+            "similarity_threshold": 0.60,
+            "margin_threshold": 0.0,
             "mean": [0.485, 0.456, 0.406],
             "std": [0.229, 0.224, 0.225],
         }
@@ -35,24 +35,33 @@ class StudentRecognizer:
 
     @property
     def supported_ids(self) -> set[str]:
-        verified = self.metadata.get("verified_student_ids", [])
-        if not isinstance(verified, list):
-            return set()
-        return set(verified) & set(self.gallery_ids.tolist())
+        """Return every catalog identity that has at least one prototype.
+
+        Kept for API compatibility.  A student's validation/source status is
+        diagnostic only and must never suppress a better global Top-1 match.
+        """
+        return set(self.catalog.records) & set(self.gallery_ids.tolist())
 
     @property
     def prototype_only_ids(self) -> set[str]:
-        prototype_only = self.metadata.get("prototype_only_student_ids", [])
-        if not isinstance(prototype_only, list):
+        support = self.metadata.get("student_support", {})
+        if not isinstance(support, dict):
             return set()
-        return set(prototype_only) & set(self.gallery_ids.tolist())
+        return {
+            student_id
+            for student_id, detail in support.items()
+            if isinstance(detail, dict)
+            and detail.get("status") in {"historical_only", "roster_only"}
+            and student_id in self.supported_ids
+        }
 
     def support_status(self, student_id: str) -> str:
-        if student_id in self.supported_ids:
-            return "verified"
-        if student_id in self.prototype_only_ids:
-            return "prototype_only"
-        return "unsupported"
+        support = self.metadata.get("student_support", {})
+        if isinstance(support, dict):
+            detail = support.get(student_id)
+            if isinstance(detail, dict) and isinstance(detail.get("status"), str):
+                return detail["status"]
+        return "gallery_only" if student_id in self.supported_ids else "no_prototype"
 
     @property
     def seed_ids(self) -> set[str]:
@@ -102,9 +111,8 @@ class StudentRecognizer:
                 for flag, box in zip(eligible_values, box_values)
             ]
 
-        # Rank against every catalogued seed identity so an unverified but
-        # better-matching identity can veto a verified target. Only the final
-        # winner is checked against the target-domain verified support set.
+        # Always rank globally. ``server`` and ``candidates`` remain in the
+        # signature for callers, but neither narrows the identity gallery.
         allowed_ids = set(self.catalog.records) & self.seed_ids
         gallery_mask = np.array([sid in allowed_ids for sid in self.gallery_ids], dtype=bool)
         if not np.any(gallery_mask):
@@ -113,14 +121,39 @@ class StudentRecognizer:
                 for flag, box in zip(eligible_values, box_values)
             ]
 
-        embeddings = self._embed_views(crops)
+        valid_indices = [
+            index
+            for index, crop in enumerate(crops)
+            if isinstance(crop, np.ndarray)
+            and crop.ndim == 3
+            and crop.shape[0] > 1
+            and crop.shape[1] > 1
+            and crop.shape[2] == 3
+            and crop.size > 0
+        ]
+        predictions = [
+            StudentPrediction(
+                None,
+                None,
+                0.0,
+                0.0,
+                False,
+                eligible_values[index],
+                box_values[index],
+            )
+            for index in range(len(crops))
+        ]
+        if not valid_indices:
+            return predictions
+        try:
+            embeddings = self._embed_views([crops[index] for index in valid_indices])
+        except (cv2.error, ValueError, IndexError):
+            return predictions
         gallery_embeddings = self.gallery_embeddings[gallery_mask]
         gallery_ids = self.gallery_ids[gallery_mask]
         similarity = np.max(embeddings @ gallery_embeddings.T, axis=1)
-        predictions: list[StudentPrediction] = []
         threshold = float(self.metadata["similarity_threshold"])
-        margin_threshold = float(self.metadata["margin_threshold"])
-        for row, flag, box in zip(similarity, eligible_values, box_values):
+        for result_index, row in zip(valid_indices, similarity):
             per_student: dict[str, float] = {}
             for sid, score in zip(gallery_ids, row):
                 per_student[sid] = max(per_student.get(sid, -1.0), float(score))
@@ -128,23 +161,17 @@ class StudentRecognizer:
             sid, score = ranked[0]
             second_score = ranked[1][1] if len(ranked) > 1 else -1.0
             margin = score - second_score
-            accepted = (
-                sid in self.supported_ids
-                and score >= threshold
-                and margin >= margin_threshold
-            )
+            accepted = score >= threshold
             record = self.catalog.record(sid)
-            predictions.append(
-                StudentPrediction(
-                    student_id=sid,
-                    name=record.canonical_name if record else None,
-                    score=score,
-                    margin=margin,
-                    accepted=accepted,
-                    eligible=flag,
-                    bbox=box,
-                    support_status=self.support_status(sid),
-                )
+            predictions[result_index] = StudentPrediction(
+                student_id=sid,
+                name=record.canonical_name if record else None,
+                score=score,
+                margin=margin,
+                accepted=accepted,
+                eligible=eligible_values[result_index],
+                bbox=box_values[result_index],
+                support_status=self.support_status(sid),
             )
         return predictions
 

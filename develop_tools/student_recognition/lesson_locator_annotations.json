@@ -59,7 +59,7 @@
       "identity_label_source": "user-manual-annotation",
       "card_indices": [0, 1, 2, 3, 4, 5, 6, 7],
       "identity_labels": {
-        "0:0": "Saki",
+        "0:0": "Saki (Swimsuit)",
         "0:1": "Junko",
         "1:0": "Noa (Pajamas)",
         "2:0": "Atsuko (Swimsuit)",
@@ -184,7 +184,7 @@
         "1:0": "Koharu (Swimsuit)",
         "1:1": "Toki (Bunny)",
         "2:0": "Iori (Swimsuit)",
-        "2:1": "Kotama (Camp)",
+        "2:1": "Kotama",
         "3:0": "Yuzu",
         "3:1": "Izuna",
         "4:0": "Tsukuyo",

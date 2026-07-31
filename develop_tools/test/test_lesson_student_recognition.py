@@ -29,6 +29,7 @@ from develop_tools.student_recognition.training_data import (
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_DIR = ROOT / "develop_tools" / "test" / "fixtures" / "lesson"
 ANNOTATION_PATH = ROOT / "develop_tools" / "student_recognition" / "lesson_locator_annotations.json"
+VALIDATION_REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "validation_report.json"
 STATIC_CONFIG = json.loads(STATIC_DEFAULT_CONFIG)
 
 
@@ -80,7 +81,7 @@ class LessonLocatorGoldenTest(unittest.TestCase):
         self.assertEqual(81, expected_total)
         self.assertEqual(81, actual_total)
         self.assertEqual(81, len(identity_labels))
-        self.assertEqual(72, len(set(identity_labels)))
+        self.assertEqual(74, len(set(identity_labels)))
         self.assertEqual(
             71,
             sum(
@@ -93,7 +94,7 @@ class LessonLocatorGoldenTest(unittest.TestCase):
     def test_onnx_locator_handles_resolution_scaling(self):
         for image_name, expected in self.annotation["images"].items():
             image = cv2.imread(str(FIXTURE_DIR / image_name))
-            for scale in (0.70, 1.0, 1.40):
+            for scale in (0.70, 0.85, 1.0, 1.15, 1.40):
                 with self.subTest(image=image_name, scale=scale):
                     resized = cv2.resize(
                         image,
@@ -143,6 +144,22 @@ class LessonLocatorGoldenTest(unittest.TestCase):
                 for name in image["identity_labels"].values()
             },
         )
+        self.assertEqual(
+            "Saki (Swimsuit)",
+            self.annotation["images"]["new_ui_2.png"]["identity_labels"]["0:0"],
+        )
+        self.assertEqual(
+            "Saki",
+            self.annotation["images"]["new_ui_3.png"]["identity_labels"]["1:2"],
+        )
+        self.assertEqual(
+            "Kotama (Camp)",
+            self.annotation["images"]["new_ui_3.png"]["identity_labels"]["7:0"],
+        )
+        self.assertEqual(
+            "Kotama",
+            self.annotation["images"]["new_ui_5.png"]["identity_labels"]["2:1"],
+        )
 
     def test_geometry_fallback_handles_resolution_scaling(self):
         locator = LessonLocator(ROOT / "missing-model-directory")
@@ -167,9 +184,11 @@ class LessonLocatorGoldenTest(unittest.TestCase):
         )[0]
         self.assertNotIn(".swipe(", invite_source)
         self.assertNotIn("update_screenshot_array", invite_source)
+        self.assertNotIn("verified prototype", invite_source)
+        self.assertNotIn("supported_ids", invite_source)
         self.assertNotIn("get_favor_student_detect_region", source)
 
-    def test_verified_identity_predictions_are_safe(self):
+    def test_all_target_predictions_pass_global_top1_threshold(self):
         recognizer = StudentRecognizer(StudentCatalog(STATIC_CONFIG["student_names"]))
         accepted_total = 0
         for image_name, expected in self.annotation["images"].items():
@@ -187,16 +206,12 @@ class LessonLocatorGoldenTest(unittest.TestCase):
             )
             labels = expected.get("identity_labels", {})
             for (card_index, slot, _), prediction in zip(locations, predictions):
-                if prediction.student_id in recognizer.prototype_only_ids:
-                    self.assertEqual("prototype_only", prediction.support_status)
-                    self.assertFalse(prediction.accepted)
-                if not prediction.accepted:
-                    continue
-                accepted_total += 1
                 key = f"{card_index}:{slot}"
-                self.assertIn(key, labels)
                 self.assertEqual(labels[key], prediction.name)
-        self.assertGreater(accepted_total, 0)
+                self.assertGreaterEqual(prediction.score, 0.60)
+                self.assertTrue(prediction.accepted)
+                accepted_total += 1
+        self.assertEqual(81, accepted_total)
 
     def test_all_target_identities_have_correct_top1(self):
         recognizer = StudentRecognizer(StudentCatalog(STATIC_CONFIG["student_names"]))
@@ -218,54 +233,48 @@ class LessonLocatorGoldenTest(unittest.TestCase):
                         prediction.name,
                     )
 
-    def test_real_gray_and_prototype_only_targets_do_not_select(self):
+    def test_every_pink_instance_selects_and_every_gray_instance_is_blocked(self):
         service = StudentRecognitionService(STATIC_CONFIG["student_names"])
-        gray_cards = service.recognize_lesson(
-            cv2.imread(str(FIXTURE_DIR / "new_ui_3.png")),
-            "CN",
-        )
-        self.assertIsNone(
-            service.select_priority_card(gray_cards, ["available"] * 9, ["Saki"])
-        )
-
-        prototype_cards = service.recognize_lesson(
-            cv2.imread(str(FIXTURE_DIR / "new_ui_1.png")),
-            "CN",
-        )
-        self.assertIsNone(
-            service.select_priority_card(
-                prototype_cards,
-                ["available"] * 9,
-                ["Ichika"],
-            )
-        )
-
-    def test_every_verified_target_is_recognized(self):
-        recognizer = StudentRecognizer(StudentCatalog(STATIC_CONFIG["student_names"]))
-        found = set()
-        for image_name in self.annotation["images"]:
-            image = cv2.imread(str(FIXTURE_DIR / image_name))
-            avatars = [
-                avatar
-                for card in self.locator.locate(image)
-                for avatar in card.avatars
-            ]
-            predictions = recognizer.identify(
-                [avatar.crop for avatar in avatars],
+        pink_instances = 0
+        gray_instances = 0
+        pink_students = set()
+        gray_students = set()
+        for image_name, expected in self.annotation["images"].items():
+            cards = service.recognize_lesson(
+                cv2.imread(str(FIXTURE_DIR / image_name)),
                 "CN",
             )
-            found.update(
-                prediction.name
-                for prediction in predictions
-                if prediction.accepted
-            )
-        self.assertEqual(
-            recognizer.supported_ids,
-            {
-                recognizer.catalog.resolve(name).student_id
-                for name in found
-            },
-        )
+            cards_by_index = {card.index: card for card in cards}
+            flags = {
+                f"{card}:{slot}": eligible
+                for card, slot, eligible in expected["avatars"]
+            }
+            for location, name in expected["identity_labels"].items():
+                card_index, slot = (int(value) for value in location.split(":"))
+                avatar = cards_by_index[card_index].avatars[slot]
+                self.assertEqual(name, avatar.prediction.name)
+                selected = service.select_priority_card(
+                    cards,
+                    ["available"] * 9,
+                    [name],
+                )
+                if flags[location]:
+                    pink_instances += 1
+                    pink_students.add(name)
+                    self.assertIsNotNone(selected)
+                    self.assertEqual(card_index, selected.index)
+                else:
+                    gray_instances += 1
+                    gray_students.add(name)
+                    self.assertIsNone(selected)
+        self.assertEqual(71, pink_instances)
+        self.assertEqual(65, len(pink_students))
+        self.assertEqual(10, gray_instances)
+        self.assertEqual(9, len(gray_students))
+        self.assertIn("Saki (Swimsuit)", pink_students)
+        self.assertNotIn("Saki", pink_students)
+        self.assertIn("Kotama", pink_students)
+        self.assertIn("Kotama (Camp)", pink_students)
 
     def test_end_to_end_cpu_target_is_under_500ms(self):
         recognizer = StudentRecognizer(StudentCatalog(STATIC_CONFIG["student_names"]))
@@ -350,61 +359,63 @@ class StudentCatalogTest(unittest.TestCase):
         gallery_path = ROOT / "src" / "models" / "student_recognition" / "gallery.npz"
         if model_path.exists() and gallery_path.exists():
             self.assertTrue(recognizer.available)
-            self.assertLessEqual(len(recognizer.supported_ids), 43)
-            self.assertGreater(float(recognizer.metadata["margin_threshold"]), 0.0)
-            self.assertEqual(
-                {
-                    "aoba",
-                    "atsuko_swimsuit",
-                    "chiaki",
-                    "chise_swimsuit",
-                    "hanako_swimsuit",
-                    "haruna",
-                    "hibiki",
-                    "hinata",
-                    "hinata_swimsuit",
-                    "ichika",
-                    "junko",
-                    "karin_school",
-                    "kayoko",
-                    "maki_camp",
-                    "marina_qipao",
-                    "meru",
-                    "midori_maid",
-                    "mutsuki",
-                    "neru_school",
-                    "noa_pajamas",
-                    "nonomi_swimsuit",
-                    "pina",
-                    "rio",
-                    "sakurako_pop_idol",
-                    "shigure_hot_spring",
-                    "shun_small",
-                    "sumire",
-                    "tsukuyo",
-                    "yoshimi_band",
-                },
-                recognizer.prototype_only_ids,
-            )
-            self.assertTrue(
-                recognizer.supported_ids.isdisjoint(recognizer.prototype_only_ids)
-            )
-            self.assertGreater(len(recognizer.seed_ids), len(recognizer.supported_ids))
+            self.assertEqual(265, len(recognizer.supported_ids))
+            self.assertEqual(265, len(recognizer.seed_ids))
+            self.assertEqual(0.60, float(recognizer.metadata["similarity_threshold"]))
+            self.assertEqual(0.0, float(recognizer.metadata["margin_threshold"]))
+            self.assertFalse(recognizer.metadata["margin_is_click_gate"])
+            self.assertFalse(recognizer.metadata["support_status_is_click_gate"])
             self.assertEqual(81, recognizer.metadata["target_avatar_count"])
-            self.assertEqual(72, recognizer.metadata["target_identity_count"])
+            self.assertEqual(74, recognizer.metadata["target_identity_count"])
             self.assertEqual(71, recognizer.metadata["eligible_avatar_count"])
             self.assertEqual(10, recognizer.metadata["plain_avatar_count"])
-            self.assertEqual(43, recognizer.metadata["independent_validation_candidate_count"])
-            self.assertEqual(29, recognizer.metadata["prototype_only_student_count"])
             self.assertEqual(5, len(recognizer.metadata["validation_groups"]))
-            self.assertEqual(72, len(recognizer.metadata["student_support"]))
-            self.assertEqual(
-                72,
-                recognizer.metadata["verified_student_count"]
-                + recognizer.metadata["prototype_only_student_count"]
-                + recognizer.metadata["verification_failed_student_count"],
-            )
-            self.assertEqual("unsupported", recognizer.support_status("moe"))
+            self.assertEqual(265, len(recognizer.metadata["student_support"]))
+            self.assertEqual("historical_only", recognizer.support_status("moe"))
+
+    def test_validation_report_is_complete_and_explicit(self):
+        self.assertTrue(VALIDATION_REPORT_PATH.exists())
+        report = json.loads(VALIDATION_REPORT_PATH.read_text(encoding="utf-8"))
+        self.assertTrue(report["completed"])
+        self.assertEqual([], report["hard_failures"])
+        self.assertEqual(65, len(report["click_passed_students"]))
+        self.assertEqual(71, len(report["click_passed_instances"]))
+        self.assertEqual(9, len(report["gray_blocked_students"]))
+        self.assertEqual(10, len(report["gray_blocked_instances"]))
+        self.assertEqual(42, report["end_to_end_replay"]["click_coverage"]["first_three_images_passed_instances"])
+        self.assertEqual(29, report["end_to_end_replay"]["click_coverage"]["last_two_images_passed_instances"])
+        self.assertEqual(74, len(report["target_fixture_students"]))
+        self.assertEqual(81, len(report["historical_only_no_fixture"]))
+        self.assertEqual(110, len(report["roster_only_no_fixture"]))
+        self.assertEqual([], report["no_prototype_students"])
+        for key in (
+            "top1_failures",
+            "score_failures",
+            "click_failures",
+            "wrong_card_clicks",
+            "gray_identity_failures",
+            "gray_wrong_clicks",
+            "locator_failures",
+        ):
+            self.assertEqual([], report[key], key)
+        self.assertIn("Saki (Swimsuit)", report["click_passed_students"])
+        self.assertNotIn("Saki", report["click_passed_students"])
+        self.assertIn("Kotama", report["click_passed_students"])
+        self.assertIn("Kotama (Camp)", report["click_passed_students"])
+        self.assertEqual(
+            {
+                "Chiaki",
+                "Maki (Camp)",
+                "Marina (Qipao)",
+                "Megu",
+                "Noa (Pajamas)",
+                "Reijo",
+                "Saki",
+                "Shigure (Hot Spring)",
+                "Tsukuyo",
+            },
+            set(report["gray_blocked_students"]),
+        )
 
     def test_runtime_model_resources_are_under_25mb(self):
         model_dir = ROOT / "src" / "models" / "student_recognition"
@@ -562,6 +573,47 @@ class LessonPrioritySelectionTest(unittest.TestCase):
                 ["Pink"],
             ).index,
         )
+
+    def test_near_zero_margin_does_not_block_top1(self):
+        class FakeNet:
+            def setInput(self, value):
+                self.count = len(value)
+
+            def forward(self):
+                return np.tile(np.asarray([[1.0, 0.0]], dtype=np.float32), (self.count, 1))
+
+        catalog = StudentCatalog(STATIC_CONFIG["student_names"])
+        recognizer = StudentRecognizer(catalog, ROOT / "missing-model-directory")
+        recognizer.net = FakeNet()
+        recognizer.gallery_embeddings = np.asarray(
+            [[1.0, 0.0], [0.9999995, 0.001]],
+            dtype=np.float32,
+        )
+        recognizer.gallery_embeddings /= np.linalg.norm(
+            recognizer.gallery_embeddings,
+            axis=1,
+            keepdims=True,
+        )
+        recognizer.gallery_ids = np.asarray(["yuzu", "serika"])
+        recognizer.metadata["similarity_threshold"] = 0.60
+        prediction = recognizer.identify(
+            [np.full((40, 40, 3), 128, dtype=np.uint8)],
+            server="CN",
+            candidates=["Serika"],
+            eligible=[True],
+        )[0]
+        self.assertEqual("Yuzu", prediction.name)
+        self.assertLess(prediction.margin, 0.01)
+        self.assertTrue(prediction.accepted)
+
+    def test_invalid_crop_fails_closed(self):
+        recognizer = StudentRecognizer(StudentCatalog(STATIC_CONFIG["student_names"]))
+        prediction = recognizer.identify(
+            [np.empty((0, 0, 3), dtype=np.uint8)],
+            server="CN",
+        )[0]
+        self.assertIsNone(prediction.name)
+        self.assertFalse(prediction.accepted)
 
 
 if __name__ == "__main__":

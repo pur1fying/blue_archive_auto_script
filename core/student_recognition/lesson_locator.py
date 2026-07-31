@@ -119,10 +119,17 @@ class LessonLocator:
             raise ValueError("Incomplete lesson locator result")
 
         median_height = float(np.median([box.height for box in group_boxes]))
-        pitch = max(8, round(median_height * 1.15))
+        # The portrait slot pitch is 72/1280 of the canonical UI width.
+        # Deriving it from mask height rounded 17.25 down to 17 and shifted
+        # the third crop several pixels left on tightly joined components.
+        pitch = max(8, round(input_width * 72 / 1280))
         column_anchors = self._cluster_anchors(
             [box.x1 for box in group_boxes],
-            tolerance=pitch * 2,
+            # Three adjacent avatars can be split into a 2-avatar component
+            # and a 1-avatar component with a gap just over two pitches.
+            # Keep those fragments in one lesson-card column.
+            tolerance=pitch * 2.6,
+            leading_edge=True,
         )
         row_anchors = self._cluster_anchors(
             [box.y1 for box in group_boxes],
@@ -157,7 +164,7 @@ class LessonLocator:
 
             slot_count = max(1, min(3, round(group.width / pitch)))
             for slot in range(slot_count):
-                model_x = group.x1 + 1 + slot * pitch
+                model_x = group.x1 + slot * pitch
                 model_y = row_anchors[row]
                 status_patch = class_map[
                     max(0, round(model_y - 1)):min(
@@ -173,14 +180,9 @@ class LessonLocator:
                     np.count_nonzero(status_patch == self.PLAIN_AVATAR_CLASS)
                 )
                 plain_ratio = plain_pixels / max(1, eligible_pixels + plain_pixels)
-                model_avatar = BoundingBox(
+                avatar_box = self._scale_avatar_box(
                     model_x,
                     round(model_y),
-                    min(input_width, model_x + max(12, round(pitch * 0.88))),
-                    min(input_height, round(model_y + max(12, median_height * 0.95))),
-                )
-                avatar_box = self._scale_model_box(
-                    model_avatar,
                     image_width,
                     image_height,
                     input_width,
@@ -205,13 +207,19 @@ class LessonLocator:
         return cards
 
     @staticmethod
-    def _cluster_anchors(values: list[int], tolerance: float) -> list[int]:
+    def _cluster_anchors(
+        values: list[int],
+        tolerance: float,
+        leading_edge: bool = False,
+    ) -> list[int]:
         groups: list[list[int]] = []
         for value in sorted(values):
             if not groups or value - np.mean(groups[-1]) > tolerance:
                 groups.append([value])
             else:
                 groups[-1].append(value)
+        if leading_edge:
+            return [min(group) for group in groups]
         return [round(float(np.median(group))) for group in groups]
 
     @staticmethod
@@ -227,6 +235,31 @@ class LessonLocator:
             round(box.y1 * height / input_height),
             round(box.x2 * width / input_width),
             round(box.y2 * height / input_height),
+        )
+
+    @staticmethod
+    def _scale_avatar_box(
+        model_x: int,
+        model_y: int,
+        width: int,
+        height: int,
+        input_width: int,
+        input_height: int,
+    ) -> BoundingBox:
+        # The segmentation output is quarter-resolution at the default input,
+        # so a detected leading edge quantizes down by up to one canonical UI
+        # pixel. Restore that sub-cell offset, then use the UI-relative portrait
+        # size. Position remains model-derived while the crop is stable across
+        # screenshot resolutions and matches the labelled 62x58 content window.
+        x1 = round(model_x * width / input_width) + max(1, round(width / 1280))
+        y1 = round(model_y * height / input_height) + max(1, round(height / 720))
+        avatar_width = max(2, round(width * 62 / 1280))
+        avatar_height = max(2, round(height * 58 / 720))
+        return BoundingBox(
+            max(0, x1),
+            max(0, y1),
+            min(width, x1 + avatar_width),
+            min(height, y1 + avatar_height),
         )
 
     @staticmethod

@@ -467,19 +467,19 @@ def invite_favor_student(self):
     valid_names, unknown_names = service.catalog.validate_names(favorStudentList)
     if unknown_names:
         self.logger.warning("Unknown lesson student name(s): [ " + ", ".join(unknown_names) + " ]")
-    supported_ids = service.recognizer.supported_ids
-    unsupported_names = []
+    gallery_ids = service.recognizer.seed_ids
+    no_prototype_names = []
     for name in valid_names:
         record = service.catalog.resolve(name)
-        if record is not None and record.student_id not in supported_ids:
-            unsupported_names.append(name)
-    if unsupported_names:
+        if record is not None and record.student_id not in gallery_ids:
+            no_prototype_names.append(name)
+    if no_prototype_names:
         self.logger.warning(
-            "Student recognition gallery has no verified prototype for [ "
-            + ", ".join(unsupported_names)
+            "Student recognition gallery has no prototype for [ "
+            + ", ".join(no_prototype_names)
             + " ]"
         )
-    favorStudentList = [name for name in valid_names if name not in unsupported_names]
+    favorStudentList = [name for name in valid_names if name not in no_prototype_names]
 
     detected_student_pos = dict()  # student name : {(region, block)}
     region_block_names = [[[] for _ in range(9)] for _ in range(len(self.lesson_region_name_len))]
