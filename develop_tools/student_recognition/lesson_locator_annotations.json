@@ -19,6 +19,7 @@
   "images": {
     "new_ui_1.png": {
       "identity_label_source": "user-manual-annotation",
+      "card_indices": [0, 1, 2, 3, 4, 5, 6, 7],
       "identity_labels": {
         "0:0": "Chihiro",
         "1:0": "Ichika",
@@ -41,7 +42,7 @@
         [1, 0, true],
         [1, 1, true],
         [2, 0, true],
-        [2, 1, true],
+        [2, 1, false],
         [3, 0, true],
         [3, 1, true],
         [4, 0, true],
@@ -56,6 +57,7 @@
     },
     "new_ui_2.png": {
       "identity_label_source": "user-manual-annotation",
+      "card_indices": [0, 1, 2, 3, 4, 5, 6, 7],
       "identity_labels": {
         "0:0": "Saki",
         "0:1": "Junko",
@@ -95,13 +97,14 @@
     },
     "new_ui_3.png": {
       "identity_label_source": "user-manual-annotation",
+      "card_indices": [0, 1, 2, 3, 4, 5, 6, 7],
       "identity_labels": {
         "0:0": "Neru (School)",
         "0:1": "Izumi (Swimsuit)",
         "0:2": "Suzumi",
         "1:0": "Asuna (School)",
         "1:1": "Kokona",
-        "1:2": "Moe",
+        "1:2": "Saki",
         "2:0": "Yuzu",
         "3:0": "Sumire",
         "3:1": "Reijo",
@@ -122,14 +125,98 @@
         [1, 2, false],
         [2, 0, true],
         [3, 0, true],
-        [3, 1, true],
+        [3, 1, false],
         [3, 2, true],
         [4, 0, true],
         [5, 0, true],
         [6, 0, true],
         [6, 1, true],
         [7, 0, true],
-        [7, 1, true]
+        [7, 1, false]
+      ]
+    },
+    "new_ui_4.png": {
+      "identity_label_source": "user-manual-annotation",
+      "card_indices": [0, 1, 2, 3, 4, 5, 6],
+      "identity_labels": {
+        "0:0": "Hibiki",
+        "0:1": "Koharu (Swimsuit)",
+        "1:0": "Shun (Small)",
+        "1:1": "Hinata (Swimsuit)",
+        "1:2": "Rio",
+        "2:0": "Chiaki",
+        "2:1": "Hina (Dress)",
+        "3:0": "Junko (New Year)",
+        "4:0": "Toki",
+        "4:1": "Atsuko",
+        "5:0": "Pina",
+        "5:1": "Hare",
+        "5:2": "Mimori",
+        "6:0": "Yuzu",
+        "6:1": "Hanako (Swimsuit)",
+        "6:2": "Maki (Camp)"
+      },
+      "avatars": [
+        [0, 0, true],
+        [0, 1, true],
+        [1, 0, true],
+        [1, 1, true],
+        [1, 2, true],
+        [2, 0, false],
+        [2, 1, true],
+        [3, 0, true],
+        [4, 0, true],
+        [4, 1, true],
+        [5, 0, true],
+        [5, 1, true],
+        [5, 2, true],
+        [6, 0, true],
+        [6, 1, true],
+        [6, 2, false]
+      ]
+    },
+    "new_ui_5.png": {
+      "identity_label_source": "user-manual-annotation",
+      "card_indices": [0, 1, 2, 3, 4, 5, 6, 7],
+      "identity_labels": {
+        "0:0": "Miyako",
+        "0:1": "Sakurako (Pop Idol)",
+        "1:0": "Koharu (Swimsuit)",
+        "1:1": "Toki (Bunny)",
+        "2:0": "Iori (Swimsuit)",
+        "2:1": "Kotama (Camp)",
+        "3:0": "Yuzu",
+        "3:1": "Izuna",
+        "4:0": "Tsukuyo",
+        "4:1": "Hanae",
+        "5:0": "Reijo",
+        "5:1": "Haruna",
+        "5:2": "Shigure (Hot Spring)",
+        "6:0": "Kayoko",
+        "6:1": "Chinatsu (Hot Spring)",
+        "7:0": "Cherino",
+        "7:1": "Meru",
+        "7:2": "Aoba"
+      },
+      "avatars": [
+        [0, 0, true],
+        [0, 1, true],
+        [1, 0, true],
+        [1, 1, true],
+        [2, 0, true],
+        [2, 1, true],
+        [3, 0, true],
+        [3, 1, true],
+        [4, 0, false],
+        [4, 1, true],
+        [5, 0, false],
+        [5, 1, true],
+        [5, 2, false],
+        [6, 0, true],
+        [6, 1, true],
+        [7, 0, true],
+        [7, 1, true],
+        [7, 2, true]
       ]
     }
   }

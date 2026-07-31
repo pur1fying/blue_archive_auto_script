@@ -4124,6 +4124,14 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
+      "CN_name": "樱子(偶像)",
+      "CN_implementation": true,
+      "Global_name": "Sakurako (Pop Idol)",
+      "Global_implementation": true,
+      "JP_name": "サクラコ(アイドル)",
+      "JP_implementation": true
+    },
+    {
       "CN_name": "康娜",
       "CN_implementation": true,
       "Global_name": "Kanna",
@@ -5140,6 +5148,14 @@ STATIC_DEFAULT_CONFIG = '''
       "JP_implementation": true
     },
     {
+      "CN_name": "真纪(露营)",
+      "CN_implementation": true,
+      "Global_name": "Maki (Camp)",
+      "Global_implementation": true,
+      "JP_name": "マキ(キャンプ)",
+      "JP_implementation": true
+    },
+    {
       "CN_name": "伊织",
       "CN_implementation": true,
       "Global_name": "Iori",
@@ -5201,6 +5217,30 @@ STATIC_DEFAULT_CONFIG = '''
       "Global_name": "Reijo",
       "Global_implementation": true,
       "JP_name": "レイジョ",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "莉音",
+      "CN_implementation": true,
+      "Global_name": "Rio",
+      "Global_implementation": true,
+      "JP_name": "リオ",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "千明",
+      "CN_implementation": true,
+      "Global_name": "Chiaki",
+      "Global_implementation": true,
+      "JP_name": "チアキ",
+      "JP_implementation": true
+    },
+    {
+      "CN_name": "青叶",
+      "CN_implementation": true,
+      "Global_name": "Aoba",
+      "Global_implementation": true,
+      "JP_name": "アオバ",
       "JP_implementation": true
     }
   ]

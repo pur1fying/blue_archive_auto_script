@@ -29,6 +29,7 @@ class LessonLocator:
             "input_width": 640,
             "input_height": 360,
             "minimum_cards": 1,
+            "plain_avatar_ratio_threshold": 0.50,
         }
         self.last_backend = "uninitialized"
         self._load_model()
@@ -193,7 +194,8 @@ class LessonLocator:
                     card.avatars.append(
                         StudentAvatar(
                             bbox=avatar_box,
-                            eligible=plain_ratio < 0.10,
+                            eligible=plain_ratio
+                            < float(self.metadata["plain_avatar_ratio_threshold"]),
                             crop=crop,
                         )
                     )

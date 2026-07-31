@@ -14,106 +14,848 @@
     0.2240000069141388,
     0.22499999403953552
   ],
-  "similarity_threshold": 0.87,
-  "margin_threshold": 0.02,
+  "similarity_threshold": 0.95,
+  "margin_threshold": 0.03,
   "training_source": "deduplicated-git-history+user-manual-target-domain",
   "historical_blob_count": 176,
-  "target_domain_training_count": 47,
+  "target_domain_training_count": 81,
+  "target_domain_training_repeat": 3,
+  "final_training_epochs": 105,
+  "target_avatar_count": 81,
+  "target_identity_count": 72,
+  "eligible_avatar_count": 71,
+  "plain_avatar_count": 10,
+  "independent_validation_candidate_count": 43,
   "augmentation_scale_range": [
     0.7,
     1.4
   ],
   "horizontal_flip": false,
   "verified_student_ids": [
+    "asuna_bunny",
+    "cherino",
     "chihiro",
+    "chinatsu_hot_spring",
     "hanae",
-    "hanae_christmas",
-    "hoshino_battle",
-    "ibuki",
-    "iori",
+    "hasumi_track",
+    "iori_swimsuit",
     "izumi",
-    "izumi_swimsuit",
+    "izuna",
+    "junko_new_year",
+    "koharu_swimsuit",
     "kokona",
     "megu",
-    "miyu",
-    "saki",
-    "saya_casual",
-    "serika",
-    "tsurugi_swimsuit",
-    "ui",
-    "utaha",
-    "wakamo"
+    "toki",
+    "yuzu"
   ],
+  "verified_student_count": 15,
   "prototype_only_student_ids": [
+    "aoba",
     "atsuko_swimsuit",
+    "chiaki",
     "chise_swimsuit",
+    "hanako_swimsuit",
+    "haruna",
+    "hibiki",
     "hinata",
+    "hinata_swimsuit",
     "ichika",
     "junko",
     "karin_school",
-    "kotama_camp",
+    "kayoko",
+    "maki_camp",
     "marina_qipao",
+    "meru",
     "midori_maid",
     "mutsuki",
     "neru_school",
     "noa_pajamas",
     "nonomi_swimsuit",
-    "reijo",
+    "pina",
+    "rio",
+    "sakurako_pop_idol",
+    "shigure_hot_spring",
+    "shun_small",
     "sumire",
+    "tsukuyo",
     "yoshimi_band"
   ],
+  "prototype_only_student_count": 29,
   "verification_failed_student_ids": [
-    "asuna_bunny",
     "asuna_school",
+    "atsuko",
+    "hanae_christmas",
     "hanako",
-    "hasumi_track",
+    "hare",
+    "hina_dress",
+    "hoshino_battle",
+    "ibuki",
+    "iori",
+    "izumi_swimsuit",
     "kanna",
     "kirino",
-    "moe",
+    "kotama_camp",
+    "mimori",
+    "miyako",
+    "miyu",
+    "reijo",
+    "saki",
+    "saya_casual",
+    "serika",
     "shiroko_terror",
     "suzumi",
-    "yuzu",
+    "toki_bunny",
+    "tsurugi_swimsuit",
+    "ui",
+    "utaha",
+    "wakamo",
     "yuzu_maid"
   ],
+  "verification_failed_student_count": 28,
+  "student_support": {
+    "aoba": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "asuna_bunny": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "asuna_school": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_2.png",
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "grouped_below_margin_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "atsuko": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "atsuko_swimsuit": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "cherino": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "chiaki": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "chihiro": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "chinatsu_hot_spring": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "chise_swimsuit": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "hanae": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_3.png",
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "hanae_christmas": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "hanako": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "hanako_swimsuit": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "hare": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "haruna": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "hasumi_track": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "hibiki": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "hina_dress": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "hinata": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "hinata_swimsuit": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "hoshino_battle": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "grouped_below_margin_threshold"
+      ]
+    },
+    "ibuki": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "ichika": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "iori": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "iori_swimsuit": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "izumi": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "izumi_swimsuit": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "grouped_below_margin_threshold"
+      ]
+    },
+    "izuna": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "junko": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "junko_new_year": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "kanna": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "karin_school": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "kayoko": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "kirino": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "koharu_swimsuit": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_4.png",
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "kokona": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_2.png",
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "kotama_camp": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_3.png",
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "grouped_below_margin_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "maki_camp": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "marina_qipao": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "megu": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "meru": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "midori_maid": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "mimori": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "miyako": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "miyu": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "mutsuki": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "neru_school": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "noa_pajamas": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "nonomi_swimsuit": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "pina": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "reijo": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_3.png",
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "rio": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "saki": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_2.png",
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "grouped_below_margin_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "sakurako_pop_idol": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "saya_casual": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "serika": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch"
+      ]
+    },
+    "shigure_hot_spring": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "shiroko_terror": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "shun_small": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "sumire": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "suzumi": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "grouped_below_margin_threshold"
+      ]
+    },
+    "toki": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "toki_bunny": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold",
+        "grouped_below_margin_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "tsukuyo": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "tsurugi_swimsuit": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "ui": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "utaha": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold",
+        "final_below_similarity_threshold"
+      ]
+    },
+    "wakamo": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "grouped_below_similarity_threshold"
+      ]
+    },
+    "yoshimi_band": {
+      "status": "prototype_only",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "reasons": [
+        "single_target_group_without_historical_seed"
+      ]
+    },
+    "yuzu": {
+      "status": "verified",
+      "validation_groups": [
+        "new_ui_3.png",
+        "new_ui_4.png",
+        "new_ui_5.png"
+      ],
+      "reasons": [
+        "passed_grouped_and_final_validation"
+      ]
+    },
+    "yuzu_maid": {
+      "status": "verification_failed",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "reasons": [
+        "grouped_top1_mismatch",
+        "grouped_below_similarity_threshold",
+        "grouped_below_margin_threshold"
+      ]
+    }
+  },
   "validation_groups": [
     "new_ui_1.png",
     "new_ui_2.png",
-    "new_ui_3.png"
+    "new_ui_3.png",
+    "new_ui_4.png",
+    "new_ui_5.png"
   ],
   "validation_fold_metrics": {
     "new_ui_1.png": {
       "count": 15,
       "known_identity_count": 12,
-      "top1_accuracy": 0.6666666666666666
+      "top1_accuracy": 0.5333333333333333
     },
     "new_ui_2.png": {
       "count": 16,
       "known_identity_count": 8,
-      "top1_accuracy": 0.5
+      "top1_accuracy": 0.375
     },
     "new_ui_3.png": {
       "count": 16,
+      "known_identity_count": 13,
+      "top1_accuracy": 0.4375
+    },
+    "new_ui_4.png": {
+      "count": 16,
+      "known_identity_count": 8,
+      "top1_accuracy": 0.3125
+    },
+    "new_ui_5.png": {
+      "count": 18,
       "known_identity_count": 11,
-      "top1_accuracy": 0.375
+      "top1_accuracy": 0.5555555555555556
     }
   },
   "cross_validation_metrics": {
-    "count": 47,
-    "top1_accuracy": 0.5106382978723404,
-    "accepted_count": 19,
+    "count": 81,
+    "top1_accuracy": 0.4444444444444444,
+    "accepted_count": 20,
     "accepted_precision": 1.0,
-    "accepted_recall": 0.40425531914893614,
-    "unknown_count": 16,
+    "accepted_recall": 0.24691358024691357,
+    "unknown_count": 29,
     "unknown_false_accept_rate": 0.0
   },
   "all_labeled_target_metrics": {
-    "count": 47,
-    "top1_accuracy": 0.9787234042553191,
-    "accepted_count": 19,
+    "count": 81,
+    "top1_accuracy": 1.0,
+    "accepted_count": 20,
     "accepted_precision": 1.0,
-    "accepted_recall": 0.40425531914893614,
+    "accepted_recall": 0.24691358024691357,
     "unknown_count": 0,
     "unknown_false_accept_rate": 0.0
   },
-  "label_count": 139
+  "label_count": 154
 }

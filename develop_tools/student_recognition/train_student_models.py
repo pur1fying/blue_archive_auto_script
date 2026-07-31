@@ -160,10 +160,12 @@ def make_locator_mask(annotation: dict, image_name: str) -> np.ndarray:
     width, height = annotation["canonical_size"]
     mask = np.zeros((height, width), dtype=np.uint8)
     card_boxes = annotation["card_boxes"]
-    for x1, y1, x2, y2 in card_boxes:
+    image_annotation = annotation["images"][image_name]
+    for card_index in image_annotation["card_indices"]:
+        x1, y1, x2, y2 = card_boxes[card_index]
         cv2.rectangle(mask, (x1, y1), (x2 - 1, y2 - 1), 1, thickness=-1)
     geometry = annotation["avatar_geometry"]
-    for card_index, avatar_slot, eligible in annotation["images"][image_name]["avatars"]:
+    for card_index, avatar_slot, eligible in image_annotation["avatars"]:
         card_x, card_y = card_boxes[card_index][:2]
         x1 = card_x + geometry["relative_x"][avatar_slot]
         y1 = card_y + geometry["relative_y"]
@@ -345,6 +347,7 @@ def supervised_contrastive_loss(embeddings, labels, temperature=0.10):
 
 
 def train_locator(epochs: int = 80) -> None:
+    seed_everything()
     dataset = LocatorDataset()
     loader = DataLoader(dataset, batch_size=6, shuffle=True, num_workers=0)
     model = LessonSegmentationNet()
@@ -383,9 +386,25 @@ def train_locator(epochs: int = 80) -> None:
                 "input_height": 180,
                 "classes": ["background", "lesson_card", "eligible_avatar", "plain_avatar"],
                 "minimum_cards": 6,
+                "plain_avatar_ratio_threshold": 0.50,
                 "augmentation_scale_range": [0.70, 1.40],
                 "single_frame_no_scroll": True,
                 "training_images": sorted(dataset.annotation["images"]),
+                "training_image_count": len(dataset.annotation["images"]),
+                "training_avatar_count": sum(
+                    len(image["avatars"])
+                    for image in dataset.annotation["images"].values()
+                ),
+                "eligible_avatar_count": sum(
+                    eligible
+                    for image in dataset.annotation["images"].values()
+                    for _, _, eligible in image["avatars"]
+                ),
+                "plain_avatar_count": sum(
+                    not eligible
+                    for image in dataset.annotation["images"].values()
+                    for _, _, eligible in image["avatars"]
+                ),
             },
             indent=2,
         ),
@@ -626,6 +645,56 @@ def _filter_final_verified(
         verified_ids -= rejected
 
 
+def _student_support_metadata(
+    target_groups,
+    prototype_only_ids,
+    verified_ids,
+    cross_validation_results,
+    final_results,
+    similarity_threshold,
+    margin_threshold,
+):
+    metadata = {}
+    verified_ids = set(verified_ids)
+    prototype_only_ids = set(prototype_only_ids)
+    for student_id in sorted(target_groups):
+        if student_id in prototype_only_ids:
+            status = "prototype_only"
+            reasons = ["single_target_group_without_historical_seed"]
+        elif student_id in verified_ids:
+            status = "verified"
+            reasons = ["passed_grouped_and_final_validation"]
+        else:
+            status = "verification_failed"
+            reasons = []
+            for prefix, results in (
+                ("grouped", cross_validation_results),
+                ("final", final_results),
+            ):
+                samples = [
+                    result
+                    for result in results
+                    if result["expected_id"] == student_id
+                ]
+                if not samples:
+                    reasons.append(f"{prefix}_sample_missing")
+                    continue
+                if any(result["predicted_id"] != student_id for result in samples):
+                    reasons.append(f"{prefix}_top1_mismatch")
+                if any(result["score"] < similarity_threshold for result in samples):
+                    reasons.append(f"{prefix}_below_similarity_threshold")
+                if any(result["margin"] < margin_threshold for result in samples):
+                    reasons.append(f"{prefix}_below_margin_threshold")
+            if not reasons:
+                reasons.append("removed_by_false_accept_safety_filter")
+        metadata[student_id] = {
+            "status": status,
+            "validation_groups": sorted(target_groups[student_id]),
+            "reasons": reasons,
+        }
+    return metadata
+
+
 def train_encoder(epochs: int = 35) -> None:
     historical_templates = load_historical_templates()
     labeled_crops = load_runtime_labeled_target_crops()
@@ -650,10 +719,8 @@ def train_encoder(epochs: int = 35) -> None:
         if student_id in historical_ids or len(image_names) > 1
     }
     prototype_only_ids = target_ids - independent_candidate_ids
-    if len(target_ids) != 45 or len(independent_candidate_ids) != 29 or len(prototype_only_ids) != 16:
-        raise ValueError(
-            "Expected 45 target identities: 29 independently verifiable and 16 prototype-only"
-        )
+    if not target_ids:
+        raise ValueError("No manually labelled target identities were loaded")
 
     pretrained_encoder, _ = _train_student_encoder(
         historical_templates,
@@ -711,9 +778,11 @@ def train_encoder(epochs: int = 35) -> None:
     )
 
     templates = historical_templates + target_portraits
+    final_training_templates = historical_templates + target_portraits * 3
+    final_training_epochs = max(epochs * 3, epochs)
     encoder, names = _train_student_encoder(
-        templates,
-        epochs,
+        final_training_templates,
+        final_training_epochs,
         "final",
         pretrained_state,
     )
@@ -756,6 +825,26 @@ def train_encoder(epochs: int = 35) -> None:
         similarity_threshold,
         margin_threshold,
     )
+    verification_failed_ids = independent_candidate_ids - verified_student_ids
+    support_metadata = _student_support_metadata(
+        target_groups,
+        prototype_only_ids,
+        verified_student_ids,
+        cross_validation_results,
+        final_results,
+        similarity_threshold,
+        margin_threshold,
+    )
+    annotation = json.loads(ANNOTATION_PATH.read_text(encoding="utf-8"))
+    eligible_avatar_count = sum(
+        eligible
+        for image in annotation["images"].values()
+        for _, _, eligible in image["avatars"]
+    )
+    target_avatar_count = sum(
+        len(image["avatars"])
+        for image in annotation["images"].values()
+    )
     print("cross-validation:", cross_validation_metrics)
     print("final OpenCV target data:", final_metrics)
     (MODEL_DIR / "student_encoder.json").write_text(
@@ -773,13 +862,22 @@ def train_encoder(epochs: int = 35) -> None:
                 "training_source": "deduplicated-git-history+user-manual-target-domain",
                 "historical_blob_count": len(historical_templates),
                 "target_domain_training_count": len(target_portraits),
+                "target_domain_training_repeat": 3,
+                "final_training_epochs": final_training_epochs,
+                "target_avatar_count": target_avatar_count,
+                "target_identity_count": len(target_ids),
+                "eligible_avatar_count": eligible_avatar_count,
+                "plain_avatar_count": target_avatar_count - eligible_avatar_count,
+                "independent_validation_candidate_count": len(independent_candidate_ids),
                 "augmentation_scale_range": [0.70, 1.40],
                 "horizontal_flip": False,
                 "verified_student_ids": sorted(verified_student_ids),
+                "verified_student_count": len(verified_student_ids),
                 "prototype_only_student_ids": sorted(prototype_only_ids),
-                "verification_failed_student_ids": sorted(
-                    independent_candidate_ids - verified_student_ids
-                ),
+                "prototype_only_student_count": len(prototype_only_ids),
+                "verification_failed_student_ids": sorted(verification_failed_ids),
+                "verification_failed_student_count": len(verification_failed_ids),
+                "student_support": support_metadata,
                 "validation_groups": image_names,
                 "validation_fold_metrics": fold_metrics,
                 "cross_validation_metrics": cross_validation_metrics,
