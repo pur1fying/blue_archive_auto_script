@@ -18,17 +18,23 @@
   },
   "images": {
     "new_ui_1.png": {
-      "identity_label_source": "git-history-template-crosscheck",
+      "identity_label_source": "user-manual-annotation",
       "identity_labels": {
         "0:0": "Chihiro",
+        "1:0": "Ichika",
+        "1:1": "Saya (Casual)",
         "2:0": "Izumi",
         "2:1": "Megu",
+        "3:0": "Nonomi (Swimsuit)",
         "3:1": "Wakamo",
+        "4:0": "Asuna (Bunny)",
         "4:1": "Serika",
+        "5:0": "Chise (Swimsuit)",
         "5:1": "Kanna",
         "6:0": "Yuzu (Maid)",
         "6:1": "Utaha",
-        "7:0": "Iori"
+        "7:0": "Iori",
+        "7:1": "Kirino"
       },
       "avatars": [
         [0, 0, true],
@@ -49,16 +55,24 @@
       ]
     },
     "new_ui_2.png": {
-      "identity_label_source": "git-history-template-crosscheck",
+      "identity_label_source": "user-manual-annotation",
       "identity_labels": {
         "0:0": "Saki",
-        "1:0": "Koharu (Swimsuit)",
+        "0:1": "Junko",
+        "1:0": "Noa (Pajamas)",
+        "2:0": "Atsuko (Swimsuit)",
         "2:1": "Kokona",
+        "2:2": "Asuna (School)",
         "3:0": "Shiroko Terror",
+        "3:1": "Karin (School)",
+        "3:2": "Mutsuki",
+        "4:0": "Midori (Maid)",
         "5:0": "Hanae (Christmas)",
         "5:1": "Ibuki",
+        "6:0": "Hinata",
         "6:1": "Hoshino (Battle)",
-        "7:0": "Tsurugi (Swimsuit)"
+        "7:0": "Tsurugi (Swimsuit)",
+        "7:1": "Yoshimi (Band)"
       },
       "avatars": [
         [0, 0, true],
@@ -80,13 +94,24 @@
       ]
     },
     "new_ui_3.png": {
-      "identity_label_source": "git-history-template-crosscheck",
+      "identity_label_source": "user-manual-annotation",
       "identity_labels": {
+        "0:0": "Neru (School)",
+        "0:1": "Izumi (Swimsuit)",
+        "0:2": "Suzumi",
+        "1:0": "Asuna (School)",
         "1:1": "Kokona",
         "1:2": "Moe",
         "2:0": "Yuzu",
-        "3:1": "Kaede",
-        "4:0": "Hasumi (Track)"
+        "3:0": "Sumire",
+        "3:1": "Reijo",
+        "3:2": "Hanako",
+        "4:0": "Hasumi (Track)",
+        "5:0": "Ui",
+        "6:0": "Hanae",
+        "6:1": "Miyu",
+        "7:0": "Kotama (Camp)",
+        "7:1": "Marina (Qipao)"
       },
       "avatars": [
         [0, 0, true],

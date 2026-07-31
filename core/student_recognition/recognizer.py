@@ -41,6 +41,20 @@ class StudentRecognizer:
         return set(verified) & set(self.gallery_ids.tolist())
 
     @property
+    def prototype_only_ids(self) -> set[str]:
+        prototype_only = self.metadata.get("prototype_only_student_ids", [])
+        if not isinstance(prototype_only, list):
+            return set()
+        return set(prototype_only) & set(self.gallery_ids.tolist())
+
+    def support_status(self, student_id: str) -> str:
+        if student_id in self.supported_ids:
+            return "verified"
+        if student_id in self.prototype_only_ids:
+            return "prototype_only"
+        return "unsupported"
+
+    @property
     def seed_ids(self) -> set[str]:
         return set(self.gallery_ids.tolist())
 
@@ -129,6 +143,7 @@ class StudentRecognizer:
                     accepted=accepted,
                     eligible=flag,
                     bbox=box,
+                    support_status=self.support_status(sid),
                 )
             )
         return predictions

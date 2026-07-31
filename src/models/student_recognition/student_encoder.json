@@ -14,11 +14,11 @@
     0.2240000069141388,
     0.22499999403953552
   ],
-  "similarity_threshold": 0.94,
-  "margin_threshold": 0.1,
-  "training_source": "deduplicated-git-history+crosschecked-target-domain",
+  "similarity_threshold": 0.87,
+  "margin_threshold": 0.02,
+  "training_source": "deduplicated-git-history+user-manual-target-domain",
   "historical_blob_count": 176,
-  "target_domain_training_count": 14,
+  "target_domain_training_count": 47,
   "augmentation_scale_range": [
     0.7,
     1.4
@@ -26,34 +26,94 @@
   "horizontal_flip": false,
   "verified_student_ids": [
     "chihiro",
-    "hasumi_track",
+    "hanae",
+    "hanae_christmas",
+    "hoshino_battle",
+    "ibuki",
     "iori",
     "izumi",
-    "kaede",
-    "kanna",
+    "izumi_swimsuit",
     "kokona",
     "megu",
-    "moe",
+    "miyu",
+    "saki",
+    "saya_casual",
     "serika",
+    "tsurugi_swimsuit",
+    "ui",
     "utaha",
-    "wakamo",
+    "wakamo"
+  ],
+  "prototype_only_student_ids": [
+    "atsuko_swimsuit",
+    "chise_swimsuit",
+    "hinata",
+    "ichika",
+    "junko",
+    "karin_school",
+    "kotama_camp",
+    "marina_qipao",
+    "midori_maid",
+    "mutsuki",
+    "neru_school",
+    "noa_pajamas",
+    "nonomi_swimsuit",
+    "reijo",
+    "sumire",
+    "yoshimi_band"
+  ],
+  "verification_failed_student_ids": [
+    "asuna_bunny",
+    "asuna_school",
+    "hanako",
+    "hasumi_track",
+    "kanna",
+    "kirino",
+    "moe",
+    "shiroko_terror",
+    "suzumi",
     "yuzu",
     "yuzu_maid"
   ],
-  "validation_group": "new_ui_2.png",
-  "validation_metrics": {
-    "count": 8,
-    "top1_accuracy": 0.375,
-    "accepted_count": 0,
-    "accepted_precision": null,
-    "accepted_recall": 0.0
+  "validation_groups": [
+    "new_ui_1.png",
+    "new_ui_2.png",
+    "new_ui_3.png"
+  ],
+  "validation_fold_metrics": {
+    "new_ui_1.png": {
+      "count": 15,
+      "known_identity_count": 12,
+      "top1_accuracy": 0.6666666666666666
+    },
+    "new_ui_2.png": {
+      "count": 16,
+      "known_identity_count": 8,
+      "top1_accuracy": 0.5
+    },
+    "new_ui_3.png": {
+      "count": 16,
+      "known_identity_count": 11,
+      "top1_accuracy": 0.375
+    }
+  },
+  "cross_validation_metrics": {
+    "count": 47,
+    "top1_accuracy": 0.5106382978723404,
+    "accepted_count": 19,
+    "accepted_precision": 1.0,
+    "accepted_recall": 0.40425531914893614,
+    "unknown_count": 16,
+    "unknown_false_accept_rate": 0.0
   },
   "all_labeled_target_metrics": {
-    "count": 22,
-    "top1_accuracy": 0.7272727272727273,
-    "accepted_count": 13,
+    "count": 47,
+    "top1_accuracy": 0.9787234042553191,
+    "accepted_count": 19,
     "accepted_precision": 1.0,
-    "accepted_recall": 0.5909090909090909
+    "accepted_recall": 0.40425531914893614,
+    "unknown_count": 0,
+    "unknown_false_accept_rate": 0.0
   },
-  "label_count": 122
+  "label_count": 139
 }

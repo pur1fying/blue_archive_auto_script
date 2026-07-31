@@ -13,6 +13,7 @@ import random
 import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
 
 import cv2
 import numpy as np
@@ -26,6 +27,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from core.student_recognition.catalog import StudentCatalog
+from core.config.default_config import STATIC_DEFAULT_CONFIG
+from core.student_recognition.lesson_locator import LessonLocator
 from core.student_recognition.recognizer import StudentRecognizer
 from develop_tools.student_recognition.models import (
     LessonSegmentationNet,
@@ -43,8 +46,6 @@ HISTORICAL_SOURCES = (
     ("JP", "d36428149^"),
     ("Global_en-us", "683039fce^"),
 )
-TARGET_VALIDATION_IMAGE = "new_ui_2.png"
-
 MEAN = np.asarray((0.485, 0.456, 0.406), dtype=np.float32)
 STD = np.asarray((0.229, 0.224, 0.225), dtype=np.float32)
 
@@ -103,15 +104,40 @@ def load_labeled_target_crops() -> list[tuple[str, str, str, np.ndarray]]:
     return labeled_crops
 
 
-def load_target_domain_portraits() -> tuple[
+def load_runtime_labeled_target_crops() -> list[tuple[str, str, str, np.ndarray]]:
+    """Pair manual identities with the crops produced by the runtime locator."""
+    annotation = json.loads(ANNOTATION_PATH.read_text(encoding="utf-8"))
+    locator = LessonLocator()
+    labeled_crops = []
+    for image_name, image_annotation in annotation["images"].items():
+        screenshot = cv2.imread(str(FIXTURE_DIR / image_name))
+        if screenshot is None:
+            raise FileNotFoundError(FIXTURE_DIR / image_name)
+        located = {
+            f"{card.index}:{slot}": avatar.crop
+            for card in locator.locate(screenshot)
+            for slot, avatar in enumerate(card.avatars)
+        }
+        labels = image_annotation.get("identity_labels", {})
+        if set(located) != set(labels):
+            raise ValueError(
+                f"Runtime locator positions do not match annotations for {image_name}"
+            )
+        for location, name in labels.items():
+            labeled_crops.append((name, image_name, location, located[location]))
+    return labeled_crops
+
+
+def load_target_domain_portraits(validation_image: Optional[str] = None) -> tuple[
     list[tuple[str, str, np.ndarray]],
     list[tuple[str, str, np.ndarray]],
 ]:
-    """Load cross-checked identities while keeping one screenshot as a group.
+    """Load manually labelled identities while keeping screenshots grouped.
 
     Returning portraits in the historical 33x30 representation lets the same
-    augmentation pipeline cover both sources without leaking augmented copies
-    of the validation screenshot into training.
+    augmentation pipeline cover both sources. When ``validation_image`` is
+    provided, that complete screenshot is excluded from training so none of
+    its augmented variants can leak into the validation fold.
     """
     train_portraits = []
     validation_portraits = []
@@ -125,7 +151,7 @@ def load_target_domain_portraits() -> tuple[
             interpolation=cv2.INTER_AREA,
         )
         item = (name, f"target:{image_name}:{location}", portrait)
-        destination = validation_portraits if image_name == TARGET_VALIDATION_IMAGE else train_portraits
+        destination = validation_portraits if image_name == validation_image else train_portraits
         destination.append(item)
     return train_portraits, validation_portraits
 
@@ -367,15 +393,20 @@ def train_locator(epochs: int = 80) -> None:
     )
 
 
-def train_encoder(epochs: int = 35) -> None:
-    historical_templates = load_historical_templates()
-    target_train, target_validation = load_target_domain_portraits()
-    templates = historical_templates + target_train
+def _train_student_encoder(
+    templates,
+    epochs: int,
+    label: str,
+    initial_encoder_state=None,
+):
+    seed_everything()
     names = sorted({name for name, _, _ in templates})
     label_to_index = {name: index for index, name in enumerate(names)}
     dataset = HistoricalStudentDataset(templates, label_to_index)
     loader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=0)
     model = StudentEncoderTrainer(len(names))
+    if initial_encoder_state is not None:
+        model.encoder.load_state_dict(initial_encoder_state)
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-3, weight_decay=1e-4)
     model.train()
     for epoch in range(epochs):
@@ -393,10 +424,301 @@ def train_encoder(epochs: int = 35) -> None:
             optimizer.step()
             running_loss += float(loss)
         if epoch % 5 == 0 or epoch == epochs - 1:
-            print(f"encoder epoch={epoch:03d} loss={running_loss / len(loader):.5f}")
+            print(
+                f"encoder {label} epoch={epoch:03d} "
+                f"loss={running_loss / len(loader):.5f}"
+            )
+    return model.encoder.eval(), names
+
+
+def _build_gallery(encoder, templates, catalog):
+    with torch.no_grad():
+        prototype_inputs = torch.from_numpy(
+            np.stack(
+                [_student_view(image, False) for _, _, image in templates]
+            ).astype(np.float32)
+        )
+        prototype_embeddings = encoder(prototype_inputs).cpu().numpy().astype(np.float32)
+
+    prototypes_by_student = collections.defaultdict(list)
+    prototype_items = list(zip(templates, prototype_embeddings))
+    prototype_items.sort(key=lambda item: not item[0][1].startswith("target:"))
+    for (name, _, _), embedding in prototype_items:
+        record = catalog.resolve(name)
+        if record is not None and len(prototypes_by_student[record.student_id]) < 3:
+            prototypes_by_student[record.student_id].append(embedding)
+
+    gallery_embeddings = []
+    gallery_ids = []
+    for student_id in sorted(prototypes_by_student):
+        for embedding in prototypes_by_student[student_id]:
+            gallery_embeddings.append(embedding)
+            gallery_ids.append(student_id)
+    gallery_matrix = np.asarray(gallery_embeddings, dtype=np.float32)
+    gallery_matrix /= np.maximum(
+        np.linalg.norm(gallery_matrix, axis=1, keepdims=True),
+        1e-12,
+    )
+    return gallery_matrix, np.asarray(gallery_ids)
+
+
+def _rank_embeddings(embeddings, items, gallery_matrix, gallery_ids, catalog):
+    embeddings = embeddings.reshape(len(items), -1, embeddings.shape[-1])
+    embeddings /= np.maximum(
+        np.linalg.norm(embeddings, axis=2, keepdims=True),
+        1e-12,
+    )
+    similarity = np.max(embeddings @ gallery_matrix.T, axis=1)
+    known_ids = set(gallery_ids.tolist())
+    results = []
+    for row, (name, image_name, location, _) in zip(similarity, items):
+        expected = catalog.resolve(name)
+        per_student = collections.defaultdict(lambda: -1.0)
+        for student_id, score in zip(gallery_ids, row):
+            per_student[student_id] = max(per_student[student_id], float(score))
+        ranked = sorted(per_student.items(), key=lambda item: item[1], reverse=True)
+        predicted_id, score = ranked[0]
+        second_score = ranked[1][1] if len(ranked) > 1 else -1.0
+        expected_id = expected.student_id if expected is not None else None
+        results.append(
+            {
+                "image": image_name,
+                "location": location,
+                "expected_id": expected_id,
+                "predicted_id": predicted_id,
+                "score": score,
+                "margin": score - second_score,
+                "expected_known": expected_id in known_ids,
+            }
+        )
+    return results
+
+
+def _score_with_torch(encoder, items, gallery_matrix, gallery_ids, catalog):
+    if not items:
+        return []
+    inputs = np.concatenate([_runtime_student_views(crop) for _, _, _, crop in items])
+    with torch.no_grad():
+        embeddings = encoder(torch.from_numpy(inputs)).cpu().numpy().astype(np.float32)
+    return _rank_embeddings(embeddings, items, gallery_matrix, gallery_ids, catalog)
+
+
+def _score_with_opencv(model_path, items, gallery_matrix, gallery_ids, catalog):
+    if not items:
+        return []
+    inputs = np.concatenate([_runtime_student_views(crop) for _, _, _, crop in items])
+    net = cv2.dnn.readNetFromONNX(str(model_path))
+    net.setInput(inputs)
+    embeddings = np.asarray(net.forward(), dtype=np.float32)
+    return _rank_embeddings(embeddings, items, gallery_matrix, gallery_ids, catalog)
+
+
+def _accepted_metrics(results, verified_ids, similarity_threshold, margin_threshold):
+    accepted = [
+        result
+        for result in results
+        if result["predicted_id"] in verified_ids
+        and result["score"] >= similarity_threshold
+        and result["margin"] >= margin_threshold
+    ]
+    accepted_correct = sum(
+        result["predicted_id"] == result["expected_id"] for result in accepted
+    )
+    top1_correct = sum(
+        result["predicted_id"] == result["expected_id"] for result in results
+    )
+    unknown = [result for result in results if not result["expected_known"]]
+    unknown_accepted = sum(result in accepted for result in unknown)
+    return {
+        "count": len(results),
+        "top1_accuracy": top1_correct / len(results) if results else None,
+        "accepted_count": len(accepted),
+        "accepted_precision": accepted_correct / len(accepted) if accepted else None,
+        "accepted_recall": accepted_correct / len(results) if results else None,
+        "unknown_count": len(unknown),
+        "unknown_false_accept_rate": (
+            unknown_accepted / len(unknown) if unknown else 0.0
+        ),
+    }
+
+
+def _calibrate_verification(results, candidate_ids):
+    score_thresholds = [value / 100 for value in range(60, 100)]
+    margin_thresholds = [value / 100 for value in range(1, 31)]
+    best = None
+    for similarity_threshold in score_thresholds:
+        for margin_threshold in margin_thresholds:
+            verified_ids = set()
+            for student_id in candidate_ids:
+                samples = [
+                    result
+                    for result in results
+                    if result["expected_known"]
+                    and result["expected_id"] == student_id
+                ]
+                if samples and all(
+                    result["predicted_id"] == student_id
+                    and result["score"] >= similarity_threshold
+                    and result["margin"] >= margin_threshold
+                    for result in samples
+                ):
+                    verified_ids.add(student_id)
+            if not verified_ids:
+                continue
+            metrics = _accepted_metrics(
+                results,
+                verified_ids,
+                similarity_threshold,
+                margin_threshold,
+            )
+            if metrics["accepted_precision"] != 1.0:
+                continue
+            if metrics["unknown_false_accept_rate"] > 0.005:
+                continue
+            objective = (
+                len(verified_ids),
+                metrics["accepted_count"],
+                similarity_threshold + margin_threshold,
+            )
+            if best is None or objective > best[0]:
+                best = (
+                    objective,
+                    similarity_threshold,
+                    margin_threshold,
+                    verified_ids,
+                    metrics,
+                )
+    if best is None:
+        return 1.0, 1.0, set(), _accepted_metrics(results, set(), 1.0, 1.0)
+    return best[1], best[2], best[3], best[4]
+
+
+def _filter_final_verified(
+    verified_ids,
+    results,
+    similarity_threshold,
+    margin_threshold,
+):
+    verified_ids = set(verified_ids)
+    while True:
+        rejected = set()
+        for student_id in verified_ids:
+            own_samples = [
+                result for result in results if result["expected_id"] == student_id
+            ]
+            if not own_samples or not all(
+                result["predicted_id"] == student_id
+                and result["score"] >= similarity_threshold
+                and result["margin"] >= margin_threshold
+                for result in own_samples
+            ):
+                rejected.add(student_id)
+        for result in results:
+            if (
+                result["predicted_id"] in verified_ids
+                and result["score"] >= similarity_threshold
+                and result["margin"] >= margin_threshold
+                and result["predicted_id"] != result["expected_id"]
+            ):
+                rejected.add(result["predicted_id"])
+        if not rejected:
+            return verified_ids
+        verified_ids -= rejected
+
+
+def train_encoder(epochs: int = 35) -> None:
+    historical_templates = load_historical_templates()
+    labeled_crops = load_runtime_labeled_target_crops()
+    target_portraits, _ = load_target_domain_portraits()
+    catalog = StudentCatalog(json.loads(STATIC_DEFAULT_CONFIG)["student_names"])
+
+    historical_ids = {
+        record.student_id
+        for name, _, _ in historical_templates
+        if (record := catalog.resolve(name)) is not None
+    }
+    target_groups = collections.defaultdict(set)
+    for name, image_name, _, _ in labeled_crops:
+        record = catalog.resolve(name)
+        if record is None:
+            raise ValueError(f"Unknown manually labelled student: {name}")
+        target_groups[record.student_id].add(image_name)
+    target_ids = set(target_groups)
+    independent_candidate_ids = {
+        student_id
+        for student_id, image_names in target_groups.items()
+        if student_id in historical_ids or len(image_names) > 1
+    }
+    prototype_only_ids = target_ids - independent_candidate_ids
+    if len(target_ids) != 45 or len(independent_candidate_ids) != 29 or len(prototype_only_ids) != 16:
+        raise ValueError(
+            "Expected 45 target identities: 29 independently verifiable and 16 prototype-only"
+        )
+
+    pretrained_encoder, _ = _train_student_encoder(
+        historical_templates,
+        max(epochs * 3, epochs),
+        "historical-pretrain",
+    )
+    pretrained_state = {
+        name: value.detach().clone()
+        for name, value in pretrained_encoder.state_dict().items()
+    }
+
+    cross_validation_results = []
+    fold_metrics = {}
+    image_names = sorted({image_name for _, image_name, _, _ in labeled_crops})
+    for validation_image in image_names:
+        target_train, _ = load_target_domain_portraits(validation_image)
+        fold_templates = historical_templates + target_train
+        fold_encoder, _ = _train_student_encoder(
+            fold_templates,
+            epochs,
+            f"fold:{validation_image}",
+            pretrained_state,
+        )
+        fold_gallery, fold_ids = _build_gallery(fold_encoder, fold_templates, catalog)
+        validation_items = [
+            item for item in labeled_crops if item[1] == validation_image
+        ]
+        fold_results = _score_with_torch(
+            fold_encoder,
+            validation_items,
+            fold_gallery,
+            fold_ids,
+            catalog,
+        )
+        cross_validation_results.extend(fold_results)
+        fold_metrics[validation_image] = {
+            "count": len(fold_results),
+            "known_identity_count": sum(
+                result["expected_known"] for result in fold_results
+            ),
+            "top1_accuracy": sum(
+                result["predicted_id"] == result["expected_id"]
+                for result in fold_results
+            ) / len(fold_results),
+        }
+
+    (
+        similarity_threshold,
+        margin_threshold,
+        verified_student_ids,
+        cross_validation_metrics,
+    ) = _calibrate_verification(
+        cross_validation_results,
+        independent_candidate_ids,
+    )
+
+    templates = historical_templates + target_portraits
+    encoder, names = _train_student_encoder(
+        templates,
+        epochs,
+        "final",
+        pretrained_state,
+    )
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    encoder = model.encoder.eval()
     dummy = torch.zeros((1, 3, 96, 96), dtype=torch.float32)
     torch.onnx.export(
         encoder,
@@ -408,106 +730,34 @@ def train_encoder(epochs: int = 35) -> None:
         opset_version=12,
     )
 
-    with torch.no_grad():
-        prototype_inputs = torch.from_numpy(
-            np.stack([_student_view(image, False) for _, _, image in templates]).astype(np.float32)
-        )
-        prototype_embeddings = encoder(prototype_inputs).cpu().numpy().astype(np.float32)
-
-    with (ROOT / "config" / "static.json").open("r", encoding="utf-8") as file:
-        catalog = StudentCatalog(json.load(file)["student_names"])
-    prototypes_by_student = collections.defaultdict(list)
-    prototype_items = list(zip(templates, prototype_embeddings))
-    prototype_items.sort(key=lambda item: not item[0][1].startswith("target:"))
-    for (name, _, _), embedding in prototype_items:
-        record = catalog.resolve(name)
-        if record is not None and len(prototypes_by_student[record.student_id]) < 3:
-            prototypes_by_student[record.student_id].append(embedding)
-    gallery_embeddings = []
-    gallery_ids = []
-    for student_id in sorted(prototypes_by_student):
-        for embedding in prototypes_by_student[student_id]:
-            gallery_embeddings.append(embedding)
-            gallery_ids.append(student_id)
+    gallery_embeddings, gallery_ids = _build_gallery(encoder, templates, catalog)
     np.savez_compressed(
         MODEL_DIR / "gallery.npz",
-        embeddings=np.asarray(gallery_embeddings, dtype=np.float32),
-        student_ids=np.asarray(gallery_ids),
+        embeddings=gallery_embeddings,
+        student_ids=gallery_ids,
     )
-    verified_student_ids = sorted(
-        {
-            record.student_id
-            for name, _, _ in target_train
-            if (record := catalog.resolve(name)) is not None
-        }
-    )
-    gallery_matrix = np.asarray(gallery_embeddings, dtype=np.float32)
-    gallery_matrix /= np.maximum(np.linalg.norm(gallery_matrix, axis=1, keepdims=True), 1e-12)
-    labeled_crops = load_labeled_target_crops()
 
-    opencv_encoder = cv2.dnn.readNetFromONNX(str(MODEL_DIR / "student_encoder.onnx"))
-    cn_mask = np.asarray(
-        [student_id in catalog.implemented_ids("CN") for student_id in gallery_ids],
-        dtype=bool,
+    final_results = _score_with_opencv(
+        MODEL_DIR / "student_encoder.onnx",
+        labeled_crops,
+        gallery_embeddings,
+        gallery_ids,
+        catalog,
     )
-    evaluation_gallery = gallery_matrix[cn_mask]
-    evaluation_ids = np.asarray(gallery_ids)[cn_mask]
-
-    def evaluate(items):
-        metrics = {
-            "count": len(items),
-            "top1_accuracy": None,
-            "accepted_count": 0,
-            "accepted_precision": None,
-            "accepted_recall": None,
-        }
-        if not items:
-            return metrics
-        inputs = np.concatenate(
-            [_runtime_student_views(crop) for _, _, _, crop in items]
-        )
-        opencv_encoder.setInput(inputs)
-        embeddings = np.asarray(opencv_encoder.forward(), dtype=np.float32)
-        embeddings = embeddings.reshape(len(items), -1, embeddings.shape[-1])
-        embeddings /= np.maximum(
-            np.linalg.norm(embeddings, axis=2, keepdims=True),
-            1e-12,
-        )
-        similarity = np.max(embeddings @ evaluation_gallery.T, axis=1)
-        top1_correct = 0
-        accepted_correct = 0
-        accepted_count = 0
-        for row, (name, _, _, _) in zip(similarity, items):
-            expected = catalog.resolve(name)
-            per_student = collections.defaultdict(lambda: -1.0)
-            for student_id, score in zip(evaluation_ids, row):
-                per_student[student_id] = max(per_student[student_id], float(score))
-            ranked = sorted(per_student.items(), key=lambda item: item[1], reverse=True)
-            predicted_id, score = ranked[0]
-            margin = score - ranked[1][1]
-            correct = expected is not None and predicted_id == expected.student_id
-            top1_correct += int(correct)
-            accepted = (
-                predicted_id in verified_student_ids
-                and score >= 0.94
-                and margin >= 0.10
-            )
-            accepted_count += int(accepted)
-            accepted_correct += int(accepted and correct)
-        metrics.update(
-            top1_accuracy=top1_correct / len(items),
-            accepted_count=accepted_count,
-            accepted_precision=accepted_correct / accepted_count if accepted_count else None,
-            accepted_recall=accepted_correct / len(items),
-        )
-        return metrics
-
-    validation_metrics = evaluate(
-        [item for item in labeled_crops if item[1] == TARGET_VALIDATION_IMAGE]
+    verified_student_ids = _filter_final_verified(
+        verified_student_ids,
+        final_results,
+        similarity_threshold,
+        margin_threshold,
     )
-    target_metrics = evaluate(labeled_crops)
-    print("target validation:", validation_metrics)
-    print("all labeled target data:", target_metrics)
+    final_metrics = _accepted_metrics(
+        final_results,
+        verified_student_ids,
+        similarity_threshold,
+        margin_threshold,
+    )
+    print("cross-validation:", cross_validation_metrics)
+    print("final OpenCV target data:", final_metrics)
     (MODEL_DIR / "student_encoder.json").write_text(
         json.dumps(
             {
@@ -518,17 +768,22 @@ def train_encoder(epochs: int = 35) -> None:
                 "embedding_size": 128,
                 "mean": MEAN.tolist(),
                 "std": STD.tolist(),
-                "similarity_threshold": 0.94,
-                "margin_threshold": 0.10,
-                "training_source": "deduplicated-git-history+crosschecked-target-domain",
+                "similarity_threshold": similarity_threshold,
+                "margin_threshold": margin_threshold,
+                "training_source": "deduplicated-git-history+user-manual-target-domain",
                 "historical_blob_count": len(historical_templates),
-                "target_domain_training_count": len(target_train),
+                "target_domain_training_count": len(target_portraits),
                 "augmentation_scale_range": [0.70, 1.40],
                 "horizontal_flip": False,
-                "verified_student_ids": verified_student_ids,
-                "validation_group": TARGET_VALIDATION_IMAGE,
-                "validation_metrics": validation_metrics,
-                "all_labeled_target_metrics": target_metrics,
+                "verified_student_ids": sorted(verified_student_ids),
+                "prototype_only_student_ids": sorted(prototype_only_ids),
+                "verification_failed_student_ids": sorted(
+                    independent_candidate_ids - verified_student_ids
+                ),
+                "validation_groups": image_names,
+                "validation_fold_metrics": fold_metrics,
+                "cross_validation_metrics": cross_validation_metrics,
+                "all_labeled_target_metrics": final_metrics,
                 "label_count": len(names),
             },
             indent=2,

@@ -11,16 +11,19 @@ python -m venv .training-venv
 .\.training-venv\Scripts\python.exe develop_tools/student_recognition/train_student_models.py all
 ```
 
-The locator annotations describe the three checked-in new-UI screenshots.
-Only identities that passed a strict Git-history template cross-check are
-labelled. `new_ui_2.png` is held out as one complete validation group, so its
-augmented variants never enter training or the prototype gallery.
+The locator annotations describe the three checked-in new-UI screenshots and
+contain all 47 manually labelled avatar instances. Each screenshot is held out
+as one complete cross-validation fold, so its augmented variants never enter
+that fold's training set or prototype gallery. After thresholds and verified
+identities are selected from the grouped folds, the deliverable encoder is
+trained once more with all labelled screenshots.
 
 The encoder seed set is reconstructed from the three Git revisions documented
 by `extract_historical_templates.py`, deduplicated by blob hash, and never
 loaded by the normal application runtime. Historical seeds are not
-automatically considered verified: `student_encoder.json` explicitly lists
-the target-domain verified stable IDs that may trigger a click.
+automatically considered verified: `student_encoder.json` explicitly separates
+independently validated `verified_student_ids` from single-source
+`prototype_only_student_ids`. Only the verified set may trigger a click.
 
 Low-confidence identities are rejected by both cosine similarity and the
 top-one/top-two margin. Add current-UI labels and recalibrate those thresholds
