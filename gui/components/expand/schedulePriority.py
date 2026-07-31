@@ -3,6 +3,7 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QGridLayout
 from qfluentwidgets import LineEdit, PushButton
 
+from core.student_recognition import StudentCatalog, StudentRecognizer
 from core.utils import delay
 from gui.util import notification
 
@@ -47,6 +48,8 @@ class Layout(QWidget):
         super().__init__(parent=parent)
 
         self.config = config
+        self.student_catalog = StudentCatalog(self.config.static_config.student_names)
+        self.student_recognizer = StudentRecognizer(self.student_catalog)
         self.item_levels = ["primary", "normal", "advanced", "superior"]
         ls_names = self.config.static_config.lesson_region_name
         key = self.config.server_mode
@@ -105,8 +108,39 @@ class Layout(QWidget):
             self.config.set('lesson_each_region_object_priority', self.needed_levels)
 
     def Slot_for_accept_favor_student(self):
-        res = self.lesson_favorStudent_LineEdit.text().split('>')
+        raw_names = self.lesson_favorStudent_LineEdit.text().split('>')
+        res, unknown, unavailable = self.student_catalog.validate_names(
+            raw_names,
+            self.config.server_mode,
+        )
+        if unknown:
+            return notification.error(
+                self.tr('指定学生设置失败'),
+                self.tr('未知学生名: ') + ', '.join(unknown),
+                self.config,
+                duration=3000,
+            )
+        if unavailable:
+            return notification.error(
+                self.tr('指定学生设置失败'),
+                self.tr('当前服务器尚未实装: ') + ', '.join(unavailable),
+                self.config,
+                duration=3000,
+            )
+        unsupported = []
+        for name in res:
+            record = self.student_catalog.resolve(name)
+            if record and record.student_id not in self.student_recognizer.supported_ids:
+                unsupported.append(name)
         self.config.set('lesson_favorStudent', res)
+        self.lesson_favorStudent_LineEdit.setText('>'.join(res))
+        if unsupported:
+            return notification.warning(
+                self.tr('指定学生模型尚未验证'),
+                ', '.join(unsupported),
+                self.config,
+                duration=3000,
+            )
         return notification.success(self.tr('指定学生(填写指南见wiki)'), f'{self.tr("指定学生设置成功为:")}{res}',
                                     self.config)
 

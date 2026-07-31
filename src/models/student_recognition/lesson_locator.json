@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "input_width": 320,
+  "input_height": 180,
+  "classes": [
+    "background",
+    "lesson_card",
+    "eligible_avatar",
+    "plain_avatar"
+  ],
+  "minimum_cards": 6,
+  "augmentation_scale_range": [
+    0.7,
+    1.4
+  ],
+  "single_frame_no_scroll": true,
+  "training_images": [
+    "new_ui_1.png",
+    "new_ui_2.png",
+    "new_ui_3.png"
+  ]
+}

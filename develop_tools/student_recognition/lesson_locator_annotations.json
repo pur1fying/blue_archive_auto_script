@@ -1,0 +1,111 @@
+{
+  "canonical_size": [1280, 720],
+  "card_boxes": [
+    [129, 181, 466, 324],
+    [473, 181, 810, 324],
+    [817, 181, 1154, 324],
+    [129, 332, 466, 475],
+    [473, 332, 810, 475],
+    [817, 332, 1154, 475],
+    [129, 483, 466, 627],
+    [473, 483, 810, 627]
+  ],
+  "avatar_geometry": {
+    "relative_x": [20, 92, 164],
+    "relative_y": 76,
+    "width": 62,
+    "height": 58
+  },
+  "images": {
+    "new_ui_1.png": {
+      "identity_label_source": "git-history-template-crosscheck",
+      "identity_labels": {
+        "0:0": "Chihiro",
+        "2:0": "Izumi",
+        "2:1": "Megu",
+        "3:1": "Wakamo",
+        "4:1": "Serika",
+        "5:1": "Kanna",
+        "6:0": "Yuzu (Maid)",
+        "6:1": "Utaha",
+        "7:0": "Iori"
+      },
+      "avatars": [
+        [0, 0, true],
+        [1, 0, true],
+        [1, 1, true],
+        [2, 0, true],
+        [2, 1, true],
+        [3, 0, true],
+        [3, 1, true],
+        [4, 0, true],
+        [4, 1, true],
+        [5, 0, true],
+        [5, 1, true],
+        [6, 0, true],
+        [6, 1, true],
+        [7, 0, true],
+        [7, 1, true]
+      ]
+    },
+    "new_ui_2.png": {
+      "identity_label_source": "git-history-template-crosscheck",
+      "identity_labels": {
+        "0:0": "Saki",
+        "1:0": "Koharu (Swimsuit)",
+        "2:1": "Kokona",
+        "3:0": "Shiroko Terror",
+        "5:0": "Hanae (Christmas)",
+        "5:1": "Ibuki",
+        "6:1": "Hoshino (Battle)",
+        "7:0": "Tsurugi (Swimsuit)"
+      },
+      "avatars": [
+        [0, 0, true],
+        [0, 1, true],
+        [1, 0, false],
+        [2, 0, true],
+        [2, 1, true],
+        [2, 2, true],
+        [3, 0, true],
+        [3, 1, true],
+        [3, 2, true],
+        [4, 0, true],
+        [5, 0, true],
+        [5, 1, true],
+        [6, 0, true],
+        [6, 1, true],
+        [7, 0, true],
+        [7, 1, true]
+      ]
+    },
+    "new_ui_3.png": {
+      "identity_label_source": "git-history-template-crosscheck",
+      "identity_labels": {
+        "1:1": "Kokona",
+        "1:2": "Moe",
+        "2:0": "Yuzu",
+        "3:1": "Kaede",
+        "4:0": "Hasumi (Track)"
+      },
+      "avatars": [
+        [0, 0, true],
+        [0, 1, true],
+        [0, 2, true],
+        [1, 0, true],
+        [1, 1, true],
+        [1, 2, false],
+        [2, 0, true],
+        [3, 0, true],
+        [3, 1, true],
+        [3, 2, true],
+        [4, 0, true],
+        [5, 0, true],
+        [6, 0, true],
+        [6, 1, true],
+        [7, 0, true],
+        [7, 1, true]
+      ]
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "architecture": "MobileNetV2-0.5",
+  "input_width": 96,
+  "input_height": 96,
+  "embedding_size": 128,
+  "mean": [
+    0.48500001430511475,
+    0.4560000002384186,
+    0.4059999883174896
+  ],
+  "std": [
+    0.2290000021457672,
+    0.2240000069141388,
+    0.22499999403953552
+  ],
+  "similarity_threshold": 0.94,
+  "margin_threshold": 0.1,
+  "training_source": "deduplicated-git-history+crosschecked-target-domain",
+  "historical_blob_count": 176,
+  "target_domain_training_count": 14,
+  "augmentation_scale_range": [
+    0.7,
+    1.4
+  ],
+  "horizontal_flip": false,
+  "verified_student_ids": [
+    "chihiro",
+    "hasumi_track",
+    "iori",
+    "izumi",
+    "kaede",
+    "kanna",
+    "kokona",
+    "megu",
+    "moe",
+    "serika",
+    "utaha",
+    "wakamo",
+    "yuzu",
+    "yuzu_maid"
+  ],
+  "validation_group": "new_ui_2.png",
+  "validation_metrics": {
+    "count": 8,
+    "top1_accuracy": 0.375,
+    "accepted_count": 0,
+    "accepted_precision": null,
+    "accepted_recall": 0.0
+  },
+  "all_labeled_target_metrics": {
+    "count": 22,
+    "top1_accuracy": 0.7272727272727273,
+    "accepted_count": 13,
+    "accepted_precision": 1.0,
+    "accepted_recall": 0.5909090909090909
+  },
+  "label_count": 122
+}

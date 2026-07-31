@@ -1,10 +1,10 @@
-import importlib
 import time
 
 import cv2
 
 from core import color, picture, image
 from core.geometry.parallelogram import Parallelogram
+from core.student_recognition import StudentRecognitionService
 from core.utils import build_possible_string_dict_and_length, most_similar_string, purchase_ticket_times_to_int
 
 
@@ -229,17 +229,19 @@ def to_select_location(self, skip_first_screenshot=False):
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot)
 
 
-def execute_lesson(self, lesson_id):
+def execute_lesson(self, lesson_id, click_point=None):
     self.logger.info("Execute Lesson " + str(lesson_id + 1))
-    to_location_info(self, lesson_id)
+    to_location_info(self, lesson_id, click_point)
     return start_lesson(self)
 
 
-def to_location_info(self, lesson_id):
+def to_location_info(self, lesson_id, click_point=None):
     click_lo = [[307, 257], [652, 257], [995, 257],
                 [307, 408], [652, 408], [995, 408],
                 [307, 560], [652, 560], [985, 560]]
-    img_possibles = {"lesson_all-locations": click_lo[lesson_id]}
+    if click_point is None:
+        click_point = click_lo[lesson_id]
+    img_possibles = {"lesson_all-locations": click_point}
     img_ends = 'lesson_lesson-information'
     picture.co_detect(self, None, None, img_ends, img_possibles, skip_first_screenshot=True)
 
@@ -451,22 +453,46 @@ def choose_lesson(self, res, region):
 
 def invite_favor_student(self):
     """
-        search all lessons and invite specified student
-        use each server image template, if image not exists use shared
+        Search all lesson regions for configured students using the shared
+        student recognition service. The current lesson UI shows every
+        participant without scrolling, so one screenshot is used per region.
     """
     self.logger.info("Lesson Inviting favor student.")
-    favorStudentList = self.config.lesson_favorStudent.copy()
+    favorStudentList = [name.strip() for name in self.config.lesson_favorStudent if name.strip()]
+    service = get_student_recognition_service(self)
+    if not service.identity_available:
+        self.logger.warning("Student recognition model is unavailable. Fallback to normal lesson selection.")
+        return
+
+    valid_names, unknown_names, unavailable_names = service.catalog.validate_names(
+        favorStudentList,
+        self.server,
+    )
+    if unknown_names:
+        self.logger.warning("Unknown lesson student name(s): [ " + ", ".join(unknown_names) + " ]")
+    if unavailable_names:
+        self.logger.warning(
+            "Student(s) not implemented on current server: [ "
+            + ", ".join(unavailable_names)
+            + " ]"
+        )
+    supported_ids = service.recognizer.supported_ids
+    unsupported_names = []
+    for name in valid_names:
+        record = service.catalog.resolve(name)
+        if record is not None and record.student_id not in supported_ids:
+            unsupported_names.append(name)
+    if unsupported_names:
+        self.logger.warning(
+            "Student recognition gallery has no verified prototype for [ "
+            + ", ".join(unsupported_names)
+            + " ]"
+        )
+    favorStudentList = [name for name in valid_names if name not in unsupported_names]
 
     detected_student_pos = dict()  # student name : {(region, block)}
     region_block_names = [[[] for _ in range(9)] for _ in range(len(self.lesson_region_name_len))]
-    template_image_names = get_favor_student_image_template_names(self.identifier)
-    template_not_exist = [x for x in favorStudentList if x not in template_image_names]
-    if len(template_not_exist) > 0:
-        self.logger.warning("Didn't find template image for [ " + ", ".join(template_not_exist) + " ]")
-        self.logger.warning("Possible reasons : ")
-        self.logger.warning("                   1. Template image not exists, please contact developer to add it.")
-        self.logger.warning("                   2. You wrote wrong student name.")
-    favorStudentList = [x for x in favorStudentList if x not in template_not_exist]
+    region_card_click_points = {}
     if len(favorStudentList) == 0:
         self.logger.info("FavorStudent list is empty.")
         return
@@ -479,51 +505,65 @@ def invite_favor_student(self):
     while True:
         to_all_locations(self, True)
         res = [get_lesson_each_region_status(self), get_lesson_relationship_counts(self)]  # [status, relationship]
-        out_lesson_status(self, res)
-        self.swipe(983, 588, 983, 466, duration=0.1, post_sleep_time=0.5)
-        self.update_screenshot_array()
-        self.logger.info("Get Page Favor Student Names.")
         t1 = time.time()
-        lesson_need_to_execute = None
-        for j in range(0, 9):
-            block_existing_names = []
-            if res[0][j] == "available":
-                detect_region = get_favor_student_detect_region(self, j)
-                block_detect_student = []
-                for key in template_image_names:
-                    if key in block_existing_names:
-                        continue
-                    ret = image.search_in_area(self, "lesson_" + key, detect_region, threshold=0.75)
-                    if not ret:
-                        continue
-                    block_detect_student.append((ret[0], key))
-                    block_existing_names.append(key)
-
-                    if len(block_detect_student) == res[1][j]:  # reach max affection stu count
-                        break
-                if len(block_detect_student) == 0:
+        normalized_screenshot = image.resize_ss_image(self, (0, 0, 1280, 720))
+        cards = service.recognize_lesson(
+            normalized_screenshot,
+            server=self.server,
+            candidates=favorStudentList,
+        )
+        if cards:
+            relationship_counts = [0] * 9
+            for card in cards:
+                if 0 <= card.index < len(relationship_counts):
+                    card.available = res[0][card.index] == "available"
+                    relationship_counts[card.index] = sum(avatar.eligible for avatar in card.avatars)
+                    region_card_click_points[(cur_num, card.index)] = card.click_point
+            res[1] = relationship_counts
+        out_lesson_status(self, res)
+        self.logger.info(
+            "Get Page Favor Student Names. Locator backend: "
+            + service.lesson_locator.last_backend
+        )
+        selected_card = service.select_priority_card(cards, res[0], [tar_stu])
+        lesson_need_to_execute = selected_card.index if selected_card else None
+        for card in cards:
+            lesson_id = card.index
+            if lesson_id >= len(res[0]) or res[0][lesson_id] != "available":
+                continue
+            block_names = []
+            for avatar in card.avatars:
+                prediction = avatar.prediction
+                if not avatar.eligible or prediction is None or not prediction.accepted:
                     continue
-                block_detect_student.sort()
-                block_names = [x[1] for x in block_detect_student]
-                self.logger.info("Block " + str(j + 1) + " : " + ", ".join(block_names))
-                if tar_stu in block_names:
-                    self.logger.info("Find [ " + tar_stu + " ] in Block.")
-                    lesson_need_to_execute = j
-                else:
-                    for name in block_names:
-                        detected_student_pos.setdefault(name, set())
-                        detected_student_pos[name].add((cur_num, j))
-                    region_block_names[cur_num][j] = block_names
+                if prediction.name not in block_names:
+                    block_names.append(prediction.name)
+            if len(block_names) == 0:
+                continue
+            self.logger.info("Block " + str(lesson_id + 1) + " : " + ", ".join(block_names))
+            region_block_names[cur_num][lesson_id] = block_names
+            for name in block_names:
+                detected_student_pos.setdefault(name, set())
+                detected_student_pos[name].add((cur_num, lesson_id))
+            if tar_stu in block_names:
+                self.logger.info("Find [ " + tar_stu + " ] in Block.")
         t2 = time.time()
         self.logger.info("Detecting time : " + str(int((t2 - t1) * 1000)) + "ms.")
         if lesson_need_to_execute is not None:  # target student found
-            t = execute_lesson(self, lesson_need_to_execute)
+            t = execute_lesson(
+                self,
+                lesson_need_to_execute,
+                region_card_click_points.get((cur_num, lesson_need_to_execute)),
+            )
             if t == "inadequate_ticket":
                 self.logger.warning("INADEQUATE LESSON TICKET")
                 return
             if t == "lesson_report":
                 self.logger.info("Complete one lesson.")
                 self.lesson_tickets -= 1
+                for name in region_block_names[cur_num][lesson_need_to_execute]:
+                    if name in detected_student_pos:
+                        detected_student_pos[name].discard((cur_num, lesson_need_to_execute))
                 if self.lesson_tickets == 0:
                     self.logger.info("No Tickets.")
                     return True
@@ -544,7 +584,11 @@ def invite_favor_student(self):
             region, lesson_id = next(iter(_set))
             to_lesson_region(self, region, start_num)
             to_all_locations(self, True)
-            t = execute_lesson(self, lesson_id)
+            t = execute_lesson(
+                self,
+                lesson_id,
+                region_card_click_points.get((region, lesson_id)),
+            )
             if t == "inadequate_ticket":
                 self.logger.warning("INADEQUATE LESSON TICKET")
                 return
@@ -558,24 +602,13 @@ def invite_favor_student(self):
                     names = region_block_names[region][lesson_id]
                     self.logger.info("Pop [" + str(region) + ", " + str(lesson_id) + "] : " + ", ".join(names))
                     for name in region_block_names[region][lesson_id]:
-                        detected_student_pos[name].remove((region, lesson_id))
+                        if name in detected_student_pos:
+                            detected_student_pos[name].discard((region, lesson_id))
 
 
-def get_favor_student_detect_region(self, lesson_cnt):
-    x_start = 145
-    y_start = 232
-    dx1 = 344
-    dy1 = 152
-    dx2 = 225
-    dy2 = 68
-
-    x1 = x_start + dx1 * (lesson_cnt % 3)
-    y1 = y_start + dy1 * (lesson_cnt // 3)
-    return x1, y1, x1 + dx2, y1 + dy2
-
-
-def get_favor_student_image_template_names(identifier):
-    server_image_module_path = 'src.images.' + identifier + '.x_y_range.lesson_affection'
-    data = importlib.import_module(server_image_module_path)
-    x_y_range = getattr(data, 'x_y_range', None)
-    return list(x_y_range.keys())
+def get_student_recognition_service(self):
+    service = getattr(self, "_student_recognition_service", None)
+    if service is None:
+        service = StudentRecognitionService(self.static_config.student_names)
+        self._student_recognition_service = service
+    return service

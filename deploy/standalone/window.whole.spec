@@ -12,7 +12,9 @@ a = Analysis(
     ['window.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('src/models/student_recognition', 'src/models/student_recognition'),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
