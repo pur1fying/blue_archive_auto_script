@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "dataset_id": "lesson_independent_v1",
+  "status": "sealed_pretraining_independent_baseline",
+  "canonical_size": [1280, 720],
+  "coordinate_format": "xyxy_exclusive",
+  "indexing": {
+    "card": "zero_based_row_major",
+    "slot": "zero_based_left_to_right"
+  },
+  "annotation_sources": {
+    "identity_and_eligibility": "user_manual_confirmation",
+    "card_and_avatar_boxes": "unchanged_production_locator_preannotation"
+  },
+  "images": [
+    {
+      "file": "MuMu-20260731-235301-451.png",
+      "sha256": "d3572f04995beb0e4a75ff5fb6459a76e0efdadc456acfac7709040e7c775d3f",
+      "card_bboxes": [
+        [132, 184, 464, 328],
+        [472, 184, 804, 328],
+        [820, 184, 1152, 328],
+        [132, 336, 464, 480],
+        [472, 336, 804, 480],
+        [820, 336, 1152, 480],
+        [132, 484, 464, 628],
+        [472, 484, 804, 628]
+      ],
+      "instances": [
+        {"location": "0:0", "bbox": [149, 257, 211, 315], "name": "Kotama", "eligible": true},
+        {"location": "0:1", "bbox": [221, 257, 283, 315], "name": "Shokuhou Misaki", "eligible": true},
+        {"location": "0:2", "bbox": [293, 257, 355, 315], "name": "Noa (Pajamas)", "eligible": false},
+        {"location": "1:0", "bbox": [493, 257, 555, 315], "name": "Hanae", "eligible": true},
+        {"location": "1:1", "bbox": [565, 257, 627, 315], "name": "Kayoko (New Year)", "eligible": true},
+        {"location": "2:0", "bbox": [837, 257, 899, 315], "name": "Nonomi", "eligible": true},
+        {"location": "2:1", "bbox": [909, 257, 971, 315], "name": "Kirino", "eligible": true},
+        {"location": "3:0", "bbox": [149, 409, 211, 467], "name": "Nagisa", "eligible": true},
+        {"location": "4:0", "bbox": [489, 409, 551, 467], "name": "Tsukuyo", "eligible": false},
+        {"location": "4:1", "bbox": [565, 409, 627, 467], "name": "Junko (New Year)", "eligible": true},
+        {"location": "5:0", "bbox": [837, 409, 899, 467], "name": "Chinatsu", "eligible": true},
+        {"location": "5:1", "bbox": [909, 409, 971, 467], "name": "Ako (Dress)", "eligible": true},
+        {"location": "6:0", "bbox": [149, 557, 211, 615], "name": "Kotori (Cheer Squad)", "eligible": true},
+        {"location": "6:1", "bbox": [221, 557, 283, 615], "name": "Karin (School)", "eligible": true},
+        {"location": "6:2", "bbox": [293, 557, 355, 615], "name": "Mari (Track)", "eligible": true},
+        {"location": "7:0", "bbox": [489, 557, 551, 615], "name": "Hibiki", "eligible": true}
+      ]
+    },
+    {
+      "file": "MuMu-20260731-235521-485.png",
+      "sha256": "7416f36a6befb4a78c23b4d45fdf902cae66672b87b08ce489748800e28fb486",
+      "card_bboxes": [
+        [132, 184, 464, 328],
+        [472, 184, 804, 328],
+        [820, 184, 1152, 328],
+        [132, 332, 464, 476],
+        [472, 332, 804, 476],
+        [820, 332, 1152, 476],
+        [132, 484, 464, 628],
+        [472, 484, 804, 628]
+      ],
+      "instances": [
+        {"location": "0:0", "bbox": [149, 257, 211, 315], "name": "Mimori (Swimsuit)", "eligible": false},
+        {"location": "0:1", "bbox": [221, 257, 283, 315], "name": "Mika", "eligible": true},
+        {"location": "0:2", "bbox": [293, 257, 355, 315], "name": "Neru (School)", "eligible": true},
+        {"location": "1:0", "bbox": [489, 257, 551, 315], "name": "Junko (New Year)", "eligible": true},
+        {"location": "1:1", "bbox": [561, 257, 623, 315], "name": "Sakurako (Pop Idol)", "eligible": true},
+        {"location": "1:2", "bbox": [633, 257, 695, 315], "name": "Izuna (Swimsuit)", "eligible": true},
+        {"location": "2:0", "bbox": [837, 257, 899, 315], "name": "Ui", "eligible": true},
+        {"location": "2:1", "bbox": [909, 257, 971, 315], "name": "Hanae (Christmas)", "eligible": true},
+        {"location": "3:0", "bbox": [149, 405, 211, 463], "name": "Hibiki (Cheer Squad)", "eligible": true},
+        {"location": "3:1", "bbox": [221, 405, 283, 463], "name": "Yuuka (Pajamas)", "eligible": false},
+        {"location": "4:0", "bbox": [489, 405, 551, 463], "name": "Kanna (Swimsuit)", "eligible": false},
+        {"location": "4:1", "bbox": [565, 405, 627, 463], "name": "Shokuhou Misaki", "eligible": true},
+        {"location": "5:0", "bbox": [837, 405, 899, 463], "name": "Aru", "eligible": true},
+        {"location": "5:1", "bbox": [909, 405, 971, 463], "name": "Pina", "eligible": true},
+        {"location": "6:0", "bbox": [149, 557, 211, 615], "name": "Hifumi", "eligible": true},
+        {"location": "7:0", "bbox": [493, 557, 555, 615], "name": "Midori", "eligible": true}
+      ]
+    },
+    {
+      "file": "MuMu-20260731-235327-036.png",
+      "sha256": "a7548a7417aed3385f7bf424b8343e959ddec9be9d900a45ec0330b148118ee6",
+      "card_bboxes": [
+        [132, 184, 464, 328],
+        [472, 184, 804, 328],
+        [816, 184, 1148, 328],
+        [132, 336, 464, 480],
+        [472, 336, 804, 480],
+        [816, 336, 1148, 480],
+        [132, 484, 464, 628],
+        [472, 484, 804, 628]
+      ],
+      "instances": [
+        {"location": "0:0", "bbox": [149, 257, 211, 315], "name": "Ayane", "eligible": true},
+        {"location": "0:1", "bbox": [221, 257, 283, 315], "name": "Kirino (Swimsuit)", "eligible": true},
+        {"location": "0:2", "bbox": [293, 257, 355, 315], "name": "Yuuka", "eligible": true},
+        {"location": "1:0", "bbox": [493, 257, 555, 315], "name": "Mika", "eligible": true},
+        {"location": "1:1", "bbox": [565, 257, 627, 315], "name": "Aru", "eligible": true},
+        {"location": "2:0", "bbox": [833, 257, 895, 315], "name": "Shiroko (Cycling)", "eligible": true},
+        {"location": "2:1", "bbox": [909, 257, 971, 315], "name": "Sumire", "eligible": true},
+        {"location": "2:2", "bbox": [981, 257, 1043, 315], "name": "Sakurako", "eligible": true},
+        {"location": "3:0", "bbox": [149, 409, 211, 467], "name": "Michiru", "eligible": true},
+        {"location": "3:1", "bbox": [221, 409, 283, 467], "name": "Haruna (New Year)", "eligible": true},
+        {"location": "4:0", "bbox": [489, 409, 551, 467], "name": "Megu", "eligible": false},
+        {"location": "5:0", "bbox": [833, 409, 895, 467], "name": "Miyako", "eligible": true},
+        {"location": "5:1", "bbox": [909, 409, 971, 467], "name": "Moe (Swimsuit)", "eligible": false},
+        {"location": "6:0", "bbox": [149, 557, 211, 615], "name": "Mimori (Swimsuit)", "eligible": false},
+        {"location": "6:1", "bbox": [221, 557, 283, 615], "name": "Sena (Casual)", "eligible": false},
+        {"location": "7:0", "bbox": [493, 557, 555, 615], "name": "Ibuki", "eligible": true},
+        {"location": "7:1", "bbox": [569, 557, 631, 615], "name": "Marina", "eligible": false}
+      ]
+    },
+    {
+      "file": "MuMu-20260801-074740-652.png",
+      "sha256": "446cca216c94a19f48862794f32224a105225c5e32e0e4f36b44cc0caeb0b513",
+      "card_bboxes": [
+        [132, 184, 464, 328],
+        [472, 184, 804, 328],
+        [816, 184, 1148, 328],
+        [132, 336, 464, 480],
+        [472, 336, 804, 480],
+        [816, 336, 1148, 480],
+        [132, 484, 464, 628],
+        [472, 484, 804, 628]
+      ],
+      "instances": [
+        {"location": "0:0", "bbox": [149, 257, 211, 315], "name": "Asuna (School)", "eligible": true},
+        {"location": "0:1", "bbox": [221, 257, 283, 315], "name": "Fuuka (New Year)", "eligible": true},
+        {"location": "0:2", "bbox": [293, 257, 355, 315], "name": "Hanako", "eligible": true},
+        {"location": "1:0", "bbox": [493, 257, 555, 315], "name": "Koyuki", "eligible": true},
+        {"location": "1:1", "bbox": [565, 257, 627, 315], "name": "Nozomi", "eligible": true},
+        {"location": "2:0", "bbox": [837, 257, 899, 315], "name": "Tsubaki", "eligible": true},
+        {"location": "2:1", "bbox": [909, 257, 971, 315], "name": "Saten Ruiko", "eligible": true},
+        {"location": "3:0", "bbox": [149, 409, 211, 467], "name": "Kotama (Camp)", "eligible": true},
+        {"location": "3:1", "bbox": [221, 409, 283, 467], "name": "Iori", "eligible": true},
+        {"location": "3:2", "bbox": [293, 409, 355, 467], "name": "Yuzu", "eligible": true},
+        {"location": "4:0", "bbox": [493, 409, 555, 467], "name": "Mimori", "eligible": true},
+        {"location": "4:1", "bbox": [565, 409, 627, 467], "name": "Izumi (Swimsuit)", "eligible": true},
+        {"location": "5:0", "bbox": [833, 409, 895, 467], "name": "Cherino", "eligible": true},
+        {"location": "5:1", "bbox": [905, 409, 967, 467], "name": "Shokuhou Misaki", "eligible": true},
+        {"location": "6:0", "bbox": [149, 557, 211, 615], "name": "Chinatsu (Hot Spring)", "eligible": true},
+        {"location": "6:1", "bbox": [221, 557, 283, 615], "name": "Noa", "eligible": true},
+        {"location": "7:0", "bbox": [489, 557, 551, 615], "name": "Miyu", "eligible": true},
+        {"location": "7:1", "bbox": [561, 557, 623, 615], "name": "Shiroko", "eligible": true}
+      ]
+    },
+    {
+      "file": "MuMu-20260801-074754-624.png",
+      "sha256": "f08a96c1f48ccf5711d2f47605b66edb9a98f672a4fa869ae7e414e0d526e3e4",
+      "card_bboxes": [
+        [124, 180, 464, 332],
+        [472, 180, 812, 332],
+        [816, 180, 1156, 332],
+        [124, 332, 464, 484],
+        [472, 332, 812, 484],
+        [816, 332, 1156, 484],
+        [124, 480, 464, 632],
+        [472, 480, 812, 632]
+      ],
+      "instances": [
+        {"location": "0:0", "bbox": [149, 257, 211, 315], "name": "Asuna (Bunny)", "eligible": true},
+        {"location": "0:1", "bbox": [221, 257, 283, 315], "name": "Chise", "eligible": true},
+        {"location": "0:2", "bbox": [293, 257, 355, 315], "name": "Serika (Swimsuit)", "eligible": false},
+        {"location": "1:0", "bbox": [489, 257, 551, 315], "name": "Mashiro (Swimsuit)", "eligible": true},
+        {"location": "1:1", "bbox": [561, 257, 623, 315], "name": "Ichika", "eligible": true},
+        {"location": "1:2", "bbox": [637, 257, 699, 315], "name": "Kotama", "eligible": true},
+        {"location": "2:0", "bbox": [833, 257, 895, 315], "name": "Shiroko (Cycling)", "eligible": true},
+        {"location": "3:0", "bbox": [141, 409, 203, 467], "name": "Noa (Pajamas)", "eligible": false},
+        {"location": "3:1", "bbox": [221, 409, 283, 467], "name": "Maki", "eligible": true},
+        {"location": "4:0", "bbox": [493, 409, 555, 467], "name": "Hanae (Christmas)", "eligible": true},
+        {"location": "5:0", "bbox": [837, 409, 899, 467], "name": "Yuzu (Maid)", "eligible": true},
+        {"location": "6:0", "bbox": [149, 557, 211, 615], "name": "Shun (Small)", "eligible": true},
+        {"location": "6:1", "bbox": [221, 557, 283, 615], "name": "Kotori (Cheer Squad)", "eligible": true},
+        {"location": "6:2", "bbox": [293, 557, 355, 615], "name": "Marina (Qipao)", "eligible": false},
+        {"location": "7:0", "bbox": [489, 557, 551, 615], "name": "Junko (New Year)", "eligible": true},
+        {"location": "7:1", "bbox": [561, 557, 623, 615], "name": "Neru", "eligible": true}
+      ]
+    }
+  ]
+}

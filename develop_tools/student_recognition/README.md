@@ -54,6 +54,33 @@ portrait can never select a lesson card by itself.
 and montage portraits to the training script. Loading it does not augment data,
 write model files or start training.
 
+## Sealed independent baseline
+
+`develop_tools/test/fixtures/lesson_independent_v1/` contains five additional
+screenshots that are deliberately excluded from `lesson_locator_annotations.json`
+and every training loader. Their complete user-confirmed identity and
+pink/plain ground truth is stored in `independent_test_annotations_v1.json`.
+The recorded boxes are the unchanged production locator's pre-annotation crop
+regions; identity and eligibility are the independently confirmed truth.
+
+Run the read-only model evaluation with:
+
+```powershell
+.\.venv\Scripts\python.exe develop_tools/student_recognition/evaluate_independent_test.py
+```
+
+It writes `independent_test_report_v1.json`, the one-time pre-training baseline
+for the production model that existed before these five screenshots were used
+for any model change. The baseline is 66/83 identity Top-1, 81/83 eligibility
+classification and 57/70 correct pink-target card selections. It is separate
+from `validation_report.json` and must never be merged into the earlier
+training-fixture replay or its 65-student success list.
+
+If these screenshots are later added to training, preserve this report as the
+historical pre-training result. From that point onward the screenshots are
+training fixtures, not an independent test set; a new sealed screenshot set is
+required for another independent post-training claim.
+
 Training writes candidates under `.training-runs/student_recognition/`. The
 production ONNX files and gallery are replaced only after OpenCV replay, click,
 gray-blocking, scaling, CPU and resource-size checks all pass. The committed
