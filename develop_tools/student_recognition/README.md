@@ -23,19 +23,31 @@ screenshots. That final target-domain fit repeats the real target portraits
 three times for 105 epochs; the exported gallery still contains at most three
 distinct source prototypes per student and does not store augmented duplicates.
 
-The encoder seed set is reconstructed from the three Git revisions documented
-by `extract_historical_templates.py`, deduplicated by blob hash, and never
-loaded by the normal application runtime. Historical seeds are not
-automatically considered verified: `student_encoder.json` explicitly separates
-independently validated `verified_student_ids` from single-source
-`prototype_only_student_ids`. Only the verified set may trigger a click.
+The encoder seed library is checked in under `data/` and is never loaded by the
+normal application runtime. `historical_portraits/` contains 177 distinct Git
+blobs across 122 labels; `extract_historical_templates.py` is the explicit
+maintenance tool that can rebuild that directory from full Git history. Model
+training reads the committed files and does not query Git history itself.
+
+`roster_montages/` contains the three English, three Chinese and three Japanese
+roster images plus a position/name manifest. The English images contribute one
+selected portrait for each of the 265 catalog identities. The Chinese and
+Japanese images are retained as auditable alias evidence, not duplicated as
+training pixels. Hoshino (Battle) and Shun (Swimsuit) each have two illustrations
+in the montage; their first form is selected and the second form is explicitly
+excluded in the manifest.
 
 Low-confidence identities are rejected by both cosine similarity and the
 top-one/top-two margin. Add current-UI labels and recalibrate those thresholds
 before marking additional students as verified.
 
 The training catalog is always loaded from `STATIC_DEFAULT_CONFIG`, not the
-generated and ignored `config/static.json`. The current target data resolves
-against the 204 unique students in that source catalog. Affection eligibility
-is a click gate only: eligible and plain crops train the same identity encoder,
-but a plain portrait can never select a lesson card by itself.
+generated and ignored `config/static.json`. It contains 265 unique students and
+only the `CN_name`, `Global_name` and `JP_name` aliases; server implementation
+flags are no longer part of the catalog. Affection eligibility is a click gate
+only: eligible and plain crops train the same identity encoder, but a plain
+portrait can never select a lesson card by itself.
+
+`training_data.py` validates every source checksum and exposes the historical
+and montage portraits to the training script. Loading it does not augment data,
+write model files or start training.

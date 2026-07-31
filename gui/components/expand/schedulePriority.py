@@ -109,21 +109,11 @@ class Layout(QWidget):
 
     def Slot_for_accept_favor_student(self):
         raw_names = self.lesson_favorStudent_LineEdit.text().split('>')
-        res, unknown, unavailable = self.student_catalog.validate_names(
-            raw_names,
-            self.config.server_mode,
-        )
+        res, unknown = self.student_catalog.validate_names(raw_names)
         if unknown:
             return notification.error(
                 self.tr('指定学生设置失败'),
                 self.tr('未知学生名: ') + ', '.join(unknown),
-                self.config,
-                duration=3000,
-            )
-        if unavailable:
-            return notification.error(
-                self.tr('指定学生设置失败'),
-                self.tr('当前服务器尚未实装: ') + ', '.join(unavailable),
                 self.config,
                 duration=3000,
             )

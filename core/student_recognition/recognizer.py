@@ -102,10 +102,10 @@ class StudentRecognizer:
                 for flag, box in zip(eligible_values, box_values)
             ]
 
-        # Rank against every implemented seed identity so an unverified but
+        # Rank against every catalogued seed identity so an unverified but
         # better-matching identity can veto a verified target. Only the final
         # winner is checked against the target-domain verified support set.
-        allowed_ids = self.catalog.implemented_ids(server) & self.seed_ids
+        allowed_ids = set(self.catalog.records) & self.seed_ids
         gallery_mask = np.array([sid in allowed_ids for sid in self.gallery_ids], dtype=bool)
         if not np.any(gallery_mask):
             return [

@@ -18,6 +18,12 @@ from core.student_recognition import (
     StudentRecognitionService,
     StudentRecognizer,
 )
+from develop_tools.student_recognition.training_data import (
+    HISTORICAL_MANIFEST,
+    ROSTER_ANNOTATIONS,
+    load_historical_portraits,
+    load_roster_montage_portraits,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -280,28 +286,30 @@ class StudentCatalogTest(unittest.TestCase):
 
     def test_duplicate_names_are_collapsed(self):
         rows = STATIC_CONFIG["student_names"]
-        self.assertEqual(204, len(rows))
-        self.assertEqual(204, len({row["Global_name"] for row in rows}))
-        self.assertEqual(204, len(self.catalog.records))
+        self.assertEqual(265, len(rows))
+        self.assertEqual(265, len({row["Global_name"] for row in rows}))
+        self.assertEqual(265, len(self.catalog.records))
         self.assertEqual(
             1,
             sum(row["Global_name"] == "Hoshino (Battle)" for row in rows),
         )
         self.assertEqual("hoshino_battle", self.catalog.resolve("Hoshino (Battle)").student_id)
 
-    def test_server_implementation_counts(self):
-        self.assertEqual(204, len(self.catalog.implemented_ids("CN")))
-        self.assertEqual(204, len(self.catalog.implemented_ids("Global_en-us")))
-        self.assertEqual(204, len(self.catalog.implemented_ids("JP")))
-
-    def test_alias_and_server_validation(self):
-        canonical, unknown, unavailable = self.catalog.validate_names(
-            ["柚子", "not-a-student"],
-            "CN",
+    def test_catalog_has_aliases_only(self):
+        self.assertTrue(
+            all(
+                set(row) == {"CN_name", "Global_name", "JP_name"}
+                for row in STATIC_CONFIG["student_names"]
+            )
         )
+        self.assertFalse(
+            any("?" in value for row in STATIC_CONFIG["student_names"] for value in row.values())
+        )
+
+    def test_alias_validation_has_no_server_availability_filter(self):
+        canonical, unknown = self.catalog.validate_names(["柚子", "not-a-student"])
         self.assertEqual(["Yuzu"], canonical)
         self.assertEqual(["not-a-student"], unknown)
-        self.assertEqual([], unavailable)
 
     def test_new_students_are_available(self):
         expected = {
@@ -316,6 +324,11 @@ class StudentCatalogTest(unittest.TestCase):
             "Rio",
             "Chiaki",
             "Aoba",
+            "Tomoe (Qipao)",
+            "Kisaki",
+            "Yuuka (Pajamas)",
+            "Shun (Swimsuit)",
+            "Rio (Armed)",
         }
         self.assertEqual(
             expected,
@@ -415,6 +428,65 @@ class StudentCatalogTest(unittest.TestCase):
             image = cv2.imread(str(FIXTURE_DIR / "new_ui_1.png"))
             self.assertEqual(8, len(locator.locate(image)))
             self.assertEqual("geometry-fallback", locator.last_backend)
+
+
+class CommittedTrainingLibraryTest(unittest.TestCase):
+    def test_historical_portraits_are_complete_and_deduplicated(self):
+        manifest = json.loads(HISTORICAL_MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(177, len(manifest))
+        self.assertEqual(177, len({row["git_blob"] for row in manifest}))
+        self.assertEqual(122, len({row["label"] for row in manifest}))
+        self.assertEqual(2, sum(row["label"] == "Toki (Bunny)" for row in manifest))
+        self.assertEqual(1, sum(row["label"] == "Aris (Maid)" for row in manifest))
+        self.assertNotIn("Ar1s-maid", {row["label"] for row in manifest})
+        self.assertEqual(177, len(load_historical_portraits()))
+
+    def test_roster_montages_cover_the_complete_catalog_once(self):
+        annotation = json.loads(ROSTER_ANNOTATIONS.read_text(encoding="utf-8"))
+        selected = [
+            row for row in annotation["entries"]
+            if row["include_for_identity_training"]
+        ]
+        excluded = [
+            row for row in annotation["entries"]
+            if not row["include_for_identity_training"]
+        ]
+        self.assertEqual(9, len(annotation["files"]))
+        self.assertEqual(267, len(annotation["entries"]))
+        self.assertEqual(265, len(selected))
+        self.assertEqual(
+            {row["Global_name"] for row in STATIC_CONFIG["student_names"]},
+            {row["config_name"] for row in selected},
+        )
+        aliases = {
+            row["Global_name"]: (row["CN_name"], row["JP_name"])
+            for row in STATIC_CONFIG["student_names"]
+        }
+        self.assertTrue(
+            all(
+                (row["source_names"]["cn"], row["source_names"]["jp"])
+                == aliases[row["config_name"]]
+                for row in annotation["entries"]
+            )
+        )
+        self.assertEqual(
+            {
+                (3, 1, 8, "second_form_hoshino_armed"),
+                (3, 7, 6, "second_form_shun_swimsuit"),
+            },
+            {
+                (
+                    row["image_index"],
+                    row["row"],
+                    row["column"],
+                    row["exclude_reason"],
+                )
+                for row in excluded
+            },
+        )
+        portraits = load_roster_montage_portraits()
+        self.assertEqual(265, len(portraits))
+        self.assertTrue(all(image.shape == (30, 33, 3) for _, _, image in portraits))
 
 
 class LessonPrioritySelectionTest(unittest.TestCase):

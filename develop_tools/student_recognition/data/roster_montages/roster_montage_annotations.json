@@ -1,0 +1,3838 @@
+{
+  "version": 1,
+  "name_normalization": "full-width parentheses and whitespace are normalized to ASCII parentheses without spaces",
+  "training_pixel_language": "en",
+  "grid": {
+    "origin": [
+      8,
+      8
+    ],
+    "step": [
+      107,
+      116
+    ],
+    "portrait_size": [
+      91,
+      79
+    ],
+    "columns": 13
+  },
+  "canonical_aliases": {
+    "Hoshino (Armed)": "Hoshino (Battle)",
+    "Shiroko*Terror": "Shiroko Terror"
+  },
+  "files": [
+    {
+      "language": "en",
+      "image_index": 1,
+      "file": "roster_en_1.png",
+      "width": 1390,
+      "height": 809,
+      "sha256": "ea01598ead0b4f7f90c4c4bec86d3b266e7dff6cef5b5d43af8a7c5d9d6a961a"
+    },
+    {
+      "language": "en",
+      "image_index": 2,
+      "file": "roster_en_2.png",
+      "width": 1393,
+      "height": 811,
+      "sha256": "f7d210f9c448cffec030be51ba28239809f9732346e0966c04b1fc724affab6b"
+    },
+    {
+      "language": "en",
+      "image_index": 3,
+      "file": "roster_en_3.png",
+      "width": 1391,
+      "height": 817,
+      "sha256": "dd7c74636f74d03f1220fbbee780faaec35d4fb959cea2801da2ee917f3079d2"
+    },
+    {
+      "language": "cn",
+      "image_index": 1,
+      "file": "roster_cn_1.png",
+      "width": 1392,
+      "height": 812,
+      "sha256": "ae356b1ab91f6082e6b5b8881c8d5bb8a2924cbfd893d768d7cac25431deebc5"
+    },
+    {
+      "language": "cn",
+      "image_index": 2,
+      "file": "roster_cn_2.png",
+      "width": 1396,
+      "height": 807,
+      "sha256": "9e2aa59a51e566d9fbefbabb0b67e0876bd1239dbdc15611b56c09d537b5f2ee"
+    },
+    {
+      "language": "cn",
+      "image_index": 3,
+      "file": "roster_cn_3.png",
+      "width": 1393,
+      "height": 814,
+      "sha256": "2e8cfa41d1e706b304f8ab017d18140973b08bc20ac1bad835701ad7fcb0049d"
+    },
+    {
+      "language": "jp",
+      "image_index": 1,
+      "file": "roster_jp_1.png",
+      "width": 1389,
+      "height": 812,
+      "sha256": "4d206806c5802b5dd7b58ddcd71e0c3beb398c71582043df11a789e1825c157e"
+    },
+    {
+      "language": "jp",
+      "image_index": 2,
+      "file": "roster_jp_2.png",
+      "width": 1392,
+      "height": 810,
+      "sha256": "fbdabc2b0c259437f20bdbb390d12d2e97262e1fda5dad58133936aaed7ca2f0"
+    },
+    {
+      "language": "jp",
+      "image_index": 3,
+      "file": "roster_jp_3.png",
+      "width": 1396,
+      "height": 813,
+      "sha256": "c68083d5dabb47fff205cbba2ce549c61b0c1236149e0a13af2d8d3e608f45dd"
+    }
+  ],
+  "entries": [
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 1,
+      "source_names": {
+        "en": "Aru",
+        "cn": "爱露",
+        "jp": "アル"
+      },
+      "config_name": "Aru",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 2,
+      "source_names": {
+        "en": "Eimi",
+        "cn": "艾米",
+        "jp": "エイミ"
+      },
+      "config_name": "Eimi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 3,
+      "source_names": {
+        "en": "Haruna",
+        "cn": "晴奈",
+        "jp": "ハルナ"
+      },
+      "config_name": "Haruna",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 4,
+      "source_names": {
+        "en": "Hifumi",
+        "cn": "日富美",
+        "jp": "ヒフミ"
+      },
+      "config_name": "Hifumi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 5,
+      "source_names": {
+        "en": "Hina",
+        "cn": "日奈",
+        "jp": "ヒナ"
+      },
+      "config_name": "Hina",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 6,
+      "source_names": {
+        "en": "Hoshino",
+        "cn": "星野",
+        "jp": "ホシノ"
+      },
+      "config_name": "Hoshino",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 7,
+      "source_names": {
+        "en": "Iori",
+        "cn": "伊织",
+        "jp": "イオリ"
+      },
+      "config_name": "Iori",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 8,
+      "source_names": {
+        "en": "Maki",
+        "cn": "真纪",
+        "jp": "マキ"
+      },
+      "config_name": "Maki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 9,
+      "source_names": {
+        "en": "Neru",
+        "cn": "妮露",
+        "jp": "ネル"
+      },
+      "config_name": "Neru",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 10,
+      "source_names": {
+        "en": "Izumi",
+        "cn": "泉",
+        "jp": "イズミ"
+      },
+      "config_name": "Izumi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 11,
+      "source_names": {
+        "en": "Shiroko",
+        "cn": "白子",
+        "jp": "シロコ"
+      },
+      "config_name": "Shiroko",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 12,
+      "source_names": {
+        "en": "Shun",
+        "cn": "瞬",
+        "jp": "シュン"
+      },
+      "config_name": "Shun",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 1,
+      "column": 13,
+      "source_names": {
+        "en": "Sumire",
+        "cn": "堇",
+        "jp": "スミレ"
+      },
+      "config_name": "Sumire",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 1,
+      "source_names": {
+        "en": "Tsurugi",
+        "cn": "鹤城",
+        "jp": "ツルギ"
+      },
+      "config_name": "Tsurugi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 2,
+      "source_names": {
+        "en": "Akane",
+        "cn": "茜",
+        "jp": "アカネ"
+      },
+      "config_name": "Akane",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 3,
+      "source_names": {
+        "en": "Chise",
+        "cn": "千世",
+        "jp": "チセ"
+      },
+      "config_name": "Chise",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 4,
+      "source_names": {
+        "en": "Akari",
+        "cn": "明里",
+        "jp": "アカリ"
+      },
+      "config_name": "Akari",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 5,
+      "source_names": {
+        "en": "Hasumi",
+        "cn": "莲见",
+        "jp": "ハスミ"
+      },
+      "config_name": "Hasumi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 6,
+      "source_names": {
+        "en": "Nonomi",
+        "cn": "野宫",
+        "jp": "ノノミ"
+      },
+      "config_name": "Nonomi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 7,
+      "source_names": {
+        "en": "Kayoko",
+        "cn": "佳代子",
+        "jp": "カヨコ"
+      },
+      "config_name": "Kayoko",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 8,
+      "source_names": {
+        "en": "Mutsuki",
+        "cn": "睦月",
+        "jp": "ムツキ"
+      },
+      "config_name": "Mutsuki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 9,
+      "source_names": {
+        "en": "Junko",
+        "cn": "纯子",
+        "jp": "ジュンコ"
+      },
+      "config_name": "Junko",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 10,
+      "source_names": {
+        "en": "Serika",
+        "cn": "芹香",
+        "jp": "セリカ"
+      },
+      "config_name": "Serika",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 11,
+      "source_names": {
+        "en": "Tsubaki",
+        "cn": "椿",
+        "jp": "ツバキ"
+      },
+      "config_name": "Tsubaki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 12,
+      "source_names": {
+        "en": "Yuuka",
+        "cn": "优香",
+        "jp": "ユウカ"
+      },
+      "config_name": "Yuuka",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 2,
+      "column": 13,
+      "source_names": {
+        "en": "Haruka",
+        "cn": "春香",
+        "jp": "ハルカ"
+      },
+      "config_name": "Haruka",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 1,
+      "source_names": {
+        "en": "Asuna",
+        "cn": "明日奈",
+        "jp": "アスナ"
+      },
+      "config_name": "Asuna",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 2,
+      "source_names": {
+        "en": "Kotori",
+        "cn": "琴里",
+        "jp": "コトリ"
+      },
+      "config_name": "Kotori",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 3,
+      "source_names": {
+        "en": "Suzumi",
+        "cn": "铃美",
+        "jp": "スズミ"
+      },
+      "config_name": "Suzumi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 4,
+      "source_names": {
+        "en": "Pina",
+        "cn": "菲娜",
+        "jp": "フィーナ"
+      },
+      "config_name": "Pina",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 5,
+      "source_names": {
+        "en": "Hibiki",
+        "cn": "响",
+        "jp": "ヒビキ"
+      },
+      "config_name": "Hibiki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 6,
+      "source_names": {
+        "en": "Karin",
+        "cn": "花凛",
+        "jp": "カリン"
+      },
+      "config_name": "Karin",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 7,
+      "source_names": {
+        "en": "Saya",
+        "cn": "纱绫",
+        "jp": "サヤ"
+      },
+      "config_name": "Saya",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 8,
+      "source_names": {
+        "en": "Airi",
+        "cn": "爱理",
+        "jp": "アイリ"
+      },
+      "config_name": "Airi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 9,
+      "source_names": {
+        "en": "Fuuka",
+        "cn": "风香",
+        "jp": "フウカ"
+      },
+      "config_name": "Fuuka",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 10,
+      "source_names": {
+        "en": "Hanae",
+        "cn": "花江",
+        "jp": "ハナエ"
+      },
+      "config_name": "Hanae",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 11,
+      "source_names": {
+        "en": "Hare",
+        "cn": "晴",
+        "jp": "ハレ"
+      },
+      "config_name": "Hare",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 12,
+      "source_names": {
+        "en": "Utaha",
+        "cn": "歌原",
+        "jp": "ウタハ"
+      },
+      "config_name": "Utaha",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 3,
+      "column": 13,
+      "source_names": {
+        "en": "Ayane",
+        "cn": "绫音",
+        "jp": "アヤネ"
+      },
+      "config_name": "Ayane",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 1,
+      "source_names": {
+        "en": "Chinatsu",
+        "cn": "千夏",
+        "jp": "チナツ"
+      },
+      "config_name": "Chinatsu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 2,
+      "source_names": {
+        "en": "Kotama",
+        "cn": "小玉",
+        "jp": "コタマ"
+      },
+      "config_name": "Kotama",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 3,
+      "source_names": {
+        "en": "Juri",
+        "cn": "朱莉",
+        "jp": "ジュリ"
+      },
+      "config_name": "Juri",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 4,
+      "source_names": {
+        "en": "Serina",
+        "cn": "芹娜",
+        "jp": "セリナ"
+      },
+      "config_name": "Serina",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 5,
+      "source_names": {
+        "en": "Shimiko",
+        "cn": "志美子",
+        "jp": "シミコ"
+      },
+      "config_name": "Shimiko",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 6,
+      "source_names": {
+        "en": "Yoshimi",
+        "cn": "好美",
+        "jp": "ヨシミ"
+      },
+      "config_name": "Yoshimi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 7,
+      "source_names": {
+        "en": "Mashiro",
+        "cn": "真白",
+        "jp": "マシロ"
+      },
+      "config_name": "Mashiro",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 8,
+      "source_names": {
+        "en": "Izuna",
+        "cn": "泉奈",
+        "jp": "イズナ"
+      },
+      "config_name": "Izuna",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 9,
+      "source_names": {
+        "en": "Shizuko",
+        "cn": "静子",
+        "jp": "シズコ"
+      },
+      "config_name": "Shizuko",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 10,
+      "source_names": {
+        "en": "Aris",
+        "cn": "爱丽丝",
+        "jp": "アリス"
+      },
+      "config_name": "Aris",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 11,
+      "source_names": {
+        "en": "Midori",
+        "cn": "绿",
+        "jp": "ミドリ"
+      },
+      "config_name": "Midori",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 12,
+      "source_names": {
+        "en": "Momoi",
+        "cn": "桃",
+        "jp": "モモイ"
+      },
+      "config_name": "Momoi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 4,
+      "column": 13,
+      "source_names": {
+        "en": "Cherino",
+        "cn": "切里诺",
+        "jp": "チェリノ"
+      },
+      "config_name": "Cherino",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 1,
+      "source_names": {
+        "en": "Nodoka",
+        "cn": "和香",
+        "jp": "ノドカ"
+      },
+      "config_name": "Nodoka",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 2,
+      "source_names": {
+        "en": "Yuzu",
+        "cn": "柚子",
+        "jp": "ユズ"
+      },
+      "config_name": "Yuzu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 3,
+      "source_names": {
+        "en": "Azusa",
+        "cn": "梓",
+        "jp": "アズサ"
+      },
+      "config_name": "Azusa",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 4,
+      "source_names": {
+        "en": "Hanako",
+        "cn": "花子",
+        "jp": "ハナコ"
+      },
+      "config_name": "Hanako",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 5,
+      "source_names": {
+        "en": "Koharu",
+        "cn": "小春",
+        "jp": "コハル"
+      },
+      "config_name": "Koharu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 6,
+      "source_names": {
+        "en": "Azusa (Swimsuit)",
+        "cn": "梓(泳装)",
+        "jp": "アズサ(水着)"
+      },
+      "config_name": "Azusa (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 7,
+      "source_names": {
+        "en": "Mashiro (Swimsuit)",
+        "cn": "真白(泳装)",
+        "jp": "マシロ(水着)"
+      },
+      "config_name": "Mashiro (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 8,
+      "source_names": {
+        "en": "Tsurugi (Swimsuit)",
+        "cn": "鹤城(泳装)",
+        "jp": "ツルギ(水着)"
+      },
+      "config_name": "Tsurugi (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 9,
+      "source_names": {
+        "en": "Hifumi (Swimsuit)",
+        "cn": "日富美(泳装)",
+        "jp": "ヒフミ(水着)"
+      },
+      "config_name": "Hifumi (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 10,
+      "source_names": {
+        "en": "Hina (Swimsuit)",
+        "cn": "日奈(泳装)",
+        "jp": "ヒナ(水着)"
+      },
+      "config_name": "Hina (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 11,
+      "source_names": {
+        "en": "Iori (Swimsuit)",
+        "cn": "伊织(泳装)",
+        "jp": "イオリ(水着)"
+      },
+      "config_name": "Iori (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 12,
+      "source_names": {
+        "en": "Izumi (Swimsuit)",
+        "cn": "泉(泳装)",
+        "jp": "イズミ(水着)"
+      },
+      "config_name": "Izumi (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 5,
+      "column": 13,
+      "source_names": {
+        "en": "Shiroko (Cycling)",
+        "cn": "白子(骑行)",
+        "jp": "シロコ(ライディング)"
+      },
+      "config_name": "Shiroko (Cycling)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 1,
+      "source_names": {
+        "en": "Shun (Small)",
+        "cn": "瞬(小)",
+        "jp": "シュン(幼女)"
+      },
+      "config_name": "Shun (Small)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 2,
+      "source_names": {
+        "en": "Kirino",
+        "cn": "桐乃",
+        "jp": "キリノ"
+      },
+      "config_name": "Kirino",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 3,
+      "source_names": {
+        "en": "Saya (Casual)",
+        "cn": "纱绫(便服)",
+        "jp": "サヤ(私服)"
+      },
+      "config_name": "Saya (Casual)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 4,
+      "source_names": {
+        "en": "Neru (Bunny)",
+        "cn": "妮露(邦妮)",
+        "jp": "ネル(バニーガール)"
+      },
+      "config_name": "Neru (Bunny)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 5,
+      "source_names": {
+        "en": "Karin (Bunny)",
+        "cn": "花凛(邦妮)",
+        "jp": "カリン(バニーガール)"
+      },
+      "config_name": "Karin (Bunny)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 6,
+      "source_names": {
+        "en": "Asuna (Bunny)",
+        "cn": "明日奈(邦妮)",
+        "jp": "アスナ(バニーガール)"
+      },
+      "config_name": "Asuna (Bunny)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 7,
+      "source_names": {
+        "en": "Natsu",
+        "cn": "夏",
+        "jp": "ナツ"
+      },
+      "config_name": "Natsu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 8,
+      "source_names": {
+        "en": "Mari",
+        "cn": "玛丽",
+        "jp": "マリー"
+      },
+      "config_name": "Mari",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 9,
+      "source_names": {
+        "en": "Hatsune Miku",
+        "cn": "初音未来",
+        "jp": "初音ミク"
+      },
+      "config_name": "Hatsune Miku",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 10,
+      "source_names": {
+        "en": "Ako",
+        "cn": "亚子",
+        "jp": "アコ"
+      },
+      "config_name": "Ako",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 11,
+      "source_names": {
+        "en": "Cherino (Hot Spring)",
+        "cn": "切里诺(温泉)",
+        "jp": "チェリノ(温泉)"
+      },
+      "config_name": "Cherino (Hot Spring)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 12,
+      "source_names": {
+        "en": "Chinatsu (Hot Spring)",
+        "cn": "千夏(温泉)",
+        "jp": "チナツ(温泉)"
+      },
+      "config_name": "Chinatsu (Hot Spring)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 6,
+      "column": 13,
+      "source_names": {
+        "en": "Tomoe",
+        "cn": "巴",
+        "jp": "トモエ"
+      },
+      "config_name": "Tomoe",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 1,
+      "source_names": {
+        "en": "Nodoka (Hot Spring)",
+        "cn": "和香(温泉)",
+        "jp": "ノドカ(温泉)"
+      },
+      "config_name": "Nodoka (Hot Spring)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 2,
+      "source_names": {
+        "en": "Aru (New Year)",
+        "cn": "爱露(新年)",
+        "jp": "アル(正月)"
+      },
+      "config_name": "Aru (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 3,
+      "source_names": {
+        "en": "Mutsuki (New Year)",
+        "cn": "睦月(新年)",
+        "jp": "ムツキ(正月)"
+      },
+      "config_name": "Mutsuki (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 4,
+      "source_names": {
+        "en": "Serika (New Year)",
+        "cn": "芹香(新年)",
+        "jp": "セリカ(正月)"
+      },
+      "config_name": "Serika (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 5,
+      "source_names": {
+        "en": "Wakamo",
+        "cn": "若藻",
+        "jp": "ワカモ"
+      },
+      "config_name": "Wakamo",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 6,
+      "source_names": {
+        "en": "Fubuki",
+        "cn": "吹雪",
+        "jp": "フブキ"
+      },
+      "config_name": "Fubuki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 7,
+      "source_names": {
+        "en": "Sena",
+        "cn": "濑名",
+        "jp": "セナ"
+      },
+      "config_name": "Sena",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 8,
+      "source_names": {
+        "en": "Chihiro",
+        "cn": "千寻",
+        "jp": "チヒロ"
+      },
+      "config_name": "Chihiro",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 9,
+      "source_names": {
+        "en": "Mimori",
+        "cn": "三森",
+        "jp": "ミモリ"
+      },
+      "config_name": "Mimori",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 10,
+      "source_names": {
+        "en": "Ui",
+        "cn": "忧",
+        "jp": "ウイ"
+      },
+      "config_name": "Ui",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 11,
+      "source_names": {
+        "en": "Hinata",
+        "cn": "日向",
+        "jp": "ヒナタ"
+      },
+      "config_name": "Hinata",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 12,
+      "source_names": {
+        "en": "Marina",
+        "cn": "真里奈",
+        "jp": "マリナ"
+      },
+      "config_name": "Marina",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 1,
+      "row": 7,
+      "column": 13,
+      "source_names": {
+        "en": "Miyako",
+        "cn": "宫子",
+        "jp": "ミヤコ"
+      },
+      "config_name": "Miyako",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 1,
+      "source_names": {
+        "en": "Saki",
+        "cn": "咲",
+        "jp": "サキ"
+      },
+      "config_name": "Saki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 2,
+      "source_names": {
+        "en": "Miyu",
+        "cn": "美游",
+        "jp": "ミユ"
+      },
+      "config_name": "Miyu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 3,
+      "source_names": {
+        "en": "Kaede",
+        "cn": "枫",
+        "jp": "カエデ"
+      },
+      "config_name": "Kaede",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 4,
+      "source_names": {
+        "en": "Iroha",
+        "cn": "伊吕波",
+        "jp": "イロハ"
+      },
+      "config_name": "Iroha",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 5,
+      "source_names": {
+        "en": "Michiru",
+        "cn": "满",
+        "jp": "ミチル"
+      },
+      "config_name": "Michiru",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 6,
+      "source_names": {
+        "en": "Tsukuyo",
+        "cn": "月咏",
+        "jp": "ツクヨ"
+      },
+      "config_name": "Tsukuyo",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 7,
+      "source_names": {
+        "en": "Misaki",
+        "cn": "美咲",
+        "jp": "ミサキ"
+      },
+      "config_name": "Misaki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 8,
+      "source_names": {
+        "en": "Hiyori",
+        "cn": "日和",
+        "jp": "ヒヨリ"
+      },
+      "config_name": "Hiyori",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 9,
+      "source_names": {
+        "en": "Atsuko",
+        "cn": "亚津子",
+        "jp": "アツコ"
+      },
+      "config_name": "Atsuko",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 10,
+      "source_names": {
+        "en": "Wakamo (Swimsuit)",
+        "cn": "若藻(泳装)",
+        "jp": "ワカモ(水着)"
+      },
+      "config_name": "Wakamo (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 11,
+      "source_names": {
+        "en": "Nonomi (Swimsuit)",
+        "cn": "野宫(泳装)",
+        "jp": "ノノミ(水着)"
+      },
+      "config_name": "Nonomi (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 12,
+      "source_names": {
+        "en": "Ayane (Swimsuit)",
+        "cn": "绫音(泳装)",
+        "jp": "アヤネ(水着)"
+      },
+      "config_name": "Ayane (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 1,
+      "column": 13,
+      "source_names": {
+        "en": "Hoshino (Swimsuit)",
+        "cn": "星野(泳装)",
+        "jp": "ホシノ(水着)"
+      },
+      "config_name": "Hoshino (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 1,
+      "source_names": {
+        "en": "Shizuko (Swimsuit)",
+        "cn": "静子(泳装)",
+        "jp": "シズコ(水着)"
+      },
+      "config_name": "Shizuko (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 2,
+      "source_names": {
+        "en": "Izuna (Swimsuit)",
+        "cn": "泉奈(泳装)",
+        "jp": "イズナ(水着)"
+      },
+      "config_name": "Izuna (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 3,
+      "source_names": {
+        "en": "Chise (Swimsuit)",
+        "cn": "千世(泳装)",
+        "jp": "チセ(水着)"
+      },
+      "config_name": "Chise (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 4,
+      "source_names": {
+        "en": "Saori",
+        "cn": "纱织",
+        "jp": "サオリ"
+      },
+      "config_name": "Saori",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 5,
+      "source_names": {
+        "en": "Moe",
+        "cn": "萌绘",
+        "jp": "モエ"
+      },
+      "config_name": "Moe",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 6,
+      "source_names": {
+        "en": "Kazusa",
+        "cn": "和纱",
+        "jp": "カズサ"
+      },
+      "config_name": "Kazusa",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 7,
+      "source_names": {
+        "en": "Kokona",
+        "cn": "心奈",
+        "jp": "ココナ"
+      },
+      "config_name": "Kokona",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 8,
+      "source_names": {
+        "en": "Utaha (Cheer Squad)",
+        "cn": "歌原(应援团)",
+        "jp": "ウタハ(応援団)"
+      },
+      "config_name": "Utaha (Cheer Squad)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 9,
+      "source_names": {
+        "en": "Noa",
+        "cn": "诺亚",
+        "jp": "ノア"
+      },
+      "config_name": "Noa",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 10,
+      "source_names": {
+        "en": "Hibiki (Cheer Squad)",
+        "cn": "响(应援团)",
+        "jp": "ヒビキ(応援団)"
+      },
+      "config_name": "Hibiki (Cheer Squad)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 11,
+      "source_names": {
+        "en": "Akane (Bunny)",
+        "cn": "茜(邦妮)",
+        "jp": "アカネ(バニーガール)"
+      },
+      "config_name": "Akane (Bunny)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 12,
+      "source_names": {
+        "en": "Yuuka (Track)",
+        "cn": "优香(体操服)",
+        "jp": "ユウカ(体操服)"
+      },
+      "config_name": "Yuuka (Track)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 2,
+      "column": 13,
+      "source_names": {
+        "en": "Mari (Track)",
+        "cn": "玛丽(体操服)",
+        "jp": "マリー(体操服)"
+      },
+      "config_name": "Mari (Track)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 1,
+      "source_names": {
+        "en": "Hasumi (Track)",
+        "cn": "莲见(体操服)",
+        "jp": "ハスミ(体操服)"
+      },
+      "config_name": "Hasumi (Track)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 2,
+      "source_names": {
+        "en": "Himari",
+        "cn": "日鞠",
+        "jp": "ヒマリ"
+      },
+      "config_name": "Himari",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 3,
+      "source_names": {
+        "en": "Shigure",
+        "cn": "时雨",
+        "jp": "シグレ"
+      },
+      "config_name": "Shigure",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 4,
+      "source_names": {
+        "en": "Serina (Christmas)",
+        "cn": "芹娜(圣诞)",
+        "jp": "セリナ(クリスマス)"
+      },
+      "config_name": "Serina (Christmas)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 5,
+      "source_names": {
+        "en": "Hanae (Christmas)",
+        "cn": "花江(圣诞)",
+        "jp": "ハナエ(クリスマス)"
+      },
+      "config_name": "Hanae (Christmas)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 6,
+      "source_names": {
+        "en": "Haruna (New Year)",
+        "cn": "晴奈(新年)",
+        "jp": "ハルナ(正月)"
+      },
+      "config_name": "Haruna (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 7,
+      "source_names": {
+        "en": "Fuuka (New Year)",
+        "cn": "风香(新年)",
+        "jp": "フウカ(正月)"
+      },
+      "config_name": "Fuuka (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 8,
+      "source_names": {
+        "en": "Junko (New Year)",
+        "cn": "纯子(新年)",
+        "jp": "ジュンコ(正月)"
+      },
+      "config_name": "Junko (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 9,
+      "source_names": {
+        "en": "Mine",
+        "cn": "美祢",
+        "jp": "ミネ"
+      },
+      "config_name": "Mine",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 10,
+      "source_names": {
+        "en": "Mika",
+        "cn": "未花",
+        "jp": "ミカ"
+      },
+      "config_name": "Mika",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 11,
+      "source_names": {
+        "en": "Megu",
+        "cn": "惠",
+        "jp": "メグ"
+      },
+      "config_name": "Megu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 12,
+      "source_names": {
+        "en": "Kanna",
+        "cn": "康娜",
+        "jp": "カンナ"
+      },
+      "config_name": "Kanna",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 3,
+      "column": 13,
+      "source_names": {
+        "en": "Sakurako",
+        "cn": "樱子",
+        "jp": "サクラコ"
+      },
+      "config_name": "Sakurako",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 1,
+      "source_names": {
+        "en": "Toki",
+        "cn": "时",
+        "jp": "トキ"
+      },
+      "config_name": "Toki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 2,
+      "source_names": {
+        "en": "Nagisa",
+        "cn": "渚",
+        "jp": "ナギサ"
+      },
+      "config_name": "Nagisa",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 3,
+      "source_names": {
+        "en": "Koyuki",
+        "cn": "小雪",
+        "jp": "コユキ"
+      },
+      "config_name": "Koyuki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 4,
+      "source_names": {
+        "en": "Kayoko (New Year)",
+        "cn": "佳代子(新年)",
+        "jp": "カヨコ(正月)"
+      },
+      "config_name": "Kayoko (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 5,
+      "source_names": {
+        "en": "Haruka (New Year)",
+        "cn": "春香(新年)",
+        "jp": "ハルカ(正月)"
+      },
+      "config_name": "Haruka (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 6,
+      "source_names": {
+        "en": "Kaho",
+        "cn": "果穗",
+        "jp": "カホ"
+      },
+      "config_name": "Kaho",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 7,
+      "source_names": {
+        "en": "Aris (Maid)",
+        "cn": "爱丽丝(女仆)",
+        "jp": "アリス(メイド)"
+      },
+      "config_name": "Aris (Maid)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 8,
+      "source_names": {
+        "en": "Toki (Bunny)",
+        "cn": "时(邦妮)",
+        "jp": "トキ(バニーガール)"
+      },
+      "config_name": "Toki (Bunny)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 9,
+      "source_names": {
+        "en": "Yuzu (Maid)",
+        "cn": "柚子(女仆)",
+        "jp": "ユズ(メイド)"
+      },
+      "config_name": "Yuzu (Maid)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 10,
+      "source_names": {
+        "en": "Reisa",
+        "cn": "玲纱",
+        "jp": "レイサ"
+      },
+      "config_name": "Reisa",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 11,
+      "source_names": {
+        "en": "Rumi",
+        "cn": "瑠美",
+        "jp": "ルミ"
+      },
+      "config_name": "Rumi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 12,
+      "source_names": {
+        "en": "Mina",
+        "cn": "弥奈",
+        "jp": "ミナ"
+      },
+      "config_name": "Mina",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 4,
+      "column": 13,
+      "source_names": {
+        "en": "Minori",
+        "cn": "实里",
+        "jp": "ミノリ"
+      },
+      "config_name": "Minori",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 1,
+      "source_names": {
+        "en": "Miyako (Swimsuit)",
+        "cn": "宫子(泳装)",
+        "jp": "ミヤコ(水着)"
+      },
+      "config_name": "Miyako (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 2,
+      "source_names": {
+        "en": "Saki (Swimsuit)",
+        "cn": "咲(泳装)",
+        "jp": "サキ(水着)"
+      },
+      "config_name": "Saki (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 3,
+      "source_names": {
+        "en": "Miyu (Swimsuit)",
+        "cn": "美游(泳装)",
+        "jp": "ミユ(水着)"
+      },
+      "config_name": "Miyu (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 4,
+      "source_names": {
+        "en": "Shiroko (Swimsuit)",
+        "cn": "白子(泳装)",
+        "jp": "シロコ(水着)"
+      },
+      "config_name": "Shiroko (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 5,
+      "source_names": {
+        "en": "Ui (Swimsuit)",
+        "cn": "忧(泳装)",
+        "jp": "ウイ(水着)"
+      },
+      "config_name": "Ui (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 6,
+      "source_names": {
+        "en": "Hinata (Swimsuit)",
+        "cn": "日向(泳装)",
+        "jp": "ヒナタ(水着)"
+      },
+      "config_name": "Hinata (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 7,
+      "source_names": {
+        "en": "Koharu (Swimsuit)",
+        "cn": "小春(泳装)",
+        "jp": "コハル(水着)"
+      },
+      "config_name": "Koharu (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 8,
+      "source_names": {
+        "en": "Hanako (Swimsuit)",
+        "cn": "花子(泳装)",
+        "jp": "ハナコ(水着)"
+      },
+      "config_name": "Hanako (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 9,
+      "source_names": {
+        "en": "Mimori (Swimsuit)",
+        "cn": "三森(泳装)",
+        "jp": "ミモリ(水着)"
+      },
+      "config_name": "Mimori (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 10,
+      "source_names": {
+        "en": "Meru",
+        "cn": "芽留",
+        "jp": "メル"
+      },
+      "config_name": "Meru",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 11,
+      "source_names": {
+        "en": "Momiji",
+        "cn": "红叶",
+        "jp": "モミジ"
+      },
+      "config_name": "Momiji",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 12,
+      "source_names": {
+        "en": "Kotori (Cheer Squad)",
+        "cn": "琴里(应援团)",
+        "jp": "コトリ(応援団)"
+      },
+      "config_name": "Kotori (Cheer Squad)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 5,
+      "column": 13,
+      "source_names": {
+        "en": "Haruna (Track)",
+        "cn": "晴奈(运动服)",
+        "jp": "ハルナ(体操服)"
+      },
+      "config_name": "Haruna (Track)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 1,
+      "source_names": {
+        "en": "Ichika",
+        "cn": "一花",
+        "jp": "イチカ"
+      },
+      "config_name": "Ichika",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 2,
+      "source_names": {
+        "en": "Kasumi",
+        "cn": "霞",
+        "jp": "カスミ"
+      },
+      "config_name": "Kasumi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 3,
+      "source_names": {
+        "en": "Shigure (Hot Spring)",
+        "cn": "时雨(温泉)",
+        "jp": "シグレ(温泉)"
+      },
+      "config_name": "Shigure (Hot Spring)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 4,
+      "source_names": {
+        "en": "Misaka Mikoto",
+        "cn": "御坂美琴",
+        "jp": "御坂美琴"
+      },
+      "config_name": "Misaka Mikoto",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 5,
+      "source_names": {
+        "en": "Shokuhou Misaki",
+        "cn": "食蜂操祈",
+        "jp": "食蜂操祈"
+      },
+      "config_name": "Shokuhou Misaki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 6,
+      "source_names": {
+        "en": "Saten Ruiko",
+        "cn": "佐天泪子",
+        "jp": "佐天涙子"
+      },
+      "config_name": "Saten Ruiko",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 7,
+      "source_names": {
+        "en": "Yukari",
+        "cn": "紫草",
+        "jp": "ユカリ"
+      },
+      "config_name": "Yukari",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 8,
+      "source_names": {
+        "en": "Renge",
+        "cn": "莲华",
+        "jp": "レンゲ"
+      },
+      "config_name": "Renge",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 9,
+      "source_names": {
+        "en": "Kikyou",
+        "cn": "桔梗",
+        "jp": "キキョウ"
+      },
+      "config_name": "Kikyou",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 10,
+      "source_names": {
+        "en": "Eimi (Swimsuit)",
+        "cn": "艾米(泳装)",
+        "jp": "エイミ(水着)"
+      },
+      "config_name": "Eimi (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 11,
+      "source_names": {
+        "en": "Kotama (Camp)",
+        "cn": "小玉(露营)",
+        "jp": "コタマ(キャンプ)"
+      },
+      "config_name": "Kotama (Camp)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 12,
+      "source_names": {
+        "en": "Hare (Camp)",
+        "cn": "晴(露营)",
+        "jp": "ハレ(キャンプ)"
+      },
+      "config_name": "Hare (Camp)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 6,
+      "column": 13,
+      "source_names": {
+        "en": "Ako (Dress)",
+        "cn": "亚子(礼服)",
+        "jp": "アコ(ドレス)"
+      },
+      "config_name": "Ako (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 1,
+      "source_names": {
+        "en": "Ibuki",
+        "cn": "伊吹",
+        "jp": "イブキ"
+      },
+      "config_name": "Ibuki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 2,
+      "source_names": {
+        "en": "Makoto",
+        "cn": "真琴",
+        "jp": "マコト"
+      },
+      "config_name": "Makoto",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 3,
+      "source_names": {
+        "en": "Hina (Dress)",
+        "cn": "日奈(礼服)",
+        "jp": "ヒナ(ドレス)"
+      },
+      "config_name": "Hina (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 4,
+      "source_names": {
+        "en": "Kayoko (Dress)",
+        "cn": "佳代子(礼服)",
+        "jp": "カヨコ(ドレス)"
+      },
+      "config_name": "Kayoko (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 5,
+      "source_names": {
+        "en": "Aru (Dress)",
+        "cn": "阿露(礼服)",
+        "jp": "アル(ドレス)"
+      },
+      "config_name": "Aru (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 6,
+      "source_names": {
+        "en": "Akari (New Year)",
+        "cn": "明里(正月)",
+        "jp": "アカリ(正月)"
+      },
+      "config_name": "Akari (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 7,
+      "source_names": {
+        "en": "Umika",
+        "cn": "海香",
+        "jp": "ウミカ"
+      },
+      "config_name": "Umika",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 8,
+      "source_names": {
+        "en": "Tsubaki (Guide)",
+        "cn": "椿(导游)",
+        "jp": "ツバキ(ガイド)"
+      },
+      "config_name": "Tsubaki (Guide)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 9,
+      "source_names": {
+        "en": "Kazusa (Band)",
+        "cn": "和纱(乐队)",
+        "jp": "カズサ(バンド)"
+      },
+      "config_name": "Kazusa (Band)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 10,
+      "source_names": {
+        "en": "Yoshimi (Band)",
+        "cn": "好美(乐队)",
+        "jp": "ヨシミ(バンド)"
+      },
+      "config_name": "Yoshimi (Band)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 11,
+      "source_names": {
+        "en": "Airi (Band)",
+        "cn": "爱莉(乐队)",
+        "jp": "アイリ(バンド)"
+      },
+      "config_name": "Airi (Band)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 12,
+      "source_names": {
+        "en": "Kirara",
+        "cn": "绮罗罗",
+        "jp": "キララ"
+      },
+      "config_name": "Kirara",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 2,
+      "row": 7,
+      "column": 13,
+      "source_names": {
+        "en": "Momoi (Maid)",
+        "cn": "桃井(女仆)",
+        "jp": "モモイ(メイド)"
+      },
+      "config_name": "Momoi (Maid)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 1,
+      "source_names": {
+        "en": "Midori (Maid)",
+        "cn": "绿(女仆)",
+        "jp": "ミドリ(メイド)"
+      },
+      "config_name": "Midori (Maid)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 2,
+      "source_names": {
+        "en": "Serika (Swimsuit)",
+        "cn": "芹香(泳装)",
+        "jp": "セリカ(水着)"
+      },
+      "config_name": "Serika (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 3,
+      "source_names": {
+        "en": "Kanna (Swimsuit)",
+        "cn": "叶渚(泳装)",
+        "jp": "カンナ(水着)"
+      },
+      "config_name": "Kanna (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 4,
+      "source_names": {
+        "en": "Fubuki (Swimsuit)",
+        "cn": "吹雪(泳装)",
+        "jp": "フブキ(水着)"
+      },
+      "config_name": "Fubuki (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 5,
+      "source_names": {
+        "en": "Kirino (Swimsuit)",
+        "cn": "桐乃(泳装)",
+        "jp": "キリノ(水着)"
+      },
+      "config_name": "Kirino (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 6,
+      "source_names": {
+        "en": "Moe (Swimsuit)",
+        "cn": "萌绘(泳装)",
+        "jp": "モエ(水着)"
+      },
+      "config_name": "Moe (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 7,
+      "source_names": {
+        "en": "Hoshino (Armed)",
+        "cn": "星野(临战)",
+        "jp": "ホシノ(臨戦)"
+      },
+      "config_name": "Hoshino (Battle)",
+      "form": 1,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 8,
+      "source_names": {
+        "en": "Hoshino (Armed)",
+        "cn": "星野(临战)",
+        "jp": "ホシノ(臨戦)"
+      },
+      "config_name": "Hoshino (Battle)",
+      "form": 2,
+      "include_for_identity_training": false,
+      "exclude_reason": "second_form_hoshino_armed"
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 9,
+      "source_names": {
+        "en": "Shiroko*Terror",
+        "cn": "白子＊恐怖",
+        "jp": "シロコ＊テラー"
+      },
+      "config_name": "Shiroko Terror",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 10,
+      "source_names": {
+        "en": "Atsuko (Swimsuit)",
+        "cn": "亚津子(泳装)",
+        "jp": "アツコ(水着)"
+      },
+      "config_name": "Atsuko (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 11,
+      "source_names": {
+        "en": "Saori (Swimsuit)",
+        "cn": "纱织(泳装)",
+        "jp": "サオリ(水着)"
+      },
+      "config_name": "Saori (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 12,
+      "source_names": {
+        "en": "Hiyori (Swimsuit)",
+        "cn": "日和(泳装)",
+        "jp": "ヒヨリ(水着)"
+      },
+      "config_name": "Hiyori (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 1,
+      "column": 13,
+      "source_names": {
+        "en": "Marina (Qipao)",
+        "cn": "真里奈(旗袍)",
+        "jp": "マリナ(チーパオ)"
+      },
+      "config_name": "Marina (Qipao)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 1,
+      "source_names": {
+        "en": "Tomoe (Qipao)",
+        "cn": "巴(旗袍)",
+        "jp": "トモエ(チーパオ)"
+      },
+      "config_name": "Tomoe (Qipao)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 2,
+      "source_names": {
+        "en": "Reijo",
+        "cn": "丽情",
+        "jp": "レイジョ"
+      },
+      "config_name": "Reijo",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 3,
+      "source_names": {
+        "en": "Kisaki",
+        "cn": "妃咲",
+        "jp": "キサキ"
+      },
+      "config_name": "Kisaki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 4,
+      "source_names": {
+        "en": "Mari (Pop Idol)",
+        "cn": "玛丽(偶像)",
+        "jp": "マリー(アイドル)"
+      },
+      "config_name": "Mari (Pop Idol)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 5,
+      "source_names": {
+        "en": "Sakurako (Pop Idol)",
+        "cn": "樱子(偶像)",
+        "jp": "サクラコ(アイドル)"
+      },
+      "config_name": "Sakurako (Pop Idol)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 6,
+      "source_names": {
+        "en": "Mine (Pop Idol)",
+        "cn": "美祢(偶像)",
+        "jp": "ミネ(アイドル)"
+      },
+      "config_name": "Mine (Pop Idol)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 7,
+      "source_names": {
+        "en": "Chiaki",
+        "cn": "千明",
+        "jp": "チアキ"
+      },
+      "config_name": "Chiaki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 8,
+      "source_names": {
+        "en": "Satsuki",
+        "cn": "皋月",
+        "jp": "サツキ"
+      },
+      "config_name": "Satsuki",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 9,
+      "source_names": {
+        "en": "Yuuka (Pajamas)",
+        "cn": "优香(睡衣)",
+        "jp": "ユウカ(パジャマ)"
+      },
+      "config_name": "Yuuka (Pajamas)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 10,
+      "source_names": {
+        "en": "Noa (Pajamas)",
+        "cn": "诺亚(睡衣)",
+        "jp": "ノア(パジャマ)"
+      },
+      "config_name": "Noa (Pajamas)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 11,
+      "source_names": {
+        "en": "Seia",
+        "cn": "圣娅",
+        "jp": "セイア"
+      },
+      "config_name": "Seia",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 12,
+      "source_names": {
+        "en": "Asuna (School)",
+        "cn": "明日奈(制服)",
+        "jp": "アスナ(制服)"
+      },
+      "config_name": "Asuna (School)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 2,
+      "column": 13,
+      "source_names": {
+        "en": "Karin (School)",
+        "cn": "花凛(制服)",
+        "jp": "カリン(制服)"
+      },
+      "config_name": "Karin (School)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 1,
+      "source_names": {
+        "en": "Neru (School)",
+        "cn": "妮露(制服)",
+        "jp": "ネル(制服)"
+      },
+      "config_name": "Neru (School)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 2,
+      "source_names": {
+        "en": "Rio",
+        "cn": "莉音",
+        "jp": "リオ"
+      },
+      "config_name": "Rio",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 3,
+      "source_names": {
+        "en": "Maki (Camp)",
+        "cn": "真纪(露营)",
+        "jp": "マキ(キャンプ)"
+      },
+      "config_name": "Maki (Camp)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 4,
+      "source_names": {
+        "en": "Sena (Casual)",
+        "cn": "濑名(便服)",
+        "jp": "セナ(私服)"
+      },
+      "config_name": "Sena (Casual)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 5,
+      "source_names": {
+        "en": "Juri (Part-Timer)",
+        "cn": "朱莉(打工)",
+        "jp": "ジュリ(アルバイト)"
+      },
+      "config_name": "Juri (Part-Timer)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 6,
+      "source_names": {
+        "en": "Izumi (New Year)",
+        "cn": "泉(正月)",
+        "jp": "イズミ(正月)"
+      },
+      "config_name": "Izumi (New Year)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 7,
+      "source_names": {
+        "en": "Rei",
+        "cn": "丽",
+        "jp": "レイ"
+      },
+      "config_name": "Rei",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 8,
+      "source_names": {
+        "en": "Sumire (Part-Timer)",
+        "cn": "堇(打工)",
+        "jp": "スミレ(アルバイト)"
+      },
+      "config_name": "Sumire (Part-Timer)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 9,
+      "source_names": {
+        "en": "Saori (Dress)",
+        "cn": "纱织(礼服)",
+        "jp": "サオリ(ドレス)"
+      },
+      "config_name": "Saori (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 10,
+      "source_names": {
+        "en": "Hikari",
+        "cn": "光",
+        "jp": "ヒカリ"
+      },
+      "config_name": "Hikari",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 11,
+      "source_names": {
+        "en": "Nozomi",
+        "cn": "望",
+        "jp": "ノゾミ"
+      },
+      "config_name": "Nozomi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 12,
+      "source_names": {
+        "en": "Aoba",
+        "cn": "青叶",
+        "jp": "アオバ"
+      },
+      "config_name": "Aoba",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 3,
+      "column": 13,
+      "source_names": {
+        "en": "Pina (Guide)",
+        "cn": "菲娜(导游)",
+        "jp": "フィーナ(ガイド)"
+      },
+      "config_name": "Pina (Guide)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 1,
+      "source_names": {
+        "en": "Nagusa",
+        "cn": "名草",
+        "jp": "ナグサ"
+      },
+      "config_name": "Nagusa",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 2,
+      "source_names": {
+        "en": "Niya",
+        "cn": "尼娅",
+        "jp": "ニヤ"
+      },
+      "config_name": "Niya",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 3,
+      "source_names": {
+        "en": "Natsu (Band)",
+        "cn": "夏(乐队)",
+        "jp": "ナツ(バンド)"
+      },
+      "config_name": "Natsu (Band)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 4,
+      "source_names": {
+        "en": "Yukari (Swimsuit)",
+        "cn": "紫(泳装)",
+        "jp": "ユカリ(水着)"
+      },
+      "config_name": "Yukari (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 5,
+      "source_names": {
+        "en": "Renge (Swimsuit)",
+        "cn": "莲华(泳装)",
+        "jp": "レンゲ(水着)"
+      },
+      "config_name": "Renge (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 6,
+      "source_names": {
+        "en": "Kikyou (Swimsuit)",
+        "cn": "桔梗(泳装)",
+        "jp": "キキョウ(水着)"
+      },
+      "config_name": "Kikyou (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 7,
+      "source_names": {
+        "en": "Seia (Swimsuit)",
+        "cn": "圣娅(泳装)",
+        "jp": "セイア(水着)"
+      },
+      "config_name": "Seia (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 8,
+      "source_names": {
+        "en": "Hasumi (Swimsuit)",
+        "cn": "莲见(泳装)",
+        "jp": "ハスミ(水着)"
+      },
+      "config_name": "Hasumi (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 9,
+      "source_names": {
+        "en": "Ichika (Swimsuit)",
+        "cn": "一花(泳装)",
+        "jp": "イチカ(水着)"
+      },
+      "config_name": "Ichika (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 10,
+      "source_names": {
+        "en": "Nagisa (Swimsuit)",
+        "cn": "渚(泳装)",
+        "jp": "ナギサ(水着)"
+      },
+      "config_name": "Nagisa (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 11,
+      "source_names": {
+        "en": "Mika (Swimsuit)",
+        "cn": "未花(泳装)",
+        "jp": "ミカ(水着)"
+      },
+      "config_name": "Mika (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 12,
+      "source_names": {
+        "en": "Eri",
+        "cn": "绘里",
+        "jp": "エリ"
+      },
+      "config_name": "Eri",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 4,
+      "column": 13,
+      "source_names": {
+        "en": "Kanoe",
+        "cn": "庚",
+        "jp": "カノエ"
+      },
+      "config_name": "Kanoe",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 1,
+      "source_names": {
+        "en": "Misaki (Swimsuit)",
+        "cn": "美咲(泳装)",
+        "jp": "ミサキ(水着)"
+      },
+      "config_name": "Misaki (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 2,
+      "source_names": {
+        "en": "Miyo",
+        "cn": "美代",
+        "jp": "ミヨ"
+      },
+      "config_name": "Miyo",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 3,
+      "source_names": {
+        "en": "Fuyu",
+        "cn": "冬",
+        "jp": "フユ"
+      },
+      "config_name": "Fuyu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 4,
+      "source_names": {
+        "en": "Ritsu",
+        "cn": "律",
+        "jp": "リツ"
+      },
+      "config_name": "Ritsu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 5,
+      "source_names": {
+        "en": "Reisa (Magical)",
+        "cn": "玲纱(魔法)",
+        "jp": "レイサ(マジカル)"
+      },
+      "config_name": "Reisa (Magical)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 6,
+      "source_names": {
+        "en": "Suzumi (Magical)",
+        "cn": "铃美(魔法)",
+        "jp": "スズミ(マジカル)"
+      },
+      "config_name": "Suzumi (Magical)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 7,
+      "source_names": {
+        "en": "Rabu",
+        "cn": "兰舞",
+        "jp": "ラブ"
+      },
+      "config_name": "Rabu",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 8,
+      "source_names": {
+        "en": "Subaru",
+        "cn": "昴",
+        "jp": "スバル"
+      },
+      "config_name": "Subaru",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 9,
+      "source_names": {
+        "en": "Takane",
+        "cn": "贵音",
+        "jp": "タカネ"
+      },
+      "config_name": "Takane",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 10,
+      "source_names": {
+        "en": "Yakumo",
+        "cn": "八云",
+        "jp": "ヤクモ"
+      },
+      "config_name": "Yakumo",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 11,
+      "source_names": {
+        "en": "Tsukuyo (Dress)",
+        "cn": "月咏(礼服)",
+        "jp": "ツクヨ(ドレス)"
+      },
+      "config_name": "Tsukuyo (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 12,
+      "source_names": {
+        "en": "Michiru (Dress)",
+        "cn": "满(礼服)",
+        "jp": "ミチル(ドレス)"
+      },
+      "config_name": "Michiru (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 5,
+      "column": 13,
+      "source_names": {
+        "en": "Rio (Armed)",
+        "cn": "莉音(武装)",
+        "jp": "リオ(臨戦)"
+      },
+      "config_name": "Rio (Armed)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 1,
+      "source_names": {
+        "en": "Toki (Armed)",
+        "cn": "时(武装)",
+        "jp": "トキ(臨戦)"
+      },
+      "config_name": "Toki (Armed)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 2,
+      "source_names": {
+        "en": "Himari (Armed)",
+        "cn": "日鞠(武装)",
+        "jp": "ヒマリ(臨戦)"
+      },
+      "config_name": "Himari (Armed)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 3,
+      "source_names": {
+        "en": "Aris (Armed)",
+        "cn": "爱丽丝(武装)",
+        "jp": "アリス(臨戦)"
+      },
+      "config_name": "Aris (Armed)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 4,
+      "source_names": {
+        "en": "Kei",
+        "cn": "柯伊",
+        "jp": "ケイ"
+      },
+      "config_name": "Kei",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 5,
+      "source_names": {
+        "en": "Eimi (Armed)",
+        "cn": "艾米(武装)",
+        "jp": "エイミ(臨戦)"
+      },
+      "config_name": "Eimi (Armed)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 6,
+      "source_names": {
+        "en": "Yuzu (Armed)",
+        "cn": "柚子(武装)",
+        "jp": "ユズ(臨戦)"
+      },
+      "config_name": "Yuzu (Armed)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 7,
+      "source_names": {
+        "en": "Koyuki (Pajamas)",
+        "cn": "小雪(睡衣)",
+        "jp": "コユキ(パジャマ)"
+      },
+      "config_name": "Koyuki (Pajamas)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 8,
+      "source_names": {
+        "en": "Konoka",
+        "cn": "木乃香",
+        "jp": "コノカ"
+      },
+      "config_name": "Konoka",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 9,
+      "source_names": {
+        "en": "Rena",
+        "cn": "丽奈",
+        "jp": "レナ"
+      },
+      "config_name": "Rena",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 10,
+      "source_names": {
+        "en": "Akane (School)",
+        "cn": "茜(制服)",
+        "jp": "アカネ(制服)"
+      },
+      "config_name": "Akane (School)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 11,
+      "source_names": {
+        "en": "Niko",
+        "cn": "妮可",
+        "jp": "ニコ"
+      },
+      "config_name": "Niko",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 12,
+      "source_names": {
+        "en": "Kurumi",
+        "cn": "胡桃",
+        "jp": "クルミ"
+      },
+      "config_name": "Kurumi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 6,
+      "column": 13,
+      "source_names": {
+        "en": "Otogi",
+        "cn": "御伽",
+        "jp": "オトギ"
+      },
+      "config_name": "Otogi",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 7,
+      "column": 1,
+      "source_names": {
+        "en": "Erika",
+        "cn": "绘梨香",
+        "jp": "エリカ"
+      },
+      "config_name": "Erika",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 7,
+      "column": 2,
+      "source_names": {
+        "en": "Haruka (Dress)",
+        "cn": "春香(礼服)",
+        "jp": "ハルカ(ドレス)"
+      },
+      "config_name": "Haruka (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 7,
+      "column": 3,
+      "source_names": {
+        "en": "Mutsuki (Dress)",
+        "cn": "睦月(礼服)",
+        "jp": "ムツキ(ドレス)"
+      },
+      "config_name": "Mutsuki (Dress)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 7,
+      "column": 4,
+      "source_names": {
+        "en": "Nagusa (Swimsuit)",
+        "cn": "名草(泳装)",
+        "jp": "ナグサ(水着)"
+      },
+      "config_name": "Nagusa (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 7,
+      "column": 5,
+      "source_names": {
+        "en": "Shun (Swimsuit)",
+        "cn": "瞬(泳装)",
+        "jp": "シュン(水着)"
+      },
+      "config_name": "Shun (Swimsuit)",
+      "form": 1,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    },
+    {
+      "image_index": 3,
+      "row": 7,
+      "column": 6,
+      "source_names": {
+        "en": "Shun (Swimsuit)",
+        "cn": "瞬(泳装)",
+        "jp": "シュン(水着)"
+      },
+      "config_name": "Shun (Swimsuit)",
+      "form": 2,
+      "include_for_identity_training": false,
+      "exclude_reason": "second_form_shun_swimsuit"
+    },
+    {
+      "image_index": 3,
+      "row": 7,
+      "column": 7,
+      "source_names": {
+        "en": "Kisaki (Swimsuit)",
+        "cn": "妃咲(泳装)",
+        "jp": "キサキ(水着)"
+      },
+      "config_name": "Kisaki (Swimsuit)",
+      "form": null,
+      "include_for_identity_training": true,
+      "exclude_reason": null
+    }
+  ]
+}

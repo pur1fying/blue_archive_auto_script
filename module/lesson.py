@@ -464,18 +464,9 @@ def invite_favor_student(self):
         self.logger.warning("Student recognition model is unavailable. Fallback to normal lesson selection.")
         return
 
-    valid_names, unknown_names, unavailable_names = service.catalog.validate_names(
-        favorStudentList,
-        self.server,
-    )
+    valid_names, unknown_names = service.catalog.validate_names(favorStudentList)
     if unknown_names:
         self.logger.warning("Unknown lesson student name(s): [ " + ", ".join(unknown_names) + " ]")
-    if unavailable_names:
-        self.logger.warning(
-            "Student(s) not implemented on current server: [ "
-            + ", ".join(unavailable_names)
-            + " ]"
-        )
     supported_ids = service.recognizer.supported_ids
     unsupported_names = []
     for name in valid_names:

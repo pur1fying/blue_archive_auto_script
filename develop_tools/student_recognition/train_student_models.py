@@ -8,9 +8,7 @@ Run from the repository root with the development-only requirements installed:
 import argparse
 import collections
 import json
-import os
 import random
-import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
@@ -34,6 +32,10 @@ from develop_tools.student_recognition.models import (
     LessonSegmentationNet,
     StudentEncoderTrainer,
 )
+from develop_tools.student_recognition.training_data import (
+    load_historical_portraits,
+    load_roster_montage_portraits,
+)
 
 
 FIXTURE_DIR = ROOT / "develop_tools" / "test" / "fixtures" / "lesson"
@@ -41,11 +43,6 @@ ANNOTATION_PATH = Path(__file__).with_name("lesson_locator_annotations.json")
 MODEL_DIR = ROOT / "src" / "models" / "student_recognition"
 SEED = 20260731
 
-HISTORICAL_SOURCES = (
-    ("CN", "870ddc335^"),
-    ("JP", "d36428149^"),
-    ("Global_en-us", "683039fce^"),
-)
 MEAN = np.asarray((0.485, 0.456, 0.406), dtype=np.float32)
 STD = np.asarray((0.229, 0.224, 0.225), dtype=np.float32)
 
@@ -57,29 +54,7 @@ def seed_everything() -> None:
 
 
 def load_historical_templates() -> list[tuple[str, str, np.ndarray]]:
-    templates = []
-    seen_blobs = set()
-    for server, revision in HISTORICAL_SOURCES:
-        root = f"src/images/{server}/lesson_affection"
-        output = subprocess.check_output(
-            ["git", "ls-tree", "-r", revision, "--", root],
-            cwd=ROOT,
-        )
-        for line in output.splitlines():
-            metadata, path = line.split(b"\t", 1)
-            blob_hash = metadata.split()[2].decode()
-            if blob_hash in seen_blobs:
-                continue
-            seen_blobs.add(blob_hash)
-            name = os.path.splitext(os.path.basename(path.decode()))[0]
-            raw = subprocess.check_output(
-                ["git", "cat-file", "blob", blob_hash],
-                cwd=ROOT,
-            )
-            image = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR)
-            if image is not None:
-                templates.append((name, blob_hash, image))
-    return templates
+    return load_historical_portraits()
 
 
 def load_labeled_target_crops() -> list[tuple[str, str, str, np.ndarray]]:
@@ -697,6 +672,8 @@ def _student_support_metadata(
 
 def train_encoder(epochs: int = 35) -> None:
     historical_templates = load_historical_templates()
+    roster_templates = load_roster_montage_portraits()
+    seed_templates = historical_templates + roster_templates
     labeled_crops = load_runtime_labeled_target_crops()
     target_portraits, _ = load_target_domain_portraits()
     catalog = StudentCatalog(json.loads(STATIC_DEFAULT_CONFIG)["student_names"])
@@ -723,7 +700,7 @@ def train_encoder(epochs: int = 35) -> None:
         raise ValueError("No manually labelled target identities were loaded")
 
     pretrained_encoder, _ = _train_student_encoder(
-        historical_templates,
+        seed_templates,
         max(epochs * 3, epochs),
         "historical-pretrain",
     )
@@ -737,7 +714,7 @@ def train_encoder(epochs: int = 35) -> None:
     image_names = sorted({image_name for _, image_name, _, _ in labeled_crops})
     for validation_image in image_names:
         target_train, _ = load_target_domain_portraits(validation_image)
-        fold_templates = historical_templates + target_train
+        fold_templates = seed_templates + target_train
         fold_encoder, _ = _train_student_encoder(
             fold_templates,
             epochs,
@@ -777,8 +754,8 @@ def train_encoder(epochs: int = 35) -> None:
         independent_candidate_ids,
     )
 
-    templates = historical_templates + target_portraits
-    final_training_templates = historical_templates + target_portraits * 3
+    templates = seed_templates + target_portraits
+    final_training_templates = seed_templates + target_portraits * 3
     final_training_epochs = max(epochs * 3, epochs)
     encoder, names = _train_student_encoder(
         final_training_templates,
@@ -859,8 +836,9 @@ def train_encoder(epochs: int = 35) -> None:
                 "std": STD.tolist(),
                 "similarity_threshold": similarity_threshold,
                 "margin_threshold": margin_threshold,
-                "training_source": "deduplicated-git-history+user-manual-target-domain",
+                "training_source": "committed-git-history+committed-roster-montage+user-manual-target-domain",
                 "historical_blob_count": len(historical_templates),
+                "roster_montage_portrait_count": len(roster_templates),
                 "target_domain_training_count": len(target_portraits),
                 "target_domain_training_repeat": 3,
                 "final_training_epochs": final_training_epochs,
