@@ -15,6 +15,7 @@ int main() {
 mirrorc_cdk = "legacy-cdk"
 current_BAAS_version = "legacy-main"
 runtime_path = "default"
+legacy_extension = "retain"
 
 [Paths]
 BAAS_ROOT_PATH = ""
@@ -31,6 +32,7 @@ keep_me = "yes"
     if (!require(rendered.find("[general]") != std::string::npos, "current schema")) return 1;
     if (!require(rendered.find("[General]") != std::string::npos, "legacy schema")) return 1;
     if (!require(rendered.find("keep_me = \"yes\"") != std::string::npos, "unknown field")) return 1;
+    if (!require(rendered.find("legacy_extension = \"retain\"") != std::string::npos, "unknown managed-table field")) return 1;
     if (!require(rendered.find("package_manager = \"uv\"") != std::string::npos, "uv manager")) return 1;
 
     const auto mixed = baas_installer::parse_config(R"(

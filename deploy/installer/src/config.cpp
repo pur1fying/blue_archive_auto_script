@@ -32,6 +32,31 @@ bool is_managed_table(const std::string& table) {
            table == "paths" || table == "python" || table == "repositories";
 }
 
+bool is_known_key(const std::string& table, const std::string& key) {
+    if (table == "General") return key == "mirrorc_cdk" || key == "current_BAAS_version" || key == "current_BAAS_Cpp_version" || key == "runtime_path" || key == "channel" || key == "git_backend" || key == "package_manager";
+    if (table == "general") return key == "mirrorc_cdk" || key == "current_baas_sha" || key == "current_baas_cpp_sha" || key == "channel" || key == "git_backend";
+    if (table == "python") return key == "runtime_path" || key == "python_version";
+    if (table == "paths") return key == "baas_root_path" || key == "tmp_path" || key == "toolkit_path";
+    if (table == "Paths") return key == "BAAS_ROOT_PATH" || key == "TMP_PATH" || key == "TOOL_KIT_PATH";
+    if (table == "repositories") return key == "main_sources" || key == "cpp_sources";
+    if (table == "URLs") return key == "REPO_URL_HTTP";
+    return false;
+}
+
+std::string preserved_unknown(const InstallerConfig& config, const std::string& wanted_table) {
+    std::ostringstream output;
+    std::istringstream input(config.source_toml);
+    std::string line, table;
+    while (std::getline(input, line)) {
+        const auto stripped = trim(line);
+        if (stripped.size() > 2 && stripped.front() == '[' && stripped.back() == ']') { table = stripped.substr(1, stripped.size() - 2); continue; }
+        if (table != wanted_table) continue;
+        const auto equal = stripped.find('=');
+        if (equal != std::string::npos && !is_known_key(table, trim(stripped.substr(0, equal)))) output << line << '\n';
+    }
+    return output.str();
+}
+
 void set_value(InstallerConfig& config, const std::string& table, const std::string& key, const std::string& value) {
     const auto assign = [](std::string& target, const std::string& source) { target = unquote(source); };
     if ((table == "general" || table == "General") && key == "mirrorc_cdk") assign(config.mirrorc_cdk, value);
@@ -94,16 +119,16 @@ std::string render_config(const InstallerConfig& config) {
            << "channel = \"" << config.channel << "\"\n"
            << "current_baas_sha = \"" << config.main_sha << "\"\n"
            << "current_baas_cpp_sha = \"" << config.ocr_sha << "\"\n"
-           << "git_backend = \"" << config.git_backend << "\"\n\n"
+           << "git_backend = \"" << config.git_backend << "\"\n" << preserved_unknown(config, "general") << "\n"
            << "[paths]\nbaas_root_path = \".\"\ntmp_path = \"tmp\"\ntoolkit_path = \"toolkit\"\n\n"
-           << "[python]\nruntime_path = \"" << config.runtime_path << "\"\npython_version = \"" << config.python_version << "\"\n\n"
-           << "[repositories]\nmain_sources = []\ncpp_sources = []\n\n"
+           << "[python]\nruntime_path = \"" << config.runtime_path << "\"\npython_version = \"" << config.python_version << "\"\n" << preserved_unknown(config, "python") << "\n"
+           << "[repositories]\nmain_sources = []\ncpp_sources = []\n" << preserved_unknown(config, "repositories") << "\n"
            << "[General]\nmirrorc_cdk = \"" << config.mirrorc_cdk << "\"\n"
            << "current_BAAS_version = \"" << config.main_sha << "\"\n"
            << "current_BAAS_Cpp_version = \"" << config.ocr_sha << "\"\n"
            << "channel = \"" << config.channel << "\"\ngit_backend = \"" << config.git_backend << "\"\n"
-           << "runtime_path = \"" << config.runtime_path << "\"\npackage_manager = \"uv\"\n\n"
-           << "[URLs]\nREPO_URL_HTTP = \"https://github.com/pur1fying/blue_archive_auto_script.git\"\n\n"
+           << "runtime_path = \"" << config.runtime_path << "\"\npackage_manager = \"uv\"\n" << preserved_unknown(config, "General") << "\n"
+           << "[URLs]\nREPO_URL_HTTP = \"https://github.com/pur1fying/blue_archive_auto_script.git\"\n" << preserved_unknown(config, "URLs") << "\n"
            << "[Paths]\nBAAS_ROOT_PATH = \".\"\nTMP_PATH = \"tmp\"\nTOOL_KIT_PATH = \"toolkit\"\n";
     return output.str();
 }

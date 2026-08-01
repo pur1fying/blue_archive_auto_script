@@ -29,4 +29,7 @@ std::vector<UvCommand> managed_uv_commands(
     const InstallerConfig& config,
     const std::filesystem::path& requirements);
 
+bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error);
+bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error);
+
 }  // namespace baas_installer

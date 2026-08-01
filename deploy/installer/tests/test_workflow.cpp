@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -13,11 +14,12 @@ int main() {
     std::error_code ignored; fs::remove_all(fixture, ignored);
     auto paths = baas_installer::InstallPaths::from_executable(fixture / "install" / "BlueArchiveAutoScript.exe");
     std::vector<std::string> events;
+    std::mutex event_mutex;
     baas_installer::WorkflowServices services;
-    services.prepare_main = [&](auto& transaction, std::string&) { write(transaction.main_staging_path() / "main.txt", "main"); events.push_back("prepared-main"); return true; };
-    services.prepare_ocr = [&](auto& transaction, std::string&) { write(transaction.ocr_staging_path() / "ocr.txt", "ocr"); events.push_back("prepared-ocr"); return true; };
-    services.verify_deployment = [&](const auto& current, const auto&, std::string&) { const bool ok=fs::exists(current.root/"main.txt") && fs::exists(current.root/"core/ocr/baas_ocr_client/bin/ocr.txt"); events.push_back("verified"); return ok; };
-    services.sync_uv = [&](const auto&, const auto&, std::string&) { events.push_back("uv"); return true; };
+    services.prepare_main = [&](auto& transaction, std::string&) { write(transaction.main_staging_path() / "main.txt", "main"); std::lock_guard lock(event_mutex); events.push_back("prepared-main"); return true; };
+    services.prepare_ocr = [&](auto& transaction, std::string&) { write(transaction.ocr_staging_path() / "ocr.txt", "ocr"); std::lock_guard lock(event_mutex); events.push_back("prepared-ocr"); return true; };
+    services.verify_deployment = [&](const auto& current, const auto&, std::string&) { const bool ok=fs::exists(current.root/"main.txt") && fs::exists(current.root/"core/ocr/baas_ocr_client/bin/ocr.txt"); std::lock_guard lock(event_mutex); events.push_back("verified"); return ok; };
+    services.sync_uv = [&](const auto&, const auto&, std::string&) { std::lock_guard lock(event_mutex); events.push_back("uv"); return true; };
     baas_installer::InstallerConfig config;
     const auto result = baas_installer::install_or_update(config, paths, services);
     const bool order = result.success && events.size() >= 4 && events[events.size()-2] == "verified" && events.back() == "uv" &&

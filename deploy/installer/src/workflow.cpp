@@ -26,6 +26,7 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
         emit(services, "deployment", "preparation failed; no live files changed");
         return {false, error.empty() ? "repository preparation failed" : error};
     }
+    if (services.on_prepared) services.on_prepared();
     try {
         emit(services, "main", "ready; waiting for parallel task");
         emit(services, "deployment", "deploying main repository");

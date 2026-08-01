@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <sstream>
 
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
@@ -89,6 +90,15 @@ std::string git_backend_name(const GitBackend backend) {
         case GitBackend::Libgit2: return "libgit2";
         default: return "none";
     }
+}
+
+std::string repository_head(const fs::path& repository) {
+    if (!git_cli_available()) return {};
+    const auto output = repository / ".baas-installer-head";
+    const auto status = run("git -C " + quote_command(repository.string()) + " rev-parse HEAD > " + quote_command(output.string()));
+    std::ifstream input(output); std::string head; std::getline(input, head);
+    std::error_code ignored; fs::remove(output, ignored);
+    return status == 0 ? head : std::string{};
 }
 
 GitResult clone_repository(const std::vector<std::string>& sources, const fs::path& destination, const std::string& revision) {

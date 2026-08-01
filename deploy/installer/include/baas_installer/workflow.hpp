@@ -12,6 +12,7 @@ namespace baas_installer {
 struct WorkflowServices {
     std::function<bool(InstallTransaction&, std::string&)> prepare_main;
     std::function<bool(InstallTransaction&, std::string&)> prepare_ocr;
+    std::function<void()> on_prepared;
     std::function<bool(const InstallPaths&, const InstallerConfig&, std::string&)> verify_deployment;
     std::function<bool(const InstallPaths&, const InstallerConfig&, std::string&)> sync_uv;
     std::function<void(const std::string&, const std::string&)> progress;

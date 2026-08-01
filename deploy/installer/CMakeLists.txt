@@ -13,6 +13,7 @@ add_library(baas-installer-core STATIC
     src/git.cpp
     src/transaction.cpp
     src/uv_environment.cpp
+    src/process.cpp
     src/mirrorchyan.cpp
     src/workflow.cpp
     src/tui.cpp

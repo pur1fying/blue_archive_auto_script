@@ -18,6 +18,7 @@ struct GitResult {
 
 bool git_cli_available();
 std::string git_backend_name(GitBackend backend);
+std::string repository_head(const std::filesystem::path& repository);
 
 // Works exclusively against `destination`, which must be a staging directory.
 // Sources are tried in supplied order. Git CLI is always attempted before the
