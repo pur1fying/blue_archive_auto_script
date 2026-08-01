@@ -16,7 +16,7 @@ namespace {
 std::string ocr_revision() {
 #ifdef _WIN32
     return "windows-x64";
-#elif defined(__APPLE__) && defined(__aarch64__)
+#elif defined(__APPLE__) && (defined(__aarch64__) || defined(__arm64__))
     return "macos-arm64";
 #elif defined(__APPLE__)
     return "macos-x64";

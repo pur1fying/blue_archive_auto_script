@@ -14,7 +14,7 @@ std::string text(const fs::path& path) { return path.generic_string(); }
 std::string uv_archive_name() {
 #ifdef _WIN32
     return "uv-x86_64-pc-windows-msvc.zip";
-#elif defined(__APPLE__) && defined(__aarch64__)
+#elif defined(__APPLE__) && (defined(__aarch64__) || defined(__arm64__))
     return "uv-aarch64-apple-darwin.tar.gz";
 #elif defined(__APPLE__)
     return "uv-x86_64-apple-darwin.tar.gz";
