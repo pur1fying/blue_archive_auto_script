@@ -87,7 +87,9 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
     for (const auto& source : sources) {
         if (run_process({"curl", "--fail", "--location", "--connect-timeout", "5", "--retry", "2", "--output", archive.string(), source}) != 0) continue;
         std::error_code ignored; fs::remove_all(paths.uv_dir, ignored); fs::create_directories(paths.uv_dir);
-        if (run_process({"tar", "-xf", archive.string(), "-C", paths.uv_dir.string(), "--strip-components=1"}) != 0) continue;
+        // Windows bsdtar accepts ZIP archives but not every GNU tar option.
+        // Keep the archive's top-level directory and locate uv recursively.
+        if (run_process({"tar", "-xf", archive.string(), "-C", paths.uv_dir.string()}) != 0) continue;
         for (const auto& item : fs::recursive_directory_iterator(paths.uv_dir)) {
             if (item.path().filename() != environment.executable.filename()) continue;
             fs::copy_file(item.path(), environment.executable, fs::copy_options::overwrite_existing, ignored);
