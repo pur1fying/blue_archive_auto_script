@@ -93,7 +93,6 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
             fs::permissions(target, fs::perms::owner_write, fs::perm_options::add, error);
             if (error) throw std::runtime_error("could not make a live file writable: " + error.message());
         }
-        journal("copy-index=" + std::to_string(changes_.size()));
         fs::copy_file(entry.path(), target, fs::copy_options::overwrite_existing, error);
         if (error) throw std::runtime_error("could not deploy staged file '" + display_path(target) + "': " + error.message());
         changes_.push_back({target, backup, exists});
