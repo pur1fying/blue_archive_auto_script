@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(baas-installer-core STATIC
     src/paths.cpp
     src/config.cpp
+    src/sources.cpp
 )
 target_include_directories(baas-installer-core PUBLIC include)
 
@@ -24,4 +25,8 @@ if(BUILD_TESTING)
     add_executable(baas-installer-test-config tests/test_config.cpp)
     target_link_libraries(baas-installer-test-config PRIVATE baas-installer-core)
     add_test(NAME config COMMAND baas-installer-test-config)
+
+    add_executable(baas-installer-test-sources tests/test_sources.cpp)
+    target_link_libraries(baas-installer-test-sources PRIVATE baas-installer-core)
+    add_test(NAME sources COMMAND baas-installer-test-sources)
 endif()

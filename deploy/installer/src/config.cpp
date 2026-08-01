@@ -33,10 +33,7 @@ bool is_managed_table(const std::string& table) {
 }
 
 void set_value(InstallerConfig& config, const std::string& table, const std::string& key, const std::string& value) {
-    const bool legacy = table == "General";
-    const auto assign = [legacy](std::string& target, const std::string& source) {
-        if (!legacy || target.empty()) target = unquote(source);
-    };
+    const auto assign = [](std::string& target, const std::string& source) { target = unquote(source); };
     if ((table == "general" || table == "General") && key == "mirrorc_cdk") assign(config.mirrorc_cdk, value);
     if ((table == "general" && key == "current_baas_sha") || (table == "General" && key == "current_BAAS_version")) assign(config.main_sha, value);
     if ((table == "general" && key == "current_baas_cpp_sha") || (table == "General" && key == "current_BAAS_Cpp_version")) assign(config.ocr_sha, value);
@@ -57,17 +54,25 @@ bool InstallerConfig::uses_portable_runtime() const {
 InstallerConfig parse_config(const std::string& content) {
     InstallerConfig config;
     config.source_toml = content;
-    std::istringstream input(content);
-    std::string line, table;
-    while (std::getline(input, line)) {
-        const auto stripped = trim(line);
-        if (stripped.size() > 2 && stripped.front() == '[' && stripped.back() == ']') {
-            table = stripped.substr(1, stripped.size() - 2);
-            continue;
+    // Legacy data is read first irrespective of its textual position.  The new
+    // lower-case schema is authoritative when both representations are present.
+    const auto read_tables = [&](bool legacy_only) {
+        std::istringstream input(content);
+        std::string line, table;
+        while (std::getline(input, line)) {
+            const auto stripped = trim(line);
+            if (stripped.size() > 2 && stripped.front() == '[' && stripped.back() == ']') {
+                table = stripped.substr(1, stripped.size() - 2);
+                continue;
+            }
+            const bool legacy = table == "General";
+            if (legacy != legacy_only) continue;
+            const auto equal = stripped.find('=');
+            if (equal != std::string::npos) set_value(config, table, trim(stripped.substr(0, equal)), stripped.substr(equal + 1));
         }
-        const auto equal = stripped.find('=');
-        if (equal != std::string::npos) set_value(config, table, trim(stripped.substr(0, equal)), stripped.substr(equal + 1));
-    }
+    };
+    read_tables(true);
+    read_tables(false);
     return config;
 }
 
