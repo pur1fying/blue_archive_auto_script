@@ -22,7 +22,7 @@ int main() {
     config.runtime_path = "default";
     const auto commands = baas_installer::managed_uv_commands(environment, config, paths.root / "requirements.txt");
     if (commands.size() != 4 || commands[1].arguments[1] != "--relocatable" ||
-        commands[3].arguments[1] != "--link-mode" || commands[3].arguments[2] != "copy") {
+        commands[3].arguments[2] != "--link-mode" || commands[3].arguments[3] != "copy") {
         std::cerr << "relocatable uv commands missing\n"; return 1;
     }
     return 0;
