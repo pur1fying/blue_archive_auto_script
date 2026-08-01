@@ -32,7 +32,7 @@ std::string read_text(const std::filesystem::path& path) {
 }
 
 int main(int argc, char* argv[]) {
-    const auto executable = argc > 0 ? std::filesystem::absolute(std::filesystem::path(argv[0])) : std::filesystem::path{};
+    const auto executable = baas_installer::current_executable_path();
     const auto paths = baas_installer::InstallPaths::from_executable(executable);
     if (argc > 1 && std::string(argv[1]) == "--help") {
         std::cout << "BAAS portable installer\n\nOptions:\n  --help       show this help\n  --print-root print the executable-relative install root\n";

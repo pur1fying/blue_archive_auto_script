@@ -17,4 +17,6 @@ struct InstallPaths {
     static InstallPaths from_executable(const std::filesystem::path& executable);
 };
 
+std::filesystem::path current_executable_path();
+
 }  // namespace baas_installer
