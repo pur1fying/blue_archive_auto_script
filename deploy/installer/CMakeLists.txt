@@ -12,8 +12,16 @@ add_library(baas-installer-core STATIC
     src/sources.cpp
     src/git.cpp
     src/transaction.cpp
+    src/uv_environment.cpp
+    src/mirrorchyan.cpp
 )
 target_include_directories(baas-installer-core PUBLIC include)
+
+find_package(CURL QUIET)
+if(TARGET CURL::libcurl)
+    target_link_libraries(baas-installer-core PRIVATE CURL::libcurl)
+    target_compile_definitions(baas-installer-core PRIVATE BAAS_INSTALLER_HAS_CURL=1)
+endif()
 
 find_package(libgit2 CONFIG QUIET)
 if(TARGET libgit2::libgit2)
@@ -45,4 +53,12 @@ if(BUILD_TESTING)
     add_executable(baas-installer-test-transaction tests/test_transaction.cpp)
     target_link_libraries(baas-installer-test-transaction PRIVATE baas-installer-core)
     add_test(NAME transaction COMMAND baas-installer-test-transaction)
+
+    add_executable(baas-installer-test-uv tests/test_uv_environment.cpp)
+    target_link_libraries(baas-installer-test-uv PRIVATE baas-installer-core)
+    add_test(NAME uv COMMAND baas-installer-test-uv)
+
+    add_executable(baas-installer-test-mirrorchyan tests/test_mirrorchyan.cpp)
+    target_link_libraries(baas-installer-test-mirrorchyan PRIVATE baas-installer-core)
+    add_test(NAME mirrorchyan COMMAND baas-installer-test-mirrorchyan)
 endif()
