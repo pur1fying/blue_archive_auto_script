@@ -70,9 +70,9 @@ std::vector<UvCommand> managed_uv_commands(
     const auto compiled = requirements.parent_path() / ".baas-installer-requirements.txt";
     return {
         {{"python", "install", config.python_version}},
-        {{"venv", "--python", config.python_version, environment.venv_dir.generic_string()}},
+        {{"venv", "--relocatable", "--python", config.python_version, environment.venv_dir.generic_string()}},
         {{"pip", "compile", requirements.generic_string(), "--output-file", compiled.generic_string()}},
-        {{"pip", "sync", compiled.generic_string()}},
+        {{"pip", "sync", "--link-mode", "copy", compiled.generic_string()}},
     };
 }
 
