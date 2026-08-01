@@ -73,11 +73,24 @@ int main(int argc, char* argv[]) {
             }
             const auto archive = transaction.staging_root() / "main-mirror-package.zip";
             if (!baas_installer::download_mirror_package(release, archive, error)) return false;
-            std::error_code ignored; std::filesystem::create_directories(transaction.main_staging_path());
-            if (baas_installer::run_process({"tar", "-xf", archive.string(), "-C", transaction.main_staging_path().string(), "--strip-components=1"}) != 0) {
+            const auto unpacked = transaction.staging_root() / "mirror-unpacked";
+            std::error_code ignored;
+            std::filesystem::create_directories(unpacked);
+            if (baas_installer::run_process({"tar", "-xf", archive.string(), "-C", unpacked.string()}) != 0) {
                 error = "MirrorChyan package extraction failed";
                 return false;
             }
+            std::filesystem::path package_root;
+            for (const auto& entry : std::filesystem::recursive_directory_iterator(unpacked, ignored)) {
+                if (ignored) break;
+                if (entry.is_regular_file() && entry.path().filename() == "main.py") {
+                    package_root = entry.path().parent_path();
+                    break;
+                }
+            }
+            if (package_root.empty()) { error = "MirrorChyan package did not contain main.py"; return false; }
+            std::filesystem::rename(package_root, transaction.main_staging_path(), ignored);
+            if (ignored) { error = "could not stage extracted MirrorChyan package"; return false; }
             prepared_main_sha = release.version;
             return true;
         }
