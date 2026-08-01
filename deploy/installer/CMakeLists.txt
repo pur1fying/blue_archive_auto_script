@@ -10,8 +10,16 @@ add_library(baas-installer-core STATIC
     src/paths.cpp
     src/config.cpp
     src/sources.cpp
+    src/git.cpp
+    src/transaction.cpp
 )
 target_include_directories(baas-installer-core PUBLIC include)
+
+find_package(libgit2 CONFIG QUIET)
+if(TARGET libgit2::libgit2)
+    target_link_libraries(baas-installer-core PRIVATE libgit2::libgit2)
+    target_compile_definitions(baas-installer-core PRIVATE BAAS_INSTALLER_HAS_LIBGIT2=1)
+endif()
 
 add_executable(BlueArchiveAutoScript src/main.cpp)
 target_link_libraries(BlueArchiveAutoScript PRIVATE baas-installer-core)
@@ -29,4 +37,12 @@ if(BUILD_TESTING)
     add_executable(baas-installer-test-sources tests/test_sources.cpp)
     target_link_libraries(baas-installer-test-sources PRIVATE baas-installer-core)
     add_test(NAME sources COMMAND baas-installer-test-sources)
+
+    add_executable(baas-installer-test-git tests/test_git.cpp)
+    target_link_libraries(baas-installer-test-git PRIVATE baas-installer-core)
+    add_test(NAME git COMMAND baas-installer-test-git)
+
+    add_executable(baas-installer-test-transaction tests/test_transaction.cpp)
+    target_link_libraries(baas-installer-test-transaction PRIVATE baas-installer-core)
+    add_test(NAME transaction COMMAND baas-installer-test-transaction)
 endif()
