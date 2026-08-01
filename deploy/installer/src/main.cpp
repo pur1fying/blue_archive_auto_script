@@ -29,6 +29,13 @@ std::string read_text(const std::filesystem::path& path) {
     std::ifstream input(path, std::ios::binary);
     return {std::istreambuf_iterator<char>(input), {}};
 }
+
+void append_log(const std::filesystem::path& path, const std::string& message) {
+    std::error_code ignored;
+    std::filesystem::create_directories(path.parent_path(), ignored);
+    std::ofstream output(path, std::ios::app);
+    output << message << '\n';
+}
 }
 
 int main(int argc, char* argv[]) {
@@ -41,6 +48,8 @@ int main(int argc, char* argv[]) {
     if (argc > 1 && std::string(argv[1]) == "--print-root") { std::cout << paths.root.string() << '\n'; return 0; }
     const bool first_start = !std::filesystem::exists(paths.setup_toml);
     auto config = baas_installer::load_config(paths);
+    const auto log_path = paths.logs_dir / "installer.log";
+    append_log(log_path, "installer started");
     baas_installer::print_tui_banner();
     baas_installer::print_progress("root", "ready", paths.root.string());
     if (first_start) {
@@ -55,8 +64,9 @@ int main(int argc, char* argv[]) {
     baas_installer::WorkflowServices services;
     std::string prepared_main_sha;
     std::string prepared_ocr_sha;
-    services.progress = [](const std::string& task, const std::string& detail) {
+    services.progress = [&](const std::string& task, const std::string& detail) {
         baas_installer::print_progress(task, "working", detail);
+        append_log(log_path, "[" + task + "] " + detail);
     };
     services.prepare_main = [&](baas_installer::InstallTransaction& transaction, std::string& error) {
         if (!config.mirrorc_cdk.empty()) {
@@ -123,8 +133,10 @@ int main(int argc, char* argv[]) {
     const auto result = baas_installer::install_or_update(config, paths, services);
     if (!result.success) {
         baas_installer::print_progress("installer", "failed", result.error);
+        append_log(log_path, "installer failed: " + result.error);
         return 1;
     }
     baas_installer::print_progress("installer", "complete", "BAAS is ready to launch");
+    append_log(log_path, "installer completed");
     return 0;
 }
