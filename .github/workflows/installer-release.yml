@@ -1,0 +1,85 @@
+name: Build BAAS installer
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/installer/**'
+      - '.github/workflows/installer-release.yml'
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish/update a GitHub Release using this ref
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.asset }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            asset: BAAS-Installer-windows-x64.exe
+          - os: ubuntu-22.04
+            asset: BAAS-Installer-linux-x64
+          - os: macos-13
+            asset: BAAS-Installer-macos-x64
+          - os: macos-14
+            asset: BAAS-Installer-macos-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: 'deploy/installer/vcpkg.json'
+      - name: Configure
+        run: >-
+          cmake -S deploy/installer -B build/installer -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+      - name: Build and test
+        run: |
+          cmake --build build/installer --config Release
+          ctest --test-dir build/installer --output-on-failure
+      - name: Normalize release asset name
+        shell: pwsh
+        run: |
+          $candidate = if ('${{ runner.os }}' -eq 'Windows') { 'build/installer/Release/BlueArchiveAutoScript.exe' } else { 'build/installer/BlueArchiveAutoScript' }
+          if (!(Test-Path $candidate)) { $candidate = if ('${{ runner.os }}' -eq 'Windows') { 'build/installer/BlueArchiveAutoScript.exe' } else { 'build/installer/BlueArchiveAutoScript' } }
+          if (!(Test-Path $candidate)) { throw "Installer executable was not produced: $candidate" }
+          Copy-Item $candidate '${{ matrix.asset }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish_release)
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Generate checksums
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem release-assets -File | Sort-Object Name
+          if ($files.Count -ne 4) { throw "Expected four installer assets, got $($files.Count)" }
+          $files | ForEach-Object { "$( (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() )  $($_.Name)" } | Set-Content release-assets/SHA256SUMS
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: release-assets/*

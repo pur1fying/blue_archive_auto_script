@@ -13,6 +13,7 @@ if sys.stdin is None:
 
 import shutil
 import os
+import json
 from core.exception import OcrInternalError
 from dulwich import porcelain
 from dulwich.repo import Repo
@@ -44,7 +45,21 @@ if arch not in branch:
 branch = branch[arch]
 
 
+def should_skip_installer_managed_update():
+    """Only the C++ installer's explicit, valid handoff marker disables I/O."""
+    marker_path = os.path.join(SERVER_BIN_DIR, '.baas-installer-managed.json')
+    try:
+        with open(marker_path, encoding='utf-8') as marker_file:
+            marker = json.load(marker_file)
+        return marker.get('schema_version') == 1 and marker.get('managed_by') == 'baas-installer'
+    except (OSError, ValueError, AttributeError):
+        return False
+
+
 def check_git(logger):
+    if should_skip_installer_managed_update():
+        logger.info("OCR server was verified by the BAAS installer; skipping legacy network update.")
+        return
     if not os.path.exists(SERVER_BIN_DIR + '/.git'):
         clone_repo(logger)
     else:

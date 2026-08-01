@@ -14,6 +14,8 @@ add_library(baas-installer-core STATIC
     src/transaction.cpp
     src/uv_environment.cpp
     src/mirrorchyan.cpp
+    src/workflow.cpp
+    src/tui.cpp
 )
 target_include_directories(baas-installer-core PUBLIC include)
 
@@ -61,4 +63,12 @@ if(BUILD_TESTING)
     add_executable(baas-installer-test-mirrorchyan tests/test_mirrorchyan.cpp)
     target_link_libraries(baas-installer-test-mirrorchyan PRIVATE baas-installer-core)
     add_test(NAME mirrorchyan COMMAND baas-installer-test-mirrorchyan)
+
+    add_executable(baas-installer-test-workflow tests/test_workflow.cpp)
+    target_link_libraries(baas-installer-test-workflow PRIVATE baas-installer-core)
+    add_test(NAME workflow COMMAND baas-installer-test-workflow)
+
+    add_executable(baas-installer-test-tui tests/test_tui.cpp)
+    target_link_libraries(baas-installer-test-tui PRIVATE baas-installer-core)
+    add_test(NAME tui COMMAND baas-installer-test-tui)
 endif()

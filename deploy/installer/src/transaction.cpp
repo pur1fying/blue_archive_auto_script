@@ -66,6 +66,19 @@ void InstallTransaction::deploy_ocr() {
     deploy_tree(ocr_staging_path(), paths_.root / "core" / "ocr" / "baas_ocr_client" / "bin", false);
 }
 
+void InstallTransaction::write_ocr_managed_marker() {
+    const auto target = paths_.root / "core" / "ocr" / "baas_ocr_client" / "bin" / ".baas-installer-managed.json";
+    const bool exists = fs::exists(target);
+    const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
+    fs::create_directories(target.parent_path());
+    if (exists) fs::copy_file(target, backup, fs::copy_options::overwrite_existing);
+    std::ofstream output(target, std::ios::trunc);
+    output << "{\"schema_version\":1,\"managed_by\":\"baas-installer\"}\n";
+    output.close();
+    changes_.push_back({target, backup, exists});
+    journal("ocr-marker");
+}
+
 void InstallTransaction::commit() {
     journal("committed");
     settled_ = true;

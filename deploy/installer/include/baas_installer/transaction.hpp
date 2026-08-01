@@ -19,6 +19,7 @@ public:
     // Call only after both parallel download tasks are completely verified.
     void deploy_main();
     void deploy_ocr();
+    void write_ocr_managed_marker();
     void commit();
     void rollback() noexcept;
 
