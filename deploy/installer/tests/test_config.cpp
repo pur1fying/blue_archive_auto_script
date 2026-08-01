@@ -35,6 +35,9 @@ keep_me = "yes"
     if (!require(rendered.find("legacy_extension = \"retain\"") != std::string::npos, "unknown managed-table field")) return 1;
     if (!require(rendered.find("package_manager = \"uv\"") != std::string::npos, "uv manager")) return 1;
 
+    const auto schema_once = baas_installer::render_config(baas_installer::parse_config("schema_version = 0\n[General]\nruntime_path = \"default\"\n"));
+    if (!require(schema_once.find("schema_version = 0") == std::string::npos, "old schema version removed")) return 1;
+
     const auto mixed = baas_installer::parse_config(R"(
 [general]
 current_baas_sha = "current-main"

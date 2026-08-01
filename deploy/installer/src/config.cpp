@@ -112,6 +112,10 @@ std::string render_config(const InstallerConfig& config) {
             table = stripped.substr(1, stripped.size() - 2);
             keep = !is_managed_table(table);
         }
+        // schema_version is regenerated below.  Keeping an older root-level
+        // value would create an ambiguous TOML document after migration.
+        const auto equal = stripped.find('=');
+        if (table.empty() && equal != std::string::npos && trim(stripped.substr(0, equal)) == "schema_version") continue;
         if (keep) output << line << '\n';
     }
     output << "schema_version = 1\n\n[general]\n"
