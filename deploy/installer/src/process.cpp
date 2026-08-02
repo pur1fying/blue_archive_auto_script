@@ -141,11 +141,25 @@ ProcessResult run_process(const ProcessSpec& spec) {
     startup.hStdError = write_pipe;
     startup.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
     PROCESS_INFORMATION process{};
+    HANDLE job = CreateJobObjectW(nullptr, nullptr);
+    if (job) {
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION limits{};
+        limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        if (!SetInformationJobObject(job, JobObjectExtendedLimitInformation, &limits, sizeof(limits))) {
+            CloseHandle(job);
+            job = nullptr;
+        }
+    }
     const BOOL started = CreateProcessW(nullptr, mutable_command.data(), nullptr, nullptr, TRUE,
-        CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT, environment.data(),
+        CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED, environment.data(),
         working_directory.empty() ? nullptr : working_directory.c_str(), &startup, &process);
     CloseHandle(write_pipe);
-    if (!started) { CloseHandle(read_pipe); return result; }
+    if (!started) { if (job) CloseHandle(job); CloseHandle(read_pipe); return result; }
+    if (job && !AssignProcessToJobObject(job, process.hProcess)) {
+        CloseHandle(job);
+        job = nullptr;
+    }
+    ResumeThread(process.hThread);
     std::thread reader([&] {
         char buffer[4096];
         DWORD read = 0;
@@ -158,12 +172,14 @@ ProcessResult run_process(const ProcessSpec& spec) {
         : static_cast<DWORD>(std::min<std::int64_t>(spec.timeout.count(), MAXDWORD - 1));
     const bool timed_out = WaitForSingleObject(process.hProcess, timeout) == WAIT_TIMEOUT;
     if (timed_out) {
-        TerminateProcess(process.hProcess, 124);
+        if (job) TerminateJobObject(job, 124);
+        else TerminateProcess(process.hProcess, 124);
         WaitForSingleObject(process.hProcess, INFINITE);
     }
     DWORD exit_code = 1;
     GetExitCodeProcess(process.hProcess, &exit_code);
     result.exit_code = timed_out ? 124 : static_cast<int>(exit_code);
+    if (job) CloseHandle(job);
     if (reader.joinable()) reader.join();
     CloseHandle(read_pipe);
     CloseHandle(process.hThread);
@@ -174,6 +190,7 @@ ProcessResult run_process(const ProcessSpec& spec) {
     const pid_t child = fork();
     if (child < 0) { close(output_pipe[0]); close(output_pipe[1]); return result; }
     if (child == 0) {
+        setpgid(0, 0);
         close(output_pipe[0]);
         dup2(output_pipe[1], STDOUT_FILENO);
         dup2(output_pipe[1], STDERR_FILENO);
@@ -187,6 +204,7 @@ ProcessResult run_process(const ProcessSpec& spec) {
         execvp(argv.front(), argv.data());
         _exit(127);
     }
+    setpgid(child, child);
     close(output_pipe[1]);
     const int flags = fcntl(output_pipe[0], F_GETFL, 0);
     fcntl(output_pipe[0], F_SETFL, flags | O_NONBLOCK);
@@ -209,7 +227,7 @@ ProcessResult run_process(const ProcessSpec& spec) {
         if (spec.timeout > std::chrono::milliseconds::zero() &&
             std::chrono::steady_clock::now() - started_at >= spec.timeout) {
             timed_out = true;
-            kill(child, SIGKILL);
+            kill(-child, SIGKILL);
             waitpid(child, &status, 0);
             exited = true;
             continue;

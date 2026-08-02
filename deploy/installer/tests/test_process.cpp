@@ -1,6 +1,7 @@
 #include "baas_installer/process.hpp"
 
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -10,6 +11,7 @@
 #define NOMINMAX
 #include <windows.h>
 #include <io.h>
+#include <process.h>
 #else
 #include <unistd.h>
 #endif
@@ -29,6 +31,21 @@ int main(int argc, char* argv[]) {
         std::this_thread::sleep_for(std::chrono::milliseconds(700));
         std::ofstream(argv[2], std::ios::binary) << "too-late";
         return 0;
+    }
+    if (argc == 3 && std::string(argv[1]) == "--late-marker") {
+        std::this_thread::sleep_for(std::chrono::milliseconds(700));
+        std::ofstream(argv[2], std::ios::binary) << "descendant-survived";
+        return 0;
+    }
+    if (argc == 3 && std::string(argv[1]) == "--hidden-timeout-tree") {
+#ifdef _WIN32
+        const auto executable = std::filesystem::absolute(argv[0]).string();
+        return static_cast<int>(_spawnl(_P_WAIT, executable.c_str(), executable.c_str(), "--late-marker", argv[2], nullptr));
+#else
+        const auto command = "\"" + std::filesystem::absolute(argv[0]).string() + "\" --late-marker \"" +
+                             std::string(argv[2]) + "\"";
+        return std::system(command.c_str());
+#endif
     }
     if (argc == 3 && std::string(argv[1]) == "--emit-pty") {
 #ifdef _WIN32
@@ -84,6 +101,20 @@ int main(int argc, char* argv[]) {
         timeout_result.output.find("started") == std::string::npos || std::filesystem::exists(timeout_marker)) {
         std::cerr << "hidden process timeout was not enforced; exit=" << timeout_result.exit_code
                   << " elapsed=" << timeout_elapsed.count() << "ms\n";
+        return 1;
+    }
+    const auto tree_marker = std::filesystem::temp_directory_path() / "baas-installer-hidden-tree-timeout.marker";
+    std::filesystem::remove(tree_marker, ignored);
+    timeout_spec.arguments = {std::filesystem::absolute(argv[0]).string(), "--hidden-timeout-tree", tree_marker.string()};
+    const auto tree_started = std::chrono::steady_clock::now();
+    const auto tree_result = baas_installer::run_process(timeout_spec);
+    const auto tree_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - tree_started);
+    std::this_thread::sleep_for(std::chrono::milliseconds(750));
+    if (tree_result.exit_code != 124 || tree_elapsed >= std::chrono::milliseconds(400) ||
+        std::filesystem::exists(tree_marker)) {
+        std::cerr << "hidden timeout did not terminate the complete process tree; exit=" << tree_result.exit_code
+                  << " elapsed=" << tree_elapsed.count() << "ms\n";
         return 1;
     }
 
