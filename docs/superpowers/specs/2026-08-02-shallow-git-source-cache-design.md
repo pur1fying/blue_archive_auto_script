@@ -12,6 +12,14 @@ An existing Git installation will query the selected source with `ls-remote`. If
 
 Rollback safety temporarily requires the previous commit to remain reachable until every deployment, verification, UV, Python, and dependency step succeeds. Final Git cleanup therefore runs only after the installation transaction can no longer fail: remove installer-created temporary refs, expire reflogs, and prune unreachable objects. A failed transaction resets to the previous commit instead and does not prune rollback data prematurely.
 
+## MirrorChyan isolation
+
+MirrorChyan remains a separate repository backend and keeps its existing version query, incremental-release wait, package download, extraction, inspection, and transactional apply flow. None of the Git source selection or repository maintenance behavior is placed before or inside that flow.
+
+Git probing, Git ranking state, shallow fetch, checkout, and post-success object pruning run only after MirrorChyan is unavailable, rejected, or not configured and the repository preparation explicitly enters its Git fallback branch. When MirrorChyan reports up to date or successfully prepares a package, the installer performs no Git probe, does not read or write that repository's Git ranking entry, and does not run Git finalization. Main and OCR decide their backend independently, so one may use MirrorChyan while the other uses Git without sharing backend-specific state.
+
+Transaction staging cleanup is backend-neutral because the transaction owns both Git and MirrorChyan staging paths. It may remove only the transaction's verified installer-owned directory and must not change MirrorChyan package semantics or source selection.
+
 ## Persistent source ranking
 
 Source state is stored under the protected, installation-relative directory `.baas-installer` in `source-ranking-v1.json`. It never uses a machine-global cache. Separate entries are maintained for main Git, OCR Git, UV, CPython, and PyPI. Each entry records the candidate URL, last measured latency, consecutive failure count, latest observed remote commit when applicable, and whether it was the most recent successful source.
@@ -46,6 +54,8 @@ Automated tests must demonstrate these failures before production changes are ma
 - a fresh Git preparation has one fetch operation, uses `--depth=1` and `--no-tags`, and does not use `--filter=blob:none`;
 - an unchanged repository performs `ls-remote` but no fetch;
 - an updated repository remains shallow with one reachable commit after successful finalization;
+- a successful or up-to-date MirrorChyan preparation performs no Git probe, ranking mutation, fetch, or finalization;
+- mixed backends keep Git state and MirrorChyan state isolated between main and OCR;
 - cached ranking is reused without probing every source;
 - a changed candidate set or failed cached source triggers a refreshed ranking;
 - source state is written atomically below `.baas-installer` and survives moving the whole installation directory;
