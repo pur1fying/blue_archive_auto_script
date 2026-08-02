@@ -2,16 +2,29 @@
 #include "baas_installer/process.hpp"
 
 #include <chrono>
+#include <atomic>
+#include <cctype>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <thread>
 
 namespace {
 namespace fs = std::filesystem;
 
 bool command(std::initializer_list<std::string> arguments) {
     return baas_installer::run_process(std::vector<std::string>(arguments)) == 0;
+}
+
+std::string output(std::initializer_list<std::string> arguments) {
+    baas_installer::ProcessSpec spec;
+    spec.arguments.assign(arguments);
+    auto result = baas_installer::run_process(spec);
+    while (!result.output.empty() && std::isspace(static_cast<unsigned char>(result.output.back()))) {
+        result.output.pop_back();
+    }
+    return result.exit_code == 0 ? result.output : std::string{};
 }
 
 bool write_commit(const fs::path& repository, const std::string& value, const std::string& message) {
@@ -63,9 +76,44 @@ int main() {
     }
 
     const auto first_head = baas_installer::repository_head(live);
+    const auto ranking_cache = root / ".baas-installer" / "source-ranking-v1.json";
+    std::atomic<int> active_probes{0};
+    std::atomic<int> maximum_probes{0};
+    std::atomic<int> probe_calls{0};
+    const auto parallel_probe = [&](const std::string& source, const std::string&,
+                                    const std::chrono::milliseconds timeout) {
+        ++probe_calls;
+        const int current = ++active_probes;
+        auto maximum = maximum_probes.load();
+        while (current > maximum && !maximum_probes.compare_exchange_weak(maximum, current)) {}
+        std::this_thread::sleep_for(std::chrono::milliseconds(source == "fast" ? 10 : 30));
+        --active_probes;
+        return baas_installer::GitRemoteHead{source, first_head, source == "fast" ? 10LL : 30LL,
+                                             timeout == std::chrono::seconds(10)};
+    };
+    auto measured = baas_installer::prepare_git_repository(
+        {"slow-a", "fast", "slow-b"}, live, staging, "refs/heads/master", {}, ranking_cache,
+        baas_installer::SourceKind::MainGit, parallel_probe);
+    if (!measured.success || measured.mode != baas_installer::RepositoryMode::Unchanged ||
+        measured.source != "fast" || probe_calls != 3 || maximum_probes <= 1) {
+        std::cerr << "uncached Git SHA probes must run concurrently and select the fastest valid response\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+    probe_calls = 0;
+    maximum_probes = 0;
+    measured = baas_installer::prepare_git_repository(
+        {"slow-a", "fast", "slow-b"}, live, staging, "refs/heads/master", {}, ranking_cache,
+        baas_installer::SourceKind::MainGit, parallel_probe);
+    if (!measured.success || measured.source != "fast" || probe_calls != 1) {
+        std::cerr << "cached Git SHA check must query only the preferred source\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
     fs::remove(live / ".git" / "FETCH_HEAD", ignored);
     auto unchanged = baas_installer::prepare_git_repository(
-        {remote.string()}, live, staging, "refs/heads/master", {});
+        {remote.string()}, live, staging, "refs/heads/master", {}, ranking_cache,
+        baas_installer::SourceKind::MainGit);
     if (!unchanged.success || unchanged.mode != baas_installer::RepositoryMode::Unchanged ||
         unchanged.commit != first_head || fs::exists(live / ".git" / "FETCH_HEAD")) {
         std::cerr << "matching remote head must skip fetch and clone\n";
@@ -82,7 +130,8 @@ int main() {
     std::string visible_chunks;
     auto incremental = baas_installer::prepare_git_repository(
         {remote.string()}, live, staging, "refs/heads/master",
-        [&](std::string_view, std::string_view, std::string_view chunk) { visible_chunks.append(chunk); });
+        [&](std::string_view, std::string_view, std::string_view chunk) { visible_chunks.append(chunk); },
+        ranking_cache, baas_installer::SourceKind::MainGit);
     if (!incremental.success || incremental.mode != baas_installer::RepositoryMode::Incremental ||
         incremental.commit == first_head || baas_installer::repository_head(live) != first_head ||
         !fs::exists(live / ".git" / "FETCH_HEAD") || visible_chunks.empty()) {
@@ -97,15 +146,26 @@ int main() {
         fs::remove_all(root, ignored);
         return 1;
     }
+    if (!baas_installer::finalize_git_repository(live, incremental.backend, apply_error) ||
+        output({"git", "-C", live.string(), "rev-parse", "--is-shallow-repository"}) != "true" ||
+        output({"git", "-C", live.string(), "rev-list", "--count", "HEAD"}) != "1" ||
+        output({"git", "-C", live.string(), "fsck", "--unreachable"}).find(first_head) != std::string::npos) {
+        std::cerr << "successful Git finalization did not retain exactly one shallow commit\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
 
     const auto corrupt = root / "corrupt";
     fs::create_directories(corrupt / ".git" / "objects");
     const auto full_staging = root / "full-staging";
     auto full = baas_installer::prepare_git_repository(
-        {remote.string()}, corrupt, full_staging, "refs/heads/master", {});
+        {remote.string()}, corrupt, full_staging, "refs/heads/master", {}, ranking_cache,
+        baas_installer::SourceKind::MainGit);
     if (!full.success || full.mode != baas_installer::RepositoryMode::Full ||
-        baas_installer::repository_head(full_staging) != incremental.commit) {
-        std::cerr << "corrupt repository must prepare a full staged clone\n";
+        baas_installer::repository_head(full_staging) != incremental.commit ||
+        output({"git", "-C", full_staging.string(), "rev-parse", "--is-shallow-repository"}) != "true" ||
+        output({"git", "-C", full_staging.string(), "rev-list", "--count", "HEAD"}) != "1") {
+        std::cerr << "corrupt repository must prepare a full shallow staged repository\n";
         fs::remove_all(root, ignored);
         return 1;
     }

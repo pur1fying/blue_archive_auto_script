@@ -1,7 +1,11 @@
 #include "baas_installer/git.hpp"
 #include "baas_installer/process.hpp"
 
+#include <algorithm>
+#include <chrono>
+#include <cctype>
 #include <filesystem>
+#include <future>
 #include <sstream>
 
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
@@ -17,10 +21,12 @@ std::map<std::string, std::string> git_environment() {
     return {{"GIT_TERMINAL_PROMPT", "0"}, {"GCM_INTERACTIVE", "Never"}, {"GIT_ASKPASS", ""}, {"SSH_ASKPASS", ""}};
 }
 
-ProcessResult hidden_git(std::vector<std::string> arguments) {
+ProcessResult hidden_git(std::vector<std::string> arguments,
+                         const std::chrono::milliseconds timeout = std::chrono::milliseconds::zero()) {
     ProcessSpec spec;
     spec.arguments = std::move(arguments);
     spec.environment = git_environment();
+    spec.timeout = timeout;
     return run_process(spec);
 }
 
@@ -41,10 +47,95 @@ std::string first_token(const std::string& output) {
     return token;
 }
 
-std::string remote_head_cli(const std::string& source, const std::string& revision) {
+bool valid_commit(const std::string& value) {
+    return value.size() == 40 && std::all_of(value.begin(), value.end(), [](const unsigned char character) {
+        return std::isxdigit(character) != 0;
+    });
+}
+
+GitRemoteHead remote_head_cli(const std::string& source, const std::string& revision,
+                              const std::chrono::milliseconds timeout) {
     const auto wanted = revision.empty() ? "HEAD" : revision;
-    const auto result = hidden_git({"git", "ls-remote", source, wanted});
-    return result.exit_code == 0 ? first_token(result.output) : std::string{};
+    const auto started = std::chrono::steady_clock::now();
+    const auto result = hidden_git({"git", "ls-remote", source, wanted}, timeout);
+    const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - started).count();
+    const auto commit = result.exit_code == 0 ? first_token(result.output) : std::string{};
+    return {source, valid_commit(commit) ? commit : std::string{}, elapsed,
+            result.exit_code == 0 && valid_commit(commit)};
+}
+
+GitRemoteHead select_git_remote(const std::vector<std::string>& sources, const std::string& revision,
+                                const fs::path& ranking_cache, const SourceKind source_kind,
+                                GitRemoteProbe probe) {
+    if (!probe) probe = remote_head_cli;
+    constexpr auto timeout = std::chrono::seconds(10);
+    auto cached = ranking_cache.empty()
+        ? std::vector<RankedSource>{}
+        : load_source_ranking(ranking_cache, source_kind, sources);
+    if (!cached.empty()) {
+        const auto preferred = std::find_if(cached.begin(), cached.end(), [](const RankedSource& source) {
+            return source.preferred && source.available;
+        });
+        if (preferred != cached.end()) {
+            auto observation = probe(preferred->url, revision, timeout);
+            if (observation.available && valid_commit(observation.commit)) {
+                for (auto& source : cached) {
+                    source.preferred = source.url == observation.source;
+                    if (source.preferred) {
+                        source.latency_ms = observation.latency_ms;
+                        source.commit = observation.commit;
+                        source.failures = 0;
+                        source.available = true;
+                    }
+                }
+                save_source_ranking(ranking_cache, source_kind, cached);
+                return observation;
+            }
+            record_source_failure(cached, preferred->url);
+            preferred->available = false;
+        }
+    }
+
+    std::vector<std::future<GitRemoteHead>> pending;
+    std::vector<std::string> measured_sources;
+    for (const auto& source : sources) {
+        const auto failed_cached = std::find_if(cached.begin(), cached.end(), [&](const RankedSource& item) {
+            return item.url == source && !item.available && item.preferred;
+        });
+        if (failed_cached != cached.end()) continue;
+        measured_sources.push_back(source);
+        pending.push_back(std::async(std::launch::async, [probe, source, revision] {
+            return probe(source, revision, std::chrono::seconds(10));
+        }));
+    }
+    std::vector<RankedSource> ranking;
+    for (std::size_t index = 0; index < pending.size(); ++index) {
+        auto result = pending[index].get();
+        const bool available = result.available && valid_commit(result.commit) && result.latency_ms <= 10000;
+        ranking.push_back({measured_sources[index], available ? result.latency_ms : -1, 0,
+                           available ? result.commit : std::string{}, false, available});
+    }
+    for (const auto& source : sources) {
+        if (std::find(measured_sources.begin(), measured_sources.end(), source) == measured_sources.end()) {
+            const auto old = std::find_if(cached.begin(), cached.end(), [&](const RankedSource& item) {
+                return item.url == source;
+            });
+            ranking.push_back(old == cached.end() ? RankedSource{source, -1, 1, {}, false, false} : *old);
+        }
+    }
+    std::stable_sort(ranking.begin(), ranking.end(), [](const RankedSource& left, const RankedSource& right) {
+        if (left.available != right.available) return left.available;
+        return left.available && left.latency_ms < right.latency_ms;
+    });
+    const auto fastest = std::find_if(ranking.begin(), ranking.end(), [](const RankedSource& item) {
+        return item.available;
+    });
+    if (fastest != ranking.end()) fastest->preferred = true;
+    if (!ranking_cache.empty()) save_source_ranking(ranking_cache, source_kind, ranking);
+    return fastest == ranking.end()
+        ? GitRemoteHead{}
+        : GitRemoteHead{fastest->url, fastest->commit, fastest->latency_ms, true};
 }
 
 bool valid_cli_repository(const fs::path& repository) {
@@ -53,19 +144,21 @@ bool valid_cli_repository(const fs::path& repository) {
 }
 
 GitResult clone_with_cli(const std::string& source, const fs::path& destination, const std::string& revision,
+                         const std::string& commit,
                          const ProcessObserver& observer = {}) {
     std::error_code ignored;
     fs::remove_all(destination, ignored);
     fs::create_directories(destination.parent_path(), ignored);
-    if (visible_git({"git", "clone", "--filter=blob:none", "--no-checkout", source, destination.string()}, observer) != 0) {
-        return {false, GitBackend::GitCli, source, {}, "git clone failed"};
+    if (hidden_git({"git", "init", destination.string()}).exit_code != 0) {
+        return {false, GitBackend::GitCli, source, {}, "git init failed"};
     }
     const std::string wanted = revision.empty() ? "HEAD" : revision;
-    if (visible_git({"git", "-C", destination.string(), "checkout", "--force", wanted}, observer) != 0) {
+    if (visible_git({"git", "-C", destination.string(), "fetch", "--depth=1", "--no-tags", source, wanted}, observer) != 0 ||
+        hidden_git({"git", "-C", destination.string(), "checkout", "--detach", "--force", commit}).exit_code != 0) {
         fs::remove_all(destination, ignored);
-        return {false, GitBackend::GitCli, source, {}, "git checkout failed"};
+        return {false, GitBackend::GitCli, source, {}, "shallow git fetch or checkout failed"};
     }
-    return {true, GitBackend::GitCli, source, wanted, {}};
+    return {true, GitBackend::GitCli, source, commit, {}};
 }
 
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
@@ -118,6 +211,9 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
     Libgit2Progress progress{observer};
     options.fetch_opts.callbacks.transfer_progress = transfer_progress;
     options.fetch_opts.callbacks.payload = &progress;
+    // libgit2's local filesystem transport rejects shallow fetches. Production
+    // repository sources are HTTP(S), where depth-one is mandatory.
+    if (source.find("://") != std::string::npos) options.fetch_opts.depth = 1;
     options.checkout_opts.progress_cb = checkout_progress;
     options.checkout_opts.progress_payload = &progress;
     const auto wanted_branch = branch_name(revision);
@@ -288,7 +384,9 @@ GitResult clone_repository(const std::vector<std::string>& sources, const fs::pa
     const bool use_cli = git_cli_available();
     if (use_cli) {
         for (const auto& source : sources) {
-            last = clone_with_cli(source, destination, revision);
+            const auto remote = remote_head_cli(source, revision, std::chrono::seconds(10));
+            if (!remote.available) continue;
+            last = clone_with_cli(source, destination, revision, remote.commit);
             if (last.success) return last;
         }
     }
@@ -303,44 +401,44 @@ GitResult clone_repository(const std::vector<std::string>& sources, const fs::pa
 
 GitResult prepare_git_repository(const std::vector<std::string>& sources, const fs::path& live_repository,
                                  const fs::path& staging_directory, const std::string& revision,
-                                 const ProcessObserver& observer) {
+                                 const ProcessObserver& observer, const fs::path& ranking_cache,
+                                 const SourceKind source_kind, GitRemoteProbe remote_probe) {
     GitResult last{false, GitBackend::None, {}, {}, "no repository source succeeded"};
     const bool use_cli = git_cli_available();
     const auto local_head = repository_head(live_repository);
     const bool valid_live = !local_head.empty() && (!use_cli || valid_cli_repository(live_repository));
 
     if (use_cli) {
-        for (const auto& source : sources) {
-            const auto remote_head = remote_head_cli(source, revision);
-            if (remote_head.empty()) {
-                last = {false, GitBackend::GitCli, source, {}, "git ls-remote failed"};
-                continue;
-            }
-            if (valid_live && local_head == remote_head) {
-                GitResult result{true, GitBackend::GitCli, source, remote_head, {}};
+        const auto selected = select_git_remote(sources, revision, ranking_cache, source_kind, std::move(remote_probe));
+        if (selected.available) {
+            if (valid_live && local_head == selected.commit) {
+                GitResult result{true, GitBackend::GitCli, selected.source, selected.commit, {}};
                 result.mode = RepositoryMode::Unchanged;
                 result.previous_commit = local_head;
                 return result;
             }
             if (valid_live) {
-                if (visible_git({"git", "-C", live_repository.string(), "fetch", "--no-tags", "--depth", "1", source,
-                                 remote_head}, observer) == 0) {
-                    GitResult result{true, GitBackend::GitCli, source, remote_head, {}};
+                const auto wanted = revision.empty() ? "HEAD" : revision;
+                if (visible_git({"git", "-C", live_repository.string(), "fetch", "--depth=1", "--no-tags",
+                                 selected.source, wanted}, observer) == 0) {
+                    GitResult result{true, GitBackend::GitCli, selected.source, selected.commit, {}};
                     result.mode = RepositoryMode::Incremental;
                     result.previous_commit = local_head;
                     return result;
                 }
-                last = {false, GitBackend::GitCli, source, {}, "git fetch failed"};
-                continue;
+                last = {false, GitBackend::GitCli, selected.source, {}, "git fetch failed"};
+            } else {
+                auto result = clone_with_cli(selected.source, staging_directory, revision, selected.commit, observer);
+                if (result.success) {
+                    result.mode = RepositoryMode::Full;
+                    result.commit = repository_head(staging_directory);
+                    result.staging_path = staging_directory;
+                    return result;
+                }
+                last = result;
             }
-            auto result = clone_with_cli(source, staging_directory, remote_head, observer);
-            if (result.success) {
-                result.mode = RepositoryMode::Full;
-                result.commit = repository_head(staging_directory);
-                result.staging_path = staging_directory;
-                return result;
-            }
-            last = result;
+        } else {
+            last = {false, GitBackend::GitCli, {}, {}, "every Git source failed its remote SHA check"};
         }
     }
 
@@ -404,6 +502,32 @@ bool apply_git_update(const GitResult& prepared, const fs::path& live_repository
     error = "libgit2 is not available";
     return false;
 #endif
+}
+
+bool finalize_git_repository(const fs::path& repository, const GitBackend backend, std::string& error) {
+    error.clear();
+    if (backend != GitBackend::GitCli) {
+        // Without the CLI, updates deploy a fresh depth-one libgit2 staging
+        // repository, so there are no previous live objects to prune.
+        return true;
+    }
+    for (const auto& arguments : std::vector<std::vector<std::string>>{
+             {"git", "-C", repository.string(), "checkout", "--detach", "--force", "HEAD"},
+             {"git", "-C", repository.string(), "reflog", "expire", "--expire=now", "--all"},
+             {"git", "-C", repository.string(), "gc", "--prune=now"}}) {
+        if (hidden_git(arguments).exit_code != 0) {
+            error = "could not compact the shallow Git repository";
+            return false;
+        }
+    }
+    const auto shallow = hidden_git({"git", "-C", repository.string(), "rev-parse", "--is-shallow-repository"});
+    const auto count = hidden_git({"git", "-C", repository.string(), "rev-list", "--count", "HEAD"});
+    if (shallow.exit_code != 0 || first_token(shallow.output) != "true" ||
+        count.exit_code != 0 || first_token(count.output) != "1") {
+        error = "Git repository did not retain exactly one shallow commit";
+        return false;
+    }
+    return true;
 }
 
 }  // namespace baas_installer

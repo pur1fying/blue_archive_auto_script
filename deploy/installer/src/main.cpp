@@ -186,7 +186,10 @@ int main(int argc, char* argv[]) {
                 services.progress(task, "MirrorChyan failed; falling back to Git");
             }
 
-            const auto git = baas_installer::prepare_git_repository(sources, live, staging, revision, observer);
+            const auto git = baas_installer::prepare_git_repository(
+                sources, live, staging, revision, observer,
+                paths.state_dir / "source-ranking-v1.json",
+                main_repository ? baas_installer::SourceKind::MainGit : baas_installer::SourceKind::OcrGit);
             if (!git.success) return baas_installer::PreparedRepository{.success = false, .backend = "git",
                 .error = (main_repository ? "main repository: " : "OCR repository: ") + git.error};
             model.append_event({{}, task, "git", baas_installer::LogSeverity::Info,
@@ -198,10 +201,19 @@ int main(int argc, char* argv[]) {
                 .revision = short_revision(revision),
                 .apply = [git, live, main_repository, observer](baas_installer::InstallTransaction& current,
                                                                  std::string& error) {
+                    const auto finalize = [&] {
+                        current.add_commit_action([live, backend = git.backend] {
+                            std::string finalize_error;
+                            if (!baas_installer::finalize_git_repository(live, backend, finalize_error)) {
+                                throw std::runtime_error(finalize_error);
+                            }
+                        });
+                    };
                     if (git.mode == baas_installer::RepositoryMode::Full) {
                         current.remove_path(live / ".git");
                         if (main_repository) current.deploy_main();
                         else current.deploy_ocr();
+                        finalize();
                         return true;
                     }
                     if (git.mode == baas_installer::RepositoryMode::Incremental) {
@@ -211,7 +223,9 @@ int main(int argc, char* argv[]) {
                             std::string ignored;
                             (void)baas_installer::apply_git_update(restore, live, ignored);
                         });
-                        return baas_installer::apply_git_update(git, live, error, observer);
+                        if (!baas_installer::apply_git_update(git, live, error, observer)) return false;
+                        finalize();
+                        return true;
                     }
                     return true;
                 }};
