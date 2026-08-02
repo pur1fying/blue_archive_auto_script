@@ -45,13 +45,13 @@ jobs:
           vcpkgJsonGlob: 'deploy/installer/vcpkg.json'
       - name: Configure
         run: >-
-          cmake -S deploy/installer -B build/installer -G Ninja
+          cmake -S deploy/installer -B build/installer
           -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       - name: Build and test
         run: |
-          cmake --build build/installer --config Release
-          ctest --test-dir build/installer --output-on-failure
+          cmake --build build/installer --config Release --parallel 2
+          ctest --test-dir build/installer -C Release --output-on-failure
       - name: Normalize release asset name
         shell: pwsh
         run: |
