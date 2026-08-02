@@ -39,7 +39,7 @@ int main() {
     const auto test_environment = baas_installer::make_uv_environment(test_paths, config);
     std::filesystem::create_directories(test_environment.executable.parent_path());
     std::ofstream(test_environment.executable) << "fake";
-    std::ofstream(test_paths.root / "requirements.txt") << "example==1\n";
+    std::ofstream(baas_installer::dependency_requirements(test_paths)) << "example==1\n";
     std::vector<baas_installer::ProcessSpec> visible;
     int chunks = 0;
     const auto fake_terminal = [&](const baas_installer::ProcessSpec& spec) {
