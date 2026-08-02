@@ -7,6 +7,7 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/dom/node.hpp>
 #include <ftxui/screen/screen.hpp>
+#include <ftxui/screen/string.hpp>
 
 namespace {
 
@@ -35,8 +36,10 @@ double horizontal_center(const ftxui::Screen& screen, const std::string& needle)
         }
         const auto position = row.find(visible);
         if (position != std::string::npos) {
-            const auto canvas_column = position - first_visible;
-            return static_cast<double>(canvas_column) + static_cast<double>(needle.size()) / 2.0;
+            const auto canvas_column = ftxui::string_width(row.substr(0, position)) -
+                                       static_cast<int>(first_visible);
+            return static_cast<double>(canvas_column) +
+                   static_cast<double>(ftxui::string_width(needle)) / 2.0;
         }
     }
     return -1;
@@ -67,8 +70,13 @@ int main() {
     const auto english_rendered = screen_text(english_screen);
     if (english_screen.at(0, 0) == " " || english_screen.at(99, 0) == " " ||
         english_screen.at(0, 39) == " " || english_screen.at(99, 39) == " " ||
-        english_rendered.find("    ____  ___    ___   _____") == std::string::npos ||
-        english_rendered.find("/_____/_/  |_/_/  |_/____/") == std::string::npos ||
+        english_rendered.find("██████╗  █████╗  █████╗ ███████╗") == std::string::npos ||
+        english_rendered.find("██╔══██╗██╔══██╗██╔══██╗██╔════╝") == std::string::npos ||
+        english_rendered.find("██████╔╝███████║███████║███████╗") == std::string::npos ||
+        english_rendered.find("██╔══██╗██╔══██║██╔══██║╚════██║") == std::string::npos ||
+        english_rendered.find("██████╔╝██║  ██║██║  ██║███████║") == std::string::npos ||
+        english_rendered.find("╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝") == std::string::npos ||
+        english_rendered.find("    ____  ___    ___   _____") != std::string::npos ||
         english_rendered.find("Welcome to BlueArchive Auto Script!") == std::string::npos ||
         english_rendered.find("Developed by pur1fying") == std::string::npos ||
         english_rendered.find("LICENSE: GPL-3.0") == std::string::npos ||
@@ -78,11 +86,13 @@ int main() {
         std::cerr << "English setup renderer did not fill the viewport or restore project identity\n";
         return 1;
     }
-    const auto title_top_center = horizontal_center(english_screen, "    ____  ___    ___   _____");
-    const auto title_bottom_center = horizontal_center(english_screen, "/_____/_/  |_/_/  |_/____/");
+    const auto title_top_center = horizontal_center(english_screen, "██████╗  █████╗  █████╗ ███████╗");
+    const auto title_middle_center = horizontal_center(english_screen, "██╔══██╗██╔══██║██╔══██║╚════██║");
+    const auto title_bottom_center = horizontal_center(english_screen, "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝");
     const auto project_url_center = horizontal_center(
         english_screen, "https://github.com/pur1fying/blue_archive_auto_script");
-    if (title_top_center < 0 || title_bottom_center < 0 || project_url_center < 0 ||
+    if (title_top_center < 0 || title_middle_center < 0 || title_bottom_center < 0 || project_url_center < 0 ||
+        std::abs(title_top_center - title_middle_center) > 0.5 ||
         std::abs(title_top_center - title_bottom_center) > 0.5 ||
         std::abs(title_top_center - project_url_center) > 0.5) {
         std::cerr << "every header line must be centered independently: top=" << title_top_center

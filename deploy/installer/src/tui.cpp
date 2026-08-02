@@ -234,11 +234,12 @@ ftxui::Element project_header(const Language language, const int width) {
                size(WIDTH, EQUAL, std::max(1, width - 2));
     };
     return vbox({
-        centered(text("    ____  ___    ___   _____")),
-        centered(text("   / __ )/   |  /   | / ___/")),
-        centered(text("  / __  / /| | / /| | \\__ \\")),
-        centered(text(" / /_/ / ___ |/ ___ |___/ /")),
-        centered(text("/_____/_/  |_/_/  |_/____/")),
+        centered(text("██████╗  █████╗  █████╗ ███████╗")),
+        centered(text("██╔══██╗██╔══██╗██╔══██╗██╔════╝")),
+        centered(text("██████╔╝███████║███████║███████╗")),
+        centered(text("██╔══██╗██╔══██║██╔══██║╚════██║")),
+        centered(text("██████╔╝██║  ██║██║  ██║███████║")),
+        centered(text("╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝")),
         centered(text(message(language, MessageId::Welcome)) | bold | color(Color::Cyan)),
         centered(text("Developed by pur1fying  |  LICENSE: GPL-3.0") | color(Color::GrayLight)),
         centered(text("https://github.com/pur1fying/blue_archive_auto_script") | dim),
