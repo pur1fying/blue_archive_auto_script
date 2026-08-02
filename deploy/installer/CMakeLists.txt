@@ -46,6 +46,13 @@ add_library(baas-installer-core STATIC
 target_include_directories(baas-installer-core PUBLIC include)
 target_link_libraries(baas-installer-core PUBLIC ftxui::component ftxui::dom ftxui::screen)
 
+if(UNIX)
+    find_library(BAAS_INSTALLER_UTIL_LIBRARY util)
+    if(BAAS_INSTALLER_UTIL_LIBRARY)
+        target_link_libraries(baas-installer-core PRIVATE ${BAAS_INSTALLER_UTIL_LIBRARY})
+    endif()
+endif()
+
 find_package(CURL QUIET)
 if(TARGET CURL::libcurl)
     target_link_libraries(baas-installer-core PRIVATE CURL::libcurl)

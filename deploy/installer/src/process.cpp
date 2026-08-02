@@ -3,15 +3,26 @@
 #include <fstream>
 #include <mutex>
 #include <sstream>
+#include <thread>
 
 #ifdef _WIN32
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0A00
+#endif
 #define NOMINMAX
 #include <windows.h>
 #else
 #include <cstdio>
 #include <fcntl.h>
+#include <poll.h>
+#include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#ifdef __APPLE__
+#include <util.h>
+#else
+#include <pty.h>
+#endif
 #endif
 
 namespace baas_installer {
@@ -27,6 +38,7 @@ void publish_output(const ProcessSpec& spec, ProcessResult& result, const std::s
         log.flush();
     }
     if (spec.on_output) spec.on_output(chunk);
+    if (spec.on_chunk) spec.on_chunk(chunk);
 }
 
 #ifdef _WIN32
@@ -53,6 +65,17 @@ std::wstring quote_windows(const std::wstring& value) {
     quoted.append(slashes * 2, L'\\');
     quoted += L'\"';
     return quoted;
+}
+
+std::vector<wchar_t> make_command(const std::vector<std::string>& arguments) {
+    std::wstring command;
+    for (const auto& argument : arguments) {
+        if (!command.empty()) command += L' ';
+        command += quote_windows(widen(argument));
+    }
+    std::vector<wchar_t> mutable_command(command.begin(), command.end());
+    mutable_command.push_back(L'\0');
+    return mutable_command;
 }
 
 std::vector<wchar_t> make_environment(const std::map<std::string, std::string>& overrides) {
@@ -107,13 +130,7 @@ ProcessResult run_process(const ProcessSpec& spec) {
     if (!CreatePipe(&read_pipe, &write_pipe, &attributes, 0)) return result;
     SetHandleInformation(read_pipe, HANDLE_FLAG_INHERIT, 0);
 
-    std::wstring command;
-    for (const auto& argument : spec.arguments) {
-        if (!command.empty()) command += L' ';
-        command += quote_windows(widen(argument));
-    }
-    std::vector<wchar_t> mutable_command(command.begin(), command.end());
-    mutable_command.push_back(L'\0');
+    auto mutable_command = make_command(spec.arguments);
     auto environment = make_environment(spec.environment);
     STARTUPINFOW startup{};
     startup.cb = sizeof(startup);
@@ -155,6 +172,150 @@ ProcessResult run_process(const ProcessSpec& spec) {
     return result;
 }
 
+ProcessResult run_terminal_process(const ProcessSpec& spec) {
+    ProcessResult result;
+    if (spec.arguments.empty()) return result;
+    std::ofstream log;
+    if (!spec.log_path.empty()) {
+        std::error_code ignored;
+        std::filesystem::create_directories(spec.log_path.parent_path(), ignored);
+        log.open(spec.log_path, std::ios::binary | std::ios::app);
+    }
+#ifdef _WIN32
+    HANDLE pseudo_input_read = nullptr;
+    HANDLE pseudo_input_write = nullptr;
+    HANDLE pseudo_output_read = nullptr;
+    HANDLE pseudo_output_write = nullptr;
+    if (!CreatePipe(&pseudo_input_read, &pseudo_input_write, nullptr, 0) ||
+        !CreatePipe(&pseudo_output_read, &pseudo_output_write, nullptr, 0)) {
+        if (pseudo_input_read) CloseHandle(pseudo_input_read);
+        if (pseudo_input_write) CloseHandle(pseudo_input_write);
+        if (pseudo_output_read) CloseHandle(pseudo_output_read);
+        if (pseudo_output_write) CloseHandle(pseudo_output_write);
+        return result;
+    }
+    HPCON pseudo_console = nullptr;
+    const COORD size{120, 40};
+    if (FAILED(CreatePseudoConsole(size, pseudo_input_read, pseudo_output_write, 0, &pseudo_console))) {
+        CloseHandle(pseudo_input_read); CloseHandle(pseudo_input_write);
+        CloseHandle(pseudo_output_read); CloseHandle(pseudo_output_write);
+        return result;
+    }
+    CloseHandle(pseudo_input_read);
+    CloseHandle(pseudo_output_write);
+
+    SIZE_T attribute_size = 0;
+    InitializeProcThreadAttributeList(nullptr, 1, 0, &attribute_size);
+    auto attribute_memory = std::vector<unsigned char>(attribute_size);
+    auto* attributes_list = reinterpret_cast<PPROC_THREAD_ATTRIBUTE_LIST>(attribute_memory.data());
+    if (!InitializeProcThreadAttributeList(attributes_list, 1, 0, &attribute_size)) {
+        ClosePseudoConsole(pseudo_console);
+        CloseHandle(pseudo_input_write); CloseHandle(pseudo_output_read);
+        return result;
+    }
+    if (!UpdateProcThreadAttribute(attributes_list, 0, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE,
+                                   pseudo_console, sizeof(pseudo_console), nullptr, nullptr)) {
+        DeleteProcThreadAttributeList(attributes_list);
+        ClosePseudoConsole(pseudo_console);
+        CloseHandle(pseudo_input_write); CloseHandle(pseudo_output_read);
+        return result;
+    }
+
+    STARTUPINFOEXW startup{};
+    startup.StartupInfo.cb = sizeof(startup);
+    startup.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+    startup.StartupInfo.hStdInput = nullptr;
+    startup.StartupInfo.hStdOutput = nullptr;
+    startup.StartupInfo.hStdError = nullptr;
+    startup.lpAttributeList = attributes_list;
+    auto mutable_command = make_command(spec.arguments);
+    auto environment = make_environment(spec.environment);
+    const auto working_directory = spec.working_directory.empty() ? std::wstring{} : spec.working_directory.wstring();
+    PROCESS_INFORMATION process{};
+    const BOOL started = CreateProcessW(nullptr, mutable_command.data(), nullptr, nullptr, FALSE,
+        EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT, environment.data(),
+        working_directory.empty() ? nullptr : working_directory.c_str(), &startup.StartupInfo, &process);
+    DeleteProcThreadAttributeList(attributes_list);
+    if (!started) {
+        CloseHandle(pseudo_input_write);
+        ClosePseudoConsole(pseudo_console);
+        CloseHandle(pseudo_output_read);
+        return result;
+    }
+
+    std::thread reader([&] {
+        char buffer[4096];
+        DWORD read = 0;
+        while (ReadFile(pseudo_output_read, buffer, sizeof(buffer), &read, nullptr) && read > 0) {
+            publish_output(spec, result, std::string(buffer, buffer + read), log);
+        }
+    });
+    const DWORD timeout = spec.timeout <= std::chrono::milliseconds::zero()
+        ? INFINITE
+        : static_cast<DWORD>(std::min<std::int64_t>(spec.timeout.count(), MAXDWORD - 1));
+    if (WaitForSingleObject(process.hProcess, timeout) == WAIT_TIMEOUT) {
+        TerminateProcess(process.hProcess, 124);
+        WaitForSingleObject(process.hProcess, INFINITE);
+    }
+    DWORD exit_code = 1;
+    GetExitCodeProcess(process.hProcess, &exit_code);
+    result.exit_code = static_cast<int>(exit_code);
+    CloseHandle(pseudo_input_write);
+    ClosePseudoConsole(pseudo_console);
+    if (reader.joinable()) reader.join();
+    CloseHandle(pseudo_output_read);
+    CloseHandle(process.hThread);
+    CloseHandle(process.hProcess);
+#else
+    int master = -1;
+    const pid_t child = forkpty(&master, nullptr, nullptr, nullptr);
+    if (child < 0) return result;
+    if (child == 0) {
+        if (!spec.working_directory.empty() && chdir(spec.working_directory.c_str()) != 0) _exit(127);
+        for (const auto& [key, value] : spec.environment) setenv(key.c_str(), value.c_str(), 1);
+        std::vector<char*> argv;
+        argv.reserve(spec.arguments.size() + 1);
+        for (const auto& argument : spec.arguments) argv.push_back(const_cast<char*>(argument.c_str()));
+        argv.push_back(nullptr);
+        execvp(argv.front(), argv.data());
+        _exit(127);
+    }
+    const int flags = fcntl(master, F_GETFL, 0);
+    fcntl(master, F_SETFL, flags | O_NONBLOCK);
+    const auto started_at = std::chrono::steady_clock::now();
+    int status = 0;
+    bool exited = false;
+    while (true) {
+        char buffer[4096];
+        while (const auto count = read(master, buffer, sizeof(buffer))) {
+            if (count > 0) publish_output(spec, result, std::string(buffer, buffer + count), log);
+            else break;
+        }
+        if (!exited) exited = waitpid(child, &status, WNOHANG) == child;
+        if (exited) {
+            const auto count = read(master, buffer, sizeof(buffer));
+            if (count > 0) {
+                publish_output(spec, result, std::string(buffer, buffer + count), log);
+                continue;
+            }
+            break;
+        }
+        if (spec.timeout > std::chrono::milliseconds::zero() &&
+            std::chrono::steady_clock::now() - started_at >= spec.timeout) {
+            kill(child, SIGKILL);
+            waitpid(child, &status, 0);
+            exited = true;
+            continue;
+        }
+        pollfd descriptor{master, POLLIN, 0};
+        poll(&descriptor, 1, 20);
+    }
+    close(master);
+    result.exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : 1;
+#endif
+    return result;
+}
+
 int run_process(const std::vector<std::string>& arguments, const std::map<std::string, std::string>& environment) {
     ProcessSpec spec;
     spec.arguments = arguments;
@@ -171,13 +332,7 @@ bool launch_detached(const std::vector<std::string>& arguments,
                      const std::filesystem::path& working_directory) {
     if (arguments.empty()) return false;
 #ifdef _WIN32
-    std::wstring command;
-    for (const auto& argument : arguments) {
-        if (!command.empty()) command += L' ';
-        command += quote_windows(widen(argument));
-    }
-    std::vector<wchar_t> mutable_command(command.begin(), command.end());
-    mutable_command.push_back(L'\0');
+    auto mutable_command = make_command(arguments);
     auto environment = make_environment(environment_overrides);
     const auto working_directory_wide = working_directory.empty() ? std::wstring{} : working_directory.wstring();
     STARTUPINFOW startup{};
