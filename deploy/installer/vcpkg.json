@@ -5,10 +5,6 @@
   "dependencies": [
     "ftxui",
     "curl",
-    "libgit2",
-    "tomlplusplus",
-    "nlohmann-json",
-    "libarchive",
-    "openssl"
+    "libgit2"
   ]
 }
