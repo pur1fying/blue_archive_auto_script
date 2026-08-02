@@ -133,6 +133,7 @@ ProcessResult run_process(const ProcessSpec& spec) {
 
     auto mutable_command = make_command(spec.arguments);
     auto environment = make_environment(spec.environment);
+    const auto working_directory = spec.working_directory.empty() ? std::wstring{} : spec.working_directory.wstring();
     STARTUPINFOW startup{};
     startup.cb = sizeof(startup);
     startup.dwFlags = STARTF_USESTDHANDLES;
@@ -141,34 +142,83 @@ ProcessResult run_process(const ProcessSpec& spec) {
     startup.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
     PROCESS_INFORMATION process{};
     const BOOL started = CreateProcessW(nullptr, mutable_command.data(), nullptr, nullptr, TRUE,
-        CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT, environment.data(), nullptr, &startup, &process);
+        CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT, environment.data(),
+        working_directory.empty() ? nullptr : working_directory.c_str(), &startup, &process);
     CloseHandle(write_pipe);
     if (!started) { CloseHandle(read_pipe); return result; }
-    char buffer[4096];
-    DWORD read = 0;
-    while (ReadFile(read_pipe, buffer, sizeof(buffer), &read, nullptr) && read > 0) {
-        publish_output(spec, result, std::string(buffer, buffer + read), log);
+    std::thread reader([&] {
+        char buffer[4096];
+        DWORD read = 0;
+        while (ReadFile(read_pipe, buffer, sizeof(buffer), &read, nullptr) && read > 0) {
+            publish_output(spec, result, std::string(buffer, buffer + read), log);
+        }
+    });
+    const DWORD timeout = spec.timeout <= std::chrono::milliseconds::zero()
+        ? INFINITE
+        : static_cast<DWORD>(std::min<std::int64_t>(spec.timeout.count(), MAXDWORD - 1));
+    const bool timed_out = WaitForSingleObject(process.hProcess, timeout) == WAIT_TIMEOUT;
+    if (timed_out) {
+        TerminateProcess(process.hProcess, 124);
+        WaitForSingleObject(process.hProcess, INFINITE);
     }
-    WaitForSingleObject(process.hProcess, INFINITE);
     DWORD exit_code = 1;
     GetExitCodeProcess(process.hProcess, &exit_code);
-    result.exit_code = static_cast<int>(exit_code);
+    result.exit_code = timed_out ? 124 : static_cast<int>(exit_code);
+    if (reader.joinable()) reader.join();
     CloseHandle(read_pipe);
     CloseHandle(process.hThread);
     CloseHandle(process.hProcess);
 #else
-    std::string command;
-    for (const auto& [key, value] : spec.environment) command += key + "=" + shell_quote(value) + " ";
-    for (const auto& argument : spec.arguments) command += shell_quote(argument) + " ";
-    command += "2>&1";
-    if (FILE* pipe = popen(command.c_str(), "r")) {
-        char buffer[4096];
-        while (const auto read = std::fread(buffer, 1, sizeof(buffer), pipe)) {
-            publish_output(spec, result, std::string(buffer, buffer + read), log);
-        }
-        const int status = pclose(pipe);
-        result.exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : 1;
+    int output_pipe[2]{};
+    if (pipe(output_pipe) != 0) return result;
+    const pid_t child = fork();
+    if (child < 0) { close(output_pipe[0]); close(output_pipe[1]); return result; }
+    if (child == 0) {
+        close(output_pipe[0]);
+        dup2(output_pipe[1], STDOUT_FILENO);
+        dup2(output_pipe[1], STDERR_FILENO);
+        close(output_pipe[1]);
+        if (!spec.working_directory.empty() && chdir(spec.working_directory.c_str()) != 0) _exit(127);
+        for (const auto& [key, value] : spec.environment) setenv(key.c_str(), value.c_str(), 1);
+        std::vector<char*> argv;
+        argv.reserve(spec.arguments.size() + 1);
+        for (const auto& argument : spec.arguments) argv.push_back(const_cast<char*>(argument.c_str()));
+        argv.push_back(nullptr);
+        execvp(argv.front(), argv.data());
+        _exit(127);
     }
+    close(output_pipe[1]);
+    const int flags = fcntl(output_pipe[0], F_GETFL, 0);
+    fcntl(output_pipe[0], F_SETFL, flags | O_NONBLOCK);
+    const auto started_at = std::chrono::steady_clock::now();
+    int status = 0;
+    bool exited = false;
+    bool timed_out = false;
+    while (true) {
+        char buffer[4096];
+        while (const auto count = read(output_pipe[0], buffer, sizeof(buffer))) {
+            if (count > 0) publish_output(spec, result, std::string(buffer, buffer + count), log);
+            else break;
+        }
+        if (!exited) exited = waitpid(child, &status, WNOHANG) == child;
+        if (exited) {
+            const auto count = read(output_pipe[0], buffer, sizeof(buffer));
+            if (count > 0) { publish_output(spec, result, std::string(buffer, buffer + count), log); continue; }
+            break;
+        }
+        if (spec.timeout > std::chrono::milliseconds::zero() &&
+            std::chrono::steady_clock::now() - started_at >= spec.timeout) {
+            timed_out = true;
+            kill(child, SIGKILL);
+            waitpid(child, &status, 0);
+            exited = true;
+            continue;
+        }
+        pollfd descriptor{output_pipe[0], POLLIN, 0};
+        poll(&descriptor, 1, 20);
+    }
+    close(output_pipe[0]);
+    result.exit_code = timed_out ? 124 : (WIFEXITED(status) ? WEXITSTATUS(status) : 1);
 #endif
     return result;
 }

@@ -24,6 +24,12 @@ int main(int argc, char* argv[]) {
         std::ofstream(argv[2], std::ios::binary) << "detached";
         return 0;
     }
+    if (argc == 3 && std::string(argv[1]) == "--hidden-timeout") {
+        std::cout << "started" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(700));
+        std::ofstream(argv[2], std::ios::binary) << "too-late";
+        return 0;
+    }
     if (argc == 3 && std::string(argv[1]) == "--emit-pty") {
 #ifdef _WIN32
         DWORD console_mode = 0;
@@ -63,6 +69,22 @@ int main(int argc, char* argv[]) {
     const std::string saved{std::istreambuf_iterator<char>(input), {}};
     if (saved.find("安装进度 42%") == std::string::npos || saved.find("child diagnostic") == std::string::npos) {
         std::cerr << "captured child output was not appended to the requested log\n"; return 1;
+    }
+
+    const auto timeout_marker = std::filesystem::temp_directory_path() / "baas-installer-hidden-timeout.marker";
+    std::filesystem::remove(timeout_marker, ignored);
+    baas_installer::ProcessSpec timeout_spec;
+    timeout_spec.arguments = {std::filesystem::absolute(argv[0]).string(), "--hidden-timeout", timeout_marker.string()};
+    timeout_spec.timeout = std::chrono::milliseconds(100);
+    const auto timeout_started = std::chrono::steady_clock::now();
+    const auto timeout_result = baas_installer::run_process(timeout_spec);
+    const auto timeout_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - timeout_started);
+    if (timeout_result.exit_code != 124 || timeout_elapsed >= std::chrono::milliseconds(400) ||
+        timeout_result.output.find("started") == std::string::npos || std::filesystem::exists(timeout_marker)) {
+        std::cerr << "hidden process timeout was not enforced; exit=" << timeout_result.exit_code
+                  << " elapsed=" << timeout_elapsed.count() << "ms\n";
+        return 1;
     }
 
     std::string pty_chunks;
