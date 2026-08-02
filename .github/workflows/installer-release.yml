@@ -53,10 +53,10 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
           -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
-      - name: Build and test
-        run: |
-          cmake --build build/installer --config Release --parallel 2
-          ctest --test-dir build/installer -C Release --output-on-failure
+      - name: Build
+        run: cmake --build build/installer --config Release --parallel 2
+      - name: Test
+        run: ctest --test-dir build/installer -C Release --output-on-failure
       - name: Normalize release asset name
         shell: pwsh
         run: |
