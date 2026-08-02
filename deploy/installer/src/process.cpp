@@ -9,7 +9,9 @@
 #include <windows.h>
 #else
 #include <cstdio>
+#include <fcntl.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 namespace baas_installer {
@@ -162,6 +164,53 @@ int run_process(const std::vector<std::string>& arguments, const std::map<std::s
         spec.log_path = default_log_path;
     }
     return run_process(spec).exit_code;
+}
+
+bool launch_detached(const std::vector<std::string>& arguments,
+                     const std::map<std::string, std::string>& environment_overrides,
+                     const std::filesystem::path& working_directory) {
+    if (arguments.empty()) return false;
+#ifdef _WIN32
+    std::wstring command;
+    for (const auto& argument : arguments) {
+        if (!command.empty()) command += L' ';
+        command += quote_windows(widen(argument));
+    }
+    std::vector<wchar_t> mutable_command(command.begin(), command.end());
+    mutable_command.push_back(L'\0');
+    auto environment = make_environment(environment_overrides);
+    const auto working_directory_wide = working_directory.empty() ? std::wstring{} : working_directory.wstring();
+    STARTUPINFOW startup{};
+    startup.cb = sizeof(startup);
+    PROCESS_INFORMATION process{};
+    const BOOL started = CreateProcessW(nullptr, mutable_command.data(), nullptr, nullptr, FALSE,
+        CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS | CREATE_UNICODE_ENVIRONMENT,
+        environment.data(), working_directory_wide.empty() ? nullptr : working_directory_wide.c_str(), &startup, &process);
+    if (!started) return false;
+    CloseHandle(process.hThread);
+    CloseHandle(process.hProcess);
+    return true;
+#else
+    const pid_t child = fork();
+    if (child < 0) return false;
+    if (child > 0) return true;
+    if (setsid() < 0) _exit(127);
+    if (!working_directory.empty() && chdir(working_directory.c_str()) != 0) _exit(127);
+    for (const auto& [key, value] : environment_overrides) setenv(key.c_str(), value.c_str(), 1);
+    const int null_fd = open("/dev/null", O_RDWR);
+    if (null_fd >= 0) {
+        dup2(null_fd, STDIN_FILENO);
+        dup2(null_fd, STDOUT_FILENO);
+        dup2(null_fd, STDERR_FILENO);
+        if (null_fd > STDERR_FILENO) close(null_fd);
+    }
+    std::vector<char*> argv;
+    argv.reserve(arguments.size() + 1);
+    for (const auto& argument : arguments) argv.push_back(const_cast<char*>(argument.c_str()));
+    argv.push_back(nullptr);
+    execvp(argv.front(), argv.data());
+    _exit(127);
+#endif
 }
 
 }  // namespace baas_installer

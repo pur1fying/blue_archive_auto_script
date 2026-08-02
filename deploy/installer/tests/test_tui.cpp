@@ -23,7 +23,7 @@ int main() {
     main_progress.join();
     ocr_progress.join();
     auto running = model.snapshot();
-    if (running.screen != baas_installer::InstallerScreen::Installing || running.tasks.size() < 5) {
+    if (running.screen != baas_installer::InstallerScreen::Installing || running.tasks.size() < 6) {
         std::cerr << "install screen must expose all task rows\n"; return 1;
     }
     if (running.tasks.at("main").progress != 0.25 || running.tasks.at("ocr").progress != 0.50) {
@@ -34,6 +34,7 @@ int main() {
     model.update_task("ocr", baas_installer::TaskStatus::Succeeded, "OCR 就绪", 1.0);
     model.update_task("deployment", baas_installer::TaskStatus::Succeeded, "主仓库与 OCR 已部署", 1.0);
     model.update_task("uv", baas_installer::TaskStatus::Running, "同步 Python 依赖", 0.75);
+    model.update_task("launch", baas_installer::TaskStatus::Succeeded, "BAAS 已启动", 1.0);
     model.finish_success();
     if (model.snapshot().screen != baas_installer::InstallerScreen::Succeeded) {
         std::cerr << "successful install must reach terminal success screen\n"; return 1;
@@ -52,12 +53,14 @@ int main() {
     baas_installer::apply_workflow_progress(mapped, "ocr", "ready; waiting for parallel task");
     baas_installer::apply_workflow_progress(mapped, "deployment", "deploying OCR repository");
     baas_installer::apply_workflow_progress(mapped, "uv", "synchronizing dependencies");
+    baas_installer::apply_workflow_progress(mapped, "launch", "BAAS launched");
     const auto mapped_state = mapped.snapshot();
     if (mapped_state.tasks.at("main").status != baas_installer::TaskStatus::Running ||
         mapped_state.tasks.at("main").detail != "正在下载" ||
         mapped_state.tasks.at("ocr").status != baas_installer::TaskStatus::Succeeded ||
         mapped_state.tasks.at("deployment").progress <= 0.5 ||
-        mapped_state.tasks.at("uv").status != baas_installer::TaskStatus::Running) {
+        mapped_state.tasks.at("uv").status != baas_installer::TaskStatus::Running ||
+        mapped_state.tasks.at("launch").status != baas_installer::TaskStatus::Succeeded) {
         std::cerr << "workflow progress was not mapped to visible task state\n"; return 1;
     }
     if (!baas_installer::configure_utf8_terminal()) {

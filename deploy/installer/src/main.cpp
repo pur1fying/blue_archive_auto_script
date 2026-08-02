@@ -128,8 +128,34 @@ int main(int argc, char* argv[]) {
         return baas_installer::sync_portable_uv(current, settings, error);
         };
         const auto result = baas_installer::install_or_update(config, paths, services);
-        append_log(log_path, result.success ? "installer completed" : "installer failed: " + result.error);
-        return {result.success, result.error};
+        if (!result.success) {
+            append_log(log_path, "installer failed: " + result.error);
+            return {false, result.error};
+        }
+        if (!auto_exit) {
+            baas_installer::apply_workflow_progress(model, "launch", "launching BAAS");
+            wake();
+#ifdef _WIN32
+            auto python = paths.venv_dir / "Scripts" / "pythonw.exe";
+            if (!std::filesystem::exists(python)) python = paths.venv_dir / "Scripts" / "python.exe";
+#else
+            auto python = paths.venv_dir / "bin" / "python";
+#endif
+            if (!config.uses_portable_runtime()) python = config.runtime_path;
+            auto environment = baas_installer::make_uv_environment(paths, config).variables;
+            environment["VIRTUAL_ENV"] = paths.venv_dir.string();
+            if (!std::filesystem::exists(python) || !std::filesystem::exists(paths.root / "window.py") ||
+                !baas_installer::launch_detached({python.string(), (paths.root / "window.py").string()}, environment, paths.root)) {
+                const std::string error = "installation succeeded, but BAAS could not be launched";
+                model.update_task("launch", baas_installer::TaskStatus::Failed, "BAAS 启动失败", 0.0);
+                append_log(log_path, error);
+                return {false, error};
+            }
+            baas_installer::apply_workflow_progress(model, "launch", "BAAS launched");
+            wake();
+        }
+        append_log(log_path, "installer completed");
+        return {true, std::string{}};
     };
     if (auto_exit) return baas_installer::run_unattended(config.mirrorc_cdk, install);
     return baas_installer::run_tui(first_start, config.mirrorc_cdk, install);

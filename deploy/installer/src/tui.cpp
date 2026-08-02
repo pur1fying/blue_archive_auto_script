@@ -26,6 +26,7 @@ InstallerViewModel::InstallerViewModel(const bool setup_required) {
         {"deployment", {"文件部署"}},
         {"uv", {"Python / uv"}},
         {"verify", {"完整性检查"}},
+        {"launch", {"启动 BAAS"}},
     };
 }
 
@@ -87,7 +88,8 @@ void apply_workflow_progress(InstallerViewModel& model, const std::string& task,
     auto status = TaskStatus::Running;
     double progress = -1.0;
     if (detail.find("ready") != std::string::npos || detail.find("verified") != std::string::npos ||
-        detail.find("synchronized") != std::string::npos || detail.find("completed") != std::string::npos) {
+        detail.find("synchronized") != std::string::npos || detail.find("completed") != std::string::npos ||
+        detail.find("launched") != std::string::npos) {
         status = TaskStatus::Succeeded;
         progress = 1.0;
     } else if (detail.find("failed") != std::string::npos || detail.find("rolled back") != std::string::npos) {
@@ -110,6 +112,8 @@ void apply_workflow_progress(InstallerViewModel& model, const std::string& task,
         {"synchronizing dependencies", "正在同步 Python 依赖"},
         {"dependencies synchronized", "Python 依赖同步完成"},
         {"installation completed", "安装已完成"},
+        {"launching BAAS", "正在启动 BAAS"},
+        {"BAAS launched", "BAAS 已启动"},
         {"preparation failed; no live files changed", "下载准备失败，现有文件未被修改"},
         {"rolled back", "部署失败，已回滚"},
     };
@@ -153,12 +157,12 @@ ftxui::Element task_row(const TaskSnapshot& task, const std::size_t frame) {
 
 double aggregate_progress(const InstallerSnapshot& snapshot) {
     double total = 0.0;
-    for (const auto& id : {"main", "ocr", "deployment", "verify", "uv"}) {
+    for (const auto& id : {"main", "ocr", "deployment", "verify", "uv", "launch"}) {
         const auto& task = snapshot.tasks.at(id);
         if (task.status == TaskStatus::Succeeded) total += 1.0;
         else if (task.status == TaskStatus::Running) total += task.progress >= 0 ? task.progress : 0.10;
     }
-    return total / 5.0;
+    return total / 6.0;
 }
 
 }  // namespace
@@ -228,7 +232,7 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
         }
 
         Elements rows;
-        for (const auto& id : {"main", "ocr", "deployment", "verify", "uv"}) {
+        for (const auto& id : {"main", "ocr", "deployment", "verify", "uv", "launch"}) {
             rows.push_back(task_row(state.tasks.at(id), frame.load()));
             rows.push_back(separatorEmpty());
         }

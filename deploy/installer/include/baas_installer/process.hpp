@@ -23,4 +23,7 @@ struct ProcessResult {
 ProcessResult run_process(const ProcessSpec& spec);
 void set_default_process_log(const std::filesystem::path& path);
 int run_process(const std::vector<std::string>& arguments, const std::map<std::string, std::string>& environment = {});
+bool launch_detached(const std::vector<std::string>& arguments,
+                     const std::map<std::string, std::string>& environment = {},
+                     const std::filesystem::path& working_directory = {});
 }  // namespace baas_installer
