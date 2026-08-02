@@ -1,6 +1,7 @@
 #pragma once
 
 #include "baas_installer/config.hpp"
+#include "baas_installer/git.hpp"
 #include "baas_installer/paths.hpp"
 #include "baas_installer/transaction.hpp"
 
@@ -9,10 +10,18 @@
 
 namespace baas_installer {
 
+struct PreparedRepository {
+    bool success{};
+    RepositoryMode mode{RepositoryMode::Full};
+    std::string backend;
+    std::string version;
+    std::string error;
+    std::function<bool(InstallTransaction&, std::string&)> apply;
+};
+
 struct WorkflowServices {
-    std::function<bool(InstallTransaction&, std::string&)> prepare_main;
-    std::function<bool(InstallTransaction&, std::string&)> prepare_ocr;
-    std::function<void()> on_prepared;
+    std::function<PreparedRepository(InstallTransaction&)> prepare_main;
+    std::function<PreparedRepository(InstallTransaction&)> prepare_ocr;
     std::function<bool(const InstallPaths&, const InstallerConfig&, std::string&)> verify_deployment;
     std::function<bool(const InstallPaths&, const InstallerConfig&, std::string&)> sync_uv;
     std::function<void(const std::string&, const std::string&)> progress;

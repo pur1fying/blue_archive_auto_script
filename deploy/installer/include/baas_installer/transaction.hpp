@@ -3,6 +3,7 @@
 #include "baas_installer/paths.hpp"
 
 #include <filesystem>
+#include <functional>
 #include <vector>
 
 namespace baas_installer {
@@ -19,18 +20,24 @@ public:
     // Call only after both parallel download tasks are completely verified.
     void deploy_main();
     void deploy_ocr();
+    void deploy_main_from(const std::filesystem::path& source);
+    void deploy_ocr_from(const std::filesystem::path& source);
+    void replace_file(const std::filesystem::path& source, const std::filesystem::path& destination);
+    void remove_path(const std::filesystem::path& destination);
+    void add_rollback_action(std::function<void()> action);
     void write_ocr_managed_marker();
     void commit();
     void rollback() noexcept;
 
 private:
-    struct Change { std::filesystem::path destination; std::filesystem::path backup; bool existed{}; };
+    struct Change { std::filesystem::path destination; std::filesystem::path backup; bool existed{}; bool directory{}; };
     void deploy_tree(const std::filesystem::path& source, const std::filesystem::path& destination, bool skip_ocr_bin);
     void journal(const std::string& event) const;
 
     InstallPaths paths_;
     std::filesystem::path staging_root_;
     std::vector<Change> changes_;
+    std::vector<std::function<void()>> rollback_actions_;
     bool settled_{};
 };
 

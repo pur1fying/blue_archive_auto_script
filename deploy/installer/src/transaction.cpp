@@ -27,6 +27,17 @@ bool is_protected_installer_path(const fs::path& relative) {
     return std::find(protected_paths.begin(), protected_paths.end(), first) != protected_paths.end();
 }
 
+bool is_within(const fs::path& root, const fs::path& candidate) {
+    const auto base = fs::absolute(root).lexically_normal();
+    const auto target = fs::absolute(candidate).lexically_normal();
+    auto base_it = base.begin();
+    auto target_it = target.begin();
+    for (; base_it != base.end(); ++base_it, ++target_it) {
+        if (target_it == target.end() || *target_it != *base_it) return false;
+    }
+    return true;
+}
+
 std::string display_path(const fs::path& path) {
 #ifdef _WIN32
     const auto wide = path.wstring();
@@ -95,18 +106,72 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
         }
         fs::copy_file(entry.path(), target, fs::copy_options::overwrite_existing, error);
         if (error) throw std::runtime_error("could not deploy staged file '" + display_path(target) + "': " + error.message());
-        changes_.push_back({target, backup, exists});
+        changes_.push_back({target, backup, exists, false});
     }
 }
 
 void InstallTransaction::deploy_main() {
+    deploy_main_from(main_staging_path());
+}
+
+void InstallTransaction::deploy_main_from(const fs::path& source) {
     journal("deploy-main");
-    deploy_tree(main_staging_path(), paths_.root, true);
+    deploy_tree(source, paths_.root, true);
 }
 
 void InstallTransaction::deploy_ocr() {
+    deploy_ocr_from(ocr_staging_path());
+}
+
+void InstallTransaction::deploy_ocr_from(const fs::path& source) {
     journal("deploy-ocr");
-    deploy_tree(ocr_staging_path(), paths_.root / "core" / "ocr" / "baas_ocr_client" / "bin", false);
+    deploy_tree(source, paths_.root / "core" / "ocr" / "baas_ocr_client" / "bin", false);
+}
+
+void InstallTransaction::replace_file(const fs::path& source, const fs::path& destination) {
+    if (!fs::is_regular_file(source)) throw std::runtime_error("replacement source file is missing");
+    if (!is_within(paths_.root, destination)) throw std::runtime_error("replacement destination escapes install root");
+    const auto relative = fs::absolute(destination).lexically_normal().lexically_relative(fs::absolute(paths_.root).lexically_normal());
+    if (relative.empty() || is_protected_installer_path(relative)) throw std::runtime_error("replacement destination is protected");
+    const bool exists = fs::exists(destination);
+    if (exists && fs::is_directory(destination)) throw std::runtime_error("replacement destination is a directory");
+    const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
+    std::error_code error;
+    fs::create_directories(destination.parent_path(), error);
+    if (error) throw std::runtime_error("could not create replacement directory: " + error.message());
+    if (exists) {
+        fs::copy_file(destination, backup, fs::copy_options::overwrite_existing, error);
+        if (error) throw std::runtime_error("could not back up replacement file: " + error.message());
+    }
+    fs::copy_file(source, destination, fs::copy_options::overwrite_existing, error);
+    if (error) throw std::runtime_error("could not replace live file: " + error.message());
+    changes_.push_back({destination, backup, exists, false});
+    journal("replace:" + display_path(destination));
+}
+
+void InstallTransaction::remove_path(const fs::path& destination) {
+    if (!is_within(paths_.root, destination)) throw std::runtime_error("removal destination escapes install root");
+    const auto relative = fs::absolute(destination).lexically_normal().lexically_relative(fs::absolute(paths_.root).lexically_normal());
+    if (relative.empty() || is_protected_installer_path(relative)) throw std::runtime_error("removal destination is protected");
+    if (!fs::exists(destination)) return;
+    const bool directory = fs::is_directory(destination);
+    const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
+    std::error_code error;
+    fs::create_directories(backup.parent_path(), error);
+    if (error) throw std::runtime_error("could not create removal backup directory: " + error.message());
+    if (directory) {
+        fs::rename(destination, backup, error);
+    } else {
+        fs::copy_file(destination, backup, fs::copy_options::overwrite_existing, error);
+        if (!error) fs::remove(destination, error);
+    }
+    if (error) throw std::runtime_error("could not remove live path transactionally: " + error.message());
+    changes_.push_back({destination, backup, true, directory});
+    journal("remove:" + display_path(destination));
+}
+
+void InstallTransaction::add_rollback_action(std::function<void()> action) {
+    if (action) rollback_actions_.push_back(std::move(action));
 }
 
 void InstallTransaction::write_ocr_managed_marker() {
@@ -118,7 +183,7 @@ void InstallTransaction::write_ocr_managed_marker() {
     std::ofstream output(target, std::ios::trunc);
     output << "{\"schema_version\":1,\"managed_by\":\"baas-installer\"}\n";
     output.close();
-    changes_.push_back({target, backup, exists});
+    changes_.push_back({target, backup, exists, false});
     journal("ocr-marker");
 }
 
@@ -131,9 +196,22 @@ void InstallTransaction::commit() {
 
 void InstallTransaction::rollback() noexcept {
     std::error_code ignored;
+    for (auto action = rollback_actions_.rbegin(); action != rollback_actions_.rend(); ++action) {
+        try { (*action)(); } catch (...) {}
+    }
     for (auto it = changes_.rbegin(); it != changes_.rend(); ++it) {
-        if (it->existed) fs::copy_file(it->backup, it->destination, fs::copy_options::overwrite_existing, ignored);
-        else fs::remove(it->destination, ignored);
+        if (it->directory) {
+            fs::remove_all(it->destination, ignored);
+            if (it->existed) {
+                fs::create_directories(it->destination.parent_path(), ignored);
+                fs::rename(it->backup, it->destination, ignored);
+            }
+        } else if (it->existed) {
+            fs::create_directories(it->destination.parent_path(), ignored);
+            fs::copy_file(it->backup, it->destination, fs::copy_options::overwrite_existing, ignored);
+        } else {
+            fs::remove(it->destination, ignored);
+        }
     }
     journal("rolled-back");
     settled_ = true;

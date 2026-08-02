@@ -289,7 +289,18 @@ MirrorPackage inspect_mirror_staging(const MirrorRelease& release, const fs::pat
         package.changes = parse_mirror_changes(contents, extracted_root, error);
         if (!error.empty()) return {};
         package.mode = MirrorPackageMode::Incremental;
-        package.content_root = extracted_root;
+        for (const auto& entry : fs::directory_iterator(extracted_root)) {
+            if (!entry.is_directory()) continue;
+            if (!package.content_root.empty()) {
+                error = "incremental package contains more than one root directory";
+                return {};
+            }
+            package.content_root = entry.path();
+        }
+        if (package.content_root.empty()) {
+            error = "incremental package has no content root";
+            return {};
+        }
         return package;
     }
     if (release.update_type == "full") {

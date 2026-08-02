@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <thread>
 
 namespace {
 std::string ocr_revision() {
@@ -58,66 +59,107 @@ int main(int argc, char* argv[]) {
                              const std::function<void()>& wake) -> std::pair<bool, std::string> {
         config.mirrorc_cdk = selected_cdk;
         baas_installer::WorkflowServices services;
-        std::string prepared_main_sha;
-        std::string prepared_ocr_sha;
         services.progress = [&](const std::string& task, const std::string& detail) {
             baas_installer::apply_workflow_progress(model, task, detail);
             append_log(log_path, "[" + task + "] " + detail);
             wake();
         };
-        services.prepare_main = [&](baas_installer::InstallTransaction& transaction, std::string& error) {
-        if (!config.mirrorc_cdk.empty()) {
-            const auto response_path = transaction.staging_root() / "mirrorchyan-response.json";
-            const auto request = baas_installer::mirror_latest_url(config.mirrorc_cdk, config.main_sha, config.channel);
-            if (baas_installer::run_process({"curl", "--fail", "--silent", "--show-error", "--connect-timeout", "5", "--output", response_path.string(), request}) != 0) {
-                error = "MirrorChyan validation request failed";
-                return false;
-            }
-            const auto release = baas_installer::parse_mirror_response(read_text(response_path));
-            if (release.status != baas_installer::CdkStatus::Valid) {
-                error = "MirrorChyan CDK was rejected or returned an invalid package";
-                return false;
-            }
-            const auto archive = transaction.staging_root() / "main-mirror-package.zip";
-            if (!baas_installer::download_mirror_package(release, archive, error)) return false;
-            const auto unpacked = transaction.staging_root() / "mirror-unpacked";
-            std::error_code ignored;
-            std::filesystem::create_directories(unpacked);
-            if (baas_installer::run_process({"tar", "-xf", archive.string(), "-C", unpacked.string()}) != 0) {
-                error = "MirrorChyan package extraction failed";
-                return false;
-            }
-            std::filesystem::path package_root;
-            for (const auto& entry : std::filesystem::recursive_directory_iterator(unpacked, ignored)) {
-                if (ignored) break;
-                if (entry.is_regular_file() && entry.path().filename() == "main.py") {
-                    package_root = entry.path().parent_path();
-                    break;
+        const auto prepare_repository = [&](const bool main_repository, baas_installer::InstallTransaction& transaction) {
+            const std::string task = main_repository ? "main" : "ocr";
+            const auto live = main_repository ? paths.root : paths.root / "core" / "ocr" / "baas_ocr_client" / "bin";
+            const auto staging = main_repository ? transaction.main_staging_path() : transaction.ocr_staging_path();
+            const auto current_version = main_repository ? config.main_sha : config.ocr_sha;
+            const auto sources = baas_installer::default_sources(
+                main_repository ? baas_installer::SourceKind::MainGit : baas_installer::SourceKind::OcrGit, config);
+            const auto revision = main_repository ? std::string("refs/heads/master") : ocr_revision();
+            const baas_installer::ProcessObserver observer = [&](std::string_view, const std::string_view backend,
+                                                                  const std::string_view chunk) {
+                append_log(log_path, "[" + task + "][" + std::string(backend) + "] " + std::string(chunk));
+                wake();
+            };
+
+            if (!config.mirrorc_cdk.empty()) {
+                std::string mirror_error;
+                const auto platform = baas_installer::current_mirror_platform();
+                const auto resource = main_repository ? baas_installer::MirrorResource::Main : baas_installer::MirrorResource::Ocr;
+                const auto request_url = baas_installer::mirror_latest_url(
+                    resource, platform.os, platform.arch, config.mirrorc_cdk, current_version, config.channel);
+                auto release = baas_installer::request_mirror_release(request_url, mirror_error);
+                if (release.status == baas_installer::CdkStatus::UpToDate) {
+                    return baas_installer::PreparedRepository{.success = true,
+                        .mode = baas_installer::RepositoryMode::Unchanged, .backend = "mirrorchyan",
+                        .version = release.version.empty() ? current_version : release.version};
                 }
+                if (release.status == baas_installer::CdkStatus::Valid && !current_version.empty()) {
+                    release = baas_installer::wait_for_incremental_release(
+                        std::move(release),
+                        [&] { return baas_installer::request_mirror_release(request_url, mirror_error); },
+                        [] { std::this_thread::sleep_for(std::chrono::milliseconds(500)); }, 10);
+                }
+                if (release.status == baas_installer::CdkStatus::Valid) {
+                    const auto prefix = main_repository ? "main" : "ocr";
+                    const auto archive = transaction.staging_root() / (std::string(prefix) + "-mirror.zip");
+                    const auto extracted = transaction.staging_root() / (std::string(prefix) + "-mirror-unpacked");
+                    if (baas_installer::download_mirror_package(release, archive, mirror_error) &&
+                        baas_installer::extract_mirror_archive(
+                            archive, extracted, mirror_error,
+                            [&](const std::string_view chunk) { observer(task, "mirrorchyan", chunk); })) {
+                        auto package = baas_installer::inspect_mirror_staging(release, extracted, mirror_error);
+                        if (mirror_error.empty()) {
+                            const auto mode = package.mode == baas_installer::MirrorPackageMode::Full
+                                ? baas_installer::RepositoryMode::Full : baas_installer::RepositoryMode::Incremental;
+                            return baas_installer::PreparedRepository{.success = true, .mode = mode,
+                                .backend = "mirrorchyan", .version = package.version,
+                                .apply = [package = std::move(package), live, main_repository](
+                                             baas_installer::InstallTransaction& current, std::string& error) {
+                                    try {
+                                        current.remove_path(live / ".git");
+                                        if (package.mode == baas_installer::MirrorPackageMode::Full) {
+                                            if (main_repository) current.deploy_main_from(package.content_root);
+                                            else current.deploy_ocr_from(package.content_root);
+                                        } else {
+                                            for (const auto& path : package.changes.deleted) current.remove_path(live / path);
+                                            for (const auto& path : package.changes.added) current.replace_file(package.content_root / path, live / path);
+                                            for (const auto& path : package.changes.modified) current.replace_file(package.content_root / path, live / path);
+                                        }
+                                        return true;
+                                    } catch (const std::exception& exception) {
+                                        error = exception.what();
+                                        return false;
+                                    }
+                                }};
+                        }
+                    }
+                }
+                services.progress(task, "MirrorChyan failed; falling back to Git");
             }
-            if (package_root.empty()) { error = "MirrorChyan package did not contain main.py"; return false; }
-            std::filesystem::rename(package_root, transaction.main_staging_path(), ignored);
-            if (ignored) { error = "could not stage extracted MirrorChyan package"; return false; }
-            prepared_main_sha = release.version;
-            return true;
-        }
-        const auto result = baas_installer::clone_repository(
-            baas_installer::default_sources(baas_installer::SourceKind::MainGit, config), transaction.main_staging_path());
-        if (!result.success) { error = "main repository: " + result.error; return false; }
-        prepared_main_sha = baas_installer::repository_head(transaction.main_staging_path());
-        return true;
+
+            const auto git = baas_installer::prepare_git_repository(sources, live, staging, revision, observer);
+            if (!git.success) return baas_installer::PreparedRepository{.success = false, .backend = "git",
+                .error = (main_repository ? "main repository: " : "OCR repository: ") + git.error};
+            return baas_installer::PreparedRepository{.success = true, .mode = git.mode,
+                .backend = baas_installer::git_backend_name(git.backend), .version = git.commit,
+                .apply = [git, live, main_repository, observer](baas_installer::InstallTransaction& current,
+                                                                 std::string& error) {
+                    if (git.mode == baas_installer::RepositoryMode::Full) {
+                        if (main_repository) current.deploy_main();
+                        else current.deploy_ocr();
+                        return true;
+                    }
+                    if (git.mode == baas_installer::RepositoryMode::Incremental) {
+                        current.add_rollback_action([git, live] {
+                            auto restore = git;
+                            restore.commit = git.previous_commit;
+                            std::string ignored;
+                            (void)baas_installer::apply_git_update(restore, live, ignored);
+                        });
+                        return baas_installer::apply_git_update(git, live, error, observer);
+                    }
+                    return true;
+                }};
         };
-        services.prepare_ocr = [&](baas_installer::InstallTransaction& transaction, std::string& error) {
-        const auto result = baas_installer::clone_repository(
-            baas_installer::default_sources(baas_installer::SourceKind::OcrGit, config), transaction.ocr_staging_path(), ocr_revision());
-        if (!result.success) { error = "OCR repository: " + result.error; return false; }
-        prepared_ocr_sha = baas_installer::repository_head(transaction.ocr_staging_path());
-        return true;
-        };
-        services.on_prepared = [&] {
-            config.main_sha = prepared_main_sha;
-            config.ocr_sha = prepared_ocr_sha;
-        };
+        services.prepare_main = [&](auto& transaction) { return prepare_repository(true, transaction); };
+        services.prepare_ocr = [&](auto& transaction) { return prepare_repository(false, transaction); };
         services.verify_deployment = [](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig&, std::string& error) {
         if (!std::filesystem::exists(current.root / "main.py")) { error = "main repository did not contain main.py"; return false; }
         const auto ocr = current.root / "core" / "ocr" / "baas_ocr_client" / "bin";
