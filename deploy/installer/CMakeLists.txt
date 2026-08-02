@@ -29,6 +29,16 @@ if(NOT TARGET ftxui::component)
     FetchContent_MakeAvailable(ftxui)
 endif()
 
+find_package(nlohmann_json CONFIG QUIET)
+if(NOT TARGET nlohmann_json::nlohmann_json)
+    include(FetchContent)
+    FetchContent_Declare(nlohmann_json
+        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    FetchContent_MakeAvailable(nlohmann_json)
+endif()
+
 add_library(baas-installer-core STATIC
     src/paths.cpp
     src/config.cpp
@@ -44,7 +54,7 @@ add_library(baas-installer-core STATIC
     src/logging.cpp
 )
 target_include_directories(baas-installer-core PUBLIC include)
-target_link_libraries(baas-installer-core PUBLIC ftxui::component ftxui::dom ftxui::screen)
+target_link_libraries(baas-installer-core PUBLIC ftxui::component ftxui::dom ftxui::screen nlohmann_json::nlohmann_json)
 
 if(UNIX)
     find_library(BAAS_INSTALLER_UTIL_LIBRARY util)

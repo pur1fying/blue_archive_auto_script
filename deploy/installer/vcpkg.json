@@ -5,6 +5,8 @@
   "dependencies": [
     "ftxui",
     "curl",
-    "libgit2"
+    "libgit2",
+    "nlohmann-json",
+    "libarchive"
   ]
 }
