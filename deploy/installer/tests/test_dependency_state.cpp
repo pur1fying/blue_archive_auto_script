@@ -71,13 +71,19 @@ int main() {
     }
 
     write(paths.venv_dir / ".baas-installer-managed", "python=3.9.0\n");
+#ifdef _WIN32
     write(venv_python(paths), "python placeholder");
+#else
+    fs::create_directories(venv_python(paths).parent_path());
+    fs::create_symlink(fs::path(old_managed_home()) / "python3.9", venv_python(paths));
+#endif
     const auto managed_home = paths.toolkit_dir / "uv" / "cpython" / fs::path(managed_home_suffix());
     fs::create_directories(managed_home);
 #ifdef _WIN32
     write(managed_home / "python.exe", "managed python placeholder");
 #else
     write(managed_home / "python3", "managed python placeholder");
+    write(managed_home / "python3.9", "managed python placeholder");
 #endif
     write(paths.venv_dir / "pyvenv.cfg", "home = " + old_managed_home() + "\nversion_info = 3.9.0\n");
     auto obsolete = first;
@@ -97,6 +103,14 @@ int main() {
         std::cerr << "managed pyvenv.cfg retained its old root\n";
         return 1;
     }
+#ifndef _WIN32
+    const auto repaired_link = fs::read_symlink(venv_python(paths));
+    if (repaired_link.string().find(paths.toolkit_dir.string()) == std::string::npos ||
+        repaired_link.string().find(old_managed_home()) != std::string::npos) {
+        std::cerr << "managed virtualenv interpreter symlink retained its old root\n";
+        return 1;
+    }
+#endif
     const auto state = baas_installer::inspect_dependency_state(paths, config, requirements, lock);
     if (!state.cache_hit) {
         std::cerr << "complete matching managed environment did not hit dependency cache: " << state.reason << '\n';
