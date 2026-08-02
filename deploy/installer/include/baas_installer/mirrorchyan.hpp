@@ -1,5 +1,7 @@
 #pragma once
 
+#include "baas_installer/digest.hpp"
+
 #include <filesystem>
 #include <functional>
 #include <cstdint>
@@ -55,8 +57,6 @@ MirrorRelease wait_for_incremental_release(MirrorRelease initial,
                                            const std::function<MirrorRelease()>& refresh,
                                            const std::function<void()>& wait,
                                            int maximum_attempts = 10);
-bool is_sha256(const std::string& digest);
-bool verify_sha256(const std::filesystem::path& file, const std::string& expected_digest);
 using MirrorDownloadProgress = std::function<void(std::uint64_t downloaded, std::uint64_t total)>;
 
 // Downloads only into the supplied staging location. Production builds use

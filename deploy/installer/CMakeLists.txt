@@ -40,6 +40,8 @@ if(NOT TARGET nlohmann_json::nlohmann_json)
 endif()
 
 add_library(baas-installer-core STATIC
+    src/digest.cpp
+    src/dependency_state.cpp
     src/paths.cpp
     src/config.cpp
     src/sources.cpp
@@ -103,6 +105,14 @@ endif()
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(baas-installer-test-digest tests/test_digest.cpp)
+    target_link_libraries(baas-installer-test-digest PRIVATE baas-installer-core)
+    add_test(NAME digest COMMAND baas-installer-test-digest)
+
+    add_executable(baas-installer-test-dependency-state tests/test_dependency_state.cpp)
+    target_link_libraries(baas-installer-test-dependency-state PRIVATE baas-installer-core)
+    add_test(NAME dependency-state COMMAND baas-installer-test-dependency-state)
+
     add_executable(baas-installer-test-paths tests/test_paths.cpp)
     target_link_libraries(baas-installer-test-paths PRIVATE baas-installer-core)
     add_test(NAME paths COMMAND baas-installer-test-paths)
