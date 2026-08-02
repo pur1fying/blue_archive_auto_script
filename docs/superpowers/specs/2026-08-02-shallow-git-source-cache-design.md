@@ -26,12 +26,16 @@ Source state is stored under the protected, installation-relative directory `.ba
 
 The cache policy is cache-first and has no time-based expiry:
 
-1. With no matching cache, or when the configured candidate set changes, probe all candidates concurrently, retain failed probes as fallbacks, save the complete ranking atomically, and try the fastest successful result first.
-2. With a matching cache, try the most recently successful source first without probing every candidate. For Git, its required `ls-remote` freshness check also updates that source's observed commit and latency.
-3. If the cached source's real operation fails, increment its persisted failure count, re-probe all candidates, replace the ranking, and try the refreshed order while excluding the already failed attempt.
+1. With no matching cache, or when the configured candidate set changes, probe every candidate in that source category concurrently. Each candidate has a hard ten-second timeout, so an entire parallel measurement round is bounded to approximately ten seconds rather than ten seconds multiplied by the candidate count. Persist failed candidates as unavailable observations, exclude them from real operations during that run, save the complete ranking atomically, and try the fastest successful result first.
+2. With a matching cache, try the most recently successful source first without probing every candidate. This cached-source operation also has a hard ten-second timeout. For Git, its required `ls-remote` freshness check updates that source's observed commit and latency.
+3. If the cached source's real operation fails, increment its persisted failure count, concurrently probe all remaining candidates, replace the ranking, and try the refreshed successful order while excluding the already failed source.
 4. On a successful real operation, persist the successful source as preferred and reset its consecutive failure count.
 
 Cached Git commit values are hints and diagnostics only. They never replace the live `ls-remote` comparison required to decide that a repository is current.
+
+For Git, probing and update inspection are the same operation. Every candidate in a measurement round runs `git ls-remote <source> <target-revision>` concurrently. Its latency is measured from process start until a syntactically valid remote commit SHA is returned. A process that fails, times out after ten seconds, or returns no valid SHA is unavailable for that round. The returned SHA is reused directly for the local `HEAD` comparison and any subsequent shallow fetch; the installer must not issue a duplicate `ls-remote` after measuring that source.
+
+All other source measurements also launch every candidate in their category concurrently with the same ten-second per-source timeout. Main and OCR preparation remain concurrent at the workflow level, so their independently scoped Git measurement rounds may overlap without sharing results.
 
 ## Transaction storage lifecycle
 
@@ -58,6 +62,8 @@ Automated tests must demonstrate these failures before production changes are ma
 - mixed backends keep Git state and MirrorChyan state isolated between main and OCR;
 - cached ranking is reused without probing every source;
 - a changed candidate set or failed cached source triggers a refreshed ranking;
+- every measurement round starts all candidates concurrently and completes within the ten-second per-source bound;
+- Git uses time-to-valid-remote-SHA as latency and reuses that SHA without a duplicate remote query;
 - source state is written atomically below `.baas-installer` and survives moving the whole installation directory;
 - rollback and commit remove their staging roots;
 - startup cleanup rejects paths without an installer journal and paths outside `tmp/installer`;
