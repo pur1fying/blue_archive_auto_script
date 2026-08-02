@@ -273,27 +273,24 @@ bool repair_managed_venv_after_move(const InstallPaths& paths, const InstallerCo
         if (changed) replace_file_atomic(config_path, output.str());
 #ifndef _WIN32
         const auto binary_dir = paths.venv_dir / "bin";
-        std::error_code scan_error;
-        if (fs::is_directory(binary_dir, scan_error)) {
-            for (fs::directory_iterator item(binary_dir, scan_error), end; !scan_error && item != end;
-                 item.increment(scan_error)) {
-                if (!item->is_symlink()) continue;
-                auto target = fs::read_symlink(item->path());
+        if (fs::is_directory(binary_dir)) {
+            for (const auto& item : fs::directory_iterator(binary_dir)) {
+                if (!item.is_symlink()) continue;
+                auto target = fs::read_symlink(item.path());
                 auto value = target.string();
                 if (!repair_managed_value(value, paths.toolkit_dir / "uv" / "cpython")) continue;
-                const auto replacement = item->path().parent_path() / (item->path().filename().string() + ".new");
+                const auto replacement = item.path().parent_path() / (item.path().filename().string() + ".new");
                 std::error_code link_error;
                 fs::remove(replacement, link_error);
                 link_error.clear();
                 fs::create_symlink(fs::path(value), replacement, link_error);
-                if (!link_error) fs::rename(replacement, item->path(), link_error);
+                if (!link_error) fs::rename(replacement, item.path(), link_error);
                 if (link_error) {
                     fs::remove(replacement, link_error);
                     throw std::runtime_error("could not repair managed virtualenv symlink");
                 }
             }
         }
-        if (scan_error) throw std::runtime_error("could not inspect managed virtualenv links: " + scan_error.message());
 #endif
         return true;
     } catch (const std::exception& exception) {
