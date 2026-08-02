@@ -8,6 +8,10 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <fcntl.h>
+#include <sys/file.h>
+#include <unistd.h>
 #endif
 
 namespace fs = std::filesystem;
@@ -65,7 +69,7 @@ std::string display_path(const fs::path& path) {
 
 }  // namespace
 
-void cleanup_abandoned_transactions(const InstallPaths& paths) {
+void cleanup_abandoned_transactions_unlocked(const InstallPaths& paths) {
     std::error_code error;
     const auto root = fs::weakly_canonical(paths.tmp_dir / "installer", error);
     if (error || !fs::is_directory(root, error)) return;
@@ -83,14 +87,50 @@ void cleanup_abandoned_transactions(const InstallPaths& paths) {
 }
 
 InstallTransaction::InstallTransaction(const InstallPaths& paths) : paths_(paths) {
-    cleanup_abandoned_transactions(paths_);
-    const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
-    staging_root_ = paths_.tmp_dir / "installer" / std::to_string(tick);
-    fs::create_directories(staging_root_ / "rollback");
-    journal("created");
+    const auto state_directory = paths_.state_dir.empty() ? paths_.root / ".baas-installer" : paths_.state_dir;
+    fs::create_directories(state_directory);
+    const auto lock_path = state_directory / "installer.lock";
+#ifdef _WIN32
+    const HANDLE handle = CreateFileW(lock_path.wstring().c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr,
+                                      OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (handle == INVALID_HANDLE_VALUE) throw std::runtime_error("another installer is already running");
+    lock_handle_ = reinterpret_cast<std::intptr_t>(handle);
+#else
+    const int descriptor = open(lock_path.c_str(), O_CREAT | O_RDWR, 0600);
+    if (descriptor < 0 || flock(descriptor, LOCK_EX | LOCK_NB) != 0) {
+        if (descriptor >= 0) close(descriptor);
+        throw std::runtime_error("another installer is already running");
+    }
+    lock_handle_ = descriptor;
+#endif
+    try {
+        cleanup_abandoned_transactions_unlocked(paths_);
+        const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
+        staging_root_ = paths_.tmp_dir / "installer" / std::to_string(tick);
+        fs::create_directories(staging_root_ / "rollback");
+        journal("created");
+    } catch (...) {
+        release_lock();
+        throw;
+    }
 }
 
-InstallTransaction::~InstallTransaction() { if (!settled_) rollback(); }
+InstallTransaction::~InstallTransaction() {
+    if (!settled_) rollback();
+    release_lock();
+}
+
+void InstallTransaction::release_lock() noexcept {
+    if (lock_handle_ == -1) return;
+#ifdef _WIN32
+    CloseHandle(reinterpret_cast<HANDLE>(lock_handle_));
+#else
+    const int descriptor = static_cast<int>(lock_handle_);
+    (void)flock(descriptor, LOCK_UN);
+    close(descriptor);
+#endif
+    lock_handle_ = -1;
+}
 
 fs::path InstallTransaction::main_staging_path() const { return staging_root_ / "main"; }
 fs::path InstallTransaction::ocr_staging_path() const { return staging_root_ / "ocr"; }
@@ -273,6 +313,10 @@ void InstallTransaction::add_commit_action(std::function<void()> action) {
     if (action) commit_actions_.push_back(std::move(action));
 }
 
+void InstallTransaction::add_post_commit_action(std::function<void()> action) {
+    if (action) post_commit_actions_.push_back(std::move(action));
+}
+
 void InstallTransaction::write_ocr_managed_marker(const std::string& branch, const std::string& commit) {
     const auto target = paths_.root / "core" / "ocr" / "baas_ocr_client" / "bin" / ".baas-installer-managed.json";
     const bool exists = fs::exists(target);
@@ -288,12 +332,21 @@ void InstallTransaction::write_ocr_managed_marker(const std::string& branch, con
     journal("ocr-marker");
 }
 
-void InstallTransaction::commit() {
+void InstallTransaction::prepare_commit() {
+    if (commit_prepared_) return;
     for (auto& action : commit_actions_) action();
+    commit_prepared_ = true;
+}
+
+void InstallTransaction::commit() {
+    prepare_commit();
     journal("committed");
     settled_ = true;
     std::error_code ignored;
     fs::remove_all(staging_root_, ignored);
+    for (auto& action : post_commit_actions_) {
+        try { action(); } catch (...) {}
+    }
 }
 
 void InstallTransaction::rollback() noexcept {

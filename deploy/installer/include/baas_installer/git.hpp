@@ -44,8 +44,8 @@ std::vector<std::pair<GitBackend, std::string>> git_attempt_order(
     const std::vector<std::string>& sources, bool cli_available, bool libgit2_available);
 
 // Works exclusively against `destination`, which must be a staging directory.
-// Sources are tried in supplied order. Git CLI is always attempted before the
-// built-in libgit2 backend for every source.
+// Sources are tried in supplied order. An installed Git CLI is authoritative;
+// libgit2 is used only when the CLI is unavailable.
 GitResult clone_repository(
     const std::vector<std::string>& sources,
     const std::filesystem::path& destination,
@@ -69,5 +69,6 @@ bool apply_git_update(const GitResult& prepared,
 bool finalize_git_repository(const std::filesystem::path& repository,
                              GitBackend backend,
                              std::string& error);
+void compact_git_repository(const std::filesystem::path& repository, GitBackend backend) noexcept;
 
 }  // namespace baas_installer

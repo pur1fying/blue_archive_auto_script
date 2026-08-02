@@ -8,8 +8,9 @@ The installer installs or migrates BAAS next to its own executable. Its full-vie
 - `setup.toml` is created beside the executable as soon as installation starts, before repository preparation or network probing. No `config.toml` is used.
 - The main repository is applied first. OCR is then placed in `core/ocr/baas_ocr_client/bin`.
 - With a MirrorChyan CDK, both `BAAS_repo` and `BAAS_Cpp` support current, incremental, and full packages. A failed MirrorChyan attempt falls back to Git.
-- Git uses the installed Git CLI across every configured source before libgit2. It compares the remote and local commit first; an equal commit skips `fetch`.
+- Git measures configured sources concurrently by remote-SHA response time. When Git CLI is installed it is used exclusively; libgit2 is the fallback only on systems without Git CLI. An equal remote/local commit skips `fetch`, and a failed real transfer advances to the next source that passed the SHA probe.
 - Deployment and the two recorded versions in `setup.toml` are transactional. A failed verification or uv sync rolls live files back.
+- An installation-local process lock prevents a second installer from deleting an active transaction. Repository history compaction runs only after rollback-capable validation and durable configuration commit.
 
 ## Interface and logs
 

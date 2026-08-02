@@ -28,10 +28,28 @@ int main() {
     write(abandoned / "payload.bin", "stale");
     write(unowned / "payload.bin", "keep");
     write(outside / "journal.log", "keep\n");
-    baas_installer::cleanup_abandoned_transactions(paths);
+    {
+        baas_installer::InstallTransaction cleanup_owner(paths);
+        bool second_rejected = false;
+        try {
+            baas_installer::InstallTransaction concurrent(paths);
+            concurrent.rollback();
+        } catch (const std::exception&) {
+            second_rejected = true;
+        }
+        if (!second_rejected || !fs::exists(cleanup_owner.staging_root())) {
+            std::cerr << "concurrent installer did not respect the active transaction lock\n";
+            return 1;
+        }
+        cleanup_owner.rollback();
+    }
     if (fs::exists(abandoned) || !fs::exists(unowned) || !fs::exists(outside)) {
         std::cerr << "abandoned transaction cleanup escaped ownership constraints\n";
         return 1;
+    }
+    {
+        baas_installer::InstallTransaction after_release(paths);
+        after_release.rollback();
     }
     write(paths.executable, "installer-binary");
     write(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt", "old-ocr");

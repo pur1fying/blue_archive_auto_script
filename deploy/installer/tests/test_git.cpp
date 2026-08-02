@@ -36,11 +36,13 @@ bool write_commit(const fs::path& repository, const std::string& value, const st
 
 int main() {
     const auto attempts = baas_installer::git_attempt_order({"source-a", "source-b"}, true, true);
-    if (attempts.size() != 4 || attempts[0] != std::pair{baas_installer::GitBackend::GitCli, std::string("source-a")} ||
+    const auto fallback_attempts = baas_installer::git_attempt_order({"source-a", "source-b"}, false, true);
+    if (attempts.size() != 2 || attempts[0] != std::pair{baas_installer::GitBackend::GitCli, std::string("source-a")} ||
         attempts[1] != std::pair{baas_installer::GitBackend::GitCli, std::string("source-b")} ||
-        attempts[2] != std::pair{baas_installer::GitBackend::Libgit2, std::string("source-a")} ||
-        attempts[3] != std::pair{baas_installer::GitBackend::Libgit2, std::string("source-b")}) {
-        std::cerr << "Git backend order must exhaust CLI sources before libgit2\n";
+        fallback_attempts.size() != 2 ||
+        fallback_attempts[0] != std::pair{baas_installer::GitBackend::Libgit2, std::string("source-a")} ||
+        fallback_attempts[1] != std::pair{baas_installer::GitBackend::Libgit2, std::string("source-b")}) {
+        std::cerr << "libgit2 must be used only when the installed Git CLI is unavailable\n";
         return 1;
     }
     if (baas_installer::git_backend_name(baas_installer::GitBackend::GitCli) != "git-cli") {
@@ -121,6 +123,21 @@ int main() {
         return 1;
     }
 
+    const auto fallback_staging = root / "fallback-staging";
+    const auto missing_remote = (root / "missing-remote.git").string();
+    auto fallback = baas_installer::prepare_git_repository(
+        {missing_remote, remote.string()}, root / "missing-fallback-live", fallback_staging,
+        "refs/heads/master", {}, {}, baas_installer::SourceKind::MainGit,
+        [&](const std::string& source, const std::string&, std::chrono::milliseconds) {
+            return baas_installer::GitRemoteHead{source, first_head, source == missing_remote ? 1LL : 2LL, true};
+        });
+    if (!fallback.success || fallback.source != remote.string() ||
+        fallback.mode != baas_installer::RepositoryMode::Full) {
+        std::cerr << "failed real fetch did not fall back to the next successfully probed Git source\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+
     const auto unavailable_staging = root / "unavailable-staging";
     auto unavailable = baas_installer::prepare_git_repository(
         {remote.string()}, root / "missing-unavailable", unavailable_staging, "refs/heads/master", {}, {},
@@ -160,9 +177,16 @@ int main() {
         fs::remove_all(root, ignored);
         return 1;
     }
-    if (!baas_installer::finalize_git_repository(live, incremental.backend, apply_error) ||
+    if (!baas_installer::finalize_git_repository(live, incremental.backend, apply_error)) {
+        std::cerr << "successful Git validation rejected a depth-one repository: " << apply_error << '\n';
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+    baas_installer::compact_git_repository(live, incremental.backend);
+    if (
         output({"git", "-C", live.string(), "rev-parse", "--is-shallow-repository"}) != "true" ||
         output({"git", "-C", live.string(), "rev-list", "--count", "HEAD"}) != "1" ||
+        !output({"git", "-C", live.string(), "for-each-ref", "--format=%(refname)"}).empty() ||
         output({"git", "-C", live.string(), "fsck", "--unreachable"}).find(first_head) != std::string::npos) {
         std::cerr << "successful Git finalization did not retain exactly one shallow commit\n";
         fs::remove_all(root, ignored);
@@ -186,6 +210,7 @@ int main() {
 
 #ifdef BAAS_INSTALLER_TEST_HAS_LIBGIT2
     if (!command({"git", "-C", seed.string(), "checkout", "-b", "windows-x64"}) ||
+        !write_commit(seed, "three", "windows branch") ||
         !command({"git", "-C", seed.string(), "push", "origin", "windows-x64"})) {
         std::cerr << "could not create OCR-style remote branch\n";
         return 1;
@@ -212,6 +237,33 @@ int main() {
     if (!libgit.success || libgit.backend != baas_installer::GitBackend::Libgit2 ||
         baas_installer::repository_head(libgit_staging).empty() || libgit_chunks.empty()) {
         std::cerr << "libgit2 did not clone and report progress for an OCR remote branch: " << libgit.error << '\n';
+        return 1;
+    }
+    const auto libgit_existing_staging = root / "libgit-existing-staging";
+    const auto live_before_libgit = baas_installer::repository_head(live);
+#ifdef _WIN32
+    _putenv_s("PATH", "");
+#else
+    setenv("PATH", "", 1);
+#endif
+    auto libgit_existing = baas_installer::prepare_git_repository(
+        {remote.string()}, live, libgit_existing_staging, "windows-x64", {});
+#ifdef _WIN32
+    _putenv_s("PATH", saved_path.c_str());
+#else
+    setenv("PATH", saved_path.c_str(), 1);
+#endif
+    if (!libgit_existing.success || libgit_existing.backend != baas_installer::GitBackend::Libgit2 ||
+        libgit_existing.mode != baas_installer::RepositoryMode::Full ||
+        !fs::is_directory(libgit_existing_staging / ".git") ||
+        baas_installer::repository_head(live) != live_before_libgit) {
+        std::cerr << "libgit2 existing update was not prepared as a fresh staged branch clone: "
+                  << libgit_existing.error << " success=" << libgit_existing.success
+                  << " backend=" << baas_installer::git_backend_name(libgit_existing.backend)
+                  << " mode=" << static_cast<int>(libgit_existing.mode)
+                  << " staging=" << fs::is_directory(libgit_existing_staging / ".git")
+                  << " live-before=" << live_before_libgit
+                  << " live-after=" << baas_installer::repository_head(live) << '\n';
         return 1;
     }
 #endif

@@ -14,13 +14,14 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
     if (!services.prepare_main || !services.prepare_ocr || !services.verify_deployment || !services.sync_uv) {
         return {false, "installer services are incomplete"};
     }
+    const auto original_config = config;
+    try {
+    InstallTransaction transaction(paths);
     try {
         save_config_atomic(config, paths);
     } catch (const std::exception& error) {
         return {false, error.what()};
     }
-    InstallTransaction transaction(paths);
-    const auto original_config = config;
     emit(services, "main", "checking");
     auto main = std::async(std::launch::async, [&] { return services.prepare_main(transaction); });
     emit(services, "ocr", "checking");
@@ -61,6 +62,7 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
         // The configuration is deliberately the final durable state change.
         config.main_sha = main_result.version;
         config.ocr_sha = ocr_result.version;
+        transaction.prepare_commit();
         save_config_atomic(config, paths);
         transaction.commit();
         emit(services, "complete", "installation completed");
@@ -68,7 +70,17 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
     } catch (const std::exception& error) {
         config = original_config;
         transaction.rollback();
+        std::string message = error.what();
+        try {
+            save_config_atomic(config, paths);
+        } catch (const std::exception& restore_error) {
+            message += "; setup.toml restore failed: ";
+            message += restore_error.what();
+        }
         emit(services, "deployment", "rolled back");
+        return {false, message};
+    }
+    } catch (const std::exception& error) {
         return {false, error.what()};
     }
 }

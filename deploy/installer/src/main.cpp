@@ -208,6 +208,9 @@ int main(int argc, char* argv[]) {
                                 throw std::runtime_error(finalize_error);
                             }
                         });
+                        current.add_post_commit_action([live, backend = git.backend] {
+                            baas_installer::compact_git_repository(live, backend);
+                        });
                     };
                     if (git.mode == baas_installer::RepositoryMode::Full) {
                         current.remove_path(live / ".git");

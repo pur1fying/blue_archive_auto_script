@@ -93,6 +93,49 @@ int main() {
         return 1;
     }
 
+    auto commit_failure_paths = baas_installer::InstallPaths::from_executable(
+        fixture / "commit-failure" / "BlueArchiveAutoScript.exe");
+    write(commit_failure_paths.root / "main.txt", "old-main");
+    write(commit_failure_paths.root / "core/ocr/baas_ocr_client/bin/ocr.txt", "old-ocr");
+    baas_installer::InstallerConfig commit_failure_config;
+    commit_failure_config.main_sha = "main-old";
+    commit_failure_config.ocr_sha = "ocr-old";
+    baas_installer::save_config_atomic(commit_failure_config, commit_failure_paths);
+    baas_installer::WorkflowServices commit_failure = services;
+    commit_failure.prepare_main = [&](auto& transaction) {
+        write(transaction.main_staging_path() / "main.txt", "new-main");
+        return baas_installer::PreparedRepository{.success = true, .mode = baas_installer::RepositoryMode::Full,
+            .backend = "git-cli", .version = "main-new", .revision = "master",
+            .apply = [](auto& current, std::string&) {
+                current.deploy_main();
+                current.add_commit_action([] {});
+                return true;
+            }};
+    };
+    commit_failure.prepare_ocr = [&](auto& transaction) {
+        write(transaction.ocr_staging_path() / "ocr.txt", "new-ocr");
+        return baas_installer::PreparedRepository{.success = true, .mode = baas_installer::RepositoryMode::Full,
+            .backend = "git-cli", .version = "ocr-new", .revision = "windows-x64",
+            .apply = [](auto& current, std::string&) {
+                current.deploy_ocr();
+                current.add_commit_action([] { throw std::runtime_error("forced finalizer failure"); });
+                return true;
+            }};
+    };
+    commit_failure.verify_deployment = [](const auto&, const auto&, std::string&) { return true; };
+    commit_failure.sync_uv = [](const auto&, const auto&, std::string&) { return true; };
+    const auto commit_failed = baas_installer::install_or_update(
+        commit_failure_config, commit_failure_paths, commit_failure);
+    const auto commit_failure_persisted = baas_installer::load_config(commit_failure_paths);
+    if (commit_failed.success || commit_failure_config.main_sha != "main-old" ||
+        commit_failure_config.ocr_sha != "ocr-old" || commit_failure_persisted.main_sha != "main-old" ||
+        commit_failure_persisted.ocr_sha != "ocr-old" ||
+        std::ifstream(commit_failure_paths.root / "main.txt").get() != 'o' ||
+        std::ifstream(commit_failure_paths.root / "core/ocr/baas_ocr_client/bin/ocr.txt").get() != 'o') {
+        std::cerr << "commit-action failure did not preserve files and durable version state\n";
+        return 1;
+    }
+
     auto preparation_failure_paths = baas_installer::InstallPaths::from_executable(
         fixture / "preparation-failure" / "BlueArchiveAutoScript.exe");
     baas_installer::InstallerConfig preparation_failure_config;
