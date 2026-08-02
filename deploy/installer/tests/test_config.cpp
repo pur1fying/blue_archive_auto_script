@@ -16,6 +16,10 @@ mirrorc_cdk = "legacy-cdk"
 current_BAAS_version = "legacy-main"
 runtime_path = "default"
 legacy_extension = "retain"
+source_list = [
+    "https://pypi.example/simple",
+    "https://mirror.example/simple",
+]
 
 [Paths]
 BAAS_ROOT_PATH = ""
@@ -33,6 +37,8 @@ keep_me = "yes"
     if (!require(rendered.find("[General]") != std::string::npos, "legacy schema")) return 1;
     if (!require(rendered.find("keep_me = \"yes\"") != std::string::npos, "unknown field")) return 1;
     if (!require(rendered.find("legacy_extension = \"retain\"") != std::string::npos, "unknown managed-table field")) return 1;
+    if (!require(rendered.find("source_list = [\n    \"https://pypi.example/simple\",\n    \"https://mirror.example/simple\",\n]") != std::string::npos,
+                 "multiline unknown field")) return 1;
     if (!require(rendered.find("package_manager = \"uv\"") != std::string::npos, "uv manager")) return 1;
 
     const auto schema_once = baas_installer::render_config(baas_installer::parse_config("schema_version = 0\n[General]\nruntime_path = \"default\"\n"));

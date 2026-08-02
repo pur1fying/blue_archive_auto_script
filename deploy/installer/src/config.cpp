@@ -4,6 +4,7 @@
 #include <cctype>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 
@@ -43,16 +44,43 @@ bool is_known_key(const std::string& table, const std::string& key) {
     return false;
 }
 
+std::optional<std::string> assignment_key(const std::string& stripped) {
+    if (stripped.empty() || stripped.front() == '#') return std::nullopt;
+    std::size_t end = 0;
+    if (stripped.front() == '"' || stripped.front() == '\'') {
+        const char quote = stripped.front();
+        end = stripped.find(quote, 1);
+        if (end == std::string::npos) return std::nullopt;
+        ++end;
+    } else {
+        while (end < stripped.size()) {
+            const auto character = static_cast<unsigned char>(stripped[end]);
+            if (!std::isalnum(character) && character != '_' && character != '-') break;
+            ++end;
+        }
+        if (end == 0) return std::nullopt;
+    }
+    auto equals = end;
+    while (equals < stripped.size() && std::isspace(static_cast<unsigned char>(stripped[equals]))) ++equals;
+    if (equals >= stripped.size() || stripped[equals] != '=') return std::nullopt;
+    return unquote(stripped.substr(0, end));
+}
+
 std::string preserved_unknown(const InstallerConfig& config, const std::string& wanted_table) {
     std::ostringstream output;
     std::istringstream input(config.source_toml);
     std::string line, table;
+    bool preserving = false;
     while (std::getline(input, line)) {
         const auto stripped = trim(line);
-        if (stripped.size() > 2 && stripped.front() == '[' && stripped.back() == ']') { table = stripped.substr(1, stripped.size() - 2); continue; }
+        if (stripped.size() > 2 && stripped.front() == '[' && stripped.back() == ']') {
+            table = stripped.substr(1, stripped.size() - 2);
+            preserving = false;
+            continue;
+        }
         if (table != wanted_table) continue;
-        const auto equal = stripped.find('=');
-        if (equal != std::string::npos && !is_known_key(table, trim(stripped.substr(0, equal)))) output << line << '\n';
+        if (const auto key = assignment_key(stripped)) preserving = !is_known_key(table, *key);
+        if (preserving) output << line << '\n';
     }
     return output.str();
 }
