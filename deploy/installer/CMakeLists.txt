@@ -40,6 +40,8 @@ add_library(baas-installer-core STATIC
     src/mirrorchyan.cpp
     src/workflow.cpp
     src/tui.cpp
+    src/localization.cpp
+    src/logging.cpp
 )
 target_include_directories(baas-installer-core PUBLIC include)
 target_link_libraries(baas-installer-core PUBLIC ftxui::component ftxui::dom ftxui::screen)
@@ -103,4 +105,12 @@ if(BUILD_TESTING)
     add_executable(baas-installer-test-process tests/test_process.cpp)
     target_link_libraries(baas-installer-test-process PRIVATE baas-installer-core)
     add_test(NAME process COMMAND baas-installer-test-process)
+
+    add_executable(baas-installer-test-localization tests/test_localization.cpp)
+    target_link_libraries(baas-installer-test-localization PRIVATE baas-installer-core)
+    add_test(NAME localization COMMAND baas-installer-test-localization)
+
+    add_executable(baas-installer-test-logging tests/test_logging.cpp)
+    target_link_libraries(baas-installer-test-logging PRIVATE baas-installer-core)
+    add_test(NAME logging COMMAND baas-installer-test-logging)
 endif()
