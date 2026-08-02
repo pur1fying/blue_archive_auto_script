@@ -537,7 +537,8 @@ bool verify_sha256(const fs::path& file, const std::string& expected_digest) {
     return actual == expected;
 }
 
-bool download_mirror_package(const MirrorRelease& release, const fs::path& archive, std::string& error) {
+bool download_mirror_package(const MirrorRelease& release, const fs::path& archive, std::string& error,
+                             MirrorDownloadProgress on_progress) {
     if (release.status != CdkStatus::Valid || !is_sha256(release.sha256)) { error = "MirrorChyan response has no verifiable package"; return false; }
 #ifdef BAAS_INSTALLER_HAS_CURL
     fs::create_directories(archive.parent_path());
@@ -545,8 +546,24 @@ bool download_mirror_package(const MirrorRelease& release, const fs::path& archi
     CURL* curl = curl_easy_init();
     if (!curl) { std::fclose(output); error = "cannot initialize HTTP client"; return false; }
     curl_easy_setopt(curl, CURLOPT_URL, release.download_url.c_str()); curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_file); curl_easy_setopt(curl, CURLOPT_WRITEDATA, output); curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600L);
+    if (on_progress) {
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &on_progress);
+        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION,
+            +[](void* payload, const curl_off_t total, const curl_off_t downloaded, curl_off_t, curl_off_t) -> int {
+                auto* callback = static_cast<MirrorDownloadProgress*>(payload);
+                (*callback)(downloaded > 0 ? static_cast<std::uint64_t>(downloaded) : 0,
+                            total > 0 ? static_cast<std::uint64_t>(total) : 0);
+                return 0;
+            });
+    }
     const auto status = curl_easy_perform(curl); curl_easy_cleanup(curl); std::fclose(output);
     if (status != CURLE_OK || !verify_sha256(archive, release.sha256)) { fs::remove(archive); error = status == CURLE_OK ? "MirrorChyan SHA-256 mismatch" : "MirrorChyan download failed"; return false; }
+    if (on_progress) {
+        std::error_code size_error;
+        const auto size = fs::file_size(archive, size_error);
+        if (!size_error) on_progress(size, size);
+    }
     return true;
 #else
     (void)archive; error = "installer was built without libcurl"; return false;

@@ -1,5 +1,6 @@
 #include "baas_installer/uv_environment.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -20,7 +21,10 @@ int main() {
         std::cerr << "managed uv flags missing\n"; return 1;
     }
     config.runtime_path = "D:/Python";
-    if (baas_installer::make_uv_environment(paths, config).managed) { std::cerr << "custom runtime not respected\n"; return 1; }
+    const auto custom_environment = baas_installer::make_uv_environment(paths, config);
+    if (custom_environment.managed || custom_environment.variables.contains("UV_PROJECT_ENVIRONMENT")) {
+        std::cerr << "custom runtime not respected\n"; return 1;
+    }
     config.runtime_path = "default";
     const auto commands = baas_installer::managed_uv_commands(environment, config, paths.root / "requirements.txt");
     if (commands.size() != 4 || commands[1].arguments[1] != "--relocatable" ||
@@ -85,5 +89,46 @@ int main() {
         }
     }
     std::filesystem::remove_all(test_root, ignored);
+
+    const auto custom_root = std::filesystem::temp_directory_path() / "baas-installer-uv-custom-test";
+    std::filesystem::remove_all(custom_root, ignored);
+    const auto custom_paths = baas_installer::InstallPaths::from_executable(custom_root / "BlueArchiveAutoScript.exe");
+    baas_installer::InstallerConfig custom_config;
+    custom_config.runtime_path = "D:/Custom Python/python.exe";
+    const auto custom_uv = baas_installer::make_uv_environment(custom_paths, custom_config);
+    std::filesystem::create_directories(custom_uv.executable.parent_path());
+    std::ofstream(custom_uv.executable) << "fake";
+    std::filesystem::create_directories(custom_paths.root);
+    std::ofstream(baas_installer::dependency_requirements(custom_paths)) << "example==1\n";
+    std::vector<baas_installer::ProcessSpec> custom_commands;
+    const auto custom_executor = [&](const baas_installer::ProcessSpec& spec) {
+        custom_commands.push_back(spec);
+        return baas_installer::ProcessResult{0, {}};
+    };
+    if (!baas_installer::sync_portable_uv(custom_paths, custom_config, sync_error, {}, custom_executor) ||
+        custom_commands.size() != 3) {
+        std::cerr << "custom Python dependencies were not synchronized through uv\n"; return 1;
+    }
+    for (const auto& spec : custom_commands) {
+        if (std::find(spec.arguments.begin(), spec.arguments.end(), "install") != spec.arguments.end() ||
+            std::find(spec.arguments.begin(), spec.arguments.end(), "venv") != spec.arguments.end()) {
+            std::cerr << "custom runtime attempted portable Python creation\n"; return 1;
+        }
+    }
+    const auto& sync_arguments = custom_commands[1].arguments;
+    const auto python = std::find(sync_arguments.begin(), sync_arguments.end(), "--python");
+    if (python == sync_arguments.end() || std::next(python) == sync_arguments.end() ||
+        *std::next(python) != custom_config.runtime_path) {
+        std::cerr << "custom runtime was not passed to uv pip sync\n"; return 1;
+    }
+#ifdef _WIN32
+    if (baas_installer::dependency_requirements(custom_paths).filename() != "requirements.txt") return 1;
+#else
+    if (baas_installer::dependency_requirements(custom_paths).filename() != "requirements-linux.txt") return 1;
+#endif
+    if (baas_installer::expected_uv_sha256().size() != 64) {
+        std::cerr << "pinned uv digest missing\n"; return 1;
+    }
+    std::filesystem::remove_all(custom_root, ignored);
     return 0;
 }

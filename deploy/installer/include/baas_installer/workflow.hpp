@@ -15,6 +15,7 @@ struct PreparedRepository {
     RepositoryMode mode{RepositoryMode::Full};
     std::string backend;
     std::string version;
+    std::string revision;
     std::string error;
     std::function<bool(InstallTransaction&, std::string&)> apply;
 };

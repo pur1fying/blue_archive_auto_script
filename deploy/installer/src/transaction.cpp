@@ -21,10 +21,22 @@ bool is_ocr_bin(const fs::path& relative) {
 }
 
 bool is_protected_installer_path(const fs::path& relative) {
+    if (relative.empty()) return true;
     const auto first = *relative.begin();
     static const std::array<fs::path, 7> protected_paths{
         "BlueArchiveAutoScript.exe", "setup.toml", "log", "tmp", "toolkit", ".venv", ".baas-installer"};
     return std::find(protected_paths.begin(), protected_paths.end(), first) != protected_paths.end();
+}
+
+bool is_preserved_user_path(const fs::path& relative, const bool main_tree) {
+    if (relative.empty()) return true;
+    const auto first = *relative.begin();
+    if (main_tree) {
+        static const std::array<fs::path, 5> paths{"config", "output", "screenshot", "screenshots", "data"};
+        return std::find(paths.begin(), paths.end(), first) != paths.end();
+    }
+    static const std::array<fs::path, 2> paths{"config", "output"};
+    return std::find(paths.begin(), paths.end(), first) != paths.end();
 }
 
 bool is_within(const fs::path& root, const fs::path& candidate) {
@@ -71,6 +83,36 @@ void InstallTransaction::journal(const std::string& event) const {
 
 void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& destination, const bool skip_ocr_bin) {
     if (!fs::is_directory(source)) throw std::runtime_error("verified staging directory is missing");
+    std::vector<fs::path> stale;
+    std::error_code scan_error;
+    if (fs::is_directory(destination)) {
+        for (auto iterator = fs::recursive_directory_iterator(destination, scan_error);
+             !scan_error && iterator != fs::recursive_directory_iterator(); ++iterator) {
+            const auto relative = iterator->path().lexically_relative(destination);
+            const bool preserved = is_protected_installer_path(relative) ||
+                                   is_preserved_user_path(relative, destination == paths_.root);
+            const bool ocr_tree = skip_ocr_bin && (is_ocr_bin(relative) || is_ocr_bin(relative.parent_path()));
+            if (preserved || ocr_tree) {
+                if (iterator->is_directory()) iterator.disable_recursion_pending();
+                continue;
+            }
+            const auto staged = source / relative;
+            if (iterator->is_directory()) {
+                if (fs::exists(staged) && !fs::is_directory(staged)) {
+                    stale.push_back(iterator->path());
+                    iterator.disable_recursion_pending();
+                }
+            } else if (!fs::exists(staged) || !fs::is_regular_file(staged)) {
+                stale.push_back(iterator->path());
+            }
+        }
+        if (scan_error) throw std::runtime_error("could not inspect live deployment tree: " + scan_error.message());
+    }
+    std::sort(stale.begin(), stale.end(), [](const fs::path& left, const fs::path& right) {
+        return std::distance(left.begin(), left.end()) > std::distance(right.begin(), right.end());
+    });
+    for (const auto& path : stale) if (fs::exists(path)) remove_path(path);
+
     for (auto iterator = fs::recursive_directory_iterator(source); iterator != fs::recursive_directory_iterator(); ++iterator) {
         const auto& entry = *iterator;
         // `relative()` may canonicalize through the active ANSI code page on
@@ -104,9 +146,9 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
             fs::permissions(target, fs::perms::owner_write, fs::perm_options::add, error);
             if (error) throw std::runtime_error("could not make a live file writable: " + error.message());
         }
+        changes_.push_back({target, backup, exists, false});
         fs::copy_file(entry.path(), target, fs::copy_options::overwrite_existing, error);
         if (error) throw std::runtime_error("could not deploy staged file '" + display_path(target) + "': " + error.message());
-        changes_.push_back({target, backup, exists, false});
     }
 }
 
@@ -143,9 +185,9 @@ void InstallTransaction::replace_file(const fs::path& source, const fs::path& de
         fs::copy_file(destination, backup, fs::copy_options::overwrite_existing, error);
         if (error) throw std::runtime_error("could not back up replacement file: " + error.message());
     }
+    changes_.push_back({destination, backup, exists, false});
     fs::copy_file(source, destination, fs::copy_options::overwrite_existing, error);
     if (error) throw std::runtime_error("could not replace live file: " + error.message());
-    changes_.push_back({destination, backup, exists, false});
     journal("replace:" + display_path(destination));
 }
 
@@ -174,16 +216,18 @@ void InstallTransaction::add_rollback_action(std::function<void()> action) {
     if (action) rollback_actions_.push_back(std::move(action));
 }
 
-void InstallTransaction::write_ocr_managed_marker() {
+void InstallTransaction::write_ocr_managed_marker(const std::string& branch, const std::string& commit) {
     const auto target = paths_.root / "core" / "ocr" / "baas_ocr_client" / "bin" / ".baas-installer-managed.json";
     const bool exists = fs::exists(target);
     const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
     fs::create_directories(target.parent_path());
     if (exists) fs::copy_file(target, backup, fs::copy_options::overwrite_existing);
-    std::ofstream output(target, std::ios::trunc);
-    output << "{\"schema_version\":1,\"managed_by\":\"baas-installer\"}\n";
-    output.close();
     changes_.push_back({target, backup, exists, false});
+    std::ofstream output(target, std::ios::trunc);
+    output << "{\"schema_version\":1,\"managed_by\":\"baas-installer\",\"branch\":\""
+           << branch << "\",\"commit\":\"" << commit << "\"}\n";
+    output.close();
+    if (!output) throw std::runtime_error("could not write OCR managed marker");
     journal("ocr-marker");
 }
 

@@ -28,6 +28,8 @@ struct UvEnvironment {
 };
 
 UvEnvironment make_uv_environment(const InstallPaths& paths, const InstallerConfig& config);
+std::filesystem::path dependency_requirements(const InstallPaths& paths);
+std::string expected_uv_sha256();
 std::vector<UvCommand> managed_uv_commands(
     const UvEnvironment& environment,
     const InstallerConfig& config,

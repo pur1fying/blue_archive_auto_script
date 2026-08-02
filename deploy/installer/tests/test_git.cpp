@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 
 namespace {
 namespace fs = std::filesystem;
@@ -84,7 +85,7 @@ int main() {
         [&](std::string_view, std::string_view, std::string_view chunk) { visible_chunks.append(chunk); });
     if (!incremental.success || incremental.mode != baas_installer::RepositoryMode::Incremental ||
         incremental.commit == first_head || baas_installer::repository_head(live) != first_head ||
-        !fs::exists(live / ".git" / "FETCH_HEAD")) {
+        !fs::exists(live / ".git" / "FETCH_HEAD") || visible_chunks.empty()) {
         std::cerr << "changed remote must fetch without changing the live work tree\n";
         fs::remove_all(root, ignored);
         return 1;
@@ -108,6 +109,38 @@ int main() {
         fs::remove_all(root, ignored);
         return 1;
     }
+
+#ifdef BAAS_INSTALLER_TEST_HAS_LIBGIT2
+    if (!command({"git", "-C", seed.string(), "checkout", "-b", "windows-x64"}) ||
+        !command({"git", "-C", seed.string(), "push", "origin", "windows-x64"})) {
+        std::cerr << "could not create OCR-style remote branch\n";
+        return 1;
+    }
+    const auto libgit_staging = root / "libgit-staging";
+    std::string libgit_chunks;
+    const char* inherited_path = std::getenv("PATH");
+    const std::string saved_path = inherited_path ? inherited_path : "";
+#ifdef _WIN32
+    _putenv_s("PATH", "");
+#else
+    setenv("PATH", "", 1);
+#endif
+    auto libgit = baas_installer::prepare_git_repository(
+        {remote.string()}, root / "missing", libgit_staging, "refs/heads/windows-x64",
+        [&](std::string_view, std::string_view backend, std::string_view chunk) {
+            if (backend == "libgit2") libgit_chunks.append(chunk);
+        });
+#ifdef _WIN32
+    _putenv_s("PATH", saved_path.c_str());
+#else
+    setenv("PATH", saved_path.c_str(), 1);
+#endif
+    if (!libgit.success || libgit.backend != baas_installer::GitBackend::Libgit2 ||
+        baas_installer::repository_head(libgit_staging).empty() || libgit_chunks.empty()) {
+        std::cerr << "libgit2 did not clone and report progress for an OCR remote branch: " << libgit.error << '\n';
+        return 1;
+    }
+#endif
 
     fs::remove_all(root, ignored);
     return 0;

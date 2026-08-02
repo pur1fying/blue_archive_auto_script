@@ -1,5 +1,6 @@
 #include "baas_installer/process.hpp"
 
+#include <cerrno>
 #include <fstream>
 #include <mutex>
 #include <sstream>
@@ -346,25 +347,52 @@ bool launch_detached(const std::vector<std::string>& arguments,
     CloseHandle(process.hProcess);
     return true;
 #else
-    const pid_t child = fork();
-    if (child < 0) return false;
-    if (child > 0) return true;
-    if (setsid() < 0) _exit(127);
-    if (!working_directory.empty() && chdir(working_directory.c_str()) != 0) _exit(127);
-    for (const auto& [key, value] : environment_overrides) setenv(key.c_str(), value.c_str(), 1);
-    const int null_fd = open("/dev/null", O_RDWR);
-    if (null_fd >= 0) {
-        dup2(null_fd, STDIN_FILENO);
-        dup2(null_fd, STDOUT_FILENO);
-        dup2(null_fd, STDERR_FILENO);
-        if (null_fd > STDERR_FILENO) close(null_fd);
+    int status_pipe[2]{};
+    if (pipe(status_pipe) != 0) return false;
+    if (fcntl(status_pipe[1], F_SETFD, FD_CLOEXEC) != 0) {
+        close(status_pipe[0]);
+        close(status_pipe[1]);
+        return false;
     }
+    const pid_t child = fork();
+    if (child < 0) {
+        close(status_pipe[0]);
+        close(status_pipe[1]);
+        return false;
+    }
+    if (child > 0) {
+        close(status_pipe[1]);
+        int child_error = 0;
+        ssize_t count = -1;
+        do { count = read(status_pipe[0], &child_error, sizeof(child_error)); } while (count < 0 && errno == EINTR);
+        close(status_pipe[0]);
+        if (count == 0) return true;
+        int status = 0;
+        (void)waitpid(child, &status, 0);
+        return false;
+    }
+    close(status_pipe[0]);
+    const auto fail = [&](const int error_number) {
+        const int value = error_number == 0 ? EIO : error_number;
+        (void)write(status_pipe[1], &value, sizeof(value));
+        _exit(127);
+    };
+    if (setsid() < 0) fail(errno);
+    if (!working_directory.empty() && chdir(working_directory.c_str()) != 0) fail(errno);
+    for (const auto& [key, value] : environment_overrides) {
+        if (setenv(key.c_str(), value.c_str(), 1) != 0) fail(errno);
+    }
+    const int null_fd = open("/dev/null", O_RDWR);
+    if (null_fd < 0) fail(errno);
+    if (dup2(null_fd, STDIN_FILENO) < 0 || dup2(null_fd, STDOUT_FILENO) < 0 ||
+        dup2(null_fd, STDERR_FILENO) < 0) fail(errno);
+    if (null_fd > STDERR_FILENO) close(null_fd);
     std::vector<char*> argv;
     argv.reserve(arguments.size() + 1);
     for (const auto& argument : arguments) argv.push_back(const_cast<char*>(argument.c_str()));
     argv.push_back(nullptr);
     execvp(argv.front(), argv.data());
-    _exit(127);
+    fail(errno);
 #endif
 }
 

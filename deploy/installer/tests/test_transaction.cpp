@@ -22,6 +22,8 @@ int main() {
     paths.tmp_dir = paths.root / "tmp";
     write(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt", "old-ocr");
     write(paths.root / "app.txt", "old-main");
+    write(paths.root / "obsolete.py", "old-module");
+    write(paths.root / "config/user.json", "user-data");
     {
         baas_installer::InstallTransaction transaction(paths);
         write(transaction.main_staging_path() / "app.txt", "new-main");
@@ -29,10 +31,15 @@ int main() {
         write(transaction.ocr_staging_path() / "keep.txt", "new-ocr");
         transaction.deploy_main();
         if (read(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt") != "old-ocr") { std::cerr << "main overwrote OCR\n"; return 1; }
+        if (fs::exists(paths.root / "obsolete.py") || read(paths.root / "config/user.json") != "user-data") {
+            std::cerr << "full deployment did not remove stale managed files while preserving user data\n"; return 1;
+        }
         transaction.deploy_ocr();
         transaction.rollback();
     }
-    const bool good = read(paths.root / "app.txt") == "old-main" && read(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt") == "old-ocr";
+    const bool good = read(paths.root / "app.txt") == "old-main" && read(paths.root / "obsolete.py") == "old-module" &&
+        read(paths.root / "config/user.json") == "user-data" &&
+        read(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt") == "old-ocr";
     write(paths.root / "delete.txt", "keep-after-rollback");
     write(paths.root / ".git" / "HEAD", "ref: refs/heads/master");
     {

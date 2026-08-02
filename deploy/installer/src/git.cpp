@@ -29,6 +29,7 @@ int visible_git(std::vector<std::string> arguments, const ProcessObserver& obser
     spec.arguments = std::move(arguments);
     spec.environment = git_environment();
     spec.use_pty = true;
+    if (observer) observer("repository", "git-cli", "Starting Git operation\r");
     if (observer) spec.on_chunk = [&](const std::string_view chunk) { observer("repository", "git-cli", chunk); };
     return observer ? run_terminal_process(spec).exit_code : run_process(spec).exit_code;
 }
@@ -68,13 +69,60 @@ GitResult clone_with_cli(const std::string& source, const fs::path& destination,
 }
 
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
-GitResult clone_with_libgit2(const std::string& source, const fs::path& destination, const std::string& revision) {
+struct Libgit2Progress {
+    ProcessObserver observer;
+    int last_percent{-1};
+};
+
+void emit_libgit2(Libgit2Progress* progress, const std::string& message) {
+    if (progress && progress->observer) progress->observer("repository", "libgit2", message);
+}
+
+int transfer_progress(const git_indexer_progress* stats, void* payload) {
+    auto* progress = static_cast<Libgit2Progress*>(payload);
+    const int percent = stats && stats->total_objects != 0
+        ? static_cast<int>((100ULL * stats->received_objects) / stats->total_objects) : 0;
+    if (progress && percent != progress->last_percent) {
+        progress->last_percent = percent;
+        std::ostringstream output;
+        output << "Receiving objects " << (stats ? stats->received_objects : 0) << "/"
+               << (stats ? stats->total_objects : 0) << " (" << percent << "%)\r";
+        emit_libgit2(progress, output.str());
+    }
+    return 0;
+}
+
+void checkout_progress(const char*, const size_t completed, const size_t total, void* payload) {
+    auto* progress = static_cast<Libgit2Progress*>(payload);
+    const int percent = total != 0 ? static_cast<int>((100ULL * completed) / total) : 0;
+    if (progress && percent != progress->last_percent) {
+        progress->last_percent = percent;
+        emit_libgit2(progress, "Checking out files " + std::to_string(completed) + "/" +
+                                   std::to_string(total) + " (" + std::to_string(percent) + "%)\r");
+    }
+}
+
+std::string branch_name(const std::string& revision) {
+    static const std::string prefix = "refs/heads/";
+    return revision.starts_with(prefix) ? revision.substr(prefix.size()) : std::string{};
+}
+
+GitResult clone_with_libgit2(const std::string& source, const fs::path& destination, const std::string& revision,
+                             const ProcessObserver& observer = {}) {
     std::error_code ignored;
     fs::remove_all(destination, ignored);
     fs::create_directories(destination.parent_path(), ignored);
     git_libgit2_init();
     git_repository* repository = nullptr;
     git_clone_options options = GIT_CLONE_OPTIONS_INIT;
+    Libgit2Progress progress{observer};
+    options.fetch_opts.callbacks.transfer_progress = transfer_progress;
+    options.fetch_opts.callbacks.payload = &progress;
+    options.checkout_opts.progress_cb = checkout_progress;
+    options.checkout_opts.progress_payload = &progress;
+    const auto wanted_branch = branch_name(revision);
+    if (!wanted_branch.empty()) options.checkout_branch = wanted_branch.c_str();
+    emit_libgit2(&progress, "Starting libgit2 clone\r");
     const int cloned = git_clone(&repository, source.c_str(), destination.string().c_str(), &options);
     if (cloned != 0) {
         const auto* error = git_error_last();
@@ -84,9 +132,16 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
     if (!revision.empty()) {
         git_object* object = nullptr;
         const int resolved = git_revparse_single(&object, repository, revision.c_str());
-        const int checked_out = resolved == 0 ? git_checkout_tree(repository, object, nullptr) : resolved;
+        git_checkout_options checkout = GIT_CHECKOUT_OPTIONS_INIT;
+        checkout.checkout_strategy = GIT_CHECKOUT_FORCE;
+        checkout.progress_cb = checkout_progress;
+        checkout.progress_payload = &progress;
+        const int checked_out = resolved == 0 ? git_checkout_tree(repository, object, &checkout) : resolved;
+        const int head_updated = checked_out == 0 && !wanted_branch.empty()
+            ? git_repository_set_head(repository, revision.c_str())
+            : (checked_out == 0 ? git_repository_set_head_detached(repository, git_object_id(object)) : checked_out);
         if (object != nullptr) git_object_free(object);
-        if (checked_out != 0) {
+        if (checked_out != 0 || head_updated != 0) {
             const auto* error = git_error_last();
             git_repository_free(repository);
             git_libgit2_shutdown();
@@ -96,11 +151,13 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
     }
     git_repository_free(repository);
     git_libgit2_shutdown();
+    emit_libgit2(&progress, "libgit2 clone completed\r");
     return {true, GitBackend::Libgit2, source, revision.empty() ? "HEAD" : revision, {}};
 }
 
 GitResult prepare_existing_with_libgit2(const std::vector<std::string>& sources, const fs::path& repository_path,
-                                        const std::string& revision, const std::string& local_head) {
+                                        const std::string& revision, const std::string& local_head,
+                                        const ProcessObserver& observer = {}) {
     git_libgit2_init();
     git_repository* repository = nullptr;
     if (git_repository_open(&repository, repository_path.string().c_str()) != 0) {
@@ -110,6 +167,7 @@ GitResult prepare_existing_with_libgit2(const std::vector<std::string>& sources,
         return {false, GitBackend::Libgit2, {}, {}, error};
     }
     GitResult last{false, GitBackend::Libgit2, {}, {}, "no libgit2 remote source succeeded"};
+    Libgit2Progress progress{observer};
     const std::string wanted = revision.empty() ? "HEAD" : revision;
     for (const auto& source : sources) {
         git_remote* remote = nullptr;
@@ -119,6 +177,8 @@ GitResult prepare_existing_with_libgit2(const std::vector<std::string>& sources,
             continue;
         }
         git_fetch_options options = GIT_FETCH_OPTIONS_INIT;
+        options.callbacks.transfer_progress = transfer_progress;
+        options.callbacks.payload = &progress;
         std::string remote_head;
         if (git_remote_connect(remote, GIT_DIRECTION_FETCH, &options.callbacks, &options.proxy_opts,
                                &options.custom_headers) == 0) {
@@ -155,6 +215,7 @@ GitResult prepare_existing_with_libgit2(const std::vector<std::string>& sources,
         char* refspec_value = const_cast<char*>(refspec.c_str());
         git_strarray refspecs{&refspec_value, 1};
         if (git_remote_fetch(remote, &refspecs, &options, nullptr) == 0) {
+            emit_libgit2(&progress, "libgit2 fetch completed\r");
             GitResult result{true, GitBackend::Libgit2, source, remote_head, {}};
             result.mode = RepositoryMode::Incremental;
             result.previous_commit = local_head;
@@ -233,7 +294,7 @@ GitResult clone_repository(const std::vector<std::string>& sources, const fs::pa
     }
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
     for (const auto& source : sources) {
-        last = clone_with_libgit2(source, destination, revision);
+            last = clone_with_libgit2(source, destination, revision);
         if (last.success) return last;
     }
 #endif
@@ -285,12 +346,12 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
 
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
     if (valid_live) {
-        auto result = prepare_existing_with_libgit2(sources, live_repository, revision, local_head);
+        auto result = prepare_existing_with_libgit2(sources, live_repository, revision, local_head, observer);
         if (result.success) return result;
         last = result;
     } else {
         for (const auto& source : sources) {
-            auto result = clone_with_libgit2(source, staging_directory, revision);
+            auto result = clone_with_libgit2(source, staging_directory, revision, observer);
             if (result.success) {
                 result.mode = RepositoryMode::Full;
                 result.commit = repository_head(staging_directory);
@@ -323,6 +384,7 @@ bool apply_git_update(const GitResult& prepared, const fs::path& live_repository
         return false;
     }
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
+    if (observer) observer("repository", "libgit2", "Applying libgit2 hard reset\r");
     git_libgit2_init();
     git_repository* repository = nullptr;
     git_object* object = nullptr;
@@ -336,6 +398,7 @@ bool apply_git_update(const GitResult& prepared, const fs::path& live_repository
         error = detail ? detail->message : "libgit2 hard reset failed";
     }
     git_libgit2_shutdown();
+    if (reset == 0 && observer) observer("repository", "libgit2", "libgit2 hard reset completed\r");
     return reset == 0;
 #else
     error = "libgit2 is not available";

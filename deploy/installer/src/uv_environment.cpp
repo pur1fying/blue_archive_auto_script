@@ -1,4 +1,5 @@
 #include "baas_installer/uv_environment.hpp"
+#include "baas_installer/mirrorchyan.hpp"
 #include "baas_installer/process.hpp"
 #include "baas_installer/sources.hpp"
 
@@ -54,7 +55,7 @@ UvEnvironment make_uv_environment(const InstallPaths& paths, const InstallerConf
 #endif
         .cache_dir = cache,
         .python_dir = python,
-        .venv_dir = managed ? paths.venv_dir : fs::path(config.runtime_path),
+        .venv_dir = managed ? paths.venv_dir : fs::path{},
         .managed = managed,
     };
     result.variables = {
@@ -65,8 +66,6 @@ UvEnvironment make_uv_environment(const InstallPaths& paths, const InstallerConf
         {"UV_TOOL_DIR", text(uv_root / "tools")},
         {"UV_TOOL_BIN_DIR", text(uv_root / "tool-bin")},
         {"UV_CREDENTIALS_DIR", text(uv_root / "credentials")},
-        {"UV_PROJECT_ENVIRONMENT", text(result.venv_dir)},
-        {"UV_VENV_RELOCATABLE", "1"},
         {"UV_NO_CONFIG", "1"},
         {"UV_PYTHON_INSTALL_REGISTRY", "0"},
         {"XDG_CACHE_HOME", text(uv_root / "xdg" / "cache")},
@@ -76,7 +75,31 @@ UvEnvironment make_uv_environment(const InstallPaths& paths, const InstallerConf
         {"TMP", text(tmp)},
         {"TEMP", text(tmp)},
     };
+    if (managed) {
+        result.variables["UV_PROJECT_ENVIRONMENT"] = text(result.venv_dir);
+        result.variables["UV_VENV_RELOCATABLE"] = "1";
+    }
     return result;
+}
+
+fs::path dependency_requirements(const InstallPaths& paths) {
+#ifdef _WIN32
+    return paths.root / "requirements.txt";
+#else
+    return paths.root / "requirements-linux.txt";
+#endif
+}
+
+std::string expected_uv_sha256() {
+#ifdef _WIN32
+    return "3e8203e6434b45427f20824419f8d8d53f970a76d94ccdcad07f8498fa01a9d0";
+#elif defined(__APPLE__) && (defined(__aarch64__) || defined(__arm64__))
+    return "695f3640d5b1a4e28de7e36e3a2e14072852dcc6c70bf9e4deec6ada00d516b4";
+#elif defined(__APPLE__)
+    return "7e23d1d892c23f9e74245c4fd3d3e246438ce9b34460f85eee61f784de137b0b";
+#else
+    return "14411de26cdea5f5139fafaf2b675b1c633e744dd49c6d6a9fc8817ec065158b";
+#endif
 }
 
 std::vector<UvCommand> managed_uv_commands(
@@ -94,7 +117,7 @@ std::vector<UvCommand> managed_uv_commands(
 bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error,
                         ProcessObserver observer, UvProcessExecutor terminal_executor) {
     const auto environment = make_uv_environment(paths, config);
-    if (!environment.managed || fs::exists(environment.executable)) return true;
+    if (fs::exists(environment.executable)) return true;
     fs::create_directories(paths.tmp_dir / "uv");
     const auto archive = paths.tmp_dir / "uv" / uv_archive_name();
     const auto filename = uv_archive_name();
@@ -104,6 +127,12 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
         if (run_visible({"curl", "--fail", "--location", "--connect-timeout", "5", "--retry", "2", "--output",
                          archive.string(), source}, environment.variables, paths.root, "curl", observer,
                         terminal_executor).exit_code != 0) continue;
+        if (!verify_sha256(archive, expected_uv_sha256())) {
+            if (observer) observer("uv", "curl", "Downloaded uv archive failed pinned SHA-256 verification\r");
+            std::error_code ignored;
+            fs::remove(archive, ignored);
+            continue;
+        }
         std::error_code ignored; fs::remove_all(paths.uv_dir, ignored); fs::create_directories(paths.uv_dir);
         // Windows bsdtar accepts ZIP archives but not every GNU tar option.
         // Keep the archive's top-level directory and locate uv recursively.
@@ -123,10 +152,9 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
 bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error,
                       ProcessObserver observer, UvProcessExecutor terminal_executor) {
     const auto environment = make_uv_environment(paths, config);
-    if (!environment.managed) return true;
     if (!ensure_portable_uv(paths, config, error, observer, terminal_executor)) return false;
-    const auto requirements = paths.root / "requirements.txt";
-    if (!fs::exists(requirements)) { error = "requirements.txt is missing after main deployment"; return false; }
+    const auto requirements = dependency_requirements(paths);
+    if (!fs::exists(requirements)) { error = requirements.filename().string() + " is missing after main deployment"; return false; }
 
     for (const auto& directory : {environment.cache_dir, environment.python_dir, paths.tmp_dir / "uv",
                                   paths.toolkit_dir / "uv" / "python-cache", paths.toolkit_dir / "uv" / "python-bin",
@@ -143,35 +171,37 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
         return run_visible(arguments, variables, paths.root, "uv", observer, terminal_executor).exit_code == 0;
     };
 
-    bool python_installed = false;
-    std::vector<std::string> cpython_mirrors{""};
-    const auto configured_mirrors = default_sources(SourceKind::Cpython, config);
-    cpython_mirrors.insert(cpython_mirrors.end(), configured_mirrors.begin(), configured_mirrors.end());
-    for (const auto& mirror : cpython_mirrors) {
-        auto variables = environment.variables;
-        if (!mirror.empty()) variables["UV_PYTHON_INSTALL_MIRROR"] = mirror;
-        if (run_uv({"python", "install", config.python_version}, variables)) {
-            python_installed = true;
-            break;
-        }
-    }
-    if (!python_installed) {
-        error = "uv could not install Python from the official source or any configured fallback";
-        return false;
-    }
     const auto managed_marker = environment.venv_dir / ".baas-installer-managed";
-    std::string marker_value;
-    if (fs::exists(managed_marker)) {
-        std::ifstream marker(managed_marker, std::ios::binary);
-        marker_value.assign(std::istreambuf_iterator<char>(marker), {});
-    }
-    const bool reusable_environment = fs::exists(environment.venv_dir / "pyvenv.cfg") &&
-                                      marker_value == "python=" + config.python_version + "\n";
-    if (!reusable_environment) {
-        if (!run_uv({"venv", "--relocatable", "--python", config.python_version, environment.venv_dir.generic_string()},
-                    environment.variables)) {
-            error = "uv could not create the relocatable virtual environment";
+    if (environment.managed) {
+        bool python_installed = false;
+        std::vector<std::string> cpython_mirrors{""};
+        const auto configured_mirrors = default_sources(SourceKind::Cpython, config);
+        cpython_mirrors.insert(cpython_mirrors.end(), configured_mirrors.begin(), configured_mirrors.end());
+        for (const auto& mirror : cpython_mirrors) {
+            auto variables = environment.variables;
+            if (!mirror.empty()) variables["UV_PYTHON_INSTALL_MIRROR"] = mirror;
+            if (run_uv({"python", "install", config.python_version}, variables)) {
+                python_installed = true;
+                break;
+            }
+        }
+        if (!python_installed) {
+            error = "uv could not install Python from the official source or any configured fallback";
             return false;
+        }
+        std::string marker_value;
+        if (fs::exists(managed_marker)) {
+            std::ifstream marker(managed_marker, std::ios::binary);
+            marker_value.assign(std::istreambuf_iterator<char>(marker), {});
+        }
+        const bool reusable_environment = fs::exists(environment.venv_dir / "pyvenv.cfg") &&
+                                          marker_value == "python=" + config.python_version + "\n";
+        if (!reusable_environment) {
+            if (!run_uv({"venv", "--relocatable", "--python", config.python_version, environment.venv_dir.generic_string()},
+                        environment.variables)) {
+                error = "uv could not create the relocatable virtual environment";
+                return false;
+            }
         }
     }
 
@@ -181,9 +211,15 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
         auto variables = environment.variables;
         variables["UV_INDEX"] = index;
         variables["UV_DEFAULT_INDEX"] = index;
-        variables["VIRTUAL_ENV"] = environment.venv_dir.generic_string();
+        if (environment.managed) variables["VIRTUAL_ENV"] = environment.venv_dir.generic_string();
         if (!run_uv({"pip", "compile", requirements.generic_string(), "--output-file", compiled.generic_string()}, variables)) continue;
-        if (!run_uv({"pip", "sync", "--link-mode", "copy", compiled.generic_string()}, variables)) continue;
+        std::vector<std::string> sync{"pip", "sync", "--link-mode", "copy"};
+        if (!environment.managed) {
+            sync.push_back("--python");
+            sync.push_back(config.runtime_path);
+        }
+        sync.push_back(compiled.generic_string());
+        if (!run_uv(sync, variables)) continue;
         dependencies_installed = true;
         break;
     }
@@ -191,7 +227,7 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
         error = "uv dependency synchronization failed for every configured PyPI index";
         return false;
     }
-    {
+    if (environment.managed) {
         std::ofstream marker(managed_marker, std::ios::binary | std::ios::trunc);
         marker << "python=" << config.python_version << '\n';
         if (!marker) {

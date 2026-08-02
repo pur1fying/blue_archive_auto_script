@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <iostream>
 #include <thread>
+#include <algorithm>
+#include <cctype>
 
 namespace {
 std::string ocr_revision() {
@@ -23,6 +25,25 @@ std::string ocr_revision() {
 #else
     return "linux-x64";
 #endif
+}
+
+std::string short_revision(const std::string& revision) {
+    static const std::string prefix = "refs/heads/";
+    return revision.starts_with(prefix) ? revision.substr(prefix.size()) : revision;
+}
+
+std::string ocr_executable_name() {
+#ifdef _WIN32
+    return "BAAS_ocr_server.exe";
+#else
+    return "BAAS_ocr_server";
+#endif
+}
+
+bool is_git_commit(const std::string& value) {
+    return value.size() == 40 && std::all_of(value.begin(), value.end(), [](const unsigned char character) {
+        return std::isxdigit(character) != 0;
+    });
 }
 
 }
@@ -82,7 +103,8 @@ int main(int argc, char* argv[]) {
                     model.append_event({{}, task, "mirrorchyan", baas_installer::LogSeverity::Info, "already current"});
                     return baas_installer::PreparedRepository{.success = true,
                         .mode = baas_installer::RepositoryMode::Unchanged, .backend = "mirrorchyan",
-                        .version = release.version.empty() ? current_version : release.version};
+                        .version = release.version.empty() ? current_version : release.version,
+                        .revision = short_revision(revision)};
                 }
                 if (release.status == baas_installer::CdkStatus::Valid && !current_version.empty()) {
                     release = baas_installer::wait_for_incremental_release(
@@ -90,15 +112,43 @@ int main(int argc, char* argv[]) {
                         [&] { return baas_installer::request_mirror_release(request_url, mirror_error); },
                         [] { std::this_thread::sleep_for(std::chrono::milliseconds(500)); }, 10);
                 }
-                if (release.status == baas_installer::CdkStatus::Valid) {
+                const bool compatible_release = main_repository || is_git_commit(release.version);
+                if (release.status == baas_installer::CdkStatus::Valid && compatible_release) {
                     const auto prefix = main_repository ? "main" : "ocr";
                     const auto archive = transaction.staging_root() / (std::string(prefix) + "-mirror.zip");
                     const auto extracted = transaction.staging_root() / (std::string(prefix) + "-mirror-unpacked");
-                    if (baas_installer::download_mirror_package(release, archive, mirror_error) &&
+                    int last_download_percent = -1;
+                    if (baas_installer::download_mirror_package(
+                            release, archive, mirror_error,
+                            [&](const std::uint64_t downloaded, const std::uint64_t total) {
+                                if (total != 0) {
+                                    const auto percent = static_cast<int>((100ULL * downloaded) / total);
+                                    if (percent != last_download_percent) {
+                                        last_download_percent = percent;
+                                        observer(task, "mirrorchyan", "Downloading package " + std::to_string(percent) + "%\r");
+                                    }
+                                } else {
+                                    observer(task, "mirrorchyan", "Downloading package " + std::to_string(downloaded) + " bytes\r");
+                                }
+                            }) &&
                         baas_installer::extract_mirror_archive(
                             archive, extracted, mirror_error,
                             [&](const std::string_view chunk) { observer(task, "mirrorchyan", chunk); })) {
                         auto package = baas_installer::inspect_mirror_staging(release, extracted, mirror_error);
+                        if (mirror_error.empty()) {
+                            if (!main_repository) {
+                                const auto executable = std::filesystem::path(ocr_executable_name());
+                                bool available = package.mode == baas_installer::MirrorPackageMode::Full
+                                    ? std::filesystem::is_regular_file(package.content_root / executable)
+                                    : std::filesystem::is_regular_file(live / executable);
+                                if (package.mode == baas_installer::MirrorPackageMode::Incremental) {
+                                    if (std::find(package.changes.deleted.begin(), package.changes.deleted.end(), executable) != package.changes.deleted.end()) available = false;
+                                    if (std::find(package.changes.added.begin(), package.changes.added.end(), executable) != package.changes.added.end() ||
+                                        std::find(package.changes.modified.begin(), package.changes.modified.end(), executable) != package.changes.modified.end()) available = true;
+                                }
+                                if (!available) mirror_error = "MirrorChyan OCR package does not provide the required BAAS_ocr_server executable";
+                            }
+                        }
                         if (mirror_error.empty()) {
                             model.append_event({{}, task, "mirrorchyan", baas_installer::LogSeverity::Info,
                                                 "package prepared: " + package.version});
@@ -106,6 +156,7 @@ int main(int argc, char* argv[]) {
                                 ? baas_installer::RepositoryMode::Full : baas_installer::RepositoryMode::Incremental;
                             return baas_installer::PreparedRepository{.success = true, .mode = mode,
                                 .backend = "mirrorchyan", .version = package.version,
+                                .revision = short_revision(revision),
                                 .apply = [package = std::move(package), live, main_repository](
                                              baas_installer::InstallTransaction& current, std::string& error) {
                                     try {
@@ -127,6 +178,9 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
+                if (release.status == baas_installer::CdkStatus::Valid && !compatible_release) {
+                    mirror_error = "MirrorChyan OCR resource is not a commit-versioned BAAS_Cpp_prebuild package";
+                }
                 model.append_event({{}, task, "mirrorchyan", baas_installer::LogSeverity::Warning,
                                     mirror_error.empty() ? "MirrorChyan package was unavailable" : mirror_error});
                 services.progress(task, "MirrorChyan failed; falling back to Git");
@@ -141,9 +195,11 @@ int main(int argc, char* argv[]) {
                                     : "repository update prepared at " + git.commit});
             return baas_installer::PreparedRepository{.success = true, .mode = git.mode,
                 .backend = baas_installer::git_backend_name(git.backend), .version = git.commit,
+                .revision = short_revision(revision),
                 .apply = [git, live, main_repository, observer](baas_installer::InstallTransaction& current,
                                                                  std::string& error) {
                     if (git.mode == baas_installer::RepositoryMode::Full) {
+                        current.remove_path(live / ".git");
                         if (main_repository) current.deploy_main();
                         else current.deploy_ocr();
                         return true;
@@ -165,7 +221,7 @@ int main(int argc, char* argv[]) {
         services.verify_deployment = [](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig&, std::string& error) {
         if (!std::filesystem::exists(current.root / "main.py")) { error = "main repository did not contain main.py"; return false; }
         const auto ocr = current.root / "core" / "ocr" / "baas_ocr_client" / "bin";
-        if (!std::filesystem::is_directory(ocr) || std::filesystem::is_empty(ocr)) { error = "OCR repository placement is empty"; return false; }
+        if (!std::filesystem::is_regular_file(ocr / ocr_executable_name())) { error = "OCR server executable is missing"; return false; }
         return true;
         };
         services.sync_uv = [&](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig& settings, std::string& error) {
@@ -192,7 +248,7 @@ int main(int argc, char* argv[]) {
 #endif
             if (!config.uses_portable_runtime()) python = config.runtime_path;
             auto environment = baas_installer::make_uv_environment(paths, config).variables;
-            environment["VIRTUAL_ENV"] = paths.venv_dir.string();
+            if (config.uses_portable_runtime()) environment["VIRTUAL_ENV"] = paths.venv_dir.string();
             if (!std::filesystem::exists(python) || !std::filesystem::exists(paths.root / "window.py") ||
                 !baas_installer::launch_detached({python.string(), (paths.root / "window.py").string()}, environment, paths.root)) {
                 const std::string error = "installation succeeded, but BAAS could not be launched";

@@ -1,6 +1,7 @@
 #include "baas_installer/mirrorchyan.hpp"
 #include "baas_installer/process.hpp"
 
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -44,8 +45,31 @@ int main() {
     const auto file = std::filesystem::temp_directory_path() / "baas-installer-sha-test";
     std::ofstream(file, std::ios::binary) << "abc";
     const auto good = baas_installer::verify_sha256(file, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
-    std::error_code ignored; std::filesystem::remove(file, ignored);
+    std::error_code ignored;
     if (!good) { std::cerr << "sha256 verification failed\n"; return 1; }
+#ifdef BAAS_INSTALLER_TEST_HAS_CURL
+    auto local_release = baas_installer::MirrorRelease{
+        .status = baas_installer::CdkStatus::Valid,
+        .download_url = "file:///" + file.generic_string(),
+        .sha256 = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+        .update_type = "full",
+    };
+    const auto downloaded_file = file.string() + ".downloaded";
+    std::vector<std::pair<std::uint64_t, std::uint64_t>> download_progress;
+    std::string download_error;
+    if (!baas_installer::download_mirror_package(
+            local_release, downloaded_file, download_error,
+            [&](const std::uint64_t downloaded, const std::uint64_t total) {
+                download_progress.emplace_back(downloaded, total);
+            }) ||
+        download_progress.empty() || download_progress.back().first != 3 ||
+        !std::filesystem::is_regular_file(downloaded_file)) {
+        std::cerr << "Mirror package download did not expose live transfer progress\n";
+        return 1;
+    }
+    std::filesystem::remove(downloaded_file, ignored);
+#endif
+    std::filesystem::remove(file, ignored);
     if (baas_installer::mirror_latest_url("a b", "", "stable").find("cdk=a%20b") == std::string::npos) { std::cerr << "CDK escaping failed\n"; return 1; }
 
     const auto main_url = baas_installer::mirror_latest_url(

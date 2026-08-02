@@ -25,7 +25,7 @@ public:
     void replace_file(const std::filesystem::path& source, const std::filesystem::path& destination);
     void remove_path(const std::filesystem::path& destination);
     void add_rollback_action(std::function<void()> action);
-    void write_ocr_managed_marker();
+    void write_ocr_managed_marker(const std::string& branch, const std::string& commit);
     void commit();
     void rollback() noexcept;
 

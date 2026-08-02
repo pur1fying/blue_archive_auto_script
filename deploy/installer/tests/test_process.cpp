@@ -94,6 +94,10 @@ int main(int argc, char* argv[]) {
 
     const auto marker = std::filesystem::temp_directory_path() / "baas-installer-detached-test.marker";
     std::filesystem::remove(marker, ignored);
+    if (baas_installer::launch_detached(
+            {(std::filesystem::temp_directory_path() / "baas-installer-missing-executable").string()}, {}, marker.parent_path())) {
+        std::cerr << "detached launch reported success for a missing executable\n"; return 1;
+    }
     if (!baas_installer::launch_detached(
             {std::filesystem::absolute(argv[0]).string(), "--write-marker", marker.string()}, {}, marker.parent_path())) {
         std::cerr << "detached child could not be started\n"; return 1;

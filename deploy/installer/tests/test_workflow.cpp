@@ -21,14 +21,14 @@ int main() {
         write(transaction.main_staging_path() / "main.txt", "main");
         { std::lock_guard lock(event_mutex); events.push_back("prepared-main"); }
         return baas_installer::PreparedRepository{
-            .success = true, .mode = baas_installer::RepositoryMode::Full, .backend = "git-cli", .version = "main-v2",
+            .success = true, .mode = baas_installer::RepositoryMode::Full, .backend = "git-cli", .version = "main-v2", .revision = "master",
             .apply = [&](auto& current, std::string&) { std::lock_guard lock(event_mutex); events.push_back("applied-main"); current.deploy_main(); return true; }};
     };
     services.prepare_ocr = [&](auto& transaction) {
         write(transaction.ocr_staging_path() / "ocr.txt", "ocr");
         { std::lock_guard lock(event_mutex); events.push_back("prepared-ocr"); }
         return baas_installer::PreparedRepository{
-            .success = true, .mode = baas_installer::RepositoryMode::Full, .backend = "git-cli", .version = "ocr-v2",
+            .success = true, .mode = baas_installer::RepositoryMode::Full, .backend = "git-cli", .version = "0123456789012345678901234567890123456789", .revision = "windows-x64",
             .apply = [&](auto& current, std::string&) { std::lock_guard lock(event_mutex); events.push_back("applied-ocr"); current.deploy_ocr(); return true; }};
     };
     services.verify_deployment = [&](const auto& current, const auto&, std::string&) { const bool ok=fs::exists(current.root/"main.txt") && fs::exists(current.root/"core/ocr/baas_ocr_client/bin/ocr.txt"); std::lock_guard lock(event_mutex); events.push_back("verified"); return ok; };
@@ -42,11 +42,15 @@ int main() {
     const auto contains = [&](const std::string& wanted) { return std::find(events.begin(), events.end(), wanted) != events.end(); };
     const auto main_applied = std::find(events.begin(), events.end(), "applied-main");
     const auto ocr_applied = std::find(events.begin(), events.end(), "applied-ocr");
+    const auto marker_path = paths.root / "core/ocr/baas_ocr_client/bin/.baas-installer-managed.json";
+    std::ifstream marker_input(marker_path);
+    const std::string marker{std::istreambuf_iterator<char>(marker_input), {}};
     const bool order = result.success && contains("verified") && contains("uv") && main_applied < ocr_applied &&
-        config.main_sha == "main-v2" && config.ocr_sha == "ocr-v2" &&
+        config.main_sha == "main-v2" && config.ocr_sha == "0123456789012345678901234567890123456789" &&
         contains("progress:verify:verifying deployment") && contains("progress:verify:deployment verified") &&
         contains("progress:uv:synchronizing dependencies") && contains("progress:uv:dependencies synchronized") &&
-        fs::exists(paths.root / "core/ocr/baas_ocr_client/bin/.baas-installer-managed.json");
+        marker.find("\"branch\":\"windows-x64\"") != std::string::npos &&
+        marker.find("\"commit\":\"0123456789012345678901234567890123456789\"") != std::string::npos;
     if (!order) { std::cerr << "workflow order failed\n"; return 1; }
 
     auto failing_paths = baas_installer::InstallPaths::from_executable(fixture / "rollback" / "BlueArchiveAutoScript.exe");
@@ -60,13 +64,13 @@ int main() {
     failing.prepare_main = [&](auto& transaction) {
         write(transaction.main_staging_path() / "main.txt", "new-main");
         return baas_installer::PreparedRepository{.success = true, .mode = baas_installer::RepositoryMode::Full,
-            .backend = "mirrorchyan", .version = "main-new",
+            .backend = "mirrorchyan", .version = "main-new", .revision = "master",
             .apply = [](auto& current, std::string&) { current.deploy_main(); return true; }};
     };
     failing.prepare_ocr = [&](auto& transaction) {
         write(transaction.ocr_staging_path() / "ocr.txt", "new-ocr");
         return baas_installer::PreparedRepository{.success = true, .mode = baas_installer::RepositoryMode::Full,
-            .backend = "mirrorchyan", .version = "ocr-new",
+            .backend = "mirrorchyan", .version = "ocr-new", .revision = "windows-x64",
             .apply = [](auto& current, std::string&) { current.deploy_ocr(); return true; }};
     };
     failing.verify_deployment = [](const auto&, const auto&, std::string&) { return true; };

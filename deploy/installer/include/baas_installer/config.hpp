@@ -3,6 +3,7 @@
 #include "baas_installer/paths.hpp"
 
 #include <string>
+#include <vector>
 
 namespace baas_installer {
 
@@ -14,6 +15,9 @@ struct InstallerConfig {
     std::string python_version{"3.9.0"};
     std::string channel{"stable"};
     std::string git_backend{"auto"};
+    std::vector<std::string> main_sources;
+    std::vector<std::string> ocr_sources;
+    std::vector<std::string> pypi_sources;
     std::string source_toml;
 
     bool uses_portable_runtime() const;

@@ -49,7 +49,7 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
         emit(services, "verify", "verifying deployment");
         if (!services.verify_deployment(paths, config, error)) throw std::runtime_error(error.empty() ? "deployment verification failed" : error);
         emit(services, "verify", "deployment verified");
-        transaction.write_ocr_managed_marker();
+        transaction.write_ocr_managed_marker(ocr_result.revision, ocr_result.version);
         emit(services, "uv", "synchronizing dependencies");
         if (!services.sync_uv(paths, config, error)) throw std::runtime_error(error.empty() ? "uv synchronization failed" : error);
         emit(services, "uv", "dependencies synchronized");

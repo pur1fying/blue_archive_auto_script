@@ -7,10 +7,17 @@
 
 namespace baas_installer {
 
-std::vector<std::string> default_sources(const SourceKind kind, const InstallerConfig&) {
+std::vector<std::string> default_sources(const SourceKind kind, const InstallerConfig& config) {
+    std::vector<std::string> result;
+    const auto add = [&](const std::vector<std::string>& sources) {
+        for (const auto& source : sources) {
+            if (!source.empty() && std::find(result.begin(), result.end(), source) == result.end()) result.push_back(source);
+        }
+    };
     switch (kind) {
         case SourceKind::MainGit:
-            return {
+            add(config.main_sources);
+            add({
                 "https://github.com/pur1fying/blue_archive_auto_script.git",
                 "https://gitee.com/pur1fy/blue_archive_auto_script.git",
                 "https://gitcode.com/m0_74686738/blue_archive_auto_script.git",
@@ -20,9 +27,11 @@ std::vector<std::string> default_sources(const SourceKind kind, const InstallerC
                 "https://gh-proxy.org/https://github.com/pur1fying/blue_archive_auto_script.git",
                 "https://gh.sevencdn.com/https://github.com/pur1fying/blue_archive_auto_script.git",
                 "https://githubfast.com/pur1fying/blue_archive_auto_script.git",
-            };
+            });
+            break;
         case SourceKind::OcrGit:
-            return {
+            add(config.ocr_sources);
+            add({
                 "https://github.com/pur1fying/BAAS_Cpp_prebuild.git",
                 "https://gitee.com/pur1fy/baas_-cpp_prebuild.git",
                 "https://v4.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild.git",
@@ -31,16 +40,19 @@ std::vector<std::string> default_sources(const SourceKind kind, const InstallerC
                 "https://gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild.git",
                 "https://gh.sevencdn.com/https://github.com/pur1fying/BAAS_Cpp_prebuild.git",
                 "https://githubfast.com/pur1fying/BAAS_Cpp_prebuild.git",
-            };
+            });
+            break;
         case SourceKind::Pypi:
-            return {
+            add(config.pypi_sources);
+            add({
                 "https://mirrors.aliyun.com/pypi/simple", "https://pypi.doubanio.com/simple",
                 "https://mirrors.huaweicloud.com/repository/pypi/simple", "https://mirrors.cloud.tencent.com/pypi/simple",
                 "https://mirrors.163.com/pypi/simple", "https://pypi.tuna.tsinghua.edu.cn/simple",
                 "https://mirrors.ustc.edu.cn/pypi/web/simple", "https://pypi.org/simple",
-            };
+            });
+            break;
         case SourceKind::Uv:
-            return {
+            add({
                 "https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
                 "https://gitee.com/kiramei/blue_archive_auto_script_assets/releases/download/UVDownload",
                 "https://v4.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
@@ -48,9 +60,10 @@ std::vector<std::string> default_sources(const SourceKind kind, const InstallerC
                 "https://cdn.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
                 "https://gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
                 "https://gh.sevencdn.com/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
-            };
+            });
+            break;
         case SourceKind::Cpython:
-            return {
+            add({
                 "https://github.com/Kiramei/baas-tauri/releases/download",
                 "https://gitee.com/kiramei/blue_archive_auto_script_assets/releases/download",
                 "https://v4.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download",
@@ -58,9 +71,10 @@ std::vector<std::string> default_sources(const SourceKind kind, const InstallerC
                 "https://cdn.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download",
                 "https://gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download",
                 "https://gh.sevencdn.com/https://github.com/Kiramei/baas-tauri/releases/download",
-            };
+            });
+            break;
     }
-    return {};
+    return result;
 }
 
 std::vector<RankedSource> rank_sources(

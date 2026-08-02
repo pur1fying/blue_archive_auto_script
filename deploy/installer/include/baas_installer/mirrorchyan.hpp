@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <functional>
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -56,9 +57,11 @@ MirrorRelease wait_for_incremental_release(MirrorRelease initial,
                                            int maximum_attempts = 10);
 bool is_sha256(const std::string& digest);
 bool verify_sha256(const std::filesystem::path& file, const std::string& expected_digest);
+using MirrorDownloadProgress = std::function<void(std::uint64_t downloaded, std::uint64_t total)>;
 
 // Downloads only into the supplied staging location. Production builds use
 // libcurl; callers must not deploy the archive before verify_sha256 succeeds.
-bool download_mirror_package(const MirrorRelease& release, const std::filesystem::path& archive, std::string& error);
+bool download_mirror_package(const MirrorRelease& release, const std::filesystem::path& archive, std::string& error,
+                             MirrorDownloadProgress on_progress = {});
 
 }  // namespace baas_installer

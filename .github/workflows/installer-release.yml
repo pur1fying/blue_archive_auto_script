@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'deploy/installer/**'
+      - 'core/ocr/baas_ocr_client/server_installer.py'
       - '.github/workflows/installer-release.yml'
   push:
     tags: ['v*']
@@ -32,15 +33,19 @@ jobs:
           - os: windows-2022
             asset: BAAS-Installer-windows-x64.exe
             triplet: x64-windows-static
+            publish: true
           - os: ubuntu-22.04
             asset: BAAS-Installer-linux-x64
             triplet: x64-linux
+            publish: true
           - os: macos-15-intel
             asset: BAAS-Installer-macos-x64
             triplet: x64-osx
+            publish: false
           - os: macos-14
             asset: BAAS-Installer-macos-arm64
             triplet: arm64-osx
+            publish: true
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -65,6 +70,7 @@ jobs:
           if (!(Test-Path $candidate)) { throw "Installer executable was not produced: $candidate" }
           Copy-Item $candidate '${{ matrix.asset }}'
       - uses: actions/upload-artifact@v4
+        if: matrix.publish
         with:
           name: ${{ matrix.asset }}
           path: ${{ matrix.asset }}
@@ -90,7 +96,7 @@ jobs:
         shell: pwsh
         run: |
           $files = Get-ChildItem release-assets -File | Sort-Object Name
-          if ($files.Count -ne 4) { throw "Expected four installer assets, got $($files.Count)" }
+          if ($files.Count -ne 3) { throw "Expected three supported installer assets, got $($files.Count)" }
           $files | ForEach-Object { "$( (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() )  $($_.Name)" } | Set-Content release-assets/SHA256SUMS
       - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v2

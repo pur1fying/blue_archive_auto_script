@@ -66,8 +66,8 @@ try {
     $ocrVersion = [regex]::Match($firstSetup, 'current_baas_cpp_sha\s*=\s*"([^\"]+)"').Groups[1].Value
     if (-not $mainVersion -or -not $ocrVersion) { throw 'Mirror versions were not saved atomically' }
     if ((Test-Path -LiteralPath (Join-Path $targetPath '.git')) -or
-        (Test-Path -LiteralPath (Join-Path $targetPath 'core\ocr\baas_ocr_client\bin\.git'))) {
-        throw 'Mirror full deployment unexpectedly retained Git metadata'
+        -not (Test-Path -LiteralPath (Join-Path $targetPath 'core\ocr\baas_ocr_client\bin\.git'))) {
+        throw 'Main Mirror deployment or OCR Git fallback metadata is incorrect'
     }
 
     & $installedExe --auto-exit --no-launch
@@ -80,7 +80,9 @@ try {
     }
     $log = Get-Content -Raw -LiteralPath (Join-Path $targetPath 'log\installer.log')
     if ($log.Contains($chosen) -or $log -notmatch '\[main\]\[mirrorchyan\]' -or
-        $log -notmatch '\[ocr\]\[mirrorchyan\]' -or $log -notmatch 'already current') {
+        $log -notmatch '\[ocr\]\[mirrorchyan\].*BAAS_Cpp_prebuild' -or
+        $log -notmatch '\[ocr\]\[(git|git-cli|libgit2)\]' -or
+        $log -notmatch 'Downloading package' -or $log -notmatch 'already current') {
         throw 'Mirror logging, redaction, or current-version behavior failed'
     }
     $success = $true
@@ -105,7 +107,7 @@ if ($leaked) { throw 'Mirror credential leaked into installer logs or state' }
 
 [pscustomobject]@{
     Main = 'PASS'
-    Ocr = 'PASS'
+    OcrGitFallback = 'PASS'
     CurrentVersion = 'PASS'
     SecretScan = -not $leaked
     Result = if ($success) { 'PASS' } else { 'FAIL' }
