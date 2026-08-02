@@ -7,6 +7,7 @@ int main() {
     const auto paths = baas_installer::InstallPaths::from_executable(
         R"(E:\tmp\BAAS\BlueArchiveAutoScript.exe)");
 
+    assert(paths.executable == std::filesystem::path(R"(E:\tmp\BAAS\BlueArchiveAutoScript.exe)"));
     assert(paths.root == std::filesystem::path(R"(E:\tmp\BAAS)"));
     assert(paths.setup_toml == paths.root / "setup.toml");
     assert(paths.tmp_dir == paths.root / "tmp");

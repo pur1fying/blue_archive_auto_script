@@ -20,9 +20,10 @@ bool is_ocr_bin(const fs::path& relative) {
     return relative == expected;
 }
 
-bool is_protected_installer_path(const fs::path& relative) {
+bool is_protected_installer_path(const fs::path& relative, const fs::path& executable_name) {
     if (relative.empty()) return true;
     const auto first = *relative.begin();
+    if (!executable_name.empty() && first == executable_name) return true;
     static const std::array<fs::path, 7> protected_paths{
         "BlueArchiveAutoScript.exe", "setup.toml", "log", "tmp", "toolkit", ".venv", ".baas-installer"};
     return std::find(protected_paths.begin(), protected_paths.end(), first) != protected_paths.end();
@@ -89,7 +90,7 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
         for (auto iterator = fs::recursive_directory_iterator(destination, scan_error);
              !scan_error && iterator != fs::recursive_directory_iterator(); ++iterator) {
             const auto relative = iterator->path().lexically_relative(destination);
-            const bool preserved = is_protected_installer_path(relative) ||
+            const bool preserved = is_protected_installer_path(relative, paths_.executable.filename()) ||
                                    is_preserved_user_path(relative, destination == paths_.root);
             const bool ocr_tree = skip_ocr_bin && (is_ocr_bin(relative) || is_ocr_bin(relative.parent_path()));
             if (preserved || ocr_tree) {
@@ -119,7 +120,7 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
         // Windows.  Staging names can legitimately contain CJK characters, so
         // retain the native path components without a conversion round-trip.
         const auto relative = entry.path().lexically_relative(source);
-        if (is_protected_installer_path(relative)) {
+        if (is_protected_installer_path(relative, paths_.executable.filename())) {
             if (entry.is_directory()) iterator.disable_recursion_pending();
             continue;
         }
@@ -174,7 +175,9 @@ void InstallTransaction::replace_file(const fs::path& source, const fs::path& de
     if (!fs::is_regular_file(source)) throw std::runtime_error("replacement source file is missing");
     if (!is_within(paths_.root, destination)) throw std::runtime_error("replacement destination escapes install root");
     const auto relative = fs::absolute(destination).lexically_normal().lexically_relative(fs::absolute(paths_.root).lexically_normal());
-    if (relative.empty() || is_protected_installer_path(relative)) throw std::runtime_error("replacement destination is protected");
+    if (relative.empty() || is_protected_installer_path(relative, paths_.executable.filename())) {
+        throw std::runtime_error("replacement destination is protected");
+    }
     const bool exists = fs::exists(destination);
     if (exists && fs::is_directory(destination)) throw std::runtime_error("replacement destination is a directory");
     const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
@@ -194,7 +197,9 @@ void InstallTransaction::replace_file(const fs::path& source, const fs::path& de
 void InstallTransaction::remove_path(const fs::path& destination) {
     if (!is_within(paths_.root, destination)) throw std::runtime_error("removal destination escapes install root");
     const auto relative = fs::absolute(destination).lexically_normal().lexically_relative(fs::absolute(paths_.root).lexically_normal());
-    if (relative.empty() || is_protected_installer_path(relative)) throw std::runtime_error("removal destination is protected");
+    if (relative.empty() || is_protected_installer_path(relative, paths_.executable.filename())) {
+        throw std::runtime_error("removal destination is protected");
+    }
     if (!fs::exists(destination)) return;
     const bool directory = fs::is_directory(destination);
     const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());

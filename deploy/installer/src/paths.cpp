@@ -18,6 +18,7 @@ InstallPaths InstallPaths::from_executable(const std::filesystem::path& executab
     const auto root = executable.lexically_normal().parent_path();
     const auto toolkit_dir = root / "toolkit";
     return {
+        .executable = executable.lexically_normal(),
         .root = root,
         .setup_toml = root / "setup.toml",
         .tmp_dir = root / "tmp",

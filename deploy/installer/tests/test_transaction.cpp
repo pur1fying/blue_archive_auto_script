@@ -19,7 +19,9 @@ int main() {
     fs::remove_all(fixture, ignored);
     baas_installer::InstallPaths paths;
     paths.root = fixture / "install";
+    paths.executable = paths.root / "custom-linux-installer";
     paths.tmp_dir = paths.root / "tmp";
+    write(paths.executable, "installer-binary");
     write(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt", "old-ocr");
     write(paths.root / "app.txt", "old-main");
     write(paths.root / "obsolete.py", "old-module");
@@ -30,6 +32,10 @@ int main() {
         write(transaction.main_staging_path() / "core/ocr/baas_ocr_client/bin/keep.txt", "bad-main-ocr");
         write(transaction.ocr_staging_path() / "keep.txt", "new-ocr");
         transaction.deploy_main();
+        if (read(paths.executable) != "installer-binary") {
+            std::cerr << "main deployment removed the running installer\n";
+            return 1;
+        }
         if (read(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt") != "old-ocr") { std::cerr << "main overwrote OCR\n"; return 1; }
         if (fs::exists(paths.root / "obsolete.py") || read(paths.root / "config/user.json") != "user-data") {
             std::cerr << "full deployment did not remove stale managed files while preserving user data\n"; return 1;

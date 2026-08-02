@@ -5,6 +5,7 @@
 namespace baas_installer {
 
 struct InstallPaths {
+    std::filesystem::path executable;
     std::filesystem::path root;
     std::filesystem::path setup_toml;
     std::filesystem::path tmp_dir;
