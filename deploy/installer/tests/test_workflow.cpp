@@ -16,8 +16,13 @@ int main() {
     auto paths = baas_installer::InstallPaths::from_executable(fixture / "install" / "BlueArchiveAutoScript.exe");
     std::vector<std::string> events;
     std::mutex event_mutex;
+    bool setup_seen_before_prepare = false;
     baas_installer::WorkflowServices services;
     services.prepare_main = [&](auto& transaction) {
+        const auto persisted = baas_installer::load_config(paths);
+        setup_seen_before_prepare = fs::exists(paths.setup_toml) &&
+            persisted.mirrorc_cdk == "selected-cdk" &&
+            persisted.main_sha == "main-v1" && persisted.ocr_sha == "ocr-v1";
         write(transaction.main_staging_path() / "main.txt", "main");
         { std::lock_guard lock(event_mutex); events.push_back("prepared-main"); }
         return baas_installer::PreparedRepository{
@@ -38,6 +43,9 @@ int main() {
         events.push_back("progress:" + task + ":" + detail);
     };
     baas_installer::InstallerConfig config;
+    config.mirrorc_cdk = "selected-cdk";
+    config.main_sha = "main-v1";
+    config.ocr_sha = "ocr-v1";
     const auto result = baas_installer::install_or_update(config, paths, services);
     const auto contains = [&](const std::string& wanted) { return std::find(events.begin(), events.end(), wanted) != events.end(); };
     const auto main_applied = std::find(events.begin(), events.end(), "applied-main");
@@ -45,7 +53,7 @@ int main() {
     const auto marker_path = paths.root / "core/ocr/baas_ocr_client/bin/.baas-installer-managed.json";
     std::ifstream marker_input(marker_path);
     const std::string marker{std::istreambuf_iterator<char>(marker_input), {}};
-    const bool order = result.success && contains("verified") && contains("uv") && main_applied < ocr_applied &&
+    const bool order = result.success && setup_seen_before_prepare && contains("verified") && contains("uv") && main_applied < ocr_applied &&
         config.main_sha == "main-v2" && config.ocr_sha == "0123456789012345678901234567890123456789" &&
         contains("progress:verify:verifying deployment") && contains("progress:verify:deployment verified") &&
         contains("progress:uv:synchronizing dependencies") && contains("progress:uv:dependencies synchronized") &&
@@ -82,6 +90,29 @@ int main() {
         std::ifstream(failing_paths.root / "main.txt").get() != 'o' ||
         std::ifstream(failing_paths.root / "core/ocr/baas_ocr_client/bin/ocr.txt").get() != 'o') {
         std::cerr << "failed workflow did not roll back files and atomic version state\n";
+        return 1;
+    }
+
+    auto preparation_failure_paths = baas_installer::InstallPaths::from_executable(
+        fixture / "preparation-failure" / "BlueArchiveAutoScript.exe");
+    baas_installer::InstallerConfig preparation_failure_config;
+    preparation_failure_config.mirrorc_cdk = "selected-cdk";
+    preparation_failure_config.main_sha = "main-old";
+    preparation_failure_config.ocr_sha = "ocr-old";
+    baas_installer::WorkflowServices preparation_failure = services;
+    preparation_failure.prepare_main = [](auto&) {
+        return baas_installer::PreparedRepository{.success = false, .error = "forced preparation failure"};
+    };
+    preparation_failure.prepare_ocr = [](auto&) {
+        return baas_installer::PreparedRepository{.success = false, .error = "forced preparation failure"};
+    };
+    const auto preparation_failed = baas_installer::install_or_update(
+        preparation_failure_config, preparation_failure_paths, preparation_failure);
+    const auto preparation_persisted = baas_installer::load_config(preparation_failure_paths);
+    if (preparation_failed.success || !fs::exists(preparation_failure_paths.setup_toml) ||
+        preparation_persisted.mirrorc_cdk != "selected-cdk" ||
+        preparation_persisted.main_sha != "main-old" || preparation_persisted.ocr_sha != "ocr-old") {
+        std::cerr << "preparation failure must retain the initial setup.toml and old versions\n";
         return 1;
     }
     fs::remove_all(fixture, ignored);

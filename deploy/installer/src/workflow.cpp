@@ -14,6 +14,11 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
     if (!services.prepare_main || !services.prepare_ocr || !services.verify_deployment || !services.sync_uv) {
         return {false, "installer services are incomplete"};
     }
+    try {
+        save_config_atomic(config, paths);
+    } catch (const std::exception& error) {
+        return {false, error.what()};
+    }
     InstallTransaction transaction(paths);
     const auto original_config = config;
     emit(services, "main", "checking");
