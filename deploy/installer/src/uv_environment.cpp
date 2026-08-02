@@ -138,7 +138,7 @@ std::string curl_probe_failure(const HttpProbeResult& probe) {
 
 std::vector<std::string> ranked_sources_for(
     const SourceKind kind, const std::vector<std::string>& candidates, const UvSourceProbe& source_probe,
-    const ProcessObserver& observer, const bool test_executor) {
+    const ProcessObserver& observer, const bool test_executor, const fs::path& ranking_cache) {
     if (candidates.empty()) return {};
     if (!source_probe && test_executor) return candidates;
 #ifdef BAAS_INSTALLER_HAS_CURL
@@ -147,7 +147,7 @@ std::vector<std::string> ranked_sources_for(
         return candidates;
     }
 #endif
-    const auto ranking = rank_sources(candidates, [&](const std::string& source) {
+    const auto measure = [&](const std::string& source) {
         if (observer) observer("uv", "probe", "Testing source " + source + "\n");
         const auto probe_url = kind == SourceKind::Cpython ? cpython_probe_url(source) : source;
         long long latency = -1;
@@ -166,10 +166,55 @@ std::vector<std::string> ranked_sources_for(
                                                                                  : failure));
         }
         return latency;
+    };
+    auto cached = ranking_cache.empty()
+        ? std::vector<RankedSource>{}
+        : load_source_ranking(ranking_cache, kind, candidates);
+    if (!cached.empty()) {
+        const auto preferred = std::find_if(cached.begin(), cached.end(), [](const RankedSource& item) {
+            return item.preferred;
+        });
+        if (preferred != cached.end()) {
+            const auto latency = measure(preferred->url);
+            if (latency >= 0) {
+                preferred->latency_ms = latency;
+                preferred->failures = 0;
+                preferred->available = true;
+                save_source_ranking(ranking_cache, kind, cached);
+                std::vector<std::string> result{preferred->url};
+                for (const auto& item : cached) if (item.url != preferred->url) result.push_back(item.url);
+                return result;
+            }
+            ++preferred->failures;
+            preferred->available = false;
+            preferred->preferred = false;
+        }
+    }
+    auto ranking = rank_sources(candidates, measure);
+    const auto successful = std::find_if(ranking.begin(), ranking.end(), [](const RankedSource& item) {
+        return item.latency_ms >= 0;
     });
+    if (successful != ranking.end()) successful->preferred = true;
+    if (!ranking_cache.empty()) save_source_ranking(ranking_cache, kind, ranking);
     std::vector<std::string> result;
     for (const auto& source : ranking) result.push_back(source.url);
     return result;
+}
+
+void record_runtime_source_result(const fs::path& cache, const SourceKind kind,
+                                  const std::vector<std::string>& candidates, const std::string& url,
+                                  const bool success) {
+    if (cache.empty()) return;
+    auto ranking = load_source_ranking(cache, kind, candidates);
+    if (ranking.empty()) return;
+    for (auto& item : ranking) {
+        if (success) item.preferred = item.url == url;
+        if (item.url != url) continue;
+        item.available = success;
+        if (success) item.failures = 0;
+        else ++item.failures;
+    }
+    save_source_ranking(cache, kind, ranking);
 }
 
 ProcessResult run_visible(const std::vector<std::string>& arguments,
@@ -238,18 +283,6 @@ fs::path dependency_requirements(const InstallPaths& paths) {
 #endif
 }
 
-std::string expected_uv_sha256() {
-#ifdef _WIN32
-    return "3e8203e6434b45427f20824419f8d8d53f970a76d94ccdcad07f8498fa01a9d0";
-#elif defined(__APPLE__) && (defined(__aarch64__) || defined(__arm64__))
-    return "695f3640d5b1a4e28de7e36e3a2e14072852dcc6c70bf9e4deec6ada00d516b4";
-#elif defined(__APPLE__)
-    return "7e23d1d892c23f9e74245c4fd3d3e246438ce9b34460f85eee61f784de137b0b";
-#else
-    return "14411de26cdea5f5139fafaf2b675b1c633e744dd49c6d6a9fc8817ec065158b";
-#endif
-}
-
 std::vector<UvCommand> managed_uv_commands(
     const UvEnvironment& environment, const InstallerConfig& config, const fs::path& requirements) {
     if (!environment.managed) return {};
@@ -275,16 +308,16 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
         if (!source.empty()) sources.push_back(source + "/" + filename);
     }
     sources.push_back("https://github.com/astral-sh/uv/releases/download/0.5.11/" + filename);
-    sources = ranked_sources_for(SourceKind::Uv, unique_sources(std::move(sources)), source_probe, observer,
-                                 static_cast<bool>(terminal_executor));
+    sources = unique_sources(std::move(sources));
+    const auto uv_candidates = sources;
+    const auto ranking_cache = paths.state_dir / "source-ranking-v1.json";
+    sources = ranked_sources_for(SourceKind::Uv, sources, source_probe, observer,
+                                 static_cast<bool>(terminal_executor), ranking_cache);
     for (const auto& source : sources) {
         if (run_visible({"curl", "--fail", "--location", "--connect-timeout", "5", "--retry", "2", "--output",
                          archive.string(), source}, environment.variables, paths.root, "curl", observer,
-                        terminal_executor).exit_code != 0) continue;
-        if (!verify_sha256(archive, expected_uv_sha256())) {
-            if (observer) observer("uv", "curl", "Downloaded uv archive failed pinned SHA-256 verification\r");
-            std::error_code ignored;
-            fs::remove(archive, ignored);
+                        terminal_executor).exit_code != 0) {
+            record_runtime_source_result(ranking_cache, SourceKind::Uv, uv_candidates, source, false);
             continue;
         }
         std::error_code ignored; fs::remove_all(paths.uv_dir, ignored); fs::create_directories(paths.uv_dir);
@@ -296,9 +329,20 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
             if (item.path().filename() != environment.executable.filename()) continue;
             fs::copy_file(item.path(), environment.executable, fs::copy_options::overwrite_existing, ignored);
             fs::permissions(environment.executable, fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec, fs::perm_options::add, ignored);
-            if (fs::exists(environment.executable)) return true;
+            if (!fs::exists(environment.executable)) continue;
+            if (run_visible({environment.executable.string(), "--version"}, environment.variables, paths.root,
+                            "uv", observer, terminal_executor).exit_code == 0) {
+                fs::remove(archive, ignored);
+                record_runtime_source_result(ranking_cache, SourceKind::Uv, uv_candidates, source, true);
+                return true;
+            }
+            if (observer) observer("uv", "uv", "Extracted uv executable failed --version; trying next source\r");
+            break;
         }
     }
+    std::error_code ignored;
+    fs::remove_all(paths.uv_dir, ignored);
+    fs::remove(archive, ignored);
     error = "could not download or unpack portable uv from every configured source";
     return false;
 }
@@ -338,16 +382,23 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
         if (!managed_python_exists(environment)) {
             auto cpython_mirrors = default_sources(SourceKind::Cpython, config);
             cpython_mirrors.push_back("https://github.com/astral-sh/python-build-standalone/releases/download");
-            cpython_mirrors = ranked_sources_for(SourceKind::Cpython, unique_sources(std::move(cpython_mirrors)),
-                                                 source_probe, observer, static_cast<bool>(terminal_executor));
+            cpython_mirrors = unique_sources(std::move(cpython_mirrors));
+            const auto cpython_candidates = cpython_mirrors;
+            cpython_mirrors = ranked_sources_for(SourceKind::Cpython, cpython_mirrors,
+                                                 source_probe, observer, static_cast<bool>(terminal_executor),
+                                                 paths.state_dir / "source-ranking-v1.json");
             bool python_installed = false;
             for (const auto& mirror : cpython_mirrors) {
                 auto variables = environment.variables;
                 variables["UV_PYTHON_INSTALL_MIRROR"] = mirror;
                 if (run_uv({"python", "install", config.python_version}, variables)) {
+                    record_runtime_source_result(paths.state_dir / "source-ranking-v1.json", SourceKind::Cpython,
+                                                 cpython_candidates, mirror, true);
                     python_installed = true;
                     break;
                 }
+                record_runtime_source_result(paths.state_dir / "source-ranking-v1.json", SourceKind::Cpython,
+                                             cpython_candidates, mirror, false);
             }
             if (!python_installed) {
                 error = "uv could not install Python from any ranked source";
@@ -372,21 +423,33 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
     }
 
     bool dependencies_installed = false;
-    const auto pypi_sources = ranked_sources_for(SourceKind::Pypi, default_sources(SourceKind::Pypi, config),
-                                                  source_probe, observer, static_cast<bool>(terminal_executor));
+    const auto pypi_candidates = default_sources(SourceKind::Pypi, config);
+    const auto pypi_sources = ranked_sources_for(SourceKind::Pypi, pypi_candidates,
+                                                  source_probe, observer, static_cast<bool>(terminal_executor),
+                                                  paths.state_dir / "source-ranking-v1.json");
     for (const auto& index : pypi_sources) {
         auto variables = environment.variables;
         variables["UV_INDEX"] = index;
         variables["UV_DEFAULT_INDEX"] = index;
         if (environment.managed) variables["VIRTUAL_ENV"] = environment.venv_dir.generic_string();
-        if (!run_uv({"pip", "compile", requirements.generic_string(), "--output-file", compiled.generic_string()}, variables)) continue;
+        if (!run_uv({"pip", "compile", requirements.generic_string(), "--output-file", compiled.generic_string()}, variables)) {
+            record_runtime_source_result(paths.state_dir / "source-ranking-v1.json", SourceKind::Pypi,
+                                         pypi_candidates, index, false);
+            continue;
+        }
         std::vector<std::string> sync{"pip", "sync", "--link-mode", "copy"};
         if (!environment.managed) {
             sync.push_back("--python");
             sync.push_back(config.runtime_path);
         }
         sync.push_back(compiled.generic_string());
-        if (!run_uv(sync, variables)) continue;
+        if (!run_uv(sync, variables)) {
+            record_runtime_source_result(paths.state_dir / "source-ranking-v1.json", SourceKind::Pypi,
+                                         pypi_candidates, index, false);
+            continue;
+        }
+        record_runtime_source_result(paths.state_dir / "source-ranking-v1.json", SourceKind::Pypi,
+                                     pypi_candidates, index, true);
         dependencies_installed = true;
         break;
     }

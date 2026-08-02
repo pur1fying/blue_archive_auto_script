@@ -53,8 +53,48 @@ int main() {
         std::cerr << "relocatable uv commands missing\n"; return 1;
     }
 
-    const auto test_root = std::filesystem::temp_directory_path() / "baas-installer-uv-pty-test";
+    const auto acceptance_root = std::filesystem::temp_directory_path() / "baas-installer-uv-acceptance-test";
     std::error_code ignored;
+    std::filesystem::remove_all(acceptance_root, ignored);
+    const auto acceptance_paths = baas_installer::InstallPaths::from_executable(
+        acceptance_root / "BlueArchiveAutoScript.exe");
+    const auto acceptance_environment = baas_installer::make_uv_environment(acceptance_paths, config);
+    std::filesystem::create_directories(acceptance_root);
+    int archive_downloads = 0;
+    int version_checks = 0;
+    const auto acceptance_executor = [&](const baas_installer::ProcessSpec& spec) {
+        if (!spec.arguments.empty() && spec.arguments.front() == "curl") {
+            ++archive_downloads;
+            std::filesystem::create_directories(std::filesystem::path(spec.arguments[8]).parent_path());
+            std::ofstream(spec.arguments[8], std::ios::binary) << "valid archive with an intentionally different digest";
+            return baas_installer::ProcessResult{0, {}};
+        }
+        if (!spec.arguments.empty() && spec.arguments.front() == "tar") {
+            const auto nested = std::filesystem::path(spec.arguments[4]) / "package" /
+                                acceptance_environment.executable.filename();
+            std::filesystem::create_directories(nested.parent_path());
+            std::ofstream(nested, std::ios::binary) << "usable uv";
+            return baas_installer::ProcessResult{0, {}};
+        }
+        if (!spec.arguments.empty() && std::filesystem::path(spec.arguments.front()) == acceptance_environment.executable &&
+            spec.arguments.size() == 2 && spec.arguments[1] == "--version") {
+            ++version_checks;
+            return baas_installer::ProcessResult{0, "uv 1.0"};
+        }
+        return baas_installer::ProcessResult{1, {}};
+    };
+    std::string acceptance_error;
+    if (!baas_installer::ensure_portable_uv(
+            acceptance_paths, config, acceptance_error, {}, acceptance_executor,
+            [](const baas_installer::SourceKind, const std::string&) { return 5LL; }) ||
+        archive_downloads != 1 || version_checks != 1 || !std::filesystem::exists(acceptance_environment.executable)) {
+        std::cerr << "a downloaded UV archive must be accepted by executable behavior, not a pinned digest: "
+                  << acceptance_error << " downloads=" << archive_downloads << " checks=" << version_checks << '\n';
+        return 1;
+    }
+    std::filesystem::remove_all(acceptance_root, ignored);
+
+    const auto test_root = std::filesystem::temp_directory_path() / "baas-installer-uv-pty-test";
     std::filesystem::remove_all(test_root, ignored);
     const auto test_paths = baas_installer::InstallPaths::from_executable(test_root / "BlueArchiveAutoScript.exe");
     const auto test_environment = baas_installer::make_uv_environment(test_paths, config);
@@ -211,9 +251,6 @@ int main() {
 #else
     if (baas_installer::dependency_requirements(custom_paths).filename() != "requirements-linux.txt") return 1;
 #endif
-    if (baas_installer::expected_uv_sha256().size() != 64) {
-        std::cerr << "pinned uv digest missing\n"; return 1;
-    }
     std::filesystem::remove_all(custom_root, ignored);
     return 0;
 }
