@@ -40,9 +40,25 @@ std::vector<std::string> default_sources(const SourceKind kind, const InstallerC
                 "https://mirrors.ustc.edu.cn/pypi/web/simple", "https://pypi.org/simple",
             };
         case SourceKind::Uv:
-            return {"https://github.com/Kiramei/baas-tauri/releases/download/uv-down"};
+            return {
+                "https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
+                "https://gitee.com/kiramei/blue_archive_auto_script_assets/releases/download/UVDownload",
+                "https://v4.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
+                "https://v6.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
+                "https://cdn.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
+                "https://gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
+                "https://gh.sevencdn.com/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
+            };
         case SourceKind::Cpython:
-            return {"https://github.com/Kiramei/baas-tauri/releases/download"};
+            return {
+                "https://github.com/Kiramei/baas-tauri/releases/download",
+                "https://gitee.com/kiramei/blue_archive_auto_script_assets/releases/download",
+                "https://v4.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download",
+                "https://v6.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download",
+                "https://cdn.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download",
+                "https://gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download",
+                "https://gh.sevencdn.com/https://github.com/Kiramei/baas-tauri/releases/download",
+            };
     }
     return {};
 }

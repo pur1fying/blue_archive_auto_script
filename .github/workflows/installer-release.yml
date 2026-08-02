@@ -14,6 +14,10 @@ on:
         required: false
         default: false
         type: boolean
+      release_tag:
+        description: Release tag beginning with v (required when publishing manually)
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -68,6 +72,11 @@ jobs:
       contents: write
     runs-on: ubuntu-22.04
     steps:
+      - name: Validate release tag
+        shell: pwsh
+        run: |
+          $tag = if ('${{ github.event_name }}' -eq 'workflow_dispatch') { '${{ inputs.release_tag }}' } else { '${{ github.ref_name }}' }
+          if ($tag -notmatch '^v\S+$') { throw "Release tag must begin with v: '$tag'" }
       - uses: actions/download-artifact@v4
         with:
           path: release-assets
@@ -81,5 +90,7 @@ jobs:
       - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+          target_commitish: ${{ github.sha }}
           generate_release_notes: true
           files: release-assets/*

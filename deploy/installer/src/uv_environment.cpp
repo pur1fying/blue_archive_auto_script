@@ -107,11 +107,51 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
     if (!ensure_portable_uv(paths, config, error)) return false;
     const auto requirements = paths.root / "requirements.txt";
     if (!fs::exists(requirements)) { error = "requirements.txt is missing after main deployment"; return false; }
-    for (const auto& command : managed_uv_commands(environment, config, requirements)) {
-        std::vector<std::string> arguments{environment.executable.string()};
-        arguments.insert(arguments.end(), command.arguments.begin(), command.arguments.end());
-        if (run_process(arguments, environment.variables) != 0) { error = "uv command failed: " + command.arguments.front(); return false; }
+
+    const auto run_uv = [&](const std::vector<std::string>& command, const std::map<std::string, std::string>& variables) {
+        std::vector<std::string> arguments{environment.executable.string(), "--no-progress"};
+        arguments.insert(arguments.end(), command.begin(), command.end());
+        return run_process(arguments, variables) == 0;
+    };
+
+    bool python_installed = false;
+    std::vector<std::string> cpython_mirrors{""};
+    const auto configured_mirrors = default_sources(SourceKind::Cpython, config);
+    cpython_mirrors.insert(cpython_mirrors.end(), configured_mirrors.begin(), configured_mirrors.end());
+    for (const auto& mirror : cpython_mirrors) {
+        auto variables = environment.variables;
+        if (!mirror.empty()) variables["UV_PYTHON_INSTALL_MIRROR"] = mirror;
+        if (run_uv({"python", "install", config.python_version}, variables)) {
+            python_installed = true;
+            break;
+        }
     }
+    if (!python_installed) {
+        error = "uv could not install Python from the official source or any configured fallback";
+        return false;
+    }
+    if (!run_uv({"venv", "--relocatable", "--python", config.python_version, environment.venv_dir.generic_string()}, environment.variables)) {
+        error = "uv could not create the relocatable virtual environment";
+        return false;
+    }
+
+    const auto compiled = requirements.parent_path() / ".baas-installer-requirements.txt";
+    bool dependencies_installed = false;
+    for (const auto& index : default_sources(SourceKind::Pypi, config)) {
+        auto variables = environment.variables;
+        variables["UV_INDEX"] = index;
+        variables["UV_DEFAULT_INDEX"] = index;
+        variables["VIRTUAL_ENV"] = environment.venv_dir.generic_string();
+        if (!run_uv({"pip", "compile", requirements.generic_string(), "--output-file", compiled.generic_string()}, variables)) continue;
+        if (!run_uv({"pip", "sync", "--link-mode", "copy", compiled.generic_string()}, variables)) continue;
+        dependencies_installed = true;
+        break;
+    }
+    if (!dependencies_installed) {
+        error = "uv dependency synchronization failed for every configured PyPI index";
+        return false;
+    }
+    run_uv({"cache", "clean"}, environment.variables);
     return true;
 }
 

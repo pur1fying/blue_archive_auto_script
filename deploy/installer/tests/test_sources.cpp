@@ -15,6 +15,18 @@ int main() {
     if (urls.empty() || urls.front() != "https://github.com/pur1fying/blue_archive_auto_script.git") {
         std::cerr << "unexpected main source order\n"; return 1;
     }
+    const auto uv_sources = baas_installer::default_sources(baas_installer::SourceKind::Uv, config);
+    const auto cpython_sources = baas_installer::default_sources(baas_installer::SourceKind::Cpython, config);
+    const auto pypi_sources = baas_installer::default_sources(baas_installer::SourceKind::Pypi, config);
+    const auto contains_retired = [](const auto& list) {
+        return std::any_of(list.begin(), list.end(), [](const auto& url) {
+            return url.find("baas-cdn.kiramei.workers.dev") != std::string::npos;
+        });
+    };
+    if (uv_sources.size() < 5 || cpython_sources.size() < 5 || pypi_sources.size() < 5 ||
+        contains_retired(uv_sources) || contains_retired(cpython_sources)) {
+        std::cerr << "environment fallback source set is incomplete\n"; return 1;
+    }
 
     const auto ranked = baas_installer::rank_sources(urls, [](const std::string& url) {
         if (url.find("gitee") != std::string::npos) return 8LL;
