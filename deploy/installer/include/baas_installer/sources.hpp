@@ -20,8 +20,8 @@ struct RankedSource {
 };
 
 // Probe callbacks return a non-negative latency on success, or -1 when the
-// endpoint cannot provide the required resource.  This keeps selection policy
-// independent from the HTTP implementation used by the installer.
+// probe cannot verify the resource. Failed probes remain at the end of the
+// ranking so an advisory speed test can never suppress a real transfer attempt.
 using SourceProbe = std::function<long long(const std::string&)>;
 
 std::vector<RankedSource> rank_sources(

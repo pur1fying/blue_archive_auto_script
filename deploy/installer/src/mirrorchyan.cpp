@@ -1,4 +1,5 @@
 #include "baas_installer/mirrorchyan.hpp"
+#include "baas_installer/curl_runtime.hpp"
 #include "baas_installer/process.hpp"
 
 #include <array>
@@ -155,6 +156,10 @@ MirrorRelease parse_mirror_response(const std::string& json) {
 MirrorRelease request_mirror_release(const std::string& request_url, std::string& error, const long timeout_seconds) {
     error.clear();
 #ifdef BAAS_INSTALLER_HAS_CURL
+    if (!ensure_curl_initialized()) {
+        error = "could not initialize MirrorChyan HTTP runtime";
+        MirrorRelease failed; failed.status = CdkStatus::ServerError; return failed;
+    }
     CURL* curl = curl_easy_init();
     if (!curl) {
         error = "could not initialize MirrorChyan HTTP client";
@@ -486,6 +491,7 @@ bool download_mirror_package(const MirrorRelease& release, const fs::path& archi
                              MirrorDownloadProgress on_progress) {
     if (release.status != CdkStatus::Valid || !is_sha256(release.sha256)) { error = "MirrorChyan response has no verifiable package"; return false; }
 #ifdef BAAS_INSTALLER_HAS_CURL
+    if (!ensure_curl_initialized()) { error = "cannot initialize HTTP runtime"; return false; }
     fs::create_directories(archive.parent_path());
     FILE* output = std::fopen(archive.string().c_str(), "wb"); if (!output) { error = "cannot create staging archive"; return false; }
     CURL* curl = curl_easy_init();

@@ -1,5 +1,6 @@
 #include "baas_installer/tui.hpp"
 
+#include <cmath>
 #include <iostream>
 #include <thread>
 
@@ -21,6 +22,24 @@ std::string screen_text(const ftxui::Screen& screen) {
         result.push_back('\n');
     }
     return result;
+}
+
+double horizontal_center(const ftxui::Screen& screen, const std::string& needle) {
+    const auto first_visible = needle.find_first_not_of(' ');
+    const auto visible = first_visible == std::string::npos ? needle : needle.substr(first_visible);
+    for (int y = 0; y < screen.dimy(); ++y) {
+        std::string row;
+        for (int x = 0; x < screen.dimx(); ++x) {
+            const auto& cell = screen.at(x, y);
+            row += cell.empty() ? " " : cell;
+        }
+        const auto position = row.find(visible);
+        if (position != std::string::npos) {
+            const auto canvas_column = position - first_visible;
+            return static_cast<double>(canvas_column) + static_cast<double>(needle.size()) / 2.0;
+        }
+    }
+    return -1;
 }
 
 }  // namespace
@@ -57,6 +76,17 @@ int main() {
         english_rendered.find("Official QQ Group: 658302636") == std::string::npos ||
         english_rendered.find("欢迎使用蔚蓝档案自动脚本！") != std::string::npos) {
         std::cerr << "English setup renderer did not fill the viewport or restore project identity\n";
+        return 1;
+    }
+    const auto title_top_center = horizontal_center(english_screen, "    ____  ___    ___   _____");
+    const auto title_bottom_center = horizontal_center(english_screen, "/_____/_/  |_/_/  |_/____/");
+    const auto project_url_center = horizontal_center(
+        english_screen, "https://github.com/pur1fying/blue_archive_auto_script");
+    if (title_top_center < 0 || title_bottom_center < 0 || project_url_center < 0 ||
+        std::abs(title_top_center - title_bottom_center) > 0.5 ||
+        std::abs(title_top_center - project_url_center) > 0.5) {
+        std::cerr << "every header line must be centered independently: top=" << title_top_center
+                  << " bottom=" << title_bottom_center << " url=" << project_url_center << '\n';
         return 1;
     }
 

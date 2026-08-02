@@ -98,9 +98,11 @@ std::vector<RankedSource> rank_sources(
     for (std::size_t index = 0; index < candidates.size(); ++index) {
         const auto latency = probes[index].get();
         const auto& candidate = candidates[index];
-        if (latency >= 0) ranked.push_back({candidate, latency, 0});
+        ranked.push_back({candidate, latency, 0});
     }
     std::stable_sort(ranked.begin(), ranked.end(), [](const RankedSource& a, const RankedSource& b) {
+        if (a.latency_ms < 0) return false;
+        if (b.latency_ms < 0) return true;
         return a.latency_ms < b.latency_ms;
     });
     return ranked;

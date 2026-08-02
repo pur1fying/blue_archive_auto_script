@@ -1,4 +1,5 @@
 #include "baas_installer/uv_environment.hpp"
+#include "baas_installer/curl_runtime.hpp"
 #include "baas_installer/dependency_state.hpp"
 #include "baas_installer/mirrorchyan.hpp"
 #include "baas_installer/process.hpp"
@@ -82,8 +83,17 @@ std::size_t discard_response(const char*, const std::size_t size, const std::siz
 
 bool acceptable_http_status(const long status) { return status >= 200 && status < 400; }
 
-long long http_probe_latency(const std::string& url) {
-    const auto request = [&](const bool head) -> std::pair<bool, long long> {
+struct HttpProbeResult {
+    long long latency_ms{-1};
+    CURLcode head_code{CURLE_OK};
+    long head_status{};
+    CURLcode range_code{CURLE_OK};
+    long range_status{};
+};
+
+HttpProbeResult http_probe(const std::string& url) {
+    HttpProbeResult result;
+    const auto request = [&](const bool head, CURLcode& code, long& response) -> std::pair<bool, long long> {
         CURL* curl = curl_easy_init();
         if (curl == nullptr) return {false, -1};
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -100,17 +110,29 @@ long long http_probe_latency(const std::string& url) {
             curl_easy_setopt(curl, CURLOPT_MAXFILESIZE_LARGE, static_cast<curl_off_t>(1024));
         }
         const auto started = std::chrono::steady_clock::now();
-        const auto status = curl_easy_perform(curl);
+        code = curl_easy_perform(curl);
         const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - started).count();
-        long response = 0;
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response);
         curl_easy_cleanup(curl);
-        return {status == CURLE_OK && acceptable_http_status(response), elapsed};
+        return {code == CURLE_OK && acceptable_http_status(response), elapsed};
     };
-    if (const auto head = request(true); head.first) return head.second;
-    if (const auto range = request(false); range.first) return range.second;
-    return -1;
+    if (const auto head = request(true, result.head_code, result.head_status); head.first) {
+        result.latency_ms = head.second;
+        return result;
+    }
+    if (const auto range = request(false, result.range_code, result.range_status); range.first) {
+        result.latency_ms = range.second;
+    }
+    return result;
+}
+
+std::string curl_probe_failure(const HttpProbeResult& probe) {
+    return " probe failed (HEAD: " + std::string(curl_easy_strerror(probe.head_code)) + "/" +
+           std::to_string(static_cast<int>(probe.head_code)) + ", HTTP " + std::to_string(probe.head_status) +
+           "; range: " + std::string(curl_easy_strerror(probe.range_code)) + "/" +
+           std::to_string(static_cast<int>(probe.range_code)) + ", HTTP " + std::to_string(probe.range_status) +
+           "); retaining source for a real attempt\n";
 }
 #endif
 
@@ -119,17 +141,29 @@ std::vector<std::string> ranked_sources_for(
     const ProcessObserver& observer, const bool test_executor) {
     if (candidates.empty()) return {};
     if (!source_probe && test_executor) return candidates;
+#ifdef BAAS_INSTALLER_HAS_CURL
+    if (!source_probe && !ensure_curl_initialized()) {
+        if (observer) observer("uv", "probe", "libcurl global initialization failed; retaining source order\n");
+        return candidates;
+    }
+#endif
     const auto ranking = rank_sources(candidates, [&](const std::string& source) {
         if (observer) observer("uv", "probe", "Testing source " + source + "\n");
         const auto probe_url = kind == SourceKind::Cpython ? cpython_probe_url(source) : source;
         long long latency = -1;
+        std::string failure;
         if (source_probe) latency = source_probe(kind, probe_url);
 #ifdef BAAS_INSTALLER_HAS_CURL
-        else latency = http_probe_latency(probe_url);
+        else {
+            const auto probe = http_probe(probe_url);
+            latency = probe.latency_ms;
+            if (latency < 0) failure = curl_probe_failure(probe);
+        }
 #endif
         if (observer) {
             observer("uv", "probe", source + (latency >= 0 ? " responded in " + std::to_string(latency) + " ms\n"
-                                                               : " probe failed\n"));
+                                                               : failure.empty() ? " probe failed; retaining source for a real attempt\n"
+                                                                                 : failure));
         }
         return latency;
     });
@@ -243,10 +277,6 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
     sources.push_back("https://github.com/astral-sh/uv/releases/download/0.5.11/" + filename);
     sources = ranked_sources_for(SourceKind::Uv, unique_sources(std::move(sources)), source_probe, observer,
                                  static_cast<bool>(terminal_executor));
-    if (sources.empty()) {
-        error = "every portable uv source failed its download probe";
-        return false;
-    }
     for (const auto& source : sources) {
         if (run_visible({"curl", "--fail", "--location", "--connect-timeout", "5", "--retry", "2", "--output",
                          archive.string(), source}, environment.variables, paths.root, "curl", observer,

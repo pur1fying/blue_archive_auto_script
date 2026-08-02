@@ -227,19 +227,23 @@ int run_unattended(const std::string& configured_cdk, const TuiInstallAction& in
 
 namespace {
 
-ftxui::Element project_header(const Language language) {
+ftxui::Element project_header(const Language language, const int width) {
     using namespace ftxui;
+    const auto centered = [width](Element element) {
+        return hbox({filler(), std::move(element), filler()}) |
+               size(WIDTH, EQUAL, std::max(1, width - 2));
+    };
     return vbox({
-        text("    ____  ___    ___   _____"),
-        text("   / __ )/   |  /   | / ___/"),
-        text("  / __  / /| | / /| | \\__ \\"),
-        text(" / /_/ / ___ |/ ___ |___/ /"),
-        text("/_____/_/  |_/_/  |_/____/"),
-        text(message(language, MessageId::Welcome)) | bold | color(Color::Cyan),
-        text("Developed by pur1fying  |  LICENSE: GPL-3.0") | color(Color::GrayLight),
-        text("https://github.com/pur1fying/blue_archive_auto_script") | dim,
-        text("Official QQ Group: 658302636") | dim,
-    }) | center;
+        centered(text("    ____  ___    ___   _____")),
+        centered(text("   / __ )/   |  /   | / ___/")),
+        centered(text("  / __  / /| | / /| | \\__ \\")),
+        centered(text(" / /_/ / ___ |/ ___ |___/ /")),
+        centered(text("/_____/_/  |_/_/  |_/____/")),
+        centered(text(message(language, MessageId::Welcome)) | bold | color(Color::Cyan)),
+        centered(text("Developed by pur1fying  |  LICENSE: GPL-3.0") | color(Color::GrayLight)),
+        centered(text("https://github.com/pur1fying/blue_archive_auto_script") | dim),
+        centered(text("Official QQ Group: 658302636") | dim),
+    }) | size(WIDTH, EQUAL, std::max(1, width - 2));
 }
 
 ftxui::Element task_row(const TaskSnapshot& task) {
@@ -271,7 +275,7 @@ ftxui::Element render_setup_view(const InstallerSnapshot&, const Language langua
                                  const int width, const int height) {
     using namespace ftxui;
     auto content = vbox({
-        project_header(language),
+        project_header(language, width),
         separator(),
         text(message(language, MessageId::SetupTitle)) | bold,
         text(message(language, MessageId::GitFallbackHint)) | dim,
@@ -295,7 +299,7 @@ ftxui::Element render_installation_view(const InstallerSnapshot& snapshot, const
     for (auto index = start; index < end; ++index) logs.push_back(text(snapshot.log_lines[index]) | dim);
     while (logs.size() < visible_lines) logs.push_back(text(""));
     auto content = vbox({
-        project_header(language),
+        project_header(language, width),
         separator(),
         vbox(std::move(rows)),
         separator(),

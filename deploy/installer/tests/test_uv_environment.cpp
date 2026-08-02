@@ -196,6 +196,16 @@ int main() {
         *std::next(python) != custom_config.runtime_path) {
         std::cerr << "custom runtime was not passed to uv pip sync\n"; return 1;
     }
+
+    std::filesystem::remove(custom_paths.state_dir / "dependencies-v1.sha256", ignored);
+    std::filesystem::remove(custom_paths.root / ".baas-installer-requirements.txt", ignored);
+    custom_commands.clear();
+    const auto failed_probe = [](const baas_installer::SourceKind, const std::string&) { return -1LL; };
+    if (!baas_installer::sync_portable_uv(custom_paths, custom_config, sync_error, {}, custom_executor, failed_probe) ||
+        custom_commands.size() != 2) {
+        std::cerr << "probe failures must not prevent real uv source attempts\n";
+        return 1;
+    }
 #ifdef _WIN32
     if (baas_installer::dependency_requirements(custom_paths).filename() != "requirements.txt") return 1;
 #else

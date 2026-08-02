@@ -54,8 +54,18 @@ int main() {
         if (url == "https://github.com/pur1fying/blue_archive_auto_script.git") return 20LL;
         return -1LL;
     });
-    if (ranked.size() != 2 || ranked.front().latency_ms != 8) {
+    if (ranked.size() != urls.size() || ranked.front().latency_ms != 8 ||
+        ranked[1].latency_ms != 20 || ranked[2].url != "https://private.example/main.git" ||
+        ranked[2].latency_ms != -1) {
         std::cerr << "source probe ranking failed\n"; return 1;
+    }
+
+    const auto all_failed = baas_installer::rank_sources({"first", "second", "third"},
+                                                          [](const std::string&) { return -1LL; });
+    if (all_failed.size() != 3 || all_failed[0].url != "first" || all_failed[1].url != "second" ||
+        all_failed[2].url != "third") {
+        std::cerr << "failed probes must remain available for real transfer attempts\n";
+        return 1;
     }
 
     std::atomic<int> active{0};
@@ -69,8 +79,8 @@ int main() {
         if (url == "failed") return -1LL;
         return url == "fast" ? 5LL : 25LL;
     });
-    if (max_active.load() <= 1 || concurrent.size() != 2 || concurrent.front().url != "fast" ||
-        concurrent.back().url != "slow") {
+    if (max_active.load() <= 1 || concurrent.size() != 3 || concurrent.front().url != "fast" ||
+        concurrent[1].url != "slow" || concurrent.back().url != "failed") {
         std::cerr << "source probes must run concurrently and retain latency order\n";
         return 1;
     }

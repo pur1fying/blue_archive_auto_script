@@ -40,6 +40,7 @@ if(NOT TARGET nlohmann_json::nlohmann_json)
 endif()
 
 add_library(baas-installer-core STATIC
+    src/curl_runtime.cpp
     src/digest.cpp
     src/dependency_state.cpp
     src/paths.cpp
