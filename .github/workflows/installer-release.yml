@@ -35,7 +35,7 @@ jobs:
           - os: ubuntu-22.04
             asset: BAAS-Installer-linux-x64
             triplet: x64-linux
-          - os: macos-13
+          - os: macos-15-intel
             asset: BAAS-Installer-macos-x64
             triplet: x64-osx
           - os: macos-14
