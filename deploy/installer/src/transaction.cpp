@@ -138,6 +138,10 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
         // Windows.  Staging names can legitimately contain CJK characters, so
         // retain the native path components without a conversion round-trip.
         const auto relative = entry.path().lexically_relative(source);
+        if (!relative.empty() && *relative.begin() == fs::path(".git")) {
+            if (entry.is_directory()) iterator.disable_recursion_pending();
+            continue;
+        }
         if (is_protected_installer_path(relative, paths_.executable.filename())) {
             if (entry.is_directory()) iterator.disable_recursion_pending();
             continue;
@@ -210,6 +214,32 @@ void InstallTransaction::replace_file(const fs::path& source, const fs::path& de
     fs::copy_file(source, destination, fs::copy_options::overwrite_existing, error);
     if (error) throw std::runtime_error("could not replace live file: " + error.message());
     journal("replace:" + display_path(destination));
+}
+
+void InstallTransaction::replace_directory(const fs::path& source, const fs::path& destination) {
+    if (!fs::is_directory(source)) throw std::runtime_error("replacement source directory is missing");
+    if (!is_within(staging_root_, source) || !is_within(paths_.root, destination)) {
+        throw std::runtime_error("directory replacement escapes the installation transaction");
+    }
+    const auto relative = fs::absolute(destination).lexically_normal().lexically_relative(
+        fs::absolute(paths_.root).lexically_normal());
+    if (relative.empty() || is_protected_installer_path(relative, paths_.executable.filename())) {
+        throw std::runtime_error("replacement directory is protected");
+    }
+    const bool exists = fs::exists(destination);
+    const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
+    std::error_code error;
+    fs::create_directories(destination.parent_path(), error);
+    if (error) throw std::runtime_error("could not create replacement directory parent: " + error.message());
+    if (exists) {
+        fs::create_directories(backup.parent_path(), error);
+        if (!error) fs::rename(destination, backup, error);
+        if (error) throw std::runtime_error("could not back up replacement directory: " + error.message());
+    }
+    changes_.push_back({destination, backup, exists, true});
+    fs::rename(source, destination, error);
+    if (error) throw std::runtime_error("could not move replacement directory: " + error.message());
+    journal("replace-directory:" + display_path(destination));
 }
 
 void InstallTransaction::remove_path(const fs::path& destination) {

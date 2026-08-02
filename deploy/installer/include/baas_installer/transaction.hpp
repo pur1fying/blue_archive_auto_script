@@ -25,6 +25,7 @@ public:
     void deploy_main_from(const std::filesystem::path& source);
     void deploy_ocr_from(const std::filesystem::path& source);
     void replace_file(const std::filesystem::path& source, const std::filesystem::path& destination);
+    void replace_directory(const std::filesystem::path& source, const std::filesystem::path& destination);
     void remove_path(const std::filesystem::path& destination);
     void add_rollback_action(std::function<void()> action);
     void add_commit_action(std::function<void()> action);

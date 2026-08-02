@@ -197,7 +197,11 @@ void checkout_progress(const char*, const size_t completed, const size_t total, 
 
 std::string branch_name(const std::string& revision) {
     static const std::string prefix = "refs/heads/";
-    return revision.starts_with(prefix) ? revision.substr(prefix.size()) : std::string{};
+    if (revision.starts_with(prefix)) return revision.substr(prefix.size());
+    // Production OCR revisions are supplied as a plain branch name such as
+    // "windows-x64".  Tell libgit2 to clone that branch directly instead of
+    // cloning the default branch and then failing a local revparse.
+    return !revision.empty() && !revision.starts_with("refs/") ? revision : std::string{};
 }
 
 GitResult clone_with_libgit2(const std::string& source, const fs::path& destination, const std::string& revision,
@@ -221,11 +225,14 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
     emit_libgit2(&progress, "Starting libgit2 clone\r");
     const int cloned = git_clone(&repository, source.c_str(), destination.string().c_str(), &options);
     if (cloned != 0) {
-        const auto* error = git_error_last();
+        const auto* detail = git_error_last();
+        const std::string message = detail ? detail->message : "libgit2 clone failed";
         git_libgit2_shutdown();
-        return {false, GitBackend::Libgit2, source, {}, error ? error->message : "libgit2 clone failed"};
+        return {false, GitBackend::Libgit2, source, {}, message};
     }
-    if (!revision.empty()) {
+    // git_clone has already selected and checked out checkout_branch.  Only
+    // resolve non-branch revisions explicitly after the clone.
+    if (!revision.empty() && wanted_branch.empty()) {
         git_object* object = nullptr;
         const int resolved = git_revparse_single(&object, repository, revision.c_str());
         git_checkout_options checkout = GIT_CHECKOUT_OPTIONS_INIT;
@@ -238,11 +245,12 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
             : (checked_out == 0 ? git_repository_set_head_detached(repository, git_object_id(object)) : checked_out);
         if (object != nullptr) git_object_free(object);
         if (checked_out != 0 || head_updated != 0) {
-            const auto* error = git_error_last();
+            const auto* detail = git_error_last();
+            const std::string message = detail ? detail->message : "libgit2 checkout failed";
             git_repository_free(repository);
             git_libgit2_shutdown();
             fs::remove_all(destination, ignored);
-            return {false, GitBackend::Libgit2, source, {}, error ? error->message : "libgit2 checkout failed"};
+            return {false, GitBackend::Libgit2, source, {}, message};
         }
     }
     git_repository_free(repository);
@@ -407,6 +415,7 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
     const bool use_cli = git_cli_available();
     const auto local_head = repository_head(live_repository);
     const bool valid_live = !local_head.empty() && (!use_cli || valid_cli_repository(live_repository));
+    std::vector<std::string> libgit_sources = sources;
 
     if (use_cli) {
         const auto selected = select_git_remote(sources, revision, ranking_cache, source_kind, std::move(remote_probe));
@@ -437,18 +446,26 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
                 }
                 last = result;
             }
+            // A valid remote SHA was obtained, so libgit2 may retry only this
+            // selected source as the lower-priority backend.  Retrying every
+            // source would repeat large downloads and ignore this run's probe.
+            libgit_sources = {selected.source};
         } else {
             last = {false, GitBackend::GitCli, {}, {}, "every Git source failed its remote SHA check"};
+            // Ten seconds without a valid SHA makes a source unavailable for
+            // this run.  Do not download the same unavailable URLs via another
+            // backend immediately afterwards.
+            return last;
         }
     }
 
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
     if (valid_live) {
-        auto result = prepare_existing_with_libgit2(sources, live_repository, revision, local_head, observer);
+        auto result = prepare_existing_with_libgit2(libgit_sources, live_repository, revision, local_head, observer);
         if (result.success) return result;
         last = result;
     } else {
-        for (const auto& source : sources) {
+        for (const auto& source : libgit_sources) {
             auto result = clone_with_libgit2(source, staging_directory, revision, observer);
             if (result.success) {
                 result.mode = RepositoryMode::Full;
@@ -515,8 +532,11 @@ bool finalize_git_repository(const fs::path& repository, const GitBackend backen
              {"git", "-C", repository.string(), "checkout", "--detach", "--force", "HEAD"},
              {"git", "-C", repository.string(), "reflog", "expire", "--expire=now", "--all"},
              {"git", "-C", repository.string(), "gc", "--prune=now"}}) {
-        if (hidden_git(arguments).exit_code != 0) {
-            error = "could not compact the shallow Git repository";
+        const auto result = hidden_git(arguments);
+        if (result.exit_code != 0) {
+            error = "could not compact the shallow Git repository at '" + repository.generic_string() +
+                    "' while running '" + (arguments.size() > 3 ? arguments[3] : std::string("git")) +
+                    "': " + result.output;
             return false;
         }
     }
@@ -524,7 +544,9 @@ bool finalize_git_repository(const fs::path& repository, const GitBackend backen
     const auto count = hidden_git({"git", "-C", repository.string(), "rev-list", "--count", "HEAD"});
     if (shallow.exit_code != 0 || first_token(shallow.output) != "true" ||
         count.exit_code != 0 || first_token(count.output) != "1") {
-        error = "Git repository did not retain exactly one shallow commit";
+        error = "Git repository at '" + repository.generic_string() +
+                "' did not retain exactly one shallow commit (shallow='" + first_token(shallow.output) +
+                "', count='" + first_token(count.output) + "')";
         return false;
     }
     return true;

@@ -43,11 +43,18 @@ int main() {
         baas_installer::InstallTransaction transaction(paths);
         rolled_back_staging = transaction.staging_root();
         write(transaction.main_staging_path() / "app.txt", "new-main");
+        write(transaction.main_staging_path() / ".git/HEAD", "new-git-head");
         write(transaction.main_staging_path() / "core/ocr/baas_ocr_client/bin/keep.txt", "bad-main-ocr");
         write(transaction.ocr_staging_path() / "keep.txt", "new-ocr");
         transaction.deploy_main();
+        transaction.replace_directory(transaction.main_staging_path() / ".git", paths.root / ".git");
         if (read(paths.executable) != "installer-binary") {
             std::cerr << "main deployment removed the running installer\n";
+            return 1;
+        }
+        if (read(paths.root / ".git/HEAD") != "new-git-head" ||
+            fs::exists(transaction.main_staging_path() / ".git")) {
+            std::cerr << "Git metadata directory was not moved transactionally\n";
             return 1;
         }
         if (read(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt") != "old-ocr") { std::cerr << "main overwrote OCR\n"; return 1; }

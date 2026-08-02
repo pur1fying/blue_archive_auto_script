@@ -213,6 +213,7 @@ int main(int argc, char* argv[]) {
                         current.remove_path(live / ".git");
                         if (main_repository) current.deploy_main();
                         else current.deploy_ocr();
+                        current.replace_directory(git.staging_path / ".git", live / ".git");
                         finalize();
                         return true;
                     }

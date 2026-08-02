@@ -121,6 +121,20 @@ int main() {
         return 1;
     }
 
+    const auto unavailable_staging = root / "unavailable-staging";
+    auto unavailable = baas_installer::prepare_git_repository(
+        {remote.string()}, root / "missing-unavailable", unavailable_staging, "refs/heads/master", {}, {},
+        baas_installer::SourceKind::MainGit,
+        [](const std::string& source, const std::string&, std::chrono::milliseconds) {
+            return baas_installer::GitRemoteHead{source, {}, -1, false};
+        });
+    if (unavailable.success || unavailable.backend != baas_installer::GitBackend::GitCli ||
+        fs::exists(unavailable_staging)) {
+        std::cerr << "a source rejected by the ten-second CLI probe must not be downloaded again with libgit2\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+
     if (!write_commit(seed, "two", "second") ||
         !command({"git", "-C", seed.string(), "push", "origin", "master"})) {
         std::cerr << "could not advance local Git remote\n";
@@ -186,7 +200,7 @@ int main() {
     setenv("PATH", "", 1);
 #endif
     auto libgit = baas_installer::prepare_git_repository(
-        {remote.string()}, root / "missing", libgit_staging, "refs/heads/windows-x64",
+        {remote.string()}, root / "missing", libgit_staging, "windows-x64",
         [&](std::string_view, std::string_view backend, std::string_view chunk) {
             if (backend == "libgit2") libgit_chunks.append(chunk);
         });
