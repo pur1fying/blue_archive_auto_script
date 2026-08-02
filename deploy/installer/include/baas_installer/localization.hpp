@@ -14,6 +14,7 @@ struct LocaleInputs {
 };
 
 enum class MessageId {
+    Welcome,
     AppSubtitle,
     SetupTitle,
     UseMirror,

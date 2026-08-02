@@ -15,7 +15,7 @@ namespace {
 constexpr std::size_t message_count = static_cast<std::size_t>(MessageId::LaunchFailed) + 1;
 
 constexpr std::array<const char*, message_count> english{
-    "Installation and migration tool", "Installation source", "Use MirrorChyan CDK", "Enter CDK",
+    "Welcome to BlueArchive Auto Script!", "Installation and migration tool", "Installation source", "Use MirrorChyan CDK", "Enter CDK",
     "Without a CDK, Git and ranked mirrors are used automatically.", "Start installation", "Retry", "Exit",
     "Main repository", "OCR component", "Deployment", "Python / uv", "Verification", "Launch BAAS",
     "Waiting", "Checking", "Downloading", "Applying", "Complete", "Failed",
@@ -23,7 +23,7 @@ constexpr std::array<const char*, message_count> english{
 };
 
 constexpr std::array<const char*, message_count> chinese{
-    "安装与迁移工具", "安装源设置", "使用 MirrorChyan CDK", "输入 CDK",
+    "欢迎使用蔚蓝档案自动脚本！", "安装与迁移工具", "安装源设置", "使用 MirrorChyan CDK", "输入 CDK",
     "没有 CDK 时将使用 Git，并按镜像源自动回退。", "开始安装", "重试", "退出",
     "主仓库", "OCR 组件", "文件部署", "Python / uv", "完整性检查", "启动 BAAS",
     "等待中", "正在检查", "正在下载", "正在应用", "已完成", "失败",

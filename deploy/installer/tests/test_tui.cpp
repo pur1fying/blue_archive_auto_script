@@ -3,11 +3,24 @@
 #include <iostream>
 #include <thread>
 
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/dom/node.hpp>
+#include <ftxui/screen/screen.hpp>
+
 namespace {
 
 bool contains(const std::vector<std::string>& lines, const std::string& needle) {
     for (const auto& line : lines) if (line.find(needle) != std::string::npos) return true;
     return false;
+}
+
+std::string screen_text(const ftxui::Screen& screen) {
+    std::string result;
+    for (int y = 0; y < screen.dimy(); ++y) {
+        for (int x = 0; x < screen.dimx(); ++x) result += screen.at(x, y);
+        result.push_back('\n');
+    }
+    return result;
 }
 
 }  // namespace
@@ -26,6 +39,36 @@ int main() {
     }
     if (baas_installer::task_marker(baas_installer::TaskStatus::Running) != " ") {
         std::cerr << "running tasks must not use an animated spinner or glyph\n"; return 1;
+    }
+
+    auto english_screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto english_view = baas_installer::render_setup_view(
+        english.snapshot(), baas_installer::Language::English, ftxui::text("controls"), 100, 40);
+    ftxui::Render(english_screen, english_view);
+    const auto english_rendered = screen_text(english_screen);
+    if (english_screen.at(0, 0) == " " || english_screen.at(99, 0) == " " ||
+        english_screen.at(0, 39) == " " || english_screen.at(99, 39) == " " ||
+        english_rendered.find("    ____  ___    ___   _____") == std::string::npos ||
+        english_rendered.find("/_____/_/  |_/_/  |_/____/") == std::string::npos ||
+        english_rendered.find("Welcome to BlueArchive Auto Script!") == std::string::npos ||
+        english_rendered.find("Developed by pur1fying") == std::string::npos ||
+        english_rendered.find("LICENSE: GPL-3.0") == std::string::npos ||
+        english_rendered.find("https://github.com/pur1fying/blue_archive_auto_script") == std::string::npos ||
+        english_rendered.find("Official QQ Group: 658302636") == std::string::npos ||
+        english_rendered.find("欢迎使用蔚蓝档案自动脚本！") != std::string::npos) {
+        std::cerr << "English setup renderer did not fill the viewport or restore project identity\n";
+        return 1;
+    }
+
+    auto chinese_screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto chinese_view = baas_installer::render_setup_view(
+        chinese.snapshot(), baas_installer::Language::SimplifiedChinese, ftxui::text("controls"), 100, 40);
+    ftxui::Render(chinese_screen, chinese_view);
+    const auto chinese_rendered = screen_text(chinese_screen);
+    if (chinese_rendered.find("欢迎使用蔚蓝档案自动脚本！") == std::string::npos ||
+        chinese_rendered.find("Welcome to BlueArchive Auto Script!") != std::string::npos) {
+        std::cerr << "Chinese setup renderer did not select the localized welcome\n";
+        return 1;
     }
 
     english.begin_install();
@@ -52,13 +95,31 @@ int main() {
     if (contains(logs, "Receiving 10%") || !contains(logs, "Receiving 20%") || !contains(logs, "OCR download")) {
         std::cerr << "interleaved PTY progress replacement is incorrect\n"; return 1;
     }
-    for (int i = 0; i < 24; ++i) english.append_process_chunk("uv", "uv", "history " + std::to_string(i) + "\n");
+    for (int i = 0; i < 24; ++i) {
+        const auto index = (i < 10 ? "0" : "") + std::to_string(i);
+        english.append_process_chunk("uv", "uv", "history-" + index + "\n");
+    }
     if (english.snapshot().log_lines.size() < 26) {
         std::cerr << "the unified log must retain full history\n"; return 1;
     }
     english.scroll_logs(5);
     if (english.snapshot().log_scroll != 5) {
         std::cerr << "log view must support scrolling away from the tail\n"; return 1;
+    }
+
+    auto installation_screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto installation_view = baas_installer::render_installation_view(
+        english.snapshot(), baas_installer::Language::English, ftxui::text("footer"), 100, 40);
+    ftxui::Render(installation_screen, installation_view);
+    const auto installation_rendered = screen_text(installation_screen);
+    if (installation_screen.at(0, 0) == " " || installation_screen.at(99, 0) == " " ||
+        installation_screen.at(0, 39) == " " || installation_screen.at(99, 39) == " " ||
+        installation_rendered.find("history-02") == std::string::npos ||
+        installation_rendered.find("history-18") == std::string::npos ||
+        installation_rendered.find("history-01") != std::string::npos ||
+        installation_rendered.find("history-19") != std::string::npos) {
+        std::cerr << "installation renderer did not fill the viewport or derive log capacity from its height\n";
+        return 1;
     }
 
     baas_installer::apply_workflow_progress(english, "main", "downloading");

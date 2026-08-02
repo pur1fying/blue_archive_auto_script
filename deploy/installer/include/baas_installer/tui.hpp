@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include <ftxui/dom/elements.hpp>
+
 namespace baas_installer {
 
 enum class InstallerScreen { Setup, Installing, Succeeded, Failed };
@@ -63,6 +65,10 @@ using TuiInstallAction = std::function<std::pair<bool, std::string>(
 bool configure_utf8_terminal();
 std::string task_marker(TaskStatus status);
 void apply_workflow_progress(InstallerViewModel& model, const std::string& task, const std::string& detail);
+ftxui::Element render_setup_view(const InstallerSnapshot& snapshot, Language language,
+                                 ftxui::Element controls, int width, int height);
+ftxui::Element render_installation_view(const InstallerSnapshot& snapshot, Language language,
+                                        ftxui::Element footer, int width, int height);
 int run_unattended(const std::string& configured_cdk, const TuiInstallAction& install);
 int run_tui(bool setup_required, const std::string& configured_cdk, const TuiInstallAction& install, bool auto_exit = false);
 

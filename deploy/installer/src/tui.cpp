@@ -227,6 +227,21 @@ int run_unattended(const std::string& configured_cdk, const TuiInstallAction& in
 
 namespace {
 
+ftxui::Element project_header(const Language language) {
+    using namespace ftxui;
+    return vbox({
+        text("    ____  ___    ___   _____"),
+        text("   / __ )/   |  /   | / ___/"),
+        text("  / __  / /| | / /| | \\__ \\"),
+        text(" / /_/ / ___ |/ ___ |___/ /"),
+        text("/_____/_/  |_/_/  |_/____/"),
+        text(message(language, MessageId::Welcome)) | bold | color(Color::Cyan),
+        text("Developed by pur1fying  |  LICENSE: GPL-3.0") | color(Color::GrayLight),
+        text("https://github.com/pur1fying/blue_archive_auto_script") | dim,
+        text("Official QQ Group: 658302636") | dim,
+    }) | center;
+}
+
 ftxui::Element task_row(const TaskSnapshot& task) {
     using namespace ftxui;
     Color tint = Color::GrayDark;
@@ -251,6 +266,45 @@ double aggregate_progress(const InstallerSnapshot& snapshot) {
 }
 
 }  // namespace
+
+ftxui::Element render_setup_view(const InstallerSnapshot&, const Language language, ftxui::Element controls,
+                                 const int width, const int height) {
+    using namespace ftxui;
+    auto content = vbox({
+        project_header(language),
+        separator(),
+        text(message(language, MessageId::SetupTitle)) | bold,
+        text(message(language, MessageId::GitFallbackHint)) | dim,
+        std::move(controls) | flex,
+    });
+    return std::move(content) | borderRounded |
+           size(WIDTH, EQUAL, std::max(1, width)) | size(HEIGHT, EQUAL, std::max(1, height));
+}
+
+ftxui::Element render_installation_view(const InstallerSnapshot& snapshot, const Language language,
+                                        ftxui::Element footer, const int width, const int height) {
+    using namespace ftxui;
+    Elements rows;
+    for (const auto& id : {"main", "ocr", "deployment", "verify", "uv", "launch"}) {
+        rows.push_back(task_row(snapshot.tasks.at(id)));
+    }
+    const auto visible_lines = static_cast<std::size_t>(std::max(3, height - 23));
+    const auto end = snapshot.log_lines.size() - std::min(snapshot.log_scroll, snapshot.log_lines.size());
+    const auto start = end > visible_lines ? end - visible_lines : 0;
+    Elements logs;
+    for (auto index = start; index < end; ++index) logs.push_back(text(snapshot.log_lines[index]) | dim);
+    while (logs.size() < visible_lines) logs.push_back(text(""));
+    auto content = vbox({
+        project_header(language),
+        separator(),
+        vbox(std::move(rows)),
+        separator(),
+        vbox(std::move(logs)) | border | flex,
+        std::move(footer),
+    });
+    return std::move(content) | borderRounded |
+           size(WIDTH, EQUAL, std::max(1, width)) | size(HEIGHT, EQUAL, std::max(1, height));
+}
 
 int run_tui(const bool setup_required, const std::string& configured_cdk, const TuiInstallAction& install,
             const bool /*auto_exit*/) {
@@ -306,29 +360,14 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
 
     auto renderer = Renderer(controls, [&] {
         const auto state = model.snapshot();
-        const auto header = vbox({text("BLUE ARCHIVE AUTO SCRIPT") | bold | color(Color::Cyan),
-                                  text(message(language, MessageId::AppSubtitle)) | color(Color::GrayLight)}) | center;
         if (state.screen == InstallerScreen::Setup) {
             Elements options{mirror->Render()};
             if (use_mirror) options.push_back(hbox({text("CDK  "), cdk_input->Render() | flex}));
             options.push_back(separator());
             options.push_back(begin->Render() | center);
-            return vbox({header, separator(), text(message(language, MessageId::SetupTitle)) | bold,
-                         text(message(language, MessageId::GitFallbackHint)) | dim,
-                         vbox(std::move(options)) | border | size(WIDTH, GREATER_THAN, 48)}) |
-                   borderRounded | size(WIDTH, GREATER_THAN, 68) | center;
+            return render_setup_view(state, language, vbox(std::move(options)) | border | flex,
+                                     screen.dimx(), screen.dimy());
         }
-
-        Elements rows;
-        for (const auto& id : {"main", "ocr", "deployment", "verify", "uv", "launch"}) {
-            rows.push_back(task_row(state.tasks.at(id)));
-        }
-        constexpr std::size_t visible_lines = 14;
-        const auto end = state.log_lines.size() - std::min(state.log_scroll, state.log_lines.size());
-        const auto start = end > visible_lines ? end - visible_lines : 0;
-        Elements logs;
-        for (auto index = start; index < end; ++index) logs.push_back(text(state.log_lines[index]) | dim);
-        while (logs.size() < visible_lines) logs.push_back(text(""));
 
         Element footer;
         if (state.screen == InstallerScreen::Failed) {
@@ -338,9 +377,7 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
         } else {
             footer = hbox({gauge(aggregate_progress(state)) | color(Color::Cyan) | flex});
         }
-        return vbox({header, separator(), vbox(std::move(rows)), separator(),
-                     vbox(std::move(logs)) | border | flex, footer}) |
-               borderRounded | size(WIDTH, GREATER_THAN, 84) | size(HEIGHT, GREATER_THAN, 30) | center;
+        return render_installation_view(state, language, std::move(footer), screen.dimx(), screen.dimy());
     });
 
     auto interactive = CatchEvent(renderer, [&](const Event& event) {

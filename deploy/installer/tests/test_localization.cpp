@@ -26,7 +26,7 @@ int main() {
     }
 
     for (const auto language : {Language::English, Language::SimplifiedChinese}) {
-        for (const auto id : {MessageId::AppSubtitle, MessageId::TaskMain, MessageId::TaskOcr,
+        for (const auto id : {MessageId::Welcome, MessageId::AppSubtitle, MessageId::TaskMain, MessageId::TaskOcr,
                               MessageId::StateChecking, MessageId::StateDownloading,
                               MessageId::ActionRetry, MessageId::ActionExit, MessageId::LaunchFailed}) {
             if (baas_installer::message(language, id).empty()) {
