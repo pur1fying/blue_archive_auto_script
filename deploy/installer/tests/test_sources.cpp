@@ -1,8 +1,11 @@
 #include "baas_installer/sources.hpp"
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <filesystem>
 #include <iostream>
+#include <thread>
 
 int main() {
     baas_installer::InstallerConfig config;
@@ -38,6 +41,13 @@ int main() {
         contains_retired(uv_sources) || contains_retired(cpython_sources)) {
         std::cerr << "environment fallback source set is incomplete\n"; return 1;
     }
+    if (std::find(uv_sources.begin(), uv_sources.end(),
+                  "https://cnb.cool/kiramei/baas-tauri/-/releases/download/uv-down") == uv_sources.end() ||
+        std::find(cpython_sources.begin(), cpython_sources.end(),
+                  "https://cnb.cool/kiramei/baas-tauri/-/releases/download") == cpython_sources.end()) {
+        std::cerr << "CNB uv/CPython fallback sources are missing\n";
+        return 1;
+    }
 
     const auto ranked = baas_installer::rank_sources(urls, [](const std::string& url) {
         if (url.find("gitee") != std::string::npos) return 8LL;
@@ -46,6 +56,23 @@ int main() {
     });
     if (ranked.size() != 2 || ranked.front().latency_ms != 8) {
         std::cerr << "source probe ranking failed\n"; return 1;
+    }
+
+    std::atomic<int> active{0};
+    std::atomic<int> max_active{0};
+    const auto concurrent = baas_installer::rank_sources({"slow", "fast", "failed"}, [&](const std::string& url) {
+        const int current = ++active;
+        auto maximum = max_active.load();
+        while (current > maximum && !max_active.compare_exchange_weak(maximum, current)) {}
+        std::this_thread::sleep_for(std::chrono::milliseconds(40));
+        --active;
+        if (url == "failed") return -1LL;
+        return url == "fast" ? 5LL : 25LL;
+    });
+    if (max_active.load() <= 1 || concurrent.size() != 2 || concurrent.front().url != "fast" ||
+        concurrent.back().url != "slow") {
+        std::cerr << "source probes must run concurrently and retain latency order\n";
+        return 1;
     }
     const auto cache = std::filesystem::temp_directory_path() / "baas-installer-source-ranking.json";
     baas_installer::save_source_ranking(cache, ranked);

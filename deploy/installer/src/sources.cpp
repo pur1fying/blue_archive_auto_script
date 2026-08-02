@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <future>
 #include <iomanip>
 #include <sstream>
 
@@ -53,6 +54,7 @@ std::vector<std::string> default_sources(const SourceKind kind, const InstallerC
             break;
         case SourceKind::Uv:
             add({
+                "https://cnb.cool/kiramei/baas-tauri/-/releases/download/uv-down",
                 "https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
                 "https://gitee.com/kiramei/blue_archive_auto_script_assets/releases/download/UVDownload",
                 "https://v4.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download/uv-down",
@@ -64,6 +66,7 @@ std::vector<std::string> default_sources(const SourceKind kind, const InstallerC
             break;
         case SourceKind::Cpython:
             add({
+                "https://cnb.cool/kiramei/baas-tauri/-/releases/download",
                 "https://github.com/Kiramei/baas-tauri/releases/download",
                 "https://gitee.com/kiramei/blue_archive_auto_script_assets/releases/download",
                 "https://v4.gh-proxy.org/https://github.com/Kiramei/baas-tauri/releases/download",
@@ -81,8 +84,20 @@ std::vector<RankedSource> rank_sources(
     const std::vector<std::string>& candidates, const SourceProbe& probe) {
     std::vector<RankedSource> ranked;
     ranked.reserve(candidates.size());
+    std::vector<std::future<long long>> probes;
+    probes.reserve(candidates.size());
     for (const auto& candidate : candidates) {
-        const auto latency = probe(candidate);
+        probes.push_back(std::async(std::launch::async, [probe, candidate] {
+            try {
+                return probe(candidate);
+            } catch (...) {
+                return -1LL;
+            }
+        }));
+    }
+    for (std::size_t index = 0; index < candidates.size(); ++index) {
+        const auto latency = probes[index].get();
+        const auto& candidate = candidates[index];
         if (latency >= 0) ranked.push_back({candidate, latency, 0});
     }
     std::stable_sort(ranked.begin(), ranked.end(), [](const RankedSource& a, const RankedSource& b) {
