@@ -1,10 +1,11 @@
 # BAAS native installer
 
-The installer installs or migrates BAAS next to its own executable. Its language is selected from the operating-system UI locale: Simplified Chinese locales use Chinese; all other locales use English.
+The installer installs or migrates BAAS next to its own executable. Its full-viewport TUI selects its language from the operating-system UI locale: Simplified Chinese locales use Chinese; all other locales use English. Windows release executables embed the BAAS icon.
 
 ## Update behavior
 
 - Main and OCR downloads are prepared concurrently. Live files are changed only after both preparations succeed.
+- `setup.toml` is created beside the executable as soon as installation starts, before repository preparation or network probing. No `config.toml` is used.
 - The main repository is applied first. OCR is then placed in `core/ocr/baas_ocr_client/bin`.
 - With a MirrorChyan CDK, both `BAAS_repo` and `BAAS_Cpp` support current, incremental, and full packages. A failed MirrorChyan attempt falls back to Git.
 - Git uses the installed Git CLI across every configured source before libgit2. It compares the remote and local commit first; an equal commit skips `fetch`.
@@ -19,6 +20,10 @@ After a successful detached BAAS launch, the installer exits immediately. A laun
 ## Portable Python environment
 
 The default package manager is uv. The managed uv executable, Python distributions, virtual environment, cache, credentials, XDG state, and temporary data all stay below the installation root (`toolkit/uv`, `.venv`, `tmp`). A custom `runtime_path` in `setup.toml` remains supported.
+
+Successful dependency synchronization records a portable SHA-256 stamp at `.baas-installer/dependencies-v1.sha256`. When requirements, the compiled lock, Python version, and managed environment still match, later runs skip uv and all download benchmarks. Moving or renaming the whole installation repairs installer-managed virtual-environment paths before this cache check; external custom runtimes are never rewritten.
+
+When a download is actually required, the installer benchmarks only that source family. uv and CPython include the CNB release mirrors, while uv, CPython, and PyPI retain their configured GitHub, Gitee, and proxy fallbacks. Probes run concurrently and successful sources are attempted in measured order. The retired `baas-cdn.kiramei.workers.dev` endpoint is not used.
 
 ## Build and test
 
