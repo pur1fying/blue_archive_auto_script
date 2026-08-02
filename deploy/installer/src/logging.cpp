@@ -122,8 +122,17 @@ void EventLog::set_sink(std::filesystem::path path) {
 void EventLog::publish(LogEvent event) {
     std::scoped_lock lock(mutex_);
     event.text = redactor_.redact(event.text);
-    if (event.replace_last && !events_.empty()) events_.back() = event;
-    else events_.push_back(event);
+    bool replaced = false;
+    if (event.replace_last) {
+        const auto existing = std::find_if(events_.rbegin(), events_.rend(), [&](const LogEvent& candidate) {
+            return candidate.task == event.task && candidate.backend == event.backend;
+        });
+        if (existing != events_.rend()) {
+            *existing = event;
+            replaced = true;
+        }
+    }
+    if (!replaced) events_.push_back(event);
     if (sink_.empty()) return;
     std::error_code ignored;
     std::filesystem::create_directories(sink_.parent_path(), ignored);

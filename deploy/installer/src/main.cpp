@@ -9,7 +9,6 @@
 #include "baas_installer/workflow.hpp"
 
 #include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <thread>
 
@@ -26,17 +25,6 @@ std::string ocr_revision() {
 #endif
 }
 
-std::string read_text(const std::filesystem::path& path) {
-    std::ifstream input(path, std::ios::binary);
-    return {std::istreambuf_iterator<char>(input), {}};
-}
-
-void append_log(const std::filesystem::path& path, const std::string& message) {
-    std::error_code ignored;
-    std::filesystem::create_directories(path.parent_path(), ignored);
-    std::ofstream output(path, std::ios::app);
-    output << message << '\n';
-}
 }
 
 int main(int argc, char* argv[]) {
@@ -54,14 +42,15 @@ int main(int argc, char* argv[]) {
     auto config = baas_installer::load_config(paths);
     const auto log_path = paths.logs_dir / "installer.log";
     baas_installer::set_default_process_log(log_path);
-    append_log(log_path, "installer started");
     const auto install = [&](const std::string& selected_cdk, baas_installer::InstallerViewModel& model,
                              const std::function<void()>& wake) -> std::pair<bool, std::string> {
+        model.set_log_sink(log_path.string());
+        model.add_log_secret(selected_cdk);
+        model.append_event({{}, "installer", "installer", baas_installer::LogSeverity::Info, "installer started"});
         config.mirrorc_cdk = selected_cdk;
         baas_installer::WorkflowServices services;
         services.progress = [&](const std::string& task, const std::string& detail) {
             baas_installer::apply_workflow_progress(model, task, detail);
-            append_log(log_path, "[" + task + "] " + detail);
             wake();
         };
         const auto prepare_repository = [&](const bool main_repository, baas_installer::InstallTransaction& transaction) {
@@ -74,7 +63,7 @@ int main(int argc, char* argv[]) {
             const auto revision = main_repository ? std::string("refs/heads/master") : ocr_revision();
             const baas_installer::ProcessObserver observer = [&](std::string_view, const std::string_view backend,
                                                                   const std::string_view chunk) {
-                append_log(log_path, "[" + task + "][" + std::string(backend) + "] " + std::string(chunk));
+                model.append_process_chunk(task, std::string(backend), chunk);
                 wake();
             };
 
@@ -171,7 +160,7 @@ int main(int argc, char* argv[]) {
         };
         const auto result = baas_installer::install_or_update(config, paths, services);
         if (!result.success) {
-            append_log(log_path, "installer failed: " + result.error);
+            model.append_event({{}, "installer", "installer", baas_installer::LogSeverity::Error, result.error});
             return {false, result.error};
         }
         if (!auto_exit) {
@@ -189,14 +178,14 @@ int main(int argc, char* argv[]) {
             if (!std::filesystem::exists(python) || !std::filesystem::exists(paths.root / "window.py") ||
                 !baas_installer::launch_detached({python.string(), (paths.root / "window.py").string()}, environment, paths.root)) {
                 const std::string error = "installation succeeded, but BAAS could not be launched";
-                model.update_task("launch", baas_installer::TaskStatus::Failed, "BAAS 启动失败", 0.0);
-                append_log(log_path, error);
+                model.update_task("launch", baas_installer::TaskStatus::Failed,
+                                  model.localized(baas_installer::MessageId::LaunchFailed), 0.0);
                 return {false, error};
             }
             baas_installer::apply_workflow_progress(model, "launch", "BAAS launched");
             wake();
         }
-        append_log(log_path, "installer completed");
+        model.append_event({{}, "installer", "installer", baas_installer::LogSeverity::Info, "installer completed"});
         return {true, std::string{}};
     };
     if (auto_exit) return baas_installer::run_unattended(config.mirrorc_cdk, install);

@@ -3,73 +3,97 @@
 #include <iostream>
 #include <thread>
 
+namespace {
+
+bool contains(const std::vector<std::string>& lines, const std::string& needle) {
+    for (const auto& line : lines) if (line.find(needle) != std::string::npos) return true;
+    return false;
+}
+
+}  // namespace
+
 int main() {
     const auto redacted = baas_installer::redact_cdk("abcdef1234");
     if (redacted.find("abcdef1234") != std::string::npos || redacted.find("ab") != 0 || redacted.size() != 10) {
         std::cerr << "CDK redaction failed\n"; return 1;
     }
 
-    baas_installer::InstallerViewModel model(true);
-    if (model.snapshot().screen != baas_installer::InstallerScreen::Setup) {
-        std::cerr << "first run must start on setup screen\n"; return 1;
+    baas_installer::InstallerViewModel english(true, baas_installer::Language::English);
+    baas_installer::InstallerViewModel chinese(true, baas_installer::Language::SimplifiedChinese);
+    if (english.snapshot().tasks.at("main").label != "Main repository" ||
+        chinese.snapshot().tasks.at("main").label != "主仓库") {
+        std::cerr << "task labels must follow the selected system language\n"; return 1;
     }
-    model.begin_install();
+    if (baas_installer::task_marker(baas_installer::TaskStatus::Running) != " ") {
+        std::cerr << "running tasks must not use an animated spinner or glyph\n"; return 1;
+    }
+
+    english.begin_install();
     std::thread main_progress([&] {
-        model.update_task("main", baas_installer::TaskStatus::Running, "正在下载主仓库", 0.25);
+        english.update_task("main", baas_installer::TaskStatus::Running, "Downloading", 0.25);
     });
     std::thread ocr_progress([&] {
-        model.update_task("ocr", baas_installer::TaskStatus::Running, "正在下载 OCR", 0.50);
+        english.update_task("ocr", baas_installer::TaskStatus::Running, "Downloading", 0.50);
     });
     main_progress.join();
     ocr_progress.join();
-    auto running = model.snapshot();
-    if (running.screen != baas_installer::InstallerScreen::Installing || running.tasks.size() < 6) {
-        std::cerr << "install screen must expose all task rows\n"; return 1;
-    }
-    if (running.tasks.at("main").progress != 0.25 || running.tasks.at("ocr").progress != 0.50) {
+    auto running = english.snapshot();
+    if (running.screen != baas_installer::InstallerScreen::Installing || running.tasks.size() < 6 ||
+        running.tasks.at("main").progress != 0.25 || running.tasks.at("ocr").progress != 0.50) {
         std::cerr << "parallel task progress was lost\n"; return 1;
     }
-    model.update_task("main", baas_installer::TaskStatus::Succeeded, "主仓库就绪", 1.0);
-    model.update_task("deployment", baas_installer::TaskStatus::Running, "部署主仓库", 0.40);
-    model.update_task("ocr", baas_installer::TaskStatus::Succeeded, "OCR 就绪", 1.0);
-    model.update_task("deployment", baas_installer::TaskStatus::Succeeded, "主仓库与 OCR 已部署", 1.0);
-    model.update_task("uv", baas_installer::TaskStatus::Running, "同步 Python 依赖", 0.75);
-    model.update_task("launch", baas_installer::TaskStatus::Succeeded, "BAAS 已启动", 1.0);
-    model.finish_success();
-    if (model.snapshot().screen != baas_installer::InstallerScreen::Succeeded) {
-        std::cerr << "successful install must reach terminal success screen\n"; return 1;
+
+    // Carriage-return progress updates replace only the previous line from the
+    // same task/backend. Interleaved OCR output must remain visible.
+    english.append_process_chunk("main", "git", "Receiving 10%\r");
+    english.append_process_chunk("ocr", "mirror", "OCR download\n");
+    english.append_process_chunk("main", "git", "Receiving 20%\r");
+    auto logs = english.snapshot().log_lines;
+    if (contains(logs, "Receiving 10%") || !contains(logs, "Receiving 20%") || !contains(logs, "OCR download")) {
+        std::cerr << "interleaved PTY progress replacement is incorrect\n"; return 1;
+    }
+    for (int i = 0; i < 24; ++i) english.append_process_chunk("uv", "uv", "history " + std::to_string(i) + "\n");
+    if (english.snapshot().log_lines.size() < 26) {
+        std::cerr << "the unified log must retain full history\n"; return 1;
+    }
+    english.scroll_logs(5);
+    if (english.snapshot().log_scroll != 5) {
+        std::cerr << "log view must support scrolling away from the tail\n"; return 1;
     }
 
-    baas_installer::InstallerViewModel failed(false);
+    baas_installer::apply_workflow_progress(english, "main", "downloading");
+    baas_installer::apply_workflow_progress(english, "ocr", "already current");
+    baas_installer::apply_workflow_progress(english, "deployment", "deploying OCR repository");
+    baas_installer::apply_workflow_progress(english, "uv", "dependencies synchronized");
+    const auto mapped = english.snapshot();
+    if (mapped.tasks.at("main").detail != "Downloading" ||
+        mapped.tasks.at("ocr").status != baas_installer::TaskStatus::Succeeded ||
+        mapped.tasks.at("deployment").progress <= 0.5 ||
+        mapped.tasks.at("uv").status != baas_installer::TaskStatus::Succeeded) {
+        std::cerr << "workflow protocol events were not mapped exactly/localized\n"; return 1;
+    }
+
+    english.finish_success();
+    const auto success = english.snapshot();
+    if (!success.exit_requested || success.screen != baas_installer::InstallerScreen::Installing) {
+        std::cerr << "successful launch must request immediate exit without a success page\n"; return 1;
+    }
+
+    baas_installer::InstallerViewModel failed(false, baas_installer::Language::English);
     failed.begin_install();
-    failed.finish_failure("Git 下载失败");
+    failed.finish_failure("Git download failed");
     const auto failure = failed.snapshot();
-    if (failure.screen != baas_installer::InstallerScreen::Failed || failure.error != "Git 下载失败") {
+    if (failure.screen != baas_installer::InstallerScreen::Failed || failure.error != "Git download failed") {
         std::cerr << "failure screen must retain actionable error\n"; return 1;
     }
 
-    baas_installer::InstallerViewModel mapped(false);
-    baas_installer::apply_workflow_progress(mapped, "main", "downloading");
-    baas_installer::apply_workflow_progress(mapped, "ocr", "ready; waiting for parallel task");
-    baas_installer::apply_workflow_progress(mapped, "deployment", "deploying OCR repository");
-    baas_installer::apply_workflow_progress(mapped, "uv", "synchronizing dependencies");
-    baas_installer::apply_workflow_progress(mapped, "launch", "BAAS launched");
-    const auto mapped_state = mapped.snapshot();
-    if (mapped_state.tasks.at("main").status != baas_installer::TaskStatus::Running ||
-        mapped_state.tasks.at("main").detail != "正在下载" ||
-        mapped_state.tasks.at("ocr").status != baas_installer::TaskStatus::Succeeded ||
-        mapped_state.tasks.at("deployment").progress <= 0.5 ||
-        mapped_state.tasks.at("uv").status != baas_installer::TaskStatus::Running ||
-        mapped_state.tasks.at("launch").status != baas_installer::TaskStatus::Succeeded) {
-        std::cerr << "workflow progress was not mapped to visible task state\n"; return 1;
-    }
     if (!baas_installer::configure_utf8_terminal()) {
         std::cerr << "terminal UTF-8/VT initialization failed\n"; return 1;
     }
     bool unattended_called = false;
-    const int unattended_exit = baas_installer::run_unattended("", [&](const std::string&, auto& unattended_model, const auto&) {
+    const int unattended_exit = baas_installer::run_unattended("", [&](const std::string&, auto& model, const auto&) {
         unattended_called = true;
-        unattended_model.update_task("main", baas_installer::TaskStatus::Succeeded, "done", 1.0);
+        model.update_task("main", baas_installer::TaskStatus::Succeeded, "done", 1.0);
         return std::pair{true, std::string{}};
     });
     if (!unattended_called || unattended_exit != 0) {
