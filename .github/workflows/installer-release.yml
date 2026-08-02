@@ -31,12 +31,16 @@ jobs:
         include:
           - os: windows-2022
             asset: BAAS-Installer-windows-x64.exe
+            triplet: x64-windows-static
           - os: ubuntu-22.04
             asset: BAAS-Installer-linux-x64
+            triplet: x64-linux
           - os: macos-13
             asset: BAAS-Installer-macos-x64
+            triplet: x64-osx
           - os: macos-14
             asset: BAAS-Installer-macos-arm64
+            triplet: arm64-osx
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +51,7 @@ jobs:
         run: >-
           cmake -S deploy/installer -B build/installer
           -DCMAKE_BUILD_TYPE=Release
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
           -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       - name: Build and test
         run: |
