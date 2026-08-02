@@ -174,6 +174,13 @@ bool valid_cli_repository(const fs::path& repository) {
     return result.exit_code == 0 && first_token(result.output) == "true";
 }
 
+bool depth_one_cli_repository(const fs::path& repository) {
+    const auto shallow = hidden_git({"git", "-C", repository.string(), "rev-parse", "--is-shallow-repository"});
+    const auto count = hidden_git({"git", "-C", repository.string(), "rev-list", "--count", "HEAD"});
+    return shallow.exit_code == 0 && first_token(shallow.output) == "true" &&
+           count.exit_code == 0 && first_token(count.output) == "1";
+}
+
 GitResult clone_with_cli(const std::string& source, const fs::path& destination, const std::string& revision,
                          const std::string& commit,
                          const ProcessObserver& observer = {}) {
@@ -246,6 +253,30 @@ GitRemoteHead remote_head_libgit2(const std::string& source, const std::string& 
     return {source, available ? commit : std::string{}, elapsed, available};
 }
 
+bool depth_one_libgit2_repository(const fs::path& repository_path) {
+    ensure_libgit2();
+    git_repository* repository = nullptr;
+    git_revwalk* walk = nullptr;
+    git_reference_iterator* references = nullptr;
+    bool valid = false;
+    if (git_repository_open(&repository, repository_path.string().c_str()) == 0 &&
+        git_repository_is_shallow(repository) == 1 && git_revwalk_new(&walk, repository) == 0 &&
+        git_revwalk_push_head(walk) == 0) {
+        git_oid oid{};
+        std::size_t count = 0;
+        while (count <= 1 && git_revwalk_next(&oid, walk) == 0) ++count;
+        git_reference* reference = nullptr;
+        const int iterator_created = git_reference_iterator_glob_new(&references, repository, "refs/*");
+        const int next = iterator_created == 0 ? git_reference_next(&reference, references) : iterator_created;
+        if (reference) git_reference_free(reference);
+        valid = count == 1 && iterator_created == 0 && next == GIT_ITEROVER;
+    }
+    if (references) git_reference_iterator_free(references);
+    if (walk) git_revwalk_free(walk);
+    if (repository) git_repository_free(repository);
+    return valid;
+}
+
 struct Libgit2Progress {
     ProcessObserver observer;
     int last_percent{-1};
@@ -288,8 +319,59 @@ std::string branch_name(const std::string& revision) {
     return !revision.empty() && !revision.starts_with("refs/") ? revision : std::string{};
 }
 
+struct SingleBranchRemote {
+    std::string refspec;
+};
+
+int create_single_branch_remote(git_remote** output, git_repository* repository, const char* name,
+                                const char* url, void* payload) {
+    const auto* single = static_cast<SingleBranchRemote*>(payload);
+    return git_remote_create_with_fetchspec(output, repository, name, url, single->refspec.c_str());
+}
+
+bool detach_and_remove_refs(git_repository* repository, std::string& error) {
+    git_reference* head = nullptr;
+    git_reference_iterator* iterator = nullptr;
+    git_reference* reference = nullptr;
+    git_oid oid{};
+    const int resolved = git_repository_head(&head, repository);
+    if (resolved == 0) oid = *git_reference_target(head);
+    const int detached = resolved == 0 ? git_repository_set_head_detached(repository, &oid) : resolved;
+    if (head) git_reference_free(head);
+    if (detached != 0 || git_reference_iterator_glob_new(&iterator, repository, "refs/*") != 0) {
+        const auto* detail = git_error_last();
+        error = detail ? detail->message : "could not detach libgit2 repository";
+        if (iterator) git_reference_iterator_free(iterator);
+        return false;
+    }
+    int next = 0;
+    while ((next = git_reference_next(&reference, iterator)) == 0) {
+        const int removed = git_reference_delete(reference);
+        git_reference_free(reference);
+        reference = nullptr;
+        if (removed != 0) break;
+    }
+    if (reference) git_reference_free(reference);
+    git_reference_iterator_free(iterator);
+    if (next != GIT_ITEROVER) {
+        const auto* detail = git_error_last();
+        error = detail ? detail->message : "could not remove libgit2 repository refs";
+        return false;
+    }
+    return true;
+}
+
 GitResult clone_with_libgit2(const std::string& source, const fs::path& destination, const std::string& revision,
                              const ProcessObserver& observer = {}) {
+    if (source.find("://") == std::string::npos) {
+        return {false, GitBackend::Libgit2, source, {},
+                "libgit2 fallback requires a URL source to guarantee a depth-one clone"};
+    }
+    const auto wanted_branch = branch_name(revision);
+    if (wanted_branch.empty()) {
+        return {false, GitBackend::Libgit2, source, {},
+                "libgit2 fallback requires a named branch to guarantee a single-branch clone"};
+    }
     std::error_code ignored;
     fs::remove_all(destination, ignored);
     fs::create_directories(destination.parent_path(), ignored);
@@ -299,13 +381,15 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
     Libgit2Progress progress{observer};
     options.fetch_opts.callbacks.transfer_progress = transfer_progress;
     options.fetch_opts.callbacks.payload = &progress;
-    // libgit2's local filesystem transport rejects shallow fetches. Production
-    // repository sources are HTTP(S), where depth-one is mandatory.
-    if (source.find("://") != std::string::npos) options.fetch_opts.depth = 1;
+    options.fetch_opts.depth = 1;
+    options.fetch_opts.download_tags = GIT_REMOTE_DOWNLOAD_TAGS_NONE;
     options.checkout_opts.progress_cb = checkout_progress;
     options.checkout_opts.progress_payload = &progress;
-    const auto wanted_branch = branch_name(revision);
-    if (!wanted_branch.empty()) options.checkout_branch = wanted_branch.c_str();
+    options.checkout_branch = wanted_branch.c_str();
+    SingleBranchRemote single_remote{
+        "+refs/heads/" + wanted_branch + ":refs/remotes/origin/" + wanted_branch};
+    options.remote_cb = create_single_branch_remote;
+    options.remote_cb_payload = &single_remote;
     emit_libgit2(&progress, "Starting libgit2 clone\r");
     const int cloned = git_clone(&repository, source.c_str(), destination.string().c_str(), &options);
     if (cloned != 0) {
@@ -313,27 +397,11 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
         const std::string message = detail ? detail->message : "libgit2 clone failed";
         return {false, GitBackend::Libgit2, source, {}, message};
     }
-    // git_clone has already selected and checked out checkout_branch.  Only
-    // resolve non-branch revisions explicitly after the clone.
-    if (!revision.empty() && wanted_branch.empty()) {
-        git_object* object = nullptr;
-        const int resolved = git_revparse_single(&object, repository, revision.c_str());
-        git_checkout_options checkout = GIT_CHECKOUT_OPTIONS_INIT;
-        checkout.checkout_strategy = GIT_CHECKOUT_FORCE;
-        checkout.progress_cb = checkout_progress;
-        checkout.progress_payload = &progress;
-        const int checked_out = resolved == 0 ? git_checkout_tree(repository, object, &checkout) : resolved;
-        const int head_updated = checked_out == 0 && !wanted_branch.empty()
-            ? git_repository_set_head(repository, revision.c_str())
-            : (checked_out == 0 ? git_repository_set_head_detached(repository, git_object_id(object)) : checked_out);
-        if (object != nullptr) git_object_free(object);
-        if (checked_out != 0 || head_updated != 0) {
-            const auto* detail = git_error_last();
-            const std::string message = detail ? detail->message : "libgit2 checkout failed";
-            git_repository_free(repository);
-            fs::remove_all(destination, ignored);
-            return {false, GitBackend::Libgit2, source, {}, message};
-        }
+    std::string cleanup_error;
+    if (!detach_and_remove_refs(repository, cleanup_error)) {
+        git_repository_free(repository);
+        fs::remove_all(destination, ignored);
+        return {false, GitBackend::Libgit2, source, {}, cleanup_error};
     }
     git_repository_free(repository);
     emit_libgit2(&progress, "libgit2 clone completed\r");
@@ -430,13 +498,14 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
             for (const auto& candidate : selection.candidates) {
                 if (contains_source(attempted, candidate.source)) continue;
                 attempted.push_back(candidate.source);
-                if (valid_live && local_head == candidate.commit) {
+                const bool normalized_live = valid_live && depth_one_cli_repository(live_repository);
+                if (normalized_live && local_head == candidate.commit) {
                     GitResult result{true, GitBackend::GitCli, candidate.source, candidate.commit, {}};
                     result.mode = RepositoryMode::Unchanged;
                     result.previous_commit = local_head;
                     return result;
                 }
-                if (valid_live) {
+                if (valid_live && local_head != candidate.commit) {
                     const auto wanted = revision.empty() ? "HEAD" : revision;
                     if (visible_git({"git", "-C", live_repository.string(), "fetch", "--depth=1", "--no-tags",
                                      candidate.source, wanted}, observer) == 0) {
@@ -475,7 +544,8 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
         for (const auto& candidate : selection.candidates) {
             if (contains_source(attempted, candidate.source)) continue;
             attempted.push_back(candidate.source);
-            if (valid_live && local_head == candidate.commit) {
+            const bool normalized_live = valid_live && depth_one_libgit2_repository(live_repository);
+            if (normalized_live && local_head == candidate.commit) {
                 GitResult result{true, GitBackend::Libgit2, candidate.source, candidate.commit, {}};
                 result.mode = RepositoryMode::Unchanged;
                 result.previous_commit = local_head;
@@ -546,9 +616,15 @@ bool apply_git_update(const GitResult& prepared, const fs::path& live_repository
 bool finalize_git_repository(const fs::path& repository, const GitBackend backend, std::string& error) {
     error.clear();
     if (backend != GitBackend::GitCli) {
-        // Without the CLI, updates deploy a fresh depth-one libgit2 staging
-        // repository, so there are no previous live objects to prune.
-        return true;
+#ifdef BAAS_INSTALLER_HAS_LIBGIT2
+        if (depth_one_libgit2_repository(repository)) return true;
+        error = "libgit2 repository did not retain exactly one shallow commit at '" +
+                repository.generic_string() + "'";
+        return false;
+#else
+        error = "libgit2 is not available";
+        return false;
+#endif
     }
     const auto shallow = hidden_git({"git", "-C", repository.string(), "rev-parse", "--is-shallow-repository"});
     const auto count = hidden_git({"git", "-C", repository.string(), "rev-list", "--count", "HEAD"});
@@ -562,21 +638,64 @@ bool finalize_git_repository(const fs::path& repository, const GitBackend backen
     return true;
 }
 
-void compact_git_repository(const fs::path& repository, const GitBackend backend) noexcept {
-    if (backend != GitBackend::GitCli) return;
+bool compact_git_repository(const fs::path& repository, const GitBackend backend, std::string& error) noexcept {
+    error.clear();
     try {
+        if (backend != GitBackend::GitCli) {
+#ifdef BAAS_INSTALLER_HAS_LIBGIT2
+            if (depth_one_libgit2_repository(repository)) return true;
+            error = "libgit2 repository maintenance validation failed";
+#else
+            error = "libgit2 is not available";
+#endif
+            return false;
+        }
         if (hidden_git({"git", "-C", repository.string(), "checkout", "--detach", "--force", "HEAD"}).exit_code != 0) {
-            return;
+            error = "could not detach repository HEAD";
+            return false;
         }
         const auto refs = hidden_git({"git", "-C", repository.string(), "for-each-ref", "--format=%(refname)"});
+        if (refs.exit_code != 0) {
+            error = "could not enumerate repository refs";
+            return false;
+        }
         std::istringstream input(refs.output);
         std::string reference;
         while (std::getline(input, reference)) {
-            if (!reference.empty()) (void)hidden_git({"git", "-C", repository.string(), "update-ref", "-d", reference});
+            if (!reference.empty()) {
+                const auto symbolic = hidden_git({"git", "-C", repository.string(), "symbolic-ref", "-q", reference});
+                const auto removed = symbolic.exit_code == 0
+                    ? hidden_git({"git", "-C", repository.string(), "symbolic-ref", "--delete", reference})
+                    : hidden_git({"git", "-C", repository.string(), "update-ref", "-d", reference});
+                if (removed.exit_code != 0) {
+                    error = "could not remove repository ref " + reference;
+                    return false;
+                }
+            }
         }
-        (void)hidden_git({"git", "-C", repository.string(), "reflog", "expire", "--expire=now", "--all"});
-        (void)hidden_git({"git", "-C", repository.string(), "gc", "--prune=now"});
-    } catch (...) {}
+        if (hidden_git({"git", "-C", repository.string(), "reflog", "expire", "--expire=now", "--all"}).exit_code != 0 ||
+            hidden_git({"git", "-C", repository.string(), "gc", "--prune=now"}).exit_code != 0) {
+            error = "could not prune repository history";
+            return false;
+        }
+        const auto remaining_refs = hidden_git(
+            {"git", "-C", repository.string(), "for-each-ref", "--format=%(refname)"});
+        const auto unreachable = hidden_git({"git", "-C", repository.string(), "fsck", "--unreachable"});
+        if (!depth_one_cli_repository(repository) || remaining_refs.exit_code != 0 ||
+            !first_token(remaining_refs.output).empty() || unreachable.exit_code != 0 ||
+            !first_token(unreachable.output).empty()) {
+            error = "repository still contains refs or unreachable history after pruning (refs='" +
+                    first_token(remaining_refs.output) + "', unreachable='" + unreachable.output + "')";
+            return false;
+        }
+        return true;
+    } catch (const std::exception& exception) {
+        error = exception.what();
+        return false;
+    } catch (...) {
+        error = "unknown repository maintenance failure";
+        return false;
+    }
 }
 
 }  // namespace baas_installer

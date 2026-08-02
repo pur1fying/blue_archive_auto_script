@@ -136,6 +136,45 @@ int main() {
         return 1;
     }
 
+    auto maintenance_failure_paths = baas_installer::InstallPaths::from_executable(
+        fixture / "maintenance-failure" / "BlueArchiveAutoScript.exe");
+    write(maintenance_failure_paths.root / "main.txt", "old-main");
+    write(maintenance_failure_paths.root / "core/ocr/baas_ocr_client/bin/ocr.txt", "old-ocr");
+    baas_installer::InstallerConfig maintenance_failure_config;
+    maintenance_failure_config.main_sha = "main-old";
+    maintenance_failure_config.ocr_sha = "ocr-old";
+    baas_installer::save_config_atomic(maintenance_failure_config, maintenance_failure_paths);
+    baas_installer::WorkflowServices maintenance_failure = services;
+    maintenance_failure.prepare_main = [&](auto& transaction) {
+        write(transaction.main_staging_path() / "main.txt", "new-main");
+        return baas_installer::PreparedRepository{.success = true, .mode = baas_installer::RepositoryMode::Full,
+            .backend = "git-cli", .version = "main-new", .revision = "master",
+            .apply = [](auto& current, std::string&) {
+                current.deploy_main();
+                current.add_post_commit_action([] { throw std::runtime_error("forced maintenance failure"); });
+                return true;
+            }};
+    };
+    maintenance_failure.prepare_ocr = [&](auto& transaction) {
+        write(transaction.ocr_staging_path() / "ocr.txt", "new-ocr");
+        return baas_installer::PreparedRepository{.success = true, .mode = baas_installer::RepositoryMode::Full,
+            .backend = "git-cli", .version = "ocr-new", .revision = "windows-x64",
+            .apply = [](auto& current, std::string&) { current.deploy_ocr(); return true; }};
+    };
+    maintenance_failure.verify_deployment = [](const auto&, const auto&, std::string&) { return true; };
+    maintenance_failure.sync_uv = [](const auto&, const auto&, std::string&) { return true; };
+    const auto maintenance_failed = baas_installer::install_or_update(
+        maintenance_failure_config, maintenance_failure_paths, maintenance_failure);
+    const auto maintenance_persisted = baas_installer::load_config(maintenance_failure_paths);
+    if (maintenance_failed.success || maintenance_failed.error.find("forced maintenance failure") == std::string::npos ||
+        maintenance_failure_config.main_sha != "main-new" || maintenance_failure_config.ocr_sha != "ocr-new" ||
+        maintenance_persisted.main_sha != "main-new" || maintenance_persisted.ocr_sha != "ocr-new" ||
+        std::ifstream(maintenance_failure_paths.root / "main.txt").get() != 'n' ||
+        std::ifstream(maintenance_failure_paths.root / "core/ocr/baas_ocr_client/bin/ocr.txt").get() != 'n') {
+        std::cerr << "post-commit maintenance failure did not preserve the durable installation state\n";
+        return 1;
+    }
+
     auto preparation_failure_paths = baas_installer::InstallPaths::from_executable(
         fixture / "preparation-failure" / "BlueArchiveAutoScript.exe");
     baas_installer::InstallerConfig preparation_failure_config;

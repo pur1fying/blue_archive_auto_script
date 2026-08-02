@@ -9,7 +9,9 @@
 #include "baas_installer/workflow.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <thread>
 #include <algorithm>
 #include <cctype>
@@ -86,11 +88,37 @@ int main(int argc, char* argv[]) {
             const auto sources = baas_installer::default_sources(
                 main_repository ? baas_installer::SourceKind::MainGit : baas_installer::SourceKind::OcrGit, config);
             const auto revision = main_repository ? std::string("refs/heads/master") : ocr_revision();
+            const auto maintenance_marker = paths.state_dir /
+                (main_repository ? "main-git-maintenance-v1.pending" : "ocr-git-maintenance-v1.pending");
             const baas_installer::ProcessObserver observer = [&](std::string_view, const std::string_view backend,
                                                                   const std::string_view chunk) {
                 model.append_process_chunk(task, std::string(backend), chunk);
                 wake();
             };
+
+            if (std::filesystem::exists(maintenance_marker)) {
+                if (!std::filesystem::is_directory(live / ".git")) {
+                    std::error_code ignored;
+                    std::filesystem::remove(maintenance_marker, ignored);
+                } else {
+                    std::string maintenance_error;
+                    if (!baas_installer::git_cli_available() ||
+                        !baas_installer::compact_git_repository(
+                            live, baas_installer::GitBackend::GitCli, maintenance_error)) {
+                        return baas_installer::PreparedRepository{
+                            .success = false, .backend = "git",
+                            .error = "pending Git maintenance failed: " + maintenance_error};
+                    }
+                    std::error_code remove_error;
+                    if (!std::filesystem::remove(maintenance_marker, remove_error) || remove_error) {
+                        return baas_installer::PreparedRepository{
+                            .success = false, .backend = "git",
+                            .error = "could not clear completed Git maintenance marker"};
+                    }
+                    model.append_event({{}, task, "git", baas_installer::LogSeverity::Info,
+                                        "pending repository maintenance completed"});
+                }
+            }
 
             if (!config.mirrorc_cdk.empty()) {
                 std::string mirror_error;
@@ -199,17 +227,37 @@ int main(int argc, char* argv[]) {
             return baas_installer::PreparedRepository{.success = true, .mode = git.mode,
                 .backend = baas_installer::git_backend_name(git.backend), .version = git.commit,
                 .revision = short_revision(revision),
-                .apply = [git, live, main_repository, observer](baas_installer::InstallTransaction& current,
-                                                                 std::string& error) {
+                .apply = [git, live, main_repository, observer, maintenance_marker](
+                             baas_installer::InstallTransaction& current, std::string& error) {
                     const auto finalize = [&] {
-                        current.add_commit_action([live, backend = git.backend] {
+                        current.add_commit_action([live, backend = git.backend, maintenance_marker] {
                             std::string finalize_error;
                             if (!baas_installer::finalize_git_repository(live, backend, finalize_error)) {
                                 throw std::runtime_error(finalize_error);
                             }
+                            if (backend == baas_installer::GitBackend::GitCli) {
+                                std::filesystem::create_directories(maintenance_marker.parent_path());
+                                std::ofstream marker(maintenance_marker, std::ios::trunc);
+                                marker << "pending\n";
+                                marker.close();
+                                if (!marker) throw std::runtime_error("could not persist Git maintenance marker");
+                            }
                         });
-                        current.add_post_commit_action([live, backend = git.backend] {
-                            baas_installer::compact_git_repository(live, backend);
+                        current.add_rollback_action([maintenance_marker] {
+                            std::error_code ignored;
+                            std::filesystem::remove(maintenance_marker, ignored);
+                        });
+                        current.add_post_commit_action([live, backend = git.backend, maintenance_marker] {
+                            std::string compact_error;
+                            if (!baas_installer::compact_git_repository(live, backend, compact_error)) {
+                                throw std::runtime_error(compact_error);
+                            }
+                            if (backend == baas_installer::GitBackend::GitCli) {
+                                std::error_code remove_error;
+                                if (!std::filesystem::remove(maintenance_marker, remove_error) || remove_error) {
+                                    throw std::runtime_error("could not clear Git maintenance marker");
+                                }
+                            }
                         });
                     };
                     if (git.mode == baas_installer::RepositoryMode::Full) {

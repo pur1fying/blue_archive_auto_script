@@ -338,15 +338,25 @@ void InstallTransaction::prepare_commit() {
     commit_prepared_ = true;
 }
 
-void InstallTransaction::commit() {
+std::string InstallTransaction::commit() {
     prepare_commit();
     journal("committed");
     settled_ = true;
     std::error_code ignored;
     fs::remove_all(staging_root_, ignored);
+    std::string failures;
     for (auto& action : post_commit_actions_) {
-        try { action(); } catch (...) {}
+        try {
+            action();
+        } catch (const std::exception& error) {
+            if (!failures.empty()) failures += "; ";
+            failures += error.what();
+        } catch (...) {
+            if (!failures.empty()) failures += "; ";
+            failures += "unknown post-commit maintenance failure";
+        }
     }
+    return failures;
 }
 
 void InstallTransaction::rollback() noexcept {

@@ -31,7 +31,10 @@ public:
     void add_post_commit_action(std::function<void()> action);
     void write_ocr_managed_marker(const std::string& branch, const std::string& commit);
     void prepare_commit();
-    void commit();
+    // The live files are durable even when a post-commit maintenance action
+    // fails. The returned message lets the workflow report that retriable
+    // failure without attempting an invalid rollback.
+    [[nodiscard]] std::string commit();
     void rollback() noexcept;
 
 private:

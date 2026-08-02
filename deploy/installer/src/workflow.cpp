@@ -64,7 +64,11 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
         config.ocr_sha = ocr_result.version;
         transaction.prepare_commit();
         save_config_atomic(config, paths);
-        transaction.commit();
+        const auto maintenance_error = transaction.commit();
+        if (!maintenance_error.empty()) {
+            emit(services, "deployment", "installation committed; maintenance will be retried");
+            return {false, maintenance_error};
+        }
         emit(services, "complete", "installation completed");
         return {true, {}};
     } catch (const std::exception& error) {

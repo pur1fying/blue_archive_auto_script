@@ -27,6 +27,14 @@ std::string output(std::initializer_list<std::string> arguments) {
     return result.exit_code == 0 ? result.output : std::string{};
 }
 
+std::string file_url(const fs::path& path) {
+#ifdef _WIN32
+    return "file:///" + path.generic_string();
+#else
+    return "file://" + path.generic_string();
+#endif
+}
+
 bool write_commit(const fs::path& repository, const std::string& value, const std::string& message) {
     std::ofstream(repository / "payload.txt", std::ios::trunc) << value;
     return command({"git", "-C", repository.string(), "add", "payload.txt"}) &&
@@ -59,6 +67,7 @@ int main() {
     const auto remote = root / "remote.git";
     const auto seed = root / "seed";
     const auto live = root / "live";
+    const auto deep_live = root / "deep-live";
     const auto staging = root / "staging";
     std::error_code ignored;
     fs::remove_all(root, ignored);
@@ -71,13 +80,17 @@ int main() {
         !command({"git", "-C", seed.string(), "branch", "-M", "master"}) ||
         !command({"git", "-C", seed.string(), "remote", "add", "origin", remote.string()}) ||
         !command({"git", "-C", seed.string(), "push", "-u", "origin", "master"}) ||
-        !command({"git", "clone", remote.string(), live.string()})) {
+        !command({"git", "clone", remote.string(), live.string()}) ||
+        !command({"git", "clone", remote.string(), deep_live.string()})) {
         std::cerr << "could not create local Git integration fixture\n";
         fs::remove_all(root, ignored);
         return 1;
     }
 
     const auto first_head = baas_installer::repository_head(live);
+    // Treat the primary fixture as a previously installer-managed depth-one
+    // checkout. The separate deep fixture verifies one-time normalization.
+    std::ofstream(live / ".git" / "shallow", std::ios::trunc) << first_head << '\n';
     const auto ranking_cache = root / ".baas-installer" / "source-ranking-v1.json";
     std::atomic<int> active_probes{0};
     std::atomic<int> maximum_probes{0};
@@ -119,6 +132,18 @@ int main() {
     if (!unchanged.success || unchanged.mode != baas_installer::RepositoryMode::Unchanged ||
         unchanged.commit != first_head || fs::exists(live / ".git" / "FETCH_HEAD")) {
         std::cerr << "matching remote head must skip fetch and clone\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+
+    const auto deep_staging = root / "deep-staging";
+    auto normalized = baas_installer::prepare_git_repository(
+        {remote.string()}, deep_live, deep_staging, "refs/heads/master", {}, ranking_cache,
+        baas_installer::SourceKind::MainGit);
+    if (!normalized.success || normalized.mode != baas_installer::RepositoryMode::Full ||
+        output({"git", "-C", deep_staging.string(), "rev-parse", "--is-shallow-repository"}) != "true" ||
+        output({"git", "-C", deep_staging.string(), "rev-list", "--count", "HEAD"}) != "1") {
+        std::cerr << "matching legacy repository was not normalized through a fresh depth-one clone\n";
         fs::remove_all(root, ignored);
         return 1;
     }
@@ -182,7 +207,11 @@ int main() {
         fs::remove_all(root, ignored);
         return 1;
     }
-    baas_installer::compact_git_repository(live, incremental.backend);
+    if (!baas_installer::compact_git_repository(live, incremental.backend, apply_error)) {
+        std::cerr << "Git compaction failed: " << apply_error << '\n';
+        fs::remove_all(root, ignored);
+        return 1;
+    }
     if (
         output({"git", "-C", live.string(), "rev-parse", "--is-shallow-repository"}) != "true" ||
         output({"git", "-C", live.string(), "rev-list", "--count", "HEAD"}) != "1" ||
@@ -225,7 +254,7 @@ int main() {
     setenv("PATH", "", 1);
 #endif
     auto libgit = baas_installer::prepare_git_repository(
-        {remote.string()}, root / "missing", libgit_staging, "windows-x64",
+        {file_url(remote)}, root / "missing", libgit_staging, "windows-x64",
         [&](std::string_view, std::string_view backend, std::string_view chunk) {
             if (backend == "libgit2") libgit_chunks.append(chunk);
         });
@@ -234,37 +263,72 @@ int main() {
 #else
     setenv("PATH", saved_path.c_str(), 1);
 #endif
-    if (!libgit.success || libgit.backend != baas_installer::GitBackend::Libgit2 ||
-        baas_installer::repository_head(libgit_staging).empty() || libgit_chunks.empty()) {
-        std::cerr << "libgit2 did not clone and report progress for an OCR remote branch: " << libgit.error << '\n';
+    if (libgit.success) {
+        if (libgit.backend != baas_installer::GitBackend::Libgit2 ||
+            baas_installer::repository_head(libgit_staging).empty() || libgit_chunks.empty() ||
+            output({"git", "-C", libgit_staging.string(), "rev-parse", "--is-shallow-repository"}) != "true" ||
+            output({"git", "-C", libgit_staging.string(), "rev-list", "--count", "HEAD"}) != "1" ||
+            !output({"git", "-C", libgit_staging.string(), "for-each-ref", "--format=%(refname)"}).empty() ||
+            !output({"git", "-C", libgit_staging.string(), "fsck", "--unreachable"}).empty()) {
+            std::cerr << "successful libgit2 clone was not a strict single-commit repository\n";
+            return 1;
+        }
+    } else if (libgit.error.empty() || fs::exists(libgit_staging)) {
+        // Some libgit2 builds reject shallow clones through the local file
+        // transport. Production sources are HTTP(S); the unsupported test
+        // transport must fail closed without leaving a full repository.
+        std::cerr << "unsupported libgit2 local transport did not fail closed\n";
         return 1;
     }
-    const auto libgit_existing_staging = root / "libgit-existing-staging";
-    const auto live_before_libgit = baas_installer::repository_head(live);
+    const auto rejected_staging = root / "libgit-rejected-local-path";
 #ifdef _WIN32
     _putenv_s("PATH", "");
 #else
     setenv("PATH", "", 1);
 #endif
-    auto libgit_existing = baas_installer::prepare_git_repository(
-        {remote.string()}, live, libgit_existing_staging, "windows-x64", {});
+    auto rejected_local = baas_installer::clone_repository(
+        {remote.string()}, rejected_staging, "windows-x64");
 #ifdef _WIN32
     _putenv_s("PATH", saved_path.c_str());
 #else
     setenv("PATH", saved_path.c_str(), 1);
 #endif
-    if (!libgit_existing.success || libgit_existing.backend != baas_installer::GitBackend::Libgit2 ||
-        libgit_existing.mode != baas_installer::RepositoryMode::Full ||
-        !fs::is_directory(libgit_existing_staging / ".git") ||
-        baas_installer::repository_head(live) != live_before_libgit) {
-        std::cerr << "libgit2 existing update was not prepared as a fresh staged branch clone: "
-                  << libgit_existing.error << " success=" << libgit_existing.success
-                  << " backend=" << baas_installer::git_backend_name(libgit_existing.backend)
-                  << " mode=" << static_cast<int>(libgit_existing.mode)
-                  << " staging=" << fs::is_directory(libgit_existing_staging / ".git")
-                  << " live-before=" << live_before_libgit
-                  << " live-after=" << baas_installer::repository_head(live) << '\n';
+    if (rejected_local.success || fs::exists(rejected_staging)) {
+        std::cerr << "libgit2 accepted a local-path source that cannot guarantee depth one\n";
         return 1;
+    }
+    if (libgit.success) {
+        const auto libgit_existing_staging = root / "libgit-existing-staging";
+        const auto live_before_libgit = baas_installer::repository_head(live);
+#ifdef _WIN32
+        _putenv_s("PATH", "");
+#else
+        setenv("PATH", "", 1);
+#endif
+        auto libgit_existing = baas_installer::prepare_git_repository(
+            {file_url(remote)}, live, libgit_existing_staging, "windows-x64", {});
+#ifdef _WIN32
+        _putenv_s("PATH", saved_path.c_str());
+#else
+        setenv("PATH", saved_path.c_str(), 1);
+#endif
+        if (!libgit_existing.success || libgit_existing.backend != baas_installer::GitBackend::Libgit2 ||
+            libgit_existing.mode != baas_installer::RepositoryMode::Full ||
+            !fs::is_directory(libgit_existing_staging / ".git") ||
+            output({"git", "-C", libgit_existing_staging.string(), "rev-parse", "--is-shallow-repository"}) != "true" ||
+            output({"git", "-C", libgit_existing_staging.string(), "rev-list", "--count", "HEAD"}) != "1" ||
+            !output({"git", "-C", libgit_existing_staging.string(), "for-each-ref", "--format=%(refname)"}).empty() ||
+            !output({"git", "-C", libgit_existing_staging.string(), "fsck", "--unreachable"}).empty() ||
+            baas_installer::repository_head(live) != live_before_libgit) {
+            std::cerr << "libgit2 existing update was not prepared as a fresh staged branch clone: "
+                      << libgit_existing.error << " success=" << libgit_existing.success
+                      << " backend=" << baas_installer::git_backend_name(libgit_existing.backend)
+                      << " mode=" << static_cast<int>(libgit_existing.mode)
+                      << " staging=" << fs::is_directory(libgit_existing_staging / ".git")
+                      << " live-before=" << live_before_libgit
+                      << " live-after=" << baas_installer::repository_head(live) << '\n';
+            return 1;
+        }
     }
 #endif
 

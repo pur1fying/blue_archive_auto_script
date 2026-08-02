@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 namespace fs = std::filesystem;
 
@@ -116,10 +117,28 @@ int main() {
         committed_staging = transaction.staging_root();
         transaction.add_commit_action([&] { commit_action_called = true; });
         transaction.add_rollback_action([&] { commit_action_called = false; });
-        transaction.commit();
+        if (!transaction.commit().empty()) {
+            std::cerr << "successful post-commit action reported an error\n";
+            return 1;
+        }
     }
     if (!commit_action_called || fs::exists(committed_staging)) {
         std::cerr << "commit actions or staging cleanup failed\n";
+        return 1;
+    }
+    bool rolled_back_after_commit = false;
+    {
+        baas_installer::InstallTransaction transaction(paths);
+        transaction.add_rollback_action([&] { rolled_back_after_commit = true; });
+        transaction.add_post_commit_action([] { throw std::runtime_error("maintenance failed"); });
+        const auto post_error = transaction.commit();
+        if (post_error.find("maintenance failed") == std::string::npos) {
+            std::cerr << "post-commit failure was not surfaced\n";
+            return 1;
+        }
+    }
+    if (rolled_back_after_commit) {
+        std::cerr << "durable commit incorrectly rolled back after maintenance failure\n";
         return 1;
     }
     fs::remove_all(fixture, ignored);

@@ -69,6 +69,8 @@ bool apply_git_update(const GitResult& prepared,
 bool finalize_git_repository(const std::filesystem::path& repository,
                              GitBackend backend,
                              std::string& error);
-void compact_git_repository(const std::filesystem::path& repository, GitBackend backend) noexcept;
+bool compact_git_repository(const std::filesystem::path& repository,
+                            GitBackend backend,
+                            std::string& error) noexcept;
 
 }  // namespace baas_installer
