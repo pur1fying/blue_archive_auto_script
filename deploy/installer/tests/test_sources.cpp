@@ -84,13 +84,39 @@ int main() {
         std::cerr << "source probes must run concurrently and retain latency order\n";
         return 1;
     }
-    const auto cache = std::filesystem::temp_directory_path() / "baas-installer-source-ranking.json";
-    baas_installer::save_source_ranking(cache, ranked);
-    auto restored = baas_installer::load_source_ranking(cache);
+    const auto cache_root = std::filesystem::temp_directory_path() / "baas-installer-source-ranking-root";
+    const auto moved_cache_root = std::filesystem::temp_directory_path() / "baas-installer-source-ranking-moved";
+    std::filesystem::remove_all(cache_root);
+    std::filesystem::remove_all(moved_cache_root);
+    const auto cache = cache_root / ".baas-installer" / "source-ranking-v1.json";
+    auto main_ranking = ranked;
+    main_ranking.front().preferred = true;
+    main_ranking.front().commit = "0123456789012345678901234567890123456789";
+    const std::vector<baas_installer::RankedSource> ocr_ranking{
+        {"ocr-fast", 4, 0, "abcdefabcdefabcdefabcdefabcdefabcdefabcd", true, true}};
+    std::thread save_main([&] {
+        baas_installer::save_source_ranking(cache, baas_installer::SourceKind::MainGit, main_ranking);
+    });
+    std::thread save_ocr([&] {
+        baas_installer::save_source_ranking(cache, baas_installer::SourceKind::OcrGit, ocr_ranking);
+    });
+    save_main.join();
+    save_ocr.join();
+    std::filesystem::rename(cache_root, moved_cache_root);
+    const auto moved_cache = moved_cache_root / ".baas-installer" / "source-ranking-v1.json";
+    auto restored = baas_installer::load_source_ranking(
+        moved_cache, baas_installer::SourceKind::MainGit,
+        [&] { std::vector<std::string> values; for (const auto& item : main_ranking) values.push_back(item.url); return values; }());
+    const auto restored_ocr = baas_installer::load_source_ranking(
+        moved_cache, baas_installer::SourceKind::OcrGit, {"ocr-fast"});
     baas_installer::record_source_failure(restored, ranked.front().url);
     std::error_code ignored;
-    std::filesystem::remove(cache, ignored);
-    if (restored.size() != ranked.size() || restored.front().url != ranked.front().url || restored.front().failures != 1) {
+    const auto invalidated = baas_installer::load_source_ranking(
+        moved_cache, baas_installer::SourceKind::MainGit, {"changed-source"});
+    std::filesystem::remove_all(moved_cache_root, ignored);
+    if (restored.size() != ranked.size() || restored.front().url != ranked.front().url ||
+        restored.front().failures != 1 || !restored.front().preferred || restored.front().commit.empty() ||
+        restored_ocr.size() != 1 || restored_ocr.front().url != "ocr-fast" || !invalidated.empty()) {
         std::cerr << "source ranking persistence failed\n"; return 1;
     }
     return 0;
