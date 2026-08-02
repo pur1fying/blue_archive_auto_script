@@ -8,6 +8,8 @@
 
 namespace baas_installer {
 
+void cleanup_abandoned_transactions(const InstallPaths& paths);
+
 class InstallTransaction {
 public:
     explicit InstallTransaction(const InstallPaths& paths);
@@ -25,6 +27,7 @@ public:
     void replace_file(const std::filesystem::path& source, const std::filesystem::path& destination);
     void remove_path(const std::filesystem::path& destination);
     void add_rollback_action(std::function<void()> action);
+    void add_commit_action(std::function<void()> action);
     void write_ocr_managed_marker(const std::string& branch, const std::string& commit);
     void commit();
     void rollback() noexcept;
@@ -38,6 +41,7 @@ private:
     std::filesystem::path staging_root_;
     std::vector<Change> changes_;
     std::vector<std::function<void()>> rollback_actions_;
+    std::vector<std::function<void()>> commit_actions_;
     bool settled_{};
 };
 

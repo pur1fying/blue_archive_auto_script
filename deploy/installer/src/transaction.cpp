@@ -65,7 +65,25 @@ std::string display_path(const fs::path& path) {
 
 }  // namespace
 
+void cleanup_abandoned_transactions(const InstallPaths& paths) {
+    std::error_code error;
+    const auto root = fs::weakly_canonical(paths.tmp_dir / "installer", error);
+    if (error || !fs::is_directory(root, error)) return;
+    for (fs::directory_iterator item(root, error), end; !error && item != end; item.increment(error)) {
+        if (!item->is_directory(error)) continue;
+        const auto child = fs::weakly_canonical(item->path(), error);
+        if (error) { error.clear(); continue; }
+        if (child.parent_path() != root || !fs::is_regular_file(child / "journal.log", error)) {
+            error.clear();
+            continue;
+        }
+        fs::remove_all(child, error);
+        error.clear();
+    }
+}
+
 InstallTransaction::InstallTransaction(const InstallPaths& paths) : paths_(paths) {
+    cleanup_abandoned_transactions(paths_);
     const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
     staging_root_ = paths_.tmp_dir / "installer" / std::to_string(tick);
     fs::create_directories(staging_root_ / "rollback");
@@ -221,6 +239,10 @@ void InstallTransaction::add_rollback_action(std::function<void()> action) {
     if (action) rollback_actions_.push_back(std::move(action));
 }
 
+void InstallTransaction::add_commit_action(std::function<void()> action) {
+    if (action) commit_actions_.push_back(std::move(action));
+}
+
 void InstallTransaction::write_ocr_managed_marker(const std::string& branch, const std::string& commit) {
     const auto target = paths_.root / "core" / "ocr" / "baas_ocr_client" / "bin" / ".baas-installer-managed.json";
     const bool exists = fs::exists(target);
@@ -237,6 +259,7 @@ void InstallTransaction::write_ocr_managed_marker(const std::string& branch, con
 }
 
 void InstallTransaction::commit() {
+    for (auto& action : commit_actions_) action();
     journal("committed");
     settled_ = true;
     std::error_code ignored;
@@ -264,6 +287,7 @@ void InstallTransaction::rollback() noexcept {
     }
     journal("rolled-back");
     settled_ = true;
+    fs::remove_all(staging_root_, ignored);
 }
 
 }  // namespace baas_installer

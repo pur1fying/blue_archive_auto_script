@@ -21,13 +21,27 @@ int main() {
     paths.root = fixture / "install";
     paths.executable = paths.root / "custom-linux-installer";
     paths.tmp_dir = paths.root / "tmp";
+    const auto abandoned = paths.tmp_dir / "installer" / "abandoned";
+    const auto unowned = paths.tmp_dir / "installer" / "unowned";
+    const auto outside = fixture / "outside";
+    write(abandoned / "journal.log", "created\n");
+    write(abandoned / "payload.bin", "stale");
+    write(unowned / "payload.bin", "keep");
+    write(outside / "journal.log", "keep\n");
+    baas_installer::cleanup_abandoned_transactions(paths);
+    if (fs::exists(abandoned) || !fs::exists(unowned) || !fs::exists(outside)) {
+        std::cerr << "abandoned transaction cleanup escaped ownership constraints\n";
+        return 1;
+    }
     write(paths.executable, "installer-binary");
     write(paths.root / "core/ocr/baas_ocr_client/bin/keep.txt", "old-ocr");
     write(paths.root / "app.txt", "old-main");
     write(paths.root / "obsolete.py", "old-module");
     write(paths.root / "config/user.json", "user-data");
+    fs::path rolled_back_staging;
     {
         baas_installer::InstallTransaction transaction(paths);
+        rolled_back_staging = transaction.staging_root();
         write(transaction.main_staging_path() / "app.txt", "new-main");
         write(transaction.main_staging_path() / "core/ocr/baas_ocr_client/bin/keep.txt", "bad-main-ocr");
         write(transaction.ocr_staging_path() / "keep.txt", "new-ocr");
@@ -60,11 +74,28 @@ int main() {
     }
     const bool removals_rolled_back = read(paths.root / "delete.txt") == "keep-after-rollback" &&
         read(paths.root / ".git" / "HEAD") == "ref: refs/heads/master";
+    if (fs::exists(rolled_back_staging)) {
+        std::cerr << "rollback retained transaction staging\n";
+        return 1;
+    }
     bool rollback_action_called = false;
+    bool commit_action_called = false;
     {
         baas_installer::InstallTransaction transaction(paths);
         transaction.add_rollback_action([&] { rollback_action_called = true; });
         transaction.rollback();
+    }
+    fs::path committed_staging;
+    {
+        baas_installer::InstallTransaction transaction(paths);
+        committed_staging = transaction.staging_root();
+        transaction.add_commit_action([&] { commit_action_called = true; });
+        transaction.add_rollback_action([&] { commit_action_called = false; });
+        transaction.commit();
+    }
+    if (!commit_action_called || fs::exists(committed_staging)) {
+        std::cerr << "commit actions or staging cleanup failed\n";
+        return 1;
     }
     fs::remove_all(fixture, ignored);
     if (!good || !removals_rolled_back || !rollback_action_called) { std::cerr << "rollback failed\n"; return 1; }
