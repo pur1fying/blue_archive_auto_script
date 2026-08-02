@@ -1,12 +1,17 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 namespace baas_installer {
 
 enum class GitBackend { GitCli, Libgit2, None };
+enum class RepositoryMode { Unchanged, Incremental, Full };
+using ProcessObserver = std::function<void(std::string_view task, std::string_view backend, std::string_view chunk)>;
 
 struct GitResult {
     bool success{};
@@ -14,11 +19,16 @@ struct GitResult {
     std::string source;
     std::string commit;
     std::string error;
+    RepositoryMode mode{RepositoryMode::Full};
+    std::string previous_commit;
+    std::filesystem::path staging_path;
 };
 
 bool git_cli_available();
 std::string git_backend_name(GitBackend backend);
 std::string repository_head(const std::filesystem::path& repository);
+std::vector<std::pair<GitBackend, std::string>> git_attempt_order(
+    const std::vector<std::string>& sources, bool cli_available, bool libgit2_available);
 
 // Works exclusively against `destination`, which must be a staging directory.
 // Sources are tried in supplied order. Git CLI is always attempted before the
@@ -27,5 +37,17 @@ GitResult clone_repository(
     const std::vector<std::string>& sources,
     const std::filesystem::path& destination,
     const std::string& revision = {});
+
+GitResult prepare_git_repository(
+    const std::vector<std::string>& sources,
+    const std::filesystem::path& live_repository,
+    const std::filesystem::path& staging_directory,
+    const std::string& revision,
+    const ProcessObserver& observer);
+
+bool apply_git_update(const GitResult& prepared,
+                      const std::filesystem::path& live_repository,
+                      std::string& error,
+                      const ProcessObserver& observer = {});
 
 }  // namespace baas_installer
