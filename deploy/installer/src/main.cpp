@@ -32,12 +32,16 @@ int main(int argc, char* argv[]) {
     const auto executable = baas_installer::current_executable_path();
     const auto paths = baas_installer::InstallPaths::from_executable(executable);
     if (argc > 1 && std::string(argv[1]) == "--help") {
-        std::cout << "BAAS portable installer\n\nOptions:\n  --help       show this help\n  --print-root print the executable-relative install root\n";
+        std::cout << "BAAS portable installer\n\nOptions:\n  --help       show this help\n  --print-root print the executable-relative install root\n  --auto-exit  run non-interactively\n  --no-launch  do not launch BAAS (verification only)\n";
         return 0;
     }
     if (argc > 1 && std::string(argv[1]) == "--print-root") { std::cout << paths.root.string() << '\n'; return 0; }
     bool auto_exit = false;
-    for (int index = 1; index < argc; ++index) if (std::string(argv[index]) == "--auto-exit") auto_exit = true;
+    bool no_launch = false;
+    for (int index = 1; index < argc; ++index) {
+        if (std::string(argv[index]) == "--auto-exit") auto_exit = true;
+        if (std::string(argv[index]) == "--no-launch") no_launch = true;
+    }
     const bool first_start = !std::filesystem::exists(paths.setup_toml);
     auto config = baas_installer::load_config(paths);
     const auto log_path = paths.logs_dir / "installer.log";
@@ -75,6 +79,7 @@ int main(int argc, char* argv[]) {
                     resource, platform.os, platform.arch, config.mirrorc_cdk, current_version, config.channel);
                 auto release = baas_installer::request_mirror_release(request_url, mirror_error);
                 if (release.status == baas_installer::CdkStatus::UpToDate) {
+                    model.append_event({{}, task, "mirrorchyan", baas_installer::LogSeverity::Info, "already current"});
                     return baas_installer::PreparedRepository{.success = true,
                         .mode = baas_installer::RepositoryMode::Unchanged, .backend = "mirrorchyan",
                         .version = release.version.empty() ? current_version : release.version};
@@ -95,6 +100,8 @@ int main(int argc, char* argv[]) {
                             [&](const std::string_view chunk) { observer(task, "mirrorchyan", chunk); })) {
                         auto package = baas_installer::inspect_mirror_staging(release, extracted, mirror_error);
                         if (mirror_error.empty()) {
+                            model.append_event({{}, task, "mirrorchyan", baas_installer::LogSeverity::Info,
+                                                "package prepared: " + package.version});
                             const auto mode = package.mode == baas_installer::MirrorPackageMode::Full
                                 ? baas_installer::RepositoryMode::Full : baas_installer::RepositoryMode::Incremental;
                             return baas_installer::PreparedRepository{.success = true, .mode = mode,
@@ -120,12 +127,18 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
+                model.append_event({{}, task, "mirrorchyan", baas_installer::LogSeverity::Warning,
+                                    mirror_error.empty() ? "MirrorChyan package was unavailable" : mirror_error});
                 services.progress(task, "MirrorChyan failed; falling back to Git");
             }
 
             const auto git = baas_installer::prepare_git_repository(sources, live, staging, revision, observer);
             if (!git.success) return baas_installer::PreparedRepository{.success = false, .backend = "git",
                 .error = (main_repository ? "main repository: " : "OCR repository: ") + git.error};
+            model.append_event({{}, task, "git", baas_installer::LogSeverity::Info,
+                                git.mode == baas_installer::RepositoryMode::Unchanged
+                                    ? "remote HEAD matches local HEAD; fetch skipped"
+                                    : "repository update prepared at " + git.commit});
             return baas_installer::PreparedRepository{.success = true, .mode = git.mode,
                 .backend = baas_installer::git_backend_name(git.backend), .version = git.commit,
                 .apply = [git, live, main_repository, observer](baas_installer::InstallTransaction& current,
@@ -155,15 +168,20 @@ int main(int argc, char* argv[]) {
         if (!std::filesystem::is_directory(ocr) || std::filesystem::is_empty(ocr)) { error = "OCR repository placement is empty"; return false; }
         return true;
         };
-        services.sync_uv = [](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig& settings, std::string& error) {
-        return baas_installer::sync_portable_uv(current, settings, error);
+        services.sync_uv = [&](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig& settings, std::string& error) {
+            const baas_installer::ProcessObserver observer = [&](std::string_view task, std::string_view backend,
+                                                                 std::string_view chunk) {
+                model.append_process_chunk(std::string(task), std::string(backend), chunk);
+                wake();
+            };
+            return baas_installer::sync_portable_uv(current, settings, error, observer);
         };
         const auto result = baas_installer::install_or_update(config, paths, services);
         if (!result.success) {
             model.append_event({{}, "installer", "installer", baas_installer::LogSeverity::Error, result.error});
             return {false, result.error};
         }
-        if (!auto_exit) {
+        if (!no_launch) {
             baas_installer::apply_workflow_progress(model, "launch", "launching BAAS");
             wake();
 #ifdef _WIN32

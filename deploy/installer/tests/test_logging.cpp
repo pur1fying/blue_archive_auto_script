@@ -34,6 +34,22 @@ int main() {
         return 1;
     }
 
+    baas_installer::ChunkDecoder repaint_decoder;
+    const auto repaint = repaint_decoder.consume("10%\x1b[2K20%\x1b[2K30%\n");
+    if (repaint.size() != 3 || repaint[0].text != "10%" || !repaint[0].replace_last ||
+        repaint[1].text != "20%" || !repaint[1].replace_last ||
+        repaint[2].text != "30%" || !repaint[2].replace_last) {
+        std::cerr << "ANSI erase-line progress was not normalized as replacement frames\n";
+        return 1;
+    }
+    baas_installer::ChunkDecoder cursor_decoder;
+    const auto cursor = cursor_decoder.consume("⠧ package   \x1b[80Ddone\n");
+    if (cursor.size() != 2 || cursor[0].text != "package" || !cursor[0].replace_last ||
+        cursor[1].text != "done" || !cursor[1].replace_last) {
+        std::cerr << "ANSI cursor repaint or spinner normalization failed\n";
+        return 1;
+    }
+
     baas_installer::Redactor redactor;
     redactor.add_secret("super-secret-value");
     const auto redacted = redactor.redact(

@@ -69,6 +69,23 @@ if(TARGET CURL::libcurl)
     target_compile_definitions(baas-installer-core PRIVATE BAAS_INSTALLER_HAS_CURL=1)
 endif()
 
+find_package(LibArchive QUIET)
+if(TARGET LibArchive::LibArchive)
+    if(WIN32 AND DEFINED VCPKG_INSTALLED_DIR AND DEFINED VCPKG_TARGET_TRIPLET)
+        set(_baas_archive_root "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}")
+        if(EXISTS "${_baas_archive_root}/lib/archive.lib" AND EXISTS "${_baas_archive_root}/debug/lib/archive.lib")
+            set_target_properties(LibArchive::LibArchive PROPERTIES
+                IMPORTED_LOCATION_RELEASE "${_baas_archive_root}/lib/archive.lib"
+                IMPORTED_LOCATION_RELWITHDEBINFO "${_baas_archive_root}/lib/archive.lib"
+                IMPORTED_LOCATION_MINSIZEREL "${_baas_archive_root}/lib/archive.lib"
+                IMPORTED_LOCATION_DEBUG "${_baas_archive_root}/debug/lib/archive.lib")
+        endif()
+        unset(_baas_archive_root)
+    endif()
+    target_link_libraries(baas-installer-core PRIVATE LibArchive::LibArchive)
+    target_compile_definitions(baas-installer-core PRIVATE BAAS_INSTALLER_HAS_LIBARCHIVE=1)
+endif()
+
 find_package(libgit2 CONFIG QUIET)
 if(TARGET libgit2::libgit2)
     target_link_libraries(baas-installer-core PRIVATE libgit2::libgit2)
@@ -80,6 +97,9 @@ endif()
 
 add_executable(BlueArchiveAutoScript src/main.cpp)
 target_link_libraries(BlueArchiveAutoScript PRIVATE baas-installer-core)
+if(WIN32)
+    target_sources(BlueArchiveAutoScript PRIVATE src/installer.manifest)
+endif()
 
 include(CTest)
 if(BUILD_TESTING)

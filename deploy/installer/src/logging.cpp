@@ -20,6 +20,20 @@ std::string regex_redact(std::string value, const std::regex& pattern, const std
     return std::regex_replace(value, pattern, replacement);
 }
 
+std::string normalized_terminal_line(std::string value) {
+    while (!value.empty() && (value.back() == ' ' || value.back() == '\t')) value.pop_back();
+    static const std::vector<std::string> spinner_frames{
+        "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏",
+    };
+    for (const auto& frame : spinner_frames) {
+        if (value.rfind(frame, 0) != 0) continue;
+        value.erase(0, frame.size());
+        while (!value.empty() && value.front() == ' ') value.erase(value.begin());
+        break;
+    }
+    return value;
+}
+
 }  // namespace
 
 void ChunkDecoder::erase_last_codepoint() {
@@ -37,7 +51,16 @@ std::vector<DecodedLine> ChunkDecoder::consume(const std::string_view chunk) {
                 escape_state_ = byte == '[' ? EscapeState::Csi : byte == ']' ? EscapeState::Osc : EscapeState::Normal;
                 continue;
             case EscapeState::Csi:
-                if (byte >= 0x40U && byte <= 0x7eU) escape_state_ = EscapeState::Normal;
+                if (byte >= 0x40U && byte <= 0x7eU) {
+                    const bool line_repaint = byte == 'K' || byte == 'G' || byte == 'D' ||
+                                              byte == 'A' || byte == 'H' || byte == 'f';
+                    if (line_repaint && !current_.empty()) {
+                        output.push_back({normalized_terminal_line(current_), true});
+                        current_.clear();
+                        after_line_erase_ = true;
+                    }
+                    escape_state_ = EscapeState::Normal;
+                }
                 continue;
             case EscapeState::Osc:
                 if (byte == 0x07U) escape_state_ = EscapeState::Normal;
@@ -51,13 +74,17 @@ std::vector<DecodedLine> ChunkDecoder::consume(const std::string_view chunk) {
         if (byte == 0x1bU) {
             escape_state_ = EscapeState::Escape;
         } else if (byte == '\r') {
-            output.push_back({current_, true});
+            output.push_back({normalized_terminal_line(current_), true});
             current_.clear();
             after_carriage_return_ = true;
+            after_line_erase_ = false;
         } else if (byte == '\n') {
-            if (!after_carriage_return_ || !current_.empty()) output.push_back({current_, false});
+            if (!after_carriage_return_ || !current_.empty()) {
+                output.push_back({normalized_terminal_line(current_), after_line_erase_});
+            }
             current_.clear();
             after_carriage_return_ = false;
+            after_line_erase_ = false;
         } else if (byte == '\b') {
             erase_last_codepoint();
         } else if (byte >= 0x20U || byte >= 0x80U) {
@@ -70,9 +97,10 @@ std::vector<DecodedLine> ChunkDecoder::consume(const std::string_view chunk) {
 
 std::vector<DecodedLine> ChunkDecoder::finish() {
     std::vector<DecodedLine> output;
-    if (!current_.empty()) output.push_back({std::move(current_), false});
+    if (!current_.empty()) output.push_back({normalized_terminal_line(std::move(current_)), false});
     current_.clear();
     after_carriage_return_ = false;
+    after_line_erase_ = false;
     escape_state_ = EscapeState::Normal;
     return output;
 }

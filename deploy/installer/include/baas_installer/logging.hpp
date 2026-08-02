@@ -26,6 +26,7 @@ private:
     std::string current_;
     EscapeState escape_state_{EscapeState::Normal};
     bool after_carriage_return_{};
+    bool after_line_erase_{};
 };
 
 class Redactor {

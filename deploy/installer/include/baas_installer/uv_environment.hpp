@@ -1,7 +1,9 @@
 #pragma once
 
 #include "baas_installer/config.hpp"
+#include "baas_installer/git.hpp"
 #include "baas_installer/paths.hpp"
+#include "baas_installer/process.hpp"
 
 #include <filesystem>
 #include <map>
@@ -9,6 +11,8 @@
 #include <vector>
 
 namespace baas_installer {
+
+using UvProcessExecutor = std::function<ProcessResult(const ProcessSpec&)>;
 
 struct UvCommand {
     std::vector<std::string> arguments;
@@ -29,7 +33,9 @@ std::vector<UvCommand> managed_uv_commands(
     const InstallerConfig& config,
     const std::filesystem::path& requirements);
 
-bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error);
-bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error);
+bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error,
+                        ProcessObserver observer = {}, UvProcessExecutor terminal_executor = {});
+bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error,
+                      ProcessObserver observer = {}, UvProcessExecutor terminal_executor = {});
 
 }  // namespace baas_installer

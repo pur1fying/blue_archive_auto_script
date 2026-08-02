@@ -23,7 +23,7 @@ int main() {
         return 1;
     }
     std::string archive_error;
-    if (!baas_installer::validate_archive_entries({"root/", "root/main.py", "root/nested/file"}, archive_error)) {
+    if (!baas_installer::validate_archive_entries({"root/", "root/main.py", "root/nested/file", "root/中文路径.json"}, archive_error)) {
         std::cerr << "safe archive entries were rejected\n";
         return 1;
     }

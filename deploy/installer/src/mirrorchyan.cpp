@@ -18,6 +18,11 @@
 #include <curl/curl.h>
 #endif
 
+#ifdef BAAS_INSTALLER_HAS_LIBARCHIVE
+#include <archive.h>
+#include <archive_entry.h>
+#endif
+
 namespace fs = std::filesystem;
 
 namespace baas_installer {
@@ -367,6 +372,107 @@ bool validate_archive_entries(const std::vector<std::string>& entries, std::stri
 bool extract_mirror_archive(const fs::path& archive, const fs::path& destination, std::string& error,
                             const std::function<void(std::string_view)>& on_chunk) {
     error.clear();
+#ifdef BAAS_INSTALLER_HAS_LIBARCHIVE
+    struct archive* reader = archive_read_new();
+    if (!reader) {
+        error = "could not initialize archive reader";
+        return false;
+    }
+    archive_read_support_filter_all(reader);
+    archive_read_support_format_all(reader);
+#ifdef _WIN32
+    const auto opened = archive_read_open_filename_w(reader, archive.c_str(), 10240);
+#else
+    const auto opened = archive_read_open_filename(reader, archive.c_str(), 10240);
+#endif
+    if (opened != ARCHIVE_OK) {
+        error = "could not open MirrorChyan archive";
+        archive_read_free(reader);
+        return false;
+    }
+    std::error_code ignored;
+    fs::remove_all(destination, ignored);
+    fs::create_directories(destination, ignored);
+    if (ignored) {
+        error = "could not create archive extraction directory";
+        archive_read_free(reader);
+        return false;
+    }
+    archive_entry* entry = nullptr;
+    std::array<char, 65536> buffer{};
+    int header_status = ARCHIVE_OK;
+    while ((header_status = archive_read_next_header(reader, &entry)) == ARCHIVE_OK) {
+        fs::path relative;
+#ifdef _WIN32
+        if (const auto* utf8 = archive_entry_pathname_utf8(entry)) relative = path_from_utf8(utf8);
+        else if (const auto* wide = archive_entry_pathname_w(entry)) relative = fs::path(wide);
+#else
+        if (const auto* utf8 = archive_entry_pathname_utf8(entry)) relative = fs::path(utf8);
+        else if (const auto* native = archive_entry_pathname(entry)) relative = fs::path(native);
+#endif
+        const auto encoded = relative.generic_u8string();
+        const std::string portable(encoded.begin(), encoded.end());
+        if (!validate_archive_entries({portable}, error)) {
+            archive_read_free(reader);
+            return false;
+        }
+        if (archive_entry_symlink(entry) || archive_entry_hardlink(entry)) {
+            error = "archive contains an unsupported link";
+            archive_read_free(reader);
+            return false;
+        }
+        const auto output = destination / relative;
+        const auto type = archive_entry_filetype(entry);
+        if (type == AE_IFDIR) {
+            fs::create_directories(output, ignored);
+            archive_read_data_skip(reader);
+        } else if (type == AE_IFREG) {
+            fs::create_directories(output.parent_path(), ignored);
+            std::ofstream stream(output, std::ios::binary | std::ios::trunc);
+            if (!stream) {
+                error = "could not create extracted archive file";
+                archive_read_free(reader);
+                return false;
+            }
+            for (;;) {
+                const auto count = archive_read_data(reader, buffer.data(), buffer.size());
+                if (count == 0) break;
+                if (count < 0) {
+                    error = "could not read MirrorChyan archive data";
+                    archive_read_free(reader);
+                    return false;
+                }
+                stream.write(buffer.data(), count);
+            }
+            if (!stream) {
+                error = "could not write extracted archive file";
+                archive_read_free(reader);
+                return false;
+            }
+#ifndef _WIN32
+            const auto mode = static_cast<fs::perms>(archive_entry_perm(entry) & 0777);
+            fs::permissions(output, mode, fs::perm_options::replace, ignored);
+            if (ignored) {
+                error = "could not preserve extracted archive permissions";
+                archive_read_free(reader);
+                return false;
+            }
+#endif
+        } else {
+            error = "archive contains an unsupported entry type";
+            archive_read_free(reader);
+            return false;
+        }
+        if (on_chunk) on_chunk("Extracting " + portable + "\r");
+    }
+    if (header_status != ARCHIVE_EOF) {
+        error = "could not finish reading MirrorChyan archive";
+        archive_read_free(reader);
+        return false;
+    }
+    archive_read_free(reader);
+    return true;
+#else
     ProcessSpec listing;
     listing.arguments = {"tar", "-tf", archive.string()};
     const auto listed = run_process(listing);
@@ -399,6 +505,7 @@ bool extract_mirror_archive(const fs::path& archive, const fs::path& destination
         return false;
     }
     return true;
+#endif
 }
 
 MirrorRelease wait_for_incremental_release(MirrorRelease initial,
