@@ -1,8 +1,7 @@
 #include "baas_installer/git.hpp"
+#include "baas_installer/process.hpp"
 
-#include <cstdlib>
 #include <filesystem>
-#include <fstream>
 #include <sstream>
 
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
@@ -14,27 +13,15 @@ namespace fs = std::filesystem;
 namespace baas_installer {
 namespace {
 
-std::string quote_command(const std::string& value) {
-    std::string quoted{"\""};
-    for (const char ch : value) {
-        if (ch == '\"') quoted += '\\';
-        quoted += ch;
-    }
-    return quoted + '\"';
-}
-
-int run(const std::string& command) { return std::system(command.c_str()); }
-
 GitResult clone_with_cli(const std::string& source, const fs::path& destination, const std::string& revision) {
     std::error_code ignored;
     fs::remove_all(destination, ignored);
     fs::create_directories(destination.parent_path(), ignored);
-    const auto destination_text = quote_command(destination.string());
-    if (run("git clone --filter=blob:none --no-checkout " + quote_command(source) + " " + destination_text) != 0) {
+    if (run_process({"git", "clone", "--filter=blob:none", "--no-checkout", source, destination.string()}) != 0) {
         return {false, GitBackend::GitCli, source, {}, "git clone failed"};
     }
     const std::string wanted = revision.empty() ? "HEAD" : revision;
-    if (run("git -C " + destination_text + " checkout --force " + quote_command(wanted)) != 0) {
+    if (run_process({"git", "-C", destination.string(), "checkout", "--force", wanted}) != 0) {
         fs::remove_all(destination, ignored);
         return {false, GitBackend::GitCli, source, {}, "git checkout failed"};
     }
@@ -78,9 +65,9 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
 
 bool git_cli_available() {
 #ifdef _WIN32
-    return run("git --version > NUL 2>&1") == 0;
+    return run_process({"git", "--version"}) == 0;
 #else
-    return run("git --version > /dev/null 2>&1") == 0;
+    return run_process({"git", "--version"}) == 0;
 #endif
 }
 
@@ -94,11 +81,15 @@ std::string git_backend_name(const GitBackend backend) {
 
 std::string repository_head(const fs::path& repository) {
     if (!git_cli_available()) return {};
-    const auto output = repository / ".baas-installer-head";
-    const auto status = run("git -C " + quote_command(repository.string()) + " rev-parse HEAD > " + quote_command(output.string()));
-    std::ifstream input(output); std::string head; std::getline(input, head);
-    std::error_code ignored; fs::remove(output, ignored);
-    return status == 0 ? head : std::string{};
+    ProcessSpec spec;
+    spec.arguments = {"git", "-C", repository.string(), "rev-parse", "HEAD"};
+    const auto result = run_process(spec);
+    if (result.exit_code != 0) return {};
+    std::istringstream input(result.output);
+    std::string head;
+    std::getline(input, head);
+    if (!head.empty() && head.back() == '\r') head.pop_back();
+    return head;
 }
 
 GitResult clone_repository(const std::vector<std::string>& sources, const fs::path& destination, const std::string& revision) {

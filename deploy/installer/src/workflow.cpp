@@ -34,9 +34,13 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
         emit(services, "deployment", "deploying OCR repository");
         transaction.deploy_ocr();
         std::string error;
+        emit(services, "verify", "verifying deployment");
         if (!services.verify_deployment(paths, config, error)) throw std::runtime_error(error.empty() ? "deployment verification failed" : error);
+        emit(services, "verify", "deployment verified");
         transaction.write_ocr_managed_marker();
+        emit(services, "uv", "synchronizing dependencies");
         if (!services.sync_uv(paths, config, error)) throw std::runtime_error(error.empty() ? "uv synchronization failed" : error);
+        emit(services, "uv", "dependencies synchronized");
         // The configuration is deliberately the final durable state change.
         save_config_atomic(config, paths);
         transaction.commit();

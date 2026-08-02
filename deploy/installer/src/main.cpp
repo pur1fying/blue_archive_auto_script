@@ -39,6 +39,7 @@ void append_log(const std::filesystem::path& path, const std::string& message) {
 }
 
 int main(int argc, char* argv[]) {
+    baas_installer::configure_utf8_terminal();
     const auto executable = baas_installer::current_executable_path();
     const auto paths = baas_installer::InstallPaths::from_executable(executable);
     if (argc > 1 && std::string(argv[1]) == "--help") {
@@ -46,29 +47,25 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     if (argc > 1 && std::string(argv[1]) == "--print-root") { std::cout << paths.root.string() << '\n'; return 0; }
+    bool auto_exit = false;
+    for (int index = 1; index < argc; ++index) if (std::string(argv[index]) == "--auto-exit") auto_exit = true;
     const bool first_start = !std::filesystem::exists(paths.setup_toml);
     auto config = baas_installer::load_config(paths);
     const auto log_path = paths.logs_dir / "installer.log";
+    baas_installer::set_default_process_log(log_path);
     append_log(log_path, "installer started");
-    baas_installer::print_tui_banner();
-    baas_installer::print_progress("root", "ready", paths.root.string());
-    if (first_start) {
-        if (baas_installer::ask_yes_no("Do you have a MirrorChyan CDK?")) {
-            config.mirrorc_cdk = baas_installer::ask_secret("MirrorChyan CDK (masked): ");
-            baas_installer::print_progress("MirrorChyan", "configured", baas_installer::redact_cdk(config.mirrorc_cdk));
-        } else baas_installer::print_progress("MirrorChyan", "not selected", "Git source fallback will be used");
-        // The install workflow will make the final atomic write after all
-        // staged work is successful; retaining this in-memory answer prevents
-        // a cancelled first run from creating a half-configured installation.
-    }
-    baas_installer::WorkflowServices services;
-    std::string prepared_main_sha;
-    std::string prepared_ocr_sha;
-    services.progress = [&](const std::string& task, const std::string& detail) {
-        baas_installer::print_progress(task, "working", detail);
-        append_log(log_path, "[" + task + "] " + detail);
-    };
-    services.prepare_main = [&](baas_installer::InstallTransaction& transaction, std::string& error) {
+    const auto install = [&](const std::string& selected_cdk, baas_installer::InstallerViewModel& model,
+                             const std::function<void()>& wake) -> std::pair<bool, std::string> {
+        config.mirrorc_cdk = selected_cdk;
+        baas_installer::WorkflowServices services;
+        std::string prepared_main_sha;
+        std::string prepared_ocr_sha;
+        services.progress = [&](const std::string& task, const std::string& detail) {
+            baas_installer::apply_workflow_progress(model, task, detail);
+            append_log(log_path, "[" + task + "] " + detail);
+            wake();
+        };
+        services.prepare_main = [&](baas_installer::InstallTransaction& transaction, std::string& error) {
         if (!config.mirrorc_cdk.empty()) {
             const auto response_path = transaction.staging_root() / "mirrorchyan-response.json";
             const auto request = baas_installer::mirror_latest_url(config.mirrorc_cdk, config.main_sha, config.channel);
@@ -109,34 +106,31 @@ int main(int argc, char* argv[]) {
         if (!result.success) { error = "main repository: " + result.error; return false; }
         prepared_main_sha = baas_installer::repository_head(transaction.main_staging_path());
         return true;
-    };
-    services.prepare_ocr = [&](baas_installer::InstallTransaction& transaction, std::string& error) {
+        };
+        services.prepare_ocr = [&](baas_installer::InstallTransaction& transaction, std::string& error) {
         const auto result = baas_installer::clone_repository(
             baas_installer::default_sources(baas_installer::SourceKind::OcrGit, config), transaction.ocr_staging_path(), ocr_revision());
         if (!result.success) { error = "OCR repository: " + result.error; return false; }
         prepared_ocr_sha = baas_installer::repository_head(transaction.ocr_staging_path());
         return true;
-    };
-    services.on_prepared = [&] {
-        config.main_sha = prepared_main_sha;
-        config.ocr_sha = prepared_ocr_sha;
-    };
-    services.verify_deployment = [](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig&, std::string& error) {
+        };
+        services.on_prepared = [&] {
+            config.main_sha = prepared_main_sha;
+            config.ocr_sha = prepared_ocr_sha;
+        };
+        services.verify_deployment = [](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig&, std::string& error) {
         if (!std::filesystem::exists(current.root / "main.py")) { error = "main repository did not contain main.py"; return false; }
         const auto ocr = current.root / "core" / "ocr" / "baas_ocr_client" / "bin";
         if (!std::filesystem::is_directory(ocr) || std::filesystem::is_empty(ocr)) { error = "OCR repository placement is empty"; return false; }
         return true;
-    };
-    services.sync_uv = [](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig& settings, std::string& error) {
+        };
+        services.sync_uv = [](const baas_installer::InstallPaths& current, const baas_installer::InstallerConfig& settings, std::string& error) {
         return baas_installer::sync_portable_uv(current, settings, error);
+        };
+        const auto result = baas_installer::install_or_update(config, paths, services);
+        append_log(log_path, result.success ? "installer completed" : "installer failed: " + result.error);
+        return {result.success, result.error};
     };
-    const auto result = baas_installer::install_or_update(config, paths, services);
-    if (!result.success) {
-        baas_installer::print_progress("installer", "failed", result.error);
-        append_log(log_path, "installer failed: " + result.error);
-        return 1;
-    }
-    baas_installer::print_progress("installer", "complete", "BAAS is ready to launch");
-    append_log(log_path, "installer completed");
-    return 0;
+    if (auto_exit) return baas_installer::run_unattended(config.mirrorc_cdk, install);
+    return baas_installer::run_tui(first_start, config.mirrorc_cdk, install);
 }

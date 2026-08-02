@@ -225,3 +225,34 @@
 - Audit each design requirement against code, tests, workflow, and migration output.
 - Confirm the original `D:\Amusement\BAAS_NEW` was not modified.
 
+### Task 11: Full-session TUI and local recovery verification
+
+**Files:**
+- Modify: `deploy/installer/CMakeLists.txt`
+- Modify: `deploy/installer/include/baas_installer/tui.hpp`
+- Modify: `deploy/installer/src/tui.cpp`
+- Modify: `deploy/installer/src/main.cpp`
+- Modify: `deploy/installer/include/baas_installer/process.hpp`
+- Modify: `deploy/installer/src/process.cpp`
+- Modify: `deploy/installer/src/git.cpp`
+- Modify: `deploy/installer/tests/test_tui.cpp`
+- Create: `deploy/installer/tests/test_process.cpp`
+- Create: `deploy/installer/tests/manual/verify_local_migration.ps1`
+
+**Interfaces:**
+- `InstallerViewModel` owns setup, running, success, and failure screens plus thread-safe task rows.
+- `run_tui(paths, install)` keeps one FTXUI event loop alive for the complete installer session.
+- `run_process(spec)` captures child stdout/stderr into `<root>/log/installer.log` instead of inheriting the terminal.
+- Windows startup enables UTF-8 input/output and virtual-terminal processing before FTXUI starts.
+
+- [x] Add failing model tests for initial setup, parallel main/OCR progress, ordered deployment, uv progress, and terminal success/failure states.
+- [x] Run the focused TUI test and verify it fails because the full-session view model API is absent.
+- [x] Add a failing process test proving child output is captured and cannot reach the parent TUI stream.
+- [x] Run the focused process test and verify the inherited-output implementation fails it.
+- [x] Link FTXUI and implement one full-screen event loop with an in-TUI MirrorChyan form, task rows, aggregate progress, current detail, bounded log pane, retry, and exit controls.
+- [x] Run installation work on a worker thread and post progress events back to FTXUI; represent unknown byte totals with a spinner and known totals with a determinate bar.
+- [x] Configure Windows UTF-8/VT mode and compile source as UTF-8; keep Git, curl, tar, and uv output out of the console and append decoded diagnostic text to the root-local log.
+- [x] Re-run focused tests and the full CTest suite; expect PASS with no direct progress printing remaining.
+- [x] Build the Windows Release executable and copy `D:\Amusement\BAAS_NEW` to a fresh local D-drive test directory without changing the source.
+- [x] Run the new installer against that fresh copy and assert exit code zero, main deployment, OCR placement, uv/Python locality, dependency sync, valid `setup.toml`, valid marker, and no paths outside the copied root.
+- [x] Commit: `fix(installer): deliver full TUI and verified local install`.

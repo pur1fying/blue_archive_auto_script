@@ -6,6 +6,25 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(MSVC)
+    add_compile_options(/utf-8)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    add_compile_options(-finput-charset=UTF-8 -fexec-charset=UTF-8)
+endif()
+
+find_package(ftxui CONFIG QUIET)
+if(NOT TARGET ftxui::component)
+    include(FetchContent)
+    set(FTXUI_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(FTXUI_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(FTXUI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    FetchContent_Declare(ftxui
+        URL https://github.com/ArthurSonzogni/FTXUI/archive/refs/tags/v6.1.9.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    FetchContent_MakeAvailable(ftxui)
+endif()
+
 add_library(baas-installer-core STATIC
     src/paths.cpp
     src/config.cpp
@@ -19,6 +38,7 @@ add_library(baas-installer-core STATIC
     src/tui.cpp
 )
 target_include_directories(baas-installer-core PUBLIC include)
+target_link_libraries(baas-installer-core PUBLIC ftxui::component ftxui::dom ftxui::screen)
 
 find_package(CURL QUIET)
 if(TARGET CURL::libcurl)
@@ -72,4 +92,8 @@ if(BUILD_TESTING)
     add_executable(baas-installer-test-tui tests/test_tui.cpp)
     target_link_libraries(baas-installer-test-tui PRIVATE baas-installer-core)
     add_test(NAME tui COMMAND baas-installer-test-tui)
+
+    add_executable(baas-installer-test-process tests/test_process.cpp)
+    target_link_libraries(baas-installer-test-process PRIVATE baas-installer-core)
+    add_test(NAME process COMMAND baas-installer-test-process)
 endif()
