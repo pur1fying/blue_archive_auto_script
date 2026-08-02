@@ -4,6 +4,7 @@
 #include "baas_installer/git.hpp"
 #include "baas_installer/paths.hpp"
 #include "baas_installer/process.hpp"
+#include "baas_installer/sources.hpp"
 
 #include <filesystem>
 #include <map>
@@ -13,6 +14,7 @@
 namespace baas_installer {
 
 using UvProcessExecutor = std::function<ProcessResult(const ProcessSpec&)>;
+using UvSourceProbe = std::function<long long(SourceKind, const std::string&)>;
 
 struct UvCommand {
     std::vector<std::string> arguments;
@@ -36,8 +38,10 @@ std::vector<UvCommand> managed_uv_commands(
     const std::filesystem::path& requirements);
 
 bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error,
-                        ProcessObserver observer = {}, UvProcessExecutor terminal_executor = {});
+                        ProcessObserver observer = {}, UvProcessExecutor terminal_executor = {},
+                        UvSourceProbe source_probe = {});
 bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error,
-                      ProcessObserver observer = {}, UvProcessExecutor terminal_executor = {});
+                      ProcessObserver observer = {}, UvProcessExecutor terminal_executor = {},
+                      UvSourceProbe source_probe = {});
 
 }  // namespace baas_installer

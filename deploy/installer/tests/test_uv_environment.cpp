@@ -1,9 +1,30 @@
 #include "baas_installer/uv_environment.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+
+namespace {
+
+std::filesystem::path managed_python(const baas_installer::InstallPaths& paths) {
+#ifdef _WIN32
+    return paths.toolkit_dir / "uv" / "cpython" / "cpython-3.9.0-windows-x86_64-none" / "python.exe";
+#else
+    return paths.toolkit_dir / "uv" / "cpython" / "cpython-3.9.0-linux-x86_64-none" / "bin" / "python3";
+#endif
+}
+
+std::filesystem::path venv_python(const baas_installer::InstallPaths& paths) {
+#ifdef _WIN32
+    return paths.venv_dir / "Scripts" / "python.exe";
+#else
+    return paths.venv_dir / "bin" / "python";
+#endif
+}
+
+}  // namespace
 
 int main() {
     const auto paths = baas_installer::InstallPaths::from_executable("E:/tmp/BAAS/BlueArchiveAutoScript.exe");
@@ -42,22 +63,42 @@ int main() {
     std::ofstream(baas_installer::dependency_requirements(test_paths)) << "example==1\n";
     std::vector<baas_installer::ProcessSpec> visible;
     int chunks = 0;
+    std::atomic<int> uv_probes{0};
+    std::atomic<int> cpython_probes{0};
+    std::atomic<int> pypi_probes{0};
     const auto fake_terminal = [&](const baas_installer::ProcessSpec& spec) {
         visible.push_back(spec);
+        if (spec.arguments.size() > 2 && spec.arguments[1] == "python" && spec.arguments[2] == "install") {
+            std::filesystem::create_directories(managed_python(test_paths).parent_path());
+            std::ofstream(managed_python(test_paths)) << "managed python";
+        }
         if (spec.arguments.size() > 1 && spec.arguments[1] == "venv") {
             std::filesystem::create_directories(test_paths.venv_dir);
-            std::ofstream(test_paths.venv_dir / "pyvenv.cfg") << "version = 3.9.0\n";
+            std::ofstream(test_paths.venv_dir / "pyvenv.cfg")
+                << "home = " << managed_python(test_paths).parent_path().string() << "\nversion_info = 3.9.0\n";
+            std::filesystem::create_directories(venv_python(test_paths).parent_path());
+            std::ofstream(venv_python(test_paths)) << "venv python";
+        }
+        if (spec.arguments.size() > 2 && spec.arguments[1] == "pip" && spec.arguments[2] == "compile") {
+            std::ofstream(test_paths.root / ".baas-installer-requirements.txt") << "example==1.0\n";
         }
         if (spec.on_chunk) spec.on_chunk("pty chunk\r");
         return baas_installer::ProcessResult{0, {}};
+    };
+    const auto fake_probe = [&](const baas_installer::SourceKind kind, const std::string&) {
+        if (kind == baas_installer::SourceKind::Uv) ++uv_probes;
+        else if (kind == baas_installer::SourceKind::Cpython) ++cpython_probes;
+        else if (kind == baas_installer::SourceKind::Pypi) ++pypi_probes;
+        return 10LL;
     };
     std::string sync_error;
     const bool synced = baas_installer::sync_portable_uv(
         test_paths, config, sync_error,
         [&](std::string_view task, std::string_view backend, std::string_view chunk) {
             if (task == "uv" && backend == "uv" && !chunk.empty()) ++chunks;
-        }, fake_terminal);
-    if (!synced || visible.size() != 5 || chunks != 5) {
+        }, fake_terminal, fake_probe);
+    if (!synced || visible.size() != 4 || chunks != 4 || uv_probes.load() != 0 ||
+        cpython_probes.load() == 0 || pypi_probes.load() == 0) {
         std::cerr << "visible uv commands did not use the shared PTY observer\n"; return 1;
     }
     for (const auto& spec : visible) {
@@ -76,17 +117,48 @@ int main() {
     }
     visible.clear();
     chunks = 0;
+    uv_probes = cpython_probes = pypi_probes = 0;
     if (!baas_installer::sync_portable_uv(test_paths, config, sync_error,
-            [&](std::string_view, std::string_view, std::string_view) { ++chunks; }, fake_terminal) ||
-        visible.size() != 4) {
-        std::cerr << "an existing managed environment should be synchronized without destructive recreation\n";
+            [&](std::string_view, std::string_view, std::string_view) { ++chunks; }, fake_terminal, fake_probe) ||
+        !visible.empty() || chunks == 0 || uv_probes.load() != 0 || cpython_probes.load() != 0 ||
+        pypi_probes.load() != 0) {
+        std::cerr << "an unchanged managed environment should skip every uv command and source probe\n";
         return 1;
     }
-    for (const auto& spec : visible) {
-        if (spec.arguments.size() > 1 && spec.arguments[1] == "venv") {
-            std::cerr << "existing managed environment was recreated\n";
-            return 1;
-        }
+
+    const auto moved_root = test_root.parent_path() / "baas-installer-uv-renamed-test";
+    std::filesystem::remove_all(moved_root, ignored);
+    std::filesystem::rename(test_root, moved_root);
+    const auto moved_paths = baas_installer::InstallPaths::from_executable(moved_root / "BlueArchiveAutoScript.exe");
+    visible.clear();
+    chunks = 0;
+    uv_probes = cpython_probes = pypi_probes = 0;
+    if (!baas_installer::sync_portable_uv(moved_paths, config, sync_error,
+            [&](std::string_view, std::string_view, std::string_view) { ++chunks; }, fake_terminal, fake_probe) ||
+        !visible.empty() || uv_probes.load() != 0 || cpython_probes.load() != 0 || pypi_probes.load() != 0) {
+        std::cerr << "renamed managed environment must repair metadata and keep its dependency cache hit\n";
+        return 1;
+    }
+    std::string moved_config_text;
+    {
+        std::ifstream moved_config(moved_paths.venv_dir / "pyvenv.cfg", std::ios::binary);
+        moved_config_text.assign(std::istreambuf_iterator<char>(moved_config), {});
+    }
+    if (moved_config_text.find(moved_root.string()) == std::string::npos ||
+        moved_config_text.find(test_root.string()) != std::string::npos) {
+        std::cerr << "renamed virtual environment retained the previous installation root\n";
+        return 1;
+    }
+    std::filesystem::rename(moved_root, test_root);
+
+    std::ofstream(baas_installer::dependency_requirements(test_paths), std::ios::trunc) << "example==2\n";
+    chunks = 0;
+    uv_probes = cpython_probes = pypi_probes = 0;
+    if (!baas_installer::sync_portable_uv(test_paths, config, sync_error,
+            [&](std::string_view, std::string_view, std::string_view) { ++chunks; }, fake_terminal, fake_probe) ||
+        visible.size() != 2 || uv_probes.load() != 0 || cpython_probes.load() != 0 || pypi_probes.load() == 0) {
+        std::cerr << "changed requirements must resolve/sync without rechecking installed uv or CPython\n";
+        return 1;
     }
     std::filesystem::remove_all(test_root, ignored);
 
@@ -103,10 +175,13 @@ int main() {
     std::vector<baas_installer::ProcessSpec> custom_commands;
     const auto custom_executor = [&](const baas_installer::ProcessSpec& spec) {
         custom_commands.push_back(spec);
+        if (spec.arguments.size() > 2 && spec.arguments[1] == "pip" && spec.arguments[2] == "compile") {
+            std::ofstream(custom_paths.root / ".baas-installer-requirements.txt") << "example==1.0\n";
+        }
         return baas_installer::ProcessResult{0, {}};
     };
-    if (!baas_installer::sync_portable_uv(custom_paths, custom_config, sync_error, {}, custom_executor) ||
-        custom_commands.size() != 3) {
+    if (!baas_installer::sync_portable_uv(custom_paths, custom_config, sync_error, {}, custom_executor, fake_probe) ||
+        custom_commands.size() != 2) {
         std::cerr << "custom Python dependencies were not synchronized through uv\n"; return 1;
     }
     for (const auto& spec : custom_commands) {
@@ -115,7 +190,7 @@ int main() {
             std::cerr << "custom runtime attempted portable Python creation\n"; return 1;
         }
     }
-    const auto& sync_arguments = custom_commands[1].arguments;
+    const auto& sync_arguments = custom_commands.back().arguments;
     const auto python = std::find(sync_arguments.begin(), sync_arguments.end(), "--python");
     if (python == sync_arguments.end() || std::next(python) == sync_arguments.end() ||
         *std::next(python) != custom_config.runtime_path) {

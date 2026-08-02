@@ -1,9 +1,16 @@
 #include "baas_installer/uv_environment.hpp"
+#include "baas_installer/dependency_state.hpp"
 #include "baas_installer/mirrorchyan.hpp"
 #include "baas_installer/process.hpp"
 #include "baas_installer/sources.hpp"
 
+#include <algorithm>
+#include <chrono>
 #include <fstream>
+
+#ifdef BAAS_INSTALLER_HAS_CURL
+#include <curl/curl.h>
+#endif
 
 namespace fs = std::filesystem;
 
@@ -22,6 +29,113 @@ std::string uv_archive_name() {
 #else
     return "uv-x86_64-unknown-linux-gnu.tar.gz";
 #endif
+}
+
+std::filesystem::path virtualenv_python(const InstallPaths& paths) {
+#ifdef _WIN32
+    return paths.venv_dir / "Scripts" / "python.exe";
+#else
+    return paths.venv_dir / "bin" / "python";
+#endif
+}
+
+bool managed_python_exists(const UvEnvironment& environment) {
+    std::error_code error;
+    if (!fs::is_directory(environment.python_dir, error)) return false;
+    for (fs::recursive_directory_iterator item(environment.python_dir, error), end;
+         !error && item != end; item.increment(error)) {
+        if (!item->is_regular_file(error)) continue;
+        auto name = item->path().filename().string();
+        std::transform(name.begin(), name.end(), name.begin(), [](const unsigned char character) {
+            return static_cast<char>(std::tolower(character));
+        });
+#ifdef _WIN32
+        if (name == "python.exe") return true;
+#else
+        if (name == "python" || name == "python3") return true;
+#endif
+    }
+    return false;
+}
+
+std::vector<std::string> unique_sources(std::vector<std::string> sources) {
+    std::vector<std::string> result;
+    for (auto& source : sources) {
+        if (!source.empty() && std::find(result.begin(), result.end(), source) == result.end()) {
+            result.push_back(std::move(source));
+        }
+    }
+    return result;
+}
+
+std::string cpython_probe_url(std::string source) {
+    while (source.ends_with('/')) source.pop_back();
+    constexpr std::string_view suffix = "/releases/download";
+    if (source.ends_with(suffix)) source.resize(source.size() - std::string(suffix).size());
+    return source + "/releases";
+}
+
+#ifdef BAAS_INSTALLER_HAS_CURL
+std::size_t discard_response(const char*, const std::size_t size, const std::size_t count, void*) {
+    return size * count;
+}
+
+bool acceptable_http_status(const long status) { return status >= 200 && status < 400; }
+
+long long http_probe_latency(const std::string& url) {
+    const auto request = [&](const bool head) -> std::pair<bool, long long> {
+        CURL* curl = curl_easy_init();
+        if (curl == nullptr) return {false, -1};
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "BAAS-Installer/2.0");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, discard_response);
+        if (head) {
+            curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+        } else {
+            curl_easy_setopt(curl, CURLOPT_RANGE, "0-0");
+            curl_easy_setopt(curl, CURLOPT_MAXFILESIZE_LARGE, static_cast<curl_off_t>(1024));
+        }
+        const auto started = std::chrono::steady_clock::now();
+        const auto status = curl_easy_perform(curl);
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - started).count();
+        long response = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response);
+        curl_easy_cleanup(curl);
+        return {status == CURLE_OK && acceptable_http_status(response), elapsed};
+    };
+    if (const auto head = request(true); head.first) return head.second;
+    if (const auto range = request(false); range.first) return range.second;
+    return -1;
+}
+#endif
+
+std::vector<std::string> ranked_sources_for(
+    const SourceKind kind, const std::vector<std::string>& candidates, const UvSourceProbe& source_probe,
+    const ProcessObserver& observer, const bool test_executor) {
+    if (candidates.empty()) return {};
+    if (!source_probe && test_executor) return candidates;
+    const auto ranking = rank_sources(candidates, [&](const std::string& source) {
+        if (observer) observer("uv", "probe", "Testing source " + source + "\n");
+        const auto probe_url = kind == SourceKind::Cpython ? cpython_probe_url(source) : source;
+        long long latency = -1;
+        if (source_probe) latency = source_probe(kind, probe_url);
+#ifdef BAAS_INSTALLER_HAS_CURL
+        else latency = http_probe_latency(probe_url);
+#endif
+        if (observer) {
+            observer("uv", "probe", source + (latency >= 0 ? " responded in " + std::to_string(latency) + " ms\n"
+                                                               : " probe failed\n"));
+        }
+        return latency;
+    });
+    std::vector<std::string> result;
+    for (const auto& source : ranking) result.push_back(source.url);
+    return result;
 }
 
 ProcessResult run_visible(const std::vector<std::string>& arguments,
@@ -115,14 +229,24 @@ std::vector<UvCommand> managed_uv_commands(
 }
 
 bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error,
-                        ProcessObserver observer, UvProcessExecutor terminal_executor) {
+                        ProcessObserver observer, UvProcessExecutor terminal_executor,
+                        UvSourceProbe source_probe) {
     const auto environment = make_uv_environment(paths, config);
     if (fs::exists(environment.executable)) return true;
     fs::create_directories(paths.tmp_dir / "uv");
     const auto archive = paths.tmp_dir / "uv" / uv_archive_name();
     const auto filename = uv_archive_name();
-    std::vector<std::string> sources{"https://github.com/astral-sh/uv/releases/download/0.5.11/" + filename};
-    for (const auto& source : default_sources(SourceKind::Uv, config)) if (!source.empty()) sources.push_back(source + "/" + filename);
+    std::vector<std::string> sources;
+    for (const auto& source : default_sources(SourceKind::Uv, config)) {
+        if (!source.empty()) sources.push_back(source + "/" + filename);
+    }
+    sources.push_back("https://github.com/astral-sh/uv/releases/download/0.5.11/" + filename);
+    sources = ranked_sources_for(SourceKind::Uv, unique_sources(std::move(sources)), source_probe, observer,
+                                 static_cast<bool>(terminal_executor));
+    if (sources.empty()) {
+        error = "every portable uv source failed its download probe";
+        return false;
+    }
     for (const auto& source : sources) {
         if (run_visible({"curl", "--fail", "--location", "--connect-timeout", "5", "--retry", "2", "--output",
                          archive.string(), source}, environment.variables, paths.root, "curl", observer,
@@ -150,11 +274,19 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
 }
 
 bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, std::string& error,
-                      ProcessObserver observer, UvProcessExecutor terminal_executor) {
+                      ProcessObserver observer, UvProcessExecutor terminal_executor,
+                      UvSourceProbe source_probe) {
     const auto environment = make_uv_environment(paths, config);
-    if (!ensure_portable_uv(paths, config, error, observer, terminal_executor)) return false;
     const auto requirements = dependency_requirements(paths);
     if (!fs::exists(requirements)) { error = requirements.filename().string() + " is missing after main deployment"; return false; }
+    const auto compiled = requirements.parent_path() / ".baas-installer-requirements.txt";
+    if (!repair_managed_venv_after_move(paths, config, error)) return false;
+    const auto dependency_state = inspect_dependency_state(paths, config, requirements, compiled);
+    if (dependency_state.cache_hit) {
+        if (observer) observer("uv", "cache", "Dependency SHA unchanged; uv skipped\n");
+        return true;
+    }
+    if (!ensure_portable_uv(paths, config, error, observer, terminal_executor, source_probe)) return false;
 
     for (const auto& directory : {environment.cache_dir, environment.python_dir, paths.tmp_dir / "uv",
                                   paths.toolkit_dir / "uv" / "python-cache", paths.toolkit_dir / "uv" / "python-bin",
@@ -173,21 +305,24 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
 
     const auto managed_marker = environment.venv_dir / ".baas-installer-managed";
     if (environment.managed) {
-        bool python_installed = false;
-        std::vector<std::string> cpython_mirrors{""};
-        const auto configured_mirrors = default_sources(SourceKind::Cpython, config);
-        cpython_mirrors.insert(cpython_mirrors.end(), configured_mirrors.begin(), configured_mirrors.end());
-        for (const auto& mirror : cpython_mirrors) {
-            auto variables = environment.variables;
-            if (!mirror.empty()) variables["UV_PYTHON_INSTALL_MIRROR"] = mirror;
-            if (run_uv({"python", "install", config.python_version}, variables)) {
-                python_installed = true;
-                break;
+        if (!managed_python_exists(environment)) {
+            auto cpython_mirrors = default_sources(SourceKind::Cpython, config);
+            cpython_mirrors.push_back("https://github.com/astral-sh/python-build-standalone/releases/download");
+            cpython_mirrors = ranked_sources_for(SourceKind::Cpython, unique_sources(std::move(cpython_mirrors)),
+                                                 source_probe, observer, static_cast<bool>(terminal_executor));
+            bool python_installed = false;
+            for (const auto& mirror : cpython_mirrors) {
+                auto variables = environment.variables;
+                variables["UV_PYTHON_INSTALL_MIRROR"] = mirror;
+                if (run_uv({"python", "install", config.python_version}, variables)) {
+                    python_installed = true;
+                    break;
+                }
             }
-        }
-        if (!python_installed) {
-            error = "uv could not install Python from the official source or any configured fallback";
-            return false;
+            if (!python_installed) {
+                error = "uv could not install Python from any ranked source";
+                return false;
+            }
         }
         std::string marker_value;
         if (fs::exists(managed_marker)) {
@@ -195,7 +330,8 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
             marker_value.assign(std::istreambuf_iterator<char>(marker), {});
         }
         const bool reusable_environment = fs::exists(environment.venv_dir / "pyvenv.cfg") &&
-                                          marker_value == "python=" + config.python_version + "\n";
+                                           fs::is_regular_file(virtualenv_python(paths)) &&
+                                           marker_value == "python=" + config.python_version + "\n";
         if (!reusable_environment) {
             if (!run_uv({"venv", "--relocatable", "--python", config.python_version, environment.venv_dir.generic_string()},
                         environment.variables)) {
@@ -205,9 +341,10 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
         }
     }
 
-    const auto compiled = requirements.parent_path() / ".baas-installer-requirements.txt";
     bool dependencies_installed = false;
-    for (const auto& index : default_sources(SourceKind::Pypi, config)) {
+    const auto pypi_sources = ranked_sources_for(SourceKind::Pypi, default_sources(SourceKind::Pypi, config),
+                                                  source_probe, observer, static_cast<bool>(terminal_executor));
+    for (const auto& index : pypi_sources) {
         auto variables = environment.variables;
         variables["UV_INDEX"] = index;
         variables["UV_DEFAULT_INDEX"] = index;
@@ -235,7 +372,13 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
             return false;
         }
     }
-    run_uv({"cache", "clean"}, environment.variables);
+    try {
+        save_dependency_stamp_atomic(make_dependency_stamp(paths, config, requirements, compiled), paths);
+    } catch (const std::exception& exception) {
+        error = std::string("dependency synchronization succeeded but its SHA stamp could not be written: ") +
+                exception.what();
+        return false;
+    }
     return true;
 }
 
