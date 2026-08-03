@@ -1,8 +1,10 @@
 import sys
 import io
+import json
 import shutil
 import os
 import platform
+import re
 import subprocess
 import time
 import tempfile
@@ -59,7 +61,7 @@ def _android_ocr_branch() -> Optional[str]:
 branch_map = {
     "win32": {"amd64": "windows-x64"},
     "linux": {"x86_64": "linux-x64"},
-    "darwin": {"arm64": "macos-arm64"},
+    "darwin": {"arm64": "macos-arm64", "x86_64": "macos-x64"},
 }
 TARGET_BRANCH = _android_ocr_branch()
 if TARGET_BRANCH is None:
@@ -384,6 +386,34 @@ class OcrRepoManager:
             raise OcrInternalError(f"Update failed: {e}")
 
 
+def should_skip_installer_managed_update() -> bool:
+    """Return whether a valid C++ installer handoff marker owns desktop OCR updates."""
+    if _is_android_runtime():
+        return False
+
+    marker_path = os.path.join(SERVER_BIN_DIR, ".baas-installer-managed.json")
+    try:
+        with open(marker_path, encoding="utf-8") as marker_file:
+            marker = json.load(marker_file)
+        commit = marker.get("commit", "")
+        if not (
+            marker.get("schema_version") == 1
+            and marker.get("managed_by") == "baas-installer"
+            and marker.get("branch") == TARGET_BRANCH
+            and isinstance(commit, str)
+            and re.fullmatch(r"[0-9a-fA-F]{40}", commit)
+            and os.path.isfile(_server_binary_path())
+        ):
+            return False
+
+        if os.path.isdir(os.path.join(SERVER_BIN_DIR, ".git")):
+            local_commit = str(pygit2.Repository(SERVER_BIN_DIR).head.target)
+            return local_commit.lower() == commit.lower()
+        return True
+    except Exception:
+        return False
+
+
 
 def check_git(logger):
     """
@@ -391,6 +421,10 @@ def check_git(logger):
     """
     if _is_android_runtime():
         _install_android_prebuild(logger)
+        return
+
+    if should_skip_installer_managed_update():
+        logger.info("OCR server was verified by the BAAS installer; skipping legacy network update.")
         return
 
     manager = OcrRepoManager(SERVER_BIN_DIR, OCR_SERVER_PREBUILD_URL, TARGET_BRANCH, logger)
