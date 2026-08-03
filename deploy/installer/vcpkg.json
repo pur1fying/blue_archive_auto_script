@@ -1,0 +1,12 @@
+{
+  "name": "baas-installer",
+  "version-string": "2.0.0",
+  "builtin-baseline": "39344dff01c5a5a0134caf2624cdd492f05d30ea",
+  "dependencies": [
+    "ftxui",
+    "curl",
+    "libgit2",
+    "nlohmann-json",
+    "libarchive"
+  ]
+}
