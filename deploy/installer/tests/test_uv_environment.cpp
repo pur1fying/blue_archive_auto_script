@@ -24,6 +24,44 @@ std::filesystem::path venv_python(const baas_installer::InstallPaths& paths) {
 #endif
 }
 
+std::vector<std::filesystem::path> disposable_uv_caches(
+    const baas_installer::InstallPaths& paths) {
+    return {
+        paths.toolkit_dir / "uv" / "cache",
+        paths.toolkit_dir / "uv" / "python-cache",
+        paths.toolkit_dir / "uv" / "xdg" / "cache",
+        paths.tmp_dir / "uv",
+    };
+}
+
+void seed_cache_sentinels(const baas_installer::InstallPaths& paths) {
+    for (const auto& directory : disposable_uv_caches(paths)) {
+        std::filesystem::create_directories(directory);
+        std::ofstream(directory / "download.cache") << "cached";
+    }
+}
+
+std::vector<std::filesystem::path> preserved_uv_state(const baas_installer::InstallPaths& paths) {
+    return {
+        paths.toolkit_dir / "uv" / "credentials" / "credentials.json",
+        paths.toolkit_dir / "uv" / "xdg" / "config" / "uv" / "config.toml",
+        paths.toolkit_dir / "uv" / "xdg" / "data" / "uv" / "state.json",
+    };
+}
+
+void seed_preserved_uv_state(const baas_installer::InstallPaths& paths) {
+    for (const auto& path : preserved_uv_state(paths)) {
+        std::filesystem::create_directories(path.parent_path());
+        std::ofstream(path) << "preserve";
+    }
+}
+
+bool cache_sentinels_exist(const baas_installer::InstallPaths& paths) {
+    const auto caches = disposable_uv_caches(paths);
+    return std::all_of(caches.begin(), caches.end(),
+        [](const auto& directory) { return std::filesystem::is_regular_file(directory / "download.cache"); });
+}
+
 }  // namespace
 
 int main() {
@@ -103,6 +141,7 @@ int main() {
     std::ofstream(baas_installer::dependency_requirements(test_paths)) << "example==1\n";
     std::vector<baas_installer::ProcessSpec> visible;
     int chunks = 0;
+    bool caches_available_during_compile = false;
     std::atomic<int> uv_probes{0};
     std::atomic<int> cpython_probes{0};
     std::atomic<int> pypi_probes{0};
@@ -120,6 +159,7 @@ int main() {
             std::ofstream(venv_python(test_paths)) << "venv python";
         }
         if (spec.arguments.size() > 2 && spec.arguments[1] == "pip" && spec.arguments[2] == "compile") {
+            caches_available_during_compile = cache_sentinels_exist(test_paths);
             std::ofstream(test_paths.root / ".baas-installer-requirements.txt") << "example==1.0\n";
         }
         if (spec.on_chunk) spec.on_chunk("pty chunk\r");
@@ -132,14 +172,34 @@ int main() {
         return 10LL;
     };
     std::string sync_error;
+    seed_cache_sentinels(test_paths);
+    seed_preserved_uv_state(test_paths);
+    std::filesystem::create_directories(test_paths.state_dir);
+    std::ofstream(test_paths.state_dir / "uv-cache-cleanup-v1.pending") << "pending\n";
     const bool synced = baas_installer::sync_portable_uv(
         test_paths, config, sync_error,
         [&](std::string_view task, std::string_view backend, std::string_view chunk) {
             if (task == "uv" && backend == "uv" && !chunk.empty()) ++chunks;
         }, fake_terminal, fake_probe);
-    if (!synced || visible.size() != 4 || chunks != 4 || uv_probes.load() != 0 ||
+    if (!synced || visible.size() != 4 || chunks != 4 || !caches_available_during_compile || uv_probes.load() != 0 ||
         cpython_probes.load() == 0 || pypi_probes.load() == 0) {
-        std::cerr << "visible uv commands did not use the shared PTY observer\n"; return 1;
+        std::cerr << "visible uv commands did not use the shared PTY observer or stale pending state cleared retry caches\n";
+        return 1;
+    }
+    const auto successful_caches = disposable_uv_caches(test_paths);
+    const auto durable_uv_state = preserved_uv_state(test_paths);
+    if (std::any_of(successful_caches.begin(), successful_caches.end(),
+            [](const auto& directory) { return std::filesystem::exists(directory); }) ||
+        !std::filesystem::is_regular_file(test_environment.executable) ||
+        !std::filesystem::is_regular_file(managed_python(test_paths)) ||
+        !std::filesystem::is_directory(test_paths.venv_dir) ||
+        !std::filesystem::is_regular_file(test_paths.root / ".baas-installer-requirements.txt") ||
+        !std::filesystem::is_regular_file(test_paths.state_dir / "source-ranking-v1.json") ||
+        !std::filesystem::is_regular_file(test_paths.state_dir / "dependencies-v1.sha256") ||
+        !std::all_of(durable_uv_state.begin(), durable_uv_state.end(),
+            [](const auto& path) { return std::filesystem::is_regular_file(path); })) {
+        std::cerr << "successful dependency synchronization retained disposable UV caches or removed durable state\n";
+        return 1;
     }
     for (const auto& spec : visible) {
         if (!spec.use_pty || spec.working_directory != test_paths.root || spec.environment.empty() ||
@@ -158,11 +218,24 @@ int main() {
     visible.clear();
     chunks = 0;
     uv_probes = cpython_probes = pypi_probes = 0;
+    seed_cache_sentinels(test_paths);
     if (!baas_installer::sync_portable_uv(test_paths, config, sync_error,
             [&](std::string_view, std::string_view, std::string_view) { ++chunks; }, fake_terminal, fake_probe) ||
         !visible.empty() || chunks == 0 || uv_probes.load() != 0 || cpython_probes.load() != 0 ||
-        pypi_probes.load() != 0) {
+        pypi_probes.load() != 0 || !cache_sentinels_exist(test_paths)) {
         std::cerr << "an unchanged managed environment should skip every uv command and source probe\n";
+        return 1;
+    }
+    const auto cleanup_pending = test_paths.state_dir / "uv-cache-cleanup-v1.pending";
+    std::ofstream(cleanup_pending) << "pending\n";
+    visible.clear();
+    chunks = 0;
+    if (!baas_installer::sync_portable_uv(test_paths, config, sync_error,
+            [&](std::string_view, std::string_view, std::string_view) { ++chunks; }, fake_terminal, fake_probe) ||
+        !visible.empty() || std::any_of(successful_caches.begin(), successful_caches.end(),
+            [](const auto& directory) { return std::filesystem::exists(directory); }) ||
+        std::filesystem::exists(cleanup_pending)) {
+        std::cerr << "pending UV cache cleanup must be retried before a dependency SHA cache hit\n";
         return 1;
     }
 
@@ -201,6 +274,47 @@ int main() {
         return 1;
     }
     std::filesystem::remove_all(test_root, ignored);
+
+    const auto failure_root = std::filesystem::temp_directory_path() / "baas-installer-uv-failure-cache-test";
+    std::filesystem::remove_all(failure_root, ignored);
+    const auto failure_paths = baas_installer::InstallPaths::from_executable(
+        failure_root / "BlueArchiveAutoScript.exe");
+    baas_installer::InstallerConfig failure_config;
+    failure_config.runtime_path = "D:/Custom Python/python.exe";
+    const auto failure_uv = baas_installer::make_uv_environment(failure_paths, failure_config);
+    std::filesystem::create_directories(failure_uv.executable.parent_path());
+    std::ofstream(failure_uv.executable) << "fake";
+    std::ofstream(baas_installer::dependency_requirements(failure_paths)) << "example==1\n";
+    seed_cache_sentinels(failure_paths);
+    const auto failed_compile_executor = [&](const baas_installer::ProcessSpec& spec) {
+        if (spec.arguments.size() > 2 && spec.arguments[1] == "pip" && spec.arguments[2] == "compile") {
+            return baas_installer::ProcessResult{1, {}};
+        }
+        return baas_installer::ProcessResult{0, {}};
+    };
+    if (baas_installer::sync_portable_uv(
+            failure_paths, failure_config, sync_error, {}, failed_compile_executor, fake_probe) ||
+        !cache_sentinels_exist(failure_paths)) {
+        std::cerr << "failed dependency compilation must retain disposable UV caches for retry\n";
+        return 1;
+    }
+    const auto failed_sync_executor = [&](const baas_installer::ProcessSpec& spec) {
+        if (spec.arguments.size() > 2 && spec.arguments[1] == "pip" && spec.arguments[2] == "compile") {
+            std::ofstream(failure_paths.root / ".baas-installer-requirements.txt") << "example==1.0\n";
+            return baas_installer::ProcessResult{0, {}};
+        }
+        if (spec.arguments.size() > 2 && spec.arguments[1] == "pip" && spec.arguments[2] == "sync") {
+            return baas_installer::ProcessResult{1, {}};
+        }
+        return baas_installer::ProcessResult{0, {}};
+    };
+    if (baas_installer::sync_portable_uv(
+            failure_paths, failure_config, sync_error, {}, failed_sync_executor, fake_probe) ||
+        !cache_sentinels_exist(failure_paths)) {
+        std::cerr << "failed dependency synchronization must retain disposable UV caches for retry\n";
+        return 1;
+    }
+    std::filesystem::remove_all(failure_root, ignored);
 
     const auto custom_root = std::filesystem::temp_directory_path() / "baas-installer-uv-custom-test";
     std::filesystem::remove_all(custom_root, ignored);

@@ -6,6 +6,7 @@
 #include "baas_installer/sources.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <fstream>
 
@@ -232,6 +233,64 @@ ProcessResult run_visible(const std::vector<std::string>& arguments,
     return executor ? executor(spec) : run_terminal_process(spec);
 }
 
+bool clear_uv_download_caches(const InstallPaths& paths, const UvEnvironment& environment,
+                              std::string& error) {
+    const std::array directories{
+        environment.cache_dir,
+        paths.toolkit_dir / "uv" / "python-cache",
+        paths.toolkit_dir / "uv" / "xdg" / "cache",
+        paths.tmp_dir / "uv",
+    };
+    for (const auto& directory : directories) {
+        std::error_code remove_error;
+        fs::remove_all(directory, remove_error);
+        if (remove_error) {
+            error = "dependency synchronization succeeded but UV cache cleanup failed for '" +
+                    directory.generic_string() + "': " + remove_error.message();
+            return false;
+        }
+    }
+    return true;
+}
+
+fs::path uv_cache_cleanup_marker(const InstallPaths& paths) {
+    return paths.state_dir / "uv-cache-cleanup-v1.pending";
+}
+
+bool persist_uv_cache_cleanup_marker(const InstallPaths& paths, std::string& error) {
+    std::error_code create_error;
+    fs::create_directories(paths.state_dir, create_error);
+    if (create_error) {
+        error = "dependency synchronization succeeded but UV cache cleanup could not be scheduled: " +
+                create_error.message();
+        return false;
+    }
+    std::ofstream marker(uv_cache_cleanup_marker(paths), std::ios::binary | std::ios::trunc);
+    marker << "pending\n";
+    marker.close();
+    if (!marker) {
+        error = "dependency synchronization succeeded but UV cache cleanup marker could not be written";
+        return false;
+    }
+    return true;
+}
+
+bool remove_uv_cache_cleanup_marker(const InstallPaths& paths, std::string& error) {
+    std::error_code remove_error;
+    fs::remove(uv_cache_cleanup_marker(paths), remove_error);
+    if (remove_error) {
+        error = "UV cache cleanup marker could not be removed: " + remove_error.message();
+        return false;
+    }
+    return true;
+}
+
+bool complete_uv_cache_cleanup(const InstallPaths& paths, const UvEnvironment& environment,
+                               std::string& error) {
+    if (!clear_uv_download_caches(paths, environment, error)) return false;
+    return remove_uv_cache_cleanup_marker(paths, error);
+}
+
 }  // namespace
 
 UvEnvironment make_uv_environment(const InstallPaths& paths, const InstallerConfig& config) {
@@ -356,6 +415,15 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
     const auto compiled = requirements.parent_path() / ".baas-installer-requirements.txt";
     if (!repair_managed_venv_after_move(paths, config, error)) return false;
     const auto dependency_state = inspect_dependency_state(paths, config, requirements, compiled);
+    if (fs::exists(uv_cache_cleanup_marker(paths))) {
+        if (dependency_state.cache_hit) {
+            if (!complete_uv_cache_cleanup(paths, environment, error)) return false;
+            if (observer) observer("uv", "cache", "Pending UV cache cleanup completed\n");
+        } else {
+            if (!remove_uv_cache_cleanup_marker(paths, error)) return false;
+            if (observer) observer("uv", "cache", "Stale UV cache cleanup marker cleared; retry cache retained\n");
+        }
+    }
     if (dependency_state.cache_hit) {
         if (observer) observer("uv", "cache", "Dependency SHA unchanged; uv skipped\n");
         return true;
@@ -465,6 +533,7 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
             return false;
         }
     }
+    if (!persist_uv_cache_cleanup_marker(paths, error)) return false;
     try {
         save_dependency_stamp_atomic(make_dependency_stamp(paths, config, requirements, compiled), paths);
     } catch (const std::exception& exception) {
@@ -472,6 +541,8 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
                 exception.what();
         return false;
     }
+    if (!complete_uv_cache_cleanup(paths, environment, error)) return false;
+    if (observer) observer("uv", "cache", "Disposable UV caches cleared\n");
     return true;
 }
 

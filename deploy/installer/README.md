@@ -24,6 +24,8 @@ The default package manager is uv. The managed uv executable, Python distributio
 
 Successful dependency synchronization records a portable SHA-256 stamp at `.baas-installer/dependencies-v1.sha256`. When requirements, the compiled lock, Python version, and managed environment still match, later runs skip uv and all download benchmarks. Moving or renaming the whole installation repairs installer-managed virtual-environment paths before this cache check; external custom runtimes are never rewritten.
 
+After a real dependency compile and sync succeeds, the installer removes the installation-local uv package cache, Python download cache, XDG cache, and uv temporary directory. The uv executable, installed Python, virtual environment, source ranking, compiled requirements, and dependency stamp remain in place. A dependency-SHA cache hit does not touch cache contents. An interrupted or failed cleanup leaves a small pending marker and is retried before a later SHA cache hit can skip uv.
+
 When a download is actually required, the installer benchmarks only that source family. uv and CPython include the CNB release mirrors, while uv, CPython, and PyPI retain their configured GitHub, Gitee, and proxy fallbacks. Probes run concurrently and successful sources are attempted in measured order. The retired `baas-cdn.kiramei.workers.dev` endpoint is not used.
 
 ## Build and test
