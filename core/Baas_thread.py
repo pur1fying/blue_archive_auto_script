@@ -433,7 +433,7 @@ class Baas_thread:
         if msg == "start":
             if self.button_signal is not None:
                 self.button_signal.emit("停止")
-            self.thread_starter()
+            return self.thread_starter()
         elif msg == "stop":
             if self.button_signal is not None:
                 self.button_signal.emit("启动")
@@ -479,7 +479,7 @@ class Baas_thread:
                         if not self.solve(task):
                             self.signal_stop()
                             notify(title='', body='任务已停止')
-                            return
+                            return False
                         if flg:
                             currentTaskNextTime = self.next_time
 
@@ -502,7 +502,8 @@ class Baas_thread:
                         self.handle_then()
         except Exception as e:
             self.logger.error(traceback.format_exc())
-            return
+            return False
+        return True
 
     def genScheduleLog(self, task):
         self.logger.info("Scheduler : {")
