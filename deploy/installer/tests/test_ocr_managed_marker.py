@@ -17,7 +17,7 @@ class FakeRepository:
         self.head = FakeHead()
 
 
-module_names = ("pygit2", "pygit2.enums", "core.exception")
+module_names = ("pygit2", "pygit2.enums", "requests", "core.exception")
 saved_modules = {name: sys.modules.get(name) for name in module_names}
 
 fake_pygit2 = types.ModuleType("pygit2")
@@ -29,6 +29,7 @@ fake_pygit2_enums = types.ModuleType("pygit2.enums")
 fake_pygit2_enums.ResetMode = types.SimpleNamespace(HARD="hard")
 sys.modules["pygit2"] = fake_pygit2
 sys.modules["pygit2.enums"] = fake_pygit2_enums
+sys.modules["requests"] = types.ModuleType("requests")
 
 core_exception = types.ModuleType("core.exception")
 core_exception.OcrInternalError = RuntimeError
