@@ -367,19 +367,13 @@ void save_setup_location_pointer_atomic(const InstallPaths& paths) {
         }
     }
 
-    std::error_code relative_error;
-    auto stored_path = fs::relative(paths.setup_toml, paths.root, relative_error);
-    std::string base = "install_root";
-    if (relative_error || stored_path.empty()) {
-        stored_path = fs::absolute(paths.setup_toml).lexically_normal();
-        base = "absolute";
-    }
+    const auto stored_path = fs::absolute(paths.setup_toml).lexically_normal();
     auto portable_path = path_to_utf8(stored_path);
     std::replace(portable_path.begin(), portable_path.end(), '\\', '/');
     const nlohmann::json document{
         {"schema_version", 1},
         {"managed_by", "baas-installer"},
-        {"base", base},
+        {"base", "absolute"},
         {"path", portable_path},
     };
 

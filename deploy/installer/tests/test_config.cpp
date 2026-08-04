@@ -148,6 +148,14 @@ cpp_sources = ['https://current.example/ocr.git']
         fixture / "pointer-target", fixture / "pointer-launcher" / "BlueArchiveAutoScript.exe");
     std::filesystem::create_directories(pointer_paths.state_dir);
     const auto pointer = pointer_paths.state_dir / "setup-location-v1.json";
+    baas_installer::save_setup_location_pointer_atomic(pointer_paths);
+    std::ifstream managed_pointer_input(pointer);
+    const std::string managed_pointer{std::istreambuf_iterator<char>(managed_pointer_input), {}};
+    const auto expected_setup_path = std::filesystem::absolute(pointer_paths.setup_toml)
+                                         .lexically_normal().generic_string();
+    if (!require(managed_pointer.find("\"base\":\"absolute\"") != std::string::npos &&
+                     managed_pointer.find(expected_setup_path) != std::string::npos,
+                 "setup location pointer did not use an absolute path")) return 1;
     std::ofstream(pointer) << "user-owned pointer contents";
     bool pointer_refused = false;
     try {

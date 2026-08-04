@@ -26,6 +26,7 @@ int main() {
     std::mutex event_mutex;
     bool setup_seen_before_prepare = false;
     bool setup_pointer_seen_before_prepare = false;
+    const auto expected_setup_pointer_path = fs::absolute(paths.setup_toml).lexically_normal().generic_string();
     write(paths.state_dir / "setup-location-v1.json",
           R"({"schema_version":1,"managed_by":"baas-installer","base":"absolute","path":"C:/stale/setup.toml"})");
     baas_installer::WorkflowServices services;
@@ -36,7 +37,8 @@ int main() {
             persisted.main_sha == "main-v1" && persisted.ocr_sha == "ocr-v1";
         std::ifstream pointer_input(paths.state_dir / "setup-location-v1.json");
         const std::string pointer{std::istreambuf_iterator<char>(pointer_input), {}};
-        setup_pointer_seen_before_prepare = pointer.find("../setup.toml") != std::string::npos &&
+        setup_pointer_seen_before_prepare = pointer.find("\"base\":\"absolute\"") != std::string::npos &&
+            pointer.find(expected_setup_pointer_path) != std::string::npos &&
             pointer.find("C:/stale/setup.toml") == std::string::npos;
         write(transaction.main_staging_path() / "main.txt", "main");
         { std::lock_guard lock(event_mutex); events.push_back("prepared-main"); }
@@ -79,8 +81,8 @@ int main() {
         marker.find("\"branch\":\"windows-x64\"") != std::string::npos &&
         marker.find("\"commit\":\"0123456789012345678901234567890123456789\"") != std::string::npos &&
         setup_pointer.find("\"managed_by\":\"baas-installer\"") != std::string::npos &&
-        setup_pointer.find("\"base\":\"install_root\"") != std::string::npos &&
-        setup_pointer.find("../setup.toml") != std::string::npos;
+        setup_pointer.find("\"base\":\"absolute\"") != std::string::npos &&
+        setup_pointer.find(expected_setup_pointer_path) != std::string::npos;
     if (!order) { std::cerr << "workflow order failed\n"; return 1; }
 
     auto failing_paths = baas_installer::InstallPaths::from_executable(fixture / "rollback" / "BlueArchiveAutoScript.exe");
