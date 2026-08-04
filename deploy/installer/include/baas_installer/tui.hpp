@@ -85,13 +85,14 @@ using TuiInstallAction = std::function<InstallAttemptResult(
 using TuiTargetAction = std::function<std::pair<bool, std::string>(const std::filesystem::path&)>;
 
 bool configure_utf8_terminal();
-std::string task_marker(TaskStatus status);
+std::string task_marker(TaskStatus status, std::size_t spinner_frame = 0);
 MirrorRecoveryState mirror_failure_recovery(MirrorRecoveryAction action);
 void apply_workflow_progress(InstallerViewModel& model, const std::string& task, const std::string& detail);
 ftxui::Element render_setup_view(const InstallerSnapshot& snapshot, Language language,
                                  ftxui::Element controls, int width, int height);
 ftxui::Element render_installation_view(const InstallerSnapshot& snapshot, Language language,
-                                        ftxui::Element footer, int width, int height);
+                                        ftxui::Element footer, int width, int height,
+                                        std::size_t spinner_frame = 0);
 ftxui::Element render_install_target_view(Language language, ftxui::Element controls,
                                           const std::string& error, int width, int height);
 ftxui::Element render_mirror_failure_modal(ftxui::Element background, Language language,

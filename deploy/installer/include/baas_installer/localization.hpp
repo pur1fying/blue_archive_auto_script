@@ -37,6 +37,8 @@ enum class MessageId {
     StateFailed,
     InstallDirectoryTitle,
     InstallDirectoryHint,
+    InstallDirectoryRelativeSample,
+    InstallDirectoryAbsoluteSample,
     LaunchFailed,
     MirrorFailureTitle,
     MirrorFailureHint,

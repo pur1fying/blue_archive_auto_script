@@ -20,7 +20,13 @@ constexpr std::array<const char*, message_count> english{
     "Main repository", "OCR component", "Deployment", "Python / uv", "Verification", "Launch BAAS",
     "Waiting", "Checking", "Downloading", "Applying", "Complete", "Failed",
     "Choose a dedicated installation directory",
-    "Only a new, empty, or recognized BAAS directory is accepted. Unknown files are never removed.",
+    "Only a new, empty, or recognized BAAS directory is accepted.",
+    "Relative example: BAAS",
+#ifdef _WIN32
+    R"(Absolute example: D:\Games\BAAS)",
+#else
+    "Absolute example: /home/user/BAAS",
+#endif
     "Installation succeeded, but BAAS could not be launched",
     "MirrorChyan installation failed",
     "MirrorChyan will not fall back to Git. Re-enter the CDK or return to installation settings.",
@@ -33,7 +39,13 @@ constexpr std::array<const char*, message_count> chinese{
     "主仓库", "OCR 组件", "文件部署", "Python / uv", "完整性检查", "启动 BAAS",
     "等待中", "正在检查", "正在下载", "正在应用", "已完成", "失败",
     "选择专用安装目录",
-    "仅允许新目录、空目录或可识别的 BAAS 目录；绝不会删除未知文件。",
+    "仅允许新目录、空目录或可识别的 BAAS 目录。",
+    "相对路径示例：BAAS",
+#ifdef _WIN32
+    R"(绝对路径示例：D:\Games\BAAS)",
+#else
+    "绝对路径示例：/home/user/BAAS",
+#endif
     "安装成功，但无法启动 BAAS",
     "MirrorChyan 安装失败",
     "MirrorChyan 不会回退到 Git。请重新填写 CDK，或返回安装设置。",

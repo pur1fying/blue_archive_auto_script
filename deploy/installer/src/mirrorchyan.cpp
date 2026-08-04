@@ -57,7 +57,7 @@ std::string url_encode(const std::string& value) {
     return out.str();
 }
 
-fs::path path_from_utf8(const std::string& value) {
+fs::path archive_path_from_utf8(const std::string& value) {
 #ifdef _WIN32
     if (value.empty()) return {};
     const int size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, value.data(), static_cast<int>(value.size()), nullptr, 0);
@@ -90,7 +90,7 @@ bool normalize_change_path(const std::string& encoded, const fs::path& source_ro
         error = "incremental manifest contains an absolute path";
         return false;
     }
-    const auto raw = path_from_utf8(portable);
+    const auto raw = archive_path_from_utf8(portable);
     if (raw.empty() || raw.is_absolute() || raw.has_root_name()) {
         error = "incremental manifest contains an invalid path";
         return false;
@@ -343,7 +343,7 @@ bool validate_archive_entries(const std::vector<std::string>& entries, std::stri
             error = "archive contains an absolute path";
             return false;
         }
-        const auto path = path_from_utf8(portable);
+        const auto path = archive_path_from_utf8(portable);
         if (path.empty() || path.is_absolute() || path.has_root_name()) {
             error = "archive contains an invalid path";
             return false;
@@ -397,7 +397,7 @@ bool extract_mirror_archive(const fs::path& archive, const fs::path& destination
     while ((header_status = archive_read_next_header(reader, &entry)) == ARCHIVE_OK) {
         fs::path relative;
 #ifdef _WIN32
-        if (const auto* utf8 = archive_entry_pathname_utf8(entry)) relative = path_from_utf8(utf8);
+        if (const auto* utf8 = archive_entry_pathname_utf8(entry)) relative = archive_path_from_utf8(utf8);
         else if (const auto* wide = archive_entry_pathname_w(entry)) relative = fs::path(wide);
 #else
         if (const auto* utf8 = archive_entry_pathname_utf8(entry)) relative = fs::path(utf8);

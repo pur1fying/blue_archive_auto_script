@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <clocale>
 #include <ctime>
 #include <iomanip>
@@ -262,10 +263,13 @@ bool configure_utf8_terminal() {
 #endif
 }
 
-std::string task_marker(const TaskStatus status) {
+std::string task_marker(const TaskStatus status, const std::size_t spinner_frame) {
+    static constexpr const char* spinner_frames[]{
+        "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏",
+    };
     switch (status) {
         case TaskStatus::Pending: return "○";
-        case TaskStatus::Running: return " ";
+        case TaskStatus::Running: return spinner_frames[spinner_frame % 10];
         case TaskStatus::Succeeded: return "✓";
         case TaskStatus::Failed: return "×";
     }
@@ -321,13 +325,13 @@ ftxui::Element project_header(const Language language, const int width) {
     }) | size(WIDTH, EQUAL, std::max(1, width - 2));
 }
 
-ftxui::Element task_row(const TaskSnapshot& task) {
+ftxui::Element task_row(const TaskSnapshot& task, const std::size_t spinner_frame) {
     using namespace ftxui;
     Color tint = Color::GrayDark;
     if (task.status == TaskStatus::Running) tint = Color::Cyan;
     else if (task.status == TaskStatus::Succeeded) tint = Color::Green;
     else if (task.status == TaskStatus::Failed) tint = Color::Red;
-    Elements row{text(task_marker(task.status)) | color(tint), text("  " + task.label) | bold, filler(),
+    Elements row{text(task_marker(task.status, spinner_frame)) | color(tint), text("  " + task.label) | bold, filler(),
                  text(task.detail) | dim};
     if (task.progress >= 0) row.push_back(text("  "));
     if (task.progress >= 0) row.push_back(gauge(task.progress) | color(tint) | size(ftxui::WIDTH, ftxui::EQUAL, 18));
@@ -361,11 +365,12 @@ ftxui::Element render_setup_view(const InstallerSnapshot&, const Language langua
 }
 
 ftxui::Element render_installation_view(const InstallerSnapshot& snapshot, const Language language,
-                                        ftxui::Element footer, const int width, const int height) {
+                                        ftxui::Element footer, const int width, const int height,
+                                        const std::size_t spinner_frame) {
     using namespace ftxui;
     Elements rows;
     for (const auto& id : {"main", "ocr", "deployment", "verify", "uv", "launch"}) {
-        rows.push_back(task_row(snapshot.tasks.at(id)));
+        rows.push_back(task_row(snapshot.tasks.at(id), spinner_frame));
     }
     const auto visible_lines = static_cast<std::size_t>(std::max(3, height - 23));
     const auto end = snapshot.log_lines.size() - std::min(snapshot.log_scroll, snapshot.log_lines.size());
@@ -402,6 +407,8 @@ ftxui::Element render_install_target_view(const Language language, ftxui::Elemen
         separator(),
         text(message(language, MessageId::InstallDirectoryTitle)) | bold,
         paragraph(message(language, MessageId::InstallDirectoryHint)) | dim,
+        text(message(language, MessageId::InstallDirectoryRelativeSample)) | dim,
+        text(message(language, MessageId::InstallDirectoryAbsoluteSample)) | dim,
         std::move(controls) | flex,
     };
     if (!error.empty()) content.push_back(paragraph(error) | color(Color::RedLight));
@@ -483,6 +490,8 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
     int failure_controls_tab = 0;
     bool mirror_failure_visible = false;
     std::thread worker;
+    std::atomic<std::size_t> spinner_frame{0};
+    std::atomic<bool> spinner_active{true};
 
     auto wake = [&] { screen.PostEvent(Event::Custom); };
     auto exit_loop = screen.ExitLoopClosure();
@@ -567,11 +576,22 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
             footer = hbox({gauge(aggregate_progress(state)) | color(Color::Cyan) | flex});
         }
         auto installation = render_installation_view(
-            state, language, std::move(footer), screen.dimx(), screen.dimy());
+            state, language, std::move(footer), screen.dimx(), screen.dimy(), spinner_frame.load());
         if (!mirror_failure_visible) return installation;
         auto modal_controls = hbox({reenter_cdk->Render(), text("  "), back_settings->Render()}) | center;
         return render_mirror_failure_modal(std::move(installation), language, state.error,
                                            std::move(modal_controls), screen.dimx(), screen.dimy());
+    });
+
+    std::thread spinner([&] {
+        while (spinner_active.load()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if (!spinner_active.load()) break;
+            if (running.load()) {
+                spinner_frame.fetch_add(1);
+                screen.PostEvent(Event::Custom);
+            }
+        }
     });
 
     auto interactive = CatchEvent(renderer, [&](const Event& event) {
@@ -586,6 +606,8 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
     });
     if (!setup_required) start_install();
     screen.Loop(interactive);
+    spinner_active = false;
+    if (spinner.joinable()) spinner.join();
     if (worker.joinable()) worker.join();
     return succeeded ? 0 : 1;
 }

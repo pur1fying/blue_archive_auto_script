@@ -62,8 +62,11 @@ int main() {
         chinese.snapshot().tasks.at("main").label != "主仓库") {
         std::cerr << "task labels must follow the selected system language\n"; return 1;
     }
-    if (baas_installer::task_marker(baas_installer::TaskStatus::Running) != " ") {
-        std::cerr << "running tasks must not use an animated spinner or glyph\n"; return 1;
+    if (baas_installer::task_marker(baas_installer::TaskStatus::Running, 0) != "⠋" ||
+        baas_installer::task_marker(baas_installer::TaskStatus::Running, 1) != "⠙" ||
+        baas_installer::task_marker(baas_installer::TaskStatus::Running, 10) != "⠋" ||
+        baas_installer::task_marker(baas_installer::TaskStatus::Succeeded, 4) != "✓") {
+        std::cerr << "task markers must animate only the running state and wrap frames\n"; return 1;
     }
 
     auto english_screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
@@ -121,11 +124,33 @@ int main() {
         "unsafe target refused", 100, 40);
     ftxui::Render(target_screen, target_view);
     const auto target_rendered = screen_text(target_screen);
+#ifdef _WIN32
+    const std::string expected_absolute_sample = R"(Absolute example: D:\Games\BAAS)";
+#else
+    const std::string expected_absolute_sample = "Absolute example: /home/user/BAAS";
+#endif
+    const auto target_has = [&](const std::string& value) {
+        return target_rendered.find(value) != std::string::npos;
+    };
     if (target_screen.at(0, 0) == " " || target_screen.at(99, 39) == " " ||
-        target_rendered.find("Choose a dedicated installation directory") == std::string::npos ||
-        target_rendered.find("C:/Users/example/Downloads/BAAS") == std::string::npos ||
-        target_rendered.find("unsafetargetrefused") == std::string::npos) {
-        std::cerr << "installation-target TUI did not fill the screen or expose path validation\n";
+        !target_has("Choose a dedicated installation directory") ||
+        !target_has("Relative example: BAAS") ||
+        !target_has(expected_absolute_sample) ||
+        !target_has("C:/Users/example/Downloads/BAAS") ||
+        !target_has("unsafetargetrefused")) {
+        std::cerr << "installation-target TUI missing: title="
+                  << target_has("Choose a dedicated installation directory")
+                  << " relative=" << target_has("Relative example: BAAS")
+                  << " absolute=" << target_has(expected_absolute_sample)
+                  << " controls=" << target_has("C:/Users/example/Downloads/BAAS")
+                  << " error=" << target_has("unsafetargetrefused")
+                  << " relative_text='"
+                  << baas_installer::message(baas_installer::Language::English,
+                                             baas_installer::MessageId::InstallDirectoryRelativeSample)
+                  << "' absolute_text='"
+                  << baas_installer::message(baas_installer::Language::English,
+                                             baas_installer::MessageId::InstallDirectoryAbsoluteSample)
+                  << "'\n";
         return 1;
     }
     if (baas_installer::message(baas_installer::Language::SimplifiedChinese,
@@ -173,11 +198,12 @@ int main() {
 
     auto installation_screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
     auto installation_view = baas_installer::render_installation_view(
-        english.snapshot(), baas_installer::Language::English, ftxui::text("footer"), 100, 40);
+        english.snapshot(), baas_installer::Language::English, ftxui::text("footer"), 100, 40, 1);
     ftxui::Render(installation_screen, installation_view);
     const auto installation_rendered = screen_text(installation_screen);
     if (installation_screen.at(0, 0) == " " || installation_screen.at(99, 0) == " " ||
         installation_screen.at(0, 39) == " " || installation_screen.at(99, 39) == " " ||
+        installation_rendered.find("⠙") == std::string::npos ||
         installation_rendered.find("history-02") == std::string::npos ||
         installation_rendered.find("history-18") == std::string::npos ||
         installation_rendered.find("history-01") != std::string::npos ||
