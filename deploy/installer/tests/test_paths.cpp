@@ -30,8 +30,8 @@ int main() {
     assert(split.root == launcher / "BAAS");
     assert(split.setup_toml == launcher / "setup.toml");
     assert(split.tmp_dir == split.root / "tmp");
-    const auto unicode = launcher / std::filesystem::path(L"蔚蓝档案") /
-                         std::filesystem::path(L"安装目录");
+    const auto unicode = launcher / baas_installer::path_from_utf8("蔚蓝档案") /
+                         baas_installer::path_from_utf8("安装目录");
     assert(baas_installer::path_from_utf8(baas_installer::path_to_utf8(unicode)) == unicode);
     return 0;
 }

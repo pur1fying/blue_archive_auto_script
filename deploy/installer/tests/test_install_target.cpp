@@ -24,7 +24,7 @@ int fail(const std::string& message) {
 
 int main() {
     const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
-    const auto fixture = fs::temp_directory_path() /
+    const auto fixture = fs::weakly_canonical(fs::temp_directory_path()) /
                          ("baas-installer-target-" + std::to_string(nonce));
     const auto launcher = fixture / "launcher";
     const auto source = launcher / "BAAS-Installer.exe";
@@ -117,7 +117,8 @@ int main() {
     }
 
     fs::remove_all(launcher / "nested");
-    const auto unicode_target = launcher / fs::path(L"蔚蓝档案") / fs::path(L"安装目录");
+    const auto unicode_target = launcher / baas_installer::path_from_utf8("蔚蓝档案") /
+                                baas_installer::path_from_utf8("安装目录");
     const auto unicode_result = baas_installer::validate_install_target(source, unicode_target);
     if (unicode_result.accepted || unicode_result.error.find("Qt") == std::string::npos ||
         fs::exists(unicode_target)) {

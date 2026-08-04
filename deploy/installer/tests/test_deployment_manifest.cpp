@@ -26,7 +26,8 @@ int main() {
 
     const baas_installer::DeploymentFileSet main_files{
         fs::path("main.py"), fs::path("module") / "feature.py",
-        fs::path(L"资源") / fs::path(L"中文文件.json")};
+        baas_installer::path_from_utf8("资源") /
+            baas_installer::path_from_utf8("中文文件.json")};
     baas_installer::save_deployment_manifest_atomic(
         paths, baas_installer::DeploymentTree::Main, main_files);
     const auto loaded = baas_installer::load_deployment_manifest(

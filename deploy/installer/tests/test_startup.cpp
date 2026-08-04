@@ -23,7 +23,7 @@ int fail(const std::string& message) {
 
 int main() {
     const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
-    const auto fixture = fs::temp_directory_path() /
+    const auto fixture = fs::weakly_canonical(fs::temp_directory_path()) /
         ("baas-installer-startup-" + std::to_string(nonce));
     const auto source = fixture / "Downloads" / "BAAS-Installer.exe";
     write_file(source, "installer");
@@ -75,7 +75,7 @@ int main() {
         source, baas_installer::parse_startup_arguments({}));
     if (chinese_config.mode != baas_installer::StartupMode::Invalid ||
         chinese_config.error.find("Qt") == std::string::npos ||
-        fs::exists(source.parent_path() / fs::path(L"蔚蓝档案"))) {
+        fs::exists(source.parent_path() / baas_installer::path_from_utf8("蔚蓝档案"))) {
         return fail("a configured Chinese installation path was not rejected without filesystem changes");
     }
 
