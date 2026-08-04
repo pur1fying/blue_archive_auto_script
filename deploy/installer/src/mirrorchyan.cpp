@@ -137,11 +137,11 @@ MirrorRelease parse_mirror_response(const std::string& json) {
     result.message = string_field(json, "msg");
     switch (number_field(json, "code", -9999)) {
         case 0: result.status = CdkStatus::Valid; break;
-        case 1: result.status = CdkStatus::Invalid; break;
-        case 2: result.status = CdkStatus::Expired; break;
-        case 3: result.status = CdkStatus::Exhausted; break;
-        case 4: result.status = CdkStatus::Mismatched; break;
-        case 5: result.status = CdkStatus::Blocked; break;
+        case 7002: result.status = CdkStatus::Invalid; break;
+        case 7001: result.status = CdkStatus::Expired; break;
+        case 7003: result.status = CdkStatus::Exhausted; break;
+        case 7004: result.status = CdkStatus::Mismatched; break;
+        case 7005: result.status = CdkStatus::Blocked; break;
         default: result.status = CdkStatus::ServerError; break;
     }
     result.version = string_field(json, "version_name"); result.download_url = string_field(json, "url");
@@ -155,20 +155,23 @@ MirrorRelease parse_mirror_response(const std::string& json) {
 }
 
 std::string mirror_failure_reason(const MirrorRelease& release, const std::string& transport_error) {
-    if (!transport_error.empty()) return transport_error;
-    if (!release.message.empty()) return "MirrorChyan: " + release.message;
+    std::string reason;
     switch (release.status) {
-        case CdkStatus::Invalid: return "MirrorChyan rejected the CDK as invalid";
-        case CdkStatus::Expired: return "MirrorChyan CDK has expired";
-        case CdkStatus::Exhausted: return "MirrorChyan CDK quota is exhausted";
-        case CdkStatus::Mismatched: return "MirrorChyan CDK does not match this resource";
-        case CdkStatus::Blocked: return "MirrorChyan CDK is blocked";
-        case CdkStatus::Malformed: return "MirrorChyan returned a malformed response";
-        case CdkStatus::ServerError: return "MirrorChyan server request failed";
+        case CdkStatus::Invalid: reason = "MirrorChyan CDK is invalid"; break;
+        case CdkStatus::Expired: reason = "MirrorChyan CDK has expired"; break;
+        case CdkStatus::Exhausted: reason = "MirrorChyan CDK quota is exhausted"; break;
+        case CdkStatus::Mismatched: reason = "MirrorChyan CDK does not match this resource"; break;
+        case CdkStatus::Blocked: reason = "MirrorChyan CDK is blocked"; break;
+        case CdkStatus::Malformed: reason = "MirrorChyan returned a malformed response"; break;
+        case CdkStatus::ServerError:
+            if (!transport_error.empty()) return transport_error;
+            return release.message.empty() ? "MirrorChyan server request failed"
+                                           : "MirrorChyan server request failed: " + release.message;
         case CdkStatus::Valid:
         case CdkStatus::UpToDate: return "MirrorChyan package was unavailable";
     }
-    return "MirrorChyan installation failed";
+    if (!release.message.empty()) reason += ": " + release.message;
+    return reason;
 }
 
 RepositorySourceDecision repository_source_decision(const bool mirror_selected,
@@ -176,6 +179,10 @@ RepositorySourceDecision repository_source_decision(const bool mirror_selected,
     if (!mirror_selected) return RepositorySourceDecision::UseGit;
     return mirror_prepared ? RepositorySourceDecision::UseMirror
                            : RepositorySourceDecision::Fail;
+}
+
+bool mirror_manages_resource(const MirrorResource resource) {
+    return resource == MirrorResource::Main;
 }
 
 MirrorRelease request_mirror_release(const std::string& request_url, std::string& error, const long timeout_seconds) {
@@ -195,16 +202,25 @@ MirrorRelease request_mirror_release(const std::string& request_url, std::string
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_string);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout_seconds);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout_seconds);
     const auto status = curl_easy_perform(curl);
+    long http_status = 0;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_status);
     curl_easy_cleanup(curl);
+    auto release = response.empty() ? MirrorRelease{} : parse_mirror_response(response);
+    const bool classified_cdk_failure = release.status == CdkStatus::Invalid ||
+        release.status == CdkStatus::Expired || release.status == CdkStatus::Exhausted ||
+        release.status == CdkStatus::Mismatched || release.status == CdkStatus::Blocked;
+    if (classified_cdk_failure) return release;
     if (status != CURLE_OK) {
         error = "MirrorChyan request failed";
         MirrorRelease failed; failed.status = CdkStatus::ServerError; return failed;
     }
-    auto release = parse_mirror_response(response);
+    if (http_status >= 400) {
+        error = "MirrorChyan server request failed (HTTP " + std::to_string(http_status) + ")";
+        MirrorRelease failed; failed.status = CdkStatus::ServerError; return failed;
+    }
     if (release.status == CdkStatus::Malformed) error = "MirrorChyan returned a malformed response";
     return release;
 #else

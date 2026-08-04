@@ -50,6 +50,15 @@ std::string first_token(const std::string& output) {
     return token;
 }
 
+std::string trimmed_output(std::string output) {
+    while (!output.empty() && std::isspace(static_cast<unsigned char>(output.back()))) output.pop_back();
+    const auto first = std::find_if_not(output.begin(), output.end(), [](const unsigned char character) {
+        return std::isspace(character) != 0;
+    });
+    output.erase(output.begin(), first);
+    return output;
+}
+
 bool valid_commit(const std::string& value) {
     return value.size() == 40 && std::all_of(value.begin(), value.end(), [](const unsigned char character) {
         return std::isxdigit(character) != 0;
@@ -210,11 +219,18 @@ void mark_git_source_failure(const fs::path& ranking_cache, const SourceKind sou
 }
 
 bool valid_cli_repository(const fs::path& repository) {
-    const auto result = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "--is-inside-work-tree"});
-    return result.exit_code == 0 && first_token(result.output) == "true";
+    std::error_code metadata_error;
+    if (!fs::exists(repository / ".git", metadata_error) || metadata_error) return false;
+    const auto inside = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "--is-inside-work-tree"});
+    const auto top_level = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "--show-toplevel"});
+    if (inside.exit_code != 0 || first_token(inside.output) != "true" || top_level.exit_code != 0) return false;
+    const auto discovered = path_from_utf8(trimmed_output(top_level.output));
+    std::error_code equivalent_error;
+    return fs::equivalent(repository, discovered, equivalent_error) && !equivalent_error;
 }
 
 bool depth_one_cli_repository(const fs::path& repository) {
+    if (!valid_cli_repository(repository)) return false;
     const auto shallow = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "--is-shallow-repository"});
     const auto count = hidden_git({"git", "-C", path_to_utf8(repository), "rev-list", "--count", "HEAD"});
     return shallow.exit_code == 0 && first_token(shallow.output) == "true" &&
@@ -487,7 +503,10 @@ std::vector<std::pair<GitBackend, std::string>> git_attempt_order(
 }
 
 std::string repository_head(const fs::path& repository) {
+    std::error_code metadata_error;
+    if (!fs::exists(repository / ".git", metadata_error) || metadata_error) return {};
     if (git_cli_available()) {
+        if (!valid_cli_repository(repository)) return {};
         const auto result = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "HEAD"});
         if (result.exit_code == 0) return first_token(result.output);
     }

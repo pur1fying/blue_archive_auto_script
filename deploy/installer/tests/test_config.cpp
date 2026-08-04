@@ -103,6 +103,13 @@ cpp_sources = ['https://current.example/ocr.git']
     if (!require(saved.mirrorc_cdk == "verified-session-cdk" &&
                      baas_installer::load_config(paths).mirrorc_cdk == "verified-session-cdk",
                  "successful MirrorChyan CDK was not persisted")) return 1;
+    baas_installer::begin_install_session_config(saved, paths, "preflight-validated-cdk");
+    if (!require(saved.mirrorc_cdk == "preflight-validated-cdk" &&
+                     baas_installer::load_config(paths).mirrorc_cdk == "preflight-validated-cdk",
+                 "a preflight-validated CDK was not persisted when installation began")) return 1;
+    baas_installer::clear_mirror_cdk(saved, paths);
+    if (!require(saved.mirrorc_cdk.empty() && baas_installer::load_config(paths).mirrorc_cdk.empty(),
+                 "a failed MirrorChyan attempt left its CDK in setup.toml")) return 1;
     std::filesystem::remove_all(fixture, ignored);
     return 0;
 }

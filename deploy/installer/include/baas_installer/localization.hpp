@@ -44,6 +44,11 @@ enum class MessageId {
     MirrorFailureHint,
     ActionReenterCdk,
     ActionBackSettings,
+    ActionBack,
+    StateValidatingCdk,
+    CdkRequired,
+    ActionConfirm,
+    InstallDirectoryInvalidTitle,
 };
 
 Language detect_language(const LocaleInputs& inputs);

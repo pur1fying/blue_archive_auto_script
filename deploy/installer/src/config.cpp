@@ -322,7 +322,13 @@ void save_config_atomic(const InstallerConfig& config, const InstallPaths& paths
 #endif
 }
 
-void begin_install_session_config(InstallerConfig& config, const InstallPaths& paths) {
+void begin_install_session_config(InstallerConfig& config, const InstallPaths& paths,
+                                  const std::string& validated_cdk) {
+    config.mirrorc_cdk = validated_cdk;
+    save_config_atomic(config, paths);
+}
+
+void clear_mirror_cdk(InstallerConfig& config, const InstallPaths& paths) {
     config.mirrorc_cdk.clear();
     save_config_atomic(config, paths);
 }

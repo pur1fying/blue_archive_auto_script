@@ -43,6 +43,7 @@ struct MirrorRelease {
 MirrorRelease parse_mirror_response(const std::string& json);
 std::string mirror_failure_reason(const MirrorRelease& release, const std::string& transport_error);
 RepositorySourceDecision repository_source_decision(bool mirror_selected, bool mirror_prepared);
+bool mirror_manages_resource(MirrorResource resource);
 MirrorRelease request_mirror_release(const std::string& request_url, std::string& error, long timeout_seconds = 5);
 std::string mirror_latest_url(const std::string& cdk, const std::string& current_sha, const std::string& channel = "stable");
 std::string mirror_latest_url(MirrorResource resource, const std::string& os, const std::string& arch,

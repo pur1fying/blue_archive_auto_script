@@ -12,7 +12,7 @@
 namespace baas_installer {
 namespace {
 
-constexpr std::size_t message_count = static_cast<std::size_t>(MessageId::ActionBackSettings) + 1;
+constexpr std::size_t message_count = static_cast<std::size_t>(MessageId::InstallDirectoryInvalidTitle) + 1;
 
 constexpr std::array<const char*, message_count> english{
     "Welcome to BlueArchive Auto Script!", "Installation and migration tool", "Installation source", "Use MirrorChyan CDK", "Enter CDK",
@@ -30,7 +30,8 @@ constexpr std::array<const char*, message_count> english{
     "Installation succeeded, but BAAS could not be launched",
     "MirrorChyan installation failed",
     "MirrorChyan will not fall back to Git. Re-enter the CDK or return to installation settings.",
-    "Re-enter CDK", "Back to settings",
+    "Re-enter CDK", "Back to settings", "Back", "Validating CDK...", "Enter a MirrorChyan CDK",
+    "Confirm", "Invalid installation directory",
 };
 
 constexpr std::array<const char*, message_count> chinese{
@@ -49,7 +50,8 @@ constexpr std::array<const char*, message_count> chinese{
     "安装成功，但无法启动 BAAS",
     "MirrorChyan 安装失败",
     "MirrorChyan 不会回退到 Git。请重新填写 CDK，或返回安装设置。",
-    "重新填写 CDK", "返回安装设置",
+    "重新填写 CDK", "返回安装设置", "返回", "正在验证 CDK……", "请输入 MirrorChyan CDK",
+    "确定", "安装目录不合法",
 };
 
 std::string environment_value(const char* name) {

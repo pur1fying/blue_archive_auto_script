@@ -92,6 +92,7 @@ int main(int argc, char* argv[]) {
         std::cout << baas_installer::path_to_utf8(startup.target_root) << '\n';
         return 0;
     }
+    for (;;) {
     std::optional<baas_installer::InstallPaths> selected_paths;
     std::string selected_configured_root = startup.configured_root;
     if (startup.mode == baas_installer::StartupMode::SelectInstallTarget) {
@@ -124,6 +125,16 @@ int main(int argc, char* argv[]) {
     const bool first_start = !std::filesystem::exists(paths.setup_toml);
     auto config = baas_installer::load_config(paths);
     config.baas_root_path = selected_configured_root.empty() ? "." : selected_configured_root;
+    const auto validate_cdk = [&](const std::string& candidate) {
+        std::string error;
+        const auto url = baas_installer::mirror_latest_url(
+            baas_installer::MirrorResource::Main, {}, {}, candidate, {}, config.channel);
+        const auto release = baas_installer::request_mirror_release(url, error, 10);
+        const bool accepted = release.status == baas_installer::CdkStatus::Valid ||
+                              release.status == baas_installer::CdkStatus::UpToDate;
+        return std::pair{accepted, accepted ? std::string{} :
+            baas_installer::mirror_failure_reason(release, error)};
+    };
     const auto log_path = paths.logs_dir / "installer.log";
     baas_installer::set_default_process_log(log_path);
     const auto install = [&](const std::string& selected_cdk, baas_installer::InstallerViewModel& model,
@@ -133,10 +144,9 @@ int main(int argc, char* argv[]) {
         model.append_event({{}, "installer", "installer", baas_installer::LogSeverity::Info, "installer started"});
         try {
             // Establish the installation identity before any download,
-            // repository preparation, cache operation, or deployment.  A
-            // candidate CDK is deliberately not durable until MirrorChyan
-            // has completed successfully.
-            baas_installer::begin_install_session_config(config, paths);
+            // repository preparation, cache operation, or deployment.  The
+            // interactive path reaches this point only after CDK preflight.
+            baas_installer::begin_install_session_config(config, paths, selected_cdk);
         } catch (const std::exception& error) {
             return {.success = false, .error = error.what()};
         }
@@ -185,11 +195,13 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            const bool mirror_selected = !selected_cdk.empty();
+            const auto resource = main_repository ? baas_installer::MirrorResource::Main
+                                                  : baas_installer::MirrorResource::Ocr;
+            const bool mirror_selected = !selected_cdk.empty() &&
+                baas_installer::mirror_manages_resource(resource);
             if (mirror_selected) {
                 std::string mirror_error;
                 const auto platform = baas_installer::current_mirror_platform();
-                const auto resource = main_repository ? baas_installer::MirrorResource::Main : baas_installer::MirrorResource::Ocr;
                 const auto deployment_tree = main_repository
                     ? baas_installer::DeploymentTree::Main
                     : baas_installer::DeploymentTree::Ocr;
@@ -393,6 +405,16 @@ int main(int argc, char* argv[]) {
         };
         const auto result = baas_installer::install_or_update(config, paths, services);
         if (!result.success) {
+            if (result.failure_backend == "mirrorchyan") {
+                try {
+                    baas_installer::clear_mirror_cdk(config, paths);
+                } catch (const std::exception& error) {
+                    return {.success = false,
+                            .failure_kind = baas_installer::InstallFailureKind::MirrorChyan,
+                            .error = std::string("MirrorChyan failed and its CDK could not be cleared: ") +
+                                     error.what()};
+                }
+            }
             model.append_event({{}, "installer", "installer", baas_installer::LogSeverity::Error, result.error});
             return {
                 .success = false,
@@ -436,5 +458,10 @@ int main(int argc, char* argv[]) {
         return {.success = true};
     };
     if (auto_exit) return baas_installer::run_unattended(config.mirrorc_cdk, install);
-    return baas_installer::run_tui(first_start, config.mirrorc_cdk, install);
+    const auto tui_result = baas_installer::run_tui(
+        first_start, config.mirrorc_cdk, install, validate_cdk,
+        startup.mode == baas_installer::StartupMode::SelectInstallTarget);
+    if (tui_result == baas_installer::kTuiBackToTarget) continue;
+    return tui_result;
+    }
 }

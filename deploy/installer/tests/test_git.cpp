@@ -90,6 +90,27 @@ int main() {
     }
 
     const auto first_head = baas_installer::repository_head(live);
+    const auto nested_live = seed / "nested-install";
+    const auto nested_staging = root / "nested-staging";
+    fs::create_directories(nested_live);
+    if (!baas_installer::repository_head(nested_live).empty()) {
+        std::cerr << "an install directory inherited Git identity from its parent repository\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+    const auto seed_head_before_nested_install = output({"git", "-C", seed.string(), "rev-parse", "HEAD"});
+    auto nested = baas_installer::prepare_git_repository(
+        {remote.string()}, nested_live, nested_staging, "refs/heads/master", {}, {},
+        baas_installer::SourceKind::MainGit,
+        [&](const std::string& source, const std::string&, std::chrono::milliseconds) {
+            return baas_installer::GitRemoteHead{source, first_head, 1, true};
+        });
+    if (!nested.success || nested.mode != baas_installer::RepositoryMode::Full ||
+        output({"git", "-C", seed.string(), "rev-parse", "HEAD"}) != seed_head_before_nested_install) {
+        std::cerr << "a nested install directory was not isolated from its parent Git repository\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
     // Treat the primary fixture as a previously installer-managed depth-one
     // checkout. The separate deep fixture verifies one-time normalization.
     std::ofstream(live / ".git" / "shallow", std::ios::trunc) << first_head << '\n';

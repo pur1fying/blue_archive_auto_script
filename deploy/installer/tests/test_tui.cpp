@@ -137,13 +137,13 @@ int main() {
         !target_has("Relative example: BAAS") ||
         !target_has(expected_absolute_sample) ||
         !target_has("C:/Users/example/Downloads/BAAS") ||
-        !target_has("unsafetargetrefused")) {
+        target_has("unsafetargetrefused")) {
         std::cerr << "installation-target TUI missing: title="
                   << target_has("Choose a dedicated installation directory")
                   << " relative=" << target_has("Relative example: BAAS")
                   << " absolute=" << target_has(expected_absolute_sample)
                   << " controls=" << target_has("C:/Users/example/Downloads/BAAS")
-                  << " error=" << target_has("unsafetargetrefused")
+                  << " inline_error=" << target_has("unsafetargetrefused")
                   << " relative_text='"
                   << baas_installer::message(baas_installer::Language::English,
                                              baas_installer::MessageId::InstallDirectoryRelativeSample)
@@ -151,6 +151,19 @@ int main() {
                   << baas_installer::message(baas_installer::Language::English,
                                              baas_installer::MessageId::InstallDirectoryAbsoluteSample)
                   << "'\n";
+        return 1;
+    }
+    auto target_error_screen = ftxui::Screen::Create(
+        ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto target_error_view = baas_installer::render_install_target_error_modal(
+        std::move(target_view), baas_installer::Language::English,
+        "unsafe target refused", ftxui::text("confirm control"), 100, 40);
+    ftxui::Render(target_error_screen, target_error_view);
+    const auto target_error_rendered = screen_text(target_error_screen);
+    if (target_error_rendered.find("Invalid installation directory") == std::string::npos ||
+        target_error_rendered.find("unsafe target refused") == std::string::npos ||
+        target_error_rendered.find("confirm control") == std::string::npos) {
+        std::cerr << "installation-target validation error was not presented in a modal\n";
         return 1;
     }
     if (baas_installer::message(baas_installer::Language::SimplifiedChinese,
@@ -278,9 +291,36 @@ int main() {
     ftxui::Render(mirror_failure_screen, mirror_failure_view);
     const auto mirror_failure_rendered = screen_text(mirror_failure_screen);
     if (mirror_failure_rendered.find("MirrorChyan installation failed") == std::string::npos ||
-        mirror_failure_rendered.find("MirrorChyanrejectedthesuppliedCDK") == std::string::npos ||
+        mirror_failure_rendered.find("MirrorChyan rejected the supplied CDK") == std::string::npos ||
         mirror_failure_rendered.find("recovery controls") == std::string::npos) {
         std::cerr << "MirrorChyan failure modal did not expose its actionable reason\n";
+        return 1;
+    }
+
+    ftxui::Elements opaque_background;
+    for (int row = 0; row < 40; ++row) opaque_background.push_back(ftxui::text(std::string(100, 'X')));
+    auto opaque_modal_screen = ftxui::Screen::Create(
+        ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto opaque_modal = baas_installer::render_mirror_failure_modal(
+        ftxui::vbox(std::move(opaque_background)), baas_installer::Language::English,
+        "CDK invalid", ftxui::text("controls"), 100, 40);
+    ftxui::Render(opaque_modal_screen, opaque_modal);
+    bool modal_title_is_opaque = false;
+    for (int row = 0; row < opaque_modal_screen.dimy(); ++row) {
+        std::string line;
+        for (int column = 0; column < opaque_modal_screen.dimx(); ++column) {
+            line += opaque_modal_screen.at(column, row);
+        }
+        const auto title = line.find("MirrorChyan installation failed");
+        if (title == std::string::npos) continue;
+        const auto left_border = line.rfind("│", title);
+        const auto right_border = line.find("│", title + std::string("MirrorChyan installation failed").size());
+        modal_title_is_opaque = left_border != std::string::npos && right_border != std::string::npos &&
+            line.substr(left_border, right_border - left_border).find('X') == std::string::npos;
+        break;
+    }
+    if (!modal_title_is_opaque) {
+        std::cerr << "MirrorChyan failure modal allowed the installation screen to bleed through\n";
         return 1;
     }
 
