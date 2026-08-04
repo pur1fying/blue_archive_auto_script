@@ -9,6 +9,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <nlohmann/json.hpp>
+
 #ifdef _WIN32
 #define NOMINMAX
 #include <windows.h>
@@ -301,25 +303,92 @@ void save_config_atomic(const InstallerConfig& config, const InstallPaths& paths
     const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
     const auto next = paths.setup_toml.parent_path() /
                       (paths.setup_toml.filename().string() + ".new-" + std::to_string(nonce));
-    {
-        std::ofstream output(next, std::ios::binary | std::ios::trunc);
-        if (!output) throw std::runtime_error("failed to create setup.toml.new");
-        output << render_config(config);
-        output.flush();
-        if (!output) throw std::runtime_error("failed to write setup.toml.new");
-        output.close();
-        if (!output) throw std::runtime_error("failed to close setup.toml.new");
-    }
+    try {
+        {
+            std::ofstream output(next, std::ios::binary | std::ios::trunc);
+            if (!output) throw std::runtime_error("failed to create setup.toml.new");
+            output << render_config(config);
+            output.flush();
+            if (!output) throw std::runtime_error("failed to write setup.toml.new");
+            output.close();
+            if (!output) throw std::runtime_error("failed to close setup.toml.new");
+        }
 #ifdef _WIN32
-    if (!MoveFileExW(next.wstring().c_str(), paths.setup_toml.wstring().c_str(),
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        throw std::runtime_error("failed to replace setup.toml");
-    }
+        if (!MoveFileExW(next.wstring().c_str(), paths.setup_toml.wstring().c_str(),
+                         MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+            throw std::runtime_error("failed to replace setup.toml");
+        }
 #else
-    std::error_code error;
-    fs::rename(next, paths.setup_toml, error);
-    if (error) throw std::runtime_error("failed to replace setup.toml");
+        std::error_code error;
+        fs::rename(next, paths.setup_toml, error);
+        if (error) throw std::runtime_error("failed to replace setup.toml");
 #endif
+    } catch (...) {
+        std::error_code cleanup_error;
+        fs::remove(next, cleanup_error);
+        throw;
+    }
+}
+
+void save_setup_location_pointer_atomic(const InstallPaths& paths) {
+    const auto destination = paths.state_dir / "setup-location-v1.json";
+    if (fs::exists(destination)) {
+        try {
+            if (!fs::is_regular_file(destination)) throw std::runtime_error("not a regular file");
+            std::ifstream input(destination, std::ios::binary);
+            const auto existing = nlohmann::json::parse(input);
+            if (existing.at("schema_version").get<int>() != 1 ||
+                existing.at("managed_by").get<std::string>() != "baas-installer") {
+                throw std::runtime_error("not installer managed");
+            }
+        } catch (const std::exception&) {
+            throw std::runtime_error("refusing to overwrite an unrecognized setup location pointer");
+        }
+    }
+
+    std::error_code relative_error;
+    auto stored_path = fs::relative(paths.setup_toml, paths.root, relative_error);
+    std::string base = "install_root";
+    if (relative_error || stored_path.empty()) {
+        stored_path = fs::absolute(paths.setup_toml).lexically_normal();
+        base = "absolute";
+    }
+    auto portable_path = path_to_utf8(stored_path);
+    std::replace(portable_path.begin(), portable_path.end(), '\\', '/');
+    const nlohmann::json document{
+        {"schema_version", 1},
+        {"managed_by", "baas-installer"},
+        {"base", base},
+        {"path", portable_path},
+    };
+
+    fs::create_directories(destination.parent_path());
+    const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto temporary = destination.parent_path() /
+        (destination.filename().string() + ".new-" + std::to_string(nonce));
+    try {
+        {
+            std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
+            if (!output) throw std::runtime_error("failed to create setup location pointer");
+            output << document.dump() << '\n';
+            output.flush();
+            if (!output) throw std::runtime_error("failed to write setup location pointer");
+        }
+#ifdef _WIN32
+        if (!MoveFileExW(temporary.wstring().c_str(), destination.wstring().c_str(),
+                         MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+            throw std::runtime_error("failed to replace setup location pointer");
+        }
+#else
+        std::error_code error;
+        fs::rename(temporary, destination, error);
+        if (error) throw std::runtime_error("failed to replace setup location pointer");
+#endif
+    } catch (...) {
+        std::error_code cleanup_error;
+        fs::remove(temporary, cleanup_error);
+        throw;
+    }
 }
 
 void begin_install_session_config(InstallerConfig& config, const InstallPaths& paths,

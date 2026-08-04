@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QLabel, QWidget, QApplication, QHBoxLayout, QSizePol
 from qfluentwidgets import SettingCardGroup, PushButton, VBoxLayout, ComboBox, ExpandLayout, TitleLabel, ScrollArea
 
 from deploy.installer.toml_config import TOML_Config
+from deploy.installer.setup_path import resolve_setup_toml
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
 from gui.util.customized_ui import ColorSvgWidget
@@ -27,6 +28,7 @@ class GlobalFragment(ScrollArea):
         self.setObjectName(f"{self.object_name}.GlobalFragment")
         self.__initialized__ = False
         self._warning_svg = None
+        self.setup_toml = None
         self._optimize_window()
 
 
@@ -56,7 +58,8 @@ class GlobalFragment(ScrollArea):
             return self.repaint_page()
         self.__initialized__ = True
 
-        if not os.path.exists("setup.toml"):
+        self.setup_toml = resolve_setup_toml()
+        if self.setup_toml is None:
             self.display_require_update_message()
             return self.repaint_page()
 
@@ -74,7 +77,7 @@ class GlobalFragment(ScrollArea):
         self.viewport().setStyleSheet("background-color: transparent;")
 
     def display_update_config(self):
-        self.config = TOML_Config("setup.toml")
+        self.config = TOML_Config(str(self.setup_toml))
         self.config.set_signals(self.config_set.get_signals())
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)

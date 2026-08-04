@@ -465,15 +465,16 @@ ftxui::Element render_mirror_failure_modal(ftxui::Element background, const Lang
 }
 
 int run_install_target_tui(const std::filesystem::path& default_root,
-                           const TuiTargetAction& select_target) {
+                           const TuiTargetAction& select_target,
+                           const std::string& initial_error) {
     using namespace ftxui;
     configure_utf8_terminal();
     const auto language = detect_system_language();
     auto screen = ScreenInteractive::Fullscreen();
     std::string selected = path_to_utf8(default_root);
-    std::string validation_error;
-    bool validation_error_visible = false;
-    int active_panel = 0;
+    std::string validation_error = initial_error;
+    bool validation_error_visible = !initial_error.empty();
+    int active_panel = validation_error_visible ? 1 : 0;
     bool accepted = false;
     auto exit_loop = screen.ExitLoopClosure();
 
@@ -509,6 +510,7 @@ int run_install_target_tui(const std::filesystem::path& default_root,
     }, emphasized_modal_button());
     auto target_controls = Container::Vertical({path_input, start});
     auto controls = Container::Tab({target_controls, error_confirm}, &active_panel);
+    if (validation_error_visible) error_confirm->TakeFocus();
     auto renderer = Renderer(controls, [&] {
         auto fields = vbox({hbox({text("  "), path_input->Render() | flex}) | border,
                             separator(), start->Render() | center});

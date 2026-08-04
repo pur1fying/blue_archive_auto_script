@@ -109,7 +109,8 @@ int run_tui(bool setup_required, const std::string& configured_cdk, const TuiIns
             const TuiCdkValidationAction& validate_cdk = {}, bool allow_back = false,
             bool auto_exit = false);
 int run_install_target_tui(const std::filesystem::path& default_root,
-                           const TuiTargetAction& select_target);
+                            const TuiTargetAction& select_target,
+                            const std::string& initial_error = {});
 
 std::string redact_cdk(const std::string& cdk);
 

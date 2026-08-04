@@ -232,6 +232,25 @@ int main() {
         return 1;
     }
 
+    const auto directory_to_file_paths = baas_installer::InstallPaths::from_root(
+        fixture / "directory-to-file-install", "BAAS-Installer.exe");
+    write(directory_to_file_paths.root / "payload/old.txt", "old-owned-file");
+    baas_installer::save_deployment_manifest_atomic(
+        directory_to_file_paths, baas_installer::DeploymentTree::Main,
+        {fs::path("payload/old.txt")});
+    {
+        baas_installer::InstallTransaction transaction(directory_to_file_paths);
+        const auto source = transaction.main_staging_path() / "replacement";
+        write(source / "payload", "new-regular-file");
+        transaction.deploy_main_from(source);
+        if (!transaction.commit().empty()) return 1;
+    }
+    if (!fs::is_regular_file(directory_to_file_paths.root / "payload") ||
+        read(directory_to_file_paths.root / "payload") != "new-regular-file") {
+        std::cerr << "an empty owned directory could not be replaced by a tracked file\n";
+        return 1;
+    }
+
     const auto incremental_paths = baas_installer::InstallPaths::from_root(
         fixture / "incremental-install", "BAAS-Installer.exe");
     write(incremental_paths.root / "modified.py", "old-modified");

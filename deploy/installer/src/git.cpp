@@ -2,6 +2,7 @@
 #include "baas_installer/logging.hpp"
 #include "baas_installer/paths.hpp"
 #include "baas_installer/process.hpp"
+#include "baas_installer/transaction.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -701,6 +702,73 @@ bool apply_git_update(const GitResult& prepared, const fs::path& live_repository
     error = "libgit2 is not available";
     return false;
 #endif
+}
+
+std::vector<fs::path> repository_tracked_files(const fs::path& repository,
+                                               const GitBackend backend,
+                                               std::string& error) {
+    error.clear();
+    std::vector<fs::path> files;
+    if (backend == GitBackend::GitCli) {
+        const auto listed = hidden_git({"git", "-C", path_to_utf8(repository), "ls-files", "-z"});
+        if (listed.exit_code != 0) {
+            error = "git could not list tracked files after reset";
+            return {};
+        }
+        std::size_t offset = 0;
+        while (offset < listed.output.size()) {
+            const auto end = listed.output.find('\0', offset);
+            const auto length = (end == std::string::npos ? listed.output.size() : end) - offset;
+            if (length != 0) files.push_back(path_from_utf8(listed.output.substr(offset, length)));
+            if (end == std::string::npos) break;
+            offset = end + 1;
+        }
+    } else if (backend == GitBackend::Libgit2) {
+#ifdef BAAS_INSTALLER_HAS_LIBGIT2
+        ensure_libgit2();
+        git_repository* opened = nullptr;
+        git_index* index = nullptr;
+        const auto repository_utf8 = path_to_utf8(repository);
+        int result = git_repository_open(&opened, repository_utf8.c_str());
+        if (result == 0) result = git_repository_index(&index, opened);
+        if (result == 0) {
+            const auto count = git_index_entrycount(index);
+            files.reserve(count);
+            for (std::size_t item = 0; item < count; ++item) {
+                const auto* entry = git_index_get_byindex(index, item);
+                if (entry && entry->path) files.push_back(path_from_utf8(entry->path));
+            }
+        } else {
+            const auto* detail = git_error_last();
+            error = detail ? detail->message : "libgit2 could not list tracked files after reset";
+        }
+        if (index) git_index_free(index);
+        if (opened) git_repository_free(opened);
+#else
+        error = "libgit2 is not available";
+#endif
+    } else {
+        error = "Git backend is unavailable";
+    }
+    if (!error.empty()) return {};
+    std::sort(files.begin(), files.end());
+    files.erase(std::unique(files.begin(), files.end()), files.end());
+    return files;
+}
+
+bool refresh_git_ownership_manifest(InstallTransaction& transaction,
+                                    const fs::path& repository,
+                                    const GitBackend backend,
+                                    const DeploymentTree tree,
+                                    std::string& error) {
+    const auto tracked = repository_tracked_files(repository, backend, error);
+    if (!error.empty()) return false;
+    DeploymentFileSet owned;
+    for (const auto& relative : tracked) {
+        if (deployment_relative_path_allowed(tree, relative)) owned.insert(relative);
+    }
+    transaction.replace_ownership_manifest(tree, std::move(owned));
+    return true;
 }
 
 bool finalize_git_repository(const fs::path& repository, const GitBackend backend, std::string& error) {

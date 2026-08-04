@@ -73,8 +73,9 @@ int main() {
                "schema_version = 1\n[paths]\nbaas_root_path = \"蔚蓝档案\"\n");
     const auto chinese_config = baas_installer::decide_startup(
         source, baas_installer::parse_startup_arguments({}));
-    if (chinese_config.mode != baas_installer::StartupMode::Invalid ||
+    if (chinese_config.mode != baas_installer::StartupMode::SelectInstallTarget ||
         chinese_config.error.find("Qt") == std::string::npos ||
+        chinese_config.configured_root != "蔚蓝档案" ||
         fs::exists(source.parent_path() / baas_installer::path_from_utf8("蔚蓝档案"))) {
         return fail("a configured Chinese installation path was not rejected without filesystem changes");
     }
@@ -86,7 +87,8 @@ int main() {
                "schema_version = 1\n[paths]\nbaas_root_path = \"../BAAS\"\n");
     const auto parent_config = baas_installer::decide_startup(
         source, baas_installer::parse_startup_arguments({}));
-    if (parent_config.mode != baas_installer::StartupMode::Invalid ||
+    if (parent_config.mode != baas_installer::StartupMode::SelectInstallTarget ||
+        parent_config.configured_root != "../BAAS" ||
         parent_config.error.find("parent") == std::string::npos) {
         return fail("installer-local setup bypassed relative parent-path rejection");
     }

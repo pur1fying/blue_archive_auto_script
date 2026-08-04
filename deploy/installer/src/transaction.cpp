@@ -194,6 +194,7 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
     if (scan_error) throw std::runtime_error("could not inspect staged deployment tree: " + scan_error.message());
 
     const auto previous = load_deployment_manifest(paths_, tree);
+    DeploymentFileSet emptied_owned_ancestors;
     if (previous.valid) {
         for (const auto& relative : previous.files) {
             if (new_files.contains(relative)) continue;
@@ -205,6 +206,9 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
             }
             remove_path(stale, main_tree ? RemovalOwnership::MainManifest
                                          : RemovalOwnership::OcrManifest);
+            for (auto parent = relative.parent_path(); !parent.empty(); parent = parent.parent_path()) {
+                emptied_owned_ancestors.insert(parent);
+            }
         }
     }
 
@@ -239,7 +243,24 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
             throw std::runtime_error("deployment target crosses a symbolic link or leaves its owned tree: " +
                                      display_path(target));
         }
-        const bool exists = fs::exists(target);
+        bool exists = fs::exists(target);
+        if (exists && fs::is_directory(target) && emptied_owned_ancestors.contains(relative)) {
+            std::error_code empty_error;
+            const bool empty = fs::is_empty(target, empty_error);
+            if (empty_error || !empty) {
+                throw std::runtime_error("deployment target directory contains files outside the stale ownership set: " +
+                                         display_path(target));
+            }
+            const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
+            fs::create_directories(backup.parent_path(), empty_error);
+            if (!empty_error) fs::rename(target, backup, empty_error);
+            if (empty_error) {
+                throw std::runtime_error("could not preserve an empty owned directory before file deployment: " +
+                                         empty_error.message());
+            }
+            changes_.push_back({target, backup, true, true});
+            exists = false;
+        }
         if (exists && !fs::is_regular_file(target)) {
             throw std::runtime_error("deployment target is not an owned regular file: " + display_path(target));
         }
@@ -410,6 +431,18 @@ DeploymentFileSet& InstallTransaction::mutable_manifest(const DeploymentTree tre
         pending = loaded.files;
     }
     return *pending;
+}
+
+void InstallTransaction::replace_ownership_manifest(const DeploymentTree tree,
+                                                    DeploymentFileSet files) {
+    for (const auto& relative : files) {
+        if (!deployment_relative_path_allowed(tree, relative)) {
+            throw std::runtime_error("replacement ownership manifest contains an unsafe path");
+        }
+    }
+    auto& pending = tree == DeploymentTree::Main ? main_manifest_ : ocr_manifest_;
+    pending = std::move(files);
+    journal(tree == DeploymentTree::Main ? "replace-main-manifest" : "replace-ocr-manifest");
 }
 
 void InstallTransaction::stage_pending_manifests() {

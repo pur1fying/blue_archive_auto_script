@@ -40,6 +40,7 @@ public:
     void add_commit_action(std::function<void()> action);
     void add_post_commit_action(std::function<void()> action);
     void write_ocr_managed_marker(const std::string& branch, const std::string& commit);
+    void replace_ownership_manifest(DeploymentTree tree, DeploymentFileSet files);
     void prepare_commit();
     // The live files are durable even when a post-commit maintenance action
     // fails. The returned message lets the workflow report that retriable

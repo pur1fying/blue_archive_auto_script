@@ -11,7 +11,7 @@ Because the BAAS Qt runtime is incompatible with Chinese installation paths, the
 - Main and OCR downloads are prepared concurrently. Live files are changed only after both preparations succeed.
 - `setup.toml` is created beside the executable as soon as installation starts, before repository preparation or network probing. It records the selected absolute or relative BAAS root. No `config.toml` is used.
 - The main repository is applied first. OCR is then placed in `core/ocr/baas_ocr_client/bin`.
-- With a MirrorChyan CDK, both `BAAS_repo` and `BAAS_Cpp` support current, incremental, and full packages. The candidate CDK is written to `setup.toml` only after both Mirror resources and the complete workflow succeed. Any MirrorChyan failure clears the CDK, stops installation, and opens an in-TUI modal with the exact reason; it never falls back to Git. Users can re-enter the CDK or return to settings and disable MirrorChyan.
+- With a MirrorChyan CDK, the main `BAAS_repo` supports current, incremental, and full packages. OCR is always managed independently through the configured Git sources and is never requested from MirrorChyan. A preflight-validated CDK is recorded when installation begins and retained only when the Mirror-backed workflow remains usable. Any MirrorChyan failure clears the CDK, stops installation, and opens an in-TUI modal with the exact reason; it never falls back to Git. Users can re-enter the CDK or return to settings and disable MirrorChyan.
 - Git measures configured sources concurrently by remote-SHA response time. When Git CLI is installed it is used exclusively; libgit2 is the fallback only on systems without Git CLI. An equal remote/local commit skips `fetch`, and a failed real transfer advances to the next source that passed the SHA probe.
 - Deployment and the two recorded versions in `setup.toml` are transactional. A failed verification or uv sync rolls live files back.
 - An installation-local process lock prevents a second installer from deleting an active transaction. Repository history compaction runs only after rollback-capable validation and durable configuration commit.
@@ -20,7 +20,10 @@ Because the BAAS Qt runtime is incompatible with Chinese installation paths, the
 
 Git, archive, and uv terminal output is captured through a PTY and shown in one scrollable installation log. Git, uv, CPython, and PyPI source probes expand in independent live sections and automatically collapse to an availability, selected-source, and latency summary when complete. Full probe details remain in `log/installer.log`. Use Up/Down or Page Up/Page Down to inspect history; registered CDKs and common credential headers are redacted.
 
+For a BAAS root separate from the installer, the installer refreshes `.baas-installer/setup-location-v1.json` at the beginning of every valid install/update session. This versioned pointer refers to the single `setup.toml` beside the executable; legacy installations without the pointer continue to use `setup.toml` in the BAAS working directory, and malformed or stale pointers safely fall back instead of being followed.
+
 After a successful detached BAAS launch, the installer exits immediately. A launch failure remains visible and can be retried.
+On Linux, the launcher preserves an explicit `QT_QPA_PLATFORM`. If none is set, it selects `wayland` only for a confirmed Wayland session/socket; X11 and ambiguous XWayland-compatible environments retain Qt's default platform selection.
 
 ## Portable Python environment
 

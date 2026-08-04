@@ -1,6 +1,10 @@
 #include "baas_installer/process.hpp"
+#include "baas_installer/paths.hpp"
 
+#include <algorithm>
 #include <cerrno>
+#include <cctype>
+#include <cstdlib>
 #include <fstream>
 #include <mutex>
 #include <sstream>
@@ -442,7 +446,9 @@ bool launch_detached(const std::vector<std::string>& arguments,
     close(status_pipe[0]);
     const auto fail = [&](const int error_number) {
         const int value = error_number == 0 ? EIO : error_number;
-        (void)write(status_pipe[1], &value, sizeof(value));
+        ssize_t written = -1;
+        do { written = write(status_pipe[1], &value, sizeof(value)); } while (written < 0 && errno == EINTR);
+        (void)written;
         _exit(127);
     };
     if (setsid() < 0) fail(errno);
@@ -463,6 +469,45 @@ bool launch_detached(const std::vector<std::string>& arguments,
     fail(errno);
 #endif
     return false;
+}
+
+std::map<std::string, std::string> current_desktop_session_environment() {
+    std::map<std::string, std::string> result;
+    if (const auto* value = std::getenv("QT_QPA_PLATFORM"); value && *value) {
+        result.emplace("QT_QPA_PLATFORM", value);
+    }
+#ifdef __linux__
+    for (const auto* key : {"XDG_SESSION_TYPE", "WAYLAND_DISPLAY", "DISPLAY"}) {
+        if (const auto* value = std::getenv(key); value && *value) result.emplace(key, value);
+    }
+#endif
+    return result;
+}
+
+std::map<std::string, std::string> desktop_launch_environment(
+    std::map<std::string, std::string> base,
+    const std::filesystem::path& setup_toml,
+    const std::map<std::string, std::string>& session_environment) {
+    base["BAAS_SETUP_TOML"] = path_to_utf8(std::filesystem::absolute(setup_toml).lexically_normal());
+    const auto value = [&](const std::string& key) -> std::string {
+        const auto found = session_environment.find(key);
+        return found == session_environment.end() ? std::string{} : found->second;
+    };
+    const auto explicit_platform = value("QT_QPA_PLATFORM");
+    if (!explicit_platform.empty()) {
+        base["QT_QPA_PLATFORM"] = explicit_platform;
+        return base;
+    }
+    auto session_type = value("XDG_SESSION_TYPE");
+    std::transform(session_type.begin(), session_type.end(), session_type.begin(),
+                   [](const unsigned char character) { return static_cast<char>(std::tolower(character)); });
+    const bool wayland_socket = !value("WAYLAND_DISPLAY").empty();
+    const bool explicit_wayland_session = session_type == "wayland";
+    const bool unambiguous_wayland_without_xdg = session_type.empty() && value("DISPLAY").empty();
+    if (wayland_socket && (explicit_wayland_session || unambiguous_wayland_without_xdg)) {
+        base["QT_QPA_PLATFORM"] = "wayland";
+    }
+    return base;
 }
 
 }  // namespace baas_installer

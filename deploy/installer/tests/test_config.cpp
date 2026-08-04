@@ -109,7 +109,38 @@ cpp_sources = ['https://current.example/ocr.git']
                  "a preflight-validated CDK was not persisted when installation began")) return 1;
     baas_installer::clear_mirror_cdk(saved, paths);
     if (!require(saved.mirrorc_cdk.empty() && baas_installer::load_config(paths).mirrorc_cdk.empty(),
-                 "a failed MirrorChyan attempt left its CDK in setup.toml")) return 1;
+                  "a failed MirrorChyan attempt left its CDK in setup.toml")) return 1;
+    std::filesystem::remove(paths.setup_toml, ignored);
+    std::filesystem::create_directories(paths.setup_toml);
+    bool replacement_failed = false;
+    try {
+        baas_installer::save_config_atomic(saved, paths);
+    } catch (const std::exception&) {
+        replacement_failed = true;
+    }
+    bool temporary_left = false;
+    for (const auto& entry : std::filesystem::directory_iterator(paths.setup_toml.parent_path())) {
+        const auto name = entry.path().filename().string();
+        temporary_left = temporary_left || name.starts_with("setup.toml.new-");
+    }
+    if (!require(replacement_failed && !temporary_left,
+                 "failed atomic replacement left setup.toml.new-* behind")) return 1;
+
+    auto pointer_paths = baas_installer::InstallPaths::from_install_root(
+        fixture / "pointer-target", fixture / "pointer-launcher" / "BlueArchiveAutoScript.exe");
+    std::filesystem::create_directories(pointer_paths.state_dir);
+    const auto pointer = pointer_paths.state_dir / "setup-location-v1.json";
+    std::ofstream(pointer) << "user-owned pointer contents";
+    bool pointer_refused = false;
+    try {
+        baas_installer::save_setup_location_pointer_atomic(pointer_paths);
+    } catch (const std::exception&) {
+        pointer_refused = true;
+    }
+    std::ifstream pointer_input(pointer);
+    const std::string pointer_contents{std::istreambuf_iterator<char>(pointer_input), {}};
+    if (!require(pointer_refused && pointer_contents == "user-owned pointer contents",
+                 "an unrecognized setup location pointer was overwritten")) return 1;
     std::filesystem::remove_all(fixture, ignored);
     return 0;
 }

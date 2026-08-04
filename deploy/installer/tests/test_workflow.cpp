@@ -20,16 +20,24 @@ static void own_existing_repository_files(const baas_installer::InstallPaths& pa
 int main() {
     const auto fixture = fs::temp_directory_path() / "baas-installer-workflow";
     std::error_code ignored; fs::remove_all(fixture, ignored);
-    auto paths = baas_installer::InstallPaths::from_executable(fixture / "install" / "BlueArchiveAutoScript.exe");
+    auto paths = baas_installer::InstallPaths::from_install_root(
+        fixture / "install" / "data", fixture / "install" / "BlueArchiveAutoScript.exe");
     std::vector<std::string> events;
     std::mutex event_mutex;
     bool setup_seen_before_prepare = false;
+    bool setup_pointer_seen_before_prepare = false;
+    write(paths.state_dir / "setup-location-v1.json",
+          R"({"schema_version":1,"managed_by":"baas-installer","base":"absolute","path":"C:/stale/setup.toml"})");
     baas_installer::WorkflowServices services;
     services.prepare_main = [&](auto& transaction) {
         const auto persisted = baas_installer::load_config(paths);
         setup_seen_before_prepare = fs::exists(paths.setup_toml) &&
             persisted.mirrorc_cdk == "selected-cdk" &&
             persisted.main_sha == "main-v1" && persisted.ocr_sha == "ocr-v1";
+        std::ifstream pointer_input(paths.state_dir / "setup-location-v1.json");
+        const std::string pointer{std::istreambuf_iterator<char>(pointer_input), {}};
+        setup_pointer_seen_before_prepare = pointer.find("../setup.toml") != std::string::npos &&
+            pointer.find("C:/stale/setup.toml") == std::string::npos;
         write(transaction.main_staging_path() / "main.txt", "main");
         { std::lock_guard lock(event_mutex); events.push_back("prepared-main"); }
         return baas_installer::PreparedRepository{
@@ -60,12 +68,19 @@ int main() {
     const auto marker_path = paths.root / "core/ocr/baas_ocr_client/bin/.baas-installer-managed.json";
     std::ifstream marker_input(marker_path);
     const std::string marker{std::istreambuf_iterator<char>(marker_input), {}};
-    const bool order = result.success && setup_seen_before_prepare && contains("verified") && contains("uv") && main_applied < ocr_applied &&
+    const auto setup_pointer_path = paths.state_dir / "setup-location-v1.json";
+    std::ifstream setup_pointer_input(setup_pointer_path);
+    const std::string setup_pointer{std::istreambuf_iterator<char>(setup_pointer_input), {}};
+    const bool order = result.success && setup_seen_before_prepare && setup_pointer_seen_before_prepare &&
+        contains("verified") && contains("uv") && main_applied < ocr_applied &&
         config.main_sha == "main-v2" && config.ocr_sha == "0123456789012345678901234567890123456789" &&
         contains("progress:verify:verifying deployment") && contains("progress:verify:deployment verified") &&
         contains("progress:uv:synchronizing dependencies") && contains("progress:uv:dependencies synchronized") &&
         marker.find("\"branch\":\"windows-x64\"") != std::string::npos &&
-        marker.find("\"commit\":\"0123456789012345678901234567890123456789\"") != std::string::npos;
+        marker.find("\"commit\":\"0123456789012345678901234567890123456789\"") != std::string::npos &&
+        setup_pointer.find("\"managed_by\":\"baas-installer\"") != std::string::npos &&
+        setup_pointer.find("\"base\":\"install_root\"") != std::string::npos &&
+        setup_pointer.find("../setup.toml") != std::string::npos;
     if (!order) { std::cerr << "workflow order failed\n"; return 1; }
 
     auto failing_paths = baas_installer::InstallPaths::from_executable(fixture / "rollback" / "BlueArchiveAutoScript.exe");
@@ -204,9 +219,42 @@ int main() {
     const auto preparation_persisted = baas_installer::load_config(preparation_failure_paths);
     if (preparation_failed.success || preparation_failed.failure_backend != "mirrorchyan" ||
         !fs::exists(preparation_failure_paths.setup_toml) ||
+        !fs::is_regular_file(preparation_failure_paths.state_dir / "setup-location-v1.json") ||
         preparation_persisted.mirrorc_cdk != "selected-cdk" ||
         preparation_persisted.main_sha != "main-old" || preparation_persisted.ocr_sha != "ocr-old") {
         std::cerr << "preparation failure must retain the initial setup.toml and old versions\n";
+        return 1;
+    }
+
+    auto mirror_verify_paths = baas_installer::InstallPaths::from_executable(
+        fixture / "mirror-verification-failure" / "BlueArchiveAutoScript.exe");
+    baas_installer::InstallerConfig mirror_verify_config;
+    mirror_verify_config.mirrorc_cdk = "selected-cdk";
+    baas_installer::WorkflowServices mirror_verify = services;
+    mirror_verify.prepare_main = [&](auto& transaction) {
+        write(transaction.main_staging_path() / "main.txt", "malformed-main");
+        return baas_installer::PreparedRepository{
+            .success = true, .mode = baas_installer::RepositoryMode::Full,
+            .backend = "mirrorchyan", .version = "main-new", .revision = "master",
+            .apply = [](auto& current, std::string&) { current.deploy_main(); return true; }};
+    };
+    mirror_verify.prepare_ocr = [&](auto& transaction) {
+        write(transaction.ocr_staging_path() / "ocr.txt", "git-ocr");
+        return baas_installer::PreparedRepository{
+            .success = true, .mode = baas_installer::RepositoryMode::Full,
+            .backend = "git-cli", .version = std::string(40, 'a'), .revision = "windows-x64",
+            .apply = [](auto& current, std::string&) { current.deploy_ocr(); return true; }};
+    };
+    mirror_verify.verify_deployment = [](const auto&, const auto&, std::string& error) {
+        error = "malformed MirrorChyan main package";
+        return false;
+    };
+    mirror_verify.sync_uv = [](const auto&, const auto&, std::string&) { return true; };
+    const auto mirror_verify_failed = baas_installer::install_or_update(
+        mirror_verify_config, mirror_verify_paths, mirror_verify);
+    if (mirror_verify_failed.success ||
+        mirror_verify_failed.failure_backend != "mirrorchyan") {
+        std::cerr << "MirrorChyan attribution was lost when later verification failed\n";
         return 1;
     }
     fs::remove_all(fixture, ignored);

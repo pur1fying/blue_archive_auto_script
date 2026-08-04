@@ -108,7 +108,8 @@ int main(int argc, char* argv[]) {
             if (!success && !error.empty()) std::cerr << error << '\n';
             if (!success) return 1;
         } else if (baas_installer::run_install_target_tui(
-                       baas_installer::path_from_utf8(startup.configured_root), select) != 0) {
+                       baas_installer::path_from_utf8(startup.configured_root), select,
+                       startup.error) != 0) {
             return 1;
         }
     } else {
@@ -381,6 +382,11 @@ int main(int argc, char* argv[]) {
                             (void)baas_installer::apply_git_update(restore, live, ignored);
                         });
                         if (!baas_installer::apply_git_update(git, live, error, observer)) return false;
+                        const auto tree = main_repository
+                            ? baas_installer::DeploymentTree::Main
+                            : baas_installer::DeploymentTree::Ocr;
+                        if (!baas_installer::refresh_git_ownership_manifest(
+                                current, live, git.backend, tree, error)) return false;
                         finalize();
                         return true;
                     }
@@ -441,6 +447,9 @@ int main(int argc, char* argv[]) {
             if (!config.uses_portable_runtime()) python = baas_installer::path_from_utf8(config.runtime_path);
             auto environment = baas_installer::make_uv_environment(paths, config).variables;
             if (config.uses_portable_runtime()) environment["VIRTUAL_ENV"] = baas_installer::path_to_utf8(paths.venv_dir);
+            environment = baas_installer::desktop_launch_environment(
+                std::move(environment), paths.setup_toml,
+                baas_installer::current_desktop_session_environment());
             if (!std::filesystem::exists(python) || !std::filesystem::exists(paths.root / "window.py") ||
                 !baas_installer::launch_detached(
                     {baas_installer::path_to_utf8(python),

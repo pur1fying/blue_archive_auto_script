@@ -11,7 +11,7 @@
 - 主仓库与 OCR 并行准备；两项都成功后才修改正式文件。
 - 安装一开始便在可执行文件旁创建 `setup.toml`，其中记录用户选择的绝对或相对 BAAS 路径；该操作早于仓库准备和网络测速，全程不会使用 `config.toml`。
 - 先部署主仓库，再把 OCR 放入 `core/ocr/baas_ocr_client/bin`。
-- 配置 MirrorChyan CDK 后，`BAAS_repo` 与 `BAAS_Cpp` 均支持无需更新、增量包和全量包。CDK 仅在两项 MirrorChyan 安装及完整工作流成功后写入 `setup.toml`；任一 MirrorChyan 步骤失败都会清空 CDK、停止安装并在 TUI 内弹出具体原因，绝不自动回退 Git。用户可重新填写 CDK，或返回安装设置取消 MirrorChyan。
+- 配置 MirrorChyan CDK 后，主仓库 `BAAS_repo` 支持无需更新、增量包和全量包。OCR 始终独立使用配置的 Git 源管理，不会向 MirrorChyan 请求 `BAAS_Cpp`。CDK 通过预检后会在安装开始时记录，只有 Mirror 工作流保持可用时才会保留；任一 MirrorChyan 步骤失败都会清空 CDK、停止安装并在 TUI 内弹出具体原因，绝不自动回退 Git。用户可重新填写 CDK，或返回安装设置取消 MirrorChyan。
 - Git 会并行测量所有候选源获取远端 SHA 的响应时间；存在本机 Git CLI 时只使用 Git CLI，没有时才回退 libgit2。远端与本地提交相同会直接跳过 `fetch`，实际传输失败则继续尝试通过测速的后续源。
 - 文件部署和 `setup.toml` 中的两个版本号在同一事务中提交；完整性检查或 uv 同步失败会回滚正式文件。
 
@@ -19,7 +19,10 @@
 
 Git、解压和 uv 的终端输出通过 PTY 获取，并混合显示在同一个可滚动安装日志中。Git、uv、CPython 与 PyPI 的源测速各自在独立 section 中实时展开，测速完成后自动折叠成可用数量、选中源和延迟摘要；完整测速明细仍保留在 `log/installer.log`。可用方向键上/下或 Page Up/Page Down 查看历史。已登记的 CDK 和常见凭据请求头会被脱敏。
 
+当 BAAS 根目录与安装器分离时，安装器会在每次目标合法的安装/更新会话开始时刷新 `.baas-installer/setup-location-v1.json`。这个带版本的指针始终指向可执行文件旁唯一的 `setup.toml`；没有指针的旧安装继续读取 BAAS 工作目录中的 `setup.toml`，指针损坏或失效时也会安全回退。
+
 BAAS 成功以独立进程启动后，安装器立即退出；启动失败时保留错误和重试操作。
+Linux 启动时会保留用户显式设置的 `QT_QPA_PLATFORM`；未设置时，只在确认 Wayland 会话和 socket 后选择 `wayland`，X11 与无法明确判断的 XWayland 兼容环境继续使用 Qt 默认平台。
 
 ## 便携 Python 环境
 

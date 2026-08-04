@@ -53,6 +53,7 @@ StartupDecision decide_startup(const fs::path& current_executable,
         const auto configured_path = path_from_utf8(result.configured_root);
         const auto validation = validate_install_target(executable, configured_path);
         if (!validation.accepted) {
+            result.mode = StartupMode::SelectInstallTarget;
             result.error = validation.error;
             return result;
         }
