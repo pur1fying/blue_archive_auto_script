@@ -1,6 +1,7 @@
 import os.path
 import time
 from hashlib import md5
+from pathlib import Path
 from random import random
 
 from PyQt5.QtCore import Qt
@@ -58,7 +59,8 @@ class GlobalFragment(ScrollArea):
             return self.repaint_page()
         self.__initialized__ = True
 
-        self.setup_toml = resolve_setup_toml()
+        baas_root = Path(__file__).resolve().parents[2]
+        self.setup_toml = resolve_setup_toml(baas_root)
         if self.setup_toml is None:
             self.display_require_update_message()
             return self.repaint_page()

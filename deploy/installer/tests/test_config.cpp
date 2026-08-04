@@ -39,13 +39,26 @@ keep_me = "yes"
     if (!require(config.baas_root_path == "legacy-root", "legacy BAAS root parsed")) return 1;
 
     const auto rendered = baas_installer::render_config(config);
-    if (!require(rendered.find("[general]") != std::string::npos, "current schema")) return 1;
-    if (!require(rendered.find("[General]") != std::string::npos, "legacy schema")) return 1;
+    if (!require(rendered.starts_with("schema_version = 1\n"), "configuration has leading whitespace")) return 1;
+    if (!require(rendered.find("[general]") == std::string::npos &&
+                     rendered.find("[paths]") == std::string::npos &&
+                     rendered.find("[python]") == std::string::npos &&
+                     rendered.find("[repositories]") == std::string::npos,
+                 "duplicate lower-case schema was rendered")) return 1;
+    if (!require(rendered.find("[General]") != std::string::npos &&
+                     rendered.find("[URLs]") != std::string::npos &&
+                     rendered.find("[Paths]") != std::string::npos,
+                 "canonical BAAS schema")) return 1;
     if (!require(rendered.find("keep_me = \"yes\"") != std::string::npos, "unknown field")) return 1;
     if (!require(rendered.find("legacy_extension = \"retain\"") != std::string::npos, "unknown managed-table field")) return 1;
     if (!require(rendered.find("source_list = [\"https://pypi.example/simple\", \"https://mirror.example/simple\"]") != std::string::npos,
                  "configured source list rendered")) return 1;
     if (!require(rendered.find("package_manager = \"uv\"") != std::string::npos, "uv manager")) return 1;
+    const auto rendered_twice = baas_installer::render_config(baas_installer::parse_config(rendered));
+    if (rendered_twice != rendered) {
+        std::cerr << "first render:\n" << rendered << "second render:\n" << rendered_twice;
+    }
+    if (!require(rendered_twice == rendered, "repeated saves changed canonical formatting")) return 1;
 
     const auto schema_once = baas_installer::render_config(baas_installer::parse_config("schema_version = 0\n[General]\nruntime_path = \"default\"\n"));
     if (!require(schema_once.find("schema_version = 0") == std::string::npos, "old schema version removed")) return 1;
@@ -78,6 +91,11 @@ cpp_sources = ['https://current.example/ocr.git']
                  syntax.main_sources[1] == "https://private.example/main.git", "configured main sources")) return 1;
     if (!require(syntax.ocr_sources.size() == 1 && syntax.ocr_sources[0] == "https://current.example/ocr.git",
                  "configured OCR sources")) return 1;
+    const auto canonical_sources = baas_installer::parse_config(baas_installer::render_config(syntax));
+    if (!require(canonical_sources.main_sources == syntax.main_sources &&
+                     canonical_sources.ocr_sources == syntax.ocr_sources &&
+                     canonical_sources.pypi_sources == syntax.pypi_sources,
+                 "canonical schema changed configured source order")) return 1;
 
     const auto fixture = std::filesystem::temp_directory_path() / "baas-installer-config-atomic";
     std::error_code ignored;

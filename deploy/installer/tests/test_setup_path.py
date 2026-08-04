@@ -28,6 +28,7 @@ try:
     os.chdir(root)
 
     assert resolve_setup_toml() == local_setup.resolve()
+    assert resolve_setup_toml(root) == local_setup.resolve()
 
     pointer = state / "setup-location-v1.json"
     pointer.write_text(json.dumps({
@@ -37,6 +38,9 @@ try:
         "path": "../launcher/setup.toml",
     }), encoding="utf-8")
     assert resolve_setup_toml() == launcher_setup.resolve()
+    os.chdir(fixture)
+    assert resolve_setup_toml(root) == launcher_setup.resolve()
+    os.chdir(root)
 
     pointer.write_text(json.dumps({
         "schema_version": 1,

@@ -131,13 +131,13 @@ bool is_managed_table(const std::string& table) {
 }
 
 bool is_known_key(const std::string& table, const std::string& key) {
-    if (table == "General") return key == "mirrorc_cdk" || key == "current_BAAS_version" || key == "current_BAAS_Cpp_version" || key == "runtime_path" || key == "channel" || key == "git_backend" || key == "package_manager" || key == "source_list";
+    if (table == "General") return key == "mirrorc_cdk" || key == "current_BAAS_version" || key == "current_BAAS_Cpp_version" || key == "runtime_path" || key == "python_version" || key == "channel" || key == "git_backend" || key == "package_manager" || key == "source_list";
     if (table == "general") return key == "mirrorc_cdk" || key == "current_baas_sha" || key == "current_baas_cpp_sha" || key == "channel" || key == "git_backend";
     if (table == "python") return key == "runtime_path" || key == "python_version";
     if (table == "paths") return key == "baas_root_path" || key == "tmp_path" || key == "toolkit_path";
     if (table == "Paths") return key == "BAAS_ROOT_PATH" || key == "TMP_PATH" || key == "TOOL_KIT_PATH";
     if (table == "repositories") return key == "main_sources" || key == "cpp_sources";
-    if (table == "URLs") return key == "REPO_URL_HTTP";
+    if (table == "URLs") return key == "REPO_URL_HTTP" || key == "REPO_URL_FALLBACKS" || key == "OCR_REPO_SOURCES";
     return false;
 }
 
@@ -177,7 +177,27 @@ std::string preserved_unknown(const InstallerConfig& config, const std::string& 
         }
         if (table != wanted_table) continue;
         if (const auto key = assignment_key(stripped)) preserving = !is_known_key(table, *key);
-        if (preserving) output << line << '\n';
+        if (preserving && !stripped.empty()) output << line << '\n';
+    }
+    return output.str();
+}
+
+std::string preserved_unmanaged(const InstallerConfig& config) {
+    std::ostringstream output;
+    std::istringstream input(config.source_toml);
+    std::string line, table;
+    bool keep = true;
+    while (std::getline(input, line)) {
+        const auto stripped = trim(line);
+        if (stripped.size() > 2 && stripped.front() == '[' && stripped.back() == ']') {
+            table = stripped.substr(1, stripped.size() - 2);
+            keep = !is_managed_table(table);
+        }
+        if (!keep) continue;
+        const auto equal = stripped.find('=');
+        if (table.empty() && equal != std::string::npos &&
+            trim(stripped.substr(0, equal)) == "schema_version") continue;
+        if (!stripped.empty()) output << line << '\n';
     }
     return output.str();
 }
@@ -190,7 +210,7 @@ void set_value(InstallerConfig& config, const std::string& table, const std::str
     if ((table == "general" && key == "current_baas_sha") || (table == "General" && key == "current_BAAS_version")) assign(config.main_sha, value);
     if ((table == "general" && key == "current_baas_cpp_sha") || (table == "General" && key == "current_BAAS_Cpp_version")) assign(config.ocr_sha, value);
     if ((table == "python" && key == "runtime_path") || (table == "General" && key == "runtime_path")) assign(config.runtime_path, value);
-    if (table == "python" && key == "python_version") assign(config.python_version, value);
+    if ((table == "python" || table == "General") && key == "python_version") assign(config.python_version, value);
     if ((table == "general" || table == "General") && key == "channel") assign(config.channel, value);
     if ((table == "general" || table == "General") && key == "git_backend") assign(config.git_backend, value);
     if (table == "General" && key == "source_list") config.pypi_sources = string_array(value);
@@ -205,6 +225,8 @@ void set_value(InstallerConfig& config, const std::string& table, const std::str
         config.ocr_sources = std::move(parsed);
     }
     if (table == "URLs" && key == "REPO_URL_HTTP") append_unique(config.main_sources, {unquote(value)});
+    if (table == "URLs" && key == "REPO_URL_FALLBACKS") append_unique(config.main_sources, string_array(value));
+    if (table == "URLs" && key == "OCR_REPO_SOURCES") append_unique(config.ocr_sources, string_array(value));
 }
 
 }  // namespace
@@ -257,38 +279,37 @@ InstallerConfig parse_config(const std::string& content) {
 }
 
 std::string render_config(const InstallerConfig& config) {
-    std::ostringstream output;
-    std::istringstream input(config.source_toml);
-    std::string line, table;
-    bool keep = true;
-    while (std::getline(input, line)) {
-        const auto stripped = trim(line);
-        if (stripped.size() > 2 && stripped.front() == '[' && stripped.back() == ']') {
-            table = stripped.substr(1, stripped.size() - 2);
-            keep = !is_managed_table(table);
-        }
-        // schema_version is regenerated below.  Keeping an older root-level
-        // value would create an ambiguous TOML document after migration.
-        const auto equal = stripped.find('=');
-        if (table.empty() && equal != std::string::npos && trim(stripped.substr(0, equal)) == "schema_version") continue;
-        if (keep) output << line << '\n';
+    const auto primary_main = config.main_sources.empty()
+        ? std::string{"https://github.com/pur1fying/blue_archive_auto_script.git"}
+        : config.main_sources.front();
+    std::vector<std::string> main_fallbacks;
+    if (config.main_sources.size() > 1) {
+        main_fallbacks.assign(config.main_sources.begin() + 1, config.main_sources.end());
     }
-    output << "schema_version = 1\n\n[general]\n"
-           << "mirrorc_cdk = " << toml_quote(config.mirrorc_cdk) << "\n"
-           << "channel = " << toml_quote(config.channel) << "\n"
-           << "current_baas_sha = " << toml_quote(config.main_sha) << "\n"
-           << "current_baas_cpp_sha = " << toml_quote(config.ocr_sha) << "\n"
-           << "git_backend = " << toml_quote(config.git_backend) << "\n" << preserved_unknown(config, "general") << "\n"
-           << "[paths]\nbaas_root_path = " << toml_quote(config.baas_root_path) << "\ntmp_path = \"tmp\"\ntoolkit_path = \"toolkit\"\n\n"
-           << "[python]\nruntime_path = " << toml_quote(config.runtime_path) << "\npython_version = " << toml_quote(config.python_version) << "\n" << preserved_unknown(config, "python") << "\n"
-           << "[repositories]\nmain_sources = " << render_array(config.main_sources) << "\ncpp_sources = " << render_array(config.ocr_sources) << "\n" << preserved_unknown(config, "repositories") << "\n"
+
+    std::ostringstream output;
+    output << "schema_version = 1\n\n"
            << "[General]\nmirrorc_cdk = " << toml_quote(config.mirrorc_cdk) << "\n"
            << "current_BAAS_version = " << toml_quote(config.main_sha) << "\n"
            << "current_BAAS_Cpp_version = " << toml_quote(config.ocr_sha) << "\n"
            << "channel = " << toml_quote(config.channel) << "\ngit_backend = " << toml_quote(config.git_backend) << "\n"
-           << "runtime_path = " << toml_quote(config.runtime_path) << "\nsource_list = " << render_array(config.pypi_sources) << "\npackage_manager = \"uv\"\n" << preserved_unknown(config, "General") << "\n"
-           << "[URLs]\nREPO_URL_HTTP = " << toml_quote(config.main_sources.empty() ? "https://github.com/pur1fying/blue_archive_auto_script.git" : config.main_sources.front()) << "\n" << preserved_unknown(config, "URLs") << "\n"
-           << "[Paths]\nBAAS_ROOT_PATH = " << toml_quote(config.baas_root_path) << "\nTMP_PATH = \"tmp\"\nTOOL_KIT_PATH = \"toolkit\"\n";
+           << "runtime_path = " << toml_quote(config.runtime_path) << "\n"
+           << "python_version = " << toml_quote(config.python_version) << "\n"
+           << "source_list = " << render_array(config.pypi_sources) << "\npackage_manager = \"uv\"\n"
+           << preserved_unknown(config, "General")
+           << preserved_unknown(config, "general")
+           << preserved_unknown(config, "python")
+           << "\n[URLs]\nREPO_URL_HTTP = " << toml_quote(primary_main) << "\n"
+           << "REPO_URL_FALLBACKS = " << render_array(main_fallbacks) << "\n"
+           << "OCR_REPO_SOURCES = " << render_array(config.ocr_sources) << "\n"
+           << preserved_unknown(config, "URLs")
+           << preserved_unknown(config, "repositories")
+           << "\n[Paths]\nBAAS_ROOT_PATH = " << toml_quote(config.baas_root_path)
+           << "\nTMP_PATH = \"tmp\"\nTOOL_KIT_PATH = \"toolkit\"\n"
+           << preserved_unknown(config, "Paths")
+           << preserved_unknown(config, "paths");
+    const auto unmanaged = preserved_unmanaged(config);
+    if (!unmanaged.empty()) output << '\n' << unmanaged;
     return output.str();
 }
 
