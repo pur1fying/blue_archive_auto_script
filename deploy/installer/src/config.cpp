@@ -2,11 +2,17 @@
 
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
+
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
 
 namespace fs = std::filesystem;
 
@@ -177,6 +183,8 @@ std::string preserved_unknown(const InstallerConfig& config, const std::string& 
 void set_value(InstallerConfig& config, const std::string& table, const std::string& key, const std::string& value) {
     const auto assign = [](std::string& target, const std::string& source) { target = unquote(source); };
     if ((table == "general" || table == "General") && key == "mirrorc_cdk") assign(config.mirrorc_cdk, value);
+    if ((table == "paths" && key == "baas_root_path") ||
+        (table == "Paths" && key == "BAAS_ROOT_PATH")) assign(config.baas_root_path, value);
     if ((table == "general" && key == "current_baas_sha") || (table == "General" && key == "current_BAAS_version")) assign(config.main_sha, value);
     if ((table == "general" && key == "current_baas_cpp_sha") || (table == "General" && key == "current_BAAS_Cpp_version")) assign(config.ocr_sha, value);
     if ((table == "python" && key == "runtime_path") || (table == "General" && key == "runtime_path")) assign(config.runtime_path, value);
@@ -219,7 +227,7 @@ InstallerConfig parse_config(const std::string& content) {
                 table = stripped.substr(1, stripped.size() - 2);
                 continue;
             }
-            const bool legacy = table == "General";
+            const bool legacy = table == "General" || table == "Paths" || table == "URLs";
             if (legacy != legacy_only) continue;
             const auto equal = stripped.find('=');
             if (equal != std::string::npos) {
@@ -269,7 +277,7 @@ std::string render_config(const InstallerConfig& config) {
            << "current_baas_sha = " << toml_quote(config.main_sha) << "\n"
            << "current_baas_cpp_sha = " << toml_quote(config.ocr_sha) << "\n"
            << "git_backend = " << toml_quote(config.git_backend) << "\n" << preserved_unknown(config, "general") << "\n"
-           << "[paths]\nbaas_root_path = \".\"\ntmp_path = \"tmp\"\ntoolkit_path = \"toolkit\"\n\n"
+           << "[paths]\nbaas_root_path = " << toml_quote(config.baas_root_path) << "\ntmp_path = \"tmp\"\ntoolkit_path = \"toolkit\"\n\n"
            << "[python]\nruntime_path = " << toml_quote(config.runtime_path) << "\npython_version = " << toml_quote(config.python_version) << "\n" << preserved_unknown(config, "python") << "\n"
            << "[repositories]\nmain_sources = " << render_array(config.main_sources) << "\ncpp_sources = " << render_array(config.ocr_sources) << "\n" << preserved_unknown(config, "repositories") << "\n"
            << "[General]\nmirrorc_cdk = " << toml_quote(config.mirrorc_cdk) << "\n"
@@ -278,7 +286,7 @@ std::string render_config(const InstallerConfig& config) {
            << "channel = " << toml_quote(config.channel) << "\ngit_backend = " << toml_quote(config.git_backend) << "\n"
            << "runtime_path = " << toml_quote(config.runtime_path) << "\nsource_list = " << render_array(config.pypi_sources) << "\npackage_manager = \"uv\"\n" << preserved_unknown(config, "General") << "\n"
            << "[URLs]\nREPO_URL_HTTP = " << toml_quote(config.main_sources.empty() ? "https://github.com/pur1fying/blue_archive_auto_script.git" : config.main_sources.front()) << "\n" << preserved_unknown(config, "URLs") << "\n"
-           << "[Paths]\nBAAS_ROOT_PATH = \".\"\nTMP_PATH = \"tmp\"\nTOOL_KIT_PATH = \"toolkit\"\n";
+           << "[Paths]\nBAAS_ROOT_PATH = " << toml_quote(config.baas_root_path) << "\nTMP_PATH = \"tmp\"\nTOOL_KIT_PATH = \"toolkit\"\n";
     return output.str();
 }
 
@@ -289,9 +297,10 @@ InstallerConfig load_config(const InstallPaths& paths) {
 }
 
 void save_config_atomic(const InstallerConfig& config, const InstallPaths& paths) {
-    fs::create_directories(paths.root);
-    const auto next = paths.setup_toml.string() + ".new";
-    const auto backup = paths.setup_toml.string() + ".bak";
+    fs::create_directories(paths.setup_toml.parent_path());
+    const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto next = paths.setup_toml.parent_path() /
+                      (paths.setup_toml.filename().string() + ".new-" + std::to_string(nonce));
     {
         std::ofstream output(next, std::ios::binary | std::ios::trunc);
         if (!output) throw std::runtime_error("failed to create setup.toml.new");
@@ -301,23 +310,27 @@ void save_config_atomic(const InstallerConfig& config, const InstallPaths& paths
         output.close();
         if (!output) throw std::runtime_error("failed to close setup.toml.new");
     }
-    std::error_code error;
-    if (fs::exists(backup)) {
-        fs::remove(backup, error);
-        if (error) { fs::remove(next); throw std::runtime_error("failed to replace setup.toml backup"); }
-    }
-    if (fs::exists(paths.setup_toml)) {
-        fs::rename(paths.setup_toml, backup, error);
-        if (error) { fs::remove(next); throw std::runtime_error("failed to back up setup.toml"); }
-    }
-    error.clear();
-    fs::rename(next, paths.setup_toml, error);
-    if (error) {
-        std::error_code restore_error;
-        if (fs::exists(backup)) fs::rename(backup, paths.setup_toml, restore_error);
-        fs::remove(next, restore_error);
+#ifdef _WIN32
+    if (!MoveFileExW(next.wstring().c_str(), paths.setup_toml.wstring().c_str(),
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
         throw std::runtime_error("failed to replace setup.toml");
     }
+#else
+    std::error_code error;
+    fs::rename(next, paths.setup_toml, error);
+    if (error) throw std::runtime_error("failed to replace setup.toml");
+#endif
+}
+
+void begin_install_session_config(InstallerConfig& config, const InstallPaths& paths) {
+    config.mirrorc_cdk.clear();
+    save_config_atomic(config, paths);
+}
+
+void commit_successful_mirror_cdk(InstallerConfig& config, const InstallPaths& paths,
+                                  const std::string& verified_cdk) {
+    config.mirrorc_cdk = verified_cdk;
+    save_config_atomic(config, paths);
 }
 
 }  // namespace baas_installer

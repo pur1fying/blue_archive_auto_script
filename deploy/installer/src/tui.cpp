@@ -1,4 +1,5 @@
 #include "baas_installer/tui.hpp"
+#include "baas_installer/paths.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -7,6 +8,7 @@
 #include <iomanip>
 #include <sstream>
 #include <thread>
+#include <unordered_set>
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_options.hpp>
@@ -119,14 +121,59 @@ void InstallerViewModel::append_event(LogEvent event) {
 
 void InstallerViewModel::append_process_chunk(const std::string& task, const std::string& backend,
                                               const std::string_view chunk) {
+    constexpr std::string_view begin_prefix = "probe-section-begin:";
+    constexpr std::string_view end_prefix = "probe-section-end:";
+    const auto section_text = [](const std::string_view value) {
+        std::string text(value);
+        while (!text.empty() && (text.back() == '\r' || text.back() == '\n')) text.pop_back();
+        return text;
+    };
+    if (backend.starts_with(begin_prefix)) {
+        begin_log_section(task, "probe", backend.substr(begin_prefix.size()), section_text(chunk));
+        return;
+    }
+    if (backend.starts_with(end_prefix)) {
+        end_log_section(task, "probe", backend.substr(end_prefix.size()), section_text(chunk));
+        return;
+    }
     std::vector<DecodedLine> lines;
+    std::string section_id;
     {
         std::scoped_lock lock(mutex_);
         lines = decoders_[task + '\0' + backend].consume(chunk);
+        const auto active = active_sections_.find(task + '\0' + backend);
+        if (active != active_sections_.end()) section_id = active->second;
     }
     for (auto& line : lines) {
-        append_event({now_timestamp(), task, backend, LogSeverity::Info, std::move(line.text), line.replace_last});
+        append_event({now_timestamp(), task, backend, LogSeverity::Info, std::move(line.text),
+                      line.replace_last, section_id});
     }
+}
+
+void InstallerViewModel::begin_log_section(const std::string& task, const std::string& backend,
+                                           std::string section_id, std::string title) {
+    {
+        std::scoped_lock lock(mutex_);
+        active_sections_[task + '\0' + backend] = section_id;
+    }
+    append_event({.timestamp = now_timestamp(), .task = task, .backend = backend,
+                  .severity = LogSeverity::Info, .text = std::move(title),
+                  .section_id = std::move(section_id),
+                  .section_action = LogSectionAction::Begin});
+}
+
+void InstallerViewModel::end_log_section(const std::string& task, const std::string& backend,
+                                         const std::string& section_id, std::string summary) {
+    {
+        std::scoped_lock lock(mutex_);
+        const auto active = active_sections_.find(task + '\0' + backend);
+        if (active != active_sections_.end() && active->second == section_id) {
+            active_sections_.erase(active);
+        }
+    }
+    append_event({.timestamp = now_timestamp(), .task = task, .backend = backend,
+                  .severity = LogSeverity::Info, .text = std::move(summary),
+                  .section_id = section_id, .section_action = LogSectionAction::End});
 }
 
 void InstallerViewModel::scroll_logs(const int delta) {
@@ -166,13 +213,38 @@ void InstallerViewModel::finish_failure(std::string error) {
     append_event({now_timestamp(), "complete", "installer", LogSeverity::Error, std::move(logged_error), false});
 }
 
+void InstallerViewModel::return_to_setup() {
+    std::scoped_lock lock(mutex_);
+    state_.screen = InstallerScreen::Setup;
+    state_.error.clear();
+    state_.exit_requested = false;
+    state_.log_scroll = 0;
+    decoders_.clear();
+    active_sections_.clear();
+    active_sections_.clear();
+    for (auto& [_, task] : state_.tasks) task = {task.label};
+}
+
 InstallerSnapshot InstallerViewModel::snapshot() const {
     InstallerSnapshot result;
     {
         std::scoped_lock lock(mutex_);
         result = state_;
     }
-    for (const auto& event : event_log_->snapshot()) result.log_lines.push_back(format_log_event(event));
+    const auto events = event_log_->snapshot();
+    std::unordered_set<std::string> closed_sections;
+    for (const auto& event : events) {
+        if (!event.section_id.empty() && event.section_action == LogSectionAction::End) {
+            closed_sections.insert(event.section_id);
+        }
+    }
+    for (const auto& event : events) {
+        if (!event.section_id.empty() && closed_sections.contains(event.section_id) &&
+            event.section_action != LogSectionAction::End) {
+            continue;
+        }
+        result.log_lines.push_back(format_log_event(event));
+    }
     return result;
 }
 
@@ -219,10 +291,12 @@ std::string redact_cdk(const std::string& cdk) {
 int run_unattended(const std::string& configured_cdk, const TuiInstallAction& install) {
     InstallerViewModel model(false);
     model.begin_install();
-    const auto [success, error] = install(configured_cdk, model, [] {});
-    if (success) model.finish_success();
-    else model.finish_failure(error.empty() ? message(detect_system_language(), MessageId::StateFailed) : error);
-    return success ? 0 : 1;
+    const auto result = install(configured_cdk, model, [] {});
+    if (result.success) model.finish_success();
+    else model.finish_failure(result.error.empty()
+                                  ? message(detect_system_language(), MessageId::StateFailed)
+                                  : result.error);
+    return result.success ? 0 : 1;
 }
 
 namespace {
@@ -311,6 +385,89 @@ ftxui::Element render_installation_view(const InstallerSnapshot& snapshot, const
            size(WIDTH, EQUAL, std::max(1, width)) | size(HEIGHT, EQUAL, std::max(1, height));
 }
 
+MirrorRecoveryState mirror_failure_recovery(const MirrorRecoveryAction action) {
+    return MirrorRecoveryState{
+        .use_mirror = true,
+        .focus_cdk = action == MirrorRecoveryAction::ReenterCdk,
+        .cdk = {},
+    };
+}
+
+ftxui::Element render_install_target_view(const Language language, ftxui::Element controls,
+                                          const std::string& error, const int width,
+                                          const int height) {
+    using namespace ftxui;
+    Elements content{
+        project_header(language, width),
+        separator(),
+        text(message(language, MessageId::InstallDirectoryTitle)) | bold,
+        paragraph(message(language, MessageId::InstallDirectoryHint)) | dim,
+        std::move(controls) | flex,
+    };
+    if (!error.empty()) content.push_back(paragraph(error) | color(Color::RedLight));
+    return vbox(std::move(content)) | borderRounded |
+           size(WIDTH, EQUAL, std::max(1, width)) |
+           size(HEIGHT, EQUAL, std::max(1, height));
+}
+
+ftxui::Element render_mirror_failure_modal(ftxui::Element background, const Language language,
+                                           const std::string& error, ftxui::Element controls,
+                                           const int width, const int height) {
+    using namespace ftxui;
+    auto dialog = vbox({
+        text(message(language, MessageId::MirrorFailureTitle)) | bold | color(Color::RedLight),
+        separator(),
+        paragraph(error) | color(Color::RedLight),
+        separator(),
+        paragraph(message(language, MessageId::MirrorFailureHint)) | dim,
+        separator(),
+        std::move(controls),
+    }) | borderRounded | size(WIDTH, LESS_THAN, std::max(40, std::min(width - 4, 84)));
+    return dbox({std::move(background) | dim, std::move(dialog) | center}) |
+           size(WIDTH, EQUAL, std::max(1, width)) |
+           size(HEIGHT, EQUAL, std::max(1, height));
+}
+
+int run_install_target_tui(const std::filesystem::path& default_root,
+                           const TuiTargetAction& select_target) {
+    using namespace ftxui;
+    configure_utf8_terminal();
+    const auto language = detect_system_language();
+    auto screen = ScreenInteractive::Fullscreen();
+    std::string selected = path_to_utf8(default_root);
+    std::string validation_error;
+    bool accepted = false;
+    auto exit_loop = screen.ExitLoopClosure();
+
+    InputOption path_options = InputOption::Default();
+    path_options.multiline = false;
+    auto path_input = Input(&selected, selected, path_options);
+    auto start = Button(message(language, MessageId::ActionStart), [&] {
+        try {
+            const auto [success, error] = select_target
+                ? select_target(path_from_utf8(selected))
+                : std::pair{false, std::string("installation target action is unavailable")};
+            if (success) {
+                accepted = true;
+                exit_loop();
+            } else {
+                validation_error = error.empty() ? message(language, MessageId::StateFailed) : error;
+            }
+        } catch (const std::exception& exception) {
+            validation_error = exception.what();
+        }
+    });
+    auto controls = Container::Vertical({path_input, start});
+    auto renderer = Renderer(controls, [&] {
+        auto fields = vbox({hbox({text("  "), path_input->Render() | flex}) | border,
+                            separator(), start->Render() | center});
+        return render_install_target_view(language, std::move(fields), validation_error,
+                                          screen.dimx(), screen.dimy());
+    });
+    screen.Loop(renderer);
+    return accepted ? 0 : 1;
+}
+
 int run_tui(const bool setup_required, const std::string& configured_cdk, const TuiInstallAction& install,
             const bool /*auto_exit*/) {
     using namespace ftxui;
@@ -323,6 +480,8 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
     std::atomic<bool> running{false};
     std::atomic<bool> succeeded{false};
     int active_tab = setup_required ? 0 : 1;
+    int failure_controls_tab = 0;
+    bool mirror_failure_visible = false;
     std::thread worker;
 
     auto wake = [&] { screen.PostEvent(Event::Custom); };
@@ -335,17 +494,24 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
         active_tab = 1;
         wake();
         worker = std::thread([&, chosen_cdk = use_mirror ? cdk : std::string{}] {
-            const auto [success, error] = install(chosen_cdk, model, wake);
-            if (success) {
+            const auto result = install(chosen_cdk, model, wake);
+            if (result.success) {
                 succeeded = true;
                 model.finish_success();
             } else {
-                model.finish_failure(error.empty() ? message(language, MessageId::StateFailed) : error);
+                model.finish_failure(result.error.empty() ? message(language, MessageId::StateFailed)
+                                                          : result.error);
             }
             running = false;
-            screen.Post([&, success] {
-                if (success) exit_loop();
-                else active_tab = 2;
+            screen.Post([&, success = result.success, failure_kind = result.failure_kind] {
+                if (success) {
+                    exit_loop();
+                } else {
+                    mirror_failure_visible = failure_kind == InstallFailureKind::MirrorChyan;
+                    failure_controls_tab = mirror_failure_visible ? 1 : 0;
+                    if (mirror_failure_visible) cdk.clear();
+                    active_tab = 2;
+                }
             });
         });
     };
@@ -358,9 +524,27 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
     auto begin = Button(message(language, MessageId::ActionStart), start_install);
     auto retry = Button(message(language, MessageId::ActionRetry), start_install);
     auto close = Button(message(language, MessageId::ActionExit), exit_loop);
+    const auto recover = [&](const MirrorRecoveryAction action) {
+        if (worker.joinable()) worker.join();
+        const auto recovery = mirror_failure_recovery(action);
+        use_mirror = recovery.use_mirror;
+        cdk = recovery.cdk;
+        mirror_failure_visible = false;
+        model.return_to_setup();
+        active_tab = 0;
+        if (recovery.focus_cdk) cdk_input->TakeFocus();
+        else mirror->TakeFocus();
+    };
+    auto reenter_cdk = Button(message(language, MessageId::ActionReenterCdk),
+                              [&] { recover(MirrorRecoveryAction::ReenterCdk); });
+    auto back_settings = Button(message(language, MessageId::ActionBackSettings),
+                                [&] { recover(MirrorRecoveryAction::BackToSettings); });
     auto setup_controls = Container::Vertical({mirror, cdk_input, begin});
     auto install_controls = Renderer([] { return text(""); });
-    auto result_controls = Container::Horizontal({retry, close});
+    auto general_failure_controls = Container::Horizontal({retry, close});
+    auto mirror_failure_controls = Container::Horizontal({reenter_cdk, back_settings});
+    auto result_controls = Container::Tab(
+        {general_failure_controls, mirror_failure_controls}, &failure_controls_tab);
     auto controls = Container::Tab({setup_controls, install_controls, result_controls}, &active_tab);
 
     auto renderer = Renderer(controls, [&] {
@@ -375,14 +559,19 @@ int run_tui(const bool setup_required, const std::string& configured_cdk, const 
         }
 
         Element footer;
-        if (state.screen == InstallerScreen::Failed) {
+        if (state.screen == InstallerScreen::Failed && !mirror_failure_visible) {
             footer = vbox({text(message(language, MessageId::StateFailed)) | bold | color(Color::Red),
                            paragraph(state.error) | color(Color::RedLight),
                            hbox({retry->Render(), text("  "), close->Render()}) | center});
         } else {
             footer = hbox({gauge(aggregate_progress(state)) | color(Color::Cyan) | flex});
         }
-        return render_installation_view(state, language, std::move(footer), screen.dimx(), screen.dimy());
+        auto installation = render_installation_view(
+            state, language, std::move(footer), screen.dimx(), screen.dimy());
+        if (!mirror_failure_visible) return installation;
+        auto modal_controls = hbox({reenter_cdk->Render(), text("  "), back_settings->Render()}) | center;
+        return render_mirror_failure_modal(std::move(installation), language, state.error,
+                                           std::move(modal_controls), screen.dimx(), screen.dimy());
     });
 
     auto interactive = CatchEvent(renderer, [&](const Event& event) {

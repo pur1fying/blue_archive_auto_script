@@ -462,6 +462,7 @@ bool launch_detached(const std::vector<std::string>& arguments,
     execvp(argv.front(), argv.data());
     fail(errno);
 #endif
+    return false;
 }
 
 }  // namespace baas_installer

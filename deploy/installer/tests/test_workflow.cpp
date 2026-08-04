@@ -1,4 +1,5 @@
 #include "baas_installer/workflow.hpp"
+#include "baas_installer/deployment_manifest.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -9,6 +10,12 @@
 
 namespace fs = std::filesystem;
 static void write(const fs::path& path, const std::string& text) { fs::create_directories(path.parent_path()); std::ofstream(path) << text; }
+static void own_existing_repository_files(const baas_installer::InstallPaths& paths) {
+    baas_installer::save_deployment_manifest_atomic(
+        paths, baas_installer::DeploymentTree::Main, {fs::path("main.txt")});
+    baas_installer::save_deployment_manifest_atomic(
+        paths, baas_installer::DeploymentTree::Ocr, {fs::path("ocr.txt")});
+}
 
 int main() {
     const auto fixture = fs::temp_directory_path() / "baas-installer-workflow";
@@ -64,6 +71,7 @@ int main() {
     auto failing_paths = baas_installer::InstallPaths::from_executable(fixture / "rollback" / "BlueArchiveAutoScript.exe");
     write(failing_paths.root / "main.txt", "old-main");
     write(failing_paths.root / "core/ocr/baas_ocr_client/bin/ocr.txt", "old-ocr");
+    own_existing_repository_files(failing_paths);
     baas_installer::InstallerConfig failing_config;
     failing_config.main_sha = "main-old";
     failing_config.ocr_sha = "ocr-old";
@@ -97,6 +105,7 @@ int main() {
         fixture / "commit-failure" / "BlueArchiveAutoScript.exe");
     write(commit_failure_paths.root / "main.txt", "old-main");
     write(commit_failure_paths.root / "core/ocr/baas_ocr_client/bin/ocr.txt", "old-ocr");
+    own_existing_repository_files(commit_failure_paths);
     baas_installer::InstallerConfig commit_failure_config;
     commit_failure_config.main_sha = "main-old";
     commit_failure_config.ocr_sha = "ocr-old";
@@ -140,6 +149,7 @@ int main() {
         fixture / "maintenance-failure" / "BlueArchiveAutoScript.exe");
     write(maintenance_failure_paths.root / "main.txt", "old-main");
     write(maintenance_failure_paths.root / "core/ocr/baas_ocr_client/bin/ocr.txt", "old-ocr");
+    own_existing_repository_files(maintenance_failure_paths);
     baas_installer::InstallerConfig maintenance_failure_config;
     maintenance_failure_config.main_sha = "main-old";
     maintenance_failure_config.ocr_sha = "ocr-old";
@@ -183,7 +193,8 @@ int main() {
     preparation_failure_config.ocr_sha = "ocr-old";
     baas_installer::WorkflowServices preparation_failure = services;
     preparation_failure.prepare_main = [](auto&) {
-        return baas_installer::PreparedRepository{.success = false, .error = "forced preparation failure"};
+        return baas_installer::PreparedRepository{
+            .success = false, .backend = "mirrorchyan", .error = "forced preparation failure"};
     };
     preparation_failure.prepare_ocr = [](auto&) {
         return baas_installer::PreparedRepository{.success = false, .error = "forced preparation failure"};
@@ -191,7 +202,8 @@ int main() {
     const auto preparation_failed = baas_installer::install_or_update(
         preparation_failure_config, preparation_failure_paths, preparation_failure);
     const auto preparation_persisted = baas_installer::load_config(preparation_failure_paths);
-    if (preparation_failed.success || !fs::exists(preparation_failure_paths.setup_toml) ||
+    if (preparation_failed.success || preparation_failed.failure_backend != "mirrorchyan" ||
+        !fs::exists(preparation_failure_paths.setup_toml) ||
         preparation_persisted.mirrorc_cdk != "selected-cdk" ||
         preparation_persisted.main_sha != "main-old" || preparation_persisted.ocr_sha != "ocr-old") {
         std::cerr << "preparation failure must retain the initial setup.toml and old versions\n";

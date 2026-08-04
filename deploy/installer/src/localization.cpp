@@ -12,14 +12,19 @@
 namespace baas_installer {
 namespace {
 
-constexpr std::size_t message_count = static_cast<std::size_t>(MessageId::LaunchFailed) + 1;
+constexpr std::size_t message_count = static_cast<std::size_t>(MessageId::ActionBackSettings) + 1;
 
 constexpr std::array<const char*, message_count> english{
     "Welcome to BlueArchive Auto Script!", "Installation and migration tool", "Installation source", "Use MirrorChyan CDK", "Enter CDK",
     "Without a CDK, Git and ranked mirrors are used automatically.", "Start installation", "Retry", "Exit",
     "Main repository", "OCR component", "Deployment", "Python / uv", "Verification", "Launch BAAS",
     "Waiting", "Checking", "Downloading", "Applying", "Complete", "Failed",
+    "Choose a dedicated installation directory",
+    "Only a new, empty, or recognized BAAS directory is accepted. Unknown files are never removed.",
     "Installation succeeded, but BAAS could not be launched",
+    "MirrorChyan installation failed",
+    "MirrorChyan will not fall back to Git. Re-enter the CDK or return to installation settings.",
+    "Re-enter CDK", "Back to settings",
 };
 
 constexpr std::array<const char*, message_count> chinese{
@@ -27,7 +32,12 @@ constexpr std::array<const char*, message_count> chinese{
     "没有 CDK 时将使用 Git，并按镜像源自动回退。", "开始安装", "重试", "退出",
     "主仓库", "OCR 组件", "文件部署", "Python / uv", "完整性检查", "启动 BAAS",
     "等待中", "正在检查", "正在下载", "正在应用", "已完成", "失败",
+    "选择专用安装目录",
+    "仅允许新目录、空目录或可识别的 BAAS 目录；绝不会删除未知文件。",
     "安装成功，但无法启动 BAAS",
+    "MirrorChyan 安装失败",
+    "MirrorChyan 不会回退到 Git。请重新填写 CDK，或返回安装设置。",
+    "重新填写 CDK", "返回安装设置",
 };
 
 std::string environment_value(const char* name) {

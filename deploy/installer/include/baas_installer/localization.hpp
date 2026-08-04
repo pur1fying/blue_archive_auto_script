@@ -35,7 +35,13 @@ enum class MessageId {
     StateApplying,
     StateComplete,
     StateFailed,
+    InstallDirectoryTitle,
+    InstallDirectoryHint,
     LaunchFailed,
+    MirrorFailureTitle,
+    MirrorFailureHint,
+    ActionReenterCdk,
+    ActionBackSettings,
 };
 
 Language detect_language(const LocaleInputs& inputs);

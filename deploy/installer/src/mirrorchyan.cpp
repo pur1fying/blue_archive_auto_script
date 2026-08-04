@@ -1,4 +1,5 @@
 #include "baas_installer/mirrorchyan.hpp"
+#include "baas_installer/paths.hpp"
 #include "baas_installer/curl_runtime.hpp"
 #include "baas_installer/process.hpp"
 
@@ -151,6 +152,30 @@ MirrorRelease parse_mirror_response(const std::string& json) {
         result.status = CdkStatus::Malformed;
     }
     return result;
+}
+
+std::string mirror_failure_reason(const MirrorRelease& release, const std::string& transport_error) {
+    if (!transport_error.empty()) return transport_error;
+    if (!release.message.empty()) return "MirrorChyan: " + release.message;
+    switch (release.status) {
+        case CdkStatus::Invalid: return "MirrorChyan rejected the CDK as invalid";
+        case CdkStatus::Expired: return "MirrorChyan CDK has expired";
+        case CdkStatus::Exhausted: return "MirrorChyan CDK quota is exhausted";
+        case CdkStatus::Mismatched: return "MirrorChyan CDK does not match this resource";
+        case CdkStatus::Blocked: return "MirrorChyan CDK is blocked";
+        case CdkStatus::Malformed: return "MirrorChyan returned a malformed response";
+        case CdkStatus::ServerError: return "MirrorChyan server request failed";
+        case CdkStatus::Valid:
+        case CdkStatus::UpToDate: return "MirrorChyan package was unavailable";
+    }
+    return "MirrorChyan installation failed";
+}
+
+RepositorySourceDecision repository_source_decision(const bool mirror_selected,
+                                                     const bool mirror_prepared) {
+    if (!mirror_selected) return RepositorySourceDecision::UseGit;
+    return mirror_prepared ? RepositorySourceDecision::UseMirror
+                           : RepositorySourceDecision::Fail;
 }
 
 MirrorRelease request_mirror_release(const std::string& request_url, std::string& error, const long timeout_seconds) {
@@ -336,6 +361,11 @@ bool validate_archive_entries(const std::vector<std::string>& entries, std::stri
 bool extract_mirror_archive(const fs::path& archive, const fs::path& destination, std::string& error,
                             const std::function<void(std::string_view)>& on_chunk) {
     error.clear();
+    std::error_code destination_error;
+    if (fs::exists(destination, destination_error) || destination_error) {
+        error = "refusing to clear a pre-existing MirrorChyan extraction directory";
+        return false;
+    }
 #ifdef BAAS_INSTALLER_HAS_LIBARCHIVE
     struct archive* reader = archive_read_new();
     if (!reader) {
@@ -355,7 +385,6 @@ bool extract_mirror_archive(const fs::path& archive, const fs::path& destination
         return false;
     }
     std::error_code ignored;
-    fs::remove_all(destination, ignored);
     fs::create_directories(destination, ignored);
     if (ignored) {
         error = "could not create archive extraction directory";
@@ -438,7 +467,7 @@ bool extract_mirror_archive(const fs::path& archive, const fs::path& destination
     return true;
 #else
     ProcessSpec listing;
-    listing.arguments = {"tar", "-tf", archive.string()};
+    listing.arguments = {"tar", "-tf", path_to_utf8(archive)};
     const auto listed = run_process(listing);
     if (listed.exit_code != 0) {
         error = "could not list MirrorChyan archive";
@@ -452,19 +481,17 @@ bool extract_mirror_archive(const fs::path& archive, const fs::path& destination
     }
     if (entries.empty() || !validate_archive_entries(entries, error)) return false;
     std::error_code ignored;
-    fs::remove_all(destination, ignored);
     fs::create_directories(destination, ignored);
     if (ignored) {
         error = "could not create MirrorChyan extraction directory";
         return false;
     }
     ProcessSpec extraction;
-    extraction.arguments = {"tar", "-xf", archive.string(), "-C", destination.string()};
+    extraction.arguments = {"tar", "-xf", path_to_utf8(archive), "-C", path_to_utf8(destination)};
     extraction.use_pty = true;
     extraction.on_chunk = on_chunk;
     extraction.timeout = std::chrono::minutes(5);
     if (run_terminal_process(extraction).exit_code != 0) {
-        fs::remove_all(destination, ignored);
         error = "could not extract MirrorChyan archive";
         return false;
     }
@@ -493,7 +520,12 @@ bool download_mirror_package(const MirrorRelease& release, const fs::path& archi
 #ifdef BAAS_INSTALLER_HAS_CURL
     if (!ensure_curl_initialized()) { error = "cannot initialize HTTP runtime"; return false; }
     fs::create_directories(archive.parent_path());
-    FILE* output = std::fopen(archive.string().c_str(), "wb"); if (!output) { error = "cannot create staging archive"; return false; }
+#ifdef _WIN32
+    FILE* output = _wfopen(archive.wstring().c_str(), L"wb");
+#else
+    FILE* output = std::fopen(archive.string().c_str(), "wb");
+#endif
+    if (!output) { error = "cannot create staging archive"; return false; }
     CURL* curl = curl_easy_init();
     if (!curl) { std::fclose(output); error = "cannot initialize HTTP client"; return false; }
     curl_easy_setopt(curl, CURLOPT_URL, release.download_url.c_str()); curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_file); curl_easy_setopt(curl, CURLOPT_WRITEDATA, output); curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600L);
@@ -509,7 +541,10 @@ bool download_mirror_package(const MirrorRelease& release, const fs::path& archi
             });
     }
     const auto status = curl_easy_perform(curl); curl_easy_cleanup(curl); std::fclose(output);
-    if (status != CURLE_OK || !verify_sha256(archive, release.sha256)) { fs::remove(archive); error = status == CURLE_OK ? "MirrorChyan SHA-256 mismatch" : "MirrorChyan download failed"; return false; }
+    if (status != CURLE_OK || !verify_sha256(archive, release.sha256)) {
+        error = status == CURLE_OK ? "MirrorChyan SHA-256 mismatch" : "MirrorChyan download failed";
+        return false;
+    }
     if (on_progress) {
         std::error_code size_error;
         const auto size = fs::file_size(archive, size_error);

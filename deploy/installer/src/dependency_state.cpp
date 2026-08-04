@@ -4,9 +4,15 @@
 
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
 
 namespace fs = std::filesystem;
 
@@ -77,8 +83,9 @@ DependencyStamp load_dependency_stamp(const InstallPaths& paths) {
 
 void replace_file_atomic(const fs::path& path, const std::string& content) {
     fs::create_directories(path.parent_path());
-    const fs::path next = path.string() + ".new";
-    const fs::path backup = path.string() + ".bak";
+    const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
+    const fs::path next = path.parent_path() / path_from_utf8(
+        path_to_utf8(path.filename()) + ".new-" + std::to_string(nonce));
     {
         std::ofstream output(next, std::ios::binary | std::ios::trunc);
         if (!output) throw std::runtime_error("failed to create atomic dependency state");
@@ -86,24 +93,16 @@ void replace_file_atomic(const fs::path& path, const std::string& content) {
         output.flush();
         if (!output) throw std::runtime_error("failed to write atomic dependency state");
     }
-    std::error_code error;
-    fs::remove(backup, error);
-    error.clear();
-    if (fs::exists(path)) {
-        fs::rename(path, backup, error);
-        if (error) {
-            fs::remove(next, error);
-            throw std::runtime_error("failed to rotate dependency state");
-        }
-    }
-    error.clear();
-    fs::rename(next, path, error);
-    if (error) {
-        std::error_code ignored;
-        if (fs::exists(backup)) fs::rename(backup, path, ignored);
-        fs::remove(next, ignored);
+#ifdef _WIN32
+    if (!MoveFileExW(next.wstring().c_str(), path.wstring().c_str(),
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
         throw std::runtime_error("failed to replace dependency state");
     }
+#else
+    std::error_code error;
+    fs::rename(next, path, error);
+    if (error) throw std::runtime_error("failed to replace dependency state");
+#endif
 }
 
 bool has_managed_python(const InstallPaths& paths) {
@@ -112,7 +111,7 @@ bool has_managed_python(const InstallPaths& paths) {
     for (fs::recursive_directory_iterator item(paths.toolkit_dir / "uv" / "cpython", error), end;
          !error && item != end; item.increment(error)) {
         if (!item->is_regular_file(error)) continue;
-        auto name = item->path().filename().string();
+        auto name = path_to_utf8(item->path().filename());
         std::transform(name.begin(), name.end(), name.begin(), [](const unsigned char character) {
             return static_cast<char>(std::tolower(character));
         });
@@ -156,7 +155,7 @@ bool repair_managed_value(std::string& value, const fs::path& current_python_roo
             --start;
         }
         const auto end = found + marker.size();
-        auto replacement = current_python_root.string();
+        auto replacement = path_to_utf8(current_python_root);
         if (!replacement.empty() && replacement.back() != fs::path::preferred_separator) {
             replacement.push_back(fs::path::preferred_separator);
         }
@@ -221,7 +220,7 @@ DependencyState inspect_dependency_state(const InstallPaths& paths, const Instal
             result.reason = "managed environment incomplete";
             return result;
         }
-    } else if (!fs::is_regular_file(config.runtime_path)) {
+    } else if (!fs::is_regular_file(path_from_utf8(config.runtime_path))) {
         result.reason = "custom interpreter missing";
         return result;
     }
@@ -277,16 +276,15 @@ bool repair_managed_venv_after_move(const InstallPaths& paths, const InstallerCo
             for (const auto& item : fs::directory_iterator(binary_dir)) {
                 if (!item.is_symlink()) continue;
                 auto target = fs::read_symlink(item.path());
-                auto value = target.string();
+                auto value = path_to_utf8(target);
                 if (!repair_managed_value(value, paths.toolkit_dir / "uv" / "cpython")) continue;
-                const auto replacement = item.path().parent_path() / (item.path().filename().string() + ".new");
+                const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
+                const auto replacement = item.path().parent_path() / path_from_utf8(
+                    path_to_utf8(item.path().filename()) + ".new-" + std::to_string(nonce));
                 std::error_code link_error;
-                fs::remove(replacement, link_error);
-                link_error.clear();
                 fs::create_symlink(fs::path(value), replacement, link_error);
                 if (!link_error) fs::rename(replacement, item.path(), link_error);
                 if (link_error) {
-                    fs::remove(replacement, link_error);
                     throw std::runtime_error("could not repair managed virtualenv symlink");
                 }
             }

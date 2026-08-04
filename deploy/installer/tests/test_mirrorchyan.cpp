@@ -42,6 +42,22 @@ int main() {
     if (release.status != baas_installer::CdkStatus::Valid || release.version != "abc") { std::cerr << "valid response failed\n"; return 1; }
     const auto malformed = baas_installer::parse_mirror_response(R"({"code":0,"data":{"url":"https://x","sha256":"bad"}})");
     if (malformed.status != baas_installer::CdkStatus::Malformed || baas_installer::is_sha256("bad")) { std::cerr << "invalid digest accepted\n"; return 1; }
+    const auto invalid_cdk = baas_installer::parse_mirror_response(
+        R"({"code":1,"msg":"The supplied CDK is invalid"})");
+    const auto invalid_reason = baas_installer::mirror_failure_reason(invalid_cdk, {});
+    if (invalid_reason.find("The supplied CDK is invalid") == std::string::npos) {
+        std::cerr << "MirrorChyan failure reason discarded the server explanation\n";
+        return 1;
+    }
+    if (baas_installer::repository_source_decision(false, false) !=
+            baas_installer::RepositorySourceDecision::UseGit ||
+        baas_installer::repository_source_decision(true, true) !=
+            baas_installer::RepositorySourceDecision::UseMirror ||
+        baas_installer::repository_source_decision(true, false) !=
+            baas_installer::RepositorySourceDecision::Fail) {
+        std::cerr << "a selected MirrorChyan source was allowed to fall back to Git\n";
+        return 1;
+    }
     const auto file = std::filesystem::temp_directory_path() / "baas-installer-sha-test";
     std::ofstream(file, std::ios::binary) << "abc";
     const auto good = baas_installer::verify_sha256(file, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
@@ -188,6 +204,18 @@ int main() {
         std::cerr << "could not create ZIP extraction fixture\n";
         return 1;
     }
+    const auto occupied_extraction = std::filesystem::temp_directory_path() /
+                                     "baas-installer-mirror-archive-occupied";
+    std::filesystem::remove_all(occupied_extraction, ignored);
+    std::filesystem::create_directories(occupied_extraction);
+    std::ofstream(occupied_extraction / "unknown-user-file.txt") << "preserve";
+    std::string occupied_error;
+    if (baas_installer::extract_mirror_archive(archive_path, occupied_extraction,
+                                               occupied_error, {}) ||
+        !std::filesystem::is_regular_file(occupied_extraction / "unknown-user-file.txt")) {
+        std::cerr << "MirrorChyan extraction cleared an existing directory without ownership proof\n";
+        return 1;
+    }
     std::string extraction_chunks;
     if (!baas_installer::extract_mirror_archive(
             archive_path, extracted, archive_error,
@@ -198,6 +226,7 @@ int main() {
     }
     std::filesystem::remove_all(archive_fixture, ignored);
     std::filesystem::remove_all(extracted, ignored);
+    std::filesystem::remove_all(occupied_extraction, ignored);
     std::filesystem::remove(archive_path, ignored);
 #endif
     return 0;

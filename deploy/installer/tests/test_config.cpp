@@ -25,7 +25,7 @@ source_list = [
 ]
 
 [Paths]
-BAAS_ROOT_PATH = ""
+BAAS_ROOT_PATH = "legacy-root"
 
 [custom]
 keep_me = "yes"
@@ -36,6 +36,7 @@ keep_me = "yes"
     if (!require(config.uses_portable_runtime(), "portable runtime")) return 1;
     if (!require(config.pypi_sources.size() == 2 && config.pypi_sources.front() == "https://pypi.example/simple",
                  "legacy source_list parsed")) return 1;
+    if (!require(config.baas_root_path == "legacy-root", "legacy BAAS root parsed")) return 1;
 
     const auto rendered = baas_installer::render_config(config);
     if (!require(rendered.find("[general]") != std::string::npos, "current schema")) return 1;
@@ -52,10 +53,16 @@ keep_me = "yes"
     const auto mixed = baas_installer::parse_config(R"(
 [general]
 current_baas_sha = "current-main"
+[paths]
+baas_root_path = "current-root"
 [General]
 current_BAAS_version = "legacy-main"
+[Paths]
+BAAS_ROOT_PATH = "legacy-root"
 )");
-    if (!require(mixed.main_sha == "current-main", "current schema precedence")) return 1;
+    if (!require(mixed.main_sha == "current-main" && mixed.baas_root_path == "current-root",
+                 ("current schema precedence: main=" + mixed.main_sha +
+                  " root=" + mixed.baas_root_path).c_str())) return 1;
 
     const auto syntax = baas_installer::parse_config(R"(
 [General]
@@ -75,15 +82,27 @@ cpp_sources = ['https://current.example/ocr.git']
     const auto fixture = std::filesystem::temp_directory_path() / "baas-installer-config-atomic";
     std::error_code ignored;
     std::filesystem::remove_all(fixture, ignored);
-    auto paths = baas_installer::InstallPaths::from_executable(fixture / "BlueArchiveAutoScript.exe");
+    auto paths = baas_installer::InstallPaths::from_install_root(
+        fixture / "BAAS", fixture / "launcher" / "BlueArchiveAutoScript.exe");
     auto saved = syntax;
+    saved.baas_root_path = "..\\BAAS";
     saved.main_sha = "first";
     baas_installer::save_config_atomic(saved, paths);
     saved.main_sha = "second";
     baas_installer::save_config_atomic(saved, paths);
     const auto loaded = baas_installer::load_config(paths);
-    if (!require(loaded.main_sha == "second" && std::filesystem::exists(paths.setup_toml.string() + ".bak"),
-                 "repeated atomic save with existing backup")) return 1;
+    if (!require(loaded.main_sha == "second" && loaded.baas_root_path == "..\\BAAS" &&
+                     paths.setup_toml == fixture / "launcher" / "setup.toml" &&
+                     !std::filesystem::exists(paths.root / "setup.toml"),
+                 "configuration was not persisted beside the executable")) return 1;
+    saved.mirrorc_cdk = "wrong-session-cdk";
+    baas_installer::begin_install_session_config(saved, paths);
+    if (!require(saved.mirrorc_cdk.empty() && baas_installer::load_config(paths).mirrorc_cdk.empty(),
+                 "installation identity persisted a candidate CDK before MirrorChyan success")) return 1;
+    baas_installer::commit_successful_mirror_cdk(saved, paths, "verified-session-cdk");
+    if (!require(saved.mirrorc_cdk == "verified-session-cdk" &&
+                     baas_installer::load_config(paths).mirrorc_cdk == "verified-session-cdk",
+                 "successful MirrorChyan CDK was not persisted")) return 1;
     std::filesystem::remove_all(fixture, ignored);
     return 0;
 }

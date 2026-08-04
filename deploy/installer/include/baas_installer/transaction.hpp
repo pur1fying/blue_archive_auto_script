@@ -1,13 +1,21 @@
 #pragma once
 
+#include "baas_installer/deployment_manifest.hpp"
 #include "baas_installer/paths.hpp"
 
 #include <filesystem>
 #include <functional>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace baas_installer {
+
+enum class RemovalOwnership {
+    MainManifest,
+    OcrManifest,
+    GitMetadata,
+};
 
 class InstallTransaction {
 public:
@@ -25,7 +33,9 @@ public:
     void deploy_ocr_from(const std::filesystem::path& source);
     void replace_file(const std::filesystem::path& source, const std::filesystem::path& destination);
     void replace_directory(const std::filesystem::path& source, const std::filesystem::path& destination);
-    void remove_path(const std::filesystem::path& destination);
+    // Removal is refused unless the destination is proven by the selected
+    // ownership source. Unknown paths are preserved.
+    void remove_path(const std::filesystem::path& destination, RemovalOwnership ownership);
     void add_rollback_action(std::function<void()> action);
     void add_commit_action(std::function<void()> action);
     void add_post_commit_action(std::function<void()> action);
@@ -40,7 +50,12 @@ public:
 private:
     struct Change { std::filesystem::path destination; std::filesystem::path backup; bool existed{}; bool directory{}; };
     void deploy_tree(const std::filesystem::path& source, const std::filesystem::path& destination, bool skip_ocr_bin);
+    void replace_owned_manifest(const std::filesystem::path& source,
+                                const std::filesystem::path& destination);
+    DeploymentFileSet& mutable_manifest(DeploymentTree tree);
+    void stage_pending_manifests();
     void journal(const std::string& event) const;
+    void cleanup_staging() noexcept;
     void release_lock() noexcept;
 
     InstallPaths paths_;
@@ -49,9 +64,12 @@ private:
     std::vector<std::function<void()>> rollback_actions_;
     std::vector<std::function<void()>> commit_actions_;
     std::vector<std::function<void()>> post_commit_actions_;
+    std::optional<DeploymentFileSet> main_manifest_;
+    std::optional<DeploymentFileSet> ocr_manifest_;
     std::intptr_t lock_handle_{-1};
     bool commit_prepared_{};
     bool settled_{};
+    bool staging_owned_{};
 };
 
 }  // namespace baas_installer

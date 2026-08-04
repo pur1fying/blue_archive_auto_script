@@ -1,10 +1,13 @@
 #include "baas_installer/transaction.hpp"
+#include "baas_installer/deployment_manifest.hpp"
 
 #include <algorithm>
 #include <array>
 #include <chrono>
 #include <fstream>
 #include <stdexcept>
+
+#include <nlohmann/json.hpp>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -55,39 +58,53 @@ bool is_within(const fs::path& root, const fs::path& candidate) {
     return true;
 }
 
-std::string display_path(const fs::path& path) {
+bool is_link_or_reparse_point(const fs::path& path) {
+    std::error_code error;
+    if (fs::is_symlink(fs::symlink_status(path, error))) return true;
 #ifdef _WIN32
-    const auto wide = path.wstring();
-    const auto size = WideCharToMultiByte(CP_UTF8, 0, wide.data(), static_cast<int>(wide.size()), nullptr, 0, nullptr, nullptr);
-    std::string text(size, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, wide.data(), static_cast<int>(wide.size()), text.data(), size, nullptr, nullptr);
-    return text;
+    const auto attributes = GetFileAttributesW(path.wstring().c_str());
+    return attributes != INVALID_FILE_ATTRIBUTES &&
+           (attributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
 #else
-    return path.string();
+    return false;
 #endif
+}
+
+bool safe_owned_destination(const fs::path& root, const fs::path& candidate) {
+    if (!is_within(root, candidate)) return false;
+    const auto base = fs::absolute(root).lexically_normal();
+    const auto target = fs::absolute(candidate).lexically_normal();
+    if (is_link_or_reparse_point(base)) return false;
+    auto current = base;
+    const auto relative = target.lexically_relative(base);
+    for (const auto& component : relative) {
+        if (component == fs::path("..")) return false;
+        current /= component;
+        std::error_code error;
+        if (!fs::exists(current, error)) continue;
+        if (error || is_link_or_reparse_point(current)) return false;
+    }
+    return true;
+}
+
+std::string display_path(const fs::path& path) {
+    return path_to_utf8(path);
 }
 
 }  // namespace
 
-void cleanup_abandoned_transactions_unlocked(const InstallPaths& paths) {
-    std::error_code error;
-    const auto root = fs::weakly_canonical(paths.tmp_dir / "installer", error);
-    if (error || !fs::is_directory(root, error)) return;
-    for (fs::directory_iterator item(root, error), end; !error && item != end; item.increment(error)) {
-        if (!item->is_directory(error)) continue;
-        const auto child = fs::weakly_canonical(item->path(), error);
-        if (error) { error.clear(); continue; }
-        if (child.parent_path() != root || !fs::is_regular_file(child / "journal.log", error)) {
-            error.clear();
-            continue;
-        }
-        fs::remove_all(child, error);
-        error.clear();
-    }
-}
-
 InstallTransaction::InstallTransaction(const InstallPaths& paths) : paths_(paths) {
-    const auto state_directory = paths_.state_dir.empty() ? paths_.root / ".baas-installer" : paths_.state_dir;
+    const auto root = fs::absolute(paths_.root).lexically_normal();
+    const auto expected_tmp = root / "tmp";
+    const auto expected_state = root / ".baas-installer";
+    if (root.empty() || root == root.root_path() ||
+        fs::absolute(paths_.tmp_dir).lexically_normal() != expected_tmp ||
+        fs::absolute(paths_.state_dir).lexically_normal() != expected_state ||
+        !safe_owned_destination(root, expected_tmp) ||
+        !safe_owned_destination(root, expected_state)) {
+        throw std::runtime_error("installer transaction paths are not bound to the validated BAAS root");
+    }
+    const auto state_directory = expected_state;
     fs::create_directories(state_directory);
     const auto lock_path = state_directory / "installer.lock";
 #ifdef _WIN32
@@ -104,10 +121,22 @@ InstallTransaction::InstallTransaction(const InstallPaths& paths) : paths_(paths
     lock_handle_ = descriptor;
 #endif
     try {
-        cleanup_abandoned_transactions_unlocked(paths_);
         const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
-        staging_root_ = paths_.tmp_dir / "installer" / std::to_string(tick);
-        fs::create_directories(staging_root_ / "rollback");
+        const auto staging_parent = expected_tmp / "installer";
+        fs::create_directories(staging_parent);
+        for (std::size_t attempt = 0; attempt != 100; ++attempt) {
+            const auto candidate = staging_parent /
+                (std::to_string(tick) + "-" + std::to_string(attempt));
+            std::error_code create_error;
+            if (fs::create_directory(candidate, create_error)) {
+                staging_root_ = candidate;
+                staging_owned_ = true;
+                break;
+            }
+            if (create_error) throw std::runtime_error("could not create transaction staging directory");
+        }
+        if (!staging_owned_) throw std::runtime_error("could not allocate unique transaction staging directory");
+        fs::create_directory(staging_root_ / "rollback");
         journal("created");
     } catch (...) {
         release_lock();
@@ -142,35 +171,42 @@ void InstallTransaction::journal(const std::string& event) const {
 
 void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& destination, const bool skip_ocr_bin) {
     if (!fs::is_directory(source)) throw std::runtime_error("verified staging directory is missing");
-    std::vector<fs::path> stale;
+    const bool main_tree = destination == paths_.root;
+    const auto tree = main_tree ? DeploymentTree::Main : DeploymentTree::Ocr;
+    DeploymentFileSet new_files;
     std::error_code scan_error;
-    if (fs::is_directory(destination)) {
-        for (auto iterator = fs::recursive_directory_iterator(destination, scan_error);
-             !scan_error && iterator != fs::recursive_directory_iterator(); ++iterator) {
-            const auto relative = iterator->path().lexically_relative(destination);
-            const bool preserved = is_protected_installer_path(relative, paths_.executable.filename()) ||
-                                   is_preserved_user_path(relative, destination == paths_.root);
-            const bool ocr_tree = skip_ocr_bin && (is_ocr_bin(relative) || is_ocr_bin(relative.parent_path()));
-            if (preserved || ocr_tree) {
-                if (iterator->is_directory()) iterator.disable_recursion_pending();
+    for (auto iterator = fs::recursive_directory_iterator(source, scan_error);
+         !scan_error && iterator != fs::recursive_directory_iterator(); ++iterator) {
+        const auto relative = iterator->path().lexically_relative(source);
+        const bool preserved = is_protected_installer_path(relative, paths_.executable.filename()) ||
+                               is_preserved_user_path(relative, main_tree);
+        const bool ocr_tree = skip_ocr_bin && (is_ocr_bin(relative) || is_ocr_bin(relative.parent_path()));
+        if (preserved || ocr_tree || !deployment_relative_path_allowed(tree, relative)) {
+            if (iterator->is_directory()) iterator.disable_recursion_pending();
+            continue;
+        }
+        if (iterator->is_symlink()) {
+            if (iterator->is_directory()) iterator.disable_recursion_pending();
+            continue;
+        }
+        if (iterator->is_regular_file()) new_files.insert(relative);
+    }
+    if (scan_error) throw std::runtime_error("could not inspect staged deployment tree: " + scan_error.message());
+
+    const auto previous = load_deployment_manifest(paths_, tree);
+    if (previous.valid) {
+        for (const auto& relative : previous.files) {
+            if (new_files.contains(relative)) continue;
+            const auto stale = destination / relative;
+            std::error_code stale_error;
+            if (!fs::is_regular_file(stale, stale_error) || stale_error ||
+                !safe_owned_destination(destination, stale)) {
                 continue;
             }
-            const auto staged = source / relative;
-            if (iterator->is_directory()) {
-                if (fs::exists(staged) && !fs::is_directory(staged)) {
-                    stale.push_back(iterator->path());
-                    iterator.disable_recursion_pending();
-                }
-            } else if (!fs::exists(staged) || !fs::is_regular_file(staged)) {
-                stale.push_back(iterator->path());
-            }
+            remove_path(stale, main_tree ? RemovalOwnership::MainManifest
+                                         : RemovalOwnership::OcrManifest);
         }
-        if (scan_error) throw std::runtime_error("could not inspect live deployment tree: " + scan_error.message());
     }
-    std::sort(stale.begin(), stale.end(), [](const fs::path& left, const fs::path& right) {
-        return std::distance(left.begin(), left.end()) > std::distance(right.begin(), right.end());
-    });
-    for (const auto& path : stale) if (fs::exists(path)) remove_path(path);
 
     for (auto iterator = fs::recursive_directory_iterator(source); iterator != fs::recursive_directory_iterator(); ++iterator) {
         const auto& entry = *iterator;
@@ -182,7 +218,9 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
             if (entry.is_directory()) iterator.disable_recursion_pending();
             continue;
         }
-        if (is_protected_installer_path(relative, paths_.executable.filename())) {
+        if (is_protected_installer_path(relative, paths_.executable.filename()) ||
+            is_preserved_user_path(relative, main_tree) ||
+            !deployment_relative_path_allowed(tree, relative)) {
             if (entry.is_directory()) iterator.disable_recursion_pending();
             continue;
         }
@@ -190,10 +228,25 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
             if (entry.is_directory()) iterator.disable_recursion_pending();
             continue;
         }
+        if (entry.is_symlink()) {
+            if (entry.is_directory()) iterator.disable_recursion_pending();
+            continue;
+        }
         if (entry.is_directory()) continue;
         if (!entry.is_regular_file()) continue;
         const auto target = destination / relative;
+        if (!safe_owned_destination(destination, target)) {
+            throw std::runtime_error("deployment target crosses a symbolic link or leaves its owned tree: " +
+                                     display_path(target));
+        }
         const bool exists = fs::exists(target);
+        if (exists && !fs::is_regular_file(target)) {
+            throw std::runtime_error("deployment target is not an owned regular file: " + display_path(target));
+        }
+        if (exists && (!previous.valid || !previous.files.contains(relative))) {
+            throw std::runtime_error("deployment refused to overwrite a file absent from its ownership manifest: " +
+                                     display_path(target));
+        }
         const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
         std::error_code error;
         fs::create_directories(target.parent_path(), error);
@@ -213,6 +266,28 @@ void InstallTransaction::deploy_tree(const fs::path& source, const fs::path& des
         fs::copy_file(entry.path(), target, fs::copy_options::overwrite_existing, error);
         if (error) throw std::runtime_error("could not deploy staged file '" + display_path(target) + "': " + error.message());
     }
+
+    InstallPaths staged_paths = paths_;
+    staged_paths.state_dir = staging_root_ / "manifests";
+    save_deployment_manifest_atomic(staged_paths, tree, new_files);
+    replace_owned_manifest(deployment_manifest_path(staged_paths, tree),
+                           deployment_manifest_path(paths_, tree));
+    if (tree == DeploymentTree::Main) main_manifest_.reset();
+    else ocr_manifest_.reset();
+}
+
+void InstallTransaction::cleanup_staging() noexcept {
+    if (!staging_owned_) return;
+    const auto expected_parent = fs::absolute(paths_.root / "tmp" / "installer").lexically_normal();
+    const auto staging = fs::absolute(staging_root_).lexically_normal();
+    std::error_code error;
+    if (staging.parent_path() != expected_parent ||
+        !safe_owned_destination(expected_parent, staging) ||
+        !fs::is_regular_file(staging / "journal.log", error) || error) {
+        return;
+    }
+    fs::remove_all(staging, error);
+    if (!error) staging_owned_ = false;
 }
 
 void InstallTransaction::deploy_main() {
@@ -235,13 +310,27 @@ void InstallTransaction::deploy_ocr_from(const fs::path& source) {
 
 void InstallTransaction::replace_file(const fs::path& source, const fs::path& destination) {
     if (!fs::is_regular_file(source)) throw std::runtime_error("replacement source file is missing");
-    if (!is_within(paths_.root, destination)) throw std::runtime_error("replacement destination escapes install root");
+    if (!safe_owned_destination(paths_.root, destination)) {
+        throw std::runtime_error("replacement destination escapes install root or crosses a link");
+    }
     const auto relative = fs::absolute(destination).lexically_normal().lexically_relative(fs::absolute(paths_.root).lexically_normal());
     if (relative.empty() || is_protected_installer_path(relative, paths_.executable.filename())) {
         throw std::runtime_error("replacement destination is protected");
     }
     const bool exists = fs::exists(destination);
     if (exists && fs::is_directory(destination)) throw std::runtime_error("replacement destination is a directory");
+    const auto main_root = fs::absolute(paths_.root).lexically_normal();
+    const auto ocr_root = main_root / "core" / "ocr" / "baas_ocr_client" / "bin";
+    const auto target = fs::absolute(destination).lexically_normal();
+    const bool ocr = is_within(ocr_root, target);
+    const auto tree = ocr ? DeploymentTree::Ocr : DeploymentTree::Main;
+    const auto live_root = ocr ? ocr_root : main_root;
+    const auto owned_relative = target.lexically_relative(live_root);
+    auto& manifest = mutable_manifest(tree);
+    if (!deployment_relative_path_allowed(tree, owned_relative) ||
+        (exists && !manifest.contains(owned_relative))) {
+        throw std::runtime_error("replacement refused because installer ownership was not proven");
+    }
     const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
     std::error_code error;
     fs::create_directories(destination.parent_path(), error);
@@ -253,18 +342,22 @@ void InstallTransaction::replace_file(const fs::path& source, const fs::path& de
     changes_.push_back({destination, backup, exists, false});
     fs::copy_file(source, destination, fs::copy_options::overwrite_existing, error);
     if (error) throw std::runtime_error("could not replace live file: " + error.message());
+    manifest.insert(owned_relative);
     journal("replace:" + display_path(destination));
 }
 
 void InstallTransaction::replace_directory(const fs::path& source, const fs::path& destination) {
     if (!fs::is_directory(source)) throw std::runtime_error("replacement source directory is missing");
-    if (!is_within(staging_root_, source) || !is_within(paths_.root, destination)) {
+    if (!safe_owned_destination(staging_root_, source) ||
+        !safe_owned_destination(paths_.root, destination)) {
         throw std::runtime_error("directory replacement escapes the installation transaction");
     }
     const auto relative = fs::absolute(destination).lexically_normal().lexically_relative(
         fs::absolute(paths_.root).lexically_normal());
-    if (relative.empty() || is_protected_installer_path(relative, paths_.executable.filename())) {
-        throw std::runtime_error("replacement directory is protected");
+    static const fs::path main_git{".git"};
+    static const fs::path ocr_git{"core/ocr/baas_ocr_client/bin/.git"};
+    if (relative != main_git && relative != ocr_git) {
+        throw std::runtime_error("directory replacement is limited to installer-managed Git metadata");
     }
     const bool exists = fs::exists(destination);
     const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
@@ -282,14 +375,90 @@ void InstallTransaction::replace_directory(const fs::path& source, const fs::pat
     journal("replace-directory:" + display_path(destination));
 }
 
-void InstallTransaction::remove_path(const fs::path& destination) {
-    if (!is_within(paths_.root, destination)) throw std::runtime_error("removal destination escapes install root");
-    const auto relative = fs::absolute(destination).lexically_normal().lexically_relative(fs::absolute(paths_.root).lexically_normal());
-    if (relative.empty() || is_protected_installer_path(relative, paths_.executable.filename())) {
-        throw std::runtime_error("removal destination is protected");
+void InstallTransaction::replace_owned_manifest(const fs::path& source, const fs::path& destination) {
+    const bool known_destination = destination == deployment_manifest_path(paths_, DeploymentTree::Main) ||
+                                   destination == deployment_manifest_path(paths_, DeploymentTree::Ocr);
+    if (!known_destination || !safe_owned_destination(staging_root_, source) ||
+        !safe_owned_destination(paths_.root, destination) || !fs::is_regular_file(source)) {
+        throw std::runtime_error("deployment manifest replacement was not owned by this transaction");
     }
+    const bool exists = fs::exists(destination);
+    if (exists && !fs::is_regular_file(destination)) {
+        throw std::runtime_error("existing deployment manifest is not a regular file");
+    }
+    const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
+    std::error_code error;
+    fs::create_directories(destination.parent_path(), error);
+    if (error) throw std::runtime_error("could not create deployment manifest directory: " + error.message());
+    if (exists) {
+        fs::copy_file(destination, backup, fs::copy_options::overwrite_existing, error);
+        if (error) throw std::runtime_error("could not back up deployment manifest: " + error.message());
+    }
+    changes_.push_back({destination, backup, exists, false});
+    fs::copy_file(source, destination, fs::copy_options::overwrite_existing, error);
+    if (error) throw std::runtime_error("could not replace deployment manifest: " + error.message());
+    journal("replace-manifest:" + display_path(destination));
+}
+
+DeploymentFileSet& InstallTransaction::mutable_manifest(const DeploymentTree tree) {
+    auto& pending = tree == DeploymentTree::Main ? main_manifest_ : ocr_manifest_;
+    if (!pending) {
+        const auto loaded = load_deployment_manifest(paths_, tree);
+        if (!loaded.valid) {
+            throw std::runtime_error("incremental deployment requires a valid ownership manifest");
+        }
+        pending = loaded.files;
+    }
+    return *pending;
+}
+
+void InstallTransaction::stage_pending_manifests() {
+    InstallPaths staged_paths = paths_;
+    staged_paths.state_dir = staging_root_ / "incremental-manifests";
+    const auto stage = [&](const DeploymentTree tree, const DeploymentFileSet& files) {
+        save_deployment_manifest_atomic(staged_paths, tree, files);
+        replace_owned_manifest(deployment_manifest_path(staged_paths, tree),
+                               deployment_manifest_path(paths_, tree));
+    };
+    if (main_manifest_) stage(DeploymentTree::Main, *main_manifest_);
+    if (ocr_manifest_) stage(DeploymentTree::Ocr, *ocr_manifest_);
+}
+
+void InstallTransaction::remove_path(const fs::path& destination,
+                                     const RemovalOwnership ownership) {
+    if (!safe_owned_destination(paths_.root, destination)) {
+        throw std::runtime_error("removal destination escapes install root or crosses a link");
+    }
+    const auto main_root = fs::absolute(paths_.root).lexically_normal();
+    const auto ocr_root = main_root / "core" / "ocr" / "baas_ocr_client" / "bin";
+    const auto target = fs::absolute(destination).lexically_normal();
+    bool owned = false;
+    bool directory_allowed = false;
+    DeploymentFileSet* pending_manifest = nullptr;
+    fs::path manifest_relative;
+    if (ownership == RemovalOwnership::GitMetadata) {
+        owned = target == main_root / ".git" || target == ocr_root / ".git";
+        directory_allowed = true;
+    } else {
+        const auto tree = ownership == RemovalOwnership::MainManifest
+                              ? DeploymentTree::Main
+                              : DeploymentTree::Ocr;
+        const auto live_root = tree == DeploymentTree::Main ? main_root : ocr_root;
+        const auto relative = target.lexically_relative(live_root);
+        auto& manifest = mutable_manifest(tree);
+        owned = deployment_relative_path_allowed(tree, relative) && manifest.contains(relative);
+        pending_manifest = &manifest;
+        manifest_relative = relative;
+    }
+    if (!owned) throw std::runtime_error("removal refused because installer ownership was not proven");
     if (!fs::exists(destination)) return;
     const bool directory = fs::is_directory(destination);
+    if (directory && !directory_allowed) {
+        throw std::runtime_error("manifest-owned removal is limited to regular files");
+    }
+    if (!directory && !fs::is_regular_file(destination)) {
+        throw std::runtime_error("removal target is not an owned regular file");
+    }
     const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
     std::error_code error;
     fs::create_directories(backup.parent_path(), error);
@@ -302,6 +471,7 @@ void InstallTransaction::remove_path(const fs::path& destination) {
     }
     if (error) throw std::runtime_error("could not remove live path transactionally: " + error.message());
     changes_.push_back({destination, backup, true, directory});
+    if (pending_manifest != nullptr) pending_manifest->erase(manifest_relative);
     journal("remove:" + display_path(destination));
 }
 
@@ -320,6 +490,21 @@ void InstallTransaction::add_post_commit_action(std::function<void()> action) {
 void InstallTransaction::write_ocr_managed_marker(const std::string& branch, const std::string& commit) {
     const auto target = paths_.root / "core" / "ocr" / "baas_ocr_client" / "bin" / ".baas-installer-managed.json";
     const bool exists = fs::exists(target);
+    if (exists) {
+        if (!fs::is_regular_file(target)) {
+            throw std::runtime_error("existing OCR ownership marker is not a regular file");
+        }
+        try {
+            std::ifstream input(target, std::ios::binary);
+            const auto document = nlohmann::json::parse(input);
+            if (document.at("schema_version").get<int>() != 1 ||
+                document.at("managed_by").get<std::string>() != "baas-installer") {
+                throw std::runtime_error("unrecognized OCR ownership marker");
+            }
+        } catch (const std::exception&) {
+            throw std::runtime_error("refusing to overwrite an unrecognized OCR ownership marker");
+        }
+    }
     const auto backup = staging_root_ / "rollback" / std::to_string(changes_.size());
     fs::create_directories(target.parent_path());
     if (exists) fs::copy_file(target, backup, fs::copy_options::overwrite_existing);
@@ -334,6 +519,7 @@ void InstallTransaction::write_ocr_managed_marker(const std::string& branch, con
 
 void InstallTransaction::prepare_commit() {
     if (commit_prepared_) return;
+    stage_pending_manifests();
     for (auto& action : commit_actions_) action();
     commit_prepared_ = true;
 }
@@ -342,8 +528,7 @@ std::string InstallTransaction::commit() {
     prepare_commit();
     journal("committed");
     settled_ = true;
-    std::error_code ignored;
-    fs::remove_all(staging_root_, ignored);
+    cleanup_staging();
     std::string failures;
     for (auto& action : post_commit_actions_) {
         try {
@@ -366,7 +551,10 @@ void InstallTransaction::rollback() noexcept {
     }
     for (auto it = changes_.rbegin(); it != changes_.rend(); ++it) {
         if (it->directory) {
-            fs::remove_all(it->destination, ignored);
+            auto discard_name = fs::path("discard-directory-");
+            discard_name += it->backup.filename().native();
+            const auto discard = staging_root_ / "rollback" / discard_name;
+            fs::rename(it->destination, discard, ignored);
             if (it->existed) {
                 fs::create_directories(it->destination.parent_path(), ignored);
                 fs::rename(it->backup, it->destination, ignored);
@@ -380,7 +568,7 @@ void InstallTransaction::rollback() noexcept {
     }
     journal("rolled-back");
     settled_ = true;
-    fs::remove_all(staging_root_, ignored);
+    cleanup_staging();
 }
 
 }  // namespace baas_installer
