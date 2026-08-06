@@ -304,14 +304,18 @@ class Layout(QWidget):
 
             self.setLayout(self.viewLayout)
 
-        @delay(1)
         def __change_create_priority(self, text):
+            # No @delay: Card dialog OK only clearFocus+commit; a 1s debounce
+            # would lose the last edit if user clicks 确定 within that second.
+            # textChanged writes the draft immediately (safe; OK commits, Cancel rolls back).
             self.create_priority = text().split('>')
             self.create_priority = [i.strip() for i in self.create_priority]
             self.config.set(f'createPriority_phase{self.phase}', self.create_priority)
-            notification.success(self.tr('制造优先级'),
-                                 self.__dict_for_phase[self.phase] + self.tr("修改成功"),
-                                 self.config)
+            # Draft path: dialog shows「已保存」on OK — skip per-key toast spam.
+            if not getattr(self.config, 'is_draft', False):
+                notification.success(self.tr('制造优先级'),
+                                     self.__dict_for_phase[self.phase] + self.tr("修改成功"),
+                                     self.config)
 
         def get_create_priority(self, phase):
             cfg_key_name = 'createPriority_phase' + str(phase)

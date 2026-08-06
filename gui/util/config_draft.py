@@ -45,6 +45,18 @@ class ConfigDraft:
 
     # --- ConfigSet-compatible API ----------------------------------------
 
+    @staticmethod
+    def _clone_value(value):
+        """Return a private copy for mutable containers.
+
+        Layouts (friend whitelist, café students, shop lists, priorities) often
+        mutate the list from get() then set() it back. Without a clone, that
+        mutates ConfigSet.config in place and Cancel/rollback cannot undo it.
+        """
+        if isinstance(value, (list, dict, set)):
+            return deepcopy(value)
+        return value
+
     def get(self, key=None, default=None, **kwargs):
         if key is None and "key" in kwargs:
             key = kwargs["key"]
@@ -53,9 +65,12 @@ class ConfigDraft:
             # Only translate strings; lists/bools/ints must pass through untouched.
             if isinstance(value, str):
                 return bt.tr("ConfigTranslation", value)
-            return value
+            # Dirty entry is already draft-owned; still clone so two get()+mutate
+            # paths do not share one list before the next set().
+            return self._clone_value(value)
         # ConfigSet.get supports keyword form used across layouts.
-        return self._live.get(key=key, default=default)
+        live_value = self._live.get(key=key, default=default)
+        return self._clone_value(live_value)
 
     def has(self, key) -> bool:
         if key in self._dirty:
@@ -103,6 +118,16 @@ class ConfigDraft:
 
     def rollback(self) -> None:
         self._dirty.clear()
+
+    def flush_and_commit(self, root_widget=None) -> int:
+        """Flush focused editors then commit. For in-dialog action buttons (e.g. 执行).
+
+        Unlike dialog OK, this keeps the dialog open; further edits still go to the
+        (now empty) draft until the next set(). Cancel after this cannot undo what
+        was already committed — intentional for run-now actions.
+        """
+        self.flush_pending_editors(root_widget)
+        return self.commit()
 
     def flush_pending_editors(self, root_widget) -> None:
         """Clear focus so LineEdit editingFinished handlers can run before commit."""
