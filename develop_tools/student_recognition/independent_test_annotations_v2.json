@@ -1,0 +1,3692 @@
+{
+  "version": 1,
+  "dataset_id": "lesson_independent_v2",
+  "status": "sealed_posttraining_independent_test",
+  "canonical_size": [
+    1280,
+    720
+  ],
+  "coordinate_format": "xyxy_exclusive",
+  "indexing": {
+    "card": "zero_based_row_major",
+    "slot": "zero_based_left_to_right",
+    "display": "one_based_card-avatar"
+  },
+  "annotation_sources": {
+    "identity_and_eligibility": "user_manual_confirmation",
+    "card_state": "user_confirmed_selected_card_map",
+    "card_and_avatar_boxes": "unchanged_production_locator_preannotation",
+    "unlisted_entries": "user_confirmed_all_remaining_entries_correct"
+  },
+  "source_preannotation": {
+    "file": "independent_test_preannotations_v2.json",
+    "sha256": "f31371a4f02dbde74b46c1aac5099e5aa57bfe1c1b8277f71b281cc05eb03431",
+    "status": "pending_user_review"
+  },
+  "manual_corrections": {
+    "identity": [
+      {
+        "file": "MuMu-20260806-231258-968.png",
+        "location": "6:0",
+        "display_location": "7-1",
+        "name": "Sumire (Part-Timer)"
+      },
+      {
+        "file": "MuMu-20260806-231304-820.png",
+        "location": "5:1",
+        "display_location": "6-2",
+        "name": "Kasumi"
+      },
+      {
+        "file": "MuMu-20260806-231311-941.png",
+        "location": "3:1",
+        "display_location": "4-2",
+        "name": "Ui (Swimsuit)"
+      },
+      {
+        "file": "MuMu-20260806-231317-557.png",
+        "location": "7:0",
+        "display_location": "8-1",
+        "name": "Ui (Swimsuit)"
+      }
+    ],
+    "eligibility_to_gray": [
+      {
+        "file": "MuMu-20260806-231304-820.png",
+        "location": "6:0",
+        "display_location": "7-1"
+      },
+      {
+        "file": "MuMu-20260806-231311-941.png",
+        "location": "6:1",
+        "display_location": "7-2"
+      },
+      {
+        "file": "MuMu-20260806-231317-557.png",
+        "location": "0:1",
+        "display_location": "1-2"
+      },
+      {
+        "file": "MuMu-20260806-231317-557.png",
+        "location": "3:1",
+        "display_location": "4-2"
+      },
+      {
+        "file": "MuMu-20260806-231317-557.png",
+        "location": "5:1",
+        "display_location": "6-2"
+      },
+      {
+        "file": "MuMu-20260806-231322-679.png",
+        "location": "3:1",
+        "display_location": "4-2"
+      },
+      {
+        "file": "MuMu-20260806-231322-679.png",
+        "location": "6:2",
+        "display_location": "7-3"
+      }
+    ],
+    "confirmed_position_correction": {
+      "file": "MuMu-20260806-231311-941.png",
+      "submitted_display_location": "7-3",
+      "confirmed_display_location": "7-2",
+      "name": "Sena (Casual)"
+    }
+  },
+  "data_policy": {
+    "included_in_training": false,
+    "included_in_gallery": false,
+    "used_for_model_or_threshold_selection": false,
+    "formal_metrics_allowed": true
+  },
+  "images": [
+    {
+      "file": "MuMu-20260806-231258-968.png",
+      "sha256": "e12131cad1ad3063e9b9ccb238a2649d1a82d4f0157b9e9d603b0bc0673e4a42",
+      "selected_card_indices": [
+        6
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            126,
+            181,
+            463,
+            323
+          ],
+          "click_point": [
+            294,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            181,
+            812,
+            325
+          ],
+          "click_point": [
+            642,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            814,
+            181,
+            1156,
+            325
+          ],
+          "click_point": [
+            985,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            332,
+            465,
+            475
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            472,
+            333,
+            809,
+            475
+          ],
+          "click_point": [
+            640,
+            404
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            816,
+            332,
+            1154,
+            475
+          ],
+          "click_point": [
+            985,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            483,
+            468,
+            627
+          ],
+          "click_point": [
+            298,
+            555
+          ],
+          "card_state": "selected"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            258,
+            209,
+            313
+          ],
+          "name": "Juri (Part-Timer)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            221,
+            258,
+            283,
+            315
+          ],
+          "name": "Saya (Casual)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:2",
+          "bbox": [
+            293,
+            257,
+            355,
+            314
+          ],
+          "name": "Junko",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            494,
+            258,
+            555,
+            315
+          ],
+          "name": "Marina (Qipao)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            565,
+            257,
+            626,
+            315
+          ],
+          "name": "Kayoko",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:2",
+          "bbox": [
+            638,
+            258,
+            699,
+            315
+          ],
+          "name": "Himari",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            838,
+            258,
+            898,
+            314
+          ],
+          "name": "Hanae",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            410,
+            211,
+            467
+          ],
+          "name": "Maki (Camp)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            221,
+            409,
+            283,
+            466
+          ],
+          "name": "Mashiro",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            494,
+            409,
+            555,
+            466
+          ],
+          "name": "Mutsuki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:1",
+          "bbox": [
+            566,
+            409,
+            627,
+            466
+          ],
+          "name": "Umika",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            410,
+            898,
+            467
+          ],
+          "name": "Kanna (Swimsuit)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            909,
+            408,
+            971,
+            466
+          ],
+          "name": "Sakurako (Pop Idol)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:2",
+          "bbox": [
+            982,
+            409,
+            1042,
+            465
+          ],
+          "name": "Yukari",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            148,
+            559,
+            211,
+            618
+          ],
+          "name": "Sumire (Part-Timer)",
+          "eligible": false,
+          "card_state": "selected"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            220,
+            559,
+            282,
+            617
+          ],
+          "name": "Aru (Dress)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "6:2",
+          "bbox": [
+            292,
+            558,
+            357,
+            617
+          ],
+          "name": "Tsurugi",
+          "eligible": true,
+          "card_state": "selected"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231304-820.png",
+      "sha256": "81c7af909cfeff0ff84813ff147c3cc14fa5c926b8d3fb5a33c737bec257f731",
+      "selected_card_indices": [
+        5
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            126,
+            181,
+            465,
+            325
+          ],
+          "click_point": [
+            295,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            472,
+            181,
+            810,
+            325
+          ],
+          "click_point": [
+            641,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            180,
+            1155,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            129,
+            333,
+            464,
+            476
+          ],
+          "click_point": [
+            296,
+            404
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            472,
+            332,
+            809,
+            475
+          ],
+          "click_point": [
+            640,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            817,
+            332,
+            1154,
+            475
+          ],
+          "click_point": [
+            985,
+            403
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            484,
+            466,
+            627
+          ],
+          "click_point": [
+            297,
+            555
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            258,
+            210,
+            315
+          ],
+          "name": "Moe (Swimsuit)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            220,
+            258,
+            282,
+            316
+          ],
+          "name": "Iroha",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            494,
+            257,
+            555,
+            315
+          ],
+          "name": "Sumire",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            565,
+            257,
+            627,
+            315
+          ],
+          "name": "Saki (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "name": "Yoshimi",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:1",
+          "bbox": [
+            910,
+            258,
+            971,
+            315
+          ],
+          "name": "Ibuki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:2",
+          "bbox": [
+            981,
+            257,
+            1043,
+            315
+          ],
+          "name": "Kayoko (New Year)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            409,
+            210,
+            466
+          ],
+          "name": "Pina",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            494,
+            408,
+            555,
+            466
+          ],
+          "name": "Aris",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:1",
+          "bbox": [
+            566,
+            409,
+            626,
+            466
+          ],
+          "name": "Shizuko",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            409,
+            898,
+            466
+          ],
+          "name": "Shiroko Terror",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            908,
+            408,
+            971,
+            466
+          ],
+          "name": "Kasumi",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "5:2",
+          "bbox": [
+            981,
+            407,
+            1045,
+            466
+          ],
+          "name": "Fubuki",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            150,
+            560,
+            210,
+            616
+          ],
+          "name": "Kirara",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            221,
+            560,
+            283,
+            618
+          ],
+          "name": "Hoshino (Battle)",
+          "eligible": true,
+          "card_state": "available"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231311-941.png",
+      "sha256": "9e025ccb915c5c41721cd178cba8e7a464484d3253257b214b0e32230674c08c",
+      "selected_card_indices": [
+        3
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            128,
+            180,
+            465,
+            324
+          ],
+          "click_point": [
+            296,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            181,
+            810,
+            324
+          ],
+          "click_point": [
+            641,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            817,
+            181,
+            1155,
+            324
+          ],
+          "click_point": [
+            986,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            127,
+            331,
+            465,
+            475
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            473,
+            332,
+            810,
+            475
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            816,
+            332,
+            1153,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            126,
+            482,
+            468,
+            628
+          ],
+          "click_point": [
+            297,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            473,
+            483,
+            811,
+            626
+          ],
+          "click_point": [
+            642,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            258,
+            210,
+            315
+          ],
+          "name": "Miyako",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            222,
+            258,
+            283,
+            315
+          ],
+          "name": "Himari",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:2",
+          "bbox": [
+            293,
+            257,
+            354,
+            315
+          ],
+          "name": "Fuuka",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            493,
+            257,
+            555,
+            315
+          ],
+          "name": "Shiroko",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            565,
+            257,
+            627,
+            314
+          ],
+          "name": "Nodoka (Hot Spring)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            838,
+            258,
+            899,
+            315
+          ],
+          "name": "Haruna (New Year)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:1",
+          "bbox": [
+            910,
+            257,
+            971,
+            314
+          ],
+          "name": "Mutsuki (New Year)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            148,
+            408,
+            210,
+            466
+          ],
+          "name": "Miyu (Swimsuit)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            219,
+            408,
+            282,
+            466
+          ],
+          "name": "Ui (Swimsuit)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "3:2",
+          "bbox": [
+            292,
+            408,
+            355,
+            466
+          ],
+          "name": "Kayoko",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            493,
+            408,
+            555,
+            466
+          ],
+          "name": "Yoshimi",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:1",
+          "bbox": [
+            566,
+            409,
+            627,
+            466
+          ],
+          "name": "Hifumi (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            409,
+            899,
+            467
+          ],
+          "name": "Makoto",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            910,
+            409,
+            970,
+            466
+          ],
+          "name": "Saten Ruiko",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            149,
+            559,
+            211,
+            618
+          ],
+          "name": "Kokona",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            222,
+            559,
+            283,
+            615
+          ],
+          "name": "Sena (Casual)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            493,
+            560,
+            555,
+            618
+          ],
+          "name": "Tsukuyo",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "7:1",
+          "bbox": [
+            566,
+            560,
+            625,
+            616
+          ],
+          "name": "Kanna (Swimsuit)",
+          "eligible": false,
+          "card_state": "available"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231317-557.png",
+      "sha256": "4460a28e14d08587e0759cd9bafed179e1720c139af3e207b50fb67a0662c175",
+      "selected_card_indices": [
+        7
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            129,
+            180,
+            467,
+            324
+          ],
+          "click_point": [
+            298,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            472,
+            181,
+            810,
+            324
+          ],
+          "click_point": [
+            641,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            180,
+            1155,
+            325
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            331,
+            462,
+            475
+          ],
+          "click_point": [
+            295,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            471,
+            331,
+            810,
+            475
+          ],
+          "click_point": [
+            640,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            814,
+            331,
+            1154,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            124,
+            483,
+            467,
+            628
+          ],
+          "click_point": [
+            295,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            470,
+            484,
+            809,
+            626
+          ],
+          "click_point": [
+            639,
+            555
+          ],
+          "card_state": "selected"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            150,
+            257,
+            211,
+            314
+          ],
+          "name": "Neru (Bunny)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            222,
+            257,
+            282,
+            313
+          ],
+          "name": "Kirara",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            494,
+            258,
+            555,
+            315
+          ],
+          "name": "Izumi (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            566,
+            257,
+            628,
+            315
+          ],
+          "name": "Hatsune Miku",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            837,
+            257,
+            900,
+            315
+          ],
+          "name": "Mari (Track)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:1",
+          "bbox": [
+            910,
+            257,
+            971,
+            314
+          ],
+          "name": "Eimi",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:2",
+          "bbox": [
+            981,
+            257,
+            1043,
+            315
+          ],
+          "name": "Nonomi (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            408,
+            209,
+            465
+          ],
+          "name": "Kikyou",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            222,
+            409,
+            282,
+            466
+          ],
+          "name": "Serina (Christmas)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            493,
+            408,
+            555,
+            466
+          ],
+          "name": "Shiroko",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            409,
+            899,
+            467
+          ],
+          "name": "Makoto",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            910,
+            409,
+            970,
+            465
+          ],
+          "name": "Serika (Swimsuit)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            149,
+            560,
+            209,
+            616
+          ],
+          "name": "Moe",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            220,
+            559,
+            283,
+            618
+          ],
+          "name": "Shigure (Hot Spring)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            491,
+            559,
+            553,
+            617
+          ],
+          "name": "Ui (Swimsuit)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "7:1",
+          "bbox": [
+            564,
+            559,
+            627,
+            618
+          ],
+          "name": "Nodoka",
+          "eligible": true,
+          "card_state": "selected"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231322-679.png",
+      "sha256": "949be86f7876cb5806f443a9e1603c9582dd47b379a8a8e0aca7653ce3deea40",
+      "selected_card_indices": [
+        0
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            127,
+            180,
+            464,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            181,
+            811,
+            325
+          ],
+          "click_point": [
+            642,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            181,
+            1155,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            331,
+            464,
+            475
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            470,
+            331,
+            811,
+            476
+          ],
+          "click_point": [
+            640,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            815,
+            332,
+            1153,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            483,
+            465,
+            627
+          ],
+          "click_point": [
+            296,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            471,
+            483,
+            810,
+            626
+          ],
+          "click_point": [
+            640,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            148,
+            257,
+            211,
+            315
+          ],
+          "name": "Kisaki",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            219,
+            258,
+            279,
+            315
+          ],
+          "name": "Midori (Maid)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "0:2",
+          "bbox": [
+            293,
+            257,
+            356,
+            315
+          ],
+          "name": "Eimi (Swimsuit)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            494,
+            258,
+            554,
+            314
+          ],
+          "name": "Noa",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            565,
+            257,
+            627,
+            315
+          ],
+          "name": "Tsurugi",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            837,
+            258,
+            899,
+            315
+          ],
+          "name": "Chiaki",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "2:1",
+          "bbox": [
+            910,
+            258,
+            971,
+            315
+          ],
+          "name": "Azusa (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            409,
+            210,
+            466
+          ],
+          "name": "Shiroko (Cycling)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            222,
+            409,
+            281,
+            464
+          ],
+          "name": "Yuuka (Pajamas)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            494,
+            409,
+            555,
+            465
+          ],
+          "name": "Saori (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            409,
+            899,
+            465
+          ],
+          "name": "Akari",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            910,
+            409,
+            971,
+            466
+          ],
+          "name": "Chihiro",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            149,
+            559,
+            211,
+            617
+          ],
+          "name": "Mimori",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            221,
+            560,
+            282,
+            617
+          ],
+          "name": "Himari",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:2",
+          "bbox": [
+            294,
+            560,
+            355,
+            616
+          ],
+          "name": "Serina (Christmas)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            493,
+            560,
+            555,
+            618
+          ],
+          "name": "Yoshimi (Band)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:1",
+          "bbox": [
+            565,
+            560,
+            627,
+            618
+          ],
+          "name": "Mari",
+          "eligible": true,
+          "card_state": "available"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231327-489.png",
+      "sha256": "afa5f221db0c51bb2ef5e37a1982b3cda54a48af86d1d1491f5e507f30a153f1",
+      "selected_card_indices": [],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            128,
+            181,
+            462,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            182,
+            813,
+            324
+          ],
+          "click_point": [
+            643,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            816,
+            180,
+            1155,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            129,
+            332,
+            464,
+            474
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            474,
+            333,
+            810,
+            475
+          ],
+          "click_point": [
+            642,
+            404
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            814,
+            331,
+            1154,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            126,
+            483,
+            465,
+            626
+          ],
+          "click_point": [
+            295,
+            554
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            473,
+            483,
+            811,
+            626
+          ],
+          "click_point": [
+            642,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            257,
+            211,
+            315
+          ],
+          "name": "Haruna",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            221,
+            257,
+            284,
+            315
+          ],
+          "name": "Tsurugi",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:2",
+          "bbox": [
+            293,
+            257,
+            355,
+            315
+          ],
+          "name": "Mutsuki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            493,
+            257,
+            554,
+            315
+          ],
+          "name": "Hatsune Miku",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            565,
+            257,
+            628,
+            315
+          ],
+          "name": "Michiru",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:2",
+          "bbox": [
+            638,
+            258,
+            699,
+            315
+          ],
+          "name": "Ui",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "name": "Hibiki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:1",
+          "bbox": [
+            910,
+            257,
+            971,
+            315
+          ],
+          "name": "Tsubaki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:2",
+          "bbox": [
+            982,
+            256,
+            1043,
+            315
+          ],
+          "name": "Sumire",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            408,
+            211,
+            466
+          ],
+          "name": "Marina (Qipao)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            222,
+            408,
+            283,
+            465
+          ],
+          "name": "Miyako (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            493,
+            408,
+            555,
+            465
+          ],
+          "name": "Moe",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:1",
+          "bbox": [
+            565,
+            409,
+            626,
+            466
+          ],
+          "name": "Nagisa",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            408,
+            899,
+            466
+          ],
+          "name": "Akane",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            909,
+            408,
+            971,
+            465
+          ],
+          "name": "Chise",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            148,
+            560,
+            209,
+            617
+          ],
+          "name": "Kayoko (Dress)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            493,
+            559,
+            555,
+            617
+          ],
+          "name": "Midori",
+          "eligible": true,
+          "card_state": "available"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231332-087.png",
+      "sha256": "469b80a46af48d02a1c2dd36ed922653b0dd68663eba73754642392701c067c0",
+      "selected_card_indices": [
+        4
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            126,
+            180,
+            464,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            181,
+            812,
+            324
+          ],
+          "click_point": [
+            642,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            181,
+            1156,
+            325
+          ],
+          "click_point": [
+            985,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            129,
+            333,
+            464,
+            475
+          ],
+          "click_point": [
+            296,
+            404
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            472,
+            332,
+            810,
+            475
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            815,
+            331,
+            1154,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            483,
+            466,
+            626
+          ],
+          "click_point": [
+            297,
+            554
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            471,
+            482,
+            809,
+            626
+          ],
+          "click_point": [
+            640,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            258,
+            211,
+            315
+          ],
+          "name": "Chiaki",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            221,
+            258,
+            282,
+            314
+          ],
+          "name": "Noa",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:2",
+          "bbox": [
+            292,
+            257,
+            355,
+            315
+          ],
+          "name": "Izumi",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            493,
+            258,
+            554,
+            314
+          ],
+          "name": "Asuna (School)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            565,
+            258,
+            626,
+            315
+          ],
+          "name": "Miyako",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:2",
+          "bbox": [
+            637,
+            258,
+            699,
+            315
+          ],
+          "name": "Aris (Maid)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            837,
+            258,
+            897,
+            315
+          ],
+          "name": "Marina",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            408,
+            210,
+            466
+          ],
+          "name": "Aoba",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            221,
+            408,
+            283,
+            465
+          ],
+          "name": "Hatsune Miku",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            492,
+            409,
+            554,
+            465
+          ],
+          "name": "Eimi (Swimsuit)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "4:1",
+          "bbox": [
+            563,
+            408,
+            624,
+            465
+          ],
+          "name": "Yuzu (Maid)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "4:2",
+          "bbox": [
+            637,
+            407,
+            699,
+            465
+          ],
+          "name": "Serina",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            408,
+            899,
+            466
+          ],
+          "name": "Fubuki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            909,
+            408,
+            970,
+            466
+          ],
+          "name": "Hina",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            149,
+            559,
+            211,
+            617
+          ],
+          "name": "Nagisa",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            494,
+            559,
+            555,
+            616
+          ],
+          "name": "Kirino",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:1",
+          "bbox": [
+            565,
+            559,
+            627,
+            617
+          ],
+          "name": "Tsubaki",
+          "eligible": true,
+          "card_state": "available"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231336-603.png",
+      "sha256": "f5ce69bab8dac63ba0ee5142a9a989875417660f4da125a31783eb16dda34394",
+      "selected_card_indices": [],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            127,
+            181,
+            464,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            182,
+            811,
+            325
+          ],
+          "click_point": [
+            642,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            816,
+            181,
+            1155,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            332,
+            467,
+            475
+          ],
+          "click_point": [
+            297,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            472,
+            332,
+            810,
+            475
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            817,
+            332,
+            1153,
+            475
+          ],
+          "click_point": [
+            985,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            125,
+            482,
+            468,
+            627
+          ],
+          "click_point": [
+            296,
+            554
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            472,
+            482,
+            810,
+            626
+          ],
+          "click_point": [
+            641,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            257,
+            212,
+            315
+          ],
+          "name": "Fubuki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            221,
+            256,
+            283,
+            314
+          ],
+          "name": "Hiyori",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:2",
+          "bbox": [
+            293,
+            257,
+            354,
+            315
+          ],
+          "name": "Mashiro",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            493,
+            258,
+            554,
+            315
+          ],
+          "name": "Miyako",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            565,
+            257,
+            628,
+            315
+          ],
+          "name": "Izumi",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            838,
+            258,
+            898,
+            315
+          ],
+          "name": "Yuuka (Pajamas)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            150,
+            409,
+            210,
+            465
+          ],
+          "name": "Hatsune Miku",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            221,
+            408,
+            283,
+            465
+          ],
+          "name": "Umika",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "3:2",
+          "bbox": [
+            293,
+            408,
+            354,
+            466
+          ],
+          "name": "Hifumi (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            494,
+            408,
+            555,
+            465
+          ],
+          "name": "Atsuko (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:1",
+          "bbox": [
+            565,
+            408,
+            627,
+            466
+          ],
+          "name": "Chise (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:2",
+          "bbox": [
+            637,
+            408,
+            700,
+            466
+          ],
+          "name": "Juri",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            408,
+            899,
+            466
+          ],
+          "name": "Wakamo (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            148,
+            559,
+            209,
+            617
+          ],
+          "name": "Renge",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            221,
+            559,
+            284,
+            617
+          ],
+          "name": "Kaede",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            493,
+            559,
+            554,
+            616
+          ],
+          "name": "Mine (Pop Idol)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:1",
+          "bbox": [
+            566,
+            559,
+            627,
+            616
+          ],
+          "name": "Eimi (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231341-107.png",
+      "sha256": "2b8f24759479991c514329298a1d31259a8f53e9ae73df005f995ea00228388f",
+      "selected_card_indices": [],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            127,
+            181,
+            466,
+            325
+          ],
+          "click_point": [
+            296,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            180,
+            811,
+            325
+          ],
+          "click_point": [
+            642,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            817,
+            181,
+            1154,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            129,
+            331,
+            466,
+            474
+          ],
+          "click_point": [
+            297,
+            402
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            473,
+            332,
+            810,
+            475
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            815,
+            331,
+            1153,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            482,
+            467,
+            626
+          ],
+          "click_point": [
+            297,
+            554
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            472,
+            482,
+            811,
+            625
+          ],
+          "click_point": [
+            641,
+            553
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            257,
+            211,
+            315
+          ],
+          "name": "Mari (Pop Idol)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            221,
+            257,
+            283,
+            315
+          ],
+          "name": "Hinata",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            494,
+            258,
+            555,
+            314
+          ],
+          "name": "Tsubaki (Guide)",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            565,
+            258,
+            626,
+            315
+          ],
+          "name": "Natsu",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "name": "Mina",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            408,
+            210,
+            465
+          ],
+          "name": "Ibuki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            221,
+            408,
+            282,
+            466
+          ],
+          "name": "Cherino (Hot Spring)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            493,
+            408,
+            555,
+            465
+          ],
+          "name": "Koharu (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:1",
+          "bbox": [
+            565,
+            408,
+            627,
+            466
+          ],
+          "name": "Meru",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            407,
+            899,
+            466
+          ],
+          "name": "Fubuki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            910,
+            408,
+            971,
+            465
+          ],
+          "name": "Karin",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:2",
+          "bbox": [
+            982,
+            409,
+            1043,
+            466
+          ],
+          "name": "Yuuka (Track)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            149,
+            559,
+            209,
+            616
+          ],
+          "name": "Saori",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            221,
+            560,
+            283,
+            617
+          ],
+          "name": "Shizuko (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            494,
+            560,
+            555,
+            617
+          ],
+          "name": "Shiroko (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:1",
+          "bbox": [
+            566,
+            559,
+            627,
+            617
+          ],
+          "name": "Tomoe (Qipao)",
+          "eligible": true,
+          "card_state": "available"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231345-085.png",
+      "sha256": "f0531da5730f781a827f73add98ab28fa6c76ff444f39e61d1e9ac05911f5db6",
+      "selected_card_indices": [],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            127,
+            181,
+            464,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            471,
+            181,
+            813,
+            324
+          ],
+          "click_point": [
+            642,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            181,
+            1155,
+            325
+          ],
+          "click_point": [
+            985,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            332,
+            464,
+            475
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            470,
+            331,
+            810,
+            475
+          ],
+          "click_point": [
+            640,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            817,
+            332,
+            1152,
+            474
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            127,
+            483,
+            468,
+            627
+          ],
+          "click_point": [
+            297,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            473,
+            483,
+            809,
+            625
+          ],
+          "click_point": [
+            641,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            257,
+            211,
+            314
+          ],
+          "name": "Fubuki (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            221,
+            257,
+            282,
+            315
+          ],
+          "name": "Aru (Dress)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:2",
+          "bbox": [
+            293,
+            256,
+            354,
+            314
+          ],
+          "name": "Yukari",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            494,
+            258,
+            555,
+            314
+          ],
+          "name": "Moe",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:1",
+          "bbox": [
+            566,
+            257,
+            627,
+            315
+          ],
+          "name": "Haruna (Track)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "1:2",
+          "bbox": [
+            637,
+            257,
+            699,
+            315
+          ],
+          "name": "Shun (Small)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "name": "Mari",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            408,
+            210,
+            465
+          ],
+          "name": "Shizuko",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            222,
+            408,
+            283,
+            466
+          ],
+          "name": "Koharu (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:2",
+          "bbox": [
+            292,
+            408,
+            354,
+            466
+          ],
+          "name": "Aoba",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            494,
+            408,
+            555,
+            465
+          ],
+          "name": "Hatsune Miku",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            408,
+            898,
+            465
+          ],
+          "name": "Utaha",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            150,
+            559,
+            211,
+            616
+          ],
+          "name": "Shiroko Terror",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            221,
+            559,
+            283,
+            616
+          ],
+          "name": "Hina (Dress)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:2",
+          "bbox": [
+            293,
+            559,
+            355,
+            616
+          ],
+          "name": "Karin (Bunny)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            493,
+            559,
+            555,
+            617
+          ],
+          "name": "Tomoe (Qipao)",
+          "eligible": true,
+          "card_state": "available"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231349-471.png",
+      "sha256": "c05c394158379301a7a633e916373853c0b23ad2c6aaa5502d98086d75ec03c7",
+      "selected_card_indices": [
+        4
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            129,
+            181,
+            467,
+            325
+          ],
+          "click_point": [
+            298,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            471,
+            181,
+            809,
+            324
+          ],
+          "click_point": [
+            640,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            817,
+            181,
+            1155,
+            325
+          ],
+          "click_point": [
+            986,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            332,
+            461,
+            474
+          ],
+          "click_point": [
+            294,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            473,
+            332,
+            809,
+            474
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            816,
+            331,
+            1153,
+            474
+          ],
+          "click_point": [
+            984,
+            402
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            127,
+            483,
+            467,
+            627
+          ],
+          "click_point": [
+            297,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            471,
+            482,
+            809,
+            626
+          ],
+          "click_point": [
+            640,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "bbox": [
+            149,
+            257,
+            210,
+            315
+          ],
+          "name": "Mika",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "0:1",
+          "bbox": [
+            221,
+            258,
+            283,
+            314
+          ],
+          "name": "Reijo",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "1:0",
+          "bbox": [
+            493,
+            257,
+            555,
+            315
+          ],
+          "name": "Karin",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:0",
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "name": "Toki (Bunny)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:1",
+          "bbox": [
+            909,
+            257,
+            971,
+            315
+          ],
+          "name": "Shiroko",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "2:2",
+          "bbox": [
+            982,
+            257,
+            1043,
+            315
+          ],
+          "name": "Eimi",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:0",
+          "bbox": [
+            149,
+            408,
+            210,
+            466
+          ],
+          "name": "Midori (Maid)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:1",
+          "bbox": [
+            221,
+            408,
+            283,
+            465
+          ],
+          "name": "Cherino (Hot Spring)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "3:2",
+          "bbox": [
+            294,
+            408,
+            355,
+            465
+          ],
+          "name": "Hatsune Miku",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "4:0",
+          "bbox": [
+            492,
+            408,
+            554,
+            465
+          ],
+          "name": "Yuzu (Maid)",
+          "eligible": true,
+          "card_state": "selected"
+        },
+        {
+          "location": "5:0",
+          "bbox": [
+            837,
+            408,
+            899,
+            465
+          ],
+          "name": "Umika",
+          "eligible": false,
+          "card_state": "available"
+        },
+        {
+          "location": "5:1",
+          "bbox": [
+            909,
+            408,
+            971,
+            465
+          ],
+          "name": "Kikyou",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:0",
+          "bbox": [
+            149,
+            559,
+            209,
+            616
+          ],
+          "name": "Maki",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "6:1",
+          "bbox": [
+            221,
+            559,
+            283,
+            616
+          ],
+          "name": "Wakamo (Swimsuit)",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:0",
+          "bbox": [
+            493,
+            560,
+            555,
+            617
+          ],
+          "name": "Mari",
+          "eligible": true,
+          "card_state": "available"
+        },
+        {
+          "location": "7:1",
+          "bbox": [
+            566,
+            559,
+            627,
+            616
+          ],
+          "name": "Kotama (Camp)",
+          "eligible": true,
+          "card_state": "available"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5736 @@
+{
+  "version": 1,
+  "dataset_id": "lesson_independent_v2",
+  "status": "pending_user_review",
+  "classification": "model_preannotation_not_ground_truth_or_accuracy",
+  "canonical_size": [
+    1280,
+    720
+  ],
+  "coordinate_format": "xyxy_exclusive",
+  "indexing": {
+    "card": "zero_based_row_major",
+    "slot": "zero_based_left_to_right",
+    "display": "one_based_card-avatar"
+  },
+  "data_policy": {
+    "included_in_training": false,
+    "included_in_gallery": false,
+    "used_for_model_or_threshold_selection": false,
+    "formal_metrics_allowed_before_user_review": false,
+    "selected_cards_identity_test": true,
+    "selected_cards_available_click_test": false,
+    "selected_cards_must_not_click": true
+  },
+  "counts": {
+    "images": 11,
+    "nonempty_cards": 86,
+    "avatars": 182,
+    "selected_cards": 7,
+    "selected_state_avatars": 18,
+    "available_state_cards": 79,
+    "available_state_avatars": 164,
+    "predicted_pink_available": 144,
+    "predicted_gray_available": 20,
+    "predicted_pink_selected": 17,
+    "predicted_gray_selected": 1
+  },
+  "environment": {
+    "opencv_version": "4.8.1",
+    "server_argument": "CN",
+    "identity_click_policy": "valid_global_top1"
+  },
+  "production_model_hashes_before": {
+    "lesson_locator.onnx": {
+      "bytes": 3701493,
+      "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+    },
+    "lesson_locator.json": {
+      "bytes": 733,
+      "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+    },
+    "student_encoder.onnx": {
+      "bytes": 4017703,
+      "sha256": "51eaf78fd1ce10bd6561c610126e7dae56a33665799c5aa9b8f483cf88dc0eee"
+    },
+    "student_encoder.json": {
+      "bytes": 119571,
+      "sha256": "98d2baec0df174b29f24adfe9edfe83c5bce3f4221508841ac01c94af77a3a2f"
+    },
+    "gallery.npz": {
+      "bytes": 329641,
+      "sha256": "9574631fada55559be1aa90ac9cff5b121a7dc287162e38966ff77e91162abbc"
+    }
+  },
+  "production_model_hashes_after": {
+    "lesson_locator.onnx": {
+      "bytes": 3701493,
+      "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+    },
+    "lesson_locator.json": {
+      "bytes": 733,
+      "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+    },
+    "student_encoder.onnx": {
+      "bytes": 4017703,
+      "sha256": "51eaf78fd1ce10bd6561c610126e7dae56a33665799c5aa9b8f483cf88dc0eee"
+    },
+    "student_encoder.json": {
+      "bytes": 119571,
+      "sha256": "98d2baec0df174b29f24adfe9edfe83c5bce3f4221508841ac01c94af77a3a2f"
+    },
+    "gallery.npz": {
+      "bytes": 329641,
+      "sha256": "9574631fada55559be1aa90ac9cff5b121a7dc287162e38966ff77e91162abbc"
+    }
+  },
+  "images": [
+    {
+      "file": "MuMu-20260806-231258-968.png",
+      "sha256": "e12131cad1ad3063e9b9ccb238a2649d1a82d4f0157b9e9d603b0bc0673e4a42",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [
+        6
+      ],
+      "selected_display_cards": [
+        7
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            126,
+            181,
+            463,
+            323
+          ],
+          "click_point": [
+            294,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            181,
+            812,
+            325
+          ],
+          "click_point": [
+            642,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            814,
+            181,
+            1156,
+            325
+          ],
+          "click_point": [
+            985,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            332,
+            465,
+            475
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            472,
+            333,
+            809,
+            475
+          ],
+          "click_point": [
+            640,
+            404
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            816,
+            332,
+            1154,
+            475
+          ],
+          "click_point": [
+            985,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            483,
+            468,
+            627
+          ],
+          "click_point": [
+            298,
+            555
+          ],
+          "card_state": "selected"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            258,
+            209,
+            313
+          ],
+          "predicted_name": "Juri (Part-Timer)",
+          "predicted_student_id": "juri_part_timer",
+          "score": 0.9258791208267212,
+          "margin": 0.4542406499385834,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            221,
+            258,
+            283,
+            315
+          ],
+          "predicted_name": "Saya (Casual)",
+          "predicted_student_id": "saya_casual",
+          "score": 0.9737001061439514,
+          "margin": 0.48152148723602295,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:2",
+          "display_location": "1-3",
+          "card_index": 0,
+          "slot": 2,
+          "bbox": [
+            293,
+            257,
+            355,
+            314
+          ],
+          "predicted_name": "Junko",
+          "predicted_student_id": "junko",
+          "score": 0.9906603693962097,
+          "margin": 0.2505565881729126,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            494,
+            258,
+            555,
+            315
+          ],
+          "predicted_name": "Marina (Qipao)",
+          "predicted_student_id": "marina_qipao",
+          "score": 0.9698535799980164,
+          "margin": 0.38180261850357056,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            565,
+            257,
+            626,
+            315
+          ],
+          "predicted_name": "Kayoko",
+          "predicted_student_id": "kayoko",
+          "score": 0.990812361240387,
+          "margin": 0.5302898585796356,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:2",
+          "display_location": "2-3",
+          "card_index": 1,
+          "slot": 2,
+          "bbox": [
+            638,
+            258,
+            699,
+            315
+          ],
+          "predicted_name": "Himari",
+          "predicted_student_id": "himari",
+          "score": 0.8993142247200012,
+          "margin": 0.41118356585502625,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            838,
+            258,
+            898,
+            314
+          ],
+          "predicted_name": "Hanae",
+          "predicted_student_id": "hanae",
+          "score": 0.9914548993110657,
+          "margin": 0.5346785187721252,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            410,
+            211,
+            467
+          ],
+          "predicted_name": "Maki (Camp)",
+          "predicted_student_id": "maki_camp",
+          "score": 0.9810143113136292,
+          "margin": 0.35736024379730225,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            221,
+            409,
+            283,
+            466
+          ],
+          "predicted_name": "Mashiro",
+          "predicted_student_id": "mashiro",
+          "score": 0.9613319635391235,
+          "margin": 0.2205222249031067,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            494,
+            409,
+            555,
+            466
+          ],
+          "predicted_name": "Mutsuki",
+          "predicted_student_id": "mutsuki",
+          "score": 0.9866252541542053,
+          "margin": 0.3975942134857178,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:1",
+          "display_location": "5-2",
+          "card_index": 4,
+          "slot": 1,
+          "bbox": [
+            566,
+            409,
+            627,
+            466
+          ],
+          "predicted_name": "Umika",
+          "predicted_student_id": "umika",
+          "score": 0.9085072875022888,
+          "margin": 0.46903154253959656,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            410,
+            898,
+            467
+          ],
+          "predicted_name": "Kanna (Swimsuit)",
+          "predicted_student_id": "kanna_swimsuit",
+          "score": 0.8672699332237244,
+          "margin": 0.29718220233917236,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            909,
+            408,
+            971,
+            466
+          ],
+          "predicted_name": "Sakurako (Pop Idol)",
+          "predicted_student_id": "sakurako_pop_idol",
+          "score": 0.9761759042739868,
+          "margin": 0.4911821782588959,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:2",
+          "display_location": "6-3",
+          "card_index": 5,
+          "slot": 2,
+          "bbox": [
+            982,
+            409,
+            1042,
+            465
+          ],
+          "predicted_name": "Yukari",
+          "predicted_student_id": "yukari",
+          "score": 0.9205031394958496,
+          "margin": 0.41563165187835693,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            148,
+            559,
+            211,
+            618
+          ],
+          "predicted_name": "Shun",
+          "predicted_student_id": "shun",
+          "score": 0.6392629146575928,
+          "margin": 0.008075535297393799,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            220,
+            559,
+            282,
+            617
+          ],
+          "predicted_name": "Aru (Dress)",
+          "predicted_student_id": "aru_dress",
+          "score": 0.6442757248878479,
+          "margin": 0.1836475431919098,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:2",
+          "display_location": "7-3",
+          "card_index": 6,
+          "slot": 2,
+          "bbox": [
+            292,
+            558,
+            357,
+            617
+          ],
+          "predicted_name": "Tsurugi",
+          "predicted_student_id": "tsurugi",
+          "score": 0.6617584228515625,
+          "margin": 0.15988004207611084,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231304-820.png",
+      "sha256": "81c7af909cfeff0ff84813ff147c3cc14fa5c926b8d3fb5a33c737bec257f731",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [
+        5
+      ],
+      "selected_display_cards": [
+        6
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            126,
+            181,
+            465,
+            325
+          ],
+          "click_point": [
+            295,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            472,
+            181,
+            810,
+            325
+          ],
+          "click_point": [
+            641,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            180,
+            1155,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            129,
+            333,
+            464,
+            476
+          ],
+          "click_point": [
+            296,
+            404
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            472,
+            332,
+            809,
+            475
+          ],
+          "click_point": [
+            640,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            817,
+            332,
+            1154,
+            475
+          ],
+          "click_point": [
+            985,
+            403
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            484,
+            466,
+            627
+          ],
+          "click_point": [
+            297,
+            555
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            258,
+            210,
+            315
+          ],
+          "predicted_name": "Moe (Swimsuit)",
+          "predicted_student_id": "moe_swimsuit",
+          "score": 0.9276939630508423,
+          "margin": 0.46339085698127747,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            220,
+            258,
+            282,
+            316
+          ],
+          "predicted_name": "Iroha",
+          "predicted_student_id": "iroha",
+          "score": 0.9408395290374756,
+          "margin": 0.4826202988624573,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            494,
+            257,
+            555,
+            315
+          ],
+          "predicted_name": "Sumire",
+          "predicted_student_id": "sumire",
+          "score": 0.9665587544441223,
+          "margin": 0.49144792556762695,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            565,
+            257,
+            627,
+            315
+          ],
+          "predicted_name": "Saki (Swimsuit)",
+          "predicted_student_id": "saki_swimsuit",
+          "score": 0.9889212846755981,
+          "margin": 0.5994080901145935,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "predicted_name": "Yoshimi",
+          "predicted_student_id": "yoshimi",
+          "score": 0.8894156217575073,
+          "margin": 0.30176717042922974,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:1",
+          "display_location": "3-2",
+          "card_index": 2,
+          "slot": 1,
+          "bbox": [
+            910,
+            258,
+            971,
+            315
+          ],
+          "predicted_name": "Ibuki",
+          "predicted_student_id": "ibuki",
+          "score": 0.9921408295631409,
+          "margin": 0.5150432884693146,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:2",
+          "display_location": "3-3",
+          "card_index": 2,
+          "slot": 2,
+          "bbox": [
+            981,
+            257,
+            1043,
+            315
+          ],
+          "predicted_name": "Kayoko (New Year)",
+          "predicted_student_id": "kayoko_new_year",
+          "score": 0.9306586980819702,
+          "margin": 0.4076393246650696,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            409,
+            210,
+            466
+          ],
+          "predicted_name": "Pina",
+          "predicted_student_id": "pina",
+          "score": 0.972057580947876,
+          "margin": 0.5017085075378418,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            494,
+            408,
+            555,
+            466
+          ],
+          "predicted_name": "Aris",
+          "predicted_student_id": "aris",
+          "score": 0.8939022421836853,
+          "margin": 0.3148385286331177,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:1",
+          "display_location": "5-2",
+          "card_index": 4,
+          "slot": 1,
+          "bbox": [
+            566,
+            409,
+            626,
+            466
+          ],
+          "predicted_name": "Shizuko",
+          "predicted_student_id": "shizuko",
+          "score": 0.9260170459747314,
+          "margin": 0.42750394344329834,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            409,
+            898,
+            466
+          ],
+          "predicted_name": "Shiroko Terror",
+          "predicted_student_id": "shiroko_terror",
+          "score": 0.648266077041626,
+          "margin": 0.052086710929870605,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            908,
+            408,
+            971,
+            466
+          ],
+          "predicted_name": "Tsukuyo",
+          "predicted_student_id": "tsukuyo",
+          "score": 0.5380976796150208,
+          "margin": 0.03498107194900513,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:2",
+          "display_location": "6-3",
+          "card_index": 5,
+          "slot": 2,
+          "bbox": [
+            981,
+            407,
+            1045,
+            466
+          ],
+          "predicted_name": "Fubuki",
+          "predicted_student_id": "fubuki",
+          "score": 0.7894629836082458,
+          "margin": 0.29956427216529846,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            150,
+            560,
+            210,
+            616
+          ],
+          "predicted_name": "Kirara",
+          "predicted_student_id": "kirara",
+          "score": 0.8769603371620178,
+          "margin": 0.29493242502212524,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            221,
+            560,
+            283,
+            618
+          ],
+          "predicted_name": "Hoshino (Battle)",
+          "predicted_student_id": "hoshino_battle",
+          "score": 0.96329265832901,
+          "margin": 0.558268129825592,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231311-941.png",
+      "sha256": "9e025ccb915c5c41721cd178cba8e7a464484d3253257b214b0e32230674c08c",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [
+        3
+      ],
+      "selected_display_cards": [
+        4
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            128,
+            180,
+            465,
+            324
+          ],
+          "click_point": [
+            296,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            181,
+            810,
+            324
+          ],
+          "click_point": [
+            641,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            817,
+            181,
+            1155,
+            324
+          ],
+          "click_point": [
+            986,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            127,
+            331,
+            465,
+            475
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            473,
+            332,
+            810,
+            475
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            816,
+            332,
+            1153,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            126,
+            482,
+            468,
+            628
+          ],
+          "click_point": [
+            297,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            473,
+            483,
+            811,
+            626
+          ],
+          "click_point": [
+            642,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            258,
+            210,
+            315
+          ],
+          "predicted_name": "Miyako",
+          "predicted_student_id": "miyako",
+          "score": 0.9702242612838745,
+          "margin": 0.48677489161491394,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            222,
+            258,
+            283,
+            315
+          ],
+          "predicted_name": "Himari",
+          "predicted_student_id": "himari",
+          "score": 0.8899438977241516,
+          "margin": 0.35669612884521484,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:2",
+          "display_location": "1-3",
+          "card_index": 0,
+          "slot": 2,
+          "bbox": [
+            293,
+            257,
+            354,
+            315
+          ],
+          "predicted_name": "Fuuka",
+          "predicted_student_id": "fuuka",
+          "score": 0.7886117100715637,
+          "margin": 0.22234517335891724,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            493,
+            257,
+            555,
+            315
+          ],
+          "predicted_name": "Shiroko",
+          "predicted_student_id": "shiroko",
+          "score": 0.9184990525245667,
+          "margin": 0.3867982029914856,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            565,
+            257,
+            627,
+            314
+          ],
+          "predicted_name": "Nodoka (Hot Spring)",
+          "predicted_student_id": "nodoka_hot_spring",
+          "score": 0.9325342774391174,
+          "margin": 0.4461975395679474,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            838,
+            258,
+            899,
+            315
+          ],
+          "predicted_name": "Haruna (New Year)",
+          "predicted_student_id": "haruna_new_year",
+          "score": 0.9806126952171326,
+          "margin": 0.4269263744354248,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:1",
+          "display_location": "3-2",
+          "card_index": 2,
+          "slot": 1,
+          "bbox": [
+            910,
+            257,
+            971,
+            314
+          ],
+          "predicted_name": "Mutsuki (New Year)",
+          "predicted_student_id": "mutsuki_new_year",
+          "score": 0.8846803307533264,
+          "margin": 0.3586851954460144,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            148,
+            408,
+            210,
+            466
+          ],
+          "predicted_name": "Miyu (Swimsuit)",
+          "predicted_student_id": "miyu_swimsuit",
+          "score": 0.7485209107398987,
+          "margin": 0.20022892951965332,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            219,
+            408,
+            282,
+            466
+          ],
+          "predicted_name": "Ui",
+          "predicted_student_id": "ui",
+          "score": 0.7102537751197815,
+          "margin": 0.04441756010055542,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:2",
+          "display_location": "4-3",
+          "card_index": 3,
+          "slot": 2,
+          "bbox": [
+            292,
+            408,
+            355,
+            466
+          ],
+          "predicted_name": "Kayoko",
+          "predicted_student_id": "kayoko",
+          "score": 0.7348787188529968,
+          "margin": 0.328466534614563,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            493,
+            408,
+            555,
+            466
+          ],
+          "predicted_name": "Yoshimi",
+          "predicted_student_id": "yoshimi",
+          "score": 0.9036130905151367,
+          "margin": 0.3321102261543274,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:1",
+          "display_location": "5-2",
+          "card_index": 4,
+          "slot": 1,
+          "bbox": [
+            566,
+            409,
+            627,
+            466
+          ],
+          "predicted_name": "Hifumi (Swimsuit)",
+          "predicted_student_id": "hifumi_swimsuit",
+          "score": 0.9607142806053162,
+          "margin": 0.5127913057804108,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            409,
+            899,
+            467
+          ],
+          "predicted_name": "Makoto",
+          "predicted_student_id": "makoto",
+          "score": 0.8234454989433289,
+          "margin": 0.3088937997817993,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            910,
+            409,
+            970,
+            466
+          ],
+          "predicted_name": "Saten Ruiko",
+          "predicted_student_id": "saten_ruiko",
+          "score": 0.9186226725578308,
+          "margin": 0.4137130379676819,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            149,
+            559,
+            211,
+            618
+          ],
+          "predicted_name": "Kokona",
+          "predicted_student_id": "kokona",
+          "score": 0.9663836359977722,
+          "margin": 0.5254571437835693,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            222,
+            559,
+            283,
+            615
+          ],
+          "predicted_name": "Sena (Casual)",
+          "predicted_student_id": "sena_casual",
+          "score": 0.9692941308021545,
+          "margin": 0.5576950907707214,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            493,
+            560,
+            555,
+            618
+          ],
+          "predicted_name": "Tsukuyo",
+          "predicted_student_id": "tsukuyo",
+          "score": 0.9797638058662415,
+          "margin": 0.5572552978992462,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:1",
+          "display_location": "8-2",
+          "card_index": 7,
+          "slot": 1,
+          "bbox": [
+            566,
+            560,
+            625,
+            616
+          ],
+          "predicted_name": "Kanna (Swimsuit)",
+          "predicted_student_id": "kanna_swimsuit",
+          "score": 0.8969724178314209,
+          "margin": 0.23489058017730713,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231317-557.png",
+      "sha256": "4460a28e14d08587e0759cd9bafed179e1720c139af3e207b50fb67a0662c175",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [
+        7
+      ],
+      "selected_display_cards": [
+        8
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            129,
+            180,
+            467,
+            324
+          ],
+          "click_point": [
+            298,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            472,
+            181,
+            810,
+            324
+          ],
+          "click_point": [
+            641,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            180,
+            1155,
+            325
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            331,
+            462,
+            475
+          ],
+          "click_point": [
+            295,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            471,
+            331,
+            810,
+            475
+          ],
+          "click_point": [
+            640,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            814,
+            331,
+            1154,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            124,
+            483,
+            467,
+            628
+          ],
+          "click_point": [
+            295,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            470,
+            484,
+            809,
+            626
+          ],
+          "click_point": [
+            639,
+            555
+          ],
+          "card_state": "selected"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            150,
+            257,
+            211,
+            314
+          ],
+          "predicted_name": "Neru (Bunny)",
+          "predicted_student_id": "neru_bunny",
+          "score": 0.9621049761772156,
+          "margin": 0.3740667700767517,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            222,
+            257,
+            282,
+            313
+          ],
+          "predicted_name": "Kirara",
+          "predicted_student_id": "kirara",
+          "score": 0.8860748410224915,
+          "margin": 0.3231147527694702,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            494,
+            258,
+            555,
+            315
+          ],
+          "predicted_name": "Izumi (Swimsuit)",
+          "predicted_student_id": "izumi_swimsuit",
+          "score": 0.9931348562240601,
+          "margin": 0.6222207546234131,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            566,
+            257,
+            628,
+            315
+          ],
+          "predicted_name": "Hatsune Miku",
+          "predicted_student_id": "hatsune_miku",
+          "score": 0.9449966549873352,
+          "margin": 0.3541354537010193,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            837,
+            257,
+            900,
+            315
+          ],
+          "predicted_name": "Mari (Track)",
+          "predicted_student_id": "mari_track",
+          "score": 0.9216945171356201,
+          "margin": 0.4091150760650635,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:1",
+          "display_location": "3-2",
+          "card_index": 2,
+          "slot": 1,
+          "bbox": [
+            910,
+            257,
+            971,
+            314
+          ],
+          "predicted_name": "Eimi",
+          "predicted_student_id": "eimi",
+          "score": 0.9283145070075989,
+          "margin": 0.42304283380508423,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:2",
+          "display_location": "3-3",
+          "card_index": 2,
+          "slot": 2,
+          "bbox": [
+            981,
+            257,
+            1043,
+            315
+          ],
+          "predicted_name": "Nonomi (Swimsuit)",
+          "predicted_student_id": "nonomi_swimsuit",
+          "score": 0.9624878168106079,
+          "margin": 0.2816826105117798,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            408,
+            209,
+            465
+          ],
+          "predicted_name": "Kikyou",
+          "predicted_student_id": "kikyou",
+          "score": 0.8941181898117065,
+          "margin": 0.430352121591568,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            222,
+            409,
+            282,
+            466
+          ],
+          "predicted_name": "Serina (Christmas)",
+          "predicted_student_id": "serina_christmas",
+          "score": 0.9278212785720825,
+          "margin": 0.5363434851169586,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            493,
+            408,
+            555,
+            466
+          ],
+          "predicted_name": "Shiroko",
+          "predicted_student_id": "shiroko",
+          "score": 0.9258170127868652,
+          "margin": 0.41769564151763916,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            409,
+            899,
+            467
+          ],
+          "predicted_name": "Makoto",
+          "predicted_student_id": "makoto",
+          "score": 0.8234454989433289,
+          "margin": 0.3088937997817993,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            910,
+            409,
+            970,
+            465
+          ],
+          "predicted_name": "Serika (Swimsuit)",
+          "predicted_student_id": "serika_swimsuit",
+          "score": 0.8927485942840576,
+          "margin": 0.3422948718070984,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            149,
+            560,
+            209,
+            616
+          ],
+          "predicted_name": "Moe",
+          "predicted_student_id": "moe",
+          "score": 0.9555678963661194,
+          "margin": 0.4438934326171875,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            220,
+            559,
+            283,
+            618
+          ],
+          "predicted_name": "Shigure (Hot Spring)",
+          "predicted_student_id": "shigure_hot_spring",
+          "score": 0.9867352247238159,
+          "margin": 0.46979594230651855,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            491,
+            559,
+            553,
+            617
+          ],
+          "predicted_name": "Ui",
+          "predicted_student_id": "ui",
+          "score": 0.7324203252792358,
+          "margin": 0.026220858097076416,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:1",
+          "display_location": "8-2",
+          "card_index": 7,
+          "slot": 1,
+          "bbox": [
+            564,
+            559,
+            627,
+            618
+          ],
+          "predicted_name": "Nodoka",
+          "predicted_student_id": "nodoka",
+          "score": 0.7873557806015015,
+          "margin": 0.3187812268733978,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231322-679.png",
+      "sha256": "949be86f7876cb5806f443a9e1603c9582dd47b379a8a8e0aca7653ce3deea40",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [
+        0
+      ],
+      "selected_display_cards": [
+        1
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            127,
+            180,
+            464,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            181,
+            811,
+            325
+          ],
+          "click_point": [
+            642,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            181,
+            1155,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            331,
+            464,
+            475
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            470,
+            331,
+            811,
+            476
+          ],
+          "click_point": [
+            640,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            815,
+            332,
+            1153,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            483,
+            465,
+            627
+          ],
+          "click_point": [
+            296,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            471,
+            483,
+            810,
+            626
+          ],
+          "click_point": [
+            640,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            148,
+            257,
+            211,
+            315
+          ],
+          "predicted_name": "Kisaki",
+          "predicted_student_id": "kisaki",
+          "score": 0.7770228981971741,
+          "margin": 0.1390034556388855,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            219,
+            258,
+            279,
+            315
+          ],
+          "predicted_name": "Midori (Maid)",
+          "predicted_student_id": "midori_maid",
+          "score": 0.6883546710014343,
+          "margin": 0.030682921409606934,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:2",
+          "display_location": "1-3",
+          "card_index": 0,
+          "slot": 2,
+          "bbox": [
+            293,
+            257,
+            356,
+            315
+          ],
+          "predicted_name": "Eimi (Swimsuit)",
+          "predicted_student_id": "eimi_swimsuit",
+          "score": 0.7220090627670288,
+          "margin": 0.09756797552108765,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            494,
+            258,
+            554,
+            314
+          ],
+          "predicted_name": "Noa",
+          "predicted_student_id": "noa",
+          "score": 0.9700183868408203,
+          "margin": 0.5202079713344574,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            565,
+            257,
+            627,
+            315
+          ],
+          "predicted_name": "Tsurugi",
+          "predicted_student_id": "tsurugi",
+          "score": 0.8438159227371216,
+          "margin": 0.33869755268096924,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            837,
+            258,
+            899,
+            315
+          ],
+          "predicted_name": "Chiaki",
+          "predicted_student_id": "chiaki",
+          "score": 0.9811505079269409,
+          "margin": 0.5290192365646362,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:1",
+          "display_location": "3-2",
+          "card_index": 2,
+          "slot": 1,
+          "bbox": [
+            910,
+            258,
+            971,
+            315
+          ],
+          "predicted_name": "Azusa (Swimsuit)",
+          "predicted_student_id": "azusa_swimsuit",
+          "score": 0.9438960552215576,
+          "margin": 0.3851945400238037,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            409,
+            210,
+            466
+          ],
+          "predicted_name": "Shiroko (Cycling)",
+          "predicted_student_id": "shiroko_cycling",
+          "score": 0.9208351969718933,
+          "margin": 0.41622012853622437,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            222,
+            409,
+            281,
+            464
+          ],
+          "predicted_name": "Yuuka (Pajamas)",
+          "predicted_student_id": "yuuka_pajamas",
+          "score": 0.896687388420105,
+          "margin": 0.36833715438842773,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            494,
+            409,
+            555,
+            465
+          ],
+          "predicted_name": "Saori (Swimsuit)",
+          "predicted_student_id": "saori_swimsuit",
+          "score": 0.8993321061134338,
+          "margin": 0.3952934741973877,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            409,
+            899,
+            465
+          ],
+          "predicted_name": "Akari",
+          "predicted_student_id": "akari",
+          "score": 0.9559726119041443,
+          "margin": 0.38355231285095215,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            910,
+            409,
+            971,
+            466
+          ],
+          "predicted_name": "Chihiro",
+          "predicted_student_id": "chihiro",
+          "score": 0.9783980250358582,
+          "margin": 0.5108243227005005,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            149,
+            559,
+            211,
+            617
+          ],
+          "predicted_name": "Mimori",
+          "predicted_student_id": "mimori",
+          "score": 0.9600228667259216,
+          "margin": 0.4808638393878937,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            221,
+            560,
+            282,
+            617
+          ],
+          "predicted_name": "Himari",
+          "predicted_student_id": "himari",
+          "score": 0.8906442523002625,
+          "margin": 0.37647545337677,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:2",
+          "display_location": "7-3",
+          "card_index": 6,
+          "slot": 2,
+          "bbox": [
+            294,
+            560,
+            355,
+            616
+          ],
+          "predicted_name": "Serina (Christmas)",
+          "predicted_student_id": "serina_christmas",
+          "score": 0.9426339268684387,
+          "margin": 0.5244668424129486,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            493,
+            560,
+            555,
+            618
+          ],
+          "predicted_name": "Yoshimi (Band)",
+          "predicted_student_id": "yoshimi_band",
+          "score": 0.9767056703567505,
+          "margin": 0.46525436639785767,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:1",
+          "display_location": "8-2",
+          "card_index": 7,
+          "slot": 1,
+          "bbox": [
+            565,
+            560,
+            627,
+            618
+          ],
+          "predicted_name": "Mari",
+          "predicted_student_id": "mari",
+          "score": 0.934298574924469,
+          "margin": 0.5067183077335358,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231327-489.png",
+      "sha256": "afa5f221db0c51bb2ef5e37a1982b3cda54a48af86d1d1491f5e507f30a153f1",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [],
+      "selected_display_cards": [],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            128,
+            181,
+            462,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            182,
+            813,
+            324
+          ],
+          "click_point": [
+            643,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            816,
+            180,
+            1155,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            129,
+            332,
+            464,
+            474
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            474,
+            333,
+            810,
+            475
+          ],
+          "click_point": [
+            642,
+            404
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            814,
+            331,
+            1154,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            126,
+            483,
+            465,
+            626
+          ],
+          "click_point": [
+            295,
+            554
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            473,
+            483,
+            811,
+            626
+          ],
+          "click_point": [
+            642,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            257,
+            211,
+            315
+          ],
+          "predicted_name": "Haruna",
+          "predicted_student_id": "haruna",
+          "score": 0.9803255796432495,
+          "margin": 0.5251396894454956,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            221,
+            257,
+            284,
+            315
+          ],
+          "predicted_name": "Tsurugi",
+          "predicted_student_id": "tsurugi",
+          "score": 0.8606778383255005,
+          "margin": 0.3288576006889343,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:2",
+          "display_location": "1-3",
+          "card_index": 0,
+          "slot": 2,
+          "bbox": [
+            293,
+            257,
+            355,
+            315
+          ],
+          "predicted_name": "Mutsuki",
+          "predicted_student_id": "mutsuki",
+          "score": 0.9787847399711609,
+          "margin": 0.4482724666595459,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            493,
+            257,
+            554,
+            315
+          ],
+          "predicted_name": "Hatsune Miku",
+          "predicted_student_id": "hatsune_miku",
+          "score": 0.9479966163635254,
+          "margin": 0.36900657415390015,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            565,
+            257,
+            628,
+            315
+          ],
+          "predicted_name": "Michiru",
+          "predicted_student_id": "michiru",
+          "score": 0.8882082104682922,
+          "margin": 0.4151762127876282,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:2",
+          "display_location": "2-3",
+          "card_index": 1,
+          "slot": 2,
+          "bbox": [
+            638,
+            258,
+            699,
+            315
+          ],
+          "predicted_name": "Ui",
+          "predicted_student_id": "ui",
+          "score": 0.9934733510017395,
+          "margin": 0.47293442487716675,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "predicted_name": "Hibiki",
+          "predicted_student_id": "hibiki",
+          "score": 0.9711874127388,
+          "margin": 0.5339216589927673,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:1",
+          "display_location": "3-2",
+          "card_index": 2,
+          "slot": 1,
+          "bbox": [
+            910,
+            257,
+            971,
+            315
+          ],
+          "predicted_name": "Tsubaki",
+          "predicted_student_id": "tsubaki",
+          "score": 0.878990650177002,
+          "margin": 0.31870895624160767,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:2",
+          "display_location": "3-3",
+          "card_index": 2,
+          "slot": 2,
+          "bbox": [
+            982,
+            256,
+            1043,
+            315
+          ],
+          "predicted_name": "Sumire",
+          "predicted_student_id": "sumire",
+          "score": 0.9845177531242371,
+          "margin": 0.5128790736198425,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            408,
+            211,
+            466
+          ],
+          "predicted_name": "Marina (Qipao)",
+          "predicted_student_id": "marina_qipao",
+          "score": 0.9574697017669678,
+          "margin": 0.48368898034095764,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            222,
+            408,
+            283,
+            465
+          ],
+          "predicted_name": "Miyako (Swimsuit)",
+          "predicted_student_id": "miyako_swimsuit",
+          "score": 0.8441005945205688,
+          "margin": 0.4311145842075348,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            493,
+            408,
+            555,
+            465
+          ],
+          "predicted_name": "Moe",
+          "predicted_student_id": "moe",
+          "score": 0.9536417126655579,
+          "margin": 0.37600505352020264,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:1",
+          "display_location": "5-2",
+          "card_index": 4,
+          "slot": 1,
+          "bbox": [
+            565,
+            409,
+            626,
+            466
+          ],
+          "predicted_name": "Nagisa",
+          "predicted_student_id": "nagisa",
+          "score": 0.8586921691894531,
+          "margin": 0.3961087763309479,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            408,
+            899,
+            466
+          ],
+          "predicted_name": "Akane",
+          "predicted_student_id": "akane",
+          "score": 0.8414743542671204,
+          "margin": 0.223946213722229,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            909,
+            408,
+            971,
+            465
+          ],
+          "predicted_name": "Chise",
+          "predicted_student_id": "chise",
+          "score": 0.9327577948570251,
+          "margin": 0.4743722975254059,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            148,
+            560,
+            209,
+            617
+          ],
+          "predicted_name": "Kayoko (Dress)",
+          "predicted_student_id": "kayoko_dress",
+          "score": 0.9351752996444702,
+          "margin": 0.4543095827102661,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            493,
+            559,
+            555,
+            617
+          ],
+          "predicted_name": "Midori",
+          "predicted_student_id": "midori",
+          "score": 0.9384335875511169,
+          "margin": 0.40225040912628174,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231332-087.png",
+      "sha256": "469b80a46af48d02a1c2dd36ed922653b0dd68663eba73754642392701c067c0",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [
+        4
+      ],
+      "selected_display_cards": [
+        5
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            126,
+            180,
+            464,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            181,
+            812,
+            324
+          ],
+          "click_point": [
+            642,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            181,
+            1156,
+            325
+          ],
+          "click_point": [
+            985,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            129,
+            333,
+            464,
+            475
+          ],
+          "click_point": [
+            296,
+            404
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            472,
+            332,
+            810,
+            475
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            815,
+            331,
+            1154,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            483,
+            466,
+            626
+          ],
+          "click_point": [
+            297,
+            554
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            471,
+            482,
+            809,
+            626
+          ],
+          "click_point": [
+            640,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            258,
+            211,
+            315
+          ],
+          "predicted_name": "Chiaki",
+          "predicted_student_id": "chiaki",
+          "score": 0.9870731234550476,
+          "margin": 0.5453134179115295,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            221,
+            258,
+            282,
+            314
+          ],
+          "predicted_name": "Noa",
+          "predicted_student_id": "noa",
+          "score": 0.9541980624198914,
+          "margin": 0.4898301064968109,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:2",
+          "display_location": "1-3",
+          "card_index": 0,
+          "slot": 2,
+          "bbox": [
+            292,
+            257,
+            355,
+            315
+          ],
+          "predicted_name": "Izumi",
+          "predicted_student_id": "izumi",
+          "score": 0.9827253222465515,
+          "margin": 0.510669082403183,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            493,
+            258,
+            554,
+            314
+          ],
+          "predicted_name": "Asuna (School)",
+          "predicted_student_id": "asuna_school",
+          "score": 0.9761003851890564,
+          "margin": 0.4381808042526245,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            565,
+            258,
+            626,
+            315
+          ],
+          "predicted_name": "Miyako",
+          "predicted_student_id": "miyako",
+          "score": 0.9589434862136841,
+          "margin": 0.4390662908554077,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:2",
+          "display_location": "2-3",
+          "card_index": 1,
+          "slot": 2,
+          "bbox": [
+            637,
+            258,
+            699,
+            315
+          ],
+          "predicted_name": "Aris (Maid)",
+          "predicted_student_id": "aris_maid",
+          "score": 0.9204685688018799,
+          "margin": 0.3182213306427002,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            837,
+            258,
+            897,
+            315
+          ],
+          "predicted_name": "Marina",
+          "predicted_student_id": "marina",
+          "score": 0.914181113243103,
+          "margin": 0.41743379831314087,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            408,
+            210,
+            466
+          ],
+          "predicted_name": "Aoba",
+          "predicted_student_id": "aoba",
+          "score": 0.9786569476127625,
+          "margin": 0.313961386680603,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            221,
+            408,
+            283,
+            465
+          ],
+          "predicted_name": "Hatsune Miku",
+          "predicted_student_id": "hatsune_miku",
+          "score": 0.9289519190788269,
+          "margin": 0.3525393009185791,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            492,
+            409,
+            554,
+            465
+          ],
+          "predicted_name": "Eimi (Swimsuit)",
+          "predicted_student_id": "eimi_swimsuit",
+          "score": 0.7385095357894897,
+          "margin": 0.10759592056274414,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:1",
+          "display_location": "5-2",
+          "card_index": 4,
+          "slot": 1,
+          "bbox": [
+            563,
+            408,
+            624,
+            465
+          ],
+          "predicted_name": "Yuzu (Maid)",
+          "predicted_student_id": "yuzu_maid",
+          "score": 0.79207444190979,
+          "margin": 0.3339810371398926,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:2",
+          "display_location": "5-3",
+          "card_index": 4,
+          "slot": 2,
+          "bbox": [
+            637,
+            407,
+            699,
+            465
+          ],
+          "predicted_name": "Serina",
+          "predicted_student_id": "serina",
+          "score": 0.6590052247047424,
+          "margin": 0.17133405804634094,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            408,
+            899,
+            466
+          ],
+          "predicted_name": "Fubuki",
+          "predicted_student_id": "fubuki",
+          "score": 0.96396404504776,
+          "margin": 0.5345220863819122,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            909,
+            408,
+            970,
+            466
+          ],
+          "predicted_name": "Hina",
+          "predicted_student_id": "hina",
+          "score": 0.9287338852882385,
+          "margin": 0.4327496588230133,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            149,
+            559,
+            211,
+            617
+          ],
+          "predicted_name": "Nagisa",
+          "predicted_student_id": "nagisa",
+          "score": 0.8832283616065979,
+          "margin": 0.4644973874092102,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            494,
+            559,
+            555,
+            616
+          ],
+          "predicted_name": "Kirino",
+          "predicted_student_id": "kirino",
+          "score": 0.9897211194038391,
+          "margin": 0.5579077899456024,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:1",
+          "display_location": "8-2",
+          "card_index": 7,
+          "slot": 1,
+          "bbox": [
+            565,
+            559,
+            627,
+            617
+          ],
+          "predicted_name": "Tsubaki",
+          "predicted_student_id": "tsubaki",
+          "score": 0.9000232219696045,
+          "margin": 0.3650452494621277,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231336-603.png",
+      "sha256": "f5ce69bab8dac63ba0ee5142a9a989875417660f4da125a31783eb16dda34394",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [],
+      "selected_display_cards": [],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            127,
+            181,
+            464,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            182,
+            811,
+            325
+          ],
+          "click_point": [
+            642,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            816,
+            181,
+            1155,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            332,
+            467,
+            475
+          ],
+          "click_point": [
+            297,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            472,
+            332,
+            810,
+            475
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            817,
+            332,
+            1153,
+            475
+          ],
+          "click_point": [
+            985,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            125,
+            482,
+            468,
+            627
+          ],
+          "click_point": [
+            296,
+            554
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            472,
+            482,
+            810,
+            626
+          ],
+          "click_point": [
+            641,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            257,
+            212,
+            315
+          ],
+          "predicted_name": "Fubuki",
+          "predicted_student_id": "fubuki",
+          "score": 0.9568429589271545,
+          "margin": 0.5223304033279419,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            221,
+            256,
+            283,
+            314
+          ],
+          "predicted_name": "Hiyori",
+          "predicted_student_id": "hiyori",
+          "score": 0.9599016308784485,
+          "margin": 0.4020581841468811,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:2",
+          "display_location": "1-3",
+          "card_index": 0,
+          "slot": 2,
+          "bbox": [
+            293,
+            257,
+            354,
+            315
+          ],
+          "predicted_name": "Mashiro",
+          "predicted_student_id": "mashiro",
+          "score": 0.9523395299911499,
+          "margin": 0.17521047592163086,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            493,
+            258,
+            554,
+            315
+          ],
+          "predicted_name": "Miyako",
+          "predicted_student_id": "miyako",
+          "score": 0.9761232733726501,
+          "margin": 0.4390637278556824,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            565,
+            257,
+            628,
+            315
+          ],
+          "predicted_name": "Izumi",
+          "predicted_student_id": "izumi",
+          "score": 0.9930554628372192,
+          "margin": 0.589699774980545,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            838,
+            258,
+            898,
+            315
+          ],
+          "predicted_name": "Yuuka (Pajamas)",
+          "predicted_student_id": "yuuka_pajamas",
+          "score": 0.838550329208374,
+          "margin": 0.31696420907974243,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            150,
+            409,
+            210,
+            465
+          ],
+          "predicted_name": "Hatsune Miku",
+          "predicted_student_id": "hatsune_miku",
+          "score": 0.9488492012023926,
+          "margin": 0.4039132595062256,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            221,
+            408,
+            283,
+            465
+          ],
+          "predicted_name": "Umika",
+          "predicted_student_id": "umika",
+          "score": 0.9207823872566223,
+          "margin": 0.5121990442276001,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:2",
+          "display_location": "4-3",
+          "card_index": 3,
+          "slot": 2,
+          "bbox": [
+            293,
+            408,
+            354,
+            466
+          ],
+          "predicted_name": "Hifumi (Swimsuit)",
+          "predicted_student_id": "hifumi_swimsuit",
+          "score": 0.9566781520843506,
+          "margin": 0.5111297369003296,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            494,
+            408,
+            555,
+            465
+          ],
+          "predicted_name": "Atsuko (Swimsuit)",
+          "predicted_student_id": "atsuko_swimsuit",
+          "score": 0.9800567626953125,
+          "margin": 0.49036553502082825,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:1",
+          "display_location": "5-2",
+          "card_index": 4,
+          "slot": 1,
+          "bbox": [
+            565,
+            408,
+            627,
+            466
+          ],
+          "predicted_name": "Chise (Swimsuit)",
+          "predicted_student_id": "chise_swimsuit",
+          "score": 0.9893478751182556,
+          "margin": 0.49025145173072815,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:2",
+          "display_location": "5-3",
+          "card_index": 4,
+          "slot": 2,
+          "bbox": [
+            637,
+            408,
+            700,
+            466
+          ],
+          "predicted_name": "Juri",
+          "predicted_student_id": "juri",
+          "score": 0.8361997008323669,
+          "margin": 0.28425318002700806,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            408,
+            899,
+            466
+          ],
+          "predicted_name": "Wakamo (Swimsuit)",
+          "predicted_student_id": "wakamo_swimsuit",
+          "score": 0.9337171316146851,
+          "margin": 0.4197348952293396,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            148,
+            559,
+            209,
+            617
+          ],
+          "predicted_name": "Renge",
+          "predicted_student_id": "renge",
+          "score": 0.9475561380386353,
+          "margin": 0.3919886350631714,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            221,
+            559,
+            284,
+            617
+          ],
+          "predicted_name": "Kaede",
+          "predicted_student_id": "kaede",
+          "score": 0.9284005165100098,
+          "margin": 0.40188831090927124,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            493,
+            559,
+            554,
+            616
+          ],
+          "predicted_name": "Mine (Pop Idol)",
+          "predicted_student_id": "mine_pop_idol",
+          "score": 0.9024814367294312,
+          "margin": 0.21065360307693481,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:1",
+          "display_location": "8-2",
+          "card_index": 7,
+          "slot": 1,
+          "bbox": [
+            566,
+            559,
+            627,
+            616
+          ],
+          "predicted_name": "Eimi (Swimsuit)",
+          "predicted_student_id": "eimi_swimsuit",
+          "score": 0.9196202158927917,
+          "margin": 0.34626418352127075,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231341-107.png",
+      "sha256": "2b8f24759479991c514329298a1d31259a8f53e9ae73df005f995ea00228388f",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [],
+      "selected_display_cards": [],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            127,
+            181,
+            466,
+            325
+          ],
+          "click_point": [
+            296,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            473,
+            180,
+            811,
+            325
+          ],
+          "click_point": [
+            642,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            817,
+            181,
+            1154,
+            324
+          ],
+          "click_point": [
+            985,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            129,
+            331,
+            466,
+            474
+          ],
+          "click_point": [
+            297,
+            402
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            473,
+            332,
+            810,
+            475
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            815,
+            331,
+            1153,
+            475
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            128,
+            482,
+            467,
+            626
+          ],
+          "click_point": [
+            297,
+            554
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            472,
+            482,
+            811,
+            625
+          ],
+          "click_point": [
+            641,
+            553
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            257,
+            211,
+            315
+          ],
+          "predicted_name": "Mari (Pop Idol)",
+          "predicted_student_id": "mari_pop_idol",
+          "score": 0.9145404696464539,
+          "margin": 0.4465242922306061,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            221,
+            257,
+            283,
+            315
+          ],
+          "predicted_name": "Hinata",
+          "predicted_student_id": "hinata",
+          "score": 0.9818530678749084,
+          "margin": 0.5565912425518036,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            494,
+            258,
+            555,
+            314
+          ],
+          "predicted_name": "Tsubaki (Guide)",
+          "predicted_student_id": "tsubaki_guide",
+          "score": 0.9382082223892212,
+          "margin": 0.3770737051963806,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            565,
+            258,
+            626,
+            315
+          ],
+          "predicted_name": "Natsu",
+          "predicted_student_id": "natsu",
+          "score": 0.8881069421768188,
+          "margin": 0.4404778778553009,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "predicted_name": "Mina",
+          "predicted_student_id": "mina",
+          "score": 0.9049420356750488,
+          "margin": 0.4381290674209595,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            408,
+            210,
+            465
+          ],
+          "predicted_name": "Ibuki",
+          "predicted_student_id": "ibuki",
+          "score": 0.9835352897644043,
+          "margin": 0.5656266212463379,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            221,
+            408,
+            282,
+            466
+          ],
+          "predicted_name": "Cherino (Hot Spring)",
+          "predicted_student_id": "cherino_hot_spring",
+          "score": 0.917974054813385,
+          "margin": 0.4227188229560852,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            493,
+            408,
+            555,
+            465
+          ],
+          "predicted_name": "Koharu (Swimsuit)",
+          "predicted_student_id": "koharu_swimsuit",
+          "score": 0.9913945198059082,
+          "margin": 0.5705171525478363,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:1",
+          "display_location": "5-2",
+          "card_index": 4,
+          "slot": 1,
+          "bbox": [
+            565,
+            408,
+            627,
+            466
+          ],
+          "predicted_name": "Meru",
+          "predicted_student_id": "meru",
+          "score": 0.9830498695373535,
+          "margin": 0.5340768694877625,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            407,
+            899,
+            466
+          ],
+          "predicted_name": "Fubuki",
+          "predicted_student_id": "fubuki",
+          "score": 0.9668517708778381,
+          "margin": 0.5296547412872314,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            910,
+            408,
+            971,
+            465
+          ],
+          "predicted_name": "Karin",
+          "predicted_student_id": "karin",
+          "score": 0.8578557968139648,
+          "margin": 0.32352298498153687,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:2",
+          "display_location": "6-3",
+          "card_index": 5,
+          "slot": 2,
+          "bbox": [
+            982,
+            409,
+            1043,
+            466
+          ],
+          "predicted_name": "Yuuka (Track)",
+          "predicted_student_id": "yuuka_track",
+          "score": 0.9088543653488159,
+          "margin": 0.2871119976043701,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            149,
+            559,
+            209,
+            616
+          ],
+          "predicted_name": "Saori",
+          "predicted_student_id": "saori",
+          "score": 0.9523084759712219,
+          "margin": 0.4829213321208954,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            221,
+            560,
+            283,
+            617
+          ],
+          "predicted_name": "Shizuko (Swimsuit)",
+          "predicted_student_id": "shizuko_swimsuit",
+          "score": 0.9458457827568054,
+          "margin": 0.5442601144313812,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            494,
+            560,
+            555,
+            617
+          ],
+          "predicted_name": "Shiroko (Swimsuit)",
+          "predicted_student_id": "shiroko_swimsuit",
+          "score": 0.8885965943336487,
+          "margin": 0.408192902803421,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:1",
+          "display_location": "8-2",
+          "card_index": 7,
+          "slot": 1,
+          "bbox": [
+            566,
+            559,
+            627,
+            617
+          ],
+          "predicted_name": "Tomoe (Qipao)",
+          "predicted_student_id": "tomoe_qipao",
+          "score": 0.8990249633789062,
+          "margin": 0.3450365662574768,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231345-085.png",
+      "sha256": "f0531da5730f781a827f73add98ab28fa6c76ff444f39e61d1e9ac05911f5db6",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [],
+      "selected_display_cards": [],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            127,
+            181,
+            464,
+            324
+          ],
+          "click_point": [
+            295,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            471,
+            181,
+            813,
+            324
+          ],
+          "click_point": [
+            642,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            815,
+            181,
+            1155,
+            325
+          ],
+          "click_point": [
+            985,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            332,
+            464,
+            475
+          ],
+          "click_point": [
+            296,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            470,
+            331,
+            810,
+            475
+          ],
+          "click_point": [
+            640,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            817,
+            332,
+            1152,
+            474
+          ],
+          "click_point": [
+            984,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            127,
+            483,
+            468,
+            627
+          ],
+          "click_point": [
+            297,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            473,
+            483,
+            809,
+            625
+          ],
+          "click_point": [
+            641,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            257,
+            211,
+            314
+          ],
+          "predicted_name": "Fubuki (Swimsuit)",
+          "predicted_student_id": "fubuki_swimsuit",
+          "score": 0.9424858689308167,
+          "margin": 0.3736470937728882,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            221,
+            257,
+            282,
+            315
+          ],
+          "predicted_name": "Aru (Dress)",
+          "predicted_student_id": "aru_dress",
+          "score": 0.9357783794403076,
+          "margin": 0.4924193322658539,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:2",
+          "display_location": "1-3",
+          "card_index": 0,
+          "slot": 2,
+          "bbox": [
+            293,
+            256,
+            354,
+            314
+          ],
+          "predicted_name": "Yukari",
+          "predicted_student_id": "yukari",
+          "score": 0.9394202828407288,
+          "margin": 0.4594714045524597,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            494,
+            258,
+            555,
+            314
+          ],
+          "predicted_name": "Moe",
+          "predicted_student_id": "moe",
+          "score": 0.9628451466560364,
+          "margin": 0.43525147438049316,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:1",
+          "display_location": "2-2",
+          "card_index": 1,
+          "slot": 1,
+          "bbox": [
+            566,
+            257,
+            627,
+            315
+          ],
+          "predicted_name": "Haruna (Track)",
+          "predicted_student_id": "haruna_track",
+          "score": 0.8761294484138489,
+          "margin": 0.37318938970565796,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:2",
+          "display_location": "2-3",
+          "card_index": 1,
+          "slot": 2,
+          "bbox": [
+            637,
+            257,
+            699,
+            315
+          ],
+          "predicted_name": "Shun (Small)",
+          "predicted_student_id": "shun_small",
+          "score": 0.9819751977920532,
+          "margin": 0.5279224812984467,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "predicted_name": "Mari",
+          "predicted_student_id": "mari",
+          "score": 0.9338385462760925,
+          "margin": 0.5179060399532318,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            408,
+            210,
+            465
+          ],
+          "predicted_name": "Shizuko",
+          "predicted_student_id": "shizuko",
+          "score": 0.9164758324623108,
+          "margin": 0.39233750104904175,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            222,
+            408,
+            283,
+            466
+          ],
+          "predicted_name": "Koharu (Swimsuit)",
+          "predicted_student_id": "koharu_swimsuit",
+          "score": 0.9921349287033081,
+          "margin": 0.5932141840457916,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:2",
+          "display_location": "4-3",
+          "card_index": 3,
+          "slot": 2,
+          "bbox": [
+            292,
+            408,
+            354,
+            466
+          ],
+          "predicted_name": "Aoba",
+          "predicted_student_id": "aoba",
+          "score": 0.9650452733039856,
+          "margin": 0.3529626131057739,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            494,
+            408,
+            555,
+            465
+          ],
+          "predicted_name": "Hatsune Miku",
+          "predicted_student_id": "hatsune_miku",
+          "score": 0.9327196478843689,
+          "margin": 0.36921679973602295,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 4,
+          "simulated_selected_display_card": 5,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            408,
+            898,
+            465
+          ],
+          "predicted_name": "Utaha",
+          "predicted_student_id": "utaha",
+          "score": 0.9772034883499146,
+          "margin": 0.40800243616104126,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            150,
+            559,
+            211,
+            616
+          ],
+          "predicted_name": "Shiroko Terror",
+          "predicted_student_id": "shiroko_terror",
+          "score": 0.9879120588302612,
+          "margin": 0.4941054880619049,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            221,
+            559,
+            283,
+            616
+          ],
+          "predicted_name": "Hina (Dress)",
+          "predicted_student_id": "hina_dress",
+          "score": 0.9596166610717773,
+          "margin": 0.46445706486701965,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:2",
+          "display_location": "7-3",
+          "card_index": 6,
+          "slot": 2,
+          "bbox": [
+            293,
+            559,
+            355,
+            616
+          ],
+          "predicted_name": "Karin (Bunny)",
+          "predicted_student_id": "karin_bunny",
+          "score": 0.9354544281959534,
+          "margin": 0.45483800768852234,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            493,
+            559,
+            555,
+            617
+          ],
+          "predicted_name": "Tomoe (Qipao)",
+          "predicted_student_id": "tomoe_qipao",
+          "score": 0.9235208630561829,
+          "margin": 0.419913649559021,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        }
+      ]
+    },
+    {
+      "file": "MuMu-20260806-231349-471.png",
+      "sha256": "c05c394158379301a7a633e916373853c0b23ad2c6aaa5502d98086d75ec03c7",
+      "width": 1280,
+      "height": 720,
+      "locator_backend": "onnx",
+      "selected_card_indices": [
+        4
+      ],
+      "selected_display_cards": [
+        5
+      ],
+      "card_bboxes": [
+        {
+          "card_index": 0,
+          "display_card": 1,
+          "bbox": [
+            129,
+            181,
+            467,
+            325
+          ],
+          "click_point": [
+            298,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 1,
+          "display_card": 2,
+          "bbox": [
+            471,
+            181,
+            809,
+            324
+          ],
+          "click_point": [
+            640,
+            252
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 2,
+          "display_card": 3,
+          "bbox": [
+            817,
+            181,
+            1155,
+            325
+          ],
+          "click_point": [
+            986,
+            253
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 3,
+          "display_card": 4,
+          "bbox": [
+            128,
+            332,
+            461,
+            474
+          ],
+          "click_point": [
+            294,
+            403
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 4,
+          "display_card": 5,
+          "bbox": [
+            473,
+            332,
+            809,
+            474
+          ],
+          "click_point": [
+            641,
+            403
+          ],
+          "card_state": "selected"
+        },
+        {
+          "card_index": 5,
+          "display_card": 6,
+          "bbox": [
+            816,
+            331,
+            1153,
+            474
+          ],
+          "click_point": [
+            984,
+            402
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 6,
+          "display_card": 7,
+          "bbox": [
+            127,
+            483,
+            467,
+            627
+          ],
+          "click_point": [
+            297,
+            555
+          ],
+          "card_state": "available"
+        },
+        {
+          "card_index": 7,
+          "display_card": 8,
+          "bbox": [
+            471,
+            482,
+            809,
+            626
+          ],
+          "click_point": [
+            640,
+            554
+          ],
+          "card_state": "available"
+        }
+      ],
+      "instances": [
+        {
+          "location": "0:0",
+          "display_location": "1-1",
+          "card_index": 0,
+          "slot": 0,
+          "bbox": [
+            149,
+            257,
+            210,
+            315
+          ],
+          "predicted_name": "Mika",
+          "predicted_student_id": "mika",
+          "score": 0.920701265335083,
+          "margin": 0.3982100486755371,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 0,
+          "simulated_selected_display_card": 1,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "0:1",
+          "display_location": "1-2",
+          "card_index": 0,
+          "slot": 1,
+          "bbox": [
+            221,
+            258,
+            283,
+            314
+          ],
+          "predicted_name": "Reijo",
+          "predicted_student_id": "reijo",
+          "score": 0.9899781942367554,
+          "margin": 0.5471951365470886,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "1:0",
+          "display_location": "2-1",
+          "card_index": 1,
+          "slot": 0,
+          "bbox": [
+            493,
+            257,
+            555,
+            315
+          ],
+          "predicted_name": "Karin",
+          "predicted_student_id": "karin",
+          "score": 0.8563500046730042,
+          "margin": 0.28237247467041016,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 1,
+          "simulated_selected_display_card": 2,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:0",
+          "display_location": "3-1",
+          "card_index": 2,
+          "slot": 0,
+          "bbox": [
+            837,
+            257,
+            899,
+            315
+          ],
+          "predicted_name": "Toki (Bunny)",
+          "predicted_student_id": "toki_bunny",
+          "score": 1.0,
+          "margin": 0.5531234741210938,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:1",
+          "display_location": "3-2",
+          "card_index": 2,
+          "slot": 1,
+          "bbox": [
+            909,
+            257,
+            971,
+            315
+          ],
+          "predicted_name": "Shiroko",
+          "predicted_student_id": "shiroko",
+          "score": 0.9278630018234253,
+          "margin": 0.3453671932220459,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "2:2",
+          "display_location": "3-3",
+          "card_index": 2,
+          "slot": 2,
+          "bbox": [
+            982,
+            257,
+            1043,
+            315
+          ],
+          "predicted_name": "Eimi",
+          "predicted_student_id": "eimi",
+          "score": 0.9304052591323853,
+          "margin": 0.44672396779060364,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 2,
+          "simulated_selected_display_card": 3,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:0",
+          "display_location": "4-1",
+          "card_index": 3,
+          "slot": 0,
+          "bbox": [
+            149,
+            408,
+            210,
+            466
+          ],
+          "predicted_name": "Midori (Maid)",
+          "predicted_student_id": "midori_maid",
+          "score": 0.9773321151733398,
+          "margin": 0.4785498082637787,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:1",
+          "display_location": "4-2",
+          "card_index": 3,
+          "slot": 1,
+          "bbox": [
+            221,
+            408,
+            283,
+            465
+          ],
+          "predicted_name": "Cherino (Hot Spring)",
+          "predicted_student_id": "cherino_hot_spring",
+          "score": 0.9164897799491882,
+          "margin": 0.4184816777706146,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "3:2",
+          "display_location": "4-3",
+          "card_index": 3,
+          "slot": 2,
+          "bbox": [
+            294,
+            408,
+            355,
+            465
+          ],
+          "predicted_name": "Hatsune Miku",
+          "predicted_student_id": "hatsune_miku",
+          "score": 0.9200800657272339,
+          "margin": 0.3810384273529053,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 3,
+          "simulated_selected_display_card": 4,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "4:0",
+          "display_location": "5-1",
+          "card_index": 4,
+          "slot": 0,
+          "bbox": [
+            492,
+            408,
+            554,
+            465
+          ],
+          "predicted_name": "Yuzu (Maid)",
+          "predicted_student_id": "yuzu_maid",
+          "score": 0.760615885257721,
+          "margin": 0.26685699820518494,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "selected",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:0",
+          "display_location": "6-1",
+          "card_index": 5,
+          "slot": 0,
+          "bbox": [
+            837,
+            408,
+            899,
+            465
+          ],
+          "predicted_name": "Umika",
+          "predicted_student_id": "umika",
+          "score": 0.9314345121383667,
+          "margin": 0.4771277904510498,
+          "prediction_valid": true,
+          "predicted_eligible": false,
+          "card_state": "available",
+          "simulated_selected_card_index": null,
+          "simulated_selected_display_card": null,
+          "simulated_source_card_clicked": false,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "5:1",
+          "display_location": "6-2",
+          "card_index": 5,
+          "slot": 1,
+          "bbox": [
+            909,
+            408,
+            971,
+            465
+          ],
+          "predicted_name": "Kikyou",
+          "predicted_student_id": "kikyou",
+          "score": 0.8881176710128784,
+          "margin": 0.3374994993209839,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 5,
+          "simulated_selected_display_card": 6,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:0",
+          "display_location": "7-1",
+          "card_index": 6,
+          "slot": 0,
+          "bbox": [
+            149,
+            559,
+            209,
+            616
+          ],
+          "predicted_name": "Maki",
+          "predicted_student_id": "maki",
+          "score": 0.9744909405708313,
+          "margin": 0.5289547443389893,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "6:1",
+          "display_location": "7-2",
+          "card_index": 6,
+          "slot": 1,
+          "bbox": [
+            221,
+            559,
+            283,
+            616
+          ],
+          "predicted_name": "Wakamo (Swimsuit)",
+          "predicted_student_id": "wakamo_swimsuit",
+          "score": 0.9425628185272217,
+          "margin": 0.47107237577438354,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 6,
+          "simulated_selected_display_card": 7,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:0",
+          "display_location": "8-1",
+          "card_index": 7,
+          "slot": 0,
+          "bbox": [
+            493,
+            560,
+            555,
+            617
+          ],
+          "predicted_name": "Mari",
+          "predicted_student_id": "mari",
+          "score": 0.9424611926078796,
+          "margin": 0.5148047506809235,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        },
+        {
+          "location": "7:1",
+          "display_location": "8-2",
+          "card_index": 7,
+          "slot": 1,
+          "bbox": [
+            566,
+            559,
+            627,
+            616
+          ],
+          "predicted_name": "Kotama (Camp)",
+          "predicted_student_id": "kotama_camp",
+          "score": 0.9675580859184265,
+          "margin": 0.4297429919242859,
+          "prediction_valid": true,
+          "predicted_eligible": true,
+          "card_state": "available",
+          "simulated_selected_card_index": 7,
+          "simulated_selected_display_card": 8,
+          "simulated_source_card_clicked": true,
+          "review_status": "pending_user_review"
+        }
+      ]
+    }
+  ]
+}
