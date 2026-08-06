@@ -1,0 +1,344 @@
+{
+  "version": 2,
+  "classification": "alpha_aware_all_image_balanced_training_domain_selection",
+  "started_at_utc": "2026-08-06T12:50:12.860856+00:00",
+  "training_action": {
+    "performed": true
+  },
+  "architecture": "torchvision-MobileNetV3-Small-ImageNet1K-V1",
+  "environment": {
+    "torch_version": "2.5.1+cu124",
+    "opencv_version": "4.8.1",
+    "device": "cuda",
+    "cuda_device": "NVIDIA GeForce RTX 2070 Super",
+    "onnx_opset": 12
+  },
+  "data_artifacts": {
+    "develop_tools/student_recognition/data/historical_portraits/manifest.json": {
+      "bytes": 59104,
+      "sha256": "22c1d0dc7e72c6e989bcdf00686567e26e4d14b06e76c3339482ed471362288b"
+    },
+    "develop_tools/student_recognition/data/historical_portraits/similarity_audit.json": {
+      "bytes": 3576,
+      "sha256": "68b58f8fb81ad7924ae8f023ade5e4572dfdc533cea4da6de61adaff2a052029"
+    },
+    "develop_tools/student_recognition/data/wikiru_portraits/manifest.json": {
+      "bytes": 149690,
+      "sha256": "442bde835529109cf539af56a40666e388d8148151d88e50f9970858ccdfee72"
+    },
+    "develop_tools/student_recognition/data/roster_montages/roster_montage_annotations.json": {
+      "bytes": 91782,
+      "sha256": "d98964f63c5abe0f7c70346160dc299e492212855246991dde61423404e5c8ef"
+    },
+    "develop_tools/student_recognition/lesson_locator_annotations.json": {
+      "bytes": 5593,
+      "sha256": "06132e8c44792f991cddcb2da2d082302b3ce8b7e178b0dd9fb3c84da39d2841"
+    }
+  },
+  "data_policy": {
+    "raw_training_instances": 793,
+    "identities": 270,
+    "wikiru_alpha_preserved": true,
+    "normalized_portrait_extent": 90,
+    "all_images_visited_each_epoch": true,
+    "independent_v1_used_for_training_seed_or_gallery_selection": false
+  },
+  "seed_policy": {
+    "seeds": [
+      20260731
+    ],
+    "all_requested_seeds_complete_before_selection": true,
+    "selection_order": [
+      "five_fold_correct",
+      "macro_recall",
+      "minimum_margin"
+    ]
+  },
+  "schedule": {
+    "pretrain_epochs": 100,
+    "frozen_backbone_epochs": 20,
+    "fold_epochs": 35,
+    "final_epochs": 80
+  },
+  "rollback_production_hashes": {
+    "lesson_locator.onnx": {
+      "bytes": 3701493,
+      "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+    },
+    "lesson_locator.json": {
+      "bytes": 733,
+      "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+    },
+    "student_encoder.onnx": {
+      "bytes": 4017703,
+      "sha256": "a9358974bfae59bd9229c7811fc903d82c02644c995c17c9c5dd1df29f679a41"
+    },
+    "student_encoder.json": {
+      "bytes": 67951,
+      "sha256": "37227741b47bb8a5b7324757a09f114aeb5fc1feac3d3d3ed5d070d448faccac"
+    },
+    "gallery.npz": {
+      "bytes": 233774,
+      "sha256": "1eda40daa3f264900f6d9252963e68f19448d9e5cf99440ef9721c722d31b2bd"
+    }
+  },
+  "frozen_locator_hashes_before": {
+    "lesson_locator.onnx": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d",
+    "lesson_locator.json": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+  },
+  "attempts": [
+    {
+      "seed": 20260731,
+      "candidate_directory": ".training-runs/student_recognition/wikiru270-alpha-balanced/seed-20260731",
+      "training_integrity_passed": true,
+      "training_integrity_failures": [],
+      "grouped_encoder": {
+        "count": 81,
+        "correct": 81,
+        "top1_accuracy": 1.0,
+        "macro_recall": 1.0,
+        "minimum_score": 0.7782261371612549,
+        "minimum_margin": 0.17213976383209229
+      },
+      "gallery_policy": "source_centroid",
+      "gallery_policy_diagnostics": {
+        "raw_capped": {
+          "cross_validation_metrics": {
+            "count": 81,
+            "correct": 81,
+            "top1_accuracy": 1.0,
+            "macro_recall": 1.0,
+            "minimum_score": 0.7782261371612549,
+            "minimum_margin": 0.17213976383209229
+          },
+          "validation_fold_metrics": {
+            "new_ui_1.png": {
+              "count": 15,
+              "correct": 15,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.8634102940559387,
+              "minimum_margin": 0.22047406435012817
+            },
+            "new_ui_2.png": {
+              "count": 16,
+              "correct": 16,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.8067095279693604,
+              "minimum_margin": 0.2041676640510559
+            },
+            "new_ui_3.png": {
+              "count": 16,
+              "correct": 16,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.7782261371612549,
+              "minimum_margin": 0.18297654390335083
+            },
+            "new_ui_4.png": {
+              "count": 16,
+              "correct": 16,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.8313350081443787,
+              "minimum_margin": 0.23834186792373657
+            },
+            "new_ui_5.png": {
+              "count": 18,
+              "correct": 18,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.8045543432235718,
+              "minimum_margin": 0.17213976383209229
+            }
+          },
+          "mean_gallery_bytes": 402309.6,
+          "mean_rank_microseconds": 654.2490399995586
+        },
+        "source_centroid": {
+          "cross_validation_metrics": {
+            "count": 81,
+            "correct": 81,
+            "top1_accuracy": 1.0,
+            "macro_recall": 1.0,
+            "minimum_score": 0.7782261371612549,
+            "minimum_margin": 0.17213976383209229
+          },
+          "validation_fold_metrics": {
+            "new_ui_1.png": {
+              "count": 15,
+              "correct": 15,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.8699201941490173,
+              "minimum_margin": 0.22084581851959229
+            },
+            "new_ui_2.png": {
+              "count": 16,
+              "correct": 16,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.8067095279693604,
+              "minimum_margin": 0.2041676640510559
+            },
+            "new_ui_3.png": {
+              "count": 16,
+              "correct": 16,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.7782261371612549,
+              "minimum_margin": 0.18297654390335083
+            },
+            "new_ui_4.png": {
+              "count": 16,
+              "correct": 16,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.8313350081443787,
+              "minimum_margin": 0.2383418083190918
+            },
+            "new_ui_5.png": {
+              "count": 18,
+              "correct": 18,
+              "top1_accuracy": 1.0,
+              "macro_recall": 1.0,
+              "minimum_score": 0.8045543432235718,
+              "minimum_margin": 0.17213976383209229
+            }
+          },
+          "mean_gallery_bytes": 402309.6,
+          "mean_rank_microseconds": 564.6707599982619
+        }
+      },
+      "training_replay": {
+        "lesson_annotated_crops": {
+          "count": 81,
+          "correct": 81,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.9725669622421265,
+          "minimum_margin": 0.2487105131149292
+        },
+        "roster_portraits": {
+          "count": 265,
+          "correct": 265,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.9432240724563599,
+          "minimum_margin": 0.3932410478591919
+        },
+        "wikiru_portraits": {
+          "count": 270,
+          "correct": 270,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.9999998807907104,
+          "minimum_margin": 0.44077515602111816
+        },
+        "historical_portraits": {
+          "count": 177,
+          "correct": 177,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.9533600211143494,
+          "minimum_margin": 0.4138805866241455
+        }
+      },
+      "end_to_end_replay": {
+        "lesson_runtime_crops": {
+          "count": 81,
+          "correct": 81,
+          "top1_accuracy": 1.0,
+          "minimum_score": 0.988236129283905,
+          "minimum_margin": 0.25729459524154663
+        },
+        "click_coverage": {
+          "passed_instances": 71,
+          "passed_students": 65,
+          "first_three_images_passed_instances": 42,
+          "last_two_images_passed_instances": 29,
+          "gray_blocked_instances": 10,
+          "gray_wrong_clicks": 0
+        }
+      },
+      "performance_diagnostic_not_used_for_seed_selection": {
+        "warmup_runs": 5,
+        "measured_runs": 30,
+        "mean_ms": 362.70152666741825,
+        "p95_ms": 385.65862999967067,
+        "max_ms": 398.6905999990995
+      },
+      "artifacts": {
+        "lesson_locator.onnx": {
+          "bytes": 3701493,
+          "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+        },
+        "lesson_locator.json": {
+          "bytes": 733,
+          "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+        },
+        "student_encoder.onnx": {
+          "bytes": 4017703,
+          "sha256": "51eaf78fd1ce10bd6561c610126e7dae56a33665799c5aa9b8f483cf88dc0eee"
+        },
+        "student_encoder.json": {
+          "bytes": 119571,
+          "sha256": "98d2baec0df174b29f24adfe9edfe83c5bce3f4221508841ac01c94af77a3a2f"
+        },
+        "gallery.npz": {
+          "bytes": 329641,
+          "sha256": "9574631fada55559be1aa90ac9cff5b121a7dc287162e38966ff77e91162abbc"
+        }
+      }
+    }
+  ],
+  "selected_seed": 20260731,
+  "independent_evaluations": 2,
+  "promoted": true,
+  "selected_candidate": ".training-runs/student_recognition/wikiru270-alpha-balanced/seed-20260731",
+  "finished_at_utc": "2026-08-06T12:50:39.866029+00:00",
+  "strict_no_regression_promotion": {
+    "passed": true,
+    "checks": {
+      "identity_at_least_75": true,
+      "pink_clicks_at_least_65": true,
+      "eligibility_at_least_82": true,
+      "no_previously_correct_identity_regressions": true,
+      "no_new_wrong_card_click_risks": true,
+      "no_new_gray_clicks": true,
+      "cpu_p95_under_500ms": true,
+      "models_under_25mb": true
+    },
+    "identity_regressions": [],
+    "new_wrong_card_click_risks": [],
+    "new_gray_clicks": []
+  },
+  "candidate_completed": true,
+  "frozen_locator_hashes_after": {
+    "lesson_locator.onnx": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d",
+    "lesson_locator.json": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+  },
+  "production_artifacts_after": {
+    "lesson_locator.onnx": {
+      "bytes": 3701493,
+      "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+    },
+    "lesson_locator.json": {
+      "bytes": 733,
+      "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+    },
+    "student_encoder.onnx": {
+      "bytes": 4017703,
+      "sha256": "51eaf78fd1ce10bd6561c610126e7dae56a33665799c5aa9b8f483cf88dc0eee"
+    },
+    "student_encoder.json": {
+      "bytes": 119571,
+      "sha256": "98d2baec0df174b29f24adfe9edfe83c5bce3f4221508841ac01c94af77a3a2f"
+    },
+    "gallery.npz": {
+      "bytes": 329641,
+      "sha256": "9574631fada55559be1aa90ac9cff5b121a7dc287162e38966ff77e91162abbc"
+    }
+  }
+}

@@ -1,16 +1,11 @@
 {
-  "version": 1,
-  "reason": "Six historical lesson templates were stored under stale filenames. Pixel identities were confirmed against the committed Wikiru portraits before retraining.",
+  "version": 2,
+  "reason": "Four historical lesson templates were stored under stale filenames. All six disputed pixel identities were confirmed manually by the user before retraining.",
   "corrections": [
     {
       "git_blob": "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc",
       "source_label": "Koharu (Swimsuit)",
       "corrected_label": "Noa (Pajamas)"
-    },
-    {
-      "git_blob": "efe6447de52bc39ddac4f1b67da0501533666555",
-      "source_label": "Miyu",
-      "corrected_label": "Miyu (Swimsuit)"
     },
     {
       "git_blob": "9cfd12b434c50c19d05a804f2983a2e274a0a306",
@@ -26,11 +21,18 @@
       "git_blob": "4074255cf5ec772f6b14203789fb892e673dd538",
       "source_label": "Toki (Bunny)",
       "corrected_label": "Toki"
+    }
+  ],
+  "confirmed_original_labels": [
+    {
+      "git_blob": "efe6447de52bc39ddac4f1b67da0501533666555",
+      "source_label": "Miyu",
+      "confirmed_label": "Miyu"
     },
     {
       "git_blob": "8a7c6259ee904531c2711659574a8d78afbefed9",
       "source_label": "Ui",
-      "corrected_label": "Ui (Swimsuit)"
+      "confirmed_label": "Ui"
     }
   ]
 }

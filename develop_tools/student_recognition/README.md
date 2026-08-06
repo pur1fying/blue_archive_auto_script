@@ -8,7 +8,7 @@ From the repository root:
 ```powershell
 python -m venv .training-venv
 .\.training-venv\Scripts\python.exe -m pip install -r develop_tools/student_recognition/requirements-training.txt
-.\.training-venv\Scripts\python.exe develop_tools/student_recognition/train_wikiru270_classifier.py
+.\.training-venv\Scripts\python.exe develop_tools/student_recognition/train_wikiru270_alpha_balanced.py
 ```
 
 The locator annotations describe five checked-in new-UI screenshots and contain
@@ -20,17 +20,20 @@ augmented variants never enter that fold's encoder training set or prototype
 gallery. The grouped result is a diagnostic rather than an independent external
 validation claim. The deliverable encoder is trained once more with all labelled
 screenshots, using identity-balanced sampling: every one of the 270 identities
-contributed three augmented draws per epoch in the last completed run. The
-exported gallery contains at most three distinct source prototypes per student.
+contributes six augmented draws per epoch. Every original image for an identity
+is visited at least once per epoch; identities with fewer than six images repeat
+an image with a fresh augmentation rather than receiving less weight. The
+exported gallery contains at most three source-aggregated prototypes per student.
 
 The encoder seed library is checked in under `data/` and is never loaded by the
 normal application runtime. `historical_portraits/` contains 177 distinct Git
-blobs across 122 labels; `extract_historical_templates.py` is the explicit
+blobs across 124 labels; `extract_historical_templates.py` is the explicit
 maintenance tool that can rebuild that directory from full Git history. Model
 training reads the committed files and does not query Git history itself.
-Six blobs were stored under stale filenames and are corrected by immutable Git
-blob hash after visual comparison with the Wikiru portraits; the manifest keeps
-both the corrected identity and original source label for auditability.
+Four blobs were stored under stale filenames and are corrected by immutable Git
+blob hash after user visual confirmation; the manifest keeps both the corrected
+identity and original source label for auditability. The disputed Miyu and Ui
+blobs retain their original identities in `confirmed_original_labels`.
 
 `wikiru_portraits/` contains 272 original Japanese-Wiki portrait files mapped
 to the current 270-identity catalog. It selects one primary portrait per
@@ -39,6 +42,11 @@ excluded. The source manifest records URLs, hashes, dimensions and the site's
 copyright warning. The acquisition tool validates the page mapping and never
 starts training. The source files are not uniformly sized: 262 are 200x200,
 eight are 198x198 and two are 300x300.
+They are decoded with their Alpha channel intact. Transparent pixels are
+composited onto a random gray background for training and a fixed gray 220
+background for deterministic prototypes; portraits are normalized to a
+90-pixel longest edge before augmentation instead of being enlarged by a fixed
+factor.
 
 `roster_montages/` contains the three English, three Chinese and three Japanese
 roster images plus a position/name manifest. The English images contribute one
@@ -159,25 +167,34 @@ then-current 0.60 click gate for historical comparison.
 YOLOX supplies card and avatar crops and remains byte-identical to the previous
 combined runtime. MobileNetV3 was retrained from ImageNet initialization with
 177 corrected Git-history portraits, 265 roster portraits, 270 Wikiru portraits
-and 81 lesson portraits. Seed 20260801 passed all training-domain hard checks;
+and 81 lesson portraits. Seed 20260731 passed all training-domain hard checks;
 the resulting gallery contains 270 identities and 690 prototypes. A cosine
 score or Top-1/Top-2 margin never suppresses a valid result. Pink eligibility
 and card availability remain the click gates, and invalid crops or damaged
 models still fail closed.
 
-Run the complete training replay, frozen comparison, performance benchmark and
-270-student evidence audit with:
+The corrected run first restored the pre-Wikiru identity bundle (75/83 identity,
+65/70 pink clicks), then promoted only after a strict no-regression comparison.
+Both gallery policies reached 81/81 grouped-fold Top-1; the source-centroid
+policy won the remaining size/runtime tie-breaks. All four training-source
+replays are complete: Wikiru 270/270, roster 265/265, corrected history 177/177
+and lesson avatars 81/81.
+
+Run the complete training replay, frozen comparison, 90-run performance
+benchmark and 270-student evidence audit with:
 
 ```powershell
-.\.venv\Scripts\python.exe develop_tools/student_recognition/evaluate_combined_top1.py
+.\.training-venv\Scripts\python.exe develop_tools/student_recognition/train_wikiru270_alpha_balanced.py --reuse-completed
 ```
 
-The generated `combined_top1_report.json` contains every instance and the full
-machine-readable roster classification. `combined_top1_report.md` is the
-human-readable error and student-list report. The frozen screenshots informed
+The generated `combined_top1_alpha_balanced_report.json` contains every instance
+and the full machine-readable roster classification.
+`combined_top1_alpha_balanced_report.md` is the human-readable error and
+student-list report. The frozen screenshots informed
 an earlier architecture comparison but remain excluded from weights,
 prototypes, retries and seed selection. On this frozen regression set the new
-model records 71/83 identity Top-1, 82/83 eligibility and 62/70 pink clicks,
-compared with 75/83, 82/83 and 65/70 immediately before Wikiru270 retraining.
-This regression was reported but did not block promotion under the selected
-release policy.
+model records 83/83 identity Top-1, 82/83 eligibility and 70/70 pink clicks,
+compared with 75/83, 82/83 and 65/70 immediately before corrected Wikiru270
+retraining. No previously correct identity regressed, and no new wrong-card or
+gray-click risk was introduced. One pre-existing locator eligibility error for
+`Sena (Casual)` remains; it is independent of the now-perfect identity Top-1.

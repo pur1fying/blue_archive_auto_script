@@ -50,7 +50,7 @@ MODEL_DIR = ROOT / "src" / "models" / "student_recognition"
 RUNS_DIR = ROOT / ".training-runs" / "student_recognition"
 REPORT_PATH = Path(__file__).with_name("validation_report.json")
 SEED = 20260731
-SAMPLES_PER_IDENTITY = 3
+NORMALIZED_PORTRAIT_EXTENT = 90
 
 MEAN = np.asarray((0.485, 0.456, 0.406), dtype=np.float32)
 STD = np.asarray((0.229, 0.224, 0.225), dtype=np.float32)
@@ -234,10 +234,13 @@ class LocatorDataset(Dataset):
 
 
 def _student_view(image: np.ndarray, randomize: bool) -> np.ndarray:
+    if image.ndim != 3 or image.shape[2] not in (3, 4):
+        raise ValueError(f"Unsupported portrait shape: {image.shape}")
     canvas_size = 96
     background = random.randint(205, 235) if randomize else 220
     canvas = np.full((canvas_size, canvas_size, 3), background, dtype=np.uint8)
-    scale = 3.0 * random.uniform(0.70, 1.40) if randomize else 3.0
+    base_scale = NORMALIZED_PORTRAIT_EXTENT / max(image.shape[:2])
+    scale = base_scale * random.uniform(0.70, 1.40) if randomize else base_scale
     aspect_ratio = random.uniform(0.90, 1.10) if randomize else 1.0
     width = max(16, round(image.shape[1] * scale * aspect_ratio ** 0.5))
     height = max(15, round(image.shape[0] * scale / aspect_ratio ** 0.5))
@@ -255,10 +258,23 @@ def _student_view(image: np.ndarray, randomize: bool) -> np.ndarray:
     target_y1 = max(0, y)
     copy_width = min(width - source_x1, canvas_size - target_x1)
     copy_height = min(height - source_y1, canvas_size - target_y1)
-    canvas[target_y1:target_y1 + copy_height, target_x1:target_x1 + copy_width] = resized[
+    source_patch = resized[
         source_y1:source_y1 + copy_height,
         source_x1:source_x1 + copy_width,
     ]
+    target_patch = canvas[
+        target_y1:target_y1 + copy_height,
+        target_x1:target_x1 + copy_width,
+    ]
+    if source_patch.shape[2] == 4:
+        alpha = source_patch[:, :, 3:4].astype(np.float32) / 255.0
+        composited = (
+            source_patch[:, :, :3].astype(np.float32) * alpha
+            + target_patch.astype(np.float32) * (1.0 - alpha)
+        )
+        target_patch[:] = np.clip(composited, 0, 255).astype(np.uint8)
+    else:
+        target_patch[:] = source_patch
     if randomize and random.random() < 0.25:
         canvas = cv2.GaussianBlur(canvas, (3, 3), 0)
     if randomize:
@@ -349,7 +365,7 @@ def _runtime_student_views(crop: np.ndarray) -> np.ndarray:
 
 
 class IdentityBalancedStudentDataset(Dataset):
-    """Give every identity exactly the same number of augmented draws."""
+    """Give every identity equal weight while visiting every source image."""
 
     SOURCE_ORDER = ("target:", "wikiru:", "roster:", "history:")
 
@@ -357,38 +373,88 @@ class IdentityBalancedStudentDataset(Dataset):
         self,
         templates,
         label_to_index,
-        samples_per_identity: int = SAMPLES_PER_IDENTITY,
+        samples_per_identity: Optional[int] = None,
+        seed: int = SEED,
     ):
         grouped = collections.defaultdict(list)
         for item in templates:
             grouped[item[0]].append(item)
         self.names = sorted(grouped)
         self.templates_by_name = {}
+        self.source_counts_by_name = {}
         for name in self.names:
             by_source = collections.defaultdict(list)
             for item in grouped[name]:
                 source_kind = item[1].split(":", 1)[0] + ":"
                 by_source[source_kind].append(item)
-            self.templates_by_name[name] = dict(by_source)
+            for values in by_source.values():
+                values.sort(key=lambda item: item[1])
+            ordered = []
+            maximum_source_size = max(len(values) for values in by_source.values())
+            for source_index in range(maximum_source_size):
+                for source in self.SOURCE_ORDER:
+                    values = by_source.get(source, [])
+                    if source_index < len(values):
+                        ordered.append(values[source_index])
+            if len(ordered) != len(grouped[name]):
+                raise ValueError(f"Unrecognised portrait source for {name}")
+            self.templates_by_name[name] = ordered
+            self.source_counts_by_name[name] = {
+                source.rstrip(":"): len(values)
+                for source, values in sorted(by_source.items())
+            }
         self.label_to_index = label_to_index
-        self.samples_per_identity = samples_per_identity
+        required_draws = max(len(values) for values in self.templates_by_name.values())
+        self.samples_per_identity = samples_per_identity or required_draws
+        if self.samples_per_identity < required_draws:
+            raise ValueError(
+                "samples_per_identity cannot cover every source image: "
+                f"{self.samples_per_identity} < {required_draws}"
+            )
+        self.seed = seed
+        self.epoch = 0
+        self.epoch_templates = {}
+        self.set_epoch(0)
+
+    def set_epoch(self, epoch: int) -> None:
+        self.epoch = epoch
+        self.epoch_templates = {}
+        for name in self.names:
+            values = list(self.templates_by_name[name])
+            digest = hashlib.sha256(
+                f"{self.seed}:{epoch}:{name}".encode("utf-8")
+            ).digest()
+            rng = random.Random(int.from_bytes(digest[:8], "big"))
+            rng.shuffle(values)
+            self.epoch_templates[name] = [
+                values[index % len(values)]
+                for index in range(self.samples_per_identity)
+            ]
 
     def __len__(self):
         return len(self.names) * self.samples_per_identity
 
     def __getitem__(self, index):
-        identity_index, source_slot = divmod(index, self.samples_per_identity)
+        identity_index, sample_slot = divmod(index, self.samples_per_identity)
         name = self.names[identity_index]
-        by_source = self.templates_by_name[name]
-        available = [
-            by_source[source]
-            for source in self.SOURCE_ORDER
-            if by_source.get(source)
-        ]
-        templates = available[source_slot % len(available)]
-        _, _, image = random.choice(templates)
+        _, _, image = self.epoch_templates[name][sample_slot]
         views = np.stack((_student_view(image, True), _student_view(image, True))).astype(np.float32)
         return torch.from_numpy(views), self.label_to_index[name]
+
+
+def _sampling_draw_counts(templates, epochs: int, seed: int) -> dict[str, int]:
+    names = sorted({name for name, _, _ in templates})
+    dataset = IdentityBalancedStudentDataset(
+        templates,
+        {name: index for index, name in enumerate(names)},
+        seed=seed,
+    )
+    counts = collections.Counter()
+    for epoch in range(epochs):
+        dataset.set_epoch(epoch)
+        for values in dataset.epoch_templates.values():
+            counts.update(item[1] for item in values)
+    return dict(sorted(counts.items()))
 
 
 def supervised_contrastive_loss(embeddings, labels, temperature=0.10):
@@ -540,7 +606,7 @@ def _train_student_encoder(
     seed_everything(seed)
     names = sorted({name for name, _, _ in templates})
     label_to_index = {name: index for index, name in enumerate(names)}
-    dataset = IdentityBalancedStudentDataset(templates, label_to_index)
+    dataset = IdentityBalancedStudentDataset(templates, label_to_index, seed=seed)
     loader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=0)
     device = training_device()
     model = StudentEncoderTrainer(len(names)).to(device)
@@ -560,6 +626,7 @@ def _train_student_encoder(
         print(f"encoder {label} resume_epoch={start_epoch:03d}")
     model.train()
     for epoch in range(start_epoch, epochs):
+        dataset.set_epoch(epoch)
         running_loss = 0.0
         for views, labels in loader:
             views = views.to(device)
@@ -635,31 +702,110 @@ def _opencv_embeddings(model_path: Path, inputs: np.ndarray) -> np.ndarray:
     )
 
 
-def _build_gallery(encoder, templates, catalog, model_path: Optional[Path] = None):
-    selected = _select_prototype_templates(templates, catalog)
+def _prototype_input(source: str, image: np.ndarray) -> np.ndarray:
+    return (
+        _runtime_student_views(image)[0]
+        if source.startswith("target:")
+        else _student_view(image, False)
+    )
+
+
+def _encode_prototype_templates(
+    encoder,
+    templates,
+    model_path: Optional[Path],
+) -> np.ndarray:
     prototype_inputs = np.stack(
-        [
-            _runtime_student_views(image)[0]
-            if source.startswith("target:")
-            else _student_view(image, False)
-            for _, source, image in selected
-        ]
+        [_prototype_input(source, image) for _, source, image in templates]
     ).astype(np.float32)
     if model_path is None:
         with torch.no_grad():
-            prototype_embeddings = encoder(
+            embeddings = encoder(
                 torch.from_numpy(prototype_inputs)
             ).cpu().numpy().astype(np.float32)
     else:
-        prototype_embeddings = _opencv_embeddings(model_path, prototype_inputs)
+        embeddings = _opencv_embeddings(model_path, prototype_inputs)
+    return embeddings / np.maximum(
+        np.linalg.norm(embeddings, axis=1, keepdims=True),
+        1e-12,
+    )
 
-    prototypes_by_student = collections.defaultdict(list)
-    prototype_sources = collections.defaultdict(list)
+
+def _build_gallery(
+    encoder,
+    templates,
+    catalog,
+    model_path: Optional[Path] = None,
+    policy: str = "raw_capped",
+):
+    if policy not in {"raw_capped", "source_centroid"}:
+        raise ValueError(f"Unsupported gallery policy: {policy}")
+    selected = (
+        _select_prototype_templates(templates, catalog)
+        if policy == "raw_capped"
+        else [
+            item
+            for item in templates
+            if catalog.resolve(item[0]) is not None
+        ]
+    )
+    prototype_embeddings = _encode_prototype_templates(
+        encoder,
+        selected,
+        model_path,
+    )
+
+    source_embeddings = collections.defaultdict(
+        lambda: collections.defaultdict(list)
+    )
+    source_names = collections.defaultdict(lambda: collections.defaultdict(list))
     for (name, source, _), embedding in zip(selected, prototype_embeddings):
         record = catalog.resolve(name)
         if record is not None:
-            prototypes_by_student[record.student_id].append(embedding)
-            prototype_sources[record.student_id].append(source)
+            source_kind = source.split(":", 1)[0]
+            source_embeddings[record.student_id][source_kind].append(embedding)
+            source_names[record.student_id][source_kind].append(source)
+
+    prototypes_by_student = collections.defaultdict(list)
+    prototype_sources = collections.defaultdict(list)
+    for student_id in sorted(source_embeddings):
+        sources = source_embeddings[student_id]
+        names = source_names[student_id]
+        if policy == "raw_capped":
+            for source_kind in ("target", "wikiru", "roster", "history"):
+                for embedding, source in zip(
+                    sources.get(source_kind, []),
+                    names.get(source_kind, []),
+                ):
+                    prototypes_by_student[student_id].append(embedding)
+                    prototype_sources[student_id].append(source)
+            continue
+
+        groups = []
+        if sources.get("target"):
+            groups = [
+                ("target", sources.get("target", [])),
+                ("wikiru", sources.get("wikiru", [])),
+                (
+                    "legacy",
+                    sources.get("roster", []) + sources.get("history", []),
+                ),
+            ]
+        else:
+            groups = [
+                ("wikiru", sources.get("wikiru", [])),
+                ("roster", sources.get("roster", [])),
+                ("history", sources.get("history", [])),
+            ]
+        for group_name, values in groups:
+            if not values:
+                continue
+            centroid = np.mean(np.asarray(values, dtype=np.float32), axis=0)
+            centroid /= max(float(np.linalg.norm(centroid)), 1e-12)
+            prototypes_by_student[student_id].append(centroid)
+            prototype_sources[student_id].append(
+                f"centroid:{group_name}:{len(values)}"
+            )
 
     gallery_embeddings = []
     gallery_ids = []
@@ -673,6 +819,21 @@ def _build_gallery(encoder, templates, catalog, model_path: Optional[Path] = Non
         1e-12,
     )
     return gallery_matrix, np.asarray(gallery_ids), dict(prototype_sources)
+
+
+def _gallery_storage_bytes(gallery_matrix: np.ndarray, gallery_ids: np.ndarray) -> int:
+    return int(gallery_matrix.nbytes + gallery_ids.astype("U").nbytes)
+
+
+def _benchmark_gallery_ranking(
+    embeddings: np.ndarray,
+    gallery_matrix: np.ndarray,
+    repeats: int = 500,
+) -> float:
+    started = time.perf_counter()
+    for _ in range(repeats):
+        np.max(embeddings @ gallery_matrix.T, axis=1)
+    return (time.perf_counter() - started) * 1_000_000.0 / repeats
 
 
 def _rank_embeddings(embeddings, items, gallery_matrix, gallery_ids, catalog):
@@ -873,8 +1034,11 @@ def train_encoder(
         for name, value in pretrained_encoder.state_dict().items()
     }
 
-    cross_validation_results = []
-    fold_metrics = {}
+    gallery_policies = ("raw_capped", "source_centroid")
+    policy_results = {policy: [] for policy in gallery_policies}
+    policy_fold_metrics = {policy: {} for policy in gallery_policies}
+    policy_gallery_bytes = collections.defaultdict(list)
+    policy_rank_microseconds = collections.defaultdict(list)
     image_names = sorted({image_name for _, image_name, _, _ in labeled_crops})
     for fold_index, validation_image in enumerate(image_names):
         target_train, _ = load_target_domain_portraits(validation_image)
@@ -899,24 +1063,68 @@ def train_encoder(
         fold_dir = output_dir / "folds" / "encoder" / validation_image.removesuffix(".png")
         fold_model_path = fold_dir / "student_encoder.onnx"
         _export_encoder(fold_encoder, fold_model_path)
-        fold_gallery, fold_ids, _ = _build_gallery(
-            fold_encoder,
-            fold_gallery_templates,
-            catalog,
-            fold_model_path,
-        )
         validation_items = [
             item for item in runtime_labeled_crops if item[1] == validation_image
         ]
-        fold_results = _score_with_opencv(
-            fold_model_path,
-            validation_items,
-            fold_gallery,
-            fold_ids,
-            catalog,
+        validation_inputs = np.concatenate(
+            [_runtime_student_views(crop) for _, _, _, crop in validation_items]
         )
-        cross_validation_results.extend(fold_results)
-        fold_metrics[validation_image] = _top1_metrics(fold_results)
+        validation_embeddings = _opencv_embeddings(
+            fold_model_path,
+            validation_inputs,
+        )
+        for policy in gallery_policies:
+            fold_gallery, fold_ids, _ = _build_gallery(
+                fold_encoder,
+                fold_gallery_templates,
+                catalog,
+                fold_model_path,
+                policy=policy,
+            )
+            fold_results = _rank_embeddings(
+                validation_embeddings,
+                validation_items,
+                fold_gallery,
+                fold_ids,
+                catalog,
+            )
+            policy_results[policy].extend(fold_results)
+            policy_fold_metrics[policy][validation_image] = _top1_metrics(
+                fold_results
+            )
+            policy_gallery_bytes[policy].append(
+                _gallery_storage_bytes(fold_gallery, fold_ids)
+            )
+            policy_rank_microseconds[policy].append(
+                _benchmark_gallery_ranking(validation_embeddings, fold_gallery)
+            )
+
+    gallery_policy_diagnostics = {}
+    for policy in gallery_policies:
+        metrics = _top1_metrics(policy_results[policy])
+        gallery_policy_diagnostics[policy] = {
+            "cross_validation_metrics": metrics,
+            "validation_fold_metrics": policy_fold_metrics[policy],
+            "mean_gallery_bytes": statistics.mean(policy_gallery_bytes[policy]),
+            "mean_rank_microseconds": statistics.mean(
+                policy_rank_microseconds[policy]
+            ),
+        }
+
+    def gallery_policy_key(policy: str):
+        row = gallery_policy_diagnostics[policy]
+        metrics = row["cross_validation_metrics"]
+        return (
+            metrics["correct"],
+            metrics["macro_recall"] or 0.0,
+            metrics["minimum_margin"] or -1.0,
+            -row["mean_gallery_bytes"],
+            -row["mean_rank_microseconds"],
+        )
+
+    selected_gallery_policy = max(gallery_policies, key=gallery_policy_key)
+    cross_validation_results = policy_results[selected_gallery_policy]
+    fold_metrics = policy_fold_metrics[selected_gallery_policy]
 
     templates = seed_templates + target_portraits
     gallery_templates = seed_templates + target_gallery_templates
@@ -935,6 +1143,7 @@ def train_encoder(
         gallery_templates,
         catalog,
         model_path,
+        policy=selected_gallery_policy,
     )
     np.savez_compressed(
         output_dir / "gallery.npz",
@@ -981,6 +1190,23 @@ def train_encoder(
         np.max(np.abs(1.0 - np.sum(torch_embeddings * opencv_embeddings, axis=1)))
     )
 
+    pretrain_draw_counts = _sampling_draw_counts(
+        seed_templates,
+        pretrain_epochs,
+        seed,
+    )
+    final_draw_counts = _sampling_draw_counts(
+        templates,
+        final_epochs,
+        seed + 100,
+    )
+    all_model_training_draws = collections.Counter(pretrain_draw_counts)
+    all_model_training_draws.update(final_draw_counts)
+    expected_training_sources = {source for _, source, _ in templates}
+    if set(all_model_training_draws) != expected_training_sources:
+        missing = sorted(expected_training_sources - set(all_model_training_draws))
+        raise ValueError(f"Identity sampler skipped source images: {missing}")
+
     support_metadata = _source_support_metadata(
         catalog,
         target_groups,
@@ -1018,7 +1244,39 @@ def train_encoder(
         "roster_montage_portrait_count": len(roster_templates),
         "wikiru_portrait_count": len(wikiru_templates),
         "target_domain_training_count": len(target_portraits),
-        "identity_balanced_samples_per_epoch": SAMPLES_PER_IDENTITY,
+        "raw_training_instance_count": len(templates),
+        "identity_balanced_draws_per_identity": max(
+            collections.Counter(name for name, _, _ in templates).values()
+        ),
+        "identity_balanced_samples_per_epoch": (
+            len(catalog.records)
+            * max(collections.Counter(name for name, _, _ in templates).values())
+        ),
+        "training_instances_by_source": dict(
+            sorted(
+                collections.Counter(
+                    source.split(":", 1)[0] for _, source, _ in templates
+                ).items()
+            )
+        ),
+        "training_image_draw_counts": dict(sorted(all_model_training_draws.items())),
+        "sampling_stages": {
+            "seed_pretraining": {
+                "epochs": pretrain_epochs,
+                "raw_images": len(seed_templates),
+                "total_draws": sum(pretrain_draw_counts.values()),
+            },
+            "final_training": {
+                "epochs": final_epochs,
+                "raw_images": len(templates),
+                "total_draws": sum(final_draw_counts.values()),
+            },
+            "grouped_folds": {
+                "folds": len(image_names),
+                "epochs_per_fold": epochs,
+                "held_out_by_original_screenshot": True,
+            },
+        },
         "pretraining_epochs": pretrain_epochs,
         "cross_validation_epochs": epochs,
         "final_training_epochs": final_epochs,
@@ -1033,6 +1291,9 @@ def train_encoder(
         "validation_groups": image_names,
         "validation_fold_metrics": fold_metrics,
         "cross_validation_metrics": _top1_metrics(cross_validation_results),
+        "gallery_policy": selected_gallery_policy,
+        "gallery_policy_selection_uses_independent_v1": False,
+        "gallery_policy_diagnostics": gallery_policy_diagnostics,
         "all_labeled_target_metrics": _top1_metrics(final_results),
         "roster_replay_metrics": _top1_metrics(roster_results),
         "wikiru_replay_metrics": _top1_metrics(wikiru_results),
@@ -1291,7 +1552,7 @@ def build_validation_report(
     hard_failures = []
     conditions = {
         "catalog_names_unique": len(catalog.records) == len(student_rows),
-        "history_177_122": len(historical) == 177 and len(historical_ids) == 122,
+        "history_177_124": len(historical) == 177 and len(historical_ids) == 124,
         "legacy_roster_265": len(roster) == 265 and len(roster_ids) == 265,
         "wikiru_catalog_coverage": (
             len(wikiru) == len(catalog.records)

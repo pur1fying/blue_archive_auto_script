@@ -642,9 +642,10 @@ def build_report(
             independent,
         )
     if training_summary is not None:
-        report["training_action"]["summary_report_sha256"] = training_summary.get(
-            "report_sha256"
-        )
+        if training_summary.get("report_sha256"):
+            report["training_action"]["summary_report_sha256"] = (
+                training_summary["report_sha256"]
+            )
         report["training_action"]["attempt_count"] = len(
             training_summary.get("attempts", [])
         )

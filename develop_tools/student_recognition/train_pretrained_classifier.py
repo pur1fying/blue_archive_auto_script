@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+os.environ.setdefault("TORCH_HOME", str(ROOT / ".training-runs" / "torch-cache"))
 PRODUCTION_MODEL_DIR = ROOT / "src" / "models" / "student_recognition"
 DEFAULT_OUTPUT = ROOT / ".training-runs" / "student_recognition" / "pretrained_classifier"
 
@@ -35,7 +37,11 @@ def _pretrained_trainer(training, frozen_backbone_epochs: int):
         training.seed_everything(seed)
         names = sorted({name for name, _, _ in templates})
         label_to_index = {name: index for index, name in enumerate(names)}
-        dataset = training.IdentityBalancedStudentDataset(templates, label_to_index)
+        dataset = training.IdentityBalancedStudentDataset(
+            templates,
+            label_to_index,
+            seed=seed,
+        )
         loader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=0)
         device = training.training_device()
         model = StudentEncoderTrainer(
@@ -62,6 +68,7 @@ def _pretrained_trainer(training, frozen_backbone_epochs: int):
         freeze_epochs = frozen_backbone_epochs if initial_encoder_state is None else 0
         model.train()
         for epoch in range(start_epoch, epochs):
+            dataset.set_epoch(epoch)
             backbone_trainable = epoch >= freeze_epochs
             for parameter in model.encoder.features.parameters():
                 parameter.requires_grad = backbone_trainable

@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import tempfile
 import time
@@ -42,6 +43,14 @@ ANNOTATION_PATH = ROOT / "develop_tools" / "student_recognition" / "lesson_locat
 VALIDATION_REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "validation_report.json"
 HISTORICAL_CORRECTIONS_PATH = (
     ROOT / "develop_tools" / "student_recognition" / "historical_label_corrections.json"
+)
+HISTORICAL_SIMILARITY_AUDIT_PATH = (
+    ROOT
+    / "develop_tools"
+    / "student_recognition"
+    / "data"
+    / "historical_portraits"
+    / "similarity_audit.json"
 )
 STATIC_CONFIG = json.loads(STATIC_DEFAULT_CONFIG)
 
@@ -484,18 +493,16 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
         manifest = json.loads(HISTORICAL_MANIFEST.read_text(encoding="utf-8"))
         self.assertEqual(177, len(manifest))
         self.assertEqual(177, len({row["git_blob"] for row in manifest}))
-        self.assertEqual(122, len({row["label"] for row in manifest}))
+        self.assertEqual(124, len({row["label"] for row in manifest}))
         self.assertEqual(1, sum(row["label"] == "Toki (Bunny)" for row in manifest))
         self.assertEqual(3, sum(row["label"] == "Toki" for row in manifest))
         self.assertEqual(1, sum(row["label"] == "Aris (Maid)" for row in manifest))
         self.assertNotIn("Ar1s-maid", {row["label"] for row in manifest})
         expected_corrections = {
             "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc": "Noa (Pajamas)",
-            "efe6447de52bc39ddac4f1b67da0501533666555": "Miyu (Swimsuit)",
             "9cfd12b434c50c19d05a804f2983a2e274a0a306": "Saki",
             "d4f34f0e611285e0236fd3034f99e33c2193edc2": "Saki (Swimsuit)",
             "4074255cf5ec772f6b14203789fb892e673dd538": "Toki",
-            "8a7c6259ee904531c2711659574a8d78afbefed9": "Ui (Swimsuit)",
         }
         actual_corrections = {
             row["git_blob"]: row["label"]
@@ -511,6 +518,20 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
                 for row in audit["corrections"]
             },
         )
+        self.assertEqual(
+            {
+                "efe6447de52bc39ddac4f1b67da0501533666555": "Miyu",
+                "8a7c6259ee904531c2711659574a8d78afbefed9": "Ui",
+            },
+            {
+                row["git_blob"]: row["confirmed_label"]
+                for row in audit["confirmed_original_labels"]
+            },
+        )
+        self.assertEqual(1, sum(row["label"] == "Miyu" for row in manifest))
+        self.assertEqual(1, sum(row["label"] == "Miyu (Swimsuit)" for row in manifest))
+        self.assertEqual(1, sum(row["label"] == "Ui" for row in manifest))
+        self.assertEqual(1, sum(row["label"] == "Ui (Swimsuit)" for row in manifest))
         expected_audit_names = {}
         for row in manifest:
             portrait = HistoricalPortrait(
@@ -560,6 +581,19 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
             },
         )
         self.assertEqual(177, len(load_historical_portraits()))
+
+        similarity = json.loads(
+            HISTORICAL_SIMILARITY_AUDIT_PATH.read_text(encoding="utf-8")
+        )
+        self.assertEqual(177, similarity["portrait_count"])
+        self.assertEqual(124, similarity["identity_count"])
+        self.assertEqual([], similarity["exact_duplicate_groups"])
+        self.assertEqual(13, len(similarity["near_same_identity_pairs"]))
+        self.assertEqual([], similarity["near_cross_identity_pairs"])
+        self.assertEqual(
+            "retain_all_identity_balanced",
+            similarity["training_policy"],
+        )
 
     def test_roster_montages_remain_the_original_265_identity_snapshot(self):
         annotation = json.loads(ROSTER_ANNOTATIONS.read_text(encoding="utf-8"))
@@ -660,7 +694,70 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
         self.assertEqual(270, len(portraits))
         self.assertEqual(270, len({name for name, _, _ in portraits}))
         self.assertTrue(all(source.startswith("wikiru:") for _, source, _ in portraits))
+        self.assertEqual(269, sum(image.shape[2] == 4 for _, _, image in portraits))
+        self.assertEqual(
+            268,
+            sum(
+                image.shape[2] == 4 and int(image[:, :, 3].min()) < 255
+                for _, _, image in portraits
+            ),
+        )
         self.assertEqual(712, len(load_seed_portraits()))
+
+    @unittest.skipUnless(importlib.util.find_spec("torch"), "training-only torch")
+    def test_student_preprocessing_preserves_alpha_and_normalizes_scale(self):
+        from develop_tools.student_recognition.train_student_models import (
+            MEAN,
+            STD,
+            _student_view,
+        )
+
+        portrait = next(
+            image
+            for _, _, image in load_wikiru_portraits()
+            if image.shape[2] == 4 and int(image[:, :, 3].min()) == 0
+        )
+        view = _student_view(portrait, False).transpose(1, 2, 0)
+        rgb = np.clip((view * STD + MEAN) * 255.0, 0, 255).round().astype(np.uint8)
+        self.assertGreaterEqual(int(rgb[0, 0].min()), 215)
+
+        source = cv2.cvtColor(portrait, cv2.COLOR_BGRA2BGR)
+        small = cv2.resize(source, (30, 30), interpolation=cv2.INTER_AREA)
+        large = cv2.resize(source, (200, 200), interpolation=cv2.INTER_LINEAR)
+        small_view = _student_view(small, False)
+        large_view = _student_view(large, False)
+        self.assertLess(float(np.mean(np.abs(small_view - large_view))), 0.35)
+
+    @unittest.skipUnless(importlib.util.find_spec("torch"), "training-only torch")
+    def test_identity_balanced_sampler_visits_every_image_with_equal_weight(self):
+        from develop_tools.student_recognition.train_student_models import (
+            IdentityBalancedStudentDataset,
+        )
+
+        image = np.zeros((30, 30, 3), dtype=np.uint8)
+        templates = [
+            ("A", f"history:{index}", image.copy()) for index in range(3)
+        ] + [
+            ("A", "wikiru:a", image.copy()),
+            ("A", "roster:a", image.copy()),
+            ("A", "target:a", image.copy()),
+            ("B", "wikiru:b", image.copy()),
+        ]
+        dataset = IdentityBalancedStudentDataset(
+            templates,
+            {"A": 0, "B": 1},
+            seed=123,
+        )
+        self.assertEqual(6, dataset.samples_per_identity)
+        self.assertEqual(12, len(dataset))
+        self.assertEqual(
+            {item[1] for item in templates if item[0] == "A"},
+            {item[1] for item in dataset.epoch_templates["A"]},
+        )
+        self.assertEqual(6, len(dataset.epoch_templates["B"]))
+        self.assertTrue(
+            all(item[1] == "wikiru:b" for item in dataset.epoch_templates["B"])
+        )
 
 
 class LessonPrioritySelectionTest(unittest.TestCase):

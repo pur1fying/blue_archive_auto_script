@@ -13,10 +13,10 @@ CANDIDATE_DIR = (
     / "develop_tools"
     / "student_recognition"
     / "experiments"
-    / "yolox_mobilenetv3_wikiru270_top1"
+    / "yolox_mobilenetv3_wikiru270_alpha_balanced_top1"
 )
-REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "combined_top1_report.json"
-MARKDOWN_PATH = ROOT / "develop_tools" / "student_recognition" / "combined_top1_report.md"
+REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "combined_top1_alpha_balanced_report.json"
+MARKDOWN_PATH = ROOT / "develop_tools" / "student_recognition" / "combined_top1_alpha_balanced_report.md"
 EVALUATOR_PATH = ROOT / "develop_tools" / "student_recognition" / "evaluate_combined_top1.py"
 
 
@@ -64,12 +64,12 @@ class CombinedStudentRecognitionTest(unittest.TestCase):
         metrics = result["metrics"]
         self.assertEqual(40, metrics["detected_card_count"])
         self.assertEqual(83, metrics["detected_avatar_count"])
-        self.assertEqual(71, metrics["identity_correct"])
+        self.assertEqual(83, metrics["identity_correct"])
         self.assertEqual(82, metrics["eligibility_correct"])
-        self.assertEqual(62, metrics["eligible_click_passed"])
+        self.assertEqual(70, metrics["eligible_click_passed"])
         self.assertEqual(1, metrics["gray_target_clicked"])
-        self.assertFalse(result["promotion"]["passed"])
-        self.assertFalse(result["promotion"]["blocks_completion"])
+        self.assertTrue(result["promotion"]["passed"])
+        self.assertTrue(result["promotion"]["blocks_completion"])
         self.assertTrue(self.report["completed"])
         aru = next(
             row
@@ -77,13 +77,13 @@ class CombinedStudentRecognitionTest(unittest.TestCase):
             if row["image"] == "MuMu-20260731-235521-485.png"
             and row["display_location"] == "6-1"
         )
-        self.assertEqual("Hanako (Swimsuit)", aru["top1_name"])
-        self.assertFalse(aru["expected_target_click_passed"])
+        self.assertEqual("Aru", aru["top1_name"])
+        self.assertTrue(aru["expected_target_click_passed"])
 
     def test_all_270_students_have_exclusive_evidence_categories(self):
         capability = self.report["catalog_capability"]
         self.assertEqual(
-            {"correct": 55, "error": 9, "uncertain": 206},
+            {"correct": 60, "error": 1, "uncertain": 209},
             capability["counts"],
         )
         categories = [
@@ -107,20 +107,7 @@ class CombinedStudentRecognitionTest(unittest.TestCase):
             row = next(item for item in capability["students"] if item["name"] == name)
             self.assertEqual("uncertain", row["category"])
             self.assertEqual("wikiru_only", row["support_status"])
-        self.assertEqual(
-            {
-                "Aru",
-                "Kanna (Swimsuit)",
-                "Kotori (Cheer Squad)",
-                "Marina",
-                "Mimori (Swimsuit)",
-                "Neru",
-                "Nozomi",
-                "Sena (Casual)",
-                "Shokuhou Misaki",
-            },
-            set(capability["error"]),
-        )
+        self.assertEqual({"Sena (Casual)"}, set(capability["error"]))
 
     def test_independent_data_remains_excluded(self):
         isolation = self.report["data_isolation"]
@@ -136,14 +123,14 @@ class CombinedStudentRecognitionTest(unittest.TestCase):
         self.assertNotIn("lesson_independent_v1", training_source)
         self.assertNotIn("independent_test_annotations_v1", training_source)
         self.assertTrue(self.report["training_action"]["performed"])
-        self.assertEqual(20260801, self.report["training_action"]["selected_seed"])
+        self.assertEqual(20260731, self.report["training_action"]["selected_seed"])
 
     def test_pre_wikiru_comparison_contains_all_instances(self):
         comparison = self.report["comparison_to_pre_wikiru270"]
         self.assertEqual(83, len(comparison["instances"]))
-        self.assertEqual(11, len(comparison["changed_instances"]))
-        self.assertEqual(-4, comparison["metrics"]["identity_correct"]["delta"])
-        self.assertEqual(-3, comparison["metrics"]["eligible_click_passed"]["delta"])
+        self.assertEqual(8, len(comparison["changed_instances"]))
+        self.assertEqual(8, comparison["metrics"]["identity_correct"]["delta"])
+        self.assertEqual(5, comparison["metrics"]["eligible_click_passed"]["delta"])
         self.assertEqual(0, comparison["metrics"]["eligibility_correct"]["delta"])
 
     def test_report_is_reproducible_and_human_readable(self):

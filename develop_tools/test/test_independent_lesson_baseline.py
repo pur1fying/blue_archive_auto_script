@@ -18,7 +18,12 @@ EXPERIMENT_BASELINE_PATH = ROOT / "develop_tools" / "student_recognition" / "exp
 TRAINING_SCRIPT_PATH = ROOT / "develop_tools" / "student_recognition" / "train_student_models.py"
 MODEL_DIR = ROOT / "src" / "models" / "student_recognition"
 YOLOX_REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "yolox_locator_experiment_report.json"
-COMBINED_REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "combined_top1_report.json"
+COMBINED_REPORT_PATH = (
+    ROOT
+    / "develop_tools"
+    / "student_recognition"
+    / "combined_top1_alpha_balanced_report.json"
+)
 PROMOTED_MODEL_FILES = {
     "src/models/student_recognition/lesson_locator.onnx",
     "src/models/student_recognition/lesson_locator.json",

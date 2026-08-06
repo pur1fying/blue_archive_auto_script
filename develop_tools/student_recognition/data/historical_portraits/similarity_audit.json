@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "classification": "audit_only_no_training_filter",
+  "method": {
+    "decoded_exact_hash": "sha256(shape + decoded_bgr_bytes)",
+    "perceptual_hash": "32x32 grayscale DCT, top-left 8x8, DC excluded, median bits",
+    "maximum_hamming_distance": 6
+  },
+  "portrait_count": 177,
+  "identity_count": 124,
+  "exact_duplicate_groups": [],
+  "exact_redundant_file_count": 0,
+  "near_same_identity_pairs": [
+    {
+      "distance": 0,
+      "first_label": "Hoshino",
+      "first_file": "Hoshino__history__CN__1435dd2f.png",
+      "second_label": "Hoshino",
+      "second_file": "Hoshino__history__Global_en-us__3f49966b.png"
+    },
+    {
+      "distance": 0,
+      "first_label": "Maki",
+      "first_file": "Maki__history__Global_en-us__ce7ac069.png",
+      "second_label": "Maki",
+      "second_file": "Maki__history__CN__f368f1af.png"
+    },
+    {
+      "distance": 2,
+      "first_label": "Hina",
+      "first_file": "Hina__history__Global_en-us__c3ff81b9.png",
+      "second_label": "Hina",
+      "second_file": "Hina__history__CN__f4411191.png"
+    },
+    {
+      "distance": 2,
+      "first_label": "Noa",
+      "first_file": "Noa__history__CN__5681e6af.png",
+      "second_label": "Noa",
+      "second_file": "Noa__history__Global_en-us__5ccb5d1f.png"
+    },
+    {
+      "distance": 4,
+      "first_label": "Chinatsu",
+      "first_file": "Chinatsu__history__Global_en-us__6dc81c4f.png",
+      "second_label": "Chinatsu",
+      "second_file": "Chinatsu__history__CN__7bcc8745.png"
+    },
+    {
+      "distance": 4,
+      "first_label": "Hasumi (Track)",
+      "first_file": "Hasumi (Track)__history__Global_en-us__a3163667.png",
+      "second_label": "Hasumi (Track)",
+      "second_file": "Hasumi (Track)__history__CN__b1b978b7.png"
+    },
+    {
+      "distance": 6,
+      "first_label": "Hasumi",
+      "first_file": "Hasumi__history__Global_en-us__6f6697ff.png",
+      "second_label": "Hasumi",
+      "second_file": "Hasumi__history__JP__75255cbf.png"
+    },
+    {
+      "distance": 6,
+      "first_label": "Hoshino",
+      "first_file": "Hoshino__history__CN__1435dd2f.png",
+      "second_label": "Hoshino",
+      "second_file": "Hoshino__history__JP__1c492d70.png"
+    },
+    {
+      "distance": 6,
+      "first_label": "Hoshino",
+      "first_file": "Hoshino__history__JP__1c492d70.png",
+      "second_label": "Hoshino",
+      "second_file": "Hoshino__history__Global_en-us__3f49966b.png"
+    },
+    {
+      "distance": 6,
+      "first_label": "Hoshino (Swimsuit)",
+      "first_file": "Hoshino (Swimsuit)__history__JP__b0b40e27.png",
+      "second_label": "Hoshino (Swimsuit)",
+      "second_file": "Hoshino (Swimsuit)__history__CN__c9b2387c.png"
+    },
+    {
+      "distance": 6,
+      "first_label": "Junko (New Year)",
+      "first_file": "Junko (New Year)__history__CN__c72823d7.png",
+      "second_label": "Junko (New Year)",
+      "second_file": "Junko (New Year)__history__Global_en-us__f8c7912e.png"
+    },
+    {
+      "distance": 6,
+      "first_label": "Shun",
+      "first_file": "Shun__history__CN__52ed8720.png",
+      "second_label": "Shun",
+      "second_file": "Shun__history__Global_en-us__e9352515.png"
+    },
+    {
+      "distance": 6,
+      "first_label": "Yuuka",
+      "first_file": "Yuuka__history__Global_en-us__1ed33436.png",
+      "second_label": "Yuuka",
+      "second_file": "Yuuka__history__CN__2985cec2.png"
+    }
+  ],
+  "near_cross_identity_pairs": [],
+  "training_policy": "retain_all_identity_balanced"
+}

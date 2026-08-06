@@ -24,24 +24,12 @@ HISTORICAL_ROOTS = tuple(
 )
 LABEL_ALIASES = {"Ar1s-maid": "Aris (Maid)"}
 LABEL_CORRECTIONS_BY_BLOB = {
-    # These six Git blobs were stored under stale lesson template filenames.
-    # Their corrected identities were confirmed against the Wikiru portraits.
+    # These four Git blobs were stored under stale lesson template filenames.
+    # Their identities were confirmed manually by the user.
     "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc": "Noa (Pajamas)",
-    "efe6447de52bc39ddac4f1b67da0501533666555": "Miyu (Swimsuit)",
     "9cfd12b434c50c19d05a804f2983a2e274a0a306": "Saki",
     "d4f34f0e611285e0236fd3034f99e33c2193edc2": "Saki (Swimsuit)",
     "4074255cf5ec772f6b14203789fb892e673dd538": "Toki",
-    "8a7c6259ee904531c2711659574a8d78afbefed9": "Ui (Swimsuit)",
-}
-FILENAME_LABEL_BY_BLOB = {
-    # Naming is deliberately independent from the training label. These are
-    # the six identities confirmed by the user for the human-audit filenames.
-    "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc": "Noa (Pajamas)",
-    "efe6447de52bc39ddac4f1b67da0501533666555": "Miyu",
-    "9cfd12b434c50c19d05a804f2983a2e274a0a306": "Saki",
-    "d4f34f0e611285e0236fd3034f99e33c2193edc2": "Saki (Swimsuit)",
-    "4074255cf5ec772f6b14203789fb892e673dd538": "Toki",
-    "8a7c6259ee904531c2711659574a8d78afbefed9": "Ui",
 }
 INVALID_FILENAME_CHARACTERS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 RAW_CHANGE = re.compile(
@@ -66,9 +54,8 @@ def _safe_filename_component(value: str) -> str:
 
 
 def historical_portrait_filename(portrait: HistoricalPortrait) -> str:
-    label = FILENAME_LABEL_BY_BLOB.get(portrait.git_blob, portrait.label)
     return (
-        f"{_safe_filename_component(label)}__history__"
+        f"{_safe_filename_component(portrait.label)}__history__"
         f"{_safe_filename_component(portrait.server)}__"
         f"{portrait.git_blob[:8]}.png"
     )
@@ -79,7 +66,7 @@ def scan_historical_portraits(root: Path = ROOT) -> list[HistoricalPortrait]:
 
     ``--no-renames`` makes both sides of a rename appear as ordinary delete/add
     records. Reading both the old and new blob of every change also recovers
-    overwritten portrait versions. Explicit blob-level corrections handle six
+    overwritten portrait versions. Explicit blob-level corrections handle four
     stale filenames whose pixels belong to a different student/form.
     """
     output = subprocess.check_output(
@@ -205,7 +192,7 @@ def main() -> None:
             }
         if portrait.source_label != portrait.label:
             row["source_label"] = portrait.source_label
-            row["label_correction"] = "stale_filename_confirmed_against_wikiru"
+            row["label_correction"] = "stale_filename_user_confirmed"
         manifest.append(row)
     (args.output / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2),

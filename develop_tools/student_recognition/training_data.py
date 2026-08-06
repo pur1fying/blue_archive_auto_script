@@ -21,7 +21,11 @@ ROSTER_ANNOTATIONS = ROSTER_DIR / "roster_montage_annotations.json"
 WIKIRU_MANIFEST = WIKIRU_DIR / "manifest.json"
 
 
-def _checked_image(path: Path, expected_sha256: str) -> np.ndarray:
+def _checked_image(
+    path: Path,
+    expected_sha256: str,
+    read_mode: int = cv2.IMREAD_COLOR,
+) -> np.ndarray:
     raw = path.read_bytes()
     actual_sha256 = hashlib.sha256(raw).hexdigest()
     if actual_sha256 != expected_sha256:
@@ -29,7 +33,7 @@ def _checked_image(path: Path, expected_sha256: str) -> np.ndarray:
             f"Training image checksum mismatch: {path} "
             f"({actual_sha256} != {expected_sha256})"
         )
-    image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+    image = cv2.imread(str(path), read_mode)
     if image is None:
         raise ValueError(f"Training image cannot be decoded: {path}")
     return image
@@ -128,7 +132,13 @@ def load_wikiru_portraits(
         if row["file"] in seen_files:
             raise ValueError(f"Duplicate Wikiru portrait file: {row['file']}")
         seen_files.add(row["file"])
-        image = _checked_image(directory / row["file"], row["sha256"])
+        image = _checked_image(
+            directory / row["file"],
+            row["sha256"],
+            cv2.IMREAD_UNCHANGED,
+        )
+        if image.ndim != 3 or image.shape[2] not in (3, 4):
+            raise ValueError(f"Unsupported Wikiru portrait channels: {row['file']}")
         if image.shape[:2] != (row["height"], row["width"]):
             raise ValueError(f"Wikiru portrait dimensions changed: {row['file']}")
         if not row["include_for_identity_training"]:
