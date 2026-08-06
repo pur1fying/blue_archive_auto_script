@@ -18,6 +18,13 @@ from core.student_recognition import (
     StudentRecognitionService,
     StudentRecognizer,
 )
+from develop_tools.student_recognition.download_wikiru_portraits import (
+    wikiru_portrait_filename,
+)
+from develop_tools.student_recognition.extract_historical_templates import (
+    HistoricalPortrait,
+    historical_portrait_filename,
+)
 from develop_tools.student_recognition.training_data import (
     HISTORICAL_MANIFEST,
     ROSTER_ANNOTATIONS,
@@ -504,6 +511,54 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
                 for row in audit["corrections"]
             },
         )
+        expected_audit_names = {}
+        for row in manifest:
+            portrait = HistoricalPortrait(
+                label=row["label"],
+                source_label=row.get("source_label", row["label"]),
+                git_blob=row["git_blob"],
+                server=row["server"],
+                source_path=row["source_path"],
+            )
+            expected_audit_names[row["git_blob"]] = historical_portrait_filename(
+                portrait
+            )
+            self.assertEqual(expected_audit_names[row["git_blob"]], row["file"])
+            self.assertIn("__history__", Path(row["file"]).stem)
+        self.assertEqual(177, len(set(expected_audit_names.values())))
+        self.assertEqual(
+            {
+                "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc": (
+                    "Noa (Pajamas)__history__JP__ac63cee6.png"
+                ),
+                "efe6447de52bc39ddac4f1b67da0501533666555": (
+                    "Miyu__history__CN__efe6447d.png"
+                ),
+                "9cfd12b434c50c19d05a804f2983a2e274a0a306": (
+                    "Saki__history__CN__9cfd12b4.png"
+                ),
+                "d4f34f0e611285e0236fd3034f99e33c2193edc2": (
+                    "Saki (Swimsuit)__history__JP__d4f34f0e.png"
+                ),
+                "4074255cf5ec772f6b14203789fb892e673dd538": (
+                    "Toki__history__CN__4074255c.png"
+                ),
+                "8a7c6259ee904531c2711659574a8d78afbefed9": (
+                    "Ui__history__CN__8a7c6259.png"
+                ),
+            },
+            {
+                blob: expected_audit_names[blob]
+                for blob in {
+                    "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc",
+                    "efe6447de52bc39ddac4f1b67da0501533666555",
+                    "9cfd12b434c50c19d05a804f2983a2e274a0a306",
+                    "d4f34f0e611285e0236fd3034f99e33c2193edc2",
+                    "4074255cf5ec772f6b14203789fb892e673dd538",
+                    "8a7c6259ee904531c2711659574a8d78afbefed9",
+                }
+            },
+        )
         self.assertEqual(177, len(load_historical_portraits()))
 
     def test_roster_montages_remain_the_original_265_identity_snapshot(self):
@@ -597,6 +652,9 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
             "Shuerin",
             {row["Global_name"] for row in STATIC_CONFIG["student_names"]},
         )
+        for row in entries:
+            self.assertEqual(wikiru_portrait_filename(row), row["file"])
+            self.assertIn("__wikiru__", Path(row["file"]).stem)
 
         portraits = load_wikiru_portraits()
         self.assertEqual(270, len(portraits))

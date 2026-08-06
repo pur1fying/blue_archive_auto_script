@@ -39,6 +39,23 @@ EXPECTED_TRAINING_IMAGES = 270
 EXPECTED_IDENTITIES = 270
 EXPECTED_DIMENSIONS = {(198, 198): 8, (200, 200): 262, (300, 300): 2}
 USER_AGENT = "BlueArchiveAutoScript portrait data audit/1.0"
+INVALID_FILENAME_CHARACTERS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
+
+
+def _safe_filename_component(value: str) -> str:
+    component = INVALID_FILENAME_CHARACTERS.sub("_", value).rstrip(" .")
+    if not component:
+        raise ValueError(f"Empty filename component after sanitizing {value!r}")
+    return component
+
+
+def wikiru_portrait_filename(row: dict, digest: str | None = None) -> str:
+    checksum = digest or row["sha256"]
+    form = row["form"].replace("_", "-")
+    return (
+        f"{_safe_filename_component(row['config_name'])}__wikiru__"
+        f"{_safe_filename_component(form)}__{checksum[:8]}.png"
+    )
 
 
 def _normalize_jp(value: str) -> str:
@@ -211,7 +228,7 @@ def _download_one(row: dict) -> tuple[dict, bytes]:
     complete = dict(row)
     complete.update(
         {
-            "file": f"{digest[:16]}.png",
+            "file": wikiru_portrait_filename(row, digest),
             "sha256": digest,
             "width": width,
             "height": height,
@@ -315,6 +332,12 @@ def check() -> dict:
     selected_names: set[str] = set()
     selected_count = 0
     for row in entries:
+        expected_filename = wikiru_portrait_filename(row)
+        if row["file"] != expected_filename:
+            raise ValueError(
+                f"Non-auditable Wikiru portrait filename: {row['file']} "
+                f"(expected {expected_filename})"
+            )
         if row["file"] in seen_files:
             raise ValueError(f"Duplicate manifest file: {row['file']}")
         seen_files.add(row["file"])
@@ -330,6 +353,11 @@ def check() -> dict:
         raise ValueError(f"Selected {selected_count} training images")
     if len(selected_names) != EXPECTED_IDENTITIES:
         raise ValueError(f"Selected {len(selected_names)} training identities")
+    disk_files = {path.name for path in OUTPUT_DIR.glob("*.png")}
+    if disk_files != seen_files:
+        missing = sorted(seen_files - disk_files)
+        extra = sorted(disk_files - seen_files)
+        raise ValueError(f"Wikiru portrait file mismatch: missing={missing}, extra={extra}")
     return manifest
 
 

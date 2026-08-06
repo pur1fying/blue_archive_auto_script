@@ -5,7 +5,7 @@
     "source_path": "src/images/CN/lesson_affection/Airi.png",
     "git_blob": "37756407c2710994641240d4728e0744e0f74d1f",
     "sha256": "72f836fba48a31b8813eed146162956bbae641b2128e5ae84670b22c67027b61",
-    "file": "37756407c271.png"
+    "file": "Airi__history__CN__37756407.png"
   },
   {
     "label": "Airi",
@@ -13,7 +13,7 @@
     "source_path": "src/images/JP/lesson_affection/Airi.png",
     "git_blob": "4408a4f162115c4c73f57c3813880785393019c5",
     "sha256": "aa20ac36f2ed024645f6a0ae64029f76025237dff3a70b0732e05113ef5d1fb8",
-    "file": "4408a4f16211.png"
+    "file": "Airi__history__JP__4408a4f1.png"
   },
   {
     "label": "Airi (Band)",
@@ -21,7 +21,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Airi (Band).png",
     "git_blob": "b1e865e5115af4be7488e773266914333ec768e0",
     "sha256": "56dbdd83d85d44021657330db1ae8f9af76288f73d1597159a058bb4952bf239",
-    "file": "b1e865e5115a.png"
+    "file": "Airi (Band)__history__Global_en-us__b1e865e5.png"
   },
   {
     "label": "Akari",
@@ -29,7 +29,7 @@
     "source_path": "src/images/CN/lesson_affection/Akari.png",
     "git_blob": "b81ea1da06abc332d21d445b258edd2b0e68e29a",
     "sha256": "ec588db282912aadd8ae142d39c8efbb41cc788889ef42e9eca293a204dd8eda",
-    "file": "b81ea1da06ab.png"
+    "file": "Akari__history__CN__b81ea1da.png"
   },
   {
     "label": "Ako",
@@ -37,7 +37,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Ako.png",
     "git_blob": "755f86e10aa43e6464c6ffd847d598ffd47c9cb4",
     "sha256": "9262b108422a356a9b5f1b963a43baf849aaaba69d9145494eb747b564a41619",
-    "file": "755f86e10aa4.png"
+    "file": "Ako__history__Global_en-us__755f86e1.png"
   },
   {
     "label": "Aris",
@@ -45,7 +45,7 @@
     "source_path": "src/images/CN/lesson_affection/Aris.png",
     "git_blob": "bccce3fa43a20a54cb52eec6e08f4c0988c6179d",
     "sha256": "9828fff5588c73938cfd13ce691d58387d87c09797eb019f254ffa19e55db8ff",
-    "file": "bccce3fa43a2.png"
+    "file": "Aris__history__CN__bccce3fa.png"
   },
   {
     "label": "Aris (Maid)",
@@ -53,7 +53,7 @@
     "source_path": "src/images/CN/lesson_affection/Aris (Maid).png",
     "git_blob": "d03f017b2311cfd31955ef17d9b158aac3372fc6",
     "sha256": "7784e2165d3da3a9a0151b83cbc0538c573fe9efd54a3956ab0fe0a4a344fad3",
-    "file": "d03f017b2311.png"
+    "file": "Aris (Maid)__history__CN__d03f017b.png"
   },
   {
     "label": "Aru (New Year)",
@@ -61,7 +61,7 @@
     "source_path": "src/images/CN/lesson_affection/Aru (New Year).png",
     "git_blob": "fa0a2532e8b32e22f8fc77ab414397832a33218d",
     "sha256": "296385d25a38bea2c852b204fe86aba1849a22ae9498cf334d185d2871ec2e3e",
-    "file": "fa0a2532e8b3.png"
+    "file": "Aru (New Year)__history__CN__fa0a2532.png"
   },
   {
     "label": "Asuna (Bunny)",
@@ -69,7 +69,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Asuna (Bunny).png",
     "git_blob": "a0c05379ff8b553e30bef61ca80b676609bdd03b",
     "sha256": "2d8a6b76ff0eeacf02e8e4a230f414a33a4313d6065fab141379095f3d42f810",
-    "file": "a0c05379ff8b.png"
+    "file": "Asuna (Bunny)__history__Global_en-us__a0c05379.png"
   },
   {
     "label": "Asuna (Bunny)",
@@ -77,7 +77,7 @@
     "source_path": "src/images/CN/lesson_affection/Asuna (Bunny).png",
     "git_blob": "b907665c7270586f29b4cf4bfbfc2f89b3564c2a",
     "sha256": "6558fcab73256168ed07b1a37ba02b35649f38dcfadc19b8b6908c39c8cf33ec",
-    "file": "b907665c7270.png"
+    "file": "Asuna (Bunny)__history__CN__b907665c.png"
   },
   {
     "label": "Asuna (Bunny)",
@@ -85,7 +85,7 @@
     "source_path": "src/images/JP/lesson_affection/Asuna (Bunny).png",
     "git_blob": "bea2b363676273cb0fbce86fcbd25329621c6f4d",
     "sha256": "e8abb49b78fbc6baf3b14f0a69f107f063ad163bcc7e9a4c4920e3a489fa6648",
-    "file": "bea2b3636762.png"
+    "file": "Asuna (Bunny)__history__JP__bea2b363.png"
   },
   {
     "label": "Atsuko",
@@ -93,7 +93,7 @@
     "source_path": "src/images/CN/lesson_affection/Atsuko.png",
     "git_blob": "698f5fb5506d33281fb0954bf2a82e89f92c85aa",
     "sha256": "dbc069d25bb49b229052b51ce0a684459fab39f76cf2d171649b762322193237",
-    "file": "698f5fb5506d.png"
+    "file": "Atsuko__history__CN__698f5fb5.png"
   },
   {
     "label": "Atsuko",
@@ -101,7 +101,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Atsuko.png",
     "git_blob": "d657283144ed3a43d2819801a1a5867f56481ba5",
     "sha256": "cfc898831fe6c2e6e178347fbde30f5e5f22ed7e5910492ef55ba866b68424aa",
-    "file": "d657283144ed.png"
+    "file": "Atsuko__history__Global_en-us__d6572831.png"
   },
   {
     "label": "Ayane",
@@ -109,7 +109,7 @@
     "source_path": "src/images/CN/lesson_affection/Ayane.png",
     "git_blob": "502157418f913d64f3bd1b9b5d884f6058117e1c",
     "sha256": "bfbc373d3ac99f7beb2c9cd47da71b8e718a5054225035b5a2cb22fc50dbe915",
-    "file": "502157418f91.png"
+    "file": "Ayane__history__CN__50215741.png"
   },
   {
     "label": "Ayane (Swimsuit)",
@@ -117,7 +117,7 @@
     "source_path": "src/images/JP/lesson_affection/Ayane (Swimsuit).png",
     "git_blob": "b160992f799db18ed0d8f638fc9814fbde5c76e6",
     "sha256": "5404f8099d9815d1102a65e69ba1998e50944bd3195783508a8b8941df81b4a5",
-    "file": "b160992f799d.png"
+    "file": "Ayane (Swimsuit)__history__JP__b160992f.png"
   },
   {
     "label": "Ayane (Swimsuit)",
@@ -125,7 +125,7 @@
     "source_path": "src/images/CN/lesson_affection/Ayane (Swimsuit).png",
     "git_blob": "f5e79fad36551d5f84d9ca17255e1b58bc12c25d",
     "sha256": "dd0c7b609ee105f5b7c72992459cea2a4798e716f559d7d7f43c9d5a56dc7605",
-    "file": "f5e79fad3655.png"
+    "file": "Ayane (Swimsuit)__history__CN__f5e79fad.png"
   },
   {
     "label": "Azusa",
@@ -133,7 +133,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Azusa.png",
     "git_blob": "492c19546f975e97f013197817b4b9117b9a3ec4",
     "sha256": "3c081cc211ae0e16e6b8359d234899d539c6a0a296f6f34d26d3226605779a48",
-    "file": "492c19546f97.png"
+    "file": "Azusa__history__Global_en-us__492c1954.png"
   },
   {
     "label": "Azusa",
@@ -141,7 +141,7 @@
     "source_path": "src/images/CN/lesson_affection/Azusa.png",
     "git_blob": "4d9d259b03fddbfbf7672a1de23fb42f4ede31c9",
     "sha256": "3aac7f084a4f18177c1219cbdb54767e57a1bbae0249915aecfe625d360fc40c",
-    "file": "4d9d259b03fd.png"
+    "file": "Azusa__history__CN__4d9d259b.png"
   },
   {
     "label": "Azusa (Swimsuit)",
@@ -149,7 +149,7 @@
     "source_path": "src/images/CN/lesson_affection/Azusa (Swimsuit).png",
     "git_blob": "3a30502d16eb01bd6f9fcb31a860f7965d57c714",
     "sha256": "2acb67aa32ff380b8f9ff03749f420ed33d37986078a0e4e8a4e6f2bc605e2bc",
-    "file": "3a30502d16eb.png"
+    "file": "Azusa (Swimsuit)__history__CN__3a30502d.png"
   },
   {
     "label": "Cherino",
@@ -157,7 +157,7 @@
     "source_path": "src/images/CN/lesson_affection/Cherino.png",
     "git_blob": "6743dc0c47c4819b9869885b747f555774bcecc6",
     "sha256": "9912f01e190ade49631337fe06dbd6389756f43c280ea9f22ee2785f92634b46",
-    "file": "6743dc0c47c4.png"
+    "file": "Cherino__history__CN__6743dc0c.png"
   },
   {
     "label": "Cherino",
@@ -165,7 +165,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Cherino.png",
     "git_blob": "c2f1c1e2e960a0a81c1b6cb840dfc33e9aab7460",
     "sha256": "4c977289ec9a7ad4f199c69e028b23aacac69c3d1de5647e04808b76e3a4bf36",
-    "file": "c2f1c1e2e960.png"
+    "file": "Cherino__history__Global_en-us__c2f1c1e2.png"
   },
   {
     "label": "Chihiro",
@@ -173,7 +173,7 @@
     "source_path": "src/images/CN/lesson_affection/Chihiro.png",
     "git_blob": "ced0b9bc41a331982bf17716ed0901530f712443",
     "sha256": "40d064d6d3d3c72fba636efec8d747cd5ca70cf7e260e1e9cdaff947e372f05a",
-    "file": "ced0b9bc41a3.png"
+    "file": "Chihiro__history__CN__ced0b9bc.png"
   },
   {
     "label": "Chinatsu",
@@ -181,7 +181,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Chinatsu.png",
     "git_blob": "6dc81c4f8d711fc0b47bd45e3a1d5ae024a99be4",
     "sha256": "e6fcb93b4ee7b21ac48ad51d494b005f03c6192100c91568319b85f6ec6e3c7e",
-    "file": "6dc81c4f8d71.png"
+    "file": "Chinatsu__history__Global_en-us__6dc81c4f.png"
   },
   {
     "label": "Chinatsu",
@@ -189,7 +189,7 @@
     "source_path": "src/images/CN/lesson_affection/Chinatsu.png",
     "git_blob": "7bcc8745641d12656b6e91ae66c6123c03e72ba0",
     "sha256": "1dc7811fcc7cdb1b25e73331f3153561eebcea62c489d09ec206e1e4ac6b1522",
-    "file": "7bcc8745641d.png"
+    "file": "Chinatsu__history__CN__7bcc8745.png"
   },
   {
     "label": "Chinatsu (Hot Spring)",
@@ -197,7 +197,7 @@
     "source_path": "src/images/CN/lesson_affection/Chinatsu (Hot Spring).png",
     "git_blob": "1fb3e054e8468ff464f1860b61328b21be5c7bba",
     "sha256": "1de3b35cda9bb26e9cfdde6e1d4564b18cb43eeb7175eb9a1774f7c99e0d691b",
-    "file": "1fb3e054e846.png"
+    "file": "Chinatsu (Hot Spring)__history__CN__1fb3e054.png"
   },
   {
     "label": "Chinatsu (Hot Spring)",
@@ -205,7 +205,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Chinatsu (Hot Spring).png",
     "git_blob": "297d5fdfcc82c22569cfea32b3d1253bc1d86e1e",
     "sha256": "0d985aa99e6b06fa82543c721871534982e05fc9c6208ada0a5d0eb2455b2f92",
-    "file": "297d5fdfcc82.png"
+    "file": "Chinatsu (Hot Spring)__history__Global_en-us__297d5fdf.png"
   },
   {
     "label": "Chinatsu (Hot Spring)",
@@ -213,7 +213,7 @@
     "source_path": "src/images/JP/lesson_affection/Chinatsu (Hot Spring).png",
     "git_blob": "f19f3de6956499b04e8f1989a307e0337fe352a0",
     "sha256": "f387ed80f45787106af02b3fb197f448adac5708fd4d144917ed7bcca4efee23",
-    "file": "f19f3de69564.png"
+    "file": "Chinatsu (Hot Spring)__history__JP__f19f3de6.png"
   },
   {
     "label": "Chise",
@@ -221,7 +221,7 @@
     "source_path": "src/images/CN/lesson_affection/Chise.png",
     "git_blob": "f91d470faff6cdd6db60084d361af7b6d14e48bc",
     "sha256": "0dc00ffcf6405b2a3e06dd5390706481b57e77f479726d30d8f8aec153d19cf0",
-    "file": "f91d470faff6.png"
+    "file": "Chise__history__CN__f91d470f.png"
   },
   {
     "label": "Eimi",
@@ -229,7 +229,7 @@
     "source_path": "src/images/CN/lesson_affection/Eimi.png",
     "git_blob": "184352a81efd8f0fb1709bfda453b706f0dc177d",
     "sha256": "c1f24a984d398b3f86059475d6e9bdb1c5aa42102fbc26ac4b8ae21321b9eb53",
-    "file": "184352a81efd.png"
+    "file": "Eimi__history__CN__184352a8.png"
   },
   {
     "label": "Fubuki",
@@ -237,7 +237,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Fubuki.png",
     "git_blob": "5fa5b15b4fc89aefb5e5d620cb705d6fbb813e46",
     "sha256": "6559a631a08ad55d8529a83eeb2896e2f707c6f01e0c21a7a7ad22a20fbb8a3c",
-    "file": "5fa5b15b4fc8.png"
+    "file": "Fubuki__history__Global_en-us__5fa5b15b.png"
   },
   {
     "label": "Fubuki",
@@ -245,7 +245,7 @@
     "source_path": "src/images/CN/lesson_affection/Fubuki.png",
     "git_blob": "ce81676f1c7e2536475df46ef1c65b12d066018c",
     "sha256": "68e8170b092d664087ecee5316ad31c0f80e14b6526db24cf2fe0fc4a10b53e3",
-    "file": "ce81676f1c7e.png"
+    "file": "Fubuki__history__CN__ce81676f.png"
   },
   {
     "label": "Fuuka",
@@ -253,7 +253,7 @@
     "source_path": "src/images/CN/lesson_affection/Fuuka.png",
     "git_blob": "216c3c2c92ccefc545145fff17b680bd7682427b",
     "sha256": "6d5a77095aea77821912a5d8a805ca6cab3d1c6811b380262fbf8236410f95cc",
-    "file": "216c3c2c92cc.png"
+    "file": "Fuuka__history__CN__216c3c2c.png"
   },
   {
     "label": "Fuuka (New Year)",
@@ -261,7 +261,7 @@
     "source_path": "src/images/JP/lesson_affection/Fuuka (New Year).png",
     "git_blob": "4c92945f6c4109e952187b8afe23c4968091d137",
     "sha256": "aab38c6ba716c90392fa1c8863e36eae3e5337ec94c56a6f8c783714c8e96c65",
-    "file": "4c92945f6c41.png"
+    "file": "Fuuka (New Year)__history__JP__4c92945f.png"
   },
   {
     "label": "Hanae",
@@ -269,7 +269,7 @@
     "source_path": "src/images/CN/lesson_affection/Hanae.png",
     "git_blob": "e485306596bd6fe6f6f4463c747da4f10fcef639",
     "sha256": "84881e465d77741d3538c4eba2d1b227301e22282eeb2f4d3937e03811328199",
-    "file": "e485306596bd.png"
+    "file": "Hanae__history__CN__e4853065.png"
   },
   {
     "label": "Hanae (Christmas)",
@@ -277,7 +277,7 @@
     "source_path": "src/images/JP/lesson_affection/Hanae (Christmas).png",
     "git_blob": "16e66d26fdf719e7936f3d16cb1dcf98278f976f",
     "sha256": "018dcdefe47a89e089992d85c2c8f1d2707cff67ae7b242f254df9d8ef1087fc",
-    "file": "16e66d26fdf7.png"
+    "file": "Hanae (Christmas)__history__JP__16e66d26.png"
   },
   {
     "label": "Hanae (Christmas)",
@@ -285,7 +285,7 @@
     "source_path": "src/images/CN/lesson_affection/Hanae (Christmas).png",
     "git_blob": "c23036510921ad28fdd88ad251a1c80ea0f8b37b",
     "sha256": "bf2a85c3ecd0922b9f3823b6f5cf8c07df49914e1ee224bd20fa055d9890e619",
-    "file": "c23036510921.png"
+    "file": "Hanae (Christmas)__history__CN__c2303651.png"
   },
   {
     "label": "Hanako",
@@ -293,7 +293,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hanako.png",
     "git_blob": "0d460920f919392047f5dbeb893f9669248e0409",
     "sha256": "c8e7fd6ad747e0b097ba0d689f7a801d8948898d503861d7b40c276f2b0a0d33",
-    "file": "0d460920f919.png"
+    "file": "Hanako__history__Global_en-us__0d460920.png"
   },
   {
     "label": "Hanako",
@@ -301,7 +301,7 @@
     "source_path": "src/images/CN/lesson_affection/Hanako.png",
     "git_blob": "c387b2fbb28ba67c32d117dd7e94082f16be3dfb",
     "sha256": "5cbd47f78ddb6ed116fd9db72164f6667ee09750fbba0b9eb51918203f61085b",
-    "file": "c387b2fbb28b.png"
+    "file": "Hanako__history__CN__c387b2fb.png"
   },
   {
     "label": "Hare",
@@ -309,7 +309,7 @@
     "source_path": "src/images/CN/lesson_affection/Hare.png",
     "git_blob": "1df18b39625de028ac7ececc64a8ffdb37c7bd65",
     "sha256": "7bce0fdcfadb865d8ea98dfb9c3b01049acfd0d63c3df6c2adfee7f793eade54",
-    "file": "1df18b39625d.png"
+    "file": "Hare__history__CN__1df18b39.png"
   },
   {
     "label": "Hare",
@@ -317,7 +317,7 @@
     "source_path": "src/images/JP/lesson_affection/Hare.png",
     "git_blob": "29f42d85fdaa47a3ae6c009b18451599808ff3fe",
     "sha256": "c4572459e77460e6e043ea1a0bcdaf348687ba3c24554ae2ad5734c548cdb9bc",
-    "file": "29f42d85fdaa.png"
+    "file": "Hare__history__JP__29f42d85.png"
   },
   {
     "label": "Haruka",
@@ -325,7 +325,7 @@
     "source_path": "src/images/CN/lesson_affection/Haruka.png",
     "git_blob": "121b8ae19d91f49065caa661c0f1d261dca2d774",
     "sha256": "2fbb8f9f35f10d62dc37802989e4b554bed93c86260adfac32e2ed8dda49c359",
-    "file": "121b8ae19d91.png"
+    "file": "Haruka__history__CN__121b8ae1.png"
   },
   {
     "label": "Haruka",
@@ -333,7 +333,7 @@
     "source_path": "src/images/JP/lesson_affection/Haruka.png",
     "git_blob": "8fc3fe94afff4c21acb6b991bf36931ca3544679",
     "sha256": "37c230266d693e9b6d2844e473ca375898800b8f03dd2584aa68842c5c192b62",
-    "file": "8fc3fe94afff.png"
+    "file": "Haruka__history__JP__8fc3fe94.png"
   },
   {
     "label": "Haruna (New Year)",
@@ -341,7 +341,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Haruna (New Year).png",
     "git_blob": "8aac0ce5f7fa5ef1ebff73559ea7131aafaf8d13",
     "sha256": "8fc2988ff51961ccebea0915751ce64e1b8f9a64d9259844459590f45f5d1886",
-    "file": "8aac0ce5f7fa.png"
+    "file": "Haruna (New Year)__history__Global_en-us__8aac0ce5.png"
   },
   {
     "label": "Hasumi",
@@ -349,7 +349,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hasumi.png",
     "git_blob": "6f6697ff191f47a9bd0db54a46ecb87e4f69f516",
     "sha256": "98f86ab47d40887f9a6bb047e320cbe2be61d58f7fdf1039d9417b775bde19dd",
-    "file": "6f6697ff191f.png"
+    "file": "Hasumi__history__Global_en-us__6f6697ff.png"
   },
   {
     "label": "Hasumi",
@@ -357,7 +357,7 @@
     "source_path": "src/images/JP/lesson_affection/Hasumi.png",
     "git_blob": "75255cbf5d21f32f81f0ed1f43ce6b8454e5a2a7",
     "sha256": "66798f3bb6ed156d13ae6f4dbd14bf48cc1e411dcfc1c202ecc59c4662fa9046",
-    "file": "75255cbf5d21.png"
+    "file": "Hasumi__history__JP__75255cbf.png"
   },
   {
     "label": "Hasumi (Track)",
@@ -365,7 +365,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hasumi (Track).png",
     "git_blob": "a3163667610f84cf16293a429d78dd776f4aa905",
     "sha256": "e9530a9b4ea6e84e219028d683387ac402a1c5fe6beb5c0fd15961f245962997",
-    "file": "a3163667610f.png"
+    "file": "Hasumi (Track)__history__Global_en-us__a3163667.png"
   },
   {
     "label": "Hasumi (Track)",
@@ -373,7 +373,7 @@
     "source_path": "src/images/CN/lesson_affection/Hasumi (Track).png",
     "git_blob": "b1b978b70bc23b9575c52e951b6b9ce46e6f4f30",
     "sha256": "c517da4521aa855175258e01c4e808f68e7b4e6d8b78e3cddc8dce28e5d80d05",
-    "file": "b1b978b70bc2.png"
+    "file": "Hasumi (Track)__history__CN__b1b978b7.png"
   },
   {
     "label": "Hatsune Miku",
@@ -381,7 +381,7 @@
     "source_path": "src/images/CN/lesson_affection/Hatsune Miku.png",
     "git_blob": "5dd218969f17502b877284fac01f00e549b41bf4",
     "sha256": "aa466d176bb857a21afbbd098a96a1af5e7a2558650e68997972dedbe94e5b03",
-    "file": "5dd218969f17.png"
+    "file": "Hatsune Miku__history__CN__5dd21896.png"
   },
   {
     "label": "Hibiki (Cheer Squad)",
@@ -389,7 +389,7 @@
     "source_path": "src/images/CN/lesson_affection/Hibiki (Cheer Squad).png",
     "git_blob": "05d25239d0b60374067c91eb36fb9707cab4326c",
     "sha256": "a365b0742ff90c54f5ea0370959f2b760dfad46032d73b4cf8cadcba7b715049",
-    "file": "05d25239d0b6.png"
+    "file": "Hibiki (Cheer Squad)__history__CN__05d25239.png"
   },
   {
     "label": "Hibiki (Cheer Squad)",
@@ -397,7 +397,7 @@
     "source_path": "src/images/JP/lesson_affection/Hibiki (Cheer Squad).png",
     "git_blob": "3c60f24c882e3334064ee0012331f05e0d3ba395",
     "sha256": "024babbccd0074414e78aa2f4bb8bbb6c6b42909a706e6e4272a7c0ec0d3dfe7",
-    "file": "3c60f24c882e.png"
+    "file": "Hibiki (Cheer Squad)__history__JP__3c60f24c.png"
   },
   {
     "label": "Hifumi",
@@ -405,7 +405,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hifumi.png",
     "git_blob": "29111acb47eda48b3f205e06794ca16ff4a3bd7d",
     "sha256": "a5f48e7525a43fc32cb5666c360fefe45a703d479e75af86f43be57c4be17ead",
-    "file": "29111acb47ed.png"
+    "file": "Hifumi__history__Global_en-us__29111acb.png"
   },
   {
     "label": "Hifumi",
@@ -413,7 +413,7 @@
     "source_path": "src/images/CN/lesson_affection/Hifumi.png",
     "git_blob": "dee5f90ec53b481d8be74dca60d98d89ea85a3da",
     "sha256": "a2c7f2a31f88746c819b66f5255578f4a02d07a7cb54f94c6966b7c5c2086238",
-    "file": "dee5f90ec53b.png"
+    "file": "Hifumi__history__CN__dee5f90e.png"
   },
   {
     "label": "Hifumi (Swimsuit)",
@@ -421,7 +421,7 @@
     "source_path": "src/images/CN/lesson_affection/Hifumi (Swimsuit).png",
     "git_blob": "51cd385cf40653f11788e0223382c5583f0ec4ed",
     "sha256": "c1ca4b6ed7df4bd427461fa7e2b070abaccca3b2872c7a2434eecac3f65f7390",
-    "file": "51cd385cf406.png"
+    "file": "Hifumi (Swimsuit)__history__CN__51cd385c.png"
   },
   {
     "label": "Himari",
@@ -429,7 +429,7 @@
     "source_path": "src/images/CN/lesson_affection/Himari.png",
     "git_blob": "7dddc3f1db253d9535753d41f448ce40675547ba",
     "sha256": "3526d74bad212bbbbd3f7f5b06e43024453a2d698dd494dc22bb9feb8a486968",
-    "file": "7dddc3f1db25.png"
+    "file": "Himari__history__CN__7dddc3f1.png"
   },
   {
     "label": "Hina",
@@ -437,7 +437,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hina.png",
     "git_blob": "c3ff81b9ea481a05825c87743f9855b0279c576f",
     "sha256": "5cceffa75e980ca9498e634b2a7253e045e6c5776f5454cc8aae5b3260486b9b",
-    "file": "c3ff81b9ea48.png"
+    "file": "Hina__history__Global_en-us__c3ff81b9.png"
   },
   {
     "label": "Hina",
@@ -445,7 +445,7 @@
     "source_path": "src/images/CN/lesson_affection/Hina.png",
     "git_blob": "f44111912f9bcf944684ce92d13503098def38d4",
     "sha256": "1991de500fa0904fe41780157461d699f39a24e3526301468619703e71828510",
-    "file": "f44111912f9b.png"
+    "file": "Hina__history__CN__f4411191.png"
   },
   {
     "label": "Hina (Dress)",
@@ -453,7 +453,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hina (Dress).png",
     "git_blob": "87038b6f5de6e1319da39592d9d5a91fe57356ea",
     "sha256": "35edfab1b66fbfbe0fa30e44dbc369b0782970091a850d4f3ed22aee39a3afa9",
-    "file": "87038b6f5de6.png"
+    "file": "Hina (Dress)__history__Global_en-us__87038b6f.png"
   },
   {
     "label": "Hina (Swimsuit)",
@@ -461,7 +461,7 @@
     "source_path": "src/images/CN/lesson_affection/Hina (Swimsuit).png",
     "git_blob": "a48f8e8f4c371c9b772294418e51179bf9fea69b",
     "sha256": "cea852a040c88c08a31db1ae8dba7a5e0e612252162c15fbdbcd78474cbdb36d",
-    "file": "a48f8e8f4c37.png"
+    "file": "Hina (Swimsuit)__history__CN__a48f8e8f.png"
   },
   {
     "label": "Hiyori",
@@ -469,7 +469,7 @@
     "source_path": "src/images/CN/lesson_affection/Hiyori.png",
     "git_blob": "0e91593b716e6413061493a437e5ef4b961379f2",
     "sha256": "df04507c2a0ef5ff6b4883bd657aa1877bbbd58a61306f130d991366f1b6bdd8",
-    "file": "0e91593b716e.png"
+    "file": "Hiyori__history__CN__0e91593b.png"
   },
   {
     "label": "Hoshino",
@@ -477,7 +477,7 @@
     "source_path": "src/images/CN/lesson_affection/Hoshino.png",
     "git_blob": "1435dd2f89f44c66ea2737d2108aea93f75a3bf4",
     "sha256": "b721c4c24ee829c3aef8f18da13e595d7fd65731cd93d030b1804f1bdacc9c67",
-    "file": "1435dd2f89f4.png"
+    "file": "Hoshino__history__CN__1435dd2f.png"
   },
   {
     "label": "Hoshino",
@@ -485,7 +485,7 @@
     "source_path": "src/images/JP/lesson_affection/Hoshino.png",
     "git_blob": "1c492d70cbe27566df124307ffb06397eb4b9177",
     "sha256": "5058ed748708de1c646692f984f882e2cb85130f206a59ad1e84274d113e5d89",
-    "file": "1c492d70cbe2.png"
+    "file": "Hoshino__history__JP__1c492d70.png"
   },
   {
     "label": "Hoshino",
@@ -493,7 +493,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hoshino.png",
     "git_blob": "3f49966b147760abef9b57a83fe6380c10713de9",
     "sha256": "f416cedc8dee26b7f013d66ac05138d51b2f94780118592f4d6d8e0a7dde756d",
-    "file": "3f49966b1477.png"
+    "file": "Hoshino__history__Global_en-us__3f49966b.png"
   },
   {
     "label": "Hoshino (Battle)",
@@ -501,7 +501,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hoshino (Battle).png",
     "git_blob": "320c4005f0a50c2b4a0644b0522b68ca8e8b2f45",
     "sha256": "3c59c108b9470bb36da9a2ff828c06a955ef2ae4aa0c4ad91c0508abc1ee81bf",
-    "file": "320c4005f0a5.png"
+    "file": "Hoshino (Battle)__history__Global_en-us__320c4005.png"
   },
   {
     "label": "Hoshino (Battle)",
@@ -509,7 +509,7 @@
     "source_path": "src/images/JP/lesson_affection/Hoshino (Battle).png",
     "git_blob": "3caec83ec8c88c80151bf49f9f62f9d0365aeb84",
     "sha256": "d2607969dc94e4c4a5a06aa94f059a8ad2b3ef1b725399039a9485249cde4d24",
-    "file": "3caec83ec8c8.png"
+    "file": "Hoshino (Battle)__history__JP__3caec83e.png"
   },
   {
     "label": "Hoshino (Swimsuit)",
@@ -517,7 +517,7 @@
     "source_path": "src/images/JP/lesson_affection/Hoshino (Swimsuit).png",
     "git_blob": "b0b40e27ee1d9161dc933a047885c308c40bd1b2",
     "sha256": "0604a38cb4035e8f2a89593f2bfee053762746ee3102eef6c9222b173ab85692",
-    "file": "b0b40e27ee1d.png"
+    "file": "Hoshino (Swimsuit)__history__JP__b0b40e27.png"
   },
   {
     "label": "Hoshino (Swimsuit)",
@@ -525,7 +525,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Hoshino (Swimsuit).png",
     "git_blob": "bae612ce5d06a4f0d877de1cf14a87acacf22afe",
     "sha256": "32b21236c189ee93680d1bb028666856e71fa4e48f2eaf083559b822dbb1c191",
-    "file": "bae612ce5d06.png"
+    "file": "Hoshino (Swimsuit)__history__Global_en-us__bae612ce.png"
   },
   {
     "label": "Hoshino (Swimsuit)",
@@ -533,7 +533,7 @@
     "source_path": "src/images/CN/lesson_affection/Hoshino (Swimsuit).png",
     "git_blob": "c9b2387cb00d4368ee37fb195558903fe6a4c65e",
     "sha256": "36956cbdc761dd82220461273e768df0eff50053f2ef69b8ad8642d1767ecf48",
-    "file": "c9b2387cb00d.png"
+    "file": "Hoshino (Swimsuit)__history__CN__c9b2387c.png"
   },
   {
     "label": "Ibuki",
@@ -541,7 +541,7 @@
     "source_path": "src/images/JP/lesson_affection/Ibuki.png",
     "git_blob": "eb41750ea8f6e60957c38da9fdc5d5344e217d5e",
     "sha256": "361eba6787beff6549bd4d35e013c91619c64c4876e2dec01948630bf5ccf29a",
-    "file": "eb41750ea8f6.png"
+    "file": "Ibuki__history__JP__eb41750e.png"
   },
   {
     "label": "Iori",
@@ -549,7 +549,7 @@
     "source_path": "src/images/CN/lesson_affection/Iori.png",
     "git_blob": "984463876906516cf617c43b578e8ba5505141cd",
     "sha256": "807ac660c93e143e34f1fca31e1698757d97905e7cb3fc03c431d08ff97f407e",
-    "file": "984463876906.png"
+    "file": "Iori__history__CN__98446387.png"
   },
   {
     "label": "Iori",
@@ -557,7 +557,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Iori.png",
     "git_blob": "ac24888a5bf96467e2c5f301cbb88f3b9f51789f",
     "sha256": "618a597208635d587108ec0394176f9571a26c1661c8fc9f936f4d55ae8a9ed4",
-    "file": "ac24888a5bf9.png"
+    "file": "Iori__history__Global_en-us__ac24888a.png"
   },
   {
     "label": "Iori (Swimsuit)",
@@ -565,7 +565,7 @@
     "source_path": "src/images/CN/lesson_affection/Iori (Swimsuit).png",
     "git_blob": "1774951cedd6c367a3554225a27a30dfad439979",
     "sha256": "98aafe9e211424e7eed8ae6d9da4af347d3aaf5fc9fa7f234feb364a0c309c50",
-    "file": "1774951cedd6.png"
+    "file": "Iori (Swimsuit)__history__CN__1774951c.png"
   },
   {
     "label": "Iori (Swimsuit)",
@@ -573,7 +573,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Iori (Swimsuit).png",
     "git_blob": "d59187b6408a992ba63471616afb17ecb515b03d",
     "sha256": "332a5f1878ec9cdf716255d85cfda47cdf7f633cb62a0170e135cd40bb6d5e4f",
-    "file": "d59187b6408a.png"
+    "file": "Iori (Swimsuit)__history__Global_en-us__d59187b6.png"
   },
   {
     "label": "Iroha",
@@ -581,7 +581,7 @@
     "source_path": "src/images/CN/lesson_affection/Iroha.png",
     "git_blob": "17123c141b170cc5fbb501dcbbc42e8425ae95e6",
     "sha256": "0be0a2842926f23a4abf8382095c31ae3cdda867039229d56d7b5cd6d04f9f40",
-    "file": "17123c141b17.png"
+    "file": "Iroha__history__CN__17123c14.png"
   },
   {
     "label": "Iroha",
@@ -589,7 +589,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Iroha.png",
     "git_blob": "4cca548ab2f6c0afeb8dcbb8648111166e967162",
     "sha256": "cf4544ab538ba707692fed8774eab90f8b78e58b13d5b734221816d51190f73c",
-    "file": "4cca548ab2f6.png"
+    "file": "Iroha__history__Global_en-us__4cca548a.png"
   },
   {
     "label": "Izumi",
@@ -597,7 +597,7 @@
     "source_path": "src/images/CN/lesson_affection/Izumi.png",
     "git_blob": "bd6425fa0d02f7a81101aa63ef4b034c6026cdfc",
     "sha256": "878f5905b9b2462c1f7b2a319673e88dacec41a8ba3d37e1183a7af7d44b2921",
-    "file": "bd6425fa0d02.png"
+    "file": "Izumi__history__CN__bd6425fa.png"
   },
   {
     "label": "Izumi",
@@ -605,7 +605,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Izumi.png",
     "git_blob": "c26d4e8d3ad9174c968aaec39eb7711e628ad8d0",
     "sha256": "a7627eb6c8f1cbe0c4e132911ad4eba3edcfdd093ce0f00d8d524a27307dcadf",
-    "file": "c26d4e8d3ad9.png"
+    "file": "Izumi__history__Global_en-us__c26d4e8d.png"
   },
   {
     "label": "Izumi (Swimsuit)",
@@ -613,7 +613,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Izumi (Swimsuit).png",
     "git_blob": "590386824c320211431533b5cbeabd7638834dfd",
     "sha256": "8b4dc98ee772757817298d63eb32131880125ce5e472ae827ff0dfba09657d99",
-    "file": "590386824c32.png"
+    "file": "Izumi (Swimsuit)__history__Global_en-us__59038682.png"
   },
   {
     "label": "Izuna",
@@ -621,7 +621,7 @@
     "source_path": "src/images/CN/lesson_affection/Izuna.png",
     "git_blob": "3b7a6a14d3476ee7d29b4a9083fe6a71d28d4116",
     "sha256": "20852ba87ac1a9f2d8c3bbb90bf7dddd8294b4988a6fc592a2c9349ab380b045",
-    "file": "3b7a6a14d347.png"
+    "file": "Izuna__history__CN__3b7a6a14.png"
   },
   {
     "label": "Izuna",
@@ -629,7 +629,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Izuna.png",
     "git_blob": "9a6415a54bba32efa18b349a72769412a9ee4a61",
     "sha256": "16562c1a3714278feff4eae148129c23afb30e7e2ede59a52ed29a0fba13391e",
-    "file": "9a6415a54bba.png"
+    "file": "Izuna__history__Global_en-us__9a6415a5.png"
   },
   {
     "label": "Junko (New Year)",
@@ -637,7 +637,7 @@
     "source_path": "src/images/JP/lesson_affection/Junko (New Year).png",
     "git_blob": "54afb54f94b0125b5a69d82b6c0064cef504c670",
     "sha256": "985309c05bd1fd8b9adf2261e82c842898f53adceb25e86d1635048e3827df55",
-    "file": "54afb54f94b0.png"
+    "file": "Junko (New Year)__history__JP__54afb54f.png"
   },
   {
     "label": "Junko (New Year)",
@@ -645,7 +645,7 @@
     "source_path": "src/images/CN/lesson_affection/Junko (New Year).png",
     "git_blob": "c72823d74639c565665ed17603def0b768d30027",
     "sha256": "7ef153739017f0c5cee92855b364916bbd94725af44853b44c1b1b54b28f7ada",
-    "file": "c72823d74639.png"
+    "file": "Junko (New Year)__history__CN__c72823d7.png"
   },
   {
     "label": "Junko (New Year)",
@@ -653,7 +653,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Junko (New Year).png",
     "git_blob": "f8c7912ee465dbf1d3df70f2e268d65f2f69a140",
     "sha256": "d94b8fa3e9e0c965750daa6a066c650873dfc836ba816738e0b3cf89f879fa98",
-    "file": "f8c7912ee465.png"
+    "file": "Junko (New Year)__history__Global_en-us__f8c7912e.png"
   },
   {
     "label": "Kaede",
@@ -661,7 +661,7 @@
     "source_path": "src/images/CN/lesson_affection/Kaede.png",
     "git_blob": "28a696866d05d927922f51a28548403ca5bb3b9a",
     "sha256": "e26a52d290782bccfdeb8a6c74a803a75d128c1426836939140aa940bab06288",
-    "file": "28a696866d05.png"
+    "file": "Kaede__history__CN__28a69686.png"
   },
   {
     "label": "Kanna",
@@ -669,7 +669,7 @@
     "source_path": "src/images/JP/lesson_affection/Kanna.png",
     "git_blob": "793eb71c957d93901635feb11e8119eb548dd97d",
     "sha256": "e25ffd7a0c58264bd9d3bd937b2a0c238ddda9f9883b0b86fceafc22f1bcb46e",
-    "file": "793eb71c957d.png"
+    "file": "Kanna__history__JP__793eb71c.png"
   },
   {
     "label": "Karin (Bunny)",
@@ -677,7 +677,7 @@
     "source_path": "src/images/CN/lesson_affection/Karin (Bunny).png",
     "git_blob": "ab7ca05a02fbdbe688362589ec9c8afd478e9cfb",
     "sha256": "55d0f8749e689b54505175abb46b2c8012e3bed5a534db9fd55233f9a0243602",
-    "file": "ab7ca05a02fb.png"
+    "file": "Karin (Bunny)__history__CN__ab7ca05a.png"
   },
   {
     "label": "Karin (Bunny)",
@@ -685,7 +685,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Karin (Bunny).png",
     "git_blob": "f2fd1bdf6cd13360aa460167890f61f9a8c004a9",
     "sha256": "4eee9887aef7afdadc2ed1e267c5fcbcc14b0cb461d7fa117c98d904234f84b0",
-    "file": "f2fd1bdf6cd1.png"
+    "file": "Karin (Bunny)__history__Global_en-us__f2fd1bdf.png"
   },
   {
     "label": "Kayoko (New Year)",
@@ -693,7 +693,7 @@
     "source_path": "src/images/CN/lesson_affection/Kayoko (New Year).png",
     "git_blob": "f8e337dcf8591f3149699ad9d05f226ebcd4df0c",
     "sha256": "76cc46c58edd17e7303fb988cf45277d6059679ed6f14dd38fa4e231d2d4f7f9",
-    "file": "f8e337dcf859.png"
+    "file": "Kayoko (New Year)__history__CN__f8e337dc.png"
   },
   {
     "label": "Kazusa",
@@ -701,7 +701,7 @@
     "source_path": "src/images/JP/lesson_affection/Kazusa.png",
     "git_blob": "145a2a665525cb355b7ba0d962189716446109a4",
     "sha256": "0d5f73b239468395ba79234df02fec0012eff627b719dc7bd9b8cb4b9effe264",
-    "file": "145a2a665525.png"
+    "file": "Kazusa__history__JP__145a2a66.png"
   },
   {
     "label": "Kazusa",
@@ -709,7 +709,7 @@
     "source_path": "src/images/CN/lesson_affection/Kazusa.png",
     "git_blob": "319930c65895a19838f40735fc3a6fab8d1fd373",
     "sha256": "3841df5ebb1d9163a303682eff20e6143d80ee4113881bf69bc76a8476b2ded8",
-    "file": "319930c65895.png"
+    "file": "Kazusa__history__CN__319930c6.png"
   },
   {
     "label": "Kirino",
@@ -717,7 +717,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Kirino.png",
     "git_blob": "9f535e8aea21b394555d6c0c2bbcc6a198428776",
     "sha256": "2b45ba98bcbf1d735c0bf458e8f26c0df0d8ce32adbdb0db6caa0a96747e53ea",
-    "file": "9f535e8aea21.png"
+    "file": "Kirino__history__Global_en-us__9f535e8a.png"
   },
   {
     "label": "Kirino",
@@ -725,7 +725,7 @@
     "source_path": "src/images/CN/lesson_affection/Kirino.png",
     "git_blob": "b02336499ac707b9145ecc4961f5dcdc7fe808fd",
     "sha256": "0a3102862827a3ee8d463721ed93778b3230429010a9dba13167ddabce7aee15",
-    "file": "b02336499ac7.png"
+    "file": "Kirino__history__CN__b0233649.png"
   },
   {
     "label": "Koharu",
@@ -733,7 +733,7 @@
     "source_path": "src/images/CN/lesson_affection/Koharu.png",
     "git_blob": "6642cb29a780d28022833e47490c2c040d567cb7",
     "sha256": "976670844ee1b3d4f147b28e98e97bb291dbf8d65a78900cf27c71dda2e2962a",
-    "file": "6642cb29a780.png"
+    "file": "Koharu__history__CN__6642cb29.png"
   },
   {
     "label": "Koharu (Swimsuit)",
@@ -741,7 +741,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Koharu (Swimsuit).png",
     "git_blob": "520e0375693b9fd871a8b92a737449116107378c",
     "sha256": "bcecee22f5d408a43fe6a6dceecf5cb1b59133b5b2b80d7a73743797b11c08f4",
-    "file": "520e0375693b.png"
+    "file": "Koharu (Swimsuit)__history__Global_en-us__520e0375.png"
   },
   {
     "label": "Kokona",
@@ -749,7 +749,7 @@
     "source_path": "src/images/CN/lesson_affection/Kokona.png",
     "git_blob": "8168bbf9fad678077e2fed1b11599d1d09a7ff52",
     "sha256": "9d1d026c7d104bfa1b60d73023af330f62661d317a3cd7f916f759af97dc8db8",
-    "file": "8168bbf9fad6.png"
+    "file": "Kokona__history__CN__8168bbf9.png"
   },
   {
     "label": "Kokona",
@@ -757,7 +757,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Kokona.png",
     "git_blob": "e186ed88c892171e716d75e38c67ff214449d011",
     "sha256": "08b4879d29ec1a71b16bf04d9acaf4dbf472d3c81cacaf95fedd20e5a9d086c1",
-    "file": "e186ed88c892.png"
+    "file": "Kokona__history__Global_en-us__e186ed88.png"
   },
   {
     "label": "Kotama",
@@ -765,7 +765,7 @@
     "source_path": "src/images/CN/lesson_affection/Kotama.png",
     "git_blob": "7363d0d92b556e851c0d4f9f4454fedbdd97499d",
     "sha256": "8bafebbb6e9912d8785decfdb6f18979e0c28efcfa959d7c52924d04d3435fce",
-    "file": "7363d0d92b55.png"
+    "file": "Kotama__history__CN__7363d0d9.png"
   },
   {
     "label": "Maki",
@@ -773,7 +773,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Maki.png",
     "git_blob": "ce7ac06960cd783d2827c3d5c6cd7d167645431b",
     "sha256": "90f719c224a04de0045b6001b0f2a740f3ee5e1c6e4d4e4028977d77174a06fa",
-    "file": "ce7ac06960cd.png"
+    "file": "Maki__history__Global_en-us__ce7ac069.png"
   },
   {
     "label": "Maki",
@@ -781,7 +781,7 @@
     "source_path": "src/images/CN/lesson_affection/Maki.png",
     "git_blob": "f368f1af77bea5c6e79c6f33389f4f437881dfb3",
     "sha256": "a95288813b02c6c290ae08d54bff7ea6e9fcad3db50c7382621b689b2505af66",
-    "file": "f368f1af77be.png"
+    "file": "Maki__history__CN__f368f1af.png"
   },
   {
     "label": "Mari",
@@ -789,7 +789,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Mari.png",
     "git_blob": "386c7f3342a9f5cf639566b576107651e856bfda",
     "sha256": "09896d8b68b189a8d9ca3fecb9186abf6864f09976e5b36d9da47c987e2386c0",
-    "file": "386c7f3342a9.png"
+    "file": "Mari__history__Global_en-us__386c7f33.png"
   },
   {
     "label": "Mari (Track)",
@@ -797,7 +797,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Mari (Track).png",
     "git_blob": "0e600698e6ce0b144f4e79949f89ad9b0ee3561c",
     "sha256": "d27c07a95a582d2bddf18925defda1978278658b47741c0ac95d69e6d534aade",
-    "file": "0e600698e6ce.png"
+    "file": "Mari (Track)__history__Global_en-us__0e600698.png"
   },
   {
     "label": "Mashiro",
@@ -805,7 +805,7 @@
     "source_path": "src/images/CN/lesson_affection/Mashiro.png",
     "git_blob": "f1dae7565cdebf6e6f4ec4b985e6af5bc139984b",
     "sha256": "d1d6494c0251e4f3e82ea9011d08a3ebe26ea1cb69a7e8de34e4fbb9d0897c2f",
-    "file": "f1dae7565cde.png"
+    "file": "Mashiro__history__CN__f1dae756.png"
   },
   {
     "label": "Mashiro (Swimsuit)",
@@ -813,7 +813,7 @@
     "source_path": "src/images/CN/lesson_affection/Mashiro (Swimsuit).png",
     "git_blob": "4a900961162cd4d48893a6eace94574d9ca1d228",
     "sha256": "6467a1309314213bda4aa8837ea59198f0a48d15bd7d923a4c232de1a19f1580",
-    "file": "4a900961162c.png"
+    "file": "Mashiro (Swimsuit)__history__CN__4a900961.png"
   },
   {
     "label": "Megu",
@@ -821,7 +821,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Megu.png",
     "git_blob": "22c0432fdf89798c4a2331916f62d3353c7a9f6d",
     "sha256": "74839fe0b2bfa64d0d29879d2f1a61de228e2abb6702c4ceb1d7c6ea9f0aa63b",
-    "file": "22c0432fdf89.png"
+    "file": "Megu__history__Global_en-us__22c0432f.png"
   },
   {
     "label": "Megu",
@@ -829,7 +829,7 @@
     "source_path": "src/images/CN/lesson_affection/Megu.png",
     "git_blob": "450482765f97b5bcdeaad4f81e5c715a02d2f3d9",
     "sha256": "a0561551fd53e9ec6f294931803527f979008566f7345dab31718968ac36eccb",
-    "file": "450482765f97.png"
+    "file": "Megu__history__CN__45048276.png"
   },
   {
     "label": "Midori",
@@ -837,7 +837,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Midori.png",
     "git_blob": "82370d28e1faea8215fd94cc749a007cac91a205",
     "sha256": "951e800c0e044eaaeeb2217dfc494e507370fd69cf2cad4806b63c9b120f6956",
-    "file": "82370d28e1fa.png"
+    "file": "Midori__history__Global_en-us__82370d28.png"
   },
   {
     "label": "Midori",
@@ -845,7 +845,7 @@
     "source_path": "src/images/CN/lesson_affection/Midori.png",
     "git_blob": "b9d3c0b5b3c1a71c75868fea42d269b17c8dc15d",
     "sha256": "4e4a631876ef824503ed22880e6193c1e7e0c2114944dce1f38ae50fb5f9d397",
-    "file": "b9d3c0b5b3c1.png"
+    "file": "Midori__history__CN__b9d3c0b5.png"
   },
   {
     "label": "Mika",
@@ -853,7 +853,7 @@
     "source_path": "src/images/CN/lesson_affection/Mika.png",
     "git_blob": "f033cb3bcab6a2946fd0ed7780b2f0c4e968d7d7",
     "sha256": "3e75f19c20c9c8941d80bcff1421d6b1871b17dc18a5905e7ecdf05d436cd1f6",
-    "file": "f033cb3bcab6.png"
+    "file": "Mika__history__CN__f033cb3b.png"
   },
   {
     "label": "Mimori",
@@ -861,7 +861,7 @@
     "source_path": "src/images/CN/lesson_affection/Mimori.png",
     "git_blob": "108107df43d3581de31df3a71e4d880e56002068",
     "sha256": "6d88fb669fa6357bb486526781c136f3b58853bb8e0c8cef3a447ab0d830fa84",
-    "file": "108107df43d3.png"
+    "file": "Mimori__history__CN__108107df.png"
   },
   {
     "label": "Mine",
@@ -869,7 +869,7 @@
     "source_path": "src/images/CN/lesson_affection/Mine.png",
     "git_blob": "576efb873fa62d53e836b14c405fe7c141cf1ebd",
     "sha256": "d4a4b913db88a8360c15994c04bca830cf0b5a7baa8bfd4fe74ca5b3bc3e6bae",
-    "file": "576efb873fa6.png"
+    "file": "Mine__history__CN__576efb87.png"
   },
   {
     "label": "Mine",
@@ -877,7 +877,7 @@
     "source_path": "src/images/JP/lesson_affection/Mine.png",
     "git_blob": "e108d3a25247831bf8bb023e1586205a8a60653a",
     "sha256": "fbf4d93bbcf37ca09b9fee0751ca86423a3ce80c3cb1110ce4dce2f85a63d3bb",
-    "file": "e108d3a25247.png"
+    "file": "Mine__history__JP__e108d3a2.png"
   },
   {
     "label": "Miyako",
@@ -885,7 +885,7 @@
     "source_path": "src/images/CN/lesson_affection/Miyako.png",
     "git_blob": "ae0ea8944fee4a6cfd37f227d6e78d711813216e",
     "sha256": "c907c03f3d61ad0948edd3a791b74478405e60320d98211823a7d85dd5a7aad8",
-    "file": "ae0ea8944fee.png"
+    "file": "Miyako__history__CN__ae0ea894.png"
   },
   {
     "label": "Miyako (Swimsuit)",
@@ -893,7 +893,7 @@
     "source_path": "src/images/CN/lesson_affection/Miyako (Swimsuit).png",
     "git_blob": "0e6c8d6295dfff2d88b30c74e163ab604c20c8d1",
     "sha256": "e686565f27499dd0bde75e46cefeffda89fa29b4d6d71e0a9f080ffd2ad1e5c9",
-    "file": "0e6c8d6295df.png"
+    "file": "Miyako (Swimsuit)__history__CN__0e6c8d62.png"
   },
   {
     "label": "Miyu (Swimsuit)",
@@ -901,7 +901,7 @@
     "source_path": "src/images/JP/lesson_affection/Miyu (Swimsuit).png",
     "git_blob": "99d11717e6843e8daf523f137cfe70b9e0db8bce",
     "sha256": "d96cde955cad86d46322ef9a764e6004f3f9ab32cffada36646ccf3025ed1b39",
-    "file": "99d11717e684.png"
+    "file": "Miyu (Swimsuit)__history__JP__99d11717.png"
   },
   {
     "label": "Miyu (Swimsuit)",
@@ -909,7 +909,7 @@
     "source_path": "src/images/CN/lesson_affection/Miyu.png",
     "git_blob": "efe6447de52bc39ddac4f1b67da0501533666555",
     "sha256": "173cf847db521b2a55b3a750aad44fc572f5573cf2efa5931f4deb43fc5457c0",
-    "file": "efe6447de52b.png",
+    "file": "Miyu__history__CN__efe6447d.png",
     "source_label": "Miyu",
     "label_correction": "stale_filename_confirmed_against_wikiru"
   },
@@ -919,7 +919,7 @@
     "source_path": "src/images/JP/lesson_affection/Moe.png",
     "git_blob": "96d6c8e573c07cf1ff442a0f0914a689591928c6",
     "sha256": "bb09607f82347add94c888b5f46494797f95d75f91d20a26eaf66d6532aeb6c7",
-    "file": "96d6c8e573c0.png"
+    "file": "Moe__history__JP__96d6c8e5.png"
   },
   {
     "label": "Moe (Swimsuit)",
@@ -927,7 +927,7 @@
     "source_path": "src/images/JP/lesson_affection/Moe (Swimsuit).png",
     "git_blob": "5eb651af4602e60f0973aa9afe84640da7e40c61",
     "sha256": "e4713350794640f6d99a0ae1334d197a73e2dcce3b69d14eca0a8e7018242dea",
-    "file": "5eb651af4602.png"
+    "file": "Moe (Swimsuit)__history__JP__5eb651af.png"
   },
   {
     "label": "Momoi",
@@ -935,7 +935,7 @@
     "source_path": "src/images/CN/lesson_affection/Momoi.png",
     "git_blob": "8367ba25a43c6a9e8ebfb00905e6e1c70a37ed42",
     "sha256": "a4f8cf23fed423a64e604dd68be65ab234d2af45628b689056bafb1446cf428b",
-    "file": "8367ba25a43c.png"
+    "file": "Momoi__history__CN__8367ba25.png"
   },
   {
     "label": "Mutsuki (New Year)",
@@ -943,7 +943,7 @@
     "source_path": "src/images/CN/lesson_affection/Mutsuki (New Year).png",
     "git_blob": "51744c8b4575316afcabd677eebeb1c472113f0c",
     "sha256": "b2d0c459b37a39cd6ff1cc1ca2ddcf5751b581de0725a4e68335ba2999b41d94",
-    "file": "51744c8b4575.png"
+    "file": "Mutsuki (New Year)__history__CN__51744c8b.png"
   },
   {
     "label": "Nagisa",
@@ -951,7 +951,7 @@
     "source_path": "src/images/CN/lesson_affection/Nagisa.png",
     "git_blob": "d82816d90ad27c8784cc255a9e104530b5d825ae",
     "sha256": "4e16d517c5b2f8a780b09baa08bfaf5cb0fcc378a89beee738120ec509a1e50e",
-    "file": "d82816d90ad2.png"
+    "file": "Nagisa__history__CN__d82816d9.png"
   },
   {
     "label": "Natsu",
@@ -959,7 +959,7 @@
     "source_path": "src/images/CN/lesson_affection/Natsu.png",
     "git_blob": "bc931adadbcfd37789de7667d2765e8018fc8e96",
     "sha256": "562bb31e4bfb5b1b99d87627e7be586156c0778c925240f2d28f71818c01953a",
-    "file": "bc931adadbcf.png"
+    "file": "Natsu__history__CN__bc931ada.png"
   },
   {
     "label": "Neru (Bunny)",
@@ -967,7 +967,7 @@
     "source_path": "src/images/CN/lesson_affection/Neru (Bunny).png",
     "git_blob": "f4239879942054a28489e9b04561f9a90ebc6ff4",
     "sha256": "5ebcb1c29aeb8e20a40107b99abf29e720bc8efe762720f93840900ff77b57a3",
-    "file": "f42398799420.png"
+    "file": "Neru (Bunny)__history__CN__f4239879.png"
   },
   {
     "label": "Noa",
@@ -975,7 +975,7 @@
     "source_path": "src/images/CN/lesson_affection/Noa.png",
     "git_blob": "5681e6af515058ff4427775d98840e338103ee3a",
     "sha256": "6cb8b70a41f4ba9fefdc9b6a50bb91fd6cb1deb2138b7004b1e81e57d0a4aa9c",
-    "file": "5681e6af5150.png"
+    "file": "Noa__history__CN__5681e6af.png"
   },
   {
     "label": "Noa",
@@ -983,7 +983,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Noa.png",
     "git_blob": "5ccb5d1fad4af3da1370210d07bc5819902ee8db",
     "sha256": "7a4478f3d332a5c2b6bbf7d157bbd62eddfe3c2d724dc26f88e3355d52049f02",
-    "file": "5ccb5d1fad4a.png"
+    "file": "Noa__history__Global_en-us__5ccb5d1f.png"
   },
   {
     "label": "Noa (Pajamas)",
@@ -991,7 +991,7 @@
     "source_path": "src/images/JP/lesson_affection/Koharu (Swimsuit).png",
     "git_blob": "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc",
     "sha256": "e3e1667347fe29498e85b6df96e9c7e0230e1620824d39b1ab8199bd78c07193",
-    "file": "ac63cee6faa2.png",
+    "file": "Noa (Pajamas)__history__JP__ac63cee6.png",
     "source_label": "Koharu (Swimsuit)",
     "label_correction": "stale_filename_confirmed_against_wikiru"
   },
@@ -1001,7 +1001,7 @@
     "source_path": "src/images/CN/lesson_affection/Nodoka.png",
     "git_blob": "76cd740025301f8742e6627be415c6de119f824c",
     "sha256": "72ad21b632ec456807597751e56ce2b05f0c7320df0d958777fca6144d8b723b",
-    "file": "76cd74002530.png"
+    "file": "Nodoka__history__CN__76cd7400.png"
   },
   {
     "label": "Nodoka (Hot Spring)",
@@ -1009,7 +1009,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Nodoka (Hot Spring).png",
     "git_blob": "88263fd553ca6eb87cb364bbe6890b163bdb3933",
     "sha256": "179cace94ea265885655f670ab9cb941f48b9612296a6be279342774eb34ffaf",
-    "file": "88263fd553ca.png"
+    "file": "Nodoka (Hot Spring)__history__Global_en-us__88263fd5.png"
   },
   {
     "label": "Nonomi",
@@ -1017,7 +1017,7 @@
     "source_path": "src/images/CN/lesson_affection/Nonomi.png",
     "git_blob": "720cff27ab82260a530a8da14a03667fa53690bd",
     "sha256": "c4455249cef0d14ddf1bec36f7df92aa2eace74ae6d672325d67470e6e396d4a",
-    "file": "720cff27ab82.png"
+    "file": "Nonomi__history__CN__720cff27.png"
   },
   {
     "label": "Reisa",
@@ -1025,7 +1025,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Reisa.png",
     "git_blob": "3f818f05710f1c0109e0347ec3592300384213cf",
     "sha256": "fc689e4f9c2379ec974a8da97cb61776e97803035a2ca3f50d0d27c54be7f8a6",
-    "file": "3f818f05710f.png"
+    "file": "Reisa__history__Global_en-us__3f818f05.png"
   },
   {
     "label": "Reisa",
@@ -1033,7 +1033,7 @@
     "source_path": "src/images/CN/lesson_affection/Reisa.png",
     "git_blob": "440be0bfb3ff581d81ff8b87d21781f821edc1c8",
     "sha256": "b56d375a663ab72a08492e66ffeb62b8be3698094ee1514f07a1444409e29619",
-    "file": "440be0bfb3ff.png"
+    "file": "Reisa__history__CN__440be0bf.png"
   },
   {
     "label": "Rumi",
@@ -1041,7 +1041,7 @@
     "source_path": "src/images/CN/lesson_affection/Rumi.png",
     "git_blob": "85e928a65a4df034487e1b8063741c364418a175",
     "sha256": "8b134e22c1eb50e83f18ba0e049e40d0ef40ce51d468fbc23fd1aa850b246a4e",
-    "file": "85e928a65a4d.png"
+    "file": "Rumi__history__CN__85e928a6.png"
   },
   {
     "label": "Saki",
@@ -1049,7 +1049,7 @@
     "source_path": "src/images/CN/lesson_affection/Moe.png",
     "git_blob": "9cfd12b434c50c19d05a804f2983a2e274a0a306",
     "sha256": "c7494f9663fe61a21c1345a7d4bcc8c927d1137474249be3dd30fd4c6a0391ef",
-    "file": "9cfd12b434c5.png",
+    "file": "Saki__history__CN__9cfd12b4.png",
     "source_label": "Moe",
     "label_correction": "stale_filename_confirmed_against_wikiru"
   },
@@ -1059,7 +1059,7 @@
     "source_path": "src/images/JP/lesson_affection/Saki.png",
     "git_blob": "d4f34f0e611285e0236fd3034f99e33c2193edc2",
     "sha256": "ead54093188ec86b38b6ed27bc709aaaf2330ad5c66bd9f5f0a659c2f8d37a4b",
-    "file": "d4f34f0e6112.png",
+    "file": "Saki (Swimsuit)__history__JP__d4f34f0e.png",
     "source_label": "Saki",
     "label_correction": "stale_filename_confirmed_against_wikiru"
   },
@@ -1069,7 +1069,7 @@
     "source_path": "src/images/CN/lesson_affection/Sakurako.png",
     "git_blob": "8249a6b060342f585836b75fb8e647413a3b3a7a",
     "sha256": "1c4b92a74aac7b8dab3236c1062c5ef270d2fce0a9ea5deb76bea218d5f6560a",
-    "file": "8249a6b06034.png"
+    "file": "Sakurako__history__CN__8249a6b0.png"
   },
   {
     "label": "Saori",
@@ -1077,7 +1077,7 @@
     "source_path": "src/images/CN/lesson_affection/Saori.png",
     "git_blob": "a1d8bdc7f7f0deb053c4d9bc839c3e1811e823da",
     "sha256": "73aa14215b763ad11ee2ec98a1995442577d1682255e7f0e558a86c86472785c",
-    "file": "a1d8bdc7f7f0.png"
+    "file": "Saori__history__CN__a1d8bdc7.png"
   },
   {
     "label": "Saten Ruiko",
@@ -1085,7 +1085,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Saten Ruiko.png",
     "git_blob": "066f56905c0a12f9dfae6f13382903ec0154e8e1",
     "sha256": "5089a5639b7ebe7ac0fbb7e6802c4eeea5f8fff437f7e03cdb55a2b0d776cfe8",
-    "file": "066f56905c0a.png"
+    "file": "Saten Ruiko__history__Global_en-us__066f5690.png"
   },
   {
     "label": "Saten Ruiko",
@@ -1093,7 +1093,7 @@
     "source_path": "src/images/JP/lesson_affection/Saten Ruiko.png",
     "git_blob": "45452c9a9c3cf3c0d7fc8c01f4a8e957ddeb8bea",
     "sha256": "16a63344288d6e71d0f47e0b1850d5e5c98e5dba6ae156fc84033127fe413365",
-    "file": "45452c9a9c3c.png"
+    "file": "Saten Ruiko__history__JP__45452c9a.png"
   },
   {
     "label": "Saya",
@@ -1101,7 +1101,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Saya.png",
     "git_blob": "57606b490f72b31b5a657c6b1c5290612c38777f",
     "sha256": "3ef31d4187a5a8d2b67554c69a762f5b8503437d585955807cfc94ea8f765fb0",
-    "file": "57606b490f72.png"
+    "file": "Saya__history__Global_en-us__57606b49.png"
   },
   {
     "label": "Saya (Casual)",
@@ -1109,7 +1109,7 @@
     "source_path": "src/images/CN/lesson_affection/Saya (Casual).png",
     "git_blob": "98437941a4fe19b45483075012c31ba3c7c7d928",
     "sha256": "33516307098337698cf14d6deeb2397a592e22367fe61feb4769eefa7a57f314",
-    "file": "98437941a4fe.png"
+    "file": "Saya (Casual)__history__CN__98437941.png"
   },
   {
     "label": "Sena",
@@ -1117,7 +1117,7 @@
     "source_path": "src/images/JP/lesson_affection/Sena.png",
     "git_blob": "1263ab5aafde3988fcdd9891717bab003de8330a",
     "sha256": "15f41f5b9ee37d0ae40bde77c4c177be34aa438e3c153c6c66cd89c96bc17795",
-    "file": "1263ab5aafde.png"
+    "file": "Sena__history__JP__1263ab5a.png"
   },
   {
     "label": "Sena",
@@ -1125,7 +1125,7 @@
     "source_path": "src/images/CN/lesson_affection/Sena.png",
     "git_blob": "9f05336ef01b001c9f6ba07bb4083be454bc46ba",
     "sha256": "935cfe5fcf70b36d7b3fc9ec8820fc450f12ecff412c58002127d85acc075eb5",
-    "file": "9f05336ef01b.png"
+    "file": "Sena__history__CN__9f05336e.png"
   },
   {
     "label": "Sena",
@@ -1133,7 +1133,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Sena.png",
     "git_blob": "adeab7bee32fe221ace9d9b32c65ef1dd8f6a095",
     "sha256": "9820e748d56e68a1cc52365fe77fc145198a8fb9aa2d9d568b182ca5772b8138",
-    "file": "adeab7bee32f.png"
+    "file": "Sena__history__Global_en-us__adeab7be.png"
   },
   {
     "label": "Serika",
@@ -1141,7 +1141,7 @@
     "source_path": "src/images/CN/lesson_affection/Serika.png",
     "git_blob": "33270104491443ed3c8db892610239f6164e25be",
     "sha256": "6428eb72fb5b1128dd4e4d874ba9ad0bdaa01c4414a0c76cf9022d520c4d25d6",
-    "file": "332701044914.png"
+    "file": "Serika__history__CN__33270104.png"
   },
   {
     "label": "Serika",
@@ -1149,7 +1149,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Serika.png",
     "git_blob": "68c0839e1c9b84f0e1895031d3fd4043590bd3c5",
     "sha256": "34a86588b704b42d5f5e0194216d7b006c103068f5c3f0034edec810377b43fa",
-    "file": "68c0839e1c9b.png"
+    "file": "Serika__history__Global_en-us__68c0839e.png"
   },
   {
     "label": "Serika (Swimsuit)",
@@ -1157,7 +1157,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Serika (Swimsuit).png",
     "git_blob": "ca65128f51f7b187118a283a94c18dba29598d16",
     "sha256": "37159f8d9698e100acb3c35979e99028ee4c9b5540f2c2d0dcc9753cc6dc02d5",
-    "file": "ca65128f51f7.png"
+    "file": "Serika (Swimsuit)__history__Global_en-us__ca65128f.png"
   },
   {
     "label": "Serina (Christmas)",
@@ -1165,7 +1165,7 @@
     "source_path": "src/images/CN/lesson_affection/Serina (Christmas).png",
     "git_blob": "d635d5e0c0b0d7c475c3e95a1ef79ccce22a01ff",
     "sha256": "286322eeab19bcebdc974bf7747074119080c1d8e3e2f4143ee92ab824f0ff0c",
-    "file": "d635d5e0c0b0.png"
+    "file": "Serina (Christmas)__history__CN__d635d5e0.png"
   },
   {
     "label": "Shimiko",
@@ -1173,7 +1173,7 @@
     "source_path": "src/images/CN/lesson_affection/Shimiko.png",
     "git_blob": "12475cab63704f42c6ce4a5f31ca200f80f41260",
     "sha256": "b5298fd7e3436dedd5607bdbdd603038cd7de90322023321f80916926279c4c9",
-    "file": "12475cab6370.png"
+    "file": "Shimiko__history__CN__12475cab.png"
   },
   {
     "label": "Shiroko",
@@ -1181,7 +1181,7 @@
     "source_path": "src/images/CN/lesson_affection/Shiroko.png",
     "git_blob": "1399e917eb0525b20df267212dba19b90623ee25",
     "sha256": "7bf1b3999406a20ebcc24bed8f6aaf132dc857e2a743f3b330fdf7694bf88b4c",
-    "file": "1399e917eb05.png"
+    "file": "Shiroko__history__CN__1399e917.png"
   },
   {
     "label": "Shiroko (Cycling)",
@@ -1189,7 +1189,7 @@
     "source_path": "src/images/CN/lesson_affection/Shiroko (Cycling).png",
     "git_blob": "f5c688b4cd73e028005755875e49872c3d9ddff2",
     "sha256": "f8ebd33c849a6df0f6087690d677d2a8bc03b90efdb6e80746ef74cc61fa73c1",
-    "file": "f5c688b4cd73.png"
+    "file": "Shiroko (Cycling)__history__CN__f5c688b4.png"
   },
   {
     "label": "Shiroko Terror",
@@ -1197,7 +1197,7 @@
     "source_path": "src/images/JP/lesson_affection/Shiroko Terror.png",
     "git_blob": "5335da61021b4ccaf20a870edee45e0294853b68",
     "sha256": "5fd6d1b419c2c65cc1f03931d52c2c36c7a44f6bdcc13c30f65ed5ecefbf5460",
-    "file": "5335da61021b.png"
+    "file": "Shiroko Terror__history__JP__5335da61.png"
   },
   {
     "label": "Shiroko Terror",
@@ -1205,7 +1205,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Shiroko Terror.png",
     "git_blob": "d3972b0e1000bf05e34695e4f193a8b3d297fd82",
     "sha256": "899dd5f903d8b51f0073595315e22602d5e28389a6b569428919ac9d66e462a6",
-    "file": "d3972b0e1000.png"
+    "file": "Shiroko Terror__history__Global_en-us__d3972b0e.png"
   },
   {
     "label": "Shizuko",
@@ -1213,7 +1213,7 @@
     "source_path": "src/images/CN/lesson_affection/Shizuko.png",
     "git_blob": "37dcbc8549929187578061fa6fb770a89f12a998",
     "sha256": "9670556b769076f280a551059dd4a86270ea91667647d642ab9ae33798f3e210",
-    "file": "37dcbc854992.png"
+    "file": "Shizuko__history__CN__37dcbc85.png"
   },
   {
     "label": "Shizuko (Swimsuit)",
@@ -1221,7 +1221,7 @@
     "source_path": "src/images/JP/lesson_affection/Shizuko (Swimsuit).png",
     "git_blob": "44bf67f5469e8602b9bc5093e7decdedfe70ed51",
     "sha256": "bb997d254697c0ff3cd720fefc398fc771256866f7bd5d2dcc5c6af0af6b4c46",
-    "file": "44bf67f5469e.png"
+    "file": "Shizuko (Swimsuit)__history__JP__44bf67f5.png"
   },
   {
     "label": "Shun",
@@ -1229,7 +1229,7 @@
     "source_path": "src/images/CN/lesson_affection/Shun.png",
     "git_blob": "52ed8720309bc727f03225ff160815e7a5b959d8",
     "sha256": "b4c5139ae5987fd557443c01ba4d07c9ce1a2cbf521e05bd47f75ef0efc32e7d",
-    "file": "52ed8720309b.png"
+    "file": "Shun__history__CN__52ed8720.png"
   },
   {
     "label": "Shun",
@@ -1237,7 +1237,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Shun.png",
     "git_blob": "e9352515f2db47339ce0986c48a66256d9dcdad0",
     "sha256": "1f4cbd246f81f3b63f5b7e6330325dc96ac1c3b658fced16c0427ca245ff825b",
-    "file": "e9352515f2db.png"
+    "file": "Shun__history__Global_en-us__e9352515.png"
   },
   {
     "label": "Suzumi",
@@ -1245,7 +1245,7 @@
     "source_path": "src/images/CN/lesson_affection/Suzumi.png",
     "git_blob": "19617bd7f9959077f8690cc12f31f3e9cd26fcb4",
     "sha256": "b1d7c16fd1dc267b318ffabd13b43b13468209bc1a4a152d3261fb7b3b361a98",
-    "file": "19617bd7f995.png"
+    "file": "Suzumi__history__CN__19617bd7.png"
   },
   {
     "label": "Toki",
@@ -1253,7 +1253,7 @@
     "source_path": "src/images/CN/lesson_affection/Toki.png",
     "git_blob": "1f708690b31ac08a684a48ee6019654f53e89a52",
     "sha256": "72483c19719bcf618334b7128cc69522b92216d86cf24d4321a91651d5b17b4c",
-    "file": "1f708690b31a.png"
+    "file": "Toki__history__CN__1f708690.png"
   },
   {
     "label": "Toki",
@@ -1261,7 +1261,7 @@
     "source_path": "src/images/CN/lesson_affection/Toki (Bunny).png",
     "git_blob": "4074255cf5ec772f6b14203789fb892e673dd538",
     "sha256": "9c67fa37e595dba11eb52c522d9a81235ec138800d45108045db57f243c82559",
-    "file": "4074255cf5ec.png",
+    "file": "Toki__history__CN__4074255c.png",
     "source_label": "Toki (Bunny)",
     "label_correction": "stale_filename_confirmed_against_wikiru"
   },
@@ -1271,7 +1271,7 @@
     "source_path": "src/images/JP/lesson_affection/Toki.png",
     "git_blob": "c093ec54bc7f56d8bb36fe7bb9514499ac1a2d1f",
     "sha256": "7f9a0dc157b04ec38b6d3b0f67217dc17ab35dda5cd2e0f13b64fdaa6e94c126",
-    "file": "c093ec54bc7f.png"
+    "file": "Toki__history__JP__c093ec54.png"
   },
   {
     "label": "Toki (Bunny)",
@@ -1279,7 +1279,7 @@
     "source_path": "src/images/CN/lesson_affection/Toki (Bunny).png",
     "git_blob": "bfd6f3e76f329777a6fc5e964dcbbc156f1b01bd",
     "sha256": "e9a06a99964c0a74123227b3f056c56371b2aba8c6511858afd6ed3213a162fb",
-    "file": "bfd6f3e76f32.png"
+    "file": "Toki (Bunny)__history__CN__bfd6f3e7.png"
   },
   {
     "label": "Tomoe",
@@ -1287,7 +1287,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Tomoe.png",
     "git_blob": "1561d03e3f6a72c0e0535c8a7c4fc4b6c3e0d90b",
     "sha256": "c19b98bca08c76bab63cc1540532cb0643e5691a8ce37f35de2f2621fafa796d",
-    "file": "1561d03e3f6a.png"
+    "file": "Tomoe__history__Global_en-us__1561d03e.png"
   },
   {
     "label": "Tsubaki",
@@ -1295,7 +1295,7 @@
     "source_path": "src/images/JP/lesson_affection/Tsubaki.png",
     "git_blob": "55dd0d8c751809917c0ca1b823c74e42bd94d54a",
     "sha256": "0dc19e9d73472e2759144d7aa4f4f47404c3092453df83caa7ec639b9a055bbd",
-    "file": "55dd0d8c7518.png"
+    "file": "Tsubaki__history__JP__55dd0d8c.png"
   },
   {
     "label": "Tsubaki (Guide)",
@@ -1303,7 +1303,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Tsubaki (Guide).png",
     "git_blob": "47dc57e0b745799a1cfa4976e34c4ebc29ba18ce",
     "sha256": "2185a909ed0e119b9f01654c9f241659777fafc05e9f9156757372adf3d81f82",
-    "file": "47dc57e0b745.png"
+    "file": "Tsubaki (Guide)__history__Global_en-us__47dc57e0.png"
   },
   {
     "label": "Tsurugi (Swimsuit)",
@@ -1311,7 +1311,7 @@
     "source_path": "src/images/CN/lesson_affection/Tsurugi (Swimsuit).png",
     "git_blob": "822e80afa256953a93f3e4931f5497337a27477f",
     "sha256": "1be65c513ed9fd8736504cb1ad197d49d8d513c7a7654aa7794b9bc8f6fef113",
-    "file": "822e80afa256.png"
+    "file": "Tsurugi (Swimsuit)__history__CN__822e80af.png"
   },
   {
     "label": "Ui (Swimsuit)",
@@ -1319,7 +1319,7 @@
     "source_path": "src/images/CN/lesson_affection/Ui.png",
     "git_blob": "8a7c6259ee904531c2711659574a8d78afbefed9",
     "sha256": "d528f19db235d5afd0c5c581029b649dafdb743c008ed1c85f23a9cea02ec695",
-    "file": "8a7c6259ee90.png",
+    "file": "Ui__history__CN__8a7c6259.png",
     "source_label": "Ui",
     "label_correction": "stale_filename_confirmed_against_wikiru"
   },
@@ -1329,7 +1329,7 @@
     "source_path": "src/images/JP/lesson_affection/Ui (Swimsuit).png",
     "git_blob": "a5d4de9be86ff78d0927082d1bd5e9956d7be333",
     "sha256": "2d24e2fdd2751e2dd3c7cabfe989a816c74e550bf7c1ef7adfd0d992a1c22e3d",
-    "file": "a5d4de9be86f.png"
+    "file": "Ui (Swimsuit)__history__JP__a5d4de9b.png"
   },
   {
     "label": "Utaha",
@@ -1337,7 +1337,7 @@
     "source_path": "src/images/CN/lesson_affection/Utaha.png",
     "git_blob": "f6658d4d637c1c6656ba296f2725f5fdb3909e70",
     "sha256": "bd8b4b8bc1a0ddeaa8fdac8bcdca9f0503f4399135058b51ca890eb08dcaf843",
-    "file": "f6658d4d637c.png"
+    "file": "Utaha__history__CN__f6658d4d.png"
   },
   {
     "label": "Utaha (Cheer Squad)",
@@ -1345,7 +1345,7 @@
     "source_path": "src/images/JP/lesson_affection/Utaha (Cheer Squad).png",
     "git_blob": "adfe758ffc5ba73e3f2487376a6857b4c42c4f4c",
     "sha256": "03b61ae358d20ed8648af0576c50a60447a8928d27c78654e14a64f2434096e7",
-    "file": "adfe758ffc5b.png"
+    "file": "Utaha (Cheer Squad)__history__JP__adfe758f.png"
   },
   {
     "label": "Wakamo",
@@ -1353,7 +1353,7 @@
     "source_path": "src/images/CN/lesson_affection/Wakamo.png",
     "git_blob": "72f9be4caf1bc9efafba0e9321e92c4ba2066a73",
     "sha256": "afbd4d6a6793263348a2883a130481d851828a05c78e43269ea470e5abb29d05",
-    "file": "72f9be4caf1b.png"
+    "file": "Wakamo__history__CN__72f9be4c.png"
   },
   {
     "label": "Wakamo",
@@ -1361,7 +1361,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Wakamo.png",
     "git_blob": "75c47906f45c6f22871afb1baaa2c255c4cb79a2",
     "sha256": "89f45928865abcc355201e949a46c57a775b3aa4fe1becb0799c4a9542fd841b",
-    "file": "75c47906f45c.png"
+    "file": "Wakamo__history__Global_en-us__75c47906.png"
   },
   {
     "label": "Wakamo (Swimsuit)",
@@ -1369,7 +1369,7 @@
     "source_path": "src/images/CN/lesson_affection/Wakamo (Swimsuit).png",
     "git_blob": "d120fc036c20984dc382afebb407343e2722cb27",
     "sha256": "8477ac84f8565c60d13f677ff4ac5940a45553014784141614850de5f50beac9",
-    "file": "d120fc036c20.png"
+    "file": "Wakamo (Swimsuit)__history__CN__d120fc03.png"
   },
   {
     "label": "Yoshimi",
@@ -1377,7 +1377,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Yoshimi.png",
     "git_blob": "fca6c8eab406e287b490f74b66ae1ac41c499dc7",
     "sha256": "61e56e696e6267357b9702d945f76f27654b51eb38092688ea06e14be3a9203f",
-    "file": "fca6c8eab406.png"
+    "file": "Yoshimi__history__Global_en-us__fca6c8ea.png"
   },
   {
     "label": "Yuuka",
@@ -1385,7 +1385,7 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Yuuka.png",
     "git_blob": "1ed33436024233516de224c74b794f888c5b4580",
     "sha256": "f48b236c6356f39ea55b4487e3a4dbbfd674bd563d7bc68cd67c6c26768d5c2a",
-    "file": "1ed334360242.png"
+    "file": "Yuuka__history__Global_en-us__1ed33436.png"
   },
   {
     "label": "Yuuka",
@@ -1393,7 +1393,7 @@
     "source_path": "src/images/CN/lesson_affection/Yuuka.png",
     "git_blob": "2985cec248386656d2d3df88fffa08eae8752cb0",
     "sha256": "b30ee1ce256feb54012ac9a3896d3cf3a29fb87ef2da5fdd20c58ca74dcbc0c3",
-    "file": "2985cec24838.png"
+    "file": "Yuuka__history__CN__2985cec2.png"
   },
   {
     "label": "Yuuka (Track)",
@@ -1401,7 +1401,7 @@
     "source_path": "src/images/CN/lesson_affection/Yuuka (Track).png",
     "git_blob": "97ef7dc7841b9ce48b1e8fa73b71d8d1dd248eb5",
     "sha256": "896071f25dd273a9038c783706692d51d2c637f89e064726cfc167b28c3ef42e",
-    "file": "97ef7dc7841b.png"
+    "file": "Yuuka (Track)__history__CN__97ef7dc7.png"
   },
   {
     "label": "Yuzu",
@@ -1409,7 +1409,7 @@
     "source_path": "src/images/CN/lesson_affection/Yuzu.png",
     "git_blob": "f1266882ffb4fe887698e6da4dd014a4946fe646",
     "sha256": "4ee52e1cb5c96f57cd5d9beb3a7b9671ee0b5f836de5da07fac4f9784a03dbb2",
-    "file": "f1266882ffb4.png"
+    "file": "Yuzu__history__CN__f1266882.png"
   },
   {
     "label": "Yuzu (Maid)",
@@ -1417,7 +1417,7 @@
     "source_path": "src/images/CN/lesson_affection/Yuzu (Maid).png",
     "git_blob": "4bace1dcd1c4a4c7577b0af565f228e1e30cf087",
     "sha256": "d3531ee2a1a8c4c479371a07f01559bc2c80a5f8c283fc783180655ec40eac38",
-    "file": "4bace1dcd1c4.png"
+    "file": "Yuzu (Maid)__history__CN__4bace1dc.png"
   },
   {
     "label": "Yuzu (Maid)",
@@ -1425,6 +1425,6 @@
     "source_path": "src/images/Global_en-us/lesson_affection/Yuzu (Maid).png",
     "git_blob": "96b5c91f942bd31e78c6d83d81491f038ffc83f0",
     "sha256": "88deba240bbda988f497f0e0e35d593dab795afff93e22d138c70a443a03f32d",
-    "file": "96b5c91f942b.png"
+    "file": "Yuzu (Maid)__history__Global_en-us__96b5c91f.png"
   }
 ]

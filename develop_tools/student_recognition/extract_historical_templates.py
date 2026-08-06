@@ -33,6 +33,17 @@ LABEL_CORRECTIONS_BY_BLOB = {
     "4074255cf5ec772f6b14203789fb892e673dd538": "Toki",
     "8a7c6259ee904531c2711659574a8d78afbefed9": "Ui (Swimsuit)",
 }
+FILENAME_LABEL_BY_BLOB = {
+    # Naming is deliberately independent from the training label. These are
+    # the six identities confirmed by the user for the human-audit filenames.
+    "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc": "Noa (Pajamas)",
+    "efe6447de52bc39ddac4f1b67da0501533666555": "Miyu",
+    "9cfd12b434c50c19d05a804f2983a2e274a0a306": "Saki",
+    "d4f34f0e611285e0236fd3034f99e33c2193edc2": "Saki (Swimsuit)",
+    "4074255cf5ec772f6b14203789fb892e673dd538": "Toki",
+    "8a7c6259ee904531c2711659574a8d78afbefed9": "Ui",
+}
+INVALID_FILENAME_CHARACTERS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 RAW_CHANGE = re.compile(
     r"^:[0-7]{6} [0-7]{6} ([0-9a-f]{40}) ([0-9a-f]{40}) [A-Z][0-9]*\t(.+)$"
 )
@@ -45,6 +56,22 @@ class HistoricalPortrait:
     git_blob: str
     server: str
     source_path: str
+
+
+def _safe_filename_component(value: str) -> str:
+    component = INVALID_FILENAME_CHARACTERS.sub("_", value).rstrip(" .")
+    if not component:
+        raise ValueError(f"Empty filename component after sanitizing {value!r}")
+    return component
+
+
+def historical_portrait_filename(portrait: HistoricalPortrait) -> str:
+    label = FILENAME_LABEL_BY_BLOB.get(portrait.git_blob, portrait.label)
+    return (
+        f"{_safe_filename_component(label)}__history__"
+        f"{_safe_filename_component(portrait.server)}__"
+        f"{portrait.git_blob[:8]}.png"
+    )
 
 
 def scan_historical_portraits(root: Path = ROOT) -> list[HistoricalPortrait]:
@@ -109,15 +136,64 @@ def read_git_blob(blob_hash: str, root: Path = ROOT) -> bytes:
     return subprocess.check_output(["git", "cat-file", "blob", blob_hash], cwd=root)
 
 
+def check(output: Path = DEFAULT_OUTPUT) -> list[dict]:
+    """Verify that the committed export uses the deterministic audit names."""
+    manifest_path = output / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected_portraits = {
+        portrait.git_blob: portrait for portrait in scan_historical_portraits()
+    }
+    if len(manifest) != len(expected_portraits):
+        raise ValueError(
+            f"Manifest contains {len(manifest)} portraits; "
+            f"Git history contains {len(expected_portraits)}"
+        )
+    seen_files: set[str] = set()
+    for row in manifest:
+        portrait = expected_portraits.get(row["git_blob"])
+        if portrait is None:
+            raise ValueError(f"Unknown Git blob in manifest: {row['git_blob']}")
+        expected_filename = historical_portrait_filename(portrait)
+        if row["file"] != expected_filename:
+            raise ValueError(
+                f"Non-auditable historical portrait filename: {row['file']} "
+                f"(expected {expected_filename})"
+            )
+        if row["file"] in seen_files:
+            raise ValueError(f"Duplicate manifest file: {row['file']}")
+        seen_files.add(row["file"])
+        path = output / row["file"]
+        payload = path.read_bytes()
+        if hashlib.sha256(payload).hexdigest() != row["sha256"]:
+            raise ValueError(f"Portrait checksum mismatch: {row['file']}")
+        if payload != read_git_blob(row["git_blob"]):
+            raise ValueError(f"Portrait no longer matches Git blob: {row['file']}")
+    disk_files = {path.name for path in output.glob("*.png")}
+    if disk_files != seen_files:
+        missing = sorted(seen_files - disk_files)
+        extra = sorted(disk_files - seen_files)
+        raise ValueError(f"Historical portrait file mismatch: missing={missing}, extra={extra}")
+    return manifest
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("output", type=Path, nargs="?", default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Validate the committed manifest and files without exporting.",
+    )
     args = parser.parse_args()
+    if args.check:
+        manifest = check(args.output)
+        print(f"Validated {len(manifest)} historical portraits in {args.output}")
+        return
     args.output.mkdir(parents=True, exist_ok=True)
     manifest = []
     for portrait in scan_historical_portraits():
         raw = read_git_blob(portrait.git_blob)
-        filename = f"{portrait.git_blob[:12]}.png"
+        filename = historical_portrait_filename(portrait)
         (args.output / filename).write_bytes(raw)
         row = {
                 "label": portrait.label,
