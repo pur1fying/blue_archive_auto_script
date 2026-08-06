@@ -15,6 +15,7 @@ from develop_tools.student_recognition.export_yolox_lesson_dataset import (
 
 ROOT = Path(__file__).resolve().parents[2]
 CANDIDATE_DIR = ROOT / "develop_tools" / "student_recognition" / "experiments" / "yolox_locator"
+PRODUCTION_MODEL_DIR = ROOT / "src" / "models" / "student_recognition"
 TRAINING_FIXTURE_DIR = ROOT / "develop_tools" / "test" / "fixtures" / "lesson"
 TRAINING_ANNOTATION_PATH = ROOT / "develop_tools" / "student_recognition" / "lesson_locator_annotations.json"
 REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "yolox_locator_experiment_report.json"
@@ -85,6 +86,13 @@ class YoloXLessonDatasetTest(unittest.TestCase):
         self.assertEqual(58, report["metrics"]["eligible_click_passed"])
         self.assertEqual(0, report["metrics"]["gray_target_clicked"])
         self.assertLessEqual(report["performance"]["p95_ms"], 500.0)
+
+    def test_passing_locator_is_promoted_on_this_branch(self):
+        for name in ("lesson_locator.onnx", "lesson_locator.json"):
+            self.assertEqual(
+                (CANDIDATE_DIR / name).read_bytes(),
+                (PRODUCTION_MODEL_DIR / name).read_bytes(),
+            )
 
 
 if __name__ == "__main__":

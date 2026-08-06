@@ -118,5 +118,6 @@ avatars, improves identity crops from 66 to 67 correct, improves eligibility
 from 81 to 82 correct, improves pink-target clicks from 57 to 58, and reduces
 gray-target clicks from one to zero. This comparison is reporting-only: the
 sealed screenshots were not used for training, threshold tuning or model
-selection. Copying the two candidate locator files over their production names
-activates the experiment; the identity encoder and gallery remain unchanged.
+selection. The passing locator is promoted to `src/models/student_recognition/`
+on this branch, so source and packaged runs load YOLOX directly; the identity
+encoder and gallery remain unchanged.
