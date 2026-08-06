@@ -88,3 +88,35 @@ gray-blocking, scaling, CPU and resource-size checks all pass. The committed
 the five-fixture click test, plus all 10 blocked gray instances. Those checks are
 training-fixture replay and must not be described as independent validation of
 all 265 students.
+
+## YOLOX locator experiment
+
+The `codex/student-recognition-yolox-locator` branch uses the official
+Apache-2.0 YOLOX-Nano implementation at the commit recorded in
+`yolox_attribution.json`. The external source checkout and downloaded COCO
+checkpoint stay under ignored `.training-runs/`; they are not vendored and are
+not runtime dependencies. The committed candidate ONNX and metadata live under
+`experiments/yolox_locator/`.
+
+Generate the isolated COCO dataset and train from the repository root after
+cloning the recorded YOLOX revision into `.training-runs/third_party/YOLOX`:
+
+```powershell
+.\.training-venv\Scripts\python.exe -m pip install -r develop_tools/student_recognition/requirements-yolox.txt
+.\.training-venv\Scripts\python.exe develop_tools/student_recognition/export_yolox_lesson_dataset.py
+```
+
+The exporter accepts only `new_ui_1.png` through `new_ui_5.png`: 39 non-empty
+cards and 81 avatars. It cannot enumerate the `lesson_independent_v1` directory.
+The candidate uses three mutually exclusive classes (card, pink avatar and gray
+avatar); avatar classes share a class-agnostic NMS pass because one portrait
+cannot be both pink and gray.
+
+`yolox_locator_experiment_report.json` is the frozen comparison report. Against
+the untouched production baseline it detects 40/40 independent cards and 83/83
+avatars, improves identity crops from 66 to 67 correct, improves eligibility
+from 81 to 82 correct, improves pink-target clicks from 57 to 58, and reduces
+gray-target clicks from one to zero. This comparison is reporting-only: the
+sealed screenshots were not used for training, threshold tuning or model
+selection. Copying the two candidate locator files over their production names
+activates the experiment; the identity encoder and gallery remain unchanged.

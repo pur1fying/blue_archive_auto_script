@@ -1,0 +1,13 @@
+{
+  "component": "YOLOX-Nano",
+  "repository": "https://github.com/Megvii-BaseDetection/YOLOX",
+  "commit": "6ddff4824372906469a7fae2dc3206c7aa4bbaee",
+  "license": "Apache-2.0",
+  "pretrained_checkpoint": {
+    "url": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.pth",
+    "sha256": "cd28f55fbbc1829f99d9ac9b38a16d259a22889739c8728ea877610201feff7b"
+  },
+  "usage": "Development-only lesson locator training and ONNX export",
+  "vendored_source_committed": false,
+  "runtime_dependency_added": false
+}

@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "classification": "training_domain_grouped_diagnostic_not_independent_validation",
+  "generated_at_utc": "2026-08-06T03:02:30.659440+00:00",
+  "architecture": "YOLOX-Nano",
+  "epochs_per_fold": 30,
+  "augmentations_per_training_image": 4,
+  "source_images": [
+    "new_ui_1.png",
+    "new_ui_2.png",
+    "new_ui_3.png",
+    "new_ui_4.png",
+    "new_ui_5.png"
+  ],
+  "independent_comparison_data_included": false,
+  "folds": [
+    {
+      "fold": 1,
+      "held_out_image": "new_ui_1.png",
+      "training_source_images": [
+        "new_ui_2.png",
+        "new_ui_3.png",
+        "new_ui_4.png",
+        "new_ui_5.png"
+      ],
+      "training_image_count_with_augmentations": 20,
+      "held_out_image_count": 1,
+      "ap_50_95": 0.640979097909791,
+      "checkpoint_sha256": "fa778059db0ea831492ac4c97dcbe9b67f65c73078f51de4b950a67ba9e23be3"
+    },
+    {
+      "fold": 2,
+      "held_out_image": "new_ui_2.png",
+      "training_source_images": [
+        "new_ui_1.png",
+        "new_ui_3.png",
+        "new_ui_4.png",
+        "new_ui_5.png"
+      ],
+      "training_image_count_with_augmentations": 20,
+      "held_out_image_count": 1,
+      "ap_50_95": 0.9597799779977998,
+      "checkpoint_sha256": "fed8a48554c8c98dfeffa810223a1f5bcc334eff86e934f78125078e8f1e7531"
+    },
+    {
+      "fold": 3,
+      "held_out_image": "new_ui_3.png",
+      "training_source_images": [
+        "new_ui_1.png",
+        "new_ui_2.png",
+        "new_ui_4.png",
+        "new_ui_5.png"
+      ],
+      "training_image_count_with_augmentations": 20,
+      "held_out_image_count": 1,
+      "ap_50_95": 0.8043251348944418,
+      "checkpoint_sha256": "caa9ef9be4204aa83dcadcb9e07316101b7ba04ef9059dc4ffc74a4656a1b79e"
+    },
+    {
+      "fold": 4,
+      "held_out_image": "new_ui_4.png",
+      "training_source_images": [
+        "new_ui_1.png",
+        "new_ui_2.png",
+        "new_ui_3.png",
+        "new_ui_5.png"
+      ],
+      "training_image_count_with_augmentations": 20,
+      "held_out_image_count": 1,
+      "ap_50_95": 0.9619446560040619,
+      "checkpoint_sha256": "7d86391f053c5e87d457c471ba1d9fd9ec2315ebb7fbe0bdeba819a2033c6afd"
+    },
+    {
+      "fold": 5,
+      "held_out_image": "new_ui_5.png",
+      "training_source_images": [
+        "new_ui_1.png",
+        "new_ui_2.png",
+        "new_ui_3.png",
+        "new_ui_4.png"
+      ],
+      "training_image_count_with_augmentations": 20,
+      "held_out_image_count": 1,
+      "ap_50_95": 0.7474422442244224,
+      "checkpoint_sha256": "30d5b38c87391da793fb680ddd9b979fd41229ccb6edbbc9632f6a63330b690c"
+    }
+  ],
+  "mean_ap_50_95": 0.8228942222061034
+}

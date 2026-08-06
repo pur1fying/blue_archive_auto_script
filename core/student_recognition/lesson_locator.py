@@ -26,6 +26,7 @@ class LessonLocator:
         self.model_dir = Path(model_dir) if model_dir else MODEL_DIR
         self.net = None
         self.metadata = {
+            "backend": "segmentation",
             "input_width": 640,
             "input_height": 360,
             "minimum_cards": 1,
@@ -68,6 +69,8 @@ class LessonLocator:
         return self._locate_with_geometry(image)
 
     def _locate_with_model(self, image: np.ndarray) -> list[LessonCard]:
+        if self.metadata.get("backend") == "yolox":
+            return self._locate_with_yolox(image)
         height, width = image.shape[:2]
         input_width = int(self.metadata["input_width"])
         input_height = int(self.metadata["input_height"])
@@ -90,6 +93,123 @@ class LessonLocator:
             input_width,
             input_height,
         )
+
+    def _locate_with_yolox(self, image: np.ndarray) -> list[LessonCard]:
+        """Decode a static YOLOX output without adding a runtime dependency."""
+        image_height, image_width = image.shape[:2]
+        input_width = int(self.metadata["input_width"])
+        input_height = int(self.metadata["input_height"])
+        ratio = min(input_width / image_width, input_height / image_height)
+        resized_width = max(1, round(image_width * ratio))
+        resized_height = max(1, round(image_height * ratio))
+        resized = cv2.resize(
+            image,
+            (resized_width, resized_height),
+            interpolation=cv2.INTER_LINEAR,
+        )
+        padded = np.full((input_height, input_width, 3), 114, dtype=np.uint8)
+        padded[:resized_height, :resized_width] = resized
+        blob = cv2.dnn.blobFromImage(
+            padded,
+            scalefactor=1.0,
+            size=(input_width, input_height),
+            mean=(0, 0, 0),
+            swapRB=False,
+            crop=False,
+        )
+        self.net.setInput(blob)
+        output = np.asarray(self.net.forward())
+        if output.ndim != 3 or output.shape[0] != 1:
+            raise ValueError(f"Unexpected YOLOX locator output: {output.shape}")
+        detections = output[0]
+        if detections.shape[0] == 8 and detections.shape[1] != 8:
+            detections = detections.T
+        if detections.shape[1] != 8:
+            raise ValueError(f"Unexpected YOLOX detection width: {detections.shape}")
+
+        class_names = self.metadata.get(
+            "class_names",
+            ["lesson_card", "eligible_avatar", "plain_avatar"],
+        )
+        thresholds = self.metadata.get("confidence_thresholds", {})
+        nms_threshold = float(self.metadata.get("nms_threshold", 0.50))
+        scored_boxes_by_class: list[list[tuple[BoundingBox, float]]] = [[], [], []]
+        for class_index, class_name in enumerate(class_names):
+            class_scores = detections[:, 4] * detections[:, 5 + class_index]
+            confidence_threshold = float(thresholds.get(class_name, 0.20))
+            candidate_indices = np.flatnonzero(class_scores >= confidence_threshold)
+            if candidate_indices.size == 0:
+                continue
+            nms_boxes = []
+            scores = []
+            raw_boxes = []
+            for detection_index in candidate_indices:
+                center_x, center_y, box_width, box_height = detections[detection_index, :4]
+                x1 = float(center_x - box_width / 2.0)
+                y1 = float(center_y - box_height / 2.0)
+                nms_boxes.append([x1, y1, float(box_width), float(box_height)])
+                scores.append(float(class_scores[detection_index]))
+                raw_boxes.append((x1, y1, x1 + float(box_width), y1 + float(box_height)))
+            kept = cv2.dnn.NMSBoxes(
+                nms_boxes,
+                scores,
+                confidence_threshold,
+                nms_threshold,
+            )
+            for kept_index in np.asarray(kept).reshape(-1):
+                x1, y1, x2, y2 = raw_boxes[int(kept_index)]
+                scaled = BoundingBox(
+                    max(0, min(image_width - 1, round(x1 / ratio))),
+                    max(0, min(image_height - 1, round(y1 / ratio))),
+                    max(1, min(image_width, round(x2 / ratio))),
+                    max(1, min(image_height, round(y2 / ratio))),
+                )
+                if scaled.width >= 4 and scaled.height >= 4:
+                    scored_boxes_by_class[class_index].append(
+                        (scaled, scores[int(kept_index)])
+                    )
+
+        # Eligibility classes are mutually exclusive views of the same avatar.
+        # Suppress their overlaps jointly so one portrait cannot be emitted once
+        # as pink and again as gray by neighbouring anchors.
+        avatar_candidates = [
+            (box, score, class_index)
+            for class_index in (1, 2)
+            for box, score in scored_boxes_by_class[class_index]
+        ]
+        boxes_by_class: list[list[BoundingBox]] = [
+            [box for box, _ in scored_boxes_by_class[0]],
+            [],
+            [],
+        ]
+        if avatar_candidates:
+            avatar_nms_boxes = [
+                [box.x1, box.y1, box.width, box.height]
+                for box, _, _ in avatar_candidates
+            ]
+            avatar_scores = [score for _, score, _ in avatar_candidates]
+            kept_avatars = cv2.dnn.NMSBoxes(
+                avatar_nms_boxes,
+                avatar_scores,
+                min(
+                    float(thresholds.get("eligible_avatar", 0.20)),
+                    float(thresholds.get("plain_avatar", 0.20)),
+                ),
+                nms_threshold,
+            )
+            for kept_index in np.asarray(kept_avatars).reshape(-1):
+                box, _, class_index = avatar_candidates[int(kept_index)]
+                boxes_by_class[class_index].append(box)
+
+        cards = self._assemble_cards(
+            image,
+            boxes_by_class[0],
+            boxes_by_class[1],
+            boxes_by_class[2],
+        )
+        if len(cards) < int(self.metadata.get("minimum_cards", 1)):
+            raise ValueError("Incomplete YOLOX lesson locator result")
+        return cards
 
     def _cards_from_segmentation(
         self,
