@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
-from qfluentwidgets import PushButton, LineEdit, ComboBox
+from qfluentwidgets import LineEdit, ComboBox
 
 from gui.util import notification
 from gui.util.translator import baasTranslator as bt
@@ -20,11 +20,9 @@ class Layout(QWidget):
 
         self.label = QLabel(self.tr('普通关卡与次数（如"1-1-1,1-2-3"表示关卡1-1打一次，然后关卡1-2打三次）：'), self)
         self.input = LineEdit(self)
-        self.accept = PushButton(self.tr('确定'), self)
         self.label_hard = QLabel(self.tr('困难关卡设置同上，注意：次数最多为3），逗号均为英文逗号，日服、国际服可填max：'),
                                  self)
         self.input_hard = LineEdit(self)
-        self.accept_hard = PushButton(self.tr('确定'), self)
 
         self.hard_task_combobox = ComboBox(self)
         self.each_student_task_number_dict = {
@@ -59,15 +57,13 @@ class Layout(QWidget):
         self.lay1_hard.setContentsMargins(10, 0, 0, 10)
         self.lay2_hard.setContentsMargins(10, 0, 0, 10)
 
-        self.accept.clicked.connect(self.__accept_main)
-        self.accept_hard.clicked.connect(self.__accept_hard)
+        self.input.editingFinished.connect(self.__accept_main)
+        self.input_hard.editingFinished.connect(self.__accept_hard)
 
         self.lay1.addWidget(self.label, 0, Qt.AlignLeft)
         self.lay2.addWidget(self.input, 1, Qt.AlignLeft)
-        self.lay2.addWidget(self.accept, 0, Qt.AlignLeft)
         self.lay1_hard.addWidget(self.label_hard, 0, Qt.AlignLeft)
         self.lay2_hard.addWidget(self.input_hard, 1, Qt.AlignLeft)
-        self.lay2_hard.addWidget(self.accept_hard, 0, Qt.AlignLeft)
 
         self.lay1.addStretch(1)
         self.lay1.setAlignment(Qt.AlignCenter)
@@ -94,7 +90,8 @@ class Layout(QWidget):
             if input_content == "":
                 self.config.set('mainlinePriority', "")
                 self.config.set("unfinished_normal_tasks", [])
-                notification.success(self.tr('设置成功'), f'{self.tr("普通关扫荡设置已清空")}', self.config)
+                if not getattr(self.config, 'is_draft', False):
+                    notification.success(self.tr('设置成功'), f'{self.tr("普通关扫荡设置已清空")}', self.config)
                 return
             temp = []
             input_content_splits = input_content.split(',')
@@ -102,8 +99,9 @@ class Layout(QWidget):
                 temp.append(read_task(input_content_splits[i], True))
             self.config.set('mainlinePriority', input_content)
             self.config.set("unfinished_normal_tasks", temp)  # refresh the config unfinished_normal_tasks
-            notification.success(self.tr('设置成功'), f'{self.tr("你的普通关卡已经被设置为：")}{input_content}',
-                                 self.config)
+            if not getattr(self.config, 'is_draft', False):
+                notification.success(self.tr('设置成功'), f'{self.tr("你的普通关卡已经被设置为：")}{input_content}',
+                self.config)
         except Exception as e:
             notification.error(self.tr('设置失败'), f'{self.tr("请检查输入格式是否正确，错误信息：")}{e}', self.config)
 
@@ -114,7 +112,8 @@ class Layout(QWidget):
             if input_content == "":
                 self.config.set('hardPriority', "")
                 self.config.set("unfinished_hard_tasks", [])
-                notification.success(self.tr('设置成功'), f'{self.tr("困难关扫荡设置已清空")}', self.config)
+                if not getattr(self.config, 'is_draft', False):
+                    notification.success(self.tr('设置成功'), f'{self.tr("困难关扫荡设置已清空")}', self.config)
                 return
             temp = []
             input_content_splits = input_content.split(',')
@@ -122,8 +121,9 @@ class Layout(QWidget):
                 temp.append(read_task(input_content_splits[i], False))
             self.config.set('hardPriority', input_content)
             self.config.set("unfinished_hard_tasks", temp)  # refresh the config unfinished_hard_tasks
-            notification.success(self.tr('设置成功'), f'{self.tr("你的困难关卡已经被设置为：")}{input_content}',
-                                 self.config)
+            if not getattr(self.config, 'is_draft', False):
+                notification.success(self.tr('设置成功'), f'{self.tr("你的困难关卡已经被设置为：")}{input_content}',
+                self.config)
         except Exception as e:
             notification.error(self.tr('设置失败'), f'{self.tr("请检查输入格式是否正确，错误信息：")}{e}', self.config)
 

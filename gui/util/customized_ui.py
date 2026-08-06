@@ -183,6 +183,10 @@ class DialogSettingBox(MessageBoxBase):
 
     This dialog box supports dynamic layouts and can adjust its size
     based on specific settings.
+
+    When opened from Card mode, ``config`` is typically a ``ConfigDraft``.
+    OK commits the draft to disk; Cancel rolls it back. Live ConfigSet can
+    still be passed (legacy / non-draft callers).
     """
 
     def __init__(self, parent=None, config=None, layout=None, *_, **kwargs):
@@ -198,7 +202,14 @@ class DialogSettingBox(MessageBoxBase):
         super().__init__(parent)
 
         setting_name = kwargs.get('setting_name')  # Retrieve the setting name from kwargs
-        self.config = config  # Store the configuration object
+        self.config = config  # Store the configuration object (may be ConfigDraft)
+        self._content_layout = layout
+
+        try:
+            self.yesButton.setText(self.tr('确定'))
+            self.cancelButton.setText(self.tr('取消'))
+        except Exception:
+            pass
 
         # Create a frame to wrap the provided layout
         frame = QFrame(self)
@@ -208,32 +219,89 @@ class DialogSettingBox(MessageBoxBase):
         layout_wrapper.addWidget(layout)  # Add the provided layout to the wrapper
 
         # Apply a global style sheet to the layout
-        layout.setStyleSheet("""
-            * {
-                font-family: "Microsoft YaHei";
-                font-size: 14px;
-            }
-        """)
+        layout.setStyleSheet(
+            '* {\n'
+            '    font-family: "Microsoft YaHei";\n'
+            '    font-size: 14px;\n'
+            '}\n'
+        )
 
-        # Adjust the frame's minimum width if the setting name indicates a shop layout
-        if 'shop' in setting_name or 'Shop' in setting_name:
-            frame.setMinimumWidth(800)
+        # Shops: unified fixed width; viewport capped; content min-height drives scrollbar.
+        is_shop = bool(setting_name and ('shop' in setting_name or 'Shop' in setting_name))
+        shop_width = 800
+        # Same viewport height for common shop & arena shop (avg of old tall/short).
+        shop_view_h = 400
+        if is_shop:
+            frame.setMinimumWidth(shop_width)
+            frame.setMaximumWidth(shop_width)
 
         # Set the wrapper layout for the frame
         frame.setLayout(layout_wrapper)
+        try:
+            from PyQt5.QtWidgets import QSizePolicy
+            # Content grows with goods; viewport stays capped so long lists scroll.
+            frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+            if hasattr(layout, 'setSizePolicy'):
+                layout.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        except Exception:
+            pass
 
         scroll_area = ScrollArea()
-        scroll_area.setStyleSheet('''
-                background-color: transparent;
-                border: none;
-        ''')
+        scroll_area.setStyleSheet(
+            'background-color: transparent;\n'
+            'border: none;\n'
+        )
         scroll_area.setWidget(frame)
-        scroll_area.setFixedWidth(self.width() - 100)  # Set minimum width to the dialog width minus 20 pixels
-        scroll_area.setWidgetResizable(True)  # Make the scroll area resizable
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Disable horizontal scrollbar
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        if is_shop:
+            # Same fixed width + same viewport height for both shops.
+            scroll_area.setFixedWidth(shop_width)
+            scroll_area.setFixedHeight(shop_view_h)
+            # Content min-height from layout → scrollbar when taller than viewport.
+            try:
+                content_h = int(layout.minimumSizeHint().height())
+            except Exception:
+                content_h = 0
+            if content_h <= 0:
+                try:
+                    content_h = int(layout.sizeHint().height())
+                except Exception:
+                    content_h = shop_view_h
+            try:
+                frame.setMinimumHeight(max(content_h, shop_view_h))
+                layout.setMinimumHeight(content_h)
+            except Exception:
+                pass
+        else:
+            scroll_area.setFixedWidth(self.width() - 100)
 
         # Add the frame to the dialog's main layout
         self.viewLayout.addWidget(scroll_area)
+
+    def _is_draft(self) -> bool:
+        return bool(getattr(self.config, 'is_draft', False))
+
+    def accept(self):
+        """Commit draft (if any) then close with Accepted."""
+        from gui.util import notification
+        from gui.util.config_draft import as_live
+
+        if self._is_draft():
+            # Ensure the focused editor flushes into the draft first.
+            self.config.flush_pending_editors(self)
+            changed = self.config.commit()
+            if changed:
+                live = as_live(self.config)
+                notification.saved(live, label=self.tr('已保存'))
+        super().accept()
+
+    def reject(self):
+        """Drop draft changes then close with Rejected."""
+        if self._is_draft():
+            self.config.rollback()
+        super().reject()
 
 
 class FuncLabel(QLabel):

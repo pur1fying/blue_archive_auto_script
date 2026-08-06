@@ -211,11 +211,19 @@ class TemplateSettingCardForClick(QFrame):
             self._trigger_expand()
 
     def _trigger_expand(self):
-        # 展开子视图
-        pop_layout = self.sub_view.Layout(self, self.config)
-        rename_dialog = DialogSettingBox(self.config.get_window(), self.config, pop_layout,
-                                         setting_name=self.setting_name)
-        if not rename_dialog.exec_(): return
+        # Card mode: edit through a draft; OK commits, Cancel rolls back.
+        from gui.util.config_draft import ConfigDraft
+
+        draft = ConfigDraft(self.config)
+        pop_layout = self.sub_view.Layout(self, draft)
+        rename_dialog = DialogSettingBox(
+            self.config.get_window(),
+            draft,
+            pop_layout,
+            setting_name=self.setting_name,
+        )
+        # accept()/reject() on DialogSettingBox handle commit/rollback
+        rename_dialog.exec_()
 
 
 class TemplateSettingCard(BAASSettingCard):

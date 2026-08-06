@@ -3,7 +3,6 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QGridLayout
 from qfluentwidgets import LineEdit, PushButton
 
-from core.utils import delay
 from gui.util import notification
 
 
@@ -67,8 +66,7 @@ class Layout(QWidget):
         self.lesson_favorStudent_LineEdit_description = QLabel(self.tr('指定学生'), self)
         self.lesson_favorStudent_LineEdit = LineEdit(self)
         self.lesson_favorStudent_LineEdit.setText('>'.join(self.config.get('lesson_favorStudent')))
-        self.accept_favor_student = PushButton(self.tr('确定'), self)
-
+        
         self.relationship_check_box_description = QLabel(self.tr('优先做好感等级多的日程'), self)
         self.relationship_check_box = CheckBox('', self)
         self.relationship_check_box.setChecked(self.config.get('lesson_relationship_first'))
@@ -107,8 +105,9 @@ class Layout(QWidget):
     def Slot_for_accept_favor_student(self):
         res = self.lesson_favorStudent_LineEdit.text().split('>')
         self.config.set('lesson_favorStudent', res)
-        return notification.success(self.tr('指定学生(填写指南见wiki)'), f'{self.tr("指定学生设置成功为:")}{res}',
-                                    self.config)
+        if not getattr(self.config, 'is_draft', False):
+            return notification.success(self.tr('指定学生(填写指南见wiki)'), f'{self.tr("指定学生设置成功为:")}{res}',
+                                        self.config)
 
     def Slot_for_lesson_level_change(self):
         res = []
@@ -121,24 +120,27 @@ class Layout(QWidget):
         self.needed_levels = res
         self.config.set('lesson_each_region_object_priority', self.needed_levels)
 
-    @delay(1)
-    def Slot_for_lesson_time_change(self, _):
+    def Slot_for_lesson_time_change(self, _=None):
+        # editingFinished (not delayed textChanged): dialog OK flushes focus and
+        # must see the latest value; a 0.5–1s debounce would drop the last edit.
         res = []
         for i in range(len(self.lesson_names)):
-            res.append(int(self.lesson_time_input[i].text()))
+            text = self.lesson_time_input[i].text().strip()
+            res.append(int(text) if text else 0)
         self.priority_list = res
         self.config.set('lesson_times', self.priority_list)
-        return notification.success(self.tr('日程次数'), f'{self.tr("日程次数设置成功为:")}{self.priority_list}',
-                                    self.config)
+        if not getattr(self.config, 'is_draft', False):
+            return notification.success(self.tr('日程次数'), f'{self.tr("日程次数设置成功为:")}{self.priority_list}',
+                                        self.config)
 
     def __init_Signals_and_Slots(self):
         self.lesson_enableFavorStudent_check_box.stateChanged.connect(self.Slot_for_enableFavorStudent_check_box)
-        self.accept_favor_student.clicked.connect(self.Slot_for_accept_favor_student)
+        self.lesson_favorStudent_LineEdit.editingFinished.connect(self.Slot_for_accept_favor_student)
         self.relationship_check_box.stateChanged.connect(self.Slot_for_relationship_check_box)
         for i in range(len(self.lesson_names)):
             for j in range(4):
                 self.check_box_for_lesson_levels[i][j].toggled.connect(self.Slot_for_lesson_level_change)
-            self.lesson_time_input[i].textChanged.connect(self.Slot_for_lesson_time_change)
+            self.lesson_time_input[i].editingFinished.connect(self.Slot_for_lesson_time_change)
 
     def __init_layouts(self):
         # 顶部三个配置项
@@ -200,7 +202,6 @@ class Layout(QWidget):
         temp = QHBoxLayout()
         temp.addWidget(self.lesson_favorStudent_LineEdit_description)
         temp.addWidget(self.lesson_favorStudent_LineEdit)
-        temp.addWidget(self.accept_favor_student)
         self.vBoxLayout.addLayout(temp)
 
     def __init_relationship_check_box_layout(self):
