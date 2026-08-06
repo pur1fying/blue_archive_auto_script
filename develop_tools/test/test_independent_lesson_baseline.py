@@ -18,9 +18,14 @@ EXPERIMENT_BASELINE_PATH = ROOT / "develop_tools" / "student_recognition" / "exp
 TRAINING_SCRIPT_PATH = ROOT / "develop_tools" / "student_recognition" / "train_student_models.py"
 MODEL_DIR = ROOT / "src" / "models" / "student_recognition"
 YOLOX_REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "yolox_locator_experiment_report.json"
-PROMOTED_LOCATOR_FILES = {
+COMBINED_REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "combined_top1_report.json"
+PROMOTED_MODEL_FILES = {
     "src/models/student_recognition/lesson_locator.onnx",
     "src/models/student_recognition/lesson_locator.json",
+    "src/models/student_recognition/student_encoder.onnx",
+    "src/models/student_recognition/student_encoder.json",
+    "src/models/student_recognition/gallery.npz",
+    "develop_tools/student_recognition/train_student_models.py",
 }
 
 
@@ -152,32 +157,14 @@ class IndependentLessonBaselineTest(unittest.TestCase):
         self.assertNotIn("independent_test_annotations_v1", training_source)
         self.assertFalse(self.report["data_policy"]["included_in_training"])
 
-    def test_report_matches_current_unchanged_production_artifacts(self):
+    def test_historical_report_remains_immutable_after_model_promotion(self):
         before = self.report["artifact_hashes"]["protected_files_before"]
         after = self.report["artifact_hashes"]["protected_files_after"]
         self.assertEqual(before, after)
         for relative_path, expected_hash in before.items():
-            if relative_path in PROMOTED_LOCATOR_FILES:
+            if relative_path in PROMOTED_MODEL_FILES:
                 continue
             self.assertEqual(expected_hash, sha256(ROOT / relative_path), relative_path)
-        promoted_report = json.loads(YOLOX_REPORT_PATH.read_text(encoding="utf-8"))
-        regenerated = evaluate(
-            model_dir=MODEL_DIR,
-            enforce_expected_baseline=False,
-            candidate_name="promoted-yolox-locator",
-        )
-        self.assertTrue(regenerated["completed"])
-        self.assertEqual(promoted_report["metrics"], regenerated["metrics"])
-        self.assertEqual(
-            [
-                (row["image"], row["location"], row["expected_name"], row["top1_name"])
-                for row in promoted_report["identity_failures"]
-            ],
-            [
-                (row["image"], row["location"], row["expected_name"], row["top1_name"])
-                for row in regenerated["identity_failures"]
-            ],
-        )
 
     def test_candidate_evaluator_uses_an_explicit_model_directory(self):
         candidate = evaluate(
@@ -189,8 +176,9 @@ class IndependentLessonBaselineTest(unittest.TestCase):
         self.assertEqual("frozen_comparison_candidate", candidate["classification"])
         self.assertEqual("baseline-as-candidate", candidate["candidate_name"])
         self.assertIsNone(candidate["expected_baseline"])
-        promoted_report = json.loads(YOLOX_REPORT_PATH.read_text(encoding="utf-8"))
-        self.assertEqual(promoted_report["metrics"], candidate["metrics"])
+        combined_report = json.loads(COMBINED_REPORT_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(combined_report["independent_v1"]["metrics"], candidate["metrics"])
+        self.assertEqual("valid_global_top1", candidate["environment"]["identity_click_policy"])
 
     def test_experiment_baseline_locks_data_and_model_hashes(self):
         baseline = json.loads(EXPERIMENT_BASELINE_PATH.read_text(encoding="utf-8"))
@@ -202,7 +190,7 @@ class IndependentLessonBaselineTest(unittest.TestCase):
             baseline["data_policy"]["frozen_comparison_may_be_used_for_threshold_selection"]
         )
         for relative_path, expected_hash in baseline["sha256"].items():
-            if relative_path in PROMOTED_LOCATOR_FILES:
+            if relative_path in PROMOTED_MODEL_FILES:
                 self.assertEqual(
                     expected_hash,
                     self.report["artifact_hashes"]["protected_files_before"][relative_path],

@@ -361,7 +361,8 @@ class StudentCatalogTest(unittest.TestCase):
             self.assertTrue(recognizer.available)
             self.assertEqual(265, len(recognizer.supported_ids))
             self.assertEqual(265, len(recognizer.seed_ids))
-            self.assertEqual(0.60, float(recognizer.metadata["similarity_threshold"]))
+            self.assertNotIn("similarity_threshold", recognizer.metadata)
+            self.assertEqual("valid_global_top1", recognizer.metadata["identity_click_policy"])
             self.assertEqual(0.0, float(recognizer.metadata["margin_threshold"]))
             self.assertFalse(recognizer.metadata["margin_is_click_gate"])
             self.assertFalse(recognizer.metadata["support_status_is_click_gate"])
@@ -538,7 +539,7 @@ class LessonPrioritySelectionTest(unittest.TestCase):
         )
         self.assertEqual(2, selected.index)
 
-    def test_gray_locked_and_low_confidence_targets_are_ignored(self):
+    def test_gray_locked_and_invalid_predictions_are_ignored(self):
         cards = [
             self.make_card(0, "Yuzu", eligible=False),
             self.make_card(1, "Yuzu"),
@@ -595,7 +596,6 @@ class LessonPrioritySelectionTest(unittest.TestCase):
             keepdims=True,
         )
         recognizer.gallery_ids = np.asarray(["yuzu", "serika"])
-        recognizer.metadata["similarity_threshold"] = 0.60
         prediction = recognizer.identify(
             [np.full((40, 40, 3), 128, dtype=np.uint8)],
             server="CN",
@@ -605,6 +605,41 @@ class LessonPrioritySelectionTest(unittest.TestCase):
         self.assertEqual("Yuzu", prediction.name)
         self.assertLess(prediction.margin, 0.01)
         self.assertTrue(prediction.accepted)
+
+    def test_low_similarity_valid_top1_is_actionable(self):
+        class FakeNet:
+            def setInput(self, value):
+                self.count = len(value)
+
+            def forward(self):
+                return np.tile(np.asarray([[1.0, 0.0]], dtype=np.float32), (self.count, 1))
+
+        recognizer = StudentRecognizer(
+            StudentCatalog(STATIC_CONFIG["student_names"]),
+            ROOT / "missing-model-directory",
+        )
+        recognizer.net = FakeNet()
+        recognizer.gallery_embeddings = np.asarray(
+            [[-1.0, 0.0], [-0.8, 0.6]],
+            dtype=np.float32,
+        )
+        recognizer.gallery_ids = np.asarray(["yuzu", "serika"])
+        prediction = recognizer.identify(
+            [np.full((40, 40, 3), 128, dtype=np.uint8)],
+            server="CN",
+            eligible=[True],
+        )[0]
+        self.assertEqual("Serika", prediction.name)
+        self.assertLess(prediction.score, 0.0)
+        self.assertTrue(prediction.accepted)
+        card = self.make_card(2, prediction.name)
+        card.avatars[0].prediction = prediction
+        self.assertEqual(
+            2,
+            StudentRecognitionService.select_priority_card(
+                [card], ["available"] * 9, ["Serika"]
+            ).index,
+        )
 
     def test_invalid_crop_fails_closed(self):
         recognizer = StudentRecognizer(StudentCatalog(STATIC_CONFIG["student_names"]))

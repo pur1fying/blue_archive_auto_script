@@ -16,8 +16,8 @@
     0.2240000069141388,
     0.22499999403953552
   ],
+  "similarity_threshold": 0.6,
   "margin_threshold": 0.0,
-  "identity_click_policy": "valid_global_top1",
   "margin_is_click_gate": false,
   "support_status_is_click_gate": false,
   "global_top1_catalog_size": 265,

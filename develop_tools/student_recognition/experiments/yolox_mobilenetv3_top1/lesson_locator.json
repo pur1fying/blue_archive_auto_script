@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "backend": "yolox",
+  "architecture": "YOLOX-Nano",
+  "input_width": 640,
+  "input_height": 384,
+  "class_names": [
+    "lesson_card",
+    "eligible_avatar",
+    "plain_avatar"
+  ],
+  "confidence_thresholds": {
+    "lesson_card": 0.2,
+    "eligible_avatar": 0.2,
+    "plain_avatar": 0.2
+  },
+  "nms_threshold": 0.5,
+  "minimum_cards": 1,
+  "preprocessing": "top_left_letterbox_114_bgr_0_255",
+  "decoded_output": true,
+  "opset": 12,
+  "source": {
+    "repository": "https://github.com/Megvii-BaseDetection/YOLOX",
+    "commit": "6ddff4824372906469a7fae2dc3206c7aa4bbaee",
+    "license": "Apache-2.0"
+  },
+  "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+}

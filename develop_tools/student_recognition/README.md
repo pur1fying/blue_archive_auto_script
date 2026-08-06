@@ -121,3 +121,45 @@ sealed screenshots were not used for training, threshold tuning or model
 selection. The passing locator is promoted to `src/models/student_recognition/`
 on this branch, so source and packaged runs load YOLOX directly; the identity
 encoder and gallery remain unchanged.
+
+## Pretrained classifier experiment
+
+The `codex/student-recognition-pretrained-classifier` branch replaces only the
+identity encoder candidate. It uses torchvision's mature MobileNetV3-Small with
+the official ImageNet1K V1 initialization recorded in
+`pretrained_classifier_attribution.json`; PyTorch and torchvision remain
+development-only. The lesson locator and Top-1 ranking are unchanged in that
+isolated branch.
+
+The formal run freezes the ImageNet backbone for 20 of 100 seed-training epochs,
+then fine-tunes it at one tenth of the projection/classifier learning rate. Five
+35-epoch diagnostics hold out one complete `new_ui` screenshot at a time, and
+the final all-training-data model runs for 80 epochs. The grouped diagnostic is
+74/81 Top-1; final replays are 81/81 lesson crops, 265/265 roster portraits and
+177/177 historical portraits. Replays are not independent validation.
+
+On the sealed five-image comparison set the isolated candidate reaches 75/83
+identity Top-1 versus 66/83 for production. Its original report preserves the
+then-current 0.60 click gate for historical comparison.
+
+## Combined YOLOX + MobileNetV3 Top-1 runtime
+
+The `codex/student-recognition-yolox-mobilenetv3-top1` branch composes the two
+already exported sequential components without retraining. YOLOX supplies the
+card and avatar crops; MobileNetV3 supplies the 265-identity global Top-1. The
+models share no weights. A cosine score or Top-1/Top-2 margin never suppresses a
+valid result on this branch. Pink eligibility and card availability remain the
+click gates, and invalid crops or damaged models still fail closed.
+
+Run the complete training replay, frozen comparison, performance benchmark and
+265-student evidence audit with:
+
+```powershell
+.\.venv\Scripts\python.exe develop_tools/student_recognition/evaluate_combined_top1.py
+```
+
+The generated `combined_top1_report.json` contains every instance and the full
+machine-readable roster classification. `combined_top1_report.md` is the
+human-readable error and student-list report. The frozen screenshots informed
+the architecture comparison but remain excluded from weights, prototypes and
+training inputs.

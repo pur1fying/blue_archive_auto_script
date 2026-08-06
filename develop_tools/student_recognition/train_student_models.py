@@ -49,7 +49,6 @@ MODEL_DIR = ROOT / "src" / "models" / "student_recognition"
 RUNS_DIR = ROOT / ".training-runs" / "student_recognition"
 REPORT_PATH = Path(__file__).with_name("validation_report.json")
 SEED = 20260731
-SIMILARITY_THRESHOLD = 0.60
 SAMPLES_PER_IDENTITY = 3
 
 MEAN = np.asarray((0.485, 0.456, 0.406), dtype=np.float32)
@@ -975,8 +974,8 @@ def train_encoder(
         "embedding_size": 128,
         "mean": MEAN.tolist(),
         "std": STD.tolist(),
-        "similarity_threshold": SIMILARITY_THRESHOLD,
         "margin_threshold": 0.0,
+        "identity_click_policy": "valid_global_top1",
         "margin_is_click_gate": False,
         "support_status_is_click_gate": False,
         "global_top1_catalog_size": len(catalog.records),
@@ -1135,7 +1134,7 @@ def build_validation_report(
     click_passed_instances = []
     gray_blocked_instances = []
     top1_failures = []
-    score_failures = []
+    invalid_prediction_failures = []
     click_failures = []
     wrong_card_clicks = []
     gray_wrong_clicks = []
@@ -1178,8 +1177,8 @@ def build_validation_report(
                 top1_failures.append(row)
                 if not eligible:
                     gray_identity_failures.append(row)
-            if prediction is None or prediction.score < SIMILARITY_THRESHOLD:
-                score_failures.append(row)
+            if prediction is None or not prediction.accepted:
+                invalid_prediction_failures.append(row)
             if eligible:
                 if selected_index == card_index:
                     click_passed_instances.append(row)
@@ -1268,11 +1267,9 @@ def build_validation_report(
         "annotated_target_top1_81": (
             encoder_metadata["all_labeled_target_metrics"]["count"] == 81
             and encoder_metadata["all_labeled_target_metrics"]["correct"] == 81
-            and encoder_metadata["all_labeled_target_metrics"]["minimum_score"]
-            >= SIMILARITY_THRESHOLD
         ),
         "target_top1_81": not top1_failures and len(instances) == 81,
-        "target_scores_at_least_060": not score_failures,
+        "target_predictions_valid": not invalid_prediction_failures,
         "pink_clicks_71": (
             not click_failures
             and not wrong_card_clicks
@@ -1384,7 +1381,7 @@ def build_validation_report(
         "roster_only_no_fixture": _canonical_names(catalog, roster_only_ids),
         "no_prototype_students": _canonical_names(catalog, no_prototype_ids),
         "top1_failures": top1_failures,
-        "score_failures": score_failures,
+        "invalid_prediction_failures": invalid_prediction_failures,
         "click_failures": click_failures,
         "wrong_card_clicks": wrong_card_clicks,
         "gray_identity_failures": gray_identity_failures,

@@ -22,7 +22,6 @@ class StudentRecognizer:
         self.metadata = {
             "input_width": 96,
             "input_height": 96,
-            "similarity_threshold": 0.60,
             "margin_threshold": 0.0,
             "mean": [0.485, 0.456, 0.406],
             "std": [0.229, 0.224, 0.225],
@@ -152,7 +151,6 @@ class StudentRecognizer:
         gallery_embeddings = self.gallery_embeddings[gallery_mask]
         gallery_ids = self.gallery_ids[gallery_mask]
         similarity = np.max(embeddings @ gallery_embeddings.T, axis=1)
-        threshold = float(self.metadata["similarity_threshold"])
         for result_index, row in zip(valid_indices, similarity):
             per_student: dict[str, float] = {}
             for sid, score in zip(gallery_ids, row):
@@ -161,14 +159,16 @@ class StudentRecognizer:
             sid, score = ranked[0]
             second_score = ranked[1][1] if len(ranked) > 1 else -1.0
             margin = score - second_score
-            accepted = score >= threshold
             record = self.catalog.record(sid)
             predictions[result_index] = StudentPrediction(
                 student_id=sid,
                 name=record.canonical_name if record else None,
                 score=score,
                 margin=margin,
-                accepted=accepted,
+                # A valid global Top-1 is actionable. Similarity and margin are
+                # diagnostics only; pink/gray and card availability remain the
+                # business-level click gates.
+                accepted=True,
                 eligible=eligible_values[result_index],
                 bbox=box_values[result_index],
                 support_status=self.support_status(sid),

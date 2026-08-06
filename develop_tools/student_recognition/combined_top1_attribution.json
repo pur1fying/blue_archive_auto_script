@@ -1,0 +1,22 @@
+{
+  "components": [
+    {
+      "name": "YOLOX-Nano",
+      "repository": "https://github.com/Megvii-BaseDetection/YOLOX",
+      "commit": "6ddff4824372906469a7fae2dc3206c7aa4bbaee",
+      "license": "Apache-2.0",
+      "artifact": "lesson_locator.onnx"
+    },
+    {
+      "name": "torchvision MobileNetV3-Small",
+      "repository": "https://github.com/pytorch/vision",
+      "package_version": "0.20.1+cu124",
+      "weights": "MobileNet_V3_Small_Weights.IMAGENET1K_V1",
+      "license": "BSD-3-Clause",
+      "artifact": "student_encoder.onnx"
+    }
+  ],
+  "composition": "Sequential exported ONNX models with no shared trainable weights",
+  "runtime": "OpenCV 4.8.1",
+  "runtime_dependency_added": false
+}
