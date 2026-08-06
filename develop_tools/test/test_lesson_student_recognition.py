@@ -1,9 +1,11 @@
+import ast
 import importlib.util
 import json
 import tempfile
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 import cv2
 import numpy as np
@@ -209,6 +211,74 @@ class LessonLocatorGoldenTest(unittest.TestCase):
         self.assertNotIn("verified prototype", invite_source)
         self.assertNotIn("supported_ids", invite_source)
         self.assertNotIn("get_favor_student_detect_region", source)
+
+    def test_usage_guide_matches_global_top1_policy(self):
+        guide = (ROOT / "docs" / "usage_doc" / "config.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn("当前服务器实装状态", guide)
+        self.assertNotIn("识别结果未达到置信度阈值", guide)
+        self.assertIn("有效头像裁图采用全局 Top-1 结果", guide)
+        self.assertIn("真实灰框误判为粉框", guide)
+
+    def test_unresolved_region_falls_back_before_scanning_or_caching(self):
+        class FakeCatalog:
+            @staticmethod
+            def validate_names(_names):
+                return ["Yuzu"], []
+
+            @staticmethod
+            def resolve(_name):
+                return SimpleNamespace(student_id="yuzu")
+
+        class FakeLogger:
+            def __init__(self):
+                self.warnings = []
+
+            @staticmethod
+            def info(_message):
+                return None
+
+            def warning(self, message):
+                self.warnings.append(message)
+
+        service = SimpleNamespace(
+            identity_available=True,
+            catalog=FakeCatalog(),
+            recognizer=SimpleNamespace(seed_ids={"yuzu"}),
+        )
+        task = SimpleNamespace(
+            config=SimpleNamespace(lesson_favorStudent=["Yuzu"]),
+            lesson_region_name_len=[1],
+            logger=FakeLogger(),
+        )
+        scan_calls = []
+        lesson_path = ROOT / "module" / "lesson.py"
+        lesson_tree = ast.parse(lesson_path.read_text(encoding="utf-8"))
+        invite_node = next(
+            node
+            for node in lesson_tree.body
+            if isinstance(node, ast.FunctionDef)
+            and node.name == "invite_favor_student"
+        )
+        namespace = {
+            "get_student_recognition_service": lambda _task: service,
+            "to_select_location": lambda _task, _wait=True: None,
+            "get_lesson_region_num": lambda _task: "NOT FOUND",
+            "to_all_locations": lambda *_args, **_kwargs: scan_calls.append(True),
+        }
+        isolated_module = ast.Module(body=[invite_node], type_ignores=[])
+        ast.fix_missing_locations(isolated_module)
+        exec(compile(isolated_module, str(lesson_path), "exec"), namespace)
+        self.assertIsNone(namespace["invite_favor_student"](task))
+
+        self.assertEqual([], scan_calls)
+        self.assertTrue(
+            any(
+                "Fallback to normal lesson selection" in message
+                for message in task.logger.warnings
+            )
+        )
 
     def test_all_target_predictions_pass_global_top1_threshold(self):
         recognizer = StudentRecognizer(StudentCatalog(STATIC_CONFIG["student_names"]))
@@ -486,6 +556,46 @@ class StudentCatalogTest(unittest.TestCase):
             image = cv2.imread(str(FIXTURE_DIR / "new_ui_1.png"))
             self.assertEqual(8, len(locator.locate(image)))
             self.assertEqual("geometry-fallback", locator.last_backend)
+
+    def test_wrong_width_gallery_and_metadata_fail_closed(self):
+        production_model = (
+            ROOT
+            / "src"
+            / "models"
+            / "student_recognition"
+            / "student_encoder.onnx"
+        )
+        self.assertTrue(production_model.exists())
+        with tempfile.TemporaryDirectory() as directory:
+            model_dir = Path(directory)
+            (model_dir / "student_encoder.onnx").write_bytes(
+                production_model.read_bytes()
+            )
+            np.savez_compressed(
+                model_dir / "gallery.npz",
+                embeddings=np.zeros((1, 64), dtype=np.float32),
+                student_ids=np.asarray(["yuzu"]),
+            )
+            recognizer = StudentRecognizer(self.catalog, model_dir)
+            self.assertFalse(recognizer.available)
+            prediction = recognizer.identify(
+                [np.full((40, 40, 3), 128, dtype=np.uint8)],
+                server="CN",
+            )[0]
+            self.assertFalse(prediction.accepted)
+            self.assertIsNone(prediction.name)
+
+            np.savez_compressed(
+                model_dir / "gallery.npz",
+                embeddings=np.zeros((1, 128), dtype=np.float32),
+                student_ids=np.asarray(["yuzu"]),
+            )
+            (model_dir / "student_encoder.json").write_text(
+                json.dumps({"embedding_size": "invalid"}),
+                encoding="utf-8",
+            )
+            recognizer = StudentRecognizer(self.catalog, model_dir)
+            self.assertFalse(recognizer.available)
 
 
 class CommittedTrainingLibraryTest(unittest.TestCase):
@@ -905,6 +1015,32 @@ class LessonPrioritySelectionTest(unittest.TestCase):
         prediction = recognizer.identify(
             [np.empty((0, 0, 3), dtype=np.uint8)],
             server="CN",
+        )[0]
+        self.assertIsNone(prediction.name)
+        self.assertFalse(prediction.accepted)
+
+    def test_encoder_output_width_mismatch_fails_closed(self):
+        class WrongWidthNet:
+            def setInput(self, value):
+                self.count = len(value)
+
+            def forward(self):
+                return np.ones((self.count, 3), dtype=np.float32)
+
+        recognizer = StudentRecognizer(
+            StudentCatalog(STATIC_CONFIG["student_names"]),
+            ROOT / "missing-model-directory",
+        )
+        recognizer.net = WrongWidthNet()
+        recognizer.gallery_embeddings = np.asarray(
+            [[1.0, 0.0], [0.0, 1.0]],
+            dtype=np.float32,
+        )
+        recognizer.gallery_ids = np.asarray(["yuzu", "serika"])
+        prediction = recognizer.identify(
+            [np.full((40, 40, 3), 128, dtype=np.uint8)],
+            server="CN",
+            eligible=[True],
         )[0]
         self.assertIsNone(prediction.name)
         self.assertFalse(prediction.accepted)

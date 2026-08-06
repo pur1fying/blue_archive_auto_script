@@ -22,6 +22,7 @@ class StudentRecognizer:
         self.metadata = {
             "input_width": 96,
             "input_height": 96,
+            "embedding_size": 128,
             "margin_threshold": 0.0,
             "mean": [0.485, 0.456, 0.406],
             "std": [0.229, 0.224, 0.225],
@@ -72,22 +73,32 @@ class StudentRecognizer:
         metadata_path = self.model_dir / "student_encoder.json"
         if metadata_path.exists():
             try:
-                self.metadata.update(json.loads(metadata_path.read_text(encoding="utf-8")))
-            except (OSError, ValueError):
+                metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+                if not isinstance(metadata, dict):
+                    raise ValueError("Invalid student encoder metadata")
+                self.metadata.update(metadata)
+            except (OSError, TypeError, ValueError):
                 pass
         if not model_path.exists() or not gallery_path.exists():
             return
         try:
+            expected_embedding_size = int(self.metadata["embedding_size"])
+            if expected_embedding_size <= 0:
+                raise ValueError("Invalid student embedding size")
             self.net = cv2.dnn.readNetFromONNX(str(model_path))
             gallery = np.load(str(gallery_path), allow_pickle=False)
             embeddings = np.asarray(gallery["embeddings"], dtype=np.float32)
             ids = np.asarray(gallery["student_ids"]).astype(str)
-            if embeddings.ndim != 2 or len(embeddings) != len(ids):
+            if (
+                embeddings.ndim != 2
+                or len(embeddings) != len(ids)
+                or embeddings.shape[1] != expected_embedding_size
+            ):
                 raise ValueError("Invalid student gallery")
             norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
             self.gallery_embeddings = embeddings / np.maximum(norms, 1e-12)
             self.gallery_ids = ids
-        except (cv2.error, OSError, ValueError, KeyError):
+        except (cv2.error, OSError, TypeError, ValueError, KeyError):
             self.net = None
             self.gallery_embeddings = np.empty((0, 128), dtype=np.float32)
             self.gallery_ids = np.empty((0,), dtype=str)
@@ -150,7 +161,12 @@ class StudentRecognizer:
             return predictions
         gallery_embeddings = self.gallery_embeddings[gallery_mask]
         gallery_ids = self.gallery_ids[gallery_mask]
-        similarity = np.max(embeddings @ gallery_embeddings.T, axis=1)
+        if embeddings.shape[-1] != gallery_embeddings.shape[1]:
+            return predictions
+        try:
+            similarity = np.max(embeddings @ gallery_embeddings.T, axis=1)
+        except ValueError:
+            return predictions
         for result_index, row in zip(valid_indices, similarity):
             per_student: dict[str, float] = {}
             for sid, score in zip(gallery_ids, row):
@@ -189,6 +205,12 @@ class StudentRecognizer:
         blob = np.stack(inputs).astype(np.float32)
         self.net.setInput(blob)
         embeddings = np.asarray(self.net.forward(), dtype=np.float32)
+        if (
+            embeddings.ndim != 2
+            or embeddings.shape[0] != len(inputs)
+            or embeddings.shape[1] != self.gallery_embeddings.shape[1]
+        ):
+            raise ValueError("Student encoder output does not match gallery")
         embeddings = embeddings.reshape(len(crops), -1, embeddings.shape[-1])
         norms = np.linalg.norm(embeddings, axis=2, keepdims=True)
         return embeddings / np.maximum(norms, 1e-12)

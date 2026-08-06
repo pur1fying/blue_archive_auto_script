@@ -489,6 +489,15 @@ def invite_favor_student(self):
         return
     to_select_location(self, True)
     start_num = get_lesson_region_num(self)
+    if (
+        not isinstance(start_num, int)
+        or not 0 <= start_num < len(self.lesson_region_name_len)
+    ):
+        self.logger.warning(
+            "Unable to resolve the current lesson region. "
+            "Fallback to normal lesson selection."
+        )
+        return
     cur_num = start_num
     tar_stu = favorStudentList[0]
     self.logger.info("Target Student : [ " + tar_stu + " ]")
