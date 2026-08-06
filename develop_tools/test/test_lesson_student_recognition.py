@@ -33,6 +33,9 @@ ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_DIR = ROOT / "develop_tools" / "test" / "fixtures" / "lesson"
 ANNOTATION_PATH = ROOT / "develop_tools" / "student_recognition" / "lesson_locator_annotations.json"
 VALIDATION_REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "validation_report.json"
+HISTORICAL_CORRECTIONS_PATH = (
+    ROOT / "develop_tools" / "student_recognition" / "historical_label_corrections.json"
+)
 STATIC_CONFIG = json.loads(STATIC_DEFAULT_CONFIG)
 
 
@@ -367,8 +370,8 @@ class StudentCatalogTest(unittest.TestCase):
         gallery_path = ROOT / "src" / "models" / "student_recognition" / "gallery.npz"
         if model_path.exists() and gallery_path.exists():
             self.assertTrue(recognizer.available)
-            self.assertEqual(265, len(recognizer.supported_ids))
-            self.assertEqual(265, len(recognizer.seed_ids))
+            self.assertEqual(270, len(recognizer.supported_ids))
+            self.assertEqual(270, len(recognizer.seed_ids))
             self.assertNotIn("similarity_threshold", recognizer.metadata)
             self.assertEqual("valid_global_top1", recognizer.metadata["identity_click_policy"])
             self.assertEqual(0.0, float(recognizer.metadata["margin_threshold"]))
@@ -379,7 +382,7 @@ class StudentCatalogTest(unittest.TestCase):
             self.assertEqual(71, recognizer.metadata["eligible_avatar_count"])
             self.assertEqual(10, recognizer.metadata["plain_avatar_count"])
             self.assertEqual(5, len(recognizer.metadata["validation_groups"]))
-            self.assertEqual(265, len(recognizer.metadata["student_support"]))
+            self.assertEqual(270, len(recognizer.metadata["student_support"]))
             self.assertEqual("historical_only", recognizer.support_status("moe"))
             for student_id in (
                 "ibuki_swimsuit",
@@ -388,7 +391,7 @@ class StudentCatalogTest(unittest.TestCase):
                 "chiaki_swimsuit",
                 "makoto_swimsuit",
             ):
-                self.assertEqual("no_prototype", recognizer.support_status(student_id))
+                self.assertEqual("wikiru_only", recognizer.support_status(student_id))
 
     def test_validation_report_is_complete_and_explicit(self):
         self.assertTrue(VALIDATION_REPORT_PATH.exists())
@@ -404,10 +407,21 @@ class StudentCatalogTest(unittest.TestCase):
         self.assertEqual(74, len(report["target_fixture_students"]))
         self.assertEqual(81, len(report["historical_only_no_fixture"]))
         self.assertEqual(110, len(report["roster_only_no_fixture"]))
+        self.assertEqual(5, len(report["wikiru_only_no_fixture"]))
+        self.assertEqual(
+            {
+                "Chiaki (Swimsuit)",
+                "Ibuki (Swimsuit)",
+                "Iroha (Swimsuit)",
+                "Makoto (Swimsuit)",
+                "Satsuki (Swimsuit)",
+            },
+            set(report["wikiru_only_no_fixture"]),
+        )
         self.assertEqual([], report["no_prototype_students"])
         for key in (
             "top1_failures",
-            "score_failures",
+            "invalid_prediction_failures",
             "click_failures",
             "wrong_card_clicks",
             "gray_identity_failures",
@@ -464,9 +478,32 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
         self.assertEqual(177, len(manifest))
         self.assertEqual(177, len({row["git_blob"] for row in manifest}))
         self.assertEqual(122, len({row["label"] for row in manifest}))
-        self.assertEqual(2, sum(row["label"] == "Toki (Bunny)" for row in manifest))
+        self.assertEqual(1, sum(row["label"] == "Toki (Bunny)" for row in manifest))
+        self.assertEqual(3, sum(row["label"] == "Toki" for row in manifest))
         self.assertEqual(1, sum(row["label"] == "Aris (Maid)" for row in manifest))
         self.assertNotIn("Ar1s-maid", {row["label"] for row in manifest})
+        expected_corrections = {
+            "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc": "Noa (Pajamas)",
+            "efe6447de52bc39ddac4f1b67da0501533666555": "Miyu (Swimsuit)",
+            "9cfd12b434c50c19d05a804f2983a2e274a0a306": "Saki",
+            "d4f34f0e611285e0236fd3034f99e33c2193edc2": "Saki (Swimsuit)",
+            "4074255cf5ec772f6b14203789fb892e673dd538": "Toki",
+            "8a7c6259ee904531c2711659574a8d78afbefed9": "Ui (Swimsuit)",
+        }
+        actual_corrections = {
+            row["git_blob"]: row["label"]
+            for row in manifest
+            if "label_correction" in row
+        }
+        self.assertEqual(expected_corrections, actual_corrections)
+        audit = json.loads(HISTORICAL_CORRECTIONS_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(
+            expected_corrections,
+            {
+                row["git_blob"]: row["corrected_label"]
+                for row in audit["corrections"]
+            },
+        )
         self.assertEqual(177, len(load_historical_portraits()))
 
     def test_roster_montages_remain_the_original_265_identity_snapshot(self):

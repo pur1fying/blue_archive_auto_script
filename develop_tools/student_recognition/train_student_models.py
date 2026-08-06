@@ -235,12 +235,17 @@ class LocatorDataset(Dataset):
 
 def _student_view(image: np.ndarray, randomize: bool) -> np.ndarray:
     canvas_size = 96
-    canvas = np.full((canvas_size, canvas_size, 3), random.randint(205, 235), dtype=np.uint8)
+    background = random.randint(205, 235) if randomize else 220
+    canvas = np.full((canvas_size, canvas_size, 3), background, dtype=np.uint8)
     scale = 3.0 * random.uniform(0.70, 1.40) if randomize else 3.0
     aspect_ratio = random.uniform(0.90, 1.10) if randomize else 1.0
     width = max(16, round(image.shape[1] * scale * aspect_ratio ** 0.5))
     height = max(15, round(image.shape[0] * scale / aspect_ratio ** 0.5))
-    interpolation = random.choice((cv2.INTER_AREA, cv2.INTER_LINEAR, cv2.INTER_CUBIC))
+    interpolation = (
+        random.choice((cv2.INTER_AREA, cv2.INTER_LINEAR, cv2.INTER_CUBIC))
+        if randomize
+        else cv2.INTER_LINEAR
+    )
     resized = cv2.resize(image, (width, height), interpolation=interpolation)
     x = random.randint(min(0, canvas_size - width), max(0, canvas_size - width)) if randomize else (canvas_size - width) // 2
     y = random.randint(min(0, canvas_size - height), max(0, canvas_size - height)) if randomize else (canvas_size - height) // 2
@@ -1335,6 +1340,10 @@ def build_validation_report(
         "wikiru_replay_complete": (
             encoder_metadata["wikiru_replay_metrics"]["correct"] == len(wikiru)
         ),
+        "historical_replay_complete": (
+            encoder_metadata["historical_replay_metrics"]["correct"]
+            == len(historical)
+        ),
         "torch_opencv_match": (
             encoder_metadata["torch_opencv_max_cosine_difference"] <= 1e-4
         ),
@@ -1435,6 +1444,7 @@ def build_validation_report(
         "locator_failures": locator_failures,
         "disclosures": [
             "Lesson, Wikiru, and roster checks are training-data replay, not independent external validation.",
+            "Historical portrait replay is also a training-source replay, not independent validation.",
             "The 65 click-passed students are coverage from the five checked-in lesson screenshots only.",
             "Grouped folds exclude one lesson screenshot and its augmentations, but retain Wikiru/roster/history seed art.",
             "No emulator was connected and no lesson ticket was consumed.",

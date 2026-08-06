@@ -26,6 +26,7 @@ PROMOTED_MODEL_FILES = {
     "src/models/student_recognition/student_encoder.json",
     "src/models/student_recognition/gallery.npz",
     "develop_tools/student_recognition/train_student_models.py",
+    "develop_tools/student_recognition/validation_report.json",
 }
 
 

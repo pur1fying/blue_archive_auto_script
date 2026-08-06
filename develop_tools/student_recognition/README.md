@@ -8,7 +8,7 @@ From the repository root:
 ```powershell
 python -m venv .training-venv
 .\.training-venv\Scripts\python.exe -m pip install -r develop_tools/student_recognition/requirements-training.txt
-.\.training-venv\Scripts\python.exe develop_tools/student_recognition/train_student_models.py all
+.\.training-venv\Scripts\python.exe develop_tools/student_recognition/train_wikiru270_classifier.py
 ```
 
 The locator annotations describe five checked-in new-UI screenshots and contain
@@ -19,7 +19,7 @@ slot. Each screenshot is held out as one complete cross-validation fold, so its
 augmented variants never enter that fold's encoder training set or prototype
 gallery. The grouped result is a diagnostic rather than an independent external
 validation claim. The deliverable encoder is trained once more with all labelled
-screenshots, using identity-balanced sampling: every one of the 265 identities
+screenshots, using identity-balanced sampling: every one of the 270 identities
 contributed three augmented draws per epoch in the last completed run. The
 exported gallery contains at most three distinct source prototypes per student.
 
@@ -28,6 +28,9 @@ normal application runtime. `historical_portraits/` contains 177 distinct Git
 blobs across 122 labels; `extract_historical_templates.py` is the explicit
 maintenance tool that can rebuild that directory from full Git history. Model
 training reads the committed files and does not query Git history itself.
+Six blobs were stored under stale filenames and are corrected by immutable Git
+blob hash after visual comparison with the Wikiru portraits; the manifest keeps
+both the corrected identity and original source label for auditability.
 
 `wikiru_portraits/` contains 272 original Japanese-Wiki portrait files mapped
 to the current 270-identity catalog. It selects one primary portrait per
@@ -45,12 +48,11 @@ training pixels. Hoshino (Battle) and Shun (Swimsuit) each have two illustration
 in the montage; their first form is selected and the second form is explicitly
 excluded in the manifest.
 
-The current production model still ranks its existing 265 gallery identities
-globally. A valid pink portrait whose Top-1 name matches the configured target
-is selectable without a cosine-score or Top-1/Top-2-margin gate. The five newly
-cataloged swimsuit identities remain `no_prototype` and fall back to ordinary
-lesson selection until a later training run replaces the model and gallery.
-Plain/gray portraits can never trigger a lesson-card click.
+The current production model ranks all 270 catalog identities globally. A valid
+pink portrait whose Top-1 name matches the configured target is selectable
+without a cosine-score or Top-1/Top-2-margin gate. The five newly cataloged
+swimsuit identities now have `wikiru_only` prototypes but no real lesson-domain
+click evidence. Plain/gray portraits can never trigger a lesson-card click.
 
 The training catalog is always loaded from `STATIC_DEFAULT_CONFIG`, not the
 generated and ignored `config/static.json`. It contains 270 unique students and
@@ -97,7 +99,7 @@ gray-blocking, scaling, CPU and resource-size checks all pass. The committed
 `validation_report.json` lists all 65 students and 71 pink instances that pass
 the five-fixture click test, plus all 10 blocked gray instances. Those checks are
 training-fixture replay and must not be described as independent validation of
-the 265 identities present in that historical production gallery.
+the 270 identities present in the production gallery.
 
 ## YOLOX locator experiment
 
@@ -152,15 +154,16 @@ On the sealed five-image comparison set the isolated candidate reaches 75/83
 identity Top-1 versus 66/83 for production. Its original report preserves the
 then-current 0.60 click gate for historical comparison.
 
-## Combined YOLOX + MobileNetV3 Top-1 runtime
+## Combined YOLOX + MobileNetV3 + Wikiru270 Top-1 runtime
 
-The `codex/student-recognition-yolox-mobilenetv3-top1` branch composes the two
-already exported sequential components without retraining. YOLOX supplies the
-card and avatar crops; MobileNetV3 supplies the existing 265-identity global
-Top-1 while configuration validation now contains 270 names. The
-models share no weights. A cosine score or Top-1/Top-2 margin never suppresses a
-valid result on this branch. Pink eligibility and card availability remain the
-click gates, and invalid crops or damaged models still fail closed.
+YOLOX supplies card and avatar crops and remains byte-identical to the previous
+combined runtime. MobileNetV3 was retrained from ImageNet initialization with
+177 corrected Git-history portraits, 265 roster portraits, 270 Wikiru portraits
+and 81 lesson portraits. Seed 20260801 passed all training-domain hard checks;
+the resulting gallery contains 270 identities and 690 prototypes. A cosine
+score or Top-1/Top-2 margin never suppresses a valid result. Pink eligibility
+and card availability remain the click gates, and invalid crops or damaged
+models still fail closed.
 
 Run the complete training replay, frozen comparison, performance benchmark and
 270-student evidence audit with:
@@ -172,5 +175,9 @@ Run the complete training replay, frozen comparison, performance benchmark and
 The generated `combined_top1_report.json` contains every instance and the full
 machine-readable roster classification. `combined_top1_report.md` is the
 human-readable error and student-list report. The frozen screenshots informed
-the architecture comparison but remain excluded from weights, prototypes and
-training inputs.
+an earlier architecture comparison but remain excluded from weights,
+prototypes, retries and seed selection. On this frozen regression set the new
+model records 71/83 identity Top-1, 82/83 eligibility and 62/70 pink clicks,
+compared with 75/83, 82/83 and 65/70 immediately before Wikiru270 retraining.
+This regression was reported but did not block promotion under the selected
+release policy.

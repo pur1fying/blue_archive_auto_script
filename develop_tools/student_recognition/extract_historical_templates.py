@@ -23,6 +23,16 @@ HISTORICAL_ROOTS = tuple(
     )
 )
 LABEL_ALIASES = {"Ar1s-maid": "Aris (Maid)"}
+LABEL_CORRECTIONS_BY_BLOB = {
+    # These six Git blobs were stored under stale lesson template filenames.
+    # Their corrected identities were confirmed against the Wikiru portraits.
+    "ac63cee6faa2cbb496b5bc6e798544646e2e6dfc": "Noa (Pajamas)",
+    "efe6447de52bc39ddac4f1b67da0501533666555": "Miyu (Swimsuit)",
+    "9cfd12b434c50c19d05a804f2983a2e274a0a306": "Saki",
+    "d4f34f0e611285e0236fd3034f99e33c2193edc2": "Saki (Swimsuit)",
+    "4074255cf5ec772f6b14203789fb892e673dd538": "Toki",
+    "8a7c6259ee904531c2711659574a8d78afbefed9": "Ui (Swimsuit)",
+}
 RAW_CHANGE = re.compile(
     r"^:[0-7]{6} [0-7]{6} ([0-9a-f]{40}) ([0-9a-f]{40}) [A-Z][0-9]*\t(.+)$"
 )
@@ -31,6 +41,7 @@ RAW_CHANGE = re.compile(
 @dataclass(frozen=True)
 class HistoricalPortrait:
     label: str
+    source_label: str
     git_blob: str
     server: str
     source_path: str
@@ -41,7 +52,8 @@ def scan_historical_portraits(root: Path = ROOT) -> list[HistoricalPortrait]:
 
     ``--no-renames`` makes both sides of a rename appear as ordinary delete/add
     records. Reading both the old and new blob of every change also recovers
-    overwritten portrait versions, including the second Toki (Bunny) image.
+    overwritten portrait versions. Explicit blob-level corrections handle six
+    stale filenames whose pixels belong to a different student/form.
     """
     output = subprocess.check_output(
         [
@@ -78,10 +90,17 @@ def scan_historical_portraits(root: Path = ROOT) -> list[HistoricalPortrait]:
         for blob in (old_blob, new_blob):
             if set(blob) == {"0"}:
                 continue
-            key = (label, blob)
+            corrected_label = LABEL_CORRECTIONS_BY_BLOB.get(blob, label)
+            key = (corrected_label, blob)
             found.setdefault(
                 key,
-                HistoricalPortrait(label, blob, server, normalized_path),
+                HistoricalPortrait(
+                    corrected_label,
+                    label,
+                    blob,
+                    server,
+                    normalized_path,
+                ),
             )
     return sorted(found.values(), key=lambda item: (item.label.casefold(), item.git_blob))
 
@@ -100,8 +119,7 @@ def main() -> None:
         raw = read_git_blob(portrait.git_blob)
         filename = f"{portrait.git_blob[:12]}.png"
         (args.output / filename).write_bytes(raw)
-        manifest.append(
-            {
+        row = {
                 "label": portrait.label,
                 "server": portrait.server,
                 "source_path": portrait.source_path,
@@ -109,7 +127,10 @@ def main() -> None:
                 "sha256": hashlib.sha256(raw).hexdigest(),
                 "file": filename,
             }
-        )
+        if portrait.source_label != portrait.label:
+            row["source_label"] = portrait.source_label
+            row["label_correction"] = "stale_filename_confirmed_against_wikiru"
+        manifest.append(row)
     (args.output / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2),
         encoding="utf-8",

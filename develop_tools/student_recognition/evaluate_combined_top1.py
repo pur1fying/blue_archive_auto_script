@@ -336,6 +336,12 @@ def render_markdown(report: dict) -> str:
         row["support_status"] == "no_prototype"
         for row in capability["students"]
     )
+    gallery_sentence = (
+        f"- 当前生产图库覆盖全部{gallery_count}人，所有配置身份均参与全局Top-1。"
+        if no_prototype_count == 0
+        else f"- 当前生产图库为{gallery_count}人；{no_prototype_count}名仍为"
+        "`no_prototype`并回退普通日程。"
+    )
     lines = [
         "# YOLOX + MobileNetV3 Top-1 组合验收报告",
         "",
@@ -344,13 +350,14 @@ def render_markdown(report: dict) -> str:
         f"- 训练回放：{training['metrics']['identity_correct']}/81 身份，"
         f"{training['metrics']['pink_click_passed']}/71 粉框点击，"
         f"{training['metrics']['gray_blocked']}/10 灰框阻止。",
-        f"- independent_v1：{independent['metrics']['identity_correct']}/83 身份，"
+        f"- 冻结回归集 independent_v1：{independent['metrics']['identity_correct']}/83 身份，"
         f"{independent['metrics']['eligibility_correct']}/83 粉灰，"
         f"{independent['metrics']['eligible_click_passed']}/70 粉框点击。",
         f"- {catalog_count}人证据分类：correct {capability['counts']['correct']}，"
         f"error {capability['counts']['error']}，uncertain {capability['counts']['uncertain']}。",
-        f"- 当前生产图库仍为{gallery_count}人；新增{no_prototype_count}名在重新训练前为"
-        "`no_prototype`并回退普通日程。身份分数和分差仍只用于诊断。",
+        gallery_sentence,
+        f"- 本报告对应训练动作：{'已执行' if report['training_action']['performed'] else '未执行'}；"
+        "身份分数和分差只用于诊断。",
         "",
         "## 模块架构与来源",
         "",
@@ -392,6 +399,27 @@ def render_markdown(report: dict) -> str:
             f"{'粉' if row['expected_eligible'] else '灰'} | "
             f"{'粉' if row['predicted_eligible'] else '灰'} | "
             f"{row['expected_target_selected_card']} |"
+        )
+    if "comparison_to_pre_wikiru270" in report:
+        comparison = report["comparison_to_pre_wikiru270"]
+        metrics = comparison["metrics"]
+        lines.extend(
+            [
+                "",
+                "## 相对Wikiru270重训前模型",
+                "",
+                f"- 身份正确：{metrics['identity_correct']['before']} → "
+                f"{metrics['identity_correct']['after']} "
+                f"({metrics['identity_correct']['delta']:+d})。",
+                f"- 粉框点击：{metrics['eligible_click_passed']['before']} → "
+                f"{metrics['eligible_click_passed']['after']} "
+                f"({metrics['eligible_click_passed']['delta']:+d})。",
+                f"- 灰框错误点击：{metrics['gray_target_clicked']['before']} → "
+                f"{metrics['gray_target_clicked']['after']} "
+                f"({metrics['gray_target_clicked']['delta']:+d})。",
+                f"- 83个实例中有{len(comparison['changed_instances'])}个预测或业务结果发生变化；"
+                "完整逐实例前后结果保存在JSON报告中。",
+            ]
         )
     lines.extend(
         [
@@ -449,7 +477,76 @@ def render_markdown(report: dict) -> str:
     return "\n".join(lines)
 
 
-def build_report(model_dir: Path, benchmark_runs: int) -> dict:
+def compare_with_baseline(baseline: dict, current: dict) -> dict:
+    before = baseline["independent_v1"]
+    before_rows = {
+        (row["image"], row["location"]): row for row in before["instances"]
+    }
+    rows = []
+    for row in current["instances"]:
+        prior = before_rows[(row["image"], row["location"])]
+        comparison = {
+            "image": row["image"],
+            "location": row["location"],
+            "display_location": row["display_location"],
+            "expected_name": row["expected_name"],
+            "before_top1": prior["top1_name"],
+            "after_top1": row["top1_name"],
+            "before_score": prior["score"],
+            "after_score": row["score"],
+            "before_identity_correct": prior["identity_correct"],
+            "after_identity_correct": row["identity_correct"],
+            "before_eligible": prior["predicted_eligible"],
+            "after_eligible": row["predicted_eligible"],
+            "before_click_passed": prior["expected_target_click_passed"],
+            "after_click_passed": row["expected_target_click_passed"],
+            "before_wrong_click_risk": prior["potential_wrong_target_click"],
+            "after_wrong_click_risk": row["potential_wrong_target_click"],
+        }
+        comparison["changed"] = any(
+            comparison[name] != comparison[name.replace("after_", "before_")]
+            for name in (
+                "after_top1",
+                "after_identity_correct",
+                "after_eligible",
+                "after_click_passed",
+                "after_wrong_click_risk",
+            )
+        )
+        rows.append(comparison)
+    metric_names = (
+        "identity_correct",
+        "eligible_identity_correct",
+        "plain_identity_correct",
+        "eligibility_correct",
+        "eligible_click_passed",
+        "eligible_click_failed",
+        "gray_target_blocked",
+        "gray_target_clicked",
+    )
+    metrics = {
+        name: {
+            "before": before["metrics"][name],
+            "after": current["metrics"][name],
+            "delta": current["metrics"][name] - before["metrics"][name],
+        }
+        for name in metric_names
+    }
+    return {
+        "baseline_generated_at_utc": baseline.get("generated_at_utc"),
+        "metrics": metrics,
+        "instances": rows,
+        "changed_instances": [row for row in rows if row["changed"]],
+    }
+
+
+def build_report(
+    model_dir: Path,
+    benchmark_runs: int,
+    baseline: dict | None = None,
+    training_summary: dict | None = None,
+    independent_blocks_completion: bool = True,
+) -> dict:
     model_dir = model_dir.resolve()
     independent = evaluate_independent(
         model_dir=model_dir,
@@ -479,14 +576,33 @@ def build_report(model_dir: Path, benchmark_runs: int) -> dict:
         "pink_clicks_71": training["metrics"]["pink_click_passed"] == 71,
         "gray_blocked_10": training["metrics"]["gray_blocked"] == 10,
     }
+    training_completed = bool(
+        training_summary is None or training_summary.get("selected_seed") is not None
+    )
     report = {
         "version": 1,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "classification": "combined_candidate_frozen_comparison",
-        "completed": all(promotion_checks.values()) and all(training_checks.values()),
+        "completed": (
+            all(training_checks.values())
+            and training_completed
+            and (
+                all(promotion_checks.values())
+                if independent_blocks_completion
+                else True
+            )
+        ),
         "training_action": {
-            "performed": False,
-            "reason": "Existing sequential ONNX components met the predeclared integration targets.",
+            "performed": training_summary is not None,
+            "reason": (
+                "MobileNetV3 was retrained with the committed Wikiru270 seed library."
+                if training_summary is not None
+                else "Existing sequential ONNX components met the predeclared integration targets."
+            ),
+            "selected_seed": (
+                training_summary.get("selected_seed") if training_summary else None
+            ),
+            "independent_v1_used_for_training_or_seed_selection": False,
         },
         "identity_click_policy": "valid_global_top1",
         "data_isolation": {
@@ -502,7 +618,10 @@ def build_report(model_dir: Path, benchmark_runs: int) -> dict:
                     INDEPENDENT_ANNOTATION_PATH.read_text(encoding="utf-8")
                 )["images"]
             ),
-            "note": "The frozen set has informed architecture comparison, but not weights, prototypes, or training.",
+            "note": (
+                "The frozen set informed an earlier architecture comparison, but was not used for "
+                "weights, prototypes, retry decisions, or seed selection in this training run."
+            ),
         },
         "architecture": architecture_report(model_dir),
         "artifacts": {
@@ -517,6 +636,21 @@ def build_report(model_dir: Path, benchmark_runs: int) -> dict:
         "independent_v1": independent,
     }
     report["catalog_capability"] = classify_catalog(independent, training, model_dir)
+    if baseline is not None:
+        report["comparison_to_pre_wikiru270"] = compare_with_baseline(
+            baseline,
+            independent,
+        )
+    if training_summary is not None:
+        report["training_action"]["summary_report_sha256"] = training_summary.get(
+            "report_sha256"
+        )
+        report["training_action"]["attempt_count"] = len(
+            training_summary.get("attempts", [])
+        )
+    report["independent_v1"]["promotion"]["blocks_completion"] = (
+        independent_blocks_completion
+    )
     return report
 
 
@@ -526,8 +660,30 @@ def main() -> int:
     parser.add_argument("--json-output", type=Path, default=DEFAULT_JSON)
     parser.add_argument("--markdown-output", type=Path, default=DEFAULT_MARKDOWN)
     parser.add_argument("--benchmark-runs", type=int, default=30)
+    parser.add_argument("--baseline-json", type=Path)
+    parser.add_argument("--training-report", type=Path)
+    parser.add_argument(
+        "--independent-reporting-only",
+        action="store_true",
+        help="Record independent_v1 regressions without using them as a completion gate.",
+    )
     args = parser.parse_args()
-    report = build_report(args.model_dir, args.benchmark_runs)
+    baseline = (
+        json.loads(args.baseline_json.read_text(encoding="utf-8"))
+        if args.baseline_json
+        else None
+    )
+    training_summary = None
+    if args.training_report:
+        training_summary = json.loads(args.training_report.read_text(encoding="utf-8"))
+        training_summary["report_sha256"] = sha256(args.training_report)
+    report = build_report(
+        args.model_dir,
+        args.benchmark_runs,
+        baseline=baseline,
+        training_summary=training_summary,
+        independent_blocks_completion=not args.independent_reporting_only,
+    )
     args.json_output.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",

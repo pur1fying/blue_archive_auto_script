@@ -1,0 +1,331 @@
+{
+  "version": 1,
+  "classification": "wikiru270_mobilenetv3_training_and_training_domain_selection",
+  "started_at_utc": "2026-08-06T08:29:51.588800+00:00",
+  "training_action": {
+    "performed": true
+  },
+  "architecture": "torchvision-MobileNetV3-Small-ImageNet1K-V1",
+  "environment": {
+    "torch_version": "2.5.1+cu124",
+    "opencv_version": "4.8.1",
+    "device": "cuda",
+    "cuda_device": "NVIDIA GeForce RTX 2070 Super",
+    "onnx_opset": 12
+  },
+  "data_artifacts": {
+    "develop_tools/student_recognition/data/historical_portraits/manifest.json": {
+      "bytes": 55304,
+      "sha256": "4fdfa6f8a090dc15ebd7c89d9643eaaf1725eb3bb539bd839b16b194a716dd47"
+    },
+    "develop_tools/student_recognition/data/wikiru_portraits/manifest.json": {
+      "bytes": 143929,
+      "sha256": "801e47c1b4862ac80f5978fc9c5e4fa08d654ce2ba2630b843fbde72edd5b8f5"
+    },
+    "develop_tools/student_recognition/data/roster_montages/roster_montage_annotations.json": {
+      "bytes": 91782,
+      "sha256": "d98964f63c5abe0f7c70346160dc299e492212855246991dde61423404e5c8ef"
+    },
+    "develop_tools/student_recognition/lesson_locator_annotations.json": {
+      "bytes": 5593,
+      "sha256": "06132e8c44792f991cddcb2da2d082302b3ce8b7e178b0dd9fb3c84da39d2841"
+    }
+  },
+  "frozen_locator": {
+    "architecture": "YOLOX-Nano",
+    "hashes_before": {
+      "lesson_locator.onnx": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d",
+      "lesson_locator.json": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+    },
+    "retrained": false,
+    "hashes_after": {
+      "lesson_locator.onnx": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d",
+      "lesson_locator.json": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+    }
+  },
+  "seed_policy": {
+    "ordered_seeds": [
+      20260731,
+      20260801,
+      20260802
+    ],
+    "stop_at_first_training_domain_pass": true,
+    "independent_v1_used_for_seed_selection": false
+  },
+  "schedule": {
+    "pretrain_epochs": 100,
+    "frozen_backbone_epochs": 20,
+    "fold_epochs": 35,
+    "final_epochs": 80
+  },
+  "attempts": [
+    {
+      "seed": 20260731,
+      "candidate_directory": ".training-runs/student_recognition/wikiru270-corrected/seed-20260731",
+      "completed": false,
+      "hard_failures": [
+        "cpu_p95_under_500ms"
+      ],
+      "grouped_encoder": {
+        "count": 81,
+        "correct": 72,
+        "top1_accuracy": 0.8888888888888888,
+        "macro_recall": 0.8783783783783784,
+        "minimum_score": 0.593515932559967,
+        "minimum_margin": 0.00017648935317993164
+      },
+      "training_replay": {
+        "lesson_annotated_crops": {
+          "count": 81,
+          "correct": 81,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.8987300395965576,
+          "minimum_margin": 0.16965830326080322
+        },
+        "roster_portraits": {
+          "count": 265,
+          "correct": 265,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.6273055672645569,
+          "minimum_margin": 0.13520443439483643
+        },
+        "wikiru_portraits": {
+          "count": 270,
+          "correct": 270,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.9999998807907104,
+          "minimum_margin": 0.09316647052764893
+        },
+        "historical_portraits": {
+          "count": 177,
+          "correct": 177,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.6585437059402466,
+          "minimum_margin": 0.08656907081604004
+        }
+      },
+      "end_to_end_replay": {
+        "lesson_runtime_crops": {
+          "count": 81,
+          "correct": 81,
+          "top1_accuracy": 1.0,
+          "minimum_score": 0.9303911924362183,
+          "minimum_margin": 0.2138562798500061
+        },
+        "click_coverage": {
+          "passed_instances": 71,
+          "passed_students": 65,
+          "first_three_images_passed_instances": 42,
+          "last_two_images_passed_instances": 29,
+          "gray_blocked_instances": 10,
+          "gray_wrong_clicks": 0
+        }
+      },
+      "performance": {
+        "warmup_runs": 5,
+        "measured_runs": 30,
+        "mean_ms": 412.69195666706463,
+        "p95_ms": 507.54506499924895,
+        "max_ms": 516.8149999990419
+      },
+      "resources": {
+        "files": {
+          "lesson_locator.onnx": {
+            "bytes": 3701493,
+            "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+          },
+          "lesson_locator.json": {
+            "bytes": 733,
+            "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+          },
+          "student_encoder.onnx": {
+            "bytes": 4017703,
+            "sha256": "289bdda2e6b4a0f34983a9603794a357956603a9a4e416540a117ed18d64180d"
+          },
+          "student_encoder.json": {
+            "bytes": 87891,
+            "sha256": "ac06a1c59b25377fe51d961c3992739f82a20564e28903b4a4a18cc155b87300"
+          },
+          "gallery.npz": {
+            "bytes": 330177,
+            "sha256": "06573b349eb73d703d43f83b94026bc87c474a160641751dda5349ecb6e944a8"
+          }
+        },
+        "total_bytes": 8137997,
+        "limit_bytes": 26214400
+      },
+      "artifacts": {
+        "lesson_locator.onnx": {
+          "bytes": 3701493,
+          "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+        },
+        "lesson_locator.json": {
+          "bytes": 733,
+          "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+        },
+        "student_encoder.onnx": {
+          "bytes": 4017703,
+          "sha256": "289bdda2e6b4a0f34983a9603794a357956603a9a4e416540a117ed18d64180d"
+        },
+        "student_encoder.json": {
+          "bytes": 87891,
+          "sha256": "ac06a1c59b25377fe51d961c3992739f82a20564e28903b4a4a18cc155b87300"
+        },
+        "gallery.npz": {
+          "bytes": 330177,
+          "sha256": "06573b349eb73d703d43f83b94026bc87c474a160641751dda5349ecb6e944a8"
+        }
+      }
+    },
+    {
+      "seed": 20260801,
+      "candidate_directory": ".training-runs/student_recognition/wikiru270-corrected/seed-20260801",
+      "completed": true,
+      "hard_failures": [],
+      "grouped_encoder": {
+        "count": 81,
+        "correct": 69,
+        "top1_accuracy": 0.8518518518518519,
+        "macro_recall": 0.8378378378378378,
+        "minimum_score": 0.5962542295455933,
+        "minimum_margin": 0.008968472480773926
+      },
+      "training_replay": {
+        "lesson_annotated_crops": {
+          "count": 81,
+          "correct": 81,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.9032931923866272,
+          "minimum_margin": 0.12582260370254517
+        },
+        "roster_portraits": {
+          "count": 265,
+          "correct": 265,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.7129990458488464,
+          "minimum_margin": 0.12271386384963989
+        },
+        "wikiru_portraits": {
+          "count": 270,
+          "correct": 270,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.9999998211860657,
+          "minimum_margin": 0.10957008600234985
+        },
+        "historical_portraits": {
+          "count": 177,
+          "correct": 177,
+          "top1_accuracy": 1.0,
+          "macro_recall": 1.0,
+          "minimum_score": 0.6972987651824951,
+          "minimum_margin": 0.058529019355773926
+        }
+      },
+      "end_to_end_replay": {
+        "lesson_runtime_crops": {
+          "count": 81,
+          "correct": 81,
+          "top1_accuracy": 1.0,
+          "minimum_score": 0.9262927770614624,
+          "minimum_margin": 0.22618722915649414
+        },
+        "click_coverage": {
+          "passed_instances": 71,
+          "passed_students": 65,
+          "first_three_images_passed_instances": 42,
+          "last_two_images_passed_instances": 29,
+          "gray_blocked_instances": 10,
+          "gray_wrong_clicks": 0
+        }
+      },
+      "performance": {
+        "warmup_runs": 5,
+        "measured_runs": 30,
+        "mean_ms": 340.26416333351034,
+        "p95_ms": 451.72354000151233,
+        "max_ms": 531.1741000004986
+      },
+      "resources": {
+        "files": {
+          "lesson_locator.onnx": {
+            "bytes": 3701493,
+            "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+          },
+          "lesson_locator.json": {
+            "bytes": 733,
+            "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+          },
+          "student_encoder.onnx": {
+            "bytes": 4017703,
+            "sha256": "89166c74e8b21cfcb53f3a82d8ece2b74f325b97055c86c8a5894579bf879378"
+          },
+          "student_encoder.json": {
+            "bytes": 87878,
+            "sha256": "7100fc256cb4d7e3c6ba16838b92739d66ad98b411a94f2fd2ec2d075b108e90"
+          },
+          "gallery.npz": {
+            "bytes": 330081,
+            "sha256": "6137fec5c74bb86ee0b5c786a3bece48434e42bbd90834f88190450e5f3d8f22"
+          }
+        },
+        "total_bytes": 8137888,
+        "limit_bytes": 26214400
+      },
+      "artifacts": {
+        "lesson_locator.onnx": {
+          "bytes": 3701493,
+          "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+        },
+        "lesson_locator.json": {
+          "bytes": 733,
+          "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+        },
+        "student_encoder.onnx": {
+          "bytes": 4017703,
+          "sha256": "89166c74e8b21cfcb53f3a82d8ece2b74f325b97055c86c8a5894579bf879378"
+        },
+        "student_encoder.json": {
+          "bytes": 87878,
+          "sha256": "7100fc256cb4d7e3c6ba16838b92739d66ad98b411a94f2fd2ec2d075b108e90"
+        },
+        "gallery.npz": {
+          "bytes": 330081,
+          "sha256": "6137fec5c74bb86ee0b5c786a3bece48434e42bbd90834f88190450e5f3d8f22"
+        }
+      }
+    }
+  ],
+  "selected_seed": 20260801,
+  "promoted": true,
+  "finished_at_utc": "2026-08-06T09:26:28.388368+00:00",
+  "selected_candidate": ".training-runs/student_recognition/wikiru270-corrected/seed-20260801",
+  "production_artifacts": {
+    "lesson_locator.onnx": {
+      "bytes": 3701493,
+      "sha256": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d"
+    },
+    "lesson_locator.json": {
+      "bytes": 733,
+      "sha256": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62"
+    },
+    "student_encoder.onnx": {
+      "bytes": 4017703,
+      "sha256": "89166c74e8b21cfcb53f3a82d8ece2b74f325b97055c86c8a5894579bf879378"
+    },
+    "student_encoder.json": {
+      "bytes": 87878,
+      "sha256": "7100fc256cb4d7e3c6ba16838b92739d66ad98b411a94f2fd2ec2d075b108e90"
+    },
+    "gallery.npz": {
+      "bytes": 330081,
+      "sha256": "6137fec5c74bb86ee0b5c786a3bece48434e42bbd90834f88190450e5f3d8f22"
+    }
+  }
+}
