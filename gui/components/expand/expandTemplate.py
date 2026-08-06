@@ -113,12 +113,12 @@ class TemplateLayout(QWidget):
                 inputComponent.setFixedWidth(400)
                 inputComponent.setText(str(self.config.get(currentKey)))
                 inputComponent.setReadOnly(cfg.readOnly)
-
-                @delay(0.8)
-                def async_change_text(_currentKey, _inputComponent, _labelComponent, *_):
-                    self._commit(_currentKey, _inputComponent, _labelComponent)
-
-                inputComponent.textChanged.connect(partial(async_change_text, currentKey, inputComponent, labelComponent))
+                # Same as type 'text': editingFinished so Dialog OK + clearFocus
+                # flushes the last edit into ConfigDraft. @delay+textChanged could
+                # drop input when user types then immediately clicks 确定.
+                if not cfg.readOnly:
+                    inputComponent.editingFinished.connect(
+                        partial(self._commit, currentKey, inputComponent, labelComponent))
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 selectButton = PushButton(self.tr('执行'), self)
                 selectButton.clicked.connect(cfg.selection)

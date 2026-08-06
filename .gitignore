@@ -1,20 +1,10 @@
 .tools/
 deploy/installer/build/
 
-# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Local only - do not commit
-push-pr1.bat
-gen-pr1-change.ps1
-export-pr1-for-review.bat
-export-pr1-for-review.ps1
-fix-untrack-helpers.bat
-cleanup-bad-commits.bat
-PR1.md
-PR1_GITHUB.md
-.gitignore.snippet
+push.bat
+export.bat
 pr1_changes.txt
-pr1-change.md
