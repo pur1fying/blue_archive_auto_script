@@ -40,6 +40,7 @@ from develop_tools.student_recognition.models import (
 from develop_tools.student_recognition.training_data import (
     load_historical_portraits,
     load_roster_montage_portraits,
+    load_wikiru_portraits,
 )
 
 
@@ -345,7 +346,7 @@ def _runtime_student_views(crop: np.ndarray) -> np.ndarray:
 class IdentityBalancedStudentDataset(Dataset):
     """Give every identity exactly the same number of augmented draws."""
 
-    SOURCE_ORDER = ("target:", "roster:", "history:")
+    SOURCE_ORDER = ("target:", "wikiru:", "roster:", "history:")
 
     def __init__(
         self,
@@ -374,15 +375,12 @@ class IdentityBalancedStudentDataset(Dataset):
         identity_index, source_slot = divmod(index, self.samples_per_identity)
         name = self.names[identity_index]
         by_source = self.templates_by_name[name]
-        preferred = self.SOURCE_ORDER[source_slot % len(self.SOURCE_ORDER)]
-        templates = by_source.get(preferred)
-        if not templates:
-            available = [
-                by_source[source]
-                for source in self.SOURCE_ORDER
-                if by_source.get(source)
-            ]
-            templates = available[source_slot % len(available)]
+        available = [
+            by_source[source]
+            for source in self.SOURCE_ORDER
+            if by_source.get(source)
+        ]
+        templates = available[source_slot % len(available)]
         _, _, image = random.choice(templates)
         views = np.stack((_student_view(image, True), _student_view(image, True))).astype(np.float32)
         return torch.from_numpy(views), self.label_to_index[name]
@@ -603,17 +601,21 @@ def _select_prototype_templates(templates, catalog):
     for student_id in sorted(catalog.records):
         sources = grouped.get(student_id, {})
         target = sorted(sources.get("target", []), key=lambda item: item[1])
+        wikiru = sorted(sources.get("wikiru", []), key=lambda item: item[1])
         roster = sorted(sources.get("roster", []), key=lambda item: item[1])
         history = sorted(sources.get("history", []), key=lambda item: item[1])
         choices = []
         if target:
             choices.extend(target[:2])
-            choices.extend(roster[:1])
+            choices.extend(wikiru[:1])
+            if len(choices) < 3:
+                choices.extend(roster[: 3 - len(choices)])
             if len(choices) < 3:
                 choices.extend(history[: 3 - len(choices)])
         else:
+            choices.extend(wikiru[:1])
             choices.extend(roster[:1])
-            choices.extend(history[:2])
+            choices.extend(history[:1])
         selected.extend(choices[:3])
     return selected
 
@@ -780,6 +782,8 @@ def _source_support_metadata(
     catalog,
     target_groups,
     historical_ids,
+    roster_ids,
+    wikiru_ids,
     prototype_sources,
 ):
     metadata = {}
@@ -788,8 +792,10 @@ def _source_support_metadata(
             status = "target_fixture"
         elif student_id in historical_ids:
             status = "historical_only"
-        elif student_id in prototype_sources:
+        elif student_id in roster_ids:
             status = "roster_only"
+        elif student_id in wikiru_ids:
+            status = "wikiru_only"
         else:
             status = "no_prototype"
         metadata[student_id] = {
@@ -810,7 +816,8 @@ def train_encoder(
 ) -> dict:
     historical_templates = load_historical_templates()
     roster_templates = load_roster_montage_portraits()
-    seed_templates = historical_templates + roster_templates
+    wikiru_templates = load_wikiru_portraits()
+    seed_templates = historical_templates + wikiru_templates + roster_templates
     labeled_crops = load_labeled_target_crops()
     runtime_labeled_crops = load_runtime_labeled_target_crops(output_dir)
     target_portraits, _ = load_target_domain_portraits()
@@ -825,6 +832,16 @@ def train_encoder(
         for name, _, _ in historical_templates
         if (record := catalog.resolve(name)) is not None
     }
+    roster_ids = {
+        record.student_id
+        for name, _, _ in roster_templates
+        if (record := catalog.resolve(name)) is not None
+    }
+    wikiru_ids = {
+        record.student_id
+        for name, _, _ in wikiru_templates
+        if (record := catalog.resolve(name)) is not None
+    }
     target_groups = collections.defaultdict(set)
     for name, image_name, _, _ in labeled_crops:
         record = catalog.resolve(name)
@@ -832,9 +849,11 @@ def train_encoder(
             raise ValueError(f"Unknown manually labelled student: {name}")
         target_groups[record.student_id].add(image_name)
     target_ids = set(target_groups)
-    if len(catalog.records) != 265 or len(target_ids) != 74:
+    if wikiru_ids != set(catalog.records) or len(target_ids) != 74:
         raise ValueError(
-            f"Unexpected catalog/target identity count: {len(catalog.records)}/{len(target_ids)}"
+            "Wikiru seeds must cover the complete catalog and the checked-in "
+            f"lesson fixtures must contain 74 identities: "
+            f"{len(wikiru_ids)}/{len(catalog.records)}/{len(target_ids)}"
         )
 
     pretrained_encoder, _ = _train_student_encoder(
@@ -932,6 +951,13 @@ def train_encoder(
         gallery_ids,
         catalog,
     )
+    wikiru_results = _score_portraits_with_opencv(
+        model_path,
+        wikiru_templates,
+        gallery_embeddings,
+        gallery_ids,
+        catalog,
+    )
     historical_results = _score_portraits_with_opencv(
         model_path,
         historical_templates,
@@ -954,6 +980,8 @@ def train_encoder(
         catalog,
         target_groups,
         historical_ids,
+        roster_ids,
+        wikiru_ids,
         prototype_sources,
     )
     annotation = json.loads(ANNOTATION_PATH.read_text(encoding="utf-8"))
@@ -979,10 +1007,11 @@ def train_encoder(
         "margin_is_click_gate": False,
         "support_status_is_click_gate": False,
         "global_top1_catalog_size": len(catalog.records),
-        "training_source": "committed-git-history+committed-roster-montage+user-manual-target-domain",
+        "training_source": "committed-git-history+committed-wikiru-portraits+committed-roster-montage+user-manual-target-domain",
         "historical_blob_count": len(historical_templates),
         "historical_identity_count": len(historical_ids),
         "roster_montage_portrait_count": len(roster_templates),
+        "wikiru_portrait_count": len(wikiru_templates),
         "target_domain_training_count": len(target_portraits),
         "identity_balanced_samples_per_epoch": SAMPLES_PER_IDENTITY,
         "pretraining_epochs": pretrain_epochs,
@@ -1001,6 +1030,7 @@ def train_encoder(
         "cross_validation_metrics": _top1_metrics(cross_validation_results),
         "all_labeled_target_metrics": _top1_metrics(final_results),
         "roster_replay_metrics": _top1_metrics(roster_results),
+        "wikiru_replay_metrics": _top1_metrics(wikiru_results),
         "historical_replay_metrics": _top1_metrics(historical_results),
         "torch_opencv_max_cosine_difference": cosine_difference,
         "label_count": len(names),
@@ -1016,6 +1046,7 @@ def train_encoder(
         "cross_validation_results": cross_validation_results,
         "manual_target_results": final_results,
         "roster_results": roster_results,
+        "wikiru_results": wikiru_results,
         "historical_results": historical_results,
     }
 
@@ -1067,6 +1098,7 @@ def build_validation_report(
     catalog = StudentCatalog(student_rows)
     historical = load_historical_templates()
     roster = load_roster_montage_portraits()
+    wikiru = load_wikiru_portraits()
     historical_ids = {
         catalog.resolve(name).student_id for name, _, _ in historical
     }
@@ -1084,6 +1116,9 @@ def build_validation_report(
     target_ids = set(target_groups)
     roster_ids = {
         catalog.resolve(name).student_id for name, _, _ in roster
+    }
+    wikiru_ids = {
+        catalog.resolve(name).student_id for name, _, _ in wikiru
     }
 
     service = StudentRecognitionService(student_rows, model_dir)
@@ -1250,15 +1285,19 @@ def build_validation_report(
     encoder_metadata = encoder_diagnostics["metadata"]
     hard_failures = []
     conditions = {
-        "catalog_265": len(catalog.records) == 265,
+        "catalog_names_unique": len(catalog.records) == len(student_rows),
         "history_177_122": len(historical) == 177 and len(historical_ids) == 122,
-        "roster_265": len(roster) == 265 and len(roster_ids) == 265,
+        "legacy_roster_265": len(roster) == 265 and len(roster_ids) == 265,
+        "wikiru_catalog_coverage": (
+            len(wikiru) == len(catalog.records)
+            and wikiru_ids == set(catalog.records)
+        ),
         "target_81_74": len(instances) == 81 and len(target_ids) == 74,
         "eligibility_71_10": (
             sum(row["expected_eligible"] for row in instances) == 71
             and sum(not row["expected_eligible"] for row in instances) == 10
         ),
-        "gallery_265": len(gallery_unique_ids) == 265,
+        "gallery_catalog_coverage": gallery_unique_ids == set(catalog.records),
         "opencv_4_8_1": cv2.__version__ == "4.8.1",
         "runtime_models_load": (
             service.lesson_locator.model_available and service.identity_available
@@ -1290,8 +1329,11 @@ def build_validation_report(
             and len(gray_blocked_instances) == 10
             and len(gray_blocked_students) == 9
         ),
-        "roster_replay_265": (
-            encoder_metadata["roster_replay_metrics"]["correct"] == 265
+        "roster_replay_complete": (
+            encoder_metadata["roster_replay_metrics"]["correct"] == len(roster)
+        ),
+        "wikiru_replay_complete": (
+            encoder_metadata["wikiru_replay_metrics"]["correct"] == len(wikiru)
         ),
         "torch_opencv_match": (
             encoder_metadata["torch_opencv_max_cosine_difference"] <= 1e-4
@@ -1303,6 +1345,7 @@ def build_validation_report(
 
     historical_only_ids = historical_ids - target_ids
     roster_only_ids = roster_ids - target_ids - historical_ids
+    wikiru_only_ids = wikiru_ids - target_ids - historical_ids - roster_ids
     no_prototype_ids = set(catalog.records) - gallery_unique_ids
     runtime_top1_correct = sum(row["student"] == row["top1"] for row in instances)
     runtime_replay = {
@@ -1346,6 +1389,7 @@ def build_validation_report(
             "historical_portraits": len(historical),
             "historical_identities": len(historical_ids),
             "roster_portraits": len(roster),
+            "wikiru_portraits": len(wikiru),
             "lesson_instances": len(instances),
             "lesson_identities": len(target_ids),
             "eligible_instances": sum(row["expected_eligible"] for row in instances),
@@ -1354,6 +1398,7 @@ def build_validation_report(
         "training_replay": {
             "lesson_annotated_crops": encoder_metadata["all_labeled_target_metrics"],
             "roster_portraits": encoder_metadata["roster_replay_metrics"],
+            "wikiru_portraits": encoder_metadata["wikiru_replay_metrics"],
             "historical_portraits": encoder_metadata["historical_replay_metrics"],
         },
         "end_to_end_replay": {
@@ -1379,6 +1424,7 @@ def build_validation_report(
         "target_fixture_students": _canonical_names(catalog, target_ids),
         "historical_only_no_fixture": _canonical_names(catalog, historical_only_ids),
         "roster_only_no_fixture": _canonical_names(catalog, roster_only_ids),
+        "wikiru_only_no_fixture": _canonical_names(catalog, wikiru_only_ids),
         "no_prototype_students": _canonical_names(catalog, no_prototype_ids),
         "top1_failures": top1_failures,
         "invalid_prediction_failures": invalid_prediction_failures,
@@ -1388,9 +1434,9 @@ def build_validation_report(
         "gray_wrong_clicks": gray_wrong_clicks,
         "locator_failures": locator_failures,
         "disclosures": [
-            "81/81 lesson and 265/265 roster checks are training-data replay, not independent external validation.",
+            "Lesson, Wikiru, and roster checks are training-data replay, not independent external validation.",
             "The 65 click-passed students are coverage from the five checked-in lesson screenshots only.",
-            "Grouped folds exclude one lesson screenshot and its augmentations, but retain roster/history seed art.",
+            "Grouped folds exclude one lesson screenshot and its augmentations, but retain Wikiru/roster/history seed art.",
             "No emulator was connected and no lesson ticket was consumed.",
         ],
     }

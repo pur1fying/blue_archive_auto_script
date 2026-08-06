@@ -21,8 +21,11 @@ from core.student_recognition import (
 from develop_tools.student_recognition.training_data import (
     HISTORICAL_MANIFEST,
     ROSTER_ANNOTATIONS,
+    WIKIRU_MANIFEST,
     load_historical_portraits,
     load_roster_montage_portraits,
+    load_seed_portraits,
+    load_wikiru_portraits,
 )
 
 
@@ -295,9 +298,9 @@ class StudentCatalogTest(unittest.TestCase):
 
     def test_duplicate_names_are_collapsed(self):
         rows = STATIC_CONFIG["student_names"]
-        self.assertEqual(265, len(rows))
-        self.assertEqual(265, len({row["Global_name"] for row in rows}))
-        self.assertEqual(265, len(self.catalog.records))
+        self.assertEqual(270, len(rows))
+        self.assertEqual(270, len({row["Global_name"] for row in rows}))
+        self.assertEqual(270, len(self.catalog.records))
         self.assertEqual(
             1,
             sum(row["Global_name"] == "Hoshino (Battle)" for row in rows),
@@ -338,6 +341,11 @@ class StudentCatalogTest(unittest.TestCase):
             "Yuuka (Pajamas)",
             "Shun (Swimsuit)",
             "Rio (Armed)",
+            "Ibuki (Swimsuit)",
+            "Iroha (Swimsuit)",
+            "Satsuki (Swimsuit)",
+            "Chiaki (Swimsuit)",
+            "Makoto (Swimsuit)",
         }
         self.assertEqual(
             expected,
@@ -373,6 +381,14 @@ class StudentCatalogTest(unittest.TestCase):
             self.assertEqual(5, len(recognizer.metadata["validation_groups"]))
             self.assertEqual(265, len(recognizer.metadata["student_support"]))
             self.assertEqual("historical_only", recognizer.support_status("moe"))
+            for student_id in (
+                "ibuki_swimsuit",
+                "iroha_swimsuit",
+                "satsuki_swimsuit",
+                "chiaki_swimsuit",
+                "makoto_swimsuit",
+            ):
+                self.assertEqual("no_prototype", recognizer.support_status(student_id))
 
     def test_validation_report_is_complete_and_explicit(self):
         self.assertTrue(VALIDATION_REPORT_PATH.exists())
@@ -453,7 +469,7 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
         self.assertNotIn("Ar1s-maid", {row["label"] for row in manifest})
         self.assertEqual(177, len(load_historical_portraits()))
 
-    def test_roster_montages_cover_the_complete_catalog_once(self):
+    def test_roster_montages_remain_the_original_265_identity_snapshot(self):
         annotation = json.loads(ROSTER_ANNOTATIONS.read_text(encoding="utf-8"))
         selected = [
             row for row in annotation["entries"]
@@ -466,9 +482,18 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
         self.assertEqual(9, len(annotation["files"]))
         self.assertEqual(267, len(annotation["entries"]))
         self.assertEqual(265, len(selected))
+        selected_names = {row["config_name"] for row in selected}
+        catalog_names = {row["Global_name"] for row in STATIC_CONFIG["student_names"]}
+        self.assertTrue(selected_names < catalog_names)
         self.assertEqual(
-            {row["Global_name"] for row in STATIC_CONFIG["student_names"]},
-            {row["config_name"] for row in selected},
+            {
+                "Ibuki (Swimsuit)",
+                "Iroha (Swimsuit)",
+                "Satsuki (Swimsuit)",
+                "Chiaki (Swimsuit)",
+                "Makoto (Swimsuit)",
+            },
+            catalog_names - selected_names,
         )
         aliases = {
             row["Global_name"]: (row["CN_name"], row["JP_name"])
@@ -499,6 +524,48 @@ class CommittedTrainingLibraryTest(unittest.TestCase):
         portraits = load_roster_montage_portraits()
         self.assertEqual(265, len(portraits))
         self.assertTrue(all(image.shape == (30, 33, 3) for _, _, image in portraits))
+
+    def test_wikiru_portraits_cover_the_complete_270_identity_catalog(self):
+        manifest = json.loads(WIKIRU_MANIFEST.read_text(encoding="utf-8"))
+        entries = manifest["entries"]
+        selected = [row for row in entries if row["include_for_identity_training"]]
+        excluded = [row for row in entries if not row["include_for_identity_training"]]
+        self.assertEqual(272, len(entries))
+        self.assertEqual(272, len({row["source_url"] for row in entries}))
+        self.assertEqual(272, len({row["file"] for row in entries}))
+        self.assertEqual(272, len({row["sha256"] for row in entries}))
+        self.assertEqual(270, len(selected))
+        self.assertEqual(270, len({row["config_name"] for row in selected}))
+        self.assertEqual(
+            {row["Global_name"] for row in STATIC_CONFIG["student_names"]},
+            {row["config_name"] for row in selected},
+        )
+        self.assertEqual(
+            {"198x198": 8, "200x200": 262, "300x300": 2},
+            manifest["dimension_counts"],
+        )
+        self.assertEqual(
+            {
+                ("Hoshino (Battle)", "alternate_attack"),
+                ("Shun (Swimsuit)", "alternate"),
+            },
+            {(row["config_name"], row["form"]) for row in excluded},
+        )
+        shuerin = next(
+            row for row in entries if row["source_jp_name"] == "シュエリン(水着)"
+        )
+        self.assertEqual("Shun (Swimsuit)", shuerin["config_name"])
+        self.assertFalse(shuerin["include_for_identity_training"])
+        self.assertNotIn(
+            "Shuerin",
+            {row["Global_name"] for row in STATIC_CONFIG["student_names"]},
+        )
+
+        portraits = load_wikiru_portraits()
+        self.assertEqual(270, len(portraits))
+        self.assertEqual(270, len({name for name, _, _ in portraits}))
+        self.assertTrue(all(source.startswith("wikiru:") for _, source, _ in portraits))
+        self.assertEqual(712, len(load_seed_portraits()))
 
 
 class LessonPrioritySelectionTest(unittest.TestCase):

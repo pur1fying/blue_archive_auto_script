@@ -15,8 +15,10 @@ import numpy as np
 DATA_DIR = Path(__file__).with_name("data")
 HISTORICAL_DIR = DATA_DIR / "historical_portraits"
 ROSTER_DIR = DATA_DIR / "roster_montages"
+WIKIRU_DIR = DATA_DIR / "wikiru_portraits"
 HISTORICAL_MANIFEST = HISTORICAL_DIR / "manifest.json"
 ROSTER_ANNOTATIONS = ROSTER_DIR / "roster_montage_annotations.json"
+WIKIRU_MANIFEST = WIKIRU_DIR / "manifest.json"
 
 
 def _checked_image(path: Path, expected_sha256: str) -> np.ndarray:
@@ -105,6 +107,49 @@ def load_roster_montage_portraits(
     return portraits
 
 
+def load_wikiru_portraits(
+    manifest_path: Path = WIKIRU_MANIFEST,
+) -> list[tuple[str, str, np.ndarray]]:
+    """Load one selected original-resolution Wikiru seed per catalog identity.
+
+    All archived files, including the two excluded alternate forms, are checked
+    before the selected primary forms are returned to the training pipeline.
+    """
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    directory = manifest_path.parent
+    entries = manifest["entries"]
+    if len(entries) != manifest["image_count"]:
+        raise ValueError("Wikiru manifest image count does not match its entries")
+
+    portraits = []
+    seen_files = set()
+    seen_names = set()
+    for row in entries:
+        if row["file"] in seen_files:
+            raise ValueError(f"Duplicate Wikiru portrait file: {row['file']}")
+        seen_files.add(row["file"])
+        image = _checked_image(directory / row["file"], row["sha256"])
+        if image.shape[:2] != (row["height"], row["width"]):
+            raise ValueError(f"Wikiru portrait dimensions changed: {row['file']}")
+        if not row["include_for_identity_training"]:
+            continue
+        name = row["config_name"]
+        if name in seen_names:
+            raise ValueError(f"Duplicate selected Wikiru identity: {name}")
+        seen_names.add(name)
+        portraits.append((name, f"wikiru:{row['sha256']}", image))
+
+    if len(portraits) != manifest["selected_training_image_count"]:
+        raise ValueError("Wikiru selected image count does not match its manifest")
+    if len(seen_names) != manifest["selected_identity_count"]:
+        raise ValueError("Wikiru selected identity count does not match its manifest")
+    return portraits
+
+
 def load_seed_portraits() -> list[tuple[str, str, np.ndarray]]:
-    """Load all committed historical and roster seed portraits."""
-    return load_historical_portraits() + load_roster_montage_portraits()
+    """Load all committed historical, Wikiru and roster seed portraits."""
+    return (
+        load_historical_portraits()
+        + load_wikiru_portraits()
+        + load_roster_montage_portraits()
+    )

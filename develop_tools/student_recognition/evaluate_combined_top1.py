@@ -282,13 +282,18 @@ def classify_catalog(independent: dict, training: dict, model_dir: Path) -> dict
     }
 
 
-def architecture_report() -> dict:
+def architecture_report(model_dir: Path) -> dict:
+    catalog_size = len(json.loads(STATIC_DEFAULT_CONFIG)["student_names"])
+    metadata = json.loads((model_dir / "student_encoder.json").read_text(encoding="utf-8"))
+    gallery_size = int(metadata["gallery_identity_count"])
     return {
+        "catalog_identity_count": catalog_size,
+        "gallery_identity_count": gallery_size,
         "pipeline": [
             "YOLOX-Nano card/pink-avatar/gray-avatar detection",
             "custom avatar-to-card association and dynamic click point",
             "torchvision MobileNetV3-Small 128-D L2 embedding",
-            "custom 265-identity prototype gallery and global cosine Top-1",
+            f"custom {gallery_size}-identity prototype gallery and global cosine Top-1",
             "custom pink/card-available priority selection",
         ],
         "github_components": [
@@ -325,6 +330,12 @@ def render_markdown(report: dict) -> str:
     independent = report["independent_v1"]
     training = report["training_replay"]
     capability = report["catalog_capability"]
+    catalog_count = report["architecture"]["catalog_identity_count"]
+    gallery_count = report["architecture"]["gallery_identity_count"]
+    no_prototype_count = sum(
+        row["support_status"] == "no_prototype"
+        for row in capability["students"]
+    )
     lines = [
         "# YOLOX + MobileNetV3 Top-1 组合验收报告",
         "",
@@ -336,9 +347,10 @@ def render_markdown(report: dict) -> str:
         f"- independent_v1：{independent['metrics']['identity_correct']}/83 身份，"
         f"{independent['metrics']['eligibility_correct']}/83 粉灰，"
         f"{independent['metrics']['eligible_click_passed']}/70 粉框点击。",
-        f"- 265人证据分类：correct {capability['counts']['correct']}，"
+        f"- {catalog_count}人证据分类：correct {capability['counts']['correct']}，"
         f"error {capability['counts']['error']}，uncertain {capability['counts']['uncertain']}。",
-        "- 身份分数和分差仅供诊断，不参与点击。所有265名均保留运行时Top-1尝试能力。",
+        f"- 当前生产图库仍为{gallery_count}人；新增{no_prototype_count}名在重新训练前为"
+        "`no_prototype`并回退普通日程。身份分数和分差仍只用于诊断。",
         "",
         "## 模块架构与来源",
         "",
@@ -346,7 +358,7 @@ def render_markdown(report: dict) -> str:
         "|---|---|",
         "| 日程定位 | 官方 YOLOX-Nano；项目自定义三类数据、OpenCV解码、NMS和卡片归属 |",
         "| 学生编码 | 官方 torchvision MobileNetV3-Small/ImageNet权重；项目自定义128维投影头和训练损失 |",
-        "| 身份判断 | 项目自定义265人原型图库与全局余弦Top-1 |",
+        f"| 身份判断 | 项目自定义{gallery_count}人原型图库与全局余弦Top-1；配置名册{catalog_count}人 |",
         "| 点击业务 | 项目自定义粉框、卡片可用、优先级、动态点击和回退逻辑 |",
         "",
         "## independent_v1 身份错误",
@@ -384,7 +396,7 @@ def render_markdown(report: dict) -> str:
     lines.extend(
         [
             "",
-            "## 265人点击证据分类",
+            f"## {catalog_count}人点击证据分类",
             "",
             "这些状态只描述测试证据，不会阻止运行时对任何学生进行Top-1选择。",
             "",
@@ -492,7 +504,7 @@ def build_report(model_dir: Path, benchmark_runs: int) -> dict:
             ),
             "note": "The frozen set has informed architecture comparison, but not weights, prototypes, or training.",
         },
-        "architecture": architecture_report(),
+        "architecture": architecture_report(model_dir),
         "artifacts": {
             name: {
                 "bytes": (model_dir / name).stat().st_size,

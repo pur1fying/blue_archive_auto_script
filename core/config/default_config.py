@@ -4935,6 +4935,31 @@ STATIC_DEFAULT_CONFIG = '''
       "CN_name": "妃咲(泳装)",
       "Global_name": "Kisaki (Swimsuit)",
       "JP_name": "キサキ(水着)"
+    },
+    {
+      "CN_name": "伊吹(泳装)",
+      "Global_name": "Ibuki (Swimsuit)",
+      "JP_name": "イブキ(水着)"
+    },
+    {
+      "CN_name": "伊吕波(泳装)",
+      "Global_name": "Iroha (Swimsuit)",
+      "JP_name": "イロハ(水着)"
+    },
+    {
+      "CN_name": "皋月(泳装)",
+      "Global_name": "Satsuki (Swimsuit)",
+      "JP_name": "サツキ(水着)"
+    },
+    {
+      "CN_name": "千明(泳装)",
+      "Global_name": "Chiaki (Swimsuit)",
+      "JP_name": "チアキ(水着)"
+    },
+    {
+      "CN_name": "真琴(泳装)",
+      "Global_name": "Makoto (Swimsuit)",
+      "JP_name": "マコト(水着)"
     }
   ]
 }

@@ -20,7 +20,7 @@ augmented variants never enter that fold's encoder training set or prototype
 gallery. The grouped result is a diagnostic rather than an independent external
 validation claim. The deliverable encoder is trained once more with all labelled
 screenshots, using identity-balanced sampling: every one of the 265 identities
-contributes three augmented draws per epoch regardless of raw source count. The
+contributed three augmented draws per epoch in the last completed run. The
 exported gallery contains at most three distinct source prototypes per student.
 
 The encoder seed library is checked in under `data/` and is never loaded by the
@@ -29,29 +29,39 @@ blobs across 122 labels; `extract_historical_templates.py` is the explicit
 maintenance tool that can rebuild that directory from full Git history. Model
 training reads the committed files and does not query Git history itself.
 
+`wikiru_portraits/` contains 272 original Japanese-Wiki portrait files mapped
+to the current 270-identity catalog. It selects one primary portrait per
+identity; the second Hoshino (Battle) and Shun (Swimsuit) forms are archived but
+excluded. The source manifest records URLs, hashes, dimensions and the site's
+copyright warning. The acquisition tool validates the page mapping and never
+starts training. The source files are not uniformly sized: 262 are 200x200,
+eight are 198x198 and two are 300x300.
+
 `roster_montages/` contains the three English, three Chinese and three Japanese
 roster images plus a position/name manifest. The English images contribute one
-selected portrait for each of the 265 catalog identities. The Chinese and
-Japanese images are retained as auditable alias evidence, not duplicated as
+selected portrait for each identity in the original 265-person catalog snapshot.
+The Chinese and Japanese images are retained as auditable alias evidence, not duplicated as
 training pixels. Hoshino (Battle) and Shun (Swimsuit) each have two illustrations
 in the montage; their first form is selected and the second form is explicitly
 excluded in the manifest.
 
-Runtime selection ranks all 265 identities globally. A pink portrait whose
-Top-1 name matches the configured target is selectable at cosine similarity
-0.60 or above. Top-1/Top-2 margin and source-support status are logged for
-diagnostics but are not click gates. Plain/gray portraits are recognized and
-reported but can never trigger a lesson-card click.
+The current production model still ranks its existing 265 gallery identities
+globally. A valid pink portrait whose Top-1 name matches the configured target
+is selectable without a cosine-score or Top-1/Top-2-margin gate. The five newly
+cataloged swimsuit identities remain `no_prototype` and fall back to ordinary
+lesson selection until a later training run replaces the model and gallery.
+Plain/gray portraits can never trigger a lesson-card click.
 
 The training catalog is always loaded from `STATIC_DEFAULT_CONFIG`, not the
-generated and ignored `config/static.json`. It contains 265 unique students and
+generated and ignored `config/static.json`. It contains 270 unique students and
 only the `CN_name`, `Global_name` and `JP_name` aliases; server implementation
 flags are no longer part of the catalog. Affection eligibility is a click gate
 only: eligible and plain crops train the same identity encoder, but a plain
 portrait can never select a lesson card by itself.
 
-`training_data.py` validates every source checksum and exposes the historical
-and montage portraits to the training script. Loading it does not augment data,
+`training_data.py` validates every source checksum and exposes the historical,
+Wikiru and montage portraits to the training script. The combined committed
+seed pool is 177 + 270 + 265 = 712 images. Loading it does not augment data,
 write model files or start training.
 
 ## Sealed independent baseline
@@ -87,7 +97,7 @@ gray-blocking, scaling, CPU and resource-size checks all pass. The committed
 `validation_report.json` lists all 65 students and 71 pink instances that pass
 the five-fixture click test, plus all 10 blocked gray instances. Those checks are
 training-fixture replay and must not be described as independent validation of
-all 265 students.
+the 265 identities present in that historical production gallery.
 
 ## YOLOX locator experiment
 
@@ -146,13 +156,14 @@ then-current 0.60 click gate for historical comparison.
 
 The `codex/student-recognition-yolox-mobilenetv3-top1` branch composes the two
 already exported sequential components without retraining. YOLOX supplies the
-card and avatar crops; MobileNetV3 supplies the 265-identity global Top-1. The
+card and avatar crops; MobileNetV3 supplies the existing 265-identity global
+Top-1 while configuration validation now contains 270 names. The
 models share no weights. A cosine score or Top-1/Top-2 margin never suppresses a
 valid result on this branch. Pink eligibility and card availability remain the
 click gates, and invalid crops or damaged models still fail closed.
 
 Run the complete training replay, frozen comparison, performance benchmark and
-265-student evidence audit with:
+270-student evidence audit with:
 
 ```powershell
 .\.venv\Scripts\python.exe develop_tools/student_recognition/evaluate_combined_top1.py

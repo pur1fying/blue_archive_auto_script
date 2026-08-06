@@ -78,10 +78,10 @@ class CombinedStudentRecognitionTest(unittest.TestCase):
         self.assertEqual("Aru", aru["top1_name"])
         self.assertTrue(aru["expected_target_click_passed"])
 
-    def test_all_265_students_have_exclusive_evidence_categories(self):
+    def test_all_270_students_have_exclusive_evidence_categories(self):
         capability = self.report["catalog_capability"]
         self.assertEqual(
-            {"correct": 56, "error": 7, "uncertain": 202},
+            {"correct": 56, "error": 7, "uncertain": 207},
             capability["counts"],
         )
         categories = [
@@ -92,7 +92,19 @@ class CombinedStudentRecognitionTest(unittest.TestCase):
         self.assertFalse(categories[0] & categories[1])
         self.assertFalse(categories[0] & categories[2])
         self.assertFalse(categories[1] & categories[2])
-        self.assertEqual(265, len(set().union(*categories)))
+        self.assertEqual(270, len(set().union(*categories)))
+        self.assertEqual(270, self.report["architecture"]["catalog_identity_count"])
+        self.assertEqual(265, self.report["architecture"]["gallery_identity_count"])
+        for name in (
+            "Ibuki (Swimsuit)",
+            "Iroha (Swimsuit)",
+            "Satsuki (Swimsuit)",
+            "Chiaki (Swimsuit)",
+            "Makoto (Swimsuit)",
+        ):
+            row = next(item for item in capability["students"] if item["name"] == name)
+            self.assertEqual("uncertain", row["category"])
+            self.assertEqual("no_prototype", row["support_status"])
         self.assertEqual(
             {
                 "Kirino (Swimsuit)",

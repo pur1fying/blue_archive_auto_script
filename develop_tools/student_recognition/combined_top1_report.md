@@ -4,8 +4,8 @@
 
 - 训练回放：81/81 身份，71/71 粉框点击，10/10 灰框阻止。
 - independent_v1：75/83 身份，82/83 粉灰，65/70 粉框点击。
-- 265人证据分类：correct 56，error 7，uncertain 202。
-- 身份分数和分差仅供诊断，不参与点击。所有265名均保留运行时Top-1尝试能力。
+- 270人证据分类：correct 56，error 7，uncertain 207。
+- 当前生产图库仍为265人；新增5名在重新训练前为`no_prototype`并回退普通日程。身份分数和分差仍只用于诊断。
 
 ## 模块架构与来源
 
@@ -13,7 +13,7 @@
 |---|---|
 | 日程定位 | 官方 YOLOX-Nano；项目自定义三类数据、OpenCV解码、NMS和卡片归属 |
 | 学生编码 | 官方 torchvision MobileNetV3-Small/ImageNet权重；项目自定义128维投影头和训练损失 |
-| 身份判断 | 项目自定义265人原型图库与全局余弦Top-1 |
+| 身份判断 | 项目自定义265人原型图库与全局余弦Top-1；配置名册270人 |
 | 点击业务 | 项目自定义粉框、卡片可用、优先级、动态点击和回退逻辑 |
 
 ## independent_v1 身份错误
@@ -40,7 +40,7 @@
 | MuMu-20260801-074754-624.png | 7-2 | Kotori (Cheer Squad) | 粉 | 粉 | None |
 | MuMu-20260801-074754-624.png | 8-2 | Neru | 粉 | 粉 | None |
 
-## 265人点击证据分类
+## 270人点击证据分类
 
 这些状态只描述测试证据，不会阻止运行时对任何学生进行Top-1选择。
 
@@ -52,9 +52,9 @@
 
 `Kirino (Swimsuit)`, `Kotori (Cheer Squad)`, `Marina`, `Michiru`, `Mimori (Swimsuit)`, `Neru`, `Sena (Casual)`
 
-### Uncertain（202）
+### Uncertain（207）
 
-`Airi`, `Airi (Band)`, `Akane`, `Akane (Bunny)`, `Akane (School)`, `Akari`, `Akari (New Year)`, `Ako`, `Aoba`, `Aris`, `Aris (Armed)`, `Aris (Maid)`, `Aru (Dress)`, `Aru (New Year)`, `Asuna`, `Atsuko`, `Atsuko (Swimsuit)`, `Ayane (Swimsuit)`, `Azusa`, `Azusa (Swimsuit)`, `Cherino (Hot Spring)`, `Chiaki`, `Chihiro`, `Chise (Swimsuit)`, `Eimi`, `Eimi (Armed)`, `Eimi (Swimsuit)`, `Eri`, `Erika`, `Fubuki`, `Fubuki (Swimsuit)`, `Fuuka`, `Fuyu`, `Hanako (Swimsuit)`, `Hare`, `Hare (Camp)`, `Haruka`, `Haruka (Dress)`, `Haruka (New Year)`, `Haruna`, `Haruna (Track)`, `Hasumi`, `Hasumi (Swimsuit)`, `Hasumi (Track)`, `Hatsune Miku`, `Hifumi (Swimsuit)`, `Hikari`, `Himari`, `Himari (Armed)`, `Hina`, `Hina (Dress)`, `Hina (Swimsuit)`, `Hinata`, `Hinata (Swimsuit)`, `Hiyori`, `Hiyori (Swimsuit)`, `Hoshino`, `Hoshino (Battle)`, `Hoshino (Swimsuit)`, `Ichika (Swimsuit)`, `Iori (Swimsuit)`, `Iroha`, `Izumi`, `Izumi (New Year)`, `Izuna`, `Junko`, `Juri`, `Juri (Part-Timer)`, `Kaede`, `Kaho`, `Kanna`, `Kanna (Swimsuit)`, `Kanoe`, `Karin`, `Karin (Bunny)`, `Kasumi`, `Kayoko`, `Kayoko (Dress)`, `Kazusa`, `Kazusa (Band)`, `Kei`, `Kikyou`, `Kikyou (Swimsuit)`, `Kirara`, `Kisaki`, `Kisaki (Swimsuit)`, `Koharu`, `Koharu (Swimsuit)`, `Kokona`, `Konoka`, `Kotori`, `Koyuki (Pajamas)`, `Kurumi`, `Maki (Camp)`, `Makoto`, `Mari`, `Mari (Pop Idol)`, `Marina (Qipao)`, `Mashiro`, `Megu`, `Meru`, `Michiru (Dress)`, `Midori (Maid)`, `Mika (Swimsuit)`, `Mina`, `Mine`, `Mine (Pop Idol)`, `Minori`, `Misaka Mikoto`, `Misaki`, `Misaki (Swimsuit)`, `Miyako (Swimsuit)`, `Miyo`, `Miyu (Swimsuit)`, `Moe`, `Moe (Swimsuit)`, `Momiji`, `Momoi`, `Momoi (Maid)`, `Mutsuki`, `Mutsuki (Dress)`, `Mutsuki (New Year)`, `Nagisa (Swimsuit)`, `Nagusa`, `Nagusa (Swimsuit)`, `Natsu`, `Natsu (Band)`, `Neru (Bunny)`, `Niko`, `Niya`, `Noa (Pajamas)`, `Nodoka`, `Nodoka (Hot Spring)`, `Nonomi (Swimsuit)`, `Otogi`, `Pina (Guide)`, `Rabu`, `Rei`, `Reijo`, `Reisa`, `Reisa (Magical)`, `Rena`, `Renge`, `Renge (Swimsuit)`, `Rio`, `Rio (Armed)`, `Ritsu`, `Rumi`, `Saki`, `Saki (Swimsuit)`, `Saori`, `Saori (Dress)`, `Saori (Swimsuit)`, `Satsuki`, `Saya`, `Saya (Casual)`, `Seia`, `Seia (Swimsuit)`, `Sena`, `Serika`, `Serika (New Year)`, `Serika (Swimsuit)`, `Serina`, `Serina (Christmas)`, `Shigure`, `Shigure (Hot Spring)`, `Shimiko`, `Shiroko (Swimsuit)`, `Shiroko Terror`, `Shizuko`, `Shizuko (Swimsuit)`, `Shun`, `Shun (Swimsuit)`, `Subaru`, `Sumire (Part-Timer)`, `Suzumi`, `Suzumi (Magical)`, `Takane`, `Toki`, `Toki (Armed)`, `Toki (Bunny)`, `Tomoe`, `Tomoe (Qipao)`, `Tsubaki (Guide)`, `Tsukuyo`, `Tsukuyo (Dress)`, `Tsurugi`, `Tsurugi (Swimsuit)`, `Ui (Swimsuit)`, `Umika`, `Utaha`, `Utaha (Cheer Squad)`, `Wakamo`, `Wakamo (Swimsuit)`, `Yakumo`, `Yoshimi`, `Yoshimi (Band)`, `Yukari`, `Yukari (Swimsuit)`, `Yuuka (Pajamas)`, `Yuuka (Track)`, `Yuzu (Armed)`
+`Airi`, `Airi (Band)`, `Akane`, `Akane (Bunny)`, `Akane (School)`, `Akari`, `Akari (New Year)`, `Ako`, `Aoba`, `Aris`, `Aris (Armed)`, `Aris (Maid)`, `Aru (Dress)`, `Aru (New Year)`, `Asuna`, `Atsuko`, `Atsuko (Swimsuit)`, `Ayane (Swimsuit)`, `Azusa`, `Azusa (Swimsuit)`, `Cherino (Hot Spring)`, `Chiaki`, `Chiaki (Swimsuit)`, `Chihiro`, `Chise (Swimsuit)`, `Eimi`, `Eimi (Armed)`, `Eimi (Swimsuit)`, `Eri`, `Erika`, `Fubuki`, `Fubuki (Swimsuit)`, `Fuuka`, `Fuyu`, `Hanako (Swimsuit)`, `Hare`, `Hare (Camp)`, `Haruka`, `Haruka (Dress)`, `Haruka (New Year)`, `Haruna`, `Haruna (Track)`, `Hasumi`, `Hasumi (Swimsuit)`, `Hasumi (Track)`, `Hatsune Miku`, `Hifumi (Swimsuit)`, `Hikari`, `Himari`, `Himari (Armed)`, `Hina`, `Hina (Dress)`, `Hina (Swimsuit)`, `Hinata`, `Hinata (Swimsuit)`, `Hiyori`, `Hiyori (Swimsuit)`, `Hoshino`, `Hoshino (Battle)`, `Hoshino (Swimsuit)`, `Ibuki (Swimsuit)`, `Ichika (Swimsuit)`, `Iori (Swimsuit)`, `Iroha`, `Iroha (Swimsuit)`, `Izumi`, `Izumi (New Year)`, `Izuna`, `Junko`, `Juri`, `Juri (Part-Timer)`, `Kaede`, `Kaho`, `Kanna`, `Kanna (Swimsuit)`, `Kanoe`, `Karin`, `Karin (Bunny)`, `Kasumi`, `Kayoko`, `Kayoko (Dress)`, `Kazusa`, `Kazusa (Band)`, `Kei`, `Kikyou`, `Kikyou (Swimsuit)`, `Kirara`, `Kisaki`, `Kisaki (Swimsuit)`, `Koharu`, `Koharu (Swimsuit)`, `Kokona`, `Konoka`, `Kotori`, `Koyuki (Pajamas)`, `Kurumi`, `Maki (Camp)`, `Makoto`, `Makoto (Swimsuit)`, `Mari`, `Mari (Pop Idol)`, `Marina (Qipao)`, `Mashiro`, `Megu`, `Meru`, `Michiru (Dress)`, `Midori (Maid)`, `Mika (Swimsuit)`, `Mina`, `Mine`, `Mine (Pop Idol)`, `Minori`, `Misaka Mikoto`, `Misaki`, `Misaki (Swimsuit)`, `Miyako (Swimsuit)`, `Miyo`, `Miyu (Swimsuit)`, `Moe`, `Moe (Swimsuit)`, `Momiji`, `Momoi`, `Momoi (Maid)`, `Mutsuki`, `Mutsuki (Dress)`, `Mutsuki (New Year)`, `Nagisa (Swimsuit)`, `Nagusa`, `Nagusa (Swimsuit)`, `Natsu`, `Natsu (Band)`, `Neru (Bunny)`, `Niko`, `Niya`, `Noa (Pajamas)`, `Nodoka`, `Nodoka (Hot Spring)`, `Nonomi (Swimsuit)`, `Otogi`, `Pina (Guide)`, `Rabu`, `Rei`, `Reijo`, `Reisa`, `Reisa (Magical)`, `Rena`, `Renge`, `Renge (Swimsuit)`, `Rio`, `Rio (Armed)`, `Ritsu`, `Rumi`, `Saki`, `Saki (Swimsuit)`, `Saori`, `Saori (Dress)`, `Saori (Swimsuit)`, `Satsuki`, `Satsuki (Swimsuit)`, `Saya`, `Saya (Casual)`, `Seia`, `Seia (Swimsuit)`, `Sena`, `Serika`, `Serika (New Year)`, `Serika (Swimsuit)`, `Serina`, `Serina (Christmas)`, `Shigure`, `Shigure (Hot Spring)`, `Shimiko`, `Shiroko (Swimsuit)`, `Shiroko Terror`, `Shizuko`, `Shizuko (Swimsuit)`, `Shun`, `Shun (Swimsuit)`, `Subaru`, `Sumire (Part-Timer)`, `Suzumi`, `Suzumi (Magical)`, `Takane`, `Toki`, `Toki (Armed)`, `Toki (Bunny)`, `Tomoe`, `Tomoe (Qipao)`, `Tsubaki (Guide)`, `Tsukuyo`, `Tsukuyo (Dress)`, `Tsurugi`, `Tsurugi (Swimsuit)`, `Ui (Swimsuit)`, `Umika`, `Utaha`, `Utaha (Cheer Squad)`, `Wakamo`, `Wakamo (Swimsuit)`, `Yakumo`, `Yoshimi`, `Yoshimi (Band)`, `Yukari`, `Yukari (Swimsuit)`, `Yuuka (Pajamas)`, `Yuuka (Track)`, `Yuzu (Armed)`
 
 ## 训练集覆盖
 

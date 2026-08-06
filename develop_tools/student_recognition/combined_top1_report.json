@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at_utc": "2026-08-06T05:04:32.394662+00:00",
+  "generated_at_utc": "2026-08-06T06:14:28.525917+00:00",
   "classification": "combined_candidate_frozen_comparison",
   "completed": true,
   "training_action": {
@@ -29,6 +29,8 @@
     "note": "The frozen set has informed architecture comparison, but not weights, prototypes, or training."
   },
   "architecture": {
+    "catalog_identity_count": 270,
+    "gallery_identity_count": 265,
     "pipeline": [
       "YOLOX-Nano card/pink-avatar/gray-avatar detection",
       "custom avatar-to-card association and dynamic click point",
@@ -1735,7 +1737,7 @@
     "classification": "frozen_comparison_candidate",
     "candidate_name": "yolox-mobilenetv3-valid-top1",
     "completed": true,
-    "generated_at_utc": "2026-08-06T05:04:23.466790+00:00",
+    "generated_at_utc": "2026-08-06T06:14:18.950655+00:00",
     "environment": {
       "opencv_version": "4.8.1",
       "identity_click_policy": "valid_global_top1",
@@ -1783,22 +1785,22 @@
       },
       "protected_files_before": {
         "src/models/student_recognition/lesson_locator.onnx": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d",
-        "src/models/student_recognition/student_encoder.onnx": "91419798e637f6080b84f0d9a49dfac18074f6b55680b0d536df5d292833f47e",
-        "src/models/student_recognition/gallery.npz": "e50d7d3f062482ac242d06eeff9eb94b3bd50a0c4313aa860b0486e59b9fc783",
+        "src/models/student_recognition/student_encoder.onnx": "a9358974bfae59bd9229c7811fc903d82c02644c995c17c9c5dd1df29f679a41",
+        "src/models/student_recognition/gallery.npz": "1eda40daa3f264900f6d9252963e68f19448d9e5cf99440ef9721c722d31b2bd",
         "src/models/student_recognition/lesson_locator.json": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62",
-        "src/models/student_recognition/student_encoder.json": "8635a478221ae1f410eb3d5b04eddd58fa98d6984a92ebb130f2224b7162930e",
+        "src/models/student_recognition/student_encoder.json": "37227741b47bb8a5b7324757a09f114aeb5fc1feac3d3d3ed5d070d448faccac",
         "develop_tools/student_recognition/lesson_locator_annotations.json": "06132e8c44792f991cddcb2da2d082302b3ce8b7e178b0dd9fb3c84da39d2841",
-        "develop_tools/student_recognition/train_student_models.py": "f6e89b869f718979dca34ae70bca2080ed9ef73b0d86a3083cc3e1385d9adf8c",
+        "develop_tools/student_recognition/train_student_models.py": "0951de6c2ebb4b4e1922c6dfdc631505726f7d301336925bf66d67411d6adc63",
         "develop_tools/student_recognition/validation_report.json": "d0a98cc6fd7d8eba2766683493c6df9d9f74f9d93943a473c5124b12083581d7"
       },
       "protected_files_after": {
         "src/models/student_recognition/lesson_locator.onnx": "0c3249de8173d024ff6b5cf30d179b40ddd851f21c23884134c388518be5aa7d",
-        "src/models/student_recognition/student_encoder.onnx": "91419798e637f6080b84f0d9a49dfac18074f6b55680b0d536df5d292833f47e",
-        "src/models/student_recognition/gallery.npz": "e50d7d3f062482ac242d06eeff9eb94b3bd50a0c4313aa860b0486e59b9fc783",
+        "src/models/student_recognition/student_encoder.onnx": "a9358974bfae59bd9229c7811fc903d82c02644c995c17c9c5dd1df29f679a41",
+        "src/models/student_recognition/gallery.npz": "1eda40daa3f264900f6d9252963e68f19448d9e5cf99440ef9721c722d31b2bd",
         "src/models/student_recognition/lesson_locator.json": "724096904088ab7bdcd3591768302345106b2346bf764473a8c59dbaae9d0f62",
-        "src/models/student_recognition/student_encoder.json": "8635a478221ae1f410eb3d5b04eddd58fa98d6984a92ebb130f2224b7162930e",
+        "src/models/student_recognition/student_encoder.json": "37227741b47bb8a5b7324757a09f114aeb5fc1feac3d3d3ed5d070d448faccac",
         "develop_tools/student_recognition/lesson_locator_annotations.json": "06132e8c44792f991cddcb2da2d082302b3ce8b7e178b0dd9fb3c84da39d2841",
-        "develop_tools/student_recognition/train_student_models.py": "f6e89b869f718979dca34ae70bca2080ed9ef73b0d86a3083cc3e1385d9adf8c",
+        "develop_tools/student_recognition/train_student_models.py": "0951de6c2ebb4b4e1922c6dfdc631505726f7d301336925bf66d67411d6adc63",
         "develop_tools/student_recognition/validation_report.json": "d0a98cc6fd7d8eba2766683493c6df9d9f74f9d93943a473c5124b12083581d7"
       },
       "candidate_model_files_before": {
@@ -5746,9 +5748,9 @@
     "performance": {
       "warmup_runs": 5,
       "measured_runs": 30,
-      "mean_ms": 211.9506900000001,
-      "p95_ms": 233.15807000000044,
-      "maximum_ms": 258.43720000000036,
+      "mean_ms": 224.89666000000014,
+      "p95_ms": 244.7095349999999,
+      "maximum_ms": 264.9889999999999,
       "model_bytes": 8021654,
       "model_megabytes": 7.650045394897461,
       "p95_under_500_ms": true,
@@ -5776,7 +5778,7 @@
     "counts": {
       "correct": 56,
       "error": 7,
-      "uncertain": 202
+      "uncertain": 207
     },
     "correct": [
       "Ako (Dress)",
@@ -5868,6 +5870,7 @@
       "Azusa (Swimsuit)",
       "Cherino (Hot Spring)",
       "Chiaki",
+      "Chiaki (Swimsuit)",
       "Chihiro",
       "Chise (Swimsuit)",
       "Eimi",
@@ -5905,9 +5908,11 @@
       "Hoshino",
       "Hoshino (Battle)",
       "Hoshino (Swimsuit)",
+      "Ibuki (Swimsuit)",
       "Ichika (Swimsuit)",
       "Iori (Swimsuit)",
       "Iroha",
+      "Iroha (Swimsuit)",
       "Izumi",
       "Izumi (New Year)",
       "Izuna",
@@ -5941,6 +5946,7 @@
       "Kurumi",
       "Maki (Camp)",
       "Makoto",
+      "Makoto (Swimsuit)",
       "Mari",
       "Mari (Pop Idol)",
       "Marina (Qipao)",
@@ -6000,6 +6006,7 @@
       "Saori (Dress)",
       "Saori (Swimsuit)",
       "Satsuki",
+      "Satsuki (Swimsuit)",
       "Saya",
       "Saya (Casual)",
       "Seia",
@@ -6462,6 +6469,18 @@
           "roster:en:3:2:7"
         ],
         "training_instances": 1,
+        "training_pink_click_passes": 0,
+        "independent_instances": 0,
+        "independent_pink_click_passes": 0,
+        "independent_failures": []
+      },
+      {
+        "name": "Chiaki (Swimsuit)",
+        "category": "uncertain",
+        "reason": "no_independent_pink_fixture",
+        "support_status": "no_prototype",
+        "prototype_sources": [],
+        "training_instances": 0,
         "training_pink_click_passes": 0,
         "independent_instances": 0,
         "independent_pink_click_passes": 0,
@@ -7208,6 +7227,18 @@
         "independent_failures": []
       },
       {
+        "name": "Ibuki (Swimsuit)",
+        "category": "uncertain",
+        "reason": "no_independent_pink_fixture",
+        "support_status": "no_prototype",
+        "prototype_sources": [],
+        "training_instances": 0,
+        "training_pink_click_passes": 0,
+        "independent_instances": 0,
+        "independent_pink_click_passes": 0,
+        "independent_failures": []
+      },
+      {
         "name": "Ichika",
         "category": "correct",
         "reason": "independent_pink_click_passed",
@@ -7278,6 +7309,18 @@
           "history:17123c141b170cc5fbb501dcbbc42e8425ae95e6",
           "history:4cca548ab2f6c0afeb8dcbb8648111166e967162"
         ],
+        "training_instances": 0,
+        "training_pink_click_passes": 0,
+        "independent_instances": 0,
+        "independent_pink_click_passes": 0,
+        "independent_failures": []
+      },
+      {
+        "name": "Iroha (Swimsuit)",
+        "category": "uncertain",
+        "reason": "no_independent_pink_fixture",
+        "support_status": "no_prototype",
+        "prototype_sources": [],
         "training_instances": 0,
         "training_pink_click_passes": 0,
         "independent_instances": 0,
@@ -7969,6 +8012,18 @@
         "prototype_sources": [
           "roster:en:2:7:2"
         ],
+        "training_instances": 0,
+        "training_pink_click_passes": 0,
+        "independent_instances": 0,
+        "independent_pink_click_passes": 0,
+        "independent_failures": []
+      },
+      {
+        "name": "Makoto (Swimsuit)",
+        "category": "uncertain",
+        "reason": "no_independent_pink_fixture",
+        "support_status": "no_prototype",
+        "prototype_sources": [],
         "training_instances": 0,
         "training_pink_click_passes": 0,
         "independent_instances": 0,
@@ -9178,6 +9233,18 @@
         "prototype_sources": [
           "roster:en:3:2:8"
         ],
+        "training_instances": 0,
+        "training_pink_click_passes": 0,
+        "independent_instances": 0,
+        "independent_pink_click_passes": 0,
+        "independent_failures": []
+      },
+      {
+        "name": "Satsuki (Swimsuit)",
+        "category": "uncertain",
+        "reason": "no_independent_pink_fixture",
+        "support_status": "no_prototype",
+        "prototype_sources": [],
         "training_instances": 0,
         "training_pink_click_passes": 0,
         "independent_instances": 0,
