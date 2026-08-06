@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -94,6 +95,32 @@ def bbox_list(box) -> Optional[list[int]]:
 
 def percentage(numerator: int, denominator: int) -> float:
     return numerator / denominator if denominator else 0.0
+
+
+def benchmark_candidate(model_dir: Path, runs: int = 30) -> dict:
+    annotation = json.loads(ANNOTATION_PATH.read_text(encoding="utf-8"))
+    student_rows = json.loads(STATIC_DEFAULT_CONFIG)["student_names"]
+    service = StudentRecognitionService(student_rows, model_dir)
+    images = [read_image(FIXTURE_DIR / item["file"]) for item in annotation["images"]]
+    for index in range(5):
+        service.recognize_lesson(images[index % len(images)], "CN")
+    timings = []
+    for index in range(runs):
+        started = time.perf_counter()
+        service.recognize_lesson(images[index % len(images)], "CN")
+        timings.append((time.perf_counter() - started) * 1000.0)
+    model_bytes = sum((model_dir / name).stat().st_size for name in MODEL_FILES)
+    return {
+        "warmup_runs": 5,
+        "measured_runs": runs,
+        "mean_ms": float(np.mean(timings)),
+        "p95_ms": float(np.percentile(timings, 95)),
+        "maximum_ms": float(np.max(timings)),
+        "model_bytes": model_bytes,
+        "model_megabytes": model_bytes / (1024 * 1024),
+        "p95_under_500_ms": float(np.percentile(timings, 95)) <= 500.0,
+        "models_under_25_mb": model_bytes <= 25 * 1024 * 1024,
+    }
 
 
 def evaluate(
@@ -295,6 +322,13 @@ def evaluate(
     baseline_checks["candidate_files_unchanged_during_evaluation"] = (
         candidate_before == candidate_after
     )
+    completion_checks = baseline_checks
+    if not enforce_expected_baseline:
+        completion_checks = {
+            key: value
+            for key, value in baseline_checks.items()
+            if key != "all_scores_accepted_at_0_60"
+        }
     report = {
         "version": 1,
         "dataset_id": annotation["dataset_id"],
@@ -304,7 +338,7 @@ def evaluate(
             else "frozen_comparison_candidate"
         ),
         "candidate_name": candidate_name,
-        "completed": all(baseline_checks.values()),
+        "completed": all(completion_checks.values()),
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "environment": {
             "opencv_version": cv2.__version__,
@@ -371,6 +405,9 @@ def main() -> int:
     parser.add_argument("--model-dir", type=Path, default=MODEL_DIR)
     parser.add_argument("--candidate", action="store_true")
     parser.add_argument("--candidate-name", default="current_production")
+    parser.add_argument("--benchmark-runs", type=int, default=30)
+    parser.add_argument("--minimum-identity-correct", type=int)
+    parser.add_argument("--minimum-pink-clicks", type=int)
     args = parser.parse_args()
     if args.candidate and args.output is None:
         parser.error("--candidate requires an explicit --output path")
@@ -380,6 +417,29 @@ def main() -> int:
         enforce_expected_baseline=not args.candidate,
         candidate_name=args.candidate_name,
     )
+    if args.candidate:
+        report["performance"] = benchmark_candidate(args.model_dir.resolve(), args.benchmark_runs)
+        metrics = report["metrics"]
+        baseline = report["production_baseline_reference"]
+        minimum_identity = args.minimum_identity_correct or baseline["identity_correct"]
+        minimum_clicks = args.minimum_pink_clicks or baseline["eligible_click_passed"]
+        promotion_checks = {
+            "all_cards_detected": metrics["detected_card_count"] == baseline["card_count"],
+            "all_avatars_detected": metrics["detected_avatar_count"] == baseline["avatar_count"],
+            "identity_target_met": metrics["identity_correct"] >= minimum_identity,
+            "pink_click_target_met": metrics["eligible_click_passed"] >= minimum_clicks,
+            "gray_false_positives_not_worse": metrics["eligible_false_positive"] <= baseline["eligible_false_positive"],
+            "pink_false_negatives_not_worse": metrics["eligible_false_negative"] <= baseline["eligible_false_negative"],
+            "p95_under_500_ms": report["performance"]["p95_under_500_ms"],
+            "models_under_25_mb": report["performance"]["models_under_25_mb"],
+        }
+        report["promotion"] = {
+            "passed": all(promotion_checks.values()),
+            "minimum_identity_correct": minimum_identity,
+            "minimum_pink_clicks": minimum_clicks,
+            "checks": promotion_checks,
+            "policy": "Frozen comparison is reporting-only; thresholds and training are unchanged after inspection.",
+        }
     output.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",

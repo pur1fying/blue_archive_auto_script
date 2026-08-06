@@ -88,3 +88,26 @@ gray-blocking, scaling, CPU and resource-size checks all pass. The committed
 the five-fixture click test, plus all 10 blocked gray instances. Those checks are
 training-fixture replay and must not be described as independent validation of
 all 265 students.
+
+## Pretrained classifier experiment
+
+The `codex/student-recognition-pretrained-classifier` branch replaces only the
+identity encoder candidate. It uses torchvision's mature MobileNetV3-Small with
+the official ImageNet1K V1 initialization recorded in
+`pretrained_classifier_attribution.json`; PyTorch and torchvision remain
+development-only. The lesson locator, Top-1 rule and fixed 0.60 similarity
+threshold are unchanged.
+
+The formal run freezes the ImageNet backbone for 20 of 100 seed-training epochs,
+then fine-tunes it at one tenth of the projection/classifier learning rate. Five
+35-epoch diagnostics hold out one complete `new_ui` screenshot at a time, and
+the final all-training-data model runs for 80 epochs. The grouped diagnostic is
+74/81 Top-1; final replays are 81/81 lesson crops, 265/265 roster portraits and
+177/177 historical portraits. Replays are not independent validation.
+
+On the sealed five-image comparison set the candidate reaches 75/83 identity
+Top-1 versus 66/83 for production. It produces 64/70 correct pink-target clicks,
+however, because a correctly identified pink `Aru` scores 0.580 below the fixed
+0.60 gate. The predeclared promotion requirement was 65/70, so the committed
+report marks the classifier candidate as not promoted. The threshold was not
+lowered after inspecting the independent result.

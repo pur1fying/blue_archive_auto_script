@@ -1,0 +1,2628 @@
+{
+  "version": 2,
+  "architecture": "torchvision-MobileNetV3-Small-ImageNet1K-V1",
+  "backbone_pretrained": true,
+  "seed_pretrain_frozen_backbone_epochs": 20,
+  "input_width": 96,
+  "input_height": 96,
+  "embedding_size": 128,
+  "mean": [
+    0.48500001430511475,
+    0.4560000002384186,
+    0.4059999883174896
+  ],
+  "std": [
+    0.2290000021457672,
+    0.2240000069141388,
+    0.22499999403953552
+  ],
+  "similarity_threshold": 0.6,
+  "margin_threshold": 0.0,
+  "margin_is_click_gate": false,
+  "support_status_is_click_gate": false,
+  "global_top1_catalog_size": 265,
+  "training_source": "committed-git-history+committed-roster-montage+user-manual-target-domain",
+  "historical_blob_count": 177,
+  "historical_identity_count": 122,
+  "roster_montage_portrait_count": 265,
+  "target_domain_training_count": 81,
+  "identity_balanced_samples_per_epoch": 3,
+  "pretraining_epochs": 100,
+  "cross_validation_epochs": 35,
+  "final_training_epochs": 80,
+  "training_seed": 20260731,
+  "target_avatar_count": 81,
+  "target_identity_count": 74,
+  "eligible_avatar_count": 71,
+  "plain_avatar_count": 10,
+  "augmentation_scale_range": [
+    0.7,
+    1.4
+  ],
+  "horizontal_flip": false,
+  "student_support": {
+    "airi": {
+      "name": "Airi",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:3:8",
+        "history:37756407c2710994641240d4728e0744e0f74d1f",
+        "history:4408a4f162115c4c73f57c3813880785393019c5"
+      ]
+    },
+    "airi_band": {
+      "name": "Airi (Band)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:11",
+        "history:b1e865e5115af4be7488e773266914333ec768e0"
+      ]
+    },
+    "akane": {
+      "name": "Akane",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:2"
+      ]
+    },
+    "akane_bunny": {
+      "name": "Akane (Bunny)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:11"
+      ]
+    },
+    "akane_school": {
+      "name": "Akane (School)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:10"
+      ]
+    },
+    "akari": {
+      "name": "Akari",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:4",
+        "history:b81ea1da06abc332d21d445b258edd2b0e68e29a"
+      ]
+    },
+    "akari_new_year": {
+      "name": "Akari (New Year)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:6"
+      ]
+    },
+    "ako": {
+      "name": "Ako",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:6:10",
+        "history:755f86e10aa43e6464c6ffd847d598ffd47c9cb4"
+      ]
+    },
+    "ako_dress": {
+      "name": "Ako (Dress)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:13"
+      ]
+    },
+    "aoba": {
+      "name": "Aoba",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:7:2",
+        "roster:en:3:3:12"
+      ]
+    },
+    "aris": {
+      "name": "Aris",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:10",
+        "history:bccce3fa43a20a54cb52eec6e08f4c0988c6179d"
+      ]
+    },
+    "aris_armed": {
+      "name": "Aris (Armed)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:3"
+      ]
+    },
+    "aris_maid": {
+      "name": "Aris (Maid)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:7",
+        "history:d03f017b2311cfd31955ef17d9b158aac3372fc6"
+      ]
+    },
+    "aru": {
+      "name": "Aru",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:1"
+      ]
+    },
+    "aru_dress": {
+      "name": "Aru (Dress)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:5"
+      ]
+    },
+    "aru_new_year": {
+      "name": "Aru (New Year)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:7:2",
+        "history:fa0a2532e8b32e22f8fc77ab414397832a33218d"
+      ]
+    },
+    "asuna": {
+      "name": "Asuna",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:3:1"
+      ]
+    },
+    "asuna_bunny": {
+      "name": "Asuna (Bunny)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:4:0",
+        "roster:en:1:6:6",
+        "history:a0c05379ff8b553e30bef61ca80b676609bdd03b"
+      ]
+    },
+    "asuna_school": {
+      "name": "Asuna (School)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png",
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:2:2",
+        "target:new_ui_3.png:1:0",
+        "roster:en:3:2:12"
+      ]
+    },
+    "atsuko": {
+      "name": "Atsuko",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:4:1",
+        "roster:en:2:1:9",
+        "history:698f5fb5506d33281fb0954bf2a82e89f92c85aa"
+      ]
+    },
+    "atsuko_swimsuit": {
+      "name": "Atsuko (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:2:0",
+        "roster:en:3:1:10"
+      ]
+    },
+    "ayane": {
+      "name": "Ayane",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:3:13",
+        "history:502157418f913d64f3bd1b9b5d884f6058117e1c"
+      ]
+    },
+    "ayane_swimsuit": {
+      "name": "Ayane (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:1:12",
+        "history:b160992f799db18ed0d8f638fc9814fbde5c76e6",
+        "history:f5e79fad36551d5f84d9ca17255e1b58bc12c25d"
+      ]
+    },
+    "azusa": {
+      "name": "Azusa",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:5:3",
+        "history:492c19546f975e97f013197817b4b9117b9a3ec4",
+        "history:4d9d259b03fddbfbf7672a1de23fb42f4ede31c9"
+      ]
+    },
+    "azusa_swimsuit": {
+      "name": "Azusa (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:5:6",
+        "history:3a30502d16eb01bd6f9fcb31a860f7965d57c714"
+      ]
+    },
+    "cherino": {
+      "name": "Cherino",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:7:0",
+        "roster:en:1:4:13",
+        "history:6743dc0c47c4819b9869885b747f555774bcecc6"
+      ]
+    },
+    "cherino_hot_spring": {
+      "name": "Cherino (Hot Spring)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:6:11"
+      ]
+    },
+    "chiaki": {
+      "name": "Chiaki",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:2:0",
+        "roster:en:3:2:7"
+      ]
+    },
+    "chihiro": {
+      "name": "Chihiro",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:0:0",
+        "roster:en:1:7:8",
+        "history:ced0b9bc41a331982bf17716ed0901530f712443"
+      ]
+    },
+    "chinatsu": {
+      "name": "Chinatsu",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:1",
+        "history:6dc81c4f8d711fc0b47bd45e3a1d5ae024a99be4",
+        "history:7bcc8745641d12656b6e91ae66c6123c03e72ba0"
+      ]
+    },
+    "chinatsu_hot_spring": {
+      "name": "Chinatsu (Hot Spring)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:6:1",
+        "roster:en:1:6:12",
+        "history:1fb3e054e8468ff464f1860b61328b21be5c7bba"
+      ]
+    },
+    "chise": {
+      "name": "Chise",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:3",
+        "history:f91d470faff6cdd6db60084d361af7b6d14e48bc"
+      ]
+    },
+    "chise_swimsuit": {
+      "name": "Chise (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:5:0",
+        "roster:en:2:2:3"
+      ]
+    },
+    "eimi": {
+      "name": "Eimi",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:2",
+        "history:184352a81efd8f0fb1709bfda453b706f0dc177d"
+      ]
+    },
+    "eimi_armed": {
+      "name": "Eimi (Armed)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:5"
+      ]
+    },
+    "eimi_swimsuit": {
+      "name": "Eimi (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:10"
+      ]
+    },
+    "eri": {
+      "name": "Eri",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:12"
+      ]
+    },
+    "erika": {
+      "name": "Erika",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:7:1"
+      ]
+    },
+    "fubuki": {
+      "name": "Fubuki",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:7:6",
+        "history:5fa5b15b4fc89aefb5e5d620cb705d6fbb813e46",
+        "history:ce81676f1c7e2536475df46ef1c65b12d066018c"
+      ]
+    },
+    "fubuki_swimsuit": {
+      "name": "Fubuki (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:1:4"
+      ]
+    },
+    "fuuka": {
+      "name": "Fuuka",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:3:9",
+        "history:216c3c2c92ccefc545145fff17b680bd7682427b"
+      ]
+    },
+    "fuuka_new_year": {
+      "name": "Fuuka (New Year)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:3:7",
+        "history:4c92945f6c4109e952187b8afe23c4968091d137"
+      ]
+    },
+    "fuyu": {
+      "name": "Fuyu",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:3"
+      ]
+    },
+    "hanae": {
+      "name": "Hanae",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png",
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:6:0",
+        "target:new_ui_5.png:4:1",
+        "roster:en:1:3:10"
+      ]
+    },
+    "hanae_christmas": {
+      "name": "Hanae (Christmas)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:5:0",
+        "roster:en:2:3:5",
+        "history:16e66d26fdf719e7936f3d16cb1dcf98278f976f"
+      ]
+    },
+    "hanako": {
+      "name": "Hanako",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:3:2",
+        "roster:en:1:5:4",
+        "history:0d460920f919392047f5dbeb893f9669248e0409"
+      ]
+    },
+    "hanako_swimsuit": {
+      "name": "Hanako (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:6:1",
+        "roster:en:2:5:8"
+      ]
+    },
+    "hare": {
+      "name": "Hare",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:5:1",
+        "roster:en:1:3:11",
+        "history:1df18b39625de028ac7ececc64a8ffdb37c7bd65"
+      ]
+    },
+    "hare_camp": {
+      "name": "Hare (Camp)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:12"
+      ]
+    },
+    "haruka": {
+      "name": "Haruka",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:13",
+        "history:121b8ae19d91f49065caa661c0f1d261dca2d774",
+        "history:8fc3fe94afff4c21acb6b991bf36931ca3544679"
+      ]
+    },
+    "haruka_dress": {
+      "name": "Haruka (Dress)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:7:2"
+      ]
+    },
+    "haruka_new_year": {
+      "name": "Haruka (New Year)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:5"
+      ]
+    },
+    "haruna": {
+      "name": "Haruna",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:5:1",
+        "roster:en:1:1:3"
+      ]
+    },
+    "haruna_new_year": {
+      "name": "Haruna (New Year)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:3:6",
+        "history:8aac0ce5f7fa5ef1ebff73559ea7131aafaf8d13"
+      ]
+    },
+    "haruna_track": {
+      "name": "Haruna (Track)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:5:13"
+      ]
+    },
+    "hasumi": {
+      "name": "Hasumi",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:5",
+        "history:6f6697ff191f47a9bd0db54a46ecb87e4f69f516",
+        "history:75255cbf5d21f32f81f0ed1f43ce6b8454e5a2a7"
+      ]
+    },
+    "hasumi_swimsuit": {
+      "name": "Hasumi (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:8"
+      ]
+    },
+    "hasumi_track": {
+      "name": "Hasumi (Track)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:4:0",
+        "roster:en:2:3:1",
+        "history:a3163667610f84cf16293a429d78dd776f4aa905"
+      ]
+    },
+    "hatsune_miku": {
+      "name": "Hatsune Miku",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:6:9",
+        "history:5dd218969f17502b877284fac01f00e549b41bf4"
+      ]
+    },
+    "hibiki": {
+      "name": "Hibiki",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:0:0",
+        "roster:en:1:3:5"
+      ]
+    },
+    "hibiki_cheer_squad": {
+      "name": "Hibiki (Cheer Squad)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:10",
+        "history:05d25239d0b60374067c91eb36fb9707cab4326c",
+        "history:3c60f24c882e3334064ee0012331f05e0d3ba395"
+      ]
+    },
+    "hifumi": {
+      "name": "Hifumi",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:4",
+        "history:29111acb47eda48b3f205e06794ca16ff4a3bd7d",
+        "history:dee5f90ec53b481d8be74dca60d98d89ea85a3da"
+      ]
+    },
+    "hifumi_swimsuit": {
+      "name": "Hifumi (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:5:9",
+        "history:51cd385cf40653f11788e0223382c5583f0ec4ed"
+      ]
+    },
+    "hikari": {
+      "name": "Hikari",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:10"
+      ]
+    },
+    "himari": {
+      "name": "Himari",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:3:2",
+        "history:7dddc3f1db253d9535753d41f448ce40675547ba"
+      ]
+    },
+    "himari_armed": {
+      "name": "Himari (Armed)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:2"
+      ]
+    },
+    "hina": {
+      "name": "Hina",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:5",
+        "history:c3ff81b9ea481a05825c87743f9855b0279c576f",
+        "history:f44111912f9bcf944684ce92d13503098def38d4"
+      ]
+    },
+    "hina_dress": {
+      "name": "Hina (Dress)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:2:1",
+        "roster:en:2:7:3",
+        "history:87038b6f5de6e1319da39592d9d5a91fe57356ea"
+      ]
+    },
+    "hina_swimsuit": {
+      "name": "Hina (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:5:10",
+        "history:a48f8e8f4c371c9b772294418e51179bf9fea69b"
+      ]
+    },
+    "hinata": {
+      "name": "Hinata",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:6:0",
+        "roster:en:1:7:11"
+      ]
+    },
+    "hinata_swimsuit": {
+      "name": "Hinata (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:1:1",
+        "roster:en:2:5:6"
+      ]
+    },
+    "hiyori": {
+      "name": "Hiyori",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:1:8",
+        "history:0e91593b716e6413061493a437e5ef4b961379f2"
+      ]
+    },
+    "hiyori_swimsuit": {
+      "name": "Hiyori (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:1:12"
+      ]
+    },
+    "hoshino": {
+      "name": "Hoshino",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:6",
+        "history:1435dd2f89f44c66ea2737d2108aea93f75a3bf4",
+        "history:1c492d70cbe27566df124307ffb06397eb4b9177"
+      ]
+    },
+    "hoshino_battle": {
+      "name": "Hoshino (Battle)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:6:1",
+        "roster:en:3:1:7",
+        "history:320c4005f0a50c2b4a0644b0522b68ca8e8b2f45"
+      ]
+    },
+    "hoshino_swimsuit": {
+      "name": "Hoshino (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:1:13",
+        "history:b0b40e27ee1d9161dc933a047885c308c40bd1b2",
+        "history:bae612ce5d06a4f0d877de1cf14a87acacf22afe"
+      ]
+    },
+    "ibuki": {
+      "name": "Ibuki",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:5:1",
+        "roster:en:2:7:1",
+        "history:eb41750ea8f6e60957c38da9fdc5d5344e217d5e"
+      ]
+    },
+    "ichika": {
+      "name": "Ichika",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:1:0",
+        "roster:en:2:6:1"
+      ]
+    },
+    "ichika_swimsuit": {
+      "name": "Ichika (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:9"
+      ]
+    },
+    "iori": {
+      "name": "Iori",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:7:0",
+        "roster:en:1:1:7",
+        "history:984463876906516cf617c43b578e8ba5505141cd"
+      ]
+    },
+    "iori_swimsuit": {
+      "name": "Iori (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:2:0",
+        "roster:en:1:5:11",
+        "history:1774951cedd6c367a3554225a27a30dfad439979"
+      ]
+    },
+    "iroha": {
+      "name": "Iroha",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:1:4",
+        "history:17123c141b170cc5fbb501dcbbc42e8425ae95e6",
+        "history:4cca548ab2f6c0afeb8dcbb8648111166e967162"
+      ]
+    },
+    "izumi": {
+      "name": "Izumi",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:2:0",
+        "roster:en:1:1:10",
+        "history:bd6425fa0d02f7a81101aa63ef4b034c6026cdfc"
+      ]
+    },
+    "izumi_new_year": {
+      "name": "Izumi (New Year)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:6"
+      ]
+    },
+    "izumi_swimsuit": {
+      "name": "Izumi (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:0:1",
+        "roster:en:1:5:12",
+        "history:590386824c320211431533b5cbeabd7638834dfd"
+      ]
+    },
+    "izuna": {
+      "name": "Izuna",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:3:1",
+        "roster:en:1:4:8",
+        "history:3b7a6a14d3476ee7d29b4a9083fe6a71d28d4116"
+      ]
+    },
+    "izuna_swimsuit": {
+      "name": "Izuna (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:2"
+      ]
+    },
+    "junko": {
+      "name": "Junko",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:0:1",
+        "roster:en:1:2:9"
+      ]
+    },
+    "junko_new_year": {
+      "name": "Junko (New Year)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:3:0",
+        "roster:en:2:3:8",
+        "history:54afb54f94b0125b5a69d82b6c0064cef504c670"
+      ]
+    },
+    "juri": {
+      "name": "Juri",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:3"
+      ]
+    },
+    "juri_part_timer": {
+      "name": "Juri (Part-Timer)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:5"
+      ]
+    },
+    "kaede": {
+      "name": "Kaede",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:1:3",
+        "history:28a696866d05d927922f51a28548403ca5bb3b9a"
+      ]
+    },
+    "kaho": {
+      "name": "Kaho",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:6"
+      ]
+    },
+    "kanna": {
+      "name": "Kanna",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:5:1",
+        "roster:en:2:3:12",
+        "history:793eb71c957d93901635feb11e8119eb548dd97d"
+      ]
+    },
+    "kanna_swimsuit": {
+      "name": "Kanna (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:1:3"
+      ]
+    },
+    "kanoe": {
+      "name": "Kanoe",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:13"
+      ]
+    },
+    "karin": {
+      "name": "Karin",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:3:6"
+      ]
+    },
+    "karin_bunny": {
+      "name": "Karin (Bunny)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:6:5",
+        "history:ab7ca05a02fbdbe688362589ec9c8afd478e9cfb",
+        "history:f2fd1bdf6cd13360aa460167890f61f9a8c004a9"
+      ]
+    },
+    "karin_school": {
+      "name": "Karin (School)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:3:1",
+        "roster:en:3:2:13"
+      ]
+    },
+    "kasumi": {
+      "name": "Kasumi",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:2"
+      ]
+    },
+    "kayoko": {
+      "name": "Kayoko",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:6:0",
+        "roster:en:1:2:7"
+      ]
+    },
+    "kayoko_dress": {
+      "name": "Kayoko (Dress)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:4"
+      ]
+    },
+    "kayoko_new_year": {
+      "name": "Kayoko (New Year)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:4",
+        "history:f8e337dcf8591f3149699ad9d05f226ebcd4df0c"
+      ]
+    },
+    "kazusa": {
+      "name": "Kazusa",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:6",
+        "history:145a2a665525cb355b7ba0d962189716446109a4",
+        "history:319930c65895a19838f40735fc3a6fab8d1fd373"
+      ]
+    },
+    "kazusa_band": {
+      "name": "Kazusa (Band)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:9"
+      ]
+    },
+    "kei": {
+      "name": "Kei",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:4"
+      ]
+    },
+    "kikyou": {
+      "name": "Kikyou",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:9"
+      ]
+    },
+    "kikyou_swimsuit": {
+      "name": "Kikyou (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:6"
+      ]
+    },
+    "kirara": {
+      "name": "Kirara",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:12"
+      ]
+    },
+    "kirino": {
+      "name": "Kirino",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:7:1",
+        "roster:en:1:6:2",
+        "history:9f535e8aea21b394555d6c0c2bbcc6a198428776"
+      ]
+    },
+    "kirino_swimsuit": {
+      "name": "Kirino (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:1:5"
+      ]
+    },
+    "kisaki": {
+      "name": "Kisaki",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:2:3"
+      ]
+    },
+    "kisaki_swimsuit": {
+      "name": "Kisaki (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:7:7"
+      ]
+    },
+    "koharu": {
+      "name": "Koharu",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:5:5",
+        "history:6642cb29a780d28022833e47490c2c040d567cb7"
+      ]
+    },
+    "koharu_swimsuit": {
+      "name": "Koharu (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png",
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:0:1",
+        "target:new_ui_5.png:1:0",
+        "roster:en:2:5:7"
+      ]
+    },
+    "kokona": {
+      "name": "Kokona",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png",
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:2:1",
+        "target:new_ui_3.png:1:1",
+        "roster:en:2:2:7"
+      ]
+    },
+    "konoka": {
+      "name": "Konoka",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:8"
+      ]
+    },
+    "kotama": {
+      "name": "Kotama",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:2:1",
+        "roster:en:1:4:2",
+        "history:7363d0d92b556e851c0d4f9f4454fedbdd97499d"
+      ]
+    },
+    "kotama_camp": {
+      "name": "Kotama (Camp)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:7:0",
+        "roster:en:2:6:11"
+      ]
+    },
+    "kotori": {
+      "name": "Kotori",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:3:2"
+      ]
+    },
+    "kotori_cheer_squad": {
+      "name": "Kotori (Cheer Squad)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:5:12"
+      ]
+    },
+    "koyuki": {
+      "name": "Koyuki",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:3"
+      ]
+    },
+    "koyuki_pajamas": {
+      "name": "Koyuki (Pajamas)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:7"
+      ]
+    },
+    "kurumi": {
+      "name": "Kurumi",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:12"
+      ]
+    },
+    "maki": {
+      "name": "Maki",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:8",
+        "history:ce7ac06960cd783d2827c3d5c6cd7d167645431b",
+        "history:f368f1af77bea5c6e79c6f33389f4f437881dfb3"
+      ]
+    },
+    "maki_camp": {
+      "name": "Maki (Camp)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:6:2",
+        "roster:en:3:3:3"
+      ]
+    },
+    "makoto": {
+      "name": "Makoto",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:2"
+      ]
+    },
+    "mari": {
+      "name": "Mari",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:6:8",
+        "history:386c7f3342a9f5cf639566b576107651e856bfda"
+      ]
+    },
+    "mari_pop_idol": {
+      "name": "Mari (Pop Idol)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:2:4"
+      ]
+    },
+    "mari_track": {
+      "name": "Mari (Track)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:13",
+        "history:0e600698e6ce0b144f4e79949f89ad9b0ee3561c"
+      ]
+    },
+    "marina": {
+      "name": "Marina",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:7:12"
+      ]
+    },
+    "marina_qipao": {
+      "name": "Marina (Qipao)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:7:1",
+        "roster:en:3:1:13"
+      ]
+    },
+    "mashiro": {
+      "name": "Mashiro",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:7",
+        "history:f1dae7565cdebf6e6f4ec4b985e6af5bc139984b"
+      ]
+    },
+    "mashiro_swimsuit": {
+      "name": "Mashiro (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:5:7",
+        "history:4a900961162cd4d48893a6eace94574d9ca1d228"
+      ]
+    },
+    "megu": {
+      "name": "Megu",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:2:1",
+        "roster:en:2:3:11",
+        "history:22c0432fdf89798c4a2331916f62d3353c7a9f6d"
+      ]
+    },
+    "meru": {
+      "name": "Meru",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:7:1",
+        "roster:en:2:5:10"
+      ]
+    },
+    "michiru": {
+      "name": "Michiru",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:1:5"
+      ]
+    },
+    "michiru_dress": {
+      "name": "Michiru (Dress)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:12"
+      ]
+    },
+    "midori": {
+      "name": "Midori",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:11",
+        "history:82370d28e1faea8215fd94cc749a007cac91a205",
+        "history:b9d3c0b5b3c1a71c75868fea42d269b17c8dc15d"
+      ]
+    },
+    "midori_maid": {
+      "name": "Midori (Maid)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:4:0",
+        "roster:en:3:1:1"
+      ]
+    },
+    "mika": {
+      "name": "Mika",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:3:10",
+        "history:f033cb3bcab6a2946fd0ed7780b2f0c4e968d7d7"
+      ]
+    },
+    "mika_swimsuit": {
+      "name": "Mika (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:11"
+      ]
+    },
+    "mimori": {
+      "name": "Mimori",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:5:2",
+        "roster:en:1:7:9",
+        "history:108107df43d3581de31df3a71e4d880e56002068"
+      ]
+    },
+    "mimori_swimsuit": {
+      "name": "Mimori (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:5:9"
+      ]
+    },
+    "mina": {
+      "name": "Mina",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:12"
+      ]
+    },
+    "mine": {
+      "name": "Mine",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:3:9",
+        "history:576efb873fa62d53e836b14c405fe7c141cf1ebd",
+        "history:e108d3a25247831bf8bb023e1586205a8a60653a"
+      ]
+    },
+    "mine_pop_idol": {
+      "name": "Mine (Pop Idol)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:2:6"
+      ]
+    },
+    "minori": {
+      "name": "Minori",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:13"
+      ]
+    },
+    "misaka_mikoto": {
+      "name": "Misaka Mikoto",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:4"
+      ]
+    },
+    "misaki": {
+      "name": "Misaki",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:1:7"
+      ]
+    },
+    "misaki_swimsuit": {
+      "name": "Misaki (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:1"
+      ]
+    },
+    "miyako": {
+      "name": "Miyako",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:0:0",
+        "roster:en:1:7:13",
+        "history:ae0ea8944fee4a6cfd37f227d6e78d711813216e"
+      ]
+    },
+    "miyako_swimsuit": {
+      "name": "Miyako (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:5:1",
+        "history:0e6c8d6295dfff2d88b30c74e163ab604c20c8d1"
+      ]
+    },
+    "miyo": {
+      "name": "Miyo",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:2"
+      ]
+    },
+    "miyu": {
+      "name": "Miyu",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:6:1",
+        "roster:en:2:1:2",
+        "history:efe6447de52bc39ddac4f1b67da0501533666555"
+      ]
+    },
+    "miyu_swimsuit": {
+      "name": "Miyu (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:5:3",
+        "history:99d11717e6843e8daf523f137cfe70b9e0db8bce"
+      ]
+    },
+    "moe": {
+      "name": "Moe",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:5",
+        "history:96d6c8e573c07cf1ff442a0f0914a689591928c6",
+        "history:9cfd12b434c50c19d05a804f2983a2e274a0a306"
+      ]
+    },
+    "moe_swimsuit": {
+      "name": "Moe (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:1:6",
+        "history:5eb651af4602e60f0973aa9afe84640da7e40c61"
+      ]
+    },
+    "momiji": {
+      "name": "Momiji",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:5:11"
+      ]
+    },
+    "momoi": {
+      "name": "Momoi",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:12",
+        "history:8367ba25a43c6a9e8ebfb00905e6e1c70a37ed42"
+      ]
+    },
+    "momoi_maid": {
+      "name": "Momoi (Maid)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:13"
+      ]
+    },
+    "mutsuki": {
+      "name": "Mutsuki",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:3:2",
+        "roster:en:1:2:8"
+      ]
+    },
+    "mutsuki_dress": {
+      "name": "Mutsuki (Dress)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:7:3"
+      ]
+    },
+    "mutsuki_new_year": {
+      "name": "Mutsuki (New Year)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:7:3",
+        "history:51744c8b4575316afcabd677eebeb1c472113f0c"
+      ]
+    },
+    "nagisa": {
+      "name": "Nagisa",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:2",
+        "history:d82816d90ad27c8784cc255a9e104530b5d825ae"
+      ]
+    },
+    "nagisa_swimsuit": {
+      "name": "Nagisa (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:10"
+      ]
+    },
+    "nagusa": {
+      "name": "Nagusa",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:1"
+      ]
+    },
+    "nagusa_swimsuit": {
+      "name": "Nagusa (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:7:4"
+      ]
+    },
+    "natsu": {
+      "name": "Natsu",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:6:7",
+        "history:bc931adadbcfd37789de7667d2765e8018fc8e96"
+      ]
+    },
+    "natsu_band": {
+      "name": "Natsu (Band)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:3"
+      ]
+    },
+    "neru": {
+      "name": "Neru",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:9"
+      ]
+    },
+    "neru_bunny": {
+      "name": "Neru (Bunny)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:6:4",
+        "history:f4239879942054a28489e9b04561f9a90ebc6ff4"
+      ]
+    },
+    "neru_school": {
+      "name": "Neru (School)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:0:0",
+        "roster:en:3:3:1"
+      ]
+    },
+    "niko": {
+      "name": "Niko",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:11"
+      ]
+    },
+    "niya": {
+      "name": "Niya",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:2"
+      ]
+    },
+    "noa": {
+      "name": "Noa",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:9",
+        "history:5681e6af515058ff4427775d98840e338103ee3a",
+        "history:5ccb5d1fad4af3da1370210d07bc5819902ee8db"
+      ]
+    },
+    "noa_pajamas": {
+      "name": "Noa (Pajamas)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:1:0",
+        "roster:en:3:2:10"
+      ]
+    },
+    "nodoka": {
+      "name": "Nodoka",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:5:1",
+        "history:76cd740025301f8742e6627be415c6de119f824c"
+      ]
+    },
+    "nodoka_hot_spring": {
+      "name": "Nodoka (Hot Spring)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:7:1",
+        "history:88263fd553ca6eb87cb364bbe6890b163bdb3933"
+      ]
+    },
+    "nonomi": {
+      "name": "Nonomi",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:6",
+        "history:720cff27ab82260a530a8da14a03667fa53690bd"
+      ]
+    },
+    "nonomi_swimsuit": {
+      "name": "Nonomi (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:3:0",
+        "roster:en:2:1:11"
+      ]
+    },
+    "nozomi": {
+      "name": "Nozomi",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:11"
+      ]
+    },
+    "otogi": {
+      "name": "Otogi",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:13"
+      ]
+    },
+    "pina": {
+      "name": "Pina",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:5:0",
+        "roster:en:1:3:4"
+      ]
+    },
+    "pina_guide": {
+      "name": "Pina (Guide)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:13"
+      ]
+    },
+    "rabu": {
+      "name": "Rabu",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:7"
+      ]
+    },
+    "rei": {
+      "name": "Rei",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:7"
+      ]
+    },
+    "reijo": {
+      "name": "Reijo",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png",
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:3:1",
+        "target:new_ui_5.png:5:0",
+        "roster:en:3:2:2"
+      ]
+    },
+    "reisa": {
+      "name": "Reisa",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:10",
+        "history:3f818f05710f1c0109e0347ec3592300384213cf",
+        "history:440be0bfb3ff581d81ff8b87d21781f821edc1c8"
+      ]
+    },
+    "reisa_magical": {
+      "name": "Reisa (Magical)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:5"
+      ]
+    },
+    "rena": {
+      "name": "Rena",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:9"
+      ]
+    },
+    "renge": {
+      "name": "Renge",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:8"
+      ]
+    },
+    "renge_swimsuit": {
+      "name": "Renge (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:5"
+      ]
+    },
+    "rio": {
+      "name": "Rio",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:1:2",
+        "roster:en:3:3:2"
+      ]
+    },
+    "rio_armed": {
+      "name": "Rio (Armed)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:13"
+      ]
+    },
+    "ritsu": {
+      "name": "Ritsu",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:4"
+      ]
+    },
+    "rumi": {
+      "name": "Rumi",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:4:11",
+        "history:85e928a65a4df034487e1b8063741c364418a175"
+      ]
+    },
+    "saki": {
+      "name": "Saki",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:1:2",
+        "roster:en:2:1:1",
+        "history:d4f34f0e611285e0236fd3034f99e33c2193edc2"
+      ]
+    },
+    "saki_swimsuit": {
+      "name": "Saki (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:0:0",
+        "roster:en:2:5:2"
+      ]
+    },
+    "sakurako": {
+      "name": "Sakurako",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:3:13",
+        "history:8249a6b060342f585836b75fb8e647413a3b3a7a"
+      ]
+    },
+    "sakurako_pop_idol": {
+      "name": "Sakurako (Pop Idol)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:0:1",
+        "roster:en:3:2:5"
+      ]
+    },
+    "saori": {
+      "name": "Saori",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:4",
+        "history:a1d8bdc7f7f0deb053c4d9bc839c3e1811e823da"
+      ]
+    },
+    "saori_dress": {
+      "name": "Saori (Dress)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:9"
+      ]
+    },
+    "saori_swimsuit": {
+      "name": "Saori (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:1:11"
+      ]
+    },
+    "saten_ruiko": {
+      "name": "Saten Ruiko",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:6",
+        "history:066f56905c0a12f9dfae6f13382903ec0154e8e1",
+        "history:45452c9a9c3cf3c0d7fc8c01f4a8e957ddeb8bea"
+      ]
+    },
+    "satsuki": {
+      "name": "Satsuki",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:2:8"
+      ]
+    },
+    "saya": {
+      "name": "Saya",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:3:7",
+        "history:57606b490f72b31b5a657c6b1c5290612c38777f"
+      ]
+    },
+    "saya_casual": {
+      "name": "Saya (Casual)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:1:1",
+        "roster:en:1:6:3",
+        "history:98437941a4fe19b45483075012c31ba3c7c7d928"
+      ]
+    },
+    "seia": {
+      "name": "Seia",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:2:11"
+      ]
+    },
+    "seia_swimsuit": {
+      "name": "Seia (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:7"
+      ]
+    },
+    "sena": {
+      "name": "Sena",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:7:7",
+        "history:1263ab5aafde3988fcdd9891717bab003de8330a",
+        "history:9f05336ef01b001c9f6ba07bb4083be454bc46ba"
+      ]
+    },
+    "sena_casual": {
+      "name": "Sena (Casual)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:4"
+      ]
+    },
+    "serika": {
+      "name": "Serika",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:4:1",
+        "roster:en:1:2:10",
+        "history:33270104491443ed3c8db892610239f6164e25be"
+      ]
+    },
+    "serika_new_year": {
+      "name": "Serika (New Year)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:7:4"
+      ]
+    },
+    "serika_swimsuit": {
+      "name": "Serika (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:1:2",
+        "history:ca65128f51f7b187118a283a94c18dba29598d16"
+      ]
+    },
+    "serina": {
+      "name": "Serina",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:4"
+      ]
+    },
+    "serina_christmas": {
+      "name": "Serina (Christmas)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:3:4",
+        "history:d635d5e0c0b0d7c475c3e95a1ef79ccce22a01ff"
+      ]
+    },
+    "shigure": {
+      "name": "Shigure",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:3:3"
+      ]
+    },
+    "shigure_hot_spring": {
+      "name": "Shigure (Hot Spring)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:5:2",
+        "roster:en:2:6:3"
+      ]
+    },
+    "shimiko": {
+      "name": "Shimiko",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:5",
+        "history:12475cab63704f42c6ce4a5f31ca200f80f41260"
+      ]
+    },
+    "shiroko": {
+      "name": "Shiroko",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:11",
+        "history:1399e917eb0525b20df267212dba19b90623ee25"
+      ]
+    },
+    "shiroko_cycling": {
+      "name": "Shiroko (Cycling)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:5:13",
+        "history:f5c688b4cd73e028005755875e49872c3d9ddff2"
+      ]
+    },
+    "shiroko_swimsuit": {
+      "name": "Shiroko (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:5:4"
+      ]
+    },
+    "shiroko_terror": {
+      "name": "Shiroko Terror",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:3:0",
+        "roster:en:3:1:9",
+        "history:5335da61021b4ccaf20a870edee45e0294853b68"
+      ]
+    },
+    "shizuko": {
+      "name": "Shizuko",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:9",
+        "history:37dcbc8549929187578061fa6fb770a89f12a998"
+      ]
+    },
+    "shizuko_swimsuit": {
+      "name": "Shizuko (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:1",
+        "history:44bf67f5469e8602b9bc5093e7decdedfe70ed51"
+      ]
+    },
+    "shokuhou_misaki": {
+      "name": "Shokuhou Misaki",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:5"
+      ]
+    },
+    "shun": {
+      "name": "Shun",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:1:12",
+        "history:52ed8720309bc727f03225ff160815e7a5b959d8",
+        "history:e9352515f2db47339ce0986c48a66256d9dcdad0"
+      ]
+    },
+    "shun_small": {
+      "name": "Shun (Small)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:1:0",
+        "roster:en:1:6:1"
+      ]
+    },
+    "shun_swimsuit": {
+      "name": "Shun (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:7:5"
+      ]
+    },
+    "subaru": {
+      "name": "Subaru",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:8"
+      ]
+    },
+    "sumire": {
+      "name": "Sumire",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:3:0",
+        "roster:en:1:1:13"
+      ]
+    },
+    "sumire_part_timer": {
+      "name": "Sumire (Part-Timer)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:3:8"
+      ]
+    },
+    "suzumi": {
+      "name": "Suzumi",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:0:2",
+        "roster:en:1:3:3",
+        "history:19617bd7f9959077f8690cc12f31f3e9cd26fcb4"
+      ]
+    },
+    "suzumi_magical": {
+      "name": "Suzumi (Magical)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:6"
+      ]
+    },
+    "takane": {
+      "name": "Takane",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:9"
+      ]
+    },
+    "toki": {
+      "name": "Toki",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_4.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_4.png:4:0",
+        "roster:en:2:4:1",
+        "history:1f708690b31ac08a684a48ee6019654f53e89a52"
+      ]
+    },
+    "toki_armed": {
+      "name": "Toki (Armed)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:1"
+      ]
+    },
+    "toki_bunny": {
+      "name": "Toki (Bunny)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:1:1",
+        "roster:en:2:4:8",
+        "history:4074255cf5ec772f6b14203789fb892e673dd538"
+      ]
+    },
+    "tomoe": {
+      "name": "Tomoe",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:6:13",
+        "history:1561d03e3f6a72c0e0535c8a7c4fc4b6c3e0d90b"
+      ]
+    },
+    "tomoe_qipao": {
+      "name": "Tomoe (Qipao)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:2:1"
+      ]
+    },
+    "tsubaki": {
+      "name": "Tsubaki",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:11",
+        "history:55dd0d8c751809917c0ca1b823c74e42bd94d54a"
+      ]
+    },
+    "tsubaki_guide": {
+      "name": "Tsubaki (Guide)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:8",
+        "history:47dc57e0b745799a1cfa4976e34c4ebc29ba18ce"
+      ]
+    },
+    "tsukuyo": {
+      "name": "Tsukuyo",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_5.png:4:0",
+        "roster:en:2:1:6"
+      ]
+    },
+    "tsukuyo_dress": {
+      "name": "Tsukuyo (Dress)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:11"
+      ]
+    },
+    "tsurugi": {
+      "name": "Tsurugi",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:1"
+      ]
+    },
+    "tsurugi_swimsuit": {
+      "name": "Tsurugi (Swimsuit)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:7:0",
+        "roster:en:1:5:8",
+        "history:822e80afa256953a93f3e4931f5497337a27477f"
+      ]
+    },
+    "ui": {
+      "name": "Ui",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:5:0",
+        "roster:en:1:7:10",
+        "history:8a7c6259ee904531c2711659574a8d78afbefed9"
+      ]
+    },
+    "ui_swimsuit": {
+      "name": "Ui (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:5:5",
+        "history:a5d4de9be86ff78d0927082d1bd5e9956d7be333"
+      ]
+    },
+    "umika": {
+      "name": "Umika",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:7:7"
+      ]
+    },
+    "utaha": {
+      "name": "Utaha",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:6:1",
+        "roster:en:1:3:12",
+        "history:f6658d4d637c1c6656ba296f2725f5fdb3909e70"
+      ]
+    },
+    "utaha_cheer_squad": {
+      "name": "Utaha (Cheer Squad)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:8",
+        "history:adfe758ffc5ba73e3f2487376a6857b4c42c4f4c"
+      ]
+    },
+    "wakamo": {
+      "name": "Wakamo",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:3:1",
+        "roster:en:1:7:5",
+        "history:72f9be4caf1bc9efafba0e9321e92c4ba2066a73"
+      ]
+    },
+    "wakamo_swimsuit": {
+      "name": "Wakamo (Swimsuit)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:1:10",
+        "history:d120fc036c20984dc382afebb407343e2722cb27"
+      ]
+    },
+    "yakumo": {
+      "name": "Yakumo",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:5:10"
+      ]
+    },
+    "yoshimi": {
+      "name": "Yoshimi",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:4:6",
+        "history:fca6c8eab406e287b490f74b66ae1ac41c499dc7"
+      ]
+    },
+    "yoshimi_band": {
+      "name": "Yoshimi (Band)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_2.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_2.png:7:1",
+        "roster:en:2:7:10"
+      ]
+    },
+    "yukari": {
+      "name": "Yukari",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:6:7"
+      ]
+    },
+    "yukari_swimsuit": {
+      "name": "Yukari (Swimsuit)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:4:4"
+      ]
+    },
+    "yuuka": {
+      "name": "Yuuka",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:1:2:12",
+        "history:1ed33436024233516de224c74b794f888c5b4580",
+        "history:2985cec248386656d2d3df88fffa08eae8752cb0"
+      ]
+    },
+    "yuuka_pajamas": {
+      "name": "Yuuka (Pajamas)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:2:9"
+      ]
+    },
+    "yuuka_track": {
+      "name": "Yuuka (Track)",
+      "status": "historical_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:2:2:12",
+        "history:97ef7dc7841b9ce48b1e8fa73b71d8d1dd248eb5"
+      ]
+    },
+    "yuzu": {
+      "name": "Yuzu",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_3.png",
+        "new_ui_4.png",
+        "new_ui_5.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_3.png:2:0",
+        "target:new_ui_4.png:6:0",
+        "roster:en:1:5:2"
+      ]
+    },
+    "yuzu_armed": {
+      "name": "Yuzu (Armed)",
+      "status": "roster_only",
+      "validation_groups": [],
+      "prototype_sources": [
+        "roster:en:3:6:6"
+      ]
+    },
+    "yuzu_maid": {
+      "name": "Yuzu (Maid)",
+      "status": "target_fixture",
+      "validation_groups": [
+        "new_ui_1.png"
+      ],
+      "prototype_sources": [
+        "target:new_ui_1.png:6:0",
+        "roster:en:2:4:9",
+        "history:4bace1dcd1c4a4c7577b0af565f228e1e30cf087"
+      ]
+    }
+  },
+  "validation_groups": [
+    "new_ui_1.png",
+    "new_ui_2.png",
+    "new_ui_3.png",
+    "new_ui_4.png",
+    "new_ui_5.png"
+  ],
+  "validation_fold_metrics": {
+    "new_ui_1.png": {
+      "count": 15,
+      "correct": 14,
+      "top1_accuracy": 0.9333333333333333,
+      "macro_recall": 0.9333333333333333,
+      "minimum_score": 0.7500759959220886,
+      "minimum_margin": 0.024608731269836426
+    },
+    "new_ui_2.png": {
+      "count": 16,
+      "correct": 13,
+      "top1_accuracy": 0.8125,
+      "macro_recall": 0.8125,
+      "minimum_score": 0.5213193893432617,
+      "minimum_margin": 0.0031377077102661133
+    },
+    "new_ui_3.png": {
+      "count": 16,
+      "correct": 13,
+      "top1_accuracy": 0.8125,
+      "macro_recall": 0.8125,
+      "minimum_score": 0.6449064612388611,
+      "minimum_margin": 0.05002838373184204
+    },
+    "new_ui_4.png": {
+      "count": 16,
+      "correct": 16,
+      "top1_accuracy": 1.0,
+      "macro_recall": 1.0,
+      "minimum_score": 0.5970807075500488,
+      "minimum_margin": 0.031026065349578857
+    },
+    "new_ui_5.png": {
+      "count": 18,
+      "correct": 18,
+      "top1_accuracy": 1.0,
+      "macro_recall": 1.0,
+      "minimum_score": 0.6426289081573486,
+      "minimum_margin": 0.03578466176986694
+    }
+  },
+  "cross_validation_metrics": {
+    "count": 81,
+    "correct": 74,
+    "top1_accuracy": 0.9135802469135802,
+    "macro_recall": 0.9054054054054054,
+    "minimum_score": 0.5213193893432617,
+    "minimum_margin": 0.0031377077102661133
+  },
+  "all_labeled_target_metrics": {
+    "count": 81,
+    "correct": 81,
+    "top1_accuracy": 1.0,
+    "macro_recall": 1.0,
+    "minimum_score": 0.8871852159500122,
+    "minimum_margin": 0.09983515739440918
+  },
+  "roster_replay_metrics": {
+    "count": 265,
+    "correct": 265,
+    "top1_accuracy": 1.0,
+    "macro_recall": 1.0,
+    "minimum_score": 0.9628937840461731,
+    "minimum_margin": 0.3956298828125
+  },
+  "historical_replay_metrics": {
+    "count": 177,
+    "correct": 177,
+    "top1_accuracy": 1.0,
+    "macro_recall": 1.0,
+    "minimum_score": 0.7481790781021118,
+    "minimum_margin": 0.3088967800140381
+  },
+  "torch_opencv_max_cosine_difference": 1.1920928955078125e-07,
+  "label_count": 265,
+  "gallery_identity_count": 265,
+  "gallery_prototype_count": 488
+}
