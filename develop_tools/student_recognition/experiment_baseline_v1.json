@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "baseline_branch": "student_recognition",
+  "baseline_commit": "050840e5450689d8d7c5739352ef49492839d9e4",
+  "data_policy": {
+    "training_images": 5,
+    "training_avatars": 81,
+    "frozen_comparison_images": 5,
+    "frozen_comparison_avatars": 83,
+    "frozen_comparison_may_be_used_for_training": false,
+    "frozen_comparison_may_be_used_for_threshold_selection": false
+  },
+  "production_metrics": {
+    "detected_cards": 40,
+    "detected_avatars": 83,
+    "identity_correct": 66,
+    "identity_total": 83,
+    "eligibility_correct": 81,
+    "eligibility_total": 83,
+    "eligible_click_passed": 57,
+    "eligible_total": 70
+  },
+  "sha256": {
+    "develop_tools/student_recognition/lesson_locator_annotations.json": "06132e8c44792f991cddcb2da2d082302b3ce8b7e178b0dd9fb3c84da39d2841",
+    "develop_tools/student_recognition/independent_test_annotations_v1.json": "67e53acfba84d0dcd32554a1815caea5d123deab215fad479eabb218e482aadf",
+    "develop_tools/student_recognition/validation_report.json": "d0a98cc6fd7d8eba2766683493c6df9d9f74f9d93943a473c5124b12083581d7",
+    "develop_tools/student_recognition/independent_test_report_v1.json": "3f94cc107e33d097fa1e5d6b0c561683d009f0cf8a1d992d5b4fb0af88abb4b5",
+    "src/models/student_recognition/lesson_locator.onnx": "28c7df0df8c7de46900c7230c2ae43d072c787b455e1fea8f3ae8f7b7c71cf94",
+    "src/models/student_recognition/student_encoder.onnx": "91419798e637f6080b84f0d9a49dfac18074f6b55680b0d536df5d292833f47e",
+    "src/models/student_recognition/gallery.npz": "e50d7d3f062482ac242d06eeff9eb94b3bd50a0c4313aa860b0486e59b9fc783"
+  }
+}

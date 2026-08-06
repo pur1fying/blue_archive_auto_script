@@ -14,7 +14,9 @@ TRAINING_FIXTURE_DIR = ROOT / "develop_tools" / "test" / "fixtures" / "lesson"
 ANNOTATION_PATH = ROOT / "develop_tools" / "student_recognition" / "independent_test_annotations_v1.json"
 TRAINING_ANNOTATION_PATH = ROOT / "develop_tools" / "student_recognition" / "lesson_locator_annotations.json"
 REPORT_PATH = ROOT / "develop_tools" / "student_recognition" / "independent_test_report_v1.json"
+EXPERIMENT_BASELINE_PATH = ROOT / "develop_tools" / "student_recognition" / "experiment_baseline_v1.json"
 TRAINING_SCRIPT_PATH = ROOT / "develop_tools" / "student_recognition" / "train_student_models.py"
+MODEL_DIR = ROOT / "src" / "models" / "student_recognition"
 
 
 def sha256(path: Path) -> str:
@@ -164,6 +166,30 @@ class IndependentLessonBaselineTest(unittest.TestCase):
                 for row in regenerated["identity_failures"]
             ],
         )
+
+    def test_candidate_evaluator_uses_an_explicit_model_directory(self):
+        candidate = evaluate(
+            model_dir=MODEL_DIR,
+            enforce_expected_baseline=False,
+            candidate_name="baseline-as-candidate",
+        )
+        self.assertTrue(candidate["completed"])
+        self.assertEqual("frozen_comparison_candidate", candidate["classification"])
+        self.assertEqual("baseline-as-candidate", candidate["candidate_name"])
+        self.assertIsNone(candidate["expected_baseline"])
+        self.assertEqual(self.report["metrics"], candidate["metrics"])
+
+    def test_experiment_baseline_locks_data_and_model_hashes(self):
+        baseline = json.loads(EXPERIMENT_BASELINE_PATH.read_text(encoding="utf-8"))
+        self.assertEqual("050840e5450689d8d7c5739352ef49492839d9e4", baseline["baseline_commit"])
+        self.assertFalse(
+            baseline["data_policy"]["frozen_comparison_may_be_used_for_training"]
+        )
+        self.assertFalse(
+            baseline["data_policy"]["frozen_comparison_may_be_used_for_threshold_selection"]
+        )
+        for relative_path, expected_hash in baseline["sha256"].items():
+            self.assertEqual(expected_hash, sha256(ROOT / relative_path), relative_path)
 
 
 if __name__ == "__main__":

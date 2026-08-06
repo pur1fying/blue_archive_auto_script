@@ -96,14 +96,30 @@ def percentage(numerator: int, denominator: int) -> float:
     return numerator / denominator if denominator else 0.0
 
 
-def evaluate() -> dict:
+def evaluate(
+    model_dir: Path = MODEL_DIR,
+    enforce_expected_baseline: bool = True,
+    candidate_name: str = "current_production",
+) -> dict:
+    model_dir = Path(model_dir).resolve()
     annotation = json.loads(ANNOTATION_PATH.read_text(encoding="utf-8"))
     student_rows = json.loads(STATIC_DEFAULT_CONFIG)["student_names"]
-    service = StudentRecognitionService(student_rows)
+    service = StudentRecognitionService(student_rows, model_dir)
     if not service.identity_available or not service.lesson_locator.model_available:
-        raise RuntimeError("Current production student-recognition models are unavailable")
+        raise RuntimeError(f"Student-recognition models are unavailable: {model_dir}")
+
+    candidate_model_paths = tuple(model_dir / name for name in MODEL_FILES)
+    missing_model_files = [path.name for path in candidate_model_paths if not path.exists()]
+    if missing_model_files:
+        raise FileNotFoundError(
+            f"Incomplete candidate model directory {model_dir}: {missing_model_files}"
+        )
 
     protected_before = hashes(PROTECTED_PATHS)
+    candidate_before = {
+        path.name: sha256(path)
+        for path in candidate_model_paths
+    }
     training_annotation = json.loads(TRAINING_ANNOTATION_PATH.read_text(encoding="utf-8"))
     training_images = sorted(training_annotation["images"])
     fixture_files = sorted(path.name for path in FIXTURE_DIR.glob("*.png"))
@@ -250,10 +266,14 @@ def evaluate() -> dict:
         "gray_target_blocked": gray_target_blocked,
         "gray_target_clicked": len(plain_rows) - gray_target_blocked,
     }
-    baseline_checks = {
-        key: metrics[key] == expected
-        for key, expected in EXPECTED_BASELINE.items()
-    }
+    baseline_checks = {}
+    if enforce_expected_baseline:
+        baseline_checks.update(
+            {
+                key: metrics[key] == expected
+                for key, expected in EXPECTED_BASELINE.items()
+            }
+        )
     baseline_checks.update(
         {
             "detected_card_count": metrics["detected_card_count"] == EXPECTED_BASELINE["card_count"],
@@ -267,11 +287,23 @@ def evaluate() -> dict:
         }
     )
     protected_after = hashes(PROTECTED_PATHS)
+    candidate_after = {
+        path.name: sha256(path)
+        for path in candidate_model_paths
+    }
     baseline_checks["protected_files_unchanged"] = protected_before == protected_after
+    baseline_checks["candidate_files_unchanged_during_evaluation"] = (
+        candidate_before == candidate_after
+    )
     report = {
         "version": 1,
         "dataset_id": annotation["dataset_id"],
-        "classification": "one_time_independent_pretraining_baseline",
+        "classification": (
+            "one_time_independent_pretraining_baseline"
+            if enforce_expected_baseline
+            else "frozen_comparison_candidate"
+        ),
+        "candidate_name": candidate_name,
         "completed": all(baseline_checks.values()),
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "environment": {
@@ -304,8 +336,11 @@ def evaluate() -> dict:
             },
             "protected_files_before": protected_before,
             "protected_files_after": protected_after,
+            "candidate_model_files_before": candidate_before,
+            "candidate_model_files_after": candidate_after,
         },
-        "expected_baseline": EXPECTED_BASELINE,
+        "expected_baseline": EXPECTED_BASELINE if enforce_expected_baseline else None,
+        "production_baseline_reference": EXPECTED_BASELINE,
         "checks": baseline_checks,
         "metrics": metrics,
         "per_image": image_results,
@@ -332,10 +367,20 @@ def evaluate() -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=DEFAULT_REPORT_PATH)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--model-dir", type=Path, default=MODEL_DIR)
+    parser.add_argument("--candidate", action="store_true")
+    parser.add_argument("--candidate-name", default="current_production")
     args = parser.parse_args()
-    report = evaluate()
-    args.output.write_text(
+    if args.candidate and args.output is None:
+        parser.error("--candidate requires an explicit --output path")
+    output = args.output or DEFAULT_REPORT_PATH
+    report = evaluate(
+        model_dir=args.model_dir,
+        enforce_expected_baseline=not args.candidate,
+        candidate_name=args.candidate_name,
+    )
+    output.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
