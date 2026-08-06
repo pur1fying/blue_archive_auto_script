@@ -4,7 +4,3 @@ deploy/installer/build/
 __pycache__/
 *.py[cod]
 *$py.class
-
-push.bat
-export.bat
-pr1_changes.txt
