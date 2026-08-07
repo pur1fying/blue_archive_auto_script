@@ -1,9 +1,4 @@
-import importlib
-import time
-
-import cv2
-
-from core import color, picture, image
+from core import color, picture
 from core.geometry.parallelogram import Parallelogram
 from core.utils import build_possible_string_dict_and_length, most_similar_string, purchase_ticket_times_to_int
 
@@ -450,132 +445,118 @@ def choose_lesson(self, res, region):
 
 
 def invite_favor_student(self):
-    """
-        search all lessons and invite specified student
-        use each server image template, if image not exists use shared
-    """
-    self.logger.info("Lesson Inviting favor student.")
-    favorStudentList = self.config.lesson_favorStudent.copy()
+    """Use one fixed-layout screenshot per region to prioritize configured students."""
+    from pathlib import Path
 
-    detected_student_pos = dict()  # student name : {(region, block)}
-    region_block_names = [[[] for _ in range(9)] for _ in range(len(self.lesson_region_name_len))]
-    template_image_names = get_favor_student_image_template_names(self.identifier)
-    template_not_exist = [x for x in favorStudentList if x not in template_image_names]
-    if len(template_not_exist) > 0:
-        self.logger.warning("Didn't find template image for [ " + ", ".join(template_not_exist) + " ]")
-        self.logger.warning("Possible reasons : ")
-        self.logger.warning("                   1. Template image not exists, please contact developer to add it.")
-        self.logger.warning("                   2. You wrote wrong student name.")
-    favorStudentList = [x for x in favorStudentList if x not in template_not_exist]
-    if len(favorStudentList) == 0:
+    from core.student_recognition import StudentRecognitionService
+
+    self.logger.info("Lesson Inviting favor student.")
+    service = StudentRecognitionService(
+        self.static_config.student_names,
+        Path(self.project_dir),
+    )
+    favor_student_list, unknown = service.catalog.validate_names(
+        self.config.lesson_favorStudent
+    )
+    if unknown:
+        self.logger.warning("Unknown student name(s): " + ", ".join(unknown))
+    if not favor_student_list:
         self.logger.info("FavorStudent list is empty.")
         return
+    if not service.available:
+        self.logger.warning(
+            "Student recognition is unavailable; use normal lesson selection. "
+            + (service.load_error or "")
+        )
+        return
+
     to_select_location(self, True)
     start_num = get_lesson_region_num(self)
-    cur_num = start_num
-    tar_stu = favorStudentList[0]
-    self.logger.info("Target Student : [ " + tar_stu + " ]")
-    # the first student will search a round, all detected data during this round are stored in detected_student_pos
-    while True:
-        to_all_locations(self, True)
-        res = [get_lesson_each_region_status(self), get_lesson_relationship_counts(self)]  # [status, relationship]
-        out_lesson_status(self, res)
-        self.swipe(983, 588, 983, 466, duration=0.1, post_sleep_time=0.5)
-        self.update_screenshot_array()
-        self.logger.info("Get Page Favor Student Names.")
-        t1 = time.time()
-        lesson_need_to_execute = None
-        for j in range(0, 9):
-            block_existing_names = []
-            if res[0][j] == "available":
-                detect_region = get_favor_student_detect_region(self, j)
-                block_detect_student = []
-                for key in template_image_names:
-                    if key in block_existing_names:
-                        continue
-                    ret = image.search_in_area(self, "lesson_" + key, detect_region, threshold=0.75)
-                    if not ret:
-                        continue
-                    block_detect_student.append((ret[0], key))
-                    block_existing_names.append(key)
+    if not isinstance(start_num, int) or not 0 <= start_num < len(self.lesson_region_name_len):
+        self.logger.warning("Cannot resolve lesson region; use normal lesson selection.")
+        return
 
-                    if len(block_detect_student) == res[1][j]:  # reach max affection stu count
-                        break
-                if len(block_detect_student) == 0:
+    detected_positions = {}
+    region_card_names = [[[] for _ in range(9)] for _ in range(len(self.lesson_region_name_len))]
+    primary = favor_student_list[0]
+    cur_num = start_num
+    visited_regions = set()
+    self.logger.info("Target Student : [ " + primary + " ]")
+
+    while cur_num not in visited_regions and self.flag_run:
+        visited_regions.add(cur_num)
+        to_all_locations(self, True)
+        statuses = get_lesson_each_region_status(self)
+        self.update_screenshot_array()
+        cards = service.recognize_lesson(self.latest_img_array, statuses, self.server)
+        selected_card = service.select_priority_card(cards, [primary])
+
+        for card in cards:
+            names = []
+            diagnostic = []
+            for avatar in card.avatars:
+                prediction = avatar.prediction
+                if prediction is None or not prediction.accepted or not prediction.name:
                     continue
-                block_detect_student.sort()
-                block_names = [x[1] for x in block_detect_student]
-                self.logger.info("Block " + str(j + 1) + " : " + ", ".join(block_names))
-                if tar_stu in block_names:
-                    self.logger.info("Find [ " + tar_stu + " ] in Block.")
-                    lesson_need_to_execute = j
-                else:
-                    for name in block_names:
-                        detected_student_pos.setdefault(name, set())
-                        detected_student_pos[name].add((cur_num, j))
-                    region_block_names[cur_num][j] = block_names
-        t2 = time.time()
-        self.logger.info("Detecting time : " + str(int((t2 - t1) * 1000)) + "ms.")
-        if lesson_need_to_execute is not None:  # target student found
-            t = execute_lesson(self, lesson_need_to_execute)
-            if t == "inadequate_ticket":
+                diagnostic.append(prediction.name + ("" if avatar.eligible else " [gray]"))
+                if avatar.eligible:
+                    names.append(prediction.name)
+            if diagnostic:
+                self.logger.info("Block " + str(card.index + 1) + " : " + ", ".join(diagnostic))
+            if card is selected_card:
+                continue
+            region_card_names[cur_num][card.index] = names
+            for name in names:
+                detected_positions.setdefault(name, set()).add((cur_num, card.index))
+
+        if selected_card is not None:
+            self.logger.info("Find [ " + primary + " ] in Block " + str(selected_card.index + 1))
+            result = execute_lesson(self, selected_card.index)
+            if result == "inadequate_ticket":
                 self.logger.warning("INADEQUATE LESSON TICKET")
                 return
-            if t == "lesson_report":
+            if result == "lesson_report":
                 self.logger.info("Complete one lesson.")
                 self.lesson_tickets -= 1
                 if self.lesson_tickets == 0:
                     self.logger.info("No Tickets.")
                     return True
+
         to_select_location(self, True)
-        cur_num = switch_lesson_region_page(self, to_left_page=False, cur_num=cur_num)
-        if cur_num == start_num:  # checked a round
+        next_num = switch_lesson_region_page(self, to_left_page=False, cur_num=cur_num)
+        if not isinstance(next_num, int) or not 0 <= next_num < len(self.lesson_region_name_len):
+            self.logger.warning("Cannot resolve next lesson region; stop student scan.")
             break
-    for student in favorStudentList[1:]:
+        cur_num = next_num
+        if cur_num == start_num:
+            break
+
+    for student in favor_student_list[1:]:
         self.logger.info("Target Student : " + student)
-        if student not in detected_student_pos:
-            self.logger.warning("Didn't find [ " + student + " ] in any lesson regions.Skip")
-            continue
-        self.logger.info("Recorded Position(s) : " + str(detected_student_pos[student]))
-        while True:
-            _set = detected_student_pos[student]
-            if len(_set) == 0:
-                break
-            region, lesson_id = next(iter(_set))
+        positions = detected_positions.get(student, set())
+        while positions and self.flag_run:
+            region, lesson_id = positions.pop()
             to_lesson_region(self, region, start_num)
             to_all_locations(self, True)
-            t = execute_lesson(self, lesson_id)
-            if t == "inadequate_ticket":
+            statuses = get_lesson_each_region_status(self)
+            self.update_screenshot_array()
+            cards = service.recognize_lesson(self.latest_img_array, statuses, self.server)
+            confirmed = service.select_priority_card(
+                [card for card in cards if card.index == lesson_id], [student]
+            )
+            if confirmed is None:
+                self.logger.warning("Cached student position is no longer actionable; skip.")
+                continue
+            result = execute_lesson(self, lesson_id)
+            if result == "inadequate_ticket":
                 self.logger.warning("INADEQUATE LESSON TICKET")
                 return
-            if t == "lesson_report":
+            if result == "lesson_report":
                 self.logger.info("Complete one lesson.")
                 self.lesson_tickets -= 1
+                names = region_card_names[region][lesson_id]
+                for name in names:
+                    detected_positions.get(name, set()).discard((region, lesson_id))
                 if self.lesson_tickets == 0:
                     self.logger.info("No Tickets.")
                     return True
-                else:
-                    names = region_block_names[region][lesson_id]
-                    self.logger.info("Pop [" + str(region) + ", " + str(lesson_id) + "] : " + ", ".join(names))
-                    for name in region_block_names[region][lesson_id]:
-                        detected_student_pos[name].remove((region, lesson_id))
-
-
-def get_favor_student_detect_region(self, lesson_cnt):
-    x_start = 145
-    y_start = 232
-    dx1 = 344
-    dy1 = 152
-    dx2 = 225
-    dy2 = 68
-
-    x1 = x_start + dx1 * (lesson_cnt % 3)
-    y1 = y_start + dy1 * (lesson_cnt // 3)
-    return x1, y1, x1 + dx2, y1 + dy2
-
-
-def get_favor_student_image_template_names(identifier):
-    server_image_module_path = 'src.images.' + identifier + '.x_y_range.lesson_affection'
-    data = importlib.import_module(server_image_module_path)
-    x_y_range = getattr(data, 'x_y_range', None)
-    return list(x_y_range.keys())
