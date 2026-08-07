@@ -350,7 +350,7 @@
 ## `lesson_favorStudent`
 
 - **type** : `List[str]`
-- **description**: 日程优先邀请学生的名字, 由前到后依次尝试
+- **description**: 日程优先邀请学生的名字, 由前到后依次尝试。名称按270人三语名册解析；身份采用全局Top-1，不设置相似度或分差门槛
 
 ## `purchase_lesson_ticket_times`
 
