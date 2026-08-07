@@ -34,15 +34,14 @@ class Layout(QWidget):
         self.student_name = []
 
         for student in self.config.static_config.student_names:
-            if student[self.config.server_mode + '_implementation']:
-                name = student[self.config.server_mode + '_name']
-                self.student_name.append(name)
+            name = student[self.config.server_mode + '_name']
+            self.student_name.append(name)
 
-                # 非中文环境下，添加学生的翻译
-                if not bt.isChinese():
-                    cn_name = student['CN_name']
-                    translated_name = name
-                    bt.addStudent(cn_name, translated_name)
+            # 非中文环境下，添加学生的翻译
+            if not bt.isChinese():
+                cn_name = student['CN_name']
+                translated_name = name
+                bt.addStudent(cn_name, translated_name)
 
         self.create_cafe_mode_sel(1)
 
