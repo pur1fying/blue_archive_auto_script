@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable, Optional
 
+import cv2
 import numpy as np
 
 from core.student_recognition.catalog import StudentCatalog
@@ -23,6 +24,7 @@ class StudentRecognitionService:
         self.catalog = catalog if catalog is not None else StudentCatalog(student_rows)
         self.layout = FixedLessonLayout()
         self.load_error: Optional[str] = None
+        self.recognition_error: Optional[str] = None
         try:
             resolved_model_dir = model_dir or ensure_model_files(project_root)
             self.recognizer = StudentRecognizer(self.catalog, resolved_model_dir)
@@ -38,11 +40,16 @@ class StudentRecognitionService:
 
     def recognize_lesson(
         self,
-        image: np.ndarray,
+        image: Optional[np.ndarray],
         statuses: list[str],
         server: str = "",
     ) -> list[LessonCard]:
-        cards = self.layout.locate(image, statuses)
+        self.recognition_error = None
+        try:
+            cards = self.layout.locate(image, statuses)
+        except (ValueError, cv2.error) as error:
+            self.recognition_error = str(error)
+            return []
         if not self.available:
             return cards
         avatars = [avatar for card in cards for avatar in card.avatars]

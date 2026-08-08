@@ -491,6 +491,12 @@ def invite_favor_student(self):
         statuses = get_lesson_each_region_status(self)
         self.update_screenshot_array()
         cards = service.recognize_lesson(self.latest_img_array, statuses, self.server)
+        if service.recognition_error:
+            self.logger.warning(
+                "Student recognition failed; use normal lesson selection. "
+                + service.recognition_error
+            )
+            return
         selected_card = service.select_priority_card(cards, [primary])
 
         for card in cards:
@@ -500,7 +506,12 @@ def invite_favor_student(self):
                 prediction = avatar.prediction
                 if prediction is None or not prediction.accepted or not prediction.name:
                     continue
-                diagnostic.append(prediction.name + ("" if avatar.eligible else " [gray]"))
+                diagnostic.append(
+                    prediction.name
+                    + " (score=" + format(prediction.score, ".3f")
+                    + ", margin=" + format(prediction.margin, ".3f") + ")"
+                    + ("" if avatar.eligible else " [gray]")
+                )
                 if avatar.eligible:
                     names.append(prediction.name)
             if diagnostic:
@@ -528,7 +539,7 @@ def invite_favor_student(self):
         next_num = switch_lesson_region_page(self, to_left_page=False, cur_num=cur_num)
         if not isinstance(next_num, int) or not 0 <= next_num < len(self.lesson_region_name_len):
             self.logger.warning("Cannot resolve next lesson region; stop student scan.")
-            break
+            return
         cur_num = next_num
         if cur_num == start_num:
             break
@@ -544,6 +555,12 @@ def invite_favor_student(self):
             statuses = get_lesson_each_region_status(self)
             self.update_screenshot_array()
             cards = service.recognize_lesson(self.latest_img_array, statuses, self.server)
+            if service.recognition_error:
+                self.logger.warning(
+                    "Student recognition failed; use normal lesson selection. "
+                    + service.recognition_error
+                )
+                return
             confirmed = service.select_priority_card(
                 [card for card in cards if card.index == lesson_id], [student]
             )
