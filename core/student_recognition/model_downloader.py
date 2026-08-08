@@ -77,8 +77,8 @@ def ensure_model_files(project_root: Path, timeout: float = 15.0) -> Path:
                 return destination
         except (OSError, UnicodeError, ModelDownloadError):
             pass
-    cache_root.mkdir(parents=True, exist_ok=True)
     try:
+        cache_root.mkdir(parents=True, exist_ok=True)
         checksum_response = requests.get(RELEASE_BASE_URL + "/SHA256SUMS", timeout=timeout)
         checksum_response.raise_for_status()
         checksums = parse_checksums(checksum_response.text)

@@ -18,8 +18,9 @@ class StudentRecognitionService:
         student_rows: Iterable[dict],
         project_root: Path,
         model_dir: Optional[Path] = None,
+        catalog: Optional[StudentCatalog] = None,
     ):
-        self.catalog = StudentCatalog(student_rows)
+        self.catalog = catalog if catalog is not None else StudentCatalog(student_rows)
         self.layout = FixedLessonLayout()
         self.load_error: Optional[str] = None
         try:

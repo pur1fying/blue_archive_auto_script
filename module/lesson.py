@@ -448,14 +448,11 @@ def invite_favor_student(self):
     """Use one fixed-layout screenshot per region to prioritize configured students."""
     from pathlib import Path
 
-    from core.student_recognition import StudentRecognitionService
+    from core.student_recognition import StudentCatalog, StudentRecognitionService
 
     self.logger.info("Lesson Inviting favor student.")
-    service = StudentRecognitionService(
-        self.static_config.student_names,
-        Path(self.project_dir),
-    )
-    favor_student_list, unknown = service.catalog.validate_names(
+    catalog = StudentCatalog(self.static_config.student_names)
+    favor_student_list, unknown = catalog.validate_names(
         self.config.lesson_favorStudent
     )
     if unknown:
@@ -463,6 +460,11 @@ def invite_favor_student(self):
     if not favor_student_list:
         self.logger.info("FavorStudent list is empty.")
         return
+    service = StudentRecognitionService(
+        self.static_config.student_names,
+        Path(self.project_dir),
+        catalog=catalog,
+    )
     if not service.available:
         self.logger.warning(
             "Student recognition is unavailable; use normal lesson selection. "
@@ -531,12 +533,13 @@ def invite_favor_student(self):
         if cur_num == start_num:
             break
 
+    current_region = cur_num
     for student in favor_student_list[1:]:
         self.logger.info("Target Student : " + student)
         positions = detected_positions.get(student, set())
         while positions and self.flag_run:
             region, lesson_id = positions.pop()
-            to_lesson_region(self, region, start_num)
+            current_region = to_lesson_region(self, region, current_region)
             to_all_locations(self, True)
             statuses = get_lesson_each_region_status(self)
             self.update_screenshot_array()
