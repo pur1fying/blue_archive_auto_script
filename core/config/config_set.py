@@ -3,6 +3,7 @@ import os
 import re
 from core.config.generated_user_config import Config
 from core.config.generated_static_config import StaticConfig
+from core.config import default_config
 from gui.util.customized_ui import BoundComponent
 from gui.util.translator import baasTranslator as bt
 from dataclasses import asdict
@@ -41,7 +42,12 @@ class ConfigSet:
 
     def _init_config(self):
         with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
-            self.config = Config(**json.load(f))
+            data = json.load(f)
+        defaults = json.loads(default_config.DEFAULT_CONFIG)
+        for key in defaults:
+            if key not in data:
+                data[key] = defaults[key]
+        self.config = Config(**data)
         self.server_mode = self.get_server_mode(self.config.server)
 
     @staticmethod

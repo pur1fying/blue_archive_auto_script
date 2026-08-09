@@ -9,7 +9,7 @@ __pycache__/
 .env/
 
 # User config (contains sensitive keys)
-config/
+/config/
 
 # Runtime
 log/
