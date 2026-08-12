@@ -102,8 +102,9 @@ class TemplateLayout(QWidget):
                 inputComponent.setText(str(self.config.get(currentKey)))
                 inputComponent.setReadOnly(cfg.readOnly)
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
-                # Draft-friendly: commit on focus leave / enter, no inline 确定.
-                # Dialog OK flushes remaining focus before draft.commit().
+                # editingFinished for both modes:
+                # - Draft: Dialog OK clearFocus flushes last edit into ConfigDraft.
+                # - List: one ConfigSet.set on blur (not per keystroke) — no freeze.
                 if not cfg.readOnly:
                     inputComponent.editingFinished.connect(
                         partial(self._commit, currentKey, inputComponent, labelComponent))
@@ -113,12 +114,22 @@ class TemplateLayout(QWidget):
                 inputComponent.setFixedWidth(400)
                 inputComponent.setText(str(self.config.get(currentKey)))
                 inputComponent.setReadOnly(cfg.readOnly)
-                # Same as type 'text': editingFinished so Dialog OK + clearFocus
-                # flushes the last edit into ConfigDraft. @delay+textChanged could
-                # drop input when user types then immediately clicks 确定.
+                # Dual path (review: List mode has no draft buffer):
+                # - Card/ConfigDraft: editingFinished so OK+clearFocus flushes last edit
+                #   (delayed textChanged can miss a click-确定 within the debounce window).
+                # - List/live ConfigSet: keep @delay+textChanged — set() hits disk every
+                #   time; undebounced keystrokes stall the UI.
                 if not cfg.readOnly:
-                    inputComponent.editingFinished.connect(
-                        partial(self._commit, currentKey, inputComponent, labelComponent))
+                    if getattr(self.config, 'is_draft', False):
+                        inputComponent.editingFinished.connect(
+                            partial(self._commit, currentKey, inputComponent, labelComponent))
+                    else:
+                        @delay(0.8)
+                        def async_change_text(_currentKey, _inputComponent, _labelComponent, *_):
+                            self._commit(_currentKey, _inputComponent, _labelComponent)
+
+                        inputComponent.textChanged.connect(
+                            partial(async_change_text, currentKey, inputComponent, labelComponent))
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 selectButton = PushButton(self.tr('执行'), self)
                 selectButton.clicked.connect(cfg.selection)
