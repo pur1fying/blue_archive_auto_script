@@ -2,10 +2,9 @@ from functools import partial
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
-from qfluentwidgets import ComboBox, LineEdit,  PushButton, SwitchButton
+from qfluentwidgets import ComboBox, LineEdit,  SwitchButton
 
 from gui.util import notification
-from core.utils import delay
 from gui.util.translator import baasTranslator as bt
 
 
@@ -120,25 +119,23 @@ class Layout(QWidget):
                 self.mainLayout.addLayout(layout)
 
     def _init_student_sel(self, no):
-        label = QLabel(self.tr('列表选择你要添加邀请的学生，修改后请点击确定：'))
+        label = QLabel(self.tr('列表选择你要添加邀请的学生，失焦后写入草稿：'))
         laySelect, layInput = QHBoxLayout(), QHBoxLayout()
         comboStudent = ComboBox()
         comboStudent.addItem(self.tr("添加学生"))
         lineEditStudent = LineEdit()
         lineEditStudent.setFixedWidth(650)
-        btnConfirm = PushButton(self.tr('确定'))
         favor_student = self.config.get(f'favorStudent{no}')
         comboStudent.addItems(self.student_name)
+        # Validate for display only — do not draft-write on open (would dirty OK).
         favor_student = self.check_valid_student_names(favor_student)
-        self.config.set(f'favorStudent{no}', favor_student)
         lineEditStudent.setText(','.join(favor_student))
         laySelect.addWidget(label, 1, Qt.AlignLeft)
         laySelect.addWidget(comboStudent, 0, Qt.AlignRight)
         layInput.addWidget(lineEditStudent, 1, Qt.AlignLeft)
-        layInput.addWidget(btnConfirm, 0, Qt.AlignRight)
         comboStudent.currentTextChanged.connect(
             partial(self.__add_student_name, no, lineEditStudent, comboStudent))
-        btnConfirm.clicked.connect(partial(self.__student_name_changed, no, lineEditStudent))
+        lineEditStudent.editingFinished.connect(partial(self.__student_name_changed, no, lineEditStudent))
         return [laySelect, layInput]
 
     def _init_student_com_(self, no):
@@ -174,19 +171,21 @@ class Layout(QWidget):
         lineEdit.setText(','.join(favor_student))
 
     def __init_Signals_and_Slots(self):
-        self.inputPatRound.textChanged.connect(self.__accept_pat_round)
+        # editingFinished so dialog OK flush_pending_editors captures last edit.
+        self.inputPatRound.editingFinished.connect(self.__accept_pat_round)
         self.inputPatStyle.currentTextChanged.connect(self.__accept_pat_style)
         self.second_switch.checkedChanged.connect(self.Slot_for_no_2_cafe_Checkbox)
 
-    @delay(0.5)
-    def __accept_pat_round(self, text):
+    def __accept_pat_round(self, *_):
         # str of 4 - 15
+        text = self.inputPatRound.text().strip()
         if text not in (str(i) for i in range(4, 16)):
             notification.error("摸头轮数设置错误", "请设置为4-15之间的整数", self.config)
         else:
             self.pat_round = int(text)
             self.config.set('cafe_reward_affection_pat_round', self.pat_round)
-            notification.success("摸头轮数设置成功", f"当前值为：{self.pat_round}", self.config)
+            if not getattr(self.config, 'is_draft', False):
+                notification.success("摸头轮数设置成功", f"当前值为：{self.pat_round}", self.config)
 
     @staticmethod
     def check_valid_student_names(favor_student):

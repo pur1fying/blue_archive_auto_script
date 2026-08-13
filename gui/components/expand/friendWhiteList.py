@@ -15,7 +15,6 @@ class Layout(QWidget):
         self.to_add_lay = QHBoxLayout()
         self.to_add_label = QLabel(self.tr('输入你需要添加进白名单的好友码:'), self)
         self.to_add_input = LineEdit(self)
-        self.add_accept = PushButton(self.tr('确定'), self)
         self.table_view = None
 
         self.to_add = ""
@@ -23,11 +22,11 @@ class Layout(QWidget):
 
         self.vBoxLayout.setContentsMargins(24, 0, 24, 0)
 
-        self.add_accept.clicked.connect(self.__accept_add)
+        # Draft-friendly: commit add on focus leave / enter, no inline 确定.
+        self.to_add_input.editingFinished.connect(self.__accept_add)
 
         self.to_add_lay.addWidget(self.to_add_label, 20, Qt.AlignLeft)
         self.to_add_lay.addWidget(self.to_add_input, 0, Qt.AlignRight)
-        self.to_add_lay.addWidget(self.add_accept, 0, Qt.AlignCenter)
 
         self.vBoxLayout.setContentsMargins(24, 0, 24, 0)
         self.vBoxLayout.addSpacing(16)
@@ -38,7 +37,9 @@ class Layout(QWidget):
         self._init_table()
 
     def __accept_add(self):
-        self.to_add = self.to_add_input.text()
+        self.to_add = self.to_add_input.text().strip()
+        if self.to_add == '':
+            return
         # Check the user code is valid
         # User code length is 7 in CN server, 8 in JP and Global server
         # The user code is a string, which only contains numbers and lower case letters
@@ -69,8 +70,10 @@ class Layout(QWidget):
             return
         self.white_list.append(self.to_add)
         self.config.set('clear_friend_white_list', self.white_list)
+        self.to_add_input.clear()
         self._init_table()
-        notification.success(self.tr('添加成功'), f'{self.tr("您添加的用户为：")}{self.to_add}', self.config)
+        if not getattr(self.config, 'is_draft', False):
+            notification.success(self.tr('添加成功'), f'{self.tr("您添加的用户为：")}{self.to_add}', self.config)
 
     def _init_table(self):
         # If the old table exists, delete the old table
