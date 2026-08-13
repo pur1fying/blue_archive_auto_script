@@ -1,22 +1,18 @@
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QSizePolicy, QFrame
-from qfluentwidgets import FlowLayout, CheckBox, LineEdit
+from qfluentwidgets import LineEdit
 
 from gui.util.translator import baasTranslator as bt
+from gui.components.shop_goods import ShopGoodCard, ShopGoodsGrid
 
 
-# Unified chrome: same width; dialog forces same viewport height for both shops.
-SHOP_CONTENT_WIDTH = 800
-_ITEM_W = 200
-_ITEM_H = 58
-_HEADER_H = 48
-_PAD_Y = 16  # same top & bottom
+_PAD_Y = 16
 _PAD_X = 16
 
 
 class Layout(QWidget):
-    """Common shop goods editor. Height follows real rows; dialog scrolls at shared viewport height."""
+    """Common shop goods editor with a width-responsive goods grid."""
 
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
@@ -25,18 +21,14 @@ class Layout(QWidget):
         self.goods = self.config.get(key='CommonShopList')
         self._n = len(self.goods)
 
-        self.setMinimumWidth(SHOP_CONTENT_WIDTH)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.setMinimumWidth(0)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(_PAD_X, _PAD_Y, _PAD_X, _PAD_Y)
         root.setSpacing(8)
         root.setAlignment(Qt.AlignTop)
 
-        header = QHBoxLayout()
-        header.addStretch(1)
-
-        # Bordered refresh cluster so it reads as a control, not plain text.
         refresh_box = QFrame(self)
         refresh_box.setObjectName('shopRefreshBox')
         refresh_box.setStyleSheet(
@@ -50,81 +42,42 @@ class Layout(QWidget):
         refresh_row.setContentsMargins(10, 6, 10, 6)
         refresh_row.setSpacing(8)
         self.label = QLabel(self.tr('刷新次数'), refresh_box)
+        self.label.setWordWrap(True)
         self.input = LineEdit(refresh_box)
         self.input.setFixedWidth(72)
         self.input.setValidator(QIntValidator(0, 5))
         self.input.setText(str(self.config.get('CommonShopRefreshTime')))
         self.input.editingFinished.connect(self._commit_refresh)
-        refresh_row.addWidget(self.label, 0, Qt.AlignVCenter)
+        refresh_row.addWidget(self.label, 1, Qt.AlignVCenter)
         refresh_row.addWidget(self.input, 0, Qt.AlignVCenter)
-        header.addWidget(refresh_box, 0, Qt.AlignRight)
-        root.addLayout(header)
+        refresh_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        root.addWidget(refresh_box)
 
-        goods_host = QWidget(self)
-        goods_host.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._flow = FlowLayout(goods_host, needAni=False)
-        self._flow.setContentsMargins(0, 0, 0, 0)
-        self._flow.setVerticalSpacing(0)
-        self._flow.setHorizontalSpacing(8)
+        goods_host = ShopGoodsGrid(self)
 
         self.setStyleSheet('Demo{background: white}')
         self.boxes = []
         for i in range(self._n):
-            t_cbx = CheckBox(self)
-            t_cbx.setChecked(self.goods[i] == 1)
-            ccs = QLabel(bt.tr('ConfigTranslation', self.default_goods[i][0]), self)
-            ccs.setFixedWidth(150)
+            name = bt.tr('ConfigTranslation', self.default_goods[i][0])
             price_text = str(self.default_goods[i][1])
             if self.default_goods[i][2] == 'creditpoints':
                 price_text += self.tr('信用点')
             else:
                 price_text += self.tr('青辉石')
-            price_label = QLabel(price_text, self)
-            price_label.setFixedWidth(150)
-            wrapper_widget = QWidget()
-            wrapper = QHBoxLayout()
-            # QHBoxLayout.widget() is None — never use it as a QWidget parent.
-            VLayout = QVBoxLayout()
-            VLayout.addWidget(ccs)
-            VLayout.addWidget(price_label)
-            wrapper.addLayout(VLayout)
-            wrapper.addWidget(t_cbx)
-            wrapper_widget.setLayout(wrapper)
-            self._flow.addWidget(wrapper_widget)
+            wrapper_widget = ShopGoodCard(
+                name,
+                price_text,
+                checked=self.goods[i] == 1,
+                price_first=False,
+                parent=goods_host,
+            )
+            t_cbx = wrapper_widget.check_box
+            goods_host.addWidget(wrapper_widget)
             t_cbx.stateChanged.connect(lambda x, index=i: self.alter_status(index))
             self.boxes.append(t_cbx)
 
         root.addWidget(goods_host, 0, Qt.AlignTop)
         self._goods_host = goods_host
-        self._apply_content_height(SHOP_CONTENT_WIDTH)
-
-    def _cols_for_width(self, width: int) -> int:
-        inner = max(1, width - 2 * _PAD_X)
-        return max(1, inner // _ITEM_W)
-
-    def _content_height_for_width(self, width: int) -> int:
-        cols = self._cols_for_width(width)
-        rows = max(1, (self._n + cols - 1) // cols) if self._n else 1
-        goods_h = rows * _ITEM_H
-        return _PAD_Y + _HEADER_H + goods_h + _PAD_Y
-
-    def _apply_content_height(self, width: int):
-        """minimumHeight drives QScrollArea scrollbar; viewport height is shared in dialog."""
-        h = self._content_height_for_width(width)
-        self.setMinimumHeight(h)
-        cols = self._cols_for_width(width)
-        rows = max(1, (self._n + cols - 1) // cols) if self._n else 1
-        self._goods_host.setMinimumHeight(rows * _ITEM_H)
-
-    def sizeHint(self):
-        return QSize(SHOP_CONTENT_WIDTH, self._content_height_for_width(SHOP_CONTENT_WIDTH))
-
-    def minimumSizeHint(self):
-        return self.sizeHint()
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._apply_content_height(max(event.size().width(), SHOP_CONTENT_WIDTH))
 
     def alter_status(self, index):
         self.config.set(

@@ -226,14 +226,11 @@ class DialogSettingBox(MessageBoxBase):
             '}\n'
         )
 
-        # Shops: unified fixed width; viewport capped; content min-height drives scrollbar.
+        # Shops use a viewport that follows the host window and caps at a
+        # comfortable desktop width. The editor itself handles grid reflow.
         is_shop = bool(setting_name and ('shop' in setting_name or 'Shop' in setting_name))
-        shop_width = 800
-        # Same viewport height for common shop & arena shop (avg of old tall/short).
-        shop_view_h = 400
         if is_shop:
-            frame.setMinimumWidth(shop_width)
-            frame.setMaximumWidth(shop_width)
+            frame.setMinimumWidth(0)
 
         # Set the wrapper layout for the frame
         frame.setLayout(layout_wrapper)
@@ -256,29 +253,38 @@ class DialogSettingBox(MessageBoxBase):
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         if is_shop:
-            # Same fixed width + same viewport height for both shops.
-            scroll_area.setFixedWidth(shop_width)
-            scroll_area.setFixedHeight(shop_view_h)
-            # Content min-height from layout → scrollbar when taller than viewport.
-            try:
-                content_h = int(layout.minimumSizeHint().height())
-            except Exception:
-                content_h = 0
-            if content_h <= 0:
-                try:
-                    content_h = int(layout.sizeHint().height())
-                except Exception:
-                    content_h = shop_view_h
-            try:
-                frame.setMinimumHeight(max(content_h, shop_view_h))
-                layout.setMinimumHeight(content_h)
-            except Exception:
-                pass
+            scroll_area.setObjectName('shopScrollArea')
+            self._shop_scroll_area = scroll_area
+            self._shop_frame = frame
+            self._resize_shop_viewport(self.size())
         else:
             scroll_area.setFixedWidth(self.width() - 100)
 
         # Add the frame to the dialog's main layout
         self.viewLayout.addWidget(scroll_area)
+
+    def _resize_shop_viewport(self, size):
+        if not hasattr(self, '_shop_scroll_area'):
+            return
+
+        from gui.components.shop_goods import (
+            SHOP_DIALOG_HORIZONTAL_RESERVE,
+            SHOP_DIALOG_VERTICAL_RESERVE,
+            SHOP_MAX_WIDTH,
+            SHOP_VIEWPORT_HEIGHT,
+        )
+
+        available_width = max(1, size.width() - SHOP_DIALOG_HORIZONTAL_RESERVE)
+        available_height = max(1, size.height() - SHOP_DIALOG_VERTICAL_RESERVE)
+        viewport_width = min(SHOP_MAX_WIDTH, available_width)
+        viewport_height = min(SHOP_VIEWPORT_HEIGHT, available_height)
+        self._shop_scroll_area.setFixedSize(viewport_width, viewport_height)
+        self._shop_frame.setMinimumWidth(0)
+        self._shop_frame.updateGeometry()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._resize_shop_viewport(event.size())
 
     def _is_draft(self) -> bool:
         return bool(getattr(self.config, 'is_draft', False))
