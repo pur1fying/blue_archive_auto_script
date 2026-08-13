@@ -294,8 +294,15 @@ class Layout(QWidget):
             self.input_for_create_priority.setFixedHeight(125)
             _content = ' > '.join(self.create_priority)
             self.input_for_create_priority.setText(_content)
-            self.input_for_create_priority.textChanged.connect(
-                partial(self.__change_create_priority, self.input_for_create_priority.toPlainText))
+            # Card(ConfigDraft): write draft on every textChanged (memory only, cheap).
+            # List(live ConfigSet): keep @delay — set() reloads+rewrites config.json
+            # every call; undebounced keystrokes freeze the UI.
+            if getattr(self.config, 'is_draft', False):
+                self.input_for_create_priority.textChanged.connect(
+                    partial(self.__change_create_priority, self.input_for_create_priority.toPlainText))
+            else:
+                self.input_for_create_priority.textChanged.connect(
+                    partial(self.__change_create_priority_live, self.input_for_create_priority.toPlainText))
             layout_for_create_priority_list.addWidget(self.input_for_create_priority)
 
             layout_for_line_three.addLayout(layout_for_create_priority_list)
@@ -304,14 +311,21 @@ class Layout(QWidget):
 
             self.setLayout(self.viewLayout)
 
-        @delay(1)
         def __change_create_priority(self, text):
+            """Apply priority text. Used directly on draft; live goes through delayed wrapper."""
             self.create_priority = text().split('>')
             self.create_priority = [i.strip() for i in self.create_priority]
             self.config.set(f'createPriority_phase{self.phase}', self.create_priority)
-            notification.success(self.tr('制造优先级'),
-                                 self.__dict_for_phase[self.phase] + self.tr("修改成功"),
-                                 self.config)
+            # Draft: dialog OK shows「已保存」. Live List: toast after debounced write.
+            if not getattr(self.config, 'is_draft', False):
+                notification.success(self.tr('制造优先级'),
+                                     self.__dict_for_phase[self.phase] + self.tr("修改成功"),
+                                     self.config)
+
+        @delay(1)
+        def __change_create_priority_live(self, text):
+            # List / expand mode: debounce disk writes (ConfigSet.set = read+write json).
+            self.__change_create_priority(text)
 
         def get_create_priority(self, phase):
             cfg_key_name = 'createPriority_phase' + str(phase)

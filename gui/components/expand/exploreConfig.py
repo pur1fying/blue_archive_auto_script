@@ -2,6 +2,7 @@ from PyQt5.QtCore import QObject
 
 from core.utils import detach
 from gui.components.expand.expandTemplate import TemplateLayout
+from gui.util.config_draft import ConfigDraft, as_live
 from ...util import notification
 
 
@@ -40,16 +41,30 @@ class Layout(TemplateLayout):
         ]
         super().__init__(parent=parent, config=config, configItems=configItems, context="ExploreConfig")
 
+    def _publish_draft_for_action(self):
+        """Card dialog injects ConfigDraft; tasks read live ConfigSet.
+
+        执行 must flush the focused LineEdit and commit the draft first, otherwise
+        start_*_task() still sees the old explore_*_task_list on disk/live memory.
+        """
+        cfg = self.config
+        if isinstance(cfg, ConfigDraft):
+            cfg.flush_and_commit(self)
+            return as_live(cfg)
+        return cfg
+
     @detach
     def _action_hard(self):
-        nml_list = self.config.get('explore_hard_task_list')
-        notification.success(self.tr('困难关推图'), self.tr("正在推困难关")+": "+str(nml_list), self.config)
-        self.config.get_signal('update_signal').emit(['困难关推图'])
-        self.config.get_main_thread().start_hard_task()
+        live = self._publish_draft_for_action()
+        nml_list = live.get('explore_hard_task_list')
+        notification.success(self.tr('困难关推图'), self.tr("正在推困难关")+": "+str(nml_list), live)
+        live.get_signal('update_signal').emit(['困难关推图'])
+        live.get_main_thread().start_hard_task()
 
     @detach
     def _action_normal(self):
-        nml_list = self.config.get('explore_normal_task_list')
-        notification.success(self.tr('普通关推图'), self.tr("正在推普通关")+": "+str(nml_list), self.config)
-        self.config.get_signal('update_signal').emit(['普通关推图'])
-        self.config.get_main_thread().start_normal_task()
+        live = self._publish_draft_for_action()
+        nml_list = live.get('explore_normal_task_list')
+        notification.success(self.tr('普通关推图'), self.tr("正在推普通关")+": "+str(nml_list), live)
+        live.get_signal('update_signal').emit(['普通关推图'])
+        live.get_main_thread().start_normal_task()

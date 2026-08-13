@@ -61,7 +61,6 @@ class TemplateLayout(QWidget):
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
 
         for ind, cfg in enumerate(configItems):
-            confirmButton = None
             selectButton = None
             optionPanel = QHBoxLayout()
             labelComponent = QLabel(bt.tr(context, cfg.label), self)
@@ -103,20 +102,34 @@ class TemplateLayout(QWidget):
                 inputComponent.setText(str(self.config.get(currentKey)))
                 inputComponent.setReadOnly(cfg.readOnly)
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
-                confirmButton = PushButton(self.tr('确定'), self)
-                confirmButton.clicked.connect(partial(self._commit, currentKey, inputComponent, labelComponent))
+                # editingFinished for both modes:
+                # - Draft: Dialog OK clearFocus flushes last edit into ConfigDraft.
+                # - List: one ConfigSet.set on blur (not per keystroke) — no freeze.
+                if not cfg.readOnly:
+                    inputComponent.editingFinished.connect(
+                        partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'text__action':
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
                 inputComponent.setFixedWidth(400)
                 inputComponent.setText(str(self.config.get(currentKey)))
                 inputComponent.setReadOnly(cfg.readOnly)
+                # Dual path (review: List mode has no draft buffer):
+                # - Card/ConfigDraft: editingFinished so OK+clearFocus flushes last edit
+                #   (delayed textChanged can miss a click-确定 within the debounce window).
+                # - List/live ConfigSet: keep @delay+textChanged — set() hits disk every
+                #   time; undebounced keystrokes stall the UI.
+                if not cfg.readOnly:
+                    if getattr(self.config, 'is_draft', False):
+                        inputComponent.editingFinished.connect(
+                            partial(self._commit, currentKey, inputComponent, labelComponent))
+                    else:
+                        @delay(0.8)
+                        def async_change_text(_currentKey, _inputComponent, _labelComponent, *_):
+                            self._commit(_currentKey, _inputComponent, _labelComponent)
 
-                @delay(0.8)
-                def async_change_text(_currentKey, _inputComponent, _labelComponent, *_):
-                    self._commit(_currentKey, _inputComponent, _labelComponent)
-
-                inputComponent.textChanged.connect(partial(async_change_text, currentKey, inputComponent, labelComponent))
+                        inputComponent.textChanged.connect(
+                            partial(async_change_text, currentKey, inputComponent, labelComponent))
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
                 selectButton = PushButton(self.tr('执行'), self)
                 selectButton.clicked.connect(cfg.selection)
@@ -134,8 +147,6 @@ class TemplateLayout(QWidget):
             optionPanel.addWidget(inputComponent, 0, Qt.AlignRight)
             if selectButton is not None:
                 optionPanel.addWidget(selectButton, 0, Qt.AlignRight)
-            if confirmButton is not None:
-                optionPanel.addWidget(confirmButton, 0, Qt.AlignRight)
             self.vBoxLayout.addLayout(optionPanel)
             self.vBoxLayout.setContentsMargins(20, 0, 20, 20)
 
@@ -147,11 +158,20 @@ class TemplateLayout(QWidget):
             value = target.isChecked()
         elif isinstance(target, LineEdit):
             value = target.text()
+        elif isinstance(target, SpinBox):
+            value = target.value()
         assert value is not None
-        notification.success(self.tr('设置成功'), f'{labelTarget.text()}{self.tr("已经被设置为：")}{value}', self.config)
         if self.context is not None:
             value = bt.undo(value)
         self.config.update(key, value)
+        # Only toast immediately when editing a live ConfigSet (e.g. List mode).
+        # Card dialogs inject ConfigDraft; feedback is the top-right「已保存」on OK.
+        if not getattr(self.config, 'is_draft', False):
+            notification.success(
+                self.tr('设置成功'),
+                f'{labelTarget.text()}{self.tr("已经被设置为：")}{value}',
+                self.config,
+            )
 
 
 class ConfigItemV2(ConfigItem):
@@ -279,4 +299,4 @@ class TemplateLayoutV2(QWidget):
             notification.error('设置失败', '请检查输入的数据是否正确', self.cs)
             return
         self.config[key] = value
-        notification.success('表单修改成功', f'{cf.label}已经被设置为：{value}', self.cs)
+        # Detail dialog has its own OK/Cancel; avoid per-key success spam.
