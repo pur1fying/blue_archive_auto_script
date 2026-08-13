@@ -29,6 +29,11 @@ class Layout(TemplateLayout):
                 'label': PushConfig.tr('飞书推送'),
                 'type': 'text',
                 'key': 'push_feishu'
+            },
+            {
+                'label': PushConfig.tr('企业微信推送'),
+                'type': 'text',
+                'key': 'push_wecom'
             }
         ]
 

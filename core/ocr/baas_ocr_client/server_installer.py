@@ -12,6 +12,8 @@ if sys.stdin is None:
 # ================================
 
 import os
+import re
+import json
 import shutil
 import platform
 
@@ -37,6 +39,7 @@ branch = {
     },
     'darwin': {
         'arm64': 'macos-arm64',
+        'x86_64': 'macos-x64',
     },
     'android': {
         'arm64-v8a': 'android-arm64-v8a',
@@ -75,7 +78,33 @@ if arch not in branch:
     raise Exception("Unsupported machine architecture " + arch)
 branch = branch[arch]
 
+
+def should_skip_installer_managed_update():
+    """Only the C++ installer's explicit, valid handoff marker disables I/O."""
+    marker_path = os.path.join(SERVER_BIN_DIR, '.baas-installer-managed.json')
+    try:
+        with open(marker_path, encoding='utf-8') as marker_file:
+            marker = json.load(marker_file)
+        expected_executable = 'BAAS_ocr_server.exe' if sys.platform == 'win32' else 'BAAS_ocr_server'
+        commit = marker.get('commit', '')
+        if not (marker.get('schema_version') == 1 and
+                marker.get('managed_by') == 'baas-installer' and
+                marker.get('branch') == branch and
+                isinstance(commit, str) and re.fullmatch(r'[0-9a-fA-F]{40}', commit) and
+                os.path.isfile(os.path.join(SERVER_BIN_DIR, expected_executable))):
+            return False
+        git_dir = os.path.join(SERVER_BIN_DIR, '.git')
+        if os.path.isdir(git_dir):
+            return Repo(SERVER_BIN_DIR).head().decode('ascii').lower() == commit.lower()
+        return True
+    except Exception:
+        return False
+
+
 def check_git(logger):
+    if should_skip_installer_managed_update():
+        logger.info("OCR server was verified by the BAAS installer; skipping legacy network update.")
+        return
     if not os.path.exists(SERVER_BIN_DIR + '/.git'):
         clone_repo(logger)
     else:

@@ -55,9 +55,8 @@ class Layout(TemplateLayout):
         inputComponent = LineEdit(self)
         inputComponent.setFixedWidth(500)  # 设置文本框的固定宽度
         inputComponent.setText(str(self.config.get(addressKey)))
-        confirmButton = PushButton(self.tr('确定'), self)
-        confirmButton.setFixedWidth(80)  # 设置确定按钮的固定宽度
-        confirmButton.clicked.connect(partial(self._commit, addressKey, inputComponent, labelComponent))
+        inputComponent.editingFinished.connect(
+            partial(self._commit, addressKey, inputComponent, labelComponent))
         selectButton = PushButton(self.tr('选择'), self)
         selectButton.setFixedWidth(80)  # 设置选择按钮的固定宽度
         selectButton.clicked.connect(partial(self._choose_file, inputComponent))
@@ -65,7 +64,6 @@ class Layout(TemplateLayout):
         self.emulatorNotMultiAddressHLayout.addWidget(labelComponent)
         self.emulatorNotMultiAddressHLayout.addWidget(inputComponent)
         self.emulatorNotMultiAddressHLayout.addWidget(selectButton)
-        self.emulatorNotMultiAddressHLayout.addWidget(confirmButton)
         self.vBoxLayout.addLayout(self.emulatorNotMultiAddressHLayout)
 
     def _createMultiComponent(self):
@@ -80,7 +78,7 @@ class Layout(TemplateLayout):
         currentInstanceNumber = self.config.get('emulatorMultiInstanceNumber')
         multiInstanceNumberInputComponent = LineEdit(self)
         multiInstanceNumberInputComponent.setText(str(currentInstanceNumber))
-        multiInstanceNumberInputComponent.textChanged.connect(self._slotForMultiInstanceNumberChanged)
+        multiInstanceNumberInputComponent.editingFinished.connect(self._slotForMultiInstanceNumberChanged)
         currentMultiEmulatorName = self.config.get('multiEmulatorName')
         chooseMultiEmulatorCombobox = ComboBox(self)
         values = self.multiMap.keys()
