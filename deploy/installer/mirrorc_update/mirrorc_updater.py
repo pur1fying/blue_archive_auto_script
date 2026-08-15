@@ -50,6 +50,10 @@ class ServerInternalError(Exception):
         self.message = message
 
 
+class MirrorCRequestError(Exception):
+    """A request failure whose message is safe to show in logs and the GUI."""
+
+
 class MirrorC_Updater:
     basic_url = "https://mirrorchyan.com/api/resources/"
     user_agent = "BAAS_GUI"
@@ -60,11 +64,15 @@ class MirrorC_Updater:
     def get_cdk_state(self, cdk, timeout=3.0) -> CdkState:
         self.params["cdk"] = cdk
 
-        response = requests.get(url=self.url, params=self.params, timeout=timeout)
-        code = response.json()["code"]
-        print(json.dumps(response.json(), indent=4))
+        response_json = self._request_json(timeout)
+        try:
+            code = response_json["code"]
+            if not isinstance(code, int):
+                raise TypeError("response code must be an integer")
+        except (KeyError, TypeError) as e:
+            raise MirrorCRequestError(f"{type(e).__name__}; cdk=**") from None
         if code < 0:
-            raise ServerInternalError("Error code : " + str(code))
+            raise ServerInternalError(f"Error code: {code}; cdk=**")
         if code == 0:
             return CdkState.VALID
         elif code == MirrorCErrorCode.KEY_INVALID.value:
@@ -78,7 +86,7 @@ class MirrorC_Updater:
         elif code == MirrorCErrorCode.KEY_BLOCKED.value:
             return CdkState.BLOCKED
         else:
-            raise ValueError(f"Unexpected response code: {code}")
+            raise MirrorCRequestError("ValueError; cdk=**")
 
     def __init__(self, app=default_app, current_version="", channel=default_channel):
         self.app = app
@@ -99,10 +107,20 @@ class MirrorC_Updater:
         self.current_version = version
         self.params["current_version"] = version
 
+    def _request_json(self, timeout):
+        try:
+            response = requests.get(url=self.url, params=self.params, timeout=timeout)
+            return response.json()
+        except Exception as e:
+            raise MirrorCRequestError(f"{type(e).__name__}; cdk=**") from None
+
     def get_latest_version(self, cdk="", timeout=3.0):
         self.params["cdk"] = cdk
-        response = requests.get(url=self.url, params=self.params, timeout=timeout)
-        return RequestReturn(response.json())
+        response_json = self._request_json(timeout)
+        try:
+            return RequestReturn(response_json)
+        except Exception as e:
+            raise MirrorCRequestError(f"{type(e).__name__}; cdk=**") from None
 
     @staticmethod
     def apply_update(source_dir, changes_json_path, target_dir, logger):
@@ -187,20 +205,8 @@ class MirrorC_Updater:
 
     @staticmethod
     def log_mirrorc_error(ret : RequestReturn, logger):
-        if ret.code == MirrorCErrorCode.KEY_INVALID.value:
-            logger.warning("Your CDK is invalid.")
-        elif ret.code == MirrorCErrorCode.KEY_EXPIRED.value:
-            logger.warning("Your CDK is expired.")
-        elif ret.code == MirrorCErrorCode.RESOURCE_QUOTA_EXHAUSTED.value:
-            logger.warning("CDK resource quota exhausted.")
-        elif ret.code == MirrorCErrorCode.KEY_MISMATCHED.value:
-            logger.warning("CDK is mismatched.")
-        elif ret.code == MirrorCErrorCode.KEY_BLOCKED.value:
-            logger.warning("CDK is blocked.")
-        elif ret.code == MirrorCErrorCode.UNDIVIDED.value:
-            logger.warning("Undivided error, message: " + ret.message)
-        elif ret.code < MirrorCErrorCode.SUCCESS.value:
-            logger.warning("Server internal error, code : " + str(ret.code) + ", message: " + ret.message)
+        logger.warning(f"MirrorC request failed: code={ret.code}; cdk=**")
+        if ret.code < MirrorCErrorCode.SUCCESS.value:
             logger.warning("This is a problem with mirrorc, not BAAS, please report to mirrorc support.")
         if ret.code in [
             MirrorCErrorCode.KEY_INVALID.value,

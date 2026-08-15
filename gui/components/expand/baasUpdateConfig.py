@@ -15,7 +15,11 @@ from qfluentwidgets import (TableWidget, ComboBox, PrimaryPushButton, TextEdit,
 from core.utils import delay
 from deploy.installer.const import GetShaMethod, get_remote_sha_methods
 from deploy.installer.mirrorc_update.const import MirrorCErrorCode
-from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater, RequestReturn
+from deploy.installer.mirrorc_update.mirrorc_updater import (
+    MirrorCRequestError,
+    MirrorC_Updater,
+    RequestReturn,
+)
 from gui.util.config_gui import COLOR_THEME, configGui
 from gui.util.notification import success, error
 
@@ -113,7 +117,12 @@ class MirrorCCDKTestThread(QThread):
             self.req_ret = self.layout._mirrorc_inst.get_latest_version(cdk=self.cdk, timeout=3.0)
             self.finished.emit(self.req_ret, self.save)
         except Exception as e:
-            error("CDK" + self.tr("测试错误"), str(e), self.layout.config)
+            message = (
+                str(e)
+                if isinstance(e, MirrorCRequestError)
+                else f"{type(e).__name__}; cdk=**"
+            )
+            error("CDK" + self.tr("测试错误"), message, self.layout.config)
         self.is_finished = True
 
 
@@ -380,7 +389,8 @@ class Layout(QWidget):
 
     def __set_config_and_display_message(self, key, value):
         self.config.set_and_save(key, value)
-        success(self.tr("设置已保存"), f"{key} = {value}", self.config)
+        display_value = "**" if key == "General.mirrorc_cdk" else value
+        success(self.tr("设置已保存"), f"{key} = {display_value}", self.config)
 
     def _update_status_label(self, label: QLabel, state: str, text: str = None):
         """
