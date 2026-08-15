@@ -5,7 +5,10 @@ from core.picture import GAME_ONE_TIME_POP_UPS
 def implement(self):
     self.to_main_page()
     to_purchase_pyroxenes_menu(self)
-    to_purchase_type(self, "package")
+    if self.server == "JP":
+        to_jp_daily_free_product(self)
+    else:
+        to_purchase_type(self, "package")
     if detect_free_power_availability(self):
         collect_daily_free_power(self)
     else:
@@ -17,8 +20,9 @@ def implement(self):
 def collect_daily_free_power(self):
     self.logger.info("Collect Daily Free Power.")
 
+    free_package_position = (385, 423) if self.server == "JP" else (385, 479)
     img_possibles = {
-        "main_page_purchase-pyroxenes-menu": (385, 479),
+        "main_page_purchase-pyroxenes-menu": free_package_position,
         "main_page_purchase-pyroxenes-confirm-purchase-notice": (749, 571),
     }
     img_ends = "main_page_full-notice"
@@ -27,8 +31,9 @@ def collect_daily_free_power(self):
     self.logger.info("Get 10 AP")
 
 def return_to_main_page(self):
+    back_position = (52, 38) if self.server == "JP" else (1011, 114)
     img_possibles = {
-        "main_page_purchase-pyroxenes-menu": (1011, 114),
+        "main_page_purchase-pyroxenes-menu": back_position,
         "main_page_full-notice": (887, 165)
     }
     rgb_possibles = {
@@ -45,6 +50,25 @@ def to_purchase_pyroxenes_menu(self):
     img_ends = "main_page_purchase-pyroxenes-menu"
 
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
+
+
+def to_jp_daily_free_product(self):
+    picture.co_detect(
+        self,
+        None,
+        None,
+        "main_page_purchase-pyroxenes-general-selected",
+        {"main_page_purchase-pyroxenes-menu": (130, 251)},
+        skip_first_screenshot=True,
+    )
+    picture.co_detect(
+        self,
+        None,
+        None,
+        "main_page_purchase-pyroxenes-daily-selected",
+        {"main_page_purchase-pyroxenes-general-selected": (885, 100)},
+        skip_first_screenshot=True,
+    )
 
 def to_purchase_type(self, tp):
     # position when " limited " exist
