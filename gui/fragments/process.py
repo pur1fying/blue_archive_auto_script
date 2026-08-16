@@ -1,19 +1,80 @@
+import gc
 import threading
 import time
+from enum import Enum
 from hashlib import md5
+from importlib import import_module
 from random import random
+from weakref import ref
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
-from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
-                            ToolTipPosition, ToolTipFilter)
+from PyQt5 import sip
+from PyQt5.QtCore import QEvent, QObject, Qt, pyqtSignal
+from PyQt5.QtWidgets import (QAbstractItemView, QHBoxLayout, QListWidgetItem,
+                             QStackedWidget, QVBoxLayout, QWidget)
+from qfluentwidgets import (
+    ComboBox,
+    FluentIcon as FIF,
+    FluentIconBase,
+    ListWidget,
+    ScrollArea,
+    StrongBodyLabel,
+    SubtitleLabel,
+    Theme,
+    TitleLabel,
+    ToolTipFilter,
+    ToolTipPosition,
+    TransparentToolButton,
+    getIconColor,
+)
 
 from gui.components import expand
+from gui.util import notification
+from gui.util.config_gui import configGui
 from gui.util.style_sheet import StyleSheet
 from gui.util.translator import baasTranslator as bt
 
 lock = threading.Lock()
 DISPLAY_CONFIG_PATH = './config/display.json'
+
+
+class SchedulerViewIcon(FluentIconBase, Enum):
+    NODES_CONNECTED = "nodes_connected_regular"
+
+    def path(self, theme=Theme.AUTO):
+        return (
+            "gui/assets/icons/"
+            f"{self.value}_{getIconColor(theme)}.svg"
+        )
+
+
+class _StatusUpdateEmitter(QObject):
+    updated = pyqtSignal(object, object)
+
+
+class _StatusRefreshResources:
+    """Own worker cleanup without retaining the fragment wrapper."""
+
+    def __init__(self, stop_event, emitter, update_slot):
+        self.stop_event = stop_event
+        self.emitter = emitter
+        self.update_slot = update_slot
+        self.thread = None
+        self.connection_active = True
+
+    def stop(self, *_destroyed_args) -> None:
+        self.stop_event.set()
+        if (
+            self.thread is not None
+            and self.thread.is_alive()
+            and threading.current_thread() is not self.thread
+        ):
+            self.thread.join()
+        if self.connection_active:
+            try:
+                self.emitter.updated.disconnect(self.update_slot)
+            except (RuntimeError, TypeError):
+                pass
+            self.connection_active = False
 
 
 class ProcessFragment(ScrollArea):
@@ -25,33 +86,36 @@ class ProcessFragment(ScrollArea):
         self.settingLabel = TitleLabel(self.tr("调度状态"), self)
         # Scheduler switch
         self.titleLineLayout = QHBoxLayout()
-        _scheduler_selector = config.get('new_event_enable_state')
-        _scheduler_selector_layout = QHBoxLayout()
+        self.scheduler_controls_layout = QHBoxLayout()
         _scheduler_selector_label = SubtitleLabel(self.tr("调度状态"), self)
         _scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
         _scheduler_selector_label.installEventFilter(ToolTipFilter(_scheduler_selector_label, position=ToolTipPosition.TOP))
 
-        __dict__for_scheduler_selector = {
-            '开': 'on',
-            '关': 'off',
-            '默认': 'default',
-        }
-        __reverse_dict__for_scheduler_selector = {v: k for k, v in __dict__for_scheduler_selector.items()}
-        _raw_scheduler_selector = __reverse_dict__for_scheduler_selector[_scheduler_selector]
+        self._scheduler_states = ("on", "off", "default")
         self.scheduler_selector = ComboBox(self)
         self.scheduler_selector.addItems([
             bt.tr('ConfigTranslation', '开'),
             bt.tr('ConfigTranslation', '关'),
             bt.tr('ConfigTranslation', '默认'),
         ])
-        self.scheduler_selector.setCurrentText(bt.tr('ConfigTranslation', _raw_scheduler_selector))
-        self.scheduler_selector.currentTextChanged.connect(
-            lambda x: config.set('new_event_enable_state', __dict__for_scheduler_selector[bt.undo(x)]))
-        _scheduler_selector_layout.addWidget(_scheduler_selector_label)
-        _scheduler_selector_layout.addWidget(self.scheduler_selector)
+        self.scheduler_selector.setCurrentIndex(
+            self._scheduler_states.index(
+                config.get("new_event_enable_state")))
+        self.scheduler_selector.currentIndexChanged.connect(
+            self._scheduler_state_changed)
+        self.scheduler_controls_layout.addWidget(_scheduler_selector_label)
+        self.scheduler_controls_layout.addWidget(self.scheduler_selector)
+
+        self.view_toggle_button = TransparentToolButton(
+            SchedulerViewIcon.NODES_CONNECTED, self
+        )
+        self.view_toggle_button.setFixedSize(36, 36)
+        self.view_toggle_button.clicked.connect(self.toggle_view)
+        self._set_view_toggle_target("graph")
+        self.scheduler_controls_layout.addWidget(self.view_toggle_button)
 
         self.titleLineLayout.addWidget(self.settingLabel, 1, Qt.AlignLeft)
-        self.titleLineLayout.addLayout(_scheduler_selector_layout, 0)
+        self.titleLineLayout.addLayout(self.scheduler_controls_layout, 0)
 
         # Process display
         self.VBoxWrapperLayout = QVBoxLayout()
@@ -70,6 +134,10 @@ class ProcessFragment(ScrollArea):
 
         self.vBox2 = QVBoxLayout()
         self.listWidget = ListWidget(self)
+        self.listWidget.setSelectionMode(QAbstractItemView.NoSelection)
+        self.listWidget.setFocusPolicy(Qt.NoFocus)
+        self.listWidget.itemClicked.connect(
+            self._clear_queue_interaction_state)
         self.label_queuing = SubtitleLabel(self.tr("任务队列"), self)
 
         self.vBox2.addWidget(self.label_queuing)
@@ -82,40 +150,220 @@ class ProcessFragment(ScrollArea):
         self.VBoxLayout.addLayout(self.HBoxLayout)
         self.displayWidget.setLayout(self.VBoxLayout)
 
-        feature_panel = expand.__dict__['featureSwitch'].Layout(config=config)
+        self.table_view = expand.__dict__['featureSwitch'].Layout(config=config)
+        self.graph_view = None
+        self._table_stale = False
+        self.editor_stack = QStackedWidget(self)
+        self.editor_stack.addWidget(self.table_view)
         self.VBoxWrapperLayout.addWidget(self.displayWidget)
-        self.VBoxWrapperLayout.addWidget(feature_panel)
+        self.VBoxWrapperLayout.addWidget(self.editor_stack)
 
         self.processWidget.setLayout(self.VBoxWrapperLayout)
 
         self.baas_thread = None
         self.config = config
-        t_daemon = threading.Thread(target=self.refresh_status, daemon=True)
-        t_daemon.start()
+        self._status_stop = threading.Event()
+        self._status_updates_enabled = True
+        self._status_emitter = _StatusUpdateEmitter(self)
+        fragment_ref = ref(self)
+
+        def apply_status_update(current_task, task_list):
+            fragment = fragment_ref()
+            if fragment is not None:
+                fragment._apply_status_update(current_task, task_list)
+
+        self._status_update_slot = apply_status_update
+        self._status_emitter.updated.connect(
+            self._status_update_slot, type=Qt.QueuedConnection)
+        self._status_connection_active = True
+        self._status_resources = _StatusRefreshResources(
+            self._status_stop,
+            self._status_emitter,
+            self._status_update_slot,
+        )
+        self._status_thread = threading.Thread(
+            target=self._run_status_refresh,
+            args=(fragment_ref, self._status_stop),
+            daemon=True,
+        )
+        self._status_resources.thread = self._status_thread
+        self.destroyed.connect(self._status_resources.stop)
+        self._status_thread.start()
         self.__initLayout()
         self.object_name = md5(f'{time.time()}%{random()}'.encode('utf-8')).hexdigest()
         self.setObjectName(f"{self.object_name}.ProcessFragment")
 
+    @staticmethod
+    def _run_status_refresh(fragment_ref, stop_event):
+        while not stop_event.is_set():
+            fragment = fragment_ref()
+            if fragment is None:
+                break
+            current_task, task_list = fragment._collect_status()
+            emitter = fragment._status_emitter
+            del fragment
+            if stop_event.is_set():
+                break
+            emitter.updated.emit(current_task, task_list)
+            del emitter
+            if stop_event.wait(2):
+                break
+
     def refresh_status(self):
-        while True:
-            if self.baas_thread is not None:
-                crt_task = self.baas_thread.scheduler.getCurrentTaskName()
-                task_list = self.baas_thread.scheduler.getWaitingTaskList()
+        self._run_status_refresh(ref(self), self._status_stop)
 
-                crt_task = crt_task if crt_task else self.tr("暂无正在执行的任务")
-                task_list = [bt.tr('ConfigTranslation', task) for task in task_list] if task_list else [
-                    self.tr("暂无队列中的任务")]
-                self.on_status.setText(bt.tr('ConfigTranslation', crt_task))
+    def _collect_status(self):
+        baas_thread = self.baas_thread
+        if baas_thread is None:
+            main_thread = self.config.get_main_thread()
+            baas_thread = (
+                main_thread.get_baas_thread() if main_thread else None)
+            self.baas_thread = baas_thread
+        if baas_thread is None:
+            return None, ()
 
-                self.listWidget.clear()
-                self.listWidget.addItems(task_list)
-            else:
-                self.on_status.setText(self.tr("暂无正在执行的任务"))
-                self.listWidget.clear()
-                self.listWidget.addItems([self.tr("暂无队列中的任务")])
-                main_thread = self.config.get_main_thread()
-                self.baas_thread = main_thread.get_baas_thread() if main_thread else None
-            time.sleep(2)
+        current_task = baas_thread.scheduler.getCurrentTaskName()
+        task_list = baas_thread.scheduler.getWaitingTaskList()
+        return current_task, tuple(task_list or ())
+
+    def _apply_status_update(self, current_task, task_list):
+        if (
+            self._status_stop.is_set()
+            or not self._status_updates_enabled
+        ):
+            return
+        current_text = (
+            bt.tr('ConfigTranslation', current_task)
+            if current_task
+            else self.tr("暂无正在执行的任务")
+        )
+        queue_items = (
+            [bt.tr('ConfigTranslation', task) for task in task_list]
+            if task_list
+            else [self.tr("暂无队列中的任务")]
+        )
+        self.on_status.setText(current_text)
+        self._set_queue_items(queue_items)
+
+    def _scheduler_state_changed(self, index):
+        self.config.set(
+            "new_event_enable_state", self._scheduler_states[index]
+        )
+
+    def _set_view_toggle_target(self, target) -> None:
+        if target == "graph":
+            icon = SchedulerViewIcon.NODES_CONNECTED
+            tooltip = self.tr("切换到图形视图")
+        else:
+            icon = FIF.TILES
+            tooltip = self.tr("切换到表格视图")
+        self.view_toggle_button.setIcon(icon)
+        self.view_toggle_button.setToolTip(tooltip)
+        self.view_toggle_button.setAccessibleName(tooltip)
+
+    def toggle_view(self) -> None:
+        if self.editor_stack.currentWidget() is self.table_view:
+            self.show_graph_view()
+        else:
+            self.show_table_view()
+
+    def show_table_view(self) -> None:
+        self._set_view_toggle_target("graph")
+        if self.editor_stack.currentWidget() is self.table_view:
+            return
+        if self.graph_view is not None:
+            self.graph_view.save_layout()
+        self.editor_stack.setCurrentWidget(self.table_view)
+        self.table_view.reload_from_disk()
+        self._table_stale = False
+
+    def show_graph_view(self) -> None:
+        if self.editor_stack.currentWidget() is self.graph_view:
+            self._set_view_toggle_target("table")
+            return
+        try:
+            if self.graph_view is None:
+                # Avoid cyclic PyQt wrapper collection while Qt.py initializes.
+                gc_was_enabled = gc.isenabled()
+                if gc_was_enabled:
+                    gc.collect()
+                    gc.disable()
+                try:
+                    graph_module = import_module(
+                        "gui.components.scheduler_graph")
+                finally:
+                    if gc_was_enabled:
+                        gc.enable()
+                    else:
+                        gc.disable()
+                self.graph_view = graph_module.SchedulerGraphView(
+                    self.config.config_dir, parent=self.editor_stack)
+                self.graph_view.data_changed.connect(
+                    self._on_graph_data_changed)
+                self.editor_stack.addWidget(self.graph_view)
+            self.graph_view.reload_from_disk()
+        except ModuleNotFoundError as error:
+            if error.name is None or not error.name.startswith("NodeGraphQt"):
+                raise
+            self._set_view_toggle_target("graph")
+            notification.error(
+                self.tr("图形视图"),
+                self.tr("图形视图需要安装 NodeGraphQt"),
+                self.config,
+                duration=4000,
+            )
+            return
+        self.editor_stack.setCurrentWidget(self.graph_view)
+        self._set_view_toggle_target("table")
+
+    def _on_graph_data_changed(self) -> None:
+        self._table_stale = True
+        if self.editor_stack.currentWidget() is self.table_view:
+            self.table_view.reload_from_disk()
+            self._table_stale = False
+
+    def _save_graph_layout(self) -> None:
+        graph_view = getattr(self, "graph_view", None)
+        if graph_view is not None and not sip.isdeleted(graph_view):
+            graph_view.save_layout()
+
+    def event(self, event):
+        if event.type() == QEvent.DeferredDelete:
+            self._stop_status_refresh()
+            self._save_graph_layout()
+        return super().event(event)
+
+    def closeEvent(self, event):
+        self._stop_status_refresh()
+        self._save_graph_layout()
+        super().closeEvent(event)
+
+    def hideEvent(self, event):
+        self._save_graph_layout()
+        super().hideEvent(event)
+
+    def _stop_status_refresh(self) -> None:
+        self._status_updates_enabled = False
+        self._status_resources.stop()
+        self._status_connection_active = (
+            self._status_resources.connection_active
+        )
+
+    @staticmethod
+    def _create_queue_item(text):
+        item = QListWidgetItem(text)
+        item.setFlags(Qt.ItemIsEnabled)
+        return item
+
+    def _clear_queue_interaction_state(self, _item=None):
+        self.listWidget.clearSelection()
+        self.listWidget.setCurrentRow(-1)
+
+    def _set_queue_items(self, task_list):
+        self.listWidget.clear()
+        for task in task_list:
+            self.listWidget.addItem(self._create_queue_item(task))
+        self._clear_queue_interaction_state()
 
     def __initLayout(self):
         # self.expandLayout.setSpacing(28)

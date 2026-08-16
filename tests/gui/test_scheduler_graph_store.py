@@ -1,0 +1,459 @@
+import json
+import math
+import sys
+from datetime import datetime
+from pathlib import Path
+
+import pytest
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.9 and 3.10 use the project dependency.
+    import tomli as tomllib
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "gui" / "util"))
+
+from scheduler_graph_store import (
+    InvalidEventConfig,
+    InvalidRelationship,
+    InvalidTime,
+    SchedulerErrorCode,
+    SchedulerGraphStore,
+    SchedulerWarningCode,
+)
+
+
+def _record(func_name, event_name, **overrides):
+    record = {
+        "func_name": func_name,
+        "event_name": event_name,
+        "enabled": True,
+        "next_tick": 1_700_000_000,
+        "pre_task": [],
+        "post_task": [],
+    }
+    record.update(overrides)
+    return record
+
+
+def _write_events(config_dir, records):
+    (config_dir / "event.json").write_text(
+        json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def _read_events(config_dir):
+    return json.loads((config_dir / "event.json").read_text(encoding="utf-8"))
+
+
+@pytest.fixture
+def config_dir(tmp_path):
+    _write_events(
+        tmp_path,
+        [
+            _record("a", "Task A", unknown_record_key={"keep": "me"}),
+            _record("b", "Task B"),
+            _record("c", "Task C"),
+            _record("d", "Task D"),
+        ],
+    )
+    return tmp_path
+
+
+def test_dependency_manifests_pin_nodegraphqt_exactly():
+    root = Path(__file__).resolve().parents[2]
+    pin = "NodeGraphQt == 0.6.44"
+    requirements = [
+        line.strip()
+        for line in (root / "requirements.txt").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    pyproject = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
+    dependencies = pyproject["project"]["dependencies"]
+
+    assert [item for item in requirements if item.lower().startswith("nodegraphqt")] == [pin]
+    assert [item for item in dependencies if item.lower().startswith("nodegraphqt")] == [pin]
+
+
+def test_load_events_returns_immutable_values_without_json_containers(config_dir):
+    events = SchedulerGraphStore(config_dir).load_events()
+
+    assert events[0].func_name == "a"
+    assert events[0].pre_task == ()
+    assert events[0].post_task == ()
+    with pytest.raises(AttributeError):
+        events[0].pre_task.append("b")
+    with pytest.raises(AttributeError):
+        setattr(events[0], "enabled", False)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "initial_post_task"),
+    [
+        ("enabled", []),
+        ("add_relationship", []),
+        ("remove_relationship", ["b"]),
+        ("layout", []),
+    ],
+)
+def test_legacy_float_next_tick_survives_unrelated_mutations(
+    config_dir, mutation, initial_post_task
+):
+    legacy_timestamp = 1_700_000_000.25
+    _write_events(
+        config_dir,
+        [
+            _record(
+                "a",
+                "Task A",
+                next_tick=legacy_timestamp,
+                post_task=initial_post_task,
+            ),
+            _record("b", "Task B"),
+        ],
+    )
+    store = SchedulerGraphStore(config_dir)
+
+    event = store.load_events()[0]
+    assert event.next_tick == legacy_timestamp
+    assert isinstance(event.next_tick, float)
+
+    if mutation == "enabled":
+        store.update_enabled("a", False)
+    elif mutation == "add_relationship":
+        store.add_relationship("post", "a", "b")
+    elif mutation == "remove_relationship":
+        store.remove_relationship("post", "a", "b")
+    elif mutation == "layout":
+        store.save_positions({"a": (10.5, 20.25)})
+    else:
+        raise AssertionError(f"Unhandled mutation: {mutation}")
+
+    persisted_timestamp = _read_events(config_dir)[0]["next_tick"]
+    assert persisted_timestamp == legacy_timestamp
+    assert isinstance(persisted_timestamp, float)
+
+
+@pytest.mark.parametrize(
+    "invalid_timestamp",
+    [math.nan, math.inf, -math.inf, 1e300, 10**100, True],
+)
+def test_load_events_rejects_nonfinite_or_platform_undisplayable_timestamps(
+    config_dir, invalid_timestamp
+):
+    _write_events(
+        config_dir,
+        [_record("a", "Task A", next_tick=invalid_timestamp)],
+    )
+
+    with pytest.raises(InvalidEventConfig):
+        SchedulerGraphStore(config_dir).load_events()
+
+
+def test_load_events_rejects_records_missing_required_scheduler_fields(config_dir):
+    _write_events(config_dir, [{"func_name": "a"}])
+
+    with pytest.raises(InvalidEventConfig):
+        SchedulerGraphStore(config_dir).load_events()
+
+
+def test_add_pre_relationship_writes_only_target_pre_task(config_dir):
+    store = SchedulerGraphStore(config_dir)
+
+    store.add_relationship("pre", "b", "a")
+
+    records = _read_events(config_dir)
+    assert records[1]["pre_task"] == ["a"]
+    assert records[0]["post_task"] == []
+
+
+def test_add_post_relationship_writes_only_source_post_task(config_dir):
+    store = SchedulerGraphStore(config_dir)
+
+    store.add_relationship("post", "a", "b")
+
+    records = _read_events(config_dir)
+    assert records[0]["post_task"] == ["b"]
+    assert records[1]["pre_task"] == []
+
+
+def test_removal_changes_only_requested_relationship_type(config_dir):
+    _write_events(
+        config_dir,
+        [
+            _record("a", "Task A", post_task=["b"]),
+            _record("b", "Task B", pre_task=["a"]),
+            _record("c", "Task C"),
+            _record("d", "Task D"),
+        ],
+    )
+    store = SchedulerGraphStore(config_dir)
+
+    store.remove_relationship("pre", "b", "a")
+
+    records = _read_events(config_dir)
+    assert records[1]["pre_task"] == []
+    assert records[0]["post_task"] == ["b"]
+
+
+def test_removal_cleans_all_exact_duplicates_in_only_requested_type(
+    config_dir,
+):
+    _write_events(
+        config_dir,
+        [
+            _record("a", "Task A", post_task=["b", "b"]),
+            _record("b", "Task B", pre_task=["a", "a", "a"]),
+        ],
+    )
+
+    SchedulerGraphStore(config_dir).remove_relationship("pre", "b", "a")
+
+    records = _read_events(config_dir)
+    assert records[1]["pre_task"] == []
+    assert records[0]["post_task"] == ["b", "b"]
+
+
+@pytest.mark.parametrize(
+    ("kind", "owner", "related", "error"),
+    [
+        ("pre", "a", "a", InvalidRelationship),
+        ("pre", "missing", "a", InvalidRelationship),
+        ("pre", "a", "missing", InvalidRelationship),
+        ("unknown", "a", "b", InvalidRelationship),
+    ],
+)
+def test_add_relationship_rejects_invalid_metadata(config_dir, kind, owner, related, error):
+    with pytest.raises(error):
+        SchedulerGraphStore(config_dir).add_relationship(kind, owner, related)
+
+
+def test_add_relationship_rejects_same_type_duplicate(config_dir):
+    _write_events(config_dir, [_record("a", "Task A"), _record("b", "Task B", pre_task=["a"])])
+
+    with pytest.raises(InvalidRelationship):
+        SchedulerGraphStore(config_dir).add_relationship("pre", "b", "a")
+
+
+def test_add_relationship_rejects_a_new_edge_that_closes_combined_graph_cycle(config_dir):
+    _write_events(
+        config_dir,
+        [
+            _record("a", "Task A", post_task=["b"]),
+            _record("b", "Task B", post_task=["c"]),
+            _record("c", "Task C"),
+        ],
+    )
+
+    with pytest.raises(InvalidRelationship):
+        SchedulerGraphStore(config_dir).add_relationship("post", "c", "a")
+
+
+def test_existing_cycles_warn_without_mutation_and_allow_unrelated_acyclic_edge(config_dir):
+    _write_events(
+        config_dir,
+        [
+            _record("a", "Task A", post_task=["b"]),
+            _record("b", "Task B", post_task=["a"]),
+            _record("c", "Task C"),
+            _record("d", "Task D"),
+        ],
+    )
+    before = (config_dir / "event.json").read_text(encoding="utf-8")
+    store = SchedulerGraphStore(config_dir)
+
+    relationships, warnings = store.load_relationships()
+
+    assert [(item.source_func, item.target_func) for item in relationships] == [("a", "b"), ("b", "a")]
+    assert [warning.code for warning in warnings] == [
+        SchedulerWarningCode.EXISTING_CYCLE
+    ]
+    assert (config_dir / "event.json").read_text(encoding="utf-8") == before
+
+    store.add_relationship("post", "c", "d")
+    assert _read_events(config_dir)[2]["post_task"] == ["d"]
+
+
+def test_unknown_dependencies_stay_in_json_but_are_not_drawable_and_warn(config_dir):
+    _write_events(config_dir, [_record("a", "Task A", post_task=["unknown"]), _record("b", "Task B")])
+
+    relationships, warnings = SchedulerGraphStore(config_dir).load_relationships()
+
+    assert relationships == []
+    assert len(warnings) == 1
+    assert warnings[0].code is SchedulerWarningCode.UNKNOWN_DEPENDENCY
+    assert warnings[0].owner_func == "a"
+    assert warnings[0].related_func == "unknown"
+    assert _read_events(config_dir)[0]["post_task"] == ["unknown"]
+
+
+def test_load_snapshot_reads_event_json_once_and_uses_one_task_set(
+    config_dir, monkeypatch
+):
+    _write_events(
+        config_dir,
+        [
+            _record("old_a", "Old Task A", post_task=["old_b"]),
+            _record("old_b", "Old Task B"),
+        ],
+    )
+    replacement = [
+        _record("new_x", "New Task X", pre_task=["new_y"]),
+        _record("new_y", "New Task Y"),
+    ]
+    store = SchedulerGraphStore(config_dir)
+    real_read = store._read_event_records
+    read_count = 0
+
+    def replace_after_first_read():
+        nonlocal read_count
+        read_count += 1
+        records = real_read()
+        if read_count == 1:
+            _write_events(config_dir, replacement)
+        return records
+
+    monkeypatch.setattr(store, "_read_event_records", replace_after_first_read)
+
+    snapshot = store.load_snapshot()
+
+    assert read_count == 1
+    assert isinstance(snapshot.events, tuple)
+    assert isinstance(snapshot.relationships, tuple)
+    assert isinstance(snapshot.warnings, tuple)
+    assert [event.func_name for event in snapshot.events] == [
+        "old_a",
+        "old_b",
+    ]
+    assert [
+        (relationship.source_func, relationship.target_func)
+        for relationship in snapshot.relationships
+    ] == [("old_a", "old_b")]
+    assert snapshot.warnings == ()
+    assert [record["func_name"] for record in _read_events(config_dir)] == [
+        "new_x",
+        "new_y",
+    ]
+
+
+def test_update_next_tick_uses_strict_local_time_and_only_updates_requested_event(config_dir):
+    store = SchedulerGraphStore(config_dir)
+
+    store.update_next_tick("b", "2024-02-03 04:05:06")
+
+    records = _read_events(config_dir)
+    assert records[1]["next_tick"] == int(datetime(2024, 2, 3, 4, 5, 6).timestamp())
+    assert records[0]["next_tick"] == 1_700_000_000
+
+
+@pytest.mark.parametrize("time_text", ["2024-2-03 04:05:06", "2024-02-03 04:05", "2024-02-30 04:05:06"])
+def test_update_next_tick_rejects_invalid_time_format_and_range(config_dir, time_text):
+    with pytest.raises(InvalidTime):
+        SchedulerGraphStore(config_dir).update_next_tick("a", time_text)
+
+
+@pytest.mark.parametrize(
+    "time_text",
+    [
+        "0001-01-01 00:00:00",
+        "1969-12-31 23:59:59",
+        "9999-12-31 23:59:59",
+    ],
+)
+def test_update_next_tick_rejects_platform_undisplayable_time(
+    config_dir, time_text
+):
+    before = (config_dir / "event.json").read_bytes()
+
+    with pytest.raises(InvalidTime) as raised:
+        SchedulerGraphStore(config_dir).update_next_tick("a", time_text)
+
+    assert raised.value.code is SchedulerErrorCode.INVALID_TIME
+    assert (config_dir / "event.json").read_bytes() == before
+
+
+def test_update_enabled_only_changes_requested_event(config_dir):
+    SchedulerGraphStore(config_dir).update_enabled("c", False)
+
+    records = _read_events(config_dir)
+    assert records[2]["enabled"] is False
+    assert records[0]["enabled"] is True
+
+
+@pytest.mark.parametrize(
+    "update",
+    [
+        lambda store: store.update_enabled("a", False),
+        lambda store: store.update_next_tick("a", "2024-02-03 04:05:06"),
+        lambda store: store.add_relationship("post", "a", "b"),
+        lambda store: store.remove_relationship("post", "a", "b"),
+    ],
+)
+def test_every_update_preserves_unknown_keys_record_order_and_unrelated_records(config_dir, update):
+    before = _read_events(config_dir)
+    update(SchedulerGraphStore(config_dir))
+    after = _read_events(config_dir)
+
+    assert [record["func_name"] for record in after] == ["a", "b", "c", "d"]
+    assert after[0]["unknown_record_key"] == {"keep": "me"}
+    assert after[1] == before[1]
+    assert after[2] == before[2]
+    assert after[3] == before[3]
+
+
+def test_layout_round_trip_preserves_floating_point_positions(config_dir):
+    store = SchedulerGraphStore(config_dir)
+
+    store.save_positions({"a": (120.0, 240.5), "missing": (-1.25, 0.0)})
+
+    assert store.load_positions() == {"a": (120.0, 240.5), "missing": (-1.25, 0.0)}
+
+
+def test_malformed_layout_falls_back_to_empty_positions(config_dir):
+    (config_dir / "scheduler_graph.json").write_text('{"version": 1, "positions": []}', encoding="utf-8")
+
+    assert SchedulerGraphStore(config_dir).load_positions() == {}
+
+
+@pytest.mark.parametrize("coordinate", [math.nan, math.inf, -math.inf])
+def test_layout_with_nonfinite_coordinates_falls_back_to_empty_positions(config_dir, coordinate):
+    (config_dir / "scheduler_graph.json").write_text(
+        json.dumps({"version": 1, "positions": {"a": [coordinate, 2.0]}}),
+        encoding="utf-8",
+    )
+
+    assert SchedulerGraphStore(config_dir).load_positions() == {}
+
+
+@pytest.mark.parametrize("coordinate", [math.nan, math.inf, -math.inf])
+def test_save_positions_rejects_nonfinite_coordinates_without_replacing_prior_layout(config_dir, coordinate):
+    store = SchedulerGraphStore(config_dir)
+    store.save_positions({"a": (120.0, 240.0)})
+    before = (config_dir / "scheduler_graph.json").read_text(encoding="utf-8")
+
+    with pytest.raises(InvalidEventConfig):
+        store.save_positions({"a": (coordinate, 240.0)})
+
+    after = (config_dir / "scheduler_graph.json").read_text(encoding="utf-8")
+    assert after == before
+    assert "NaN" not in after
+    assert "Infinity" not in after
+
+
+def test_atomic_write_failure_leaves_existing_file_intact_and_removes_temp_file(config_dir, monkeypatch):
+    import scheduler_graph_store as graph_store_module
+
+    before = (config_dir / "event.json").read_text(encoding="utf-8")
+
+    def fail_replace(_source, _target):
+        raise OSError("simulated replace failure")
+
+    monkeypatch.setattr(graph_store_module.os, "replace", fail_replace)
+
+    with pytest.raises(OSError) as raised:
+        SchedulerGraphStore(config_dir).update_enabled("a", False)
+
+    assert raised.value.code is SchedulerErrorCode.SAVE_FAILED
+    assert str(raised.value.__cause__) == "simulated replace failure"
+    assert (config_dir / "event.json").read_text(encoding="utf-8") == before
+    assert not list(config_dir.glob("*.tmp"))
