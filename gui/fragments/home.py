@@ -19,6 +19,7 @@ from qfluentwidgets import (
 )
 
 from core.notification import notify
+from gui.util.config_gui import configGui, COLOR_THEME
 from gui.util.customized_ui import AssetsWidget, FuncLabel
 from gui.util.translator import baasTranslator as bt
 from window import Window
@@ -59,6 +60,10 @@ class HomeFragment(QFrame):
         self.infoLayout.addWidget(self.label, 0, Qt.AlignLeft)
         self.infoLayout.addStretch(1)
         self.infoLayout.addWidget(self.info, 0, Qt.AlignRight)
+
+        self._theme_labels = [self.label, self.info]
+        configGui.themeChanged.connect(self._apply_label_colors)
+        self._apply_label_colors()
 
         self.banner = FuncLabel(self)
         self.banner.setFixedHeight(200)
@@ -160,6 +165,12 @@ class HomeFragment(QFrame):
         self.setObjectName(f"{self.object_name}.HomeFragment")
         if self.config.get('autostart'):
             self.startup_card.button.click()
+
+    def _apply_label_colors(self):
+        """Apply theme-correct text color to labels affected by QFrame not propagating theme palette."""
+        color = COLOR_THEME[configGui.theme.value]['text']
+        for label in self._theme_labels:
+            label.setStyleSheet(f'color: {color};')
 
     @pyqtSlot(int, str)
     def on_log_received(self, level: int, message: str) -> None:
