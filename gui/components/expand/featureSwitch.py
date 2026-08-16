@@ -78,7 +78,6 @@ class Layout(QWidget):
         assert self._event_config is not None
         self._crt_order_config = self._event_config
         self.config.get_signal('update_signal').connect(self._refresh_time)
-        self._theme_connected_labels = []
         configGui.themeChanged.connect(self._on_theme_changed)
 
         self.boxes, self.qLabels, self.times, self.check_boxes, self.config_buttons = [], [], [], [], []
@@ -157,19 +156,19 @@ class Layout(QWidget):
             self.config_buttons.append(cfbs_wrapper)
 
     def _make_event_label(self, text: str) -> CaptionLabel:
-        """Create a CaptionLabel with correct text color for the current theme,
-        and register it for automatic updates when the theme changes."""
+        """Create a CaptionLabel with correct text color for the current theme."""
         label = CaptionLabel(text)
         color = COLOR_THEME[configGui.theme.value]['text']
         label.setStyleSheet(f'color: {color};')
-        self._theme_connected_labels.append(label)
         return label
 
     def _on_theme_changed(self):
         """Update all event labels when the theme switches."""
         color = COLOR_THEME[configGui.theme.value]['text']
-        for label in self._theme_connected_labels:
+        for label in self.qLabels:
             label.setStyleSheet(f'color: {color};')
+        if hasattr(self, 'label_3'):
+            self.label_3.setStyleSheet(f'color: {color};')
 
     def _read_config(self):
         with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
@@ -186,7 +185,6 @@ class Layout(QWidget):
         temp = deepcopy(self._event_config)
         # clear original components
         self.qLabels, self.times, self.check_boxes = [], [], []
-        self._theme_connected_labels = []  # discard refs to old destroyed labels
         self.tableView.clearContents()
         self.vBox.removeWidget(self.tableView)
         self.tableView.deleteLater()
