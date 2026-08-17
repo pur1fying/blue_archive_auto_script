@@ -1,0 +1,12 @@
+.venv
+__pycache__
+config/
+error.log
+
+/.sdk
+/.pyside6_android_deploy
+/.qt-lib
+/.buildozer
+/deployment
+buildozer.spec
+build

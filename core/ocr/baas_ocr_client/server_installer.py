@@ -11,23 +11,25 @@ if sys.stdin is None:
     sys.stdout = io.TextIOWrapper(io.BytesIO())
 # ================================
 
-import shutil
 import os
+import re
 import json
+import shutil
+import platform
+
 from core.exception import OcrInternalError
 from dulwich import porcelain
 from dulwich.repo import Repo
-import platform
-import re
+from core.utils import host_platform_is_android
 
-if sys.platform not in ['win32', 'linux', 'darwin']:
-    raise Exception("Ocr Unsupported platform " + sys.platform)
+# [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)
+if host_platform_is_android():
+    import certifi
+    os.environ['SSL_CERT_FILE'] = certifi.where()
 
+SERVER_INSTALLER_DIR_PATH = None
+SERVER_BIN_DIR = None
 OCR_SERVER_PREBUILD_URL = "https://gitee.com/pur1fy/baas_-cpp_prebuild.git"
-
-SERVER_INSTALLER_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
-SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
-
 branch = {
     'win32': {
         'amd64': 'windows-x64',
@@ -39,9 +41,39 @@ branch = {
         'arm64': 'macos-arm64',
         'x86_64': 'macos-x64',
     },
+    'android': {
+        'arm64-v8a': 'android-arm64-v8a',
+        'x86_64': 'android-x86_64',
+    }
 }
-branch = branch[sys.platform]
-arch = platform.machine().lower()
+
+arch = None
+
+if not host_platform_is_android():
+    if sys.platform not in ['win32', 'linux', 'darwin']:
+        raise Exception("Ocr Unsupported platform : " + sys.platform)
+    SERVER_INSTALLER_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
+    branch = branch[sys.platform]
+    arch = platform.machine().lower()
+
+# Android install config
+else:
+    branch = branch['android']
+    try:
+        from jnius import autoclass
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        activity = PythonActivity.mActivity
+        SERVER_INSTALLER_DIR_PATH = activity.getFilesDir().getAbsolutePath()
+    except Exception as e:
+        raise Exception("Failed to get Baas_ocr_server install path in android :" + e.__str__())
+
+    Build = autoclass('android.os.Build')
+    if Build.SUPPORTED_ABIS and len(Build.SUPPORTED_ABIS) > 0:
+        arch = Build.SUPPORTED_ABIS[0]
+    else:
+        arch = Build.CPU_ABI
+
+SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, 'bin')
 if arch not in branch:
     raise Exception("Unsupported machine architecture " + arch)
 branch = branch[arch]
