@@ -13,7 +13,7 @@ from qfluentwidgets import SettingCardGroup
 
 from gui.components import expand
 from gui.components.template_card import TemplateSettingCard, TemplateSettingCardForClick
-from gui.util.config_gui import configGui
+from gui.util.config_gui import configGui, COLOR_THEME
 
 lock = threading.Lock()
 
@@ -273,9 +273,16 @@ class SwitchFragment(ScrollArea):
         self.viewport().setStyleSheet("background-color: transparent;")
         self.expandLayout.addWidget(self.settingLabel)
         self.update_settings()
+        configGui.themeChanged.connect(self._apply_label_colors)
+        self._apply_label_colors()
 
     def __initWidget(self):
         """
         Sets the scrollable widget for the scroll area.
         """
         self.setWidget(self.scrollWidget)
+
+    def _apply_label_colors(self):
+        """Apply theme-correct text color to labels affected by the QScrollArea stylesheet cascade."""
+        color = COLOR_THEME[configGui.theme.value]['text']
+        self.settingLabel.setStyleSheet(f'color: {color};')

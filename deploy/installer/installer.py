@@ -423,9 +423,11 @@ class GitOperationHandler:
             if latest_mirrorc_return.has_data:
                 return latest_mirrorc_return.latest_version_name
             else:
-                logger.error(f"[MirrorC Api] get SHA error: {latest_mirrorc_return.message}")
+                logger.error(
+                    f"[MirrorC Api] get SHA error: code={latest_mirrorc_return.code}; cdk=**"
+                )
         except Exception as e:
-            logger.error(f"[MirrorC Api] get SHA error: {e}")
+            logger.error(f"[MirrorC Api] get SHA error: {type(e).__name__}; cdk=**")
             return None
 
     def git_get_remote_sha(self, branch: str = REPO_BRANCH) -> Optional[str]:
