@@ -9,6 +9,7 @@ from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, S
                             ToolTipPosition, ToolTipFilter)
 
 from gui.components import expand
+from gui.util.config_gui import configGui, COLOR_THEME
 from gui.util.style_sheet import StyleSheet
 from gui.util.translator import baasTranslator as bt
 
@@ -27,9 +28,9 @@ class ProcessFragment(ScrollArea):
         self.titleLineLayout = QHBoxLayout()
         _scheduler_selector = config.get('new_event_enable_state')
         _scheduler_selector_layout = QHBoxLayout()
-        _scheduler_selector_label = SubtitleLabel(self.tr("调度状态"), self)
-        _scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
-        _scheduler_selector_label.installEventFilter(ToolTipFilter(_scheduler_selector_label, position=ToolTipPosition.TOP))
+        self._scheduler_selector_label = SubtitleLabel(self.tr("调度状态"), self)
+        self._scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
+        self._scheduler_selector_label.installEventFilter(ToolTipFilter(self._scheduler_selector_label, position=ToolTipPosition.TOP))
 
         __dict__for_scheduler_selector = {
             '开': 'on',
@@ -47,7 +48,7 @@ class ProcessFragment(ScrollArea):
         self.scheduler_selector.setCurrentText(bt.tr('ConfigTranslation', _raw_scheduler_selector))
         self.scheduler_selector.currentTextChanged.connect(
             lambda x: config.set('new_event_enable_state', __dict__for_scheduler_selector[bt.undo(x)]))
-        _scheduler_selector_layout.addWidget(_scheduler_selector_label)
+        _scheduler_selector_layout.addWidget(self._scheduler_selector_label)
         _scheduler_selector_layout.addWidget(self.scheduler_selector)
 
         self.titleLineLayout.addWidget(self.settingLabel, 1, Qt.AlignLeft)
@@ -74,6 +75,12 @@ class ProcessFragment(ScrollArea):
 
         self.vBox2.addWidget(self.label_queuing)
         self.vBox2.addWidget(self.listWidget)
+
+        self._theme_labels = [
+            self.settingLabel, self._scheduler_selector_label,
+            self.label_running, self.label_queuing
+        ]
+        configGui.themeChanged.connect(self._apply_label_colors)
 
         self.HBoxLayout.addLayout(self.vBox1)
         self.HBoxLayout.addLayout(self.vBox2)
@@ -135,3 +142,10 @@ class ProcessFragment(ScrollArea):
         self.listWidget.setObjectName('listWidget')
         StyleSheet.PROCESS.apply(self.on_status)
         StyleSheet.PROCESS.apply(self.listWidget)
+        self._apply_label_colors()
+
+    def _apply_label_colors(self):
+        """Apply theme-correct text color to labels affected by the QScrollArea stylesheet cascade."""
+        color = COLOR_THEME[configGui.theme.value]['text']
+        for label in self._theme_labels:
+            label.setStyleSheet(f'color: {color};')

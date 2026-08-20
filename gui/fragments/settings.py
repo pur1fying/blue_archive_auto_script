@@ -12,7 +12,7 @@ import window
 from gui.components import expand
 from gui.components.template_card import SimpleSettingCard
 from gui.util import notification
-from gui.util.config_gui import configGui, isWin11
+from gui.util.config_gui import configGui, isWin11, COLOR_THEME
 from gui.util.language import Language
 
 
@@ -206,6 +206,8 @@ class SettingsFragment(ScrollArea):
         self.expandLayout.addWidget(self.guiGroup)
 
         self.setWidget(self.scrollWidget)
+        configGui.themeChanged.connect(self._apply_label_colors)
+        self._apply_label_colors()
 
     def __showRestartTooltip(self):
         """ show restart tooltip """
@@ -227,3 +229,8 @@ class SettingsFragment(ScrollArea):
         self.themeCard.optionChanged.connect(lambda ci: setTheme(configGui.get(ci)))
         self.themeColorCard.colorChanged.connect(lambda c: setThemeColor(c))
         self.micaCard.checkedChanged.connect(lambda x: configGui.micaEnableChanged.emit(x))
+
+    def _apply_label_colors(self):
+        """Apply theme-correct text color to labels affected by the QScrollArea stylesheet cascade."""
+        color = COLOR_THEME[configGui.theme.value]['text']
+        self.settingLabel.setStyleSheet(f'color: {color};')

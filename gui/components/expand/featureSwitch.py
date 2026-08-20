@@ -10,6 +10,7 @@ from qfluentwidgets import CheckBox, TableWidget, PushButton, ComboBox, CaptionL
     SubtitleLabel
 
 from gui.components.expand.expandTemplate import TemplateLayoutV2
+from gui.util.config_gui import configGui, COLOR_THEME
 from gui.util.customized_ui import ClickFocusLineEdit
 from gui.util.translator import baasTranslator as bt
 
@@ -77,6 +78,7 @@ class Layout(QWidget):
         assert self._event_config is not None
         self._crt_order_config = self._event_config
         self.config.get_signal('update_signal').connect(self._refresh_time)
+        configGui.themeChanged.connect(self._on_theme_changed)
 
         self.boxes, self.qLabels, self.times, self.check_boxes, self.config_buttons = [], [], [], [], []
         self._init_components(self._event_config)
@@ -94,7 +96,7 @@ class Layout(QWidget):
         self.op_2.clicked.connect(self._refresh)
 
         self.option_layout.addStretch(1)
-        self.label_3 = CaptionLabel(self.tr('排序方式：'), self)
+        self.label_3 = self._make_event_label(self.tr('排序方式：'))
         self.op_3 = ComboBox(self)
         self.op_3.addItems([self.tr('默认排序'), self.tr('按下次执行时间排序')])
 
@@ -133,7 +135,7 @@ class Layout(QWidget):
             cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
-            t_ccs = CaptionLabel(bt.tr('ConfigTranslation', self.labels[i]), self)
+            t_ccs = self._make_event_label(bt.tr('ConfigTranslation', self.labels[i]))
             t_ncs = ClickFocusLineEdit(self)
             t_ncs.setClearButtonEnabled(True)
             t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])).split('.')[0])
@@ -152,6 +154,21 @@ class Layout(QWidget):
             cfbs_layout.addWidget(t_cfbs, 1, Qt.AlignCenter)
             cfbs_wrapper.setLayout(cfbs_layout)
             self.config_buttons.append(cfbs_wrapper)
+
+    def _make_event_label(self, text: str) -> CaptionLabel:
+        """Create a CaptionLabel with correct text color for the current theme."""
+        label = CaptionLabel(text)
+        color = COLOR_THEME[configGui.theme.value]['text']
+        label.setStyleSheet(f'color: {color};')
+        return label
+
+    def _on_theme_changed(self):
+        """Update all event labels when the theme switches."""
+        color = COLOR_THEME[configGui.theme.value]['text']
+        for label in self.qLabels:
+            label.setStyleSheet(f'color: {color};')
+        if hasattr(self, 'label_3'):
+            self.label_3.setStyleSheet(f'color: {color};')
 
     def _read_config(self):
         with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
@@ -188,7 +205,8 @@ class Layout(QWidget):
         self._crt_order_config = temp
         # Add components to table
         for ind, unit in enumerate(temp):
-            t_ccs = CaptionLabel(bt.tr('ConfigTranslation', unit['event_name']))
+            # t_ccs = CaptionLabel(bt.tr('ConfigTranslation', unit['event_name']))
+            t_ccs = self._make_event_label(bt.tr('ConfigTranslation', unit['event_name']))
             self.tableView.setCellWidget(ind, 0, t_ccs)
             self.qLabels.append(t_ccs)
 

@@ -2,6 +2,7 @@
     font-size: 18px;
     padding: 10px;
     font-weight: bold;
+    color: #333333;
     background-color: #e0f0e0;
     border-radius: 10px;
 }

@@ -411,6 +411,7 @@ class AssetsWidget(QFrame):
                 font-size: %(line_height)dpx;
                 line-height: %(item_height)dpx;
                 border: none;
+                color: %(text_color)s;
             }
 
             QToolTip {
@@ -424,6 +425,7 @@ class AssetsWidget(QFrame):
         """ % {
             'background_color': COLOR_THEME[configGui.theme.value]['background'],
             'border_color': COLOR_THEME[configGui.theme.value]['border'],
+            'text_color': COLOR_THEME[configGui.theme.value]['text'],
             'line_height': (self.item_height - 10) // 2,
             'item_height': self.item_height
         })
