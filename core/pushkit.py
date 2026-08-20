@@ -72,7 +72,7 @@ def push_feishu(logger: Logger, webhook_url: str, data: dict):
         else:
             logger.error(f"[ Feishu ] push HTTP error: {resp.status_code}")
     except Exception as e:
-        logger.error(f"[ Feishu ] push exception: {e.__str__()}")
+        logger.error(f"[ Feishu ] push exception: {type(e).__name__}; webhook=**")
 
 
 def push_wecom(logger: Logger, webhook_url: str, data: dict):
@@ -97,4 +97,4 @@ def push_wecom(logger: Logger, webhook_url: str, data: dict):
         else:
             logger.error(f"[ WeCom ] push HTTP error: {resp.status_code}")
     except Exception as e:
-        logger.error(f"[ WeCom ] push exception: {e.__str__()}")
+        logger.error(f"[ WeCom ] push exception: {type(e).__name__}; webhook=**")

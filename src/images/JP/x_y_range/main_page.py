@@ -14,7 +14,10 @@ x_y_range = {
     'net-work-unstable': (405, 269, 875, 337),
     'draw-card-point-exchange-to-stone-piece-notice': (378, 220, 892, 291),
 
-    'purchase-pyroxenes-menu': (565, 97, 717, 128),
+    'purchase-pyroxenes-menu': (106, 10, 237, 38),
+
+    'purchase-pyroxenes-general-selected': (41, 237, 154, 264),
+    'purchase-pyroxenes-daily-selected': (854, 90, 924, 109),
 
     'purchase-pyroxenes-limited-selected': (337, 167, 429, 195),
 
@@ -27,7 +30,7 @@ x_y_range = {
     'purchase-pyroxenes-package-selected-2': (776, 167, 888, 195),
     'purchase-pyroxenes-package-selected-3': (330, 167, 437, 195),
 
-    'purchase-pyroxenes-daily-free-purchasable': (353, 457, 414, 518),
-    'purchase-pyroxenes-daily-free-non-purchasable': (353, 457, 414, 518),
-    'purchase-pyroxenes-confirm-purchase-notice': (565, 90, 717, 125)
+    'purchase-pyroxenes-daily-free-purchasable': (363, 412, 406, 434),
+    'purchase-pyroxenes-daily-free-non-purchasable': (363, 412, 406, 434),
+    'purchase-pyroxenes-confirm-purchase-notice': (586, 91, 703, 122)
 }

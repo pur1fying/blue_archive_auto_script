@@ -3,12 +3,13 @@ import time
 from hashlib import md5
 from random import random
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
                             ToolTipPosition, ToolTipFilter)
 
 from gui.components import expand
+from gui.util.config_gui import configGui, COLOR_THEME
 from gui.util.style_sheet import StyleSheet
 from gui.util.translator import baasTranslator as bt
 
@@ -17,6 +18,11 @@ DISPLAY_CONFIG_PATH = './config/display.json'
 
 
 class ProcessFragment(ScrollArea):
+    # Emitted from the background refresh thread; widget updates happen on
+    # the GUI thread via a queued connection (Qt forbids touching widgets
+    # from any other thread and crashes randomly when it happens).
+    status_signal = pyqtSignal(str, list)
+
     def __init__(self, parent, config):
         super().__init__(parent=parent)
         self.processWidget = QWidget()
@@ -27,9 +33,9 @@ class ProcessFragment(ScrollArea):
         self.titleLineLayout = QHBoxLayout()
         _scheduler_selector = config.get('new_event_enable_state')
         _scheduler_selector_layout = QHBoxLayout()
-        _scheduler_selector_label = SubtitleLabel(self.tr("调度状态"), self)
-        _scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
-        _scheduler_selector_label.installEventFilter(ToolTipFilter(_scheduler_selector_label, position=ToolTipPosition.TOP))
+        self._scheduler_selector_label = SubtitleLabel(self.tr("调度状态"), self)
+        self._scheduler_selector_label.setToolTip(self.tr("当BAAS新增调度任务时的启用状态"))
+        self._scheduler_selector_label.installEventFilter(ToolTipFilter(self._scheduler_selector_label, position=ToolTipPosition.TOP))
 
         __dict__for_scheduler_selector = {
             '开': 'on',
@@ -47,7 +53,7 @@ class ProcessFragment(ScrollArea):
         self.scheduler_selector.setCurrentText(bt.tr('ConfigTranslation', _raw_scheduler_selector))
         self.scheduler_selector.currentTextChanged.connect(
             lambda x: config.set('new_event_enable_state', __dict__for_scheduler_selector[bt.undo(x)]))
-        _scheduler_selector_layout.addWidget(_scheduler_selector_label)
+        _scheduler_selector_layout.addWidget(self._scheduler_selector_label)
         _scheduler_selector_layout.addWidget(self.scheduler_selector)
 
         self.titleLineLayout.addWidget(self.settingLabel, 1, Qt.AlignLeft)
@@ -75,6 +81,12 @@ class ProcessFragment(ScrollArea):
         self.vBox2.addWidget(self.label_queuing)
         self.vBox2.addWidget(self.listWidget)
 
+        self._theme_labels = [
+            self.settingLabel, self._scheduler_selector_label,
+            self.label_running, self.label_queuing
+        ]
+        configGui.themeChanged.connect(self._apply_label_colors)
+
         self.HBoxLayout.addLayout(self.vBox1)
         self.HBoxLayout.addLayout(self.vBox2)
 
@@ -90,6 +102,7 @@ class ProcessFragment(ScrollArea):
 
         self.baas_thread = None
         self.config = config
+        self.status_signal.connect(self._update_status_widgets)
         t_daemon = threading.Thread(target=self.refresh_status, daemon=True)
         t_daemon.start()
         self.__initLayout()
@@ -105,17 +118,22 @@ class ProcessFragment(ScrollArea):
                 crt_task = crt_task if crt_task else self.tr("暂无正在执行的任务")
                 task_list = [bt.tr('ConfigTranslation', task) for task in task_list] if task_list else [
                     self.tr("暂无队列中的任务")]
-                self.on_status.setText(bt.tr('ConfigTranslation', crt_task))
-
-                self.listWidget.clear()
-                self.listWidget.addItems(task_list)
             else:
-                self.on_status.setText(self.tr("暂无正在执行的任务"))
-                self.listWidget.clear()
-                self.listWidget.addItems([self.tr("暂无队列中的任务")])
+                crt_task = self.tr("暂无正在执行的任务")
+                task_list = [self.tr("暂无队列中的任务")]
                 main_thread = self.config.get_main_thread()
                 self.baas_thread = main_thread.get_baas_thread() if main_thread else None
+            self.status_signal.emit(crt_task, task_list)
             time.sleep(2)
+
+    def _update_status_widgets(self, crt_task: str, task_list: list):
+        """Update the scheduler status widgets on the GUI thread."""
+        if self.baas_thread is not None:
+            self.on_status.setText(bt.tr('ConfigTranslation', crt_task))
+        else:
+            self.on_status.setText(crt_task)
+        self.listWidget.clear()
+        self.listWidget.addItems(task_list)
 
     def __initLayout(self):
         # self.expandLayout.setSpacing(28)
@@ -135,3 +153,10 @@ class ProcessFragment(ScrollArea):
         self.listWidget.setObjectName('listWidget')
         StyleSheet.PROCESS.apply(self.on_status)
         StyleSheet.PROCESS.apply(self.listWidget)
+        self._apply_label_colors()
+
+    def _apply_label_colors(self):
+        """Apply theme-correct text color to labels affected by the QScrollArea stylesheet cascade."""
+        color = COLOR_THEME[configGui.theme.value]['text']
+        for label in self._theme_labels:
+            label.setStyleSheet(f'color: {color};')

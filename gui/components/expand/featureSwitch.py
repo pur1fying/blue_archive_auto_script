@@ -4,12 +4,14 @@ from copy import deepcopy
 from datetime import datetime
 from functools import partial
 
+from PyQt5 import sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QHeaderView, QVBoxLayout
 from qfluentwidgets import CheckBox, TableWidget, PushButton, ComboBox, CaptionLabel, MessageBoxBase, \
     SubtitleLabel
 
 from gui.components.expand.expandTemplate import TemplateLayoutV2
+from gui.util.config_gui import configGui, COLOR_THEME
 from gui.util.customized_ui import ClickFocusLineEdit
 from gui.util.translator import baasTranslator as bt
 
@@ -77,6 +79,7 @@ class Layout(QWidget):
         assert self._event_config is not None
         self._crt_order_config = self._event_config
         self.config.get_signal('update_signal').connect(self._refresh_time)
+        configGui.themeChanged.connect(self._on_theme_changed)
 
         self.boxes, self.qLabels, self.times, self.check_boxes, self.config_buttons = [], [], [], [], []
         self._init_components(self._event_config)
@@ -94,7 +97,7 @@ class Layout(QWidget):
         self.op_2.clicked.connect(self._refresh)
 
         self.option_layout.addStretch(1)
-        self.label_3 = CaptionLabel(self.tr('排序方式：'), self)
+        self.label_3 = self._make_event_label(self.tr('排序方式：'))
         self.op_3 = ComboBox(self)
         self.op_3.addItems([self.tr('默认排序'), self.tr('按下次执行时间排序')])
 
@@ -133,7 +136,7 @@ class Layout(QWidget):
             cbx_layout.addWidget(t_cbx, 1, Qt.AlignCenter)
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
-            t_ccs = CaptionLabel(bt.tr('ConfigTranslation', self.labels[i]), self)
+            t_ccs = self._make_event_label(bt.tr('ConfigTranslation', self.labels[i]))
             t_ncs = ClickFocusLineEdit(self)
             t_ncs.setClearButtonEnabled(True)
             t_ncs.setText(str(datetime.fromtimestamp(self.next_ticks[i])).split('.')[0])
@@ -153,6 +156,26 @@ class Layout(QWidget):
             cfbs_wrapper.setLayout(cfbs_layout)
             self.config_buttons.append(cfbs_wrapper)
 
+    def _make_event_label(self, text: str) -> CaptionLabel:
+        """Create a CaptionLabel with correct text color for the current theme."""
+        label = CaptionLabel(text)
+        # Intentionally keep the default alignment (AlignLeft | AlignVCenter).
+        # Forcing Qt.AlignCenter pushes the text down to the vertical middle
+        # of the row, which looks noticeably different from the initial
+        # render where the cell height fits the text -- so the row appears
+        # to "jump" the moment the user picks a different sort mode.
+        color = COLOR_THEME[configGui.theme.value]['text']
+        label.setStyleSheet(f'color: {color};')
+        return label
+
+    def _on_theme_changed(self):
+        """Update all event labels when the theme switches."""
+        color = COLOR_THEME[configGui.theme.value]['text']
+        for label in self.qLabels:
+            label.setStyleSheet(f'color: {color};')
+        if hasattr(self, 'label_3'):
+            self.label_3.setStyleSheet(f'color: {color};')
+
     def _read_config(self):
         with open(self.config.config_dir + '/event.json', 'r', encoding='utf-8') as f:
             s = f.read()
@@ -166,19 +189,6 @@ class Layout(QWidget):
 
     def _sort(self):
         temp = deepcopy(self._event_config)
-        # clear original components
-        self.qLabels, self.times, self.check_boxes = [], [], []
-        self.tableView.clearContents()
-        self.vBox.removeWidget(self.tableView)
-        self.tableView.deleteLater()
-        # recreate table
-        self.tableView = TableWidget(self)
-        self.tableView.setWordWrap(False)
-        self.tableView.setRowCount(len(temp))
-        self.tableView.setColumnCount(4)
-        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.setHorizontalHeaderLabels(
-            [self.tr('事件'), self.tr('下次刷新时间'), self.tr('启用'), self.tr('更多配置')])
 
         # mode 0: default, mode 1: by next_tick
         if self.op_3.currentIndex() == 0:
@@ -186,9 +196,71 @@ class Layout(QWidget):
         elif self.op_3.currentIndex() == 1:
             temp.sort(key=lambda x: (not x['enabled'], x['next_tick']))
         self._crt_order_config = temp
-        # Add components to table
+
+        # IMPORTANT: do NOT tear down and rebuild the cell widgets here.
+        # The previous implementation did ``self.tableView.deleteLater()``
+        # + ``TableWidget(self)`` to recreate the table on every sort, which
+        # left the old cell widgets alive (children of ``self``) until the
+        # event loop processed the deferred deletions. Combined with the
+        # global ``styleSheetManager`` sweep that runs on every theme change
+        # (``updateStyleSheet`` in qfluentwidgets), this raced with the
+        # deferred deletion and crashed the app (0xC0000409, STATUS_STACK_
+        # BUFFER_OVERRUN, raised by Qt's Q_ASSERT / __fastfail).
+        #
+        # The fix is to keep one set of cell widgets for the lifetime of the
+        # table and just *update their data in place* when the sort order
+        # changes. The widgets are created once in ``__init__`` /
+        # ``_init_components``; ``_sort`` only rewrites the visible state.
+        self._refresh_cell_contents(temp)
+
+    def _refresh_cell_contents(self, temp):
+        """Rewrite each row's widget data to reflect a new ordering.
+
+        Called both on the very first sort (after the table is built) and on
+        every subsequent sort. If the number of events somehow changed
+        between the table's creation and now, rebuild the widgets from
+        scratch -- this should never happen in practice (events are only
+        reordered, never added or removed at runtime), but the fallback keeps
+        the table self-healing.
+        """
+        if len(temp) != len(self.qLabels):
+            self._rebuild_cell_widgets(temp)
+            return
+
         for ind, unit in enumerate(temp):
-            t_ccs = CaptionLabel(bt.tr('ConfigTranslation', unit['event_name']))
+            label = self.qLabels[ind]
+            label.setText(bt.tr('ConfigTranslation', unit['event_name']))
+
+            line_edit = self.times[ind]
+            line_edit.blockSignals(True)
+            line_edit.setText(str(datetime.fromtimestamp(unit['next_tick'])).split('.')[0])
+            line_edit.blockSignals(False)
+
+            cbx = self.check_boxes[ind]
+            cbx.blockSignals(True)
+            cbx.setChecked(unit['enabled'])
+            cbx.blockSignals(False)
+
+        self.enable_list = [unit['enabled'] for unit in temp]
+        self.labels = [unit['event_name'] for unit in temp]
+        self.next_ticks = [unit['next_tick'] for unit in temp]
+
+    def _rebuild_cell_widgets(self, temp):
+        """Tear down and recreate every cell widget.
+
+        Used as a fallback when the number of rows changes between sorts
+        (which doesn't happen in the current code path). Kept for
+        completeness / future-proofing.
+        """
+        self._remove_all_cell_widgets()
+        self.tableView.clearContents()
+        self.tableView.setRowCount(len(temp))
+
+        self.qLabels, self.times, self.check_boxes = [], [], []
+        self.boxes, self.config_buttons = [], []
+
+        for ind, unit in enumerate(temp):
+            t_ccs = self._make_event_label(bt.tr('ConfigTranslation', unit['event_name']))
             self.tableView.setCellWidget(ind, 0, t_ccs)
             self.qLabels.append(t_ccs)
 
@@ -207,6 +279,7 @@ class Layout(QWidget):
             cbx_layout.setContentsMargins(30, 0, 0, 0)
             cbx_wrapper.setLayout(cbx_layout)
             self.tableView.setCellWidget(ind, 2, cbx_wrapper)
+            self.boxes.append(cbx_wrapper)
             self.check_boxes.append(t_cbx)
 
             t_cfbs = PushButton(self.tr('详细配置'), self)
@@ -219,8 +292,37 @@ class Layout(QWidget):
             self.config_buttons.append(cfbs_wrapper)
             self.tableView.setCellWidget(ind, 3, cfbs_wrapper)
 
-        # Add table to layout
-        self.vBox.addWidget(self.tableView)
+        self.enable_list = [unit['enabled'] for unit in temp]
+        self.labels = [unit['event_name'] for unit in temp]
+        self.next_ticks = [unit['next_tick'] for unit in temp]
+
+    def _remove_all_cell_widgets(self):
+        """Detach every cell widget and immediately destroy its C++ object.
+
+        QTableWidget.setCellWidget(row, col, None) only *detaches* the widget
+        from the cell; the widget itself is kept alive as an orphan child of
+        the viewport, stays registered in qfluentwidgets' global
+        ``styleSheetManager`` (a ``WeakKeyDictionary``), and gets re-styled on
+        every theme change. After many sorts this leaks memory and, more
+        importantly, lets stale widgets linger long enough to race with
+        ``setTheme``'s ``updateStyleSheet()`` sweep and crash the app.
+
+        ``sip.delete`` forces immediate destruction of the underlying C++
+        object, which fires ``destroyed`` and deregisters the widget from the
+        style sheet manager. We must do this only after dropping every Python
+        reference (the helper lists) so we never leave a wrapper pointing at a
+        freed C++ object.
+        """
+        rows = self.tableView.rowCount()
+        cols = self.tableView.columnCount()
+        for row in range(rows):
+            for col in range(cols):
+                widget = self.tableView.cellWidget(row, col)
+                if widget is None:
+                    continue
+                self.tableView.setCellWidget(row, col, None)
+                widget.setParent(None)
+                sip.delete(widget)
 
     def _update_config(self):
         for i in range(len(self.enable_list)):
