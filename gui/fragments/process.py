@@ -3,7 +3,7 @@ import time
 from hashlib import md5
 from random import random
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 from qfluentwidgets import (ScrollArea, TitleLabel, SubtitleLabel, ListWidget, StrongBodyLabel, ComboBox,
                             ToolTipPosition, ToolTipFilter)
@@ -18,6 +18,11 @@ DISPLAY_CONFIG_PATH = './config/display.json'
 
 
 class ProcessFragment(ScrollArea):
+    # Emitted from the background refresh thread; widget updates happen on
+    # the GUI thread via a queued connection (Qt forbids touching widgets
+    # from any other thread and crashes randomly when it happens).
+    status_signal = pyqtSignal(str, list)
+
     def __init__(self, parent, config):
         super().__init__(parent=parent)
         self.processWidget = QWidget()
@@ -97,6 +102,7 @@ class ProcessFragment(ScrollArea):
 
         self.baas_thread = None
         self.config = config
+        self.status_signal.connect(self._update_status_widgets)
         t_daemon = threading.Thread(target=self.refresh_status, daemon=True)
         t_daemon.start()
         self.__initLayout()
@@ -112,17 +118,22 @@ class ProcessFragment(ScrollArea):
                 crt_task = crt_task if crt_task else self.tr("暂无正在执行的任务")
                 task_list = [bt.tr('ConfigTranslation', task) for task in task_list] if task_list else [
                     self.tr("暂无队列中的任务")]
-                self.on_status.setText(bt.tr('ConfigTranslation', crt_task))
-
-                self.listWidget.clear()
-                self.listWidget.addItems(task_list)
             else:
-                self.on_status.setText(self.tr("暂无正在执行的任务"))
-                self.listWidget.clear()
-                self.listWidget.addItems([self.tr("暂无队列中的任务")])
+                crt_task = self.tr("暂无正在执行的任务")
+                task_list = [self.tr("暂无队列中的任务")]
                 main_thread = self.config.get_main_thread()
                 self.baas_thread = main_thread.get_baas_thread() if main_thread else None
+            self.status_signal.emit(crt_task, task_list)
             time.sleep(2)
+
+    def _update_status_widgets(self, crt_task: str, task_list: list):
+        """Update the scheduler status widgets on the GUI thread."""
+        if self.baas_thread is not None:
+            self.on_status.setText(bt.tr('ConfigTranslation', crt_task))
+        else:
+            self.on_status.setText(crt_task)
+        self.listWidget.clear()
+        self.listWidget.addItems(task_list)
 
     def __initLayout(self):
         # self.expandLayout.setSpacing(28)
