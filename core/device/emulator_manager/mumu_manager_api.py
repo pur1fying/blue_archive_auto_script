@@ -50,7 +50,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             except FileNotFoundError:
                 raise FileNotFoundError
             except:
-                return f"{info["errcode"]}, {info["errmsg"]}"
+                return f"{info['errcode']}, {info['errmsg']}"
         def detect_major_version():
             match = re.match(r'^(\d+)\.', mumu_version)
             if match:
