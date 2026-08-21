@@ -76,7 +76,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
         elif operation == "get_manager_path": # 获取MuMuManager.exe所在的路径
             return exe_path
         elif operation == "get_nemu_client_path":# 获取external_renderer_ipc.dll所在的路径
-            if int(major_version_number) == 5 or int(major_version_number) = 6: #type: ignore
+            if int(major_version_number) == 5 or int(major_version_number) == 6: #type: ignore
                 return os.path.join(os.path.dirname(install_path), "nx_device", fetch_info("android_version"), "shell", "sdk", "external_renderer_ipc.dll")
             else:
                 return os.path.join(install_path, "sdk", "external_renderer_ipc.dll")
