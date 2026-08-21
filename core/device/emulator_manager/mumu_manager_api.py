@@ -35,7 +35,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
         
         try:
             install_path = os.path.abspath(winreg.QueryValueEx(key, "InstallLocation")[0]).strip('"')
-            exe_path = os.path.join(install_path, "nx_main", "MuMuManager.exe")
+            exe_path = os.path.join(os.path.abspath(install_path), "nx_main", "MuMuManager.exe")
         except:
             install_path = os.path.dirname(winreg.QueryValueEx(key, "DisplayIcon")[0]).strip('"')
             exe_path = os.path.join(install_path, "MuMu" ,"MuMuManager.exe")
@@ -68,8 +68,8 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             subprocess.run(command)
         elif operation == "get_path":# 获取MuMuManager.exe所在的目录
             return install_path
-        elif operation == "get_device_path":
-            if major_version_number == 5:# 获取MuMuNxDevice.exe所在的目录
+        elif operation == "get_device_path":# 获取MuMuNxDevice.exe所在的目录
+            if int(major_version_number) == 5 or int(major_version_number) == 6:  # type: ignore
                 return os.path.join(os.path.dirname(install_path), "nx_device", fetch_info("android_version"), "shell")
             else:
                 return install_path
@@ -77,9 +77,9 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             return exe_path
         elif operation == "get_nemu_client_path":# 获取external_renderer_ipc.dll所在的路径
             if int(major_version_number) == 5 or int(major_version_number) == 6: #type: ignore
-                return os.path.join(os.path.dirname(install_path), "nx_device", fetch_info("android_version"), "shell", "sdk", "external_renderer_ipc.dll")
+                return os.path.join(os.path.abspath(install_path), "nx_device", fetch_info("android_version"), "shell", "sdk", "external_renderer_ipc.dll")
             else:
-                return os.path.join(install_path, "sdk", "external_renderer_ipc.dll")
+                return os.path.join(os.path.abspath(install_path), "sdk", "external_renderer_ipc.dll")
         elif operation == "disable_app_keptlive": # 关闭后台保活
             command = f""" "{exe_path}" setting -v {multi_instance_number} -k app_keptlive -val false"""
             subprocess.run(command, universal_newlines=True, capture_output=True)
