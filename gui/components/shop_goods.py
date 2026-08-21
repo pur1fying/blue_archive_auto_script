@@ -4,12 +4,11 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QFrame,
     QHBoxLayout,
-    QLabel,
     QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import CheckBox
+from qfluentwidgets import BodyLabel, CheckBox, isDarkTheme, qconfig
 
 
 SHOP_PREFERRED_WIDTH = 800
@@ -21,6 +20,26 @@ SHOP_DIALOG_VERTICAL_RESERVE = 180
 GRID_MIN_COLUMN_WIDTH = 220
 GRID_HORIZONTAL_SPACING = 8
 GRID_VERTICAL_SPACING = 8
+
+
+class ShopRefreshBox(QFrame):
+    """Full-width refresh control container that follows the active theme."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName('shopRefreshBox')
+        qconfig.themeChanged.connect(self._apply_theme)
+        self._apply_theme()
+
+    def _apply_theme(self, *_):
+        base = 255 if isDarkTheme() else 0
+        self.setStyleSheet(
+            'QFrame#shopRefreshBox {'
+            f'  border: 1px solid rgba({base}, {base}, {base}, 55);'
+            '  border-radius: 6px;'
+            f'  background-color: rgba({base}, {base}, {base}, 4);'
+            '}'
+        )
 
 
 class ShopGoodCard(QFrame):
@@ -44,12 +63,12 @@ class ShopGoodCard(QFrame):
         self.check_box.setChecked(checked)
         self.check_box.setLayoutDirection(Qt.RightToLeft)
 
-        self.name_label = QLabel(name, self)
+        self.name_label = BodyLabel(name, self)
         self.name_label.setWordWrap(True)
         self.name_label.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.name_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.price_label = QLabel(price, self)
+        self.price_label = BodyLabel(price, self)
         self.price_label.setWordWrap(True)
         self.price_label.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.price_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
