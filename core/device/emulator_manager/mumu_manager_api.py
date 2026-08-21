@@ -1,4 +1,3 @@
-from errno import errorcode
 import json
 import os
 import subprocess
