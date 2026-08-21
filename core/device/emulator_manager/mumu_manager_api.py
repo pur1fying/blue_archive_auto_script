@@ -30,16 +30,17 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
                 except:
                     key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
                                         r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal")
-            try:
-                install_path = os.path.dirname(winreg.QueryValueEx(key, "InstallLocation")[0]).strip('"')
-                exe_path = os.path.join(install_path, "nx_main", "MuMuManager.exe")
-            except:
-                install_path = os.path.dirname(winreg.QueryValueEx(key, "DisplayIcon")[0]).strip('"')
-                exe_path = os.path.join(install_path, "MuMuManager.exe")
-            mumu_version, _ = winreg.QueryValueEx(key, "DisplayVersion")
-            winreg.CloseKey(key)
         except:
             return None
+        
+        try:
+            install_path = os.path.abspath(winreg.QueryValueEx(key, "InstallLocation")[0]).strip('"')
+            exe_path = os.path.join(install_path, "nx_main", "MuMuManager.exe")
+        except:
+            install_path = os.path.dirname(winreg.QueryValueEx(key, "DisplayIcon")[0]).strip('"')
+            exe_path = os.path.join(install_path, "MuMu" ,"MuMuManager.exe")
+        mumu_version, _ = winreg.QueryValueEx(key, "DisplayVersion")
+        winreg.CloseKey(key)
         # 修改路径，使其指向MuMuManager.exe
         def fetch_info(target_key: str) -> str:
             cmd = [exe_path, "info", "-v", str(multi_instance_number)]
@@ -55,7 +56,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             match = re.match(r'^(\d+)\.', mumu_version)
             if match:
                 return int(match.group(1))
-        major_version_number = detect_major_version()
+        major_version_number = detect_major_version() #type: ignore
         if operation == "start":
             # 使用mumumanager控制模拟器开启与关闭
             from .get_adb_address import get_simulator_port
@@ -75,7 +76,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
         elif operation == "get_manager_path": # 获取MuMuManager.exe所在的路径
             return exe_path
         elif operation == "get_nemu_client_path":# 获取external_renderer_ipc.dll所在的路径
-            if major_version_number == 5:
+            if int(major_version_number) == 5 or int(major_version_number) = 6: #type: ignore
                 return os.path.join(os.path.dirname(install_path), "nx_device", fetch_info("android_version"), "shell", "sdk", "external_renderer_ipc.dll")
             else:
                 return os.path.join(install_path, "sdk", "external_renderer_ipc.dll")
