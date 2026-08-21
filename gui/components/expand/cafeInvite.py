@@ -265,7 +265,7 @@ class CafeCard(GradientPanel):
         self.title_lbl.setFixedHeight(24)
         self.title_lbl.setStyleSheet(
             'font-family:"Microsoft YaHei";font-size:15px;'
-            'font-weight:600;color:#1a1a1a;background:transparent;'
+            'font-weight:600;color:palette(text);background:transparent;'
         )
         self.root.addWidget(self.title_lbl, 0, Qt.AlignTop)
 
@@ -291,9 +291,10 @@ class CafeCard(GradientPanel):
             f"  background: {background};"
             "}"
         )
+        # 标题前景跟随调色板：深色主题下 palette(base) 面板上的文字仍可读。
         self.title_lbl.setStyleSheet(
             'font-family:"Microsoft YaHei";font-size:15px;'
-            f'font-weight:600;color:{"#1a1a1a" if active else "#666"};'
+            f'font-weight:600;color:{"palette(text)" if active else "palette(placeholder-text)"};'
             'background:transparent;'
         )
         self._set_body_enabled(active)
@@ -377,7 +378,7 @@ class Layout(QWidget):
         left_title.setFixedHeight(24)
         left_title.setStyleSheet(
             'font-family:"Microsoft YaHei";font-size:15px;'
-            'font-weight:600;color:#1a1a1a;background:transparent;'
+            'font-weight:600;color:palette(text);background:transparent;'
         )
         left_lay.addWidget(left_title)
 

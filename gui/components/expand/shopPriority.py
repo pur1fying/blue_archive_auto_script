@@ -22,7 +22,7 @@ class Layout(ShopPanel):
             price_list=price_list,
             currency_icon="gui/assets/icons/currency_icon_gold.webp",
             currency_unit_label="单位：信用点",
-            refresh_max=5,
+            refresh_max=3,
             estimate_fn=estimate_common_shop_daily,
         )
         try:

@@ -274,7 +274,9 @@ class DialogSettingBox(MessageBoxBase):
         parent_height = self._parent_extent(parent, "height", available.height())
         width_limit = min(parent_width, available.width()) - self._HORIZONTAL_CHROME - self._SCREEN_MARGIN
         height_limit = min(parent_height, available.height()) - self._VERTICAL_CHROME - self._SCREEN_MARGIN
-        content_width = max(640, min(820, width_limit))
+        # 下限 480：让内容宽度可以跌破 Layout 的 640 竖排断点，
+        # 窄窗口下咖啡厅改走竖排而不是溢出屏幕。
+        content_width = max(480, min(820, width_limit))
         content_height = max(360, min(480, height_limit))
 
         frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

@@ -425,7 +425,8 @@ def estimate_arena_daily(panel, checked: List[int], refresh_n: int, price_list: 
 
 
 def estimate_common_shop_daily(panel, checked: List[int], refresh_n: int, price_list: Sequence) -> Tuple[str, str]:
-    refresh_n = max(0, min(int(refresh_n), 5))
+    # 运行时只支持 3 次刷新（价格 40/60/80），估算必须与执行器一致。
+    refresh_n = max(0, min(int(refresh_n), 3))
     one_pass_credit = 0
     one_pass_pyro = 0
     for i, flag in enumerate(checked):
@@ -441,9 +442,9 @@ def estimate_common_shop_daily(panel, checked: List[int], refresh_n: int, price_
     rounds = refresh_n + 1
     credit_total = one_pass_credit * rounds
     pyro_refresh = 0
-    costs = [40, 60, 80, 100, 120]
+    costs = [40, 60, 80]
     for k in range(refresh_n):
-        pyro_refresh += costs[k] if k < len(costs) else costs[-1]
+        pyro_refresh += costs[k]
     pyro_total = one_pass_pyro * rounds + pyro_refresh
     if one_pass_pyro or pyro_refresh:
         title = panel.tr("每天约 {0} 信用点").replace("{0}", str(credit_total))
