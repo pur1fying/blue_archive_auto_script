@@ -21,6 +21,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication, QBoxLayout, QLabel, QWidget
+from qfluentwidgets import ScrollArea
 
 from gui.components.expand import arenaShopPriority, shopPriority
 from gui.components.expand.cafeInvite import Layout as CafeLayout
@@ -30,6 +31,7 @@ from gui.components.shop_goods import (
     GRID_H_SPACING,
     MIN_COL_W,
     SHOP_MAX_WIDTH,
+    SHOP_VIEWPORT_HEIGHT,
     GoodsCard,
     ShopGoodCard,
     ShopGoodsGrid,
@@ -37,6 +39,7 @@ from gui.components.shop_goods import (
 from gui.util.customized_ui import DialogSettingBox
 
 _HORIZONTAL_CHROME = 48
+_VERTICAL_CHROME = 129
 _SCREEN_MARGIN = 64
 
 
@@ -253,6 +256,28 @@ class ShopAndCafeLayoutTest(unittest.TestCase):
         expected = self._expected_content_width(dialog, parent, minimum, SHOP_MAX_WIDTH)
         self.assertEqual(expected + _HORIZONTAL_CHROME, dialog.widget.width())
 
+    def test_shop_dialog_height_is_bound_by_a_short_parent(self):
+        config = _Config(arena_goods=[[f"Item {index}", 50] for index in range(8)])
+        parent = self._show(QWidget(), 640, 300)
+        dialog = self._show(
+            DialogSettingBox(
+                parent,
+                config,
+                arenaShopPriority.Layout(config=config),
+                setting_name="arenaShopPriority",
+            ),
+            parent.width(),
+            parent.height(),
+        )
+
+        available = dialog._available_geometry(parent)
+        limit = min(parent.height(), available.height()) - _VERTICAL_CHROME - _SCREEN_MARGIN
+        expected = min(SHOP_VIEWPORT_HEIGHT, max(160, limit))
+        self.assertEqual(expected + _VERTICAL_CHROME, dialog.widget.height())
+        # The dialog must stay inside a short host window instead of
+        # spilling past it onto a taller monitor.
+        self.assertLessEqual(dialog.widget.height(), parent.height())
+
     def test_cafe_dialog_reaches_narrow_vertical_mode(self):
         narrow_parent = self._show(QWidget(), 600, 700)
         narrow_cafe = CafeLayout(config=_Config())
@@ -273,6 +298,12 @@ class ShopAndCafeLayoutTest(unittest.TestCase):
         # the cafe layout can actually switch to its vertical arrangement.
         self.assertLess(expected, 640)
         self.assertEqual(QBoxLayout.TopToBottom, narrow_cafe.root_layout.direction())
+
+        # Vertically stacked content is taller than the dialog; a scroll
+        # area must carry the overflow instead of clipping controls.
+        narrow_scroll = narrow_dialog.findChild(ScrollArea)
+        self.assertIsNotNone(narrow_scroll)
+        self.assertGreater(narrow_scroll.verticalScrollBar().maximum(), 0)
 
         wide_parent = self._show(QWidget(), 1200, 800)
         wide_cafe = CafeLayout(config=_Config())

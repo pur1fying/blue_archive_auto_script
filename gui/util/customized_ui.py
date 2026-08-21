@@ -250,12 +250,20 @@ class DialogSettingBox(MessageBoxBase):
 
         available = self._available_geometry(parent)
         parent_width = self._parent_extent(parent, "width", available.width())
+        parent_height = self._parent_extent(parent, "height", available.height())
         minimum_width = GRID_COLUMNS * MIN_COL_W + GRID_H_SPACING * (GRID_COLUMNS - 1)
         width_limit = min(parent_width, available.width()) - self._HORIZONTAL_CHROME - self._SCREEN_MARGIN
         content_width = max(minimum_width, min(SHOP_MAX_WIDTH, width_limit))
+        # 高度与宽度一样取父窗口与屏幕的较小值：矮窗口里弹窗不能超过宿主。
+        # 下限 160 保住一行商品的可视高度，其余交给面板内部滚动。
         content_height = min(
             SHOP_VIEWPORT_HEIGHT,
-            max(280, available.height() - self._VERTICAL_CHROME - self._SCREEN_MARGIN),
+            max(
+                160,
+                min(parent_height, available.height())
+                - self._VERTICAL_CHROME
+                - self._SCREEN_MARGIN,
+            ),
         )
 
         frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -282,8 +290,18 @@ class DialogSettingBox(MessageBoxBase):
         frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         if layout is not None:
             layout.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        frame.setFixedSize(content_width, content_height)
-        self.viewLayout.addWidget(frame)
+        # 竖排堆叠时内容会高于弹窗可视高度，用内部滚动承接，
+        # 避免通用设置或咖啡厅卡片被裁掉、控件不可点。
+        scroll_area = ScrollArea()
+        scroll_area.setStyleSheet(
+            "background-color: transparent;\nborder: none;\n"
+        )
+        scroll_area.setWidget(frame)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setFixedSize(content_width, content_height)
+        self.viewLayout.addWidget(scroll_area)
         self.widget.setFixedSize(
             content_width + self._HORIZONTAL_CHROME,
             content_height + self._VERTICAL_CHROME,
