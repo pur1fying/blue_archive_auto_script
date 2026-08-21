@@ -13,6 +13,7 @@ from types import SimpleNamespace
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPalette
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import (
     QApplication,
@@ -22,9 +23,10 @@ from PyQt5.QtWidgets import (
     QStyleOptionButton,
     QWidget,
 )
-from qfluentwidgets import ScrollArea
+from qfluentwidgets import ScrollArea, Theme, setTheme
 
 from gui.components.expand import arenaShopPriority, shopPriority
+from gui.components.shop_goods import ShopGoodCard, ShopRefreshBox
 from gui.util.customized_ui import DialogSettingBox
 
 
@@ -65,12 +67,43 @@ class ShopResponsiveLayoutTest(unittest.TestCase):
         self.widgets = []
 
     def tearDown(self):
+        setTheme(Theme.LIGHT)
         shopPriority.bt.tr = self._shop_tr
         arenaShopPriority.bt.tr = self._arena_tr
         for widget in reversed(self.widgets):
             widget.close()
             widget.deleteLater()
         self.app.processEvents()
+
+    def test_goods_card_labels_follow_dark_and_light_theme_text_colors(self):
+        card = self._show(ShopGoodCard("Item name", "125000 credits"), 280, 80)
+
+        setTheme(Theme.DARK)
+        self.app.processEvents()
+        for label in (card.name_label, card.price_label):
+            self.assertGreater(
+                label.palette().color(QPalette.WindowText).lightness(),
+                180,
+            )
+
+        setTheme(Theme.LIGHT)
+        self.app.processEvents()
+        for label in (card.name_label, card.price_label):
+            self.assertLess(
+                label.palette().color(QPalette.WindowText).lightness(),
+                80,
+            )
+
+    def test_refresh_box_border_follows_dark_and_light_theme(self):
+        refresh_box = self._show(ShopRefreshBox(), 280, 60)
+
+        setTheme(Theme.DARK)
+        self.app.processEvents()
+        self.assertIn("rgba(255, 255, 255, 55)", refresh_box.styleSheet())
+
+        setTheme(Theme.LIGHT)
+        self.app.processEvents()
+        self.assertIn("rgba(0, 0, 0, 55)", refresh_box.styleSheet())
 
     def _show(self, widget, width, height=900):
         self.widgets.append(widget)

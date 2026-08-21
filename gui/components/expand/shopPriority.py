@@ -1,10 +1,10 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QSizePolicy, QFrame
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QSizePolicy
 from qfluentwidgets import LineEdit
 
 from gui.util.translator import baasTranslator as bt
-from gui.components.shop_goods import ShopGoodCard, ShopGoodsGrid
+from gui.components.shop_goods import ShopGoodCard, ShopGoodsGrid, ShopRefreshBox
 
 
 _PAD_Y = 16
@@ -29,15 +29,7 @@ class Layout(QWidget):
         root.setSpacing(8)
         root.setAlignment(Qt.AlignTop)
 
-        refresh_box = QFrame(self)
-        refresh_box.setObjectName('shopRefreshBox')
-        refresh_box.setStyleSheet(
-            'QFrame#shopRefreshBox {'
-            '  border: 1px solid rgba(0, 0, 0, 55);'
-            '  border-radius: 6px;'
-            '  background: rgba(0, 0, 0, 4);'
-            '}'
-        )
+        refresh_box = ShopRefreshBox(self)
         refresh_row = QHBoxLayout(refresh_box)
         refresh_row.setContentsMargins(10, 6, 10, 6)
         refresh_row.setSpacing(8)
