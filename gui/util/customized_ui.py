@@ -6,10 +6,13 @@ from datetime import datetime, timedelta
 
 from typing import Union
 
-from PyQt5.QtCore import Qt, QObject, QEvent, pyqtSignal, QRectF
+from PyQt5.QtCore import Qt, QObject, QEvent, pyqtSignal, QRect, QRectF, QPropertyAnimation
 from PyQt5.QtGui import QFont, QPainter, QColor, QIcon, QPixmap
 from PyQt5.QtSvg import QSvgRenderer
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout, QWidget, QScrollArea
+from PyQt5.QtWidgets import (
+    QVBoxLayout, QLabel, QFrame, QHeaderView, QHBoxLayout, QWidget, QScrollArea,
+    QGraphicsOpacityEffect, QApplication, QSizePolicy,
+)
 from qfluentwidgets import (MessageBoxBase, TableWidget, CheckBox, LineEdit, SubtitleLabel, ImageLabel, FlowLayout,
                             ComboBox, PushButton, ExpandSettingCard, FluentIcon as FIF, ScrollArea)
 from qfluentwidgets.window.fluent_window import FluentWindowBase, FluentTitleBar
@@ -178,124 +181,186 @@ class OutlineLabel(QLabel):
 
 
 class DialogSettingBox(MessageBoxBase):
-    """
-    A custom message box with a settings layout.
+    """Settings dialog with target-only shop and cafe sizing."""
 
-    This dialog box supports dynamic layouts and can adjust its size
-    based on specific settings.
-
-    When opened from Card mode, ``config`` is typically a ``ConfigDraft``.
-    OK commits the draft to disk; Cancel rolls it back. Live ConfigSet can
-    still be passed (legacy / non-draft callers).
-    """
+    _TARGET_SHOPS = {"shoppriority", "arenashoppriority"}
+    _TARGET_CAFE = "cafeinvite"
+    _HORIZONTAL_CHROME = 48
+    _VERTICAL_CHROME = 129
+    _SCREEN_MARGIN = 64
 
     def __init__(self, parent=None, config=None, layout=None, *_, **kwargs):
-        """
-        Initializes the DialogSettingBox.
-
-        Args:
-            parent (QWidget, optional): The parent widget. Defaults to None.
-            config (Config, optional): Configuration object for settings injection. Defaults to None.
-            layout (QLayout, optional): The layout to display inside the dialog. Defaults to None.
-            **kwargs: Additional keyword arguments.
-        """
         super().__init__(parent)
 
-        setting_name = kwargs.get('setting_name')  # Retrieve the setting name from kwargs
-        self.config = config  # Store the configuration object (may be ConfigDraft)
+        setting_name = str(kwargs.get("setting_name") or "").lower()
+        self.config = config
         self._content_layout = layout
+        self._target_cafe = setting_name == self._TARGET_CAFE
 
-        try:
-            self.yesButton.setText(self.tr('确定'))
-            self.cancelButton.setText(self.tr('取消'))
-        except Exception:
-            pass
+        self.yesButton.setText(self.tr("确定"))
+        self.cancelButton.setText(self.tr("取消"))
 
-        # Create a frame to wrap the provided layout
         frame = QFrame(self)
         layout_wrapper = QVBoxLayout(frame)
-        layout_wrapper.setContentsMargins(0, 0, 0, 0)  # Remove margins
-        layout_wrapper.setSpacing(0)  # Set spacing to zero
-        layout_wrapper.addWidget(layout)  # Add the provided layout to the wrapper
+        layout_wrapper.setContentsMargins(0, 0, 0, 0)
+        layout_wrapper.setSpacing(0)
+        if layout is not None:
+            layout_wrapper.addWidget(layout)
 
-        # Apply a global style sheet to the layout
-        layout.setStyleSheet(
-            '* {\n'
-            '    font-family: "Microsoft YaHei";\n'
-            '    font-size: 14px;\n'
-            '}\n'
-        )
+        if setting_name in self._TARGET_SHOPS:
+            self._init_shop(frame, layout, parent)
+        elif self._target_cafe:
+            self._init_cafe(frame, layout, parent)
+            self._finish_cafe_fade()
+        else:
+            self._init_upstream(frame, layout)
 
-        # Shops use a viewport that follows the host window and caps at a
-        # comfortable desktop width. The editor itself handles grid reflow.
-        is_shop = bool(setting_name and ('shop' in setting_name or 'Shop' in setting_name))
-        if is_shop:
-            frame.setMinimumWidth(0)
-
-        # Set the wrapper layout for the frame
-        frame.setLayout(layout_wrapper)
-        try:
-            from PyQt5.QtWidgets import QSizePolicy
-            # Content grows with goods; viewport stays capped so long lists scroll.
-            frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-            if hasattr(layout, 'setSizePolicy'):
-                layout.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-        except Exception:
-            pass
+    def _init_upstream(self, frame, layout):
+        """Preserve the original geometry for every non-target page."""
+        if layout is not None:
+            layout.setStyleSheet(
+                '* {\n'
+                '    font-family: "Microsoft YaHei";\n'
+                '    font-size: 14px;\n'
+                '}\n'
+            )
+        frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        if layout is not None and hasattr(layout, "setSizePolicy"):
+            layout.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
 
         scroll_area = ScrollArea()
         scroll_area.setStyleSheet(
-            'background-color: transparent;\n'
-            'border: none;\n'
+            "background-color: transparent;\nborder: none;\n"
         )
         scroll_area.setWidget(frame)
         scroll_area.setWidgetResizable(True)
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        if is_shop:
-            scroll_area.setObjectName('shopScrollArea')
-            self._shop_scroll_area = scroll_area
-            self._shop_frame = frame
-            self._resize_shop_viewport(self.size())
-        else:
-            scroll_area.setFixedWidth(self.width() - 100)
-
-        # Add the frame to the dialog's main layout
+        scroll_area.setFixedWidth(self.width() - 100)
         self.viewLayout.addWidget(scroll_area)
 
-    def _resize_shop_viewport(self, size):
-        if not hasattr(self, '_shop_scroll_area'):
-            return
-
+    def _init_shop(self, frame, layout, parent):
         from gui.components.shop_goods import (
-            SHOP_DIALOG_HORIZONTAL_RESERVE,
-            SHOP_DIALOG_VERTICAL_RESERVE,
+            GRID_COLUMNS,
+            GRID_H_SPACING,
+            MIN_COL_W,
             SHOP_MAX_WIDTH,
             SHOP_VIEWPORT_HEIGHT,
         )
 
-        available_width = max(1, size.width() - SHOP_DIALOG_HORIZONTAL_RESERVE)
-        available_height = max(1, size.height() - SHOP_DIALOG_VERTICAL_RESERVE)
-        viewport_width = min(SHOP_MAX_WIDTH, available_width)
-        viewport_height = min(SHOP_VIEWPORT_HEIGHT, available_height)
-        self._shop_scroll_area.setFixedSize(viewport_width, viewport_height)
-        self._shop_frame.setMinimumWidth(0)
-        self._shop_frame.updateGeometry()
+        available = self._available_geometry(parent)
+        parent_width = self._parent_extent(parent, "width", available.width())
+        minimum_width = GRID_COLUMNS * MIN_COL_W + GRID_H_SPACING * (GRID_COLUMNS - 1)
+        width_limit = min(parent_width, available.width()) - self._HORIZONTAL_CHROME - self._SCREEN_MARGIN
+        content_width = max(minimum_width, min(SHOP_MAX_WIDTH, width_limit))
+        content_height = min(
+            SHOP_VIEWPORT_HEIGHT,
+            max(280, available.height() - self._VERTICAL_CHROME - self._SCREEN_MARGIN),
+        )
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._resize_shop_viewport(event.size())
+        frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        if layout is not None:
+            layout.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        frame.setFixedSize(content_width, content_height)
+        self.viewLayout.addWidget(frame)
+        self.widget.setFixedSize(
+            content_width + self._HORIZONTAL_CHROME,
+            content_height + self._VERTICAL_CHROME,
+        )
+
+    def _init_cafe(self, frame, layout, parent):
+        available = self._available_geometry(parent)
+        parent_width = self._parent_extent(parent, "width", available.width())
+        parent_height = self._parent_extent(parent, "height", available.height())
+        width_limit = min(parent_width, available.width()) - self._HORIZONTAL_CHROME - self._SCREEN_MARGIN
+        height_limit = min(parent_height, available.height()) - self._VERTICAL_CHROME - self._SCREEN_MARGIN
+        content_width = max(640, min(820, width_limit))
+        content_height = max(360, min(480, height_limit))
+
+        frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        if layout is not None:
+            layout.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        frame.setFixedSize(content_width, content_height)
+        self.viewLayout.addWidget(frame)
+        self.widget.setFixedSize(
+            content_width + self._HORIZONTAL_CHROME,
+            content_height + self._VERTICAL_CHROME,
+        )
+
+    def _finish_cafe_fade(self):
+        """Make only the cafe dialog fully opaque immediately."""
+        try:
+            animations = self.findChildren(QPropertyAnimation)
+        except Exception:
+            animations = []
+        for animation in animations:
+            try:
+                property_name = bytes(animation.propertyName()).decode("ascii", "ignore").lower()
+            except Exception:
+                property_name = ""
+            if "opacity" not in property_name:
+                continue
+            try:
+                animation.stop()
+            except Exception:
+                pass
+        try:
+            effects = self.findChildren(QGraphicsOpacityEffect)
+        except Exception:
+            effects = []
+        for effect in effects:
+            try:
+                effect.setOpacity(1.0)
+            except Exception:
+                pass
+        try:
+            self.setGraphicsEffect(None)
+        except Exception:
+            pass
+        try:
+            self.setWindowOpacity(1.0)
+        except Exception:
+            pass
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self._target_cafe:
+            self._finish_cafe_fade()
+
+    @staticmethod
+    def _parent_extent(parent, method_name, fallback):
+        if parent is None:
+            return fallback
+        method = getattr(parent, method_name, None)
+        if not callable(method):
+            return fallback
+        try:
+            value = int(method())
+        except Exception:
+            return fallback
+        return value if value > 0 else fallback
+
+    @staticmethod
+    def _available_geometry(parent):
+        screen = (
+            parent.screen()
+            if parent is not None and hasattr(parent, "screen")
+            else None
+        )
+        if screen is None:
+            screen = QApplication.primaryScreen()
+        if screen is not None:
+            return screen.availableGeometry()
+        return QRect(0, 0, 1024, 768)
 
     def _is_draft(self) -> bool:
-        return bool(getattr(self.config, 'is_draft', False))
+        return bool(getattr(self.config, "is_draft", False))
 
     def accept(self):
-        """Commit draft (if any) then close with Accepted."""
         from gui.util import notification
         from gui.util.config_draft import as_live
 
         if self._is_draft():
-            # Ensure the focused editor flushes into the draft first.
             self.config.flush_pending_editors(self)
             changed = self.config.commit()
             if changed:
@@ -304,11 +369,9 @@ class DialogSettingBox(MessageBoxBase):
         super().accept()
 
     def reject(self):
-        """Drop draft changes then close with Rejected."""
         if self._is_draft():
             self.config.rollback()
         super().reject()
-
 
 class FuncLabel(QLabel):
     button_clicked_signal = pyqtSignal()
@@ -411,7 +474,6 @@ class AssetsWidget(QFrame):
                 font-size: %(line_height)dpx;
                 line-height: %(item_height)dpx;
                 border: none;
-                color: %(text_color)s;
             }
 
             QToolTip {
@@ -425,7 +487,6 @@ class AssetsWidget(QFrame):
         """ % {
             'background_color': COLOR_THEME[configGui.theme.value]['background'],
             'border_color': COLOR_THEME[configGui.theme.value]['border'],
-            'text_color': COLOR_THEME[configGui.theme.value]['text'],
             'line_height': (self.item_height - 10) // 2,
             'item_height': self.item_height
         })

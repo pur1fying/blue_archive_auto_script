@@ -541,6 +541,46 @@ make sure to do it before starting the script.</translation>
         <source>Steam国际服</source>
         <translation>Steam server</translation>
     </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>强化珠礼包A</source>
+        <translation>Enhancement Stone Pack A</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>强化珠礼包B</source>
+        <translation>Enhancement Stone Pack B</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>强化珠礼包C</source>
+        <translation>Enhancement Stone Pack C</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>强化珠礼包D</source>
+        <translation>Enhancement Stone Pack D</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>一包强化珠α</source>
+        <translation>Enhancement Stone Pack α</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>一包强化珠β</source>
+        <translation>Enhancement Stone Pack β</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>一包强化珠γ</source>
+        <translation>Enhancement Stone Pack γ</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>一包强化珠δ</source>
+        <translation>Enhancement Stone Pack δ</translation>
+    </message>
 </context>
 <context>
     <name>CreateErrorInfoMessageBox</name>
@@ -1765,6 +1805,96 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <source>制造石</source>
         <translation>Crafting stone</translation>
     </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>请勾选购买物品</source>
+        <translation>Select items to purchase</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>购买刷新次数</source>
+        <translation>Number of shop refreshes</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>单位：信用点</source>
+        <translation>Currency: Credits</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>单位：竞技币</source>
+        <translation>Currency: Tactical Challenge Coins</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>每天消耗约 {0} 竞技币</source>
+        <translation>Approx. {0} Tactical Challenge Coins per day</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>({0}+{0}×{1}+{1}×10)</source>
+        <translation>({0}+{0}×{1}+{1}×10)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>每天约 {0} 信用点</source>
+        <translation>Approx. {0} Credits per day</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>青辉石约 {0}（含刷新）</source>
+        <translation>Approx. {0} Pyroxene (including refreshes)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>每天消耗约 {0} 信用点</source>
+        <translation>Approx. {0} Credits spent per day</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>({0}×{1})</source>
+        <translation>({0}×{1})</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>通用设置</source>
+        <translation>General settings</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>摸头轮数 (轮数越高越不会漏摸):</source>
+        <translation>Number of head pats (more rounds reduce missed pats):</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>当前仅支持「拖动礼物」，选项已锁定</source>
+        <translation>Currently only “Drag gifts” is supported; this option is locked</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>摸头方式:</source>
+        <translation>Head-pat method:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>1号咖啡厅</source>
+        <translation>Cafe 1</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>2号咖啡厅</source>
+        <translation>Cafe 2</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>邀请券选择模式：</source>
+        <translation>Invitation ticket selection mode:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>列表选择你要添加邀请的学生，失焦后写入草稿：</source>
+        <translation>Select students to invite; changes are saved to the draft when the field loses focus:</translation>
+    </message>
 </context>
 <context>
     <name>MainThread</name>
@@ -2461,6 +2591,32 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
         <location filename="../../window.py" line="516"/>
         <source>帮助</source>
         <translation>Help</translation>
+    </message>
+</context>
+<context>
+    <name>DialogSettingBox</name>
+    <message>
+        <location filename="../util/customized_ui.py" line="1"/>
+        <source>确定</source>
+        <translation>Save</translation>
+    </message>
+    <message>
+        <location filename="../util/customized_ui.py" line="1"/>
+        <source>取消</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <location filename="../util/customized_ui.py" line="1"/>
+        <source>已保存</source>
+        <translation>Saved</translation>
+    </message>
+</context>
+<context>
+    <name>TemplateSettingCardForClick</name>
+    <message>
+        <location filename="../components/template_card.py" line="1"/>
+        <source>打开配置失败</source>
+        <translation>Failed to open settings</translation>
     </message>
 </context>
 </TS>
