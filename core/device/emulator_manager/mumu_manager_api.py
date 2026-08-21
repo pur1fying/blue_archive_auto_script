@@ -1,7 +1,14 @@
+from errno import errorcode
 import json
 import os
 import subprocess
 import re
+
+ANDROID_PATH = {
+    "android12": "12.0",
+    "android15": "15.0"
+}
+NEMU_CLIENT_PATH = ["shell", "sdk", "external_renderer_ipc.dll"]
 
 
 def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="start"):
@@ -24,14 +31,27 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
                 except:
                     key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
                                         r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal")
-
-            install_path = os.path.dirname(winreg.QueryValueEx(key, "DisplayIcon")[0]).strip('"')
+            try:
+                install_path = os.path.dirname(winreg.QueryValueEx(key, "InstallLocation")[0]).strip('"')
+                exe_path = os.path.join(install_path, "nx_main", "MuMuManager.exe")
+            except:
+                install_path = os.path.dirname(winreg.QueryValueEx(key, "DisplayIcon")[0]).strip('"')
+                exe_path = os.path.join(install_path, "MuMuManager.exe")
             mumu_version, _ = winreg.QueryValueEx(key, "DisplayVersion")
             winreg.CloseKey(key)
         except:
             return None
         # 修改路径，使其指向MuMuManager.exe
-        exe_path = os.path.join(install_path, "MuMuManager.exe")
+        def fetch_info(target_key: str) -> str:
+            cmd = [exe_path, "info", "-v", str(multi_instance_number)]
+            proc = subprocess.run(cmd, universal_newlines=True, capture_output=True, encoding="utf-8")
+            info = json.loads(proc.stdout)
+            try:
+                return info[target_key]
+            except FileNotFoundError:
+                raise FileNotFoundError
+            except:
+                return f"{info["errcode"]}, {info["errmsg"]}"
         def detect_major_version():
             match = re.match(r'^(\d+)\.', mumu_version)
             if match:
@@ -42,7 +62,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             from .get_adb_address import get_simulator_port
             command = [exe_path, "control", "-v", str(multi_instance_number), "launch"]
             subprocess.run(command)
-            return get_simulator_port("mumu", multi_instance_number)
+            return get_simulator_port("mumu", str(multi_instance_number))
         elif operation == "stop":
             command = [exe_path, "control", "-v", str(multi_instance_number), "shutdown"]
             subprocess.run(command)
@@ -50,14 +70,14 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             return install_path
         elif operation == "get_device_path":
             if major_version_number == 5:# 获取MuMuNxDevice.exe所在的目录
-                return os.path.join(os.path.dirname(install_path), "nx_device", "12.0", "shell")
+                return os.path.join(os.path.dirname(install_path), "nx_device", fetch_info("android_version"), "shell")
             else:
                 return install_path
         elif operation == "get_manager_path": # 获取MuMuManager.exe所在的路径
             return exe_path
         elif operation == "get_nemu_client_path":# 获取external_renderer_ipc.dll所在的路径
             if major_version_number == 5:
-                return os.path.join(os.path.dirname(install_path), "nx_device", "12.0", "shell", "sdk", "external_renderer_ipc.dll")
+                return os.path.join(os.path.dirname(install_path), "nx_device", fetch_info("android_version"), "shell", "sdk", "external_renderer_ipc.dll")
             else:
                 return os.path.join(install_path, "sdk", "external_renderer_ipc.dll")
         elif operation == "disable_app_keptlive": # 关闭后台保活
@@ -67,12 +87,11 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             command = f""" "{exe_path}" setting -v {multi_instance_number} -k app_keptlive -val true"""
             subprocess.run(command, universal_newlines=True, capture_output=True)
         elif operation == "get_launch_status": #获取启动状态
-            cmd = [exe_path, "info", "-v", str(multi_instance_number)]
-            proc = subprocess.run(cmd, universal_newlines=True, capture_output=True, encoding="utf-8")
-            info = json.loads(proc.stdout)
             try:
-                return info["player_state"]
+                return fetch_info("player_state")
             except:
                 return "not_launched"
+        elif operation == "get_android_version":
+            return str(fetch_info("android_version"))
         else:
             return None
