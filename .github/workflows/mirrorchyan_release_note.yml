@@ -7,6 +7,7 @@ on:
 
 jobs:
   mirrorchyan:
+    if: github.repository == 'pur1fying/blue_archive_auto_script'
     runs-on: macos-latest
 
     steps:
