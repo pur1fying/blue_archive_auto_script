@@ -1,77 +1,35 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QSizePolicy
-from qfluentwidgets import LineEdit
-
-from gui.util.translator import baasTranslator as bt
-from gui.components.shop_goods import ShopGoodCard, ShopGoodsGrid, ShopRefreshBox
+from gui.components.expand.shop_panel import ShopPanel, estimate_arena_daily
 
 
-_PAD_Y = 16
-_PAD_X = 16
-
-
-class Layout(QWidget):
-    """Arena shop goods editor with a width-responsive goods grid."""
-
+class Layout(ShopPanel):
     def __init__(self, parent=None, config=None):
-        super().__init__(parent=parent)
-        self.config = config
-        self.default_goods = self.config.static_config.tactical_challenge_shop_price_list[self.config.server_mode]
-        self.goods = self.config.get(key='TacticalChallengeShopList')
-        self._n = len(self.goods)
-
-        self.setMinimumWidth(0)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        root = QVBoxLayout(self)
-        root.setContentsMargins(_PAD_X, _PAD_Y, _PAD_X, _PAD_Y)
-        root.setSpacing(8)
-        root.setAlignment(Qt.AlignTop)
-
-        refresh_box = ShopRefreshBox(self)
-        refresh_row = QHBoxLayout(refresh_box)
-        refresh_row.setContentsMargins(10, 6, 10, 6)
-        refresh_row.setSpacing(8)
-        self.label = QLabel(self.tr('刷新次数'), refresh_box)
-        self.label.setWordWrap(True)
-        self.input = LineEdit(refresh_box)
-        self.input.setFixedWidth(72)
-        self.input.setValidator(QIntValidator(0, 3))
-        self.input.setText(str(self.config.get('TacticalChallengeShopRefreshTime')))
-        self.input.editingFinished.connect(self._commit_refresh)
-        refresh_row.addWidget(self.label, 1, Qt.AlignVCenter)
-        refresh_row.addWidget(self.input, 0, Qt.AlignVCenter)
-        refresh_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        root.addWidget(refresh_box)
-
-        goods_host = ShopGoodsGrid(self)
-
-        self.setStyleSheet('Demo{background: white}')
-        self.boxes = []
-        for i in range(self._n):
-            name = bt.tr('ConfigTranslation', self.default_goods[i][0])
-            price_text = str(self.default_goods[i][1])
-            wrapper_widget = ShopGoodCard(
-                name,
-                price_text,
-                checked=self.goods[i] == 1,
-                price_first=True,
-                parent=goods_host,
-            )
-            t_cbx = wrapper_widget.check_box
-            goods_host.addWidget(wrapper_widget)
-            t_cbx.stateChanged.connect(lambda x, index=i: self.alter_status(index, self._n))
-            self.boxes.append(t_cbx)
-
-        root.addWidget(goods_host, 0, Qt.AlignTop)
-        self._goods_host = goods_host
-
-    def alter_status(self, index, goods_count):
-        self.config.set(
-            key='TacticalChallengeShopList',
-            value=[1 if self.boxes[i].isChecked() else 0 for i in range(0, goods_count)],
+        price_list = []
+        try:
+            price_list = config.static_config.tactical_challenge_shop_price_list[
+                config.server_mode
+            ]
+        except Exception:
+            try:
+                live = getattr(config, "live", config)
+                price_list = live.static_config.tactical_challenge_shop_price_list[
+                    getattr(live, "server_mode", "CN")
+                ]
+            except Exception:
+                price_list = []
+        super().__init__(
+            parent=parent,
+            config=config,
+            goods_key="TacticalChallengeShopList",
+            refresh_key="TacticalChallengeShopRefreshTime",
+            price_list=price_list,
+            currency_icon="gui/assets/icons/item_icon_arenacoin.webp",
+            currency_unit_label="单位：竞技币",
+            refresh_max=3,
+            estimate_fn=estimate_arena_daily,
         )
-
-    def _commit_refresh(self):
-        self.config.set('TacticalChallengeShopRefreshTime', int(self.input.text() or 0))
+        try:
+            self.unit_label.setText(self.tr("单位：竞技币"))
+            self.refresh_label.setText(self.tr("购买刷新次数"))
+            self.guide_label.setText(self.tr("请勾选购买物品"))
+        except Exception:
+            pass

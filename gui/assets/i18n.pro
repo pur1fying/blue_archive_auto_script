@@ -19,6 +19,7 @@ SOURCES += \
     ../../gui/components/expand/scriptConfig.py \
     ../../gui/components/expand/serverConfig.py \
     ../../gui/components/expand/shopPriority.py \
+    ../../gui/components/expand/shop_panel.py \
     ../../gui/components/expand/sweepCountConfig.py \
     ../../gui/components/expand/totalForceFightPriority.py \
     ../../gui/components/expand/baasUpdateConfig.py \

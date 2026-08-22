@@ -541,6 +541,46 @@
         <source>Steam国际服</source>
         <translation>Steam 국제 서버</translation>
     </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>强化珠礼包A</source>
+        <translation>강화석 패키지 A</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>强化珠礼包B</source>
+        <translation>강화석 패키지 B</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>强化珠礼包C</source>
+        <translation>강화석 패키지 C</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>强化珠礼包D</source>
+        <translation>강화석 패키지 D</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>一包强化珠α</source>
+        <translation>강화석 패키지 α</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>一包强化珠β</source>
+        <translation>강화석 패키지 β</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>一包强化珠γ</source>
+        <translation>강화석 패키지 γ</translation>
+    </message>
+    <message>
+        <location filename="../util/config_translation.py" line="1"/>
+        <source>一包强化珠δ</source>
+        <translation>강화석 패키지 δ</translation>
+    </message>
 </context>
 <context>
     <name>CreateErrorInfoMessageBox</name>
@@ -1766,6 +1806,96 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
         <source>制造石</source>
         <translation>공예석</translation>
     </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>请勾选购买物品</source>
+        <translation>구매할 상품을 선택하세요</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>购买刷新次数</source>
+        <translation>상점 새로 고침 횟수</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>单位：信用点</source>
+        <translation>화폐: 크레딧</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>单位：竞技币</source>
+        <translation>화폐: 전술 대회 코인</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>每天消耗约 {0} 竞技币</source>
+        <translation>하루 약 {0} 전술 대회 코인 소모</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>({0}+{0}×{1}+{1}×10)</source>
+        <translation>({0}+{0}×{1}+{1}×10)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>每天约 {0} 信用点</source>
+        <translation>하루 약 {0} 크레딧</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>青辉石约 {0}（含刷新）</source>
+        <translation>새로 고침 포함 청휘석 약 {0}</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>每天消耗约 {0} 信用点</source>
+        <translation>하루 약 {0} 크레딧 소모</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/shop_panel.py" line="1"/>
+        <source>({0}×{1})</source>
+        <translation>({0}×{1})</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>通用设置</source>
+        <translation>공통 설정</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>摸头轮数 (轮数越高越不会漏摸):</source>
+        <translation>쓰다듬기 횟수 (횟수가 많을수록 놓칠 가능성이 줄어듭니다):</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>当前仅支持「拖动礼物」，选项已锁定</source>
+        <translation>현재는 「선물 드래그」만 지원하므로 이 옵션은 잠겨 있습니다</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>摸头方式:</source>
+        <translation>쓰다듬기 방식:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>1号咖啡厅</source>
+        <translation>카페 1</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>2号咖啡厅</source>
+        <translation>카페 2</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>邀请券选择模式：</source>
+        <translation>초대권 선택 모드:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>列表选择你要添加邀请的学生，失焦后写入草稿：</source>
+        <translation>초대할 학생을 선택하세요. 입력란에서 포커스가 벗어나면 초안에 저장됩니다:</translation>
+    </message>
 </context>
 <context>
     <name>MainThread</name>
@@ -2462,6 +2592,32 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
         <location filename="../../window.py" line="516"/>
         <source>帮助</source>
         <translation>돕다</translation>
+    </message>
+</context>
+<context>
+    <name>DialogSettingBox</name>
+    <message>
+        <location filename="../util/customized_ui.py" line="1"/>
+        <source>确定</source>
+        <translation>저장</translation>
+    </message>
+    <message>
+        <location filename="../util/customized_ui.py" line="1"/>
+        <source>取消</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <location filename="../util/customized_ui.py" line="1"/>
+        <source>已保存</source>
+        <translation>저장됨</translation>
+    </message>
+</context>
+<context>
+    <name>TemplateSettingCardForClick</name>
+    <message>
+        <location filename="../components/template_card.py" line="1"/>
+        <source>打开配置失败</source>
+        <translation>설정을 열지 못했습니다</translation>
     </message>
 </context>
 </TS>
