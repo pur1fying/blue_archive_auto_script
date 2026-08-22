@@ -26,6 +26,12 @@ struct ProcessResult {
     std::string output;
 };
 
+std::map<std::string, std::string> current_desktop_session_environment();
+std::map<std::string, std::string> desktop_launch_environment(
+    std::map<std::string, std::string> base,
+    const std::filesystem::path& setup_toml,
+    const std::map<std::string, std::string>& session_environment);
+
 ProcessResult run_process(const ProcessSpec& spec);
 ProcessResult run_terminal_process(const ProcessSpec& spec);
 void set_default_process_log(const std::filesystem::path& path);

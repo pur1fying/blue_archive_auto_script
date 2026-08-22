@@ -1,6 +1,7 @@
 #pragma once
 
 #include "baas_installer/sources.hpp"
+#include "baas_installer/deployment_manifest.hpp"
 
 #include <chrono>
 #include <filesystem>
@@ -11,6 +12,8 @@
 #include <vector>
 
 namespace baas_installer {
+
+class InstallTransaction;
 
 enum class GitBackend { GitCli, Libgit2, None };
 enum class RepositoryMode { Unchanged, Incremental, Full };
@@ -65,6 +68,17 @@ bool apply_git_update(const GitResult& prepared,
                       const std::filesystem::path& live_repository,
                       std::string& error,
                       const ProcessObserver& observer = {});
+
+std::vector<std::filesystem::path> repository_tracked_files(
+    const std::filesystem::path& repository,
+    GitBackend backend,
+    std::string& error);
+
+bool refresh_git_ownership_manifest(InstallTransaction& transaction,
+                                    const std::filesystem::path& repository,
+                                    GitBackend backend,
+                                    DeploymentTree tree,
+                                    std::string& error);
 
 bool finalize_git_repository(const std::filesystem::path& repository,
                              GitBackend backend,
