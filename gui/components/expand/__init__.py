@@ -20,3 +20,4 @@ from .pushConfig import Layout
 from .friendWhiteList import Layout
 from .drillConfig import Layout
 from .baasUpdateConfig import Layout
+from .finalRestrictionRls import Layout

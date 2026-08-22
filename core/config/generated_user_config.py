@@ -86,11 +86,17 @@ class Config:
     preset_team_attribute: list
     activity_sweep_task_number: int
     activity_sweep_times: str
+    final_restriction_rls_employ_formation_method: str
+    final_restriction_rls_employ_formation_copy_clear_unit_max_unavailable_student_count: int
+    final_restriction_rls_employ_formation_copy_clear_unit_max_refresh_count: int
     TacticalChallengeShopRefreshTime: str
     TacticalChallengeShopList: list
     CommonShopRefreshTime: str
     CommonShopList: list
     clear_friend_white_list: list
+    clear_friend_level_limit: int
+    clear_friend_last_login_time_days: int
+    clear_friend_last_total_assault_rank_limit: int
     drill_difficulty_list: list
     drill_fight_formation_list: list
     drill_enable_sweep: bool
