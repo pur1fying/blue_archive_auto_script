@@ -95,7 +95,7 @@ class NemuControl:
             except (NemuIpcIncompatible, NemuIpcError) as e:
                 self.logger.warning(e.__str__())
                 self.logger.info("Emulator info incorrect. Try to auto detect mumu player path.")
-                path = NemuClient.get_possible_mumu12_folder()
+                path = NemuClient.get_possible_mumu_folder()
                 self.logger.info(f"Auto detect mumu player path: {str(path)}")
                 if path is not None:
                     self.nemu_folder = os.path.dirname(path)

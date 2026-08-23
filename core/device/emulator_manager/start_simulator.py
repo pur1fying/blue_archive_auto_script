@@ -1,6 +1,6 @@
 import subprocess
 from .get_adb_address import get_simulator_port
-from .mumu_manager_api import mumu12_control_api_backend
+from .mumu_manager_api import mumu_control_api_backend
 from .bluestacks_module import find_display_name, read_registry_key
 from .device_config import load_data
 
@@ -46,8 +46,8 @@ def start_simulator_classic(simulator_type : str, multi_instance=None , return_s
         if multi_instance == None:
             multi_instance = 0
         if return_status == True:
-            mumu12_control_api_backend(simulator_type, multi_instance, "start")
-            return [mumu12_control_api_backend(simulator_type, multi_instance, 'get_launch_status'),get_simulator_port(simulator_type, multi_instance)]
+            mumu_control_api_backend(simulator_type, multi_instance, "start")
+            return [mumu_control_api_backend(simulator_type, multi_instance, 'get_launch_status'), get_simulator_port(simulator_type, multi_instance)]
         else:
-            mumu12_control_api_backend(simulator_type, multi_instance, 'start')
+            mumu_control_api_backend(simulator_type, multi_instance, 'start')
             return get_simulator_port(simulator_type, multi_instance)

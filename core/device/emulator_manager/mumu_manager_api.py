@@ -10,7 +10,7 @@ ANDROID_PATH = {
 NEMU_CLIENT_PATH = ["shell", "sdk", "external_renderer_ipc.dll"]
 
 
-def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="start"):
+def mumu_control_api_backend(simulator_type, multi_instance_number=0, operation="start"):
     if os.name == 'nt':
         try:
             import winreg
@@ -26,7 +26,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
                 try:
                     key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
                                         r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal-12.0")#predict of mumu5.0 global
-        
+
                 except:
                     key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
                                         r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MuMuPlayerGlobal")
@@ -90,7 +90,7 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
             return exe_path
         elif operation == "get_nemu_client_path":# 获取external_renderer_ipc.dll所在的路径
             if int(major_version_number) == 5 or int(major_version_number) == 6: #type: ignore
-                path =  os.path.join(os.path.abspath(install_path), "nx_device", fetch_info("android_version"), "shell", "sdk", "external_renderer_ipc.dll") 
+                path =  os.path.join(os.path.abspath(install_path), "nx_device", fetch_info("android_version"), "shell", "sdk", "external_renderer_ipc.dll")
             else:
                 path =  os.path.join(os.path.abspath(install_path), "sdk", "external_renderer_ipc.dll")
             if os.path.exists(path):
@@ -115,9 +115,9 @@ def mumu12_control_api_backend(simulator_type, multi_instance_number=0, operatio
 if __name__ == "__main__":
     simulator_type = "mumu"
     test_results = []
-    test_results.append(mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="get_android_version"))
-    test_results.append(mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="get_nemu_client_path"))
-    test_results.append(mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="get_manager_path"))
-    test_results.append(mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="get_path"))
-    test_results.append(mumu12_control_api_backend(simulator_type, multi_instance_number=0, operation="get_launch_status"))
+    test_results.append(mumu_control_api_backend(simulator_type, multi_instance_number=0, operation="get_android_version"))
+    test_results.append(mumu_control_api_backend(simulator_type, multi_instance_number=0, operation="get_nemu_client_path"))
+    test_results.append(mumu_control_api_backend(simulator_type, multi_instance_number=0, operation="get_manager_path"))
+    test_results.append(mumu_control_api_backend(simulator_type, multi_instance_number=0, operation="get_path"))
+    test_results.append(mumu_control_api_backend(simulator_type, multi_instance_number=0, operation="get_launch_status"))
     print(test_results)

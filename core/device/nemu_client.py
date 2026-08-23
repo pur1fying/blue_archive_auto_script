@@ -180,6 +180,8 @@ class NemuClient:
             os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll')),
             # MuMuPlayer12 5.0
             os.path.abspath(os.path.join(nemu_folder, './nx_device/12.0/shell/sdk/external_renderer_ipc.dll')),
+            # MuMuPlayer15 6.0
+            os.path.abspath(os.path.join(nemu_folder, './nx_device/15.0/shell/sdk/external_renderer_ipc.dll')),
         ]
         ipc_dll = ''
         for ipc_dll in list_dll:
@@ -403,10 +405,19 @@ class NemuClient:
                 return index
 
     @staticmethod
-    def get_possible_mumu12_folder():
-        from core.device.emulator_manager import mumu12_api_backend
+    def get_possible_mumu_folder():
+        from core.device.emulator_manager import mumu_api_backend
         try:
-            path = mumu12_api_backend("mumu", 0, operation="get_path")
+            path = mumu_api_backend("mumu", 0, operation="get_path")
+            return path
+        except Exception as e:
+            return None
+
+    @staticmethod
+    def get_possible_mumu_exe():
+        from core.device.emulator_manager import mumu_api_backend
+        try:
+            path = mumu_api_backend("mumu", 0, operation="get_path")
             return path
         except Exception as e:
             return None

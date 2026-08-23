@@ -1,6 +1,6 @@
 import json
 
-from .mumu_manager_api import mumu12_control_api_backend
+from .mumu_manager_api import mumu_control_api_backend
 ### adb_port_scanner ###
 from .bluestacks_module import get_bluestacks_nxt_adb_port
 
@@ -27,7 +27,7 @@ def get_simulator_port(simulator_type : str, multi_instance : str):
     elif simulator_type == "mumu" or simulator_type == "mumu_global":
         def get_mumu_adb_info(multi_instance):
             import subprocess
-            exe_path = mumu12_control_api_backend(simulator_type,0,"get_manager_path")
+            exe_path = mumu_control_api_backend(simulator_type, 0, "get_manager_path")
             if exe_path:
                 cmd = f'{exe_path} adb -v {multi_instance}'
                 proc = subprocess.run(cmd, universal_newlines=True, capture_output=True, encoding="utf-8")

@@ -21,10 +21,12 @@ class NemuScreenshot:
             except (NemuIpcIncompatible, NemuIpcError) as e:
                 self.logger.warning(e.__str__())
                 self.logger.info("Emulator info incorrect. Try to auto detect mumu player path.")
-                path = NemuClient.get_possible_mumu12_folder()
+                path = NemuClient.get_possible_mumu_folder()
                 self.logger.info(f"Auto detect mumu player path: {str(path)}")
+                exe_path = NemuClient.get_possible_mumu_exe()
+                self.logger.info(f"Auto detect mumu player executable path: {str(exe_path)}")
                 if path is not None:
-                    self.config_set.set("program_address", path)
+                    self.config_set.set("program_address", exe_path)
                     self.nemu_folder = os.path.dirname(path)
                     try:
                         self.nemu_client = NemuClient.get_instance(self.nemu_folder, self.instance_id, self.logger)
