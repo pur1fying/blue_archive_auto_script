@@ -103,7 +103,8 @@ class SettingsFragment(ScrollArea):
                 sub_view=expand.__dict__['pushConfig'],
                 parent=self.exploreGroup,
                 config=self.config
-            )]
+            ),
+        ]
 
         self.guiGroup = SettingCardGroup(
             self.tr('图形用户界面'), self.scrollWidget)
@@ -116,6 +117,13 @@ class SettingsFragment(ScrollArea):
             self.guiGroup
         )
         self.micaCard.setEnabled(isWin11())
+        self.minimizeToTrayCard = SwitchSettingCard(
+            FIF.MINIMIZE,
+            self.tr("最小化到托盘"),
+            self.tr("最小化窗口时隐藏到系统托盘"),
+            configGui.minimizeToTray,
+            self.guiGroup,
+        )
         self.themeCard = OptionsSettingCard(
             configGui.themeMode,
             FIF.BRUSH,
@@ -174,8 +182,9 @@ class SettingsFragment(ScrollArea):
         )
 
         self.guiGroupItems = [
-            self.languageCard, self.micaCard, self.themeCard, self.themeColorCard, self.zoomCard, self.modeCard,
-            self.modeCardType
+            self.languageCard, self.micaCard, self.minimizeToTrayCard,
+            self.themeCard, self.themeColorCard, self.zoomCard, self.modeCard,
+            self.modeCardType,
         ]
 
         self.__initLayout()

@@ -23,6 +23,9 @@ class TemplateSettingCardForClick(QFrame):
         assert config is not None, 'config is required'
         assert sub_view is not None, 'sub_view is required'
         assert context is not None, 'context is required'
+        if context is not None:
+            title = bt.tr(context, title)
+            content = bt.tr(context, content)
         super().__init__(parent=parent)
         self.image_path = f'{BANNER_IMAGE_DIR}/{setting_name}.png'
         self.setting_name = setting_name
