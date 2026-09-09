@@ -1,0 +1,61 @@
+name: Sync to CNB
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Each run fetches the current GitHub refs after acquiring this slot.
+concurrency:
+  group: sync-cnb
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'pur1fying/blue_archive_auto_script'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CNB_REPO_URL: https://cnb.cool/BlueArchiveAutoScript/blue_arhchive_auto_script
+
+    steps:
+      - name: Check CNB configuration
+        env:
+          BAAS_SYNC_FOR_CNB: ${{ secrets.BAAS_SYNC_FOR_CNB }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$CNB_REPO_URL" =~ ^https://cnb\.cool/[A-Za-z0-9._/-]+$ ]]; then
+            echo "::error::CNB_REPO_URL must be an HTTPS repository URL on cnb.cool."
+            exit 1
+          fi
+          if [[ -z "$BAAS_SYNC_FOR_CNB" ]]; then
+            echo "::error::Set the BAAS_SYNC_FOR_CNB Actions secret with write access to the target repository."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch current GitHub branches and tags
+        run: |
+          set -euo pipefail
+          # Separate namespaces exclude origin/HEAD and GitHub pull-request refs.
+          git fetch --no-tags origin \
+            '+refs/heads/*:refs/cnb-sync/heads/*' \
+            '+refs/tags/*:refs/cnb-sync/tags/*'
+
+      - name: Push branches and tags to CNB
+        env:
+          BAAS_SYNC_FOR_CNB: ${{ secrets.BAAS_SYNC_FOR_CNB }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -euo pipefail
+          cnb_auth=$(printf 'cnb:%s' "$BAAS_SYNC_FOR_CNB" | base64 -w 0)
+          echo "::add-mask::$cnb_auth"
+          git -c "http.https://cnb.cool/.extraheader=AUTHORIZATION: basic $cnb_auth" \
+            push "$CNB_REPO_URL" \
+            'refs/cnb-sync/heads/*:refs/heads/*' \
+            'refs/cnb-sync/tags/*:refs/tags/*'
