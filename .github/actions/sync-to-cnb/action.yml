@@ -1,0 +1,44 @@
+name: Sync to CNB
+description: Sync the checked out repository to a CNB Git repository.
+
+inputs:
+  target-url:
+    description: CNB repository URL to sync to.
+    required: true
+  password:
+    description: Password or token used by git-sync.
+    required: true
+  auth-type:
+    description: Authentication type used by git-sync.
+    required: false
+    default: https
+  username:
+    description: Username used by git-sync.
+    required: false
+    default: cnb
+  force:
+    description: Whether git-sync should force push.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Sync to CNB Repository
+      shell: bash
+      env:
+        PLUGIN_TARGET_URL: ${{ inputs.target-url }}
+        PLUGIN_AUTH_TYPE: ${{ inputs.auth-type }}
+        PLUGIN_USERNAME: ${{ inputs.username }}
+        PLUGIN_PASSWORD: ${{ inputs.password }}
+        PLUGIN_FORCE: ${{ inputs.force }}
+      run: |
+        docker run --rm \
+          -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" \
+          -w "${GITHUB_WORKSPACE}" \
+          -e PLUGIN_TARGET_URL \
+          -e PLUGIN_AUTH_TYPE \
+          -e PLUGIN_USERNAME \
+          -e PLUGIN_PASSWORD \
+          -e PLUGIN_FORCE \
+          tencentcom/git-sync
