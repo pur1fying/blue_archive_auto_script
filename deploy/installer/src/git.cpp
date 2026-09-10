@@ -1,7 +1,11 @@
 #include "baas_installer/git.hpp"
+#include "baas_installer/logging.hpp"
+#include "baas_installer/paths.hpp"
 #include "baas_installer/process.hpp"
+#include "baas_installer/transaction.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cctype>
 #include <filesystem>
@@ -47,6 +51,15 @@ std::string first_token(const std::string& output) {
     return token;
 }
 
+std::string trimmed_output(std::string output) {
+    while (!output.empty() && std::isspace(static_cast<unsigned char>(output.back()))) output.pop_back();
+    const auto first = std::find_if_not(output.begin(), output.end(), [](const unsigned char character) {
+        return std::isspace(character) != 0;
+    });
+    output.erase(output.begin(), first);
+    return output;
+}
+
 bool valid_commit(const std::string& value) {
     return value.size() == 40 && std::all_of(value.begin(), value.end(), [](const unsigned char character) {
         return std::isxdigit(character) != 0;
@@ -77,9 +90,32 @@ bool contains_source(const std::vector<std::string>& values, const std::string& 
 GitRemoteSelection select_git_remotes(const std::vector<std::string>& sources, const std::string& revision,
                                       const fs::path& ranking_cache, const SourceKind source_kind,
                                       const GitRemoteProbe& probe,
+                                      const ProcessObserver& observer,
                                       const std::vector<std::string>& excluded = {},
                                       const bool allow_cached = true) {
     constexpr auto timeout = std::chrono::seconds(10);
+    static std::atomic<std::uint64_t> section_sequence{0};
+    const auto kind_name = source_kind_name(source_kind);
+    const auto task = source_kind == SourceKind::MainGit ? "main" : "ocr";
+    const auto section_id = kind_name + "-probe-" +
+                            std::to_string(section_sequence.fetch_add(1, std::memory_order_relaxed));
+    if (observer) {
+        observer(task, source_probe_section_begin(section_id),
+                 "▶ " + kind_name + " source probe (0/" + std::to_string(sources.size()) + ")\n");
+    }
+    const auto close_section = [&](const std::size_t available, const std::string& selected,
+                                   const long long latency) {
+        if (!observer) return;
+        std::string summary = "✓ " + kind_name + " source probe complete: " +
+            std::to_string(available) + "/" + std::to_string(sources.size()) + " available";
+        if (!selected.empty()) {
+            summary += "; selected " + selected;
+            if (latency >= 0) summary += " (" + std::to_string(latency) + " ms)";
+        } else {
+            summary += "; no responsive source";
+        }
+        observer(task, source_probe_section_end(section_id), summary + "\n");
+    };
     auto cached = ranking_cache.empty()
         ? std::vector<RankedSource>{}
         : load_source_ranking(ranking_cache, source_kind, sources);
@@ -88,8 +124,11 @@ GitRemoteSelection select_git_remotes(const std::vector<std::string>& sources, c
             return source.preferred && source.available;
         });
         if (preferred != cached.end() && !contains_source(excluded, preferred->url)) {
+            if (observer) observer(task, "probe", "Testing source " + preferred->url + "\n");
             auto observation = probe(preferred->url, revision, timeout);
             if (observation.available && valid_commit(observation.commit)) {
+                if (observer) observer(task, "probe", preferred->url + " responded in " +
+                                       std::to_string(observation.latency_ms) + " ms\n");
                 for (auto& source : cached) {
                     source.preferred = source.url == observation.source;
                     if (source.preferred) {
@@ -100,8 +139,10 @@ GitRemoteSelection select_git_remotes(const std::vector<std::string>& sources, c
                     }
                 }
                 save_source_ranking(ranking_cache, source_kind, cached);
+                close_section(1, observation.source, observation.latency_ms);
                 return {{observation}, true};
             }
+            if (observer) observer(task, "probe", preferred->url + " remote SHA probe failed\n");
             record_source_failure(cached, preferred->url);
             preferred->available = false;
             preferred->preferred = false;
@@ -112,6 +153,7 @@ GitRemoteSelection select_git_remotes(const std::vector<std::string>& sources, c
     std::vector<std::string> measured_sources;
     for (const auto& source : sources) {
         if (contains_source(excluded, source)) continue;
+        if (observer) observer(task, "probe", "Testing source " + source + "\n");
         measured_sources.push_back(source);
         pending.push_back(std::async(std::launch::async, [probe, source, revision] {
             return probe(source, revision, std::chrono::seconds(10));
@@ -121,6 +163,11 @@ GitRemoteSelection select_git_remotes(const std::vector<std::string>& sources, c
     for (std::size_t index = 0; index < pending.size(); ++index) {
         auto result = pending[index].get();
         const bool available = result.available && valid_commit(result.commit) && result.latency_ms <= 10000;
+        if (observer) {
+            observer(task, "probe", measured_sources[index] +
+                (available ? " responded in " + std::to_string(result.latency_ms) + " ms\n"
+                           : " remote SHA probe failed\n"));
+        }
         ranking.push_back({measured_sources[index], available ? result.latency_ms : -1, 0,
                            available ? result.commit : std::string{}, false, available});
     }
@@ -147,6 +194,9 @@ GitRemoteSelection select_git_remotes(const std::vector<std::string>& sources, c
             selection.candidates.push_back({item.url, item.commit, item.latency_ms, true});
         }
     }
+    close_section(selection.candidates.size(),
+                  selection.candidates.empty() ? std::string{} : selection.candidates.front().source,
+                  selection.candidates.empty() ? -1 : selection.candidates.front().latency_ms);
     return selection;
 }
 
@@ -170,13 +220,20 @@ void mark_git_source_failure(const fs::path& ranking_cache, const SourceKind sou
 }
 
 bool valid_cli_repository(const fs::path& repository) {
-    const auto result = hidden_git({"git", "-C", repository.string(), "rev-parse", "--is-inside-work-tree"});
-    return result.exit_code == 0 && first_token(result.output) == "true";
+    std::error_code metadata_error;
+    if (!fs::exists(repository / ".git", metadata_error) || metadata_error) return false;
+    const auto inside = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "--is-inside-work-tree"});
+    const auto top_level = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "--show-toplevel"});
+    if (inside.exit_code != 0 || first_token(inside.output) != "true" || top_level.exit_code != 0) return false;
+    const auto discovered = path_from_utf8(trimmed_output(top_level.output));
+    std::error_code equivalent_error;
+    return fs::equivalent(repository, discovered, equivalent_error) && !equivalent_error;
 }
 
 bool depth_one_cli_repository(const fs::path& repository) {
-    const auto shallow = hidden_git({"git", "-C", repository.string(), "rev-parse", "--is-shallow-repository"});
-    const auto count = hidden_git({"git", "-C", repository.string(), "rev-list", "--count", "HEAD"});
+    if (!valid_cli_repository(repository)) return false;
+    const auto shallow = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "--is-shallow-repository"});
+    const auto count = hidden_git({"git", "-C", path_to_utf8(repository), "rev-list", "--count", "HEAD"});
     return shallow.exit_code == 0 && first_token(shallow.output) == "true" &&
            count.exit_code == 0 && first_token(count.output) == "1";
 }
@@ -185,15 +242,17 @@ GitResult clone_with_cli(const std::string& source, const fs::path& destination,
                          const std::string& commit,
                          const ProcessObserver& observer = {}) {
     std::error_code ignored;
-    fs::remove_all(destination, ignored);
+    if (fs::exists(destination, ignored) || ignored) {
+        return {false, GitBackend::GitCli, source, {},
+                "refusing to clear a pre-existing Git staging directory"};
+    }
     fs::create_directories(destination.parent_path(), ignored);
-    if (hidden_git({"git", "init", destination.string()}).exit_code != 0) {
+    if (hidden_git({"git", "init", path_to_utf8(destination)}).exit_code != 0) {
         return {false, GitBackend::GitCli, source, {}, "git init failed"};
     }
     const std::string wanted = revision.empty() ? "HEAD" : revision;
-    if (visible_git({"git", "-C", destination.string(), "fetch", "--depth=1", "--no-tags", source, wanted}, observer) != 0 ||
-        hidden_git({"git", "-C", destination.string(), "checkout", "--detach", "--force", commit}).exit_code != 0) {
-        fs::remove_all(destination, ignored);
+    if (visible_git({"git", "-C", path_to_utf8(destination), "fetch", "--depth=1", "--no-tags", source, wanted}, observer) != 0 ||
+        hidden_git({"git", "-C", path_to_utf8(destination), "checkout", "--detach", "--force", commit}).exit_code != 0) {
         return {false, GitBackend::GitCli, source, {}, "shallow git fetch or checkout failed"};
     }
     return {true, GitBackend::GitCli, source, commit, {}};
@@ -259,7 +318,8 @@ bool depth_one_libgit2_repository(const fs::path& repository_path) {
     git_revwalk* walk = nullptr;
     git_reference_iterator* references = nullptr;
     bool valid = false;
-    if (git_repository_open(&repository, repository_path.string().c_str()) == 0 &&
+    const auto repository_utf8 = path_to_utf8(repository_path);
+    if (git_repository_open(&repository, repository_utf8.c_str()) == 0 &&
         git_repository_is_shallow(repository) == 1 && git_revwalk_new(&walk, repository) == 0 &&
         git_revwalk_push_head(walk) == 0) {
         git_oid oid{};
@@ -367,13 +427,17 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
         return {false, GitBackend::Libgit2, source, {},
                 "libgit2 fallback requires a URL source to guarantee a depth-one clone"};
     }
+    std::error_code destination_error;
+    if (fs::exists(destination, destination_error) || destination_error) {
+        return {false, GitBackend::Libgit2, source, {},
+                "refusing to clear a pre-existing libgit2 staging directory"};
+    }
     const auto wanted_branch = branch_name(revision);
     if (wanted_branch.empty()) {
         return {false, GitBackend::Libgit2, source, {},
                 "libgit2 fallback requires a named branch to guarantee a single-branch clone"};
     }
     std::error_code ignored;
-    fs::remove_all(destination, ignored);
     fs::create_directories(destination.parent_path(), ignored);
     ensure_libgit2();
     git_repository* repository = nullptr;
@@ -391,7 +455,8 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
     options.remote_cb = create_single_branch_remote;
     options.remote_cb_payload = &single_remote;
     emit_libgit2(&progress, "Starting libgit2 clone\r");
-    const int cloned = git_clone(&repository, source.c_str(), destination.string().c_str(), &options);
+    const auto destination_utf8 = path_to_utf8(destination);
+    const int cloned = git_clone(&repository, source.c_str(), destination_utf8.c_str(), &options);
     if (cloned != 0) {
         const auto* detail = git_error_last();
         const std::string message = detail ? detail->message : "libgit2 clone failed";
@@ -400,7 +465,6 @@ GitResult clone_with_libgit2(const std::string& source, const fs::path& destinat
     std::string cleanup_error;
     if (!detach_and_remove_refs(repository, cleanup_error)) {
         git_repository_free(repository);
-        fs::remove_all(destination, ignored);
         return {false, GitBackend::Libgit2, source, {}, cleanup_error};
     }
     git_repository_free(repository);
@@ -440,8 +504,11 @@ std::vector<std::pair<GitBackend, std::string>> git_attempt_order(
 }
 
 std::string repository_head(const fs::path& repository) {
+    std::error_code metadata_error;
+    if (!fs::exists(repository / ".git", metadata_error) || metadata_error) return {};
     if (git_cli_available()) {
-        const auto result = hidden_git({"git", "-C", repository.string(), "rev-parse", "HEAD"});
+        if (!valid_cli_repository(repository)) return {};
+        const auto result = hidden_git({"git", "-C", path_to_utf8(repository), "rev-parse", "HEAD"});
         if (result.exit_code == 0) return first_token(result.output);
     }
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
@@ -449,7 +516,8 @@ std::string repository_head(const fs::path& repository) {
     git_repository* handle = nullptr;
     git_oid oid{};
     std::string value;
-    if (git_repository_open(&handle, repository.string().c_str()) == 0 && git_reference_name_to_id(&oid, handle, "HEAD") == 0) {
+    const auto repository_utf8 = path_to_utf8(repository);
+    if (git_repository_open(&handle, repository_utf8.c_str()) == 0 && git_reference_name_to_id(&oid, handle, "HEAD") == 0) {
         char text[GIT_OID_HEXSZ + 1]{};
         git_oid_tostr(text, sizeof(text), &oid);
         value = text;
@@ -461,22 +529,41 @@ std::string repository_head(const fs::path& repository) {
 #endif
 }
 
+namespace {
+
+fs::path git_attempt_path(const fs::path& requested, const std::size_t attempt) {
+    if (attempt == 0) return requested;
+    return requested.parent_path() /
+           (requested.filename().string() + ".attempt-" + std::to_string(attempt));
+}
+
+}  // namespace
+
 GitResult clone_repository(const std::vector<std::string>& sources, const fs::path& destination, const std::string& revision) {
     GitResult last{false, GitBackend::None, {}, {}, "no repository source succeeded"};
     const bool use_cli = git_cli_available();
+    std::size_t clone_attempt = 0;
     if (use_cli) {
         for (const auto& source : sources) {
             const auto remote = remote_head_cli(source, revision, std::chrono::seconds(10));
             if (!remote.available) continue;
-            last = clone_with_cli(source, destination, revision, remote.commit);
-            if (last.success) return last;
+            const auto attempt_path = git_attempt_path(destination, clone_attempt++);
+            last = clone_with_cli(source, attempt_path, revision, remote.commit);
+            if (last.success) {
+                last.staging_path = attempt_path;
+                return last;
+            }
         }
         return last;
     }
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
     for (const auto& source : sources) {
-            last = clone_with_libgit2(source, destination, revision);
-        if (last.success) return last;
+        const auto attempt_path = git_attempt_path(destination, clone_attempt++);
+        last = clone_with_libgit2(source, attempt_path, revision);
+        if (last.success) {
+            last.staging_path = attempt_path;
+            return last;
+        }
     }
 #endif
     return last;
@@ -490,10 +577,11 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
     const bool use_cli = git_cli_available();
     const auto local_head = repository_head(live_repository);
     const bool valid_live = !local_head.empty() && (!use_cli || valid_cli_repository(live_repository));
+    std::size_t clone_attempt = 0;
     if (use_cli) {
         if (!remote_probe) remote_probe = remote_head_cli;
         std::vector<std::string> attempted;
-        auto selection = select_git_remotes(sources, revision, ranking_cache, source_kind, remote_probe);
+        auto selection = select_git_remotes(sources, revision, ranking_cache, source_kind, remote_probe, observer);
         while (true) {
             for (const auto& candidate : selection.candidates) {
                 if (contains_source(attempted, candidate.source)) continue;
@@ -507,7 +595,7 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
                 }
                 if (valid_live && local_head != candidate.commit) {
                     const auto wanted = revision.empty() ? "HEAD" : revision;
-                    if (visible_git({"git", "-C", live_repository.string(), "fetch", "--depth=1", "--no-tags",
+                    if (visible_git({"git", "-C", path_to_utf8(live_repository), "fetch", "--depth=1", "--no-tags",
                                      candidate.source, wanted}, observer) == 0) {
                         GitResult result{true, GitBackend::GitCli, candidate.source, candidate.commit, {}};
                         result.mode = RepositoryMode::Incremental;
@@ -516,11 +604,12 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
                     }
                     last = {false, GitBackend::GitCli, candidate.source, {}, "git fetch failed"};
                 } else {
-                    auto result = clone_with_cli(candidate.source, staging_directory, revision, candidate.commit, observer);
+                    const auto attempt_path = git_attempt_path(staging_directory, clone_attempt++);
+                    auto result = clone_with_cli(candidate.source, attempt_path, revision, candidate.commit, observer);
                     if (result.success) {
                         result.mode = RepositoryMode::Full;
-                        result.commit = repository_head(staging_directory);
-                        result.staging_path = staging_directory;
+                        result.commit = repository_head(attempt_path);
+                        result.staging_path = attempt_path;
                         return result;
                     }
                     last = result;
@@ -528,7 +617,7 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
                 mark_git_source_failure(ranking_cache, source_kind, sources, candidate.source);
             }
             if (!selection.cache_hit) break;
-            selection = select_git_remotes(sources, revision, ranking_cache, source_kind, remote_probe,
+            selection = select_git_remotes(sources, revision, ranking_cache, source_kind, remote_probe, observer,
                                            attempted, false);
         }
         if (attempted.empty()) last = {false, GitBackend::GitCli, {}, {},
@@ -539,7 +628,7 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
     if (!remote_probe) remote_probe = remote_head_libgit2;
     std::vector<std::string> attempted;
-    auto selection = select_git_remotes(sources, revision, ranking_cache, source_kind, remote_probe);
+    auto selection = select_git_remotes(sources, revision, ranking_cache, source_kind, remote_probe, observer);
     while (true) {
         for (const auto& candidate : selection.candidates) {
             if (contains_source(attempted, candidate.source)) continue;
@@ -551,18 +640,19 @@ GitResult prepare_git_repository(const std::vector<std::string>& sources, const 
                 result.previous_commit = local_head;
                 return result;
             }
-            auto result = clone_with_libgit2(candidate.source, staging_directory, revision, observer);
+            const auto attempt_path = git_attempt_path(staging_directory, clone_attempt++);
+            auto result = clone_with_libgit2(candidate.source, attempt_path, revision, observer);
             if (result.success) {
                 result.mode = RepositoryMode::Full;
-                result.commit = repository_head(staging_directory);
-                result.staging_path = staging_directory;
+                result.commit = repository_head(attempt_path);
+                result.staging_path = attempt_path;
                 return result;
             }
             last = result;
             mark_git_source_failure(ranking_cache, source_kind, sources, candidate.source);
         }
         if (!selection.cache_hit) break;
-        selection = select_git_remotes(sources, revision, ranking_cache, source_kind, remote_probe,
+        selection = select_git_remotes(sources, revision, ranking_cache, source_kind, remote_probe, observer,
                                        attempted, false);
     }
     if (attempted.empty()) last = {false, GitBackend::Libgit2, {}, {},
@@ -583,7 +673,7 @@ bool apply_git_update(const GitResult& prepared, const fs::path& live_repository
         return false;
     }
     if (prepared.backend == GitBackend::GitCli) {
-        if (visible_git({"git", "-C", live_repository.string(), "reset", "--hard", prepared.commit}, observer) == 0) {
+        if (visible_git({"git", "-C", path_to_utf8(live_repository), "reset", "--hard", prepared.commit}, observer) == 0) {
             return true;
         }
         error = "git hard reset failed";
@@ -594,7 +684,8 @@ bool apply_git_update(const GitResult& prepared, const fs::path& live_repository
     ensure_libgit2();
     git_repository* repository = nullptr;
     git_object* object = nullptr;
-    const int opened = git_repository_open(&repository, live_repository.string().c_str());
+    const auto repository_utf8 = path_to_utf8(live_repository);
+    const int opened = git_repository_open(&repository, repository_utf8.c_str());
     const int resolved = opened == 0 ? git_revparse_single(&object, repository, prepared.commit.c_str()) : opened;
     const int reset = resolved == 0 ? git_reset(repository, object, GIT_RESET_HARD, nullptr) : resolved;
     std::string reset_error;
@@ -613,24 +704,92 @@ bool apply_git_update(const GitResult& prepared, const fs::path& live_repository
 #endif
 }
 
+std::vector<fs::path> repository_tracked_files(const fs::path& repository,
+                                               const GitBackend backend,
+                                               std::string& error) {
+    error.clear();
+    std::vector<fs::path> files;
+    if (backend == GitBackend::GitCli) {
+        const auto listed = hidden_git({"git", "-C", path_to_utf8(repository), "ls-files", "-z"});
+        if (listed.exit_code != 0) {
+            error = "git could not list tracked files after reset";
+            return {};
+        }
+        std::size_t offset = 0;
+        while (offset < listed.output.size()) {
+            const auto end = listed.output.find('\0', offset);
+            const auto length = (end == std::string::npos ? listed.output.size() : end) - offset;
+            if (length != 0) files.push_back(path_from_utf8(listed.output.substr(offset, length)));
+            if (end == std::string::npos) break;
+            offset = end + 1;
+        }
+    } else if (backend == GitBackend::Libgit2) {
+#ifdef BAAS_INSTALLER_HAS_LIBGIT2
+        ensure_libgit2();
+        git_repository* opened = nullptr;
+        git_index* index = nullptr;
+        const auto repository_utf8 = path_to_utf8(repository);
+        int result = git_repository_open(&opened, repository_utf8.c_str());
+        if (result == 0) result = git_repository_index(&index, opened);
+        if (result == 0) {
+            const auto count = git_index_entrycount(index);
+            files.reserve(count);
+            for (std::size_t item = 0; item < count; ++item) {
+                const auto* entry = git_index_get_byindex(index, item);
+                if (entry && entry->path) files.push_back(path_from_utf8(entry->path));
+            }
+        } else {
+            const auto* detail = git_error_last();
+            error = detail ? detail->message : "libgit2 could not list tracked files after reset";
+        }
+        if (index) git_index_free(index);
+        if (opened) git_repository_free(opened);
+#else
+        error = "libgit2 is not available";
+#endif
+    } else {
+        error = "Git backend is unavailable";
+    }
+    if (!error.empty()) return {};
+    std::sort(files.begin(), files.end());
+    files.erase(std::unique(files.begin(), files.end()), files.end());
+    return files;
+}
+
+bool refresh_git_ownership_manifest(InstallTransaction& transaction,
+                                    const fs::path& repository,
+                                    const GitBackend backend,
+                                    const DeploymentTree tree,
+                                    std::string& error) {
+    const auto tracked = repository_tracked_files(repository, backend, error);
+    if (!error.empty()) return false;
+    DeploymentFileSet owned;
+    for (const auto& relative : tracked) {
+        if (deployment_relative_path_allowed(tree, relative)) owned.insert(relative);
+    }
+    transaction.replace_ownership_manifest(tree, std::move(owned));
+    return true;
+}
+
 bool finalize_git_repository(const fs::path& repository, const GitBackend backend, std::string& error) {
     error.clear();
     if (backend != GitBackend::GitCli) {
 #ifdef BAAS_INSTALLER_HAS_LIBGIT2
         if (depth_one_libgit2_repository(repository)) return true;
         error = "libgit2 repository did not retain exactly one shallow commit at '" +
-                repository.generic_string() + "'";
+                path_to_utf8(repository) + "'";
         return false;
 #else
         error = "libgit2 is not available";
         return false;
 #endif
     }
-    const auto shallow = hidden_git({"git", "-C", repository.string(), "rev-parse", "--is-shallow-repository"});
-    const auto count = hidden_git({"git", "-C", repository.string(), "rev-list", "--count", "HEAD"});
+    const auto repository_utf8 = path_to_utf8(repository);
+    const auto shallow = hidden_git({"git", "-C", repository_utf8, "rev-parse", "--is-shallow-repository"});
+    const auto count = hidden_git({"git", "-C", repository_utf8, "rev-list", "--count", "HEAD"});
     if (shallow.exit_code != 0 || first_token(shallow.output) != "true" ||
         count.exit_code != 0 || first_token(count.output) != "1") {
-        error = "Git repository at '" + repository.generic_string() +
+        error = "Git repository at '" + repository_utf8 +
                 "' did not retain exactly one shallow commit (shallow='" + first_token(shallow.output) +
                 "', count='" + first_token(count.output) + "')";
         return false;
@@ -650,11 +809,12 @@ bool compact_git_repository(const fs::path& repository, const GitBackend backend
 #endif
             return false;
         }
-        if (hidden_git({"git", "-C", repository.string(), "checkout", "--detach", "--force", "HEAD"}).exit_code != 0) {
+        const auto repository_utf8 = path_to_utf8(repository);
+        if (hidden_git({"git", "-C", repository_utf8, "checkout", "--detach", "--force", "HEAD"}).exit_code != 0) {
             error = "could not detach repository HEAD";
             return false;
         }
-        const auto refs = hidden_git({"git", "-C", repository.string(), "for-each-ref", "--format=%(refname)"});
+        const auto refs = hidden_git({"git", "-C", repository_utf8, "for-each-ref", "--format=%(refname)"});
         if (refs.exit_code != 0) {
             error = "could not enumerate repository refs";
             return false;
@@ -663,24 +823,24 @@ bool compact_git_repository(const fs::path& repository, const GitBackend backend
         std::string reference;
         while (std::getline(input, reference)) {
             if (!reference.empty()) {
-                const auto symbolic = hidden_git({"git", "-C", repository.string(), "symbolic-ref", "-q", reference});
+                const auto symbolic = hidden_git({"git", "-C", repository_utf8, "symbolic-ref", "-q", reference});
                 const auto removed = symbolic.exit_code == 0
-                    ? hidden_git({"git", "-C", repository.string(), "symbolic-ref", "--delete", reference})
-                    : hidden_git({"git", "-C", repository.string(), "update-ref", "-d", reference});
+                    ? hidden_git({"git", "-C", repository_utf8, "symbolic-ref", "--delete", reference})
+                    : hidden_git({"git", "-C", repository_utf8, "update-ref", "-d", reference});
                 if (removed.exit_code != 0) {
                     error = "could not remove repository ref " + reference;
                     return false;
                 }
             }
         }
-        if (hidden_git({"git", "-C", repository.string(), "reflog", "expire", "--expire=now", "--all"}).exit_code != 0 ||
-            hidden_git({"git", "-C", repository.string(), "gc", "--prune=now"}).exit_code != 0) {
+        if (hidden_git({"git", "-C", repository_utf8, "reflog", "expire", "--expire=now", "--all"}).exit_code != 0 ||
+            hidden_git({"git", "-C", repository_utf8, "gc", "--prune=now"}).exit_code != 0) {
             error = "could not prune repository history";
             return false;
         }
         const auto remaining_refs = hidden_git(
-            {"git", "-C", repository.string(), "for-each-ref", "--format=%(refname)"});
-        const auto unreachable = hidden_git({"git", "-C", repository.string(), "fsck", "--unreachable"});
+            {"git", "-C", repository_utf8, "for-each-ref", "--format=%(refname)"});
+        const auto unreachable = hidden_git({"git", "-C", repository_utf8, "fsck", "--unreachable"});
         if (!depth_one_cli_repository(repository) || remaining_refs.exit_code != 0 ||
             !first_token(remaining_refs.output).empty() || unreachable.exit_code != 0 ||
             !first_token(unreachable.output).empty()) {

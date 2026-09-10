@@ -4,6 +4,7 @@
 #include <atomic>
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <thread>
 
@@ -88,7 +89,20 @@ int main() {
     const auto moved_cache_root = std::filesystem::temp_directory_path() / "baas-installer-source-ranking-moved";
     std::filesystem::remove_all(cache_root);
     std::filesystem::remove_all(moved_cache_root);
+    const auto unsafe_cache = cache_root / "user-owned-ranking.json";
+    std::filesystem::create_directories(cache_root);
+    std::ofstream(unsafe_cache) << "user-data";
+    baas_installer::save_source_ranking(
+        unsafe_cache, baas_installer::SourceKind::MainGit, ranked);
+    std::string unsafe_contents;
+    std::ifstream(unsafe_cache) >> unsafe_contents;
+    if (unsafe_contents != "user-data") {
+        std::cerr << "source ranking overwrote a path outside installer-owned state\n";
+        return 1;
+    }
     const auto cache = cache_root / ".baas-installer" / "source-ranking-v1.json";
+    std::filesystem::create_directories(cache.parent_path());
+    std::ofstream(cache.parent_path() / "installer.lock") << "owned-state\n";
     auto main_ranking = ranked;
     main_ranking.front().preferred = true;
     main_ranking.front().commit = "0123456789012345678901234567890123456789";
