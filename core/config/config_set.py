@@ -3,6 +3,7 @@ import os
 import re
 from core.config.generated_user_config import Config
 from core.config.generated_static_config import StaticConfig
+from core.config.shop_catalog import migrate_tactical_challenge_shop_list
 from gui.util.customized_ui import BoundComponent
 from gui.util.translator import baasTranslator as bt
 from dataclasses import asdict
@@ -43,6 +44,11 @@ class ConfigSet:
         with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
             self.config = Config(**json.load(f))
         self.server_mode = self.get_server_mode(self.config.server)
+        goods = self.config.TacticalChallengeShopList
+        migrated = migrate_tactical_challenge_shop_list(self.server_mode, goods)
+        if migrated != goods:
+            self.config.TacticalChallengeShopList = migrated
+            self.save()
 
     @staticmethod
     def get_server_mode(server):
