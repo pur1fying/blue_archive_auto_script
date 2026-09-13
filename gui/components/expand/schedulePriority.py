@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QGridLayo
 from qfluentwidgets import LineEdit, PushButton
 
 from gui.util import notification
+from core.config.lesson_catalog import normalize_lesson_preferences
 
 
 class StateButton(PushButton):
@@ -92,14 +93,14 @@ class Layout(QWidget):
         self.__init_layouts()
 
     def check_config_validation(self):
-        if len(self.priority_list) != len(self.lesson_names):
-            self.priority_list = [1] * len(self.lesson_names)
+        times, priorities = normalize_lesson_preferences(
+            self.priority_list, self.needed_levels, len(self.lesson_names)
+        )
+        if times != self.priority_list:
+            self.priority_list = times
             self.config.set('lesson_times', self.priority_list)
-        if len(self.needed_levels) != len(self.lesson_names):
-            temp = []
-            for _ in range(len(self.lesson_names)):
-                temp.append(self.item_levels)
-            self.needed_levels = temp
+        if priorities != self.needed_levels:
+            self.needed_levels = priorities
             self.config.set('lesson_each_region_object_priority', self.needed_levels)
 
     def Slot_for_accept_favor_student(self):

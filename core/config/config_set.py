@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from core.config.lesson_catalog import normalize_lesson_preferences
 from core.config.generated_user_config import Config
 from core.config.generated_static_config import StaticConfig
 from gui.util.customized_ui import BoundComponent
@@ -43,6 +44,17 @@ class ConfigSet:
         with open(os.path.join(self.config_dir, "config.json"), 'r', encoding='utf-8') as f:
             self.config = Config(**json.load(f))
         self.server_mode = self.get_server_mode(self.config.server)
+        region_count = len(self.static_config.lesson_region_name['Global_en-us'])
+        if (self.server_mode == 'Global' and region_count == 12 and
+                len(self.config.lesson_times) == 11):
+            times, priorities = normalize_lesson_preferences(
+                self.config.lesson_times,
+                self.config.lesson_each_region_object_priority,
+                region_count
+            )
+            self.config.lesson_times = times
+            self.config.lesson_each_region_object_priority = priorities
+            self.save()
 
     @staticmethod
     def get_server_mode(server):
