@@ -3507,7 +3507,8 @@ STATIC_DEFAULT_CONFIG = '''
           "Hyakkiyako Central Area",
           "D.U. Shiratori City",
           "Shanhaijing Main Special Zone",
-          "Haruhabara Electric Town"
+          "Haruhabara Electric Town",
+          "Wildhunt Integrated Arts District"
       ],
       "Global_zh-tw": [
           "夏萊辦公室",
@@ -3515,12 +3516,13 @@ STATIC_DEFAULT_CONFIG = '''
           "格黑娜學園中央區",
           "阿拜多斯高中",
           "千年研究區域",
-          "三一廣場臨",
+          "三一廣場",
           "赤冬聯邦學園",
           "百鬼夜行中心部",
           "D.U.白鳥區",
           "山海經中央特區",
-          "春葉原"
+          "春葉原",
+          "狂獵綜合藝術區"
       ],
       "Global_ko-kr": [
             "살레 업무관",
@@ -3533,7 +3535,8 @@ STATIC_DEFAULT_CONFIG = '''
             "백귀야행 중심부",
             "D.U.시라토리구",
             "산해경 중앙특구",
-            "하루하바라 전자상가"
+            "하루하바라 전자상가",
+            "와일드헌트 종합 예술 지구"
       ],
       "JP": [
           "シャーレオフィス",
