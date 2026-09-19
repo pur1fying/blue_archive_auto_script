@@ -53,12 +53,16 @@ def to_purchase_pyroxenes_menu(self):
 
 
 def to_jp_daily_free_product(self):
+    general_selected = [
+        "main_page_purchase-pyroxenes-general-selected-1",
+        "main_page_purchase-pyroxenes-general-selected-2",
+    ]
     picture.co_detect(
         self,
         None,
         None,
-        "main_page_purchase-pyroxenes-general-selected",
-        {"main_page_purchase-pyroxenes-menu": (130, 251)},
+        general_selected,
+        {"main_page_purchase-pyroxenes-menu": (130, 318)},
         skip_first_screenshot=True,
     )
     picture.co_detect(
@@ -66,7 +70,7 @@ def to_jp_daily_free_product(self):
         None,
         None,
         "main_page_purchase-pyroxenes-daily-selected",
-        {"main_page_purchase-pyroxenes-general-selected": (885, 100)},
+        {feature: (885, 100) for feature in general_selected},
         skip_first_screenshot=True,
     )
 
