@@ -1,0 +1,47 @@
+{
+  "id": "hoard_ap",
+  "name": "囤体",
+  "version": "1.1.0",
+  "summary": "高产日囤满角色体力 + 邮箱近过期 + 到点花体",
+  "icon": "HEART",
+  "category": "planner",
+  "order": 10,
+  "kind": "scheduler",
+  "entry": "module.tools.hoard_ap.tool:HoardApTool",
+  "ui": "gui.components.expand.hoardApConfig:Layout",
+  "permissions": ["scheduler", "device", "ocr"],
+  "scheduler": {
+    "event_name": "囤体",
+    "func_name": "hoard_ap",
+    "owns_funcs": true,
+    "priority": -3,
+    "interval": 300,
+    "daily_reset": [[20, 0, 0]]
+  },
+  "intercept": {
+    "custom": true,
+    "always_allow": ["hoard_ap", "restart"],
+    "funcs": [
+      "mail",
+      "collect_daily_power",
+      "collect_daily_free_power",
+      "group",
+      "tactical_challenge_shop",
+      "purchase_ap",
+      "normal_task",
+      "hard_task",
+      "activity_sweep",
+      "clear_special_task_power",
+      "scrimmage",
+      "collect_reward"
+    ]
+  },
+  "home": {
+    "slot": "below_title",
+    "order": 10
+  },
+  "config_prefix": "hoard_ap_",
+  "enabled_by_default": false,
+  "show_in_lobby": true,
+  "home_hooks": ["prefer_clear"]
+}
