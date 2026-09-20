@@ -3555,7 +3555,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "FromOpera0068WithLove",
+        "CN": "JP_2025_06_25",
         "Global": "PlayBallAimforaGrandSlamHomeRun",
         "JP": "HighlanderRailroadExplosionIncident"
     },
