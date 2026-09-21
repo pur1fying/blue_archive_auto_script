@@ -3,10 +3,16 @@ name = "blue_archive_auto_script"
 version = "1.4.3"
 description = "用于实现蔚蓝档案自动化"
 authors = [{ name = "pur1fying", email = "2274916027@qq.com" }]
-dependencies = [
+dependencies = []
+requires-python = ">=3.9"
+readme = "README.md"
+license = { text = "GPL-3.0-only" }
+
+[project.optional-dependencies]
+pyqt = [
+    "setuptools <= 80.10.2",
     "lmdb",
-    "pyqt5==5.15.11",
-    "pyqt5-qt5==5.15.2",
+    "PyQt5 == 5.15.11",
     "numpy < 2.0",
     "av == 12.0.0",
     "imgaug",
@@ -17,7 +23,7 @@ dependencies = [
     "PyQt-Fluent-Widgets == 1.2.0",
     "pyinstaller",
     "requests",
-    "dulwich",
+    "pygit2",
     "psutil",
     "tqdm",
     "tomli == 2.2.1",
@@ -25,8 +31,41 @@ dependencies = [
     "PyAutoGUI == 0.9.54",
     "mss == 10.0.0",
     "rich >= 14.2.0",
-    "setuptools <= 80.10.2"
 ]
-requires-python = ">=3.9"
-readme = "README.md"
-license = { text = "GPL-3.0-only" }
+
+service = [
+    "numpy < 2.0",
+    "av == 12.0.0",
+    "setuptools == 80.10.2",
+    "adbutils == 2.2.1",
+    "uiautomator2 == 2.16.23",
+    "opencv-python == 4.8.1.78",
+    "psutil",
+    "requests",
+    "rich >= 14.2.0",
+    "tomli == 2.2.1",
+    "tomli_w == 1.2.0",
+    "mss == 10.0.0",
+    "PyAutoGUI == 0.9.54",
+    "pygit2",
+    "fastapi",
+    "uvicorn",
+    "websockets",
+    "watchfiles",
+    "cryptography",
+    "PyNaCl",
+]
+
+i18n = [
+    "bs4",
+    "lxml",
+    "translators",
+]
+
+test = [
+    "pytest",
+    "httpx",
+]
+
+[tool.pytest.ini_options]
+addopts = "-p no:cacheprovider"
