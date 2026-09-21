@@ -158,14 +158,66 @@ def get_challenge_state(self, challenge_count=1) -> list[int]:
     return result
 
 
-def convert_team_config(self: Baas_thread) -> dict:
-    employ_method = self.config.choose_team_method
+def plan_to_pairs(plan) -> dict:
+    """auto_push 新编队表格状态 -> [来源, 槽位] 对的属性池。
+
+    plan 形如 {"side": [{"use":bool,"attr":属性}x4], "preset1": [...x5], ...}。
+    点亮+选属性 -> 属性池；点亮+未选属性(Unused) -> "default" 池（按位置
+    点击、用该位现有队伍）；未点亮不进池。全不点亮=空池（用当前队伍）。
+    侧栏 -> [0, 格1-4]（开战前点侧栏第几格）；预设K -> [K, 队1-4]
+    （开战前打开预设K、选第几队）。全未点亮 = 空池，默认用当前队伍。
+    """
     team_config = {"burst": [], "pierce": [], "mystic": [], "shock": []}
+    default_pool: list = []
+    if not isinstance(plan, dict):
+        return team_config
+    for src in ("side", "preset1", "preset2", "preset3", "preset4"):
+        slots = plan.get(src)
+        if not isinstance(slots, list):
+            continue
+        # 侧栏只有 4 格；预设每列最多 5 队（与游戏内预设列一致）
+        cap = 4 if src == "side" else 5
+        for j, item in enumerate(slots[:cap]):
+            if not isinstance(item, dict) or not item.get("use"):
+                continue
+            attr = item.get("attr")
+            pair = [0, j + 1] if src == "side" else [int(src[-1]), j + 1]
+            if attr in team_config:
+                # 点亮且选了属性 -> 进对应属性池
+                team_config[attr].append(pair)
+            else:
+                # 点亮但未选属性（Unused）-> 默认队池：按位置点，用该位现有队伍
+                default_pool.append(pair)
+    team_config["default"] = default_pool
+    return team_config
+
+
+def convert_team_config(self: Baas_thread) -> dict:
+    team_config = {"burst": [], "pierce": [], "mystic": [], "shock": []}
+    try:
+        plan = self.config.get("tool_auto_push_team_plan")
+    except Exception:
+        plan = None
+    if isinstance(plan, dict) and plan:
+        # 新编队表格：侧栏 / 预设1-4 混合池（auto_push 表格完成一切）
+        team_config = plan_to_pairs(plan)
+        # 表格全未点亮 = 「用当前队伍直接打」（表格旧 default 语义）。该语义
+        # 经 keep_current 标记传递给 employ_units，不占用上游 choose_team_method
+        # 键——上游编队面板只认 preset/side/order，写入 default 会断言失败。
+        if not any(
+            isinstance(item, dict) and item.get("use")
+            for col in plan.values()
+            for item in (col if isinstance(col, list) else [])
+        ):
+            team_config["keep_current"] = True
+        return team_config
+    employ_method = self.config.choose_team_method
     teamData = self.config.side_team_attribute if employ_method == "side" else self.config.preset_team_attribute
     for i, team in enumerate(teamData):
         for j, attr in enumerate(team):
             if attr in team_config:
                 team_config[attr].append([0 if employ_method == "side" else i + 1, j + 1])
+    team_config["default"] = []
     return team_config
 
 
@@ -409,6 +461,15 @@ def run_task_action(self, actions):
 
 def employ_units(self, choose_team_method: str, task_data: dict, team_config: dict) -> bool:
     self.logger.info(f"Employ team method: {choose_team_method}.")
+    # 表格「用当前队伍」标记（convert_team_config 打的）优先；pop 掉防止
+    # 被下面的属性池迭代当成属性键。
+    keep_current = False
+    if isinstance(team_config, dict):
+        keep_current = bool(team_config.pop("keep_current", False))
+    if choose_team_method == "default" or keep_current:
+        # 新表格全未点亮：不调整编队，用当前已设置队伍直接开打
+        self.logger.info("Default team: keep current formation and start fight.")
+        return True
     attribute_type_fallbacks = {"burst": "mystic", "mystic": "shock", "shock": "pierce", "pierce": "burst"}
 
     employ_pos: list[list[int]] = []
@@ -427,7 +488,8 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
         total_available = sum([len(preset) for attribute, preset in team_config.items()])
 
         unit_need = len([attribute for attribute, info in task_data["start"] if attribute != "swipe"])
-        if total_available < unit_need:
+        default_pool = team_config.get("default") or []
+        if total_available + len(default_pool) < unit_need:
             self.logger.error(
                 f"Employ failed: Insufficient presets. Currently used: {unit_need}, total available: {total_available}")
             self.logger.warning("Try using 'order' method to employ team.")
@@ -439,11 +501,22 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
 
             # switch to the next attribute available.
             cur_attribute = attribute
+            exhausted = 0
             while unit_available[cur_attribute] == unit_used[cur_attribute]:
                 cur_attribute = attribute_type_fallbacks[cur_attribute]
-
-            employ_pos.append(team_config[cur_attribute][unit_used[cur_attribute]])
-            unit_used[cur_attribute] += 1
+                exhausted += 1
+                if exhausted > len(attribute_type_fallbacks):
+                    break
+            if unit_available[cur_attribute] > unit_used[cur_attribute]:
+                employ_pos.append(team_config[cur_attribute][unit_used[cur_attribute]])
+                unit_used[cur_attribute] += 1
+            elif default_pool:
+                # 属性池全空 -> 用「点亮但未选属性」的默认队池
+                employ_pos.append(default_pool.pop(0))
+            else:
+                # 各属性池与默认池都耗尽：order 兜底（占位按本格顺序取侧栏第 N 格）
+                self.logger.warning("Attribute pools and default pool exhausted; order fallback.")
+                employ_pos.append([0, len(employ_pos) + 1])
 
     employed = 0
     for command, info in task_data["start"]:

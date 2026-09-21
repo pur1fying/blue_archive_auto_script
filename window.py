@@ -19,6 +19,7 @@ from qfluentwidgets import (SubtitleLabel, setFont)
 from core.config import default_config
 from gui.components.dialog_panel import CreateSettingMessageBox
 from gui.fragments.process import ProcessFragment
+from gui.fragments.tools import ToolsFragment
 from gui.fragments.readme import ReadMeWindow
 from gui.util import notification
 from gui.util.config_gui import configGui, COLOR_THEME
@@ -434,12 +435,14 @@ class Window(MSFluentWindow):
         self._sub_list = [[HomeFragment(parent=self, config=x) for x in self.config_dir_list],
                           [ProcessFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SwitchFragment(parent=self, config=x) for x in self.config_dir_list],
+                          [ToolsFragment(parent=self, config=x) for x in self.config_dir_list],
                           [SettingsFragment(parent=self, config=x) for x in self.config_dir_list]]
         # _sc_list = [SwitchFragment(parent=self, config_dir=x) for x in config_dir_list]
         self.homeInterface = self._sub_list[0][0]
         self.processInterface = self._sub_list[1][0]
         self.schedulerInterface = self._sub_list[2][0]
-        self.settingInterface = self._sub_list[3][0]
+        self.toolsInterface = self._sub_list[3][0]
+        self.settingInterface = self._sub_list[4][0]
         self.globalInterface = GlobalFragment(parent=self, config=self.config_dir_list[0])
         # self.processInterface = ProcessFragment()
         # self.navigationInterface..connect(self.onNavigationChanged)
@@ -477,6 +480,9 @@ class Window(MSFluentWindow):
             self.addSubInterface(self.homeInterface, FIF.HOME, self.tr('主页')),
             self.addSubInterface(self.processInterface, FIF.CALENDAR, self.tr('调度')),
             self.addSubInterface(self.schedulerInterface, FIF.CALENDAR, self.tr('配置')),
+            self.addSubInterface(self.toolsInterface,
+                                 getattr(FIF, 'DEVELOPER_TOOLS', None) or getattr(FIF, 'APPLICATION', None)
+                                 or getattr(FIF, 'TILES', FIF.SETTING), self.tr('工具')),
             self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置')),
             self.addSubInterface(self.globalInterface, FIF.UPDATE, self.tr('更新设置'))
         ]
@@ -587,12 +593,14 @@ class Window(MSFluentWindow):
             from gui.fragments.home import HomeFragment
             from gui.fragments.switch import SwitchFragment
             from gui.fragments.settings import SettingsFragment
+            from gui.fragments.tools import ToolsFragment
             _config.add_signal("notify_signal", self.notify_signal)
             _config.set_window(self)
             _sub_list_ = [
                 HomeFragment(parent=self, config=_config),
                 ProcessFragment(parent=self, config=_config),
                 SwitchFragment(parent=self, config=_config),
+                ToolsFragment(parent=self, config=_config),
                 SettingsFragment(parent=self, config=_config)
             ]
             for i in range(0, len(_sub_list_)):
