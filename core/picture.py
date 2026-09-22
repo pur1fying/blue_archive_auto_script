@@ -122,8 +122,8 @@ def co_detect(
                         # avoid duplicated clicks
 
                         break
-                    self.logger.info(f"RGB feature: {rgb_feature} -> Click @ ({click[0]},{click[1]})")
                     if click[0] >= 0 and click[1] >= 0:
+                        self.logger.info(f"RGB feature: {rgb_feature} -> Click @ ({click[0]},{click[1]})")
                         self.last_click_time = current_time
                         self.click(click[0], click[1])
                         self.last_click_position = (click[0], click[1])
@@ -140,8 +140,8 @@ def co_detect(
                         and self.last_click_position[0] == click[0] and self.last_click_position[1] == click[1]
                         and self.last_click_name == img_feature):
                         break
-                    self.logger.info(f"Image feature: {img_feature} -> Click @ ({click[0]},{click[1]})")
                     if click[0] >= 0 and click[1] >= 0:
+                        self.logger.info(f"Image feature: {img_feature} -> Click @ ({click[0]},{click[1]})")
                         self.last_click_time = feature_last_appear_time
                         self.click(click[0], click[1])
                         self.last_click_position = (click[0], click[1])

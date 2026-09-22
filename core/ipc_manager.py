@@ -1,9 +1,12 @@
 import cv2
 import numpy as np
 import os
-from multiprocessing import shared_memory
+from core.utils import host_platform_is_android
 from core.exception import SharedMemoryError
-
+if host_platform_is_android():
+    shared_memory = None
+else:
+    from multiprocessing import shared_memory
 
 class SharedMemory:
     shm_map = {}

@@ -52,3 +52,7 @@ class Control:
 
     def scroll(self, x, y, clicks):
         self.control_instance.scroll(x, y, clicks)
+
+    def set_display_id(self, display_id):
+        if hasattr(self.control_instance, 'set_display_id'):
+            self.control_instance.set_display_id(display_id)

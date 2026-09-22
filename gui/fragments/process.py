@@ -12,6 +12,7 @@ from gui.components import expand
 from gui.util.config_gui import configGui, COLOR_THEME
 from gui.util.style_sheet import StyleSheet
 from gui.util.translator import baasTranslator as bt
+from core.utils import host_platform_is_android
 
 lock = threading.Lock()
 DISPLAY_CONFIG_PATH = './config/display.json'
@@ -93,6 +94,13 @@ class ProcessFragment(ScrollArea):
         self.VBoxLayout.addLayout(self.titleLineLayout)
         self.VBoxLayout.addLayout(self.HBoxLayout)
         self.displayWidget.setLayout(self.VBoxLayout)
+
+        if host_platform_is_android():
+            self.label_running.setVisible(False)
+            self.on_status.setVisible(False)
+            self.label_queuing.setVisible(False)
+            self.listWidget.setVisible(False)
+            self.displayWidget.setFixedHeight(0)
 
         feature_panel = expand.__dict__['featureSwitch'].Layout(config=config)
         self.VBoxWrapperLayout.addWidget(self.displayWidget)
